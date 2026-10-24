@@ -869,7 +869,7 @@ static partial class ModelBuilder
 
         foreach (var reaction in model.Records.Where(record => record.Type == "reaction"))
         {
-            if (!reaction.Ids("issues").Contains(useCase.Id, StringComparer.Ordinal))
+            if (!reaction.EdgeIds("issues").Contains(useCase.Id, StringComparer.Ordinal))
             {
                 continue;
             }

@@ -81,6 +81,35 @@ sealed class Record
         ];
     }
 
+    /// <summary>
+    ///     Reads the targets of one edge verb (issues, sends, publishes, calls): the entries of
+    ///     <c>effects</c> carrying the verb, then a top-level field of the same name.
+    /// </summary>
+    public IReadOnlyList<string> EdgeIds(string verb)
+    {
+        var ids = new List<string>();
+
+        if (Raw.ValueKind == JsonValueKind.Object
+            && Raw.TryGetProperty("effects", out var effects)
+            && effects.ValueKind == JsonValueKind.Array)
+        {
+            foreach (var entry in effects.EnumerateArray())
+            {
+                if (entry.ValueKind == JsonValueKind.Object
+                    && entry.TryGetProperty(verb, out var target)
+                    && target.ValueKind == JsonValueKind.String
+                    && target.GetString() is { Length: > 0 } id)
+                {
+                    ids.Add(id);
+                }
+            }
+        }
+
+        ids.AddRange(Ids(verb));
+
+        return ids;
+    }
+
     /// <summary>Reads one field that holds one id or an array of ids.</summary>
     public IReadOnlyList<string> Ids(string name)
     {

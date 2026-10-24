@@ -370,7 +370,7 @@ static class CodeChecks
     {
         var found = new List<Record>();
 
-        foreach (var id in record.Ids("issues"))
+        foreach (var id in record.EdgeIds("issues"))
         {
             if (model.ById.TryGetValue(id, out var useCase) && useCase.Type == "use-case")
             {
@@ -482,14 +482,14 @@ static class CodeChecks
     {
         var edges = new List<(string Verb, string Target)>();
 
-        foreach (var id in record.Ids("issues"))
+        foreach (var id in record.EdgeIds("issues"))
         {
             edges.Add(("issues", id));
         }
 
         if (record.Type == "reaction")
         {
-            foreach (var id in record.Ids("sends"))
+            foreach (var id in record.EdgeIds("sends"))
             {
                 edges.Add(("sends", id));
             }

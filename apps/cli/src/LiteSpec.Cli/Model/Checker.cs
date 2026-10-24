@@ -1127,7 +1127,7 @@ static partial class Checker
         if (scenario.PageId is not null
             && model.ById.TryGetValue(scenario.PageId, out var page)
             && page.Type == "reaction"
-            && page.Ids("issues").FirstOrDefault() is { } issued
+            && page.EdgeIds("issues").FirstOrDefault() is { } issued
             && model.ById.TryGetValue(issued, out var target)
             && target.Type == "use-case"
             && Identifiers.TrySplit(issued, out _, out _, out var operation))

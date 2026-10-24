@@ -172,6 +172,22 @@ public sealed class CodeCheckTests
     }
 
     [Fact]
+    public void Reaction_Dispatching_Against_An_Effects_Entry_Passes()
+    {
+        using var temp = Cli.Temp("checks");
+        var file = Path.Combine(temp.Path, "LoanBorrowedReaction.cs");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.md"), """{"status": "reviewed", "kind": "command"}"""),
+            TestModel.Record("reaction", "reaction/lending.notify-on-borrow", Path.Combine(temp.Path, "notify.md"), """{"status": "reviewed", "on": ["event/loan.loan-borrowed"], "effects": [{"issues": "use-case/lending.borrow-copy"}]}"""));
+        model.Code.Reactions.Add(new ReactionInfo(
+            "LoanBorrowedReaction", file, 3, "reaction", null, "reaction/lending.notify-on-borrow",
+            Dispatches: [new CodeDispatch("issues", "BorrowCopyCommand", "", file, 9)]));
+
+        Assert.DoesNotContain("effect-undeclared", TestModel.Codes(model));
+    }
+
+    [Fact]
     public void Handler_Dispatching_Through_A_Helper_Names_The_Helper()
     {
         using var temp = Cli.Temp("checks");

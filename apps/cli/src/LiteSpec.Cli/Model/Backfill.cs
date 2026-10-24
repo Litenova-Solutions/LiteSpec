@@ -284,7 +284,7 @@ static class Backfill
 
         // A reaction holds exactly one of issues and sends, so an edge is drafted only
         // when neither is declared, from the first dispatch in code order that resolves.
-        if (record.Ids("issues").Count == 0 && record.Ids("sends").Count == 0)
+        if (record.EdgeIds("issues").Count == 0 && record.EdgeIds("sends").Count == 0)
         {
             var module = HomeOf(record.Id);
 
@@ -318,7 +318,7 @@ static class Backfill
     {
         var reads = MissingReads(facts, record, placed);
         var module = HomeOf(record.Id);
-        var declared = new HashSet<string>(record.Ids("issues"), StringComparer.Ordinal);
+        var declared = new HashSet<string>(record.EdgeIds("issues"), StringComparer.Ordinal);
         var issues = new List<string>();
 
         // A job declares issues only; any other dispatch shape stays for a person to place.
@@ -470,8 +470,8 @@ static class Backfill
         record.Type switch
         {
             "use-case" => DeclaredEffects(record).Count > 0,
-            "reaction" => record.Ids("issues").Count + record.Ids("sends").Count > 0,
-            "job" => record.Ids("issues").Count > 0,
+            "reaction" => record.EdgeIds("issues").Count + record.EdgeIds("sends").Count > 0,
+            "job" => record.EdgeIds("issues").Count > 0,
             _ => false,
         };
 
