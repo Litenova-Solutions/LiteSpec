@@ -58,6 +58,7 @@ public sealed class ModelCheckTests
         "transition-unresolved",
         "use-case-name-clash",
         "use-case-unimplemented",
+        "use-case-verb-unknown",
         "use-case-without-scenario",
         "use-case-without-success",
         "widening-unjustified",

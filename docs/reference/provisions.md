@@ -6,7 +6,7 @@ Use this generated page to resolve a provision ID to its heading, owning page, a
 
 Run `litespec provisions` after any provision change. The repository validator fails when this page and the active standards disagree.
 
-The active release states 1553 provisions across 6 areas.
+The active release states 1554 provisions across 6 areas.
 
 ## backend
 
@@ -447,6 +447,7 @@ The active release states 1553 provisions across 6 areas.
 | litespec/core/behavior#route-every-external-erasure-through-an-operation-or-event | [Route Every External Erasure Through an Operation or Event](../core/behavior.md#route-every-external-erasure-through-an-operation-or-event) | rule | guidance | Each external system declares its erasure call, forwarding event, or impossible reason with acceptance. |
 | litespec/core/behavior#schedule-every-data-class-for-retention | [Schedule Every Data Class for Retention](../core/behavior.md#schedule-every-data-class-for-retention) | rule | checkable | `litespec model check` reports `retention-without-enforcement` for a retention row nothing enforces. |
 | litespec/core/behavior#serve-static-content-through-served-content | [Serve Static Content Through Served Content](../core/behavior.md#serve-static-content-through-served-content) | rule | guidance | Each static script or legal text sits as served content with path, content type, cache control, and versioning. |
+| litespec/core/behavior#start-every-use-case-with-a-declared-verb | [Start Every Use Case with a Declared Verb](../core/behavior.md#start-every-use-case-with-a-declared-verb) | rule | checkable | `litespec model check` reports `use-case-verb-unknown` for a use-case name starting outside the declared verbs; a project with no vocabulary reports nothing. |
 | litespec/core/behavior#state-each-event-with-meaning-and-carries | [State Each Event with Meaning and Carries](../core/behavior.md#state-each-event-with-meaning-and-carries) | rule | checkable | `litespec consumer` fails an event entry without `meaning` or `carries`. |
 | litespec/core/behavior#state-each-process-step-with-its-compensation | [State Each Process Step with Its Compensation](../core/behavior.md#state-each-process-step-with-its-compensation) | rule | checkable | `litespec consumer` fails a process step without a compensation use case or `none` with its reason. |
 | litespec/core/behavior#state-each-rule-with-its-kind | [State Each Rule with Its Kind](../core/behavior.md#state-each-rule-with-its-kind) | rule | checkable | `litespec consumer` fails a rule entry without `kind` or `statement`. |

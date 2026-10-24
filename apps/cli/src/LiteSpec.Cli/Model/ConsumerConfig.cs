@@ -52,6 +52,19 @@ sealed class ConsumerConfig
     public IReadOnlyDictionary<string, string> RefusalAliases { get; private set; } =
         new Dictionary<string, string>(StringComparer.Ordinal);
 
+    /// <summary>The closed verb list a use-case name starts with.</summary>
+    public IReadOnlyList<string> Verbs { get; private set; } = [];
+
+    /// <summary>Multi-word verbs counted as one use-case opening.</summary>
+    public IReadOnlyList<string> PhrasalVerbs { get; private set; } = [];
+
+    /// <summary>Retired synonyms mapped to their replacement verb, by synonym.</summary>
+    public IReadOnlyDictionary<string, string> RetiredVerbs { get; private set; } =
+        new Dictionary<string, string>(StringComparer.Ordinal);
+
+    /// <summary>Whether the declaration names a use-case verb vocabulary.</summary>
+    public bool HasVocabulary { get; private set; }
+
     /// <summary>The backend layers.</summary>
     public string ApplicationRoot { get; private set; } = "";
 
@@ -257,6 +270,15 @@ sealed class ConsumerConfig
             config.RefusalAliases = ReadAliases(refusals);
         }
 
+        if (document.RootElement.TryGetProperty("vocabulary", out var vocabulary)
+            && vocabulary.ValueKind == JsonValueKind.Object)
+        {
+            config.HasVocabulary = true;
+            config.Verbs = ReadNames(vocabulary, "verbs");
+            config.PhrasalVerbs = ReadNames(vocabulary, "phrasal");
+            config.RetiredVerbs = ReadRetired(vocabulary);
+        }
+
         if (document.RootElement.TryGetProperty("adoption", out var adoption)
             && adoption.ValueKind == JsonValueKind.Object
             && adoption.TryGetProperty("transcriptionEndsWith", out var ends)
@@ -333,6 +355,29 @@ sealed class ConsumerConfig
         }
 
         return aliases;
+    }
+
+    /// <summary>The retired verb map: each retired synonym with its replacement verb.</summary>
+    private static IReadOnlyDictionary<string, string> ReadRetired(JsonElement vocabulary)
+    {
+        var retired = new Dictionary<string, string>(StringComparer.Ordinal);
+
+        if (vocabulary.TryGetProperty("retired", out var table)
+            && table.ValueKind == JsonValueKind.Object)
+        {
+            foreach (var entry in table.EnumerateObject())
+            {
+                if (entry.Name.Length > 0
+                    && entry.Value.ValueKind == JsonValueKind.String
+                    && entry.Value.GetString() is { Length: > 0 } replacement
+                    && !retired.ContainsKey(entry.Name))
+                {
+                    retired.Add(entry.Name, replacement);
+                }
+            }
+        }
+
+        return retired;
     }
 
     private static IReadOnlyList<string> ReadHandles(JsonElement entry) =>

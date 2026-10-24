@@ -31,6 +31,7 @@ LiteSpec 3.0.0 is a top-down specification standard for one bounded-context busi
 - An integration fact that drives a use case or rule confirms its scenario or rule claim from inside the host.
 - An `effect-undeclared` finding names a one-hop helper as `via 'Type.Method'`.
 - A term's `labels` sit outside the approval hash, so adding a language reopens no approval.
+- A project declares its use-case verb vocabulary in `vocabulary`: `verbs`, `phrasal` verbs counted as one, and `retired` synonyms with their replacement, checked by `use-case-verb-unknown`.
 
 ### Tools
 

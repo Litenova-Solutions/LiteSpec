@@ -156,6 +156,31 @@
         }
       }
     },
+    "vocabulary": {
+      "description": "The closed verb vocabulary use-case names start with. When declared, every use-case name opens with a listed verb or phrasal verb.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "verbs": {
+          "description": "The single-word verbs a use-case name may start with.",
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string", "pattern": "^[a-z][a-z0-9]*$" }
+        },
+        "phrasal": {
+          "description": "Multi-word verbs counted as one opening, such as check-in.",
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string", "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)+$" }
+        },
+        "retired": {
+          "description": "Retired synonyms mapped to their replacement verb.",
+          "type": "object",
+          "propertyNames": { "pattern": "^[a-z][a-z0-9]*$" },
+          "additionalProperties": { "type": "string", "pattern": "^[a-z][a-z0-9]*$" }
+        }
+      }
+    },
     "adoption": {
       "description": "The adoption transcription mode this project still runs under, if any. After the named decision is approved, no Behavior record may stay transcribed.",
       "type": "object",

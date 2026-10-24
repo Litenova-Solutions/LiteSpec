@@ -464,6 +464,14 @@ The specification names only what carries business meaning. Child entities and v
 
 **Rationale:** The kind decides what the use case is allowed to touch: a command changes, a query reads. A use case with no kind leaves each reader to allow it everything, and the checks no shape to confirm. When-X-do-Y behavior is a reaction record, and work without a request is a job record.
 
+### Start Every Use Case with a Declared Verb
+
+**Statement:** Each use case MUST start with a verb from the project vocabulary declared in `litespec.project.json`.
+
+**Rationale:** One verb per meaning keeps use cases findable: `read` versus `get` and `change` versus `update` stop competing when the project declares one closed list with its phrasal verbs and retired synonyms. A shared first word groups related behavior in every listing, and a retired synonym points at its replacement instead of spreading silently. The `use-case-verb-unknown` check reports a use-case name starting outside the declared verbs, and a project with no vocabulary is not checked.
+
+**Example:** The vocabulary declares `verbs: ["borrow", "list", "change"]`, `phrasal: ["check-in"]`, and `retired: {"update": "change"}`, so `use-case/lending.borrow-copy` passes while `use-case/lending.update-copy` is told to use `change`.
+
 ### Connect Each Use Case to Intent
 
 **Statement:** Each use case MUST name a journey step in `serves` or a requirement in `fulfills`.
@@ -820,6 +828,7 @@ This informative example demonstrates `litespec/core/behavior#declare-the-kind-o
 | litespec/core/behavior#publish-every-outbound-integration-event-from-effects | checkable | `litespec model check` reports `effect-undeclared` for an emitted integration event no record declares in effects. |
 | litespec/core/behavior#reach-every-inbound-integration-event-through-a-webhook | guidance | Each inbound integration event names a webhook entry point as its door. |
 | litespec/core/behavior#give-each-use-case-a-command-or-query-kind | checkable | `litespec consumer` fails a use-case page without `kind` or with an unknown kind. |
+| litespec/core/behavior#start-every-use-case-with-a-declared-verb | checkable | `litespec model check` reports `use-case-verb-unknown` for a use-case name starting outside the declared verbs; a project with no vocabulary reports nothing. |
 | litespec/core/behavior#connect-each-use-case-to-intent | checkable | `litespec model check` reports `record-orphaned` for a use case with neither `serves` nor `fulfills`. |
 | litespec/core/behavior#grant-each-use-case-scoped-access | checkable | `litespec consumer` fails a use-case page without `access` carrying `auth`, grant, and tenant scope. |
 | litespec/core/behavior#name-the-entry-points-that-reach-each-use-case | checkable | `litespec model check` reports `reference-unresolved` for a `reachedThrough` entry naming no entry point. |

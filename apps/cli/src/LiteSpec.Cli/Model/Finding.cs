@@ -43,6 +43,7 @@ sealed record Finding(string Code, string Message, string Path, int Line, string
             ["gap-unknown-check"] = "G",
             ["aggregate-name-clash"] = "G",
             ["use-case-name-clash"] = "G",
+            ["use-case-verb-unknown"] = "G",
             ["reaction-trigger-unresolved"] = "G",
             ["erasure-undeclared"] = "G",
             ["record-orphaned"] = "G",

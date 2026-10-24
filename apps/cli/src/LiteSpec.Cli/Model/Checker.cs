@@ -14,7 +14,7 @@ static partial class Checker
     public static readonly HashSet<string> Codes = new(StringComparer.Ordinal)
     {
         "record-shape", "invalid-field", "identifier-form", "identifier-duplicate",
-        "use-case-name-clash", "reference-unresolved", "draft-gate",
+        "use-case-name-clash", "use-case-verb-unknown", "reference-unresolved", "draft-gate",
         "owner-unknown", "draft-without-decider", "known-gap-expired", "gap-unknown-check",
         "rule-name-negation", "use-case-without-success", "scenario-result-unresolved",
         "refusal-not-thrown", "use-case-unimplemented", "proves-unconfirmed",
@@ -63,6 +63,7 @@ static partial class Checker
 
         Time("schema", () => CheckSchema(model, findings, owners));
         Time("identifiers", () => CheckIdentifiers(model, findings));
+        Time("verbs", () => CheckUseCaseVerb(model, findings));
         Time("citations", () => CheckCitations(model, findings));
         Time("gates", () => CheckGates(model, findings));
         Time("proof", () => CheckProof(model, findings));
@@ -762,6 +763,48 @@ static partial class Checker
             if (!known)
             {
                 findings.Add(new Finding("identifier-form", $"Identifier '{record.Id}' names home '{home}', which no record holds.", record.File, record.Line, SubjectOf(record)));
+            }
+        }
+    }
+
+    private static void CheckUseCaseVerb(ProjectModel model, List<Finding> findings)
+    {
+        // A project with no declared vocabulary keeps any verb it wants.
+        if (!model.Config.HasVocabulary)
+        {
+            return;
+        }
+
+        foreach (var useCase in model.Records.Where(record => record.Type == "use-case"))
+        {
+            if (!Identifiers.TrySplit(useCase.Id, out _, out _, out var name))
+            {
+                continue;
+            }
+
+            // A phrasal verb counts as one: "check-in" opens "check-in-copy".
+            if (model.Config.PhrasalVerbs.Any(phrasal =>
+                name == phrasal || name.StartsWith(phrasal + "-", StringComparison.Ordinal)))
+            {
+                continue;
+            }
+
+            var verb = name.Contains('-', StringComparison.Ordinal)
+                ? name[..name.IndexOf('-', StringComparison.Ordinal)]
+                : name;
+
+            if (model.Config.Verbs.Contains(verb, StringComparer.Ordinal))
+            {
+                continue;
+            }
+
+            if (model.Config.RetiredVerbs.TryGetValue(verb, out var replacement))
+            {
+                findings.Add(new Finding("use-case-verb-unknown", $"Use case '{useCase.Id}' starts with '{verb}'; use '{replacement}'.", useCase.File, useCase.Line, SubjectOf(useCase)));
+            }
+            else
+            {
+                findings.Add(new Finding("use-case-verb-unknown", $"Use case '{useCase.Id}' starts with '{verb}', which the vocabulary does not declare.", useCase.File, useCase.Line, SubjectOf(useCase)));
             }
         }
     }
