@@ -188,6 +188,25 @@ public sealed class CodeCheckTests
     }
 
     [Fact]
+    public void Untagged_Reaction_In_A_Use_Case_Folder_Answers_To_The_Use_Case_Effects()
+    {
+        using var temp = Cli.Temp("checks");
+        var file = Path.Combine(temp.Path, "BorrowCopyOnRequestReaction.cs");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.md"), """{"status": "reviewed", "kind": "command"}"""),
+            TestModel.Record("use-case", "use-case/lending.purge-loans", Path.Combine(temp.Path, "purge.md"), """{"status": "reviewed", "kind": "command"}"""));
+        model.Code.Reactions.Add(new ReactionInfo(
+            "BorrowCopyOnRequestReaction", file, 3, "reaction", "use-case/lending.borrow-copy",
+            Dispatches: [new CodeDispatch("issues", "BorrowCopyCommand", "", file, 9), new CodeDispatch("issues", "PurgeLoansCommand", "", file, 12)]));
+
+        var undeclared = Checker.Check(model).Findings.Where(finding => finding.Code == "effect-undeclared").ToList();
+
+        Assert.Single(undeclared);
+        Assert.Contains("PurgeLoansCommand", undeclared[0].Message);
+    }
+
+    [Fact]
     public void Handler_Dispatching_Through_A_Helper_Names_The_Helper()
     {
         using var temp = Cli.Temp("checks");

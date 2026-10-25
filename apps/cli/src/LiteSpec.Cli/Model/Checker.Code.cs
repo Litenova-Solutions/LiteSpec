@@ -411,14 +411,19 @@ static class CodeChecks
         foreach (var reaction in model.Code.Reactions)
         {
             if (reaction.Dispatches is not { Count: > 0 }
-                || reaction.RecordId is null
-                || !model.ById.TryGetValue(reaction.RecordId, out var record)
-                || record.Type is not ("reaction" or "job"))
+                || (reaction.RecordId ?? reaction.UseCaseId) is not { } holderId
+                || !model.ById.TryGetValue(holderId, out var record)
+                || record.Type is not ("reaction" or "job" or "use-case"))
             {
                 continue;
             }
 
-            var edges = HolderEdges(record);
+            // A reaction inside a use-case folder with no tag of its own belongs to that use case,
+            // so its dispatches answer to the use case's effects.
+            // Issuing the use case it sits with is the reaction's own trigger, not an edge.
+            var edges = record.Type == "use-case"
+                ? [.. UseCaseEdges(record), ("issues", record.Id)]
+                : HolderEdges(record);
             var kind = record.Type == "job" ? "Job" : "Reaction";
 
             foreach (var dispatch in reaction.Dispatches)
