@@ -496,6 +496,8 @@ The `use-case-unimplemented` check reports without failing until 2027-06-01, and
 
 The record names the provision it departs from, the reason, and the review date, so the departure stays visible and dated, which satisfies this provision.
 
+A deviation that governs code no record describes names those files in `code`, as paths from the repository root. While the deviation is approved and its `reviewBy` date has not passed, `model check` reports the findings on those files as known instead of failing on them; after the review date they fail again.
+
 ### Keep One Owner and Status on Every Record
 
 **Statement:** Every page MUST name one owner and one status.

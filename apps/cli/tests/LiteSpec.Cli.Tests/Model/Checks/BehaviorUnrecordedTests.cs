@@ -229,4 +229,32 @@ public sealed class BehaviorUnrecordedTests
 
         Assert.DoesNotContain("behavior-unrecorded", TestModel.Codes(model));
     }
+    [Fact]
+    public void Approved_Deviation_Holds_The_Findings_On_The_Code_It_Names()
+    {
+        using var temp = Cli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("deviation", "deviation/ghost-route", Path.Combine(temp.Path, "ghost-route.md"), """{"status": "approved", "provision": "litespec/core/layers#implement-only-declared-behavior", "reason": "Infrastructure.", "reviewBy": "2999-01-01", "removeWhen": "Never.", "code": ["src/GhostReaction.cs"]}"""));
+        model.Code.Reactions.Add(new ReactionInfo(
+            "GhostReaction", Path.Combine(temp.Path, "src", "GhostReaction.cs"), 3, "reaction", "use-case/lending.nope"));
+
+        var (findings, known) = Checker.Check(model);
+
+        Assert.DoesNotContain(findings, finding => finding.Code == "behavior-unrecorded");
+        Assert.Contains(known, finding => finding.Code == "behavior-unrecorded");
+    }
+
+    [Fact]
+    public void Deviation_Past_Its_Review_Date_Holds_Nothing()
+    {
+        using var temp = Cli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("deviation", "deviation/ghost-route", Path.Combine(temp.Path, "ghost-route.md"), """{"status": "approved", "provision": "litespec/core/layers#implement-only-declared-behavior", "reason": "Infrastructure.", "reviewBy": "2000-01-01", "removeWhen": "Never.", "code": ["src/GhostReaction.cs"]}"""));
+        model.Code.Reactions.Add(new ReactionInfo(
+            "GhostReaction", Path.Combine(temp.Path, "src", "GhostReaction.cs"), 3, "reaction", "use-case/lending.nope"));
+
+        Assert.Contains("behavior-unrecorded", TestModel.Codes(model));
+    }
 }

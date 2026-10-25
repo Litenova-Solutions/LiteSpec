@@ -2428,7 +2428,8 @@
         "provision": { "$ref": "#/$defs/standardsProvisionId" },
         "reason": { "$ref": "#/$defs/nonEmptyString" },
         "reviewBy": { "$ref": "#/$defs/isoDate" },
-        "removeWhen": { "$ref": "#/$defs/nonEmptyString" }
+        "removeWhen": { "$ref": "#/$defs/nonEmptyString" },
+        "code": { "type": "array", "items": { "$ref": "#/$defs/nonEmptyString" }, "minItems": 1, "uniqueItems": true }
       },
       "allOf": [
         {

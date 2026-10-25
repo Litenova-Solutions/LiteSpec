@@ -140,11 +140,28 @@ static partial class Checker
     {
         var today = DateOnly.FromDateTime(DateTime.UtcNow);
         var gaps = model.Records.Where(record => record.Type == "known-gap").ToList();
+
+        // An approved deviation inside its review date holds the findings on the code files it names.
+        var heldFiles = model.Records
+                             .Where(record => record.Type == "deviation"
+                                              && record.Status == "approved"
+                                              && record.Field("reviewBy") is { } reviewBy
+                                              && IsoDate(reviewBy, out var review)
+                                              && today <= review)
+                             .SelectMany(record => record.Ids("code"))
+                             .Select(path => path.Replace('\\', '/'))
+                             .ToHashSet(StringComparer.Ordinal);
         var kept = new List<Finding>();
         var known = new List<Finding>();
 
         foreach (var finding in findings)
         {
+            if (finding.Code != "known-gap-expired" && heldFiles.Contains(RootRelative(model, finding.Path)))
+            {
+                known.Add(finding);
+                continue;
+            }
+
             if (finding.Code == "known-gap-expired" || finding.Subject is null)
             {
                 kept.Add(finding);
@@ -174,6 +191,14 @@ static partial class Checker
         }
 
         return (kept, known);
+    }
+
+    /// <summary>A finding's file as a forward-slash path from the project root.</summary>
+    private static string RootRelative(ProjectModel model, string path)
+    {
+        var relative = Path.IsPathRooted(path) ? Path.GetRelativePath(model.Config.Root, path) : path;
+
+        return relative.Replace('\\', '/');
     }
 
     /// <summary>Record types using the Behavior status vocabulary.</summary>
