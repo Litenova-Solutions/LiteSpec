@@ -7,7 +7,7 @@ namespace LiteSpec.Authoring;
 ///     The <c>litespec rename</c> command: renames one record identifier across
 ///     the consumer repository, moving its page and rewriting every link.
 /// </summary>
-static class RenameCommand
+static partial class RenameCommand
 {
     /// <summary>The command's usage text.</summary>
     public const string Usage = """
@@ -127,8 +127,12 @@ static class RenameCommand
 
         // The move runs before any content changes, so a blocked move leaves
         // the repository untouched.
+        Move? movedPage = null;
+
         if (!old.IsEntry && MovePage(config, oldType, oldHome, newHome, newName, old.File) is { } moved)
         {
+            movedPage = moved;
+
             if (!moved.Moved)
             {
                 Console.Error.WriteLine(moved.Error);
@@ -178,8 +182,87 @@ static class RenameCommand
         }
 
         Console.WriteLine($"Rewrote {citations} citations in {files} files.");
+
+        if (movedPage is { Moved: true } page)
+        {
+            var links = RewriteLinks(root, page.From, page.To);
+            Console.WriteLine($"Rewrote {links} links to the moved page.");
+        }
+
         return 0;
     }
+
+    /// <summary>
+    ///     Points every relative Markdown link at the page's new place: links from other pages to the
+    ///     moved file or folder, and the moved page's own links when it changed folder.
+    /// </summary>
+    static int RewriteLinks(string root, string from, string to)
+    {
+        var fromFull = Path.GetFullPath(from);
+        var toFull = Path.GetFullPath(to);
+        var rewritten = 0;
+
+        foreach (var file in RecordPages.ProjectFiles(root).Where(path => path.EndsWith(".md", StringComparison.OrdinalIgnoreCase)))
+        {
+            var text = File.ReadAllText(file);
+            var here = Path.GetDirectoryName(Path.GetFullPath(file))!;
+            var movedHere = Under(Path.GetFullPath(file), toFull);
+
+            // A page that moved resolves its old links from where it used to sit.
+            var before = movedHere ? Path.GetDirectoryName(Remap(Path.GetFullPath(file), toFull, fromFull))! : here;
+            var count = 0;
+
+            var updated = MarkdownLink().Replace(text, match =>
+            {
+                var target = match.Groups["target"].Value;
+
+                if (target.Length == 0 || target.StartsWith('#') || target.Contains("://", StringComparison.Ordinal) || target.StartsWith("mailto:", StringComparison.Ordinal))
+                {
+                    return match.Value;
+                }
+
+                var resolved = Path.GetFullPath(Path.Combine(before, target.Replace('/', Path.DirectorySeparatorChar)));
+                var pointsAtMoved = Under(resolved, fromFull);
+
+                if (!pointsAtMoved && !movedHere)
+                {
+                    return match.Value;
+                }
+
+                var destination = pointsAtMoved ? Remap(resolved, fromFull, toFull) : resolved;
+                var relative = Path.GetRelativePath(here, destination).Replace(Path.DirectorySeparatorChar, '/');
+
+                if (relative == target)
+                {
+                    return match.Value;
+                }
+
+                count += 1;
+
+                return match.Value.Replace("(" + target, "(" + relative, StringComparison.Ordinal);
+            });
+
+            if (count > 0)
+            {
+                File.WriteAllText(file, updated);
+                rewritten += count;
+            }
+        }
+
+        return rewritten;
+    }
+
+    /// <summary>Whether the path is the root itself or sits inside it.</summary>
+    static bool Under(string path, string root) =>
+        string.Equals(path, root, StringComparison.OrdinalIgnoreCase)
+        || path.StartsWith(root.TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase);
+
+    /// <summary>The path with its leading root swapped for another.</summary>
+    static string Remap(string path, string root, string replacement) =>
+        replacement + path[root.Length..];
+
+    [System.Text.RegularExpressions.GeneratedRegex(@"\]\((?<target>[^)\s#?]*)(?<rest>[^)]*)\)")]
+    private static partial System.Text.RegularExpressions.Regex MarkdownLink();
 
     /// <summary>
     ///     Splits a full record identifier into its type, home, and name, following
