@@ -52,9 +52,9 @@ A closed set is a fixed menu of values where the type system knows every case, s
 
 **Example:** A post defines one abstract post state with draft and published cases, where the published case carries its publication time. Even an aggregate with one current state defines its hierarchy.
 
-In the Claimwick product, `aggregate/spending.expense` records the `Submitted`, `Approved`, `Rejected`, and `Reimbursed` states with their transitions: Submit from `use-case/spending.submit-expense` creates Submitted, Approve from `use-case/spending.approve-expense` moves Submitted to Approved, Reject from `use-case/spending.reject-expense` moves Submitted to Rejected, and Reimburse from `use-case/spending.reimburse-expense` moves Approved to Reimbursed. The approved case carries the approver and the decided time, and the reimbursed case carries the reimbursed time.
+In the Claimwick product, `aggregate/spending.expense` records the `Submitted`, `Approved`, `Rejected`, and `Reimbursed` states with their transitions: Submit from `use-case/spending.submit-expense` creates Submitted, Approve from `use-case/spending.approve-expense` moves Submitted to Approved, Reject from `use-case/spending.refuse-expense` moves Submitted to Rejected, and Reimburse from `use-case/spending.reimburse-expense` moves Approved to Reimbursed. The approved case carries the approver and the decided time, and the reimbursed case carries the reimbursed time.
 
-![Submit from submit-expense creates a Submitted expense, Approve from approve-expense moves it to Approved carrying the approver and the decided time, Reject from reject-expense moves it to Rejected carrying the reason, and Reimburse from reimburse-expense moves an Approved expense to Reimbursed carrying the reimbursed time.](../assets/diagrams/backend-aggregate-lifecycle.svg)
+![Submit from submit-expense creates a Submitted expense, Approve from approve-expense moves it to Approved carrying the approver and the decided time, Reject from refuse-expense moves it to Rejected carrying the reason, and Reimburse from reimburse-expense moves an Approved expense to Reimbursed carrying the reimbursed time.](../assets/diagrams/backend-aggregate-lifecycle.svg)
 
 ### Model Every Closed Set of Domain Values as a Closed Type Hierarchy
 

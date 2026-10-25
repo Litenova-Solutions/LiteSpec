@@ -14,7 +14,7 @@ static partial class Checker
     public static readonly HashSet<string> Codes = new(StringComparer.Ordinal)
     {
         "record-shape", "invalid-field", "identifier-form", "identifier-duplicate",
-        "use-case-name-clash", "use-case-verb-unknown", "reference-unresolved", "draft-gate",
+        "use-case-name-clash", "use-case-verb-unknown", "use-case-verb-kind", "reaction-name-form", "job-name-form", "reference-unresolved", "draft-gate",
         "owner-unknown", "draft-without-decider", "known-gap-expired", "gap-unknown-check",
         "rule-name-negation", "use-case-without-success", "scenario-result-unresolved",
         "refusal-not-thrown", "use-case-unimplemented", "proves-unconfirmed",
@@ -64,6 +64,7 @@ static partial class Checker
         Time("schema", () => CheckSchema(model, findings, owners));
         Time("identifiers", () => CheckIdentifiers(model, findings));
         Time("verbs", () => CheckUseCaseVerb(model, findings));
+        Time("names", () => CheckReactionAndJobNames(model, findings));
         Time("citations", () => CheckCitations(model, findings));
         Time("gates", () => CheckGates(model, findings));
         Time("proof", () => CheckProof(model, findings));
@@ -794,45 +795,86 @@ static partial class Checker
 
     private static void CheckUseCaseVerb(ProjectModel model, List<Finding> findings)
     {
-        // A project with no declared vocabulary keeps any verb it wants.
-        if (!model.Config.HasVocabulary)
-        {
-            return;
-        }
-
         foreach (var useCase in model.Records.Where(record => record.Type == "use-case"))
         {
-            if (!Identifiers.TrySplit(useCase.Id, out _, out _, out var name))
+            if (!Identifiers.TrySplit(useCase.Id, out _, out _, out var name) || name is null)
             {
                 continue;
             }
 
-            // A phrasal verb counts as one: "check-in" opens "check-in-copy".
-            if (model.Config.PhrasalVerbs.Any(phrasal =>
-                name == phrasal || name.StartsWith(phrasal + "-", StringComparison.Ordinal)))
+            var verb = UseCaseVocabulary.VerbOf(name, model.Config.PhrasalVerbs);
+
+            if (!Declares(model.Config, verb))
             {
+                findings.Add(new Finding("use-case-verb-unknown", UnknownVerbMessage(model.Config, $"Use case '{useCase.Id}'", verb), useCase.File, useCase.Line, SubjectOf(useCase)));
                 continue;
             }
 
-            var verb = name.Contains('-', StringComparison.Ordinal)
-                ? name[..name.IndexOf('-', StringComparison.Ordinal)]
-                : name;
+            // One verb, one kind: a reading verb opens only a query, and a changing verb only a command.
+            var kind = KindOf(model.Config, verb);
+            var declared = useCase.Field("kind");
 
-            if (model.Config.Verbs.Contains(verb, StringComparer.Ordinal))
+            if ((kind == UseCaseVocabulary.VerbKind.Query && declared == "command")
+                || (kind == UseCaseVocabulary.VerbKind.Command && declared == "query"))
             {
-                continue;
-            }
-
-            if (model.Config.RetiredVerbs.TryGetValue(verb, out var replacement))
-            {
-                findings.Add(new Finding("use-case-verb-unknown", $"Use case '{useCase.Id}' starts with '{verb}'; use '{replacement}'.", useCase.File, useCase.Line, SubjectOf(useCase)));
-            }
-            else
-            {
-                findings.Add(new Finding("use-case-verb-unknown", $"Use case '{useCase.Id}' starts with '{verb}', which the vocabulary does not declare.", useCase.File, useCase.Line, SubjectOf(useCase)));
+                findings.Add(new Finding("use-case-verb-kind", $"Use case '{useCase.Id}' is a {declared} but '{verb}' names a {(kind == UseCaseVocabulary.VerbKind.Query ? "query" : "command")}.", useCase.File, useCase.Line, SubjectOf(useCase)));
             }
         }
     }
+
+    private static void CheckReactionAndJobNames(ProjectModel model, List<Finding> findings)
+    {
+        foreach (var record in model.Records.Where(record => record.Type is "reaction" or "job"))
+        {
+            if (!Identifiers.TrySplit(record.Id, out _, out _, out var name) || name is null)
+            {
+                continue;
+            }
+
+            var verb = UseCaseVocabulary.VerbOf(name, model.Config.PhrasalVerbs);
+
+            if (record.Type == "reaction")
+            {
+                // <verb>-<what>-on-<fact>: what it does, then the fact it answers.
+                if (!Declares(model.Config, verb) || !name.Contains("-on-", StringComparison.Ordinal))
+                {
+                    findings.Add(new Finding("reaction-name-form", $"Reaction '{record.Id}' is not named <verb>-<what>-on-<fact> with a declared verb.", record.File, record.Line, SubjectOf(record)));
+                }
+
+                continue;
+            }
+
+            // A job carries the verb of the command it issues.
+            var issued = record.EdgeIds("issues")
+                               .Where(id => Identifiers.TrySplit(id, out _, out _, out var target) && target is not null)
+                               .Select(id => { Identifiers.TrySplit(id, out _, out _, out var target); return UseCaseVocabulary.VerbOf(target!, model.Config.PhrasalVerbs); })
+                               .ToList();
+
+            if (issued.Count > 0 && !issued.Contains(verb, StringComparer.Ordinal))
+            {
+                findings.Add(new Finding("job-name-form", $"Job '{record.Id}' starts with '{verb}' but issues '{string.Join("', '", issued.Distinct())}'.", record.File, record.Line, SubjectOf(record)));
+            }
+        }
+    }
+
+    /// <summary>Whether the baseline or the project declares the verb.</summary>
+    private static bool Declares(ConsumerConfig config, string verb) =>
+        UseCaseVocabulary.Baseline.ContainsKey(verb)
+        || config.Verbs.Contains(verb, StringComparer.Ordinal)
+        || config.QueryVerbs.Contains(verb, StringComparer.Ordinal)
+        || config.PhrasalVerbs.Contains(verb, StringComparer.Ordinal);
+
+    /// <summary>The kind a declared verb names: the baseline kind, a project query verb, or either.</summary>
+    private static UseCaseVocabulary.VerbKind KindOf(ConsumerConfig config, string verb) =>
+        UseCaseVocabulary.Baseline.TryGetValue(verb, out var kind) ? kind
+        : config.QueryVerbs.Contains(verb, StringComparer.Ordinal) ? UseCaseVocabulary.VerbKind.Query
+        : UseCaseVocabulary.VerbKind.Either;
+
+    /// <summary>The message for an undeclared verb, naming its replacement when the verb is a retired synonym.</summary>
+    private static string UnknownVerbMessage(ConsumerConfig config, string subject, string verb) =>
+        config.RetiredVerbs.TryGetValue(verb, out var replacement) || UseCaseVocabulary.Retired.TryGetValue(verb, out replacement)
+            ? $"{subject} starts with '{verb}'; use '{replacement}'."
+            : $"{subject} starts with '{verb}', which the vocabulary does not declare.";
 
     private static void CheckCitations(ProjectModel model, List<Finding> findings)
     {

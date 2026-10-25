@@ -5,7 +5,7 @@
   "title": "Export Expenses",
   "owner": "claimwick-team",
   "status": "reviewed",
-  "kind": "command",
+  "kind": "query",
   "access": {
     "auth": [
       "session"
@@ -19,13 +19,30 @@
   "reachedThrough": [
     "entry-point/claimwick-app"
   ],
-  "raises": [],
   "fulfills": [
     "requirement/approval.decided-within-five-days"
   ],
   "reads": [
     "aggregate/spending.expense"
   ],
+  "output": {
+    "include": {
+      "file": {
+        "fields": [
+          {
+            "name": "rows",
+            "meaning": "One row per approved expense: its identity, amount, currency, approver and approval time."
+          }
+        ],
+        "classification": "internal",
+        "source": [
+          "aggregate/spending.expense"
+        ],
+        "freshness": "immediate"
+      }
+    }
+  },
+  "paging": "none (one file holds every approved expense of the period)",
   "records": [
     {
       "type": "result",
@@ -67,10 +84,9 @@
   ],
   "approvedBy": "claimwick-team",
   "approvedOn": "2026-10-01",
-  "approvedHash": "efea29a3"
+  "approvedHash": "374aafa8"
 }
 ---
-
 # Export Expenses
 
 ## Goal

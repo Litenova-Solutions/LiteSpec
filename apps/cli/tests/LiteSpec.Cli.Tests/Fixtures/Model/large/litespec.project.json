@@ -4,7 +4,10 @@
   },
   "size": "large",
   "shape": "server",
-  "stacks": ["dotnet", "svelte"],
+  "stacks": [
+    "dotnet",
+    "svelte"
+  ],
   "reviewedLiteSpecVersion": "3.0.0",
   "optionalTypes": [
     "constraint",
@@ -58,5 +61,14 @@
       "webapi": "apps/api/src/Library.WebApi"
     }
   },
-  "selectedExtensions": []
+  "selectedExtensions": [],
+  "vocabulary": {
+    "verbs": [
+      "borrow",
+      "extend",
+      "place",
+      "register",
+      "return"
+    ]
+  }
 }

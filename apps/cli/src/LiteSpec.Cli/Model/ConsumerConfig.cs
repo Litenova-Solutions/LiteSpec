@@ -52,13 +52,16 @@ sealed class ConsumerConfig
     public IReadOnlyDictionary<string, string> RefusalAliases { get; private set; } =
         new Dictionary<string, string>(StringComparer.Ordinal);
 
-    /// <summary>The closed verb list a use-case name starts with.</summary>
+    /// <summary>The domain verbs the project adds to the baseline vocabulary.</summary>
     public IReadOnlyList<string> Verbs { get; private set; } = [];
 
     /// <summary>Multi-word verbs counted as one use-case opening.</summary>
     public IReadOnlyList<string> PhrasalVerbs { get; private set; } = [];
 
-    /// <summary>Retired synonyms mapped to their replacement verb, by synonym.</summary>
+    /// <summary>The project verbs that name a query, beside the baseline reading verbs.</summary>
+    public IReadOnlyList<string> QueryVerbs { get; private set; } = [];
+
+    /// <summary>Retired synonyms mapped to their replacement verb, by synonym, beside the baseline ones.</summary>
     public IReadOnlyDictionary<string, string> RetiredVerbs { get; private set; } =
         new Dictionary<string, string>(StringComparer.Ordinal);
 
@@ -276,6 +279,7 @@ sealed class ConsumerConfig
             config.HasVocabulary = true;
             config.Verbs = ReadNames(vocabulary, "verbs");
             config.PhrasalVerbs = ReadNames(vocabulary, "phrasal");
+            config.QueryVerbs = ReadNames(vocabulary, "queryVerbs");
             config.RetiredVerbs = ReadRetired(vocabulary);
         }
 

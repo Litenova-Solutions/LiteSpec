@@ -157,12 +157,18 @@
       }
     },
     "vocabulary": {
-      "description": "The closed verb vocabulary use-case names start with. When declared, every use-case name opens with a listed verb or phrasal verb.",
+      "description": "The domain verbs, phrasal verbs and retired synonyms the project adds to the baseline use-case vocabulary LiteSpec ships. Every use-case name opens with a baseline or project verb.",
       "type": "object",
       "additionalProperties": false,
       "properties": {
         "verbs": {
-          "description": "The single-word verbs a use-case name may start with.",
+          "description": "The single-word domain verbs the project adds to the baseline; they name either kind.",
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string", "pattern": "^[a-z][a-z0-9]*$" }
+        },
+        "queryVerbs": {
+          "description": "Project verbs that open only a query, beside the baseline reading verbs.",
           "type": "array",
           "uniqueItems": true,
           "items": { "type": "string", "pattern": "^[a-z][a-z0-9]*$" }
@@ -174,7 +180,7 @@
           "items": { "type": "string", "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)+$" }
         },
         "retired": {
-          "description": "Retired synonyms mapped to their replacement verb.",
+          "description": "Retired synonyms mapped to their replacement verb, beside the synonyms the baseline retires.",
           "type": "object",
           "propertyNames": { "pattern": "^[a-z][a-z0-9]*$" },
           "additionalProperties": { "type": "string", "pattern": "^[a-z][a-z0-9]*$" }

@@ -1,9 +1,9 @@
 using System.Net;
 using Claimwick.Acceptance.Tests.Support;
 
-namespace Claimwick.Acceptance.Tests.Spending.Expenses.RejectExpense;
+namespace Claimwick.Acceptance.Tests.Spending.Expenses.RefuseExpense;
 
-public sealed class RejectExpenseSteps
+public sealed class RefuseExpenseSteps
 {
     public async Task RejectAnExpenseAsync(string expense)
     {

@@ -1,13 +1,13 @@
 using System.Net;
 using Claimwick.Acceptance.Tests.Support;
 
-namespace Claimwick.Acceptance.Tests.Spending.Policies.SetReceiptThreshold;
+namespace Claimwick.Acceptance.Tests.Spending.Policies.ChangeReceiptThreshold;
 
-public sealed class SetReceiptThresholdSteps
+public sealed class ChangeReceiptThresholdSteps
 {
     public async Task SetTheThresholdAsync(decimal threshold)
     {
-        await ExpensesWorld.PostAsync("/api/policy:set-receipt-threshold", new { threshold, currency = "EUR" });
+        await ExpensesWorld.PostAsync("/api/policy:change-receipt-threshold", new { threshold, currency = "EUR" });
     }
 
     public Task TheThresholdIsSetAsync()

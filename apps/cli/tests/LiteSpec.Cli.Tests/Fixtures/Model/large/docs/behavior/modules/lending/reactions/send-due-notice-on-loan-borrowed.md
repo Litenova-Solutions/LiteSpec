@@ -1,28 +1,27 @@
 ---
 {
   "type": "reaction",
-  "id": "reaction/lending.send-loan-due-notice",
+  "id": "reaction/lending.send-due-notice-on-loan-borrowed",
   "title": "Send loan due notice",
   "owner": "lending-team",
   "status": "reviewed",
   "on": [
     "event/loan.loan-borrowed"
   ],
+  "effects": [
+    {
+      "sends": "notification/lending.loan-due"
+    }
+  ],
   "fulfills": [
     "requirement/borrowing.max-active-loans"
   ],
   "approvedBy": "lending-team",
   "approvedOn": "2026-10-01",
-  "approvedHash": "7337e44f",
-  "effects": [
-    {
-      "issues": "use-case/lending.return-copy",
-      "timing": "async"
-    }
-  ]
+  "approvedHash": "a551aff9"
 }
 ---
 
-# Send Loan Due Notice
+# Send Due Notice on Loan Borrowed
 
 Every borrowed loan earns one due notice for its reader.

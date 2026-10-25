@@ -4,7 +4,9 @@
   },
   "size": "small",
   "shape": "server",
-  "stacks": ["dotnet"],
+  "stacks": [
+    "dotnet"
+  ],
   "reviewedLiteSpecVersion": "3.0.0",
   "optionalTypes": [],
   "constraints": {
@@ -31,5 +33,14 @@
       "webapi": "apps/api/src/Library.WebApi"
     }
   },
-  "selectedExtensions": []
+  "selectedExtensions": [],
+  "vocabulary": {
+    "verbs": [
+      "borrow",
+      "extend",
+      "place",
+      "register",
+      "return"
+    ]
+  }
 }

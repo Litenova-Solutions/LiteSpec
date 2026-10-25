@@ -64,5 +64,13 @@
       "webapi": "apps/api/src/Claimwick.WebApi"
     }
   },
-  "selectedExtensions": []
+  "selectedExtensions": [],
+  "vocabulary": {
+    "verbs": [
+      "attach",
+      "erase",
+      "reimburse",
+      "submit"
+    ]
+  }
 }

@@ -1,8 +1,8 @@
 ---
 {
   "type": "use-case",
-  "id": "use-case/spending.set-receipt-threshold",
-  "title": "Set Receipt Threshold",
+  "id": "use-case/spending.change-receipt-threshold",
+  "title": "Change Receipt Threshold",
   "owner": "claimwick-team",
   "status": "reviewed",
   "kind": "command",
@@ -29,7 +29,7 @@
   "records": [
     {
       "type": "result",
-      "id": "result/set-receipt-threshold.threshold-set",
+      "id": "result/change-receipt-threshold.threshold-set",
       "title": "Threshold set",
       "owner": "claimwick-team",
       "outcome": "success",
@@ -40,7 +40,7 @@
     },
     {
       "type": "result",
-      "id": "result/set-receipt-threshold.negative-threshold",
+      "id": "result/change-receipt-threshold.negative-threshold",
       "title": "Negative threshold",
       "owner": "claimwick-team",
       "outcome": "refusal",
@@ -52,26 +52,26 @@
     },
     {
       "type": "scenario",
-      "id": "scenario/set-receipt-threshold.setting-the-threshold-succeeds",
+      "id": "scenario/change-receipt-threshold.setting-the-threshold-succeeds",
       "title": "Setting the threshold succeeds",
       "owner": "claimwick-team",
       "status": "reviewed",
       "given": "Finance agreed a new receipt threshold with the managers.",
       "when": "The manager sets the receipt threshold.",
-      "result": "result/set-receipt-threshold.threshold-set",
+      "result": "result/change-receipt-threshold.threshold-set",
       "then": "The receipt threshold is set.",
       "approvedBy": "claimwick-team",
       "approvedOn": "2026-10-01",
-      "approvedHash": "6acb36e6"
+      "approvedHash": "e8e0ca4b"
     }
   ],
   "approvedBy": "claimwick-team",
   "approvedOn": "2026-10-01",
-  "approvedHash": "14d07e70"
+  "approvedHash": "86c3753b"
 }
 ---
 
-# Set Receipt Threshold
+# Change Receipt Threshold
 
 ## Goal
 

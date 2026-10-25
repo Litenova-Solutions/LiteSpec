@@ -200,7 +200,7 @@
   ],
   "approvedBy": "claimwick-team",
   "approvedOn": "2026-10-01",
-  "approvedHash": "31b80509"
+  "approvedHash": "0e4c1207"
 }
 ---
 
@@ -213,7 +213,7 @@ An expense is one work cost an employee submitted.
 | From | To | Triggered By |
 |:--|:--|:--|
 | Submitted | Approved | `use-case/spending.approve-expense` |
-| Submitted | Rejected | `use-case/spending.reject-expense` |
+| Submitted | Rejected | `use-case/spending.refuse-expense` |
 | Approved | Reimbursed | `use-case/spending.reimburse-expense` |
 
 ## Data

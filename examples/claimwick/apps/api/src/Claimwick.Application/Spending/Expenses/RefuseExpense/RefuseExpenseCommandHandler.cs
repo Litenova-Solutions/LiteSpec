@@ -2,19 +2,19 @@ using Claimwick.Application.Abstractions;
 using Claimwick.Domain.Spending.Expenses;
 using LiteBus.Commands.Abstractions;
 
-namespace Claimwick.Application.Spending.Expenses.RejectExpense;
+namespace Claimwick.Application.Spending.Expenses.RefuseExpense;
 
-internal sealed class RejectExpenseCommandHandler(
+internal sealed class RefuseExpenseCommandHandler(
     IExpenseRepository expenses,
-    IClock clock) : ICommandHandler<RejectExpenseCommand, RejectExpenseCommandResult>
+    IClock clock) : ICommandHandler<RefuseExpenseCommand, RefuseExpenseCommandResult>
 {
-    public async Task<RejectExpenseCommandResult> HandleAsync(
-        RejectExpenseCommand command,
+    public async Task<RefuseExpenseCommandResult> HandleAsync(
+        RefuseExpenseCommand command,
         CancellationToken cancellationToken)
     {
         var expense = await expenses.GetAsync(command.ExpenseId, cancellationToken);
         expense.Reject(command.ApproverId, command.Reason, clock.UtcNow);
         expenses.Store(expense);
-        return new RejectExpenseCommandResult(expense.Id);
+        return new RefuseExpenseCommandResult(expense.Id);
     }
 }

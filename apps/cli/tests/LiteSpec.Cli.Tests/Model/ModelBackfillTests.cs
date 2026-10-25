@@ -147,12 +147,12 @@ public sealed class ModelBackfillTests
         File.WriteAllText(
             Path.Combine(
                 fixture.Path, "apps", "api", "src", "Library.Application",
-                "Lending", "Loans", "SendLoanDueNoticeReaction.cs"),
+                "Lending", "Loans", "SendDueNoticeOnLoanBorrowedReaction.cs"),
             """
             namespace Library.Application.Lending.Loans;
 
-            /// <implements>reaction/lending.send-loan-due-notice</implements>
-            public sealed class SendLoanDueNoticeReaction(IHoldRepository holds)
+            /// <implements>reaction/lending.send-due-notice-on-loan-borrowed</implements>
+            public sealed class SendDueNoticeOnLoanBorrowedReaction(IHoldRepository holds)
             {
                 public Task Handle() => Task.CompletedTask;
             }
@@ -165,7 +165,7 @@ public sealed class ModelBackfillTests
 
         var text = File.ReadAllText(Page(
             fixture.Path, "docs", "behavior", "modules", "lending",
-            "reactions", "send-loan-due-notice.md"));
+            "reactions", "send-due-notice-on-loan-borrowed.md"));
 
         Assert.Contains("aggregate/lending.hold", text);
         Assert.Contains("\"source\": \"transcribed\"", text);

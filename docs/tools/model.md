@@ -89,7 +89,10 @@ Every check has a tier. G reads records only and always blocks. S reads code thr
 | `gap-unknown-check` | G | A known gap names a check that no check uses. |
 | `aggregate-name-clash` | G | Two aggregates share one name across the project. |
 | `use-case-name-clash` | G | Two use cases share one name across the project. |
-| `use-case-verb-unknown` | G | A use-case name starts with a verb the project vocabulary does not declare. |
+| `use-case-verb-unknown` | G | A use-case name starts with a verb neither the baseline nor the project vocabulary declares; a retired synonym names its replacement. |
+| `use-case-verb-kind` | G | A query opens with a changing verb, or a command opens with a reading verb. |
+| `reaction-name-form` | G | A reaction name is not `<verb>-<what>-on-<fact>` with a declared verb. |
+| `job-name-form` | G | A job name does not start with the verb of a use case it issues. |
 | `reaction-trigger-unresolved` | G | A reaction names a trigger no domain event or integration event carries. |
 | `erasure-undeclared` | G | A personal or sensitive field stands outside a declared erasure position. |
 | `record-orphaned` | G | A Behavior record names neither `serves` nor `fulfills`. |

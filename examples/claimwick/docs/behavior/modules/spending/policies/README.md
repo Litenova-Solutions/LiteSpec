@@ -26,21 +26,21 @@
       "kind": "invariant",
       "statement": "A threshold is never negative.",
       "governs": [
-        "use-case/spending.set-receipt-threshold"
+        "use-case/spending.change-receipt-threshold"
       ],
-      "refusal": "result/set-receipt-threshold.negative-threshold",
+      "refusal": "result/change-receipt-threshold.negative-threshold",
       "basedOn": [],
       "fulfills": [
         "requirement/approval.receipt-over-threshold"
       ],
       "approvedBy": "claimwick-team",
       "approvedOn": "2026-10-01",
-      "approvedHash": "a7c6b445"
+      "approvedHash": "9b08116e"
     }
   ],
   "approvedBy": "claimwick-team",
   "approvedOn": "2026-10-01",
-  "approvedHash": "020c08d4"
+  "approvedHash": "9b897e2e"
 }
 ---
 

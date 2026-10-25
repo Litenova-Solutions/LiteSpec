@@ -25,7 +25,7 @@ public sealed class RecordShapeCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("reaction", "reaction/lending.send-loan-due-notice", Path.Combine(temp.Path, "notice.md"), """{"status": "reviewed", "on": ["event/loan.loan-borrowed"], "effects": [{"sends": "notification/lending.loan-due"}]}"""),
+            TestModel.Record("reaction", "reaction/lending.send-due-notice-on-loan-borrowed", Path.Combine(temp.Path, "notice.md"), """{"status": "reviewed", "on": ["event/loan.loan-borrowed"], "effects": [{"sends": "notification/lending.loan-due"}]}"""),
             TestModel.Record("notification", "notification/lending.loan-due", Path.Combine(temp.Path, "due.md"), """{"status": "reviewed"}"""));
 
         Assert.DoesNotContain("notification-without-sender", TestModel.Codes(model));
@@ -60,7 +60,7 @@ public sealed class RecordShapeCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("reaction", "reaction/lending.send-loan-due-notice", Path.Combine(temp.Path, "notice.md"), """{"status": "reviewed", "on": ["event/loan.loan-borrowed"], "sends": "notification/lending.loan-due"}"""));
+            TestModel.Record("reaction", "reaction/lending.send-due-notice-on-loan-borrowed", Path.Combine(temp.Path, "notice.md"), """{"status": "reviewed", "on": ["event/loan.loan-borrowed"], "sends": "notification/lending.loan-due"}"""));
 
         Assert.True(Reports(model, "record-shape", "top-level sends"));
     }
@@ -93,7 +93,7 @@ public sealed class RecordShapeCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("reaction", "reaction/lending.send-loan-due-notice", Path.Combine(temp.Path, "notice.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "on": ["event/loan.loan-borrowed"], "effects": [{"sends": "notification/lending.loan-due"}]}"""),
+            TestModel.Record("reaction", "reaction/lending.send-due-notice-on-loan-borrowed", Path.Combine(temp.Path, "notice.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "on": ["event/loan.loan-borrowed"], "effects": [{"sends": "notification/lending.loan-due"}]}"""),
             TestModel.Record("notification", "notification/lending.loan-due", Path.Combine(temp.Path, "due.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01"}"""));
 
         Assert.DoesNotContain("record-shape", TestModel.Codes(model));
@@ -151,7 +151,7 @@ public sealed class RecordShapeCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("reaction", "reaction/lending.send-loan-due-notice", Path.Combine(temp.Path, "notice.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "on": ["event/loan.loan-borrowed"], "effects": [{"sends": "notification/lending.loan-due"}], "idempotency": {"mode": "key", "key": "notice:{loan}", "scope": "global"}}"""));
+            TestModel.Record("reaction", "reaction/lending.send-due-notice-on-loan-borrowed", Path.Combine(temp.Path, "notice.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "on": ["event/loan.loan-borrowed"], "effects": [{"sends": "notification/lending.loan-due"}], "idempotency": {"mode": "key", "key": "notice:{loan}", "scope": "global"}}"""));
 
         Assert.False(Reports(model, "record-shape", "idempotency key"));
     }
@@ -162,7 +162,7 @@ public sealed class RecordShapeCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("reaction", "reaction/lending.send-loan-due-notice", Path.Combine(temp.Path, "notice.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "on": ["event/loan.loan-borrowed"], "effects": [{"sends": "notification/lending.loan-due"}], "onFailure": "Retry a few times, then give up."}"""));
+            TestModel.Record("reaction", "reaction/lending.send-due-notice-on-loan-borrowed", Path.Combine(temp.Path, "notice.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "on": ["event/loan.loan-borrowed"], "effects": [{"sends": "notification/lending.loan-due"}], "onFailure": "Retry a few times, then give up."}"""));
 
         Assert.True(Reports(model, "record-shape", "as prose"));
     }
@@ -228,7 +228,7 @@ public sealed class RecordShapeCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("reaction", "reaction/lending.send-loan-due-notice", Path.Combine(temp.Path, "notice.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "on": ["event/loan.loan-borrowed"], "effects": [{"sends": "notification/lending.loan-due"}], "onFailure": {"deadLetter": {"after": "P7D", "action": "Replay by hand."}}}"""));
+            TestModel.Record("reaction", "reaction/lending.send-due-notice-on-loan-borrowed", Path.Combine(temp.Path, "notice.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "on": ["event/loan.loan-borrowed"], "effects": [{"sends": "notification/lending.loan-due"}], "onFailure": {"deadLetter": {"after": "P7D", "action": "Replay by hand."}}}"""));
 
         Assert.True(Reports(model, "record-shape", "onFailure with no retry"));
     }
@@ -239,7 +239,7 @@ public sealed class RecordShapeCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("reaction", "reaction/lending.send-loan-due-notice", Path.Combine(temp.Path, "notice.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "on": ["event/loan.loan-borrowed"], "effects": [{"sends": "notification/lending.loan-due"}], "onFailure": {"retry": {"maxAttempts": 10, "initialDelay": "PT5S", "maxDelay": "PT10M", "backoff": "exponential"}, "deadLetter": {"after": "P7D", "action": "Replay by hand."}}}"""),
+            TestModel.Record("reaction", "reaction/lending.send-due-notice-on-loan-borrowed", Path.Combine(temp.Path, "notice.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "on": ["event/loan.loan-borrowed"], "effects": [{"sends": "notification/lending.loan-due"}], "onFailure": {"retry": {"maxAttempts": 10, "initialDelay": "PT5S", "maxDelay": "PT10M", "backoff": "exponential"}, "deadLetter": {"after": "P7D", "action": "Replay by hand."}}}"""),
             TestModel.Record("event", "event/loan.loan-borrowed", Path.Combine(temp.Path, "loan.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "meaning": "A copy was lent.", "carries": []}"""),
             TestModel.Record("notification", "notification/lending.loan-due", Path.Combine(temp.Path, "due.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01"}"""));
 

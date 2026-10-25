@@ -1,8 +1,8 @@
 ---
 {
   "type": "use-case",
-  "id": "use-case/spending.reject-expense",
-  "title": "Reject Expense",
+  "id": "use-case/spending.refuse-expense",
+  "title": "Refuse Expense",
   "owner": "claimwick-team",
   "status": "reviewed",
   "kind": "command",
@@ -31,7 +31,7 @@
   "records": [
     {
       "type": "result",
-      "id": "result/reject-expense.rejected",
+      "id": "result/refuse-expense.rejected",
       "title": "Rejected",
       "owner": "claimwick-team",
       "outcome": "success",
@@ -42,7 +42,7 @@
     },
     {
       "type": "result",
-      "id": "result/reject-expense.not-submitted",
+      "id": "result/refuse-expense.not-submitted",
       "title": "Not submitted",
       "owner": "claimwick-team",
       "outcome": "refusal",
@@ -54,26 +54,26 @@
     },
     {
       "type": "scenario",
-      "id": "scenario/reject-expense.rejecting-a-submitted-expense-succeeds",
+      "id": "scenario/refuse-expense.rejecting-a-submitted-expense-succeeds",
       "title": "Rejecting a submitted expense succeeds",
       "owner": "claimwick-team",
       "status": "reviewed",
       "given": "An employee submitted an expense outside the policy.",
       "when": "The manager rejects the expense with a reason.",
-      "result": "result/reject-expense.rejected",
+      "result": "result/refuse-expense.rejected",
       "then": "The expense is rejected.",
       "approvedBy": "claimwick-team",
       "approvedOn": "2026-10-01",
-      "approvedHash": "69289937"
+      "approvedHash": "3cec10d6"
     }
   ],
   "approvedBy": "claimwick-team",
   "approvedOn": "2026-10-01",
-  "approvedHash": "ec7a062f"
+  "approvedHash": "28da3016"
 }
 ---
 
-# Reject Expense
+# Refuse Expense
 
 ## Goal
 

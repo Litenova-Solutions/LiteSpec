@@ -1,8 +1,8 @@
 ---
 {
   "type": "reaction",
-  "id": "reaction/spending.remind-approvers",
-  "title": "Remind Approvers",
+  "id": "reaction/spending.send-approver-reminders-on-expense-submitted",
+  "title": "Send Approver Reminders on Expense Submitted",
   "owner": "claimwick-team",
   "status": "reviewed",
   "on": [
@@ -23,6 +23,6 @@
 }
 ---
 
-# Remind Approvers
+# Send Approver Reminders on Expense Submitted
 
 A submitted expense that waits past three business days without a decision earns one reminder to its approver. Decided expenses are left alone.

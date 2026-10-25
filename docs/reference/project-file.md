@@ -56,6 +56,7 @@ What each field means and what reads it:
 - `review` names the review settings: the veto window and the security reviewer. See the `review` object below.
 - `adoption` names the decision that ends transcription mode. See the `adoption` object below.
 - `refusals` names the codes the derived generic results carry. See the `refusals` object below.
+- `vocabulary` adds the project domain verbs to the baseline use-case vocabulary. See the `vocabulary` object below.
 - `reviewedLiteSpecVersion` records the LiteSpec release whose complete contract the project last reviewed, such as `"3.0.0"`. `litespec consumer` compares it with the release of the installed `litespec` tool and fails the run when the two differ.
 - `paths` declares every location the tools read. See the `paths` object below.
 - `exampleWordLimit` bounds the words in an Example section. When omitted, the recorded default of `120` applies, and the validator refuses a value below `40`.
@@ -130,6 +131,17 @@ What each field means and what reads it:
 - `forbidden` is the code the derived `result/<use-case-home.name>.forbidden` carries, derived for a use case whose `access.grant` is a permission.
 - `invalidInput` is the code the derived `result/<use-case-home.name>.invalid-input` carries, derived for a use case with any `input` field carrying `rules`.
 - The model builder reads both when it derives the generic results. When the object is omitted, the defaults apply.
+
+### The `vocabulary` Object
+
+Every use-case name starts with a verb from the baseline vocabulary LiteSpec ships, described in [use-case verbs](../core/behavior.md#use-case-verbs), or from the verbs this object adds. Each field is optional.
+
+- `verbs` lists the single-word domain verbs the project adds, such as `borrow`. A domain verb opens either kind of use case.
+- `queryVerbs` lists project verbs that open only a query, such as `trace`.
+- `phrasal` lists multi-word verbs counted as one opening, such as `check-in`.
+- `retired` maps more synonyms to their replacement verb, beside the synonyms the baseline retires.
+
+A project never redefines a baseline verb. `litespec model check` reports `use-case-verb-unknown`, `use-case-verb-kind`, `reaction-name-form` and `job-name-form` against the baseline and these additions.
 
 ### An `owners` Entry
 

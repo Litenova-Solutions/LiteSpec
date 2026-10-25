@@ -41,7 +41,7 @@ The expense aggregate connects its states through transitions and declares its d
 | From | To | Triggered By |
 |:--|:--|:--|
 | Submitted | Approved | `use-case/spending.approve-expense` |
-| Submitted | Rejected | `use-case/spending.reject-expense` |
+| Submitted | Rejected | `use-case/spending.refuse-expense` |
 | Approved | Reimbursed | `use-case/spending.reimburse-expense` |
 
 The data classes group fields by their shared fate on erasure, which applies `litespec/core/behavior#declare-every-data-class-with-its-erasure-position`:
@@ -344,9 +344,9 @@ Spending keeps 10 use cases: 9 commands and 1 query. Each one is a command or a 
 | `use-case/spending.submit-expense` | command | `journey/submit-and-reimburse#s1` | `permission/submit-expense` | expense | atomic | None |
 | `use-case/spending.attach-receipt` | command | `journey/submit-and-reimburse#s1` | `permission/submit-expense` | receipt | atomic | None |
 | `use-case/spending.approve-expense` | command | `journey/submit-and-reimburse#s2` | `permission/approve-expense` | expense | atomic | None |
-| `use-case/spending.reject-expense` | command | `journey/submit-and-reimburse#s2` | `permission/approve-expense` | expense | atomic | None |
+| `use-case/spending.refuse-expense` | command | `journey/submit-and-reimburse#s2` | `permission/approve-expense` | expense | atomic | None |
 | `use-case/spending.reimburse-expense` | command | `journey/submit-and-reimburse#s3` | `permission/reimburse-expense` | expense | atomic | publishes `integration-event/payout.requested` after commit |
-| `use-case/spending.set-receipt-threshold` | command | None | `permission/manage-policy` | policy store | atomic | None |
+| `use-case/spending.change-receipt-threshold` | command | None | `permission/manage-policy` | policy store | atomic | None |
 | `use-case/spending.export-expenses` | command | `journey/submit-and-reimburse#s3` | `permission/export-expenses` | None | None | None |
 | `use-case/spending.erase-personal-data` | command | None | `permission/erase-personal-data` | expense | atomic | None |
 | `use-case/spending.send-approver-reminder` | command | `journey/submit-and-reimburse#s2` | system | None | None | sends `notification/spending.approver-reminder` async |
@@ -520,13 +520,13 @@ The entry omits `timing`, so it reads as `async`. The reaction serves the journe
 
 ## The Jobs
 
-A job is scheduled, one-off, or operator work that issues use cases. Claimwick keeps 2 scheduled jobs. The reminder job runs nightly and issues the reminder command once per waiting expense. It lives at `docs/behavior/modules/spending/jobs/remind-approvers.md`, declares its kind with a structured schedule, and states its scope, lease, service level, evidence, and runbook, which applies `litespec/core/behavior#declare-every-job-with-kind-and-structured-schedule`.
+A job is scheduled, one-off, or operator work that issues use cases. Claimwick keeps 2 scheduled jobs. The reminder job runs nightly and issues the reminder command once per waiting expense. It lives at `docs/behavior/modules/spending/jobs/send-approver-reminders-on-expense-submitted.md`, declares its kind with a structured schedule, and states its scope, lease, service level, evidence, and runbook, which applies `litespec/core/behavior#declare-every-job-with-kind-and-structured-schedule`.
 
 ```json
 {
   "type": "job",
-  "id": "job/spending.remind-approvers",
-  "title": "Remind Approvers",
+  "id": "job/spending.send-approver-reminders-on-expense-submitted",
+  "title": "Send Approver Reminders on Expense Submitted",
   "owner": "claimwick-team",
   "status": "reviewed",
   "kind": "scheduled",
@@ -537,7 +537,7 @@ A job is scheduled, one-off, or operator work that issues use cases. Claimwick k
   "scope": "Submitted expenses waiting past three business days without a decision.",
   "batchSize": 200,
   "lease": {
-    "name": "remind-approvers",
+    "name": "send-approver-reminders-on-expense-submitted",
     "duration": "PT15M"
   },
   "effects": [

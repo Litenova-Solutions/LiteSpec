@@ -148,7 +148,7 @@ A behavior module gathers one business area's glossary terms, aggregates, rules,
     | Record | Shape |
     |:---|:---|
     | `reaction/spending.notify-on-reimbursement` | On `event/expense.reimbursed`, sends `notification/spending.reimbursement-received`. |
-    | `job/spending.remind-approvers` | Scheduled nightly; issues `use-case/spending.send-approver-reminder` per waiting expense. |
+    | `job/spending.send-approver-reminders-on-expense-submitted` | Scheduled nightly; issues `use-case/spending.send-approver-reminder` per waiting expense. |
     | `notification/spending.approver-reminder` | Email to the manager with the expense and its waiting time. |
     | `setting/spending.receipt-threshold` | Money, default EUR 25, set by the operator, refuses at the bound. |
 

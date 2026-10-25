@@ -4,7 +4,7 @@ using LiteSpec.Tests.Support;
 
 namespace LiteSpec.Tests.Model.Checks;
 
-/// <summary>Proves the use-case verb check: a declared vocabulary holds every use-case opening verb.</summary>
+/// <summary>Proves the naming checks: the baseline and project verbs, one kind per verb, and the reaction and job name forms.</summary>
 public sealed class UseCaseVerbCheckTests
 {
     [Fact]
@@ -82,15 +82,77 @@ public sealed class UseCaseVerbCheckTests
     }
 
     [Fact]
-    public void Missing_Vocabulary_Reports_Nothing()
+    public void Missing_Vocabulary_Checks_The_Baseline()
     {
         using var temp = Cli.Temp("checks");
         File.WriteAllText(Path.Combine(temp.Path, "litespec.project.json"), "{}");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.fetch-copy", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "loans", "fetch-copy.md"), """{"kind": "command"}"""));
+            TestModel.Record("use-case", "use-case/lending.fetch-copy", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "loans", "fetch-copy.md"), """{"kind": "query"}"""),
+            TestModel.Record("use-case", "use-case/lending.read-copy", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "loans", "read-copy.md"), """{"kind": "query"}"""));
 
-        Assert.DoesNotContain("use-case-verb-unknown", TestModel.Codes(model));
+        var unknown = Checker.Check(model).Findings.Where(finding => finding.Code == "use-case-verb-unknown").ToList();
+
+        Assert.Single(unknown);
+        Assert.Contains("use 'read'", unknown[0].Message);
+    }
+
+    [Fact]
+    public void Query_Opening_With_A_Changing_Verb_Reports_The_Kind()
+    {
+        using var temp = Cli.Temp("checks");
+        WriteProject(temp.Path);
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("use-case", "use-case/lending.change-copy", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "loans", "change-copy.md"), """{"kind": "query"}"""),
+            TestModel.Record("use-case", "use-case/lending.list-copies", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "loans", "list-copies.md"), """{"kind": "command"}"""));
+
+        Assert.Equal(2, TestModel.Codes(model).Count(code => code == "use-case-verb-kind"));
+    }
+
+    [Fact]
+    public void Project_Query_Verb_Opens_Only_A_Query()
+    {
+        using var temp = Cli.Temp("checks");
+        File.WriteAllText(Path.Combine(temp.Path, "litespec.project.json"), """{"vocabulary": {"queryVerbs": ["trace"]}}""");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("use-case", "use-case/lending.trace-loan", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "loans", "trace-loan.md"), """{"kind": "command"}"""));
+
+        Assert.Contains("use-case-verb-kind", TestModel.Codes(model));
+    }
+
+    [Fact]
+    public void Reaction_Named_For_Its_Act_And_Trigger_Passes()
+    {
+        using var temp = Cli.Temp("checks");
+        WriteProject(temp.Path);
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("reaction", "reaction/lending.send-due-notice-on-loan-borrowed", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "reactions", "send-due-notice-on-loan-borrowed.md"), """{"on": ["event/loan.loan-borrowed"]}"""),
+            TestModel.Record("reaction", "reaction/lending.notify-borrower", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "reactions", "notify-borrower.md"), """{"on": ["event/loan.loan-borrowed"]}"""));
+
+        var form = Checker.Check(model).Findings.Where(finding => finding.Code == "reaction-name-form").ToList();
+
+        Assert.Single(form);
+        Assert.Contains("notify-borrower", form[0].Message);
+    }
+
+    [Fact]
+    public void Job_Carries_The_Verb_Of_The_Command_It_Issues()
+    {
+        using var temp = Cli.Temp("checks");
+        WriteProject(temp.Path);
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("use-case", "use-case/lending.expire-holds", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "holds", "expire-holds.md"), """{"kind": "command"}"""),
+            TestModel.Record("job", "job/lending.expire-lapsed-holds", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "jobs", "expire-lapsed-holds.md"), """{"effects": [{"issues": "use-case/lending.expire-holds"}]}"""),
+            TestModel.Record("job", "job/lending.sweep-holds", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "jobs", "sweep-holds.md"), """{"effects": [{"issues": "use-case/lending.expire-holds"}]}"""));
+
+        var form = Checker.Check(model).Findings.Where(finding => finding.Code == "job-name-form").ToList();
+
+        Assert.Single(form);
+        Assert.Contains("sweep-holds", form[0].Message);
     }
 
     static void WriteProject(string root) =>

@@ -129,6 +129,43 @@ A query reads without changing and declares what its readers receive. Its output
 | `paging` | `{ order, cursor | offset, defaultLimit, maxLimit }`, or `none (reason)`. |
 | `builtAsynchronously` | Set where the source lags, with a bounded or advisory freshness and a lag scenario. |
 
+### Use-Case Verbs
+
+A use-case name starts with a verb, and each verb keeps one meaning and one kind across the project. LiteSpec ships the baseline below; a project adds its domain verbs in `litespec.project.json` `vocabulary` and retires more synonyms there, and never redefines a baseline verb.
+
+| Verb | Kind | Means |
+|:---|:---|:---|
+| `read` | query | One record, or one composed view, by its identity. |
+| `list` | query | A page of records matching a filter. |
+| `search` | query | A page of records matching free text. |
+| `export` | query | A generated file of many records. |
+| `download` | query | The stored or rendered document of one record. |
+| `answer`, `draft`, `summarize`, `translate` | either | Text a model writes for a person to review. |
+| `create` | command | A new aggregate root. |
+| `add`, `remove` | command | A part inside an existing record. |
+| `change` | command | Data of an existing record. |
+| `duplicate` | command | A new record copied from an existing one. |
+| `open`, `close` | command | A period, case or shift that runs between the two. |
+| `start`, `complete` | command | Work that runs to an end. |
+| `publish`, `withdraw` | command | What buyers or the public can see. |
+| `pause`, `resume` | command | A temporary stop the owner chooses. |
+| `suspend`, `reinstate` | command | A stop an operator imposes. |
+| `enable`, `disable` | command | A switch. |
+| `grant`, `revoke` | command | Access. |
+| `request`, `approve`, `refuse` | command | A request someone else decides. |
+| `issue`, `void` | command | A document or credential. |
+| `retire`, `restore` | command | The end of a record's life, and its return inside the restore window. |
+| `cancel` | command | An intention or booking that will not happen. |
+| `expire` | command | What time ended; issued by jobs. |
+| `record` | command | Something that happened outside the system: a provider answer, a delivery result, a scan. |
+| `send` | command | A message to a person. |
+| `post`, `reverse` | command | A ledger transaction and its correction. |
+| `retry`, `verify` | command | Work run again, and a check run again. |
+
+The baseline retires these synonyms: `get`, `fetch`, `lookup` and `count` become `read`; `browse` becomes `list`; `find` becomes `search`; `update`, `edit`, `modify`, `revise`, `set`, `adjust`, `configure` and `rename` become `change`; `define`, `compose`, `save` and `new` become `create`; `delete` becomes `remove`; `notify`, `remind` and `email` become `send`; `suggest` and `ask` become `answer`; `mark`, `note` and `log` become `record`; `end` becomes `close`; `finish` becomes `complete`; `abandon` becomes `cancel`; `lapse` becomes `expire`; `clone` and `copy` become `duplicate`; `replay` becomes `retry`; `recheck` becomes `verify`; `archive` becomes `retire`; `reject` and `deny` become `refuse`; `unpublish` and `hide` become `withdraw`.
+
+A reaction is named for what it does and the fact it answers, `<verb>-<what>-on-<fact>`, such as `send-due-notice-on-loan-borrowed`. A job carries the verb of the command it issues, so `expire-lapsed-holds` issues `expire-holds`.
+
 ### Results and Refusals
 
 Each use case ends in named results: child records with an `outcome` of `success` or `refusal`, a `code` on a refusal, and a `meaning`. Refusals stand in precedence order: the first match wins. A refusal is a rejection or error in industry words; the record word stays refusal.
@@ -466,11 +503,19 @@ The specification names only what carries business meaning. Child entities and v
 
 ### Start Every Use Case with a Declared Verb
 
-**Statement:** Each use case MUST start with a verb from the project vocabulary declared in `litespec.project.json`.
+**Statement:** Each use case MUST start with a verb from the baseline vocabulary or the domain verbs the project declares in `litespec.project.json`.
 
-**Rationale:** One verb per meaning keeps use cases findable: `read` versus `get` and `change` versus `update` stop competing when the project declares one closed list with its phrasal verbs and retired synonyms. A shared first word groups related behavior in every listing, and a retired synonym points at its replacement instead of spreading silently. The `use-case-verb-unknown` check reports a use-case name starting outside the declared verbs, and a project with no vocabulary is not checked.
+**Rationale:** One verb per meaning keeps use cases findable: `read` versus `get` and `change` versus `update` stop competing when every project starts from one closed baseline and adds only its domain verbs. A shared first word groups related behavior in every listing, and a retired synonym points at its replacement instead of spreading silently. The `use-case-verb-unknown` check reports a use-case name starting outside the baseline and the project verbs, and names the replacement of a retired synonym.
 
-**Example:** The vocabulary declares `verbs: ["borrow", "list", "change"]`, `phrasal: ["check-in"]`, and `retired: {"update": "change"}`, so `use-case/lending.borrow-copy` passes while `use-case/lending.update-copy` is told to use `change`.
+**Example:** The vocabulary declares `verbs: ["borrow"]` and `phrasal: ["check-in"]`, so `use-case/lending.borrow-copy` and `use-case/lending.check-in-copy` pass, `use-case/lending.list-loans` passes on the baseline, and `use-case/lending.update-copy` is told to use `change`.
+
+### Keep One Kind per Verb
+
+**Statement:** Each use case MUST open with a verb of its own kind: a reading verb for a query, and a changing verb for a command.
+
+**Rationale:** The first word is the first thing a reader trusts. A query named `change-...` or a command named `read-...` makes every listing lie about what the use case may touch, and a reviewer stops reading names at all. The baseline gives each verb a kind, a project names its own reading verbs in `queryVerbs`, and its other domain verbs open either kind. The `use-case-verb-kind` check reports a use case whose verb names the other kind.
+
+**Example:** `use-case/lending.list-loans` is a query and passes; `use-case/lending.read-overdue-count` declared as a command is reported, and so is `use-case/lending.change-copy` declared as a query.
 
 ### Connect Each Use Case to Intent
 
@@ -680,6 +725,14 @@ The specification names only what carries business meaning. Child entities and v
 
 **Rationale:** Reactions filed by trigger scatter: one module behavior hides on a dozen trigger pages, and nobody sees the module whole. Filing each reaction with the module it changes keeps each module behavior in one place. The trigger page shows reactions to its event as a view derived from records.
 
+### Name Each Reaction for Its Act and Its Trigger
+
+**Statement:** Each reaction MUST be named `<verb>-<what>-on-<fact>`, with a declared verb.
+
+**Rationale:** A reaction runs because something happened, and a name without its trigger hides why it runs: `send-due-notice` could fire on a borrow, a renewal or a reminder job. Naming the act and the fact lets a reader find every consequence of a fact by its name, and keeps two reactions to one fact from colliding. The `reaction-name-form` check reports a reaction name without a declared verb or without `-on-`.
+
+**Example:** `reaction/lending.send-due-notice-on-loan-borrowed` answers `event/loan.loan-borrowed` and issues the notice; `reaction/lending.notify-borrower` is reported.
+
 ### State the Failure Handling of Every Reaction
 
 **Statement:** Each reaction MUST declare its structured `onFailure` policy and its idempotency.
@@ -699,6 +752,14 @@ The specification names only what carries business meaning. Child entities and v
 **Rationale:** A job without a declared scope and promise is a blind run: nobody states what each run selects, what it runs per item, what it guarantees, or where proof lands. Declaring the kind of `scheduled`, `one-off`, or `operator`, the scope with its batch size and lease, the `effects` entries with the aggregates read, the service level citing its requirement, the evidence, and the runbook states the run beside its promise. The schedule is structured with its timezone, never prose. The `schedule-unstructured` check reports a schedule no tool can read, and `record-shape` reports a job holding top-level `issues`.
 
 **Example:** The expire-lapsed-returns job runs every six hours over open returns past their window, issues one expiry per item, and lands its evidence in the run log.
+
+### Name Each Job for the Command It Issues
+
+**Statement:** Each job MUST start with the verb of a use case it issues.
+
+**Rationale:** A job decides nothing about an item; it selects the next items and issues one command for each. Naming it for that command lets a reader go from the schedule to the behavior in one step, and stops a job named `sweep-` or `process-` from hiding what it changes. The `job-name-form` check reports a job whose first word is not the verb of a use case it issues.
+
+**Example:** `job/lending.expire-lapsed-holds` issues `use-case/lending.expire-holds` and passes; `job/lending.sweep-holds` issuing the same use case is reported.
 
 ### Guard Every Operator Job
 
@@ -828,7 +889,8 @@ This informative example demonstrates `litespec/core/behavior#declare-the-kind-o
 | litespec/core/behavior#publish-every-outbound-integration-event-from-effects | checkable | `litespec model check` reports `effect-undeclared` for an emitted integration event no record declares in effects. |
 | litespec/core/behavior#reach-every-inbound-integration-event-through-a-webhook | guidance | Each inbound integration event names a webhook entry point as its door. |
 | litespec/core/behavior#give-each-use-case-a-command-or-query-kind | checkable | `litespec consumer` fails a use-case page without `kind` or with an unknown kind. |
-| litespec/core/behavior#start-every-use-case-with-a-declared-verb | checkable | `litespec model check` reports `use-case-verb-unknown` for a use-case name starting outside the declared verbs; a project with no vocabulary reports nothing. |
+| litespec/core/behavior#start-every-use-case-with-a-declared-verb | checkable | `litespec model check` reports `use-case-verb-unknown` for a use-case name starting outside the baseline and the project verbs. |
+| litespec/core/behavior#keep-one-kind-per-verb | checkable | `litespec model check` reports `use-case-verb-kind` for a query opening with a changing verb or a command opening with a reading verb. |
 | litespec/core/behavior#connect-each-use-case-to-intent | checkable | `litespec model check` reports `record-orphaned` for a use case with neither `serves` nor `fulfills`. |
 | litespec/core/behavior#grant-each-use-case-scoped-access | checkable | `litespec consumer` fails a use-case page without `access` carrying `auth`, grant, and tenant scope. |
 | litespec/core/behavior#name-the-entry-points-that-reach-each-use-case | checkable | `litespec model check` reports `reference-unresolved` for a `reachedThrough` entry naming no entry point. |
@@ -858,9 +920,11 @@ This informative example demonstrates `litespec/core/behavior#declare-the-kind-o
 | litespec/core/behavior#issue-or-send-from-every-reaction | checkable | `litespec model check` reports `record-shape` for a reaction with no `effects` and for top-level `issues` or `sends`. |
 | litespec/core/behavior#write-no-aggregate-directly-from-a-reaction | guidance | Each reaction changes aggregates only through the use case it issues. |
 | litespec/core/behavior#file-every-reaction-with-the-module-it-changes | guidance | Each reaction page sits with the module it changes, or with the notification module when it only sends. |
+| litespec/core/behavior#name-each-reaction-for-its-act-and-its-trigger | checkable | `litespec model check` reports `reaction-name-form` for a reaction name without a declared verb or without `-on-`. |
 | litespec/core/behavior#state-the-failure-handling-of-every-reaction | checkable | `litespec consumer` fails a reaction with `onFailure` outside the retry and dead-letter shape; `litespec model check` reports `record-shape` for prose handling, a missing or malformed retry, and a malformed duration. |
 | litespec/core/behavior#point-reaction-scenarios-at-the-issued-result | checkable | `litespec model check` reports `scenario-result-unresolved` for a reaction scenario ending outside the issued use case results. |
 | litespec/core/behavior#declare-every-job-with-kind-and-structured-schedule | checkable | `litespec model check` reports `schedule-unstructured` for a schedule no tool can read and `record-shape` for top-level `issues`; `litespec consumer` fails a job without kind, scope, effects, reads, service level, evidence, or runbook. |
+| litespec/core/behavior#name-each-job-for-the-command-it-issues | checkable | `litespec model check` reports `job-name-form` for a job whose first word is not the verb of a use case it issues. |
 | litespec/core/behavior#guard-every-operator-job | checkable | `litespec model check` reports `operator-job-without-guard` for an operator job without `runsWhere` or guard. |
 | litespec/core/behavior#describe-every-notification-with-audience-channel-and-consent | checkable | `litespec model check` reports `notification-without-sender` for a notification no use case or reaction sends; `litespec consumer` fails a notification without its declared fields. |
 | litespec/core/behavior#claim-every-notification-promise-from-a-requirement | guidance | Each notification claim cites its requirement beside the claim. |
