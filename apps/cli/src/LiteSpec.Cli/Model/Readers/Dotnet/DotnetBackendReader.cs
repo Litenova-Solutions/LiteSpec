@@ -743,6 +743,13 @@ sealed class DotnetBackendReader : IBackendReader
             {
                 if (MessageTarget(invocation, templateCounts: true) is { } sends)
                 {
+                    // A message built from a rendered template names that template: the key the
+                    // enclosing method passes to Render is the notification the send carries.
+                    if (sends.Detail == "type" && RenderedTemplate(invocation) is { } rendered)
+                    {
+                        sends = (rendered, "template");
+                    }
+
                     found.Add((receiver, new CodeDispatch("sends", sends.Target, sends.Detail, file, line)));
                 }
             }
@@ -1183,6 +1190,31 @@ sealed class DotnetBackendReader : IBackendReader
         }
 
         return null;
+    }
+
+    /// <summary>
+    ///     The template key the send's enclosing method renders: the string literal passed first to a
+    ///     call named Render. Null when the method renders no template, or renders more than one.
+    /// </summary>
+    private static string? RenderedTemplate(InvocationExpressionSyntax send)
+    {
+        var scope = send.Ancestors().OfType<MemberDeclarationSyntax>().FirstOrDefault();
+
+        if (scope is null)
+        {
+            return null;
+        }
+
+        var keys = scope.DescendantNodes()
+                        .OfType<InvocationExpressionSyntax>()
+                        .Where(call => call.Expression is MemberAccessExpressionSyntax { Name.Identifier.ValueText: "Render" }
+                                       && call.ArgumentList.Arguments.Count > 0
+                                       && call.ArgumentList.Arguments[0].Expression is LiteralExpressionSyntax { Token.Value: string })
+                        .Select(call => (string)((LiteralExpressionSyntax)call.ArgumentList.Arguments[0].Expression).Token.Value!)
+                        .Distinct(StringComparer.Ordinal)
+                        .ToList();
+
+        return keys.Count == 1 ? keys[0] : null;
     }
 
     /// <summary>The constructed type an argument carries, directly or through a local it names.</summary>

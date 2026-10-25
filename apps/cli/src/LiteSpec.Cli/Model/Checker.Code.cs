@@ -578,7 +578,9 @@ static class CodeChecks
         {
             return model.ById.TryGetValue(id, out var notification)
                 && notification.Type == "notification"
-                && notification.Field("template") == dispatch.Target;
+                && notification.Field("template") is { } template
+                && template.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
+                           .Contains(dispatch.Target, StringComparer.Ordinal);
         }
 
         return MessageMatches(dispatch.Target, id);

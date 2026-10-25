@@ -112,6 +112,23 @@ public sealed class DotnetOneHopDispatchTests
         Assert.Equal("LoanFanout.NotifyAsync", dispatch.Via);
     }
 
+    [Fact]
+    public void Send_Of_A_Message_Built_From_A_Rendered_Template_Names_The_Template()
+    {
+        using var temp = Cli.Temp("onehop");
+        WriteProject(temp.Path);
+        WriteApp(temp.Path, Path.Combine("Lending", "Loans", "BorrowCopy", "BorrowCopyCommandHandler.cs"), RenderingHandler);
+
+        var handler = Assert.Single(
+            new DotnetBackendReader().Read(ConsumerConfig.Load(temp.Path)).Handlers,
+            found => found.UseCaseId == "use-case/lending.borrow-copy");
+        var dispatch = Assert.Single(handler.Dispatches!);
+
+        Assert.Equal("sends", dispatch.Verb);
+        Assert.Equal("loan-borrowed-notice", dispatch.Target);
+        Assert.Equal("template", dispatch.Detail);
+    }
+
     static void WriteProject(string root) =>
         File.WriteAllText(
             Path.Combine(root, "litespec.project.json"),
@@ -127,6 +144,19 @@ public sealed class DotnetOneHopDispatchTests
         Directory.CreateDirectory(Path.GetDirectoryName(path)!);
         File.WriteAllText(path, text);
     }
+
+    const string RenderingHandler = """
+        namespace Library.Application.Lending.Loans.BorrowCopy;
+
+        public sealed class BorrowCopyCommandHandler(IOrderMessenger messenger, ITemplateRenderer templates)
+        {
+            public async Task Handle(BorrowCopyCommand command, CancellationToken cancellationToken)
+            {
+                var rendered = templates.Render("loan-borrowed-notice", command.CopyId);
+                await messenger.SendAsync(new OutboundMessage { Body = rendered.Body }, cancellationToken);
+            }
+        }
+        """;
 
     const string MediatorHandler = """
         namespace Library.Application.Lending.Loans.BorrowCopy;
