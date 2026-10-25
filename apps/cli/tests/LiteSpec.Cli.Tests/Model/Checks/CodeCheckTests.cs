@@ -207,6 +207,21 @@ public sealed class CodeCheckTests
     }
 
     [Fact]
+    public void Reaction_Calling_A_Declared_Operation_Passes()
+    {
+        using var temp = Cli.Temp("checks");
+        var file = Path.Combine(temp.Path, "PushPassOnLoanReaction.cs");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("reaction", "reaction/lending.push-pass-on-loan", Path.Combine(temp.Path, "push.md"), """{"status": "reviewed", "on": ["event/loan.loan-borrowed"], "effects": [{"calls": "external-system/wallet#push"}]}"""));
+        model.Code.Reactions.Add(new ReactionInfo(
+            "PushPassOnLoanReaction", file, 3, "reaction", null, "reaction/lending.push-pass-on-loan",
+            Dispatches: [new CodeDispatch("calls", "PushAsync", "IWalletPasses", file, 9)]));
+
+        Assert.DoesNotContain("effect-undeclared", TestModel.Codes(model));
+    }
+
+    [Fact]
     public void Handler_Dispatching_Through_A_Helper_Names_The_Helper()
     {
         using var temp = Cli.Temp("checks");

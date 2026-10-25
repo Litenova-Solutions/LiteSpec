@@ -492,11 +492,15 @@ static class CodeChecks
             edges.Add(("issues", id));
         }
 
+        // A reaction sends, publishes and calls as well; a job only issues.
         if (record.Type == "reaction")
         {
-            foreach (var id in record.EdgeIds("sends"))
+            foreach (var verb in new[] { "sends", "publishes", "calls" })
             {
-                edges.Add(("sends", id));
+                foreach (var id in record.EdgeIds(verb))
+                {
+                    edges.Add((verb, id));
+                }
             }
         }
 
