@@ -39,6 +39,12 @@ static class RecordPages
         ".svelte-kit", "build", "dist", "coverage",
     };
 
+    /// <summary>The file kinds that cite record identifiers: pages, data, and the code that anchors to records.</summary>
+    private static readonly HashSet<string> CitingExtensions = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ".md", ".json", ".cs", ".ts", ".tsx", ".js", ".mjs", ".svelte",
+    };
+
     /// <summary>The documentation root new pages are written under.</summary>
     public static string DocsRoot(ConsumerConfig config) =>
         config.RecordRoots.FirstOrDefault() ?? Path.Combine(config.Root, "docs");
@@ -218,8 +224,9 @@ static class RecordPages
         char.IsAsciiLetterOrDigit(value) || value is '_' or '-' or '.';
 
     /// <summary>
-    ///     Every Markdown and JSON file under the root, in a stable order, with
-    ///     build output, installed packages, and hidden folders left out.
+    ///     Every file a record identifier can be cited in under the root, in a stable order: Markdown,
+    ///     JSON, and the source and test files whose anchor and proof tags cite records. Build output,
+    ///     installed packages, and hidden folders are left out.
     /// </summary>
     public static IReadOnlyList<string> ProjectFiles(string root)
     {
@@ -239,8 +246,7 @@ static class RecordPages
     {
         foreach (var file in Directory.EnumerateFiles(directory))
         {
-            if (file.EndsWith(".md", StringComparison.OrdinalIgnoreCase)
-                || file.EndsWith(".json", StringComparison.OrdinalIgnoreCase))
+            if (CitingExtensions.Contains(Path.GetExtension(file)))
             {
                 found.Add(file);
             }
