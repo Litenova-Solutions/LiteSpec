@@ -10,3 +10,6 @@ artifacts/
 mcps/
 .opencode/
 .agents/delegate/
+
+# Working plans stay local.
+.agents/plans/
