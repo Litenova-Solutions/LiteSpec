@@ -22,7 +22,7 @@ A permission is one allowed action. The project keeps every permission in one sh
 
 ### The Access Field
 
-Each use case declares `access` with three parts: how the caller proves identity, what grant the call checks, and which tenant reach the call has. The `auth` list names one or more of `session`, `token`, `device`, `link`, `app`, `anonymous`, or `system`. The `grant` is a permission such as `permission/manage-listing`, a self grant such as `self(permission/read-profile)`, or the open grants `anonymous` and `system`. A self grant allows the permission only on records the caller owns. The `tenant` scope is `own` for work inside the caller tenant, `cross` for work reaching across tenants, `public` for work with no tenant boundary, or `none` for work that touches no tenant data. The [behavior page](behavior.md) states the use case fields around access.
+Each use case declares `access` with three parts: how the caller proves identity, what grant the call checks, and which tenant reach the call has. The `auth` list names one or more of `session`, `token`, `device`, `link`, `app`, `anonymous`, or `system`. The `grant` is a permission such as `permission/manage-copies`, a self grant such as `self(permission/read-loans)`, or the open grants `anonymous` and `system`. A self grant allows the permission only on records the caller owns. The `tenant` scope is `own` for work inside the caller tenant, `cross` for work reaching across tenants, `public` for work with no tenant boundary, or `none` for work that touches no tenant data. The [behavior page](behavior.md) states the use case fields around access.
 
 ### Generic Refusals
 
@@ -34,7 +34,7 @@ Refusals that follow from access and input call for no written result. A call wi
 
 ### Entitlements
 
-An entitlement is a grant that depends on what the caller bought or configured, such as a plan limit or a listing setting. The use case cites the setting or plan behind the grant, so a reviewer sees why one tenant is allowed what another is refused. The cited setting states its range and setter, as the [behavior page](behavior.md) states for settings.
+An entitlement is a grant that depends on what the caller bought or configured, such as a plan limit or a policy setting. The use case cites the setting or plan behind the grant, so a reviewer sees why one tenant is allowed what another is refused. The cited setting states its range and setter, as the [behavior page](behavior.md) states for settings.
 
 ### Hierarchies, Derived Trust, and Delegation
 
@@ -123,7 +123,7 @@ An actor, role, or external system page carries a Summary section stating what t
 **Example:**
 
 ```json
-"access": { "auth": ["session"], "grant": "permission/manage-listing", "tenant": "own" }
+"access": { "auth": ["session"], "grant": "permission/manage-copies", "tenant": "own" }
 ```
 
 ### Authenticate Every Caller Through a Declared Auth Kind
@@ -132,7 +132,7 @@ An actor, role, or external system page carries a Summary section stating what t
 
 **Rationale:** The auth kind tells a reviewer how the caller proves identity before the grant is checked: a session for a signed-in person, a device for a managed scanner, a link for a bearer link, and system for work with no caller. Without a declared kind, anonymous calls and authenticated calls look alike, and a reviewer cannot tell which identity the grant was checked against.
 
-**Example:** A buyer checkout names `session`, a door scanner names `device`, and a nightly job names `system`.
+**Example:** An expense approval names `session`, a self-checkout kiosk names `device`, and a nightly job names `system`.
 
 ### Grant Every Use Case Through a Declared Grant
 
@@ -140,7 +140,7 @@ An actor, role, or external system page carries a Summary section stating what t
 
 **Rationale:** The grant is the check the call passes: a permission for role-held action, a self grant for action on records the caller owns, anonymous for open calls, and system for work with no caller. A grant outside these four forms gives the checker no stated check to enforce, and each caller invents its own test.
 
-**Example:** `permission/manage-listing` for staff work, `self(permission/read-profile)` for a buyer reading their own profile, `anonymous` for a public catalog, and `system` for a door scan handler acting for the device.
+**Example:** `permission/manage-copies` for staff work, `self(permission/read-loans)` for a reader reading their own loans, `anonymous` for a public catalog, and `system` for a self-checkout handler acting for the device.
 
 ### Scope Every Grant to Its Tenant Reach
 
@@ -148,7 +148,7 @@ An actor, role, or external system page carries a Summary section stating what t
 
 **Rationale:** The tenant scope bounds which tenant data the call may touch: own stays inside the caller tenant, cross reaches across tenants, public works beyond tenant boundaries, and none touches no tenant data. Without the scope, a read inside one tenant and a read across all tenants look the same, and the widest reach hides in the narrowest grant.
 
-**Example:** An organizer report names `own`, a staff search across organizers names `cross`, a public catalog names `public`, and a health check names `none`.
+**Example:** An expense report names `own`, a staff search across tenants names `cross`, a public catalog names `public`, and a health check names `none`.
 
 ### Derive Generic Refusals from Access and Input
 
@@ -172,7 +172,7 @@ An actor, role, or external system page carries a Summary section stating what t
 
 **Rationale:** An entitlement allows one tenant what another is refused, so the grant alone reads as unequal treatment. Citing the setting or plan shows the commercial or configured reason behind the difference, and gives the reviewer the range and setter to judge it against.
 
-**Example:** A return queue command cites `setting/sales.max-open-returns`, so a fifth return is refused by the organizer setting rather than by role.
+**Example:** A submit command cites `setting/spending.receipt-threshold`, so an expense above the line with no receipt is refused by the policy setting rather than by role.
 
 ### Prove Hierarchies Derived Trust and Delegation with Scenarios
 
@@ -180,7 +180,7 @@ An actor, role, or external system page carries a Summary section stating what t
 
 **Rationale:** Patterns compose the same access parts into wider reach, so prose alone cannot show where the wider grant stops. Scenarios that walk an allowed call and a refused call pin the boundary as checked facts, and the checker confirms each one through the public boundary.
 
-**Example:** A delegation story shows an assistant acting for an organizer succeeding, and the same assistant acting without delegation ending in the derived forbidden result.
+**Example:** A delegation story shows an assistant acting for a manager succeeding, and the same assistant acting without delegation ending in the derived forbidden result.
 
 ### Grant Across Tenants Only Through Declared Delegation
 
@@ -188,7 +188,7 @@ An actor, role, or external system page carries a Summary section stating what t
 
 **Rationale:** Delegation lets one actor act for another, so a grant on one side alone leaves the other side unreviewed. Declaring the grant on both sides shows who may delegate and who may be acted for, and the tenancy extension states the fields each side carries.
 
-**Example:** An assistant acts for an organizer only where the organizer delegation grant and the assistant acting grant both name the pairing.
+**Example:** An assistant acts for a manager only where the manager delegation grant and the assistant acting grant both name the pairing.
 
 ### Name Every Entry Point with Its Kind
 
@@ -196,7 +196,7 @@ An actor, role, or external system page carries a Summary section stating what t
 
 **Rationale:** The kind tells a reviewer how callers arrive: a browser serves people, an api serves callers over a boundary, a webhook receives inbound events, a device serves a managed scanner, a cli serves operators, an mcp channel serves a model, served content serves a static file, and a reaction or job runs without a request. Without the kind, interactive operations and background work look alike.
 
-**Example:** The web shop carries `browser`, a scanner handshake carries `device`, and the nightly export carries `job`.
+**Example:** The library app carries `browser`, a kiosk handshake carries `device`, and the nightly export carries `job`.
 
 ### Describe Every Served Content Entry Point with Its Serving Fields
 
@@ -220,7 +220,7 @@ An actor, role, or external system page carries a Summary section stating what t
 
 **Rationale:** Each operation is one edge to outside behavior the product does not control, with its direction, timeout, retry, response, and cache behavior. Without the declared list, a new outside call ships as an unreviewed dependency, and the security queue has no stated edge to review.
 
-**Example:** A payment provider declares a `refund` operation with its timeout, retry count, and response shape, which the refund effect cites as `calls`.
+**Example:** A payout bank declares a `settle-batch` operation with its timeout, retry count, and response shape, which the payout effect cites as `calls`.
 
 ### Declare Erasure for Every External System
 
@@ -228,7 +228,7 @@ An actor, role, or external system page carries a Summary section stating what t
 
 **Rationale:** Personal data sent outside stays outside unless some operation or event removes it, so the erasure declaration states the call, the integration event, or why removal is impossible. An impossible erasure cites the Intent decision that accepts the limit, so the gap reads as an accepted decision rather than a missed edge.
 
-**Example:** A charge store declares `impossible (charge records belong to the processor)` with the decision that accepts the limit, plus the sentence buyers see.
+**Example:** A payout archive declares `impossible (settled payouts belong to the bank)` with the decision that accepts the limit, plus the sentence employees see.
 
 ### Write a Summary on Every Actor and Role Page
 

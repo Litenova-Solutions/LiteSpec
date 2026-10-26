@@ -39,8 +39,8 @@ The system holds one delivery approach and one operating model:
 | Layer | Meaning | Concrete Example |
 |:---|:---|:---|
 | LiteSpec | The complete system of standards, records, implementation, verification, operations, and release control. | The repository structure, provision IDs, templates, tests, runbooks, and release records. |
-| Record-Driven Delivery | Approved records select work and define completion. | `use-case/orders.cancel-order` defines behavior before its handler, endpoint, and tests are accepted. |
-| Agent-Driven Engineering | Agents perform substantial engineering execution within approved scope and report decisions that need an accountable person. | An agent loads the cancellation record, implements it, runs its checks, and reports an unknown refund policy. |
+| Record-Driven Delivery | Approved records select work and define completion. | `use-case/spending.submit-expense` defines behavior before its handler, endpoint, and tests are accepted. |
+| Agent-Driven Engineering | Agents perform substantial engineering execution within approved scope and report decisions that need an accountable person. | An agent loads the submission record, implements it, runs its checks, and reports an unknown approval policy. |
 
 `Driven` means engineering work starts from an approved record, and completion is judged against that record. A record outlives one agent session in the workspace, which is what makes it more than a prompt.
 
@@ -58,7 +58,7 @@ Each page owns its tables and rules, and this page cites them without copying. A
 
 **Statement:** An agent MUST stop affected work and record the question in a draft decision when an unknown fact changes behavior, money, data, access, or recovery.
 
-**Rationale:** Agents meet open questions in the middle of a task: an unknown refund policy, an unclear access rule, a missing recovery target. When the answer changes behavior, money, data, access, or recovery, only an accountable person can give it. Stopping and recording the question in a draft decision, with a decider and a decide-by date, keeps the choice visible and owned, instead of buried in code nobody approved. Decision owners approve outcomes, terms, policies, criteria, commitments, and risk, and an agent contribution stays a proposal until one of them accepts it.
+**Rationale:** Agents meet open questions in the middle of a task: an unknown approval policy, an unclear access rule, a missing recovery target. When the answer changes behavior, money, data, access, or recovery, only an accountable person can give it. Stopping and recording the question in a draft decision, with a decider and a decide-by date, keeps the choice visible and owned, instead of buried in code nobody approved. Decision owners approve outcomes, terms, policies, criteria, commitments, and risk, and an agent contribution stays a proposal until one of them accepts it.
 
 ### Drive Work from Approved Records
 
@@ -72,7 +72,7 @@ Each page owns its tables and rules, and this page cites them without copying. A
 
 **Rationale:** The folder or the anchor tag is the one link from Implementation to Behavior: the handler folder anchors the use case, and a reaction class carries an implements tag naming the reaction record. That link lets the checks read which record each file serves without guessing. Nothing above Implementation is computed from code, so the link points up and the records stay the authority.
 
-**Example:** The folder holding the complete-ticket-resale handler anchors `use-case/sales.complete-ticket-resale`, and the void-code reaction class carries an implements tag naming `reaction/admission.void-code-on-resale`.
+**Example:** The folder holding the reimburse-expense handler anchors `use-case/spending.reimburse-expense`, and the reminder reaction class carries an implements tag naming `reaction/spending.send-approver-reminders-on-expense-submitted`.
 
 ### Declare Every Edge Between Records
 
@@ -124,38 +124,38 @@ docs/
     roadmap/
       milestones.md
     decisions/
-      0047-guest-checkout.md
+      0001-receipt-threshold.md
     problems/
-      abandoned-carts-lose-sales.md
+      expenses-wait-weeks.md
     features/
-      guest-checkout.md
+      approval-reminders.md
     goals/
-      repeat-purchase-rate.md
+      decided-in-days.md
     journeys/
-      check-out-as-a-guest.md
+      submit-and-reimburse.md
     constraints/
-      payment-card-rules.md
+      tax-receipt-retention.md
   behavior/
     README.md
     actors/
-      buyer.md
+      employee.md
     roles/
-      shop-manager.md
+      approver.md
     permissions.md
     entry-points.md
     systems/
-      payment-provider.md
+      payout-bank.md
     rules/
-      pricing-rules.md
+      spending-rules.md
     modules/
       README.md
-      orders/
+      spending/
         README.md
-        orders/
+        expenses/
           README.md
-          cancel-order.md
+          submit-expense.md
   research/
-    address-lookup-providers.md
+    approval-time-benchmarks.md
   operations/
     limits.md
     secrets.json
@@ -165,7 +165,7 @@ docs/
   deviations/
     temporary-direct-database-read.md
   known-gaps/
-    checkout-scenarios-unproved.md
+    export-expenses-unimplemented.md
   ui/
     README.md
   glossary.json

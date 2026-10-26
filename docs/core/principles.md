@@ -78,7 +78,7 @@ Boundaries are where components meet and where future readers orient themselves.
 
 **Rationale:** A provider behavior, a regulation, or an incident is evidence from outside the project, and entering it as research or a constraint keeps the citation and the date beside the fact. A fact typed straight into Behavior or code loses its source, and later readers treat an observation as a decision.
 
-**Example:** An agent records a shortened refund window as research, then drafts the constraint that cites it.
+**Example:** An agent records a slower payout settlement as research, then drafts the constraint that cites it.
 
 ### Raise What a Lower Layer Needs as a Question
 
@@ -114,7 +114,7 @@ Boundaries are where components meet and where future readers orient themselves.
 
 **Rationale:** An edge declared on its record is checked: the builder verifies its target, its timing, and its failure handling. An undeclared edge is the defect, because it runs behavior no record names and no review saw.
 
-**Example:** A use case that notifies a buyer declares a sends edge to the notification with its timing and failure handling.
+**Example:** A use case that reminds an approver declares a sends edge to the notification with its timing and failure handling.
 
 ### End Every Effect Cycle in a Domain Event
 
@@ -142,7 +142,7 @@ Boundaries are where components meet and where future readers orient themselves.
 
 **Rationale:** The engine carries the process while the records state it: one use case per step keeps the promise, the refusal codes, and the undo in the records the checks read. An engine step without its use case runs behavior no record names, and a step without its compensation leaves a failure with no stated undo.
 
-**Example:** An engine step that charges a card maps to the charge use case, whose compensation voids the charge.
+**Example:** An engine step that reimburses an expense maps to the reimburse-expense use case, whose compensation voids the payout.
 
 ### Record Stricter Edge Rules as Conventions
 

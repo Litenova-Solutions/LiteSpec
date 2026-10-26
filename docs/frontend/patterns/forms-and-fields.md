@@ -184,7 +184,7 @@ page
     fact "Customer pays" "EUR 50.00"
 ```
 
-**Rationale:** The money reads more clearly. You type what the unit costs and read what the customer pays on the same screen before saving. The EUR 50.00 all-in figure stops the fee from surprising either side at checkout.
+**Rationale:** The money reads more clearly. You type what the unit costs and read what the customer pays on the same screen before saving. The EUR 50.00 total figure stops the fee from surprising either side at checkout.
 
 **Cost:** The restated total must update as you type, which a static wireframe cannot show. It costs one line under every price field, even where the fee is zero.
 

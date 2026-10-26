@@ -65,7 +65,7 @@ When two rules conflict and nothing decides between them, the agent stops and as
 
 ## Agent Decisions and Open Questions
 
-An agent makes the decisions the standard has already made: where a type goes, how a lifecycle is modeled, how a refusal is reported, and which tests to write. It drafts Intent and Behavior records, and the founder and reviewers decide them. It does not decide product policy, legal questions, money, or risk. When a lower layer needs what the upper layer does not say, the agent raises a draft question with a decider, a date, a recommendation, and a ballot, instead of answering it.
+An agent makes the decisions the standard has already made: where a type goes, how a lifecycle is modeled, how a refusal is reported, and which tests to write. It drafts Intent and Behavior records, and the finance lead and reviewers decide them. It does not decide product policy, legal questions, money, or risk. When a lower layer needs what the upper layer does not say, the agent raises a draft question with a decider, a date, a recommendation, and a ballot, instead of answering it.
 
 During adoption, an agent may write Behavior records from existing code. Each one carries `source: transcribed` and stays in draft until its Intent parent is approved, so transcription never passes review on its own.
 

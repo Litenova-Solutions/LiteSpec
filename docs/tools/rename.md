@@ -14,7 +14,7 @@ litespec rename <old> <new> [--root <path>] [--help]
 
 This command renames one record identifier across the consumer repository. It moves the page to the path the new identifier owns, updates the opening specification metadata block, and rewrites every citation of the old identifier, so no link points at the old name after the rename. A use-case page that already sits beside its aggregate stays in its folder and takes the new file name. The repository stays resolvable at every commit.
 
-Both arguments are full record identifiers, such as `use-case/sales.close-sale`. The command refuses a new identifier a record already carries and an old identifier no record carries.
+Both arguments are full record identifiers, such as `use-case/lending.borrow-copy`. The command refuses a new identifier a record already carries and an old identifier no record carries.
 
 Run it for every identifier rename, as `litespec/core/authoring#rewrite-every-link-on-a-rename` states. Never rename by moving the file by hand.
 
@@ -45,7 +45,7 @@ Run it for every identifier rename, as `litespec/core/authoring#rewrite-every-li
 Rename a use case and rewrite every citation together:
 
 ```bash
-litespec rename use-case/sales.close-sale use-case/sales.complete-sale
+litespec rename use-case/lending.borrow-copy use-case/lending.lend-copy
 ```
 
 ## Underneath

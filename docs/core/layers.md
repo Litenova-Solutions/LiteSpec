@@ -43,7 +43,7 @@ A need a lower layer meets that the upper layer leaves unstated travels up as a 
 
 **Rationale:** Intent promises outcomes in product words, and Behavior turns each promise into the states, invariants, refusals, consistency, data classes with erasure positions, freshness, and tenant-scoped access that keep it. Without that detail each implementer guesses the states and the access scope, and two guesses diverge. The checks `requirement-unfulfilled`, `record-orphaned`, `step-unserved`, `erasure-undeclared`, and `setting-default-without-requirement` report the gaps.
 
-**Example:** A return promise gains a process with Listed and Settled states, a refusal for a ticket that already admitted someone, and atomic consistency over one aggregate.
+**Example:** A reimbursement promise gains a process with Approved and Reimbursed states, a refusal for an expense that is already reimbursed, and atomic consistency over one aggregate.
 
 ### Raise Commercial and Observable Figures as Questions
 
@@ -51,7 +51,7 @@ A need a lower layer meets that the upper layer leaves unstated travels up as a 
 
 **Rationale:** Prices, fees, rates, terms, markets, payers, retention periods, observable freshness, and tenant-varying, market-varying, or date-varying defaults and figures are business choices, and only an accountable person makes them. An agent that decided one would bury a commitment in a Behavior record nobody approved. Each open figure becomes a draft question with a decider and a decide-by date.
 
-**Example:** A return-queue cap of 4 goes to the ballot as a draft question with a recommendation instead of entering the setting silently.
+**Example:** A receipt threshold of EUR 25 goes to the ballot as a draft question with a recommendation instead of entering the setting silently.
 
 ### Implement Only Declared Behavior
 
@@ -73,7 +73,7 @@ A need a lower layer meets that the upper layer leaves unstated travels up as a 
 
 **Rationale:** The lower layer does not decide what the upper layer left unstated, so the need travels up with its context instead of turning into a guess. The question carries a recommendation, a ballot group, and a tier. Tier 1 needs explicit approval or review, while a tier-3 draft carrying a recommendation auto-approves after its decide-by date plus the veto window, recorded as approved by the veto window. A draft past its decide-by date without auto-approval is reported as a known gap with its owner, and it blocks nothing silently.
 
-**Example:** A missing refund policy becomes a ballot item due 2026-11-01 with the founder as decider.
+**Example:** A missing reimbursement policy becomes a ballot item due 2026-11-01 with the founder as decider.
 
 ### Enter World Facts as Cited Research or Constraints
 
@@ -81,7 +81,7 @@ A need a lower layer meets that the upper layer leaves unstated travels up as a 
 
 **Rationale:** Commitments flow down, and facts from the world flow up: a provider's behavior, a regulation, or an incident enters Intent where people can weigh it. The citation and date show where the fact came from and when it held, so a later change rechecks the source instead of the memory. Nothing travels up from code.
 
-**Example:** An observed 120-day refund window enters as research, then as a constraint draft citing that research.
+**Example:** An observed two-day payout settlement window enters as research, then as a constraint draft citing that research.
 
 ### Flag Records When a Parent Record Changes
 
@@ -99,7 +99,7 @@ A need a lower layer meets that the upper layer leaves unstated travels up as a 
 
 **Statement:** A changed provider behavior MUST enter as research recording the observed behavior, then as a constraint draft citing that research.
 
-**Rationale:** The provider's behavior is a fact from the world, and research is where such facts enter. The constraint draft that follows cites the research, so the ballot item carries its evidence. Code is not the source: a failed refund in production points at the world, and the world is cited.
+**Rationale:** The provider's behavior is a fact from the world, and research is where such facts enter. The constraint draft that follows cites the research, so the ballot item carries its evidence. Code is not the source: a failed reimbursement in production points at the world, and the world is cited.
 
 ### Build Ahead of a Regulation Only Under Its Constraint
 
@@ -115,9 +115,9 @@ None.
 
 This informative example demonstrates `litespec/core/layers#flag-records-when-a-parent-record-changes`, `litespec/core/layers#raise-open-needs-as-draft-questions`, `litespec/core/layers#enter-world-facts-as-cited-research-or-constraints`, and `litespec/core/layers#record-changed-provider-behavior-as-observed-research`.
 
-Top-down: the founder answers the ballot with 6 instead of 4 for the return-queue cap. The requirement's statement changes, the builder marks the listing setting and the cap rule as parent-changed, and an agent updates the setting default and the scenario where a seventh return is refused. The developer reviews one two-line Behavior diff, the test changes, Proof goes green, and the book chapter shows the new promise.
+Top-down: the founder answers the ballot with EUR 50 instead of EUR 25 for the receipt threshold. The requirement's statement changes, the builder marks the policy setting and the receipt rule as parent-changed, and an agent updates the setting default and the scenario where an expense without a receipt is refused. The developer reviews one two-line Behavior diff, the test changes, Proof goes green, and the book chapter shows the new promise.
 
-Bottom-up: a failed refund in production shows the payment rail's window is now 120 days instead of 180. An agent records the observed behavior as research, then drafts a change to the refund-window constraint citing it. The founder sees one tier-1 ballot item, and on approval the per-order deadline rule and its scenarios follow.
+Bottom-up: a late reimbursement in production shows the payout bank settles batches every two days instead of daily. An agent records the observed behavior as research, then drafts a change to the settlement-window constraint citing it. The founder sees one tier-1 ballot item, and on approval the per-batch deadline rule and its scenarios follow.
 
 ## Verification
 

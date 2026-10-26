@@ -40,7 +40,7 @@ The search schema keeps the filters and the page in the address, per `litespec/f
 The screen composes the shared UI package `@claimwick/ui` at `packages/ui`, which the project declares in `paths.uiPackage` of `litespec.project.json`. The package pins its baseline in the source lock at `packages/ui/ui-source-lock.json`: generator `shadcn-svelte`, CLI `1.7.0`, with the `button` and `skeleton` components at baseline status. `litespec ui` checks the package, its source lock and digests, its design contract, its stylesheets, each frontend boundary, and each route suite, per [Validate Controlled UI](../tools/ui.md). Against the Claimwick example it reports this, and exits zero:
 
 ```text
-Consumer: ../LiteSpec\examples\expenses
+Consumer: ../expenses
 Shared UI package: @claimwick/ui at packages/ui
 Controlled frontends: 1
 

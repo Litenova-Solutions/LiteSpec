@@ -40,7 +40,7 @@ It adds four `onErasure` positions to data classes: `tombstone`, `discard`, `cas
 
 **Statement:** A data class erased only as a cascade from a parent erasure MUST use `onErasure: cascade-only` with the parent it follows.
 
-**Rationale:** Some rows have no subject of their own: line items belong to an invoice, answers belong to an order, usage rows belong to a customer. A direct erasure request names the parent, never the child, so the child follows the parent's erasure and refuses a request addressed to itself.
+**Rationale:** Some rows have no subject of their own: line items belong to an invoice, receipt files belong to an expense, usage rows belong to a customer. A direct erasure request names the parent, never the child, so the child follows the parent's erasure and refuses a request addressed to itself.
 
 **Example:** Cal.com deletes a user by removing the account and letting the database cascade remove the rows that hang off it, with no retention schedule; a product at this rung declares cascade-only and names the cascade path.
 
@@ -48,9 +48,9 @@ It adds four `onErasure` positions to data classes: `tombstone`, `discard`, `cas
 
 **Statement:** A data class handed to another controller MUST use `onErasure: transferred` with the receiver and the handover record.
 
-**Rationale:** Erasure is not the only end of custody: an organizer leaves and a successor takes the event, a company is acquired, a contract moves to a new processor. The data survives under a new controller, so the record names the receiver and the handover both sides signed instead of a deletion that never happened.
+**Rationale:** Erasure is not the only end of custody: a branch closes and a successor takes its readers, a company is acquired, a contract moves to a new processor. The data survives under a new controller, so the record names the receiver and the handover both sides signed instead of a deletion that never happened.
 
-**Example:** A support tool sends an order summary and the buyer message to a hosted AI model to draft a reply; the position names the model provider, its region and its retention, and the product stores none of it.
+**Example:** A support tool sends a loan summary and the reader message to a hosted AI model to draft a reply; the position names the model provider, its region and its retention, and the product stores none of it.
 
 ### Scope Erasure to What the Subject Requested
 
@@ -58,13 +58,13 @@ It adds four `onErasure` positions to data classes: `tombstone`, `discard`, `cas
 
 **Rationale:** A subject who asks to delete one order does not ask to delete the account, and a subject who asks to delete the account names everything. The requested reach ties the erasure to the request it answers, so a narrow request cannot widen into a broad deletion and a broad request cannot stop at one row.
 
-**Example:** A request naming one event registration erases that registration and leaves the buyer's other orders untouched.
+**Example:** A request naming one hold erases that hold and leaves the reader's other loans untouched.
 
 ### Approve the Erasure Sentence in Intent
 
 **Statement:** The literal sentence the subject reads about an erasure MUST be approved in Intent before the erasure ships.
 
-**Rationale:** The sentence on the confirmation screen is the promise: what goes, what stays, and for how long. Behavior cannot word it, because only the founder decides what the product promises. Approving it in Intent puts the exact sentence buyers see under the same review as the requirement it fulfils.
+**Rationale:** The sentence on the confirmation screen is the promise: what goes, what stays, and for how long. Behavior cannot word it, because only the product owner decides what the product promises. Approving it in Intent puts the exact sentence readers see under the same review as the requirement it fulfils.
 
 **Example:** Mastodon shows on its account deletion form that content other servers have cached may persist, next to the promise that the account and its posts are removed; that sentence is the approved user-facing copy for a requested reach.
 
@@ -74,7 +74,7 @@ It adds four `onErasure` positions to data classes: `tombstone`, `discard`, `cas
 
 **Rationale:** Erasure destroys the only copy of data the subject may still want: identity documents, message history, purchase records. Completing the export first gives the subject their data while it still exists, so erasure never destroys what the subject asked to keep elsewhere.
 
-**Example:** pretix makes the organizer download the tax-relevant data before a shredder runs, and refuses to shred when anything changed after that download.
+**Example:** Claimwick makes finance download the tax-relevant data before a shredder runs, and refuses to shred when anything changed after that download.
 
 ### Require a Fresh Export After Changes
 
@@ -82,7 +82,7 @@ It adds four `onErasure` positions to data classes: `tombstone`, `discard`, `cas
 
 **Rationale:** An export taken last month does not cover rows written yesterday. When the data changed since the last export, erasing on the stale copy destroys rows the subject never received. Stopping for a fresh export keeps the export-first promise true at the moment of erasure.
 
-**Example:** A buyer who edited their answers after exporting them gets a fresh export first, and the erasure waits for it.
+**Example:** A reader who corrected their address after exporting it gets a fresh export first, and the erasure waits for it.
 
 ### Purge Erased Data from Restored Backups
 
@@ -98,7 +98,7 @@ It adds four `onErasure` positions to data classes: `tombstone`, `discard`, `cas
 
 **Rationale:** Keeping for audit and erasing for the subject collide on the same row: the invoice the statute keeps sits beside the name the subject erases. Silence lets each implementer pick a winner. Naming the winning duty with its basis, the owner who records the exception, and the date the choice is reviewed keeps one decision where every reader finds it.
 
-**Example:** pretix keeps the invoice for seven years under tax law while erasing the attendee's answers, and the retention row names the finance owner and the next review date. ZITADEL keeps its audit events while erasing the user they describe, under the same rule.
+**Example:** Claimwick keeps the expense ledger for seven years under tax law while erasing the submitter contact, and the retention row names the finance owner and the next review date. ZITADEL keeps its audit events while erasing the user they describe, under the same rule.
 
 ## Conventions
 

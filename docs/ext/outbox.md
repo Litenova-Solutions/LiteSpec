@@ -132,7 +132,7 @@ This extension switches on no optional record type: integration events, settings
 
 **Statement:** An outbox consumer MUST use message ID or a business idempotency key at its Command or side-effect boundary.
 
-**Rationale:** Handling a repeat means recognizing it: the message ID or a business idempotency key gives the target a stable identity to check at its command or side-effect boundary. Without that key, the target processes the repeat as new work and charges, notifies, or ships twice.
+**Rationale:** Handling a repeat means recognizing it: the message ID or a business idempotency key gives the target a stable identity to check at its command or side-effect boundary. Without that key, the target processes the repeat as new work and pays, notifies, or ships twice.
 
 ### Await Target Acceptance
 

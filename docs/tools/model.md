@@ -214,10 +214,10 @@ Print the names inventory with the lookalike groups:
 litespec model names --root ../consumer --format json
 ```
 
-Record the founder approving two requirements:
+Record the finance lead approving two requirements:
 
 ```bash
-litespec model approve --root ../consumer requirement/buyers.guest-checkout requirement/buyers.all-in-first-price --by "Claimwick founder"
+litespec model approve --root ../consumer requirement/approval.receipt-over-threshold requirement/approval.no-self-approval --by "Claimwick finance lead"
 ```
 
 Show what approving every record would stamp or reopen, without writing:
@@ -250,7 +250,7 @@ Diff the working tree against the main branch:
 litespec model diff main --root ../consumer
 ```
 
-Show the Intent changes in product words for the founder review:
+Show the Intent changes in product words for the finance lead review:
 
 ```bash
 litespec model diff main --root ../consumer --intent

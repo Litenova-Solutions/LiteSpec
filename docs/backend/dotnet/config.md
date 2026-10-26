@@ -52,7 +52,7 @@ Backend settings bind to named options classes that the host validates at startu
 
 **Rationale:** The setting record owns its value type, its default, its range, its unit, and what happens at the bound, and the options class carries them with checks for required fields, ranges, and formats. A `secret` setting binds from secret storage, never from a committed file. A tenant-set setting is stored data, not configuration: the handler reads it per tenant, and no options class carries it.
 
-**Example:** The return-queue cap binds to `ListingOptions` with its range; startup fails when the configured value leaves the range.
+**Example:** The receipt threshold binds to `SpendingOptions` with its range; startup fails when the configured value leaves the range.
 
 ## Conventions
 

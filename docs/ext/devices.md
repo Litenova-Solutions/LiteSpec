@@ -57,15 +57,15 @@ protocol:
 
 **Statement:** Each mutating device message MUST carry a client-generated nonce as its idempotency key.
 
-**Rationale:** A device that loses signal mid-send retries what the server already applied. The nonce gives the retry a stable identity scoped to the device, so the server answers the repeat from the first attempt instead of charging, admitting, or shipping twice.
+**Rationale:** A device that loses signal mid-send retries what the server already applied. The nonce gives the retry a stable identity scoped to the device, so the server answers the repeat from the first attempt instead of lending, paying, or shipping twice.
 
-**Example:** A door scan carries `nonce: 7f3a`, and the second delivery of the same nonce returns the first attempt's result.
+**Example:** A loan scan carries `nonce: 7f3a`, and the second delivery of the same nonce returns the first attempt's result.
 
 ### Simulate Offline Uploads Before Applying
 
 **Statement:** An offline upload with `simulate` MUST return its outcome without writing.
 
-**Rationale:** A device back online after a week holds uploads the world outgrew: prices changed, codes voided, windows closed. Simulating the queue shows what would happen before anything is written, so the operator reconciles first and applies second.
+**Rationale:** A device back online after a week holds uploads the world outgrew: prices changed, holds lapsed, windows closed. Simulating the queue shows what would happen before anything is written, so the operator reconciles first and applies second.
 
 **Example:** A scanner uploads three hundred queued scans with `simulate`, reviews the two the server would refuse, and then uploads for real.
 

@@ -25,7 +25,7 @@ public sealed partial class ConsumerValidatorTests
         {
             project["stacks"] = new JsonArray("dotnet", "blazor");
             PathsOf(project)["frontends"] = new JsonArray(
-                new JsonObject { ["name"] = "door", ["path"] = "apps/door", ["platform"] = "blazor" });
+                new JsonObject { ["name"] = "desk", ["path"] = "apps/desk", ["platform"] = "blazor" });
         });
         AssertAbsent(RunConsumer(folder.Path), "controlled UI");
     }

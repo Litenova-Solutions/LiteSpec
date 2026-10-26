@@ -68,7 +68,7 @@ This extension switches on no optional record type.
 
 **Statement:** After production, a breaking Behavior change MUST travel as an Intent question naming its consumer impact.
 
-**Rationale:** A breaking change past production breaks promises consumers release against, so the decision belongs to the founder with the impact stated: which consumers break, what they must change, and when the old shape leaves. The question carries its decider, decide-by date, and ballot, as `litespec/core/intent#group-questions-into-ballots` states. A developer review alone cannot accept breaking what the product promised.
+**Rationale:** A breaking change past production breaks promises consumers release against, so the decision belongs to the product owner with the impact stated: which consumers break, what they must change, and when the old shape leaves. The question carries its decider, decide-by date, and ballot, as `litespec/core/intent#group-questions-into-ballots` states. A developer review alone cannot accept breaking what the product promised.
 
 ### Retain Release Baselines
 

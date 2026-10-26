@@ -33,9 +33,9 @@ A validator checks structural input, such as an empty title or a malformed ident
 **Example:**
 
 ```csharp
-// Declared as { "issues": "use-case/admission.void-ticket-code", "timing": "inline", "sharesTransaction": true }.
+// Declared as { "issues": "use-case/spending.erase-personal-data", "timing": "inline", "sharesTransaction": true }.
 await commandMediator.SendAsync(
-    new VoidTicketCodeCommand(codeId),
+    new ErasePersonalDataCommand(expenseId),
     cancellationToken);
 ```
 
@@ -48,10 +48,10 @@ await commandMediator.SendAsync(
 **Example:**
 
 ```csharp
-/// <implements>reaction/admission.void-code-on-resale</implements>
-internal sealed class VoidCodeOnResaleReaction(...)
+/// <implements>reaction/lending.send-due-notice-on-loan-borrowed</implements>
+internal sealed class SendDueNoticeOnLoanBorrowedReaction(...)
 {
-    // Answers event/ticket-resale.resold by issuing use-case/admission.void-ticket-code.
+    // Answers event/loan.loan-borrowed by sending notification/lending.loan-due.
 }
 ```
 
@@ -64,10 +64,10 @@ internal sealed class VoidCodeOnResaleReaction(...)
 **Example:**
 
 ```csharp
-/// <implements>job/sales.expire-lapsed-returns</implements>
-internal sealed class ExpireLapsedReturnsJob(...)
+/// <implements>job/spending.erase-expired-personal-data</implements>
+internal sealed class EraseExpiredPersonalDataJob(...)
 {
-    // Issues one expire command per due listing, resuming from its cursor.
+    // Issues one erase command per expired expense, resuming from its cursor.
 }
 ```
 

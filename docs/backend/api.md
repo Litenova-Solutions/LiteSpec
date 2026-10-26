@@ -295,7 +295,7 @@ An operation requiring a control header declares it as a required parameter, for
 
 **Rationale:** A use case that reads one way in its record, another in its message type, and a third in its audit action forces every trace across layers through a translation table only the author holds. The record id is the name; the message type, the endpoint operation id, and the audit action repeat it in their own casing, so a reader follows one name from the page to the wire to the audit log.
 
-**Example:** `use-case/payments.charge-payment` travels as `ChargePaymentCommand`, operation id `ChargePayment`, and audit action `charge-payment`; an operation id of `ChargeCard` is reported.
+**Example:** `use-case/spending.reimburse-expense` travels as `ReimburseExpenseCommand`, operation id `ReimburseExpense`, and audit action `reimburse-expense`; an operation id of `PayExpense` is reported.
 
 ## Conventions
 
@@ -363,8 +363,8 @@ GET    /api/posts?after={cursor}&limit=20
 **Example:**
 
 ```text
-POST   /api/payment-attempts/{id}/charge
-POST   /api/orders/{orderId}/void
+POST   /api/expenses/{id}/reimburse
+POST   /api/holds/{holdId}/cancel
 ```
 
 ### Keep Numeric Transport Types Precise

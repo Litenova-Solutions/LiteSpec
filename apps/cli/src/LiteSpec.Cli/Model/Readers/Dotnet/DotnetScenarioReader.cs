@@ -72,7 +72,7 @@ sealed class DotnetScenarioReader : IScenarioReader
 
         var root = tree.GetRoot();
 
-        // A steps method names the generated-client operations it calls, such as api.CompleteTicketResaleAsync,
+        // A steps method names the generated-client operations it calls, such as api.BorrowCopyAsync,
         // so a scenario's when step is joined to the use case it really exercises.
         foreach (var type in root.DescendantNodes().OfType<ClassDeclarationSyntax>()
                      .Where(type => type.Identifier.Text.EndsWith("Steps", StringComparison.Ordinal)))

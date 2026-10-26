@@ -44,7 +44,7 @@ Some changes reach beyond an ordinary implementation edit: they alter project bo
 
 **Rationale:** Without the query, an agent reads either too little and invents the missing rules, or half the repository and buries the task in unrelated guidance. The query returns the smallest record set that covers the request, with the links the builder joined between records, so the agent starts from decided Intent.
 
-**Example:** `litespec model query use-case/orders.cancel-order` returns the use case with its rules, results, and scenarios.
+**Example:** `litespec model query use-case/spending.submit-expense` returns the use case with its rules, results, and scenarios.
 
 ### Follow the Local Pattern Before the Model Query
 
@@ -120,7 +120,7 @@ Some changes reach beyond an ordinary implementation edit: they alter project bo
 
 **Rationale:** The founder decides Intent, and everything below those decisions is drafting: Behavior records, code, and tests that carry the decisions down. An agent that invents promises writes commitments nobody approved, while an agent that waits for dictation wastes the review the founder gives to drafts. Writing below decided Intent keeps authorship with the agent and decisions with the founder.
 
-**Example:** Given an approved requirement for buyer refunds, an agent drafts the use case, its scenarios, and the handler without asking what the promise means.
+**Example:** Given an approved requirement for expense reimbursement, an agent drafts the use case, its scenarios, and the handler without asking what the promise means.
 
 ### Escalate Decisions That Specify Forbids
 
@@ -136,7 +136,7 @@ Some changes reach beyond an ordinary implementation edit: they alter project bo
 
 **Rationale:** A question without a recommendation asks the founder to research from nothing, while a recommendation gives a default to accept or correct. Grouping questions in ballots by decision or topic lets each decider answer one set at a time. Tier-1 questions wait for explicit approval, and tier-3 questions auto-approve after the veto window, so the ballot carries both without blocking either.
 
-**Example:** Two resale questions land in the "Resale terms" ballot, each with a recommended answer and a due date.
+**Example:** Two approval questions land in the "Approval terms" ballot, each with a recommended answer and a due date.
 
 ### Mark Transcribed Records During Adoption
 
@@ -192,7 +192,7 @@ Some changes reach beyond an ordinary implementation edit: they alter project bo
 
 This informative example demonstrates `litespec/core/agent#select-task-context`, `litespec/core/agent#load-applicable-extensions`, `litespec/core/agent#raise-questions-in-ballots-with-recommendations`, and `litespec/core/agent#inspect-local-examples-after-standards`.
 
-A command-handler change for `use-case/orders.cancel-order` queries the model for its use case, reads the generated agent context, and loads the selected extensions whose boundary the change touches. It then reads the neighboring handler for local names and shapes. Open figures go to a ballot with recommended answers. It leaves unrelated frontend and container guidance unread.
+A command-handler change for `use-case/spending.submit-expense` queries the model for its use case, reads the generated agent context, and loads the selected extensions whose boundary the change touches. It then reads the neighboring handler for local names and shapes. Open figures go to a ballot with recommended answers. It leaves unrelated frontend and container guidance unread.
 
 ## Verification
 

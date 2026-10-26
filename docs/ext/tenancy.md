@@ -62,7 +62,7 @@ It switches on no record type: tenant scope applies to records every project req
 
 **Rationale:** The tenant scope bounds which tenant data the call may touch: own stays inside the caller tenant, cross reaches across tenants, public works beyond tenant boundaries, and none touches no tenant data. Without the scope, a read inside one tenant and a read across all tenants look the same. `litespec/core/access#scope-every-grant-to-its-tenant-reach` states the values, and `litespec/core/access#review-cross-tenant-access-as-tier-1` routes cross scope to the security queue.
 
-**Example:** An organizer report declares `own`, a staff search across organizers declares `cross`, a public catalog declares `public`, and a health check declares `none`.
+**Example:** An expense report declares `own`, a finance search across companies declares `cross`, a public catalog declares `public`, and a health check declares `none`.
 
 ### Isolate Administrative Cross-Tenant Access
 
@@ -114,7 +114,7 @@ It switches on no record type: tenant scope applies to records every project req
 
 **Rationale:** Delegation lets one actor act for another, so a grant on one side alone leaves the other side unreviewed. The delegator grant names the role at its scope that may be acted for and the permissions open to delegation; the acting grant names the role permitted to act and the pairing it acts under. `litespec/core/access#grant-across-tenants-only-through-declared-delegation` requires both declarations.
 
-**Example:** An assistant acts for an organizer only where the organizer delegation grant and the assistant acting grant both name the pairing.
+**Example:** An assistant acts for a manager only where the manager delegation grant and the assistant acting grant both name the pairing.
 
 ### Scope Delegated Grants to Named Permissions
 

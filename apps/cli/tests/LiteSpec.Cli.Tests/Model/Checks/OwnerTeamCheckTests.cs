@@ -90,11 +90,11 @@ public sealed class OwnerTeamCheckTests
     public void Owner_Object_Mapping_A_Handle_Passes()
     {
         using var temp = Cli.Temp("checks");
-        WriteProjectJson(temp.Path, """{"owners": [{"name": "Claimwick engineering", "codeowners": ["@acme/lending-team"]}]}""");
+        WriteProjectJson(temp.Path, """{"owners": [{"name": "Lending engineering", "codeowners": ["@acme/lending-team"]}]}""");
         WriteCodeowners(temp.Path, "docs/behavior/** @acme/lending-team\n");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, "docs", "behavior", "actors", "reader.md"), """{"kind": "person", "owner": "Claimwick engineering"}"""));
+            TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, "docs", "behavior", "actors", "reader.md"), """{"kind": "person", "owner": "Lending engineering"}"""));
 
         Assert.DoesNotContain("owner-unknown", TestModel.Codes(model));
     }
@@ -103,11 +103,11 @@ public sealed class OwnerTeamCheckTests
     public void Plain_Owner_Matching_No_Handle_Reports_Owner_Unknown()
     {
         using var temp = Cli.Temp("checks");
-        WriteProject(temp.Path, "Claimwick engineering");
+        WriteProject(temp.Path, "Lending engineering");
         WriteCodeowners(temp.Path, "* @a-shafie\n");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, "docs", "behavior", "actors", "reader.md"), """{"kind": "person", "owner": "Claimwick engineering"}"""));
+            TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, "docs", "behavior", "actors", "reader.md"), """{"kind": "person", "owner": "Lending engineering"}"""));
 
         var message = Checker.Check(model).Findings.Single(finding => finding.Code == "owner-unknown").Message;
         Assert.Contains("no team", message, StringComparison.Ordinal);
@@ -117,11 +117,11 @@ public sealed class OwnerTeamCheckTests
     public void Owner_Object_Mapping_Another_Team_Reports_Owner_Unknown()
     {
         using var temp = Cli.Temp("checks");
-        WriteProjectJson(temp.Path, """{"owners": [{"name": "Claimwick engineering", "codeowners": ["@acme/catalog-team"]}]}""");
+        WriteProjectJson(temp.Path, """{"owners": [{"name": "Lending engineering", "codeowners": ["@acme/catalog-team"]}]}""");
         WriteCodeowners(temp.Path, "docs/behavior/** @acme/lending-team\n");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, "docs", "behavior", "actors", "reader.md"), """{"kind": "person", "owner": "Claimwick engineering"}"""));
+            TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, "docs", "behavior", "actors", "reader.md"), """{"kind": "person", "owner": "Lending engineering"}"""));
 
         Assert.Contains("owner-unknown", TestModel.Codes(model));
     }

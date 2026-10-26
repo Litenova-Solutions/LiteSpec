@@ -177,7 +177,7 @@ A requirement states one behavior the product shows or one guarantee it keeps. C
 }
 ```
 
-The five-day requirement states its exception beside the rule: during the year-end close, the fallback requirement `requirement/approval.extended-decision-in-close` holds instead, and the fallback carries no exception of its own. The approval data on the entry shows who approved it, on which date, and the semantic hash the builder wrote; rewording prose never changes that hash. The erasure requirement carries `personal-data` risk, which makes it tier 1, and its open question joins the `erasure-terms` ballot with a recommendation for the founder to decide. The remaining entries follow the same shape:
+The five-day requirement states its exception beside the rule: during the year-end close, the fallback requirement `requirement/approval.extended-decision-in-close` holds instead, and the fallback carries no exception of its own. The approval data on the entry shows who approved it, on which date, and the semantic hash the builder wrote; rewording prose never changes that hash. The erasure requirement carries `personal-data` risk, which makes it tier 1, and its open question joins the `erasure-terms` ballot with a recommendation for the finance lead to decide. The remaining entries follow the same shape:
 
 | Requirement | Statement |
 |:---|:---|

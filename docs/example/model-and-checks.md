@@ -123,7 +123,7 @@ The record reads `implemented` because its handler exists, and `proves` names th
 `litespec consumer` checks the project configuration, the page frontmatter, and the language of a consumer repository, per [Validate Consumer](../tools/consumer.md). Against the Claimwick example it reports this, and exits zero:
 
 ```text
-Consumer: ../LiteSpec\examples\expenses
+Consumer: ../expenses
 Files scanned: 44 under docs, frontmatter pages: 44
 Glossary: 0 mannered term(s), 0 rejected synonym(s), documentation only
 
@@ -170,11 +170,11 @@ Open questions (ballot "erasure-terms", due 2026-04-01)
    Recommended: yes, totals without employee links.
 ```
 
-The book also writes a ballots page listing every open question grouped by ballot, tier 1 first, with each recommendation and auto-approval date. The founder approves or answers in the ballot without opening a Behavior page.
+The book also writes a ballots page listing every open question grouped by ballot, tier 1 first, with each recommendation and auto-approval date. The finance lead approves or answers in the ballot without opening a Behavior page.
 
 ## The Diffs
 
-`litespec model diff <base> --intent` shows Intent changes in product words for the founder, and `--behavior` shows Behavior changes with the security queue for developers. Without a flag, it shows both. Say the team raises the receipt threshold default from 25 to 50 EUR. The intent diff reads:
+`litespec model diff <base> --intent` shows Intent changes in product words for the finance lead, and `--behavior` shows Behavior changes with the security queue for developers. Without a flag, it shows both. Say the team raises the receipt threshold default from 25 to 50 EUR. The intent diff reads:
 
 ```text
 MODIFIED requirement/approval.receipt-over-threshold

@@ -103,7 +103,7 @@ The handler loads, calls, stages, and returns. Commit, error mapping, and author
 
 **Rationale:** A write outside `changes` is behavior the record hides, so the stack reader fails `write-undeclared` on it. The handler takes one domain repository per named aggregate and stages only those. A query handler likewise projects only over the aggregates its record's `reads` names, through the read session.
 
-**Example:** The `complete-ticket-resale` handler takes the ticket-resale repository and no other; staging a second aggregate fails the check.
+**Example:** The `approve-expense` handler takes the expense repository and no other; staging a second aggregate fails the check.
 
 ### Return Only Declared Results and Refusals
 
@@ -125,7 +125,7 @@ The handler loads, calls, stages, and returns. Commit, error mapping, and author
 
 **Rationale:** The record's `output` names each group with its fields, their classification, the source aggregates, and the freshness the caller can rely on: `immediate`, `snapshot`, `bounded`, or `advisory`. The result type carries one member per group, so the caller reads what the record promises and nothing more. A group with `visibleWhen` appears only when its condition holds, and a group wider than its sources cites its `wideningBecause` requirement. A query with `builtAsynchronously` carries a `bounded` or `advisory` freshness with its lag scenario.
 
-**Example:** The organizer-home result carries `setup` and `attention` groups with their declared fields.
+**Example:** The expense-list result carries its `rows` group with the declared fields, freshness, and visibility.
 
 ### Mirror a Domain Closed Set in the Result
 
@@ -161,7 +161,7 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **Rationale:** The `calls` effect names one operation on one external system, and the operations entry states its timeout, its timeout behavior, its retries, its response, and its cache. The port carries that operation with project-owned types and anchors up to its system with `/// <implements>external-system/<name></implements>` on the port interface, and Infrastructure implements it, so a provider change stops at the adapter. The stack reader counts a call as a `calls` edge only through such an anchored port; any other injected interface is internal work. A call on an anchored port that no `calls` entry declares fails `effect-undeclared`.
 
-**Example:** A handler that calls a payment operation names it through the record's `calls` entry and the port method; a direct provider call fails the check.
+**Example:** A handler that calls a payout operation names it through the record's `calls` entry and the port method; a direct provider call fails the check.
 
 ### Send Notifications Through the Messenger Port
 
@@ -169,7 +169,7 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **Rationale:** The notification record owns the template, the audience, the channel, the consent rule, the frequency, the dedup key, and the claims each message keeps. The `sends` edge names the notification with its own suppression condition, and the messenger port carries the send with project-owned types. A send no edge declares fails `effect-undeclared`, and a second send of a `once` notification with the same dedup key sends nothing.
 
-**Example:** The resale reaction sends the buyer notification through the messenger port; the template and consent rule stay on the notification record.
+**Example:** The due-notice reaction sends the loan-due notification through the messenger port; the template and consent rule stay on the notification record.
 
 ### Publish Declared Integration Events After Commit
 
@@ -177,7 +177,7 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **Rationale:** The `publishes` entry names the integration event with its timing, and the outbox extension stages the message with the business work so both commit together and delivery follows. A publish no entry declares fails `effect-undeclared`. Publishing outside the outbox delivers facts the commit did not store.
 
-**Example:** The `complete-ticket-resale` handler publishes its resold event after commit through the outbox; the record's `publishes` entry names the event.
+**Example:** The `reimburse-expense` handler publishes its reimbursed event after commit through the outbox; the record's `publishes` entry names the event.
 
 ### Expose Store State Through Ports
 
@@ -193,7 +193,7 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **Rationale:** A setting record owns its type, its default, its range, its unit, and what happens at the bound. Founder-set and operator-set values bind to typed options the host validates at startup, so a bad value fails before traffic arrives. Tenant-set values are data nobody reviews: they live in stored tenant state the handler reads per tenant. A raw configuration lookup bypasses the type, the range, and the bound, so no handler uses one.
 
-**Example:** The return-queue cap binds to a listing options value; the handler reads the bound and refuses past it with `atBound: refuse`.
+**Example:** The receipt threshold binds to a spending options value; the handler reads the bound and refuses past it with `atBound: refuse`.
 
 ### Declare Every Pipeline Position Beside the Message
 
@@ -207,7 +207,7 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **Rationale:** A reaction without an explicit implementation leaves its trigger, its target, and its failure handling to whoever reads the code. One class per reaction record answers the trigger the record names in `on`, whether a domain event or an integration event, and dispatches only through the record's `effects` entries. The class never writes an aggregate directly: a reaction that needs a write issues a command. It honors the record's `reads`, its idempotency, and its `onFailure`, and the anchor tag is the link the stack reader follows. The class lives in the folder named for its reaction, in the module whose records it changes. The record names its trigger under `litespec/core/behavior#trigger-every-reaction-from-a-declared-event`. An entry with `after-commit` timing uses durable delivery through the outbox extension.
 
-**Example:** The class `VoidCodeOnResale` carries one anchor tag naming `reaction/admission.void-code-on-resale`, answers `event/ticket-resale.resold`, and issues `use-case/admission.void-ticket-code`.
+**Example:** The class `SendDueNoticeOnLoanBorrowed` carries one anchor tag naming `reaction/lending.send-due-notice-on-loan-borrowed`, answers `event/loan.loan-borrowed`, and sends `notification/lending.loan-due`.
 
 ### Run Each Job Within Its Declared Scope
 
@@ -215,7 +215,7 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **Rationale:** The job record owns what each run selects, how many items each batch takes, the lease that keeps two runs apart, and the cursor where a run resumes. The job runs its `effects` entries once per item, records its evidence where the record states, and follows its `onFailure` when an item fails. An `operator` job carries no aggregate: it states its `runsWhere` and its guard, and runs as interactive platform work. One execution host runs the job under `litespec/backend/architecture#declare-the-execution-host-for-work-that-outlives-a-request`.
 
-**Example:** The expire-lapsed-returns job selects due listings in batches of 200 under its lease, issues one expire command per listing, and resumes from its cursor.
+**Example:** The erase-expired-data job selects decided expenses past retention in batches of 200 under its lease, issues one erase command per expense, and resumes from its cursor.
 
 ### Dispatch Only Declared Effect Edges
 
@@ -223,7 +223,7 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **Rationale:** An undeclared edge is the defect: the handler reaches a use case, notification, integration event, or external system the records never named, so review sees behavior the specification hides. Each declared entry names exactly one verb, its timing, and its failure handling, and the stack reader fails `effect-undeclared` on any dispatch the record does not declare. An `inline` `issues` entry states whether it shares the caller's transaction, and `consistency: atomic` never spans an `async` edge. The effect graph holds no cycles except through domain events with a stated end condition. A process carried by a workflow engine maps each engine step to exactly one use case with its compensation through the `workflow-engine` extension. A project that keeps stricter rules, such as reactions first, records them as a cited convention.
 
-**Example:** The `complete-ticket-resale` handler publishes `integration-event/ticket-resale.resold` after commit, because its record declares that `publishes` entry; a second publish the record does not declare fails the check.
+**Example:** The `reimburse-expense` handler publishes `integration-event/expense.reimbursed` after commit, because its record declares that `publishes` entry; a second publish the record does not declare fails the check.
 
 ### Derive the Audit Target from the Message
 
@@ -295,7 +295,7 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **Rationale:** A command that reads many repositories to assemble a large response holds the caller waiting and times out under load. Recording the request answers at once, the build runs in the background, and the requester reads the state of its own request.
 
-**Example:** The organizer export command records its request, and a job builds the file the requester then downloads.
+**Example:** The export-expenses command records its request, and a job builds the file the requester then downloads.
 
 ### Build Collaborators Through the Container
 
@@ -303,7 +303,7 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **Rationale:** A step class built with `new` hides its dependencies, and a handler that looks small is really hundreds of lines behind its helpers. Injected steps keep their dependencies visible in the constructor, and a coordinator handler names each step it calls.
 
-**Example:** The checkout handler takes its reserve and capture steps through its constructor, while a step built with `new` that takes a repository is reported.
+**Example:** The reimburse handler takes its batch and settle steps through its constructor, while a step built with `new` that takes a repository is reported.
 
 ### Read No Repository Inside a Loop
 

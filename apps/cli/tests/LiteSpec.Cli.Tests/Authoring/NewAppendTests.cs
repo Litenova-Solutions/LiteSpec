@@ -516,7 +516,7 @@ public sealed class NewAppendTests
         { ["result", UseCase, "123", "--outcome", "success"] },
         { ["result", UseCase, "a-b-c-d-e-f-g", "--outcome", "success"] },
         { ["result", "lending", "copy-on-loan", "--outcome", "refusal", "--code", "lending.x"] },
-        { ["result", "reaction/sales.notify", "copy-on-loan", "--outcome", "refusal", "--code", "lending.x"] },
+        { ["result", "reaction/lending.notify", "copy-on-loan", "--outcome", "refusal", "--code", "lending.x"] },
         { ["result", "use-case/lending.no-such-case", "copy-on-loan", "--outcome", "refusal", "--code", "lending.x"] },
         { ["result", UseCase, "borrowed", "--outcome", "success"] },
         { ["result", UseCase] },

@@ -40,7 +40,7 @@ It switches on no record type: plans live as business requirements, gated behavi
 
 **Rationale:** An allowance buried in code changes only with a release, and each plan's number hides in a different branch. A setting states the range, the setter, and the bound behavior, and the gated use case cites it, so raising a tier edits the setting instead of the code. `litespec/core/access#cite-the-setting-or-plan-behind-every-entitlement` requires the citation, and `litespec/core/behavior#hold-every-setting-default-to-a-requirement` holds a commercial default to its requirement.
 
-**Example:** The return-queue cap lives as `setting/sales.max-open-returns` with an organizer-set value, and the return command cites it.
+**Example:** The export-row cap lives as `setting/spending.max-export-rows` with an operator-set value, and the export command cites it.
 
 ### Refuse Runs Beyond Entitlement
 

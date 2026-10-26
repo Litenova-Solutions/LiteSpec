@@ -21,7 +21,7 @@ static partial class NewCommand
         before any prose exists, so two authors working in parallel never mint
         the same identifier twice. <type> is the record type, such as reaction,
         use-case, or decision. <id> is the home.name part of the identifier, such
-        as sales.notify-buyer; the full identifier is <type>/<id>. The page is
+        as lending.notify-reader; the full identifier is <type>/<id>. The page is
         written at the home its type owns: a reaction under modules/<module>/
         reactions/, a job under modules/<module>/jobs/, a notification under
         modules/<module>/notifications/, a decision under the decisions folder.

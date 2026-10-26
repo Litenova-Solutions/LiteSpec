@@ -54,7 +54,7 @@ The body keeps the Transitions and Data tables from the aggregate page style. Th
 
 ### Process Aggregates
 
-A process is an aggregate with a multi-step life: a resale queue, an erasure request, a hiring pipeline. Its steps name the work in order; each step carries an optional `when` guard and a compensation, the step undo: the use case reversing the step, or `none` with the reason no undo applies. Its exits name the ways out, its `finishedWhen` names the observable end, its `driver` names what moves it, and its `cursor` names where resume state lives when a job drives it.
+A process is an aggregate with a multi-step life: a hold queue, an erasure request, a hiring pipeline. Its steps name the work in order; each step carries an optional `when` guard and a compensation, the step undo: the use case reversing the step, or `none` with the reason no undo applies. Its exits name the ways out, its `finishedWhen` names the observable end, its `driver` names what moves it, and its `cursor` names where resume state lives when a job drives it.
 
 | Field | Meaning |
 |:---|:---|
@@ -149,7 +149,7 @@ A use-case name starts with a verb, and each verb keeps one meaning and one kind
 | `duplicate` | command | A new record copied from an existing one. |
 | `open`, `close` | command | A period, case or shift that runs between the two. |
 | `start`, `complete` | command | Work that runs to an end. |
-| `publish`, `withdraw` | command | What buyers or the public can see. |
+| `publish`, `withdraw` | command | What readers or the public can see. |
 | `pause`, `resume` | command | A temporary stop the owner chooses. |
 | `suspend`, `reinstate` | command | A stop an operator imposes. |
 | `enable`, `disable` | command | A switch. |
@@ -345,7 +345,7 @@ The specification names only what carries business meaning. Child entities and v
 
 **Rationale:** The kind decides what the page carries: an entity carries a lifecycle, a process carries steps with exits and a driver, and a store carries an owner with no guarded invariant. Without the kind, a reviewer cannot tell a thing kept consistent from a table the product only holds.
 
-**Example:** The ticket resale aggregate declares `kind: process`, and the suppression list declares `kind: store`.
+**Example:** The hold queue aggregate declares `kind: process`, and the suppression list declares `kind: store`.
 
 ### Name the Owner of Every Store
 
@@ -359,7 +359,7 @@ The specification names only what carries business meaning. Child entities and v
 
 **Rationale:** A bare state name tells a reviewer nothing: `rejected` without its meaning hides what rejection costs and allows. A name with a meaning makes each lifecycle step reviewable on the page, and gives the Transitions table states worth connecting. A store carries no lifecycle, so it carries no states.
 
-**Example:** The ticket resale process declares `Listed`, `Resold`, `Settled`, `Withdrawn`, and `Lapsed`, each with one sentence saying what the resale awaits or has received.
+**Example:** The hold queue process declares `Requested`, `Ready`, `Collected`, `Cancelled`, and `Lapsed`, each with one sentence saying what the hold awaits or has received.
 
 ### Connect Every State Through Transitions
 
@@ -379,13 +379,13 @@ The specification names only what carries business meaning. Child entities and v
 
 **Rationale:** Erasure declared per field drifts: one field keeps a new position while its twin keeps the old one. Declaring the position once per class, with per-field exceptions beside it, keeps one decision in one place. The position is `erase`, `pseudonymise`, `retain`, or `exempt`; the basis is `statute`, `business`, or `engineering`; the period is an ISO duration or `none (on-demand)`; the enforcement is `job/...`, `record-expiry`, `store-ttl`, or `query-filter`. The `erasure-undeclared` check reports a personal or sensitive field with no declared position, and `retention-without-enforcement` reports a class nothing enforces.
 
-**Example:** The buyer-contact class declares `personal`, `pseudonymise`, and its approving requirement, while the money class declares `internal`, `retain`, a statutory seven years, and the finance expiry job.
+**Example:** The submitter-contact class declares `personal`, `pseudonymise`, and its approving requirement, while the expense-ledger class declares `internal`, `retain`, a statutory seven years, and the finance expiry job.
 
 ### Accept Every Retained Personal Data Class in Intent
 
 **Statement:** Each personal or sensitive data class kept with `retain` or `exempt` MUST name the Intent requirement or decision accepting it in `acceptedBy`.
 
-**Rationale:** Keeping personal data past erasure is a business choice, not a technical default: the statute or the founder accepts it, with the reason on record. Naming that requirement or decision in `acceptedBy` keeps the keeping reviewable where the promise lives. The `risk-without-acceptance` check reports a retained or exempt personal or sensitive class with no Intent acceptance.
+**Rationale:** Keeping personal data past erasure is a business choice, not a technical default: the statute or the business accepts it, with the reason on record. Naming that requirement or decision in `acceptedBy` keeps the keeping reviewable where the promise lives. The `risk-without-acceptance` check reports a retained or exempt personal or sensitive class with no Intent acceptance.
 
 ### Review Every Erasure Exemption Before Its Date
 
@@ -405,9 +405,9 @@ The specification names only what carries business meaning. Child entities and v
 
 **Statement:** Each process MUST name its exits with their triggers, its `finishedWhen`, and its `driver`.
 
-**Rationale:** A process with no named end runs until someone notices: a resale waits forever, an erasure sits half done. Exits with triggers name every way out, `finishedWhen` names the observable end in one sentence, and the driver names what moves the process: a reaction, a job, or an operator with a runbook and a due duration. A job-driven process also names its `cursor`, where resume state lives.
+**Rationale:** A process with no named end runs until someone notices: a hold waits forever, an erasure sits half done. Exits with triggers name every way out, `finishedWhen` names the observable end in one sentence, and the driver names what moves the process: a reaction, a job, or an operator with a runbook and a due duration. A job-driven process also names its `cursor`, where resume state lives.
 
-**Example:** The ticket resale process exits as withdrawn on buyer decision and as lapsed at the return window, finishes when settled, withdrawn, or lapsed, and is driven by a completion reaction, an expiry job, and the box office operator.
+**Example:** The hold queue process exits as cancelled on reader decision and as lapsed at the pickup window, finishes when collected, cancelled, or lapsed, and is driven by a completion reaction, an expiry job, and the librarian.
 
 ### Prove Every Process Guard and Exit with a Scenario
 
@@ -421,7 +421,7 @@ The specification names only what carries business meaning. Child entities and v
 
 **Rationale:** The kind decides how the rule is proved: an invariant on every change, a precondition before the behavior, a calculation through its examples, a cross-aggregate rule where aggregates meet, an atomicity rule per write group, a reservation through its release, a commercial-data rule through its frozen value, a default through the value the model holds. A rule without a kind leaves each reader to prove it a different way, and the checks no place to confirm it.
 
-**Example:** `rule/ticket-resale.refund-never-exceeds-paid` is an invariant stating "a refund never exceeds what the buyer paid", checked on every resale settlement.
+**Example:** `rule/expense.reimbursed-once` is an invariant stating "an expense is reimbursed at most once", checked on every reimbursement.
 
 ### Keep the Negation Word in the Rule Name
 
@@ -499,7 +499,7 @@ The specification names only what carries business meaning. Child entities and v
 
 **Rationale:** An integrator reads the published name as the business fact; `staged`, `dispatch` or `outbox` describe the machinery that delivered it. A name carrying the fact travels across the boundary unchanged.
 
-**Example:** `cancellation-refund-requested` names the requested refund; `cancellation-refund-staged` names the staging step and is reported.
+**Example:** `expense-reimbursement-requested` names the requested reimbursement; `expense-reimbursement-staged` names the staging step and is reported.
 
 ### Reach Every Inbound Integration Event Through a Webhook
 
@@ -551,7 +551,7 @@ The specification names only what carries business meaning. Child entities and v
 
 **Rationale:** A use case serving nothing and fulfilling nothing is behavior nobody asked for: it ships without a promise behind it and stays when the promise changes. Naming a journey step or a requirement ties each behavior to the intent it carries. The `record-orphaned` check reports a use case with neither field, and `step-unserved` reports a journey step no use case serves.
 
-**Example:** The complete-ticket-resale command serves `journey/hand-a-ticket-back#s3` and fulfills `requirement/buyers.return-refund-on-own-charge`.
+**Example:** The reimburse-expense command serves `journey/submit-and-reimburse#s4` and fulfills `requirement/approval.single-reimbursement`.
 
 ### Grant Each Use Case Scoped Access
 
@@ -559,7 +559,7 @@ The specification names only what carries business meaning. Child entities and v
 
 **Rationale:** Access split across prose and code is widened silently: a new caller arrives, the grant stretches, and no record shows it. Declaring the auth kind, the grant of `permission/<name>`, `self(permission/<name>)`, `anonymous`, or `system`, and the tenant scope of `own`, `cross`, `public`, or `none` states who calls and how far the call reaches in one place. Tenant scope `cross` routes the use case to the security queue of the behavior diff. The `use-case-access` check reports code reaching past the grant.
 
-**Example:** The complete-ticket-resale command declares session auth, the manage-listing permission, and own-organizer tenant scope, while the door scan declares device auth with a system grant.
+**Example:** The reimburse-expense command declares session auth, the reimburse-expense permission, and own tenant scope, while the self-checkout scan declares device auth with a system grant.
 
 ### Name the Entry Points That Reach Each Use Case
 
@@ -593,7 +593,7 @@ The specification names only what carries business meaning. Child entities and v
 
 **Rationale:** Consistency left unsaid defaults to hope: a multi-aggregate write is read as atomic until it fails halfway. Declaring the mode states the promise: `atomic` with its `because` rules when `changes` lists more than one aggregate, `per-record` with a receipt per target on best effort, `compensated` with every mutating step naming its compensation. Atomic consistency never spans an `async` edge. The `consistency-unexplained` check reports an atomic multi-aggregate write with no `because`, and `many-aggregates` flags more than one atomic write group as a smell to consider.
 
-**Example:** The complete-ticket-resale command declares atomic consistency because of the one-open-return rule, while the door scan declares per-record consistency across its attempts.
+**Example:** The reimburse-expense command declares atomic consistency because of the reimbursed-once rule, while the self-checkout scan declares per-record consistency across its attempts.
 
 ### Declare Every Effect with One Verb and Its Timing
 
@@ -601,7 +601,7 @@ The specification names only what carries business meaning. Child entities and v
 
 **Rationale:** An edge no record declares is the defect: hidden calls between use cases, reactions, jobs, notifications, integration events, and external systems. Declaring each edge with exactly one verb of `issues`, `sends`, `publishes`, or `calls`, with its timing of `inline`, `after-commit`, or `async`, its failure handling, and its `before` and `forEach` where they apply, states every coupling as data. The `effect-undeclared` check reports an edge the records never declared.
 
-**Example:** The complete-ticket-resale command publishes the resold integration event after commit.
+**Example:** The reimburse-expense command publishes the reimbursed integration event after commit.
 
 ### State the Transaction Sharing of Every Inline Call
 
@@ -625,13 +625,13 @@ The specification names only what carries business meaning. Child entities and v
 
 **Statement:** Each use case MUST declare its idempotency mode with the key, scope, or reason that mode needs.
 
-**Rationale:** A retried call without a stated idempotency runs twice: a double charge, a double admission, a double notice. Declaring the mode of `key`, `state`, or `not-pending`, with its key template and scope, states how repeats collapse; `none` carries the reason repeats cannot happen. The `key` templates `{field}` placeholders over the record's `input` field names, and the `scope` is `tenant`, `account`, `login`, or `global`. A reaction or job key names fields of the triggering event or run window instead, which the record does not list, so its placeholders are not checked. The door scan keys on `{nonce}` scoped to the login.
+**Rationale:** A retried call without a stated idempotency runs twice: a double payout, a double loan, a double notice. Declaring the mode of `key`, `state`, or `not-pending`, with its key template and scope, states how repeats collapse; `none` carries the reason repeats cannot happen. The `key` templates `{field}` placeholders over the record's `input` field names, and the `scope` is `tenant`, `account`, `login`, or `global`. A reaction or job key names fields of the triggering event or run window instead, which the record does not list, so its placeholders are not checked. The self-checkout scan keys on `{nonce}` scoped to the login.
 
 ### State the Audit Position of Every Command
 
 **Statement:** Each command MUST declare its audit reason and target, or its exemption with its justification.
 
-**Rationale:** An unaudited change with no exemption is a gap nobody admitted: money moves, doors open, and no record says who asked. Declaring the reason of `required`, `optional`, or `none` with its target, or the exemption with its justification, states the audit beside the change. Commands are audited by default with reason `none`, and async work audits at request time.
+**Rationale:** An unaudited change with no exemption is a gap nobody admitted: money moves, holds lapse, and no record says who asked. Declaring the reason of `required`, `optional`, or `none` with its target, or the exemption with its justification, states the audit beside the change. Commands are audited by default with reason `none`, and async work audits at request time.
 
 ### Declare Every Query Output
 
@@ -639,13 +639,13 @@ The specification names only what carries business meaning. Child entities and v
 
 **Rationale:** A query without a declared output returns whatever its author fetched: readers and screens guess the shape from code. Declaring the output in named groups with fields, classifications, sources, and freshness states what readers receive, so the shape is reviewable before anything implements it. The `query-output-missing` check reports a query with no declared output.
 
-**Example:** The organizer home query declares setup and attention groups with immediate freshness.
+**Example:** The list-expenses query declares open and decided groups with immediate freshness.
 
 ### Justify Every Wider Visibility
 
 **Statement:** Each include group visible to more roles than its sources MUST cite the approved requirement widening it in `wideningBecause`.
 
-**Rationale:** A read showing more than its sources is a quiet widening: roles see figures their own grants never allowed, and no founder approved the view. Citing the approved requirement in `wideningBecause` keeps the widening a decided choice, and `visibleWhen` states the condition where one narrows it. The `widening-unjustified` check reports a widened group with no cited requirement.
+**Rationale:** A read showing more than its sources is a quiet widening: roles see figures their own grants never allowed, and no requirement approved the view. Citing the approved requirement in `wideningBecause` keeps the widening a decided choice, and `visibleWhen` states the condition where one narrows it. The `widening-unjustified` check reports a widened group with no cited requirement.
 
 ### Declare Paging on Every Collection Query
 
@@ -665,7 +665,7 @@ The specification names only what carries business meaning. Child entities and v
 
 **Rationale:** Callers branch on named endings: success, or one refusal with its stable code. A use case with no named success leaves readers guessing what good looks like, and a refusal without a code leaves each layer reporting the same breach another way. The `use-case-without-success` check reports a use case with no success result, and `result-undeclared` reports a code the records never declared.
 
-**Example:** The complete-ticket-resale command declares `resale-completed` with `sales.resale-not-listed` and `sales.proceeds-not-positive`.
+**Example:** The reimburse-expense command declares `reimbursed` with `spending.not-approved` and `spending.already-reimbursed`.
 
 ### Name Each Refusal Code for the State That Refuses
 
@@ -685,17 +685,17 @@ The specification names only what carries business meaning. Child entities and v
 
 **Statement:** Each refusal carrying `recorded: true` MUST store the attempt with its reason.
 
-**Rationale:** Some denials are forensics: a door denial, a limit refusal, a fraud block. Storing the attempt with its reason keeps the evidence the business answers with, while a validating refusal such as a malformed code stores nothing.
+**Rationale:** Some denials are forensics: a loan denial, a limit refusal, a fraud block. Storing the attempt with its reason keeps the evidence the business answers with, while a validating refusal such as a malformed code stores nothing.
 
-**Example:** The door scan records unknown, voided, and already-admitted codes with their reasons, while a malformed scan stores nothing.
+**Example:** The self-checkout scan records unknown, retired, and already-lent barcodes with their reasons, while a malformed scan stores nothing.
 
 ### List Recorded Outcomes Inside Success Codes
 
 **Statement:** Each success result with recorded outcomes MUST list them in `codes`.
 
-**Rationale:** A success hiding several recorded outcomes forces callers to guess: entry and re-entry both succeed, but the door log and the analytics differ. Listing the closed codes inside the success states each recorded outcome beside the ending.
+**Rationale:** A success hiding several recorded outcomes forces callers to guess: borrow and renew both succeed, but the due date and the analytics differ. Listing the closed codes inside the success states each recorded outcome beside the ending.
 
-**Example:** The admitted result lists `entry` and `re-entry`.
+**Example:** The checked-out result lists `borrow` and `renew`.
 
 ### Derive Generic Refusals Instead of Writing Them
 
@@ -741,7 +741,7 @@ The specification names only what carries business meaning. Child entities and v
 
 **Rationale:** A reaction without a trigger never runs or runs whenever its author remembered: reviewers see behavior with no moment attached. Naming the answered events states when the behavior fires, and an `if` condition states when it skips. The `reaction-trigger-unresolved` check reports a trigger naming an unknown event.
 
-**Example:** The void-code reaction answers the ticket-resale resold domain event and issues the void-ticket-code command.
+**Example:** The send-due-notice reaction answers the loan loan-borrowed domain event and issues the send-due-notice command.
 
 ### Issue or Send from Every Reaction
 
@@ -773,7 +773,7 @@ The specification names only what carries business meaning. Child entities and v
 
 **Statement:** Each reaction MUST declare its structured `onFailure` policy and its idempotency.
 
-**Rationale:** A failed automation without handling retries forever or drops silently: notices double-send, voids never land. Declaring the `onFailure` policy states the failure shape beside the trigger: `retry` is `none`, `next-run`, or a retry object with `maxAttempts`, `initialDelay`, `maxDelay`, and `backoff` of `exponential` or `fixed`; `deadLetter` carries `after` with the action a person takes; `surfacesIn` names the entry point showing the failure and `runbook` the recovery procedure. Delays and `after` are ISO 8601 durations, and prose handling is refused. The same shape serves a job. The idempotency mode, usually `state`, states how repeats collapse.
+**Rationale:** A failed automation without handling retries forever or drops silently: notices double-send, holds never clear. Declaring the `onFailure` policy states the failure shape beside the trigger: `retry` is `none`, `next-run`, or a retry object with `maxAttempts`, `initialDelay`, `maxDelay`, and `backoff` of `exponential` or `fixed`; `deadLetter` carries `after` with the action a person takes; `surfacesIn` names the entry point showing the failure and `runbook` the recovery procedure. Delays and `after` are ISO 8601 durations, and prose handling is refused. The same shape serves a job. The idempotency mode, usually `state`, states how repeats collapse.
 
 ### Point Reaction Scenarios at the Issued Result
 
@@ -787,7 +787,7 @@ The specification names only what carries business meaning. Child entities and v
 
 **Rationale:** A job without a declared scope and promise is a blind run: nobody states what each run selects, what it runs per item, what it guarantees, or where proof lands. Declaring the kind of `scheduled`, `one-off`, or `operator`, the scope with its batch size and lease, the `effects` entries with the aggregates read, the service level citing its requirement, the evidence, and the runbook states the run beside its promise. The schedule is structured with its timezone, never prose. The `schedule-unstructured` check reports a schedule no tool can read, and `record-shape` reports a job holding top-level `issues`.
 
-**Example:** The expire-lapsed-returns job runs every six hours over open returns past their window, issues one expiry per item, and lands its evidence in the run log.
+**Example:** The expire-lapsed-holds job runs every six hours over open holds past their window, issues one expiry per item, and lands its evidence in the run log.
 
 ### Name Each Job for the Command It Issues
 
@@ -815,7 +815,7 @@ The specification names only what carries business meaning. Child entities and v
 
 **Rationale:** A key naming its subject, its event and its audience tells each reader what the message is about and who receives it; a key naming none of the three hides both.
 
-**Example:** `refund-requested-organizer` names the refund, the request and the organizer audience; `email-change-confirmation` names no audience and is reported.
+**Example:** `approval-reminder-manager` names the approval, the reminder and the manager audience; `email-change-confirmation` names no audience and is reported.
 
 ### Claim Every Notification Promise from a Requirement
 
@@ -827,9 +827,9 @@ The specification names only what carries business meaning. Child entities and v
 
 **Statement:** Each setting MUST declare its value type, range, unit, setter, and bound behavior, with the requirement behind a commercial, legal, or varying default.
 
-**Rationale:** A default no requirement holds is a figure nobody approved: a price, a fee, a term, or a limit the founder never decided. Declaring the value type, the range, the unit, the setter of founder, operator, or tenant, and the bound behavior of `refuse`, `truncate`, or `degrade` states the tunable beside its promise, and a commercial, legal, or tenant-, market-, or date-varying default cites its requirement. The `setting-default-without-requirement` check reports such a default with no cited requirement.
+**Rationale:** A default no requirement holds is a figure nobody approved: a price, a fee, a term, or a limit nobody decided. Declaring the value type, the range, the unit, the setter of founder, operator, or tenant, and the bound behavior of `refuse`, `truncate`, or `degrade` states the tunable beside its promise, and a commercial, legal, or tenant-, market-, or date-varying default cites its requirement. The `setting-default-without-requirement` check reports such a default with no cited requirement.
 
-**Example:** The return-queue cap declares an integer with a founder-set default of four, refusing a fifth return, behind its requirement.
+**Example:** The receipt threshold declares money with a founder-set default of EUR 25, refusing an expense above the line with no receipt, behind its requirement.
 
 ### State the Unit of Every Quantity Setting
 
@@ -905,9 +905,9 @@ The specification names only what carries business meaning. Child entities and v
 
 This informative example demonstrates `litespec/core/behavior#declare-the-kind-of-every-aggregate`, `litespec/core/behavior#model-each-aggregate-lifecycle-with-states`, `litespec/core/behavior#state-each-process-step-with-its-compensation`, `litespec/core/behavior#close-every-process-with-named-exits-and-a-driver`, `litespec/core/behavior#state-each-rule-with-its-kind`, `litespec/core/behavior#give-each-use-case-a-command-or-query-kind`, `litespec/core/behavior#connect-each-use-case-to-intent`, `litespec/core/behavior#grant-each-use-case-scoped-access`, `litespec/core/behavior#bound-every-caller-supplied-input-value`, `litespec/core/behavior#state-the-consistency-of-every-use-case`, `litespec/core/behavior#declare-every-effect-with-one-verb-and-its-timing`, `litespec/core/behavior#end-every-use-case-in-named-results`, `litespec/core/behavior#order-every-refusal-list-by-precedence`, `litespec/core/behavior#trigger-every-reaction-from-a-declared-event`, `litespec/core/behavior#issue-or-send-from-every-reaction`, `litespec/core/behavior#file-every-reaction-with-the-module-it-changes`, `litespec/core/behavior#state-the-failure-handling-of-every-reaction`, `litespec/core/behavior#tabulate-every-calculation-with-examples`, `litespec/core/behavior#record-attempts-behind-recorded-refusals`, `litespec/core/behavior#list-recorded-outcomes-inside-success-codes`, and `litespec/core/behavior#name-the-idempotency-of-every-use-case`.
 
-**Resale queue.** A buyer who cannot attend hands their ticket back. The ticket resale aggregate is a process with states `Listed`, `Resold`, `Settled`, `Withdrawn`, and `Lapsed`, steps from hold-place to settle with compensations, exits for withdrawal and lapse, and a driver of a completion reaction, an expiry job, and the box office operator. The complete-ticket-resale command serves the hand-back journey step, fulfills the own-charge refund requirement, declares session auth with the manage-listing permission, bounds the caller-supplied replacement amount with the positivity rule, writes atomically because of the one-open-return rule, and publishes the resold integration event after commit. Its refusals stand in precedence order ahead of the resale-completed result. The void-code reaction answers the resold domain event, issues the void-ticket-code command from the admission module through its effects, and retries five times with exponential backoff before dead-lettering. The refund-never-exceeds-paid rule is proven by a scenario with an examples table: a EUR 50 ticket resold for EUR 65 refunds EUR 50 to the buyer and keeps EUR 15 with the organizer.
+**Hold queue.** A reader who finds the copy lent places a hold. The hold queue aggregate is a process with states `Requested`, `Ready`, `Collected`, `Cancelled`, and `Lapsed`, steps from hold-place to collect with compensations, exits for cancellation and lapse, and a driver of a completion reaction, an expiry job, and the librarian. The collect-ready-hold command serves the hold journey step, fulfills the pickup-window requirement, declares session auth with the place-hold permission, bounds the caller-supplied pickup code with the code-shape rule, writes atomically because of the one-ready-hold rule, and publishes the collected integration event after commit. Its refusals stand in precedence order ahead of the hold-collected result. The advance-queue reaction answers the collected domain event, issues the advance-hold-queue command from the lending module through its effects, and retries five times with exponential backoff before dead-lettering. The fine-per-day rule is proven by a scenario with an examples table: a copy three days overdue accrues EUR 1.50 at EUR 0.50 a day, and a copy returned on time accrues nothing.
 
-**Door scan.** A scanner records each check-in attempt. The record-check-in-attempt command declares device auth with a system grant, per-record consistency, and idempotency keyed on `{nonce}` scoped to the login. Its recorded refusals for unknown, voided, and already-admitted codes store each attempt with its reason, while malformed scans store nothing, and its admitted result lists `entry` and `re-entry` codes.
+**Self-checkout scan.** A kiosk records each scan attempt. The record-self-checkout-scan command declares device auth with a system grant, per-record consistency, and idempotency keyed on `{nonce}` scoped to the login. Its recorded refusals for unknown, retired, and already-lent barcodes store each attempt with its reason, while malformed scans store nothing, and its checked-out result lists `borrow` and `renew` codes.
 
 ## Verification
 

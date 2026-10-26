@@ -42,7 +42,7 @@ Developers own the `catalog` of triggers, conditions, and actions as reviewed re
 
 **Rationale:** A renamed or retired entry lingers in old instances, and a crafted request can name entries that never existed. Refusing unknown entries keeps every running rule inside the reviewed catalog instead of executing a name nobody defined.
 
-**Example:** An instance naming the retired trigger `ticket.sold` is refused with the catalog's current trigger list.
+**Example:** An instance naming the retired trigger `expense.submitted` is refused with the catalog's current trigger list.
 
 ### Version Catalog Entries
 
@@ -72,7 +72,7 @@ Developers own the `catalog` of triggers, conditions, and actions as reviewed re
 
 **Statement:** A hook MUST leave its trigger's outcome unchanged when the customer endpoint fails.
 
-**Rationale:** The trigger's work is done before the hook fires: the invoice is paid, the ticket is issued. Failing the trigger because a customer endpoint timed out punishes the product for a stranger's outage. The hook records its own outcome and retries on its own schedule.
+**Rationale:** The trigger's work is done before the hook fires: the invoice is paid, the expense is reimbursed. Failing the trigger because a customer endpoint timed out punishes the product for a stranger's outage. The hook records its own outcome and retries on its own schedule.
 
 **Example:** A hook call that times out is retried three times and then logged as failed, while the paid invoice stays paid.
 

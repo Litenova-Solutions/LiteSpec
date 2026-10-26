@@ -56,7 +56,7 @@ Steps name no use case. Use cases point up with `serves`, naming the steps they 
 
 ### Staff and System Journeys
 
-Journeys are not only buyer walks. A staff journey walks a staff actor, such as box office recording a replacement sale, through the same shape of goal, `finishedWhen`, and steps. A system journey walks `actor/recurring-job` through scheduled work the product promises, such as expiring lapsed returns. Staff and system steps read as product sentences too, so the founder approves them the same way.
+Journeys are not only employee walks. A staff journey walks a staff actor, such as finance exporting the approved batch, through the same shape of goal, `finishedWhen`, and steps. A system journey walks `actor/recurring-job` through scheduled work the product promises, such as erasing personal data past retention. Staff and system steps read as product sentences too, so the founder approves them the same way.
 
 ### Questions and Ballots
 
@@ -108,7 +108,7 @@ Intent never contains Behavior field names, code identifiers, or mechanism: no s
 
 **Statement:** A constraint MUST state its `source`, `category`, `applies`, and `appliesBecause` in fields and its demand in Summary and What It Requires.
 
-**Rationale:** An unanswered constraint is an outside rule the product can break unknowingly: a law, a regulation, or provider terms the team never examined. Recording each rule with its source and applicability proves the team asked. A project with no outside rules records that answer too, so a later reader can tell examined from ignored. The `category` is technical, organizational, or convention. Summary states the rule in the source's own words, and What It Requires states what the product does to obey it. A fact learned from the world, such as a provider shortening its refund window, first lands as research with its source and date, then as a constraint draft.
+**Rationale:** An unanswered constraint is an outside rule the product can break unknowingly: a law, a regulation, or provider terms the team never examined. Recording each rule with its source and applicability proves the team asked. A project with no outside rules records that answer too, so a later reader can tell examined from ignored. The `category` is technical, organizational, or convention. Summary states the rule in the source's own words, and What It Requires states what the product does to obey it. A fact learned from the world, such as the payout bank lengthening its settlement window, first lands as research with its source and date, then as a constraint draft.
 
 ### Record Research with Read Sources
 
@@ -182,7 +182,7 @@ Intent never contains Behavior field names, code identifiers, or mechanism: no s
 
 **Rationale:** An exception without a fallback leaves the reader at the exact moment the promise breaks: the product refuses with no stated alternative. The `when` condition states in product words when the commitment does not hold, and `fallback` names the requirement that covers what happens then. The fallback carries no `except` of its own, so the chain stays one deep and every exception ends in a promise.
 
-**Example:** A returned ticket is refunded on the buyer's own charge, never more than they paid. Except when the payment rail's refund window has closed for that order, with `fallback` naming the requirement that has the organizer repay the buyer by other means.
+**Example:** A reimbursed expense lands in the employee's account, never more than they spent. Except when the payout bank's settlement window has closed for that batch, with `fallback` naming the requirement that has finance repay the employee by other means.
 
 ### Write Journey Steps as Sentences with Ids
 
@@ -190,7 +190,7 @@ Intent never contains Behavior field names, code identifiers, or mechanism: no s
 
 **Rationale:** A step written as a product sentence reads in the book chapter with no Behavior knowledge: the founder approves what a person experiences, not which handler runs. The `id` (`s1`, `s2`, and so on) gives Behavior a stable target: use cases point up with `serves` to `journey/<name>#s1`. A step that names its use case drags Behavior into Intent and breaks the chapter every time Behavior renames.
 
-**Example:** Step `s3` says `Someone else buys the freed place, and the old code stops admitting.` and names no use case; `use-case/sales.complete-ticket-resale` names `journey/hand-a-ticket-back#s3` in `serves`.
+**Example:** Step `s4` says `Finance reimburses the approved expense.` and names no use case; `use-case/spending.reimburse-expense` names `journey/submit-and-reimburse#s4` in `serves`.
 
 ### State When Each Journey Finishes
 
@@ -198,7 +198,7 @@ Intent never contains Behavior field names, code identifiers, or mechanism: no s
 
 **Rationale:** A journey without a stated end can stop anywhere: the reader cannot tell a finished walk from an abandoned one, and serving records cannot tell done from dropped. `finishedWhen` states the observable end in one sentence, in product words a founder can check.
 
-**Example:** `finishedWhen`: the original buyer has their money on the card they paid with, or the organizer credit they chose, and the freed place is sold again or back with them.
+**Example:** `finishedWhen`: the employee holds the reimbursement, and the personal data of old expenses is erased past retention.
 
 ### Group Questions into Ballots
 
@@ -206,7 +206,7 @@ Intent never contains Behavior field names, code identifiers, or mechanism: no s
 
 **Rationale:** A question without a decider and a date waits on nobody: work below it guesses while nobody is asked. The `ballot` groups questions in the inbox by a decision id or a short topic slug, so the founder answers one ballot at a time. Tier-1 questions need explicit approval; a tier-3 draft carrying `recommended` auto-approves after its `decideBy` plus the veto window, recorded as `auto (veto window)`. A draft past its date that cannot auto-approve is reported as a known gap with its owner, so it never silently blocks.
 
-**Example:** Ballot `resale-terms`, due 2026-11-01: how many tickets one buyer may hold in the return queue at once, recommended 4 as an organizer listing setting; and whether the organizer may charge a handling fee on a return, recommended yes, organizer-set and shown before the buyer confirms.
+**Example:** Ballot `approval-terms`, due 2026-11-01: above which amount an expense needs a receipt, recommended EUR 25 as a policy setting; and within how many business days each submitted expense is decided, recommended 5, counted from submission.
 
 ### Leave Business Choices to the Founder
 
@@ -214,15 +214,15 @@ Intent never contains Behavior field names, code identifiers, or mechanism: no s
 
 **Rationale:** Agents draft Intent and the founder decides it: a price or term chosen in Behavior would bind the business without its decider. Each figure that differs by tenant, market, or date travels up as a draft question with the founder as decider, so Behavior never silently fixes what the business owns. Money and personal-data questions carry `risk` and need explicit approval.
 
-**Example:** The return-queue cap moves from 4 to 6 when the founder answers the ballot; the listing setting and its scenarios follow the approved requirement.
+**Example:** The receipt threshold moves from EUR 25 to EUR 50 when the founder answers the ballot; the policy setting and its scenarios follow the approved requirement.
 
 ### Treat Tenant-Set Values as Data
 
 **Statement:** A consumer MUST treat a `setBy: tenant` value as tenant data outside founder approval.
 
-**Rationale:** Tenants choose their own values within the ranges Intent sets: an organizer prices the freed place at face value by default and keeps any difference. The founder approves the requirement that sets the range and the default, and each tenant's choice inside it needs no ballot. Treating tenant values as approvals would ask the founder to approve choices that are never theirs.
+**Rationale:** Tenants choose their own values within the ranges Intent sets: a tenant holds its receipt threshold at EUR 25 by default within the EUR 0 to EUR 500 range. The founder approves the requirement that sets the range and the default, and each tenant's choice inside it needs no ballot. Treating tenant values as approvals would ask the founder to approve choices that are never theirs.
 
-**Example:** The organizer sets a resale price above face value; the requirement covering organizer pricing already holds the founder's approval, so the price itself is data.
+**Example:** The tenant sets a receipt threshold of EUR 50; the requirement covering threshold ranges already holds the founder's approval, so the threshold itself is data.
 
 ## Conventions
 
@@ -277,49 +277,47 @@ docs/intent/
 
 This informative example demonstrates `litespec/core/intent#order-each-journey-toward-one-goal`, `litespec/core/intent#write-journey-steps-as-sentences-with-ids`, `litespec/core/intent#state-when-each-journey-finishes`, `litespec/core/intent#identify-every-requirement`, `litespec/core/intent#state-each-exception-with-its-fallback`, `litespec/core/intent#group-questions-into-ballots`, `litespec/core/intent#leave-business-choices-to-the-founder`, and `litespec/core/intent#treat-tenant-set-values-as-data`.
 
-The book renders journey `journey/hand-a-ticket-back` as one chapter. No field name, JSON, or Behavior page appears.
+The book renders journey `journey/submit-and-reimburse` as one chapter. No field name, JSON, or Behavior page appears.
 
 ```text
-Hand a ticket back
+Submit and reimburse
 
-A buyer who cannot attend hands their ticket back and is refunded on their
-own charge.
+An employee submits an expense and is reimbursed after approval.
 
-Finished when: the original buyer has their money on the card they paid with,
-or the organizer credit they chose, and the freed place is sold again or back
-with them.
+Finished when: the employee holds the reimbursement, and the personal
+data of old expenses is erased past retention.
 
-1. The buyer sees what handing back means for their ticket: money or credit,
-   and how long money takes.
-2. The buyer hands the ticket back and chooses money or credit.
-3. Someone else buys the freed place, and the old code stops admitting.
-4. The original buyer is refunded once that sale has settled.
-If it goes wrong: past the card window only credit is offered; a ticket that
-already admitted someone cannot come back; if nobody buys the place before the
-window shuts, the ticket is theirs again.
+1. The employee submits the expense with its amount and currency.
+2. The employee attaches the receipt to the expense.
+3. The manager approves or rejects the expense within five business days.
+4. Finance reimburses the approved expense.
+If it goes wrong: an expense that waits past three business days earns
+its approver a reminder; an expense above the threshold with no receipt
+cannot be submitted; an expense nobody approves is never reimbursed.
 
 Promises
-- A returned ticket is refunded on the buyer's own charge, never more than
-  they paid.
-    Except when the payment rail's refund window has closed for that order.
-    Then the organizer repays the buyer by other means and Claimwick records it.
-- The organizer resells the freed place at their own price, face value by
-  default, and keeps any difference.
-- A handed-over ticket cannot be taken back once someone else holds it.
+- Each submitted expense is decided within five business days.
+- An expense above the receipt threshold carries a receipt.
+- A reimbursed expense lands in the employee's account, never more than
+  they spent.
+    Except when the payout bank's settlement window has closed for that batch.
+    Then finance repays the employee by other means and Claimwick records it.
+- Nobody approves their own expense.
+- An approved expense is reimbursed at most once.
 
 Consequences (context, not part of what you approve)
-- New refusal a buyer can meet: "This ticket already admitted someone."
-- Personal data kept: the original buyer's name on the refunded order line,
+- New refusal an employee can meet: "This expense needs a receipt."
+- Personal data kept: the employee's name on the reimbursed expense line,
   for the statutory seven years.
 
-Open questions (ballot "Resale terms", due 2026-11-01)
-1. How many tickets may one buyer have in the return queue at once?
-   Recommended: 4, held by the organizer as a listing setting.
-2. Can the organizer charge a handling fee on a return?
-   Recommended: yes, organizer-set, shown before the buyer confirms.
+Open questions (ballot "Approval terms", due 2026-11-01)
+1. Above which amount must an expense carry a receipt?
+   Recommended: EUR 25, held as a policy setting.
+2. Within how many business days is each submitted expense decided?
+   Recommended: 5, counted from submission.
 ```
 
-For step 3, the serving use case `use-case/sales.complete-ticket-resale` contributes its goal in one line, and its scenarios contribute their Then clauses as context. The founder approves the promises or answers the ballot from this chapter alone.
+For step 4, the serving use case `use-case/spending.reimburse-expense` contributes its goal in one line, and its scenarios contribute their Then clauses as context. The founder approves the promises or answers the ballot from this chapter alone.
 
 ## Verification
 

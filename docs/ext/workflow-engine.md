@@ -26,7 +26,7 @@ A carried process sets `carriedBy: workflow`, maps each engine step to exactly o
 
 **Rationale:** A reader meeting a process asks first what moves it: reactions, a job, an operator, or an engine. The carrier marker answers that question on the aggregate itself, so nobody hunts the engine console for a process reactions drive.
 
-**Example:** The resale aggregate sets `carriedBy: workflow` while the refund aggregate stays reaction-driven.
+**Example:** The hold aggregate sets `carriedBy: workflow` while the loan aggregate stays reaction-driven.
 
 ### Map Each Engine Step to One Use Case
 
@@ -34,7 +34,7 @@ A carried process sets `carriedBy: workflow`, maps each engine step to exactly o
 
 **Rationale:** An engine step with no use case is behavior no record describes, and a step mapped to two use cases is two behaviors wearing one name. One step and one use case keep the engine definition and the records in lockstep: the map reads both ways.
 
-**Example:** The engine step `suspend-code` maps to `use-case/admission.suspend-code` and to nothing else.
+**Example:** The engine step `cancel-hold` maps to `use-case/lending.cancel-hold` and to nothing else.
 
 ### State Each Step Compensation
 
@@ -42,7 +42,7 @@ A carried process sets `carriedBy: workflow`, maps each engine step to exactly o
 
 **Rationale:** Engines fail mid-process: a step times out, a worker crashes, a saga aborts. The compensation is the step's undo, and a step with no undo says so with the reason, so recovery follows the record instead of improvising.
 
-**Example:** The step `void-code` names `use-case/admission.restore-code` as its compensation, while `settle` names `none` because money has moved.
+**Example:** The step `cancel-hold` names `use-case/lending.place-hold` as its compensation, while `borrow-copy` names `none` because the copy has left the shelf.
 
 ### Reject Unmapped Engine Steps
 

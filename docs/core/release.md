@@ -82,7 +82,7 @@ A consumer adopts one LiteSpec release by installing the `LiteSpec.Cli` tool pac
 
 **Rationale:** The Intent diff shows the change in product words with its consequences as context, and ballots group the questions by decider with their recommendations. Reviewing there keeps the business decision with the people who own it, instead of scattering it across Behavior pages they never open.
 
-**Example:** A resale cap change shows one product sentence plus the affected promises, and the founder approves it in the Resale terms ballot.
+**Example:** A threshold change shows one product sentence plus the affected promises, and the founder approves it in the Approval terms ballot.
 
 ### Review Behavior Changes Through the Behavior Diff
 
@@ -208,7 +208,7 @@ A consumer adopts one LiteSpec release by installing the `LiteSpec.Cli` tool pac
 
 **Rationale:** The four parts prove the four risks are closed: G checks prove the record graph holds, answered tier 1 drafts prove no high-risk question is open, verified scenarios prove each behavior through the public boundary, and S checks prove the code matches the records where a qualified reader exists. A release missing any part ships with that risk unjudged.
 
-**Example:** A resale release shows green G checks, no open tier 1 ballots, every scenario verified, and green S checks on the .NET reader.
+**Example:** A reimbursement release shows green G checks, no open tier 1 ballots, every scenario verified, and green S checks on the .NET reader.
 
 ### Advise Without Gating as an Agent
 
@@ -340,11 +340,11 @@ A consumer adopts one LiteSpec release by installing the `LiteSpec.Cli` tool pac
 
 This informative example demonstrates `litespec/core/release#verify-connected-journeys`, `litespec/core/release#identify-immutable-release-artifacts`, and `litespec/core/release#record-release-evidence`.
 
-An order-checkout release includes verified stock, order, payment, and shipment use cases. The checkout journey passes against the deployed API and database, and the record names the source commit and the image digest as the immutable artifact reference, with the release evidence attached.
+A reimbursement release includes verified submit, approve, and reimburse use cases. The submit-and-reimburse journey passes against the deployed API and database, and the record names the source commit and the image digest as the immutable artifact reference, with the release evidence attached.
 
 This informative example demonstrates `litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots`, `litespec/core/release#review-behavior-changes-through-the-behavior-diff`, and `litespec/core/release#review-the-security-queue-separately-from-reviewed`.
 
-A resale cap change shows one Intent sentence in the founder ballot, a two-line Behavior diff for sampling, and no security queue item, so it releases after the ballot and the sample pass.
+A threshold change shows one Intent sentence in the founder ballot, a two-line Behavior diff for sampling, and no security queue item, so it releases after the ballot and the sample pass.
 
 ## Verification
 

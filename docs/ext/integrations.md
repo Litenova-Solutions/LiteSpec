@@ -32,15 +32,15 @@ This extension switches on no optional record type. Each provider is recorded as
 
 **Rationale:** Each outside call is a declared edge: the effect names the system and its operation, and the operation states the direction, timeout, retry, response, and cache. A call to an undeclared operation ships as an unreviewed dependency, and the security queue has no stated edge to review. `litespec/core/behavior#declare-every-effect-with-one-verb-and-its-timing` states the effect verbs, and the `effect-undeclared` check reports an edge the records never declared.
 
-**Example:** The refund effect cites `calls` on the payment provider `refund` operation with its timeout and retry count.
+**Example:** The payout effect cites `calls` on the payout bank `send-batch` operation with its timeout and retry count.
 
 ### Define Business-Action Ports
 
 **Statement:** Application MUST own a public external-service interface named for its business action.
 
-**Rationale:** The use case needs a behavior, such as authorizing a payment, not a provider. A public interface named for that business action states the need with no provider in sight. Application then depends on the behavior while providers come and go behind it.
+**Rationale:** The use case needs a behavior, such as sending a payout, not a provider. A public interface named for that business action states the need with no provider in sight. Application then depends on the behavior while providers come and go behind it.
 
-**Example:** `IPaymentAuthorizer` describes the business action without exposing a payment-provider client.
+**Example:** `IPayoutSender` describes the business action without exposing a payout-bank client.
 
 ### Isolate Provider Implementations
 
@@ -78,7 +78,7 @@ This extension switches on no optional record type. Each provider is recorded as
 
 **Statement:** An external client MUST NOT retry a non-idempotent provider call without provider idempotency and documented replay behavior.
 
-**Rationale:** Retrying a charge, a shipment, or any irreversible provider call can perform it twice. The retry is safe only with provider idempotency behind it and documented replay behavior stating what a repeat does. Without both, the project trades one failed call for two completed effects.
+**Rationale:** Retrying a payout, a shipment, or any irreversible provider call can perform it twice. The retry is safe only with provider idempotency behind it and documented replay behavior stating what a repeat does. Without both, the project trades one failed call for two completed effects.
 
 ### Translate Provider Failure Outcomes
 
@@ -88,7 +88,7 @@ This extension switches on no optional record type. Each provider is recorded as
 
 The project's own error catalog holds the stable codes. `litespec/backend/api#return-stable-problem-details` returns a code from that catalog. An integration that invents one code per provider creates one code space per provider. A client that branches on failure learns every code space. [A provider's own error taxonomy](https://stripe.com/docs/api/errors) is the input to the mapping, not its output.
 
-**Example:** A declined card and a declined direct debit both map to the project's `payment-refused` code. The provider's own code travels in diagnostics.
+**Example:** A rejected payout file and an unsettled batch both map to the project's `payout-refused` code. The provider's own code travels in diagnostics.
 
 ### Exclude Provider Internals
 
@@ -116,7 +116,7 @@ Order matters here. Verify the signature first, over the raw body, before parsin
 
 **Statement:** An inbound provider handler MUST store or process duplicate events idempotently.
 
-**Rationale:** A provider repeats delivery after a timeout or an acknowledgement failure, so the same event arrives twice. Storing or processing duplicates idempotently leaves one accepted effect. A handler without that protection charges, ships, or notifies twice.
+**Rationale:** A provider repeats delivery after a timeout or an acknowledgement failure, so the same event arrives twice. Storing or processing duplicates idempotently leaves one accepted effect. A handler without that protection pays, ships, or notifies twice.
 
 ### Reject Formula-Leading Import Values
 

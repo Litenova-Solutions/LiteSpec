@@ -20,7 +20,7 @@ Every record answers one layer's question, and each layer is written from the la
 
 | Layer | Question | Writes | Reviews | Records |
 |:--|:--|:--|:--|:--|
-| Intent | Why build it, and what do we promise? | Agents draft, the founder decides | The founder and product people | Product, goal, problem, feature, requirement, constraint, decision, research, journey, actor, term |
+| Intent | Why build it, and what do we promise? | Agents draft, the finance lead decides | The finance lead and product people | Product, goal, problem, feature, requirement, constraint, decision, research, journey, actor, term |
 | Behavior | How does the system behave to keep the promises? | Agents | Developers; the security reviewer for access, outside calls, and personal-data flows | Module, aggregate, rule, event, integration event, use case, result, scenario, reaction, job, notification, setting, role, permission, entry point, external system, runbook, term |
 | Implementation | How is it built? | Agents | Tier S checks; developers sample | Code only |
 | Proof | How do we know it holds? | The builder | Tier G and tier S checks | Tests, check results, computed statuses, the rendered book |
@@ -83,7 +83,7 @@ Each layer is reviewed where it is written, by the reader it is written for:
 
 | Review | Reads | Decides |
 |:--|:--|:--|
-| Intent review | The intent diff in product words, and the ballots inbox | The founder and product people, weekly; tier 1 must approve, tier 3 auto-approves after the veto window |
+| Intent review | The intent diff in product words, and the ballots inbox | The finance lead and product people, weekly; tier 1 must approve, tier 3 auto-approves after the veto window |
 | Behavior review | The behavior diff | Developers; tier 1 needs passing scenarios plus advisory review, tier 3 is sampled |
 | Security review | The security queue: access widenings, new outside calls, new personal-data flows | The named security reviewer, separately from reviewed |
 | Release gate | Drafts past their date, aged deviations, and the checks | Ships only reviewed and proven behavior |
@@ -114,7 +114,7 @@ The diagram below shows the main record types around one use case, the links the
 - **Answers.** `litespec model query <id>` prints one record with every link into and out of it. Agents use it to load exactly the context a task needs.
 - **Generated sections.** `litespec model render` fills the marked regions of your pages from the model, so lists such as a module's use cases always match the records. Generated regions derive from other records only, never from code.
 - **The project book.** `litespec book` turns the model into a browsable site of your own project: one chapter per journey for product readers, one page per record, a ballots inbox of open questions, an index per type, a lens per actor, and search.
-- **Diffs.** `litespec model diff <base> --intent` shows Intent changes in product words for the founder. `--behavior` shows Behavior changes with the security queue for developers. Without a flag, it shows both.
+- **Diffs.** `litespec model diff <base> --intent` shows Intent changes in product words for the finance lead. `--behavior` shows Behavior changes with the security queue for developers. Without a flag, it shows both.
 
 ## Next Steps
 

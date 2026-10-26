@@ -18,7 +18,7 @@ static partial class Checker
     /// <summary>Audience words a template key may end with whatever the record declares.</summary>
     private static readonly HashSet<string> TemplateAudienceAliases = new(StringComparer.Ordinal)
     {
-        "organizer", "buyer", "holder", "team", "staff", "member", "founder", "requester",
+        "customer", "member", "owner", "team", "staff", "approver", "requester", "reader",
     };
 
     /// <summary>Setting value types that measure a quantity and need a unit.</summary>

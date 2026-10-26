@@ -433,7 +433,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Rationale:** The type names the record kind and `home.name` names the owning module or set, so an identifier resolves with no lookup table. One grammar for every record kind keeps identifiers writable by hand and checkable by tool, including the reaction, job, notification, setting, and integration-event forms.
 
-**Example:** `reaction/sales.notify-buyer` is a reaction owned by the sales module, and `journey/hand-back#s2` is the second step of a journey.
+**Example:** `reaction/spending.send-approver-reminders-on-expense-submitted` is a reaction owned by the spending module, and `journey/submit-and-reimburse#s2` is the second step of a journey.
 
 ### Map Provisions to Evidence
 
@@ -483,8 +483,8 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 ---
 {
   "type": "use-case",
-  "id": "use-case/orders.cancel-order",
-  "title": "Cancel order",
+  "id": "use-case/spending.submit-expense",
+  "title": "Submit Expense",
   "owner": "__OWNER__",
   "status": "approved"
 }
@@ -529,7 +529,7 @@ The figures below render from the retention schedule at build time.
 
 **Rationale:** Two agents working in parallel mint the same identifier when each writes a file by hand, and the collision surfaces only at merge time. Scaffolding reserves the identifier before any prose exists, so the second author learns the clash at creation and picks another name.
 
-**Example:** `litespec new reaction sales.notify-buyer` creates the reaction page with its metadata block and reserved identifier.
+**Example:** `litespec new reaction spending.send-approver-reminders-on-expense-submitted` creates the reaction page with its metadata block and reserved identifier.
 
 ### Rewrite Every Link on a Rename
 
@@ -537,7 +537,7 @@ The figures below render from the retention schedule at build time.
 
 **Rationale:** An identifier rename touches the page, its metadata, and every record that points at it. Rewriting every link in the same command leaves no citation pointing at the old name, so the repository stays resolvable at every commit.
 
-**Example:** `litespec rename use-case/sales.close-sale use-case/sales.complete-sale` updates the page and every citation together.
+**Example:** `litespec rename use-case/spending.close-run use-case/spending.complete-run` updates the page and every citation together.
 
 ### Validate a Single Page Before Committing
 
@@ -595,7 +595,7 @@ The figures below render from the retention schedule at build time.
 
 **Rationale:** Two spellings of one concept split every search and every listing, and a reader cannot tell whether they name one concept or two. One spelling per concept keeps each term defined once and checked once.
 
-**Example:** The notification `send-soldout-notice-confirmation` and the reaction `send-sold-out-notice-on-sale-ended` name one concept with two spellings; the project picks one and renames the other.
+**Example:** The notification `send-approvalreminder-confirmation` and the reaction `send-approval-reminder-on-expense-submitted` name one concept with two spellings; the project picks one and renames the other.
 
 ### State What Happens in Every Behavior Statement
 
