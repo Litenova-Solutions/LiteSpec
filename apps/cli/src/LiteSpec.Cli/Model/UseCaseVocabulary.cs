@@ -173,6 +173,86 @@ static class UseCaseVocabulary
         };
 
     /// <summary>
+    ///     Common English verbs whose past participle the regular rule misspells: the irregulars, and the
+    ///     verbs that double their last consonant. Domain verbs a project adds often come from this list.
+    /// </summary>
+    public static readonly IReadOnlyDictionary<string, string> CommonPastTense =
+        new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            ["take"] = "taken",
+            ["write"] = "written",
+            ["hold"] = "held",
+            ["pay"] = "paid",
+            ["buy"] = "bought",
+            ["sell"] = "sold",
+            ["give"] = "given",
+            ["make"] = "made",
+            ["keep"] = "kept",
+            ["find"] = "found",
+            ["bind"] = "bound",
+            ["spend"] = "spent",
+            ["lead"] = "led",
+            ["get"] = "got",
+            ["set"] = "set",
+            ["put"] = "put",
+            ["cut"] = "cut",
+            ["run"] = "run",
+            ["win"] = "won",
+            ["bring"] = "brought",
+            ["leave"] = "left",
+            ["lose"] = "lost",
+            ["meet"] = "met",
+            ["begin"] = "begun",
+            ["choose"] = "chosen",
+            ["forget"] = "forgotten",
+            ["freeze"] = "frozen",
+            ["hide"] = "hidden",
+            ["ride"] = "ridden",
+            ["shake"] = "shaken",
+            ["show"] = "shown",
+            ["speak"] = "spoken",
+            ["steal"] = "stolen",
+            ["swear"] = "sworn",
+            ["tear"] = "torn",
+            ["wake"] = "woken",
+            ["wear"] = "worn",
+            ["teach"] = "taught",
+            ["think"] = "thought",
+            ["catch"] = "caught",
+            ["feed"] = "fed",
+            ["fight"] = "fought",
+            ["split"] = "split",
+            ["shut"] = "shut",
+            ["submit"] = "submitted",
+            ["admit"] = "admitted",
+            ["commit"] = "committed",
+            ["emit"] = "emitted",
+            ["permit"] = "permitted",
+            ["omit"] = "omitted",
+            ["transfer"] = "transferred",
+            ["refer"] = "referred",
+            ["prefer"] = "preferred",
+            ["occur"] = "occurred",
+            ["control"] = "controlled",
+            ["plan"] = "planned",
+            ["stop"] = "stopped",
+            ["tag"] = "tagged",
+            ["ship"] = "shipped",
+            ["drop"] = "dropped",
+            ["flag"] = "flagged",
+            ["map"] = "mapped",
+            ["scan"] = "scanned",
+            ["skip"] = "skipped",
+            ["swap"] = "swapped",
+            ["ban"] = "banned",
+            ["bar"] = "barred",
+            ["pin"] = "pinned",
+            ["log"] = "logged",
+            ["chat"] = "chatted",
+            ["star"] = "starred",
+        };
+
+    /// <summary>
     ///     The past tense of a verb: the project's map first, then the baseline table,
     ///     else the regular form. A phrasal verb tenses its first word, so
     ///     <c>check-in</c> becomes <c>checked-in</c>.
@@ -187,6 +267,11 @@ static class UseCaseVocabulary
         if (PastTense.TryGetValue(verb, out var baseline) && baseline.Length > 0)
         {
             return baseline;
+        }
+
+        if (CommonPastTense.TryGetValue(verb, out var common))
+        {
+            return common;
         }
 
         var dash = verb.IndexOf('-', StringComparison.Ordinal);

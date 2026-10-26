@@ -61,6 +61,20 @@ public sealed class RecordNameCheckTests
     }
 
     [Fact]
+    public void Plural_Of_A_Glossary_Term_Passes_The_Noun_Check()
+    {
+        using var temp = Cli.Temp("checks");
+        WriteProject(temp.Path, """{}""");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("aggregate", "aggregate/lending.copy", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "copies", "README.md"), """{}"""),
+            TestModel.Record("term", "term/guest", Path.Combine(temp.Path, "docs", "glossary.json"), """{"term": "guest", "meaning": "A visitor without a card."}"""),
+            TestModel.Record("use-case", "use-case/lending.list-guests", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "visits", "list-guests.md"), """{"kind": "query"}"""));
+
+        Assert.DoesNotContain("use-case-noun-unknown", TestModel.Codes(model));
+    }
+
+    [Fact]
     public void Phrasal_Verb_Strips_Before_The_Noun_Check()
     {
         using var temp = Cli.Temp("checks");

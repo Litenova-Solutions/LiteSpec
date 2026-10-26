@@ -106,9 +106,20 @@ public sealed class HandlerShapeCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(TestModel.Config(temp.Path));
         model.Code.AggregateMethods.Add(new AggregateMethod(
-            "Document", "Write", ["DocumentWrittenEvent"], Path.Combine(temp.Path, "Document.cs"), 5));
+            "Document", "Smite", ["DocumentSmittenEvent"], Path.Combine(temp.Path, "Document.cs"), 5));
 
         Assert.Contains("event-tense-mismatch", TestModel.Codes(model));
+    }
+
+    [Fact]
+    public void Common_Verb_Doubling_Its_Consonant_Passes()
+    {
+        using var temp = Cli.Temp("checks");
+        var model = TestModel.Model(TestModel.Config(temp.Path));
+        model.Code.AggregateMethods.Add(new AggregateMethod(
+            "Lead", "Submit", ["LeadSubmittedEvent"], Path.Combine(temp.Path, "Lead.cs"), 5));
+
+        Assert.DoesNotContain("event-tense-mismatch", TestModel.Codes(model));
     }
 
     [Fact]

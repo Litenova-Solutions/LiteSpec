@@ -109,7 +109,7 @@ static partial class Checker
                     var run = string.Join("-", words, start, length);
 
                     known = names.Any(aggregate => NounMatches(aggregate, run))
-                        || terms.Contains(run)
+                        || terms.Any(term => NounMatches(term, run))
                         || (home is not null
                             && partsByModule.TryGetValue(home, out var parts)
                             && parts.Contains(run));
