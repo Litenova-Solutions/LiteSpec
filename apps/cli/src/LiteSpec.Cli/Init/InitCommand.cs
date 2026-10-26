@@ -10,7 +10,7 @@ namespace LiteSpec.Init;
 static class InitCommand
 {
     /// <summary>The preset names <c>litespec init</c> accepts, in list order.</summary>
-    static readonly string[] Presets = ["blazor-client", "dotnet-react", "dotnet-svelte"];
+    static readonly string[] Presets = ["android-client", "blazor-client", "dotnet-react", "dotnet-svelte"];
 
     /// <summary>The setup templates copied beside the project file: the release file and its consumer path.</summary>
     static readonly (string Template, string Target)[] Scaffold =
@@ -34,7 +34,7 @@ static class InitCommand
         never overwrites an existing file: it writes each missing file and leaves
         existing ones alone.
 
-          --preset   One of: blazor-client, dotnet-react, dotnet-svelte.
+          --preset   One of: android-client, blazor-client, dotnet-react, dotnet-svelte.
           --size     The project size: small or large.
           --root     The consumer repository to write into. Defaults to the working directory.
           --name     The project name. Defaults to the root folder's name.

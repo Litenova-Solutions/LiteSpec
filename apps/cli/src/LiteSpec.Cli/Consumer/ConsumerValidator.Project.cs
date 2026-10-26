@@ -9,7 +9,7 @@ namespace LiteSpec.Consumer;
 /// </summary>
 static partial class ConsumerValidator
 {
-    static readonly string[] DefaultStacks = ["blazor", "react", "svelte"];
+    static readonly string[] DefaultStacks = ["android", "blazor", "react", "svelte"];
 
     static readonly string[] ControlledPlatforms = ["react", "svelte"];
 

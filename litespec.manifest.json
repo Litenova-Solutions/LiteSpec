@@ -16,6 +16,9 @@
     },
     "blazor": {
       "folder": "docs/frontend/blazor"
+    },
+    "android": {
+      "folder": "docs/frontend/mobile/android"
     }
   },
   "shapes": {
@@ -288,6 +291,7 @@
   },
   "stack": {
     "dotnet": "10",
+    "android": "36",
     "postgresql": "18",
     "node": "24.22.0",
     "pnpm": "11.28.5"

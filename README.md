@@ -14,7 +14,7 @@
 
 LiteSpec is a standard for building one bounded-context business application with people and AI agents working from the same written rules and records.
 
-A project names its size (small or large), its shape (server or client-only) and its stacks: `dotnet` for a backend, and `react`, `svelte` or `blazor` for each frontend. New to it? Read the [Learn overview](docs/learn/README.md).
+A project names its size (small or large), its shape (server or client-only) and its stacks: `dotnet` for a backend, and `react`, `svelte`, `blazor` or `android` for each frontend. New to it? Read the [Learn overview](docs/learn/README.md).
 
 ## What It Defines
 
@@ -70,6 +70,8 @@ docs/                       The standard
     web/                    The shared TypeScript web realization
       react/ svelte/        The two web stacks
     blazor/                 The blazor stack
+    mobile/                 The shared native mobile realization
+      android/              The android stack
   ext/                      Extensions any stack can select
   reference/ tools/ tutorial/ guide/   Lookup, command, tutorial and how-to pages
 schemas/                    JSON contracts for the manifest, the project file, records, and UI files

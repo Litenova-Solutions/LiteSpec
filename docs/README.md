@@ -140,6 +140,19 @@ The Blazor stack serves a product that has no server of its own.
 - [Browser Persistence](frontend/blazor/browser.md): the versioned, migratable adapter over browser storage, with export.
 - [Blazor Testing](frontend/blazor/testing.md): the four test projects for the four client boundaries.
 
+## Mobile Stacks
+
+The mobile pages state what every native mobile app does the same way, and each mobile stack binds them to one platform.
+
+- [Mobile overview](frontend/mobile/README.md): the shared mobile pages and the mobile stacks.
+- [Mobile Structure](frontend/mobile/structure.md): the mobile solution, the platform-free core projects, and the screen folders.
+- [Mobile Screens and Navigation](frontend/mobile/screens.md): native views, one navigation controller, the back gesture, insets, and motion.
+- [Mobile Data and State](frontend/mobile/data.md): handlers, the typed store, app-private storage, and the generated client.
+- [Mobile Device Capabilities](frontend/mobile/device.md): pickers, permissions, audio focus, and background behavior.
+- [Mobile Testing](frontend/mobile/testing.md): plain .NET core tests and device tests for screens.
+- [Android Stack](frontend/mobile/android/stack.md): the .NET for Android binding, its version pins, and its checks.
+- [Android Views](frontend/mobile/android/views.md): one activity, views in code or layouts, resources, back dispatch, and insets.
+
 ## Quality
 
 - [Quality overview](quality/README.md): what every release proves beyond behavior, and how its pages fit together.
@@ -187,6 +200,7 @@ Tutorials take a reader to a first working result; how-to guides solve one state
 - [Model a Behavior Module](tutorial/model-domain.md): specify one spending module the builder reads.
 - [Add a Svelte Frontend](guide/add-a-svelte-frontend.md): declare a Svelte frontend on the web stack.
 - [Add a Blazor Frontend](guide/add-a-blazor-frontend.md): declare a Blazor frontend outside the controlled UI contract.
+- [Add an Android Frontend](guide/add-an-android-frontend.md): declare a native Android app built with .NET for Android.
 - [Build an Audit Trail](guide/audit-trail.md): the audit extension on the .NET LiteBus pipeline, step by step.
 
 ## CLI

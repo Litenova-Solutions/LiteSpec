@@ -33,6 +33,12 @@ LiteSpec 3.0.0 is a top-down specification standard for one bounded-context busi
 - A term's `labels` sit outside the approval hash, so adding a language reopens no approval.
 - A project declares its use-case verb vocabulary in `vocabulary`: `verbs`, `phrasal` verbs counted as one, and `retired` synonyms with their replacement, checked by `use-case-verb-unknown`.
 
+### Mobile
+
+- An `android` stack builds a native Android app with .NET for Android and plain Android views: no MAUI, no WebView screens. It sits at `docs/frontend/mobile/android/` under shared mobile pages for structure, screens and navigation, data and state, device capabilities, and testing, so a later mobile stack reuses them.
+- The mobile solution lives at `apps/mobile/` with platform-free core projects beside one app project per platform; a `client-only` app holds Domain, Application and Infrastructure, a `server` app holds the generated API client.
+- The `android-client` preset starts a client-only Android consumer, and the manifest pins the Android API level in `stack.android`.
+
 ### Tools
 
 - `litespec model diff` has `--intent` and `--behavior` views with a security queue, and `litespec book` renders journey chapters and a ballots page.

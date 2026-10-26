@@ -109,7 +109,8 @@ sealed record Finding(string Code, string Message, string Path, int Line, string
     /// </summary>
     public static bool ReaderQualified(ConsumerConfig config) =>
         config.Stacks.Contains("dotnet", StringComparer.Ordinal)
-        || config.Stacks.Contains("blazor", StringComparer.Ordinal);
+        || config.Stacks.Contains("blazor", StringComparer.Ordinal)
+        || config.Stacks.Contains("android", StringComparer.Ordinal);
 
     /// <summary>Whether the finding blocks the check under a qualified or unqualified reader.</summary>
     public bool Blocks(bool readerQualified) => Tier == "G" || (Tier == "S" && readerQualified);

@@ -406,7 +406,8 @@ static class ModelCommand
     /// <summary>Whether the stack reader is qualified: the project names a .NET stack.</summary>
     static bool StackQualified(ConsumerConfig config) =>
         config.Stacks.Contains("dotnet", StringComparer.Ordinal)
-        || config.Stacks.Contains("blazor", StringComparer.Ordinal);
+        || config.Stacks.Contains("blazor", StringComparer.Ordinal)
+        || config.Stacks.Contains("android", StringComparer.Ordinal);
 
     /// <summary>
     ///     The finding's tier. The checks worker carries the tier on the finding;

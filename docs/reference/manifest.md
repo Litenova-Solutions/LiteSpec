@@ -59,8 +59,9 @@ What each field means and what reads it:
 | `react` | `docs/frontend/web/react` | none | any backend |
 | `svelte` | `docs/frontend/web/svelte` | none | any backend |
 | `blazor` | `docs/frontend/blazor` | none | any backend |
+| `android` | `docs/frontend/mobile/android` | none | any backend |
 
-Each entry holds `folder`, which is required, and the optional `requires` and `pairsWith` lists. The folder is the stack folder under `docs/backend/` or `docs/frontend/`, and it holds a `stack.md` page: the [.NET stack](../backend/dotnet/stack.md), the [React stack](../frontend/web/react/stack.md), the [Svelte stack](../frontend/web/svelte/stack.md), and the [Blazor stack](../frontend/blazor/stack.md). `requires` names the stacks a project also selects with this one, and `pairsWith` names the only backend stacks a frontend stack works beside; absent `pairsWith` means any backend. This release ships no `requires` and no `pairsWith` values.
+Each entry holds `folder`, which is required, and the optional `requires` and `pairsWith` lists. The folder is the stack folder under `docs/backend/` or `docs/frontend/`, and it holds a `stack.md` page: the [.NET stack](../backend/dotnet/stack.md), the [React stack](../frontend/web/react/stack.md), the [Svelte stack](../frontend/web/svelte/stack.md), the [Blazor stack](../frontend/blazor/stack.md), and the [Android stack](../frontend/mobile/android/stack.md). `requires` names the stacks a project also selects with this one, and `pairsWith` names the only backend stacks a frontend stack works beside; absent `pairsWith` means any backend. This release ships no `requires` and no `pairsWith` values.
 
 What the field drives:
 
@@ -79,7 +80,7 @@ Each entry holds `backendStacks`, which is required, and the optional `backendPa
 What the field drives:
 
 - Selection: the shape decides how many backend stacks the `stacks` list holds and which backend pages apply without one.
-- Init: each preset selects the shape. `dotnet-react` and `dotnet-svelte` select `server`, and `blazor-client` selects `client-only`.
+- Init: each preset selects the shape. `dotnet-react` and `dotnet-svelte` select `server`, and `blazor-client` and `android-client` select `client-only`.
 - Validation: `litespec consumer` refuses a `client-only` project that names a backend stack and a `server` project whose backend count differs from one.
 
 ### Extensions
@@ -126,6 +127,7 @@ The `stack` object pins the toolchain this release builds with:
 | Tool | Version |
 |:---|:---|
 | `dotnet` | `10` |
+| `android` | `36` |
 | `postgresql` | `18` |
 | `node` | `24.22.0` |
 | `pnpm` | `11.28.5` |

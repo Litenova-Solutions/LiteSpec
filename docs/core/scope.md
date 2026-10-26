@@ -14,13 +14,13 @@ Size decides the record set and the test projects. A small project carries the c
 
 Shape decides the deployment boundary: `server` for a project with its own backend, `client-only` for one without. A server project names one backend stack. A client-only project names none, and records which backend surfaces stay uncovered.
 
-Each stack decides which technology pages and checks apply. A project names one stack per frontend, choosing react, svelte, or blazor for each, and the stack applies its folder and every folder above it, as the [stacks page](stacks.md) states. A preset only fills in a common combination of these choices; the project record holds the result.
+Each stack decides which technology pages and checks apply. A project names one stack per frontend, choosing react, svelte, blazor, or android for each, and the stack applies its folder and every folder above it, as the [stacks page](stacks.md) states. A preset only fills in a common combination of these choices; the project record holds the result.
 
 ### Extensions, Constraints, and the Boundary
 
 An extension is a conditional standards bundle that stays inactive until a documented condition holds. The Behavior extensions are `privacy`, `devices`, `automation`, `workflow-engine`, `pipeline`, `queues`, and `ai`, beside the existing `tenancy`, `compat`, `jobs`, `outbox`, `audit`, and `stage` extensions. A project selects an extension only when its activation criterion holds, and the [extension catalog](../ext/README.md) lists each extension with its criteria. Outside constraints work the same way: the project states in `litespec.project.json` whether any constraint applies, and an empty answer records that none does.
 
-Some architectures fall outside what LiteSpec supports: microservices, multiple contexts, native clients, other platforms, event sourcing, active-active regions, and large pipelines. A project that considers one records a separate project decision naming it. Projects outside the boundary can still use individual ideas without claiming conformance.
+Some architectures fall outside what LiteSpec supports: microservices, multiple contexts, native clients on a platform with no mobile stack, other platforms, event sourcing, active-active regions, and large pipelines. A project that considers one records a separate project decision naming it. Projects outside the boundary can still use individual ideas without claiming conformance.
 
 ### Review and Adoption Settings
 
@@ -103,9 +103,9 @@ The diagram shows the three project choices and what each decides.
 
 ### Record Unsupported Scope Decisions
 
-**Statement:** A consumer MUST record a separate project decision for microservices, multiple contexts, native clients, other platforms, event sourcing, active-active regions, or large pipelines.
+**Statement:** A consumer MUST record a separate project decision for microservices, multiple contexts, native clients on a platform with no mobile stack, other platforms, event sourcing, active-active regions, or large pipelines.
 
-**Rationale:** Microservices, multiple contexts, native clients, other platforms, event sourcing, active-active regions, and large pipelines each change the assumptions this page rests on: one language, one deployment, one API and database. A separate project decision records that the team saw the boundary and chose deliberately. Without it, the project drifts outside the supported scope while claiming its checks still apply.
+**Rationale:** Microservices, multiple contexts, native clients on a platform with no mobile stack, other platforms, event sourcing, active-active regions, and large pipelines each change the assumptions this page rests on: one language, one deployment, one API and database. A separate project decision records that the team saw the boundary and chose deliberately. Without it, the project drifts outside the supported scope while claiming its checks still apply.
 
 ### Claim Conformance Only When Every Applicable Provision Holds
 

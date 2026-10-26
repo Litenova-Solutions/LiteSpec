@@ -45,8 +45,9 @@ sealed record StackSet(
 
 /// <summary>
 ///     Picks the readers for a consumer: the .NET backend and scenario readers when the
-///     project names the dotnet or blazor stack, one frontend reader per declared
-///     frontend from its platform, and a test-run reader across every supported result format.
+///     project names a stack with .NET sources (dotnet, blazor, or android), one frontend
+///     reader per declared frontend from its platform, and a test-run reader across every
+///     supported result format.
 /// </summary>
 static class StackReaders
 {
@@ -54,7 +55,8 @@ static class StackReaders
     public static StackSet For(ConsumerConfig config)
     {
         var dotnet = config.Stacks.Contains("dotnet", StringComparer.Ordinal)
-            || config.Stacks.Contains("blazor", StringComparer.Ordinal);
+            || config.Stacks.Contains("blazor", StringComparer.Ordinal)
+            || config.Stacks.Contains("android", StringComparer.Ordinal);
 
         IBackendReader backend = dotnet ? new DotnetBackendReader() : new EmptyBackendReader();
         IScenarioReader scenarios = dotnet ? new DotnetScenarioReader() : new EmptyScenarioReader();

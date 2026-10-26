@@ -2,11 +2,11 @@
 
 ## Intent
 
-The frontend pages state how the browser side of a LiteSpec product is built: its frame, routes, and modules named for the backend use cases they call, the shared components and governed visual language, the interface pattern catalog, and how data, rendering, and testing work, with the React, Svelte, and Blazor bindings that realize them. Frontend teams and agents follow them when they add a route, build a screen, or change shared UI or data code, so every screen answers the same question the same way.
+The frontend pages state how the browser and device side of a LiteSpec product is built: its frame, routes, and modules named for the backend use cases they call, the shared components and governed visual language, the interface pattern catalog, and how data, rendering, and testing work, with the React, Svelte, Blazor, and Android bindings that realize them. Frontend teams and agents follow them when they add a route, build a screen, or change shared UI or data code, so every screen answers the same question the same way.
 
 ## How the Pages Fit Together
 
-The seven principle pages directly in this folder hold for every frontend, from a web application to a client-only Blazor product. They say what each part owns without naming a framework: structure, routes, components, UI governance, patterns, data, and testing. React and Svelte share the web folder, whose [Web overview](web/README.md) lists the pages that state the TypeScript bindings both apply; each stack folder then states only what its own technology adds. Recurring interface questions are decided once in [UI Patterns](patterns.md) and its pattern pages, which apply with this folder.
+The seven principle pages directly in this folder hold for every frontend, from a web application to a client-only Blazor product or a native Android app. They say what each part owns without naming a framework: structure, routes, components, UI governance, patterns, data, and testing. React and Svelte share the web folder, whose [Web overview](web/README.md) lists the pages that state the TypeScript bindings both apply, and native apps share the mobile folder, whose [Mobile overview](mobile/README.md) does the same for mobile stacks; each stack folder then states only what its own technology adds. Recurring interface questions are decided once in [UI Patterns](patterns.md) and its pattern pages, which apply with this folder.
 
 ## Frontend Principles
 
@@ -22,8 +22,13 @@ The seven principle pages directly in this folder hold for every frontend, from 
 
 - [Web overview](web/README.md): the TypeScript pages the React and Svelte stacks both apply, and the two stacks themselves.
 
+## Shared Mobile Pages
+
+- [Mobile overview](mobile/README.md): the pages every native mobile stack applies, and the mobile stacks themselves.
+
 ## Stacks
 
 - [React Stack](web/react/stack.md): the React binding and its three rendering modes.
 - [Svelte Stack](web/svelte/stack.md): the Svelte binding and its three rendering modes.
 - [Blazor Stack](blazor/stack.md): the client-only domain model, browser persistence, and WebAssembly application.
+- [Android Stack](mobile/android/stack.md): the native Android app built with .NET for Android, under the shared [mobile pages](mobile/README.md).

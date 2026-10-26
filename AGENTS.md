@@ -6,7 +6,7 @@ Read this file before you change the LiteSpec repository or a consumer applicati
 
 LiteSpec 2.0.0 is the contract for one bounded-context business application. A project names one size (small or large), one shape (server or client-only) and its stacks: one backend stack for a server project, and one stack per frontend.
 
-A stack is a folder with a `stack.md` page: `docs/backend/dotnet/`, `docs/frontend/web/react/`, `docs/frontend/web/svelte/` and `docs/frontend/blazor/`. Selecting a stack applies its folder, every folder above it, and their subfolders that hold no stack. An extension applies only when the project selects it.
+A stack is a folder with a `stack.md` page: `docs/backend/dotnet/`, `docs/frontend/web/react/`, `docs/frontend/web/svelte/`, `docs/frontend/blazor/` and `docs/frontend/mobile/android/`. Selecting a stack applies its folder, every folder above it, and their subfolders that hold no stack. An extension applies only when the project selects it.
 
 `litespec.manifest.json` lists the stacks, shapes, extensions and pinned versions. `docs/README.md` is the human index. A provision ID is `litespec/<page>#<slug>`, the heading `<slug>` on `docs/<page>.md`, and `docs/reference/provisions.md` lists them all.
 

@@ -12,6 +12,7 @@ public sealed class InitCommandTests
     [InlineData("dotnet-react", true)]
     [InlineData("dotnet-svelte", true)]
     [InlineData("blazor-client", false)]
+    [InlineData("android-client", false)]
     public void InitKeepsTheUiPackageOnlyForControlledFrontends(string preset, bool expected)
     {
         using var consumer = Cli.Temp("init-ui");
@@ -181,6 +182,7 @@ public sealed class InitCommandTests
     [InlineData("dotnet-svelte", "large", "server", "dotnet,svelte", "web", "apps/web", "svelte")]
     [InlineData("blazor-client", "small", "client-only", "blazor", "app", "apps/app", "blazor")]
     [InlineData("blazor-client", "large", "client-only", "blazor", "app", "apps/app", "blazor")]
+    [InlineData("android-client", "small", "client-only", "android", "android", "apps/mobile/src/testshop.Android", "android")]
     public void WritesProjectFileFromPreset(
         string preset, string size, string shape, string stacks, string frontend, string path, string platform)
     {
@@ -263,7 +265,7 @@ public sealed class InitCommandTests
 
         Assert.Equal(2, result.Status);
         Assert.Contains("Unknown preset 'nope'", result.Stderr);
-        Assert.Contains("blazor-client, dotnet-react, dotnet-svelte", result.Stderr);
+        Assert.Contains("android-client, blazor-client, dotnet-react, dotnet-svelte", result.Stderr);
         Assert.False(File.Exists(Path.Combine(consumer.Path, "litespec.project.json")));
     }
 
@@ -364,7 +366,7 @@ public sealed class InitCommandTests
 
         var presetDir = Path.Combine(home, "templates", "presets");
         Directory.CreateDirectory(presetDir);
-        foreach (var name in new[] { "dotnet-react", "dotnet-svelte", "blazor-client" })
+        foreach (var name in new[] { "dotnet-react", "dotnet-svelte", "blazor-client", "android-client" })
         {
             File.Copy(
                 Path.Combine(Cli.Repository, "templates", "presets", $"{name}.json"),

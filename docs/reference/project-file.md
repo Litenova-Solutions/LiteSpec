@@ -15,7 +15,7 @@ The [supported scope](../core/scope.md) page states which sizes, shapes, stacks,
 | Path | `litespec.project.json` at the consumer root |
 | Schema | `schemas/litespec-project.schema.json` in the pinned release |
 | Template | `templates/consumer/litespec.project.json` in the release the tool carries |
-| Presets | `templates/presets/blazor-client.json`, `templates/presets/dotnet-react.json`, `templates/presets/dotnet-svelte.json` |
+| Presets | `templates/presets/android-client.json`, `templates/presets/blazor-client.json`, `templates/presets/dotnet-react.json`, `templates/presets/dotnet-svelte.json` |
 
 `litespec init` merges the template with one preset and stamps the size, name, and reviewed release. `litespec consumer` validates the written file against the schema and then runs the selection checks below. The model builder reads the paths, stack config, size, shape, stacks, and owners from the same file.
 
@@ -249,7 +249,7 @@ What each field means and what reads it:
 
 - `name` is the frontend name, such as `"web"`. It matches `^[a-z][a-z0-9-]*$`.
 - `path` is the frontend directory, such as `"apps/web"`. `litespec consumer` reports a frontend whose directory does not exist.
-- `platform` is `react`, `svelte`, or `blazor`. Every entry declares it, so a frontend outside the controlled UI contract still declares that position instead of omitting the field. A `react` or `svelte` frontend is controlled and requires a `ui` block and the shared package. A `blazor` frontend is skipped by the controlled UI check.
+- `platform` is `react`, `svelte`, `blazor`, or `android`. Every entry declares it, so a frontend outside the controlled UI contract still declares that position instead of omitting the field. A `react` or `svelte` frontend is controlled and requires a `ui` block and the shared package. A `blazor` or `android` frontend is skipped by the controlled UI check.
 - `ui` holds `profile`, which is required, and `globalCss`, which is optional. The profile is one of `public-light`, `application-balanced`, or `admin-dense`. The `globalCss` value is the one stylesheet the frontend declares, and it imports the shared package tokens. `litespec ui` checks the profile value and the stylesheet path.
 
 ### A `sites` Entry
@@ -294,7 +294,7 @@ It also prints `Next step: dotnet litespec consumer`. `litespec consumer` treats
 litespec.project.json: template placeholder '__OWNER__' is not filled [litespec/core/scope#select-a-size-a-shape-and-stacks]
 ```
 
-A preset without a controlled web frontend, such as `blazor-client`, declares no package that a frontend uses, so `litespec init` removes `paths.uiPackage` and `paths.uiPatterns` from the written file.
+A preset without a controlled web frontend, such as `blazor-client` or `android-client`, declares no package that a frontend uses, so `litespec init` removes `paths.uiPackage` and `paths.uiPatterns` from the written file.
 
 ### A Complete Example
 
@@ -367,7 +367,7 @@ This example shows the file `litespec init --preset dotnet-react --size small --
 }
 ```
 
-The other two presets differ only in shape, stacks, frontends, and the shared package. `dotnet-svelte` selects shape `server`, stacks `dotnet` and `svelte`, and one `svelte` frontend `web` at `apps/web`. `blazor-client` selects shape `client-only`, stack `blazor`, and one `blazor` frontend `app` at `apps/app`, with no `uiPackage` and no `uiPatterns`. The [init](../tools/init.md) page states all three presets.
+The other three presets differ only in shape, stacks, frontends, and the shared package. `dotnet-svelte` selects shape `server`, stacks `dotnet` and `svelte`, and one `svelte` frontend `web` at `apps/web`. `blazor-client` selects shape `client-only`, stack `blazor`, and one `blazor` frontend `app` at `apps/app`, with no `uiPackage` and no `uiPatterns`. `android-client` selects shape `client-only`, stack `android`, and one `android` frontend `android` at `apps/mobile/src/{ProjectName}.Android`, with no `uiPackage` and no `uiPatterns`. The [init](../tools/init.md) page states all four presets.
 
 ### Validation Errors
 
@@ -383,7 +383,7 @@ The other two presets differ only in shape, stacks, frontends, and the shared pa
 | A server names zero or two backend stacks | `litespec.project.json: stacks name 0 backend stacks; name exactly one of dotnet [litespec/core/scope#select-a-size-a-shape-and-stacks]` |
 | An extension id is unknown | `litespec.project.json: extensions 'search' is not an extension in the pinned LiteSpec release; known ids are ai, audit, automation, bdd, cache, compat, concurrency, containers, delegation, devices, efcore, integrations, jobs, lifecycle, locale, mcp, outbox, pipeline, privacy, queues, realtime, report, site, stage, tenancy, workflow-engine` |
 | An extension review date has passed | `litespec.project.json: extensions 'locale' was due for review on 2026-01-01; confirm the criterion still applies or remove the selection` |
-| A frontend declares no platform | `litespec.project.json: frontend 'web' declares no 'platform'; one of blazor, react, svelte is required [litespec/core/scope#select-a-size-a-shape-and-stacks]` |
+| A frontend declares no platform | `litespec.project.json: frontend 'web' declares no 'platform'; one of android, blazor, react, svelte is required [litespec/core/scope#select-a-size-a-shape-and-stacks]` |
 | A frontend names a stack the project does not select | `litespec.project.json: frontend 'web' platform 'react' is not a stack the project names in stacks [litespec/core/scope#select-a-size-a-shape-and-stacks]` |
 | A controlled frontend has no shared package | `litespec.project.json: 1 controlled frontend(s) and no 'paths.uiPackage'; the shared UI package every controlled web frontend composes is undeclared` |
 | A configured path does not exist | `litespec.project.json: paths.docs 'docs' does not exist; the page scan finds no record to check` |
@@ -392,4 +392,4 @@ The last row stands for every configured path: the message names the field, the 
 
 ## Notes
 
-The field lists follow `schemas/litespec-project.schema.json` and the consumer template. The init behavior follows `apps/cli/src/LiteSpec.Cli/Init/InitCommand.cs`. The validation messages follow `apps/cli/src/LiteSpec.Cli/Consumer/ConsumerValidator.Project.cs` and `apps/cli/src/LiteSpec.Cli/Consumer/ConsumerValidator.Glossary.cs`. The path defaults follow `apps/cli/src/LiteSpec.Cli/Model/ConsumerConfig.cs`. The presets are `templates/presets/dotnet-react.json`, `templates/presets/dotnet-svelte.json`, and `templates/presets/blazor-client.json`, read with `templates/consumer/litespec.project.json`.
+The field lists follow `schemas/litespec-project.schema.json` and the consumer template. The init behavior follows `apps/cli/src/LiteSpec.Cli/Init/InitCommand.cs`. The validation messages follow `apps/cli/src/LiteSpec.Cli/Consumer/ConsumerValidator.Project.cs` and `apps/cli/src/LiteSpec.Cli/Consumer/ConsumerValidator.Glossary.cs`. The path defaults follow `apps/cli/src/LiteSpec.Cli/Model/ConsumerConfig.cs`. The presets are `templates/presets/dotnet-react.json`, `templates/presets/dotnet-svelte.json`, `templates/presets/blazor-client.json`, and `templates/presets/android-client.json`, read with `templates/consumer/litespec.project.json`.

@@ -8,7 +8,7 @@ A stack binds the specification to one technology: a backend stack lives under `
 
 ### What a Stack Folder Holds
 
-Each stack lives in one folder with a `stack.md` page: `docs/backend/dotnet/`, `docs/frontend/web/react/`, `docs/frontend/web/svelte/`, and `docs/frontend/blazor/` are the current stacks. The `stack.md` states what the stack adds: its provisions, its version pins, and its checks.
+Each stack lives in one folder with a `stack.md` page: `docs/backend/dotnet/`, `docs/frontend/web/react/`, `docs/frontend/web/svelte/`, `docs/frontend/blazor/`, and `docs/frontend/mobile/android/` are the current stacks. The `stack.md` states what the stack adds: its provisions, its version pins, and its checks.
 
 Selecting a stack applies its folder and every folder above it, so a stack never restates an inherited principle. A stack folder is one with a `stack.md` page: `frontend/patterns/` has none, so it applies with `frontend/`, while `frontend/web/` applies only through its stacks. [Supported scope](scope.md) states how size, shape, and stacks combine into one selection.
 

@@ -38,12 +38,12 @@
       "default": "server"
     },
     "stacks": {
-      "description": "The stacks this project builds with: dotnet for the backend, and one per frontend from its platform.",
+      "description": "The stacks this project builds with: dotnet for the backend, and one per frontend from its platform (react, svelte, blazor, or android).",
       "type": "array",
       "uniqueItems": true,
       "items": {
         "type": "string",
-        "enum": ["dotnet", "react", "svelte", "blazor"]
+        "enum": ["dotnet", "react", "svelte", "blazor", "android"]
       }
     },
     "optionalTypes": {
@@ -348,7 +348,7 @@
               "platform": {
                 "description": "The frontend stack. Required on every entry, so a frontend outside the controlled UI contract declares that position instead of omitting the field.",
                 "type": "string",
-                "enum": ["react", "svelte", "blazor"]
+                "enum": ["react", "svelte", "blazor", "android"]
               },
               "ui": { "$ref": "#/$defs/ui" }
             },

@@ -12,7 +12,7 @@ Your project does not adopt all of LiteSpec. It makes four choices in `litespec.
 |:---|:---|:---|
 | Size | `small` or `large` | Which record types the project keeps. A large project adds problems, features, journeys, scenarios, and an Acceptance test project. |
 | Shape | `server` or `client-only` | Whether the project has its own backend. A client-only project has no API and applies only the backend principles about modeling the domain. |
-| Stacks | One backend stack for a server project, and one stack per frontend | Which technology pages apply: `dotnet` for the backend, and `react`, `svelte`, or `blazor` for a frontend. |
+| Stacks | One backend stack for a server project, and one stack per frontend | Which technology pages apply: `dotnet` for the backend, and `react`, `svelte`, `blazor`, or `android` for a frontend. |
 | Extensions | Any of the listed extensions, or none | Extra capabilities with their own rules, such as audit, multitenancy, an outbox, or realtime updates. |
 
 `litespec init --preset dotnet-react --size small` writes a first project file with a common selection. The [selection page](https://litespec.dev/3.0.0/select/) on the site does the same in a form and shows which pages apply.
@@ -46,6 +46,8 @@ docs/
     web/                        React and Svelte frontends
       react/  svelte/           each web stack
     blazor/                     Blazor frontends
+    mobile/                     native mobile apps
+      android/                  Android apps
   ext/                          only the extensions a project selects
 ```
 
