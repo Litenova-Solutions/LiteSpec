@@ -731,11 +731,16 @@ static class CodeChecks
                 }
             }
 
-            foreach (var endpoint in model.Code.Endpoints)
+            // A use case served on several routes needs a distinct operation id per route, so one of
+            // them carrying the use-case name is enough.
+            var operations = model.Code.Endpoints
+                .Where(endpoint => endpoint.UseCaseId == handler.UseCaseId && endpoint.Operation.Length > 0)
+                .ToList();
+            var oneNamed = operations.Count > 1 && operations.Any(endpoint => Naming.Kebab(endpoint.Operation) == handler.Name);
+
+            foreach (var endpoint in operations)
             {
-                if (endpoint.UseCaseId == handler.UseCaseId
-                    && endpoint.Operation.Length > 0
-                    && Naming.Kebab(endpoint.Operation) != handler.Name)
+                if (!oneNamed && Naming.Kebab(endpoint.Operation) != handler.Name)
                 {
                     findings.Add(CodeFinding(
                         "name-drift-across-layers",

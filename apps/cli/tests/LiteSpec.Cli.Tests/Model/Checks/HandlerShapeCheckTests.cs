@@ -123,6 +123,16 @@ public sealed class HandlerShapeCheckTests
     }
 
     [Fact]
+    public void Second_Route_With_Its_Own_Operation_Id_Passes()
+    {
+        using var temp = Cli.Temp("checks");
+        var model = DriftModel(temp.Path, "VoidOrderCommand", "VoidOrder", "void-order");
+        model.Code.Endpoints.Add(new EndpointOperation("VoidOrderByNumber", "use-case/lending.void-order", "", "", Path.Combine(temp.Path, "VoidOrderEndpoint.cs")));
+
+        Assert.DoesNotContain("name-drift-across-layers", TestModel.Codes(model));
+    }
+
+    [Fact]
     public void Matching_Layers_Pass()
     {
         using var temp = Cli.Temp("checks");
