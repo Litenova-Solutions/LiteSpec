@@ -289,6 +289,14 @@ An operation requiring a control header declares it as a required parameter, for
 
 **Rationale:** Collapsing a data-bearing set into an enum discards the data that distinguishes its cases, and reusing a Domain or Application type as the wire contract couples the public contract to inner shapes. Each layer owns its own contract type per `litespec/backend/architecture#own-each-layers-contract-types`, so the wire contract is always a dedicated transport model. Narrowing follows `litespec/backend/application#record-a-decision-for-closed-set-narrowing`.
 
+### Keep One Name for a Use Case Across Layers
+
+**Statement:** Each use case MUST carry its name unchanged in its message type, operation id, and audit action.
+
+**Rationale:** A use case that reads one way in its record, another in its message type, and a third in its audit action forces every trace across layers through a translation table only the author holds. The record id is the name; the message type, the endpoint operation id, and the audit action repeat it in their own casing, so a reader follows one name from the page to the wire to the audit log.
+
+**Example:** `use-case/payments.charge-payment` travels as `ChargePaymentCommand`, operation id `ChargePayment`, and audit action `charge-payment`; an operation id of `ChargeCard` is reported.
+
 ## Conventions
 
 ### Use This Endpoint Layout
@@ -342,6 +350,21 @@ POST   /api/posts
 GET    /api/posts/{postId}
 GET    /api/posts/{postId}/publication
 GET    /api/posts?after={cursor}&limit=20
+```
+
+### Shape Command Routes from the Aggregate and the Verb
+
+**Default:** A command route carries the aggregate plural, and a custom action ends with the use-case verb as its last segment; a POST to the collection, a PUT, PATCH or DELETE on one resource, and a verb the HTTP method already says (POST for create, add and register; PUT or PATCH for change; DELETE for remove) keep the plain resource route.
+
+**Replacement:** A project names its route shape in its backend documentation.
+
+**Rationale:** A route that names the aggregate plural, its identity, and the verb as the last segment reads the same for every command: the reader knows the record and the act before opening the handler. A route that repeats the noun or hides the verb makes each command route a fresh puzzle.
+
+**Example:**
+
+```text
+POST   /api/payment-attempts/{id}/charge
+POST   /api/orders/{orderId}/void
 ```
 
 ### Keep Numeric Transport Types Precise
@@ -480,9 +503,11 @@ A refund outcome is a closed set whose cases carry different data. Domain models
 | litespec/backend/api#publish-label-only-sets-as-string-enums | guidance | Label-only sets appear in the contract as string enums. |
 | litespec/backend/api#mark-polymorphic-models-with-discriminators | guidance | Data-bearing sets appear as oneOf models with a required string discriminator. |
 | litespec/backend/api#reject-a-collapsed-or-borrowed-wire-contract | guidance | Wire contracts hold dedicated transport models, with no enum-collapsed set or reused inner type. |
+| litespec/backend/api#keep-one-name-for-a-use-case-across-layers | checkable | `litespec model check` reports `name-drift-across-layers` (tier A) for a message type, operation id or audit action differing from the use-case name. |
 | litespec/backend/api#use-this-endpoint-layout | guidance | Endpoint folders group by module, aggregate, and use case. |
 | litespec/backend/api#name-transport-types-by-their-boundary-role | guidance | Transport type names end in the suffix their boundary role assigns. |
 | litespec/backend/api#name-routes-from-resources | guidance | Routes derive from their resource and subresource, with action segments only where neither fits. |
+| litespec/backend/api#shape-command-routes-from-the-aggregate-and-the-verb | checkable | `litespec model check` reports `route-shape` (tier A) for a command route ending outside its verb or carrying no aggregate plural. |
 | litespec/backend/api#keep-numeric-transport-types-precise | guidance | Numeric fields publish plain schemas, except int64 unions beyond the JSON safe integer range. |
 | litespec/backend/api#model-a-monetary-value-as-one-object | guidance | Monetary values travel as one Money object, or amount alone where the caller has no currency choice. |
 | litespec/backend/api#name-boolean-fields-as-conditions | guidance | Boolean fields use camel-case condition names matching their code names. |

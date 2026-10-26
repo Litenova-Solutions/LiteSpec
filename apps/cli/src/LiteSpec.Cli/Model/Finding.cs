@@ -87,6 +87,16 @@ sealed record Finding(string Code, string Message, string Path, int Line, string
             ["prose-missing"] = "A",
             ["many-aggregates"] = "A",
             ["question-aged"] = "A",
+            ["use-case-verb-method"] = "A",
+            ["event-tense-mismatch"] = "A",
+            ["name-drift-across-layers"] = "A",
+            ["route-shape"] = "A",
+            ["reasonless-name"] = "A",
+            ["collaborator-holds-repository"] = "A",
+            ["repository-read-in-loop"] = "A",
+            ["query-filters-in-memory"] = "A",
+            ["dependency-count"] = "A",
+            ["send-before-commit"] = "A",
         };
 
     /// <summary>The finding tier: G blocks, S blocks where qualified, A reports.</summary>

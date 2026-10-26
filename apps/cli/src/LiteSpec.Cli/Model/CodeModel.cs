@@ -13,7 +13,13 @@ sealed record HandlerInfo(
     IReadOnlyList<CodeRepository>? Repositories = null,
     IReadOnlyList<CodeRefusal>? Refusals = null,
     IReadOnlyList<CodeThrown>? Thrown = null,
-    IReadOnlyList<CodeDispatch>? Dispatches = null);
+    IReadOnlyList<CodeDispatch>? Dispatches = null,
+    string MessageType = "",
+    int DependencyCount = 0,
+    IReadOnlyList<CodeCall>? AggregateCalls = null,
+    IReadOnlyList<CodeCollaborator>? Collaborators = null,
+    IReadOnlyList<CodeLoopRead>? LoopReads = null,
+    IReadOnlyList<CodeMemoryFilter>? MemoryFilters = null);
 
 /// <summary>One reaction or job class.</summary>
 sealed record ReactionInfo(
@@ -26,7 +32,10 @@ sealed record ReactionInfo(
     IReadOnlyList<CodeRepository>? Repositories = null,
     IReadOnlyList<CodeRefusal>? Refusals = null,
     IReadOnlyList<CodeThrown>? Thrown = null,
-    IReadOnlyList<CodeDispatch>? Dispatches = null);
+    IReadOnlyList<CodeDispatch>? Dispatches = null,
+    int DependencyCount = 0,
+    IReadOnlyList<CodeCollaborator>? Collaborators = null,
+    IReadOnlyList<CodeLoopRead>? LoopReads = null);
 
 /// <summary>One domain event class.</summary>
 sealed record DomainEventInfo(string Class, string File, int Line, string? EventId);
@@ -42,7 +51,7 @@ sealed record CodeLiteral(string Value, string File, int Line, string? Class, bo
 sealed record CodeComment(string Text, string File, int Line);
 
 /// <summary>One endpoint operation mapped to its use case.</summary>
-sealed record EndpointOperation(string Operation, string UseCaseId, string Method, string Route, string File);
+sealed record EndpointOperation(string Operation, string UseCaseId, string Method, string Route, string File, int Line = 1);
 
 /// <summary>One repository interface a handler, reaction or job class takes in its constructor.</summary>
 sealed record CodeRepository(string Interface, string File, int Line);
@@ -63,6 +72,24 @@ sealed record CodeThrown(string Type, string File, int Line);
 /// </summary>
 sealed record CodeDispatch(string Verb, string Target, string Detail, string File, int Line, string? Via = null);
 
+/// <summary>One call a handler makes on an aggregate root it holds.</summary>
+sealed record CodeCall(string Receiver, string Method, string File, int Line);
+
+/// <summary>One public method on an aggregate root with the domain events it raises.</summary>
+sealed record AggregateMethod(string Aggregate, string Method, IReadOnlyList<string> Events, string File, int Line);
+
+/// <summary>One collaborator a handler, reaction or job class builds with <c>new</c> whose own constructor takes a repository.</summary>
+sealed record CodeCollaborator(string Type, string File, int Line);
+
+/// <summary>One repository read a handler, reaction or job class makes inside a loop body.</summary>
+sealed record CodeLoopRead(string Repository, string Method, string File, int Line);
+
+/// <summary>One LINQ filter a query handler applies to the result of a repository list call.</summary>
+sealed record CodeMemoryFilter(string File, int Line);
+
+/// <summary>One audit action literal a command message declares in its audit attribute.</summary>
+sealed record CodeAuditAction(string Operation, string Action, string File, int Line);
+
 /// <summary>What the backend source says.</summary>
 sealed class CodeModel
 {
@@ -72,4 +99,6 @@ sealed class CodeModel
     public List<CodeLiteral> Literals { get; } = [];
     public List<CodeComment> Comments { get; } = [];
     public List<EndpointOperation> Endpoints { get; } = [];
+    public List<AggregateMethod> AggregateMethods { get; } = [];
+    public List<CodeAuditAction> AuditActions { get; } = [];
 }

@@ -120,6 +120,22 @@ A tool that alters the schema from application startup is not a reviewed step wh
 
 **Rationale:** Only the pinned PostgreSQL runs the real query planner, constraints, and type behavior. An in-memory substitute proves the test's own model of the database, so a query that passes against it fails in production. HTTP integration through the real host is covered under `litespec/backend/testing#test-http-integration-through-the-real-application-host`.
 
+### Read Collection Queries in the Store with Paging and Filters
+
+**Statement:** Each collection query MUST page and filter in the store, never load a whole list to shape it in memory.
+
+**Rationale:** A query that loads a whole list to filter, sort, or page it in memory pays the full read on every call and breaks when the data grows. Repository list methods take the scope and the page and filter in the database, through the shared page request and page shapes.
+
+**Example:** The list-expenses query passes its employee scope and page to the repository, while a handler applying `Where` to a `ListAsync` result is reported.
+
+### Assign Document Numbers from a Sequence
+
+**Statement:** Each legal document number MUST allocate from a per-owner sequence taken in the command transaction.
+
+**Rationale:** A number computed from a count plus one hands two concurrent issues the same legal number. A per-owner counter row taken in the command transaction allocates each number once, whatever races it.
+
+**Example:** The issue-invoice command takes its number from the organizer invoice sequence, never from a list count.
+
 ## Conventions
 
 ### Use One Persistence Folder
@@ -242,6 +258,8 @@ An accepted business rule caps `Order.Lines` at 200 entries inside the aggregate
 | litespec/backend/persistence#use-database-naming-conventions | guidance | Generated database identifiers use snake_case across schemas, tables, columns, and indexes. |
 | litespec/backend/persistence#control-production-schema-changes | guidance | Hosted schema changes run as a reviewed step before traffic shifts, with no startup migration. |
 | litespec/backend/persistence#test-persistence-against-postgresql | guidance | Persistence tests run against the pinned PostgreSQL with no in-memory substitute. |
+| litespec/backend/persistence#read-collection-queries-in-the-store-with-paging-and-filters | checkable | `litespec model check` reports `query-filters-in-memory` (tier A) for a query handler filtering a repository list in memory. |
+| litespec/backend/persistence#assign-document-numbers-from-a-sequence | guidance | Each legal document number allocates from a per-owner sequence taken in the command transaction. |
 | litespec/backend/persistence#use-one-persistence-folder | guidance | Store configuration, repositories, and commit behavior sit under the one persistence folder. |
 | litespec/backend/persistence#use-one-session-per-command | guidance | The repositories and the commit handler in one command resolve one session. |
 | litespec/backend/persistence#review-query-plans-for-new-indexes | guidance | New indexes record their accepted query and the plan that justified it. |

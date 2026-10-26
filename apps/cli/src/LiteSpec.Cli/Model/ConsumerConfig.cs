@@ -71,6 +71,10 @@ sealed class ConsumerConfig
     /// <summary>Lookalike pairs the term-lookalike check skips, each as "a|b".</summary>
     public IReadOnlyList<string> LookalikeIgnore { get; private set; } = [];
 
+    /// <summary>The past tense of project domain verbs, by verb, beside the baseline table.</summary>
+    public IReadOnlyDictionary<string, string> PastTense { get; private set; } =
+        new Dictionary<string, string>(StringComparer.Ordinal);
+
     /// <summary>Whether the declaration names a use-case verb vocabulary.</summary>
     public bool HasVocabulary { get; private set; }
 
@@ -85,6 +89,9 @@ sealed class ConsumerConfig
 
     /// <summary>The adapters.</summary>
     public string InfrastructureRoot { get; private set; } = "";
+
+    /// <summary>The declared shared-kernel folder, or empty when the project declares none.</summary>
+    public string SharedKernel { get; private set; } = "";
 
     /// <summary>Where tests live.</summary>
     public IReadOnlyList<string> TestRoots { get; private set; } = [];
@@ -158,6 +165,14 @@ sealed class ConsumerConfig
         config.DomainRoot = Resolve(config.Root, ReadString(dotnet, "domain", "apps/api/src/*.Domain"));
         config.WebApiRoot = Resolve(config.Root, ReadString(dotnet, "webapi", "apps/api/src/*.WebApi"));
         config.InfrastructureRoot = Resolve(config.Root, ReadString(dotnet, "infrastructure", "apps/api/src/*.Infrastructure"));
+
+        if (dotnet is not null
+            && dotnet.Value.TryGetProperty("sharedKernel", out var kernel)
+            && kernel.ValueKind == JsonValueKind.String
+            && kernel.GetString() is { Length: > 0 } kernelPath)
+        {
+            config.SharedKernel = Resolve(config.Root, kernelPath);
+        }
         config.TestRoots = ReadRoots(config.Root, paths, "testRoots", []);
         config.Frontends = ReadFrontends(config.Root, paths);
         config.ApiClientSrc = Path.Combine(
@@ -289,6 +304,7 @@ sealed class ConsumerConfig
             config.QueryVerbs = ReadNames(vocabulary, "queryVerbs");
             config.RetiredVerbs = ReadRetired(vocabulary);
             config.LookalikeIgnore = ReadNames(vocabulary, "lookalikeIgnore");
+            config.PastTense = ReadPastTense(vocabulary);
         }
 
         if (document.RootElement.TryGetProperty("adoption", out var adoption)
@@ -367,6 +383,29 @@ sealed class ConsumerConfig
         }
 
         return aliases;
+    }
+
+    /// <summary>The past-tense map: each project domain verb with its past tense.</summary>
+    private static IReadOnlyDictionary<string, string> ReadPastTense(JsonElement vocabulary)
+    {
+        var past = new Dictionary<string, string>(StringComparer.Ordinal);
+
+        if (vocabulary.TryGetProperty("pastTense", out var table)
+            && table.ValueKind == JsonValueKind.Object)
+        {
+            foreach (var entry in table.EnumerateObject())
+            {
+                if (entry.Name.Length > 0
+                    && entry.Value.ValueKind == JsonValueKind.String
+                    && entry.Value.GetString() is { Length: > 0 } form
+                    && !past.ContainsKey(entry.Name))
+                {
+                    past.Add(entry.Name, form);
+                }
+            }
+        }
+
+        return past;
     }
 
     /// <summary>The retired verb map: each retired synonym with its replacement verb.</summary>

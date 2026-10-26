@@ -143,6 +143,7 @@ Every use-case name starts with a verb from the baseline vocabulary LiteSpec shi
 - `phrasal` lists multi-word verbs counted as one opening, such as `check-in`.
 - `retired` maps more synonyms to their replacement verb, beside the synonyms the baseline retires.
 - `lookalikeIgnore` lists the lookalike pairs the `term-lookalike` check skips, each naming both forms as `"a|b"`, such as `"online|on-line"` for a compound that splits into real words by accident.
+- `pastTense` maps project domain verbs to their past tense, such as `{"reimburse": "reimbursed"}`. A verb with no entry tenses regularly. `litespec model check` reports `event-tense-mismatch` against the baseline table and this map.
 
 A project never redefines a baseline verb. `litespec model check` reports `use-case-verb-unknown`, `use-case-verb-kind`, `reaction-name-form` and `job-name-form` against the baseline and these additions.
 
@@ -207,11 +208,13 @@ What each field means and what reads it:
 | `infrastructure` | string | no | `apps/api/src/*.Infrastructure` |
 | `webapi` | string | no | `apps/api/src/*.WebApi` |
 | `apiSolution` | string | no | none |
+| `sharedKernel` | string | no | none |
 
 What each field means and what reads it:
 
 - `application`, `domain`, `infrastructure`, and `webapi` name the backend projects the model builder reads. A `*` in one segment expands to the first matching folder.
 - `apiSolution` names the API solution the model builder reads. A consumer with no backend omits `apiSolution` and records the decision that it has none.
+- `sharedKernel` names the one folder holding the domain shared kernel, where reasonless names are allowed. When omitted, no folder is exempt and `litespec model check` reports `reasonless-name` for every reasonless folder or type.
 
 ### The `uiPackage` Object
 

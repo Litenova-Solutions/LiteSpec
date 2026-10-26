@@ -54,7 +54,9 @@ sealed class DotnetBackendReader : IBackendReader
 
         externalPorts = ExternalPortsOf(config);
         var helpers = IndexHelpers(config);
-        ReadHandlers(config, model, helpers);
+        var aggregateRoots = AggregateRootsOf(config);
+        var holders = RepositoryHoldersOf(config);
+        ReadHandlers(config, model, helpers, aggregateRoots, holders);
 
         var files = new List<string>();
 
@@ -71,7 +73,7 @@ sealed class DotnetBackendReader : IBackendReader
             () => new CodeModel(),
             (file, _, local) =>
             {
-                ReadFile(config, file, local, helpers);
+                ReadFile(config, file, local, helpers, aggregateRoots, holders);
 
                 return local;
             },
@@ -85,6 +87,8 @@ sealed class DotnetBackendReader : IBackendReader
                     merged.Literals.AddRange(local.Literals);
                     merged.Comments.AddRange(local.Comments);
                     merged.Endpoints.AddRange(local.Endpoints);
+                    merged.AggregateMethods.AddRange(local.AggregateMethods);
+                    merged.AuditActions.AddRange(local.AuditActions);
                 }
             });
 
@@ -107,6 +111,15 @@ sealed class DotnetBackendReader : IBackendReader
             .OrderBy(endpoint => endpoint.File, StringComparer.Ordinal)
             .ThenBy(endpoint => endpoint.Operation, StringComparer.Ordinal)
             .ThenBy(endpoint => endpoint.Route, StringComparer.Ordinal));
+        model.AggregateMethods.AddRange(merged.AggregateMethods
+            .OrderBy(method => method.File, StringComparer.Ordinal)
+            .ThenBy(method => method.Line)
+            .ThenBy(method => method.Aggregate, StringComparer.Ordinal)
+            .ThenBy(method => method.Method, StringComparer.Ordinal));
+        model.AuditActions.AddRange(merged.AuditActions
+            .OrderBy(action => action.File, StringComparer.Ordinal)
+            .ThenBy(action => action.Line)
+            .ThenBy(action => action.Operation, StringComparer.Ordinal));
 
         return model;
     }
@@ -129,7 +142,12 @@ sealed class DotnetBackendReader : IBackendReader
         return parts.Length < 4 ? null : $"use-case/{Naming.Kebab(parts[0])}.{Naming.Kebab(parts[2])}";
     }
 
-    private static void ReadHandlers(ConsumerConfig config, CodeModel model, Dictionary<string, List<HelperMethod>> helpers)
+    private static void ReadHandlers(
+        ConsumerConfig config,
+        CodeModel model,
+        Dictionary<string, List<HelperMethod>> helpers,
+        HashSet<string> aggregateRoots,
+        HashSet<string> holders)
     {
         foreach (var file in SourceTree.Files(config.ApplicationRoot, ".cs"))
         {
@@ -150,27 +168,40 @@ sealed class DotnetBackendReader : IBackendReader
 
             var module = Naming.Kebab(parts[0]);
             var operation = parts[2];
-            var details = HandlerDetails(file, helpers);
+            var kind = name.EndsWith("QueryHandler.cs", StringComparison.Ordinal) ? "query" : "command";
+            var details = HandlerDetails(file, helpers, aggregateRoots, holders, kind == "query");
 
             model.Handlers.Add(new HandlerInfo(
                 $"use-case/{module}.{Naming.Kebab(operation)}",
                 module,
                 Naming.Kebab(operation),
                 operation,
-                name.EndsWith("QueryHandler.cs", StringComparison.Ordinal) ? "query" : "command",
+                kind,
                 file,
                 details.Class,
                 details.Line,
                 details.Repositories,
                 details.Refusals,
                 details.Thrown,
-                details.Dispatches));
+                details.Dispatches,
+                details.MessageType,
+                details.DependencyCount,
+                details.AggregateCalls,
+                details.Collaborators,
+                details.LoopReads,
+                details.MemoryFilters));
         }
 
         model.Handlers.Sort((left, right) => string.Compare(left.UseCaseId, right.UseCaseId, StringComparison.Ordinal));
     }
 
-    private static void ReadFile(ConsumerConfig config, string file, CodeModel model, Dictionary<string, List<HelperMethod>> helpers)
+    private static void ReadFile(
+        ConsumerConfig config,
+        string file,
+        CodeModel model,
+        Dictionary<string, List<HelperMethod>> helpers,
+        HashSet<string> aggregateRoots,
+        HashSet<string> holders)
     {
         SyntaxTree tree;
 
@@ -187,7 +218,9 @@ sealed class DotnetBackendReader : IBackendReader
         var classes = root.DescendantNodes().OfType<BaseTypeDeclarationSyntax>().ToList();
 
         ReadEvent(config, file, tree, classes, model);
-        ReadEndpoint(config, file, root, model);
+        ReadEndpoint(config, file, tree, root, model);
+        ReadAggregateMethods(config, file, tree, classes, model);
+        ReadAuditActions(file, tree, classes, model);
 
         foreach (var token in root.DescendantTokens())
         {
@@ -258,7 +291,10 @@ sealed class DotnetBackendReader : IBackendReader
                     RepositoriesOf(declared, tree, file),
                     RefusalsOf(declared, tree, file),
                     ThrownOf(declared, tree, file),
-                    DispatchesOf(declared, tree, file, helpers)));
+                    DispatchesOf(declared, tree, file, helpers),
+                    DependencyCountOf(declared),
+                    CollaboratorsOf(declared, tree, file, holders),
+                    LoopReadsOf(declared, tree, file)));
             }
         }
     }
@@ -298,7 +334,7 @@ sealed class DotnetBackendReader : IBackendReader
             stated));
     }
 
-    private static void ReadEndpoint(ConsumerConfig config, string file, SyntaxNode root, CodeModel model)
+    private static void ReadEndpoint(ConsumerConfig config, string file, SyntaxTree tree, SyntaxNode root, CodeModel model)
     {
         if (!Path.GetFileName(file).EndsWith("Endpoint.cs", StringComparison.Ordinal)
             || !IsUnder(config.WebApiRoot, file))
@@ -333,13 +369,16 @@ sealed class DotnetBackendReader : IBackendReader
 
             if (called == "WithName" && FirstLiteral(invocation) is { } operation)
             {
-                model.Endpoints.Add(new EndpointOperation(operation, useCase, "", "", file));
+                model.Endpoints.Add(new EndpointOperation(
+                    operation, useCase, "", "", file,
+                    tree.GetLineSpan(invocation.Span).StartLinePosition.Line + 1));
             }
             else if (called is "MapGet" or "MapPost" or "MapPut" or "MapDelete" or "MapPatch"
                 && FirstLiteral(invocation) is { } route)
             {
                 model.Endpoints.Add(new EndpointOperation(
-                    "", useCase, called["Map".Length..].ToUpperInvariant(), route, file));
+                    "", useCase, called["Map".Length..].ToUpperInvariant(), route, file,
+                    tree.GetLineSpan(invocation.Span).StartLinePosition.Line + 1));
             }
         }
     }
@@ -350,6 +389,127 @@ sealed class DotnetBackendReader : IBackendReader
 
         return !relative.StartsWith("..", StringComparison.Ordinal)
             && !Path.IsPathRooted(relative);
+    }
+
+    /// <summary>
+    ///     Reads the public methods of every aggregate root the file declares with the
+    ///     domain events each one raises: a call to a method starting with <c>Raise</c>
+    ///     that takes a constructed event, such as <c>RaiseDomainEvent(new XEvent())</c>.
+    /// </summary>
+    private static void ReadAggregateMethods(
+        ConsumerConfig config,
+        string file,
+        SyntaxTree tree,
+        IReadOnlyList<BaseTypeDeclarationSyntax> classes,
+        CodeModel model)
+    {
+        if (!IsUnder(config.DomainRoot, file))
+        {
+            return;
+        }
+
+        foreach (var declared in classes)
+        {
+            if (declared is not TypeDeclarationSyntax typed || !DerivesFromAggregateRoot(typed))
+            {
+                continue;
+            }
+
+            foreach (var method in typed.Members.OfType<MethodDeclarationSyntax>())
+            {
+                if (!method.Modifiers.Any(modifier => modifier.IsKind(SyntaxKind.PublicKeyword)))
+                {
+                    continue;
+                }
+
+                var events = new List<string>();
+
+                foreach (var invocation in method.DescendantNodes().OfType<InvocationExpressionSyntax>())
+                {
+                    if (CalledName(invocation) is not { } called || !called.StartsWith("Raise", StringComparison.Ordinal))
+                    {
+                        continue;
+                    }
+
+                    foreach (var argument in invocation.ArgumentList.Arguments)
+                    {
+                        if (argument.Expression is BaseObjectCreationExpressionSyntax creation
+                            && creation is ObjectCreationExpressionSyntax { Type: var type })
+                        {
+                            var raised = KindOf(SimpleTypeName(type));
+
+                            if (raised.Length > 0 && !events.Contains(raised, StringComparer.Ordinal))
+                            {
+                                events.Add(raised);
+                            }
+                        }
+                    }
+                }
+
+                model.AggregateMethods.Add(new AggregateMethod(
+                    declared.Identifier.ValueText,
+                    method.Identifier.ValueText,
+                    events,
+                    file,
+                    tree.GetLineSpan(method.Span).StartLinePosition.Line + 1));
+            }
+        }
+    }
+
+    /// <summary>Whether the type derives from a class whose name starts with <c>AggregateRoot</c>.</summary>
+    private static bool DerivesFromAggregateRoot(TypeDeclarationSyntax typed) =>
+        typed.BaseList is not null
+        && typed.BaseList.Types
+            .Select(type => KindOf(BaseName(type.Type)))
+            .Any(baseName => baseName.StartsWith("AggregateRoot", StringComparison.Ordinal));
+
+    /// <summary>
+    ///     Reads the audit action literal each message class declares in its
+    ///     <c>[Audited("...")]</c> attribute, keyed by the message stem.
+    /// </summary>
+    private static void ReadAuditActions(
+        string file,
+        SyntaxTree tree,
+        IReadOnlyList<BaseTypeDeclarationSyntax> classes,
+        CodeModel model)
+    {
+        foreach (var declared in classes)
+        {
+            foreach (var attribute in declared.AttributeLists.SelectMany(list => list.Attributes))
+            {
+                var name = attribute.Name.ToString();
+                var dot = name.LastIndexOf('.');
+                var simple = dot >= 0 ? name[(dot + 1)..] : name;
+
+                if (simple is not ("Audited" or "AuditedAttribute"))
+                {
+                    continue;
+                }
+
+                if (attribute.ArgumentList?.Arguments.FirstOrDefault()?.Expression
+                        is LiteralExpressionSyntax literal
+                    && literal.Token.Value is string action
+                    && action.Length > 0)
+                {
+                    var operation = declared.Identifier.ValueText;
+
+                    foreach (var suffix in new[] { "Command", "Query" })
+                    {
+                        if (operation.EndsWith(suffix, StringComparison.Ordinal) && operation.Length > suffix.Length)
+                        {
+                            operation = operation[..^suffix.Length];
+                            break;
+                        }
+                    }
+
+                    model.AuditActions.Add(new CodeAuditAction(
+                        operation,
+                        action,
+                        file,
+                        tree.GetLineSpan(attribute.Span).StartLinePosition.Line + 1));
+                }
+            }
+        }
     }
 
     private static string? LiteralText(SyntaxToken token) =>
@@ -482,14 +642,20 @@ sealed class DotnetBackendReader : IBackendReader
                 : null;
     }
 
-    /// <summary>One class's collected details: its repositories, refusals, thrown types and dispatches.</summary>
+    /// <summary>One class's collected details: its repositories, refusals, thrown types, dispatches and handler shape.</summary>
     sealed record ClassDetails(
         string Class,
         int Line,
         List<CodeRepository> Repositories,
         List<CodeRefusal> Refusals,
         List<CodeThrown> Thrown,
-        List<CodeDispatch> Dispatches);
+        List<CodeDispatch> Dispatches,
+        string MessageType,
+        int DependencyCount,
+        List<CodeCall> AggregateCalls,
+        List<CodeCollaborator> Collaborators,
+        List<CodeLoopRead> LoopReads,
+        List<CodeMemoryFilter> MemoryFilters);
 
     /// <summary>A written anchor on a reaction or job record.</summary>
     private static readonly System.Text.RegularExpressions.Regex RecordImplementsTag = new(
@@ -503,7 +669,12 @@ sealed class DotnetBackendReader : IBackendReader
             : null;
 
     /// <summary>The collected details of a handler file's handler class, or empty details when none parses.</summary>
-    private static ClassDetails HandlerDetails(string file, Dictionary<string, List<HelperMethod>> helpers)
+    private static ClassDetails HandlerDetails(
+        string file,
+        Dictionary<string, List<HelperMethod>> helpers,
+        HashSet<string> aggregateRoots,
+        HashSet<string> holders,
+        bool isQuery)
     {
         SyntaxTree tree;
 
@@ -513,7 +684,7 @@ sealed class DotnetBackendReader : IBackendReader
         }
         catch (IOException)
         {
-            return new ClassDetails("", 1, [], [], [], []);
+            return new ClassDetails("", 1, [], [], [], [], "", 0, [], [], [], []);
         }
 
         var declared = tree.GetRoot().DescendantNodes().OfType<BaseTypeDeclarationSyntax>()
@@ -521,7 +692,7 @@ sealed class DotnetBackendReader : IBackendReader
 
         if (declared is null)
         {
-            return new ClassDetails("", 1, [], [], [], []);
+            return new ClassDetails("", 1, [], [], [], [], "", 0, [], [], [], []);
         }
 
         return new ClassDetails(
@@ -530,7 +701,13 @@ sealed class DotnetBackendReader : IBackendReader
             RepositoriesOf(declared, tree, file),
             RefusalsOf(declared, tree, file),
             ThrownOf(declared, tree, file),
-            DispatchesOf(declared, tree, file, helpers));
+            DispatchesOf(declared, tree, file, helpers),
+            MessageTypeOf(declared),
+            DependencyCountOf(declared),
+            AggregateCallsOf(declared, tree, file, aggregateRoots),
+            CollaboratorsOf(declared, tree, file, holders),
+            LoopReadsOf(declared, tree, file),
+            isQuery ? MemoryFiltersOf(declared, tree, file) : []);
     }
 
     /// <summary>The repository interfaces a class takes in its primary or explicit constructors.</summary>
@@ -635,6 +812,518 @@ sealed class DotnetBackendReader : IBackendReader
             .OrderBy(entry => entry.Value)
             .ThenBy(entry => entry.Key, StringComparer.Ordinal)
             .Select(entry => new CodeThrown(entry.Key, file, entry.Value))];
+    }
+
+    /// <summary>
+    ///     The simple names of the domain aggregate roots: the classes under the domain
+    ///     root deriving from a class whose name starts with <c>AggregateRoot</c>.
+    /// </summary>
+    private static HashSet<string> AggregateRootsOf(ConsumerConfig config)
+    {
+        var roots = new HashSet<string>(StringComparer.Ordinal);
+
+        foreach (var file in SourceTree.Files(config.DomainRoot, ".cs"))
+        {
+            SyntaxTree tree;
+
+            try
+            {
+                tree = CSharpSyntaxTree.ParseText(SourceTree.Read(file), new CSharpParseOptions(LanguageVersion.Preview), file);
+            }
+            catch (IOException)
+            {
+                continue;
+            }
+
+            foreach (var declared in tree.GetRoot().DescendantNodes().OfType<TypeDeclarationSyntax>())
+            {
+                if (DerivesFromAggregateRoot(declared))
+                {
+                    roots.Add(declared.Identifier.ValueText);
+                }
+            }
+        }
+
+        return roots;
+    }
+
+    /// <summary>
+    ///     The simple names of the classes whose own constructor takes a repository: a
+    ///     parameter whose kind starts with <c>I</c> and ends with <c>Repository</c>.
+    /// </summary>
+    private static HashSet<string> RepositoryHoldersOf(ConsumerConfig config)
+    {
+        var holders = new HashSet<string>(StringComparer.Ordinal);
+
+        foreach (var root in new[] { config.ApplicationRoot, config.ApplicationRoot + ".Abstractions", config.DomainRoot, config.WebApiRoot, config.InfrastructureRoot })
+        {
+            foreach (var file in SourceTree.Files(root, ".cs"))
+            {
+                SyntaxTree tree;
+
+                try
+                {
+                    tree = CSharpSyntaxTree.ParseText(SourceTree.Read(file), new CSharpParseOptions(LanguageVersion.Preview), file);
+                }
+                catch (IOException)
+                {
+                    continue;
+                }
+
+                foreach (var declared in tree.GetRoot().DescendantNodes().OfType<TypeDeclarationSyntax>())
+                {
+                    if (ConstructorTypes(declared, tree)
+                        .Select(entry => KindOf(entry.Type))
+                        .Any(kind => kind.StartsWith("I", StringComparison.Ordinal) && kind.EndsWith("Repository", StringComparison.Ordinal)))
+                    {
+                        holders.Add(declared.Identifier.ValueText);
+                    }
+                }
+            }
+        }
+
+        return holders;
+    }
+
+    /// <summary>The message a handler handles: the first parameter type of its Handle method, or empty.</summary>
+    private static string MessageTypeOf(BaseTypeDeclarationSyntax declared)
+    {
+        if (declared is not TypeDeclarationSyntax typed)
+        {
+            return "";
+        }
+
+        foreach (var method in typed.Members.OfType<MethodDeclarationSyntax>())
+        {
+            if (method.Identifier.ValueText is "Handle" or "HandleAsync"
+                && method.ParameterList.Parameters.FirstOrDefault()?.Type is { } message)
+            {
+                return SimpleTypeName(message);
+            }
+        }
+
+        return "";
+    }
+
+    /// <summary>The constructor dependencies a class declares: the widest constructor's parameter count.</summary>
+    private static int DependencyCountOf(BaseTypeDeclarationSyntax declared)
+    {
+        if (declared is not TypeDeclarationSyntax typed)
+        {
+            return 0;
+        }
+
+        var counts = new List<int>();
+
+        if (typed.ParameterList is { } primary)
+        {
+            counts.Add(primary.Parameters.Count);
+        }
+
+        foreach (var constructor in typed.Members.OfType<ConstructorDeclarationSyntax>())
+        {
+            counts.Add(constructor.ParameterList.Parameters.Count);
+        }
+
+        return counts.Count == 0 ? 0 : counts.Max();
+    }
+
+    /// <summary>
+    ///     The calls a handler makes on an aggregate root it holds: an invocation on a
+    ///     local, parameter or field whose type is a domain aggregate root, in line order.
+    /// </summary>
+    private static List<CodeCall> AggregateCallsOf(
+        BaseTypeDeclarationSyntax declared,
+        SyntaxTree tree,
+        string file,
+        HashSet<string> aggregateRoots)
+    {
+        var found = new List<CodeCall>();
+
+        if (aggregateRoots.Count == 0)
+        {
+            return found;
+        }
+
+        var receivers = ReceiverTypes(declared);
+        var fields = FieldTypes(declared);
+
+        foreach (var invocation in declared.DescendantNodes().OfType<InvocationExpressionSyntax>())
+        {
+            if (invocation.Expression is not MemberAccessExpressionSyntax member)
+            {
+                continue;
+            }
+
+            var receiver = member.Expression switch
+            {
+                IdentifierNameSyntax plain => plain.Identifier.ValueText,
+                MemberAccessExpressionSyntax { Expression: ThisExpressionSyntax } access => access.Name.Identifier.ValueText,
+                _ => null,
+            };
+
+            // A name the class neither injects, holds nor declares is a static call on a
+            // type rather than a call on a held aggregate.
+            if (receiver is null)
+            {
+                continue;
+            }
+
+            if (!receivers.TryGetValue(receiver, out var type)
+                && !fields.TryGetValue(receiver, out type))
+            {
+                if (AggregateLocalType(invocation, receiver, receivers) is not { } local)
+                {
+                    continue;
+                }
+
+                type = local;
+            }
+
+            if (aggregateRoots.Contains(SimpleName(type)))
+            {
+                found.Add(new CodeCall(
+                    receiver,
+                    member.Name.Identifier.ValueText,
+                    file,
+                    tree.GetLineSpan(invocation.Span).StartLinePosition.Line + 1));
+            }
+        }
+
+        found.Sort((left, right) => left.Line.CompareTo(right.Line));
+
+        return found;
+    }
+
+    /// <summary>The declared field and property types a class holds, by member name.</summary>
+    private static Dictionary<string, string> FieldTypes(BaseTypeDeclarationSyntax declared)
+    {
+        var types = new Dictionary<string, string>(StringComparer.Ordinal);
+
+        if (declared is not TypeDeclarationSyntax typed)
+        {
+            return types;
+        }
+
+        foreach (var field in typed.Members.OfType<FieldDeclarationSyntax>())
+        {
+            foreach (var variable in field.Declaration.Variables)
+            {
+                types.TryAdd(variable.Identifier.ValueText, SimpleTypeName(field.Declaration.Type));
+            }
+        }
+
+        foreach (var property in typed.Members.OfType<PropertyDeclarationSyntax>())
+        {
+            types.TryAdd(property.Identifier.ValueText, SimpleTypeName(property.Type));
+        }
+
+        return types;
+    }
+
+    /// <summary>
+    ///     The type a local holds: what it builds with <c>new</c>, its declared type, or
+    ///     the aggregate a repository load returns, inferred from the repository interface.
+    /// </summary>
+    private static string? AggregateLocalType(
+        InvocationExpressionSyntax invocation,
+        string name,
+        Dictionary<string, string> receivers)
+    {
+        var scope = invocation.Ancestors().OfType<MemberDeclarationSyntax>().FirstOrDefault();
+
+        if (scope is null)
+        {
+            return null;
+        }
+
+        foreach (var declarator in scope.DescendantNodes().OfType<VariableDeclaratorSyntax>())
+        {
+            if (declarator.Identifier.ValueText != name)
+            {
+                continue;
+            }
+
+            if (declarator.Initializer?.Value is ObjectCreationExpressionSyntax creation)
+            {
+                return SimpleTypeName(creation.Type);
+            }
+
+            if (declarator.Initializer?.Value is AwaitExpressionSyntax awaited
+                && awaited.Expression is InvocationExpressionSyntax load
+                && load.Expression is MemberAccessExpressionSyntax member
+                && member.Expression is IdentifierNameSyntax repository
+                && receivers.TryGetValue(repository.Identifier.ValueText, out var repoType)
+                && KindOf(repoType).EndsWith("Repository", StringComparison.Ordinal)
+                && member.Name.Identifier.ValueText is { } method
+                && method.EndsWith("Async", StringComparison.Ordinal)
+                && (method.StartsWith("Get", StringComparison.Ordinal)
+                    || method.StartsWith("Find", StringComparison.Ordinal)
+                    || method.StartsWith("Load", StringComparison.Ordinal)
+                    || method.StartsWith("Single", StringComparison.Ordinal))
+                && RepositoryAggregateName(KindOf(repoType)) is { } aggregate)
+            {
+                return aggregate;
+            }
+
+            if (declarator.Parent is VariableDeclarationSyntax declaration
+                && declaration.Type is not IdentifierNameSyntax { Identifier.ValueText: "var" })
+            {
+                return SimpleTypeName(declaration.Type);
+            }
+        }
+
+        return null;
+    }
+
+    /// <summary>The aggregate a repository interface serves, or null when it names none.</summary>
+    private static string? RepositoryAggregateName(string face)
+    {
+        var type = face;
+
+        if (type.StartsWith("I", StringComparison.Ordinal) && type.Length > 1 && char.IsUpper(type[1]))
+        {
+            type = type[1..];
+        }
+
+        return type.EndsWith("Repository", StringComparison.Ordinal) && type.Length > "Repository".Length
+            ? type[..^"Repository".Length]
+            : null;
+    }
+
+    /// <summary>The simple type name without generics or qualification.</summary>
+    private static string SimpleName(string type)
+    {
+        var kind = KindOf(type);
+        var dot = kind.LastIndexOf('.');
+
+        return dot >= 0 ? kind[(dot + 1)..] : kind;
+    }
+
+    /// <summary>
+    ///     The collaborators a class builds with <c>new</c> whose own constructor takes
+    ///     a repository, in line order.
+    /// </summary>
+    private static List<CodeCollaborator> CollaboratorsOf(
+        BaseTypeDeclarationSyntax declared,
+        SyntaxTree tree,
+        string file,
+        HashSet<string> holders)
+    {
+        var found = new List<CodeCollaborator>();
+        var seen = new HashSet<(string Type, int Line)>();
+
+        if (holders.Count == 0)
+        {
+            return found;
+        }
+
+        foreach (var creation in declared.DescendantNodes().OfType<ObjectCreationExpressionSyntax>())
+        {
+            var type = SimpleName(SimpleTypeName(creation.Type));
+            var line = tree.GetLineSpan(creation.Span).StartLinePosition.Line + 1;
+
+            if (holders.Contains(type) && seen.Add((type, line)))
+            {
+                found.Add(new CodeCollaborator(type, file, line));
+            }
+        }
+
+        found.Sort((left, right) =>
+        {
+            var line = left.Line.CompareTo(right.Line);
+
+            return line != 0 ? line : string.Compare(left.Type, right.Type, StringComparison.Ordinal);
+        });
+
+        return found;
+    }
+
+    /// <summary>
+    ///     The repository reads a class makes inside a <c>for</c>, <c>foreach</c> or
+    ///     <c>while</c> body: an awaited read on a held repository, in line order.
+    /// </summary>
+    private static List<CodeLoopRead> LoopReadsOf(BaseTypeDeclarationSyntax declared, SyntaxTree tree, string file)
+    {
+        var found = new List<CodeLoopRead>();
+        var receivers = ReceiverTypes(declared);
+
+        if (receivers.Count == 0)
+        {
+            return found;
+        }
+
+        foreach (var loop in declared.DescendantNodes().OfType<StatementSyntax>())
+        {
+            if (loop is not (ForStatementSyntax or ForEachStatementSyntax or WhileStatementSyntax))
+            {
+                continue;
+            }
+
+            foreach (var invocation in loop.DescendantNodes().OfType<InvocationExpressionSyntax>())
+            {
+                if (invocation.Expression is not MemberAccessExpressionSyntax member
+                    || member.Expression is not (IdentifierNameSyntax or MemberAccessExpressionSyntax { Expression: ThisExpressionSyntax })
+                    || invocation.Parent is not AwaitExpressionSyntax)
+                {
+                    continue;
+                }
+
+                var receiver = member.Expression switch
+                {
+                    IdentifierNameSyntax plain => plain.Identifier.ValueText,
+                    MemberAccessExpressionSyntax access => access.Name.Identifier.ValueText,
+                    _ => null,
+                };
+
+                var method = member.Name.Identifier.ValueText;
+
+                if (receiver is not null
+                    && receivers.TryGetValue(receiver, out var type)
+                    && KindOf(type).EndsWith("Repository", StringComparison.Ordinal)
+                    && method.EndsWith("Async", StringComparison.Ordinal)
+                    && (method.StartsWith("Get", StringComparison.Ordinal)
+                        || method.StartsWith("Find", StringComparison.Ordinal)
+                        || method.StartsWith("List", StringComparison.Ordinal)
+                        || method.StartsWith("Load", StringComparison.Ordinal)
+                        || method.StartsWith("Count", StringComparison.Ordinal)
+                        || method.StartsWith("Exists", StringComparison.Ordinal)))
+                {
+                    found.Add(new CodeLoopRead(
+                        type,
+                        method,
+                        file,
+                        tree.GetLineSpan(invocation.Span).StartLinePosition.Line + 1));
+                }
+            }
+        }
+
+        found.Sort((left, right) =>
+        {
+            var line = left.Line.CompareTo(right.Line);
+
+            return line != 0 ? line : string.Compare(left.Method, right.Method, StringComparison.Ordinal);
+        });
+
+        return found;
+    }
+
+    /// <summary>The LINQ operators that filter, order, page or count in memory.</summary>
+    private static readonly HashSet<string> MemoryFilterOperators = new(StringComparer.Ordinal)
+    {
+        "Where", "OrderBy", "Skip", "Take", "Count", "Any", "SingleOrDefault",
+    };
+
+    /// <summary>
+    ///     The LINQ filters a query handler applies to the result of a repository list
+    ///     call, chained or through a local, one per line.
+    /// </summary>
+    private static List<CodeMemoryFilter> MemoryFiltersOf(BaseTypeDeclarationSyntax declared, SyntaxTree tree, string file)
+    {
+        var found = new List<CodeMemoryFilter>();
+        var seen = new HashSet<int>();
+        var receivers = ReceiverTypes(declared);
+
+        if (receivers.Count == 0)
+        {
+            return found;
+        }
+
+        foreach (var invocation in declared.DescendantNodes().OfType<InvocationExpressionSyntax>())
+        {
+            if (invocation.Expression is not MemberAccessExpressionSyntax member
+                || !MemoryFilterOperators.Contains(member.Name.Identifier.ValueText))
+            {
+                continue;
+            }
+
+            if (!FiltersRepositoryList(invocation, member.Expression, receivers))
+            {
+                continue;
+            }
+
+            var line = tree.GetLineSpan(invocation.Span).StartLinePosition.Line + 1;
+
+            if (seen.Add(line))
+            {
+                found.Add(new CodeMemoryFilter(file, line));
+            }
+        }
+
+        found.Sort((left, right) => left.Line.CompareTo(right.Line));
+
+        return found;
+    }
+
+    /// <summary>
+    ///     Whether a LINQ call filters the result of a repository list call: the call
+    ///     chain bottoms out at one, or the filtered local holds one's awaited result.
+    /// </summary>
+    private static bool FiltersRepositoryList(
+        InvocationExpressionSyntax invocation,
+        ExpressionSyntax filtered,
+        Dictionary<string, string> receivers)
+    {
+        var current = filtered;
+
+        while (current is InvocationExpressionSyntax inner
+            && inner.Expression is MemberAccessExpressionSyntax innerMember)
+        {
+            if (IsRepositoryListCall(innerMember, receivers))
+            {
+                return true;
+            }
+
+            current = innerMember.Expression;
+        }
+
+        return current is IdentifierNameSyntax local
+            && LocalHoldsRepositoryList(invocation, local.Identifier.ValueText, receivers);
+    }
+
+    /// <summary>Whether the call lists through a held repository: <c>List*Async</c> on one.</summary>
+    private static bool IsRepositoryListCall(MemberAccessExpressionSyntax member, Dictionary<string, string> receivers)
+    {
+        var receiver = member.Expression switch
+        {
+            IdentifierNameSyntax plain => plain.Identifier.ValueText,
+            MemberAccessExpressionSyntax { Expression: ThisExpressionSyntax } access => access.Name.Identifier.ValueText,
+            _ => null,
+        };
+
+        return receiver is not null
+            && receivers.TryGetValue(receiver, out var type)
+            && KindOf(type).EndsWith("Repository", StringComparison.Ordinal)
+            && member.Name.Identifier.ValueText.StartsWith("List", StringComparison.Ordinal)
+            && member.Name.Identifier.ValueText.EndsWith("Async", StringComparison.Ordinal);
+    }
+
+    /// <summary>Whether the local holds the awaited result of a repository list call.</summary>
+    private static bool LocalHoldsRepositoryList(
+        InvocationExpressionSyntax invocation,
+        string name,
+        Dictionary<string, string> receivers)
+    {
+        var scope = invocation.Ancestors().OfType<MemberDeclarationSyntax>().FirstOrDefault();
+
+        if (scope is null)
+        {
+            return false;
+        }
+
+        foreach (var declarator in scope.DescendantNodes().OfType<VariableDeclaratorSyntax>())
+        {
+            if (declarator.Identifier.ValueText == name
+                && declarator.Initializer?.Value is AwaitExpressionSyntax awaited
+                && awaited.Expression is InvocationExpressionSyntax list
+                && list.Expression is MemberAccessExpressionSyntax member
+                && IsRepositoryListCall(member, receivers))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /// <summary>

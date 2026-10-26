@@ -468,6 +468,14 @@ Application validators handle malformed caller input through validation errors. 
 
 **Rationale:** A public Domain member is a business promise, and its XML documentation is where a reader learns the constraint, result, or failure it represents. A summary that restates the member name adds nothing; a mutation method names its source states, resulting state, protected invariant, and recorded event. Without that, callers infer the contract from the implementation and miss the rule. This provision states the .NET form of `litespec/backend/domain#describe-every-public-domain-contract-in-documentation`.
 
+### Raise the Past Tense of a Method's Own Verb
+
+**Statement:** Each aggregate method that changes state MUST raise an event named for the past tense of its verb.
+
+**Rationale:** The command raises nothing; the aggregate root raises its domain event inside its own method. An event named for another verb tells the reader the act finished under a name the code never spoke, and reactions subscribe to a vocabulary the aggregate does not own. The past tense comes from the baseline table beside the use-case verbs, with irregulars spelled out, from the project's `vocabulary.pastTense` map for domain verbs, and otherwise from the regular form.
+
+**Example:** `Abandon` raises `OrderAbandonedEvent` and passes; `Abandon` raising `OrderVoidedEvent` is reported, as is `Cancel` raising `OrderCanceledEvent` with one `l`.
+
 ## Conventions
 
 *Read each code block in the Conventions section as the named design rule only, without its namespace and unrelated declarations.*
@@ -781,6 +789,7 @@ The event payload captures the publication fact without carrying the mutable `Po
 | litespec/backend/dotnet/domain#raise-immutable-domain-facts | guidance | Each domain event: an immutable record named `{Aggregate}{PastFact}Event`, carrying business data only. |
 | litespec/backend/dotnet/domain#reject-business-violations-with-domain-exceptions | guidance | Each rejected business rule: its own `DomainException` type carrying the refusal `code`, with no transport status. |
 | litespec/backend/dotnet/domain#document-every-public-domain-contract | checkable | `dotnet build` of the Domain project reports no LiteSpec.Analyzers LS1011 diagnostic. |
+| litespec/backend/dotnet/domain#raise-the-past-tense-of-a-methods-own-verb | checkable | `litespec model check` reports `event-tense-mismatch` (tier A) for an aggregate method raising an event not ending with the past tense of its verb. |
 | litespec/backend/dotnet/domain#define-the-shared-domain-contracts-once | guidance | The shared Domain contracts: each declared once, with `DomainException` declaring its abstract `Code` and `AggregateRoot<TId>` deriving from `Entity<TId>`. |
 | litespec/backend/dotnet/domain#keep-id-representations-aligned-at-every-boundary | guidance | Each identifier at Domain, persistence, transport, and client boundaries: the same UUID text form. |
 | litespec/backend/dotnet/domain#use-the-domain-module-layout | guidance | Each Domain module folder: one plural folder per aggregate holding its states, events, exceptions, and concepts. |

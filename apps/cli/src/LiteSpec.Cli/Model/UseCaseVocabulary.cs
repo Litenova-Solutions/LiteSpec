@@ -123,6 +123,92 @@ static class UseCaseVocabulary
             ["hide"] = "withdraw",
         };
 
+    /// <summary>The past tense of every baseline verb, with the irregulars spelled out.</summary>
+    public static readonly IReadOnlyDictionary<string, string> PastTense =
+        new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            ["read"] = "read",
+            ["list"] = "listed",
+            ["search"] = "searched",
+            ["export"] = "exported",
+            ["download"] = "downloaded",
+            ["answer"] = "answered",
+            ["draft"] = "drafted",
+            ["summarize"] = "summarized",
+            ["translate"] = "translated",
+            ["create"] = "created",
+            ["add"] = "added",
+            ["remove"] = "removed",
+            ["change"] = "changed",
+            ["duplicate"] = "duplicated",
+            ["open"] = "opened",
+            ["close"] = "closed",
+            ["start"] = "started",
+            ["complete"] = "completed",
+            ["publish"] = "published",
+            ["withdraw"] = "withdrawn",
+            ["pause"] = "paused",
+            ["resume"] = "resumed",
+            ["suspend"] = "suspended",
+            ["reinstate"] = "reinstated",
+            ["enable"] = "enabled",
+            ["disable"] = "disabled",
+            ["grant"] = "granted",
+            ["revoke"] = "revoked",
+            ["request"] = "requested",
+            ["approve"] = "approved",
+            ["refuse"] = "refused",
+            ["issue"] = "issued",
+            ["void"] = "voided",
+            ["retire"] = "retired",
+            ["restore"] = "restored",
+            ["cancel"] = "cancelled",
+            ["expire"] = "expired",
+            ["record"] = "recorded",
+            ["send"] = "sent",
+            ["post"] = "posted",
+            ["reverse"] = "reversed",
+            ["retry"] = "retried",
+            ["verify"] = "verified",
+        };
+
+    /// <summary>
+    ///     The past tense of a verb: the project's map first, then the baseline table,
+    ///     else the regular form. A phrasal verb tenses its first word, so
+    ///     <c>check-in</c> becomes <c>checked-in</c>.
+    /// </summary>
+    public static string PastTenseOf(string verb, IReadOnlyDictionary<string, string> project)
+    {
+        if (project.TryGetValue(verb, out var mapped) && mapped.Length > 0)
+        {
+            return mapped;
+        }
+
+        if (PastTense.TryGetValue(verb, out var baseline) && baseline.Length > 0)
+        {
+            return baseline;
+        }
+
+        var dash = verb.IndexOf('-', StringComparison.Ordinal);
+
+        if (dash > 0)
+        {
+            return PastTenseOf(verb[..dash], project) + verb[dash..];
+        }
+
+        if (verb.EndsWith('e') && verb.Length > 1)
+        {
+            return verb + "d";
+        }
+
+        if (verb.EndsWith('y') && verb.Length > 2 && !"aeiou".Contains(verb[^2]))
+        {
+            return verb[..^1] + "ied";
+        }
+
+        return verb + "ed";
+    }
+
     /// <summary>The first word of a name, or the phrasal verb it opens with.</summary>
     public static string VerbOf(string name, IReadOnlyList<string> phrasal)
     {

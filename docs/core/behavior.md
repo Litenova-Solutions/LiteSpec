@@ -537,6 +537,14 @@ The specification names only what carries business meaning. Child entities and v
 
 **Example:** `use-case/lending.borrow-copy` names the copy aggregate, and `use-case/sales.add-line` names the declared line part; `use-case/lending.borrow-volume` names no model word and is reported.
 
+### Name a Use Case for the Act Its Aggregate Performs
+
+**Statement:** Each command use case MUST share its verb with the aggregate method its handler calls.
+
+**Rationale:** The use case is the doorway into one aggregate act. A different word at the door and at the act means two meanings have merged, or the use case is misnamed, and each reader guesses which word tells the truth. A handler calling no aggregate method answers to no act, so queries and ports stay out of this rule.
+
+**Example:** `use-case/orders.void-order` whose handler calls `Abandon` is reported; the project renames the use case to the domain word, or the method and its event to `Void` and `OrderVoidedEvent`.
+
 ### Connect Each Use Case to Intent
 
 **Statement:** Each use case MUST name a journey step in `serves` or a requirement in `fulfills`.
@@ -937,6 +945,7 @@ This informative example demonstrates `litespec/core/behavior#declare-the-kind-o
 | litespec/core/behavior#start-every-use-case-with-a-declared-verb | checkable | `litespec model check` reports `use-case-verb-unknown` for a use-case name starting outside the baseline and the project verbs. |
 | litespec/core/behavior#keep-one-kind-per-verb | checkable | `litespec model check` reports `use-case-verb-kind` for a query opening with a changing verb or a command opening with a reading verb. |
 | litespec/core/behavior#name-what-a-use-case-acts-on-from-the-model | checkable | `litespec model check` reports `use-case-noun-unknown` (tier A) for a use case naming no aggregate, declared part, or glossary term after its verb. |
+| litespec/core/behavior#name-a-use-case-for-the-act-its-aggregate-performs | checkable | `litespec model check` reports `use-case-verb-method` (tier A) for a command handler calling aggregate methods, none starting with the use-case verb. |
 | litespec/core/behavior#connect-each-use-case-to-intent | checkable | `litespec model check` reports `record-orphaned` for a use case with neither `serves` nor `fulfills`. |
 | litespec/core/behavior#grant-each-use-case-scoped-access | checkable | `litespec consumer` fails a use-case page without `access` carrying `auth`, grant, and tenant scope. |
 | litespec/core/behavior#name-the-entry-points-that-reach-each-use-case | checkable | `litespec model check` reports `reference-unresolved` for a `reachedThrough` entry naming no entry point. |

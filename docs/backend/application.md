@@ -225,6 +225,94 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **Example:** The `complete-ticket-resale` handler publishes `integration-event/ticket-resale.resold` after commit, because its record declares that `publishes` entry; a second publish the record does not declare fails the check.
 
+### Derive the Audit Target from the Message
+
+**Statement:** Each audited command MUST declare its audit target beside the message, so the pipeline evaluates it before the handler runs.
+
+**Rationale:** A handler that sets the audit target by hand repeats a selection the message already carries, and each copy drifts. Declaring the target beside the message evaluates it before the handler runs. A handler-set target stays only for targets the command does not carry, such as a created id or a target chosen while handling.
+
+**Example:** The void-order command declares its order id as the audit target, and the handler sets no target.
+
+### Take One Timestamp per Message
+
+**Statement:** Each handler MUST read the message timestamp from the scoped clock the pipeline stamps once per message.
+
+**Rationale:** A handler that reads the clock two or three times in one decision records different times for one act, sometimes around an outside call. One timestamp per message fixes the moment the message starts, and every decision in the handling answers to the same time. The shared clock stays for infrastructure only.
+
+**Example:** The approve handler stamps its approval with the handled clock, not with a fresh clock read.
+
+### Declare Exclusive Holds Beside the Message
+
+**Statement:** Each command needing exclusive access MUST declare its hold beside the message, with its key and its patience.
+
+**Rationale:** A lock copied into each handler carries its own key, patience, and refusal at every site, and each copy drifts. Declaring the hold beside the message takes it in a pipeline step after validation and releases it on completion, refusing with the conflict code when the wait runs out.
+
+**Example:** The refund command declares its per-order hold with fifteen seconds of patience.
+
+### Refuse a Lost Race as a Conflict
+
+**Statement:** Each command racing a uniqueness reservation MUST refuse a lost race with its conflict refusal.
+
+**Rationale:** A lost race that throws not-found with an empty id, or returns data that was never stored, lies about what happened. One reservation helper reserves or throws the use case conflict refusal, and find-or-create reserves and then re-reads, so every race ends in the same honest shape.
+
+**Example:** The start-subscription command reserves its uniqueness key before calling the provider and refuses with a conflict when the key is taken.
+
+### Load a Required Record or Refuse It
+
+**Statement:** Each handler needing a record MUST load it through the getter that throws the aggregate not-found refusal, and use the finder only for optional records.
+
+**Rationale:** A find followed by a thrown not-found repeats the aggregate decision in every handler, and each copy names its own failure. The required getter throws the aggregate own not-found refusal, so the handler states that the record is required by the call it makes.
+
+**Example:** The approve handler loads its expense with `GetByIdAsync`, while the optional coupon lookup uses `FindByIdAsync`.
+
+### Parse Input in the Validator
+
+**Statement:** Each validator MUST parse every value object in the input, so the handler construction cannot fail on input.
+
+**Rationale:** A validator that checks presence only leaves parsing to the handler, so one input is judged in two layers and the handler throws on caller data. Parsing in the validator keeps business refusals in the domain and input failures in validation, where each belongs.
+
+**Example:** The invite validator parses the email address with `TryCreate`, and the handler creates it without a check.
+
+### Validate Query Input
+
+**Statement:** Each query carrying paging, filters, or ranges MUST declare a query validator run by the pipeline.
+
+**Rationale:** An unvalidated page size or range reaches the store unchecked, and each query handler clamps its own input or none does. A query validator runs in the same pipeline step as command validators, so reads and writes answer to the same input rule.
+
+**Example:** The list-expenses query validates its page size through its query validator.
+
+### Send Messages After Commit
+
+**Statement:** Each command MUST send its messages from a reaction after the commit, never inline from the handler.
+
+**Rationale:** A command that sends before its transaction commits delivers a working promise even when the transaction then fails. The aggregate raises its fact, and a reaction to that fact sends, so no message leaves for a write that never landed. A `sends` effect is `after-commit` or `async`, never `inline`.
+
+**Example:** The submit-expense command raises its submitted fact, and a reaction sends the approver notice after the commit.
+
+### Run Heavy Work as a Request Then a Build
+
+**Statement:** Each command assembling a large artifact MUST record the request and let a job or reaction build the artifact.
+
+**Rationale:** A command that reads many repositories to assemble a large response holds the caller waiting and times out under load. Recording the request answers at once, the build runs in the background, and the requester reads the state of its own request.
+
+**Example:** The organizer export command records its request, and a job builds the file the requester then downloads.
+
+### Build Collaborators Through the Container
+
+**Statement:** Each handler needing a collaborator MUST take it through the constructor from the container, never build it with `new`.
+
+**Rationale:** A step class built with `new` hides its dependencies, and a handler that looks small is really hundreds of lines behind its helpers. Injected steps keep their dependencies visible in the constructor, and a coordinator handler names each step it calls.
+
+**Example:** The checkout handler takes its reserve and capture steps through its constructor, while a step built with `new` that takes a repository is reported.
+
+### Read No Repository Inside a Loop
+
+**Statement:** Each handler, reaction, and job MUST read no repository inside a loop body.
+
+**Rationale:** A read inside a loop turns one handling into as many round trips as there are items, and the slowdown hides behind small test data. A batch read or a scoped query loads every item at once, so the handling costs one trip whatever the data holds.
+
+**Example:** The reminder job loads due loans with one scoped query instead of reading each loan inside its loop.
+
 ## Conventions
 
 ### Use This Use-Case Layout
@@ -316,6 +404,17 @@ Only a use case or a reaction gets a folder. Any other type sits flat in the fol
 | litespec/backend/application#keep-event-reaction-implementations-explicit | guidance | Each event reaction runs in one class carrying one anchor tag naming its record, answering its trigger and dispatching only through its `issues` or `sends`. |
 | litespec/backend/application#run-each-job-within-its-declared-scope | guidance | Each background job issues its commands once per item in its scope, honoring batch size, lease, and cursor. |
 | litespec/backend/application#dispatch-only-declared-effect-edges | guidance | Each handler dispatch names a declared effect entry, with timing, transaction sharing, and failure handling as declared. |
+| litespec/backend/application#derive-the-audit-target-from-the-message | guidance | Each audited command declares its audit target beside the message, evaluated before the handler. |
+| litespec/backend/application#take-one-timestamp-per-message | guidance | Each handler reads time from the scoped clock stamped once per message. |
+| litespec/backend/application#declare-exclusive-holds-beside-the-message | guidance | Each command needing exclusive access declares its hold key and patience beside the message. |
+| litespec/backend/application#refuse-a-lost-race-as-a-conflict | guidance | Each lost uniqueness race refuses with the use case conflict refusal. |
+| litespec/backend/application#load-a-required-record-or-refuse-it | guidance | Each required record loads through the throwing getter, with the finder kept for optional records. |
+| litespec/backend/application#parse-input-in-the-validator | guidance | Each validator parses every value object in the input. |
+| litespec/backend/application#validate-query-input | guidance | Each query with paging, filters, or ranges declares a query validator. |
+| litespec/backend/application#send-messages-after-commit | checkable | `litespec model check` reports `send-before-commit` (tier A) for a command use case sending with `inline` timing. |
+| litespec/backend/application#run-heavy-work-as-a-request-then-a-build | guidance | Each heavy command records its request, with a job or reaction building the artifact. |
+| litespec/backend/application#build-collaborators-through-the-container | checkable | `litespec model check` reports `collaborator-holds-repository` (tier A) for a class built with `new` whose constructor takes a repository. |
+| litespec/backend/application#read-no-repository-inside-a-loop | checkable | `litespec model check` reports `repository-read-in-loop` (tier A) for a repository read inside a loop body. |
 | litespec/backend/application#use-this-use-case-layout | guidance | Each use-case path matches its module, aggregate, and use case in the stated layout. |
 | litespec/backend/application#keep-messages-immutable | guidance | Each command, query, result, and validation error is an immutable value. |
 | litespec/backend/application#return-use-case-results | guidance | Each Application result returns only the values the caller needs. |

@@ -32,7 +32,15 @@ A C# file takes its primary type's exact name, so a reader finds any type by its
 
 ## Conventions
 
-None.
+### Name No Folder or Type for the Absence of a Reason
+
+**Default:** No folder is named `Shared`, `Common`, `Util`, `Utils`, `Helpers`, or `Misc`, and no type carries one of those names or ends in `Helper`, `Manager`, `Util`, or `Utils`, outside the declared shared kernel.
+
+**Replacement:** A project names its shared kernel folder in `stackConfig.dotnet.sharedKernel` and keeps every other folder and type named for its reason.
+
+**Rationale:** A folder named `Shared` or a type ending in `Manager` tells the reader the author found no reason to name; each such name becomes the drawer where unrelated code gathers. The domain shared kernel is the one declared exception, named in one place, so the exception stays visible instead of spreading.
+
+**Example:** The declared `Example.Domain/Shared/` folder passes; `Billing/Helpers/` and `OrderManager` outside it are reported.
 
 ## Reference Example
 
@@ -61,3 +69,4 @@ internal sealed class CreateDraftCommandHandler(
 | litespec/backend/dotnet/naming#match-c-files-and-primary-types | checkable | `dotnet build` reports no LiteSpec.Analyzers LS3003 diagnostic across the application projects. |
 | litespec/backend/dotnet/naming#name-asynchronous-methods-completely | checkable | `dotnet build` reports no LiteSpec.Analyzers LS3001 or LS3002 diagnostic across the application projects. |
 | litespec/backend/dotnet/naming#keep-implementation-style-consistent | guidance | Production C# files use file-scoped namespaces, braces on every body, explicit access modifiers, and sealed concrete classes. |
+| litespec/backend/dotnet/naming#name-no-folder-or-type-for-the-absence-of-a-reason | checkable | `litespec model check` reports `reasonless-name` (tier A) for a folder or type named for the absence of a reason outside the declared shared kernel. |

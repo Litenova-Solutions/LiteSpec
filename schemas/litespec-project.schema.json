@@ -83,6 +83,10 @@
             "apiSolution": {
               "description": "Path to the API solution. A consumer with no backend omits it and records the decision that it has none.",
               "$ref": "#/$defs/projectPath"
+            },
+            "sharedKernel": {
+              "description": "The one folder holding the domain shared kernel, where reasonless names are allowed. Defaults to none.",
+              "$ref": "#/$defs/projectPath"
             }
           }
         }
@@ -196,6 +200,12 @@
           "type": "array",
           "uniqueItems": true,
           "items": { "type": "string", "pattern": "^[^|]+\\|[^|]+$" }
+        },
+        "pastTense": {
+          "description": "The past tense of project domain verbs, by verb, beside the baseline table. A verb with no entry tenses regularly.",
+          "type": "object",
+          "propertyNames": { "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$" },
+          "additionalProperties": { "type": "string", "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$" }
         }
       }
     },

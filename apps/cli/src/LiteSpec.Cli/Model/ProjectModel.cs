@@ -157,6 +157,59 @@ sealed class ProjectModel
                 writer.WriteString("operation", handler.Operation);
                 writer.WriteString("kind", handler.Kind);
                 writer.WriteString("path", Config.Relative(handler.File));
+                writer.WriteString("class", handler.Class);
+                writer.WriteNumber("line", handler.Line);
+                writer.WriteString("messageType", handler.MessageType);
+                writer.WriteNumber("dependencyCount", handler.DependencyCount);
+                writer.WriteStartArray("aggregateCalls");
+
+                foreach (var call in handler.AggregateCalls ?? [])
+                {
+                    writer.WriteStartObject();
+                    writer.WriteString("receiver", call.Receiver);
+                    writer.WriteString("method", call.Method);
+                    writer.WriteString("path", Config.Relative(call.File));
+                    writer.WriteNumber("line", call.Line);
+                    writer.WriteEndObject();
+                }
+
+                writer.WriteEndArray();
+                writer.WriteStartArray("collaborators");
+
+                foreach (var collaborator in handler.Collaborators ?? [])
+                {
+                    writer.WriteStartObject();
+                    writer.WriteString("type", collaborator.Type);
+                    writer.WriteString("path", Config.Relative(collaborator.File));
+                    writer.WriteNumber("line", collaborator.Line);
+                    writer.WriteEndObject();
+                }
+
+                writer.WriteEndArray();
+                writer.WriteStartArray("loopReads");
+
+                foreach (var read in handler.LoopReads ?? [])
+                {
+                    writer.WriteStartObject();
+                    writer.WriteString("repository", read.Repository);
+                    writer.WriteString("method", read.Method);
+                    writer.WriteString("path", Config.Relative(read.File));
+                    writer.WriteNumber("line", read.Line);
+                    writer.WriteEndObject();
+                }
+
+                writer.WriteEndArray();
+                writer.WriteStartArray("memoryFilters");
+
+                foreach (var filter in handler.MemoryFilters ?? [])
+                {
+                    writer.WriteStartObject();
+                    writer.WriteString("path", Config.Relative(filter.File));
+                    writer.WriteNumber("line", filter.Line);
+                    writer.WriteEndObject();
+                }
+
+                writer.WriteEndArray();
                 writer.WriteEndObject();
             }
 
@@ -170,6 +223,10 @@ sealed class ProjectModel
                 writer.WriteString("class", reaction.Class);
                 writer.WriteString("path", Config.Relative(reaction.File));
                 WriteNullable(writer, "useCase", reaction.UseCaseId);
+                writer.WriteNumber("line", reaction.Line);
+                writer.WriteNumber("dependencyCount", reaction.DependencyCount);
+                WriteCollaborators(writer, reaction.Collaborators);
+                WriteLoopReads(writer, reaction.LoopReads);
                 writer.WriteEndObject();
             }
 
@@ -183,6 +240,10 @@ sealed class ProjectModel
                 writer.WriteString("class", job.Class);
                 writer.WriteString("path", Config.Relative(job.File));
                 WriteNullable(writer, "useCase", job.UseCaseId);
+                writer.WriteNumber("line", job.Line);
+                writer.WriteNumber("dependencyCount", job.DependencyCount);
+                WriteCollaborators(writer, job.Collaborators);
+                WriteLoopReads(writer, job.LoopReads);
                 writer.WriteEndObject();
             }
 
@@ -196,6 +257,58 @@ sealed class ProjectModel
                 writer.WriteString("code", literal.Value);
                 writer.WriteString("path", Config.Relative(literal.File));
                 WriteNullable(writer, "class", literal.Class);
+                writer.WriteEndObject();
+            }
+
+            writer.WriteEndArray();
+
+            writer.WriteStartArray("aggregateMethods");
+
+            foreach (var method in Code.AggregateMethods)
+            {
+                writer.WriteStartObject();
+                writer.WriteString("aggregate", method.Aggregate);
+                writer.WriteString("method", method.Method);
+                writer.WriteStartArray("events");
+
+                foreach (var raised in method.Events)
+                {
+                    writer.WriteStringValue(raised);
+                }
+
+                writer.WriteEndArray();
+                writer.WriteString("path", Config.Relative(method.File));
+                writer.WriteNumber("line", method.Line);
+                writer.WriteEndObject();
+            }
+
+            writer.WriteEndArray();
+
+            writer.WriteStartArray("auditActions");
+
+            foreach (var action in Code.AuditActions)
+            {
+                writer.WriteStartObject();
+                writer.WriteString("operation", action.Operation);
+                writer.WriteString("action", action.Action);
+                writer.WriteString("path", Config.Relative(action.File));
+                writer.WriteNumber("line", action.Line);
+                writer.WriteEndObject();
+            }
+
+            writer.WriteEndArray();
+
+            writer.WriteStartArray("endpoints");
+
+            foreach (var endpoint in Code.Endpoints)
+            {
+                writer.WriteStartObject();
+                writer.WriteString("operation", endpoint.Operation);
+                writer.WriteString("useCase", endpoint.UseCaseId);
+                writer.WriteString("method", endpoint.Method);
+                writer.WriteString("route", endpoint.Route);
+                writer.WriteString("path", Config.Relative(endpoint.File));
+                writer.WriteNumber("line", endpoint.Line);
                 writer.WriteEndObject();
             }
 
@@ -502,6 +615,41 @@ sealed class ProjectModel
         var text = line.TrimStart();
 
         return text.StartsWith("# ", StringComparison.Ordinal) || text == "#";
+    }
+
+    /// <summary>Writes the collaborators a reaction or job builds with <c>new</c>.</summary>
+    private void WriteCollaborators(Utf8JsonWriter writer, IReadOnlyList<CodeCollaborator>? collaborators)
+    {
+        writer.WriteStartArray("collaborators");
+
+        foreach (var collaborator in collaborators ?? [])
+        {
+            writer.WriteStartObject();
+            writer.WriteString("type", collaborator.Type);
+            writer.WriteString("path", Config.Relative(collaborator.File));
+            writer.WriteNumber("line", collaborator.Line);
+            writer.WriteEndObject();
+        }
+
+        writer.WriteEndArray();
+    }
+
+    /// <summary>Writes the repository reads a reaction or job makes inside a loop.</summary>
+    private void WriteLoopReads(Utf8JsonWriter writer, IReadOnlyList<CodeLoopRead>? reads)
+    {
+        writer.WriteStartArray("loopReads");
+
+        foreach (var read in reads ?? [])
+        {
+            writer.WriteStartObject();
+            writer.WriteString("repository", read.Repository);
+            writer.WriteString("method", read.Method);
+            writer.WriteString("path", Config.Relative(read.File));
+            writer.WriteNumber("line", read.Line);
+            writer.WriteEndObject();
+        }
+
+        writer.WriteEndArray();
     }
 
     private static void WriteNullable(Utf8JsonWriter writer, string name, string? value)

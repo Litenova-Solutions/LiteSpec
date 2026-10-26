@@ -19,12 +19,22 @@ static partial class Checker
 /// </summary>
 static class CodeChecks
 {
-    /// <summary>Runs write-undeclared, result-undeclared and effect-undeclared.</summary>
+    /// <summary>Runs write-undeclared, result-undeclared, effect-undeclared and the handler shape checks.</summary>
     public static void Run(ProjectModel model, List<Finding> findings)
     {
         CheckWriteUndeclared(model, findings);
         CheckResultUndeclared(model, findings);
         CheckEffectUndeclared(model, findings);
+        CheckUseCaseVerbMethod(model, findings);
+        CheckEventTenseMismatch(model, findings);
+        CheckNameDriftAcrossLayers(model, findings);
+        CheckRouteShape(model, findings);
+        CheckReasonlessName(model, findings);
+        CheckCollaboratorHoldsRepository(model, findings);
+        CheckRepositoryReadInLoop(model, findings);
+        CheckQueryFiltersInMemory(model, findings);
+        CheckDependencyCount(model, findings);
+        CheckSendBeforeCommit(model, findings);
     }
 
     /// <summary>
@@ -614,5 +624,604 @@ static class CodeChecks
         }
 
         return Naming.Kebab(name) == operation;
+    }
+
+    private static void CheckUseCaseVerbMethod(ProjectModel model, List<Finding> findings)
+    {
+        // Only a method that raises a fact performs the act; a read or a key helper names none.
+        var raising = model.Code.AggregateMethods
+            .Where(method => method.Events.Count > 0)
+            .Select(method => method.Method)
+            .ToHashSet(StringComparer.Ordinal);
+
+        foreach (var handler in model.Code.Handlers)
+        {
+            var calls = handler.AggregateCalls?.Where(call => raising.Contains(call.Method)).ToList() ?? [];
+
+            if (handler.Kind != "command" || calls.Count == 0)
+            {
+                continue;
+            }
+
+            var verb = UseCaseVocabulary.VerbOf(handler.Name, model.Config.PhrasalVerbs);
+            var matches = calls.Any(call =>
+            {
+                var kebab = Naming.Kebab(call.Method);
+
+                return kebab == verb || kebab.StartsWith(verb + "-", StringComparison.Ordinal);
+            });
+
+            if (!matches)
+            {
+                var first = calls[0];
+                var called = string.Join(", ", calls.Select(call => call.Method).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal));
+
+                findings.Add(CodeFinding(
+                    "use-case-verb-method",
+                    $"Handler for '{handler.UseCaseId}' calls '{called}' on its aggregate, none starting with the use-case verb '{verb}'.",
+                    first.File,
+                    first.Line,
+                    handler.UseCaseId));
+            }
+        }
+    }
+
+    private static void CheckEventTenseMismatch(ProjectModel model, List<Finding> findings)
+    {
+        foreach (var method in model.Code.AggregateMethods)
+        {
+            if (method.Events.Count == 0)
+            {
+                continue;
+            }
+
+            var verb = UseCaseVocabulary.VerbOf(Naming.Kebab(method.Method), model.Config.PhrasalVerbs);
+            var past = UseCaseVocabulary.PastTenseOf(verb, model.Config.PastTense);
+
+            // A record method stores a fact from outside, and its event names that fact rather than the act of recording.
+            if (verb == "record")
+            {
+                continue;
+            }
+
+            foreach (var raised in method.Events.Order(StringComparer.Ordinal))
+            {
+                var stem = raised.EndsWith("Event", StringComparison.Ordinal) && raised.Length > "Event".Length
+                    ? raised[..^"Event".Length]
+                    : raised;
+
+                if (!Naming.Kebab(stem).EndsWith(past, StringComparison.Ordinal))
+                {
+                    findings.Add(CodeFinding(
+                        "event-tense-mismatch",
+                        $"Aggregate method '{method.Aggregate}.{method.Method}' raises '{raised}', which does not end with the past tense '{past}' of its verb.",
+                        method.File,
+                        method.Line,
+                        null));
+                }
+            }
+        }
+    }
+
+    private static void CheckNameDriftAcrossLayers(ProjectModel model, List<Finding> findings)
+    {
+        foreach (var handler in model.Code.Handlers)
+        {
+            if (handler.MessageType.Length > 0)
+            {
+                var stem = handler.MessageType;
+
+                foreach (var suffix in new[] { "Command", "Query" })
+                {
+                    if (stem.EndsWith(suffix, StringComparison.Ordinal) && stem.Length > suffix.Length)
+                    {
+                        stem = stem[..^suffix.Length];
+                        break;
+                    }
+                }
+
+                if (Naming.Kebab(stem) != handler.Name)
+                {
+                    findings.Add(CodeFinding(
+                        "name-drift-across-layers",
+                        $"Handler for '{handler.UseCaseId}' handles message '{handler.MessageType}', which does not match the use-case name.",
+                        handler.File,
+                        handler.Line,
+                        handler.UseCaseId));
+                }
+            }
+
+            foreach (var endpoint in model.Code.Endpoints)
+            {
+                if (endpoint.UseCaseId == handler.UseCaseId
+                    && endpoint.Operation.Length > 0
+                    && Naming.Kebab(endpoint.Operation) != handler.Name)
+                {
+                    findings.Add(CodeFinding(
+                        "name-drift-across-layers",
+                        $"Endpoint for '{handler.UseCaseId}' declares operation id '{endpoint.Operation}', which does not match the use-case name.",
+                        endpoint.File,
+                        endpoint.Line,
+                        handler.UseCaseId));
+                }
+            }
+
+            foreach (var action in model.Code.AuditActions)
+            {
+                if (Naming.Kebab(action.Operation) == handler.Name && !NamesUseCase(action.Action, handler))
+                {
+                    findings.Add(CodeFinding(
+                        "name-drift-across-layers",
+                        $"Command '{handler.UseCaseId}' declares audit action '{action.Action}', which does not match the use-case name.",
+                        action.File,
+                        action.Line,
+                        handler.UseCaseId));
+                }
+            }
+        }
+    }
+
+    /// <summary>Whether an audit action names the use case: its full identifier, its dotted name, or its bare name.</summary>
+    private static bool NamesUseCase(string action, HandlerInfo handler)
+    {
+        var bare = action.StartsWith("use-case/", StringComparison.Ordinal) ? action["use-case/".Length..] : action;
+
+        return action == handler.UseCaseId
+            || bare == handler.UseCaseId["use-case/".Length..]
+            || Naming.Kebab(bare) == handler.Name;
+    }
+
+    private static void CheckRouteShape(ProjectModel model, List<Finding> findings)
+    {
+        // A route may nest under any resource the project holds, so every aggregate plural counts.
+        var plurals = model.Records
+            .Where(record => record.Type == "aggregate")
+            .Select(record => Identifiers.TrySplit(record.Id, out _, out _, out var aggregateName) ? Plural(aggregateName) : null)
+            .OfType<string>()
+            .ToList();
+
+        foreach (var endpoint in model.Code.Endpoints)
+        {
+            if (endpoint.Method.Length == 0 || endpoint.Route.Length == 0)
+            {
+                continue;
+            }
+
+            var name = model.ById.TryGetValue(endpoint.UseCaseId, out var useCase) && useCase.Type == "use-case"
+                ? Identifiers.TrySplit(useCase.Id, out _, out _, out var split) ? split : null
+                : null;
+            var kind = useCase?.Field("kind")
+                ?? model.Code.Handlers.FirstOrDefault(handler => handler.UseCaseId == endpoint.UseCaseId)?.Kind;
+
+            if (name is null)
+            {
+                continue;
+            }
+
+            var verb = UseCaseVocabulary.VerbOf(name, model.Config.PhrasalVerbs);
+            var segments = endpoint.Route.Split('/', StringSplitOptions.RemoveEmptyEntries);
+            var plural = useCase is not null
+                && ModelBuilder.AggregateOf(model, useCase) is { } owner
+                && Identifiers.TrySplit(owner.Id, out _, out _, out var ownerName)
+                    ? Plural(ownerName)
+                    : null;
+
+            if (kind == "command")
+            {
+                var last = segments.Length == 0 ? "" : VerbPart(segments[^1]);
+                var rawLast = segments.Length == 0 ? "" : segments[^1];
+
+                // A POST to the aggregate collection and a PUT, PATCH or DELETE on one resource are
+                // ordinary resource routes; only a custom action names its verb in the last segment.
+                var collectionPost = endpoint.Method.Equals("POST", StringComparison.OrdinalIgnoreCase)
+                    && plural is not null
+                    && rawLast.Equals(plural, StringComparison.Ordinal);
+                var resourceWrite = endpoint.Method.ToUpperInvariant() is "PUT" or "PATCH" or "DELETE"
+                    && rawLast.StartsWith('{')
+                    && rawLast.EndsWith('}');
+
+                var methodVerb = MethodVerb(endpoint.Method, verb);
+
+                if (last != verb && !collectionPost && !resourceWrite && !methodVerb)
+                {
+                    findings.Add(CodeFinding(
+                        "route-shape",
+                        $"Route '{endpoint.Method} {endpoint.Route}' for '{endpoint.UseCaseId}' ends in '{last}', not the use-case verb '{verb}'.",
+                        endpoint.File,
+                        endpoint.Line,
+                        endpoint.UseCaseId));
+                }
+            }
+
+            if (plural is not null)
+            {
+                var parts = segments.SelectMany(PluralParts).ToList();
+                var named = parts.Any(part => plurals.Any(known =>
+                    known == part || known.EndsWith("-" + part, StringComparison.Ordinal)));
+
+                if (!named)
+                {
+                    findings.Add(CodeFinding(
+                        "route-shape",
+                        $"Route '{endpoint.Method} {endpoint.Route}' for '{endpoint.UseCaseId}' carries no aggregate plural such as '{plural}'.",
+                        endpoint.File,
+                        endpoint.Line,
+                        endpoint.UseCaseId));
+                }
+            }
+        }
+    }
+
+    /// <summary>Whether the HTTP method already says the verb: POST creates or adds, PUT or PATCH changes, DELETE removes.</summary>
+    private static bool MethodVerb(string method, string verb) => method.ToUpperInvariant() switch
+    {
+        "POST" => verb is "create" or "add" or "register",
+        "PUT" or "PATCH" => verb is "change",
+        "DELETE" => verb is "remove",
+        _ => false,
+    };
+
+    /// <summary>The verb a route segment carries: parameters removed, the custom method after any colon.</summary>
+    private static string VerbPart(string segment)
+    {
+        var cleaned = StripParameters(segment);
+        var colon = cleaned.LastIndexOf(':');
+
+        return colon >= 0 ? cleaned[(colon + 1)..].Trim() : cleaned.Trim();
+    }
+
+    /// <summary>The name parts a route segment carries for the aggregate plural: parameters removed, split on any colon.</summary>
+    private static IEnumerable<string> PluralParts(string segment) =>
+        StripParameters(segment).Split(':').Select(part => part.Trim()).Where(part => part.Length > 0);
+
+    /// <summary>The segment without its route parameters.</summary>
+    private static string StripParameters(string segment)
+    {
+        var cleaned = segment;
+
+        while (true)
+        {
+            var open = cleaned.IndexOf('{');
+            var close = open < 0 ? -1 : cleaned.IndexOf('}', open);
+
+            if (open < 0 || close < 0)
+            {
+                return cleaned;
+            }
+
+            cleaned = cleaned[..open] + cleaned[(close + 1)..];
+        }
+    }
+
+    /// <summary>The plural of an aggregate name.</summary>
+    private static string Plural(string name)
+    {
+        if (name.EndsWith('s'))
+        {
+            return name + "es";
+        }
+
+        if (name.EndsWith('y') && name.Length > 1 && !"aeiou".Contains(name[^2]))
+        {
+            return name[..^1] + "ies";
+        }
+
+        return name + "s";
+    }
+
+    /// <summary>Folder and type names that name the absence of a reason.</summary>
+    private static readonly HashSet<string> ReasonlessNames = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "Shared", "Common", "Util", "Utils", "Helpers", "Misc",
+    };
+
+    /// <summary>Type suffixes that name the absence of a reason.</summary>
+    private static readonly string[] ReasonlessSuffixes = ["Helper", "Manager", "Util", "Utils"];
+
+    private static void CheckReasonlessName(ProjectModel model, List<Finding> findings)
+    {
+        var kernel = model.Config.SharedKernel;
+        var reportedFolders = new HashSet<string>(StringComparer.Ordinal);
+        var reportedTypes = new HashSet<string>(StringComparer.Ordinal);
+        var files = new List<string>();
+
+        foreach (var handler in model.Code.Handlers)
+        {
+            files.Add(handler.File);
+        }
+
+        foreach (var reaction in model.Code.Reactions)
+        {
+            files.Add(reaction.File);
+        }
+
+        foreach (var domainEvent in model.Code.Events)
+        {
+            files.Add(domainEvent.File);
+        }
+
+        foreach (var endpoint in model.Code.Endpoints)
+        {
+            files.Add(endpoint.File);
+        }
+
+        foreach (var literal in model.Code.Literals)
+        {
+            files.Add(literal.File);
+        }
+
+        foreach (var comment in model.Code.Comments)
+        {
+            files.Add(comment.File);
+        }
+
+        foreach (var file in files.Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal))
+        {
+            if (UnderSharedKernel(kernel, file))
+            {
+                continue;
+            }
+
+            var relative = model.Config.Relative(file);
+            var parts = relative.Split('/');
+
+            for (var index = 0; index < parts.Length - 1; index++)
+            {
+                var folder = string.Join('/', parts[..(index + 1)]);
+
+                if (ReasonlessNames.Contains(parts[index]) && reportedFolders.Add(folder))
+                {
+                    findings.Add(CodeFinding(
+                        "reasonless-name",
+                        $"Folder '{folder}' carries the reasonless name '{parts[index]}'.",
+                        file,
+                        1,
+                        null));
+                }
+            }
+        }
+
+        foreach (var (type, file, line) in ReasonlessTypeSites(model))
+        {
+            if (UnderSharedKernel(kernel, file) || !reportedTypes.Add(type))
+            {
+                continue;
+            }
+
+            findings.Add(CodeFinding(
+                "reasonless-name",
+                $"Type '{type}' carries a reasonless name.",
+                file,
+                line,
+                null));
+        }
+    }
+
+    /// <summary>Whether the file sits under the declared shared-kernel folder.</summary>
+    private static bool UnderSharedKernel(string kernel, string file)
+    {
+        if (kernel.Length == 0)
+        {
+            return false;
+        }
+
+        var relative = Path.GetRelativePath(kernel, file);
+
+        return !relative.StartsWith("..", StringComparison.Ordinal) && !Path.IsPathRooted(relative);
+    }
+
+    /// <summary>Every reasonless type name with its first site, in file and line order.</summary>
+    private static List<(string Type, string File, int Line)> ReasonlessTypeSites(ProjectModel model)
+    {
+        var sites = new Dictionary<string, (string File, int Line)>(StringComparer.Ordinal);
+
+        void Add(string? type, string file, int line)
+        {
+            if (type is not { Length: > 0 } || sites.ContainsKey(type))
+            {
+                return;
+            }
+
+            if (ReasonlessNames.Contains(type)
+                || ReasonlessSuffixes.Any(suffix =>
+                    type.EndsWith(suffix, StringComparison.Ordinal) && type.Length > suffix.Length))
+            {
+                sites[type] = (file, line);
+            }
+        }
+
+        foreach (var handler in model.Code.Handlers)
+        {
+            Add(handler.Class, handler.File, handler.Line);
+        }
+
+        foreach (var reaction in model.Code.Reactions)
+        {
+            Add(reaction.Class, reaction.File, reaction.Line);
+        }
+
+        foreach (var domainEvent in model.Code.Events)
+        {
+            Add(domainEvent.Class, domainEvent.File, domainEvent.Line);
+        }
+
+        foreach (var literal in model.Code.Literals)
+        {
+            Add(literal.Class, literal.File, literal.Line);
+        }
+
+        return [.. sites
+            .OrderBy(entry => entry.Value.File, StringComparer.Ordinal)
+            .ThenBy(entry => entry.Value.Line)
+            .Select(entry => (entry.Key, entry.Value.File, entry.Value.Line))];
+    }
+
+    private static void CheckCollaboratorHoldsRepository(ProjectModel model, List<Finding> findings)
+    {
+        foreach (var handler in model.Code.Handlers)
+        {
+            if (handler.Collaborators is null)
+            {
+                continue;
+            }
+
+            foreach (var collaborator in handler.Collaborators)
+            {
+                findings.Add(CodeFinding(
+                    "collaborator-holds-repository",
+                    $"Handler for '{handler.UseCaseId}' builds '{collaborator.Type}' with 'new', whose constructor takes a repository; register it in the container.",
+                    collaborator.File,
+                    collaborator.Line,
+                    handler.UseCaseId));
+            }
+        }
+
+        foreach (var reaction in model.Code.Reactions)
+        {
+            if (reaction.Collaborators is null)
+            {
+                continue;
+            }
+
+            var holder = reaction.RecordId ?? reaction.UseCaseId;
+            var kind = reaction.Kind == "job" ? "Job" : "Reaction";
+
+            foreach (var collaborator in reaction.Collaborators)
+            {
+                findings.Add(CodeFinding(
+                    "collaborator-holds-repository",
+                    $"{kind} '{reaction.Class}' builds '{collaborator.Type}' with 'new', whose constructor takes a repository; register it in the container.",
+                    collaborator.File,
+                    collaborator.Line,
+                    holder));
+            }
+        }
+    }
+
+    private static void CheckRepositoryReadInLoop(ProjectModel model, List<Finding> findings)
+    {
+        foreach (var handler in model.Code.Handlers)
+        {
+            if (handler.LoopReads is null)
+            {
+                continue;
+            }
+
+            foreach (var read in handler.LoopReads)
+            {
+                findings.Add(CodeFinding(
+                    "repository-read-in-loop",
+                    $"Handler for '{handler.UseCaseId}' reads repository '{read.Repository}' inside a loop with '{read.Method}'.",
+                    read.File,
+                    read.Line,
+                    handler.UseCaseId));
+            }
+        }
+
+        foreach (var reaction in model.Code.Reactions)
+        {
+            if (reaction.LoopReads is null)
+            {
+                continue;
+            }
+
+            var holder = reaction.RecordId ?? reaction.UseCaseId;
+            var kind = reaction.Kind == "job" ? "Job" : "Reaction";
+
+            foreach (var read in reaction.LoopReads)
+            {
+                findings.Add(CodeFinding(
+                    "repository-read-in-loop",
+                    $"{kind} '{reaction.Class}' reads repository '{read.Repository}' inside a loop with '{read.Method}'.",
+                    read.File,
+                    read.Line,
+                    holder));
+            }
+        }
+    }
+
+    private static void CheckQueryFiltersInMemory(ProjectModel model, List<Finding> findings)
+    {
+        foreach (var handler in model.Code.Handlers)
+        {
+            if (handler.MemoryFilters is null)
+            {
+                continue;
+            }
+
+            foreach (var filter in handler.MemoryFilters)
+            {
+                findings.Add(CodeFinding(
+                    "query-filters-in-memory",
+                    $"Query handler for '{handler.UseCaseId}' filters a repository list in memory.",
+                    filter.File,
+                    filter.Line,
+                    handler.UseCaseId));
+            }
+        }
+    }
+
+    private static void CheckDependencyCount(ProjectModel model, List<Finding> findings)
+    {
+        foreach (var handler in model.Code.Handlers)
+        {
+            if (handler.DependencyCount > 10)
+            {
+                findings.Add(CodeFinding(
+                    "dependency-count",
+                    $"Handler for '{handler.UseCaseId}' takes {handler.DependencyCount} constructor dependencies.",
+                    handler.File,
+                    handler.Line,
+                    handler.UseCaseId));
+            }
+        }
+
+        foreach (var reaction in model.Code.Reactions)
+        {
+            if (reaction.DependencyCount > 10)
+            {
+                var holder = reaction.RecordId ?? reaction.UseCaseId;
+                var kind = reaction.Kind == "job" ? "Job" : "Reaction";
+
+                findings.Add(CodeFinding(
+                    "dependency-count",
+                    $"{kind} '{reaction.Class}' takes {reaction.DependencyCount} constructor dependencies.",
+                    reaction.File,
+                    reaction.Line,
+                    holder));
+            }
+        }
+    }
+
+    private static void CheckSendBeforeCommit(ProjectModel model, List<Finding> findings)
+    {
+        foreach (var useCase in model.Records.Where(record => record.Type == "use-case" && record.Field("kind") == "command"))
+        {
+            if (useCase.Raw.ValueKind != JsonValueKind.Object
+                || !useCase.Raw.TryGetProperty("effects", out var effects)
+                || effects.ValueKind != JsonValueKind.Array)
+            {
+                continue;
+            }
+
+            foreach (var entry in effects.EnumerateArray())
+            {
+                if (entry.ValueKind == JsonValueKind.Object
+                    && entry.TryGetProperty("sends", out var sends)
+                    && sends.ValueKind == JsonValueKind.String
+                    && sends.GetString() is { Length: > 0 } target
+                    && entry.TryGetProperty("timing", out var timing)
+                    && timing.ValueKind == JsonValueKind.String
+                    && timing.GetString() == "inline")
+                {
+                    findings.Add(CodeFinding(
+                        "send-before-commit",
+                        $"Use case '{useCase.Id}' sends '{target}' inline, before its commit.",
+                        useCase.File,
+                        useCase.Line,
+                        useCase.Id));
+                }
+            }
+        }
     }
 }

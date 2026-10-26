@@ -135,6 +135,16 @@ Every check has a tier. G reads records only and always blocks. S reads code thr
 | `prose-missing` | A | A use case needing Goal and What Happens prose carries none. |
 | `many-aggregates` | A | One command saves more than one atomic write group. |
 | `question-aged` | A | A question stands past its `decideBy` date. |
+| `use-case-verb-method` | A | A command handler calls aggregate methods, none starting with the use-case verb. |
+| `event-tense-mismatch` | A | An aggregate method raises an event not ending with the past tense of its verb. |
+| `name-drift-across-layers` | A | A message type, operation id or audit action differs from the use-case name. |
+| `route-shape` | A | A command route ends outside its verb, or a route carries no aggregate plural. |
+| `reasonless-name` | A | A folder or type is named `Shared`, `Common`, `Helper`, `Manager` or the like outside the declared shared kernel. |
+| `collaborator-holds-repository` | A | A class built with `new` takes a repository in its own constructor. |
+| `repository-read-in-loop` | A | A repository read sits inside a `for`, `foreach` or `while` body. |
+| `query-filters-in-memory` | A | A query handler filters a repository list with LINQ in memory. |
+| `dependency-count` | A | A handler, reaction or job takes more than ten constructor dependencies. |
+| `send-before-commit` | A | A command use case sends a notification with `inline` timing. |
 
 The `render` subcommand writes these generated regions, each fenced by `<!-- generated:<name> -->` and `<!-- /generated:<name> -->`: `history`, `use-case-coverage`, `sub-processors`, `runbook-index`, `rule-map`, `operations-log`, `open-questions`, `journeys`, `glossary`, `deviations`, `census`, `aggregate-map`, `audit-register`, `alert-inventory`, and `counts`.
 
