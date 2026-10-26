@@ -117,6 +117,33 @@ public sealed class RecordNameCheckTests
     }
 
     [Fact]
+    public void Declared_Module_Prefix_Passes()
+    {
+        using var temp = Cli.Temp("checks");
+        WriteProject(temp.Path, """{}""");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("module", "module/catalog", Path.Combine(temp.Path, "docs", "behavior", "modules", "catalog", "catalog.md"), """{}"""),
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "loans", "borrow-copy.md"), """{"kind": "command"}"""),
+            TestModel.Record("result", "result/borrow-copy.title-retired", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "loans", "borrow-copy.md"), """{"outcome": "refusal", "code": "catalog.title-retired", "meaning": "The title is retired."}"""));
+
+        Assert.DoesNotContain("refusal-code-form", TestModel.Codes(model));
+    }
+
+    [Fact]
+    public void Project_Refusal_Prefix_Passes()
+    {
+        using var temp = Cli.Temp("checks");
+        WriteProject(temp.Path, """{"refusals": {"prefixes": ["shared"]}}""");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "loans", "borrow-copy.md"), """{"kind": "command"}"""),
+            TestModel.Record("result", "result/borrow-copy.locale-unknown", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "loans", "borrow-copy.md"), """{"outcome": "refusal", "code": "shared.locale-unknown", "meaning": "The locale is unknown."}"""));
+
+        Assert.DoesNotContain("refusal-code-form", TestModel.Codes(model));
+    }
+
+    [Fact]
     public void Vague_Word_Reports_Refusal_Code_Form()
     {
         using var temp = Cli.Temp("checks");

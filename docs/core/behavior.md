@@ -663,7 +663,7 @@ The specification names only what carries business meaning. Child entities and v
 
 **Statement:** Each refusal code MUST read `<module>.<noun>-<state>` and name the state, not the failure.
 
-**Rationale:** The code is a public contract; `invalid`, `failed` or `error` tell an integrator nothing to do. A code naming the state tells what holds and what to change.
+**Rationale:** The code is a public contract; `invalid`, `failed` or `error` tell an integrator nothing to do. A code naming the state tells what holds and what to change. The prefix names the module that owns the refused state, which may differ from the module of the refusing use case; a shared kernel declares its prefix in `refusals.prefixes`.
 
 **Example:** `spending.receipt-missing` names the missing receipt; `spending.receipt-invalid` hides the state behind a vague word and is reported.
 

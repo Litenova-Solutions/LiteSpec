@@ -48,6 +48,9 @@ sealed class ConsumerConfig
     public IReadOnlyDictionary<string, int> RefusalStatuses { get; private set; } =
         new Dictionary<string, int>(StringComparer.Ordinal);
 
+    /// <summary>The refusal-code prefixes the project shares across modules, such as a shared kernel.</summary>
+    public IReadOnlyList<string> RefusalPrefixes { get; private set; } = [];
+
     /// <summary>The client refusal vocabulary translated to declared codes, by client code.</summary>
     public IReadOnlyDictionary<string, string> RefusalAliases { get; private set; } =
         new Dictionary<string, string>(StringComparer.Ordinal);
@@ -274,6 +277,7 @@ sealed class ConsumerConfig
 
             config.RefusalStatuses = ReadStatuses(refusals);
             config.RefusalAliases = ReadAliases(refusals);
+            config.RefusalPrefixes = ReadNames(refusals, "prefixes");
         }
 
         if (document.RootElement.TryGetProperty("vocabulary", out var vocabulary)

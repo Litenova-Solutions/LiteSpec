@@ -170,6 +170,19 @@ static partial class Checker
 
         var generic = new HashSet<string>(GenericRefusalPrefixes, StringComparer.Ordinal);
 
+        foreach (var prefix in model.Config.RefusalPrefixes)
+        {
+            generic.Add(prefix);
+        }
+
+        // A refusal names the module that owns the refused state, which is often not the module of
+        // the use case refusing: an admission use case answers events.not-found for a missing event.
+        var modules = model.Records
+                           .Where(record => record.Type == "module")
+                           .Select(record => Identifiers.TrySplit(record.Id, out _, out _, out var name) ? name : null)
+                           .OfType<string>()
+                           .ToHashSet(StringComparer.Ordinal);
+
         foreach (var code in declared)
         {
             var separator = code.IndexOf('.');
@@ -198,9 +211,9 @@ static partial class Checker
             var prefix = dot < 0 ? code : code[..dot];
             var rest = dot < 0 ? "" : code[(dot + 1)..];
 
-            if (dot < 0 || (!prefix.Equals(module, StringComparison.Ordinal) && !generic.Contains(prefix)))
+            if (dot < 0 || (!prefix.Equals(module, StringComparison.Ordinal) && !modules.Contains(prefix) && !generic.Contains(prefix)))
             {
-                findings.Add(new Finding("refusal-code-form", $"Result '{result.Id}' has code '{code}', which names neither its module '{module}' nor a generic prefix.", result.File, result.Line, SubjectOf(result)));
+                findings.Add(new Finding("refusal-code-form", $"Result '{result.Id}' has code '{code}', which names no module and no generic prefix.", result.File, result.Line, SubjectOf(result)));
             }
 
             if (!IsKebab(rest))

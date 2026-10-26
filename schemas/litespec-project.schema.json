@@ -153,6 +153,12 @@
           "type": "object",
           "propertyNames": { "minLength": 1 },
           "additionalProperties": { "type": "string", "minLength": 1 }
+        },
+        "prefixes": {
+          "description": "Refusal-code prefixes the project shares across modules, such as a shared kernel, beside every declared module and the generic request, authorization and client prefixes.",
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" }
         }
       }
     },
