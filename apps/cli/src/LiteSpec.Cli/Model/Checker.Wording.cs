@@ -5,23 +5,26 @@ namespace LiteSpec.Model;
 /// <summary>The wording check on Behavior statements.</summary>
 static partial class Checker
 {
-    /// <summary>The vague words with the word-boundary pattern that finds each one.</summary>
+    /// <summary>
+    ///     The vague words with the pattern that finds each one as a whole word; a hyphen counts as part of
+    ///     the word, so a vague word inside an identifier such as <c>manage-organizer-access</c> is a name, not prose.
+    /// </summary>
     static readonly (string Word, Regex Pattern)[] VagueWords =
     [
-        ("handle", new Regex(@"\bhandle\b", RegexOptions.IgnoreCase | RegexOptions.Compiled)),
-        ("handles", new Regex(@"\bhandles\b", RegexOptions.IgnoreCase | RegexOptions.Compiled)),
-        ("handled", new Regex(@"\bhandled\b", RegexOptions.IgnoreCase | RegexOptions.Compiled)),
-        ("process", new Regex(@"\bprocess\b", RegexOptions.IgnoreCase | RegexOptions.Compiled)),
-        ("processes", new Regex(@"\bprocesses\b", RegexOptions.IgnoreCase | RegexOptions.Compiled)),
-        ("manage", new Regex(@"\bmanage\b", RegexOptions.IgnoreCase | RegexOptions.Compiled)),
-        ("manages", new Regex(@"\bmanages\b", RegexOptions.IgnoreCase | RegexOptions.Compiled)),
-        ("various", new Regex(@"\bvarious\b", RegexOptions.IgnoreCase | RegexOptions.Compiled)),
-        ("etc.", new Regex(@"\betc\.", RegexOptions.IgnoreCase | RegexOptions.Compiled)),
-        ("appropriate", new Regex(@"\bappropriate\b", RegexOptions.IgnoreCase | RegexOptions.Compiled)),
-        ("appropriately", new Regex(@"\bappropriately\b", RegexOptions.IgnoreCase | RegexOptions.Compiled)),
-        ("properly", new Regex(@"\bproperly\b", RegexOptions.IgnoreCase | RegexOptions.Compiled)),
-        ("as needed", new Regex(@"\bas\s+needed\b", RegexOptions.IgnoreCase | RegexOptions.Compiled)),
-        ("and so on", new Regex(@"\band\s+so\s+on\b", RegexOptions.IgnoreCase | RegexOptions.Compiled)),
+        ("handle", new Regex(@"(?<![\w-])handle(?![\w-])", RegexOptions.IgnoreCase | RegexOptions.Compiled)),
+        ("handles", new Regex(@"(?<![\w-])handles(?![\w-])", RegexOptions.IgnoreCase | RegexOptions.Compiled)),
+        ("handled", new Regex(@"(?<![\w-])handled(?![\w-])", RegexOptions.IgnoreCase | RegexOptions.Compiled)),
+        ("process", new Regex(@"(?<![\w-])process(?![\w-])", RegexOptions.IgnoreCase | RegexOptions.Compiled)),
+        ("processes", new Regex(@"(?<![\w-])processes(?![\w-])", RegexOptions.IgnoreCase | RegexOptions.Compiled)),
+        ("manage", new Regex(@"(?<![\w-])manage(?![\w-])", RegexOptions.IgnoreCase | RegexOptions.Compiled)),
+        ("manages", new Regex(@"(?<![\w-])manages(?![\w-])", RegexOptions.IgnoreCase | RegexOptions.Compiled)),
+        ("various", new Regex(@"(?<![\w-])various(?![\w-])", RegexOptions.IgnoreCase | RegexOptions.Compiled)),
+        ("etc.", new Regex(@"(?<![\w-])etc\.", RegexOptions.IgnoreCase | RegexOptions.Compiled)),
+        ("appropriate", new Regex(@"(?<![\w-])appropriate(?![\w-])", RegexOptions.IgnoreCase | RegexOptions.Compiled)),
+        ("appropriately", new Regex(@"(?<![\w-])appropriately(?![\w-])", RegexOptions.IgnoreCase | RegexOptions.Compiled)),
+        ("properly", new Regex(@"(?<![\w-])properly(?![\w-])", RegexOptions.IgnoreCase | RegexOptions.Compiled)),
+        ("as needed", new Regex(@"(?<![\w-])as\s+needed(?![\w-])", RegexOptions.IgnoreCase | RegexOptions.Compiled)),
+        ("and so on", new Regex(@"(?<![\w-])and\s+so\s+on(?![\w-])", RegexOptions.IgnoreCase | RegexOptions.Compiled)),
     ];
 
     /// <summary>Text in backticks, which holds code rather than prose.</summary>

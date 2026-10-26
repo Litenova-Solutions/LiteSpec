@@ -733,11 +733,13 @@ static class CodeChecks
             }
 
             // A use case served on several routes needs a distinct operation id per route, so one of
-            // them carrying the use-case name is enough.
+            // them carrying the use-case name, or every one opening with it, is enough.
             var operations = model.Code.Endpoints
                 .Where(endpoint => endpoint.UseCaseId == handler.UseCaseId && endpoint.Operation.Length > 0)
                 .ToList();
-            var oneNamed = operations.Count > 1 && operations.Any(endpoint => Naming.Kebab(endpoint.Operation) == handler.Name);
+            var oneNamed = operations.Count > 1
+                && (operations.Any(endpoint => Naming.Kebab(endpoint.Operation) == handler.Name)
+                    || operations.All(endpoint => Naming.Kebab(endpoint.Operation).StartsWith(handler.Name + "-", StringComparison.Ordinal)));
 
             foreach (var endpoint in operations)
             {

@@ -101,7 +101,7 @@ Every check has a tier. G reads records only and always blocks. S reads code thr
 | `refusal-code-form` | A | A refusal code is not `<module>.<noun>-<state>` with the record's module or a declared generic prefix, or it uses a banned vague word. |
 | `template-key-form` | A | A notification template key does not end with an audience the record declares. |
 | `setting-unit-missing` | A | A setting whose value is a number or a duration declares no `unit`. |
-| `integration-event-wording` | A | An outbound integration event is named with an internal word such as `staged`, `dispatch` or `outbox`. |
+| `integration-event-wording` | G | An outbound integration event is named with an internal word such as `staged`, `dispatch` or `outbox`. |
 | `reaction-trigger-unresolved` | G | A reaction names a trigger no domain event or integration event carries. |
 | `erasure-undeclared` | G | A personal or sensitive field stands outside a declared erasure position. |
 | `record-orphaned` | G | A Behavior record names neither `serves` nor `fulfills`. |
@@ -140,7 +140,7 @@ Every check has a tier. G reads records only and always blocks. S reads code thr
 | `name-drift-across-layers` | A | A message type, operation id or audit action differs from the use-case name. |
 | `operation-id-duplicate` | S | Two endpoints declare one operation id, which the API document and every generated client refuse. |
 | `route-shape` | A | A command route ends outside its verb, or a route carries no aggregate plural. |
-| `reasonless-name` | A | A folder or type is named `Shared`, `Common`, `Helper`, `Manager` or the like outside the declared shared kernel. |
+| `reasonless-name` | S | A folder or type is named `Shared`, `Common`, `Helper`, `Manager` or the like outside the declared shared kernel. |
 | `collaborator-holds-repository` | A | A class built with `new` takes a repository in its own constructor. |
 | `repository-read-in-loop` | A | A repository read sits inside a `for`, `foreach` or `while` body. |
 | `query-filters-in-memory` | A | A query handler filters a repository list with LINQ in memory. |

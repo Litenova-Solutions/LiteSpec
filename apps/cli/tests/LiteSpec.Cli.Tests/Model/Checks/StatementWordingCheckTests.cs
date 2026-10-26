@@ -55,6 +55,22 @@ public sealed class StatementWordingCheckTests
     }
 
     [Fact]
+    public void Vague_Word_Inside_A_Hyphenated_Identifier_Skipped()
+    {
+        using var temp = Cli.Temp("checks");
+        File.WriteAllText(Path.Combine(temp.Path, "litespec.project.json"), "{}");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record(
+                "rule",
+                "rule/test.grant-kept",
+                Path.Combine(temp.Path, "grant.md"),
+                """{"kind": "invariant", "statement": "A role never holds manage-member-access.", "governs": []}"""));
+
+        Assert.DoesNotContain("statement-vague-word", TestModel.Codes(model));
+    }
+
+    [Fact]
     public void Scenario_Steps_And_Result_Meaning_Reported()
     {
         using var temp = Cli.Temp("checks");

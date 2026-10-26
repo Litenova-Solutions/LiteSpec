@@ -133,6 +133,16 @@ public sealed class HandlerShapeCheckTests
     }
 
     [Fact]
+    public void Routes_Each_Opening_With_The_Use_Case_Name_Pass()
+    {
+        using var temp = Cli.Temp("checks");
+        var model = DriftModel(temp.Path, "VoidOrderCommand", "VoidOrderByCard", "void-order");
+        model.Code.Endpoints.Add(new EndpointOperation("VoidOrderByNumber", "use-case/lending.void-order", "", "", Path.Combine(temp.Path, "VoidOrderEndpoint.cs")));
+
+        Assert.DoesNotContain("name-drift-across-layers", TestModel.Codes(model));
+    }
+
+    [Fact]
     public void Two_Endpoints_With_One_Operation_Id_Report()
     {
         using var temp = Cli.Temp("checks");
