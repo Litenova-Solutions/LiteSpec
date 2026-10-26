@@ -65,6 +65,9 @@ sealed class ConsumerConfig
     public IReadOnlyDictionary<string, string> RetiredVerbs { get; private set; } =
         new Dictionary<string, string>(StringComparer.Ordinal);
 
+    /// <summary>Lookalike pairs the term-lookalike check skips, each as "a|b".</summary>
+    public IReadOnlyList<string> LookalikeIgnore { get; private set; } = [];
+
     /// <summary>Whether the declaration names a use-case verb vocabulary.</summary>
     public bool HasVocabulary { get; private set; }
 
@@ -281,6 +284,7 @@ sealed class ConsumerConfig
             config.PhrasalVerbs = ReadNames(vocabulary, "phrasal");
             config.QueryVerbs = ReadNames(vocabulary, "queryVerbs");
             config.RetiredVerbs = ReadRetired(vocabulary);
+            config.LookalikeIgnore = ReadNames(vocabulary, "lookalikeIgnore");
         }
 
         if (document.RootElement.TryGetProperty("adoption", out var adoption)

@@ -184,6 +184,12 @@
           "type": "object",
           "propertyNames": { "pattern": "^[a-z][a-z0-9]*$" },
           "additionalProperties": { "type": "string", "pattern": "^[a-z][a-z0-9]*$" }
+        },
+        "lookalikeIgnore": {
+          "description": "Lookalike pairs the term-lookalike check skips, each naming both forms as \"a|b\", such as \"online|on-line\" for a compound that splits into real words by accident.",
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string", "pattern": "^[^|]+\\|[^|]+$" }
         }
       }
     },

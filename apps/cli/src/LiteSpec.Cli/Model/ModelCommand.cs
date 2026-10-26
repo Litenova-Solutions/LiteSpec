@@ -14,6 +14,7 @@ static class ModelCommand
           litespec model check --root <consumer> [--format json] [--staged]
           litespec model render --root <consumer>
           litespec model query --root <consumer> <id>
+          litespec model names [--root <consumer>] [--format text|json]
           litespec model approve --root <consumer> (<id>... | --all) [--by <owner>] [--on <YYYY-MM-DD>] [--dry-run]
           litespec model backfill --root <consumer> [<module>] [--dry-run]
           litespec model diff <base> --root <consumer> [--format text|markdown|json] [--intent|--behavior] [--fail-on breaking] [--breaking-only]
@@ -302,6 +303,14 @@ static class ModelCommand
                     }
 
                     Console.WriteLine(answer);
+                    return 0;
+                }
+
+                case "names":
+                {
+                    var model = ModelBuilder.Build(config);
+
+                    Console.WriteLine(ModelNames.Report(model, parsed.Value("--format") ?? "text"));
                     return 0;
                 }
 

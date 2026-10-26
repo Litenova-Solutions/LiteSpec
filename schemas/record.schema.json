@@ -1844,6 +1844,12 @@
         "records": { "$ref": "#/$defs/recordsArray" },
         "summary": { "$ref": "#/$defs/nonEmptyString" },
         "kind": { "enum": ["entity", "process", "store"], "default": "entity" },
+        "parts": {
+          "description": "The kebab-case names of the child entities and value objects inside the aggregate that use cases act on.",
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$" }
+        },
         "states": {
           "type": "array",
           "uniqueItems": true,

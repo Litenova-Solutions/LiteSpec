@@ -2,7 +2,7 @@
 
 ## Name
 
-`litespec model` builds the project model, checks it, diffs it against a base, renders generated regions, approves records, backfills drafts from code, and answers record queries.
+`litespec model` builds the project model, checks it, diffs it against a base, renders generated regions, approves records, backfills drafts from code, answers record queries, and prints the names inventory.
 
 ## Synopsis
 
@@ -11,6 +11,7 @@ litespec model build [--root <consumer>] [--out <file>]
 litespec model check [--root <consumer>] [--format json] [--staged]
 litespec model render [--root <consumer>]
 litespec model query [--root <consumer>] <id>
+litespec model names [--root <consumer>] [--format text|json]
 litespec model approve [--root <consumer>] (<id>... | --all) [--by <owner>] [--on <YYYY-MM-DD>] [--dry-run]
 litespec model backfill [--root <consumer>] [<module>] [--dry-run]
 litespec model diff <base> [--root <consumer>] [--format text|markdown|json] [--intent|--behavior] [--fail-on breaking] [--breaking-only]
@@ -26,12 +27,13 @@ The model builder reads the written records, the code anchors, the routes, the t
 
 Aggregate transitions and data, and scenario examples, may be written as Markdown tables the builder parses, so the parts people debate read naturally even in the raw file. A front-matter field wins over a table with the same name.
 
-The seven subcommands share one reader:
+The eight subcommands share one reader:
 
 - `build` writes `model.json` under `.model/` in the consumer root, unless `--out` names another file. That folder holds generated output, and the consumer ignores it in Git.
 - `check` builds the model in memory and reports every finding with its tier, code, message, path, and line. With `--staged` it reports only the findings in the staged scope: the records on pages changed in the git index, their direct links in both directions, and the records staged code implements. A finding is in scope when its path is staged or its subject is. Outside a git repository, or when git is unavailable, `--staged` exits 2.
 - `render` rewrites the fenced generated regions and touches no text outside them.
 - `query` prints one record with its links in both directions. Agents use it to load a record's context.
+- `names` prints the per-module names inventory: the verbs in use with counts, the nouns after the verb, reaction facts, events, refusal codes, notification template keys, and setting names, with the lookalike groups. Agents read it without rendering the book.
 - `backfill` drafts missing Behavior frontmatter from code during adoption, as above. On a module holding no use-case, reaction, or job records it exits 1.
 - `diff` compares the working tree against a base. The base is a consumer folder holding `litespec.project.json`, or a git revision of the consumer. Records match by identifier. `--intent` shows Intent changes in product words, `--behavior` shows Behavior changes and the security queue, and without either flag it shows both. The changelog prints REMOVED, then MODIFIED, then ADDED; each section groups entries by family: goals and requirements, domain, access, operations. The header counts breaking, removed, modified, and added changes. `text` is the changelog reviewers read, `markdown` is the pull request comment, and `json` carries every change with its fingerprint and the counts for machines. `--breaking-only` shows breaking changes and hides the rest.
 
@@ -150,7 +152,7 @@ The `render` subcommand writes these generated regions, each fenced by `<!-- gen
 |:---|:---|:---|
 | `--root <consumer>` | the working directory | Selects the consumer repository to read. |
 | `--out <file>` | `.model/model.json` under the root | Writes the model to this file instead. Only `build` reads it. |
-| `--format <name>` | human lines | Only `check` and `diff` read it. `check` accepts `json` and writes the findings as one JSON object. `diff` accepts `text`, `markdown`, or `json`. |
+| `--format <name>` | human lines | Only `check`, `diff`, and `names` read it. `check` accepts `json` and writes the findings as one JSON object. `diff` accepts `text`, `markdown`, or `json`. `names` accepts `text` or `json`. |
 | `--intent` | off | Only `diff` reads it. Shows the Intent changes in product words. |
 | `--behavior` | off | Only `diff` reads it. Shows the Behavior changes and the security queue. |
 | `--fail-on breaking` | off | Only `diff` reads it. Exits 1 when the change breaks approved intent. |
@@ -193,6 +195,12 @@ Print one record with its links:
 
 ```bash
 litespec model query --root ../consumer use-case/orders.cancel-order
+```
+
+Print the names inventory with the lookalike groups:
+
+```bash
+litespec model names --root ../consumer --format json
 ```
 
 Record the founder approving two requirements:

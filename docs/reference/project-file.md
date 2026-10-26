@@ -140,6 +140,7 @@ Every use-case name starts with a verb from the baseline vocabulary LiteSpec shi
 - `queryVerbs` lists project verbs that open only a query, such as `trace`.
 - `phrasal` lists multi-word verbs counted as one opening, such as `check-in`.
 - `retired` maps more synonyms to their replacement verb, beside the synonyms the baseline retires.
+- `lookalikeIgnore` lists the lookalike pairs the `term-lookalike` check skips, each naming both forms as `"a|b"`, such as `"online|on-line"` for a compound that splits into real words by accident.
 
 A project never redefines a baseline verb. `litespec model check` reports `use-case-verb-unknown`, `use-case-verb-kind`, `reaction-name-form` and `job-name-form` against the baseline and these additions.
 

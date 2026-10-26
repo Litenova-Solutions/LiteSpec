@@ -37,6 +37,8 @@ An aggregate is one thing the product keeps consistent and changes in one step, 
 | `process` | A multi-step aggregate with steps, exits, `finishedWhen`, and a driver. |
 | `store` | State no aggregate invariant guards, such as a library-owned table, with a named owner. |
 
+An aggregate lists in `parts` the kebab-case names of the child entities and value objects inside it that use cases act on, such as `line`, `hold`, and `note`. The use-case noun check reads each part as a known word.
+
 The body keeps the Transitions and Data tables from the aggregate page style. The Transitions table lists every allowed change with the use case moving it, naming the state left and the state entered. The Data table lists the fields the aggregate keeps with name, meaning, classification, and data class. Each data class declares how its fields erase:
 
 | Field | Meaning |
@@ -489,6 +491,16 @@ The specification names only what carries business meaning. Child entities and v
 
 **Rationale:** An emitted fact no edge declares is a hidden coupling: downstream readers depend on a promise the records never made, and the promise breaks without a diff. Declaring each emission as a `publishes` effect states the coupling beside the behavior causing it. The `effect-undeclared` check reports an emitted event no record declares.
 
+### Name Published Events in the Domain's Words
+
+**Statement:** Each outbound integration event SHOULD be named for the business fact, without internal words.
+
+**Deviation:** An event kept for an internal outbox fact its readers already consume keeps its name until its readers move.
+
+**Rationale:** An integrator reads the published name as the business fact; `staged`, `dispatch` or `outbox` describe the machinery that delivered it. A name carrying the fact travels across the boundary unchanged.
+
+**Example:** `cancellation-refund-requested` names the requested refund; `cancellation-refund-staged` names the staging step and is reported.
+
 ### Reach Every Inbound Integration Event Through a Webhook
 
 **Statement:** Each inbound integration event MUST arrive through an entry point of kind `webhook`.
@@ -516,6 +528,14 @@ The specification names only what carries business meaning. Child entities and v
 **Rationale:** The first word is the first thing a reader trusts. A query named `change-...` or a command named `read-...` makes every listing lie about what the use case may touch, and a reviewer stops reading names at all. The baseline gives each verb a kind, a project names its own reading verbs in `queryVerbs`, and its other domain verbs open either kind. The `use-case-verb-kind` check reports a use case whose verb names the other kind.
 
 **Example:** `use-case/lending.list-loans` is a query and passes; `use-case/lending.read-overdue-count` declared as a command is reported, and so is `use-case/lending.change-copy` declared as a query.
+
+### Name What a Use Case Acts on from the Model
+
+**Statement:** Each use case MUST name, after its verb, an aggregate, a declared part, or a glossary term.
+
+**Rationale:** The noun groups behavior by the business record it changes; a free synonym hides which record that is and breeds a second word for the concept.
+
+**Example:** `use-case/lending.borrow-copy` names the copy aggregate, and `use-case/sales.add-line` names the declared line part; `use-case/lending.borrow-volume` names no model word and is reported.
 
 ### Connect Each Use Case to Intent
 
@@ -638,6 +658,14 @@ The specification names only what carries business meaning. Child entities and v
 **Rationale:** Callers branch on named endings: success, or one refusal with its stable code. A use case with no named success leaves readers guessing what good looks like, and a refusal without a code leaves each layer reporting the same breach another way. The `use-case-without-success` check reports a use case with no success result, and `result-undeclared` reports a code the records never declared.
 
 **Example:** The complete-ticket-resale command declares `resale-completed` with `sales.resale-not-listed` and `sales.proceeds-not-positive`.
+
+### Name Each Refusal Code for the State That Refuses
+
+**Statement:** Each refusal code MUST read `<module>.<noun>-<state>` and name the state, not the failure.
+
+**Rationale:** The code is a public contract; `invalid`, `failed` or `error` tell an integrator nothing to do. A code naming the state tells what holds and what to change.
+
+**Example:** `spending.receipt-missing` names the missing receipt; `spending.receipt-invalid` hides the state behind a vague word and is reported.
 
 ### Order Every Refusal List by Precedence
 
@@ -773,6 +801,14 @@ The specification names only what carries business meaning. Child entities and v
 
 **Rationale:** A message without a declared audience and consent is sent on hope: the wrong actors receive it, the channel ignores consent, repeats annoy. Declaring the template with its parameters and locale, the audience, the channel, the consent rule, the frequency of `once` or `per-attempt`, and the dedup key states the message beside its promise. Suppression lives on each `sends` edge and in suppression scenarios. The `notification-without-sender` check reports a notification no use case or reaction sends.
 
+### Name Each Template for Its Subject, Event and Audience
+
+**Statement:** Each notification template key MUST read `<subject>-<event>-<audience>`, with the audience the record declares.
+
+**Rationale:** A key naming its subject, its event and its audience tells each reader what the message is about and who receives it; a key naming none of the three hides both.
+
+**Example:** `refund-requested-organizer` names the refund, the request and the organizer audience; `email-change-confirmation` names no audience and is reported.
+
 ### Claim Every Notification Promise from a Requirement
 
 **Statement:** Each claim a notification makes MUST cite its requirement.
@@ -786,6 +822,14 @@ The specification names only what carries business meaning. Child entities and v
 **Rationale:** A default no requirement holds is a figure nobody approved: a price, a fee, a term, or a limit the founder never decided. Declaring the value type, the range, the unit, the setter of founder, operator, or tenant, and the bound behavior of `refuse`, `truncate`, or `degrade` states the tunable beside its promise, and a commercial, legal, or tenant-, market-, or date-varying default cites its requirement. The `setting-default-without-requirement` check reports such a default with no cited requirement.
 
 **Example:** The return-queue cap declares an integer with a founder-set default of four, refusing a fifth return, behind its requirement.
+
+### State the Unit of Every Quantity Setting
+
+**Statement:** Each setting whose value is a number or a duration MUST declare its `unit`.
+
+**Rationale:** A number without a unit is a guess: minutes read as seconds, a count reads as money. Declaring the unit states the measure beside the value.
+
+**Example:** The retry backoff declares `unit: seconds`; a timeout with `valueType: duration` and no unit is reported.
 
 ### Keep Model Invariants in Rules
 
@@ -887,10 +931,12 @@ This informative example demonstrates `litespec/core/behavior#declare-the-kind-o
 | litespec/core/behavior#raise-every-event-through-its-aggregate-root | guidance | Each event is raised from the root of the aggregate that owns it. |
 | litespec/core/behavior#describe-every-integration-event-for-its-direction | checkable | `litespec consumer` fails an integration event without direction, CloudEvents identity, payload, or trust. |
 | litespec/core/behavior#publish-every-outbound-integration-event-from-effects | checkable | `litespec model check` reports `effect-undeclared` for an emitted integration event no record declares in effects. |
+| litespec/core/behavior#name-published-events-in-the-domains-words | checkable | `litespec model check` reports `integration-event-wording` (tier A) for an outbound event named with an internal word. |
 | litespec/core/behavior#reach-every-inbound-integration-event-through-a-webhook | guidance | Each inbound integration event names a webhook entry point as its door. |
 | litespec/core/behavior#give-each-use-case-a-command-or-query-kind | checkable | `litespec consumer` fails a use-case page without `kind` or with an unknown kind. |
 | litespec/core/behavior#start-every-use-case-with-a-declared-verb | checkable | `litespec model check` reports `use-case-verb-unknown` for a use-case name starting outside the baseline and the project verbs. |
 | litespec/core/behavior#keep-one-kind-per-verb | checkable | `litespec model check` reports `use-case-verb-kind` for a query opening with a changing verb or a command opening with a reading verb. |
+| litespec/core/behavior#name-what-a-use-case-acts-on-from-the-model | checkable | `litespec model check` reports `use-case-noun-unknown` (tier A) for a use case naming no aggregate, declared part, or glossary term after its verb. |
 | litespec/core/behavior#connect-each-use-case-to-intent | checkable | `litespec model check` reports `record-orphaned` for a use case with neither `serves` nor `fulfills`. |
 | litespec/core/behavior#grant-each-use-case-scoped-access | checkable | `litespec consumer` fails a use-case page without `access` carrying `auth`, grant, and tenant scope. |
 | litespec/core/behavior#name-the-entry-points-that-reach-each-use-case | checkable | `litespec model check` reports `reference-unresolved` for a `reachedThrough` entry naming no entry point. |
@@ -909,6 +955,7 @@ This informative example demonstrates `litespec/core/behavior#declare-the-kind-o
 | litespec/core/behavior#declare-paging-on-every-collection-query | checkable | `litespec model check` reports `paging-undeclared` for a collection query with no paging. |
 | litespec/core/behavior#mark-every-lagging-query-as-built-asynchronously | guidance | Each lagging query sets `builtAsynchronously` with a bounded or advisory freshness and a lag scenario. |
 | litespec/core/behavior#end-every-use-case-in-named-results | checkable | `litespec model check` reports `use-case-without-success` for a use case with no success result; each refusal entry on the use-case page carries its code. |
+| litespec/core/behavior#name-each-refusal-code-for-the-state-that-refuses | checkable | `litespec model check` reports `refusal-code-form` (tier A) for a refusal code outside its module, outside kebab-case, or carrying a vague word. |
 | litespec/core/behavior#order-every-refusal-list-by-precedence | guidance | The refusal entries on each use-case page stand in precedence order with first match winning. |
 | litespec/core/behavior#record-attempts-behind-recorded-refusals | guidance | Each refusal carrying `recorded: true` stores the attempt with its reason; validating refusals store nothing. |
 | litespec/core/behavior#list-recorded-outcomes-inside-success-codes | guidance | Each success result with recorded outcomes lists them in `codes` beside the result. |
@@ -927,8 +974,10 @@ This informative example demonstrates `litespec/core/behavior#declare-the-kind-o
 | litespec/core/behavior#name-each-job-for-the-command-it-issues | checkable | `litespec model check` reports `job-name-form` for a job whose first word is not the verb of a use case it issues. |
 | litespec/core/behavior#guard-every-operator-job | checkable | `litespec model check` reports `operator-job-without-guard` for an operator job without `runsWhere` or guard. |
 | litespec/core/behavior#describe-every-notification-with-audience-channel-and-consent | checkable | `litespec model check` reports `notification-without-sender` for a notification no use case or reaction sends; `litespec consumer` fails a notification without its declared fields. |
+| litespec/core/behavior#name-each-template-for-its-subject-event-and-audience | checkable | `litespec model check` reports `template-key-form` (tier A) for a template key ending in no audience the notification declares. |
 | litespec/core/behavior#claim-every-notification-promise-from-a-requirement | guidance | Each notification claim cites its requirement beside the claim. |
 | litespec/core/behavior#hold-every-setting-default-to-a-requirement | checkable | `litespec model check` reports `setting-default-without-requirement` for a commercial, legal, or varying default with no cited requirement. |
+| litespec/core/behavior#state-the-unit-of-every-quantity-setting | checkable | `litespec model check` reports `setting-unit-missing` (tier A) for a numeric or duration setting declaring no `unit`. |
 | litespec/core/behavior#keep-model-invariants-in-rules | guidance | No setting page holds a model invariant; each invariant lives as a rule. |
 | litespec/core/behavior#give-each-entry-point-a-kind | checkable | `litespec consumer` fails an entry point without `kind` or `auth`. |
 | litespec/core/behavior#serve-static-content-through-served-content | guidance | Each static script or legal text sits as served content with path, content type, cache control, and versioning. |

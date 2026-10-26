@@ -98,6 +98,8 @@ static class BookCommand
             BookPages.RenderBallots(index, "../"), "ballots", true, "", false));
         pages.Add(new BookPage("review/index.html", "Review · Project book",
             BookPages.RenderReview(index, "../", review, generatedDate), "review", true, "review-always", false));
+        pages.Add(new BookPage(BookPages.NamesUrl(), "Names · Project book",
+            BookPages.RenderNames(index, "../", review), "names", true, "", false));
         pages.Add(new BookPage("lens/index.html", "Lenses · Project book", BookPages.RenderLensIndex(index, "../"), "lens-index", false, "", false));
         pages.Add(new BookPage("goals/index.html", "Goals · Project book", BookPages.RenderGoalIndex(index, "../"), "goal-index", false, "", false));
 

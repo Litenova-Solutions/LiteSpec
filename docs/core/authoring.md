@@ -589,6 +589,24 @@ The figures below render from the retention schedule at build time.
 
 **Rationale:** A provision can gain force while keeping its ID, so a deviation written against one release could otherwise apply to a rule nobody reread. Recording the adopted release in `reviewedLiteSpecVersion` makes adoption an explicit act and tells every reader which contract the project reviewed.
 
+### Review Each Term for Its Lookalikes
+
+**Statement:** A project MUST resolve each pair of terms that differ only in hyphenation, spelling variant, plurality, or a compound split.
+
+**Rationale:** Two spellings of one concept split every search and every listing, and a reader cannot tell whether they name one concept or two. One spelling per concept keeps each term defined once and checked once.
+
+**Example:** The notification `send-soldout-notice-confirmation` and the reaction `send-sold-out-notice-on-sale-ended` name one concept with two spellings; the project picks one and renames the other.
+
+### State What Happens in Every Behavior Statement
+
+**Statement:** A rule statement, scenario step, and result meaning SHOULD avoid words that hide behavior.
+
+**Deviation:** A quoted name, an interface label, or a cited source keeps its fixed wording.
+
+**Rationale:** The vague words are handle, handles, handled, process, processes, manage, manages, various, etc., appropriate, appropriately, properly, as needed, and so on: each says that something happens without saying what. A reader cannot check a statement that hides its behavior, so each statement names the act in words a test could assert.
+
+**Example:** A scenario step reads "The member borrows the copy" rather than "The member handles the copy".
+
 ## Conventions
 
 ### Prefer Direct Action Headings
@@ -654,4 +672,6 @@ The figures below render from the retention schedule at build time.
 | litespec/core/authoring#exclude-cross-release-compatibility-work | guidance | Which pages promise migration, mapping, or alias between releases? Look at the release material the change adds. |
 | litespec/core/authoring#keep-a-pinned-release-for-as-long-as-it-serves | guidance | Which provisions oblige a move to a later release? Look at the Statements the change adds. |
 | litespec/core/authoring#record-the-reviewed-litespec-release | checkable | `litespec consumer` fails when `reviewedLiteSpecVersion` differs from the pinned release. |
+| litespec/core/authoring#review-each-term-for-its-lookalikes | checkable | `litespec model check` reports `term-lookalike` (tier A) for a joined and hyphenated pair, a British and American spelling pair, or a singular and plural in one home, when both forms occur. |
+| litespec/core/authoring#state-what-happens-in-every-behavior-statement | checkable | `litespec model check` reports `statement-vague-word` (tier A) for a listed vague word in a rule statement, scenario step, or result meaning. |
 | litespec/core/authoring#prefer-direct-action-headings | checkable | `litespec validate` emits no `HEADING_ACTION` diagnostic. |

@@ -181,6 +181,7 @@ static class BookRender
         parts.Add($"<a class=\"navitem{(active == "ballots" ? " on" : "")}\" href=\"{rel}{BookModel.BallotsUrl()}\">Ballots <span class=\"count{(review.Questions.Count != 0 ? " hot" : "")}\">{review.Questions.Count}</span></a>");
         parts.Add($"<a class=\"navitem{(active == "review" ? " on" : "")}\" href=\"{rel}review/index.html\">Review <span class=\"count{(reviewCount != 0 ? " hot" : "")}\">{reviewCount}</span></a>");
         parts.Add($"<a class=\"navitem{(active == "glossary" ? " on" : "")}\" href=\"{rel}glossary.html\">Glossary</a>");
+        parts.Add($"<a class=\"navitem{(active == "names" ? " on" : "")}\" href=\"{rel}{BookPages.NamesUrl()}\">Names</a>");
         var actors = index.ByType.TryGetValue("actor", out var found) ? found : [];
         parts.Add("<h2>Lenses</h2>");
         parts.Add($"<a class=\"navitem{(active == "lens-index" ? " on" : "")}\" href=\"{rel}lens/index.html\">All lenses</a>");

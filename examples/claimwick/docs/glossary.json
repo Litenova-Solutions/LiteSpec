@@ -58,6 +58,18 @@
       "rejected": [],
       "owner": "claimwick-team",
       "status": "retired"
+    },
+    {
+      "id": "term/personal-data",
+      "term": "personal data",
+      "meaning": "Facts identifying an employee, erased on request.",
+      "labels": {
+        "nl": "persoonsgegevens",
+        "de": "personenbezogene Daten"
+      },
+      "rejected": [],
+      "owner": "claimwick-team",
+      "status": "retired"
     }
   ],
   "mannered": [

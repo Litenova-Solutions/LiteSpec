@@ -24,7 +24,7 @@ Every command accepts `--help`, and every validator accepts `--format json` for 
 - [Rename Record](rename.md): renames a record identifier and rewrites every link.
 - [Validate Consumer](consumer.md): checks a consumer's pages, project record, and vocabulary.
 - [Validate Controlled UI](ui.md): checks the shared UI package and each controlled web frontend.
-- [Model Builder](model.md): builds, checks, and diffs the project model, renders generated regions, and answers record queries.
+- [Model Builder](model.md): builds, checks, and diffs the project model, renders generated regions, answers record queries, and prints the names inventory.
 - [Book](book.md): generates a static site from `model.json` for reviewers.
 
 ## Anywhere

@@ -5,7 +5,7 @@
   "title": "Loan due",
   "owner": "lending-team",
   "status": "reviewed",
-  "template": "Loan due",
+  "template": "loan-due-reader",
   "audience": [
     "actor/reader"
   ],
@@ -20,7 +20,7 @@
   ],
   "approvedBy": "lending-team",
   "approvedOn": "2026-10-01",
-  "approvedHash": "77e0491d"
+  "approvedHash": "2ab61ded"
 }
 ---
 

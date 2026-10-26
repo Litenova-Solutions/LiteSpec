@@ -5,7 +5,7 @@
   "title": "Approval Reminder",
   "owner": "claimwick-team",
   "status": "reviewed",
-  "template": "Approval reminder",
+  "template": "approval-reminder-manager",
   "audience": [
     "actor/manager"
   ],
@@ -19,7 +19,7 @@
   ],
   "approvedBy": "claimwick-team",
   "approvedOn": "2026-10-01",
-  "approvedHash": "e5ae0fec"
+  "approvedHash": "72bf1db3"
 }
 ---
 
