@@ -93,6 +93,13 @@ Every check has a tier. G reads records only and always blocks. S reads code thr
 | `use-case-verb-kind` | G | A query opens with a changing verb, or a command opens with a reading verb. |
 | `reaction-name-form` | G | A reaction name is not `<verb>-<what>-on-<fact>` with a declared verb. |
 | `job-name-form` | G | A job name does not start with the verb of a use case it issues. |
+| `term-lookalike` | A | Two terms differ only in hyphenation, a British or American spelling, or a compound split, and both are in use. |
+| `statement-vague-word` | A | A rule statement, scenario step or result meaning uses a word that hides behaviour, such as `handle`, `process` or `etc.`. |
+| `use-case-noun-unknown` | A | The words after a use case's verb name no aggregate, declared aggregate part, or glossary term. |
+| `refusal-code-form` | A | A refusal code is not `<module>.<noun>-<state>` with the record's module or a declared generic prefix, or it uses a banned vague word. |
+| `template-key-form` | A | A notification template key does not end with an audience the record declares. |
+| `setting-unit-missing` | A | A setting whose value is a number or a duration declares no `unit`. |
+| `integration-event-wording` | A | An outbound integration event is named with an internal word such as `staged`, `dispatch` or `outbox`. |
 | `reaction-trigger-unresolved` | G | A reaction names a trigger no domain event or integration event carries. |
 | `erasure-undeclared` | G | A personal or sensitive field stands outside a declared erasure position. |
 | `record-orphaned` | G | A Behavior record names neither `serves` nor `fulfills`. |

@@ -14,7 +14,7 @@ static partial class Checker
     public static readonly HashSet<string> Codes = new(StringComparer.Ordinal)
     {
         "record-shape", "invalid-field", "identifier-form", "identifier-duplicate",
-        "use-case-name-clash", "use-case-verb-unknown", "use-case-verb-kind", "reaction-name-form", "job-name-form", "reference-unresolved", "draft-gate",
+        "use-case-name-clash", "use-case-verb-unknown", "term-lookalike", "statement-vague-word", "use-case-noun-unknown", "refusal-code-form", "template-key-form", "setting-unit-missing", "integration-event-wording", "use-case-verb-kind", "reaction-name-form", "job-name-form", "reference-unresolved", "draft-gate",
         "owner-unknown", "draft-without-decider", "known-gap-expired", "gap-unknown-check",
         "rule-name-negation", "use-case-without-success", "scenario-result-unresolved",
         "refusal-not-thrown", "use-case-unimplemented", "proves-unconfirmed",
@@ -65,6 +65,9 @@ static partial class Checker
         Time("identifiers", () => CheckIdentifiers(model, findings));
         Time("verbs", () => CheckUseCaseVerb(model, findings));
         Time("names", () => CheckReactionAndJobNames(model, findings));
+        Time("lookalikes", () => CheckTermLookalikes(model, findings));
+        Time("wording", () => CheckStatementWording(model, findings));
+        Time("record-names", () => CheckRecordNames(model, findings));
         Time("citations", () => CheckCitations(model, findings));
         Time("gates", () => CheckGates(model, findings));
         Time("proof", () => CheckProof(model, findings));
