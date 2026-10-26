@@ -138,6 +138,7 @@ Every check has a tier. G reads records only and always blocks. S reads code thr
 | `use-case-verb-method` | A | A command handler calls aggregate methods, none starting with the use-case verb. |
 | `event-tense-mismatch` | A | An aggregate method raises an event not ending with the past tense of its verb. |
 | `name-drift-across-layers` | A | A message type, operation id or audit action differs from the use-case name. |
+| `operation-id-duplicate` | S | Two endpoints declare one operation id, which the API document and every generated client refuse. |
 | `route-shape` | A | A command route ends outside its verb, or a route carries no aggregate plural. |
 | `reasonless-name` | A | A folder or type is named `Shared`, `Common`, `Helper`, `Manager` or the like outside the declared shared kernel. |
 | `collaborator-holds-repository` | A | A class built with `new` takes a repository in its own constructor. |

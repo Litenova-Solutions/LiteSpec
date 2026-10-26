@@ -133,6 +133,16 @@ public sealed class HandlerShapeCheckTests
     }
 
     [Fact]
+    public void Two_Endpoints_With_One_Operation_Id_Report()
+    {
+        using var temp = Cli.Temp("checks");
+        var model = DriftModel(temp.Path, "VoidOrderCommand", "VoidOrder", "void-order");
+        model.Code.Endpoints.Add(new EndpointOperation("VoidOrder", "use-case/lending.void-order", "POST", "/api/orders/{orderId}/void-again", Path.Combine(temp.Path, "VoidOrderEndpoint.cs")));
+
+        Assert.Contains("operation-id-duplicate", TestModel.Codes(model));
+    }
+
+    [Fact]
     public void Matching_Layers_Pass()
     {
         using var temp = Cli.Temp("checks");

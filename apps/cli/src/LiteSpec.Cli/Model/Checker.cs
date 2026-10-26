@@ -33,7 +33,7 @@ static partial class Checker
         "transcribed-reviewed", "transcribed-after-adoption",
         "operator-job-without-guard", "schedule-unstructured",
         "write-undeclared", "result-undeclared", "effect-undeclared",
-        "use-case-verb-method", "event-tense-mismatch", "name-drift-across-layers", "route-shape",
+        "use-case-verb-method", "event-tense-mismatch", "name-drift-across-layers", "operation-id-duplicate", "route-shape",
         "reasonless-name", "collaborator-holds-repository", "repository-read-in-loop",
         "query-filters-in-memory", "dependency-count", "send-before-commit",
         "prose-missing", "many-aggregates", "question-aged",

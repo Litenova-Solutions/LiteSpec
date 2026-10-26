@@ -28,6 +28,7 @@ static class CodeChecks
         CheckUseCaseVerbMethod(model, findings);
         CheckEventTenseMismatch(model, findings);
         CheckNameDriftAcrossLayers(model, findings);
+        CheckOperationIdDuplicate(model, findings);
         CheckRouteShape(model, findings);
         CheckReasonlessName(model, findings);
         CheckCollaboratorHoldsRepository(model, findings);
@@ -774,6 +775,28 @@ static class CodeChecks
         return action == handler.UseCaseId
             || bare == handler.UseCaseId["use-case/".Length..]
             || Naming.Kebab(bare) == handler.Name;
+    }
+
+    /// <summary>Reports two endpoints declaring one operation id; the host refuses to start with both.</summary>
+    private static void CheckOperationIdDuplicate(ProjectModel model, List<Finding> findings)
+    {
+        var groups = model.Code.Endpoints
+            .Where(endpoint => endpoint.Operation.Length > 0)
+            .GroupBy(endpoint => endpoint.Operation, StringComparer.Ordinal)
+            .Where(group => group.Count() > 1);
+
+        foreach (var group in groups)
+        {
+            foreach (var endpoint in group.Skip(1))
+            {
+                findings.Add(CodeFinding(
+                    "operation-id-duplicate",
+                    $"Operation id '{group.Key}' on '{endpoint.Method} {endpoint.Route}' is declared by another endpoint too.",
+                    endpoint.File,
+                    endpoint.Line,
+                    endpoint.UseCaseId));
+            }
+        }
     }
 
     private static void CheckRouteShape(ProjectModel model, List<Finding> findings)

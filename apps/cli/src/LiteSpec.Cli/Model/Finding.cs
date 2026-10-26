@@ -90,6 +90,7 @@ sealed record Finding(string Code, string Message, string Path, int Line, string
             ["use-case-verb-method"] = "A",
             ["event-tense-mismatch"] = "A",
             ["name-drift-across-layers"] = "A",
+            ["operation-id-duplicate"] = "S",
             ["route-shape"] = "A",
             ["reasonless-name"] = "A",
             ["collaborator-holds-repository"] = "A",
