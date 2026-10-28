@@ -66,7 +66,7 @@ The problem carries the trace identifier the API returns for the request, so sup
 
 **Statement:** The API MUST hold the browser session in an HTTP-only cookie, with frontend code holding no token.
 
-**Rationale:** Every value a script can read is a value any script on the page can read, including a script an attacker injected. Tokens kept in frontend code or browser storage are therefore readable by the same attack the session is meant to resist. The API runs the authorization code flow and keeps the tokens encrypted in an HTTP-only cookie the browser sends on its own, so frontend code holds no token. A refused sign-in lands on a signed-out page rather than on an error, because the reader is simply not signed in.
+**Rationale:** Every value a script can read is a value any script on the page can read, including a script an attacker injected. Tokens kept in frontend code or browser storage are therefore readable by the same attack the session is meant to resist. The API runs the authorization code flow and keeps the tokens encrypted in an HTTP-only cookie the browser sends on its own, so frontend code holds no token. A refused sign-in lands on a signed-out page rather than on an error, because the reader is not signed in.
 
 **Reviewed for:** The browser session lives in an HTTP-only cookie, and frontend sources hold no token. Look in the API session handling and the frontend sources.
 
@@ -170,7 +170,7 @@ The problem carries the trace identifier the API returns for the request, so sup
 
 **Statement:** A formatter rendering a timestamp MUST receive an explicit IANA time zone, resolved by the caller from the record the screen shows.
 
-**Rationale:** An instant from the API carries no zone, so a formatter left to pick one shows the reader's own zone: a dispatch cut-off reads as midnight in the reader's city instead of the warehouse's. The caller resolves the zone from the record the screen shows: a record with its own zone states it, otherwise the account's zone applies, and an account that chooses none falls back to UTC. Passing the zone explicitly makes each timestamp name whose day it belongs to.
+**Rationale:** An instant from the API carries no zone, so a formatter left to pick one shows the reader's own zone: a payout cut-off reads as midnight in the reader's city instead of the office's. The caller resolves the zone from the record the screen shows: a record with its own zone states it, otherwise the account's zone applies, and an account that chooses none falls back to UTC. Passing the zone explicitly makes each timestamp name whose day it belongs to.
 
 **Reviewed for:** Timestamp formatters receive an explicit IANA zone resolved from the shown record. Look in the formatter call sites.
 
@@ -270,4 +270,4 @@ The problem carries the trace identifier the API returns for the request, so sup
 
 This informative example demonstrates `litespec/frontend/data#place-a-field-refusal-on-its-field`, `litespec/frontend/data#update-the-cache-a-command-changed`, and `litespec/frontend/data#validate-a-form-with-the-generated-schema`.
 
-A redelivery dialog holds one field. Submitting validates against the generated schema and applies any field problem back to that field. Success invalidates the order it changes and closes the dialog.
+A redelivery dialog holds one field. Submitting validates against the generated schema and applies any field problem back to that field. Success invalidates the expense it changes and closes the dialog.

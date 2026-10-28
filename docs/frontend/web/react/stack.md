@@ -40,7 +40,7 @@ The registry build command is `shadcn build`. The state-to-tone table lives in `
 
 **Rationale:** A console opens inside the application a signed-in user already has, so its first response has nothing to index and ships as static files. A public page arrives by message or search result, so its title and links belong in the first response and it renders on the server. A page counts as indexed when its readers reach it from a message or a search result. A device client asks one question over and over and takes a static page with no router.
 
-**Example:** A back-office console and an internal admin console ship as static files. A public storefront runs as a Node server that hydrates in the browser. A warehouse handheld client ships as one static page.
+**Example:** A back-office console and an internal admin console ship as static files. A public marketing site runs as a Node server that hydrates in the browser. A receipt-scan client ships as one static page.
 
 **Reviewed for:** Each frontend renders in the mode its audience requires: static files for a console, server rendering for an indexed public page.
 

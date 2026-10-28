@@ -8,7 +8,7 @@ Data handling in a Blazor client routes every use case through an Application ha
 
 ### The Three State Classifications
 
-Durable state is what the user made: persisted, versioned, and exported. The shop cart is durable state, because the user built it and it must survive a restart and an export. Device-local state is persisted but stays on the device, excluded from export. Derived state is computed from durable state and never persisted: a cart total is derived from the cart lines each time it is read.
+Durable state is what the user made: persisted, versioned, and exported. The expense draft is durable state, because the user built it and it must survive a restart and an export. Device-local state is persisted but stays on the device, excluded from export. Derived state is computed from durable state and never persisted: an expense total is derived from the expense lines each time it is read.
 
 ## Standards
 

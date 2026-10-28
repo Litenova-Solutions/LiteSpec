@@ -57,35 +57,35 @@ The browser suite discovers its routes from the generated route tree rather than
 
 **Rationale:** The floorplan fixes the layout, the heading position, and the slots, so a reviewer reads which floorplan a route composes and knows the page's shape. The slots take domain values: the aggregate state, the use cases that state permits, and the refusal results of the called use case. Exactly one floorplan per route keeps layout decisions out of route code; a recorded freestyle route is the visible deviation. This realizes litespec/frontend/ui#compose-each-route-from-one-floorplan.
 
-**Example:** An order route composes the entity floorplan and fills each slot from the order.
+**Example:** An expense route composes the entity floorplan and fills each slot from the expense.
 
 React:
 
 ```tsx
 <EntityPage
-  title={order.number}
-  status={<OrderStatus state={order.state} />}
-  actions={<OrderActions permitted={order.permittedActions} />}
-  facts={<OrderFacts order={order} />}
-  related={<OrderPayments orderId={order.id} />}
+  title={expense.number}
+  status={<ExpenseStatus state={expense.state} />}
+  actions={<ExpenseActions permitted={expense.permittedActions} />}
+  facts={<ExpenseFacts expense={expense} />}
+  related={<ExpensePayments expenseId={expense.id} />}
 />
 ```
 
 Svelte:
 
 ```svelte
-<EntityPage title={order.number}>
+<EntityPage title={expense.number}>
   {#snippet status()}
-    <OrderStatus state={order.state} />
+    <ExpenseStatus state={expense.state} />
   {/snippet}
   {#snippet actions()}
-    <OrderActions permitted={order.permittedActions} />
+    <ExpenseActions permitted={expense.permittedActions} />
   {/snippet}
   {#snippet facts()}
-    <OrderFacts {order} />
+    <ExpenseFacts {expense} />
   {/snippet}
   {#snippet related()}
-    <OrderPayments orderId={order.id} />
+    <ExpensePayments expenseId={expense.id} />
   {/snippet}
 </EntityPage>
 ```
@@ -173,8 +173,8 @@ Svelte:
 **Example:** A browser test calls the use case and asserts one refusal result.
 
 ```typescript
-test('shows the changed total before payment', async ({ page }) => {
-  // Steps call place-order and assert the expected-total-mismatch refusal.
+test('shows the changed total before payout', async ({ page }) => {
+  // Steps call submit-expense and assert the expected-total-mismatch refusal.
 });
 ```
 

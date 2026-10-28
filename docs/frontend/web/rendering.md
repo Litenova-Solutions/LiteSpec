@@ -20,10 +20,10 @@ Rules with no neutral counterpart bind the web stacks alone.
 
 ```tsx
 loader: async ({ context, params }) => {
-  const order = await context.queryClient.ensureQueryData(orderQuery(params.orderId));
+  const expense = await context.queryClient.ensureQueryData(expenseQuery(params.expenseId));
 
-  if (order.merchantId !== null) {
-    await context.queryClient.ensureQueryData(merchantQuery(order.merchantId));
+  if (expense.spenderId !== null) {
+    await context.queryClient.ensureQueryData(spenderQuery(expense.spenderId));
   }
 }
 ```
@@ -33,13 +33,13 @@ The Svelte load does the same:
 ```ts
 export async function load({ parent, params }) {
   const { queryClient } = await parent();
-  const order = await queryClient.ensureQueryData(orderQuery(params.orderId));
+  const expense = await queryClient.ensureQueryData(expenseQuery(params.expenseId));
 
-  if (order.merchantId !== null) {
-    await queryClient.ensureQueryData(merchantQuery(order.merchantId));
+  if (expense.spenderId !== null) {
+    await queryClient.ensureQueryData(spenderQuery(expense.spenderId));
   }
 
-  return { orderId: params.orderId };
+  return { expenseId: params.expenseId };
 }
 ```
 
@@ -58,13 +58,13 @@ export async function load({ parent, params }) {
 React:
 
 ```tsx
-const { data: order } = useSuspenseQuery(orderQuery(orderId));
+const { data: expense } = useSuspenseQuery(expenseQuery(expenseId));
 ```
 
 Svelte:
 
 ```ts
-const order = createQuery(() => orderQuery(orderId));
+const expense = createQuery(() => expenseQuery(expenseId));
 ```
 
 **Reviewed for:** Each component read names the cache key its loader filled.
@@ -86,7 +86,7 @@ validateSearch: z.object({ q: z.string().trim().catch("").default(""), ...paging
 The Svelte page parses the same shape from the address:
 
 ```ts
-const search = orderSearch.parse(Object.fromEntries(url.searchParams));
+const search = expenseSearch.parse(Object.fromEntries(url.searchParams));
 ```
 
 **Reviewed for:** Each route declares its search parameters in a validated schema, with no component reading the address directly.
@@ -177,13 +177,13 @@ This informative example demonstrates `litespec/frontend/web/rendering#load-rout
 
 ```tsx
 /**
- * Find any paid order, for any product, newest first.
+ * Find any paid expense, for any spender, newest first.
  */
-export const Route = createFileRoute("/_console/orders/")({
+export const Route = createFileRoute("/_console/expenses/")({
   validateSearch: z.object({ q: z.string().trim().catch("").default(""), ...pagingSearch }),
   loaderDeps: ({ search }) => search,
-  loader: ({ context, deps }) => context.queryClient.ensureQueryData(merchantOrdersQuery(deps.q, deps.page)),
-  component: OrdersPage,
+  loader: ({ context, deps }) => context.queryClient.ensureQueryData(spenderExpensesQuery(deps.q, deps.page)),
+  component: ExpensesPage,
 });
 ```
 
@@ -191,12 +191,12 @@ The Svelte page does the same in its load:
 
 ```svelte
 <script lang="ts">
-  import OrdersPage from '$lib/modules/orders/orders/search-merchant-orders/orders-page.svelte';
+  import ExpensesPage from '$lib/modules/expenses/expenses/search-spender-expenses/expenses-page.svelte';
 
   let { data } = $props();
 </script>
 
-<OrdersPage search={data.search} />
+<ExpensesPage search={data.search} />
 ```
 
 The route resolves its input from the address, prefetches its reads, and composes the floorplan from module components. The query definition owns the typed call and the table owns its columns. The generated client calls in the route code are what link the route to its use cases.

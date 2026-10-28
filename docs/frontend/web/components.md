@@ -58,7 +58,7 @@ Text elements stay available, because a sentence is not a component decision: `p
 
 **Statement:** A visual file MAY write class names, and uses semantic theme tokens only.
 
-**Rationale:** Some drawings have no composite: a stock-location map, a packing-slip preview, a public frame. Refusing them outright would push the drawing into an arbitrary value that no token governs. The visual file name declares the drawing visibly, and semantic theme tokens keep even the drawing inside the palette. Each stack page names the file pattern for its stack. This realizes litespec/frontend/components#place-a-drawing-no-composite-makes-in-an-exception-file.
+**Rationale:** Some drawings have no composite: a budget treemap, a receipt-scan preview, a public frame. Refusing them outright would push the drawing into an arbitrary value that no token governs. The visual file name declares the drawing visibly, and semantic theme tokens keep even the drawing inside the palette. Each stack page names the file pattern for its stack. This realizes litespec/frontend/components#place-a-drawing-no-composite-makes-in-an-exception-file.
 
 **Reviewed for:** Each visual file named on its stack page uses semantic theme tokens only, and class names appear in no other route or module file.
 

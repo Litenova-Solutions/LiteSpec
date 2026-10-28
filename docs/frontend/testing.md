@@ -49,7 +49,7 @@ Three related rules live on other pages:
 
 **Rationale:** A test proves a scenario when its steps call the use case and assert its result, so proof follows exercised behavior rather than a claim. The model builder computes that proof for each stack whose scenario reader it ships; a frontend stack without one records its unproven scenarios as known gaps until the reader exists. A title tag claims proof without exercising anything. A money-moving use case that a test only reads leaves completion unshown, so the test submits it.
 
-**Example:** An evidence specification for placing an order submits the order and asserts the confirmation the success result promises.
+**Example:** An evidence specification for submitting an expense submits the expense and asserts the confirmation the success result promises.
 
 **Reviewed for:** Test steps call the use case and assert its result, submitting money-moving use cases. Look in the evidence specifications.
 

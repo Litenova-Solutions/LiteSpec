@@ -18,7 +18,7 @@ The shared UI package holds every primitive and every composite in one place, be
 
 ### Drawings with No Composite
 
-Some drawings have no composite: a stock-location map, a packing-slip preview, or a public marketing frame. They live in exception files whose names declare the exception, and they draw with semantic theme tokens, the named values the shared token definition holds. The file name keeps the exception visible, and the tokens keep it inside the product palette.
+Some drawings have no composite: a budget treemap, a receipt-scan preview, or a public marketing frame. They live in exception files whose names declare the exception, and they draw with semantic theme tokens, the named values the shared token definition holds. The file name keeps the exception visible, and the tokens keep it inside the product palette.
 
 ## Standards
 
@@ -94,7 +94,7 @@ Each stack page names the class and style bindings this rule covers for its stac
 
 **Statement:** An exception file MAY declare custom styling only with semantic theme tokens.
 
-**Rationale:** Some drawings have no composite: a stock-location map, a packing-slip preview, or a public marketing frame. Refusing them entirely would push the drawing into arbitrary values that no token governs, which is harder to find and restyle than a declared exception. The exception file keeps the drawing visible: its name says this page draws outside the composites, and semantic tokens keep it inside the product palette. Each stack page names the file pattern that marks an exception for its stack.
+**Rationale:** Some drawings have no composite: a budget treemap, a receipt-scan preview, or a public marketing frame. Refusing them entirely would push the drawing into arbitrary values that no token governs, which is harder to find and restyle than a declared exception. The exception file keeps the drawing visible: its name says this page draws outside the composites, and semantic tokens keep it inside the product palette. Each stack page names the file pattern that marks an exception for its stack.
 
 **Reviewed for:** Custom styling appears only in files whose names mark them as drawings outside the composites, using semantic theme tokens only. Look in the exception files each stack page names.
 
@@ -202,11 +202,11 @@ A route adds `not-found` under `litespec/frontend/rendering#represent-route-stat
 
 **ID:** `litespec/frontend/components#name-components-for-their-role`
 
-**Default:** Name a component for the role it plays, such as `OrderShipmentsSection` or `RedeliverOrderDialog`.
+**Default:** Name a component for the role it plays, such as `ExpenseLinesSection` or `ReplayDeliveryDialog`.
 
 **Replacement:** A consumer can replace this default with an explicit local convention.
 
-**Rationale:** A name such as `OrderComponent` or `GenericModal` describes the file type, so it fits any component and tells a searcher nothing. A name that states the role, such as `OrderShipmentsSection` or `RedeliverOrderDialog`, tells the next author what the component does before they open it, and keeps two components for two jobs from sharing one vague name.
+**Rationale:** A name such as `ExpenseComponent` or `GenericModal` describes the file type, so it fits any component and tells a searcher nothing. A name that states the role, such as `ExpenseLinesSection` or `ReplayDeliveryDialog`, tells the next author what the component does before they open it, and keeps two components for two jobs from sharing one vague name.
 
 **Reviewed for:** Component names state the role each plays. Look in the shared package and module sources.
 
@@ -250,4 +250,4 @@ A route adds `not-found` under `litespec/frontend/rendering#represent-route-stat
 
 This informative example demonstrates `litespec/frontend/components#compose-composites-in-page-code` and `litespec/frontend/components#use-composites-for-layout-and-interaction-in-page-code`.
 
-A shipment section renders its facts, its commands, and its states by composing display composites and shared form fields. It declares no element and no styling, so the layout it draws is the one every other entity page draws.
+An expense section renders its facts, its commands, and its states by composing display composites and shared form fields. It declares no element and no styling, so the layout it draws is the one every other entity page draws.

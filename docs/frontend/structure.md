@@ -87,7 +87,7 @@ The diagram shows the backend path beside its frontend mirror, with one arrow pe
 
 **Rationale:** A file read by several use cases of one aggregate belongs flat in that aggregate's folder: the lowest folder holding every reader. There it sits beside its consumers, found by browsing rather than through an index, and moving it changes nothing outside the aggregate. A file read by several aggregates rises one more level, to the module folder, by the same rule.
 
-**Example:** Three order queries share one tab strip, so the tab strip sits flat in the aggregate folder. A file read by several aggregates sits flat in the module folder.
+**Example:** Three expense queries share one tab strip, so the tab strip sits flat in the aggregate folder. A file read by several aggregates sits flat in the module folder.
 
 **Reviewed for:** Files read by several use cases sit flat in the narrowest folder holding every reader. Look in the aggregate and module folders.
 
@@ -111,7 +111,7 @@ The diagram shows the backend path beside its frontend mirror, with one arrow pe
 
 **Rationale:** A route entry serves one address: its input, its load, and its component. A column definition or validation rule written there is unreachable from the second route that needs it, so the second route writes its own copy. A reference from one route entry to another makes one address depend on another, so changing the first breaks the second. Reusable logic belongs in modules, where both routes import it.
 
-**Example:** An order list route validates its search, prefetches its read, and composes one screen from module components.
+**Example:** An expense list route validates its search, prefetches its read, and composes one screen from module components.
 
 **Reviewed for:** Route entries hold input, load, and component, with reusable logic in modules and no route-to-route reference. Look in the route entries.
 

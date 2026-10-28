@@ -117,7 +117,7 @@ A route calls use cases, and each use case declares its results. A test proves e
 {
   "kind": "design-contract",
   "schemaVersion": 1,
-  "package": "@acme/ui",
+  "package": "@claimwick/ui",
   "profile": "application-balanced",
   "shell": "app-shell",
   "patterns": ["work-page", "list-page", "entity-page"]
@@ -156,7 +156,7 @@ A route calls use cases, and each use case declares its results. A test proves e
 
 **Rationale:** The floorplan fixes the layout, the heading position, and the slots, so a reviewer reads which floorplan a route composes and knows what the page looks like before opening it. The slots take domain values only: the aggregate state, the use cases that state permits, and the refusal results of the called use case. Exactly one floorplan per route keeps each page to one known shape, unless it is a recorded freestyle route.
 
-**Example:** An order route composes the entity floorplan and fills each slot from the order.
+**Example:** An expense route composes the entity floorplan and fills each slot from the expense.
 
 **Reviewed for:** Routes render exactly one declared floorplan, or record a freestyle decision. Look in the route sources and the suite output reading the floorplan name from each frame.
 
@@ -244,7 +244,7 @@ A route calls use cases, and each use case declares its results. A test proves e
 
 **ID:** `litespec/frontend/ui#show-the-trace-id-in-error-detail`
 
-**Statement:** Every error the user sees MUST show its trace identifier in copyable form in the error detail, from the problem body or the `X-Trace-Id` header.
+**Statement:** Every visible error MUST show its trace identifier in copyable form in the error detail, from the problem body or the `X-Trace-Id` header.
 
 **Rationale:** Support reads the trace identifier to find the failed request, and the reader copies it from the detail without retyping. Shown in copyable form from the problem body or the `X-Trace-Id` header, it connects the reader's report to the server's logs. The headline carries what happened in words; the identifier belongs in the detail.
 
@@ -332,7 +332,7 @@ A route calls use cases, and each use case declares its results. A test proves e
 
 **Replacement:** A consumer can replace this default with an explicit local convention.
 
-**Rationale:** Density is a property of the audience: `public-light` suits a surface a visitor meets once, `application-balanced` suits a surface a signed-in user works in, and `admin-dense` suits a surface an operator reads all day. All three profiles share one baseline, so choosing per frontend changes density without changing the visual language.
+**Rationale:** Density is a property of the audience: `public-light` suits a surface a visitor meets once, `application-balanced` suits a surface a signed-in staff member works in, and `admin-dense` suits a surface an operator reads all day. All three profiles share one baseline, so choosing per frontend changes density without changing the visual language.
 
 **Checked by:** `litespec ui` reports a controlled frontend with no `ui` block declaring its density profile or a profile outside `public-light`, `application-balanced`, `admin-dense`. Run it at the consumer root.
 

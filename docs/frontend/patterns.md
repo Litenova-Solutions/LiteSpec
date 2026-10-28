@@ -2,7 +2,7 @@
 
 ## Intent
 
-One pattern catalog decides each recurring interface question once, such as how an order page lays out or what an empty list shows, instead of letting each screen invent its own answer. This page states what each catalog entry holds: the options considered, the option chosen and who chose it, the narrow-screen behavior, and the implementation status per platform. Product owners and frontend teams use it when they choose and build interface behavior, so every screen answers the same question the same way instead of each route inventing its own answer.
+One pattern catalog decides each recurring interface question once, such as how an expense page lays out or what an empty list shows, instead of letting each screen invent its own answer. This page states what each catalog entry holds: the options considered, the option chosen and who chose it, the narrow-screen behavior, and the implementation status per platform. Product owners and frontend teams use it when they choose and build interface behavior, so every screen answers the same question the same way instead of each route inventing its own answer.
 
 ## Concepts
 
@@ -12,9 +12,9 @@ A pattern answers one recurring question. Its kind states what the question is a
 
 | Kind | The question it answers | Example |
 |:---|:---|:---|
-| `page-frame` | How is a page of this kind laid out? | A customer list page |
-| `element` | How does one control behave? | Sorting on an invoice table |
-| `scenario` | What shows in this situation? | An order list with no orders |
+| `page-frame` | How is a page of this kind laid out? | An expense list page |
+| `element` | How does one control behave? | Sorting on an expense table |
+| `scenario` | What shows in this situation? | An expense list with no expenses |
 
 ### The Catalog Entry
 
@@ -48,7 +48,7 @@ A pattern carries four labeled fields, then its options.
 | `**Compact:**` | How the default behaves on a narrow screen |
 | `**Rationale:**` | Why the default, the runner-up and when to prefer it, and what to leave out |
 
-Each option is a `####` heading of the form ``#### `option-id`: Option name``. It carries one `wireframe` block, an optional `wireframe compact` block for a different phone layout, then `**Rationale:**`, `**Cost:**` and an optional `**Reference:**`. An option ID is stable once published. The page's Standards hold the rules every option keeps.
+Each option is a `####` heading of the form ``#### `option-id`: Option name``. It carries one `wireframe` block, an optional `wireframe compact` block for a different phone layout, then `**Rationale:**`, `**Cost:**` and an optional `**Reference:**`. A `**Reference:**` names the outside product the option learns from; references are citations, not examples, and may name real products. An option ID is stable once published. The page's Standards hold the rules every option keeps.
 
 ### The Wireframe Language
 
@@ -56,24 +56,24 @@ A wireframe states the structure of one option: which parts sit where, in what o
 
 ```wireframe
 page
-  breadcrumb "Orders" "SO-1042"
+  breadcrumb "Expenses" "EXP-1042"
   header
-    heading "SO-1042"
+    heading "EXP-1042"
     status "Paid" positive
-    action primary "Mark as shipped"
+    action primary "Message spender"
     menu "More"
       action "Duplicate"
-      action destructive "Cancel order"
+      action destructive "Void expense"
   split 2:1
-    region "Items"
-      table 3 "Item" "Qty" "Total"
-        item: text "Oak desk lamp" · text "2" · text "EUR 90.00"
+    region "Lines"
+      table 3 "Line" "Qty" "Total"
+        item: text "Rotterdam train fare" · text "2" · text "EUR 90.00"
     aside
-      card "Customer"
-        fact "Name" "Maria Garcia"
+      card "Spender"
+        fact "Name" "Ava"
 ```
 
-Each line is one part: its name, its modifiers as bare words, its copy in double quotes, then a count or a ratio. Children are indented by two spaces. A line ending in `:` takes inline children, which sit side by side. A middle dot, `U+00B7`, with a space on each side separates them. A line starting with `#` is a comment. Copy is the real text the product would show, drawn from the Acme Supply cast.
+Each line is one part: its name, its modifiers as bare words, its copy in double quotes, then a count or a ratio. Children are indented by two spaces. A line ending in `:` takes inline children, which sit side by side. A middle dot, `U+00B7`, with a space on each side separates them. A line starting with `#` is a comment. Copy is the real text the product would show, drawn from the Claimwick expense product.
 
 The parts form a closed set.
 
@@ -195,7 +195,7 @@ Every page-frame pattern therefore resolves to one floorplan, and every floorpla
 
 **Rationale:** Recording at least two options with their rationale and cost turns a preference into a decision the next team can revisit. When the chosen option stops fitting, the team reads the recorded cost of the alternative instead of repeating the research from nothing. An option recorded without its cost gives them no basis to compare.
 
-**Example:** An invoice list considers two sort options: clickable headers and a menu listing sort fields. The entry records the rationale and cost of each, then names the chosen one.
+**Example:** An expense list considers two sort options: clickable headers and a menu listing sort fields. The entry records the rationale and cost of each, then names the chosen one.
 
 **Checked by:** `litespec ui` reports `[litespec/frontend/patterns#record-every-option-considered]` for a choice or extension naming no recorded option, and the catalog schema requires at least two options with rationale and cost. Run it at the consumer root.
 
@@ -232,7 +232,7 @@ The entry names the pattern's default option and records `owner` as the source, 
 
 **Rationale:** A pattern with no compact statement breaks on a narrow screen, or each route redraws it for the phone in its own way and the product ships as many compact layouts as routes. Naming one breakpoint and stating whether the chosen option reflows below it or a named option replaces it settles the phone layout once. The breakpoint is a key in the catalog's breakpoints map, so every pattern measures against one width scale.
 
-**Example:** The entry names breakpoint `compact`; below it invoice rows render as cards.
+**Example:** The entry names breakpoint `compact`; below it expense rows render as cards.
 
 **Checked by:** `litespec ui` reports `[litespec/frontend/patterns#declare-the-compact-behavior]` for a breakpoint outside the breakpoints map or a compact option naming no recorded option. Run it at the consumer root.
 
@@ -244,7 +244,7 @@ The entry names the pattern's default option and records `owner` as the source, 
 
 **Rationale:** The shared UI package implements each chosen pattern once, at the source paths the catalog names per platform, so every route composes the same behavior. A route that redraws the pattern instead makes a second decision the catalog does not track: it looks like the pattern, drifts from it, and no entry records the difference.
 
-**Example:** The catalog names one shared source path per platform, so every invoice route composes its platform path.
+**Example:** The catalog names one shared source path per platform, so every expense route composes its platform path.
 
 **Checked by:** `litespec ui` reports `[litespec/frontend/web/patterns#implement-a-chosen-pattern-once]` for a named component path that does not exist or an adopted status with no components. Run it at the consumer root.
 
@@ -256,7 +256,7 @@ The entry names the pattern's default option and records `owner` as the source, 
 
 **Rationale:** When the catalog waits for a later change, the code ships, the follow-up slips, and the entry describes behavior no route renders. Updating the entry in the same change as its implementation keeps the two in agreement by construction. A deliberate departure in one route names a decision record instead, so the departure stays reviewable.
 
-**Example:** A route departing from the chosen option names `decision.record`, such as `docs/intent/decisions/0014-invoice-sort-menu.md`.
+**Example:** A route departing from the chosen option names `decision.record`, such as `docs/intent/decisions/0014-expense-sort-menu.md`.
 
 **Reviewed for:** Option switches, added options, and extensions land with their implementation; single-route departures name a decision record. Look in the change diffs and the catalog entries.
 

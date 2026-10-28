@@ -72,14 +72,14 @@ The generated route artifacts, build output, and dependency folders stay untrack
 
 **Rationale:** A route file holds its input, its load, and its component: the wiring for one address. Reusable logic filed there is unreachable from the second route that needs it, and an import between route files makes one address depend on another. Both push shared code into modules where it belongs. This realizes litespec/frontend/structure#keep-a-route-entry-thin.
 
-**Example:** An order list route validates its search, prefetches its read, and composes one floorplan from module components.
+**Example:** An expense list route validates its search, prefetches its read, and composes one floorplan from module components.
 
 ```tsx
-export const Route = createFileRoute("/_console/orders/")({
+export const Route = createFileRoute("/_console/expenses/")({
   validateSearch: z.object({ q: z.string().trim().catch("").default(""), ...pagingSearch }),
   loaderDeps: ({ search }) => search,
-  loader: ({ context, deps }) => context.queryClient.ensureQueryData(merchantOrdersQuery(deps.q, deps.page)),
-  component: OrdersPage,
+  loader: ({ context, deps }) => context.queryClient.ensureQueryData(spenderExpensesQuery(deps.q, deps.page)),
+  component: ExpensesPage,
 });
 ```
 
@@ -88,8 +88,8 @@ The Svelte page does the same in its load:
 ```ts
 export async function load({ parent, url }) {
   const { queryClient } = await parent();
-  const search = orderSearch.parse(Object.fromEntries(url.searchParams));
-  await queryClient.ensureQueryData(merchantOrdersQuery(search.q, search.page));
+  const search = expenseSearch.parse(Object.fromEntries(url.searchParams));
+  await queryClient.ensureQueryData(spenderExpensesQuery(search.q, search.page));
   return { search };
 }
 ```

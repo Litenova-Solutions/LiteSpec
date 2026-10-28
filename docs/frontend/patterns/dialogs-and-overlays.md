@@ -1998,7 +1998,7 @@ page
       item: text "Message the spender" · text "M"
 ```
 
-**Rationale:** The way GitHub Docs prints its cheat sheet: one page, two columns, made for paper pinned beside a screen. Counter staff learn from paper faster than from a dialog.
+**Rationale:** The way GitHub Docs prints its cheat sheet: one page, two columns, made for paper pinned beside a screen. Desk staff learn from paper faster than from a dialog.
 
 **Cost:** A page for keys is a destination nobody bookmarks. The keys are needed where the work is, and this page is never there.
 

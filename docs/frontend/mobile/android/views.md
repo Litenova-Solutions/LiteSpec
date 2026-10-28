@@ -80,7 +80,7 @@ One activity hosts every screen as a view, and its navigation controller owns th
 using Android.Graphics;
 using Android.Views;
 
-namespace Shop.Android.Screens;
+namespace Claimwick.Android.Screens;
 
 internal sealed class PosterView : View
 {

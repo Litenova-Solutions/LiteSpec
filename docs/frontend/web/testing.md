@@ -42,7 +42,7 @@ What each kind proves is stated on [Frontend Testing](../testing.md).
 **Example:** The refusal alert carries the code, so the assertion names it.
 
 ```typescript
-await expect(refusalFor(page, "orders.not-found")).toBeVisible({ timeout: AFTER_ACTION });
+await expect(refusalFor(page, "expenses.not-found")).toBeVisible({ timeout: AFTER_ACTION });
 ```
 
 **Reviewed for:** Each evidence specification for a use case declaring a refusal reaches that refusal and asserts its result code in the page.

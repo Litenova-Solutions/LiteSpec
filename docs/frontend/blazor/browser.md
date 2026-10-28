@@ -38,7 +38,7 @@ Durable state is what the user made: it is persisted, versioned, and exported. D
 
 **Rationale:** The version segment marks which shape a stored value holds, so a migration knows what it is reading. A literal key written anywhere else is a second declaration that no version bump reaches, so one part of the product reads the old shape while another writes the new one.
 
-**Example:** `shop.cart.v1` names its product, its area, and its shape version.
+**Example:** `claimwick.expenses.v1` names its product, its area, and its shape version.
 
 **Reviewed for:** Each storage key is a constant beside its adapter carrying product, area, and version.
 
