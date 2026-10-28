@@ -208,7 +208,7 @@ Each written link lives as a field on the record it starts from: a decision carr
 | `dependsOn` | module | Modules |
 | `runbook` | job | The runbook answering the job |
 | `provision` | deviation | The LiteSpec provision it departs from |
-| `subject` | known gap | The records the gap covers |
+| `subject` | known gap, deviation | The records the gap or deviation covers |
 | `terms` | any record | Terms |
 
 Behavior records point up: `serves` points to a goal or a journey step, and `fulfills` points to a requirement. Records never point down: a journey names no use case, and a requirement names no rule.
@@ -492,7 +492,7 @@ The `use-case-unimplemented` check reports without failing until 2027-06-01, and
 
 The record names the provision it departs from, the reason, and the review date, so the departure stays visible and dated, which satisfies this provision.
 
-A deviation that governs code no record describes names those files in `code`, as paths from the repository root. While the deviation is approved and its `reviewBy` date has not passed, `model check` reports the findings on those files as known instead of failing on them; after the review date they fail again.
+A deviation that governs code no record describes names those files in `code`, as paths from the repository root. A deviation that governs records names them in `subject`, as a known gap does. While the deviation is approved and its `reviewBy` date has not passed, `model check` reports the findings on those files and records, and on the results and scenarios a named use case holds, as known instead of failing on them; after the review date they fail again.
 
 **Reviewed for:** Every departure from a shared provision resolves to a deviation record under `docs/governance/deviations/` with reason and review date.
 

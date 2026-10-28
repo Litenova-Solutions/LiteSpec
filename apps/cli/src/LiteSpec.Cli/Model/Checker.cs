@@ -148,16 +148,22 @@ static partial class Checker
         var today = DateOnly.FromDateTime(DateTime.UtcNow);
         var gaps = model.Records.Where(record => record.Type == "known-gap").ToList();
 
-        // An approved deviation inside its review date holds the findings on the code files it names.
-        var heldFiles = model.Records
-                             .Where(record => record.Type == "deviation"
-                                              && record.Status == "approved"
-                                              && record.Field("reviewBy") is { } reviewBy
-                                              && IsoDate(reviewBy, out var review)
-                                              && today <= review)
-                             .SelectMany(record => record.Ids("code"))
-                             .Select(path => path.Replace('\\', '/'))
-                             .ToHashSet(StringComparer.Ordinal);
+        // An approved deviation inside its review date holds the findings on the code files and the
+        // records it names.
+        var deviations = model.Records
+                              .Where(record => record.Type == "deviation"
+                                               && record.Status == "approved"
+                                               && record.Field("reviewBy") is { } reviewBy
+                                               && IsoDate(reviewBy, out var review)
+                                               && today <= review)
+                              .ToList();
+        var heldFiles = deviations
+                        .SelectMany(record => record.Ids("code"))
+                        .Select(path => path.Replace('\\', '/'))
+                        .ToHashSet(StringComparer.Ordinal);
+        var heldSubjects = deviations
+                           .SelectMany(record => record.Ids("subject"))
+                           .ToHashSet(StringComparer.Ordinal);
         var kept = new List<Finding>();
         var known = new List<Finding>();
 
@@ -186,7 +192,7 @@ static partial class Checker
                 subjects.Add(holder.Id);
             }
 
-            var covered = gaps.Any(gap =>
+            var covered = subjects.Any(heldSubjects.Contains) || gaps.Any(gap =>
                 gap.Field("check") == finding.Code
                 && gap.Ids("subject").Any(subject => subjects.Contains(subject, StringComparer.Ordinal))
                 && gap.Status != "retired"
