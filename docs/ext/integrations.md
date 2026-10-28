@@ -76,9 +76,9 @@ This extension switches on no optional record type. Each provider is recorded as
 
 **Rationale:** Provider clients, SDKs, authentication, and transport models name provider things in provider terms. Infrastructure owns all of them, outside Application's business boundary. A provider SDK upgrade then touches Infrastructure instead of the use case.
 
-**Example:** `IStripeClient` is provider infrastructure rather than an Application port.
+**Example:** `IPayoutProviderClient` is provider infrastructure rather than an Application port.
 
-**Checked by:** `ExternalPortTests` assert the Application assembly references no provider SDK or transport type.
+**Reviewed for:** Which Application assemblies reference a provider SDK or transport type? Look at the Application project references.
 
 ### Bind Client Configuration
 
@@ -88,7 +88,7 @@ This extension switches on no optional record type. Each provider is recorded as
 
 **Rationale:** Base address, credentials, timeout, and policy decide where the client calls and how it behaves. Binding them through validated options checks each value at startup. A missing or invalid value fails fast instead of misdirecting the first live call.
 
-**Checked by:** `ExternalClientTests` reject missing or invalid external client configuration.
+**Reviewed for:** Which external clients miss bound base address, credentials, timeout, or policy through validated options? Look at the client registrations.
 
 ### Use Managed HTTP Clients
 
@@ -98,7 +98,7 @@ This extension switches on no optional record type. Each provider is recorded as
 
 **Rationale:** `HttpClientFactory` centralizes handler lifetime, and service discovery resolves provider addresses in one place. Both keep HTTP construction out of the use case. A hand-built client in each call site would scatter both concerns.
 
-**Checked by:** `ExternalClientTests` assert HTTP registration uses the owned factory and declared discovery path.
+**Reviewed for:** Which HTTP integrations skip `HttpClientFactory` or applicable service discovery? Look at the HTTP registrations.
 
 ### Reject Per-Request HTTP Clients
 
@@ -108,7 +108,7 @@ This extension switches on no optional record type. Each provider is recorded as
 
 **Rationale:** A new HTTP client per request skips the central handler configuration and opens sockets the process never reuses. Under load, the exhausted sockets fail calls that the provider would have served. Managed clients reuse what per-request construction throws away.
 
-**Checked by:** `ExternalClientTests` report no per-request HTTP client construction.
+**Reviewed for:** Which HTTP integrations construct a new HTTP client per request? Look at the HTTP call sites.
 
 ### Bound Transient Retries
 
@@ -118,7 +118,7 @@ This extension switches on no optional record type. Each provider is recorded as
 
 **Rationale:** A provider outage tempts every caller to retry at once, and the synchronized wave hits the provider the moment it recovers. Bounded attempts cap the load and jitter spreads it over time. An unbounded retry turns each caller into a second outage.
 
-**Checked by:** `ExternalRetryTests` verify bounded jittered retry for transient failures.
+**Reviewed for:** Which external clients retry transient failures without bounded attempts and jitter? Look at the retry policies.
 
 ### Protect Non-Idempotent Calls
 
@@ -128,7 +128,7 @@ This extension switches on no optional record type. Each provider is recorded as
 
 **Rationale:** Retrying a payout, a shipment, or any irreversible provider call can perform it twice. The retry is safe only with provider idempotency behind it and documented replay behavior stating what a repeat does. Without both, the project trades one failed call for two completed effects.
 
-**Checked by:** `ExternalRetryTests` show no retry without documented provider protection.
+**Reviewed for:** Which non-idempotent provider calls retry without provider idempotency and documented replay behavior? Look at the retry paths.
 
 ### Translate Provider Failure Outcomes
 
@@ -138,11 +138,11 @@ This extension switches on no optional record type. Each provider is recorded as
 
 **Rationale:** Each provider reports failure in its own codes and shapes. Mapping them to project-owned results with stable diagnostics keeps the project's failure contract steady while providers change theirs.
 
-The project's own error catalog holds the stable codes. `litespec/backend/api#return-stable-problem-details` returns a code from that catalog. An integration that invents one code per provider creates one code space per provider. A client that branches on failure learns every code space. [A provider's own error taxonomy](https://stripe.com/docs/api/errors) is the input to the mapping, not its output.
+The project's own error catalog holds the stable codes. `litespec/backend/api#return-stable-problem-details` returns a code from that catalog. An integration that invents one code per provider creates one code space per provider. A client that branches on failure learns every code space. A provider's own error taxonomy is the input to the mapping, not its output.
 
 **Example:** A rejected payout file and an unsettled batch both map to the project's `payout-refused` code. The provider's own code travels in diagnostics.
 
-**Checked by:** `ExternalFailureTests` assert provider failures map to project-owned results and stable diagnostics.
+**Reviewed for:** Which provider errors miss their mapping to project-owned results and stable diagnostics? Look at the integration failure mappings.
 
 ### Exclude Provider Internals
 
@@ -152,7 +152,7 @@ The project's own error catalog holds the stable codes. `litespec/backend/api#re
 
 **Rationale:** Provider bodies, headers, exception types, and account identifiers carry secrets, implementation details, and sometimes another account's data. An API that returns them leaks all three to its callers. The mapped project-owned outcome carries the meaning without the internals.
 
-**Checked by:** `ExternalFailureTests` expose no provider body, credential, header, type, or account identifier.
+**Reviewed for:** Which API responses expose provider bodies, credentials, headers, exception types, or internal account identifiers? Look at the API responses.
 
 ### Trust Inbound Integration Events by Declared Trust
 
@@ -172,11 +172,11 @@ The project's own error catalog holds the stable codes. `litespec/backend/api#re
 
 **Rationale:** An inbound message arrives from the network, where anyone can send bytes. Signature, timestamp tolerance, replay protection, content type, size, schema, and event identity each guard a different part of that trust boundary. Skipping any one leaves its attack open.
 
-Order matters here. Verify the signature first, over the raw body, before parsing the body or running any other check. An unauthenticated caller can reach a parser that runs first. A deserialized body is no longer the bytes that the signature covered. [Stripe's signature guidance](https://stripe.com/docs/webhooks/signatures) states the same requirement.
+Order matters here. Verify the signature first, over the raw body, before parsing the body or running any other check. An unauthenticated caller can reach a parser that runs first. A deserialized body is no longer the bytes that the signature covered.
 
 **Example:** A failed signature returns `401` with no body. A message that names the failed check tells an unauthenticated caller how to pass it.
 
-**Checked by:** `ExternalInboundTests` reject invalid signatures, timestamps, content, size, schema, and identities.
+**Reviewed for:** Which inbound provider handlers skip signature, timestamp tolerance, replay protection, content type, size, schema, or event identity checks? Look at the inbound handlers.
 
 ### Process Duplicate Messages Safely
 
@@ -186,7 +186,7 @@ Order matters here. Verify the signature first, over the raw body, before parsin
 
 **Rationale:** A provider repeats delivery after a timeout or an acknowledgement failure, so the same event arrives twice. Storing or processing duplicates idempotently leaves one accepted effect. A handler without that protection pays, ships, or notifies twice.
 
-**Checked by:** `ExternalInboundTests` leave one accepted external effect.
+**Reviewed for:** Which inbound provider handlers leave more than one accepted effect for a duplicate event? Look at the duplicate-delivery paths.
 
 ### Reject Formula-Leading Import Values
 
@@ -198,7 +198,7 @@ Order matters here. Verify the signature first, over the raw body, before parsin
 
 **Example:** An import that rejects the value reports the row and the field. An import that neutralizes it records what it changed. A silently altered value is a data defect the owner cannot see.
 
-**Checked by:** `ExternalInboundTests` reject or neutralize formula-leading import values.
+**Reviewed for:** Which CSV or spreadsheet imports keep a formula-leading value without rejection or neutralization? Look at the import boundaries.
 
 ### Simulate Integration Boundaries
 
@@ -208,7 +208,7 @@ Order matters here. Verify the signature first, over the raw body, before parsin
 
 **Rationale:** A live provider account makes tests slow, flaky, and expensive, and some failure modes never occur on demand. WireMock.Net or a protocol-specific local endpoint simulates the network contract under test control. The suite then covers provider behavior without calling the provider.
 
-**Checked by:** `ExternalTestTests` run each provider contract against a controllable local endpoint.
+**Reviewed for:** Which integration tests call a live provider instead of WireMock.Net or a protocol-specific local endpoint? Look at the integration test suite.
 
 ### Cover Provider Failure Modes
 
@@ -218,9 +218,9 @@ Order matters here. Verify the signature first, over the raw body, before parsin
 
 **Rationale:** Timeout, connection failure, transient and permanent responses, malformed payloads, rate limits, duplicate delivery, and unexpected shapes each exercise a different path through retry, mapping, and idempotency. A mode without a test leaves its path unverified. The suite covers all eight so each path proves itself.
 
-An unexpected response shape is the mode a provider produces without failing. A well-formed response can carry a field that moved, a type that changed, or a value no one planned for. The response parses. The behavior is still wrong. Every other listed mode reports that response as an error. [A provider that versions its API](https://stripe.com/docs/api/versioning) changes shape on a schedule. A pinned version still changes on the day the provider raises it.
+An unexpected response shape is the mode a provider produces without failing. A well-formed response can carry a field that moved, a type that changed, or a value no one planned for. The response parses. The behavior is still wrong. Every other listed mode reports that response as an error. A provider that versions its API changes shape on a schedule. A pinned version still changes on the day the provider raises it.
 
-**Checked by:** `ExternalTestTests` suite covers every declared failure mode.
+**Reviewed for:** Which declared failure modes lack a test: timeout, connection failure, transient response, permanent response, malformed payload, rate limit, duplicate delivery, or unexpected response shape? Look at the integration test suite.
 
 ## Conventions
 

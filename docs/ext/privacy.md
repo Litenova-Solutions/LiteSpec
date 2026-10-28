@@ -2,7 +2,7 @@
 
 ## Intent
 
-Some personal data cannot simply be erased or kept: rows other systems reference, rows erased only with a parent, data handed to another controller, and erasure scoped to what the subject asked. This page states the erasure positions, reach, export guards, conflict rules, and restore sweeps a project uses when the four core positions do not cover its duties. A project selects it when its retention schedule names any of those needs.
+Some personal data needs more than erasure or retention alone: rows other systems reference, rows erased only with a parent, data handed to another controller, and erasure scoped to what the subject asked. This page states the erasure positions, reach, export guards, conflict rules, and restore sweeps a project uses when the four core positions do not cover its duties. A project selects it when its retention schedule names any of those needs.
 
 ## Activation
 
@@ -122,11 +122,11 @@ It adds four `onErasure` positions to data classes: `tombstone`, `discard`, `cas
 
 **Statement:** A restore runbook MUST name the sweep job that re-applies erasure after the restore.
 
-**Rationale:** A backup holds data as it was, including rows erased since: restoring it resurrects subjects the product promised to forget. The sweep job re-applies every erasure decided before the restore, so the restore brings the system back without bringing the erased data back with it. The model check reports `restore-without-sweep` when the runbook names no sweep job.
+**Rationale:** A backup holds data as it was, including rows erased since: restoring it resurrects subjects the product promised to forget. The sweep job re-applies every erasure decided before the restore, so the restore brings the system back without bringing the erased data back with it.
 
 **Example:** The database restore runbook names `job/privacy.sweep-restored-erasure`, which runs before traffic returns and deletes every row erased since the backup.
 
-**Checked by:** `litespec model check` reports `restore-without-sweep` for a restore runbook that names no sweep job.
+**Reviewed for:** Which restore runbooks name no sweep job? Look at the restore runbooks.
 
 ### Record Which Duty Wins Each Conflict
 

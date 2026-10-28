@@ -28,7 +28,7 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **Rationale:** Build tooling has no place in a runtime image: each compiler and package cache widens the attack surface of every deployment. Multi-stage builds leave that tooling in the build stage. A pinned base-image digest fixes the exact reviewed base, so a rebuild months later starts from the same bytes.
 
-**Checked by:** `ContainersImageTests` assert multi-stage builds and digest-pinned release bases.
+**Reviewed for:** Which release images miss multi-stage builds or pinned base-image digests? Look at the Dockerfiles.
 
 ### Run Images as Non-Root
 
@@ -38,7 +38,7 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **Rationale:** A compromised application process inherits the rights of its runtime user. A non-root user confines the attacker to what that user may touch. Root would hand over the whole container.
 
-**Checked by:** `ContainersImageTests` assert the declared non-root runtime user.
+**Reviewed for:** Which release images run their application as root? Look at the Dockerfiles and image configuration.
 
 ### Copy Only Runtime Files
 
@@ -48,7 +48,7 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **Rationale:** Every file in the runtime image ships to every replica and waits for an attacker to read it. Copying only the files the application needs keeps the image small to transfer and to inspect. Each extra file is cost with no runtime purpose.
 
-**Checked by:** `ContainersImageTests` match the image file listing against the declared runtime manifest.
+**Reviewed for:** Which runtime images carry files outside the declared runtime manifest? Look at the image file listing beside the declared runtime manifest.
 
 ### Exclude Build Material from Runtime Images
 
@@ -58,7 +58,7 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **Rationale:** Source, tests, package caches, and local configuration serve the build and never the running application. Carrying them into production leaks internals to anyone who pulls the image. Secrets stay out under `litespec/quality/security#keep-secrets-out-of-tracked-and-observable-data`.
 
-**Checked by:** `ContainersImageTests` find no build-only files or local configuration in runtime images.
+**Reviewed for:** Which runtime images contain source, tests, package caches, or local configuration? Look at the runtime image contents.
 
 ### Supply Runtime Configuration Externally
 
@@ -68,7 +68,7 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **Rationale:** Connection strings, OIDC settings, exporter endpoints, and secrets differ by environment. Supplying them outside the image lets one image serve every environment. Baking them in would rebuild and re-test the image for each environment it enters.
 
-**Checked by:** `ContainersConfigTests` match deployment manifests against runtime values declared outside the image.
+**Reviewed for:** Which connection strings, OIDC settings, exporter endpoints, or secrets live inside the image? Look at the deployment manifests.
 
 ### Exclude Environment Configuration from Images
 
@@ -78,7 +78,7 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **Rationale:** One immutable image deploys unchanged into staging and production. Environment values baked into the image break that promise: the tested bytes and the deployed bytes differ. External values keep the image identical everywhere it runs.
 
-**Checked by:** `ContainersConfigTests` find no environment-specific configuration in release images.
+**Reviewed for:** Which release images contain environment-specific configuration? Look at the release image contents.
 
 ### Apply Schema Work Before Traffic
 
@@ -88,7 +88,7 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **Rationale:** New application replicas expect the schema their release reviewed. The release job applies those schema changes before traffic shifts, under `litespec/backend/persistence#control-production-schema-changes`. Traffic first would send new code against an old schema.
 
-**Checked by:** `ContainersSchemaTests` place the reviewed schema job before the traffic shift.
+**Reviewed for:** Which releases shift traffic before the reviewed schema job runs? Look at the release job order.
 
 ### Keep Schema Work Out of Startup
 
@@ -98,7 +98,7 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **Rationale:** Several replicas can start at once, each running its own startup. Schema work in startup then runs concurrently, without the release job's review and ordering. Startup reads the schema the release job prepared and changes nothing.
 
-**Checked by:** `ContainersSchemaTests` observe no production schema mutation from replica startup.
+**Reviewed for:** Which application replicas alter the production schema during startup? Look at the replica startup paths.
 
 ### Wait for Replica Readiness
 
@@ -108,7 +108,7 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **Rationale:** New replicas need time to load before they serve: a replica that receives traffic mid-startup fails its first requests. The controller starts them, waits for readiness, and only then shifts traffic. Readiness proves the new version serves before it becomes the version.
 
-**Checked by:** `ContainersTrafficTests` assert new replicas reach readiness before traffic shifts.
+**Reviewed for:** Which deployments shift traffic before new replicas reach readiness? Look at the deployment controller behavior.
 
 ### Test Released Traffic
 
@@ -118,7 +118,7 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **Rationale:** An image that builds can still fail where it runs: routing, configuration, and data differ from the build machine. Running the release's recorded end-to-end suite after traffic shifts tests the deployed path itself. The release record names the suite, so the check runs the same tests every release.
 
-**Checked by:** `ContainersTrafficTests` pass after new-version traffic shift.
+**Reviewed for:** Which releases skip the recorded end-to-end suite after traffic shifts? Look at the release evidence.
 
 ### Retain Rollback Material
 
@@ -128,7 +128,7 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **Rationale:** A rollback under pressure depends on the record, not on memory. The runbook record carries the tested rollback command with the previous image digest, which names one immutable image, under `litespec/quality/operations#keep-rollback-executable`. A tag alone could have moved since the release went out.
 
-**Checked by:** `ContainersRollbackTests` resolve the runbook record and its previous image digest.
+**Reviewed for:** Which releases lack a runbook record naming the previous image digest? Look at the release runbooks.
 
 ### Limit Container Privileges
 
@@ -138,7 +138,7 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **Rationale:** A read-only filesystem and dropped capabilities shrink what a compromised process can do next: no writes outside declared paths, no privileged calls it never needed. The limits apply where the application permits them. Each kept capability is an action an attacker inherits.
 
-**Checked by:** `ContainersSecurityTests` assert read-only filesystem and dropped capabilities in the deployment manifest.
+**Reviewed for:** Which deployments keep a writable filesystem or unnecessary capabilities where the application permits the limits? Look at the deployment manifests.
 
 ### Declare Writable Paths and Limits
 
@@ -148,7 +148,7 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **Rationale:** Declared writable paths name the mutable storage the application needs, and CPU and memory bounds as setting records cap what one deployment may consume. The bounds protect the node's capacity from one hungry replica. The declarations also tell the next reader what the application was sized for.
 
-**Checked by:** `ContainersSecurityTests` match the manifest against declared writable paths and setting records.
+**Reviewed for:** Which deployments miss declared writable paths or CPU and memory setting records? Look at the deployment manifests beside the setting records.
 
 ### Run the Application as PID 1
 
@@ -158,7 +158,7 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **Rationale:** The platform stops a container by signaling its entry process. An application running as PID 1 receives that signal and shuts down on purpose. A wrapper that swallows the signal leaves the platform waiting until it kills the container mid-work.
 
-**Checked by:** `ContainersProcessTests` confirm the application receives the container stop signal.
+**Reviewed for:** Which containers run something other than the application as their entry process? Look at the image entrypoints.
 
 ### Set Sufficient Shutdown Time
 
@@ -168,7 +168,7 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **Rationale:** Stopping a replica interrupts its in-flight requests and Worker jobs. A grace period longer than the measured stop time lets that work finish or record a safe interruption. A shorter period kills work the system then has to reconcile.
 
-**Checked by:** `ContainersProcessTests` assert in-flight work stops within the declared grace period.
+**Reviewed for:** Which deployments set a shutdown grace period no longer than measured request or Worker stop time? Look at the deployment manifests beside the measured stop times.
 
 ### Write Runtime Logs to Streams
 
@@ -178,7 +178,7 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **Rationale:** Container filesystems vanish with their replicas, so a log file inside the container dies with the evidence it holds. Standard output and standard error hand each line to the platform's log collection. The platform then keeps logs past the life of any one replica.
 
-**Checked by:** `ContainersProcessTests` assert container logs appear on standard output or standard error.
+**Reviewed for:** Which containerized applications write logs somewhere other than standard output or standard error? Look at the application logging configuration.
 
 ### Keep Mutable Data External
 
@@ -198,7 +198,7 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **Rationale:** Source, revision, version, and created-time labels in the OCI standard form connect each image to the commit and release that produced it. An incident responder reads the running image's labels and opens the exact source. Images without labels force that join through guesswork.
 
-**Checked by:** `ContainersMetadataTests` assert the four required OCI labels on built images.
+**Reviewed for:** Which release images miss OCI source, revision, version, or created-time labels? Look at the built images.
 
 ### Record Image Digests
 
@@ -208,7 +208,7 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **Rationale:** The release record stores the deployed digest, not just the tag. A tag can move to a newer image after release, while the digest names the exact bytes that went out. The digest makes the deployed artifact reproducible and the rollback target exact.
 
-**Checked by:** `ContainersMetadataTests` identify the deployed artifact by immutable digest in the release record.
+**Reviewed for:** Which release records store only an image tag with no deployed digest? Look at the release records.
 
 ### Exclude Build Timestamps from Contracts
 
@@ -218,7 +218,7 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **Rationale:** A generated-at field or a build-time comment changes the OpenAPI document and generated clients on every build. The diff then reports change where no contract changed, which buries real breaks. Contracts carry version identity instead of build time.
 
-**Checked by:** `ContainersMetadataTests` assert the generated-contract diff contains no build timestamp.
+**Reviewed for:** Which published OpenAPI documents or generated clients contain a build timestamp? Look at the generated contracts.
 
 ### Separate Frontend Configuration Classes
 
@@ -248,7 +248,7 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **Rationale:** `ARG` values, copied environment files, and image layers all persist into the image history. A secret delivered through any of them stays readable to anyone who pulls the image. Secrets stay out of layers under `litespec/quality/security#keep-secrets-out-of-tracked-and-observable-data`.
 
-**Checked by:** `ContainersConfigTests` reject `ARG`, copied environment files, and secret-bearing layers.
+**Reviewed for:** Which frontend image builds use `ARG`, copied environment files, or image layers for secrets? Look at the frontend image builds.
 
 ## Conventions
 
@@ -262,7 +262,7 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **Rationale:** One Dockerfile beside each deployable application keeps the image definition with the project that defines its runtime output. A reader finds the build next to the code it ships. A shared folder of Dockerfiles separates each build from its owner.
 
-**Checked by:** `ContainersTests` assert a colocated Dockerfile per deployable or follow the recorded local convention.
+**Reviewed for:** Each deployable application keeps its Dockerfile beside it, or the recorded dockerfile-layout convention names where its Dockerfiles live.
 
 ### Build from the Workspace Root
 
@@ -274,7 +274,7 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **Rationale:** Shared project and package files sit above any one application, so the build starts from the workspace root to reach them. The Dockerfile excludes what the build does not need, including unrelated secrets. A narrower context would copy shared inputs into each build or miss them.
 
-**Checked by:** `ContainersTests` assert image builds access declared shared inputs from repository-root context.
+**Reviewed for:** Image builds needing shared inputs start from the workspace root, or the recorded build-context convention names the context its image builds use.
 
 ## Dependencies
 

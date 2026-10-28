@@ -6,7 +6,7 @@ The extensions pages hold conditional provision bundles a project adds only when
 
 ## How to Select an Extension
 
-Each extension below states its own activation criterion and whether it applies to the whole project or to named records. A project selects every extension whose criteria hold and no extension whose criteria do not, and lists each selection in `selectedExtensions` in `litespec.project.json` with the criterion it met and a review date. The manifest repeats each scope, replacement list, and switched-on record type where checks read it. Most extensions add provisions without replacing any; the audit and outbox pages each name the one baseline provision they replace.
+Each extension below states its own activation criterion and whether it applies to the whole project or to named records. A project selects every extension whose criteria hold and no extension whose criteria do not, and lists each selection in `selectedExtensions` in `litespec.project.json` with the criterion it met and a review date. The manifest repeats each activation scope, replacement list, and switched-on record type where checks read it. Most extensions add provisions without replacing any; the audit and outbox pages each name the one baseline provision they replace.
 
 ## Project Extensions
 

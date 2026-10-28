@@ -404,7 +404,7 @@ The algorithm is named because two implementations that each choose their own ca
 
 **Statement:** An audited system MUST provide a trail read as a use case with its access grant, filtered by tenant, actor, action, target, and outcome.
 
-**Rationale:** A trail no use case reads is storage, not a control. The read path is a use case with its own access grant: the actor holds a role at a scope, the role allows the permission, and the grant permits the read. Tenant, actor, action, target, and outcome filters keep each reader inside the records they may see.
+**Rationale:** A trail no use case reads is storage, not a control. The read path is a use case with its own access grant: the actor holds a role at a role scope, the role allows the permission, and the grant permits the read. Tenant, actor, action, target, and outcome filters keep each reader inside the records they may see.
 
 **Reviewed for:** Which trail reads lack an access grant or a declared filter? Look at the trail read use case.
 

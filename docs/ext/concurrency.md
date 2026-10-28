@@ -40,7 +40,7 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 
 **Rationale:** Every stored aggregate already carries a baseline version that the store compares at commit, so the version itself needs no document. Requiring the caller to supply a version adds a rejection path the caller has to handle: a missing or stale caller version refuses an otherwise valid write. The conflicting-write document stays the gate for that caller burden: no case, no caller-version requirement.
 
-**Checked by:** `ConcurrencyVersionTests` link every caller-version requirement to a documented conflicting-write case.
+**Reviewed for:** Which caller-version requirements lack a documented conflicting-write case? Look at the versioned operations beside the conflicting-write documents.
 
 ### Compare Expected Aggregate Versions
 
@@ -50,7 +50,7 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 
 **Rationale:** The caller-supplied version marks which write the caller saw, and the stored version marks what the database holds. Comparing the two in the same transaction as the change detects a competing accepted write against the same state, through the selected persistence model. A comparison outside the transaction races the commit it claims to guard.
 
-**Checked by:** `ConcurrencyVersionTests` race conflicting aggregate writes with caller-supplied expected versions.
+**Reviewed for:** Which caller-version comparisons run outside the transaction carrying their change? Look at the conflicting-write paths.
 
 ### Map Failed Expected Versions
 
@@ -60,7 +60,7 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 
 **Rationale:** A caller that loses a version race retries: re-read, re-apply, re-send. Status 409 with a stable Problem Details code names the loss as a conflict, distinct from validation and authorization failures. Without the stable code, the caller guesses which failure it met.
 
-**Checked by:** `ConcurrencyVersionTests` assert a failed expected version returns 409 Problem Details with its stable code.
+**Reviewed for:** Which failed expected versions miss the 409 Problem Details response or its stable code? Look at the conflict responses.
 
 ### Reject Silent Overwrites
 
@@ -70,7 +70,7 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 
 **Rationale:** A conflicting write that silently replaces the accepted change destroys work another caller committed. The losing caller never learns its change is gone. Rejecting the conflict instead hands the caller the facts it needs to reconcile.
 
-**Checked by:** `ConcurrencyVersionTests` assert conflicting accepted writes preserve the winner without silent replacement.
+**Reviewed for:** Which conflicting accepted writes silently replace the winner? Look at the conflict outcomes.
 
 ### Apply HTTP Version Preconditions
 
@@ -82,7 +82,7 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 
 **Example:** A current `ETag` permits the write; a changed entity version rejects it.
 
-**Checked by:** `ConcurrencyVersionTests` require and validate a strong persistence-derived ETag.
+**Reviewed for:** Which versioned HTTP operations miss a strong persistence-derived ETag or an If-Match requirement on writes? Look at the versioned endpoints.
 
 ### Return Precondition Outcomes
 
@@ -92,7 +92,7 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 
 **Rationale:** A missing `If-Match` and a stale version are different caller mistakes with different fixes: send the version, or re-read and retry. Status 428 `precondition_required` names the omission and 409 `version_conflict` names the stale version. One code for both would leave the caller guessing which fix applies.
 
-**Checked by:** `ConcurrencyVersionTests` return 428 for a missing `If-Match` and 409 for a stale version.
+**Reviewed for:** Which versioned operations return a wrong status or code for a missing If-Match or a stale version? Look at the precondition responses.
 
 ### Hide Provider Version Values
 
@@ -102,7 +102,7 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 
 **Rationale:** The `ETag` is the one contract field that carries the persistence version. A provider-specific version leaked into another field gives callers a second version to depend on. Hiding it keeps the coordination behind one boundary the project can change.
 
-**Checked by:** `ConcurrencyVersionTests` assert public transport models expose no provider-specific version field.
+**Reviewed for:** Which transport models expose a provider-specific version value outside the ETag? Look at the public transport models.
 
 ### Run Idempotency in the Pipeline
 
@@ -122,7 +122,7 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 
 **Rationale:** A client key alone proves nothing about who sent it: two callers can pick the same key. Scoping the key to tenant, authenticated actor, and operation stops one caller's key from replaying another caller's operation. A project without the tenancy extension uses one fixed tenant value.
 
-**Checked by:** `IdempotencyKeyTests` assert keys from different tenants, actors, or operations do not replay each other.
+**Reviewed for:** Which idempotent operations scope their client key to less than tenant, authenticated actor, and operation? Look at the keyed operations.
 
 ### Store Idempotency State Atomically
 
@@ -132,7 +132,7 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 
 **Rationale:** The fingerprint, state, response status, response body, and expiry describe the accepted change, so they commit with it in one provider transaction. One transaction leaves neither a completed record without its change nor a change without its replay record. A retry then replays exactly what the first attempt accepted.
 
-**Checked by:** `IdempotencyKeyTests` commit fingerprint, state, response, and expiry with the accepted business change.
+**Reviewed for:** Which idempotent operations store fingerprint, state, response, or expiry outside the business transaction? Look at the keyed write paths.
 
 ### Reject Conflicting Key Reuse
 
@@ -142,7 +142,7 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 
 **Rationale:** A key reused with a different request fingerprint names two different intents under one key. Accepting both would replay the first intent's result for the second intent's request. Rejecting the reuse keeps one key bound to one intent.
 
-**Checked by:** `IdempotencyKeyTests` assert reused keys with changed input return the documented rejection.
+**Reviewed for:** Which reused keys with a changed fingerprint miss the documented rejection? Look at the key-reuse paths.
 
 ### Enforce Key Uniqueness
 
@@ -152,7 +152,7 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 
 **Rationale:** Two concurrent requests can arrive with the same key before either commits. The unique constraint on tenant, actor, operation, and client key admits one winner and rejects the other at the store. Application code alone cannot order two requests that arrive together. A project without the tenancy extension uses one fixed tenant value.
 
-**Checked by:** `IdempotencyKeyTests` assert concurrent inserts prove the tenant-actor-operation-key uniqueness constraint.
+**Reviewed for:** Which idempotency stores lack the unique constraint on tenant, actor, operation, and client key? Look at the idempotency store schema.
 
 ### Canonicalize Request Fingerprints
 
@@ -162,7 +162,7 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 
 **Rationale:** The fingerprint decides whether two requests under one key carry the same intent. Canonical mapped command input, route identity, and the authenticated actor identifier make equivalent requests produce one value. The actor identifier is in the fingerprint because two actors can present the same client key, and a fingerprint without it would replay one actor's stored response to another. The credential that proved the actor stays out: a cookie and a signature each change between two requests the rule treats as equal.
 
-**Checked by:** `IdempotencyKeyTests` assert equivalent mapped requests produce one fingerprint without credentials or client key.
+**Reviewed for:** Which fingerprints miss canonical input, route identity, or actor identifier, or include credentials or the client key? Look at the fingerprint derivation.
 
 ### Protect Fingerprint Source Data
 
@@ -182,7 +182,7 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 
 **Rationale:** The first attempt performed the state change, and the retry performs it no second time. Returning the original response status and body gives the retry the accepted result. The caller sees one execution no matter how many times the network retried.
 
-**Checked by:** `IdempotencyReplayTests` return the original accepted status and body.
+**Reviewed for:** Which completed idempotent retries return other than the original response status and body? Look at the replay paths.
 
 ### Define Concurrent Retry Behavior
 
@@ -192,7 +192,7 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 
 **Rationale:** An identical request can arrive while the first is still running. The use case states whether the concurrent request waits, learns the work is in progress, or receives a stable conflict. Without one documented result, each implementation invents its own and callers handle all of them.
 
-**Checked by:** `IdempotencyReplayTests` prove the documented wait, in-progress, or conflict behavior.
+**Reviewed for:** Which idempotent use cases leave concurrent-request behavior undefined? Look at the idempotent use case pages.
 
 ### Reload Concurrent Winners
 
@@ -202,7 +202,7 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 
 **Rationale:** The unique constraint admits one winner among concurrent same-key requests. A losing request whose fingerprint matches reloads the winning record and replays its result. The loser then returns the accepted outcome instead of an error for work that succeeded.
 
-**Checked by:** `IdempotencyReplayTests` reload and replay the matching winner record.
+**Reviewed for:** Which losing concurrent requests with a matching fingerprint miss the reload and replay of the winner? Look at the concurrent retry paths.
 
 ### Discard Failed Replay State
 
@@ -212,7 +212,7 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 
 **Rationale:** A request that fails before commit changed nothing, so it leaves neither the business change nor a completed replay record. A leftover completed record would replay success for work that never happened. Clean state lets a later retry perform the operation for the first time.
 
-**Checked by:** `IdempotencyReplayTests` leave no business change or completed replay state.
+**Reviewed for:** Which failed pre-commit requests leave a business change or a completed replay record? Look at the failure paths.
 
 ### Delay Irreversible Provider Calls
 
@@ -252,7 +252,7 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 
 **Rationale:** Expired keys accumulate without cleanup, and cleanup without bounds steals capacity from live work. A bounded maintenance process removes expired records within fixed limits on rate and batch. The store stays small without starving the application.
 
-**Checked by:** `IdempotencyRetentionTests` show bounded deletion of expired idempotency records.
+**Reviewed for:** Which expired-record cleanup runs outside a bounded maintenance process? Look at the cleanup jobs.
 
 ### Retain Safe Retry Keys
 
@@ -262,7 +262,7 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 
 **Rationale:** Callers retry inside a documented window after an uncertain response. A key expired inside that window is gone when the retry arrives, so the retry executes as new work. Retention covers the whole window the project promises.
 
-**Checked by:** `IdempotencyRetentionTests` reject expiration before the documented safe retry time.
+**Reviewed for:** Which keys expire before the documented safe retry time? Look at the retention settings beside the idempotent use cases.
 
 ### Declare Replayed Transport Outcomes
 
@@ -272,7 +272,7 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 
 **Rationale:** A completed retry reproduces the stored statuses and headers instead of the live ones. The declared list states which statuses and headers the store holds. A reviewer reads the list to learn exactly what a retry can return.
 
-**Checked by:** `IdempotencyOutcomeTests` match replayed statuses and headers against the declared list.
+**Reviewed for:** Which idempotent use cases list no stored statuses and headers for replay? Look at the idempotent use case pages.
 
 ### Restrict Replay Data
 
@@ -292,7 +292,7 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 
 **Rationale:** Authentication failures and transient server failures describe one exchange rather than the accepted result, so replaying them answers a new request with an old failure. Tokens, secrets, cookies, and hop-by-hop headers each belong to the exchange that produced them. The caching headers are computed for the response that produced them: replaying them hands a later caller freshness instructions from an earlier moment. [RFC 9111](https://datatracker.ietf.org/doc/html/rfc9111) makes each one a property of the exchange rather than of the result, so the replayed response computes its own.
 
-**Checked by:** `IdempotencyOutcomeTests` exclude authentication, transient failures, cookies, hop-by-hop headers, tokens, and secrets.
+**Reviewed for:** Which replays return authentication failures, transient failures, cookies, hop-by-hop headers, tokens, or secrets? Look at the replayed responses.
 
 ## Conventions
 
@@ -306,7 +306,7 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 
 **Rationale:** The `Idempotency-Key` header makes client-key behavior recognizable at the HTTP boundary. [The IETF draft](https://datatracker.ietf.org/doc/draft-ietf-httpapi-idempotency-key-header/) leaves the value opaque, so a server stores whatever a client sends. The 255-character visible-ASCII bound stops an unbounded key from becoming an unbounded store entry and keeps control characters out of log lines.
 
-**Checked by:** `ConcurrencyTests` assert applicable operations accept `Idempotency-Key` or follow the recorded local convention.
+**Reviewed for:** Applicable operations accept `Idempotency-Key` within its bounds, or the recorded client-key convention names the header and value bounds its commands accept.
 
 ### Keep Idempotency Persistence in Infrastructure
 
@@ -318,7 +318,7 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 
 **Rationale:** Idempotency state lives in provider transactions guarded by store constraints. That machinery belongs in Infrastructure, where provider details live. Application and Domain stay free of the store mechanics behind their operations.
 
-**Checked by:** `ConcurrencyTests` assert idempotency persistence and transaction handling live in Infrastructure.
+**Reviewed for:** Idempotency persistence and transaction handling live in Infrastructure, or the recorded idempotency-store convention names where its idempotency state lives.
 
 ### Map Replay Responses at the API Boundary
 
@@ -330,7 +330,7 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 
 **Rationale:** Replaying a stored result means rebuilding its statuses and headers. Those are transport concerns, so the mapping lives at the API boundary. Application code then deals in operation results, never in wire shapes.
 
-**Checked by:** `ConcurrencyTests` assert replay response mapping lives at the API boundary.
+**Reviewed for:** Replay response mapping lives at the API boundary, or the recorded replay-mapping convention names where its replay mapping lives.
 
 ### Declare Applicable Headers
 
@@ -342,7 +342,7 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 
 **Rationale:** Each HTTP operation that accepts a client key declares the header as required. Generated API contracts then expose the requirement to every client author under `litespec/backend/api#publish-precise-complete-schemas`. An undeclared header reaches only the callers who read the implementation.
 
-**Checked by:** `ConcurrencyTests` asserts generated OpenAPI declares the header for every applicable operation.
+**Reviewed for:** Generated OpenAPI declares the idempotency header for every applicable operation, or the recorded header-declaration convention names how its contracts expose the header.
 
 ## Dependencies
 

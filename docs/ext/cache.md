@@ -88,13 +88,13 @@ This extension switches on `setting`: the expiry of each cache is a setting reco
 
 **ID:** `litespec/ext/cache#record-a-manual-cache-invalidation`
 
-**Statement:** A manual invalidation MUST produce a record naming actor, scope, and reason, as an audit record in its category when the audit extension is selected.
+**Statement:** A manual invalidation MUST produce a record naming actor, invalidation scope, and reason, as an audit record in its category when the audit extension is selected.
 
 **Rationale:** A manual clear changes what every later reader sees and leaves no trace in the data itself. Investigating a stale-read report afterward means knowing whether someone already cleared the entry. [Article 30 of the GDPR](https://gdpr-info.eu/art-30-gdpr/) treats an administrative action over personal data as processing that has a record.
 
 **Example:** A command that clears one tenant's cached price list records the tenant, the operator, and the incident it was run for.
 
-**Reviewed for:** Which manual clears lack a record naming actor, scope, and reason? Look at the invalidation runs.
+**Reviewed for:** Which manual clears lack a record naming actor, invalidation scope, and reason? Look at the invalidation runs.
 
 ### Prefer Bounded Staleness
 
