@@ -38,6 +38,22 @@ public sealed class ImplementationVisibilityAnalyzerTests
             internal sealed class PlaceOrderCommandHandler { }
             """, assemblyName: "Shop.Application");
 
+    [Fact(DisplayName = "LS2001 accepts an internal static projection")]
+    public Task AcceptsAnInternalStaticProjection() =>
+        Verify.AnalyzerAsync<ImplementationVisibilityAnalyzer>("""
+            namespace Shop.Orders;
+
+            internal static class OrderSummaryProjection { }
+            """, assemblyName: "Shop.Application");
+
+    [Fact(DisplayName = "LS2001 reports a public static projection")]
+    public Task ReportsAPublicStaticProjection() =>
+        Verify.AnalyzerAsync<ImplementationVisibilityAnalyzer>("""
+            namespace Shop.Orders;
+
+            public static class {|LS2001:OrderSummaryProjection|} { }
+            """, assemblyName: "Shop.Application");
+
     [Fact(DisplayName = "LS2001 accepts a class without an implementation name")]
     public Task AcceptsAClassWithoutAnImplementationName() =>
         Verify.AnalyzerAsync<ImplementationVisibilityAnalyzer>("""

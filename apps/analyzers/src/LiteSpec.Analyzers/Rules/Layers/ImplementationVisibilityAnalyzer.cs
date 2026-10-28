@@ -28,7 +28,7 @@ public sealed class ImplementationVisibilityAnalyzer : LayerAnalyzer
             return;
         }
 
-        if (!IsImplementation(type) || (type.IsSealed && IsHidden(type)))
+        if (!IsImplementation(type) || ((type.IsSealed || type.IsStatic) && IsHidden(type)))
         {
             return;
         }
