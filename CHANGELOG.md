@@ -128,7 +128,7 @@ LiteSpec 2.0.0 is the standards contract for one bounded-context business applic
 
 ### Pins
 
-- `litespec.manifest.json` pins the .NET 10 workspace (ASP.NET Core 10.0.13, Marten 9.50.1, Aspire 13.6.1, OpenTelemetry 1.19, Testcontainers 4.16.0, LiteBus `7.0.0-preview.6`), xUnit v3 on Microsoft.Testing.Platform with Reqnroll and LightBDD, and the web toolchain (Node 24.22.0, pnpm 11.28.5, Vite 8.3.4, TypeScript 6.0.3).
+- `litespec.manifest.json` pins the .NET 10 workspace (ASP.NET Core 10.0.13, Marten 9.50.1, Aspire 13.6.1, OpenTelemetry 1.19, Testcontainers 4.16.0, LiteBus `7.0.0`), xUnit v3 on Microsoft.Testing.Platform with Reqnroll and LightBDD, and the web toolchain (Node 24.22.0, pnpm 11.28.5, Vite 8.3.4, TypeScript 6.0.3).
 - Every schema's `$id` is its address on the published site: `https://litespec.dev/2.0.0/schemas/<file>`.
 
 ### Releases
