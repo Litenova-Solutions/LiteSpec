@@ -19,6 +19,11 @@ sealed class DotnetBackendReader : IBackendReader
         @"<implements>\s*external-system/[A-Za-z0-9][A-Za-z0-9._#-]*\s*</implements>[\s\S]*?interface\s+(?<name>[A-Za-z_][A-Za-z0-9_]*)",
         System.Text.RegularExpressions.RegexOptions.Compiled);
 
+    /// <summary>A kebab-case literal, the shape of a key a composed refusal code is built from.</summary>
+    private static readonly System.Text.RegularExpressions.Regex KeyLiteralShape = new(
+        "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$",
+        System.Text.RegularExpressions.RegexOptions.Compiled);
+
     /// <summary>
     ///     Collects the port interfaces that anchor up to an external-system record, so a call
     ///     through any other injected interface is internal work rather than a calls edge.
@@ -86,6 +91,7 @@ sealed class DotnetBackendReader : IBackendReader
                     merged.Reactions.AddRange(local.Reactions);
                     merged.Events.AddRange(local.Events);
                     merged.Literals.AddRange(local.Literals);
+                    merged.KeyLiterals.UnionWith(local.KeyLiterals);
                     merged.Comments.AddRange(local.Comments);
                     merged.Endpoints.AddRange(local.Endpoints);
                     merged.AggregateMethods.AddRange(local.AggregateMethods);
@@ -105,6 +111,7 @@ sealed class DotnetBackendReader : IBackendReader
             .OrderBy(literal => literal.File, StringComparer.Ordinal)
             .ThenBy(literal => literal.Line)
             .ThenBy(literal => literal.Value, StringComparer.Ordinal));
+        model.KeyLiterals.UnionWith(merged.KeyLiterals);
         model.Comments.AddRange(merged.Comments
             .OrderBy(comment => comment.File, StringComparer.Ordinal)
             .ThenBy(comment => comment.Line));
@@ -238,6 +245,11 @@ sealed class DotnetBackendReader : IBackendReader
                 // a literal in a declaring position states a code of its own. Elsewhere a
                 // dotted string is an audit name, a field key, a host or a file name.
                 var declares = Declares(token);
+
+                if (KeyLiteralShape.IsMatch(literal))
+                {
+                    model.KeyLiterals.Add(literal);
+                }
 
                 foreach (System.Text.RegularExpressions.Match match in Identifiers.RefusalCode().Matches(literal))
                 {

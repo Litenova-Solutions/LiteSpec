@@ -172,7 +172,7 @@ A tool that alters the schema from application startup is not a reviewed step wh
 
 **Statement:** Each unique constraint MUST map by name to the conflict refusal of the use cases that can violate it.
 
-**Rationale:** The pipeline fault classification turns a store fault into the use case named conflict refusal, following `litespec/backend/application#refuse-a-lost-race-as-a-conflict`. The map keys each unique constraint by name, so the classifier knows which refusal the violation answers. An unmapped violation still fails the commit, but it reaches the caller as a generic conflict that names no rule and suggests no next step.
+**Rationale:** The pipeline fault classification turns a store fault into the use case named conflict refusal, following `litespec/backend/application#refuse-a-lost-race-as-a-conflict`. The map keys each unique constraint by name, so the classifier knows which refusal the violation answers. An unmapped violation still fails the commit, but it reaches the caller as a generic conflict that names no rule and suggests no next step. A classifier that builds the code from the lost key, one code per key scope, declares its template in the project file `refusals.composed`, so the model checks read each code as raised where its key scope is declared.
 
 **Example:** The barcode unique index is named `uq_book_barcode`, and the map pairs it with `book-barcode-taken`: a registration that loses the barcode race refuses with that code. The payout number index is named `uq_payout_owner_number`, and the map pairs it with the reimburse conflict refusal, so each racing command names the number it lost.
 

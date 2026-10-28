@@ -51,6 +51,12 @@ sealed class ConsumerConfig
     /// <summary>The refusal-code prefixes the project shares across modules, such as a shared kernel.</summary>
     public IReadOnlyList<string> RefusalPrefixes { get; private set; } = [];
 
+    /// <summary>
+    ///     The refusal codes the project composes at run time from a key, each a template with one <c>{key}</c>
+    ///     placeholder, such as the conflict a commit answers for a lost uniqueness key.
+    /// </summary>
+    public IReadOnlyList<string> RefusalComposed { get; private set; } = [];
+
     /// <summary>The client refusal vocabulary translated to declared codes, by client code.</summary>
     public IReadOnlyDictionary<string, string> RefusalAliases { get; private set; } =
         new Dictionary<string, string>(StringComparer.Ordinal);
@@ -293,6 +299,7 @@ sealed class ConsumerConfig
             config.RefusalStatuses = ReadStatuses(refusals);
             config.RefusalAliases = ReadAliases(refusals);
             config.RefusalPrefixes = ReadNames(refusals, "prefixes");
+            config.RefusalComposed = [.. ReadNames(refusals, "composed").Where(RefusalTemplate.IsWellFormed)];
         }
 
         if (document.RootElement.TryGetProperty("vocabulary", out var vocabulary)

@@ -126,12 +126,14 @@ What each field means and what reads it:
 | `forbidden` | string | no | `"authorization.forbidden"` |
 | `invalidInput` | string | no | `"request.validation-failed"` |
 | `prefixes` | string array | no | none |
+| `composed` | string array | no | none |
 
 What each field means and what reads it:
 
 - `forbidden` is the code the derived `result/<use-case-home.name>.forbidden` carries, derived for a use case whose `access.grant` is a permission.
 - `invalidInput` is the code the derived `result/<use-case-home.name>.invalid-input` carries, derived for a use case with any `input` field carrying `rules`.
 - `prefixes` lists the refusal-code prefixes the project shares across modules, such as `shared` for a shared kernel. The `refusal-code-form` check accepts them beside every declared module and the generic `request`, `authorization` and `client` prefixes.
+- `composed` lists the refusal codes the project builds at run time from a key, each a template with one `{key}` placeholder after a prefix and a dot, such as `"uniqueness.{key}-taken"` for the conflict a commit answers when an aggregate loses a uniqueness key. The `refusal-code-form` check accepts the template prefix. The `refusal-not-thrown` check counts a code matching a template as raised when its key is a kebab-case literal in the code, such as the key scope `copy-barcode` on the book aggregate for `uniqueness.copy-barcode-taken`.
 - The model builder reads `forbidden` and `invalidInput` when it derives the generic results. When the object is omitted, the defaults apply.
 
 ### The `vocabulary` Object

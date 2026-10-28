@@ -39,6 +39,7 @@ LiteSpec 3.0.0 is a top-down specification standard for one bounded-context busi
 - A command handler loads or creates one aggregate, calls one domain method, stages it and returns; validation, authorization, idempotency, audit, the timestamp, holds, the commit and fault classification are pipeline stages, and a change to another aggregate is a consequence. A record declaring `consistency: atomic` is the one exception.
 - Each command implements one use case with one success path; a find-or-create flow is two use cases the owning boundary chooses between, and a lost race ends with the use case's conflict refusal at commit.
 - Uniqueness is enforced by the store: a unique index, an identity derived from the owner, aggregate state for a once-only rule, or a key the aggregate declares and persistence claims at commit. Each constraint maps by name to its conflict refusal, and no handler reserves or checks a key.
+- A refusal code built at run time from a key, such as the conflict for a lost uniqueness key, declares its template in the project file `refusals.composed`, and `refusal-not-thrown` reads the code as raised where its key is a literal in the code.
 - Every aggregate carries a version the store compares at commit.
 - A message whose target must be the caller carries no target or declares a self grant the guard enforces.
 - Audit targets and reasons the message carries are declared beside it; the handler adds only values it learns while running.

@@ -97,6 +97,9 @@ sealed class CodeModel
     public List<ReactionInfo> Reactions { get; } = [];
     public List<DomainEventInfo> Events { get; } = [];
     public List<CodeLiteral> Literals { get; } = [];
+
+    /// <summary>Every kebab-case string literal in the code, the keys a composed refusal code is built from.</summary>
+    public HashSet<string> KeyLiterals { get; } = new(StringComparer.Ordinal);
     public List<CodeComment> Comments { get; } = [];
     public List<EndpointOperation> Endpoints { get; } = [];
     public List<AggregateMethod> AggregateMethods { get; } = [];

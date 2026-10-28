@@ -145,6 +145,19 @@ public sealed class RecordNameCheckTests
     }
 
     [Fact]
+    public void Composed_Refusal_Prefix_Passes()
+    {
+        using var temp = Cli.Temp("checks");
+        WriteProject(temp.Path, """{"refusals": {"composed": ["uniqueness.{key}-taken"]}}""");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("use-case", "use-case/lending.register-copy", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "copies", "register-copy.md"), """{"kind": "command"}"""),
+            TestModel.Record("result", "result/register-copy.barcode-taken", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "copies", "register-copy.md"), """{"outcome": "refusal", "code": "uniqueness.copy-barcode-taken", "meaning": "Another copy holds the barcode."}"""));
+
+        Assert.DoesNotContain("refusal-code-form", TestModel.Codes(model));
+    }
+
+    [Fact]
     public void Project_Refusal_Prefix_Passes()
     {
         using var temp = Cli.Temp("checks");

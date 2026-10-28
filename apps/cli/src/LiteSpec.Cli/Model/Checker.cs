@@ -1111,6 +1111,13 @@ static partial class Checker
         }
     }
 
+    /// <summary>
+    ///     Whether a refusal code matches a template the project composes at run time and its key is a literal in
+    ///     the code, the way a commit answers a lost uniqueness key from the key's scope.
+    /// </summary>
+    private static bool IsComposedFromLiteral(ProjectModel model, string code) =>
+        model.Config.RefusalComposed.Any(template => RefusalTemplate.TryMatch(template, code, out var key) && model.Code.KeyLiterals.Contains(key));
+
     private static void CheckProof(ProjectModel model, List<Finding> findings)
     {
         var results = model.Records.Where(record => record.Type == "result").ToList();
@@ -1168,7 +1175,7 @@ static partial class Checker
         // validation, never thrown by handler code, so only written refusals count.
         foreach (var result in results.Where(left => !left.Derived && left.Field("outcome") == "refusal"))
         {
-            if (result.Field("code") is { } code && !thrown.Contains(code))
+            if (result.Field("code") is { } code && !thrown.Contains(code) && !IsComposedFromLiteral(model, code))
             {
                 findings.Add(new Finding("refusal-not-thrown", $"Result '{result.Id}' names code '{code}', which no code throws.", result.File, result.Line, SubjectOf(result)));
             }

@@ -170,7 +170,7 @@ static partial class Checker
 
         var generic = new HashSet<string>(GenericRefusalPrefixes, StringComparer.Ordinal);
 
-        foreach (var prefix in model.Config.RefusalPrefixes)
+        foreach (var prefix in model.Config.RefusalPrefixes.Concat(model.Config.RefusalComposed.Select(RefusalTemplate.PrefixOf)))
         {
             generic.Add(prefix);
         }

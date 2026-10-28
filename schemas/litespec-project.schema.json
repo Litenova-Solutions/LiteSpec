@@ -163,6 +163,12 @@
           "type": "array",
           "uniqueItems": true,
           "items": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" }
+        },
+        "composed": {
+          "description": "Refusal codes the project builds at run time from a key, each a template with one {key} placeholder after a prefix and a dot, such as uniqueness.{key}-taken for a lost uniqueness key. A code matching a template is raised where its key is a literal in the code.",
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string", "pattern": "^[a-z][a-z0-9-]*\\.[a-z0-9-]*\\{key\\}[a-z0-9-]*$" }
         }
       }
     },

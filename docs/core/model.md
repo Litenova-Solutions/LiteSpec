@@ -342,7 +342,7 @@ Every check has a tier.
 | `schedule-unstructured` | G | a schedule outside every or cron |
 | `behavior-unrecorded` | S | code with no parent record: delete the code, or write its parent record from a requirement, drafting the requirement if none exists |
 | `use-case-unimplemented` | S | a use case with no handler |
-| `refusal-not-thrown` | S | a declared refusal code missing from the handler |
+| `refusal-not-thrown` | S | a declared refusal code missing from the handler, or a code matching a `refusals.composed` template whose key no code declares |
 | `proves-unconfirmed` | S | a proves link with no passing test behind it |
 | `use-case-without-scenario` | S | a use case with no scenario |
 | `write-undeclared` | S | a write outside changes |
