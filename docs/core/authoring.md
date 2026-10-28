@@ -145,7 +145,7 @@ A Convention states a default a project may replace:
 
 A project that departs from a Standard records a deviation that cites the provision. A project that replaces a Convention names its own convention in its documentation. A Replacement names the local convention or its recording place, not a deviation. A convention with no specific recording place uses `A consumer can replace this default with an explicit local convention.` as its whole Replacement. The [model page](model.md) states the deviation record.
 
-A pattern provision carries its question, its default option, and its rationale, with an optional compact behavior, and then its options with their wireframes. [UI patterns](../frontend/patterns.md) states the pattern contract and the wireframe language.
+A pattern provision carries its question, its default option, its compact behavior, and its rationale, and then its options with their wireframes. [UI patterns](../frontend/patterns.md) states the pattern contract and the wireframe language.
 
 ### Provision Identifiers
 
@@ -185,7 +185,7 @@ Every provision has the same parts in the same order:
 
 1. The heading names the provision.
 2. The ID line holds the ID the heading derives, so a reader copies it from where the provision stands.
-3. A rule states its `Statement`; a convention states its `Default` and `Replacement`; a pattern states its `Question`, `Default` and `Rationale`, with an optional `Compact`.
+3. A rule states its `Statement`; a convention states its `Default` and `Replacement`; a pattern states its `Question`, `Default`, `Compact` and `Rationale`.
 4. `Rationale` and `Example` follow.
 5. The verification line comes last among the fields. `Checked by` marks a provision a tool checks (`checkable`) and starts with the checking command in backticks, then the code the tool reports where the tool emits one, then the scope. `Reviewed for` marks a provision a person judges (`guidance`) and asks the one question a reviewer answers, naming the observable evidence and where to look. Evidence like "verify compliance" says nothing and is refused.
 

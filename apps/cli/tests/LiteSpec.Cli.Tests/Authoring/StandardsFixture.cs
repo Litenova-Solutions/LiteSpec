@@ -60,6 +60,8 @@ static class StandardsFixture
 
         **Default:** `one-primary`
 
+        **Compact:** Actions move under the title.
+
         **Rationale:** One primary action answers what comes next.
 
         **Reviewed for:** Does the top of each record page match the default option or the one its catalog records?
