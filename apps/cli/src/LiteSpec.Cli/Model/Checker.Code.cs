@@ -676,8 +676,8 @@ static class CodeChecks
                 continue;
             }
 
-            var verb = UseCaseVocabulary.VerbOf(Naming.Kebab(method.Method), model.Config.PhrasalVerbs);
-            var past = UseCaseVocabulary.PastTenseOf(verb, model.Config.PastTense);
+            var kebab = Naming.Kebab(method.Method);
+            var verb = UseCaseVocabulary.VerbOf(kebab, model.Config.PhrasalVerbs);
 
             // A record method stores a fact from outside, and its event names that fact rather than the act of recording.
             if (verb == "record")
@@ -685,13 +685,19 @@ static class CodeChecks
                 continue;
             }
 
+            // A mark method sets a state, so its event names that state rather than the act of marking.
+            var past = verb == "mark" && kebab.StartsWith("mark-", StringComparison.Ordinal)
+                ? kebab["mark-".Length..]
+                : UseCaseVocabulary.PastTenseOf(verb, model.Config.PastTense);
+
             foreach (var raised in method.Events.Order(StringComparer.Ordinal))
             {
                 var stem = raised.EndsWith("Event", StringComparison.Ordinal) && raised.Length > "Event".Length
                     ? raised[..^"Event".Length]
                     : raised;
+                var stemKebab = Naming.Kebab(stem);
 
-                if (!Naming.Kebab(stem).EndsWith(past, StringComparison.Ordinal))
+                if (!stemKebab.EndsWith(past, StringComparison.Ordinal) && !HasPastTenseComplement(stemKebab, past))
                 {
                     findings.Add(CodeFinding(
                         "event-tense-mismatch",
@@ -702,6 +708,35 @@ static class CodeChecks
                 }
             }
         }
+    }
+
+    /// <summary>
+    ///     The prepositions and particles that open an event-name complement after the past tense.
+    /// </summary>
+    private static readonly string[] TenseComplementOpeners =
+    [
+        "to", "from", "by", "for", "on", "off", "in", "into", "out", "outside",
+        "at", "with", "over", "up", "down", "back", "after", "before", "as",
+    ];
+
+    /// <summary>
+    ///     Whether the stem names the past tense as a whole segment followed only by a complement
+    ///     opening with a preposition or particle, such as <c>assigned-to-gate</c>.
+    /// </summary>
+    private static bool HasPastTenseComplement(string stemKebab, string past)
+    {
+        var segments = stemKebab.Split('-', StringSplitOptions.RemoveEmptyEntries);
+
+        for (var index = 0; index + 1 < segments.Length; index++)
+        {
+            if (segments[index] == past
+                && TenseComplementOpeners.Contains(segments[index + 1], StringComparer.Ordinal))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private static void CheckNameDriftAcrossLayers(ProjectModel model, List<Finding> findings)

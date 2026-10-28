@@ -485,9 +485,9 @@ Application validators handle malformed caller input through validation errors. 
 
 **Statement:** Each aggregate method that changes state MUST raise an event named for the past tense of its verb.
 
-**Rationale:** The command raises nothing; the aggregate root raises its domain event inside its own method. An event named for another verb tells the reader the act finished under a name the code never spoke, and reactions subscribe to a vocabulary the aggregate does not own. The past tense comes from the baseline table beside the use-case verbs, with irregulars spelled out, from the project's `vocabulary.pastTense` map for domain verbs, and otherwise from the regular form.
+**Rationale:** The command raises nothing; the aggregate root raises its domain event inside its own method. An event named for another verb tells the reader the act finished under a name the code never spoke, and reactions subscribe to a vocabulary the aggregate does not own. The past tense comes from the baseline table beside the use-case verbs, with irregulars spelled out, from the project's `vocabulary.pastTense` map for domain verbs, and otherwise from the regular form. An event may carry the past tense as a whole segment followed by a complement that opens with a preposition or particle. A `mark` method sets a state, so its event names that state the way a `record` method names its fact.
 
-**Example:** `Abandon` raises `OrderAbandonedEvent` and passes; `Abandon` raising `OrderVoidedEvent` is reported, as is `Cancel` raising `OrderCanceledEvent` with one `l`.
+**Example:** `Abandon` raises `OrderAbandonedEvent` and passes; `Abandon` raising `OrderVoidedEvent` is reported, as is `Cancel` raising `OrderCanceledEvent` with one `l`. `AssignToApprover` raising `ExpenseAssignedToApproverEvent` passes with its `to` complement, and `MarkOverdue` raising `LoanOverdueEvent` passes by naming its state.
 
 ## Conventions
 
@@ -803,7 +803,7 @@ The event payload captures the publication fact without carrying the mutable `Po
 | litespec/backend/dotnet/domain#raise-immutable-domain-facts | guidance | Each domain event: an immutable record named `{Aggregate}{PastFact}Event`, carrying business data only. |
 | litespec/backend/dotnet/domain#reject-business-violations-with-domain-exceptions | guidance | Each rejected business rule: its own `DomainException` type carrying the refusal `code`, with no transport status. |
 | litespec/backend/dotnet/domain#document-every-public-domain-contract | checkable | `dotnet build` of the Domain project reports no LiteSpec.Analyzers LS1011 diagnostic. |
-| litespec/backend/dotnet/domain#raise-the-past-tense-of-a-methods-own-verb | checkable | `litespec model check` reports `event-tense-mismatch` (tier A) for an aggregate method raising an event not ending with the past tense of its verb. |
+| litespec/backend/dotnet/domain#raise-the-past-tense-of-a-methods-own-verb | checkable | `litespec model check` reports `event-tense-mismatch` (tier A) for an aggregate method raising an event not ending with the past tense of its verb, allowing a prepositional complement and a `mark` method naming its state. |
 | litespec/backend/dotnet/domain#define-the-shared-domain-contracts-once | guidance | The shared Domain contracts: each declared once, with `DomainException` declaring its abstract `Code` and `AggregateRoot<TId>` deriving from `Entity<TId>`. |
 | litespec/backend/dotnet/domain#keep-id-representations-aligned-at-every-boundary | guidance | Each identifier at Domain, persistence, transport, and client boundaries: the same UUID text form. |
 | litespec/backend/dotnet/domain#use-the-domain-module-layout | guidance | Each Domain module folder: one plural folder per aggregate holding its states, events, exceptions, and concepts. |

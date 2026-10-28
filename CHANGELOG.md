@@ -33,6 +33,7 @@ LiteSpec 3.0.0 is a top-down specification standard for one bounded-context busi
 - A term's `labels` sit outside the approval hash, so adding a language reopens no approval.
 - A project declares its use-case verb vocabulary in `vocabulary`: `verbs`, `phrasal` verbs counted as one, and `retired` synonyms with their replacement, checked by `use-case-verb-unknown`.
 - `effect-before-commit` (tier S) reports a command whose `sends` or `calls` effect runs inline; consequences run from an event handler or a job after the commit.
+- `event-tense-mismatch` accepts a past tense followed by a prepositional complement and a `mark` method naming its state, and `term-lookalike` skips a hyphenated pair opening with a function word.
 
 ### Application Layer
 

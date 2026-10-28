@@ -200,6 +200,15 @@ static class TermLookalikes
     static string SimpleName(string qualified) =>
         qualified[(qualified.LastIndexOf('.') + 1)..];
 
+    /// <summary>
+    ///     The function words that open no compound: a hyphenated pair starting with one is two
+    ///     words side by side, such as <c>as-signed</c> in <c>export-as-signed-rows</c>.
+    /// </summary>
+    static readonly HashSet<string> FunctionWords = new(StringComparer.Ordinal)
+    {
+        "a", "an", "as", "at", "by", "in", "of", "on", "or", "to", "with",
+    };
+
     /// <summary>Every joined form beside the hyphenated split it also occurs with.</summary>
     static IReadOnlyList<LookalikePair> JoinedPairs(
         Dictionary<string, Occurrence> words, Dictionary<string, Occurrence> splits, ConsumerConfig config)
@@ -216,6 +225,12 @@ static class TermLookalikes
 
             for (var cut = 2; cut <= joined.Length - 2; cut++)
             {
+                // A split opening with a function word is two words side by side, not one compound.
+                if (FunctionWords.Contains(joined[..cut]))
+                {
+                    continue;
+                }
+
                 var split = $"{joined[..cut]}-{joined[cut..]}";
 
                 if (splits.TryGetValue(split, out var seen))

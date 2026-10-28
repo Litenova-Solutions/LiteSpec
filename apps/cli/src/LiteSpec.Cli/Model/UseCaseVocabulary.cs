@@ -250,6 +250,12 @@ static class UseCaseVocabulary
             ["log"] = "logged",
             ["chat"] = "chatted",
             ["star"] = "starred",
+            ["send"] = "sent",
+            ["override"] = "overridden",
+            ["withhold"] = "withheld",
+            ["rebuild"] = "rebuilt",
+            ["undo"] = "undone",
+            ["rewrite"] = "rewritten",
         };
 
     /// <summary>
@@ -281,6 +287,17 @@ static class UseCaseVocabulary
             return PastTenseOf(verb[..dash], project) + verb[dash..];
         }
 
+        // A prefixed verb tenses its base, so untag becomes untagged and resend becomes resent.
+        foreach (var prefix in VerbPrefixes)
+        {
+            if (verb.StartsWith(prefix, StringComparison.Ordinal)
+                && verb.Length > prefix.Length
+                && (BasePastTense(verb[prefix.Length..]) ?? (prefix is "co" or "with" ? null : Doubled(verb[prefix.Length..]))) is { } basePast)
+            {
+                return prefix + basePast;
+            }
+        }
+
         if (verb.EndsWith('e') && verb.Length > 1)
         {
             return verb + "d";
@@ -291,7 +308,76 @@ static class UseCaseVocabulary
             return verb[..^1] + "ied";
         }
 
-        return verb + "ed";
+        return Doubled(verb) ?? verb + "ed";
+    }
+
+    /// <summary>
+    ///     The past tense of a one-syllable verb ending consonant-vowel-consonant, other than w, x or y,
+    ///     which doubles its last consonant so shred becomes shredded; null for any other verb.
+    /// </summary>
+    static string? Doubled(string verb) =>
+        verb.Length >= 3
+        && IsConsonant(verb[^1])
+        && verb[^1] is not ('w' or 'x' or 'y')
+        && IsVowel(verb[^2])
+        && IsConsonant(verb[^3])
+        && VowelGroups(verb) == 1
+            ? verb + verb[^1] + "ed"
+            : null;
+
+    /// <summary>
+    ///     The prefixes that carry a base verb's past tense, longest first so <c>under</c>
+    ///     wins over <c>un</c> where both open the verb.
+    /// </summary>
+    static readonly string[] VerbPrefixes = ["over", "under", "with", "out", "mis", "pre", "un", "re", "co"];
+
+    /// <summary>The past tense of a base verb from the common or baseline table, or null when regular.</summary>
+    static string? BasePastTense(string baseVerb)
+    {
+        if (CommonPastTense.TryGetValue(baseVerb, out var common))
+        {
+            return common;
+        }
+
+        if (PastTense.TryGetValue(baseVerb, out var baseline) && baseline.Length > 0)
+        {
+            return baseline;
+        }
+
+        return null;
+    }
+
+    /// <summary>Whether the character is one of the five vowels.</summary>
+    static bool IsVowel(char character) => character is 'a' or 'e' or 'i' or 'o' or 'u';
+
+    /// <summary>Whether the character is an ASCII consonant.</summary>
+    static bool IsConsonant(char character) =>
+        character is >= 'a' and <= 'z' && !IsVowel(character);
+
+    /// <summary>The count of vowel groups in the verb, which stands in for its syllables.</summary>
+    static int VowelGroups(string verb)
+    {
+        var groups = 0;
+        var inVowel = false;
+
+        foreach (var character in verb)
+        {
+            if (IsVowel(character))
+            {
+                if (!inVowel)
+                {
+                    groups++;
+                }
+
+                inVowel = true;
+            }
+            else
+            {
+                inVowel = false;
+            }
+        }
+
+        return groups;
     }
 
     /// <summary>The first word of a name, or the phrasal verb it opens with.</summary>

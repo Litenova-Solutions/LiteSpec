@@ -593,9 +593,9 @@ The figures below render from the retention schedule at build time.
 
 **Statement:** A project MUST resolve each pair of terms that differ only in hyphenation, spelling variant, plurality, or a compound split.
 
-**Rationale:** Two spellings of one concept split every search and every listing, and a reader cannot tell whether they name one concept or two. One spelling per concept keeps each term defined once and checked once.
+**Rationale:** Two spellings of one concept split every search and every listing, and a reader cannot tell whether they name one concept or two. One spelling per concept keeps each term defined once and checked once. A hyphenated pair whose first part is a function word is two words side by side, not one compound split in two, so the check skips it: `a`, `an`, `as`, `at`, `by`, `in`, `of`, `on`, `or`, `to`, and `with`.
 
-**Example:** The notification `send-approvalreminder-confirmation` and the reaction `send-approval-reminder-on-expense-submitted` name one concept with two spellings; the project picks one and renames the other.
+**Example:** The notification `send-approvalreminder-confirmation` and the reaction `send-approval-reminder-on-expense-submitted` name one concept with two spellings; the project picks one and renames the other. `send-on-line-notice` beside `send-online-notice` is not reported, since `on` opens no compound.
 
 ### State What Happens in Every Behavior Statement
 
@@ -672,6 +672,6 @@ The figures below render from the retention schedule at build time.
 | litespec/core/authoring#exclude-cross-release-compatibility-work | guidance | Which pages promise migration, mapping, or alias between releases? Look at the release material the change adds. |
 | litespec/core/authoring#keep-a-pinned-release-for-as-long-as-it-serves | guidance | Which provisions oblige a move to a later release? Look at the Statements the change adds. |
 | litespec/core/authoring#record-the-reviewed-litespec-release | checkable | `litespec consumer` fails when `reviewedLiteSpecVersion` differs from the pinned release. |
-| litespec/core/authoring#review-each-term-for-its-lookalikes | checkable | `litespec model check` reports `term-lookalike` (tier A) for a joined and hyphenated pair, a British and American spelling pair, or a singular and plural in one home, when both forms occur. |
+| litespec/core/authoring#review-each-term-for-its-lookalikes | checkable | `litespec model check` reports `term-lookalike` (tier A) for a joined and hyphenated pair, a British and American spelling pair, or a singular and plural in one home, when both forms occur, except a hyphenated pair opening with a function word. |
 | litespec/core/authoring#state-what-happens-in-every-behavior-statement | checkable | `litespec model check` reports `statement-vague-word` (tier A) for a listed vague word in a rule statement, scenario step, or result meaning. |
 | litespec/core/authoring#prefer-direct-action-headings | checkable | `litespec validate` emits no `HEADING_ACTION` diagnostic. |

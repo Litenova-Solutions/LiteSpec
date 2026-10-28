@@ -87,4 +87,60 @@ public sealed class TermLookalikeCheckTests
         Assert.Contains("aggregate/test.copy", finding.Message, StringComparison.Ordinal);
         Assert.Contains("aggregate/test.copies", finding.Message, StringComparison.Ordinal);
     }
+
+    [Theory]
+    [InlineData("as-signed", "assigned")]
+    [InlineData("on-line", "online")]
+    [InlineData("as-set", "asset")]
+    [InlineData("with-hold", "withhold")]
+    [InlineData("with-holds", "withholds")]
+    public void Split_Opening_With_A_Function_Word_Not_Reported(string split, string joined)
+    {
+        using var temp = Cli.Temp("checks");
+        File.WriteAllText(Path.Combine(temp.Path, "litespec.project.json"), "{}");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("notification", $"notification/test.send-{split}-notice", Path.Combine(temp.Path, "split.md"), """{"template": "notice"}"""),
+            TestModel.Record("notification", $"notification/test.send-{joined}-notice", Path.Combine(temp.Path, "joined.md"), """{"template": "notice"}"""));
+
+        Assert.DoesNotContain("term-lookalike", TestModel.Codes(model));
+    }
+
+    [Theory]
+    [InlineData("claw-back", "clawback")]
+    [InlineData("sign-up", "signup")]
+    [InlineData("take-down", "takedown")]
+    [InlineData("line-up", "lineup")]
+    public void Real_Compound_Split_Still_Reported(string split, string joined)
+    {
+        using var temp = Cli.Temp("checks");
+        File.WriteAllText(Path.Combine(temp.Path, "litespec.project.json"), "{}");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("notification", $"notification/test.send-{split}-notice", Path.Combine(temp.Path, "split.md"), """{"template": "notice"}"""),
+            TestModel.Record("notification", $"notification/test.send-{joined}-notice", Path.Combine(temp.Path, "joined.md"), """{"template": "notice"}"""));
+
+        var findings = Checker.Check(model).Findings.Where(finding => finding.Code == "term-lookalike").ToList();
+        var finding = Assert.Single(findings);
+
+        Assert.Contains(joined, finding.Message, StringComparison.Ordinal);
+        Assert.Contains(split, finding.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Behaviour_And_Behavior_Still_Reported()
+    {
+        using var temp = Cli.Temp("checks");
+        File.WriteAllText(Path.Combine(temp.Path, "litespec.project.json"), "{}");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("rule", "rule/test.behaviour-check", Path.Combine(temp.Path, "behaviour.md"), """{"kind": "invariant", "statement": "Each flag carries a behaviour.", "governs": []}"""),
+            TestModel.Record("rule", "rule/test.behavior-check", Path.Combine(temp.Path, "behavior.md"), """{"kind": "invariant", "statement": "Each flag carries a behavior.", "governs": []}"""));
+
+        var findings = Checker.Check(model).Findings.Where(finding => finding.Code == "term-lookalike").ToList();
+        var finding = Assert.Single(findings);
+
+        Assert.Contains("behaviour", finding.Message, StringComparison.Ordinal);
+        Assert.Contains("behavior", finding.Message, StringComparison.Ordinal);
+    }
 }

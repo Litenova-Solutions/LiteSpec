@@ -123,6 +123,142 @@ public sealed class HandlerShapeCheckTests
     }
 
     [Fact]
+    public void Irregular_Past_Tense_Passes()
+    {
+        using var temp = Cli.Temp("checks");
+        var model = TestModel.Model(TestModel.Config(temp.Path));
+        model.Code.AggregateMethods.Add(new AggregateMethod(
+            "Expense", "Override", ["ExpenseOverriddenEvent"], Path.Combine(temp.Path, "Expense.cs"), 5));
+        model.Code.AggregateMethods.Add(new AggregateMethod(
+            "Expense", "Withhold", ["ExpenseWithheldEvent"], Path.Combine(temp.Path, "Expense.cs"), 9));
+
+        Assert.DoesNotContain("event-tense-mismatch", TestModel.Codes(model));
+    }
+
+    [Fact]
+    public void Doubled_Final_Consonant_Passes()
+    {
+        using var temp = Cli.Temp("checks");
+        var model = TestModel.Model(TestModel.Config(temp.Path));
+        model.Code.AggregateMethods.Add(new AggregateMethod(
+            "Copy", "Shred", ["CopyShreddedEvent"], Path.Combine(temp.Path, "Copy.cs"), 5));
+        model.Code.AggregateMethods.Add(new AggregateMethod(
+            "Copy", "Untag", ["CopyUntaggedEvent"], Path.Combine(temp.Path, "Copy.cs"), 9));
+
+        Assert.DoesNotContain("event-tense-mismatch", TestModel.Codes(model));
+    }
+
+    [Fact]
+    public void Prefixed_Verb_Tensing_Its_Base_Passes()
+    {
+        using var temp = Cli.Temp("checks");
+        var model = TestModel.Model(TestModel.Config(temp.Path));
+        model.Code.AggregateMethods.Add(new AggregateMethod(
+            "Expense", "Reset", ["ExpenseResetEvent"], Path.Combine(temp.Path, "Expense.cs"), 5));
+        model.Code.AggregateMethods.Add(new AggregateMethod(
+            "Expense", "Resend", ["ExpenseResentEvent"], Path.Combine(temp.Path, "Expense.cs"), 9));
+
+        Assert.DoesNotContain("event-tense-mismatch", TestModel.Codes(model));
+    }
+
+    [Fact]
+    public void Event_With_Prepositional_Complement_Passes()
+    {
+        using var temp = Cli.Temp("checks");
+        var model = TestModel.Model(TestModel.Config(temp.Path));
+        model.Code.AggregateMethods.Add(new AggregateMethod(
+            "Expense", "AssignToApprover", ["ExpenseAssignedToApproverEvent"], Path.Combine(temp.Path, "Expense.cs"), 5));
+        model.Code.AggregateMethods.Add(new AggregateMethod(
+            "Copy", "List", ["CopyListedForResaleEvent"], Path.Combine(temp.Path, "Copy.cs"), 5));
+        model.Code.AggregateMethods.Add(new AggregateMethod(
+            "Expense", "CorrectAfterSales", ["ExpenseCorrectedAfterSalesEvent"], Path.Combine(temp.Path, "Expense.cs"), 9));
+
+        Assert.DoesNotContain("event-tense-mismatch", TestModel.Codes(model));
+    }
+
+    [Fact]
+    public void Event_With_Particle_Complement_Passes()
+    {
+        using var temp = Cli.Temp("checks");
+        var model = TestModel.Model(TestModel.Config(temp.Path));
+        model.Code.AggregateMethods.Add(new AggregateMethod(
+            "Loan", "SignOff", ["LoanSignedOffEvent"], Path.Combine(temp.Path, "Loan.cs"), 5));
+        model.Code.AggregateMethods.Add(new AggregateMethod(
+            "Member", "UnlinkLoginByStaff", ["MemberLoginUnlinkedByStaffEvent"], Path.Combine(temp.Path, "Member.cs"), 5));
+        model.Code.AggregateMethods.Add(new AggregateMethod(
+            "Expense", "SettleOutsideProcessor", ["ExpenseSettledOutsideProcessorEvent"], Path.Combine(temp.Path, "Expense.cs"), 5));
+
+        Assert.DoesNotContain("event-tense-mismatch", TestModel.Codes(model));
+    }
+
+    [Fact]
+    public void Mark_Method_Naming_Its_State_Passes()
+    {
+        using var temp = Cli.Temp("checks");
+        var model = TestModel.Model(TestModel.Config(temp.Path));
+        model.Code.AggregateMethods.Add(new AggregateMethod(
+            "Loan", "MarkOverdue", ["LoanOverdueEvent"], Path.Combine(temp.Path, "Loan.cs"), 5));
+        model.Code.AggregateMethods.Add(new AggregateMethod(
+            "Expense", "MarkSent", ["ExpenseSentEvent"], Path.Combine(temp.Path, "Expense.cs"), 5));
+        model.Code.AggregateMethods.Add(new AggregateMethod(
+            "Copy", "MarkProvisioned", ["CopyProvisionedEvent"], Path.Combine(temp.Path, "Copy.cs"), 5));
+
+        Assert.DoesNotContain("event-tense-mismatch", TestModel.Codes(model));
+    }
+
+    [Fact]
+    public void Mark_Method_Naming_Another_State_Reports()
+    {
+        using var temp = Cli.Temp("checks");
+        var model = TestModel.Model(TestModel.Config(temp.Path));
+        model.Code.AggregateMethods.Add(new AggregateMethod(
+            "Loan", "MarkOverdue", ["LoanLostEvent"], Path.Combine(temp.Path, "Loan.cs"), 5));
+
+        var finding = Checker.Check(model).Findings.Single(finding => finding.Code == "event-tense-mismatch");
+
+        Assert.Contains("overdue", finding.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Define_Raising_Another_Verb_Reports()
+    {
+        using var temp = Cli.Temp("checks");
+        var model = TestModel.Model(TestModel.Config(temp.Path));
+        model.Code.AggregateMethods.Add(new AggregateMethod(
+            "Policy", "Define", ["PolicySetEvent"], Path.Combine(temp.Path, "Policy.cs"), 5));
+
+        var finding = Checker.Check(model).Findings.Single(finding => finding.Code == "event-tense-mismatch");
+
+        Assert.Contains("defined", finding.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Request_Raising_Another_Verb_Reports()
+    {
+        using var temp = Cli.Temp("checks");
+        var model = TestModel.Model(TestModel.Config(temp.Path));
+        model.Code.AggregateMethods.Add(new AggregateMethod(
+            "Loan", "Request", ["LoanGrantedEvent"], Path.Combine(temp.Path, "Loan.cs"), 5));
+
+        var finding = Checker.Check(model).Findings.Single(finding => finding.Code == "event-tense-mismatch");
+
+        Assert.Contains("requested", finding.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Cancel_With_American_Spelling_Reports()
+    {
+        using var temp = Cli.Temp("checks");
+        var model = TestModel.Model(TestModel.Config(temp.Path));
+        model.Code.AggregateMethods.Add(new AggregateMethod(
+            "Expense", "Cancel", ["ExpenseCanceledEvent"], Path.Combine(temp.Path, "Expense.cs"), 5));
+
+        var finding = Checker.Check(model).Findings.Single(finding => finding.Code == "event-tense-mismatch");
+
+        Assert.Contains("cancelled", finding.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void Second_Route_With_Its_Own_Operation_Id_Passes()
     {
         using var temp = Cli.Temp("checks");
