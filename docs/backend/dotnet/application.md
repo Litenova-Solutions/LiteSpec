@@ -10,7 +10,7 @@ Application code in a .NET backend sends commands and queries through mediators 
 
 A command is a message that changes business state; a query reads a read model without changing state. The boundary sends the message through a LiteBus mediator, and the command pipeline around the handler runs validation, authorization, the handler itself, and then one commit. Commands travel through `ICommandMediator` and queries through `IQueryMediator`, so the write path and the read path stay visibly separate at every call site.
 
-A reaction answers a domain event or an integration event in one class carrying one anchor tag naming its reaction record. A job issues its declared commands once per item in its scope.
+A reaction answers a domain event or an integration event in one class carrying one mark naming its reaction record. A job issues its declared commands once per item in its scope.
 
 ### Validity Findings
 
@@ -87,9 +87,9 @@ outbox.StageCollectedEvents();
 
 **ID:** `litespec/backend/dotnet/application#run-reactions-in-dedicated-handlers`
 
-**Statement:** A reaction MUST run in one class carrying one anchor tag naming its reaction record.
+**Statement:** A reaction MUST run in one class carrying one mark naming its reaction record.
 
-**Rationale:** One class per reaction answers the trigger the record names in `on` and dispatches only through its `effects` entries. The class carries `/// <implements>reaction/<module>.<name></implements>`, so the stack reader links it without guessing. It lives in the `On{Fact}` folder under its subscriber aggregate folder under `litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle`, beside every other handler of the same fact. It never writes an aggregate directly: a reaction that needs a write issues a command. It honors the record's `reads`, its idempotency, and its `onFailure`. This provision states the .NET form of `litespec/backend/application#keep-event-reaction-implementations-explicit`.
+**Rationale:** One class per reaction answers the trigger the record names in `on` and dispatches only through its `effects` entries. The class carries the mark `reaction/<module>.<name>` in the declared style, so the stack reader links it without guessing. It lives in the `On{Fact}` folder under its subscriber aggregate folder under `litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle`, beside every other handler of the same fact. It never writes an aggregate directly: a reaction that needs a write issues a command. It honors the record's `reads`, its idempotency, and its `onFailure`. This provision states the .NET form of `litespec/backend/application#keep-event-reaction-implementations-explicit`.
 
 **Example:**
 
@@ -102,13 +102,13 @@ internal sealed class SendDueNoticeOnLoanBorrowedHandler(...)
 }
 ```
 
-**Reviewed for:** Each reaction in Application: one handler class carrying its record's anchor tag, named `{Action}On{Fact}Handler` in the `On{Fact}` folder.
+**Reviewed for:** Each reaction in Application: one handler class carrying its record's mark, named `{Action}On{Fact}Handler` in the `On{Fact}` folder.
 
 ### Run Jobs as Hosted Operations
 
 **ID:** `litespec/backend/dotnet/application#run-jobs-as-hosted-operations`
 
-**Statement:** A job MUST run as one hosted operation carrying one anchor tag naming its job record.
+**Statement:** A job MUST run as one hosted operation carrying one mark naming its job record.
 
 **Rationale:** The job class lives in Infrastructure with the scheduling concerns and registers on the declared execution host. It honors its record's scope, batch size, lease, and cursor, issues its commands once per item, and records its evidence where the record states. An `operator` job states its `runsWhere` and its guard and touches no aggregate. This provision states the .NET form of `litespec/backend/application#run-each-job-within-its-declared-scope`.
 
@@ -122,7 +122,7 @@ internal sealed class EraseExpiredPersonalDataJob(...)
 }
 ```
 
-**Reviewed for:** Each job: one hosted operation carrying its record's anchor tag, honoring scope, batch size, lease, and cursor.
+**Reviewed for:** Each job: one hosted operation carrying its record's mark, honoring scope, batch size, lease, and cursor.
 
 ### Bind the Pipeline to the Pinned LiteBus APIs
 
@@ -180,7 +180,7 @@ internal sealed class EraseExpiredPersonalDataJob(...)
       ListPostsQueryResultItem.cs
       ListPostsQueryValidator.cs
       ListPostsQueryHandler.cs
-    OnPostPublished/   event handlers of one fact: one anchored class per reaction
+    OnPostPublished/   event handlers of one fact: one marked class per reaction
       NotifySubscribersOnPostPublishedHandler.cs
       IPostPublicationNotifier.cs   a port one event handler names
   Customers/                        two aggregates: operations nest under each aggregate

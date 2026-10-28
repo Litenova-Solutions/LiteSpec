@@ -17,7 +17,7 @@ The consumer selects one runner for the whole suite; every provision below appli
 | Runner | A scenario is | It proves a scenario with | Its business-readable text is |
 |:---|:---|:---|:---|
 | Reqnroll | A Gherkin scenario in a `.feature` file, bound to step definitions | A `proves:` line under the scenario title | The feature file |
-| LightBDD | A C# method on a feature class, whose steps are calls to step methods | A `/// <proves>` tag on the scenario method | The scenario method, the step method names, and the generated report |
+| LightBDD | A C# method on a feature class, whose steps are calls to step methods | A proves mark on the scenario method | The scenario method, the step method names, and the generated report |
 
 LightBDD binds steps at compile time instead of matching text at run time. A step that no longer exists, or whose parameters changed, fails the build rather than the run. A consumer that generates its API client from the published contract extends the same property to every request a step sends.
 
@@ -55,7 +55,7 @@ It switches on `scenario`, so its BDD scenarios prove scenario records.
 
 **Statement:** Every BDD scenario MUST carry one `proves` claim naming the scenario it proves.
 
-**Rationale:** A scenario pairs one `given` situation and `when` action with the `then` result they lead to, and the proves claim is what ties the BDD scenario to that record. The claim names it, the steps call the proved use case, and the assertion checks its result; without the claim, the model builder cannot tell which scenario the BDD scenario proves. A LightBDD scenario carries the claim as a `/// <proves>` tag on the scenario method, and a Reqnroll scenario as a `proves:` line under its title.
+**Rationale:** A scenario pairs one `given` situation and `when` action with the `then` result they lead to, and the proves claim is what ties the BDD scenario to that record. The claim names it, the steps call the proved use case, and the assertion checks its result; without the claim, the model builder cannot tell which scenario the BDD scenario proves. A LightBDD scenario carries the claim as a proves mark on the scenario method, in the style the project declares, and a Reqnroll scenario as a `proves:` line under its title.
 
 **Example:** `/// <proves>scenario/cancel-order.canceling-twice-is-refused</proves>` traces a cancellation BDD scenario to its scenario record.
 

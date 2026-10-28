@@ -78,13 +78,13 @@ Each page owns its tables and rules, and this page cites them without copying. A
 
 **ID:** `litespec/core/system#point-code-and-tests-up-to-records`
 
-**Statement:** Code and tests MUST point up to the record they serve, with each handler linking to exactly one record: a command or query handler through its folder, which carries the use-case name, and an event handler through its `implements` tag naming its reaction.
+**Statement:** Every code element the marks table on the [model page](model.md) names MUST carry a mark naming the record it serves, with each handler marking exactly one record.
 
-**Rationale:** The folder or the tag is the one link from Implementation to Behavior: the handler folder carries the use-case name, and an event handler carries an implements tag naming the reaction record. One record per handler lets the checks read which record each file serves without guessing. Nothing above Implementation is computed from code, so the link points up and the records stay the authority.
+**Rationale:** The mark is the one link from Implementation to Behavior and from Proof to the scenario it proves. A folder or a type name only resembles the record, and a resemblance drifts with the next rename; a mark holds the identifier, so the checks, the analyzers and the editor follow the same link without guessing. One record per handler keeps each file answerable to one use case. Nothing above Implementation is computed from code, so the link points up and the records stay the authority.
 
-**Example:** The folder holding the reimburse-expense handler anchors `use-case/spending.reimburse-expense`, and the reminder event handler carries an implements tag naming `reaction/spending.send-approver-reminders-on-expense-submitted`.
+**Example:** The reimburse-expense handler carries a mark naming `use-case/spending.reimburse-expense`, the `Reimburse` method on the expense root carries the same mark, and the reminder event handler carries a mark naming `reaction/spending.send-approver-reminders-on-expense-submitted`.
 
-**Checked by:** `litespec model check` emits no `behavior-unrecorded` finding for code and tests that name no parent record.
+**Checked by:** `litespec model check` reports `mark-missing`, `mark-unresolved` and `mark-count` (tier S) for a code element with no mark, a mark naming no record of the type its element takes, or a handler marking other than one record.
 
 ### Declare Every Edge Between Records
 
@@ -94,7 +94,7 @@ Each page owns its tables and rules, and this page cites them without copying. A
 
 **Rationale:** The declared edges form the effect graph the checks verify: an undeclared edge is the defect, not the mechanism that carries it. The graph holds no cycles except through domain events with a stated end condition. An inline edge states whether it shares the caller's transaction, and atomic consistency spans no async edge. The [behavior page](behavior.md) states the edge fields, and the [layers page](layers.md) states how Implementation is checked against them.
 
-**Checked by:** `litespec model check` emits no `effect-undeclared` or `effect-loop` finding across use cases, reactions, jobs, notifications, and integration events.
+**Checked by:** `litespec model check` emits no `effect-undeclared` or `effect-loop` finding across use cases, reactions, jobs, notifications, and integration events, and reports `effect-unimplemented` (tier A) for a declared edge no code takes.
 
 ### Deliver One Complete Use Case
 
@@ -261,4 +261,4 @@ Create an optional directory only when its first real artifact exists. Never cre
 
 This informative example demonstrates `litespec/core/system#deliver-one-complete-use-case`, `litespec/core/system#update-records-with-behavior`, `litespec/core/system#point-code-and-tests-up-to-records`, `litespec/core/system#declare-every-edge-between-records`, and `litespec/core/system#keep-computed-facts-in-proof`.
 
-The `use-case/spending.submit-expense` use case is complete only with its behavior, persistence, entry points, tests, and operating records. A change to the receipt threshold updates the use case page, the tests, the requirement, the decision, the journey, and the operating records in the same change. The handler folder points up to the use case record, every edge the change adds is declared on its record, and the book marks the chapter verified only after the tests pass.
+The `use-case/spending.submit-expense` use case is complete only with its behavior, persistence, entry points, tests, and operating records. A change to the receipt threshold updates the use case page, the tests, the requirement, the decision, the journey, and the operating records in the same change. The handler mark points up to the use case record, every edge the change adds is declared on its record, and the book marks the chapter verified only after the tests pass.

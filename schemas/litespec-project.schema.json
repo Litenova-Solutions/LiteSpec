@@ -112,6 +112,23 @@
         }
       }
     },
+    "marks": {
+      "description": "The mark style every code element and test uses to name its record: xml for documentation tags, attribute for generated attributes. Defaults to xml.",
+      "enum": ["xml", "attribute"],
+      "default": "xml"
+    },
+    "check": {
+      "description": "How the checks treat this project.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "phase": {
+          "description": "working: proof findings block as their tier states. frozen: the project holds its tests still, so proof findings report without blocking. Defaults to working.",
+          "enum": ["working", "frozen"],
+          "default": "working"
+        }
+      }
+    },
     "review": {
       "description": "How this project reviews record changes: the veto window after which a tier-3 draft question carrying a recommendation auto-approves, and the security reviewer who owns the security queue.",
       "type": "object",

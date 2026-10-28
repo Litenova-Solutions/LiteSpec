@@ -28,7 +28,7 @@ LiteSpec serves many projects. Never name a consumer project in it.
 
 | Repository | You change | You run |
 |:---|:---|:---|
-| LiteSpec | The standard (`docs/`, `schemas/`, `templates/`, the manifest), the CLI in `apps/cli/`, the analyzers in `apps/analyzers/`, and the site in `apps/site/` | `litespec validate`, `litespec provisions`, `litespec patterns check`, the tests |
+| LiteSpec | The standard (`docs/`, `schemas/`, `templates/`, the manifest), the CLI in `apps/cli/`, the shared rule library in `apps/model/`, the analyzers in `apps/analyzers/`, and the site in `apps/site/` | `litespec validate`, `litespec provisions`, `litespec patterns check`, the tests |
 | A consumer | Its records, code, tests and contracts, against the LiteSpec release its local `litespec` tool carries | `dotnet litespec consumer`, `dotnet litespec ui`, `dotnet litespec model`, and the gates its CI selects |
 
 In this repository, run the CLI with `dotnet run --project apps/cli/src/LiteSpec.Cli -- <command>`. The [command index](docs/tools/README.md) shows how to run it from a consumer.

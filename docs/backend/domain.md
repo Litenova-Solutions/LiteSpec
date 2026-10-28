@@ -120,6 +120,30 @@ An unapproved expense keeps its state, and the refusal carries the stable code `
 
 **Reviewed for:** Each public mutation checks state and protects its invariants, and each lifecycle move also replaces state and records its transition event.
 
+### Call the Marked Act from Each Command Handler
+
+**ID:** `litespec/backend/domain#call-the-marked-act-from-each-command-handler`
+
+**Statement:** A command handler MUST change its aggregate by calling a root method marked with the handler's use case.
+
+**Rationale:** The use case names an act, and the aggregate performs it: the mark on the root method says which act the method is. A handler that changes its aggregate only through methods marked for other use cases performs an act its record never named, and a reader cannot tell from the use case which method to open. Several use cases may share one act, so a method may carry several marks. The use-case verb, the method name, and the raised event's tense agree under `litespec/backend/dotnet/domain#raise-the-past-tense-of-a-methods-own-verb`. This provision states the marked form of `litespec/backend/application#keep-command-handlers-to-load-call-and-stage`.
+
+**Example:** The reimburse-expense handler calls `Reimburse` on the expense root, and `Reimburse` carries the mark `use-case/spending.reimburse-expense`.
+
+**Checked by:** `litespec model check` reports `use-case-act-uncalled` (tier S) for a command handler that calls no root method marked with its use case.
+
+### Raise the Declared Events from the Marked Act
+
+**ID:** `litespec/backend/domain#raise-the-declared-events-from-the-marked-act`
+
+**Statement:** The root methods marked with a use case MUST together raise exactly the events that use case lists in `raises`.
+
+**Rationale:** The use case record states the facts its act leaves behind, and reactions subscribe to those facts. A marked method that raises an event the record does not list starts a consequence nobody reviewed, and a listed event that no marked method raises is a promise the code does not keep.
+
+**Example:** `use-case/spending.submit-expense` raises `event/expense.submitted`, and the `Submit` method marked with it raises `ExpenseSubmittedEvent` and nothing else.
+
+**Checked by:** `litespec model check` reports `act-event-undeclared` (tier S) for a marked method raising an event its use case does not list, and `act-event-unraised` (tier S) for a listed event no marked method raises.
+
 ### Keep Child Entities Inside the Aggregate Boundary
 
 **ID:** `litespec/backend/domain#keep-child-entities-inside-the-aggregate-boundary`

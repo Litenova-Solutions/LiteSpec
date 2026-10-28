@@ -2,7 +2,7 @@
 
 ## Intent
 
-.NET backends prove their behavior through the test projects their size requires, using xUnit, `WebApplicationFactory`, and one shared production-faithful harness. A scenario is one behavior the product must show, and this page states the .NET form of those suites: which projects exist, how HTTP integration and architecture tests run, how each scenario earns its proof tag, and what the shared harness owns. The shared testing rules live on [Backend Testing](../testing.md); this page holds only their .NET form.
+.NET backends prove their behavior through the test projects their size requires, using xUnit, `WebApplicationFactory`, and one shared production-faithful harness. A scenario is one behavior the product must show, and this page states the .NET form of those suites: which projects exist, how HTTP integration and architecture tests run, how each scenario earns its proves mark, and what the shared harness owns. The shared testing rules live on [Backend Testing](../testing.md); this page holds only their .NET form.
 
 ## Concepts
 
@@ -10,9 +10,9 @@
 
 A small backend holds Architecture and Integration test projects; a large one adds Acceptance. Unit test projects stay optional in both sizes. Each suite runs at its own boundary: architecture tests assert structure, integration tests run the real host against PostgreSQL, and acceptance scenarios prove critical examples through a public boundary.
 
-### Proof Tags and the Shared Harness
+### Proves Marks and the Shared Harness
 
-Each scenario is proved by a test that carries a `proves` tag naming the scenario and calls its use case; the model builder confirms the claim from the latest run. Integration tests share one harness: a PostgreSQL container fixture, one `ApiFactory`, and one database isolation helper, so every test sees the same production-faithful configuration.
+Each scenario is proved by a test that carries a proves mark naming the scenario and calls its use case; the model builder confirms the claim from the latest run. Integration tests share one harness: a PostgreSQL container fixture, one `ApiFactory`, and one database isolation helper, so every test sees the same production-faithful configuration.
 
 ## Standards
 
@@ -60,13 +60,13 @@ A small solution holds the first two; Acceptance appears when the executable BDD
 
 **ID:** `litespec/backend/dotnet/testing#prove-each-scenario-with-a-test-that-calls-its-use-case`
 
-**Statement:** Each scenario MUST be proved by a test carrying one `/// <proves>scenario/<use-case>.<name></proves>` tag, calling its use case, and asserting the result the scenario names.
+**Statement:** Each scenario MUST be proved by a test carrying one proves mark naming `scenario/<use-case>.<name>`, calling its use case, and asserting the result the scenario names.
 
-**Rationale:** The `proves` tag is the claim that ties a test to its scenario, and the model builder confirms it: an acceptance scenario is confirmed when its When step belongs to the use case steps class, and an integration test when its body names the use case message type. The test calls the use case and asserts its result: the success fields for a success, or the refusal code inside an assertion for a refusal. The model builder matches the proving test by its fully qualified name, so a renamed test fails loudly instead of becoming "awaiting run". A test that asserts nothing is reported by LS4001, the assertion rule on test projects. A scenario no test proves is recorded as a known gap with owner and end date.
+**Rationale:** The proves mark is the claim that ties a test to its scenario, written in the style the project declares under `litespec/backend/dotnet/stack#write-each-mark-in-the-declared-style`; and the model builder confirms it: an acceptance scenario is confirmed when its When step belongs to the use case steps class, and an integration test when its body names the use case message type. The test calls the use case and asserts its result: the success fields for a success, or the refusal code inside an assertion for a refusal. The model builder matches the proving test by its fully qualified name, so a renamed test fails loudly instead of becoming "awaiting run". A test that asserts nothing is reported by LS4001, the assertion rule on test projects. A scenario no test proves is recorded as a known gap with owner and end date.
 
-A test carries no coverage tag; the `proves` tag is its only record citation. A reaction scenario is proved by a test that fires the trigger and asserts the issued use case's result. The latest test run marks each confirmed claim passing or failing. This provision states the .NET form of `litespec/backend/testing#tag-the-test-that-proves-each-scenario`.
+A test carries no coverage mark; the proves mark is its only record citation. A reaction scenario is proved by a test that fires the trigger and asserts the issued use case's result. The latest test run marks each confirmed claim passing or failing. This provision states the .NET form of `litespec/backend/testing#mark-the-test-that-proves-each-scenario`.
 
-**Example:** An acceptance scenario for submitting an expense carries its scenario tag on the scenario method.
+**Example:** An acceptance scenario for submitting an expense carries its proves mark on the scenario method, here in the `xml` style.
 
 ```csharp
 /// <proves>scenario/submit-expense.submitting-with-a-receipt-succeeds</proves>

@@ -99,7 +99,7 @@ The use case lists every result it returns, and each refusal result carries its 
 
 **Statement:** The authorization guard, not the handler, MUST authorize every message from the `access` its use-case record declares.
 
-**Rationale:** Authorization decided in each handler is decided differently in each handler. The guard decides once from what the record declares: the `auth` kinds the caller presents, the `grant` naming a permission, a `self` scope over one, `anonymous`, or `system`, and the `tenant` scope naming the tenants the call reaches. Ownership, tenant, role, state, or delegated access resolves against the target data through a scope owner lookup for the record the message names. A handler never compares the caller with a target and never throws the forbidden refusal itself.
+**Rationale:** Authorization decided in each handler is decided differently in each handler. The guard decides once from what the record declares: the `auth` kinds the caller presents, the `grant` naming a permission, a `self` scope over one, `anonymous`, or `system`, and the `tenant` scope naming the tenants the call reaches. Ownership, tenant, role, state, or delegated access resolves against the target data through a scope owner lookup for the record the message names. A handler never compares the caller with a target and never throws the forbidden refusal itself. Code names no permitted action outside that grant, so the record stays the one list of who may run a use case; where the stack generates code, it generates one constant per `permission/` record from the records.
 
 Declaring `access` beside the message also lets composition refuse to start when a message states no position at all. The guard reports a refusal as a denial rather than raising it, so a refused attempt reaches the audit trail beside the ones that succeeded. The audit extension records the denial under `litespec/ext/audit#record-refused-authorization`.
 
@@ -313,13 +313,13 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **ID:** `litespec/backend/application#keep-event-reaction-implementations-explicit`
 
-**Statement:** An event reaction implementation MUST answer the trigger its reaction record names, in one class carrying one anchor tag naming that record.
+**Statement:** An event reaction implementation MUST answer the trigger its reaction record names, in one class carrying one mark naming that record.
 
-**Rationale:** A reaction without an explicit implementation leaves its trigger, its target, and its failure handling to whoever reads the code. One event handler class per reaction record answers the trigger the record names in `on`, whether a domain event or an integration event, and dispatches only through the record's `effects` entries. The class never writes an aggregate directly: an event handler that needs a write issues a command. It honors the record's `reads`, its idempotency, and its `onFailure`, and the anchor tag is the link the stack reader follows. The class lives in the `On{Fact}` folder for the fact it handles, named under `litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle`. The record names its trigger under `litespec/core/behavior#trigger-every-reaction-from-a-declared-event`. An entry with `after-commit` timing uses durable delivery through the outbox extension.
+**Rationale:** A reaction without an explicit implementation leaves its trigger, its target, and its failure handling to whoever reads the code. One event handler class per reaction record answers the trigger the record names in `on`, whether a domain event or an integration event, and dispatches only through the record's `effects` entries. The class never writes an aggregate directly: an event handler that needs a write issues a command. It honors the record's `reads`, its idempotency, and its `onFailure`, and the mark is the link the stack reader follows. The class lives in the `On{Fact}` folder for the fact it handles, named under `litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle`. The record names its trigger under `litespec/core/behavior#trigger-every-reaction-from-a-declared-event`. An entry with `after-commit` timing uses durable delivery through the outbox extension.
 
-**Example:** The class `SendDueNoticeOnLoanBorrowedHandler` in `OnLoanBorrowed/` carries one anchor tag naming `reaction/lending.send-due-notice-on-loan-borrowed`, answers `event/loan.loan-borrowed`, and sends `notification/lending.loan-due`.
+**Example:** The class `SendDueNoticeOnLoanBorrowedHandler` in `OnLoanBorrowed/` carries one mark naming `reaction/lending.send-due-notice-on-loan-borrowed`, answers `event/loan.loan-borrowed`, and sends `notification/lending.loan-due`.
 
-**Reviewed for:** Each event handler answers its reaction trigger in one class carrying its record anchor tag, in its `On{Fact}` folder.
+**Reviewed for:** Each event handler answers its reaction trigger in one class carrying its record mark, in its `On{Fact}` folder.
 
 ### Run Each Job Within Its Declared Scope
 
@@ -517,7 +517,7 @@ You review a port declared beside its aggregate with that aggregate's specificat
     ListPosts/
       ListPostsQueryResultItem            a result part named after its result
     OnPostPublished/                     an event handler folder: one folder per fact, holding every handler of that fact
-      NotifySubscribersOnPostPublishedHandler   one event handler class with its anchor tag
+      NotifySubscribersOnPostPublishedHandler   one event handler class with its mark
       PostPublicationNotifier             a port one event handler names
   Customers/                              two aggregates: use cases nest under each aggregate
     CustomerAccounts/

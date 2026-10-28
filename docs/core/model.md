@@ -2,7 +2,7 @@
 
 ## Intent
 
-A LiteSpec project describes itself with records, written statements of fixed types joined by fixed links. This page states the four record layers, the record types with their identifiers and homes, the common fields, the links, the authority order, the authoring order, the statuses, the approval data, the risk tiers, the questions, the transcription mode, the model builder, the check tiers, and the book and the diffs. People write and approve Intent, agents write Behavior from it, and the model builder computes how code and tests connect to the records.
+A LiteSpec project describes itself with records, written statements of fixed types joined by fixed links. This page states the four record layers, the record types with their identifiers and homes, the common fields, the links, the marks, the authority order, the authoring order, the statuses, the approval data, the risk tiers, the questions, the transcription mode, the model builder, the check tiers, and the book and the diffs. People write and approve Intent, agents write Behavior from it, and the model builder computes how code and tests connect to the records.
 
 ## Concepts
 
@@ -213,7 +213,31 @@ Each written link lives as a field on the record it starts from: a decision carr
 
 Behavior records point up: `serves` points to a goal or a journey step, and `fulfills` points to a requirement. Records never point down: a journey names no use case, and a requirement names no rule.
 
-Containment needs no link field: it follows the identifier. An aggregate belongs to the module its identifier names, a reaction, job, notification, or setting belongs to the module its identifier names, and a result or a scenario belongs to the use case its identifier names. An integration event belongs to the published set. The builder computes the remaining links from code, routes, and tests: `implements` from code to a use case, rule, or event; `calls` from a screen to a use case; and `proves` from a test to a scenario. Code and tests point up to the record they serve: a command or query handler through its folder, which carries the use-case name, and an event handler through its `implements` tag naming its reaction, with each handler implementing exactly one record.
+Containment needs no link field: it follows the identifier. An aggregate belongs to the module its identifier names, a reaction, job, notification, or setting belongs to the module its identifier names, and a result or a scenario belongs to the use case its identifier names. An integration event belongs to the published set. The builder computes the remaining links from code, routes, and tests: `implements` from a code mark to the record it names, `calls` from a screen to a use case, and `proves` from a test mark to a scenario or rule. Code and tests point up to the record they serve through their marks, with each handler implementing exactly one record.
+
+### Marks
+
+A mark is the one written link from a code element to the record it serves. It holds the record identifier, and every tool reads it the same way: the model builder, the analyzers, and the editor. A folder path stays the map a reader follows through the code, and it is never the link.
+
+| Record layer the code serves | Code element | Mark names |
+|:--|:--|:--|
+| Domain | Aggregate root | `aggregate/<module>.<name>` |
+| Domain | Aggregate root method that changes state | `use-case/<module>.<name>` for each use case whose act it performs |
+| Domain | Domain event | `event/<aggregate>.<fact>` |
+| Domain | Refusal type for one rejected rule | `rule/<home>.<name>` |
+| Domain | Domain service holding one rule calculation | `rule/<home>.<name>` |
+| Application | Command or query handler | `use-case/<module>.<name>`, exactly one |
+| Application | Event handler | `reaction/<module>.<name>` |
+| Application or Infrastructure | Job host | `job/<module>.<name>` |
+| Application | Port for an external system | `external-system/<name>` |
+| Infrastructure | Adapter implementing that port | `external-system/<name>` |
+| API | Endpoint | `use-case/<module>.<name>` |
+| Frontend | Use-case module | `use-case/<module>.<name>` |
+| Tests | Test | `scenario/<use-case>.<name>`, or `rule/<home>.<name>` for a rule test |
+
+The tools recognize most code elements from the code itself and then expect their mark. A port and a domain service are recognized by their mark, and an aggregate root method by the event it raises, so an unmarked port is found only from the top, through its external system, and a method that changes state without raising an event is not recognized at all.
+
+A project writes its marks in one mark style, declared as `marks` in `litespec.project.json`. Each stack page states the forms the style takes: the .NET stack writes an `xml` mark as a documentation tag and an `attribute` mark as a generated attribute, and a frontend writes a typed constant in either style. A runtime value a record already states, such as an event classification or a refusal code, is generated from the mark and the record where the stack generates code, and checked against the record where a person writes it.
 
 ### Authority
 
@@ -292,6 +316,8 @@ Every check has a tier.
 | A | Advisory. Reports and never blocks. |
 
 `litespec model check` prints the tier beside each finding.
+
+An S finding about a record follows the record effective status: it blocks when the record is approved or reviewed, and reports without blocking while the record is a draft, so code written ahead of a draft never fails the build and never goes unreported. `check.phase` in `litespec.project.json` names the project phase: `working`, the default, or `frozen`, when the project holds its tests still while the code moves, so findings about tests report without blocking. An analyzer reports a blocking finding as an error and a reported one as a warning, and a finding that a known gap or a deviation covers stays silent.
 
 The [model command page](../tools/model.md) lists every finding code with its tier and meaning.
 
@@ -657,7 +683,7 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 
 **Statement:** Implemented, verified, stale, reachable, and effective status MUST come from the builder, never from handwriting.
 
-**Rationale:** Handwritten status drifts: a record marked implemented stays marked after its handler is deleted. Computed status cannot drift, because the builder re-derives it from handlers, routes, scenarios, and test runs on every run. A use case reads implemented when a handler, reaction, job, or endpoint carries it out, verified when every scenario passes its proof, and stale when a scenario changed after its proof, and a requirement reads verified when everything fulfilling it is verified. Nothing above Implementation is computed from code: derivation from code into a record is forbidden, and code-computed facts live in the book and the model output.
+**Rationale:** Handwritten status drifts: a record marked implemented stays marked after its handler is deleted. Computed status cannot drift, because the builder re-derives it from handlers, routes, scenarios, and test runs on every run. A use case reads implemented when a handler, reaction, job, or endpoint marked with it carries it out, verified when every scenario passes its proof, and stale when a scenario changed after its proof, and a requirement reads verified when everything fulfilling it is verified. Nothing above Implementation is computed from code: derivation from code into a record is forbidden, and code-computed facts live in the book and the model output.
 
 **Example:** A use case reads implemented when its handler exists.
 
@@ -672,6 +698,78 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 **Rationale:** The tier tells a reader what a finding means: G reads records only and always blocks, S reads code through a stack reader and blocks only where the reader is qualified, and A reports and never blocks. `litespec model check` prints the tier beside each finding, so a review tells a blocking defect from advice at a glance.
 
 **Reviewed for:** Which findings lack a tier letter, or block outside their tier? Look at the output of `litespec model check`.
+
+### Declare One Mark Style
+
+**ID:** `litespec/core/model#declare-one-mark-style`
+
+**Statement:** A project MUST write every mark in the one style that `marks` in `litespec.project.json` declares.
+
+**Rationale:** Two styles in one project are two ways to do one job: a reader learns both, a review checks both, and a search for a record finds half its code. The style is a project choice made once, so every tool reads it from the project file and refuses the other style. A code fix converts a mark to the declared style.
+
+**Example:** The Claimwick product declares `"marks": "xml"`, so its submit-expense handler carries a documentation tag naming `use-case/spending.submit-expense`, and an attribute naming the same use case is reported.
+
+**Checked by:** `litespec model check` reports `mark-style-mixed` (tier S) for a mark written in the style the project did not declare.
+
+### Follow Effective Status in Code Findings
+
+**ID:** `litespec/core/model#follow-effective-status-in-code-findings`
+
+**Statement:** An S finding about a record MUST follow the record effective status: block when it is approved or reviewed, report without blocking when it is draft, and stay silent when it is retired.
+
+**Rationale:** A draft record states work in progress, and code written ahead of it is the normal order of a slice: failing the build on it trains people to suppress findings, while hiding it loses the signal. Reporting without blocking keeps the finding visible until the record is reviewed, and then it blocks. A retired record states the past, so code still marked with it is reported through the mark, not through the record. A finding about no record, such as an unmarked type or a mark naming no record, follows its tier.
+
+**Example:** `use-case/spending.export-expenses` is a draft with no handler marked for it, so `use-case-unimplemented` prints with the draft marker and the check exits zero; once the use case is reviewed, the same finding blocks.
+
+**Checked by:** `litespec model check` prints `draft` beside a non-blocking S finding whose subject is a draft, and exits zero when only such findings remain.
+
+### Hold Proof Findings While Tests Are Frozen
+
+**ID:** `litespec/core/model#hold-proof-findings-while-tests-are-frozen`
+
+**Statement:** When `check.phase` is `frozen`, `proves-unconfirmed`, `use-case-without-scenario`, and every mark finding on a test MUST report without blocking.
+
+**Rationale:** Before a first release a project can hold its tests still while the code moves faster than tests can follow. Naming that phase in the project file lets every tool respect it the same way, instead of each agent remembering a note: proof findings stay visible, and the build does not fail on tests nobody may change yet. Setting the phase back to `working` makes them block again.
+
+**Example:** With `"check": { "phase": "frozen" }`, `proves-unconfirmed` and `use-case-without-scenario` print with the frozen marker and the check exits zero.
+
+**Checked by:** `litespec model check` prints `frozen` beside `proves-unconfirmed`, `use-case-without-scenario`, and every mark finding on a test while `check.phase` is `frozen`, and none of them blocks; `dotnet build` reports `LS4001` and every LS5xxx rule on a test as a warning in the same phase.
+
+### Implement Each Mapped Behavior Record Behind a Mark
+
+**ID:** `litespec/core/model#implement-each-mapped-behavior-record-behind-a-mark`
+
+**Statement:** Every aggregate, reaction, job, and external system, and every use case reached through a `browser` or `api` entry point, MUST be named by a mark on the code element the marks table gives it.
+
+**Rationale:** A mark points up, so a check reading marks alone finds code nobody recorded but misses a record nobody built. Checking each record that the marks table maps to code from the top closes the loop in the other direction: an aggregate with no root, a reaction with no event handler, a job with no host, an external system with no port, and a use case people reach with no endpoint. A use case with no screen calling it is reported as advice, because whether a browser reaches it depends on the deployment.
+
+**Example:** `reaction/spending.send-approver-reminders-on-expense-submitted` is reviewed and no event handler carries its mark, so the check reports `reaction-unimplemented` and blocks.
+
+**Checked by:** `litespec model check` reports `aggregate-unimplemented`, `reaction-unimplemented`, `job-unimplemented`, `external-system-unimplemented`, and `use-case-unexposed` (tier S) for a record no mark names, and `use-case-unreached` (tier A) for a browser use case no screen calls.
+
+### Record a Project-Wide Lowering as a Deviation
+
+**ID:** `litespec/core/model#record-a-project-wide-lowering-as-a-deviation`
+
+**Statement:** A project MUST record a deviation for every analyzer rule it lowers or switches off in an `.editorconfig` that applies beyond one file.
+
+**Rationale:** Severity follows record status and project phase on its own, so a project-wide lowering in `.editorconfig` is a departure from the standard rather than a setting. A deviation names the provision, the reason and the review date, so the lowering is reviewed and ends instead of staying silent.
+
+**Example:** A project that lowers LS5001 to a suggestion in its root `.editorconfig` records a deviation citing `litespec/core/system#point-code-and-tests-up-to-records`.
+
+**Reviewed for:** Which project-wide severity lowerings in `.editorconfig` lack a deviation record? Look at every `.editorconfig` in the repository beside the deviation records.
+
+### Serve Editors from the Model
+
+**ID:** `litespec/core/model#serve-editors-from-the-model`
+
+**Statement:** Editor navigation over record identifiers MUST read the same model `litespec model check` builds.
+
+**Rationale:** Navigation that builds its own index answers a different question than the check: a reference the editor finds and the check refuses, or the reverse, teaches people to trust neither. Reading the one model keeps go to definition, find references, hover and rename in agreement with the findings.
+
+**Example:** Find references on `use-case/spending.submit-expense` lists its handler, its endpoint, the aggregate method marked with it, its screen module, and the tests proving its scenarios, the same links the model output holds.
+
+**Reviewed for:** Which editor feature reads record identifiers from somewhere other than the model? Look at the language server the project runs.
 
 ## Conventions
 

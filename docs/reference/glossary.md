@@ -880,6 +880,14 @@ One published, pinned, complete standards contract.
 
 Source: LiteSpec.
 
+### Mark
+
+The one written link from a code element or a test to the record it serves, holding the record identifier in the project mark style.
+
+Source: LiteSpec.
+
+Rejected: anchor and tag, which name the link by one of its forms.
+
 ### Normative
 
 Required of a conforming consumer through an identified provision.

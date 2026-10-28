@@ -19,13 +19,13 @@ litespec model diff <base> [--root <consumer>] [--format text|markdown|json] [--
 
 ## Description
 
-The model builder reads the written records, the code anchors, the routes, the tests, and the latest test run. It writes `model.json` with every record and its resolved links. The file names the code, screens, tests, and test runs it read. It adds the computed `implements`, `calls`, and `proves` links, the computed `implemented`, `verified`, `stale`, and `reachable` state of each record, and the effective status of each record. Computed states are never written on a record; they appear in the book and the model output only.
+The model builder reads the written records, the code marks, the routes, the tests, and the latest test run. It writes `model.json` with every record and its resolved links. The file names the code, screens, tests, and test runs it read. It adds the computed `implements`, `calls`, and `proves` links, the computed `implemented`, `verified`, `stale`, and `reachable` state of each record, and the effective status of each record. Computed states are never written on a record; they appear in the book and the model output only.
 
 `approve` writes approval data onto the named records, or with `--all` onto every approved or reviewed record that carries no `approvedHash`. It sets `approvedBy` (from `--by`, else the record decider, else its owner) and `approvedOn` (from `--on`, else today) when they are missing, and always writes `approvedHash`, the builder hash over the record semantic fields. A person runs it when they approve or review a record; agents run it only with `--by "auto (veto window)"` for a tier-3 question past its veto window. With `--dry-run` it writes nothing and prints what it would do: each record that would be stamped for carrying no `approvedHash`, and each record that would be reopened for a semantic hash that differs from it. [The approval hash guide](../guide/approval-hash.md) lists which fields feed the hash per record type.
 
-`backfill` drafts Behavior records from code during adoption: for each use case, reaction, and job a handler folder or an anchor tag places, it reads the repositories, dispatches, and refusal codes the code model already holds and drafts the missing frontmatter. A use case gains `changes` or `reads`, `effects` entries, and refusal results; a reaction gains `reads` and its edges; a job gains `reads` and its edges. Every touched record is marked transcribed. Existing entries are never removed or rewritten; only missing entries are appended. With a module name it covers that module only; without one it covers every module. With `--dry-run` it prints the plan and writes nothing. It prints a per-module completeness table first, then one line per planned record, then the count of files updated and records backfilled.
+`backfill` drafts Behavior records from code during adoption: for each use case, reaction, and job a mark places, it reads the repositories, dispatches, and refusal codes the code model already holds and drafts the missing frontmatter. A use case gains `changes` or `reads`, `effects` entries, and refusal results; a reaction gains `reads` and its edges; a job gains `reads` and its edges. Every touched record is marked transcribed. Existing entries are never removed or rewritten; only missing entries are appended. With a module name it covers that module only; without one it covers every module. With `--dry-run` it prints the plan and writes nothing. It prints a per-module completeness table first, then one line per planned record, then the count of files updated and records backfilled.
 
-The .NET stack reader discovers a reaction from an event handler: a class named `{Action}On{Fact}Handler` in an `On{Fact}` folder that implements `IEventHandler`. The handler's `<implements>reaction/...</implements>` tag names its reaction record.
+The .NET stack reader links each code element to its record through its mark, in the style `marks` declares: a handler, an event handler, a job, a port, an adapter, an endpoint, an aggregate root and its state-changing methods, a domain event, a refusal type, and a test. A folder or a type name is never the link. A marked refusal type declares the `code` of the refusal result its rule names.
 
 Aggregate transitions and data, and scenario examples, may be written as Markdown tables the builder parses, so the parts people debate read naturally even in the raw file. A front-matter field wins over a table with the same name.
 
@@ -64,7 +64,7 @@ Every reason except `refusal-path-added` fires only on approved or reviewed reco
 
 A finding that an open known gap covers is reported as known and exits zero. The gap covers the finding when its `check` equals the finding code, its `subject` lists the finding's subject, the gap is not retired, and its end date has not passed. A gap on a use case also covers the findings about the scenarios and results it holds. An expired known gap fails the check.
 
-Every check has a tier. G reads records only and always blocks. S reads code through a stack reader: it blocks where the stack reader is qualified (.NET today), and reports otherwise. A is advisory: it reports and never blocks. The finding codes are:
+Every check has a tier. G reads records only and always blocks. S reads code through a stack reader: it blocks where the stack reader is qualified (.NET today), and reports otherwise. A is advisory: it reports and never blocks. An S finding about a draft record reports without blocking and prints `draft`, and while `check.phase` is `frozen` a proof finding reports without blocking and prints `frozen`. The finding codes are:
 
 | Code | Tier | Meaning |
 |:---|:---|:---|
@@ -125,7 +125,22 @@ Every check has a tier. G reads records only and always blocks. S reads code thr
 | `transcribed-after-adoption` | G | A transcribed record remains after the adoption decision is approved. |
 | `operator-job-without-guard` | G | An operator job states no `guard`. |
 | `schedule-unstructured` | G | A job schedule is neither an `every` duration nor a `cron` expression. |
-| `behavior-unrecorded` | S | A handler, endpoint, reaction, domain event, or refusal code in code is named by no record. The remedy reads: delete the code, or write its parent record from a requirement, drafting the requirement if none exists. |
+| `behavior-unrecorded` | S | A refusal code in a declaring position, a screen call to no endpoint, or an engine step that maps to no use case is named by no record. The remedy reads: delete the code, or write its parent record from a requirement, drafting the requirement if none exists. |
+| `mark-missing` | S | A code element the marks table names carries no mark. |
+| `mark-unresolved` | S | A mark names no record, or a record of a type its code element does not take. |
+| `mark-count` | S | A code element carries more or fewer marks than its kind takes in the marks table, or names one record twice. |
+| `mark-style-mixed` | S | A mark is written in the style the project did not declare. |
+| `runtime-value-drift` | S | A hand-written event `Classification` or exception `Code` differs from what its record states. |
+| `act-event-undeclared` | S | A root method marked with a use case raises an event the use case does not list in `raises`. |
+| `act-event-unraised` | S | A use case lists an event in `raises` that no root method marked with it raises. |
+| `use-case-act-uncalled` | S | A command handler calls no root method marked with its use case. |
+| `aggregate-unimplemented` | S | No aggregate root carries the aggregate mark. |
+| `reaction-unimplemented` | S | No event handler carries the reaction mark. |
+| `job-unimplemented` | S | No job host carries the job mark. |
+| `external-system-unimplemented` | S | No port carries the external system mark. |
+| `use-case-unexposed` | S | A use case reached through a `browser` or `api` entry point has no endpoint carrying its mark. |
+| `effect-unimplemented` | A | A declared effect edge is taken by no code. |
+| `use-case-unreached` | A | A use case reached through a browser entry point has no screen calling it. |
 | `use-case-unimplemented` | S | No code implements the use case and no known gap covers it. |
 | `refusal-not-thrown` | S | A refusal result names a code the code never throws, or a code matching a `refusals.composed` template whose key no code declares. |
 | `proves-unconfirmed` | S | No proving step of a claimed scenario reaches its use case, no assertion matches its refusal by code, client alias, or HTTP status, and no integration fact drives its use case or rule. |

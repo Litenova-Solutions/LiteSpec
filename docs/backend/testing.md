@@ -98,15 +98,15 @@ The default strategy is one database per test class, cloned from a migrated temp
 
 **Reviewed for:** Architecture test files assert project references, visibility, folders, and inheritance against the compiled code.
 
-### Tag the Test That Proves Each Scenario
+### Mark the Test That Proves Each Scenario
 
-**ID:** `litespec/backend/testing#tag-the-test-that-proves-each-scenario`
+**ID:** `litespec/backend/testing#mark-the-test-that-proves-each-scenario`
 
-**Statement:** Each scenario MUST be proved by a test carrying its proves tag, calling its use case through the public boundary, and asserting the result the scenario names.
+**Statement:** Each scenario MUST be proved by a test carrying its proves mark, calling its use case through the public boundary, and asserting the result the scenario names.
 
-**Rationale:** A scenario states one behavior the product shows, and the proves tag is the test's claim that it shows it. A test that drives the use case through its steps, its message, or its endpoint exercises the public boundary; a test that constructs a handler, an aggregate, or a repository reaches past it and proves nothing. The assertion names the result: the success fields for a success, the refusal code inside an assertion for a refusal. A reaction scenario is proved the same way: its test fires the trigger and asserts the issued use case's result. A scenario no test proves is recorded as a known gap with owner and end date. The latest test run marks each confirmed claim passing or failing.
+**Rationale:** A scenario states one behavior the product shows, and the proves mark is the test's claim that it shows it. A test that drives the use case through its steps, its message, or its endpoint exercises the public boundary; a test that constructs a handler, an aggregate, or a repository reaches past it and proves nothing. The assertion names the result: the success fields for a success, the refusal code inside an assertion for a refusal. A reaction scenario is proved the same way: its test fires the trigger and asserts the issued use case's result. A scenario no test proves is recorded as a known gap with owner and end date. The latest test run marks each confirmed claim passing or failing.
 
-**Example:** An acceptance scenario for submitting an expense carries the tag for `scenario/submit-expense.submitting-with-a-receipt-succeeds`, drives the submit-expense steps, and asserts the submitted expense. An integration test for the same scenario constructs the submit-expense message, sends it through the host, and asserts the same result. The tag names the scenario, the call crosses the public boundary, and the model builder confirms the claim from the test body.
+**Example:** An acceptance scenario for submitting an expense carries the mark for `scenario/submit-expense.submitting-with-a-receipt-succeeds`, drives the submit-expense steps, and asserts the submitted expense. An integration test for the same scenario constructs the submit-expense message, sends it through the host, and asserts the same result. The mark names the scenario, the call crosses the public boundary, and the model builder confirms the claim from the test body.
 
 **Reviewed for:** The book pairs each scenario with its proving test, the boundary call in its body, and its latest passing run.
 
@@ -116,9 +116,9 @@ The default strategy is one database per test class, cloned from a migrated temp
 
 **Statement:** A rule claim MUST confirm only through a scenario the same test proves.
 
-**Rationale:** Each rule holds where its kind says: an invariant inside the aggregate, a precondition at the guard, a calculation in its pure evaluation, a cross-aggregate rule at the store or the reacting use case. A scenario that walks through that point exercises the rule, so the rule claim rides on the scenario proof instead of carrying its own enforcement-point tag. A calculation rule earns its proof from a scenario carrying the examples table that `litespec/core/behavior#tabulate-every-calculation-with-examples` requires.
+**Rationale:** Each rule holds where its kind says: an invariant inside the aggregate, a precondition at the guard, a calculation in its pure evaluation, a cross-aggregate rule at the store or the reacting use case. A scenario that walks through that point exercises the rule, so the rule claim rides on the scenario proof instead of carrying its own enforcement-point mark. A calculation rule earns its proof from a scenario carrying the examples table that `litespec/core/behavior#tabulate-every-calculation-with-examples` requires.
 
-**Example:** A test proving the scenario for an expense above the threshold with no receipt claims the receipt rule alongside the scenario. The scenario sends the command and asserts the `spending.receipt-missing` refusal, and the rule claim confirms because the same test proves the scenario. No separate tag names the validator or the store.
+**Example:** A test proving the scenario for an expense above the threshold with no receipt claims the receipt rule alongside the scenario. The scenario sends the command and asserts the `spending.receipt-missing` refusal, and the rule claim confirms because the same test proves the scenario. No separate mark names the validator or the store.
 
 **Reviewed for:** Rule claims sit on tests beside a proved scenario claim for the same use case.
 

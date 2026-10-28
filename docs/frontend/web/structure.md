@@ -54,6 +54,25 @@ The generated route artifacts, build output, and dependency folders stay untrack
 
 **Reviewed for:** Each frontend tree matches the frame, routes, and modules layout its stack page states.
 
+### Mark Each Use-Case Module with Its Use Case
+
+**ID:** `litespec/frontend/web/structure#mark-each-use-case-module-with-its-use-case`
+
+**Statement:** A frontend use-case folder MUST export one `litespec` constant whose `implements` names its use case, typed against the generated union of use-case identifiers.
+
+**Rationale:** The folder path mirrors the backend use case, which tells a reader where to look but tells a tool only a resemblance. A typed constant is the frontend mark in both mark styles: a mistyped identifier fails the type check, and the route files import the module instead of restating the identifier. The calls a screen makes through the generated client remain the computed `calls` link; the mark adds the written link from the screen to the use case it serves.
+
+**Example:** The submit-expense module in the Claimwick web frontend exports its mark.
+
+```ts
+// modules/spending/expenses/submit-expense/litespec.ts
+import type { LiteSpecMark } from "$lib/litespec-records";
+
+export const litespec = { implements: "use-case/spending.submit-expense" } as const satisfies LiteSpecMark;
+```
+
+**Reviewed for:** Which use-case folders export no `litespec` constant, or name a use case other than the one their path mirrors? Look in each folder under the modules root.
+
 ### Refuse Stack-Specific Folder Names
 
 **ID:** `litespec/frontend/web/structure#refuse-stack-specific-folder-names`

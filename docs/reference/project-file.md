@@ -33,6 +33,8 @@ The [supported scope](../core/scope.md) page states which sizes, shapes, stacks,
 | `constraints` | object | no | none |
 | `owners` | array of string or object | no | none |
 | `review` | object | no | none |
+| `marks` | string | no | `"xml"` |
+| `check` | object | no | none |
 | `adoption` | object | no | none |
 | `refusals` | object | no | the default codes |
 | `reviewedLiteSpecVersion` | string | yes | none |
@@ -54,6 +56,8 @@ What each field means and what reads it:
 - `constraints` records whether any outside constraint applies to the project. See the `constraints` object below.
 - `owners` is the closed list of names a record owner comes from. Each entry is a plain name, such as `"shop-team"`, or an object mapping a readable name to its CODEOWNERS handles, such as `{"name": "Shop engineering", "codeowners": ["@shop/team"]}`. The model builder reads the list and reports whether one is declared. See the `owners` entry below.
 - `review` names the review settings: the veto window and the security reviewer. See the `review` object below.
+- `marks` is the mark style: `xml` for documentation tags, `attribute` for generated attributes. The model builder, the analyzers and the source generator read it, and each reports a mark in the other style as `mark-style-mixed`.
+- `check` names how the checks treat the project. See the `check` object below.
 - `adoption` names the decision that ends transcription mode. See the `adoption` object below.
 - `refusals` names the codes the derived generic results carry. See the `refusals` object below.
 - `vocabulary` adds the project domain verbs to the baseline use-case vocabulary. See the `vocabulary` object below.
@@ -110,6 +114,14 @@ What each field means and what reads it:
 
 - `vetoWindowDays` is the days after `decideBy` in which a tier-3 draft question carrying `recommended` auto-approves unless vetoed, recorded as `approvedBy: auto (veto window)`. The model builder reads it when it reports aged questions, and the book reads it for the auto-approval date on the ballots page.
 - `securityReviewer` is the owner name holding the security reviewer role. The behavior diff lists the security queue for this reviewer: changes widening access tenant scope to cross, new `calls` effects, and new personal or sensitive data classes. `litespec model check` reports a name the owners list does not hold.
+
+### The `check` Object
+
+| Field | Type | Required | Default |
+|:---|:---|:---|:---|
+| `phase` | string | no | `"working"` |
+
+`phase` is `working` or `frozen`. In `frozen` the project holds its tests still while the code moves: `litespec model check` reports proof findings without blocking and marks them `frozen`, and the analyzers report them as warnings. In `working` they block as their tier states.
 
 ### The `adoption` Object
 

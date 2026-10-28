@@ -2,7 +2,7 @@
 
 ## Intent
 
-A backend built on .NET declares the `dotnet` stack in `litespec.project.json`. The declaration applies every page in this folder, and it tells the model builder to read C# code and test results in TRX or JUnit XML. This page states the declaration, what the stack reader reads from C# code, and the result formats the builder reads.
+A backend built on .NET declares the `dotnet` stack in `litespec.project.json`. The declaration applies every page in this folder, and it tells the model builder to read C# code and test results in TRX or JUnit XML. This page states the declaration, the form each mark takes in C#, the runtime values generated from the records, what the stack reader reads from C# code, and the result formats the builder reads.
 
 ## Standards
 
@@ -20,13 +20,69 @@ A backend built on .NET declares the `dotnet` stack in `litespec.project.json`. 
 
 **ID:** `litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader`
 
-**Statement:** The .NET stack reader MUST read use-case folders, reaction anchor tags, injected repositories, returned codes, dispatch calls, proves tags, and test results.
+**Statement:** The .NET stack reader MUST read marks in both styles, injected repositories, returned codes, dispatch calls, aggregate method calls, raised events, and test results.
 
-**Rationale:** Each S check reads one of those shapes. The folder anchors a command or query to its use-case record, and the event handler anchor tag names its reaction record. Injected repositories prove `changes`, returned codes prove declared results and refusals, and dispatch calls prove declared effects, so the reader reports `behavior-unrecorded`, `use-case-unimplemented`, `write-undeclared`, `result-undeclared`, `effect-undeclared`, and `refusal-not-thrown` from code. Proves tags with the latest test run prove each scenario, so the reader reports `proves-unconfirmed` and `use-case-without-scenario` from tests. S checks block where this reader is qualified and report elsewhere.
+**Rationale:** Each S check reads one of those shapes. The mark links a code element to its record, so a handler, an event handler, an endpoint, an aggregate root and its methods, a domain event, a refusal type, and a test each name what they serve. The reader reads a mark in either style and reports the style the project did not declare. Injected repositories prove `changes`, returned codes prove declared results and refusals, and dispatch calls prove declared effects, so the reader reports `behavior-unrecorded`, `use-case-unimplemented`, `write-undeclared`, `result-undeclared`, `effect-undeclared`, and `refusal-not-thrown` from code. Test marks with the latest test run prove each scenario, so the reader reports `proves-unconfirmed` and `use-case-without-scenario` from tests. S checks block where this reader is qualified and report elsewhere.
 
-**Example:** The `ReimburseExpense` folder anchors the handler to `use-case/spending.reimburse-expense`; the reaction class carries `/// <implements>reaction/spending.send-approver-reminders-on-expense-submitted</implements>`.
+**Example:** The reimburse-expense handler carries `/// <implements>use-case/spending.reimburse-expense</implements>`, and the reaction class carries `/// <implements>reaction/spending.send-approver-reminders-on-expense-submitted</implements>`.
 
 **Checked by:** `litespec model check` reports its tier beside each S finding read from C# code and test results.
+
+### Write Each Mark in the Declared Style
+
+**ID:** `litespec/backend/dotnet/stack#write-each-mark-in-the-declared-style`
+
+**Statement:** A .NET mark MUST be an `implements` or `proves` documentation tag when `marks` is `xml`, and an `Implements` or `Proves` attribute when `marks` is `attribute`.
+
+**Rationale:** The `xml` style keeps business code free of attributes that are not of the business: the mark is a documentation tag, read by the stack reader and by the analyzers, which need the documentation file every LiteSpec project already generates. The `attribute` style carries the mark into metadata, so it survives compilation and reflection can read it. Its attribute types are generated into each project as internal types by the analyzer package, so no runtime package is referenced, and Domain stays free of outer-layer dependencies. A code element takes one mark per record; a code fix converts a mark between the styles. This provision states the .NET form of `litespec/core/model#declare-one-mark-style`.
+
+**Example:** In the `xml` style:
+
+```csharp
+/// <summary>Reimburses an approved expense.</summary>
+/// <implements>use-case/spending.reimburse-expense</implements>
+internal sealed class ReimburseExpenseCommandHandler(IExpenseRepository expenseRepository)
+```
+
+In the `attribute` style:
+
+```csharp
+[Implements("use-case/spending.reimburse-expense")]
+internal sealed class ReimburseExpenseCommandHandler(IExpenseRepository expenseRepository)
+```
+
+**Checked by:** `litespec model check` reports `mark-style-mixed` (tier S), and `dotnet build` reports `LS5004`, for a mark written in the style the project did not declare.
+
+### Generate Runtime Values from the Records
+
+**ID:** `litespec/backend/dotnet/stack#generate-runtime-values-from-the-records`
+
+**Statement:** A domain event `Classification` and a domain exception `Code` MUST equal the values their records state.
+
+**Rationale:** The record states each identifier and refusal code once, so a second hand-written copy in code is a second source that drifts. With the analyzer package installed, its source generator writes the value into the `partial` type from the mark and the record: the event `Classification` is the event identifier, and the exception `Code` is the `code` of the refusal result its rule names. The same generator writes one constant per `permission/` record and a registry from each marked type to its record. Without the analyzer package, the value stays hand-written and the check compares it with the record.
+
+**Example:** The event carries its mark and the generator writes its classification:
+
+```csharp
+/// <implements>event/expense.submitted</implements>
+public sealed partial record ExpenseSubmittedEvent(ExpenseId ExpenseId, Money Amount) : IDomainEvent;
+```
+
+The generated part holds `public const string Classification = "event/expense.submitted";`.
+
+**Checked by:** `litespec model check` reports `runtime-value-drift` (tier S) for a hand-written value that differs from its record, and `dotnet build` reports `LS5005` for the same value.
+
+### Declare Marked Events and Exceptions as Partial Types
+
+**ID:** `litespec/backend/dotnet/stack#declare-marked-events-and-exceptions-as-partial-types`
+
+**Statement:** A project that references the analyzer package MUST declare every marked domain event and rule exception as a `partial` type.
+
+**Rationale:** The source generator adds the runtime value as a second part of the type, and a type that is not `partial` cannot take one. The generator writes a value only where no member of that name is declared in source, so a hand-written value is compared with the record rather than duplicated. A code fix adds `partial` and deletes a hand-written value that equals the record.
+
+**Example:** `public sealed partial record ExpenseSubmittedEvent(...)` takes its generated `Classification`; the same record without `partial` is reported.
+
+**Checked by:** `dotnet build` reports `LS5006` for a marked domain event or rule exception that is not `partial`, in every project that references the analyzer package.
 
 ### Write Test Results the Model Builder Reads
 

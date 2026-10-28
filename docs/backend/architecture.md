@@ -30,7 +30,7 @@ CQRS separates the command and query models inside the one Application part: a c
 
 ### From Records to Code
 
-Behavior records map onto code one way: the use-case folder is the anchor for a command or query, and a reaction class carries one anchor tag naming its reaction record. Jobs, notifications, settings, and integration events map onto the code shapes the layer pages state. Nothing above Implementation is computed from code: code points up to the record it serves, and an undeclared edge or outcome is the defect.
+Behavior records map onto code one way: each code element carries a mark naming the record it serves, under `litespec/core/system#point-code-and-tests-up-to-records`, and the folders mirror the records so a reader finds the code. Jobs, notifications, settings, and integration events map onto the code shapes the layer pages state. Nothing above Implementation is computed from code: code points up to the record it serves, and an undeclared edge or outcome is the defect.
 
 ## Standards
 
@@ -266,4 +266,4 @@ Publishing a post follows this direction:
 2. Application loads the post through its domain repository.
 3. Domain publishing enforces publication rules and raises the post-published event.
 4. Infrastructure stages and commits the post through the command pipeline.
-5. One reaction class answers the event through the reaction its record declares under `litespec/backend/application#keep-event-reaction-implementations-explicit`, carrying one anchor tag naming that record.
+5. One reaction class answers the event through the reaction its record declares under `litespec/backend/application#keep-event-reaction-implementations-explicit`, carrying one mark naming that record.

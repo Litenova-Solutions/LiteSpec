@@ -162,7 +162,7 @@ If order is not part of the value, creation normalizes to the documented compari
 
 **Statement:** A domain service MUST be a stateless sealed class accepting and returning Domain values.
 
-**Rationale:** Some calculations span concepts with no natural aggregate owner, and a stateless service holds that calculation with no persistence, messaging, logging, clock, authorization, or provider call. Application loads the aggregates, calls the service, and passes its result into aggregate behavior. A service whose name cannot follow its rule carries an `/// <implements>` tag, so the builder still links it. This provision states the .NET form of `litespec/backend/domain#use-stateless-domain-services-for-ownerless-rules`.
+**Rationale:** Some calculations span concepts with no natural aggregate owner, and a stateless service holds that calculation with no persistence, messaging, logging, clock, authorization, or provider call. Application loads the aggregates, calls the service, and passes its result into aggregate behavior. The service carries a mark naming its rule, so the builder links it to the rule it computes. This provision states the .NET form of `litespec/backend/domain#use-stateless-domain-services-for-ownerless-rules`.
 
 **Example:** An order pricing service reads as follows:
 
@@ -473,9 +473,9 @@ public IReadOnlyCollection<string> UniquenessKeys() =>
 
 **ID:** `litespec/backend/dotnet/domain#raise-immutable-domain-facts`
 
-**Statement:** A domain event MUST be a public immutable record named `{Aggregate}{PastFact}Event` implementing `IDomainEvent` and carrying business data only.
+**Statement:** A domain event MUST be a public immutable record named `{Aggregate}{PastFact}Event` implementing `IDomainEvent`, carrying business data only and one mark naming its event record.
 
-**Rationale:** The `{Aggregate}{PastFact}Event` name tells a reader which aggregate raised the fact without opening the file. The event carries business data only: typed identifiers and the values its reactions need. It carries no aggregate, session, service, mutable collection, or exception, because a mutable payload lets a reaction observe state that changed after the fact. Envelope identity, such as message and causation identity, lives on the published integration event that carries the fact outside the process. The event type name derives from the event identifier: `AccessCodeIssuedEvent` is `event/access-code.issued`. An event whose name cannot follow its identifier states the identifier as a string literal in its type, which the builder links instead. Only the aggregate root raises events, through `RaiseDomainEvent` on the shared base. This provision states the .NET form of `litespec/backend/domain#raise-immutable-facts-as-domain-events`.
+**Rationale:** The `{Aggregate}{PastFact}Event` name tells a reader which aggregate raised the fact without opening the file. The event carries business data only: typed identifiers and the values its reactions need. It carries no aggregate, session, service, mutable collection, or exception, because a mutable payload lets a reaction observe state that changed after the fact. Envelope identity, such as message and causation identity, lives on the published integration event that carries the fact outside the process. Its `Classification` comes from the event record its mark names, under `litespec/backend/dotnet/stack#generate-runtime-values-from-the-records`. Only the aggregate root raises events, through `RaiseDomainEvent` on the shared base. This provision states the .NET form of `litespec/backend/domain#raise-immutable-facts-as-domain-events`.
 
 **Checked by:** `dotnet build` reports `LS1007` for a domain event that is not an immutable record.
 
@@ -483,9 +483,9 @@ public IReadOnlyCollection<string> UniquenessKeys() =>
 
 **ID:** `litespec/backend/dotnet/domain#reject-business-violations-with-domain-exceptions`
 
-**Statement:** A rejected business rule MUST throw a `DomainException` subclass named `{DomainType}{Reason}Exception` carrying the refusal `code`.
+**Statement:** A rejected business rule MUST throw a `DomainException` subclass named `{DomainType}{Reason}Exception`, carrying the refusal `code` and one mark naming its rule.
 
-**Rationale:** One exception type per rule puts the stable code and the message in the type, so the call site passes only domain values and two rules never share a type by accident. A shared rule exception with caller-supplied codes lets any caller invent a code and lets unrelated rules merge silently. An invariant rule is checked in the root's factory and methods, and a precondition rule is checked in the use-case validator or the root's method. Each exception's code equals the refusal `code` on the result record it answers. Names lead with the aggregate root and follow `litespec/workspace/naming#name-exceptions-by-failed-rule`; this provision owns the one-type-per-rule shape and the code each type carries. Domain throws no `InvalidOperationException`, `ArgumentException`, validation, HTTP, or provider exception for a business rejection, and carries no transport status. This provision states the .NET form of `litespec/backend/domain#reject-business-violations-with-dedicated-refusals`.
+**Rationale:** One exception type per rule puts the stable code and the message in the type, and its `Code` comes from the refusal result its rule names, under `litespec/backend/dotnet/stack#generate-runtime-values-from-the-records`. The call site passes only domain values and two rules never share a type by accident. A shared rule exception with caller-supplied codes lets any caller invent a code and lets unrelated rules merge silently. An invariant rule is checked in the root's factory and methods, and a precondition rule is checked in the use-case validator or the root's method. Each exception's code equals the refusal `code` on the result record it answers. Names lead with the aggregate root and follow `litespec/workspace/naming#name-exceptions-by-failed-rule`; this provision owns the one-type-per-rule shape and the code each type carries. Domain throws no `InvalidOperationException`, `ArgumentException`, validation, HTTP, or provider exception for a business rejection, and carries no transport status. This provision states the .NET form of `litespec/backend/domain#reject-business-violations-with-dedicated-refusals`.
 
 **Example:**
 
@@ -514,12 +514,12 @@ if (allocation.Any(line => line.Quantity <= 0))
 ```
 
 ```csharp
-public sealed class RefundAllocationRequiredException()
-    : DomainException("A refund requires at least one allocation line.")
-{
-    public override string Code => "refunds.allocation-required";
-}
+/// <implements>rule/refunds.allocation-required</implements>
+public sealed partial class RefundAllocationRequiredException()
+    : DomainException("A refund requires at least one allocation line.");
 ```
+
+The generator writes `public override string Code => "refunds.allocation-required";` from the refusal result the rule names.
 
 Two rules that share a caller-visible refusal code because a boundary maps them to one response still get two exception types. The shared code lives in the two types, not in a string passed by the aggregate. Reuse a single exception type only when one rule can fail from more than one input and the differing values are carried as constructor parameters.
 
