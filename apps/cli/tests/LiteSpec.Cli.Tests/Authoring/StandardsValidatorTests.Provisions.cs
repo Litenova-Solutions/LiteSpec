@@ -53,10 +53,30 @@ public sealed partial class StandardsValidatorTests
         root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "A consumer can name another location through an explicit local convention.", "A consumer MUST name another location through an explicit local convention.")),
         []);
 
-    [Fact(DisplayName = "missing evidence row")]
-    public void MissingEvidenceRow() => Check(
-        root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "| litespec/core/topic#keep-the-topic-bounded | checkable | `litespec validate` confirms the topic stays inside its declared boundary. |\n", "")),
+    [Fact(DisplayName = "convention without a verification line")]
+    public void ConventionWithoutVerificationLine() => Check(
+        root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Reviewed for:** Does the topic live in its owning documentation area?\n", "")),
         ["VERIFY_MISSING_ID"]);
+
+    [Fact(DisplayName = "wrong ID line")]
+    public void WrongIdLine() => Check(
+        root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**ID:** `litespec/core/topic#keep-the-topic-bounded`", "**ID:** `litespec/core/topic#keep-the-topic-boundary`")),
+        ["ID_LINE_MISMATCH"]);
+
+    [Fact(DisplayName = "missing ID line")]
+    public void MissingIdLine() => Check(
+        root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**ID:** `litespec/core/topic#keep-the-topic-bounded`\n\n", "")),
+        ["ID_LINE_MISSING"]);
+
+    [Fact(DisplayName = "ID line after the statement")]
+    public void IdLineAfterStatement() => Check(
+        root =>
+        {
+            var page = StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**ID:** `litespec/core/topic#keep-the-topic-bounded`\n\n", "");
+            page = StandardsFixture.ReplaceFirst(page, "**Rationale:** The boundary gives reviewers one testable result.", "**ID:** `litespec/core/topic#keep-the-topic-bounded`\n\n**Rationale:** The boundary gives reviewers one testable result.");
+            StandardsFixture.Write(root, "docs/core/topic.md", page);
+        },
+        ["ID_LINE_MISSING"]);
 
     [Fact(DisplayName = "unknown active ID")]
     public void UnknownActiveId() => Check(

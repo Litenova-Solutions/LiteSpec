@@ -12,7 +12,7 @@ litespec validate [--root <path>] [--warnings] [--format json] [--help]
 
 ## Description
 
-This command is the repository gate for every page, template, and identifier under `docs/`. It checks page contracts and section order, atomic Standards and Convention blocks, provision identity, pattern pages and their wireframes, verification marks, normative-language placement, heading capitalization, and ASCII prose. It also checks internal links, manifest paths, extension declarations, and the generated provision index.
+This command is the repository gate for every page, template, and identifier under `docs/`. It checks page contracts and section order, atomic Standards and Convention blocks, provision identity, inline verification lines, pattern pages and their wireframes, normative-language placement, heading capitalization, and ASCII prose. It also checks internal links, manifest paths, extension declarations, and the generated provision index.
 
 Run it after changing any page, any template, or any authoring rule.
 

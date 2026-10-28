@@ -21,14 +21,13 @@ static class Provisions
 
     // Every provision identifier is litespec/<page>#<heading-slug>. The page is the
     // owning page path relative to docs/ without its extension, and the slug is the
-    // heading slug. The heading carries no ID text; the ID is computed from the path
-    // and the heading. No segment carries a sequence number.
+    // heading slug. The ID line right below the heading states it, so a reader
+    // copies the identifier without composing it. No segment carries a sequence number.
     static readonly Regex ProvisionIdPattern = new($"^{IdSource}$");
     static readonly Regex ProvisionHeading = new(@"^###\s+(.+?)\s*$");
     static readonly Regex ParseIdPattern = new(@"^litespec\/([a-z0-9]+(?:-[a-z0-9]+)*(?:\/[a-z0-9]+(?:-[a-z0-9]+)*)*)#([a-z0-9]+(?:-[a-z0-9]+)*)$");
     static readonly Regex SectionHeading = new(@"^##\s+(.+?)\s*(?:\{#.*\})?\s*$");
     static readonly Regex Fence = new(@"^\s*```");
-    static readonly Regex SeparatorCell = new(@"^:?-+:?$");
     static readonly Regex AnchorSuffix = new(@"\s+\{#[^}]+\}\s*$");
     static readonly Regex SlugStrip = new(@"[^a-z0-9\s-]");
     static readonly Regex WhitespaceRun = new(@"\s+");
@@ -99,7 +98,7 @@ static class Provisions
 
             var page = PagePath(relative);
             var lines = StripFences(LineSplit.Split(File.ReadAllText(file)));
-            var marks = CollectVerificationMarks(lines);
+            var marks = CollectInlineMarks(lines, page, relative);
             var section = "";
 
             foreach (var line in lines)
@@ -241,27 +240,18 @@ static class Provisions
         return result;
     }
 
-    static List<string>? TableCells(string line)
-    {
-        var trimmed = line.Trim();
+    // A provision carries its verification beside its heading: an ID line first,
+    // then its fields, then exactly one verification line, last. The label names
+    // the mark: "Checked by" is checkable with the command that checks it, and
+    // "Reviewed for" is guidance with the question a reviewer answers. The index
+    // keeps its Mark column, derived from the label.
+    static readonly Regex VerificationLine = new(@"^\*\*(Checked by|Reviewed for):\*\*\s*(.*)$");
 
-        if (!trimmed.StartsWith('|') || !trimmed.EndsWith('|'))
-        {
-            return null;
-        }
-
-        return trimmed[1..^1].Split('|').Select(cell => cell.Trim()).ToList();
-    }
-
-    // A Verification row carries the provision's mark: checkable with the command
-    // that checks it, or guidance with the question a reviewer answers. The columns
-    // are found by header name, so a column the page does not have reads as absent
-    // rather than shifting the others.
-    static Dictionary<string, (string Mark, string Evidence)> CollectVerificationMarks(string[] lines)
+    static Dictionary<string, (string Mark, string Evidence)> CollectInlineMarks(string[] lines, string page, string relative)
     {
         var marks = new Dictionary<string, (string Mark, string Evidence)>(StringComparer.Ordinal);
         var section = "";
-        (int Id, int Mark, int Evidence)? columns = null;
+        string? current = null;
 
         foreach (var line in lines)
         {
@@ -270,50 +260,30 @@ static class Provisions
             if (heading.Success)
             {
                 section = heading.Groups[1].Value.Trim();
-                columns = null;
+                current = null;
                 continue;
             }
 
-            if (section != "Verification")
+            var pattern = section == "Patterns" && Patterns.PatternPage.IsPatternPage(relative);
+            if (section == "Standards" || section == "Conventions" || pattern)
             {
-                continue;
-            }
+                var provision = ProvisionHeading.Match(line);
 
-            var cells = TableCells(line);
-
-            if (cells is null)
-            {
-                continue;
-            }
-
-            if (SeparatorCell.IsMatch(cells[0]))
-            {
-                continue;
-            }
-
-            if (columns is null)
-            {
-                var lowered = cells.Select(cell => cell.ToLowerInvariant()).ToList();
-
-                if (lowered.Contains("id") && lowered.Contains("evidence"))
+                if (provision.Success)
                 {
-                    columns = (lowered.IndexOf("id"), lowered.IndexOf("mark"), lowered.IndexOf("evidence"));
+                    current = $"litespec/{page}#{HeadingSlug(provision.Groups[1].Value.Trim())}";
+                    continue;
                 }
-
-                continue;
             }
 
-            var (idColumn, markColumn, evidenceColumn) = columns.Value;
-            var id = idColumn < cells.Count ? cells[idColumn] : "";
+            var verification = VerificationLine.Match(line);
 
-            if (id.Length == 0 || marks.ContainsKey(id))
+            if (verification.Success && current is not null && !marks.ContainsKey(current))
             {
-                continue;
+                marks[current] = (
+                    verification.Groups[1].Value == "Checked by" ? "checkable" : "guidance",
+                    verification.Groups[2].Value.Trim());
             }
-
-            marks[id] = (
-                markColumn >= 0 && markColumn < cells.Count ? cells[markColumn] : "",
-                evidenceColumn < cells.Count ? cells[evidenceColumn] : "");
         }
 
         return marks;
@@ -330,13 +300,13 @@ static class Provisions
 sealed record ProvisionId(string Page, string Slug);
 
 /// <summary>
-///     One provision with its heading, owning page and Verification mark.
+///     One provision with its heading, owning page and inline verification mark.
 /// </summary>
 /// <param name="Id">The provision identifier.</param>
 /// <param name="Heading">The provision heading.</param>
 /// <param name="Page">The owning page, relative to the repository root.</param>
 /// <param name="Anchor">The heading slug the index links to.</param>
 /// <param name="Kind">The assertion class.</param>
-/// <param name="Mark">The Verification mark, or empty when the page carries none.</param>
-/// <param name="Evidence">The Verification evidence, or empty when the page carries none.</param>
+/// <param name="Mark">The inline verification mark, or empty when the provision carries none.</param>
+/// <param name="Evidence">The inline verification evidence, or empty when the provision carries none.</param>
 sealed record ProvisionRow(string Id, string Heading, string Page, string Anchor, string Kind, string Mark, string Evidence);

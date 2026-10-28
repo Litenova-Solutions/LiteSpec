@@ -67,21 +67,24 @@ A standards page carries the same sections every time:
 - **Concepts**, when present, explain the ideas the rules use.
 - **Standards** are the rules you must follow.
 - **Conventions** are defaults you may replace with your own.
-- **Verification** states, for each rule, how it is checked.
 
-Each rule is a heading, and the heading is also its ID. Here is one from the [domain page](../backend/domain.md):
+Each rule is a heading followed by its ID line. Here is one from the [domain page](../backend/domain.md):
 
 ```markdown
 ### Keep Domain Independent of Outer Layers
 
+**ID:** `litespec/backend/domain#keep-domain-independent-of-outer-layers`
+
 **Statement:** The Domain code MUST reference only the language standard library and project-owned Domain types.
 
 **Rationale:** Domain that references only the language standard library and its own types compiles and tests with no infrastructure at all.
+
+**Reviewed for:** Domain code references the language standard library and project-owned Domain types, with no outer-layer reference.
 ```
 
-Its ID is `litespec/backend/domain#keep-domain-independent-of-outer-layers`: the page path, then the heading. The **Statement** is the rule itself, one sentence with one capitalized word that sets its strength, as in internet standards: `MUST`, `MUST NOT`, `SHOULD`, `SHOULD NOT` or `MAY`. Everything under **Rationale** and **Example** explains it and adds no obligation.
+Its **ID** line states `litespec/backend/domain#keep-domain-independent-of-outer-layers`: the page path, then the heading. The **Statement** is the rule itself, one sentence with one capitalized word that sets its strength, as in internet standards: `MUST`, `MUST NOT`, `SHOULD`, `SHOULD NOT` or `MAY`. Everything under **Rationale** and **Example** explains it and adds no obligation.
 
-In the Verification table, each rule is marked `checkable`, with the command that checks it, or `guidance`, with the question a reviewer asks. That shows whether a tool or a person catches a slip.
+The last line of each rule is its verification: `**Checked by:**` names the command that checks it, or `**Reviewed for:**` asks the question a reviewer answers. That shows whether a tool or a person catches a slip.
 
 ## Departures from the Rules
 

@@ -40,7 +40,7 @@ Change the records, code, tests, contracts, and operations that belong together 
 
 1. Decide whether the assertion changes. A reword that obliges the same action keeps its ID. A requirement that obliges a different action, a wider scope, or a different actor takes a new ID.
 2. Write the new provision under a new heading on its page. Never reuse the retired heading.
-3. Delete the retired provision and its Verification row. Leave no alias, replacement map, or note that the identifier moved.
+3. Delete the retired provision with its ID line and verification line. Leave no alias, replacement map, or note that the identifier moved.
 4. Update each page that cited the retired ID. [docs/reference/provisions.md](docs/reference/provisions.md) resolves every citation to its page, and `litespec validate` reports a citation with no owner.
 5. Update the validator case that covers the rule, in both directions: one passing case and one failing case. A rule with only one side stays unverified.
 6. Run `litespec provisions` and commit the regenerated index.
@@ -51,8 +51,8 @@ A consumer that pinned the earlier release keeps that release and its own except
 ### Add a Page
 
 1. Place the page where it applies: a principle in its area folder, a realization in its stack folder such as [docs/backend/dotnet/](docs/backend/dotnet/). The path states the provision scope, and two pages never share one.
-2. Use the sections of its page style from the [authoring standard](docs/core/authoring.md). A Standard states one testable obligation under one heading, with one provision ID, one Verification row, and an example where the standard requires one.
-3. Write no ID in the heading. The ID follows the page path and the heading, so the two never disagree.
+2. Use the sections of its page style from the [authoring standard](docs/core/authoring.md). A Standard states one testable obligation under one heading, laid out as the [provision layout](docs/core/authoring.md#provision-layout) shows: heading, ID line, Statement, Rationale, Example, and one verification line.
+3. Write no ID in the heading. The ID follows the page path and the heading; the ID line under the heading repeats it, and `litespec validate` refuses one that disagrees.
 4. Regenerate the provision index and update the changelog.
 
 ### Add a UI Pattern Option

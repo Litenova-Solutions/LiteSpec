@@ -2,7 +2,7 @@ namespace LiteSpec.Authoring;
 
 /// <summary>
 ///     The <c>litespec provisions</c> command: writes <c>docs/reference/provisions.md</c>
-///     from the active standards, with each provision's Verification mark and evidence.
+///     from the active standards, with each provision's inline verification mark and evidence.
 /// </summary>
 static class ProvisionsCommand
 {

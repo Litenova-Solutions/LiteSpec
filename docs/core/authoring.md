@@ -495,7 +495,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Statement:** A Standards provision MUST follow the Standard contract this page defines.
 
-**Rationale:** One provision with one obligation has one authority, one identifier, and one verification row. A provision that bundles two obligations leaves a project half-compliant with no identifier for the half it missed.
+**Rationale:** One provision with one obligation has one authority, one identifier, and one verification line. A provision that bundles two obligations leaves a project half-compliant with no identifier for the half it missed.
 
 **Example:** `### Keep Business Invariants in Domain` owns one obligation about where invariants are enforced.
 
@@ -577,9 +577,9 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Checked by:** `litespec consumer` fails a record identifier outside the declared grammar.
 
-### Put the ID Under Every Provision Heading
+### Place the ID Under Every Provision Heading
 
-**ID:** `litespec/core/authoring#put-the-id-under-every-provision-heading`
+**ID:** `litespec/core/authoring#place-the-id-under-every-provision-heading`
 
 **Statement:** Every provision heading MUST be followed by an ID line holding the ID the heading derives.
 

@@ -63,6 +63,8 @@ static partial class StandardsValidator
         "HEADING_EMPTY_BODY",
         "ID_DUPLICATE",
         "ID_IN_HEADING",
+        "ID_LINE_MISSING",
+        "ID_LINE_MISMATCH",
         "ID_PAGE_FILENAME",
         "ID_UNKNOWN_REFERENCE",
         "INDEX_CONTAINS_PROCEDURE",
@@ -112,10 +114,9 @@ static partial class StandardsValidator
         "VERIFY_DUPLICATE_ID",
         "VERIFY_GENERIC_EVIDENCE",
         "VERIFY_HEADER",
-        "VERIFY_MARK",
         "VERIFY_MISSING_ID",
+        "VERIFY_ORDER",
         "VERIFY_TEMPLATED_EVIDENCE",
-        "VERIFY_UNKNOWN_ID",
 
         "TEMPLATE_INDEX_PATH",
 
@@ -209,8 +210,8 @@ static partial class StandardsValidator
 
         CheckAuthoringTemplates(resolved, globalIds, Add);
         CheckLinks(resolved, current, Add);
-        var rowsByPage = parsedPages.ToDictionary(page => page.Relative, page => page.Parsed.VerificationRows, StringComparer.Ordinal);
-        CheckManifest(resolved, Add, activeIds, rowsByPage);
+        var provisionsByPage = parsedPages.ToDictionary(page => page.Relative, page => page.Parsed.Provisions, StringComparer.Ordinal);
+        CheckManifest(resolved, Add, activeIds, provisionsByPage);
 
         // The provision index is derived. A stale page would send a reader to the wrong
         // heading, so the gate compares it with the active standards.
@@ -367,11 +368,8 @@ static partial class StandardsValidator
         public string Claim { get; set; } = "";
     }
 
-    /// <summary>One Verification table row: the provision, its mark, its line, and its evidence cell.</summary>
-    private sealed record VerificationRow(string Id, string Mark, int Line, string Evidence);
-
     /// <summary>Everything one page parse collects for the later cross-page checks.</summary>
-    private sealed record ParsedBlocks(string? Kind, List<Provision> Provisions, List<VerificationRow> VerificationRows);
+    private sealed record ParsedBlocks(string? Kind, List<Provision> Provisions);
 
     /// <summary>One parsed page: its relative path, its raw text, and its blocks.</summary>
     private sealed record ParsedPage(string Relative, string Raw, ParsedBlocks Parsed);
@@ -384,6 +382,9 @@ static partial class StandardsValidator
     static string IdPattern => Provisions.IdSource.Replace("\\/", "/", StringComparison.Ordinal);
 
     static readonly Lazy<Regex> CitationLazy = new(() => new Regex($"\\b(?:{IdPattern})\\b"));
+
+    // The old Verification table row shape. Standards pages carry verification
+    // beside each provision now, so a row in this shape is a leftover table.
     static readonly Lazy<Regex> VerificationRowLazy = new(() => new Regex($"^\\|\\s*({IdPattern})\\s*\\|\\s*([^|]*?)\\s*\\|\\s*([^|]*?)\\s*\\|\\s*$"));
 
     static Regex CitationPattern => CitationLazy.Value;

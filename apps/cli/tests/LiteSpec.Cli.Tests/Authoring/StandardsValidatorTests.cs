@@ -130,7 +130,7 @@ public sealed partial class StandardsValidatorTests
 
     [Fact(DisplayName = "per-stack section after standards")]
     public void PerStackAfterStandards() => Check(
-        root => StandardsFixture.Write(root, "docs/frontend/web/sample.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage.Replace("core/topic", "frontend/web/sample"), "## Verification", "## React\n\n- React names the binding the rule above forbids.\n\n## Verification")),
+        root => StandardsFixture.Write(root, "docs/frontend/web/sample.md", StandardsFixture.TopicPage.Replace("core/topic", "frontend/web/sample") + "\n## React\n\n- React names the binding the rule above forbids.\n"),
         ["PAGE_UNKNOWN_SECTION", "PAGE_SECTION_ORDER"]);
 
     [Fact(DisplayName = "stack page with a concepts section")]
@@ -264,6 +264,8 @@ public sealed partial class StandardsValidatorTests
             "HEADING_EMPTY_BODY",
             "ID_DUPLICATE",
             "ID_IN_HEADING",
+            "ID_LINE_MISSING",
+            "ID_LINE_MISMATCH",
             "ID_PAGE_FILENAME",
             "ID_UNKNOWN_REFERENCE",
             "INDEX_CONTAINS_PROCEDURE",
@@ -317,10 +319,9 @@ public sealed partial class StandardsValidatorTests
             "VERIFY_DUPLICATE_ID",
             "VERIFY_GENERIC_EVIDENCE",
             "VERIFY_HEADER",
-            "VERIFY_MARK",
             "VERIFY_MISSING_ID",
+            "VERIFY_ORDER",
             "VERIFY_TEMPLATED_EVIDENCE",
-            "VERIFY_UNKNOWN_ID",
         };
 
         foreach (var code in StandardsValidator.StableDiagnosticCodes)

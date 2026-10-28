@@ -90,7 +90,7 @@ Each page uses the sections of its page style. A Standard states one testable ob
 
 The ID line holds the ID the heading derives. `litespec provisions` writes the index from these lines. When you rename a provision, replace every citation of the old ID in the same change.
 
-Sources: `litespec/core/authoring#keep-authored-prose-ascii-safe`, `litespec/core/authoring#use-one-term-for-one-concept`, `litespec/core/authoring#use-controlled-capitalization`, `litespec/core/authoring#use-the-declared-page-contract`, `litespec/core/authoring#write-atomic-standards-provisions`, `litespec/core/authoring#put-the-id-under-every-provision-heading`, `litespec/core/maintaining#replace-every-citation-on-a-rename`.
+Sources: `litespec/core/authoring#keep-authored-prose-ascii-safe`, `litespec/core/authoring#use-one-term-for-one-concept`, `litespec/core/authoring#use-controlled-capitalization`, `litespec/core/authoring#use-the-declared-page-contract`, `litespec/core/authoring#write-atomic-standards-provisions`, `litespec/core/authoring#place-the-id-under-every-provision-heading`, `litespec/core/maintaining#replace-every-citation-on-a-rename`.
 
 ## Releases
 

@@ -51,7 +51,7 @@ public sealed partial class StandardsValidatorTests
 
     [Fact(DisplayName = "reference example declaration")]
     public void ReferenceExampleDeclaration() => Check(
-        root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "## Verification", "## Reference Example\n\nA topic example has no declared provision.\n\n## Verification")),
+        root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.TopicPage + "\n## Reference Example\n\nA topic example has no declared provision.\n"),
         ["REFERENCE_EXAMPLE_DECLARATION"]);
 
     [Fact(DisplayName = "index without Intent")]

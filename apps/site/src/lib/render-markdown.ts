@@ -249,12 +249,12 @@ function rewriteLinks(html: string, page: Page): string {
 // The labels a provision paragraph can open with. A rule or convention card
 // sorts them into its parts: the statement, Why, Example and Check.
 const labelSplit =
-  /(?=<p><strong>(?:Statement|Default|Replacement|Deviation|Rationale|Cost|Reference|Evidence|Question|Compact|Example):<\/strong>)/;
-const labelLead = /^<p><strong>([A-Z][a-z]+):<\/strong>\s*/;
+  /(?=<p><strong>(?:Statement|Default|Replacement|Deviation|Rationale|Cost|Reference|Evidence|Question|Compact|Example|Checked by|Reviewed for):<\/strong>)/;
+const labelLead = /^<p><strong>([A-Z][a-z]+(?: [a-z]+)?):<\/strong>\s*/;
 
 // Pattern cards keep their body in order, with each label as a small tag.
 const labelPattern =
-  /<p><strong>(Statement|Default|Replacement|Deviation|Rationale|Cost|Reference|Evidence|Question|Compact|Example):<\/strong>/g;
+  /<p><strong>(Statement|Default|Replacement|Deviation|Rationale|Cost|Reference|Evidence|Question|Compact|Example|Checked by|Reviewed for):<\/strong>/g;
 
 function styleLabels(body: string): string {
   return body.replace(labelPattern, (_match, label: string) =>
@@ -275,11 +275,6 @@ function splitLabels(body: string): Map<string, string[]> {
     parts.set(label, [...(parts.get(label) ?? []), html]);
   }
   return parts;
-}
-
-// Renders the inline code spans of a Verification table cell.
-function inlineCode(text: string): string {
-  return escape(text).replace(/`([^`]+)`/g, "<code>$1</code>");
 }
 
 function section(name: string, body: string, open: boolean, aside = ""): string {
@@ -307,8 +302,7 @@ function provisionParts(body: string, provision: Page["provisions"][number]): st
   if (why) out += section("Why", highlightMust(why), false);
   const example = take("Example").join("");
   if (example) out += section("Example", example, /<pre\b/.test(example));
-  const evidence = [...take("Evidence")];
-  if (provision.evidence) evidence.unshift(`<p class="provision-evidence">${inlineCode(provision.evidence)}</p>`);
+  const evidence = [...take("Evidence"), ...tagged("Checked by"), ...tagged("Reviewed for")];
   if (evidence.length > 0) {
     const how =
       provision.mark === "checkable"
@@ -341,9 +335,10 @@ function highlightMust(body: string): string {
 }
 
 // Wraps each provision H3 with the elements it owns, up to the next H2 or H3,
-// in its card: the heading with kind and verification badges, the ID line with
+// in its card: the heading with kind and verification badges, the ID with
 // its copy button, then the body. A rule or convention body becomes its
-// statement and folding parts; a pattern body keeps its order.
+// statement and folding parts; a pattern body keeps its order. The ID line of
+// the Markdown is dropped from the body because the header shows the same ID.
 function wrapProvisions(html: string, page: Page): string {
   const provisions = new Map(page.provisions.map((provision) => [provision.slug, provision]));
   const pattern = /<h([23]) id="([^"]+)">[\s\S]*?<\/h\1>/g;
@@ -363,6 +358,7 @@ function wrapProvisions(html: string, page: Page): string {
       out += head.html + body;
       continue;
     }
+    const content = body.replace(/<p><strong>ID:<\/strong>[\s\S]*?<\/p>/g, "");
     const kindModifier =
       provision.kind === "rule" ? "provision-rule" : provision.kind === "convention" ? "provision-convention" : "provision-pattern";
     const badgeModifier =
@@ -379,8 +375,8 @@ function wrapProvisions(html: string, page: Page): string {
       `<div class="provision-id" data-pagefind-ignore><span class="provision-hash" aria-hidden="true">#</span><code>${escape(provision.id)}</code>` +
       `<button type="button" class="btn btn-ghost btn-icon btn-copy" data-copy="${escape(provision.id)}" aria-label="Copy provision ID">${iconSvg(paths.copy)}</button></div>` +
       (provision.kind === "pattern"
-        ? `<div class="provision-body">${highlightMust(styleLabels(body))}</div>`
-        : provisionParts(body, provision)) +
+        ? `<div class="provision-body">${highlightMust(styleLabels(content))}</div>`
+        : provisionParts(content, provision)) +
       `</section>`;
   }
   return out;

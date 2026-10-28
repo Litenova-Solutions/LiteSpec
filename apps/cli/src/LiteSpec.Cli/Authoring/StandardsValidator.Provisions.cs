@@ -3,12 +3,10 @@ using System.Text.RegularExpressions;
 namespace LiteSpec.Authoring;
 
 /// <summary>
-///     The provision contract: labels, assertions, and verification tables.
+///     The provision contract: labels, assertions, and inline verification.
 /// </summary>
 static partial class StandardsValidator
 {
-    static readonly HashSet<string> VerificationMarks = new(["checkable", "guidance"], StringComparer.Ordinal);
-
     static readonly HashSet<string> LiteSpecCommands = new(
         ["validate", "provisions", "consumer", "ui", "model", "book", "patterns", "init", "new", "rename"],
         StringComparer.Ordinal);
@@ -35,6 +33,14 @@ static partial class StandardsValidator
             var fenceReported = false;
             foreach (var item in provision.Body)
             {
+                // The ID line and the verification line belong to the provision
+                // frame, not to its labeled fields; the identity and verification
+                // checks own them.
+                if (IdLinePattern().IsMatch(item.Line) || VerificationLinePattern().IsMatch(item.Line))
+                {
+                    continue;
+                }
+
                 var label = ProvisionLabelPattern().Match(item.Line);
                 if (label.Success)
                 {
@@ -261,96 +267,127 @@ static partial class StandardsValidator
         }
     }
 
-    static void CheckVerificationTable(string relative, string? kind, List<PageSection> sections, List<LineItem> clean, List<Provision> provisions, List<VerificationRow> verificationRows, string root, Action<string, int, string, string> add)
+    static void CheckProvisionIdentity(string relative, Provision provision, List<LineItem> fields, Action<string, int, string, string> add)
     {
-        // Every provision carries its verification mark: checkable with the command
-        // that checks it, or guidance with the question a reviewer answers. The table
-        // header names the columns, so the provision index reads the marks from the
-        // same rows this gate checks.
-        var verification = sections.FirstOrDefault(section => section.Name == "Verification");
-        if (verification is null || (kind != "topic" && kind != "stack" && kind != "extension" && kind != "pattern"))
+        // The ID line is the first line after the heading. It states the derived
+        // ID, so a reader copies the identifier without composing it.
+        var ids = fields.Where(item => IdLinePattern().IsMatch(item.Line)).ToList();
+        if (ids.Count == 0)
+        {
+            add(relative, provision.Line, "ID_LINE_MISSING", $"provision '{provision.Id}' has no ID line; the first line after the heading states its ID");
+            return;
+        }
+
+        var first = fields.First(item => item.Line.Trim().Length > 0);
+        if (!IdLinePattern().IsMatch(first.Line))
+        {
+            add(relative, ids[0].Number, "ID_LINE_MISSING", $"ID line for '{provision.Id}' must be the first line after the heading");
+        }
+
+        var stated = IdLinePattern().Match(ids[0].Line).Groups[1].Value;
+        if (stated != provision.Id)
+        {
+            add(relative, ids[0].Number, "ID_LINE_MISMATCH", $"ID line states '{stated}' but the heading derives '{provision.Id}'");
+        }
+
+        if (ids.Count > 1)
+        {
+            add(relative, ids[1].Number, "ID_LINE_MISMATCH", $"provision '{provision.Id}' has {ids.Count} ID lines");
+        }
+    }
+
+    static void CheckInlineVerification(string relative, List<LineItem> clean, List<Provision> provisions, string root, Action<string, int, string, string> add)
+    {
+        // Every provision carries its verification beside its heading: exactly one
+        // verification line, last among its fields. The label names the mark:
+        // "Checked by" is checkable with the command that checks it, and
+        // "Reviewed for" is guidance with the question a reviewer answers. The
+        // provision index reads the marks from the same lines this gate checks.
+        if (!Provisions.IsProvisionPage(relative))
         {
             return;
         }
 
-        var position = sections.FindIndex(section => section.Name == "Verification");
-        var end = position + 1 < sections.Count ? sections[position + 1].Line - 1 : clean.Count;
-        var header = clean.Skip(verification.Line).Take(Math.Max(0, end - verification.Line)).FirstOrDefault(item => VerifyHeaderPattern().IsMatch(item.Line));
-        if (header is null)
+        // A leftover Verification table: the old header or one of its rows.
+        foreach (var item in clean)
         {
-            add(relative, verification.Line, "VERIFY_HEADER", "Verification must use a table with the header row | ID | Mark | Evidence |");
+            if (VerifyHeaderPattern().IsMatch(item.Line) || VerificationRowPattern.IsMatch(item.Line))
+            {
+                add(relative, item.Number, "VERIFY_HEADER", "standards pages carry verification beside each provision; remove the Verification table");
+            }
         }
 
-        // Evidence shared word for word across rows is one check written by
-        // hand N times. The owning tool generates such rows instead.
+        // Evidence shared word for word across provisions is one check written by
+        // hand N times. The owning tool generates such lines instead.
         var seenEvidence = new HashSet<string>(StringComparer.Ordinal);
-        for (var index = verification.Line; index < end; index++)
+        foreach (var provision in provisions)
         {
-            var match = VerificationRowPattern.Match(clean[index].Line);
-            if (!match.Success)
+            // A pattern's fields end at its first option; everything below that
+            // is drawn options, not the pattern's own fields.
+            var fields = provision.Section == "Patterns"
+                ? provision.Body.TakeWhile(item => !item.Line.StartsWith("#### ", StringComparison.Ordinal)).ToList()
+                : provision.Body;
+
+            CheckProvisionIdentity(relative, provision, fields, add);
+
+            var lines = fields
+                .Select((item, index) => (Item: item, Index: index))
+                .Where(pair => VerificationLinePattern().IsMatch(pair.Item.Line))
+                .ToList();
+            if (lines.Count == 0)
             {
+                add(relative, provision.Line, "VERIFY_MISSING_ID", $"provision '{provision.Id}' has no verification line");
                 continue;
             }
 
-            var rowId = match.Groups[1].Value;
-            var mark = match.Groups[2].Value.Trim();
-            if (!VerificationMarks.Contains(mark))
+            if (lines.Count > 1)
             {
-                add(relative, index + 1, "VERIFY_MARK", $"unknown verification mark '{(mark.Length > 0 ? mark : "(empty)")}' for '{rowId}'; write checkable or guidance");
+                add(relative, lines[1].Item.Number, "VERIFY_DUPLICATE_ID", $"provision '{provision.Id}' has {lines.Count} verification lines");
             }
 
-            var evidence = match.Groups[3].Value.Trim();
+            var (found, position) = lines[0];
+            var after = fields.Skip(position + 1).ToList();
+            if (after.Any(item => ProvisionLabelPattern().IsMatch(item.Line)
+                || VerificationLinePattern().IsMatch(item.Line)
+                || item.Fenced
+                || item.Line.Trim().Length > 0))
+            {
+                add(relative, found.Number, "VERIFY_ORDER", $"verification line for '{provision.Id}' must be last among its fields");
+            }
+
+            var match = VerificationLinePattern().Match(found.Line);
+            var mark = match.Groups[1].Value == "Checked by" ? "checkable" : "guidance";
+            var evidence = match.Groups[2].Value.Trim();
+            if (HasNormativeVocabulary(found.Line))
+            {
+                add(relative, found.Number, "STANDARD_INFORMATIVE_NORMATIVE", $"informative content in '{provision.Id}' contains normative vocabulary");
+            }
+
             if (GenericEvidencePattern().IsMatch(Prose.VisibleText(evidence)))
             {
-                add(relative, index + 1, "VERIFY_GENERIC_EVIDENCE", $"Verification for '{rowId}' uses generic evidence");
+                add(relative, found.Number, "VERIFY_GENERIC_EVIDENCE", $"Verification for '{provision.Id}' uses generic evidence");
             }
 
             // Evidence that echoes its own provision heading names no artifact. It
             // tells a reviewer to confirm that a rule says what it says.
-            var owner = provisions.FirstOrDefault(provision => provision.Id == rowId);
-            var ownerClaim = owner is not null ? Claim(owner.Title) : "";
+            var ownerClaim = Claim(provision.Title);
             // A tool's finding tag such as `[litespec/page#slug]` names the
             // provision on purpose, so it does not count as a restatement.
             var withoutTags = ProvisionTagPattern().Replace(evidence, " ");
             if (ownerClaim.Length > 0 && Claim(withoutTags).Contains(ownerClaim, StringComparison.Ordinal))
             {
-                add(relative, index + 1, "VERIFY_TEMPLATED_EVIDENCE", $"Verification for '{rowId}' repeats its provision heading instead of naming evidence");
+                add(relative, found.Number, "VERIFY_TEMPLATED_EVIDENCE", $"Verification for '{provision.Id}' repeats its provision heading instead of naming evidence");
             }
 
             var normalized = evidence.Trim();
             if (normalized.Length > 0 && !seenEvidence.Add(normalized))
             {
-                add(relative, index + 1, "VERIFY_DUPLICATE_EVIDENCE", $"Verification for '{rowId}' repeats evidence used by another row on this page");
+                add(relative, found.Number, "VERIFY_DUPLICATE_EVIDENCE", $"Verification for '{provision.Id}' repeats evidence used by another provision on this page");
             }
 
             if (mark == "checkable")
             {
-                CheckVerificationCommand(relative, index + 1, rowId, evidence, root, add);
-            }
-
-            verificationRows.Add(new VerificationRow(rowId, mark, index + 1, evidence));
-        }
-
-        var rowIds = verificationRows.Select(row => row.Id).ToList();
-        foreach (var provision in provisions)
-        {
-            var count = rowIds.Count(id => id == provision.Id);
-            if (count == 0)
-            {
-                add(relative, verification.Line, "VERIFY_MISSING_ID", $"Verification has no row for '{provision.Id}'");
-            }
-
-            if (count > 1)
-            {
-                add(relative, verification.Line, "VERIFY_DUPLICATE_ID", $"Verification has {count} rows for '{provision.Id}'");
-            }
-        }
-
-        foreach (var row in verificationRows)
-        {
-            if (!provisions.Any(provision => provision.Id == row.Id))
-            {
-                add(relative, row.Line, "VERIFY_UNKNOWN_ID", $"Verification references unknown page provision '{row.Id}'");
+                CheckVerificationCommand(relative, found.Number, provision.Id, evidence, root, add);
             }
         }
     }
@@ -436,6 +473,12 @@ static partial class StandardsValidator
 
     [GeneratedRegex(@"^\*\*(Statement|Deviation|Rationale|Example|Default|Replacement):\*\*")]
     private static partial Regex ProvisionLabelPattern();
+
+    [GeneratedRegex(@"^\*\*ID:\*\*\s*`([^`]+)`\s*$")]
+    private static partial Regex IdLinePattern();
+
+    [GeneratedRegex(@"^\*\*(Checked by|Reviewed for):\*\*\s*(.*)$")]
+    private static partial Regex VerificationLinePattern();
 
     [GeneratedRegex(@"\b(?:exceptions?|deviations?)\b", RegexOptions.IgnoreCase)]
     private static partial Regex DeviationMentionPattern();

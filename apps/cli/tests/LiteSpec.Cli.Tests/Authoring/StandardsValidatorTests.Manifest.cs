@@ -33,7 +33,11 @@ public sealed partial class StandardsValidatorTests
 
         ### Record Extension Activation
 
+        **ID:** `litespec/ext/sample#record-extension-activation`
+
         **Statement:** Consumers MUST record activation on each applicable specification.
+
+        **Checked by:** `litespec validate` confirms each applicable specification records its activation.
 
         ## Conventions
 
@@ -42,12 +46,6 @@ public sealed partial class StandardsValidatorTests
         ## Dependencies
 
         None.
-
-        ## Verification
-
-        | ID | Mark | Evidence |
-        |:---|:---|:---|
-        | litespec/ext/sample#record-extension-activation | checkable | `litespec validate` confirms each applicable specification records its activation. |
         """ + "\n";
 
     static readonly string LayerTopicPage = """
@@ -61,17 +59,15 @@ public sealed partial class StandardsValidatorTests
 
         ### Keep the Topic Bounded
 
+        **ID:** `litespec/core/sample#keep-the-topic-bounded`
+
         **Statement:** Consumers MUST keep the topic inside its declared boundary.
+
+        **Checked by:** `litespec validate` confirms the topic stays inside its declared boundary.
 
         ## Conventions
 
         None.
-
-        ## Verification
-
-        | ID | Mark | Evidence |
-        |:---|:---|:---|
-        | litespec/core/sample#keep-the-topic-bounded | checkable | `litespec validate` confirms the topic stays inside its declared boundary. |
         """ + "\n";
 
     static List<string> LayerCodes(Action<string> build)

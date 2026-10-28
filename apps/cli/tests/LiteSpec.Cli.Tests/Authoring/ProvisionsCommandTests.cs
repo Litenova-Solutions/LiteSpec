@@ -40,6 +40,8 @@ public sealed class ProvisionsCommandTests
         Assert.Contains("| ID | Provision | Kind | Mark | Evidence |", index);
         Assert.Contains("litespec/core/topic#keep-the-topic-bounded", index);
         Assert.Contains("litespec/core/topic#use-the-default-location", index);
+        Assert.Contains("| litespec/core/topic#keep-the-topic-bounded | [Keep the Topic Bounded](../core/topic.md#keep-the-topic-bounded) | rule | checkable | `litespec validate` confirms the topic stays inside its declared boundary. |", index);
+        Assert.Contains("| litespec/core/topic#use-the-default-location | [Use the Default Location](../core/topic.md#use-the-default-location) | convention | guidance | Does the topic live in its owning documentation area? |", index);
         Assert.Contains("[Keep the Topic Bounded](../core/topic.md#keep-the-topic-bounded)", index);
         Assert.Contains("| litespec/backend/sample/stack#apply-the-complete-stack | [Apply the Complete Stack](../backend/sample/stack.md#apply-the-complete-stack) | rule |", index);
         Assert.Contains("| litespec/ext/sample#record-extension-activation | [Record Extension Activation](../ext/sample.md#record-extension-activation) | rule |", index);

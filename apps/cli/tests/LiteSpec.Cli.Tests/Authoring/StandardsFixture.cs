@@ -21,24 +21,25 @@ static class StandardsFixture
 
         ### Keep the Topic Bounded
 
+        **ID:** `litespec/core/topic#keep-the-topic-bounded`
+
         **Statement:** Consumers MUST keep the topic inside its declared boundary.
 
         **Rationale:** The boundary gives reviewers one testable result.
+
+        **Checked by:** `litespec validate` confirms the topic stays inside its declared boundary.
 
         ## Conventions
 
         ### Use the Default Location
 
+        **ID:** `litespec/core/topic#use-the-default-location`
+
         **Default:** Store the topic in its owning documentation area.
 
         **Replacement:** A consumer can name another location through an explicit local convention.
 
-        ## Verification
-
-        | ID | Mark | Evidence |
-        |:---|:---|:---|
-        | litespec/core/topic#keep-the-topic-bounded | checkable | `litespec validate` confirms the topic stays inside its declared boundary. |
-        | litespec/core/topic#use-the-default-location | guidance | Does the topic live in its owning documentation area? |
+        **Reviewed for:** Does the topic live in its owning documentation area?
         """) + "\n";
 
     /// <summary>The pattern page: one pattern with two drawn options.</summary>
@@ -53,11 +54,15 @@ static class StandardsFixture
 
         ### Record Header
 
+        **ID:** `litespec/frontend/patterns/sample#record-header`
+
         **Question:** How does the top of a record read?
 
         **Default:** `one-primary`
 
         **Rationale:** One primary action answers what comes next.
+
+        **Reviewed for:** Does the top of each record page match the default option or the one its catalog records?
 
         #### `one-primary`: One Primary Action
 
@@ -85,12 +90,6 @@ static class StandardsFixture
         **Rationale:** Both commands are one click away.
 
         **Cost:** The reader compares labels before acting.
-
-        ## Verification
-
-        | ID | Mark | Evidence |
-        |:---|:---|:---|
-        | litespec/frontend/patterns/sample#record-header | guidance | Does the top of each record page match the default option or the one its catalog records? |
         """) + "\n";
 
     /// <summary>The extension page, with CLI evidence.</summary>
@@ -117,7 +116,11 @@ static class StandardsFixture
 
         ### Record Extension Activation
 
+        **ID:** `litespec/ext/sample#record-extension-activation`
+
         **Statement:** Consumers MUST record activation on each applicable specification.
+
+        **Checked by:** `litespec validate` confirms each applicable specification records its activation.
 
         ## Conventions
 
@@ -126,12 +129,6 @@ static class StandardsFixture
         ## Dependencies
 
         None.
-
-        ## Verification
-
-        | ID | Mark | Evidence |
-        |:---|:---|:---|
-        | litespec/ext/sample#record-extension-activation | checkable | `litespec validate` confirms each applicable specification records its activation. |
         """) + "\n";
 
     /// <summary>The stack page, with CLI evidence.</summary>
@@ -146,17 +143,15 @@ static class StandardsFixture
 
         ### Apply the Complete Stack
 
+        **ID:** `litespec/backend/sample/stack#apply-the-complete-stack`
+
         **Statement:** Consumers MUST apply every document in the selected stack composition.
+
+        **Checked by:** `litespec validate` confirms every document in the selected stack composition.
 
         ## Conventions
 
         None.
-
-        ## Verification
-
-        | ID | Mark | Evidence |
-        |:---|:---|:---|
-        | litespec/backend/sample/stack#apply-the-complete-stack | checkable | `litespec validate` confirms every document in the selected stack composition. |
         """) + "\n";
 
     /// <summary>The how-to page.</summary>

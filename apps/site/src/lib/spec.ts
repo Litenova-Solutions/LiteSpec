@@ -50,8 +50,9 @@ export interface Provision {
   slug: string;
   heading: string;
   kind: ProvisionKind;
-  /** The Verification mark, or empty when the page has no row for it. */
+  /** The inline verification mark: checkable for a Checked by line, guidance for a Reviewed for line. */
   mark: string;
+  /** The inline verification evidence: the text after the verification label. */
   evidence: string;
 }
 
@@ -113,8 +114,8 @@ function parsePage(rel: string): Page {
   const style = styleOf(rel);
   const sections: string[] = [];
   const provisions: Provision[] = [];
-  const marks = new Map<string, { mark: string; evidence: string }>();
   let section = "";
+  let current: Provision | null = null;
   let fenced = false;
 
   for (const line of lines) {
@@ -127,6 +128,7 @@ function parsePage(rel: string): Page {
     if (h2 && !line.startsWith("###")) {
       section = h2[1].trim();
       sections.push(section);
+      current = null;
       continue;
     }
     const h3 = /^###\s+(.+?)\s*$/.exec(line);
@@ -134,19 +136,19 @@ function parsePage(rel: string): Page {
       const kind: ProvisionKind | null = section === "Standards" ? "rule" : section === "Conventions" ? "convention" : section === "Patterns" && style === "pattern" ? "pattern" : null;
       if (kind && style !== "index" && !["reference", "command", "tutorial", "how-to"].includes(style)) {
         const s = slug(h3[1]);
-        provisions.push({ id: `litespec/${pagePath}#${s}`, slug: s, heading: h3[1].trim(), kind, mark: "", evidence: "" });
+        current = { id: `litespec/${pagePath}#${s}`, slug: s, heading: h3[1].trim(), kind, mark: "", evidence: "" };
+        provisions.push(current);
+      } else {
+        current = null;
       }
       continue;
     }
-    if (section === "Verification") {
-      const row = /^\|\s*(litespec\/[^|\s]+)\s*\|\s*([^|]*?)\s*\|\s*(.*?)\s*\|\s*$/.exec(line);
-      if (row) marks.set(row[1], { mark: row[2], evidence: row[3] });
+    // The verification line closes the provision: its label names the mark.
+    const verify = /^\*\*(Checked by|Reviewed for):\*\*\s*(.*)$/.exec(line);
+    if (verify && current) {
+      current.mark = verify[1] === "Checked by" ? "checkable" : "guidance";
+      current.evidence = verify[2].trim();
     }
-  }
-
-  for (const provision of provisions) {
-    const found = marks.get(provision.id);
-    if (found) Object.assign(provision, found);
   }
 
   const h1 = lines.find((line) => line.startsWith("# "));

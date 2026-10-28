@@ -20,19 +20,27 @@ This extension replaces `{litespec/page#state-one-action}`, or states that it re
 
 ### State One Extension Action
 
+**ID:** `{litespec/page#state-one-extension-action}`
+
 **Statement:** The activated extension MUST perform one testable action.
 
 **Rationale:** Explain the extension-specific constraint.
 
 **Example:** Show one compliant extension artifact or behavior.
 
+**Checked by:** `litespec validate` reports this provision satisfied on the page that carries it.
+
 ## Conventions
 
 ### Use One Extension Default
 
+**ID:** `{litespec/page#use-one-extension-default}`
+
 **Default:** State one replaceable extension default.
 
 **Replacement:** Name the local convention that replaces this default, and where the project records it.
+
+**Reviewed for:** Does the page carry the default or its named local replacement?
 
 ## Dependencies
 
@@ -41,10 +49,3 @@ Packages: `{package}` or `None.`
 Related extensions: `{extension}` or `None.`
 
 Guides: `{guide}` or `None.`
-
-## Verification
-
-| ID | Mark | Evidence |
-|:---|:---|:---|
-| {litespec/page#state-one-extension-action} | checkable | `litespec validate` reports this provision satisfied on the page that carries it. |
-| {litespec/page#use-one-extension-default} | guidance | Does the page carry the default or its named local replacement? |

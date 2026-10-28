@@ -17,6 +17,8 @@ public sealed class PatternPageTests
 
         ### Record header
 
+        **ID:** `litespec/frontend/patterns/sample#record-header`
+
         **Question:** How does the top of a record read?
 
         **Default:** `one-primary`
@@ -26,6 +28,8 @@ public sealed class PatternPageTests
         **Rationale:** One primary action answers what comes next.
 
         The runner-up is two equal actions.
+
+        **Reviewed for:** Which built record header departs from the wireframe its catalog entry chose?
 
         #### `one-primary`: One primary action
 
@@ -63,10 +67,6 @@ public sealed class PatternPageTests
         **Cost:** The reader compares labels before acting.
 
         **Reference:** A design system.
-
-        ## Verification
-
-        None.
         """;
 
     [Fact(DisplayName = "a pattern page reads patterns options fields and wireframes")]
@@ -94,6 +94,7 @@ public sealed class PatternPageTests
     [InlineData("**Cost:** Other commands wait in a menu.", "", "has no **Cost:**")]
     [InlineData("    action primary \"Mark as shipped\"", "    action primary \"Mark as shipped\"\n    action primary \"Refund\"", "at most one primary action")]
     [InlineData("**Compact:** Actions move under the title.", "**Layout:** Wide.", "is not a pattern field")]
+    [InlineData("**Cost:** Other commands wait in a menu.", "**Cost:** Other commands wait in a menu.\n\n**Reviewed for:** Which built header matches?", "belongs to the pattern")]
     public void ReportsTheBrokenContract(string from, string to, string expected)
     {
         var page = PatternPage.Parse("sample", Sample.Replace(from, to, StringComparison.Ordinal));

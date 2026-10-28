@@ -164,7 +164,7 @@ Declare that query audited: reading the evidence is itself a sensitive action un
 
 ## Check
 
-Work through the verification table in [the audit extension](../ext/audit.md#verification); it names one evidence row for each provision this guide implements.
+Work through the provisions in [the audit extension](../ext/audit.md); each one this guide implements ends with the evidence to check.
 
 Confirm four behaviors by test before review:
 

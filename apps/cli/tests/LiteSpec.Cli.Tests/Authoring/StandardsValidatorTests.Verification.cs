@@ -1,27 +1,37 @@
 namespace LiteSpec.Tests.Authoring;
 
-/// <summary>Verification cases, each asserting its diagnostic codes.</summary>
+/// <summary>Inline verification cases, each asserting its diagnostic codes.</summary>
 public sealed partial class StandardsValidatorTests
 {
-    [Fact(DisplayName = "duplicate verification row")]
-    public void DuplicateVerificationRow() => Check(
-        root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "| litespec/core/topic#use-the-default-location | guidance | Does the topic live in its owning documentation area? |", "| litespec/core/topic#keep-the-topic-bounded | checkable | `litespec validate` confirms the topic stays inside its declared boundary. |\n| litespec/core/topic#use-the-default-location | guidance | Does the topic live in its owning documentation area? |")),
+    [Fact(DisplayName = "duplicate verification line")]
+    public void DuplicateVerificationLine() => Check(
+        root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Checked by:** `litespec validate` confirms the topic stays inside its declared boundary.", "**Checked by:** `litespec validate` confirms the topic stays inside its declared boundary.\n\n**Checked by:** `litespec validate` confirms the topic stays inside its declared boundary.")),
         ["VERIFY_DUPLICATE_ID"]);
 
-    [Fact(DisplayName = "old verification method header")]
-    public void OldVerificationMethodHeader() => Check(
-        root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "| ID | Mark | Evidence |", "| ID | Method | Evidence |")),
-        ["VERIFY_HEADER"]);
+    [Fact(DisplayName = "leftover verification section and table")]
+    public void LeftoverVerificationSection() => Check(
+        root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.TopicPage + "\n## Verification\n\n| ID | Mark | Evidence |\n|:---|:---|:---|\n| litespec/core/topic#keep-the-topic-bounded | checkable | `litespec validate` confirms the topic stays inside its declared boundary. |\n"),
+        ["PAGE_UNKNOWN_SECTION", "VERIFY_HEADER"]);
 
-    [Fact(DisplayName = "verification without a table")]
-    public void VerificationWithoutTable() => Check(
-        root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "## Verification\n\n| ID | Mark | Evidence |\n|:---|:---|:---|\n| litespec/core/topic#keep-the-topic-bounded | checkable | `litespec validate` confirms the topic stays inside its declared boundary. |\n| litespec/core/topic#use-the-default-location | guidance | Does the topic live in its owning documentation area? |\n", "## Verification\n\n- Confirm that the validator exits with code zero.\n")),
-        ["VERIFY_HEADER", "VERIFY_MISSING_ID"]);
+    [Fact(DisplayName = "missing verification line")]
+    public void MissingVerificationLine() => Check(
+        root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Checked by:** `litespec validate` confirms the topic stays inside its declared boundary.\n\n", "")),
+        ["VERIFY_MISSING_ID"]);
 
-    [Fact(DisplayName = "unknown verification mark")]
-    public void UnknownVerificationMark() => Check(
-        root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "| litespec/core/topic#keep-the-topic-bounded | checkable |", "| litespec/core/topic#keep-the-topic-bounded | manual |")),
-        ["VERIFY_MARK"]);
+    [Fact(DisplayName = "verification line before the statement")]
+    public void VerificationLineBeforeStatement() => Check(
+        root =>
+        {
+            var page = StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Checked by:** `litespec validate` confirms the topic stays inside its declared boundary.\n\n## Conventions", "## Conventions");
+            page = StandardsFixture.ReplaceFirst(page, "**ID:** `litespec/core/topic#keep-the-topic-bounded`\n\n", "**ID:** `litespec/core/topic#keep-the-topic-bounded`\n\n**Checked by:** `litespec validate` confirms the topic stays inside its declared boundary.\n\n");
+            StandardsFixture.Write(root, "docs/core/topic.md", page);
+        },
+        ["VERIFY_ORDER"]);
+
+    [Fact(DisplayName = "content after the verification line")]
+    public void ContentAfterVerificationLine() => Check(
+        root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Checked by:** `litespec validate` confirms the topic stays inside its declared boundary.", "**Checked by:** `litespec validate` confirms the topic stays inside its declared boundary.\n\nAdditional constraint.")),
+        ["VERIFY_ORDER"]);
 
     [Fact(DisplayName = "checkable evidence naming a missing file")]
     public void CheckableEvidenceMissingFile() => Check(
@@ -56,7 +66,7 @@ public sealed partial class StandardsValidatorTests
     public void GuidanceEvidenceNoCommand() => Check(
         root =>
         {
-            StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "| litespec/core/topic#keep-the-topic-bounded | checkable | `litespec validate` confirms the topic stays inside its declared boundary. |", "| litespec/core/topic#keep-the-topic-bounded | guidance | Does the topic stay inside its declared boundary? |"));
+            StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Checked by:** `litespec validate` confirms the topic stays inside its declared boundary.", "**Reviewed for:** Does the topic stay inside its declared boundary?"));
             StandardsFixture.RebuildIndex(root);
         },
         []);
@@ -66,10 +76,10 @@ public sealed partial class StandardsValidatorTests
         root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "confirms the topic stays inside its declared boundary.", "runs, then inspect evidence for the topic boundary.")),
         ["VERIFY_GENERIC_EVIDENCE"]);
 
-    [Fact(DisplayName = "unknown verification row")]
-    public void UnknownVerificationRow() => Check(
-        root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "| litespec/core/topic#use-the-default-location | guidance | Does the topic live in its owning documentation area? |", "| litespec/core/topic#use-the-default-location | guidance | Does the topic live in its owning documentation area? |\n| litespec/core/topic#unknown-verification | checkable | `litespec validate` asserts the unknown row. |")),
-        ["VERIFY_UNKNOWN_ID"]);
+    [Fact(DisplayName = "normative verification evidence")]
+    public void NormativeVerificationEvidence() => Check(
+        root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "Does the topic live in its owning documentation area?", "Reviewers MUST record where the topic lives.")),
+        ["STANDARD_INFORMATIVE_NORMATIVE"]);
 
     [Fact(DisplayName = "provision restates its heading")]
     public void ProvisionRestatesHeading() => Check(
@@ -78,11 +88,16 @@ public sealed partial class StandardsValidatorTests
 
     [Fact(DisplayName = "evidence repeats its provision heading")]
     public void EvidenceRepeatsHeading() => Check(
-        root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "| litespec/core/topic#keep-the-topic-bounded | checkable | `litespec validate` confirms the topic stays inside its declared boundary. |", "| litespec/core/topic#keep-the-topic-bounded | checkable | Pull request review asserts `keep the topic bounded` in the owning specification. |")),
+        root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "`litespec validate` confirms the topic stays inside its declared boundary.", "Pull request review asserts `keep the topic bounded` in the owning specification.")),
         ["VERIFY_TEMPLATED_EVIDENCE"]);
 
-    [Fact(DisplayName = "verification rows sharing evidence")]
-    public void VerificationRowsSharingEvidence() => Check(
+    [Fact(DisplayName = "verification lines sharing evidence")]
+    public void VerificationLinesSharingEvidence() => Check(
         root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "Does the topic live in its owning documentation area?", "`litespec validate` confirms the topic stays inside its declared boundary.")),
         ["VERIFY_DUPLICATE_EVIDENCE"]);
+
+    [Fact(DisplayName = "pattern provision without a verification line")]
+    public void PatternWithoutVerificationLine() => Check(
+        root => StandardsFixture.Write(root, "docs/frontend/patterns/sample.md", StandardsFixture.ReplaceFirst(StandardsFixture.PatternPage, "**Reviewed for:** Does the top of each record page match the default option or the one its catalog records?\n\n", "")),
+        ["VERIFY_MISSING_ID"]);
 }

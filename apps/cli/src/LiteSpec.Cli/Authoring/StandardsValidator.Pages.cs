@@ -109,24 +109,24 @@ static partial class StandardsValidator
             // A topic page carries no per-stack sections. Shared pages stay neutral
             // across stacks, and each stack page carries its own bindings.
             // (litespec/core/authoring#place-each-stack-binding-on-its-stack-page)
-            return new PageContract(["Intent", "Standards", "Conventions", "Verification"], ["Concepts", "Reference Example"]);
+            return new PageContract(["Intent", "Standards", "Conventions"], ["Concepts", "Reference Example"]);
         }
 
         // A pattern page offers drawn options for recurring interface questions; its
         // Standards hold the rules every option keeps.
         if (kind == "pattern")
         {
-            return new PageContract(["Intent", "Patterns", "Verification"], ["Concepts", "Standards", "Conventions"]);
+            return new PageContract(["Intent", "Patterns"], ["Concepts", "Standards", "Conventions"]);
         }
 
         if (kind == "stack")
         {
-            return new PageContract(["Intent", "Standards", "Conventions", "Verification"], ["Concepts"]);
+            return new PageContract(["Intent", "Standards", "Conventions"], ["Concepts"]);
         }
 
         if (kind == "extension")
         {
-            return new PageContract(["Intent", "Activation", "Baseline Relationship", "Standards", "Conventions", "Dependencies", "Verification"], []);
+            return new PageContract(["Intent", "Activation", "Baseline Relationship", "Standards", "Conventions", "Dependencies"], []);
         }
 
         if (kind == "how-to")
@@ -186,15 +186,15 @@ static partial class StandardsValidator
         List<string> canonical;
         if (kind == "topic")
         {
-            canonical = ["Intent", "Concepts", "Standards", "Conventions", "Reference Example", "Verification"];
+            canonical = ["Intent", "Concepts", "Standards", "Conventions", "Reference Example"];
         }
         else if (kind == "pattern")
         {
-            canonical = ["Intent", "Concepts", "Standards", "Conventions", "Patterns", "Verification"];
+            canonical = ["Intent", "Concepts", "Standards", "Conventions", "Patterns"];
         }
         else if (kind == "stack")
         {
-            canonical = ["Intent", "Concepts", "Standards", "Conventions", "Verification"];
+            canonical = ["Intent", "Concepts", "Standards", "Conventions"];
         }
         else if (kind == "how-to")
         {
@@ -404,7 +404,6 @@ static partial class StandardsValidator
         var h1Title = "";
         var h1Line = 1;
         var provisions = new List<Provision>();
-        var verificationRows = new List<VerificationRow>();
 
         for (var index = 0; index < clean.Count; index++)
         {
@@ -444,8 +443,9 @@ static partial class StandardsValidator
                 continue;
             }
 
-            // The identifier is computed from the page path and the heading, so the
-            // heading carries no ID text of its own.
+            // The identifier is derived from the page path and the heading, and the
+            // ID line right below the heading states it, so the heading carries
+            // no ID text of its own.
             var title = heading.Groups[1].Value.Trim();
             if (title.Contains("litespec/", StringComparison.Ordinal))
             {
@@ -581,7 +581,7 @@ static partial class StandardsValidator
         CheckProvisionBodies(relative, rules, add);
         CheckProvisionClaims(relative, rules, add);
         CheckNormativeLocation(relative, clean, provisions, add);
-        CheckVerificationTable(relative, kind, sections, clean, provisions, verificationRows, root, add);
+        CheckInlineVerification(relative, clean, provisions, root, add);
 
         if (kind == "pattern")
         {
@@ -592,7 +592,7 @@ static partial class StandardsValidator
             }
         }
 
-        return new ParsedBlocks(kind, provisions, verificationRows);
+        return new ParsedBlocks(kind, provisions);
     }
 
     [GeneratedRegex(@"^#\s+(.+?)\s*$")]

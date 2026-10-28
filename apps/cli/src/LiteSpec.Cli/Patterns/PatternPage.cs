@@ -165,6 +165,31 @@ sealed partial class PatternPage
                 continue;
             }
 
+            // The ID line states the derived ID right below the heading, and the
+            // verification line closes the pattern's fields before its options.
+            if (IdLine().IsMatch(line))
+            {
+                field = null;
+                continue;
+            }
+
+            var verification = VerificationLine().Match(line);
+
+            if (verification.Success)
+            {
+                if (pattern is not null && option is null)
+                {
+                    pattern.Fields[verification.Groups[1].Value] = verification.Groups[2].Value.Trim();
+                }
+                else if (pattern is not null)
+                {
+                    page.Errors.Add((number, "a verification line belongs to the pattern, before its first option"));
+                }
+
+                field = null;
+                continue;
+            }
+
             var labeled = FieldLine().Match(line);
 
             if (labeled.Success && pattern is not null)
@@ -276,4 +301,10 @@ sealed partial class PatternPage
 
     [GeneratedRegex(@"^\*\*([A-Z][a-z]+):\*\*\s*(.*)$")]
     private static partial Regex FieldLine();
+
+    [GeneratedRegex(@"^\*\*ID:\*\*\s*`[^`]+`\s*$")]
+    private static partial Regex IdLine();
+
+    [GeneratedRegex(@"^\*\*(Checked by|Reviewed for):\*\*\s*(.*)$")]
+    private static partial Regex VerificationLine();
 }

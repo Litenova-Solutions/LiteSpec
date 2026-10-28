@@ -89,7 +89,7 @@ public sealed class ErasureCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("aggregate", "aggregate/lending.loan", Path.Combine(temp.Path, "loan.md"), json));
 
-        Assert.Empty(Checker.Check(model).Findings.Where(finding => finding.Code == "erasure-undeclared"));
+        Assert.DoesNotContain(Checker.Check(model).Findings, finding => finding.Code == "erasure-undeclared");
     }
 
     [Fact]

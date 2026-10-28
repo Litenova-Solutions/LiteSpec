@@ -22,7 +22,7 @@ static partial class StandardsValidator
         _ => JsonString(node) ?? node.ToJsonString(),
     };
 
-    static void CheckManifest(string root, Action<string, int, string, string> add, HashSet<string> activeIds, Dictionary<string, List<VerificationRow>> rowsByPage)
+    static void CheckManifest(string root, Action<string, int, string, string> add, HashSet<string> activeIds, Dictionary<string, List<Provision>> provisionsByPage)
     {
         var manifestFile = Path.Combine(root, "litespec.manifest.json");
         if (!File.Exists(manifestFile))
@@ -106,7 +106,7 @@ static partial class StandardsValidator
             CheckStrayPages(root, add);
         }
 
-        CheckManifestExtensions(root, extensions, activeIds, rowsByPage, add);
+        CheckManifestExtensions(root, extensions, activeIds, provisionsByPage, add);
     }
 
     // A stack ships a folder of pages, so the folder names the stack's area and holds
@@ -377,7 +377,7 @@ static partial class StandardsValidator
         }
     }
 
-    static void CheckManifestExtensions(string root, JsonObject? extensions, HashSet<string> activeIds, Dictionary<string, List<VerificationRow>> rowsByPage, Action<string, int, string, string> add)
+    static void CheckManifestExtensions(string root, JsonObject? extensions, HashSet<string> activeIds, Dictionary<string, List<Provision>> provisionsByPage, Action<string, int, string, string> add)
     {
         if (extensions is null)
         {
@@ -435,12 +435,12 @@ static partial class StandardsValidator
             }
 
             // A replacement is machine-readable: every replaced ID resolves to an
-            // active provision, and the replacing extension enforces its own
-            // provisions instead, so the replaced one has no row in its table.
+            // active provision, and the replacing extension states its own
+            // provisions instead, so it owns no provision under a replaced ID.
             var replaces = ext?["replaces"] is JsonArray replacesNode
                 ? replacesNode.Select(RenderJsonScalar).ToList()
                 : new List<string>();
-            var ownRows = rowsByPage.TryGetValue(extensionPath, out var rows) ? rows : new List<VerificationRow>();
+            var own = provisionsByPage.TryGetValue(extensionPath, out var owned) ? owned : new List<Provision>();
             foreach (var replaced in replaces)
             {
                 if (!activeIds.Contains(replaced))
@@ -448,10 +448,10 @@ static partial class StandardsValidator
                     add("litespec.manifest.json", 1, "EXTENSION_REPLACES_UNKNOWN", $"extension '{id}' replaces unknown provision '{replaced}'");
                 }
 
-                var row = ownRows.FirstOrDefault(item => item.Id == replaced);
-                if (row is not null)
+                var provision = own.FirstOrDefault(item => item.Id == replaced);
+                if (provision is not null)
                 {
-                    add(extensionPath, row.Line, "EXTENSION_REPLACES_ENFORCED", $"extension '{id}' replaces '{replaced}' and still enforces it in its own Verification table");
+                    add(extensionPath, provision.Line, "EXTENSION_REPLACES_ENFORCED", $"extension '{id}' replaces '{replaced}' and still states it as its own provision");
                 }
             }
         }
