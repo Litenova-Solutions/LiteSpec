@@ -185,4 +185,69 @@ public sealed class TestAssertionAnalyzerTests
                 }
             }
             """, assemblyName: "Shop.Core", layer: "Test");
+
+    [Fact(DisplayName = "LS4001 reports a scenario whose steps assert nothing")]
+    public Task ReportsAScenarioWithoutAnAssertion() =>
+        Verify.AnalyzerAsync<TestAssertionAnalyzer>("""
+            using System;
+
+            namespace Shop.Orders.Tests;
+
+            public sealed class ScenarioAttribute : Attribute;
+
+            public sealed class OrderSteps
+            {
+                public void Given_a_draft_order() { }
+
+                public void When_the_order_is_placed() { }
+            }
+
+            public sealed class PlaceOrderScenarios
+            {
+                private readonly OrderSteps _steps = new();
+
+                [Scenario]
+                public void {|LS4001:Placing_a_draft_order_succeeds|}()
+                {
+                    _steps.Given_a_draft_order();
+                    _steps.When_the_order_is_placed();
+                }
+            }
+            """, assemblyName: "Shop.Acceptance.Tests");
+
+    [Fact(DisplayName = "LS4001 accepts a scenario whose step asserts")]
+    public Task AcceptsAScenarioWhoseStepAsserts() =>
+        Verify.AnalyzerAsync<TestAssertionAnalyzer>("""
+            using System;
+
+            namespace Shop.Orders.Tests;
+
+            public sealed class ScenarioAttribute : Attribute;
+
+            public static class Assert
+            {
+                public static void True(bool condition) { }
+            }
+
+            public sealed class OrderSteps
+            {
+                public bool Placed { get; private set; }
+
+                public void When_the_order_is_placed() => Placed = true;
+
+                public void Then_the_order_is_placed() => Assert.True(Placed);
+            }
+
+            public sealed class PlaceOrderScenarios
+            {
+                private readonly OrderSteps _steps = new();
+
+                [Scenario]
+                public void Placing_a_draft_order_succeeds()
+                {
+                    _steps.When_the_order_is_placed();
+                    _steps.Then_the_order_is_placed();
+                }
+            }
+            """, assemblyName: "Shop.Acceptance.Tests");
 }

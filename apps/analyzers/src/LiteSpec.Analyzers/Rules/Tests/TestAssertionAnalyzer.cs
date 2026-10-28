@@ -2,12 +2,13 @@ using System;
 using System.Collections.Immutable;
 using LiteSpec.Analyzers.Layers;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 
 namespace LiteSpec.Analyzers.Rules.Tests;
 
-/// <summary>LS4001: a test method contains at least one assertion.</summary>
+/// <summary>LS4001: a test method contains at least one assertion, directly or in a step it calls.</summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class TestAssertionAnalyzer : LayerAnalyzer
 {
@@ -59,16 +60,25 @@ public sealed class TestAssertionAnalyzer : LayerAnalyzer
             name = name.Substring(0, name.Length - suffix.Length);
         }
 
-        return name is "Fact" or "Theory" or "Test" or "TestCase" or "TestCaseSource" or "TestMethod" or "DataTestMethod";
+        return name is "Fact" or "Theory" or "Scenario" or "Test" or "TestCase" or "TestCaseSource" or "TestMethod" or "DataTestMethod";
     }
 
+    /// <summary>
+    ///     Whether the test asserts in its own body, or in the body of a method it calls that is
+    ///     declared in this compilation: a scenario asserts in the step methods it runs.
+    /// </summary>
     private static bool ContainsAssertion(OperationBlockAnalysisContext context)
     {
         foreach (var block in context.OperationBlocks)
         {
             foreach (var operation in block.Descendants())
             {
-                if (operation is IInvocationOperation invocation && IsAssertion(invocation.TargetMethod))
+                if (operation is not IInvocationOperation invocation)
+                {
+                    continue;
+                }
+
+                if (IsAssertion(invocation.TargetMethod) || StepAsserts(invocation.TargetMethod, context.CancellationToken))
                 {
                     return true;
                 }
@@ -80,5 +90,38 @@ public sealed class TestAssertionAnalyzer : LayerAnalyzer
 
     private static bool IsAssertion(IMethodSymbol target) =>
         target.ContainingType.Name == "Assert"
-        || target.Name.StartsWith("Assert", StringComparison.Ordinal);
+        || IsAssertionName(target.Name);
+
+    private static bool IsAssertionName(string name) => name.StartsWith("Assert", StringComparison.Ordinal);
+
+    /// <summary>Whether a called method declared in source calls an assertion in its body.</summary>
+    private static bool StepAsserts(IMethodSymbol target, System.Threading.CancellationToken cancellationToken)
+    {
+        foreach (var reference in target.DeclaringSyntaxReferences)
+        {
+            if (reference.GetSyntax(cancellationToken) is not BaseMethodDeclarationSyntax declaration)
+            {
+                continue;
+            }
+
+            foreach (var node in declaration.DescendantNodes())
+            {
+                if (node is InvocationExpressionSyntax call && IsAssertionCall(call.Expression))
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private static bool IsAssertionCall(ExpressionSyntax expression) => expression switch
+    {
+        MemberAccessExpressionSyntax { Expression: IdentifierNameSyntax { Identifier.ValueText: "Assert" } } => true,
+        MemberAccessExpressionSyntax member => IsAssertionName(member.Name.Identifier.ValueText),
+        IdentifierNameSyntax identifier => IsAssertionName(identifier.Identifier.ValueText),
+        GenericNameSyntax generic => IsAssertionName(generic.Identifier.ValueText),
+        _ => false,
+    };
 }
