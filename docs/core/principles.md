@@ -8,7 +8,7 @@ These principles settle a design choice when no narrower provision prefers one d
 
 ### Top-Down Writing
 
-Each record layer is written from the record layer above it: Intent states the promises, Behavior states how the system keeps them, Implementation builds what Behavior states, and Proof shows that it holds. Code and tests point up to the record they serve, through their folder or one anchor tag. Nothing above Implementation is computed from code.
+Each record layer is written from the record layer above it: Intent states the promises, Behavior states how the system keeps them, Implementation builds what Behavior states, and Proof shows that it holds. Code and tests point up to the record they serve, through a mark naming that record. Nothing above Implementation is computed from code.
 
 ### Commitments Flow Down and Facts Flow Up
 
@@ -82,7 +82,7 @@ Boundaries are where components meet and where future readers orient themselves.
 
 **Statement:** A consumer MUST NOT compute a record above Implementation from code.
 
-**Rationale:** A record computed from code turns what exists into what is promised, so drift becomes the plan and review approves its own output. Records above Implementation state decided promises, and code points up to the record it serves through its folder or one anchor tag.
+**Rationale:** A record computed from code turns what exists into what is promised, so drift becomes the plan and review approves its own output. Records above Implementation state decided promises, and code points up to the record it serves through a mark naming that record.
 
 **Reviewed for:** Which records above Implementation restate code instead of a decided promise? Compare each new record with the code beside it.
 

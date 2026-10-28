@@ -96,9 +96,9 @@ Review of the specification holds when each layer is written from the one above,
 
 You never write whether a use case is implemented or verified. The model builder computes both, with three more: `stale`, `reachable`, and the effective status. They appear in the book and the model output only.
 
-`litespec model build` reads the records and follows the anchors by which code and tests point up to them: the folders the standard requires and the tags tests carry. For each use case it finds:
+`litespec model build` reads the records and follows the marks by which code and tests point up to them: the mark each code element carries and the proves mark each test carries. For each use case it finds:
 
-- The handler, reaction class, or job that **implements** it, from its anchor.
+- The handler, reaction class, or job that **implements** it, from its mark.
 - The screens that **call** it, from the frontend's generated API client.
 - The tests that **prove** each scenario, from the tests that claim them and the latest test run.
 

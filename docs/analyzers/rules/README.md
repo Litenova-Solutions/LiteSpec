@@ -2,7 +2,7 @@
 
 ## Intent
 
-This index lists the 33 analyzer rules, one reference page per rule, grouped by the projects each rule runs in. A developer who meets an error opens the page with the same ID to see what the rule reports, where the error sits, and how to fix the code. Each entry carries a 1-line summary of what the rule reports.
+This index lists the 41 analyzer rules, one reference page per rule, grouped by the projects each rule runs in. A developer who meets an error opens the page with the same ID to see what the rule reports, where the error sits, and how to fix the code. Each entry carries a 1-line summary of what the rule reports.
 
 ## Domain Rules
 
@@ -56,3 +56,16 @@ Rules `LS3001` to `LS3004` run in the five production projects.
 Rule `LS4001` runs in test projects only.
 
 - [LS4001: Test Contains No Assertion](ls4001.md): reports a test method with no assertion.
+
+## Traceability Rules
+
+Rules `LS5001` to `LS5008` run across layers, as each page states.
+
+- [LS5001: Code Element Carries No Mark](ls5001.md): reports a code element of a recognized kind with no mark.
+- [LS5002: Mark Names No Usable Record](ls5002.md): reports a mark naming no record, or a record of a type its element does not take.
+- [LS5003: Code Element Carries the Wrong Number of Marks](ls5003.md): reports a code element with more or fewer marks than its kind takes.
+- [LS5004: Mark Uses the Undeclared Style](ls5004.md): reports a mark written in the style the project did not declare.
+- [LS5005: Runtime Value Differs from Its Record](ls5005.md): reports a hand-written event `Classification` or exception `Code` differing from its record.
+- [LS5006: Marked Event or Exception Is Not Partial](ls5006.md): reports a marked domain event or rule exception that is not `partial`.
+- [LS5007: Marked Act Raises an Undeclared Event](ls5007.md): reports a marked method raising an event its use case does not list.
+- [LS5008: Declared Event Is Raised by No Marked Act](ls5008.md): reports a listed event no method marked with its use case raises.

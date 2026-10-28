@@ -134,7 +134,7 @@ A behavior module gathers one business area's glossary terms, aggregates, rules,
     | `scenario/submit-expense.submitting-with-a-receipt-succeeds` | An employee paid for a train ticket and kept the receipt. | The employee submits the expense with the receipt. | The expense is submitted. | `result/submit-expense.submitted` |
     | `scenario/approve-expense.approving-a-submitted-expense-succeeds` | An employee submitted an expense with its receipt. | The manager approves the expense. | The expense is approved. | `result/approve-expense.approved` |
 
-    When the scenario proves a calculation, add an `examples` table with the debated rows. This satisfies `litespec/core/behavior#tabulate-every-calculation-with-examples`. Name each test by the observable behavior it asserts. This satisfies `litespec/backend/testing#name-tests-by-observable-behavior`. An acceptance test carries one `/// <proves>scenario/...</proves>` tag. The model builder confirms the claim when the test calls the use case through the public boundary and asserts the result the scenario names.
+    When the scenario proves a calculation, add an `examples` table with the debated rows. This satisfies `litespec/core/behavior#tabulate-every-calculation-with-examples`. Name each test by the observable behavior it asserts. This satisfies `litespec/backend/testing#name-tests-by-observable-behavior`. An acceptance test carries one proves mark naming its scenario. The model builder confirms the claim when the test calls the use case through the public boundary and asserts the result the scenario names.
 13. Record the events. A domain event is an immutable record of a completed fact. Name what completed and which fields it carries. This satisfies `litespec/core/behavior#state-each-event-with-meaning-and-carries` and `litespec/backend/dotnet/domain#raise-immutable-domain-facts`.
 
     | Event | Meaning | Carries |
@@ -176,8 +176,8 @@ A behavior module gathers one business area's glossary terms, aggregates, rules,
             SubmitExpenseCommandHandler.cs
     ```
 
-    Create subfolders only when real types require them. The folders are the anchors the builder follows from code up to the records.
-18. Run the model check. Run `litespec model check` from the consumer root. It resolves every citation, follows the code, screen, and test anchors, prints a tier beside each finding, and reports each unproved scenario. The [command index](../tools/README.md) states how `litespec` runs in a consumer.
+    Create subfolders only when real types require them. The folders mirror the records so a reader finds the code; the builder follows the marks from code up to the records.
+18. Run the model check. Run `litespec model check` from the consumer root. It resolves every citation, follows the marks from code and tests to their records and the screens calling each use case, prints a tier beside each finding, and reports each unproved scenario. The [command index](../tools/README.md) states how `litespec` runs in a consumer.
 
 ## What You Built
 

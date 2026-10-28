@@ -2,7 +2,7 @@
 
 ## Intent
 
-The Analyzers section explains the LiteSpec.Analyzers package, which checks .NET server code against the LiteSpec standard while the compiler runs and reports each break as an error in the editor and the build. The package checks project boundaries, modeling in Domain, the project that holds the business rules, and naming across the 5 application projects, with one assertion rule in test projects, reporting 33 errors, one per rule, with a link from each error to the standard it enforces. A backend developer uses these pages to install the package once and to clear each finding by fixing the code it names.
+The Analyzers section explains the LiteSpec.Analyzers package, which checks .NET server code against the LiteSpec standard while the compiler runs and reports each break as an error in the editor and the build. The package checks project boundaries, modeling in Domain, the project that holds the business rules, naming across the 5 application projects, and traceability from code to records in every layer, with one assertion rule in test projects, reporting 41 errors, one per rule, with a link from each error to the standard it enforces. A backend developer uses these pages to install the package once and to clear each finding by fixing the code it names.
 
 ## How the Pages Fit Together
 
@@ -25,15 +25,21 @@ First, the analyzers work out the project layer from the `LiteSpecLayer` MSBuild
 
 Any other assembly name opts the project out, and so does an explicit `LiteSpecLayer` value of `None`. No rule runs in an opted-out project.
 
-Second, a rule registers only in the layers its provision covers. Domain rules run in Domain. `LS2001` runs in Application, Infrastructure, and WebApi. `LS2004`, `LS2005`, and `LS2007` to `LS2016` run in Application and Infrastructure. `LS2003` and `LS2006` run in WebApi. Style rules run in the five production projects. `LS4001` runs in test projects. The analyzers skip generated code.
+Second, a rule registers only in the layers its provision covers. Domain rules run in Domain. `LS2001` runs in Application, Infrastructure, and WebApi. `LS2004`, `LS2005`, and `LS2007` to `LS2016` run in Application and Infrastructure. `LS2003` and `LS2006` run in WebApi. Style rules run in the five production projects. `LS4001` runs in test projects. `LS5001` to `LS5004` run in every layer, checking the kinds each layer holds. `LS5005` to `LS5008` run in Domain. The analyzers skip generated code.
 
 Third, most rules decide as the compiler reads each declaration. Rules `LS1003`, `LS1004`, and `LS3004` decide at the end of compilation, after every type is known.
 
 Each diagnostic carries a help link of the form `https://litespec.dev/3.0.0/<page>/#<slug>`, which opens the provision the rule enforces.
 
+## How a Rule Reads Records
+
+A traceability rule reads the records the code marks name. The package adds `litespec.project.json` and the record pages as additional files, and each rule indexes the records under the docs roots the project file names. With no project file in reach, or a docs root it cannot resolve, every traceability rule and the generator stay silent; the CLI owns that configuration error.
+
+Severity follows the record the finding is about: a blocking finding is an error and a reported one is a warning. A finding about a draft record reports as a warning, and a finding about a retired record is not reported. While `check.phase` is `frozen`, a finding on a test reports as a warning. An `.editorconfig` entry for the rule id overrides the computed severity, and a project-wide lowering carries a deviation record.
+
 ## Severity and Compiler Support
 
-Every rule reports an error and is enabled by default, so a finding fails the build. A project lowers the severity per rule in `.editorconfig`:
+Every rule reports an error and is enabled by default, so a finding fails the build. A traceability rule reports a warning instead where the record is a draft or the phase holds proof findings without blocking, as How a Rule Reads Records states. A project lowers the severity per rule in `.editorconfig`:
 
 ```ini
 [*.cs]
@@ -98,4 +104,4 @@ The analyzer does not check that a `Guid` inside an identifier is a version 7 va
 ## Pages in This Section
 
 - [Check .NET Code with the Analyzers](check-dotnet-code-with-the-analyzers.md): install the package once, read the first findings, keep them as build errors, and lower one only where a deviation allows it.
-- [Analyzer rules overview](rules/README.md): find the reference page for each of the 33 rules, grouped by layer.
+- [Analyzer rules overview](rules/README.md): find the reference page for each of the 41 rules, grouped by layer.

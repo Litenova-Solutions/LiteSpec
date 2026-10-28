@@ -6,7 +6,7 @@ The project model is the computed join between a project's written records and i
 
 ## Building the Model
 
-`litespec model build` reads the written records, follows the code anchors, the routes, the tests, and the latest test run, and writes `model.json` with every record and its resolved links. [Model Builder](../tools/model.md) states the five subcommands, and [Project Model](../core/model.md) states the records they read. The run below is against the Claimwick example:
+`litespec model build` reads the written records, follows the marks in code and tests, the routes, and the latest test run, and writes `model.json` with every record and its resolved links. [Model Builder](../tools/model.md) states the five subcommands, and [Project Model](../core/model.md) states the records they read. The run below is against the Claimwick example:
 
 ```text
 .model/model.json: 104 records, 9 handlers, 1 screen, 12 scenarios.
@@ -56,7 +56,7 @@ docs/behavior/modules/spending/expenses/export-expenses.md:3 [S known use-case-u
 exit 1
 ```
 
-The finding says no code implements the Approve expense use case. The fix is to restore the handler at its path under `Claimwick.Application/Spending/Expenses/ApproveExpense/`, which the computed `implemented` state then picks up on the next run. The Export expenses line stays known, because its gap still covers it. The run exits 1, because one open finding remains.
+The finding says no code implements the Approve expense use case. The fix is to restore the marked handler at its path under `Claimwick.Application/Spending/Expenses/ApproveExpense/`, which the computed `implemented` state then picks up on the next run. The Export expenses line stays known, because its gap still covers it. The run exits 1, because one open finding remains.
 
 ## Querying One Record
 

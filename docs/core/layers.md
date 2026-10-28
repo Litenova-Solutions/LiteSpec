@@ -39,7 +39,7 @@ A need a lower record layer meets that the upper record layer leaves unstated tr
 
 **Example:** A guard in code with no parent record raises a question; the agent drafts the requirement or rule and keeps the code.
 
-**Checked by:** `litespec model check` emits no `behavior-unrecorded` finding for code that names no parent record.
+**Checked by:** `litespec model check` emits no `behavior-unrecorded` finding for a refusal literal, a screen call to no endpoint, or an engine step mapping to no use case, and reports `mark-missing` for a code element that carries no mark.
 
 ### Add Behavior Detail When Specifying Intent
 

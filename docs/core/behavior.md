@@ -79,7 +79,7 @@ A rule states what holds, with its `kind` and its `statement`. A rule names what
 | `commercial-data` | Freezes a commercial value, with `frozenWhen` and `historyLink`. |
 | `default` | States a model default. |
 
-A query and a command showing and recording one value both cite the same calculation rule in `computedBy`. Code anchors up to the rule and never the reverse.
+A query and a command showing and recording one value both cite the same calculation rule in `computedBy`. Code carries a mark naming the rule, and never the reverse.
 
 ### Domain Events
 
@@ -541,7 +541,7 @@ The specification names only what carries business meaning. Child entities and v
 
 **Statement:** A value shown by a query and recorded by a command MUST cite the same calculation rule in `computedBy` on both use cases.
 
-**Rationale:** Two computations of one value drift: the screen shows one figure while the ledger records another, and each side cites its own code. Citing the same calculation rule on both use cases keeps one computation behind both faces. Code anchors up to the rule and never the reverse.
+**Rationale:** Two computations of one value drift: the screen shows one figure while the ledger records another, and each side cites its own code. Citing the same calculation rule on both use cases keeps one computation behind both faces. Code carries a mark naming the rule, and never the reverse.
 
 **Reviewed for:** The showing query and the recording command cite the same calculation rule in `computedBy`.
 

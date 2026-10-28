@@ -12,7 +12,7 @@ LiteSpec has four parts. Each one answers a different question.
 |:---|:---|:---|
 | The standard | The pages of one LiteSpec release, carried by the installed tool | How do we build? |
 | Records | Short Markdown pages in your project, each with a small JSON header | What do we build, and why? |
-| The model | A file the `litespec model` command computes from your records and the anchors in code and tests | Does what we built match what we wrote? |
+| The model | A file the `litespec model` command computes from your records and the marks in code and tests | Does what we built match what we wrote? |
 | The tools | The `litespec` command line | Is everything consistent, and what is missing? |
 
 Your project installs one LiteSpec release as a local .NET tool. The installed release never changes under you. When you want a newer one, you move the version.
@@ -93,7 +93,7 @@ The standard states where the code goes and what shape it takes. A use case is i
 apps/api/src/Claimwick.Application/Spending/Expenses/SubmitExpense/SubmitExpenseCommandHandler.cs
 ```
 
-The folder is the anchor: code points up to the record it serves through its folder or one anchor tag. The handler refuses an expense above the threshold that carries no receipt with the refusal code the result entry names. Because every project follows the same layout, any developer or agent knows where to look, and the model builder can find the handler without being told.
+Each code element carries a mark naming the record it serves. The handler refuses an expense above the threshold that carries no receipt with the refusal code the result entry names. The folder mirrors the record, so any developer or agent knows where to look, and the mark is the link the model builder follows to find the handler.
 
 ### 3. the Computed Links
 
@@ -103,7 +103,7 @@ Run the model builder from the project root:
 dotnet litespec model build
 ```
 
-It reads every record and follows the anchors in the C# code, the frontend routes, and the test runs, and writes `.model/model.json`. It reports one summary line with the totals, for example:
+It reads every record and follows the marks in the code and tests, the frontend routes, and the test runs, and writes `.model/model.json`. It reports one summary line with the totals, for example:
 
 ```text
 .model/model.json: 96 records, 9 handlers, 1 screen, 10 scenarios.
@@ -115,7 +115,7 @@ Then ask about one record:
 dotnet litespec model query use-case/spending.submit-expense
 ```
 
-Alongside the record's own fields, the answer holds what the builder computed from the anchors:
+Alongside the record's own fields, the answer holds what the builder computed from the marks:
 
 ```json
 "computed": {
@@ -142,7 +142,7 @@ Alongside the record's own fields, the answer holds what the builder computed fr
 }
 ```
 
-The use case is implemented: the builder found its handler through the folder anchor. Two tests claim its scenario: the test `Submitting_with_a_receipt_succeedsAsync`, whose `when` step belongs to the `SubmitExpenseSteps` class, and an integration test through a helper. Both claims check out, so each entry reads `confirmed`. The use case is still not verified: no test run exists yet, so `passing` is null. Nobody maintains those links by hand, and they cannot go stale, because the builder computes them again on every build. Nothing flows the other way: no record above Implementation is ever computed from code.
+The use case is implemented: the builder found its handler through its mark. Two tests claim its scenario: the test `Submitting_with_a_receipt_succeedsAsync`, whose `when` step belongs to the `SubmitExpenseSteps` class, and an integration test through a helper. Both claims check out, so each entry reads `confirmed`. The use case is still not verified: no test run exists yet, so `passing` is null. Nobody maintains those links by hand, and they cannot go stale, because the builder computes them again on every build. Nothing flows the other way: no record above Implementation is ever computed from code.
 
 ### 4. the Reported Gaps
 
