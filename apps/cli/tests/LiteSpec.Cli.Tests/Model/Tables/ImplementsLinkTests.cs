@@ -22,6 +22,34 @@ public sealed class ImplementsLinkTests
     }
 
     [Fact]
+    public void Reaction_Implementing_Its_Reaction_Record_Passes()
+    {
+        using var temp = Cli.Temp("tables");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("reaction", "reaction/lending.send-notice-on-loan-overdue", Path.Combine(temp.Path, "send-notice-on-loan-overdue.md"), """{"on": ["event/loan.overdue"]}"""));
+        model.Code.Reactions.Add(new ReactionInfo(
+            "SendNoticeOnLoanOverdueHandler", Path.Combine(temp.Path, "SendNoticeOnLoanOverdueHandler.cs"), 3, "reaction", null));
+        model.Implements.Add(new ImplementsLink("SendNoticeOnLoanOverdueHandler.cs", "reaction/lending.send-notice-on-loan-overdue", "reaction"));
+
+        Assert.DoesNotContain("behavior-unrecorded", TestModel.Codes(model));
+    }
+
+    [Fact]
+    public void Reaction_Implementing_A_Record_Of_Another_Kind_Reports()
+    {
+        using var temp = Cli.Temp("tables");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("aggregate", "aggregate/lending.loan", Path.Combine(temp.Path, "loan.md"), """{"states": [{"name": "Open", "meaning": "The loan is open."}]}"""));
+        model.Code.Reactions.Add(new ReactionInfo(
+            "SendNoticeOnLoanOverdueHandler", Path.Combine(temp.Path, "SendNoticeOnLoanOverdueHandler.cs"), 3, "reaction", null));
+        model.Implements.Add(new ImplementsLink("SendNoticeOnLoanOverdueHandler.cs", "aggregate/lending.loan", "reaction"));
+
+        Assert.Contains("behavior-unrecorded", TestModel.Codes(model));
+    }
+
+    [Fact]
     public void Job_Without_A_Tag_But_With_An_Implements_Link_Passes()
     {
         using var temp = Cli.Temp("tables");

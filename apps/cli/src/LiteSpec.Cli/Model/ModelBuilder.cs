@@ -287,6 +287,13 @@ static partial class ModelBuilder
 
         foreach (var reaction in model.Code.Reactions)
         {
+            // The anchor tag names the reaction or job record the class implements.
+            if (reaction.RecordId is not null)
+            {
+                model.Implements.Add(new ImplementsLink(
+                    model.Config.Relative(reaction.File), reaction.RecordId, reaction.Kind));
+            }
+
             if (reaction.UseCaseId is not null)
             {
                 model.Implements.Add(new ImplementsLink(

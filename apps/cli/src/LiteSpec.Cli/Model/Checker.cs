@@ -1419,8 +1419,12 @@ static partial class Checker
         return model.Implements.Any(link =>
             string.Equals(link.Kind, reaction.Kind, StringComparison.Ordinal)
             && string.Equals(link.Path, relative, StringComparison.Ordinal)
-            && IsUseCase(model, link.To));
+            && (IsUseCase(model, link.To) || IsRecordOfKind(model, link.To, reaction.Kind)));
     }
+
+    // A reaction handler implements its reaction record, and a job its job record, as the anchor tag names.
+    private static bool IsRecordOfKind(ProjectModel model, string id, string kind) =>
+        model.ById.TryGetValue(id, out var record) && record.Type == kind;
 
     private static bool IsUseCase(ProjectModel model, string id) =>
         model.ById.TryGetValue(id, out var record) && record.Type == "use-case";
