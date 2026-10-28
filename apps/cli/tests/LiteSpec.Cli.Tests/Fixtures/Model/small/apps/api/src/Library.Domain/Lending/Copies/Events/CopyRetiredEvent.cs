@@ -1,3 +1,4 @@
 namespace Library.Domain.Lending.Copies.Events;
 
-public sealed record CopyRetiredEvent(Guid CopyId);
+/// <implements>event/copy.copy-retired</implements>
+public sealed record CopyRetiredEvent(Guid CopyId) : IDomainEvent;

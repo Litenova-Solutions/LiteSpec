@@ -1,6 +1,19 @@
 namespace LiteSpec.Model;
 
-/// <summary>One use-case handler, read out of the folder path that registers it.</summary>
+/// <summary>One mark as read from source.</summary>
+sealed record CodeMark(string RecordId, MarkStyle Style, MarkVerb Verb, string File, int Line);
+
+/// <summary>
+///     One code element the marks table names: its kind, its type, its member for an
+///     aggregate method or a test, its marks, whether it sits in a test project, and the
+///     hand-written runtime value it declares (an event's Classification literal or a
+///     rule exception's Code literal), when it declares one.
+/// </summary>
+sealed record MarkedElement(
+    CodeKind Kind, string Class, string? Member, string File, int Line,
+    IReadOnlyList<CodeMark> Marks, bool InTests, string? RuntimeValue = null);
+
+/// <summary>One use-case handler, linked to its use case through its mark.</summary>
 sealed record HandlerInfo(
     string UseCaseId,
     string Module,
@@ -19,7 +32,11 @@ sealed record HandlerInfo(
     IReadOnlyList<CodeCall>? AggregateCalls = null,
     IReadOnlyList<CodeCollaborator>? Collaborators = null,
     IReadOnlyList<CodeLoopRead>? LoopReads = null,
-    IReadOnlyList<CodeMemoryFilter>? MemoryFilters = null);
+    IReadOnlyList<CodeMemoryFilter>? MemoryFilters = null)
+{
+    /// <summary>Static calls the handler makes on aggregate root types, with the root type name as receiver.</summary>
+    public IReadOnlyList<CodeCall> FactoryCalls { get; init; } = [];
+}
 
 /// <summary>One reaction or job class.</summary>
 sealed record ReactionInfo(
@@ -76,7 +93,11 @@ sealed record CodeDispatch(string Verb, string Target, string Detail, string Fil
 sealed record CodeCall(string Receiver, string Method, string File, int Line);
 
 /// <summary>One public method on an aggregate root with the domain events it raises.</summary>
-sealed record AggregateMethod(string Aggregate, string Method, IReadOnlyList<string> Events, string File, int Line);
+sealed record AggregateMethod(string Aggregate, string Method, IReadOnlyList<string> Events, string File, int Line)
+{
+    /// <summary>The use-case marks the method carries, in source order.</summary>
+    public IReadOnlyList<string> UseCases { get; init; } = [];
+}
 
 /// <summary>One collaborator a handler, reaction or job class builds with <c>new</c> whose own constructor takes a repository.</summary>
 sealed record CodeCollaborator(string Type, string File, int Line);
@@ -97,6 +118,9 @@ sealed class CodeModel
     public List<ReactionInfo> Reactions { get; } = [];
     public List<DomainEventInfo> Events { get; } = [];
     public List<CodeLiteral> Literals { get; } = [];
+
+    /// <summary>Every recognized element of the backend projects, sorted by file then line.</summary>
+    public List<MarkedElement> Elements { get; } = [];
 
     /// <summary>Every kebab-case string literal in the code, the keys a composed refusal code is built from.</summary>
     public HashSet<string> KeyLiterals { get; } = new(StringComparer.Ordinal);

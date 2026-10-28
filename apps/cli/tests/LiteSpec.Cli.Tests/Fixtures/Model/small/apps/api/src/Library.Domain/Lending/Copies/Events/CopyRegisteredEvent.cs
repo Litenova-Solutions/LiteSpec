@@ -1,3 +1,4 @@
 namespace Library.Domain.Lending.Copies.Events;
 
-public sealed record CopyRegisteredEvent(Guid CopyId, string Shelf);
+/// <implements>event/copy.copy-registered</implements>
+public sealed record CopyRegisteredEvent(Guid CopyId, string Shelf) : IDomainEvent;

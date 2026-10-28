@@ -4,6 +4,7 @@ using LiteBus.Commands.Abstractions;
 
 namespace Claimwick.Application.Spending.Expenses.ReimburseExpense;
 
+/// <implements>use-case/spending.reimburse-expense</implements>
 internal sealed class ReimburseExpenseCommandHandler(
     IExpenseRepository expenses,
     IClock clock) : ICommandHandler<ReimburseExpenseCommand, ReimburseExpenseCommandResult>

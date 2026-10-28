@@ -24,11 +24,11 @@ The code on this page shows the shape the stack pages require and is not a compi
 
 ## The Expense Aggregate
 
-The aggregate `aggregate/spending.expense` gives Expense 4 states: Submitted, Approved, Rejected, and Reimbursed. Each aggregate takes a folder named with its plural root name, holding its own states, events, exceptions, and concepts (`litespec/backend/domain#organize-a-module-by-aggregate-and-concept`). The [Domain Layer](../backend/domain.md) page states the module layout.
+The aggregate `aggregate/spending.expense` gives Expense 4 states: Submitted, Approved, Refused, and Reimbursed. Each aggregate takes a folder named with its plural root name, holding its own states, events, exceptions, and concepts (`litespec/backend/domain#organize-a-module-by-aggregate-and-concept`). The [Domain Layer](../backend/domain.md) page states the module layout.
 
 Every public member carries XML documentation stating the business fact it represents (`litespec/backend/dotnet/domain#document-every-public-domain-contract`). The [.NET Domain Layer](../backend/dotnet/domain.md) page states the documentation rule.
 
-The aggregate exposes its lifecycle only through one `State` property, backed by an abstract `ExpenseState` record with one sealed record per state (`litespec/backend/dotnet/domain#model-every-aggregate-lifecycle-with-state-records`). The submitted state carries no data; the approved and rejected states carry who decided and when, the rejected state also carries the reason, and the reimbursed state carries the reimbursement time.
+The aggregate exposes its lifecycle only through one `State` property, backed by an abstract `ExpenseState` record with one sealed record per state (`litespec/backend/dotnet/domain#model-every-aggregate-lifecycle-with-state-records`). The submitted state carries no data; the approved and refused states carry who decided and when, the refused state also carries the reason, and the reimbursed state carries the reimbursement time.
 
 ```csharp
 namespace Claimwick.Domain.Spending.Expenses;
@@ -42,8 +42,8 @@ public sealed record ExpenseSubmittedState : ExpenseState;
 /// <summary>The expense was approved.</summary>
 public sealed record ExpenseApprovedState(Guid ApprovedBy, DateTimeOffset DecidedAt) : ExpenseState;
 
-/// <summary>The expense was rejected.</summary>
-public sealed record ExpenseRejectedState(Guid RejectedBy, DateTimeOffset DecidedAt, string Reason) : ExpenseState;
+/// <summary>The expense was refused.</summary>
+public sealed record ExpenseRefusedState(Guid RefusedBy, DateTimeOffset DecidedAt, string Reason) : ExpenseState;
 
 /// <summary>The expense was reimbursed.</summary>
 public sealed record ExpenseReimbursedState(DateTimeOffset ReimbursedAt) : ExpenseState;

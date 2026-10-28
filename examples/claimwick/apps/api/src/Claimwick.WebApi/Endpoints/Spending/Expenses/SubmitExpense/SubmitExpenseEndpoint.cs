@@ -4,6 +4,7 @@ using LiteBus.Commands.Abstractions;
 
 namespace Claimwick.WebApi.Endpoints.Spending.Expenses.SubmitExpense;
 
+/// <implements>use-case/spending.submit-expense</implements>
 internal sealed class SubmitExpenseEndpoint : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder endpoints)

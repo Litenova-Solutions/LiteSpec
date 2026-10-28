@@ -15,10 +15,10 @@ public sealed class SeverityCheckTests
         DraftListLoans(fixture.Path);
 
         var text = Cli.Run("model", "check", "--root", fixture.Path);
+        var line = text.Output.Split('\n').Single(candidate => candidate.Contains("[use-case-unimplemented]"));
 
         Assert.Equal(0, text.Status);
-        Assert.Contains("[S draft]", text.Output);
-        Assert.Contains("use-case-unimplemented", text.Output);
+        Assert.Contains("[S draft]", line);
 
         var json = Cli.Run("model", "check", "--root", fixture.Path, "--format", "json");
         var (outcome, reason) = OutcomeOf(json.Stdout, "use-case-unimplemented");
@@ -33,13 +33,14 @@ public sealed class SeverityCheckTests
     public void Reviewed_Use_Case_Blocks()
     {
         using var fixture = ModelFixture.Prepare("small", "use-case-unimplemented");
+        EnsureReviewedListLoans(fixture.Path);
 
         var text = Cli.Run("model", "check", "--root", fixture.Path);
+        var line = text.Output.Split('\n').Single(candidate => candidate.Contains("[use-case-unimplemented]"));
 
         Assert.Equal(1, text.Status);
-        Assert.Contains("[S]", text.Output);
-        Assert.DoesNotContain("[S draft]", text.Output);
-        Assert.Contains("use-case-unimplemented", text.Output);
+        Assert.Contains("[S]", line);
+        Assert.DoesNotContain("draft", line);
 
         var json = Cli.Run("model", "check", "--root", fixture.Path, "--format", "json");
         var (outcome, reason) = OutcomeOf(json.Stdout, "use-case-unimplemented");
@@ -118,6 +119,25 @@ public sealed class SeverityCheckTests
         lines.Insert(at + 2, "  \"decideBy\": \"2027-06-01\",");
 
         File.WriteAllLines(file, lines);
+    }
+
+    /// <summary>Leaves the list-loans page reviewed, restoring it when a draft is found.</summary>
+    static void EnsureReviewedListLoans(string root)
+    {
+        var file = Path.Combine(root, "docs", "behavior", "modules", "lending", "loans", "list-loans.md");
+        var lines = File.ReadAllLines(file).ToList();
+        var at = lines.FindIndex(line => line.Trim() == "\"status\": \"draft\",");
+
+        if (at >= 0)
+        {
+            lines[at] = "  \"status\": \"reviewed\",";
+            lines.RemoveAll(line =>
+                line.Trim().StartsWith("\"decider\":", StringComparison.Ordinal)
+                || line.Trim().StartsWith("\"decideBy\":", StringComparison.Ordinal));
+            File.WriteAllLines(file, lines);
+        }
+
+        Assert.Contains("\"status\": \"reviewed\",", File.ReadAllText(file));
     }
 
     /// <summary>Freezes the fixture's check phase.</summary>

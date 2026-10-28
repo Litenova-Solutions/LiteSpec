@@ -7,7 +7,7 @@ public sealed class ExportExpensesSteps
 {
     public async Task ExportApprovedExpensesAsync()
     {
-        await ExpensesWorld.PostAsync("/api/expense-exports");
+        await ExpensesWorld.PostAsync("/api/expenses:export");
     }
 
     public Task TheExpensesAreExportedAsync()

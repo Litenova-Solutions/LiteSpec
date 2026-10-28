@@ -81,6 +81,46 @@
       "approvedHash": "6d036cd3"
     },
     {
+      "type": "rule",
+      "id": "rule/loan.extended-before-due",
+      "title": "Extended before due",
+      "owner": "lending-team",
+      "status": "reviewed",
+      "kind": "precondition",
+      "statement": "A loan extends only before its due date.",
+      "governs": [
+        "use-case/lending.extend-loan"
+      ],
+      "refusal": "result/extend-loan.extension-refused",
+      "basedOn": [],
+      "fulfills": [
+        "requirement/borrowing.loan-period-days"
+      ],
+      "approvedBy": "lending-team",
+      "approvedOn": "2026-10-01",
+      "approvedHash": "3fe820c9"
+    },
+    {
+      "type": "rule",
+      "id": "rule/loan.returned-while-active",
+      "title": "Returned while active",
+      "owner": "lending-team",
+      "status": "reviewed",
+      "kind": "precondition",
+      "statement": "A loan returns only while active.",
+      "governs": [
+        "use-case/lending.return-copy"
+      ],
+      "refusal": "result/return-copy.loan-inactive",
+      "basedOn": [],
+      "fulfills": [
+        "requirement/borrowing.loan-period-days"
+      ],
+      "approvedBy": "lending-team",
+      "approvedOn": "2026-10-01",
+      "approvedHash": "10985363"
+    },
+    {
       "type": "event",
       "id": "event/loan.loan-borrowed",
       "title": "Loan borrowed",
@@ -130,7 +170,7 @@
   ],
   "approvedBy": "lending-team",
   "approvedOn": "2026-10-01",
-  "approvedHash": "c1934e65"
+  "approvedHash": "df23e460"
 }
 ---
 

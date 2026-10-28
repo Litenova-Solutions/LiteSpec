@@ -1,0 +1,400 @@
+namespace LiteSpec.Model;
+
+/// <summary>
+///     The mark checks: every element carries the marks its kind takes, each mark names
+///     a record of the type its kind takes in the declared style, hand-written runtime
+///     values match their records, each command handler calls its marked act, each marked
+///     act raises its use case's events, and every mapped record is named by a mark.
+/// </summary>
+static partial class Checker
+{
+    /// <summary>Runs the mark checks.</summary>
+    private static void CheckMarks(ProjectModel model, List<Finding> findings)
+    {
+        CheckMarkPresence(model, findings);
+        CheckMarkLinks(model, findings);
+        CheckRuntimeValueDrift(model, findings);
+        CheckUseCaseActCalled(model, findings);
+        CheckActEvents(model, findings);
+        CheckRecordsImplemented(model, findings);
+        CheckUseCaseExposed(model, findings);
+        CheckEffectsImplemented(model, findings);
+        CheckUseCaseReached(model, findings);
+    }
+
+    private static void CheckMarkPresence(ProjectModel model, List<Finding> findings)
+    {
+        foreach (var element in model.Code.Elements)
+        {
+            if (element.Marks.Count == 0)
+            {
+                findings.Add(new Finding("mark-missing", $"{KindName(element.Kind)} '{DisplayName(element)}' carries no mark.", element.File, element.Line, null));
+            }
+        }
+    }
+
+    private static void CheckMarkLinks(ProjectModel model, List<Finding> findings)
+    {
+        foreach (var element in model.Code.Elements)
+        {
+            foreach (var mark in element.Marks)
+            {
+                if (!model.ById.TryGetValue(mark.RecordId, out var record))
+                {
+                    findings.Add(new Finding("mark-unresolved", $"{KindName(element.Kind)} '{DisplayName(element)}' marks '{mark.RecordId}', which matches no record.", mark.File, mark.Line, null));
+                }
+                else if (!MarkRules.Accepts(element.Kind, mark.RecordId))
+                {
+                    findings.Add(new Finding("mark-unresolved", $"{KindName(element.Kind)} '{DisplayName(element)}' marks '{mark.RecordId}', which is a {record.Type} record, not a {ExpectedTypes(element.Kind)} record.", mark.File, mark.Line, null));
+                }
+
+                if (mark.Style != model.Config.Marks)
+                {
+                    findings.Add(new Finding("mark-style-mixed", $"{KindName(element.Kind)} '{DisplayName(element)}' writes its mark '{mark.RecordId}' in the {mark.Style.ToProjectValue()} style, but the project declares {model.Config.Marks.ToProjectValue()}.", mark.File, mark.Line, null));
+                }
+            }
+
+            var duplicate = element.Marks
+                .GroupBy(mark => mark.RecordId, StringComparer.Ordinal)
+                .FirstOrDefault(group => group.Count() > 1);
+
+            if (duplicate is not null)
+            {
+                findings.Add(new Finding("mark-count", $"{KindName(element.Kind)} '{DisplayName(element)}' names '{duplicate.Key}' twice.", element.File, element.Line, null));
+            }
+            else if (MarkRules.TakesExactlyOne(element.Kind) && element.Marks.Count > 1)
+            {
+                findings.Add(new Finding("mark-count", $"{KindName(element.Kind)} '{DisplayName(element)}' carries {element.Marks.Count} marks, but its kind takes one.", element.File, element.Line, null));
+            }
+        }
+    }
+
+    private static void CheckRuntimeValueDrift(ProjectModel model, List<Finding> findings)
+    {
+        foreach (var element in model.Code.Elements)
+        {
+            if (element.RuntimeValue is not { } actual)
+            {
+                continue;
+            }
+
+            if (element.Kind == CodeKind.DomainEvent)
+            {
+                var record = element.Marks
+                    .Select(mark => model.ById.TryGetValue(mark.RecordId, out var found) ? found : null)
+                    .FirstOrDefault(found => found?.Type == "event");
+
+                if (record is null || actual == record.Id)
+                {
+                    continue;
+                }
+
+                findings.Add(new Finding("runtime-value-drift", $"Domain event '{element.Class}' declares Classification '{actual}', but its record states '{record.Id}'.", element.File, element.Line, SubjectOf(record)));
+            }
+            else if (element.Kind == CodeKind.RuleException)
+            {
+                var rule = element.Marks
+                    .Select(mark => model.ById.TryGetValue(mark.RecordId, out var found) ? found : null)
+                    .FirstOrDefault(found => found is { Type: "rule" } candidate && ModelBuilder.RefusalResultCode(model, candidate) is not null);
+
+                if (rule is null || actual == ModelBuilder.RefusalResultCode(model, rule))
+                {
+                    continue;
+                }
+
+                findings.Add(new Finding("runtime-value-drift", $"Rule exception '{element.Class}' declares Code '{actual}', but its record states '{ModelBuilder.RefusalResultCode(model, rule)}'.", element.File, element.Line, SubjectOf(rule)));
+            }
+        }
+    }
+
+    private static void CheckUseCaseActCalled(ProjectModel model, List<Finding> findings)
+    {
+        var roots = model.Code.Elements
+            .Where(element => element.Kind == CodeKind.AggregateRoot)
+            .Select(element => element.Class)
+            .ToHashSet(StringComparer.Ordinal);
+
+        foreach (var handler in model.Code.Handlers)
+        {
+            if (handler.Kind != "command" || handler.UseCaseId.Length == 0)
+            {
+                continue;
+            }
+
+            if (!model.ById.TryGetValue(handler.UseCaseId, out var useCase) || useCase.Type != "use-case")
+            {
+                continue;
+            }
+
+            var called = (handler.AggregateCalls ?? [])
+                .Concat(handler.FactoryCalls ?? [])
+                .Any(call => ActCarries(model, roots, call, handler.UseCaseId));
+
+            if (!called)
+            {
+                findings.Add(new Finding("use-case-act-uncalled", $"Handler for '{handler.UseCaseId}' calls no aggregate method marked with the use case.", handler.File, handler.Line, handler.UseCaseId));
+            }
+        }
+    }
+
+    /// <summary>
+    ///     Whether an aggregate call reaches the use case's act: the called method name
+    ///     on the aggregate it calls carries the use case. A receiver naming an aggregate
+    ///     type is a static call on that root; any other receiver is a held root whose
+    ///     type the call does not name, so the method match stands on its own.
+    /// </summary>
+    private static bool ActCarries(ProjectModel model, HashSet<string> roots, CodeCall call, string useCase)
+    {
+        foreach (var method in model.Code.AggregateMethods)
+        {
+            if (method.Method != call.Method
+                || !method.UseCases.Contains(useCase, StringComparer.Ordinal))
+            {
+                continue;
+            }
+
+            if (!roots.Contains(call.Receiver) || method.Aggregate == call.Receiver)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static void CheckActEvents(ProjectModel model, List<Finding> findings)
+    {
+        var eventsByClass = new Dictionary<string, string>(StringComparer.Ordinal);
+
+        foreach (var domainEvent in model.Code.Events)
+        {
+            if (domainEvent.EventId is not null)
+            {
+                eventsByClass.TryAdd(domainEvent.Class, domainEvent.EventId);
+            }
+        }
+
+        foreach (var useCase in model.Records)
+        {
+            if (useCase.Type != "use-case")
+            {
+                continue;
+            }
+
+            var marked = model.Code.AggregateMethods
+                .Where(method => method.UseCases.Contains(useCase.Id, StringComparer.Ordinal))
+                .ToList();
+            var raised = new HashSet<string>(StringComparer.Ordinal);
+
+            foreach (var method in marked)
+            {
+                foreach (var raisedClass in method.Events)
+                {
+                    if (eventsByClass.TryGetValue(raisedClass, out var id))
+                    {
+                        raised.Add(id);
+                    }
+                }
+            }
+
+            var declared = useCase.Ids("raises");
+
+            foreach (var method in marked)
+            {
+                var reported = new HashSet<string>(StringComparer.Ordinal);
+
+                foreach (var raisedClass in method.Events)
+                {
+                    if (eventsByClass.TryGetValue(raisedClass, out var id)
+                        && !declared.Contains(id, StringComparer.Ordinal)
+                        && reported.Add(id))
+                    {
+                        findings.Add(new Finding("act-event-undeclared", $"Aggregate method '{method.Aggregate}.{method.Method}' marked with '{useCase.Id}' raises '{id}', which the use case does not list in raises.", method.File, method.Line, useCase.Id));
+                    }
+                }
+            }
+
+            foreach (var id in declared)
+            {
+                if (!raised.Contains(id))
+                {
+                    findings.Add(new Finding("act-event-unraised", $"Use case '{useCase.Id}' lists '{id}' in raises, which no method marked with the use case raises.", useCase.File, useCase.Line, SubjectOf(useCase)));
+                }
+            }
+        }
+    }
+
+    private static void CheckRecordsImplemented(ProjectModel model, List<Finding> findings)
+    {
+        foreach (var record in model.Records)
+        {
+            var code = record.Type switch
+            {
+                "aggregate" => "aggregate-unimplemented",
+                "reaction" => "reaction-unimplemented",
+                "job" => "job-unimplemented",
+                "external-system" => "external-system-unimplemented",
+                _ => null,
+            };
+
+            if (code is null)
+            {
+                continue;
+            }
+
+            var kind = record.Type switch
+            {
+                "aggregate" => CodeKind.AggregateRoot,
+                "reaction" => CodeKind.EventHandler,
+                "job" => CodeKind.Job,
+                _ => CodeKind.Port,
+            };
+            var label = record.Type switch
+            {
+                "aggregate" => "Aggregate",
+                "reaction" => "Reaction",
+                "job" => "Job",
+                _ => "External system",
+            };
+            var element = record.Type switch
+            {
+                "aggregate" => "aggregate root",
+                "reaction" => "event handler",
+                "job" => "job host",
+                _ => "port",
+            };
+
+            if (!model.Code.Elements.Any(candidate => candidate.Kind == kind && candidate.Marks.Any(mark => mark.RecordId == record.Id)))
+            {
+                findings.Add(new Finding(code, $"{label} '{record.Id}' has no {element} carrying its mark.", record.File, record.Line, SubjectOf(record)));
+            }
+        }
+    }
+
+    private static void CheckUseCaseExposed(ProjectModel model, List<Finding> findings)
+    {
+        foreach (var useCase in model.Records)
+        {
+            if (useCase.Type != "use-case")
+            {
+                continue;
+            }
+
+            var entry = useCase.Ids("reachedThrough").FirstOrDefault(id =>
+                model.ById.TryGetValue(id, out var point)
+                && point.Type == "entry-point"
+                && point.Field("kind") is "browser" or "api");
+
+            if (entry is null
+                || model.Code.Elements.Any(element => element.Kind == CodeKind.Endpoint && element.Marks.Any(mark => mark.RecordId == useCase.Id)))
+            {
+                continue;
+            }
+
+            findings.Add(new Finding("use-case-unexposed", $"Use case '{useCase.Id}' is reached through '{entry}', but no endpoint carries its mark.", useCase.File, useCase.Line, SubjectOf(useCase)));
+        }
+    }
+
+    private static void CheckEffectsImplemented(ProjectModel model, List<Finding> findings)
+    {
+        foreach (var record in model.Records)
+        {
+            if (record.Type is not ("use-case" or "reaction" or "job"))
+            {
+                continue;
+            }
+
+            var edges = (record.Type == "use-case" ? CodeChecks.UseCaseEdges(record) : CodeChecks.HolderEdges(record))
+                .Distinct()
+                .ToList();
+
+            if (edges.Count == 0)
+            {
+                continue;
+            }
+
+            var dispatches = new List<CodeDispatch>();
+
+            if (record.Type == "use-case")
+            {
+                dispatches.AddRange(model.Code.Handlers
+                    .Where(handler => handler.UseCaseId == record.Id)
+                    .SelectMany(handler => handler.Dispatches ?? []));
+                dispatches.AddRange(model.Code.Reactions
+                    .Where(reaction => reaction.UseCaseId == record.Id)
+                    .SelectMany(reaction => reaction.Dispatches ?? []));
+            }
+            else
+            {
+                dispatches.AddRange(model.Code.Reactions
+                    .Where(reaction => reaction.RecordId == record.Id)
+                    .SelectMany(reaction => reaction.Dispatches ?? []));
+            }
+
+            var label = record.Type switch
+            {
+                "use-case" => "Use case",
+                "reaction" => "Reaction",
+                _ => "Job",
+            };
+
+            foreach (var edge in edges)
+            {
+                if (!dispatches.Any(dispatch => CodeChecks.EdgeDeclared(model, [edge], dispatch)))
+                {
+                    findings.Add(new Finding("effect-unimplemented", $"{label} '{record.Id}' declares '{edge.Verb} {edge.Target}', which no code takes.", record.File, record.Line, SubjectOf(record)));
+                }
+            }
+        }
+    }
+
+    private static void CheckUseCaseReached(ProjectModel model, List<Finding> findings)
+    {
+        foreach (var useCase in model.Records)
+        {
+            if (useCase.Type != "use-case")
+            {
+                continue;
+            }
+
+            var entry = useCase.Ids("reachedThrough").FirstOrDefault(id =>
+                model.ById.TryGetValue(id, out var point)
+                && point.Type == "entry-point"
+                && point.Field("kind") == "browser");
+
+            if (entry is null
+                || model.Screens.Any(screen => screen.UseCases.Contains(useCase.Id, StringComparer.Ordinal)))
+            {
+                continue;
+            }
+
+            findings.Add(new Finding("use-case-unreached", $"Use case '{useCase.Id}' is reached through '{entry}', but no screen calls it.", useCase.File, useCase.Line, SubjectOf(useCase)));
+        }
+    }
+
+    /// <summary>The kind name a mark finding shows: the code element in plain words.</summary>
+    private static string KindName(CodeKind kind) => kind switch
+    {
+        CodeKind.AggregateRoot => "Aggregate root",
+        CodeKind.AggregateMethod => "Aggregate method",
+        CodeKind.DomainEvent => "Domain event",
+        CodeKind.RuleException => "Rule exception",
+        CodeKind.Handler => "Handler",
+        CodeKind.EventHandler => "Event handler",
+        CodeKind.Job => "Job",
+        CodeKind.Port => "Port",
+        CodeKind.Adapter => "Adapter",
+        CodeKind.Endpoint => "Endpoint",
+        CodeKind.FrontendModule => "Frontend module",
+        CodeKind.Test => "Test",
+        CodeKind.DomainService => "Domain service",
+    };
+
+    /// <summary>The element a mark finding names: its type, or its type and member.</summary>
+    private static string DisplayName(MarkedElement element) =>
+        element.Member is { Length: > 0 } member ? $"{element.Class}.{member}" : element.Class;
+
+    /// <summary>The record types a mark on the kind may name, in plain words.</summary>
+    private static string ExpectedTypes(CodeKind kind) =>
+        string.Join(" or ", MarkRules.RecordTypes(kind));
+}

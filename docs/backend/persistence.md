@@ -376,7 +376,7 @@ For example, a reimbursed expense in the Claimwick product stores its state the 
 }
 ```
 
-The document stores the state object itself, with no flattened `isReimbursed` flag beside it. The `Submitted`, `Approved`, and `Rejected` cases use the `submitted`, `approved`, and `rejected` discriminators with their own data.
+The document stores the state object itself, with no flattened `isReimbursed` flag beside it. The `Submitted`, `Approved`, and `Refused` cases use the `submitted`, `approved`, and `refused` discriminators with their own data.
 
 Adding a state discriminator breaks an older application version during a mixed-version deployment unless the release plan prevents it. The release plan either prevents the older version from reading the new state or introduces a compatible reader before commands persist that state.
 

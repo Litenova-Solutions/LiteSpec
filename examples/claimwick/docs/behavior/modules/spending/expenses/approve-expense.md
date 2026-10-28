@@ -53,6 +53,18 @@
       "approvedHash": "a201dcbc"
     },
     {
+      "type": "result",
+      "id": "result/approve-expense.not-submitted",
+      "title": "Not submitted",
+      "owner": "claimwick-team",
+      "outcome": "refusal",
+      "code": "spending.not-submitted",
+      "meaning": "The expense is already decided.",
+      "approvedBy": "claimwick-team",
+      "approvedOn": "2026-10-01",
+      "approvedHash": "b2983ba6"
+    },
+    {
       "type": "scenario",
       "id": "scenario/approve-expense.approving-a-submitted-expense-succeeds",
       "title": "Approving a submitted expense succeeds",
@@ -69,7 +81,7 @@
   ],
   "approvedBy": "claimwick-team",
   "approvedOn": "2026-10-01",
-  "approvedHash": "9c0e4e37"
+  "approvedHash": "50f1f977"
 }
 ---
 
@@ -81,4 +93,4 @@ A manager decides a submitted expense so the employee learns the outcome.
 
 ## What Happens
 
-The manager opens a submitted expense. Spending refuses the decision when the approver submitted the expense. Otherwise the expense moves to Approved and `event/expense.approved` is raised.
+The manager opens a submitted expense. Spending refuses the decision when the approver submitted the expense or the expense is already decided. Otherwise the expense moves to Approved and `event/expense.approved` is raised.

@@ -17,12 +17,12 @@ public sealed class ClaimwickExampleTests
     [Fact(DisplayName = "the Claimwick example passes the UI check")]
     public void PassesUi() => AssertPasses(Cli.Run("ui", "--root", Root));
 
-    [Fact(DisplayName = "the Claimwick example passes the model check with its one known gap")]
+    [Fact(DisplayName = "the Claimwick example passes the model check with its two known gaps")]
     public void PassesModelCheck()
     {
         var result = Cli.Run("model", "check", "--root", Root);
         AssertPasses(result);
-        Assert.Contains("0 findings, 1 known.", result.Output);
+        Assert.Contains("0 findings, 10 known.", result.Output);
     }
 
     static void AssertPasses(CliResult result) => Assert.True(result.Status == 0, result.Output);

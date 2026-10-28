@@ -36,6 +36,7 @@ static partial class ModelBuilder
         var tests = Timed("tests", () => stacks.Scenarios.Read(config));
 
         model.Tests.AddRange(tests.Scenarios);
+        model.Code.Elements.AddRange(tests.Elements);
         model.StepCalls = tests.StepCalls;
         model.TestComments.AddRange(tests.Comments);
         model.TestRun = Timed("testrun", () => stacks.TestRuns.Read(config));
@@ -165,46 +166,25 @@ static partial class ModelBuilder
         return targets;
     }
 
+    /// <summary>
+    ///     Keeps a domain event's record only when its mark names an event record.
+    ///     A mark naming nothing, or a record of another type, is left for
+    ///     <c>mark-unresolved</c>, with no class-name fallback.
+    /// </summary>
     private static void MatchEvents(ProjectModel model)
     {
-        var events = model.Records.Where(record => record.Type == "event").ToList();
-
         for (var index = 0; index < model.Code.Events.Count; index++)
         {
             var code = model.Code.Events[index];
 
-            if (code.EventId is not null && events.Any(record => record.Id == code.EventId))
+            if (code.EventId is null)
             {
-                model.Implements.Add(new ImplementsLink(model.Config.Relative(code.File), code.EventId, "event"));
                 continue;
             }
 
-            code = code with { EventId = null };
-            model.Code.Events[index] = code;
-            var kebab = Naming.Kebab(code.Class.EndsWith("Event", StringComparison.Ordinal)
-                ? code.Class[..^"Event".Length]
-                : code.Class);
-
-            // An event record names its aggregate once: `event/access-code.issued` is the
-            // class AccessCodeIssuedEvent, and so is `event/access-code.access-code-issued`.
-            var owner = OwnerOfEventFile(model, code.File);
-            var match = events.FirstOrDefault(record =>
-                    Identifiers.TrySplit(record.Id, out _, out var home, out var name)
-                    && name == kebab
-                    && owner is not null
-                    && home == owner)
-                ?? events.FirstOrDefault(record =>
-                    Identifiers.TrySplit(record.Id, out _, out _, out var name)
-                    && name == kebab)
-                ?? events.FirstOrDefault(record =>
-                    Identifiers.TrySplit(record.Id, out _, out var home, out var name)
-                    && $"{home}-{name}" == kebab);
-
-            if (match is not null)
+            if (!model.ById.TryGetValue(code.EventId, out var record) || record.Type != "event")
             {
-                model.Code.Events[index] = code with { EventId = match.Id };
-                model.Implements.Add(new ImplementsLink(
-                    model.Config.Relative(code.File), match.Id, "event"));
+                model.Code.Events[index] = code with { EventId = null };
             }
         }
     }
@@ -223,58 +203,31 @@ static partial class ModelBuilder
     }
 
     /// <summary>
-    ///     The name of the aggregate whose page folder mirrors the code folder holding
-    ///     the event: <c>Domain/&lt;Module&gt;/&lt;Plural&gt;/Events/</c> beside <c>modules/&lt;module&gt;/&lt;plural&gt;/</c>.
+    ///     Adds one implements link per implements mark on every element. A mark is
+    ///     the link: no name, folder or trigger fallback adds one.
     /// </summary>
-    private static string? OwnerOfEventFile(ProjectModel model, string file)
-    {
-        var parts = file.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
-        var events = Array.LastIndexOf(parts, "Events");
-
-        if (events < 2)
-        {
-            return null;
-        }
-
-        var plural = Naming.Kebab(parts[events - 1]);
-        var module = Naming.Kebab(parts[events - 2]);
-
-        var owner = model.Records.FirstOrDefault(record =>
-            record.Type == "aggregate"
-            && Path.GetFileName(Path.GetDirectoryName(record.File)) == plural
-            && Path.GetFileName(Path.GetDirectoryName(Path.GetDirectoryName(record.File))) == module);
-
-        return owner is not null && Identifiers.TrySplit(owner.Id, out _, out _, out var name) ? name : null;
-    }
-
     private static void ComputeImplements(ProjectModel model)
     {
-        foreach (var handler in model.Code.Handlers)
+        foreach (var element in model.Code.Elements)
         {
-            model.Implements.Add(new ImplementsLink(
-                model.Config.Relative(handler.File), handler.UseCaseId, "handler"));
-        }
-
-        foreach (var reaction in model.Code.Reactions)
-        {
-            // The anchor tag names the reaction or job record the class implements.
-            if (reaction.RecordId is not null)
+            if (LinkKind(element.Kind) is not { } kind)
             {
-                model.Implements.Add(new ImplementsLink(
-                    model.Config.Relative(reaction.File), reaction.RecordId, reaction.Kind));
+                continue;
             }
 
-            if (reaction.UseCaseId is not null)
+            foreach (var mark in element.Marks)
             {
+                if (mark.Verb != MarkVerb.Implements)
+                {
+                    continue;
+                }
+
                 model.Implements.Add(new ImplementsLink(
-                    model.Config.Relative(reaction.File), reaction.UseCaseId, reaction.Kind));
-            }
-            else if (TriggeredUseCase(model, reaction.Class) is { } target)
-            {
-                model.Implements.Add(new ImplementsLink(
-                    model.Config.Relative(reaction.File), target, reaction.Kind));
+                    model.Config.Relative(mark.File), mark.RecordId, kind));
             }
         }
+
+        MarkDeclaredRefusals(model);
 
         var codes = new Dictionary<string, string>(StringComparer.Ordinal);
 
@@ -288,6 +241,65 @@ static partial class ModelBuilder
             if (result.Field("code") is { } code && codes.TryGetValue(code, out var path))
             {
                 model.Implements.Add(new ImplementsLink(path, result.Id, "result"));
+            }
+        }
+    }
+
+    /// <summary>The implements-link kind for a code kind, or null when its marks prove rather than implement.</summary>
+    private static string? LinkKind(CodeKind kind) => kind switch
+    {
+        CodeKind.Handler => "handler",
+        CodeKind.EventHandler => "reaction",
+        CodeKind.Job => "job",
+        CodeKind.Endpoint => "endpoint",
+        CodeKind.DomainEvent => "event",
+        CodeKind.AggregateRoot => "aggregate-root",
+        CodeKind.AggregateMethod => "aggregate-method",
+        CodeKind.RuleException => "rule-exception",
+        CodeKind.DomainService => "domain-service",
+        CodeKind.Port => "port",
+        CodeKind.Adapter => "adapter",
+        _ => null,
+    };
+
+    /// <summary>
+    ///     Counts a marked rule exception as declaring its refusal code: the exception
+    ///     holds a declaring literal for the code of the refusal result its rule names,
+    ///     so the result link and <c>refusal-not-thrown</c> read the mark.
+    /// </summary>
+    private static void MarkDeclaredRefusals(ProjectModel model)
+    {
+        var held = model.Code.Literals
+            .Select(literal => (literal.Value, literal.File, literal.Class))
+            .ToHashSet();
+
+        foreach (var element in model.Code.Elements)
+        {
+            // A hand-written Code is what the exception throws: its literal is already read,
+            // and a value that differs from the record is runtime-value-drift, not a thrown record code.
+            if (element.Kind != CodeKind.RuleException || element.RuntimeValue is not null)
+            {
+                continue;
+            }
+
+            foreach (var mark in element.Marks)
+            {
+                if (!model.ById.TryGetValue(mark.RecordId, out var rule) || rule.Type != "rule")
+                {
+                    continue;
+                }
+
+                if (RefusalResultCode(model, rule) is not { } code)
+                {
+                    continue;
+                }
+
+                if (held.Add((code, element.File, element.Class)))
+                {
+                    model.Code.Literals.Add(new CodeLiteral(code, element.File, element.Line, element.Class, Declares: true));
+                }
+
+                break;
             }
         }
     }
@@ -370,6 +382,26 @@ static partial class ModelBuilder
         var permission = UnwrapSelf(grant);
 
         return permission.StartsWith("permission/", StringComparison.Ordinal) ? permission : null;
+    }
+
+    /// <summary>
+    ///     The code of the refusal result the rule names, or null when its refusal
+    ///     is a bare code, names no result, or names a result with no code.
+    /// </summary>
+    public static string? RefusalResultCode(ProjectModel model, Record rule)
+    {
+        if (rule.Field("refusal") is not { } refusal
+            || !refusal.StartsWith("result/", StringComparison.Ordinal)
+            || !model.ById.TryGetValue(refusal, out var result)
+            || result.Type != "result"
+            || result.Field("outcome") != "refusal")
+        {
+            return null;
+        }
+
+        var code = result.Field("code");
+
+        return code is { Length: > 0 } ? code : null;
     }
 
     /// <summary>Whether any of the use case's inputs carries rules.</summary>
@@ -862,75 +894,6 @@ static partial class ModelBuilder
         }
 
         return trigger;
-    }
-
-    /// <summary>
-    ///     The use case a reaction or job without an implements tag answers: the one
-    ///     use case it names when its class names an event its trigger holds, or else
-    ///     the one use case its class names. Null when nothing or more than one matches.
-    /// </summary>
-    private static string? TriggeredUseCase(ProjectModel model, string className)
-    {
-        var stem = className;
-
-        // An event handler is {Action}On{Fact}Handler, and the fact is what its trigger holds.
-        var on = stem.IndexOf("On", StringComparison.Ordinal);
-
-        if (stem.EndsWith("Handler", StringComparison.Ordinal) && on > 0 && on + "On".Length < stem.Length - "Handler".Length)
-        {
-            stem = stem[(on + "On".Length)..^"Handler".Length];
-        }
-
-        foreach (var suffix in new[] { "BackgroundService", "HostedService", "Worker", "Job" })
-        {
-            if (stem.EndsWith(suffix, StringComparison.Ordinal) && stem.Length > suffix.Length)
-            {
-                stem = stem[..^suffix.Length];
-                break;
-            }
-        }
-
-        if (stem.StartsWith("Recurring", StringComparison.Ordinal) && stem.Length > "Recurring".Length)
-        {
-            stem = stem["Recurring".Length..];
-        }
-
-        var kebab = Naming.Kebab(stem);
-
-        if (kebab.Length == 0)
-        {
-            return null;
-        }
-
-        var handled = model.ById.Values.FirstOrDefault(record =>
-            record.Type == "event"
-            && Identifiers.TrySplit(record.Id, out _, out _, out var name)
-            && name == kebab);
-
-        if (handled is not null)
-        {
-            var triggered = model.Records
-                .Where(record => record.Type == "use-case" && TriggerEvents(model, record).Contains(handled.Id))
-                .ToList();
-
-            if (triggered.Count == 1)
-            {
-                return triggered[0].Id;
-            }
-
-            if (triggered.Count > 1)
-            {
-                return null;
-            }
-        }
-
-        var named = model.Records
-            .Where(record => record.Type == "use-case"
-                && Identifiers.TrySplit(record.Id, out _, out _, out var operation)
-                && operation == kebab)
-            .ToList();
-
-        return named.Count == 1 ? named[0].Id : null;
     }
 
     private static bool Triggers(ProjectModel model, ScenarioInfo test, Record useCase)

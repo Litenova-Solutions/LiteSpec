@@ -144,6 +144,8 @@ static partial class RenameCommand
 
         var files = 0;
         var citations = 0;
+        var markFiles = 0;
+        var marks = 0;
 
         foreach (var file in RecordPages.ProjectFiles(root))
         {
@@ -159,7 +161,11 @@ static partial class RenameCommand
                 return 1;
             }
 
-            var rewritten = RecordPages.ReplaceCitations(text, oldId, newId, out var count);
+            var code = IsCodeFile(Path.GetExtension(file));
+            int count;
+            var rewritten = code
+                ? ReplaceMarks(text, oldId, newId, Path.GetExtension(file), out count)
+                : RecordPages.ReplaceCitations(text, oldId, newId, out count);
 
             if (count == 0)
             {
@@ -176,12 +182,26 @@ static partial class RenameCommand
                 return 1;
             }
 
-            Console.WriteLine($"Updated {config.Relative(file)} ({count} citations).");
-            files += 1;
-            citations += count;
+            Console.WriteLine($"Updated {config.Relative(file)} ({count} {(code ? "marks" : "citations")}).");
+
+            if (code)
+            {
+                markFiles += 1;
+                marks += count;
+            }
+            else
+            {
+                files += 1;
+                citations += count;
+            }
         }
 
         Console.WriteLine($"Rewrote {citations} citations in {files} files.");
+
+        if (marks > 0)
+        {
+            Console.WriteLine($"Rewrote {marks} marks in {markFiles} files.");
+        }
 
         if (movedPage is { Moved: true } page)
         {
@@ -190,6 +210,61 @@ static partial class RenameCommand
         }
 
         return 0;
+    }
+
+    /// <summary>Whether the extension holds code marks rather than record citations.</summary>
+    static bool IsCodeFile(string extension) =>
+        extension.Equals(".cs", StringComparison.OrdinalIgnoreCase)
+        || extension.Equals(".ts", StringComparison.OrdinalIgnoreCase)
+        || extension.Equals(".tsx", StringComparison.OrdinalIgnoreCase)
+        || extension.Equals(".js", StringComparison.OrdinalIgnoreCase)
+        || extension.Equals(".mjs", StringComparison.OrdinalIgnoreCase)
+        || extension.Equals(".svelte", StringComparison.OrdinalIgnoreCase);
+
+    /// <summary>
+    ///     Rewrites the identifier inside marks only: doc tags and attributes in C#,
+    ///     frontend constants in TypeScript. Any other string is left alone.
+    /// </summary>
+    static string ReplaceMarks(string text, string oldId, string newId, string extension, out int count)
+    {
+        count = 0;
+
+        if (text.IndexOf(oldId, StringComparison.Ordinal) < 0)
+        {
+            return text;
+        }
+
+        var escaped = System.Text.RegularExpressions.Regex.Escape(oldId);
+
+        if (extension.Equals(".cs", StringComparison.OrdinalIgnoreCase))
+        {
+            text = ReplacePattern(text, $"<(implements|proves)>\\s*{escaped}\\s*</\\1>", oldId, newId, ref count);
+            text = ReplacePattern(text, $"\\b(Implements|Proves)(Attribute)?\\(\\s*\"{escaped}\"", oldId, newId, ref count);
+        }
+        else
+        {
+            text = ReplacePattern(text, $"\\bimplements\\s*:\\s*(?<quote>[\"']){escaped}\\k<quote>", oldId, newId, ref count);
+        }
+
+        return text;
+    }
+
+    /// <summary>Rewrites the identifier inside each match of the pattern, counting the rewrites.</summary>
+    static string ReplacePattern(string text, string pattern, string oldId, string newId, ref int count)
+    {
+        var found = 0;
+
+        var rewritten = new System.Text.RegularExpressions.Regex(pattern).Replace(
+            text,
+            match =>
+            {
+                found++;
+                return match.Value.Replace(oldId, newId, StringComparison.Ordinal);
+            });
+
+        count += found;
+
+        return rewritten;
     }
 
     /// <summary>

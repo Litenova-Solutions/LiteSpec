@@ -1,6 +1,7 @@
 namespace Library.Application.Lending.Loans.ListLoans;
 
-public sealed class ListLoansQueryHandler
+/// <implements>use-case/lending.list-loans</implements>
+public sealed class ListLoansQueryHandler : IQueryHandler<ListLoansQuery>
 {
     public Task Handle(ListLoansQuery query) => Task.CompletedTask;
 }

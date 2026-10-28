@@ -1,3 +1,4 @@
+using LiteSpec.Model.Roslyn;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -6,11 +7,12 @@ namespace LiteSpec.Model.Readers.Dotnet;
 
 /// <summary>
 ///     Reads acceptance scenarios: the scenario each claims, the steps it runs,
-///     the failure codes it asserts, and whether it asserts anything at all.
+///     the failure codes it asserts, whether it asserts anything at all, and every
+///     test method as a marked element.
 /// </summary>
 sealed class DotnetScenarioReader : IScenarioReader
 {
-    /// <summary>Reads every scenario and comment under the test roots.</summary>
+    /// <summary>Reads every scenario, test method and comment under the test roots.</summary>
     public TestRead Read(ConsumerConfig config)
     {
         var files = new List<string>();
@@ -22,15 +24,16 @@ sealed class DotnetScenarioReader : IScenarioReader
 
         var scenarios = new List<ScenarioInfo>();
         var comments = new List<CodeComment>();
+        var elements = new List<MarkedElement>();
         var gate = new object();
         var stepCalls = new System.Collections.Concurrent.ConcurrentDictionary<string, IReadOnlySet<string>>(StringComparer.Ordinal);
 
         System.Threading.Tasks.Parallel.ForEach(
             files,
-            () => (Scenarios: new List<ScenarioInfo>(), Comments: new List<CodeComment>()),
+            () => (Scenarios: new List<ScenarioInfo>(), Comments: new List<CodeComment>(), Elements: new List<MarkedElement>()),
             (file, _, local) =>
             {
-                ReadFile(file, local.Scenarios, local.Comments, stepCalls);
+                ReadFile(file, local.Scenarios, local.Comments, local.Elements, stepCalls);
 
                 return local;
             },
@@ -40,6 +43,7 @@ sealed class DotnetScenarioReader : IScenarioReader
                 {
                     scenarios.AddRange(local.Scenarios);
                     comments.AddRange(local.Comments);
+                    elements.AddRange(local.Elements);
                 }
             });
 
@@ -50,13 +54,21 @@ sealed class DotnetScenarioReader : IScenarioReader
             [.. comments
                 .OrderBy(comment => comment.File, StringComparer.Ordinal)
                 .ThenBy(comment => comment.Line)],
-            stepCalls);
+            stepCalls)
+        {
+            Elements = [.. elements
+                .OrderBy(element => element.File, StringComparer.Ordinal)
+                .ThenBy(element => element.Line)
+                .ThenBy(element => element.Class, StringComparer.Ordinal)
+                .ThenBy(element => element.Member ?? "", StringComparer.Ordinal)],
+        };
     }
 
     private static void ReadFile(
         string file,
         List<ScenarioInfo> scenarios,
         List<CodeComment> comments,
+        List<MarkedElement> elements,
         System.Collections.Concurrent.ConcurrentDictionary<string, IReadOnlySet<string>> stepCalls)
     {
         SyntaxTree tree;
@@ -145,10 +157,27 @@ sealed class DotnetScenarioReader : IScenarioReader
 
         foreach (var method in root.DescendantNodes().OfType<MethodDeclarationSyntax>())
         {
-            var claims = Identifiers.ProvesTag()
-                .Matches(method.GetLeadingTrivia().ToString())
-                .Cast<System.Text.RegularExpressions.Match>()
-                .Select(match => match.Groups["id"].Value)
+            if (KindReader.KindOf(method, KindContext.Empty) == CodeKind.Test)
+            {
+                var containingType = method.Ancestors().OfType<TypeDeclarationSyntax>().FirstOrDefault();
+
+                elements.Add(new MarkedElement(
+                    CodeKind.Test,
+                    containingType?.Identifier.ValueText ?? "",
+                    method.Identifier.ValueText,
+                    file,
+                    tree.GetLineSpan(method.Identifier.Span).StartLinePosition.Line + 1,
+                    MarkReader.Read(method)
+                        .Select(mark => new CodeMark(mark.RecordId, mark.Style, mark.Verb, file, mark.Line))
+                        .ToList(),
+                    true));
+            }
+
+            var claims = MarkReader.Read(method)
+                .Where(mark => mark.Verb == MarkVerb.Proves
+                    && (mark.RecordId.StartsWith("scenario/", StringComparison.Ordinal)
+                        || mark.RecordId.StartsWith("rule/", StringComparison.Ordinal)))
+                .Select(mark => mark.RecordId)
                 .Distinct(StringComparer.Ordinal)
                 .ToList();
 

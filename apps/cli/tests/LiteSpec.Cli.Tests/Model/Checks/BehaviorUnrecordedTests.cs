@@ -8,15 +8,18 @@ namespace LiteSpec.Tests.Model.Checks;
 public sealed class BehaviorUnrecordedTests
 {
     [Fact]
-    public void Handler_Without_A_Record_Reports_Behavior_Unrecorded()
+    public void Handler_Without_A_Mark_Reports_Mark_Missing()
     {
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(TestModel.Config(temp.Path));
-        model.Code.Handlers.Add(new HandlerInfo(
-            "use-case/lending.ghost", "lending", "ghost", "Ghost", "command",
-            Path.Combine(temp.Path, "GhostHandler.cs")));
+        model.Code.Elements.Add(new MarkedElement(
+            CodeKind.Handler, "GhostHandler", null,
+            Path.Combine(temp.Path, "GhostHandler.cs"), 8, [], InTests: false));
 
-        Assert.Contains("behavior-unrecorded", TestModel.Codes(model));
+        var codes = TestModel.Codes(model);
+
+        Assert.DoesNotContain("behavior-unrecorded", codes);
+        Assert.Contains("mark-missing", codes);
     }
 
     [Fact]
@@ -34,48 +37,62 @@ public sealed class BehaviorUnrecordedTests
     }
 
     [Fact]
-    public void Endpoint_Without_A_Record_Reports_Behavior_Unrecorded()
+    public void Endpoint_Without_A_Mark_Reports_Mark_Missing()
     {
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(TestModel.Config(temp.Path));
-        model.Code.Endpoints.Add(new EndpointOperation(
-            "Ghost", "use-case/lending.ghost", "POST", "/api/lending/ghost",
-            Path.Combine(temp.Path, "GhostEndpoint.cs")));
+        model.Code.Elements.Add(new MarkedElement(
+            CodeKind.Endpoint, "GhostEndpoint", null,
+            Path.Combine(temp.Path, "GhostEndpoint.cs"), 5, [], InTests: false));
 
-        Assert.Contains("behavior-unrecorded", TestModel.Codes(model));
+        var codes = TestModel.Codes(model);
+
+        Assert.DoesNotContain("behavior-unrecorded", codes);
+        Assert.Contains("mark-missing", codes);
     }
 
     [Fact]
-    public void Reaction_Without_A_Tag_Reports_Behavior_Unrecorded()
+    public void Event_Handler_Without_A_Mark_Reports_Mark_Missing()
     {
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(TestModel.Config(temp.Path));
-        model.Code.Reactions.Add(new ReactionInfo(
-            "GhostReaction", Path.Combine(temp.Path, "GhostReaction.cs"), 3, "reaction", null));
+        model.Code.Elements.Add(new MarkedElement(
+            CodeKind.EventHandler, "GhostReaction", null,
+            Path.Combine(temp.Path, "GhostReaction.cs"), 3, [], InTests: false));
 
-        Assert.Contains("behavior-unrecorded", TestModel.Codes(model));
+        var codes = TestModel.Codes(model);
+
+        Assert.DoesNotContain("behavior-unrecorded", codes);
+        Assert.Contains("mark-missing", codes);
     }
 
     [Fact]
-    public void Reaction_With_A_Dangling_Tag_Reports_Behavior_Unrecorded()
+    public void Mark_Naming_No_Record_Reports_Mark_Unresolved()
     {
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(TestModel.Config(temp.Path));
-        model.Code.Reactions.Add(new ReactionInfo(
-            "GhostReaction", Path.Combine(temp.Path, "GhostReaction.cs"), 3, "reaction", "use-case/lending.nope"));
+        var file = Path.Combine(temp.Path, "GhostReaction.cs");
+        model.Code.Elements.Add(new MarkedElement(
+            CodeKind.EventHandler, "GhostReaction", null, file, 3,
+            [new CodeMark("reaction/lending.nope", MarkStyle.Xml, MarkVerb.Implements, file, 2)],
+            InTests: false));
 
-        Assert.Contains("behavior-unrecorded", TestModel.Codes(model));
+        var codes = TestModel.Codes(model);
+
+        Assert.DoesNotContain("behavior-unrecorded", codes);
+        Assert.Contains("mark-unresolved", codes);
     }
 
     [Fact]
-    public void Job_Without_A_Tag_Names_The_Job()
+    public void Job_Without_A_Mark_Names_The_Job()
     {
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(TestModel.Config(temp.Path));
-        model.Code.Reactions.Add(new ReactionInfo(
-            "NightlyJob", Path.Combine(temp.Path, "NightlyJob.cs"), 5, "job", null));
+        model.Code.Elements.Add(new MarkedElement(
+            CodeKind.Job, "NightlyJob", null,
+            Path.Combine(temp.Path, "NightlyJob.cs"), 5, [], InTests: false));
 
-        var message = Checker.Check(model).Findings.Single(finding => finding.Code == "behavior-unrecorded").Message;
+        var message = Checker.Check(model).Findings.Single(finding => finding.Code == "mark-missing").Message;
         Assert.Contains("Job 'NightlyJob'", message);
     }
 
@@ -93,14 +110,18 @@ public sealed class BehaviorUnrecordedTests
     }
 
     [Fact]
-    public void Event_Without_A_Record_Reports_Behavior_Unrecorded()
+    public void Domain_Event_Without_A_Mark_Reports_Mark_Missing()
     {
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(TestModel.Config(temp.Path));
-        model.Code.Events.Add(new DomainEventInfo(
-            "GhostEvent", Path.Combine(temp.Path, "GhostEvent.cs"), 3, null));
+        model.Code.Elements.Add(new MarkedElement(
+            CodeKind.DomainEvent, "GhostEvent", null,
+            Path.Combine(temp.Path, "GhostEvent.cs"), 3, [], InTests: false));
 
-        Assert.Contains("behavior-unrecorded", TestModel.Codes(model));
+        var codes = TestModel.Codes(model);
+
+        Assert.DoesNotContain("behavior-unrecorded", codes);
+        Assert.Contains("mark-missing", codes);
     }
 
     [Fact]
@@ -236,13 +257,14 @@ public sealed class BehaviorUnrecordedTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("deviation", "deviation/ghost-route", Path.Combine(temp.Path, "ghost-route.md"), """{"status": "approved", "provision": "litespec/core/layers#implement-only-declared-behavior", "reason": "Infrastructure.", "reviewBy": "2999-01-01", "removeWhen": "Never.", "code": ["src/GhostReaction.cs"]}"""));
-        model.Code.Reactions.Add(new ReactionInfo(
-            "GhostReaction", Path.Combine(temp.Path, "src", "GhostReaction.cs"), 3, "reaction", "use-case/lending.nope"));
+        model.Code.Elements.Add(new MarkedElement(
+            CodeKind.EventHandler, "GhostReaction", null,
+            Path.Combine(temp.Path, "src", "GhostReaction.cs"), 3, [], InTests: false));
 
         var (findings, known) = Checker.Check(model);
 
-        Assert.DoesNotContain(findings, finding => finding.Code == "behavior-unrecorded");
-        Assert.Contains(known, finding => finding.Code == "behavior-unrecorded");
+        Assert.DoesNotContain(findings, finding => finding.Code == "mark-missing");
+        Assert.Contains(known, finding => finding.Code == "mark-missing");
     }
 
     [Fact]
@@ -252,9 +274,10 @@ public sealed class BehaviorUnrecordedTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("deviation", "deviation/ghost-route", Path.Combine(temp.Path, "ghost-route.md"), """{"status": "approved", "provision": "litespec/core/layers#implement-only-declared-behavior", "reason": "Infrastructure.", "reviewBy": "2000-01-01", "removeWhen": "Never.", "code": ["src/GhostReaction.cs"]}"""));
-        model.Code.Reactions.Add(new ReactionInfo(
-            "GhostReaction", Path.Combine(temp.Path, "src", "GhostReaction.cs"), 3, "reaction", "use-case/lending.nope"));
+        model.Code.Elements.Add(new MarkedElement(
+            CodeKind.EventHandler, "GhostReaction", null,
+            Path.Combine(temp.Path, "src", "GhostReaction.cs"), 3, [], InTests: false));
 
-        Assert.Contains("behavior-unrecorded", TestModel.Codes(model));
+        Assert.Contains("mark-missing", TestModel.Codes(model));
     }
 }

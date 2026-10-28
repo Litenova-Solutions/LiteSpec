@@ -1,1 +1,2 @@
 apps/api/src/Library.Application/Lending/Loans/ListLoans/ListLoansQueryHandler.cs
+apps/api/src/Library.WebApi/Lending/Loans/ListLoans/ListLoansEndpoint.cs

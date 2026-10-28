@@ -148,7 +148,8 @@ public sealed class DotnetOneHopDispatchTests
     const string RenderingHandler = """
         namespace Library.Application.Lending.Loans.BorrowCopy;
 
-        public sealed class BorrowCopyCommandHandler(IOrderMessenger messenger, ITemplateRenderer templates)
+        /// <implements>use-case/lending.borrow-copy</implements>
+        public sealed class BorrowCopyCommandHandler(IOrderMessenger messenger, ITemplateRenderer templates) : ICommandHandler<BorrowCopyCommand>
         {
             public async Task Handle(BorrowCopyCommand command, CancellationToken cancellationToken)
             {
@@ -161,7 +162,8 @@ public sealed class DotnetOneHopDispatchTests
     const string MediatorHandler = """
         namespace Library.Application.Lending.Loans.BorrowCopy;
 
-        public sealed class BorrowCopyCommandHandler(ICommandMediator commands)
+        /// <implements>use-case/lending.borrow-copy</implements>
+        public sealed class BorrowCopyCommandHandler(ICommandMediator commands) : ICommandHandler<BorrowCopyCommand>
         {
             public Task Handle(BorrowCopyCommand command, CancellationToken cancellationToken)
             {
@@ -210,7 +212,8 @@ public sealed class DotnetOneHopDispatchTests
     const string SilentHandler = """
         namespace Library.Application.Lending.Loans.BorrowCopy;
 
-        public sealed class BorrowCopyCommandHandler(ICommandMediator commands)
+        /// <implements>use-case/lending.borrow-copy</implements>
+        public sealed class BorrowCopyCommandHandler(ICommandMediator commands) : ICommandHandler<BorrowCopyCommand>
         {
             public Task Handle(BorrowCopyCommand command)
             {
@@ -222,7 +225,8 @@ public sealed class DotnetOneHopDispatchTests
     const string MediatorOnlyHandler = """
         namespace Library.Application.Lending.Loans.BorrowCopy;
 
-        public sealed class BorrowCopyCommandHandler(ICommandMediator commands)
+        /// <implements>use-case/lending.borrow-copy</implements>
+        public sealed class BorrowCopyCommandHandler(ICommandMediator commands) : ICommandHandler<BorrowCopyCommand>
         {
             public Task Handle(BorrowCopyCommand command)
             {
@@ -247,7 +251,8 @@ public sealed class DotnetOneHopDispatchTests
     const string ChainedHandler = """
         namespace Library.Application.Lending.Loans.BorrowCopy;
 
-        public sealed class BorrowCopyCommandHandler(ICommandMediator commands)
+        /// <implements>use-case/lending.borrow-copy</implements>
+        public sealed class BorrowCopyCommandHandler(ICommandMediator commands) : ICommandHandler<BorrowCopyCommand>
         {
             public Task Handle(BorrowCopyCommand command)
             {
@@ -285,7 +290,8 @@ public sealed class DotnetOneHopDispatchTests
     const string InstanceHandler = """
         namespace Library.Application.Lending.Loans.BorrowCopy;
 
-        public sealed class BorrowCopyCommandHandler(IOrderMessenger messenger, ILoanFanout fanout)
+        /// <implements>use-case/lending.borrow-copy</implements>
+        public sealed class BorrowCopyCommandHandler(IOrderMessenger messenger, ILoanFanout fanout) : ICommandHandler<BorrowCopyCommand>
         {
             public Task Handle(BorrowCopyCommand command)
             {

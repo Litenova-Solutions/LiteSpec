@@ -4,12 +4,12 @@ using LiteSpec.Tests.Support;
 
 namespace LiteSpec.Tests.Model.Builder;
 
-/// <summary>Proves a reaction or job without a tag implements the use case its trigger or name answers.</summary>
+/// <summary>Proves a reaction or job without a mark links no use case and reports mark-missing.</summary>
 public sealed class ReactionTriggerTests
 {
-    /// <summary>A reaction naming a triggered event implements that trigger's use case.</summary>
+    /// <summary>An unmarked reaction links nothing, whatever its trigger names.</summary>
     [Fact]
-    public void Reaction_Without_A_Tag_Implements_The_Use_Case_Its_Trigger_Names()
+    public void Reaction_Without_A_Mark_Links_Nothing_And_Reports_Mark_Missing()
     {
         using var temp = ModelFixture.Prepare("small");
         Write(temp.Path, "docs/behavior/modules/lending/loans/notify-overdue.md", UseCasePage);
@@ -19,28 +19,38 @@ public sealed class ReactionTriggerTests
         using var document = Build(temp.Path);
         var root = document.RootElement;
 
-        Assert.Contains(
-            root.GetProperty("links").GetProperty("implements").EnumerateArray(),
-            link => link.GetProperty("path").GetString() == "apps/api/src/Library.Application/Lending/Loans/OnLoanBorrowed/NotifyReaderOnLoanBorrowedHandler.cs"
-                && link.GetProperty("to").GetString() == "use-case/lending.notify-overdue"
-                && link.GetProperty("kind").GetString() == "reaction");
-        Assert.True(root.GetProperty("status").GetProperty("use-case/lending.notify-overdue").GetProperty("implemented").GetBoolean());
+        Assert.False(
+            root.GetProperty("links").GetProperty("implements").EnumerateArray().Any(
+                link => link.GetProperty("path").GetString() == "apps/api/src/Library.Application/Lending/Loans/OnLoanBorrowed/NotifyReaderOnLoanBorrowedHandler.cs"));
+        Assert.False(root.GetProperty("status").GetProperty("use-case/lending.notify-overdue").GetProperty("implemented").GetBoolean());
+
+        var check = Cli.Run("model", "check", "--root", temp.Path);
+        var missing = check.Output.Split('\n').Single(candidate =>
+            candidate.Contains("mark-missing") && candidate.Contains("NotifyReaderOnLoanBorrowedHandler.cs"));
+
+        Assert.Equal(1, check.Status);
+        Assert.Contains("[S]", missing);
     }
 
-    /// <summary>A job naming a use case implements that use case.</summary>
+    /// <summary>An unmarked job links nothing, whatever its name names.</summary>
     [Fact]
-    public void Job_Without_A_Tag_Implements_The_Use_Case_Its_Name_Names()
+    public void Job_Without_A_Mark_Links_Nothing_And_Reports_Mark_Missing()
     {
         using var temp = ModelFixture.Prepare("small");
         Write(temp.Path, "apps/api/src/Library.Application/Lending/Loans/ListLoans/ListLoansJob.cs", JobFile);
 
         using var document = Build(temp.Path);
 
-        Assert.Contains(
-            document.RootElement.GetProperty("links").GetProperty("implements").EnumerateArray(),
-            link => link.GetProperty("path").GetString() == "apps/api/src/Library.Application/Lending/Loans/ListLoans/ListLoansJob.cs"
-                && link.GetProperty("to").GetString() == "use-case/lending.list-loans"
-                && link.GetProperty("kind").GetString() == "job");
+        Assert.False(
+            document.RootElement.GetProperty("links").GetProperty("implements").EnumerateArray().Any(
+                link => link.GetProperty("path").GetString() == "apps/api/src/Library.Application/Lending/Loans/ListLoans/ListLoansJob.cs"));
+
+        var check = Cli.Run("model", "check", "--root", temp.Path);
+        var missing = check.Output.Split('\n').Single(candidate =>
+            candidate.Contains("mark-missing") && candidate.Contains("ListLoansJob.cs"));
+
+        Assert.Equal(1, check.Status);
+        Assert.Contains("[S]", missing);
     }
 
     static JsonDocument Build(string root)

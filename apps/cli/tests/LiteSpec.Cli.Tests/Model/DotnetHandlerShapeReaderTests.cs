@@ -16,7 +16,8 @@ public sealed class DotnetHandlerShapeReaderTests
         WriteSource(temp.Path, HandlerFolder("VoidOrder"), "VoidOrderCommandHandler.cs", """
             namespace Library.Application.Lending.Loans.VoidOrder;
 
-            public sealed class VoidOrderCommandHandler(IOrderRepository orders)
+            /// <implements>use-case/lending.void-order</implements>
+            public sealed class VoidOrderCommandHandler(IOrderRepository orders) : ICommandHandler<VoidOrderCommand>
             {
                 public async Task HandleAsync(VoidOrderCommand command)
                 {
@@ -30,7 +31,7 @@ public sealed class DotnetHandlerShapeReaderTests
 
         Assert.Equal("order", call.Receiver);
         Assert.Equal("Abandon", call.Method);
-        Assert.Equal(8, call.Line);
+        Assert.Equal(9, call.Line);
     }
 
     [Fact]
@@ -42,7 +43,8 @@ public sealed class DotnetHandlerShapeReaderTests
         WriteSource(temp.Path, HandlerFolder("VoidOrder"), "VoidOrderCommandHandler.cs", """
             namespace Library.Application.Lending.Loans.VoidOrder;
 
-            public sealed class VoidOrderCommandHandler(IOrderRepository orders)
+            /// <implements>use-case/lending.void-order</implements>
+            public sealed class VoidOrderCommandHandler(IOrderRepository orders) : ICommandHandler<VoidOrderCommand>
             {
                 public async Task HandleAsync(VoidOrderCommand command)
                 {
@@ -77,7 +79,8 @@ public sealed class DotnetHandlerShapeReaderTests
         WriteSource(temp.Path, HandlerFolder("VoidOrder"), "VoidOrderCommandHandler.cs", """
             namespace Library.Application.Lending.Loans.VoidOrder;
 
-            public sealed class VoidOrderCommandHandler
+            /// <implements>use-case/lending.void-order</implements>
+            public sealed class VoidOrderCommandHandler : ICommandHandler<VoidOrderCommand>
             {
                 public Task HandleAsync(VoidOrderCommand command)
                 {
@@ -158,10 +161,11 @@ public sealed class DotnetHandlerShapeReaderTests
         WriteSource(temp.Path, HandlerFolder("VoidOrder"), "VoidOrderCommandHandler.cs", """
             namespace Library.Application.Lending.Loans.VoidOrder;
 
+            /// <implements>use-case/lending.void-order</implements>
             public sealed class VoidOrderCommandHandler(
                 IOrderRepository orders,
                 IClock clock,
-                IValidator validator)
+                IValidator validator) : ICommandHandler<VoidOrderCommand>
             {
                 public Task HandleAsync(VoidOrderCommand command, CancellationToken cancellationToken) => Task.CompletedTask;
             }
@@ -208,7 +212,8 @@ public sealed class DotnetHandlerShapeReaderTests
         WriteSource(temp.Path, HandlerFolder("VoidOrder"), "VoidOrderCommandHandler.cs", """
             namespace Library.Application.Lending.Loans.VoidOrder;
 
-            public sealed class VoidOrderCommandHandler(IOrderRepository orders)
+            /// <implements>use-case/lending.void-order</implements>
+            public sealed class VoidOrderCommandHandler(IOrderRepository orders) : ICommandHandler<VoidOrderCommand>
             {
                 public Task HandleAsync(VoidOrderCommand command)
                 {
@@ -222,7 +227,7 @@ public sealed class DotnetHandlerShapeReaderTests
         var collaborator = Assert.Single(Read(temp.Path).Handlers.Single().Collaborators!);
 
         Assert.Equal("OrderEraser", collaborator.Type);
-        Assert.Equal(7, collaborator.Line);
+        Assert.Equal(8, collaborator.Line);
     }
 
     [Fact]
@@ -233,7 +238,8 @@ public sealed class DotnetHandlerShapeReaderTests
         WriteSource(temp.Path, HandlerFolder("VoidOrder"), "VoidOrderCommandHandler.cs", """
             namespace Library.Application.Lending.Loans.VoidOrder;
 
-            public sealed class VoidOrderCommandHandler
+            /// <implements>use-case/lending.void-order</implements>
+            public sealed class VoidOrderCommandHandler : ICommandHandler<VoidOrderCommand>
             {
                 public Task HandleAsync(VoidOrderCommand command)
                 {
@@ -253,7 +259,8 @@ public sealed class DotnetHandlerShapeReaderTests
         WriteSource(temp.Path, HandlerFolder("RemindBorrowers"), "RemindBorrowersCommandHandler.cs", """
             namespace Library.Application.Lending.Loans.RemindBorrowers;
 
-            public sealed class RemindBorrowersCommandHandler(IOrderRepository orders)
+            /// <implements>use-case/lending.remind-borrowers</implements>
+            public sealed class RemindBorrowersCommandHandler(IOrderRepository orders) : ICommandHandler<RemindBorrowersCommand>
             {
                 public async Task HandleAsync(RemindBorrowersCommand command)
                 {
@@ -270,7 +277,7 @@ public sealed class DotnetHandlerShapeReaderTests
 
         Assert.Equal("IOrderRepository", read.Repository);
         Assert.Equal("FindByIdAsync", read.Method);
-        Assert.Equal(10, read.Line);
+        Assert.Equal(11, read.Line);
     }
 
     [Fact]
@@ -281,7 +288,8 @@ public sealed class DotnetHandlerShapeReaderTests
         WriteSource(temp.Path, HandlerFolder("ListLoans"), "ListLoansQueryHandler.cs", """
             namespace Library.Application.Lending.Loans.ListLoans;
 
-            public sealed class ListLoansQueryHandler(ILoanRepository loans)
+            /// <implements>use-case/lending.list-loans</implements>
+            public sealed class ListLoansQueryHandler(ILoanRepository loans) : IQueryHandler<ListLoansQuery>
             {
                 public async Task HandleAsync(ListLoansQuery query)
                 {
@@ -302,7 +310,8 @@ public sealed class DotnetHandlerShapeReaderTests
         WriteSource(temp.Path, HandlerFolder("ListLoans"), "ListLoansQueryHandler.cs", """
             namespace Library.Application.Lending.Loans.ListLoans;
 
-            public sealed class ListLoansQueryHandler(IQuerySession session)
+            /// <implements>use-case/lending.list-loans</implements>
+            public sealed class ListLoansQueryHandler(IQuerySession session) : IQueryHandler<ListLoansQuery>
             {
                 public async Task HandleAsync(ListLoansQuery query)
                 {
@@ -322,7 +331,8 @@ public sealed class DotnetHandlerShapeReaderTests
         WriteSource(temp.Path, HandlerFolder("VoidOrder"), "VoidOrderCommandHandler.cs", """
             namespace Library.Application.Lending.Loans.VoidOrder;
 
-            public sealed class VoidOrderCommandHandler(IOrderRepository orders)
+            /// <implements>use-case/lending.void-order</implements>
+            public sealed class VoidOrderCommandHandler(IOrderRepository orders) : ICommandHandler<VoidOrderCommand>
             {
                 public async Task HandleAsync(VoidOrderCommand command)
                 {

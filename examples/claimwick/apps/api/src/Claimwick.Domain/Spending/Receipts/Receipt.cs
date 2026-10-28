@@ -1,7 +1,8 @@
 namespace Claimwick.Domain.Spending.Receipts;
 
 /// <summary>Proof of payment attached to an expense.</summary>
-public sealed class Receipt
+/// <implements>aggregate/spending.receipt</implements>
+public sealed class Receipt : AggregateRoot<Guid>
 {
     private Receipt(Guid id, Guid expenseId, DateTimeOffset attachedAt)
     {

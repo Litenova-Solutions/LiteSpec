@@ -461,7 +461,7 @@ static class CodeChecks
         dispatch.Via is { Length: > 0 } via ? $" via '{via}'" : "";
 
     /// <summary>Every edge a use case declares in its effects entries.</summary>
-    private static List<(string Verb, string Target)> UseCaseEdges(Record useCase)
+    internal static List<(string Verb, string Target)> UseCaseEdges(Record useCase)
     {
         var edges = new List<(string Verb, string Target)>();
 
@@ -494,7 +494,7 @@ static class CodeChecks
     }
 
     /// <summary>Every edge a reaction or job declares: its issues, and a reaction's sends.</summary>
-    private static List<(string Verb, string Target)> HolderEdges(Record record)
+    internal static List<(string Verb, string Target)> HolderEdges(Record record)
     {
         var edges = new List<(string Verb, string Target)>();
 
@@ -519,7 +519,7 @@ static class CodeChecks
     }
 
     /// <summary>Whether a declared edge of the same verb names the dispatch's target.</summary>
-    private static bool EdgeDeclared(ProjectModel model, List<(string Verb, string Target)> edges, CodeDispatch dispatch) =>
+    internal static bool EdgeDeclared(ProjectModel model, List<(string Verb, string Target)> edges, CodeDispatch dispatch) =>
         dispatch.Verb switch
         {
             "issues" => ResolveMessageUseCases(model, dispatch.Target)

@@ -5,6 +5,7 @@ using LiteBus.Commands.Abstractions;
 
 namespace Claimwick.Application.Spending.Expenses.SubmitExpense;
 
+/// <implements>use-case/spending.submit-expense</implements>
 internal sealed class SubmitExpenseCommandHandler(
     IExpenseRepository expenses,
     IPolicyRepository policies) : ICommandHandler<SubmitExpenseCommand, SubmitExpenseCommandResult>

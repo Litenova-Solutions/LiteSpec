@@ -1,6 +1,7 @@
 namespace Claimwick.Domain.Spending.Expenses.Exceptions;
 
 /// <summary>No approved expense awaits export.</summary>
+/// <implements>rule/expense.export-carries-approved</implements>
 public sealed class ExpenseNothingApprovedException()
     : DomainException("No approved expense awaits export.")
 {

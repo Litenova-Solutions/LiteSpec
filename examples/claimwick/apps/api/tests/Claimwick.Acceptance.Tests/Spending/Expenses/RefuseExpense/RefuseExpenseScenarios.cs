@@ -6,5 +6,5 @@ public sealed class RefuseExpenseScenarios
     public Task Rejecting_a_submitted_expense_succeedsAsync() => Runner.RunScenarioAsync(
         given => new SubmitExpenseSteps().SubmitAnExpenseAsync("employee-1"),
         when => new RefuseExpenseSteps().RejectAnExpenseAsync("expense-1"),
-        then => new RefuseExpenseSteps().TheExpenseIsRejectedAsync());
+        then => new RefuseExpenseSteps().TheExpenseIsRefusedAsync());
 }

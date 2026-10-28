@@ -104,7 +104,8 @@ public sealed class ModelBackfillTests
 
             namespace Library.Application.Lending.Loans.BorrowCopy;
 
-            public sealed class BorrowCopyCommandHandler(ICommandMediator mediator)
+            /// <implements>use-case/lending.borrow-copy</implements>
+            public sealed class BorrowCopyCommandHandler(ICommandMediator mediator) : ICommandHandler<BorrowCopyCommand>
             {
                 public async Task Handle(BorrowCopyCommand command)
                 {
@@ -188,9 +189,9 @@ public sealed class ModelBackfillTests
             namespace Library.Application.Lending.Loans;
 
             /// <implements>job/lending.nightly-due-scan</implements>
-            public sealed class NightlyDueScanJob(ICommandMediator mediator)
+            public sealed class NightlyDueScanJob(ICommandMediator mediator) : BackgroundService
             {
-                public async Task Run()
+                protected override async Task ExecuteAsync(CancellationToken stoppingToken)
                 {
                     await mediator.SendAsync(new ExtendLoanCommand());
                 }

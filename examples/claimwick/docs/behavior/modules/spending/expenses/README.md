@@ -16,8 +16,8 @@
       "meaning": "A manager approved the expense."
     },
     {
-      "name": "Rejected",
-      "meaning": "A manager rejected the expense."
+      "name": "Refused",
+      "meaning": "A manager refused the expense."
     },
     {
       "name": "Reimbursed",
@@ -132,6 +132,47 @@
       "approvedHash": "dafc1317"
     },
     {
+      "type": "rule",
+      "id": "rule/expense.decided-from-submitted",
+      "title": "Decided from submitted",
+      "owner": "claimwick-team",
+      "status": "reviewed",
+      "kind": "precondition",
+      "statement": "An expense is decided only from Submitted.",
+      "governs": [
+        "use-case/spending.approve-expense",
+        "use-case/spending.refuse-expense"
+      ],
+      "refusal": "result/approve-expense.not-submitted",
+      "basedOn": [],
+      "fulfills": [
+        "requirement/approval.decided-within-five-days"
+      ],
+      "approvedBy": "claimwick-team",
+      "approvedOn": "2026-10-01",
+      "approvedHash": "d9e6bb11"
+    },
+    {
+      "type": "rule",
+      "id": "rule/expense.export-carries-approved",
+      "title": "Export carries approved",
+      "owner": "claimwick-team",
+      "status": "reviewed",
+      "kind": "precondition",
+      "statement": "An export carries an approved expense.",
+      "governs": [
+        "use-case/spending.export-expenses"
+      ],
+      "refusal": "result/export-expenses.nothing-approved",
+      "basedOn": [],
+      "fulfills": [
+        "requirement/approval.decided-within-five-days"
+      ],
+      "approvedBy": "claimwick-team",
+      "approvedOn": "2026-10-01",
+      "approvedHash": "d3875025"
+    },
+    {
       "type": "event",
       "id": "event/expense.submitted",
       "title": "Expense submitted",
@@ -166,19 +207,19 @@
     },
     {
       "type": "event",
-      "id": "event/expense.rejected",
-      "title": "Expense rejected",
+      "id": "event/expense.refused",
+      "title": "Expense refused",
       "owner": "claimwick-team",
       "status": "reviewed",
-      "meaning": "An expense was rejected.",
+      "meaning": "An expense was refused.",
       "carries": [
         "expenseId",
-        "rejectedBy",
+        "refusedBy",
         "decidedAt"
       ],
       "approvedBy": "claimwick-team",
       "approvedOn": "2026-10-01",
-      "approvedHash": "931fe322"
+      "approvedHash": "5f15425f"
     },
     {
       "type": "event",
@@ -200,7 +241,7 @@
   ],
   "approvedBy": "claimwick-team",
   "approvedOn": "2026-10-01",
-  "approvedHash": "0e4c1207"
+  "approvedHash": "dbdce733"
 }
 ---
 
@@ -213,7 +254,7 @@ An expense is one work cost an employee submitted.
 | From | To | Triggered By |
 |:--|:--|:--|
 | Submitted | Approved | `use-case/spending.approve-expense` |
-| Submitted | Rejected | `use-case/spending.refuse-expense` |
+| Submitted | Refused | `use-case/spending.refuse-expense` |
 | Approved | Reimbursed | `use-case/spending.reimburse-expense` |
 
 ## Data

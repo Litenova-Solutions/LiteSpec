@@ -4,6 +4,7 @@ using LiteBus.Commands.Abstractions;
 
 namespace Claimwick.Application.Spending.Policies.ChangeReceiptThreshold;
 
+/// <implements>use-case/spending.change-receipt-threshold</implements>
 internal sealed class ChangeReceiptThresholdCommandHandler(
     IPolicyRepository policies) : ICommandHandler<ChangeReceiptThresholdCommand, ChangeReceiptThresholdCommandResult>
 {

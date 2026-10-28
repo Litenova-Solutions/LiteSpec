@@ -30,6 +30,7 @@
 
     <ItemGroup>
         <ProjectReference Include="../../../model/src/LiteSpec.Model.Core/LiteSpec.Model.Core.csproj" />
+        <ProjectReference Include="../../../model/src/LiteSpec.Model.Roslyn/LiteSpec.Model.Roslyn.csproj" />
     </ItemGroup>
 
     <ItemGroup>

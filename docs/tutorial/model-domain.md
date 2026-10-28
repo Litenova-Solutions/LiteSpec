@@ -45,7 +45,7 @@ A behavior module gathers one business area's glossary terms, aggregates, rules,
     |:---|:---|:---|
     | `Submitted` | The expense awaits a decision | None |
     | `Approved` | The manager approved the expense | Approver, decision date |
-    | `Rejected` | The manager rejected the expense | Approver, decision date, reason |
+    | `Refused` | The manager refused the expense | Approver, decision date, reason |
     | `Reimbursed` | Finance reimbursed the expense | Reimbursement date |
 
     Create an abstract state record and one sealed record per state. Put state-specific data on the state record. This satisfies `litespec/backend/dotnet/domain#model-every-aggregate-lifecycle-with-state-records`.
@@ -57,7 +57,7 @@ A behavior module gathers one business area's glossary terms, aggregates, rules,
 
     public sealed record ExpenseApprovedState(Guid ApprovedBy, DateTimeOffset DecidedAt) : ExpenseState;
 
-    public sealed record ExpenseRejectedState(Guid RejectedBy, DateTimeOffset DecidedAt, string Reason) : ExpenseState;
+    public sealed record ExpenseRefusedState(Guid RefusedBy, DateTimeOffset DecidedAt, string Reason) : ExpenseState;
 
     public sealed record ExpenseReimbursedState(DateTimeOffset ReimbursedAt) : ExpenseState;
     ```
@@ -69,10 +69,10 @@ A behavior module gathers one business area's glossary terms, aggregates, rules,
     |:---|:---|:---|
     | None | Submitted | `use-case/spending.submit-expense` |
     | Submitted | Approved | `use-case/spending.approve-expense` |
-    | Submitted | Rejected | `use-case/spending.approve-expense` |
+    | Submitted | Refused | `use-case/spending.approve-expense` |
     | Approved | Reimbursed | `use-case/spending.reimburse-expense` |
 
-    Creation is a transition from None, so the first state stays reachable. One use case can move more than one transition: approval ends submitted either approved or rejected.
+    Creation is a transition from None, so the first state stays reachable. One use case can move more than one transition: approval ends submitted either approved or refused.
 7. Declare the data classes with their erasure positions. A data class groups fields that share one classification and one fate on erasure. Then list every field the aggregate keeps with its meaning, data class, and classification in the aggregate's Data table. This satisfies `litespec/core/behavior#declare-every-data-class-with-its-erasure-position` and `litespec/core/behavior#classify-every-aggregate-data-field`.
 
     | Data class | Classification | Fields | On erasure | Enforced by |

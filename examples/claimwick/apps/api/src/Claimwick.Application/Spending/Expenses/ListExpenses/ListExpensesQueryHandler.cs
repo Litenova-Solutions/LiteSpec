@@ -3,6 +3,7 @@ using Marten;
 
 namespace Claimwick.Application.Spending.Expenses.ListExpenses;
 
+/// <implements>use-case/spending.list-expenses</implements>
 internal sealed class ListExpensesQueryHandler(
     IQuerySession session) : IQueryHandler<ListExpensesQuery, ListExpensesQueryResult>
 {

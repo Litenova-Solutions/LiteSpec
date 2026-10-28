@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="720" height="290" viewBox="0 0 720 290" role="img" aria-labelledby="backend-aggregate-lifecycle-title backend-aggregate-lifecycle-desc" font-family="Geist, ui-sans-serif, system-ui, sans-serif">
   <title id="backend-aggregate-lifecycle-title">The expense aggregate lifecycle from its declared states and use cases</title>
-  <desc id="backend-aggregate-lifecycle-desc">Submit from submit-expense creates a Submitted expense. Approve from approve-expense moves it to Approved, carrying the approver and the decided time. Reject from reject-expense moves it to Rejected, carrying the reason. Reimburse from reimburse-expense moves an Approved expense to Reimbursed, carrying the reimbursed time.</desc>
+  <desc id="backend-aggregate-lifecycle-desc">Submit from submit-expense creates a Submitted expense. Approve from approve-expense moves it to Approved, carrying the approver and the decided time. Refuse from refuse-expense moves it to Refused, carrying the reason. Reimburse from reimburse-expense moves an Approved expense to Reimbursed, carrying the reimbursed time.</desc>
   <defs>
     <marker id="backend-aggregate-lifecycle-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <path d="M0 0 10 5 0 10z" style="fill: var(--muted-fg, #77706a)" />
@@ -28,7 +28,7 @@
     <text x="95" y="132">Submitted</text>
     <text x="360" y="132">Approved</text>
     <text x="625" y="132">Reimbursed</text>
-    <text x="95" y="244">Rejected</text>
+    <text x="95" y="244">Refused</text>
   </g>
   <g style="fill: var(--muted-fg, #77706a)" font-size="12" text-anchor="middle">
     <text x="95" y="148">awaits a decision</text>
@@ -39,5 +39,5 @@
     <text x="488" y="128">Reimburse</text>
   </g>
   <text x="103" y="80" font-size="12" style="fill: var(--muted-fg, #77706a)">creates</text>
-  <text x="103" y="192" font-size="12" style="fill: var(--muted-fg, #77706a)">Reject</text>
+  <text x="103" y="192" font-size="12" style="fill: var(--muted-fg, #77706a)">Refuse</text>
 </svg>

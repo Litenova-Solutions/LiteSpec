@@ -1,6 +1,7 @@
 namespace Claimwick.Domain.Spending.Expenses.Exceptions;
 
 /// <summary>The approver submitted the expense.</summary>
+/// <implements>rule/expense.approver-is-not-submitter</implements>
 public sealed class ExpenseApproverIsSubmitterException()
     : DomainException("The approver submitted the expense.")
 {

@@ -22,7 +22,11 @@ static partial class Checker
         "journey-reach",
         "use-case-without-scenario", "requirement-unfulfilled",
         "aggregate-name-clash", "decision-decides-nothing", "link-unresolved",
-        "behavior-unrecorded", "state-unreachable", "transition-unresolved",
+        "behavior-unrecorded", "mark-missing", "mark-unresolved", "mark-count", "mark-style-mixed",
+        "runtime-value-drift", "act-event-undeclared", "act-event-unraised", "use-case-act-uncalled",
+        "aggregate-unimplemented", "reaction-unimplemented", "job-unimplemented",
+        "external-system-unimplemented", "use-case-unexposed", "effect-unimplemented", "use-case-unreached",
+        "state-unreachable", "transition-unresolved",
         "erasure-undeclared", "calculation-without-table",
         "reaction-trigger-unresolved", "requirement-unmeasured",
         "record-orphaned", "step-unserved", "effect-loop", "consistency-unexplained",
@@ -79,6 +83,7 @@ static partial class Checker
         Time("profile", () => CheckSizeTypes(model, findings));
         Time("reach", () => CheckJourneyReach(model, findings));
         Time("behavior", () => CheckBehaviorUnrecorded(model, findings));
+        Time("marks", () => CheckMarks(model, findings));
         Time("code", () => CheckCode(model, findings));
         Time("lifecycle", () => CheckLifecycle(model, findings));
         Time("erasure", () => CheckErasure(model, findings));
@@ -1287,47 +1292,6 @@ static partial class Checker
 
     private static void CheckBehaviorUnrecorded(ProjectModel model, List<Finding> findings)
     {
-        foreach (var handler in model.Code.Handlers)
-        {
-            if (!IsUseCase(model, handler.UseCaseId))
-            {
-                findings.Add(new Finding("behavior-unrecorded", $"Handler for '{handler.UseCaseId}' has no use case record; {UnrecordedRemedy}.", handler.File, 1, handler.UseCaseId));
-            }
-        }
-
-        foreach (var endpoint in model.Code.Endpoints)
-        {
-            if (!IsUseCase(model, endpoint.UseCaseId))
-            {
-                findings.Add(new Finding("behavior-unrecorded", $"Endpoint for '{endpoint.UseCaseId}' has no use case record; {UnrecordedRemedy}.", endpoint.File, 1, endpoint.UseCaseId));
-            }
-        }
-
-        foreach (var reaction in model.Code.Reactions)
-        {
-            var kind = reaction.Kind == "job" ? "Job" : "Reaction";
-
-            if (reaction.UseCaseId is null)
-            {
-                if (!HasImplements(model, reaction))
-                {
-                    findings.Add(new Finding("behavior-unrecorded", $"{kind} '{reaction.Class}' names no use case; {UnrecordedRemedy}.", reaction.File, reaction.Line, null));
-                }
-            }
-            else if (!IsUseCase(model, reaction.UseCaseId))
-            {
-                findings.Add(new Finding("behavior-unrecorded", $"{kind} '{reaction.Class}' names '{reaction.UseCaseId}', which no use case record holds; {UnrecordedRemedy}.", reaction.File, reaction.Line, reaction.UseCaseId));
-            }
-        }
-
-        foreach (var domainEvent in model.Code.Events)
-        {
-            if (domainEvent.EventId is null)
-            {
-                findings.Add(new Finding("behavior-unrecorded", $"Domain event '{domainEvent.Class}' is named by no event record; {UnrecordedRemedy}.", domainEvent.File, domainEvent.Line, null));
-            }
-        }
-
         // A refusal result declares the code a caller sees. A rule whose refusal is a bare code
         // declares a domain guard that no caller reaches, such as one a validator pre-empts.
         var declared = model.Records
@@ -1352,23 +1316,6 @@ static partial class Checker
     }
 
     /// <summary>Whether the id names a use case record.</summary>
-    /// <summary>Whether the reaction or job already links to a use case record.</summary>
-    private static bool HasImplements(ProjectModel model, ReactionInfo reaction)
-    {
-        var relative = Path.IsPathRooted(reaction.File)
-            ? model.Config.Relative(reaction.File)
-            : reaction.File.Replace(Path.DirectorySeparatorChar, '/');
-
-        return model.Implements.Any(link =>
-            string.Equals(link.Kind, reaction.Kind, StringComparison.Ordinal)
-            && string.Equals(link.Path, relative, StringComparison.Ordinal)
-            && (IsUseCase(model, link.To) || IsRecordOfKind(model, link.To, reaction.Kind)));
-    }
-
-    // A reaction handler implements its reaction record, and a job its job record, as the anchor tag names.
-    private static bool IsRecordOfKind(ProjectModel model, string id, string kind) =>
-        model.ById.TryGetValue(id, out var record) && record.Type == kind;
-
     private static bool IsUseCase(ProjectModel model, string id) =>
         model.ById.TryGetValue(id, out var record) && record.Type == "use-case";
 

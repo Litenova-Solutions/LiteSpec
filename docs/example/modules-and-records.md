@@ -28,12 +28,12 @@ An aggregate is one unit of business state that stays consistent and changes in 
 
 | Record | Home | Kind | States |
 |:--|:--|:--|:--|
-| `aggregate/spending.expense` | `docs/behavior/modules/spending/expenses/README.md` | entity | Submitted, Approved, Rejected, Reimbursed |
+| `aggregate/spending.expense` | `docs/behavior/modules/spending/expenses/README.md` | entity | Submitted, Approved, Refused, Reimbursed |
 | `aggregate/spending.receipt` | `docs/behavior/modules/spending/receipts/README.md` | entity | Attached, Removed |
 | `aggregate/spending.policy` | `docs/behavior/modules/spending/policies/README.md` | store | None |
 | `aggregate/spending.export-request` | `docs/behavior/modules/spending/export-requests/README.md` | store | None |
 
-An expense is one work cost an employee submitted. A receipt is proof of payment attached to an expense. The policy is a store: it holds the current receipt threshold value, names the spending settings store as its owner, and carries no states, because no invariant guards the stored value. The setting record below declares the threshold default and bounds. The store names its owner, which applies `litespec/core/behavior#name-the-owner-of-every-store`. The export-request store holds each export request with the file the builder job built for it, and names the spending module as its owner. Each expense state carries its meaning: Submitted waits for a decision, Approved and Rejected record a manager decision, and Reimbursed records the finance payout.
+An expense is one work cost an employee submitted. A receipt is proof of payment attached to an expense. The policy is a store: it holds the current receipt threshold value, names the spending settings store as its owner, and carries no states, because no invariant guards the stored value. The setting record below declares the threshold default and bounds. The store names its owner, which applies `litespec/core/behavior#name-the-owner-of-every-store`. The export-request store holds each export request with the file the builder job built for it, and names the spending module as its owner. Each expense state carries its meaning: Submitted waits for a decision, Approved and Refused record a manager decision, and Reimbursed records the finance payout.
 
 ## Expense Transitions and Data
 
@@ -42,7 +42,7 @@ The expense aggregate connects its states through transitions and declares its d
 | From | To | Triggered By |
 |:--|:--|:--|
 | Submitted | Approved | `use-case/spending.approve-expense` |
-| Submitted | Rejected | `use-case/spending.refuse-expense` |
+| Submitted | Refused | `use-case/spending.refuse-expense` |
 | Approved | Reimbursed | `use-case/spending.reimburse-expense` |
 
 The data classes group fields by their shared fate on erasure, which applies `litespec/core/behavior#declare-every-data-class-with-its-erasure-position`:
@@ -85,8 +85,8 @@ The expense page below shows the full shape, with its states, data classes, and 
       "meaning": "A manager approved the expense."
     },
     {
-      "name": "Rejected",
-      "meaning": "A manager rejected the expense."
+      "name": "Refused",
+      "meaning": "A manager refused the expense."
     },
     {
       "name": "Reimbursed",
@@ -197,12 +197,12 @@ The expense page below shows the full shape, with its states, data classes, and 
     },
     {
       "type": "event",
-      "id": "event/expense.rejected",
-      "title": "Expense rejected",
-      "meaning": "An expense was rejected.",
+      "id": "event/expense.refused",
+      "title": "Expense refused",
+      "meaning": "An expense was refused.",
       "carries": [
         "expenseId",
-        "rejectedBy",
+        "refusedBy",
         "decidedAt"
       ]
     },

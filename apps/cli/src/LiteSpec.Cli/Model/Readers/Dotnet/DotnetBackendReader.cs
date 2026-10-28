@@ -1,23 +1,20 @@
+using LiteSpec.Model.Roslyn;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Text;
 
 namespace LiteSpec.Model.Readers.Dotnet;
 
 /// <summary>
-///     Reads the backend through the parser: handlers by folder, reactions by
-///     event-handler shape, jobs by name, events by name, failure codes from Code
+///     Reads the backend through the parser: every element through the shared mark and kind
+///     readers, each record link from the mark the code carries, failure codes from Code
 ///     members, and comments as text.
 /// </summary>
 sealed class DotnetBackendReader : IBackendReader
 {
-    /// <summary>The interfaces whose anchor names an external system: the only ports a call counts on.</summary>
+    /// <summary>The interfaces whose mark names an external system: the only ports a call counts on.</summary>
     private static HashSet<string> externalPorts = new(StringComparer.Ordinal);
-
-    /// <summary>An external-system anchor followed by the interface it sits on.</summary>
-    private static readonly System.Text.RegularExpressions.Regex ExternalPortTag = new(
-        @"<implements>\s*external-system/[A-Za-z0-9][A-Za-z0-9._#-]*\s*</implements>[\s\S]*?interface\s+(?<name>[A-Za-z_][A-Za-z0-9_]*)",
-        System.Text.RegularExpressions.RegexOptions.Compiled);
 
     /// <summary>A kebab-case literal, the shape of a key a composed refusal code is built from.</summary>
     private static readonly System.Text.RegularExpressions.Regex KeyLiteralShape = new(
@@ -25,44 +22,165 @@ sealed class DotnetBackendReader : IBackendReader
         System.Text.RegularExpressions.RegexOptions.Compiled);
 
     /// <summary>
-    ///     Collects the port interfaces that anchor up to an external-system record, so a call
-    ///     through any other injected interface is internal work rather than a calls edge.
+    ///     Collects the cross-file names kind recognition needs: the aggregate roots, the
+    ///     domain exceptions, and the marked ports. Roots and exceptions seed from their
+    ///     direct bases and close over inheritance; ports are the interfaces carrying an
+    ///     external-system mark. Collected once per read.
     /// </summary>
-    private static HashSet<string> ExternalPortsOf(ConsumerConfig config)
+    private static KindContext KindsOf(ConsumerConfig config)
     {
+        var backends = new[]
+        {
+            config.ApplicationRoot,
+            config.ApplicationRoot + ".Abstractions",
+            config.DomainRoot,
+            config.WebApiRoot,
+            config.InfrastructureRoot,
+        };
+        var bases = new Dictionary<string, List<string>>(StringComparer.Ordinal);
         var ports = new HashSet<string>(StringComparer.Ordinal);
 
-        foreach (var root in new[] { config.ApplicationRoot, config.ApplicationRoot + ".Abstractions", config.InfrastructureRoot })
+        foreach (var root in backends)
         {
+            var portRoot = root == config.ApplicationRoot
+                || root == config.ApplicationRoot + ".Abstractions"
+                || root == config.InfrastructureRoot;
+
             foreach (var file in SourceTree.Files(root, ".cs"))
             {
-                var text = SourceTree.Read(file);
+                SyntaxTree tree;
 
-                if (!text.Contains("external-system/", StringComparison.Ordinal))
+                try
+                {
+                    tree = CSharpSyntaxTree.ParseText(SourceTree.Read(file), new CSharpParseOptions(LanguageVersion.Preview), file);
+                }
+                catch (IOException)
                 {
                     continue;
                 }
 
-                foreach (System.Text.RegularExpressions.Match match in ExternalPortTag.Matches(text))
+                foreach (var declared in tree.GetRoot().DescendantNodes().OfType<TypeDeclarationSyntax>())
                 {
-                    ports.Add(match.Groups["name"].Value);
+                    var name = declared.Identifier.ValueText;
+
+                    if (!bases.TryGetValue(name, out var known))
+                    {
+                        known = [];
+                        bases[name] = known;
+                    }
+
+                    if (declared.BaseList is not null)
+                    {
+                        foreach (var baseType in declared.BaseList.Types)
+                        {
+                            var face = SimpleName(KindOf(BaseName(baseType.Type)));
+
+                            if (face.Length > 0 && !known.Contains(face, StringComparer.Ordinal))
+                            {
+                                known.Add(face);
+                            }
+                        }
+                    }
+
+                    if (portRoot
+                        && declared is InterfaceDeclarationSyntax faceType
+                        && MarkReader.Read(faceType).Any(mark =>
+                            mark.RecordId.StartsWith("external-system/", StringComparison.Ordinal)))
+                    {
+                        ports.Add(name);
+                    }
                 }
             }
         }
 
-        return ports;
+        return new KindContext(
+            Fixpoint(bases, parents => parents.Any(parent =>
+                parent.StartsWith("AggregateRoot", StringComparison.Ordinal))),
+            Fixpoint(bases, parents => parents.Contains("DomainException")),
+            ports);
     }
+
+    /// <summary>Closes the seeded names over direct inheritance: a type deriving a known name is known.</summary>
+    private static HashSet<string> Fixpoint(
+        Dictionary<string, List<string>> bases,
+        Func<List<string>, bool> seeds)
+    {
+        var known = new HashSet<string>(StringComparer.Ordinal);
+
+        foreach (var (name, parents) in bases)
+        {
+            if (seeds(parents))
+            {
+                known.Add(name);
+            }
+        }
+
+        var changed = true;
+
+        while (changed)
+        {
+            changed = false;
+
+            foreach (var (name, parents) in bases)
+            {
+                if (!known.Contains(name) && parents.Any(known.Contains))
+                {
+                    known.Add(name);
+                    changed = true;
+                }
+            }
+        }
+
+        return known;
+    }
+
+    /// <summary>The short project name holding the file, or null when it sits under no backend root.</summary>
+    private static string? ProjectOf(ConsumerConfig config, string file)
+    {
+        var abstractions = config.ApplicationRoot + ".Abstractions";
+
+        if (IsUnder(abstractions, file))
+        {
+            return FolderName(abstractions);
+        }
+
+        if (IsUnder(config.ApplicationRoot, file))
+        {
+            return FolderName(config.ApplicationRoot);
+        }
+
+        if (IsUnder(config.DomainRoot, file))
+        {
+            return FolderName(config.DomainRoot);
+        }
+
+        if (IsUnder(config.WebApiRoot, file))
+        {
+            return FolderName(config.WebApiRoot);
+        }
+
+        if (IsUnder(config.InfrastructureRoot, file))
+        {
+            return FolderName(config.InfrastructureRoot);
+        }
+
+        return null;
+    }
+
+    /// <summary>The folder name of a source root: the short project name.</summary>
+    private static string FolderName(string root) =>
+        Path.GetFileName(root.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
 
     /// <summary>Reads every configured source root, parsing each file once.</summary>
     public CodeModel Read(ConsumerConfig config)
     {
         var model = new CodeModel();
+        var context = KindsOf(config);
 
-        externalPorts = ExternalPortsOf(config);
+        externalPorts = new HashSet<string>(context.MarkedPorts, StringComparer.Ordinal);
         var helpers = IndexHelpers(config);
-        var aggregateRoots = AggregateRootsOf(config);
+        var aggregateRoots = new HashSet<string>(context.AggregateRoots, StringComparer.Ordinal);
         var holders = RepositoryHoldersOf(config);
-        ReadHandlers(config, model, helpers, aggregateRoots, holders);
 
         var files = new List<string>();
 
@@ -79,7 +197,7 @@ sealed class DotnetBackendReader : IBackendReader
             () => new CodeModel(),
             (file, _, local) =>
             {
-                ReadFile(config, file, local, helpers, aggregateRoots, holders);
+                ReadFile(config, file, local, context, helpers, aggregateRoots, holders);
 
                 return local;
             },
@@ -90,6 +208,7 @@ sealed class DotnetBackendReader : IBackendReader
                     merged.Handlers.AddRange(local.Handlers);
                     merged.Reactions.AddRange(local.Reactions);
                     merged.Events.AddRange(local.Events);
+                    merged.Elements.AddRange(local.Elements);
                     merged.Literals.AddRange(local.Literals);
                     merged.KeyLiterals.UnionWith(local.KeyLiterals);
                     merged.Comments.AddRange(local.Comments);
@@ -99,6 +218,13 @@ sealed class DotnetBackendReader : IBackendReader
                 }
             });
 
+        model.Handlers.AddRange(merged.Handlers
+            .OrderBy(handler => handler.UseCaseId, StringComparer.Ordinal));
+        model.Elements.AddRange(merged.Elements
+            .OrderBy(element => element.File, StringComparer.Ordinal)
+            .ThenBy(element => element.Line)
+            .ThenBy(element => element.Class, StringComparer.Ordinal)
+            .ThenBy(element => element.Member ?? "", StringComparer.Ordinal));
         model.Reactions.AddRange(merged.Reactions
             .OrderBy(reaction => reaction.File, StringComparer.Ordinal)
             .ThenBy(reaction => reaction.Line)
@@ -132,88 +258,11 @@ sealed class DotnetBackendReader : IBackendReader
         return model;
     }
 
-    /// <summary>
-    ///     The use case whose Application folder holds a file: <c>&lt;Module&gt;/&lt;Aggregate&gt;/&lt;UseCase&gt;/</c>
-    ///     names <c>use-case/&lt;module&gt;.&lt;use-case&gt;</c>, as for a handler. A reaction or job without an
-    ///     implements tag belongs to the use case whose folder holds it; outside such a folder it belongs to none.
-    /// </summary>
-    private static string? UseCaseOfFolder(ConsumerConfig config, string file)
-    {
-        var relative = Path.GetRelativePath(config.ApplicationRoot, file);
-
-        if (relative.StartsWith("..", StringComparison.Ordinal) || Path.IsPathRooted(relative))
-        {
-            return null;
-        }
-
-        var parts = relative.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
-        return parts.Length < 4 ? null : $"use-case/{Naming.Kebab(parts[0])}.{Naming.Kebab(parts[2])}";
-    }
-
-    private static void ReadHandlers(
-        ConsumerConfig config,
-        CodeModel model,
-        Dictionary<string, List<HelperMethod>> helpers,
-        HashSet<string> aggregateRoots,
-        HashSet<string> holders)
-    {
-        foreach (var file in SourceTree.Files(config.ApplicationRoot, ".cs"))
-        {
-            var name = Path.GetFileName(file);
-
-            if (!name.EndsWith("Handler.cs", StringComparison.Ordinal))
-            {
-                continue;
-            }
-
-            var parts = Path.GetRelativePath(config.ApplicationRoot, file)
-                            .Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
-
-            if (parts.Length < 4)
-            {
-                continue;
-            }
-
-            // An event handler file ends in Handler too, but it implements a reaction
-            // rather than a use case, so the reaction reader below owns it.
-            if (ImplementsEventHandler(file))
-            {
-                continue;
-            }
-
-            var module = Naming.Kebab(parts[0]);
-            var operation = parts[2];
-            var kind = name.EndsWith("QueryHandler.cs", StringComparison.Ordinal) ? "query" : "command";
-            var details = HandlerDetails(file, helpers, aggregateRoots, holders, kind == "query");
-
-            model.Handlers.Add(new HandlerInfo(
-                $"use-case/{module}.{Naming.Kebab(operation)}",
-                module,
-                Naming.Kebab(operation),
-                operation,
-                kind,
-                file,
-                details.Class,
-                details.Line,
-                details.Repositories,
-                details.Refusals,
-                details.Thrown,
-                details.Dispatches,
-                details.MessageType,
-                details.DependencyCount,
-                details.AggregateCalls,
-                details.Collaborators,
-                details.LoopReads,
-                details.MemoryFilters));
-        }
-
-        model.Handlers.Sort((left, right) => string.Compare(left.UseCaseId, right.UseCaseId, StringComparison.Ordinal));
-    }
-
     private static void ReadFile(
         ConsumerConfig config,
         string file,
         CodeModel model,
+        KindContext context,
         Dictionary<string, List<HelperMethod>> helpers,
         HashSet<string> aggregateRoots,
         HashSet<string> holders)
@@ -231,10 +280,14 @@ sealed class DotnetBackendReader : IBackendReader
 
         var root = tree.GetRoot();
         var classes = root.DescendantNodes().OfType<BaseTypeDeclarationSyntax>().ToList();
+        var elements = MarkFacts.Read(tree, context, ProjectOf(config, file));
+        var types = root.DescendantNodes().OfType<TypeDeclarationSyntax>()
+            .ToDictionary(type => type.Identifier.Span, type => type);
+        var methods = root.DescendantNodes().OfType<MethodDeclarationSyntax>()
+            .ToDictionary(method => method.Identifier.Span, method => method);
 
-        ReadEvent(config, file, tree, classes, model);
-        ReadEndpoint(config, file, tree, root, model);
-        ReadAggregateMethods(config, file, tree, classes, model);
+        ReadElements(file, tree, elements, types, methods, model, helpers, aggregateRoots, holders);
+        ReadAggregateMethods(file, tree, elements, types, model);
         ReadAuditActions(file, tree, classes, model);
 
         foreach (var token in root.DescendantTokens())
@@ -277,113 +330,209 @@ sealed class DotnetBackendReader : IBackendReader
             }
         }
 
-        foreach (var declared in classes)
-        {
-            var bases = declared is TypeDeclarationSyntax typed && typed.BaseList is not null
-                ? typed.BaseList.Types.Select(type => BaseName(type.Type)).ToList()
-                : [];
+    }
 
-            var tags = Identifiers.ImplementsTag()
-                .Matches(declared.GetLeadingTrivia().ToString())
-                .Cast<System.Text.RegularExpressions.Match>()
-                .Select(match => match.Groups["id"].Value)
+    /// <summary>
+    ///     Reads every recognized element of one file into the model: the element itself
+    ///     with its marks, and the handler, reaction, event or endpoint row its kind owns.
+    ///     Every record link comes from a mark the element carries.
+    /// </summary>
+    private static void ReadElements(
+        string file,
+        SyntaxTree tree,
+        IReadOnlyList<MarkableElement> elements,
+        IReadOnlyDictionary<TextSpan, TypeDeclarationSyntax> types,
+        IReadOnlyDictionary<TextSpan, MethodDeclarationSyntax> methods,
+        CodeModel model,
+        Dictionary<string, List<HelperMethod>> helpers,
+        HashSet<string> aggregateRoots,
+        HashSet<string> holders)
+    {
+        foreach (var element in elements)
+        {
+            if (element.Kind is not CodeKind kind || kind is CodeKind.Test or CodeKind.FrontendModule)
+            {
+                continue;
+            }
+
+            var marks = element.Marks
+                .Select(mark => new CodeMark(mark.RecordId, mark.Style, mark.Verb, file, mark.Line))
                 .ToList();
 
-            // A hosted service named for the host rather than the job still runs a use case
-            // when its implements tag says so.
-            var kind = Classify(declared.Identifier.ValueText, bases, file)
-                ?? (tags.Count > 0 && bases.Any(baseName =>
-                        baseName is "BackgroundService" or "IHostedService"
-                        || baseName.StartsWith("BackgroundService<", StringComparison.Ordinal))
-                    ? "job"
-                    : null);
-
-            if (kind is not null)
+            if (element.IsType)
             {
+                if (!types.TryGetValue(element.Span, out var declared))
+                {
+                    continue;
+                }
 
-                model.Reactions.Add(new ReactionInfo(
-                    declared.Identifier.ValueText,
-                    file,
-                    tree.GetLineSpan(declared.Span).StartLinePosition.Line + 1,
-                    kind,
-                    tags.FirstOrDefault() ?? (kind == "reaction" ? null : UseCaseOfFolder(config, file)),
-                    RecordTag(declared),
-                    RepositoriesOf(declared, tree, file),
-                    RefusalsOf(declared, tree, file),
-                    ThrownOf(declared, tree, file),
-                    DispatchesOf(declared, tree, file, helpers),
-                    DependencyCountOf(declared),
-                    CollaboratorsOf(declared, tree, file, holders),
-                    LoopReadsOf(declared, tree, file)));
+                model.Elements.Add(new MarkedElement(
+                    kind, element.Name, null, file, element.Line, marks, false,
+                    RuntimeValueOf(declared, kind)));
+
+                switch (kind)
+                {
+                    case CodeKind.Handler:
+                        ReadHandler(file, tree, declared, marks, model, helpers, aggregateRoots, holders);
+                        break;
+                    case CodeKind.EventHandler:
+                    case CodeKind.Job:
+                        ReadReaction(file, tree, declared, kind, marks, model, helpers, holders);
+                        break;
+                    case CodeKind.DomainEvent:
+                        model.Events.Add(new DomainEventInfo(
+                            element.Name,
+                            file,
+                            tree.GetLineSpan(declared.Span).StartLinePosition.Line + 1,
+                            SingleMark(marks, "event/")));
+                        break;
+                    case CodeKind.Endpoint:
+                        ReadEndpoint(file, tree, declared, marks, model);
+                        break;
+                }
+            }
+            else
+            {
+                if (!methods.TryGetValue(element.Span, out var method))
+                {
+                    continue;
+                }
+
+                var containing = method.Ancestors().OfType<TypeDeclarationSyntax>().FirstOrDefault();
+
+                model.Elements.Add(new MarkedElement(
+                    kind, containing?.Identifier.ValueText ?? "", element.Name,
+                    file, element.Line, marks, false));
             }
         }
     }
 
-    private static void ReadEvent(
-        ConsumerConfig config,
-        string file,
-        SyntaxTree tree,
-        IReadOnlyList<BaseTypeDeclarationSyntax> classes,
-        CodeModel model)
+    /// <summary>The one mark naming the prefix, or null when the element carries none or several.</summary>
+    private static string? SingleMark(IReadOnlyList<CodeMark> marks, string prefix)
     {
-        if (!IsUnder(config.DomainRoot, file)
-            || !file.Contains($"{Path.DirectorySeparatorChar}Events{Path.DirectorySeparatorChar}", StringComparison.Ordinal))
+        string? found = null;
+
+        foreach (var mark in marks)
         {
-            return;
+            if (mark.RecordId.StartsWith(prefix, StringComparison.Ordinal))
+            {
+                if (found is not null)
+                {
+                    return null;
+                }
+
+                found = mark.RecordId;
+            }
         }
 
-        var name = Path.GetFileNameWithoutExtension(file);
-
-        if (!name.EndsWith("Event", StringComparison.Ordinal) || name.Length <= 5)
-        {
-            return;
-        }
-
-        var declared = classes.FirstOrDefault();
-
-        // An event class that states its record id in a string literal names its record
-        // outright; the builder falls back to the class name when none is stated.
-        var stated = declared?.DescendantTokens()
-            .Select(LiteralText)
-            .FirstOrDefault(text => text is not null && Identifiers.EventId().IsMatch(text));
-
-        model.Events.Add(new DomainEventInfo(
-            declared?.Identifier.ValueText ?? name,
-            file,
-            declared is null ? 1 : tree.GetLineSpan(declared.Span).StartLinePosition.Line + 1,
-            stated));
+        return found;
     }
 
-    private static void ReadEndpoint(ConsumerConfig config, string file, SyntaxTree tree, SyntaxNode root, CodeModel model)
+    /// <summary>The one reaction or job mark the element carries, or null when it carries none or several.</summary>
+    private static string? SingleReactionMark(IReadOnlyList<CodeMark> marks)
     {
-        if (!Path.GetFileName(file).EndsWith("Endpoint.cs", StringComparison.Ordinal)
-            || !IsUnder(config.WebApiRoot, file))
+        string? found = null;
+
+        foreach (var mark in marks)
         {
-            return;
+            if (mark.RecordId.StartsWith("reaction/", StringComparison.Ordinal)
+                || mark.RecordId.StartsWith("job/", StringComparison.Ordinal))
+            {
+                if (found is not null)
+                {
+                    return null;
+                }
+
+                found = mark.RecordId;
+            }
         }
 
-        var parts = Path.GetRelativePath(config.WebApiRoot, file)
-                        .Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
-                        .SkipWhile(part => part == "Endpoints")
-                        .ToArray();
+        return found;
+    }
 
-        // Module/Aggregate/UseCase/XEndpoint.cs, or the single-aggregate flat form Module/UseCase/XEndpoint.cs.
-        string useCase;
+    /// <summary>Reads one handler: its use case from its one use-case mark, its shape from its class.</summary>
+    private static void ReadHandler(
+        string file,
+        SyntaxTree tree,
+        TypeDeclarationSyntax declared,
+        IReadOnlyList<CodeMark> marks,
+        CodeModel model,
+        Dictionary<string, List<HelperMethod>> helpers,
+        HashSet<string> aggregateRoots,
+        HashSet<string> holders)
+    {
+        var useCase = SingleMark(marks, "use-case/") ?? "";
 
-        if (parts.Length >= 4)
-        {
-            useCase = $"use-case/{Naming.Kebab(parts[0])}.{Naming.Kebab(parts[2])}";
-        }
-        else if (parts.Length == 3)
-        {
-            useCase = $"use-case/{Naming.Kebab(parts[0])}.{Naming.Kebab(parts[1])}";
-        }
-        else
-        {
-            return;
-        }
+        Identifiers.TrySplit(useCase, out _, out var home, out var name);
 
-        foreach (var invocation in root.DescendantNodes().OfType<InvocationExpressionSyntax>())
+        var message = MessageTypeOf(declared);
+        var kind = ImplementsFace(declared, "IQueryHandler") && !ImplementsFace(declared, "ICommandHandler")
+            ? "query"
+            : "command";
+        var details = HandlerDetailsOf(declared, tree, file, helpers, aggregateRoots, holders, kind == "query");
+
+        model.Handlers.Add(new HandlerInfo(
+            useCase,
+            home ?? "",
+            name,
+            OperationOf(message),
+            kind,
+            file,
+            details.Class,
+            details.Line,
+            details.Repositories,
+            details.Refusals,
+            details.Thrown,
+            details.Dispatches,
+            details.MessageType,
+            details.DependencyCount,
+            details.AggregateCalls,
+            details.Collaborators,
+            details.LoopReads,
+            details.MemoryFilters)
+        {
+            FactoryCalls = details.FactoryCalls,
+        });
+    }
+
+    /// <summary>Reads one event handler or job: its reaction or job mark, and a use-case mark when one sits beside it.</summary>
+    private static void ReadReaction(
+        string file,
+        SyntaxTree tree,
+        TypeDeclarationSyntax declared,
+        CodeKind kind,
+        IReadOnlyList<CodeMark> marks,
+        CodeModel model,
+        Dictionary<string, List<HelperMethod>> helpers,
+        HashSet<string> holders)
+    {
+        model.Reactions.Add(new ReactionInfo(
+            declared.Identifier.ValueText,
+            file,
+            tree.GetLineSpan(declared.Span).StartLinePosition.Line + 1,
+            kind == CodeKind.Job ? "job" : "reaction",
+            SingleMark(marks, "use-case/"),
+            SingleReactionMark(marks),
+            RepositoriesOf(declared, tree, file),
+            RefusalsOf(declared, tree, file),
+            ThrownOf(declared, tree, file),
+            DispatchesOf(declared, tree, file, helpers),
+            DependencyCountOf(declared),
+            CollaboratorsOf(declared, tree, file, holders),
+            LoopReadsOf(declared, tree, file)));
+    }
+
+    /// <summary>Reads one endpoint's operations: the route and operation literals its class maps.</summary>
+    private static void ReadEndpoint(
+        string file,
+        SyntaxTree tree,
+        TypeDeclarationSyntax declared,
+        IReadOnlyList<CodeMark> marks,
+        CodeModel model)
+    {
+        var useCase = SingleMark(marks, "use-case/") ?? "";
+
+        foreach (var invocation in declared.DescendantNodes().OfType<InvocationExpressionSyntax>())
         {
             var called = CalledName(invocation);
 
@@ -403,8 +552,101 @@ sealed class DotnetBackendReader : IBackendReader
         }
     }
 
+    /// <summary>The message stem: the message type name without its Command or Query suffix.</summary>
+    private static string OperationOf(string message)
+    {
+        foreach (var suffix in new[] { "Command", "Query" })
+        {
+            if (message.EndsWith(suffix, StringComparison.Ordinal) && message.Length > suffix.Length)
+            {
+                return message[..^suffix.Length];
+            }
+        }
+
+        return message;
+    }
+
+    /// <summary>Whether the type lists the interface among its bases, generic or not.</summary>
+    private static bool ImplementsFace(TypeDeclarationSyntax declared, string face) =>
+        declared.BaseList is not null
+        && declared.BaseList.Types
+            .Select(type => BaseName(type.Type))
+            .Any(baseName => baseName == face || baseName.StartsWith(face + "<", StringComparison.Ordinal));
+
+    /// <summary>
+    ///     The hand-written runtime value the type declares: an event's Classification
+    ///     literal or a rule exception's Code literal. Null when the type declares none.
+    /// </summary>
+    private static string? RuntimeValueOf(TypeDeclarationSyntax declared, CodeKind kind)
+    {
+        var wanted = kind switch
+        {
+            CodeKind.DomainEvent => "Classification",
+            CodeKind.RuleException => "Code",
+            _ => null,
+        };
+
+        if (wanted is null)
+        {
+            return null;
+        }
+
+        foreach (var member in declared.Members)
+        {
+            switch (member)
+            {
+                case FieldDeclarationSyntax field:
+                    foreach (var variable in field.Declaration.Variables)
+                    {
+                        if (variable.Identifier.ValueText == wanted
+                            && ValueOf(variable.Initializer?.Value) is { } fieldValue)
+                        {
+                            return fieldValue;
+                        }
+                    }
+
+                    break;
+                case PropertyDeclarationSyntax property when property.Identifier.ValueText == wanted:
+                    if (ValueOf(property.ExpressionBody?.Expression) is { } body)
+                    {
+                        return body;
+                    }
+
+                    if (ValueOf(property.Initializer?.Value) is { } initial)
+                    {
+                        return initial;
+                    }
+
+                    if (property.AccessorList is { } accessors)
+                    {
+                        foreach (var accessor in accessors.Accessors)
+                        {
+                            if (ValueOf(accessor.ExpressionBody?.Expression) is { } held)
+                            {
+                                return held;
+                            }
+                        }
+                    }
+
+                    break;
+            }
+        }
+
+        return null;
+
+        static string? ValueOf(ExpressionSyntax? expression) =>
+            expression is LiteralExpressionSyntax literal && literal.Token.Value is string text
+                ? text
+                : null;
+    }
+
     private static bool IsUnder(string root, string file)
     {
+        if (root.Length == 0)
+        {
+            return false;
+        }
+
         var relative = Path.GetRelativePath(root, file);
 
         return !relative.StartsWith("..", StringComparison.Ordinal)
@@ -413,75 +655,80 @@ sealed class DotnetBackendReader : IBackendReader
 
     /// <summary>
     ///     Reads the public methods of every aggregate root the file declares with the
-    ///     domain events each one raises: a call to a method starting with <c>Raise</c>
-    ///     that takes a constructed event, such as <c>RaiseDomainEvent(new XEvent())</c>.
+    ///     domain events each one raises and the use-case marks each one carries: a call
+    ///     to a method starting with <c>Raise</c> that takes a constructed event, such as
+    ///     <c>RaiseDomainEvent(new XEvent())</c>.
     /// </summary>
     private static void ReadAggregateMethods(
-        ConsumerConfig config,
         string file,
         SyntaxTree tree,
-        IReadOnlyList<BaseTypeDeclarationSyntax> classes,
+        IReadOnlyList<MarkableElement> elements,
+        IReadOnlyDictionary<TextSpan, TypeDeclarationSyntax> types,
         CodeModel model)
     {
-        if (!IsUnder(config.DomainRoot, file))
+        foreach (var element in elements)
         {
-            return;
-        }
-
-        foreach (var declared in classes)
-        {
-            if (declared is not TypeDeclarationSyntax typed || !DerivesFromAggregateRoot(typed))
+            if (!element.IsType
+                || element.Kind != CodeKind.AggregateRoot
+                || !types.TryGetValue(element.Span, out var declared))
             {
                 continue;
             }
 
-            foreach (var method in typed.Members.OfType<MethodDeclarationSyntax>())
+            foreach (var method in declared.Members.OfType<MethodDeclarationSyntax>())
             {
                 if (!method.Modifiers.Any(modifier => modifier.IsKind(SyntaxKind.PublicKeyword)))
                 {
                     continue;
                 }
 
-                var events = new List<string>();
-
-                foreach (var invocation in method.DescendantNodes().OfType<InvocationExpressionSyntax>())
-                {
-                    if (CalledName(invocation) is not { } called || !called.StartsWith("Raise", StringComparison.Ordinal))
-                    {
-                        continue;
-                    }
-
-                    foreach (var argument in invocation.ArgumentList.Arguments)
-                    {
-                        if (argument.Expression is BaseObjectCreationExpressionSyntax creation
-                            && creation is ObjectCreationExpressionSyntax { Type: var type })
-                        {
-                            var raised = KindOf(SimpleTypeName(type));
-
-                            if (raised.Length > 0 && !events.Contains(raised, StringComparer.Ordinal))
-                            {
-                                events.Add(raised);
-                            }
-                        }
-                    }
-                }
+                var uses = MarkReader.Read(method)
+                    .Where(mark => mark.RecordId.StartsWith("use-case/", StringComparison.Ordinal))
+                    .Select(mark => mark.RecordId)
+                    .ToList();
 
                 model.AggregateMethods.Add(new AggregateMethod(
                     declared.Identifier.ValueText,
                     method.Identifier.ValueText,
-                    events,
+                    RaisedEvents(method),
                     file,
-                    tree.GetLineSpan(method.Span).StartLinePosition.Line + 1));
+                    tree.GetLineSpan(method.Span).StartLinePosition.Line + 1)
+                {
+                    UseCases = uses,
+                });
             }
         }
     }
 
-    /// <summary>Whether the type derives from a class whose name starts with <c>AggregateRoot</c>.</summary>
-    private static bool DerivesFromAggregateRoot(TypeDeclarationSyntax typed) =>
-        typed.BaseList is not null
-        && typed.BaseList.Types
-            .Select(type => KindOf(BaseName(type.Type)))
-            .Any(baseName => baseName.StartsWith("AggregateRoot", StringComparison.Ordinal));
+    /// <summary>The domain events a method raises: each constructed event a Raise call takes.</summary>
+    private static List<string> RaisedEvents(MethodDeclarationSyntax method)
+    {
+        var events = new List<string>();
+
+        foreach (var invocation in method.DescendantNodes().OfType<InvocationExpressionSyntax>())
+        {
+            if (CalledName(invocation) is not { } called || !called.StartsWith("Raise", StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            foreach (var argument in invocation.ArgumentList.Arguments)
+            {
+                if (argument.Expression is BaseObjectCreationExpressionSyntax creation
+                    && creation is ObjectCreationExpressionSyntax { Type: var type })
+                {
+                    var raised = KindOf(SimpleTypeName(type));
+
+                    if (raised.Length > 0 && !events.Contains(raised, StringComparer.Ordinal))
+                    {
+                        events.Add(raised);
+                    }
+                }
+            }
+        }
+
+        return events;
+    }
 
     /// <summary>
     ///     Reads the audit action literal each message class declares in its
@@ -598,78 +845,6 @@ sealed class DotnetBackendReader : IBackendReader
         };
     }
 
-    private static string? Classify(string name, List<string> bases, string file)
-    {
-        // A job is named as one. A hosted service that wires the host at startup (a schema
-        // check, a topology, a probe) is plumbing, and a type that only mentions recurring
-        // work (its options, its model) runs nothing.
-        if (name.EndsWith("Job", StringComparison.Ordinal)
-            || name.EndsWith("Worker", StringComparison.Ordinal))
-        {
-            return "job";
-        }
-
-        // An event handler answers one fact: its name joins the action to the fact,
-        // it implements the event-handler interface, and it lives in the fact folder.
-        if (IsEventHandlerName(name)
-            && bases.Any(IsEventHandlerBase)
-            && InFactFolder(file))
-        {
-            return "reaction";
-        }
-
-        return null;
-    }
-
-    /// <summary>Whether the name joins an action to a fact: {Action}On{Fact}Handler.</summary>
-    private static bool IsEventHandlerName(string name)
-    {
-        const string suffix = "Handler";
-
-        if (!name.EndsWith(suffix, StringComparison.Ordinal) || name.Length <= suffix.Length)
-        {
-            return false;
-        }
-
-        var stem = name[..^suffix.Length];
-        var on = stem.IndexOf("On", StringComparison.Ordinal);
-
-        return on > 0 && on + "On".Length < stem.Length;
-    }
-
-    /// <summary>Whether the base type is the event-handler interface, generic or not.</summary>
-    private static bool IsEventHandlerBase(string baseName) =>
-        baseName is "IEventHandler"
-        || baseName.StartsWith("IEventHandler<", StringComparison.Ordinal);
-
-    /// <summary>Whether the file sits in a folder named for the fact it answers: On{Fact}.</summary>
-    private static bool InFactFolder(string file) =>
-        file.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
-            .SkipLast(1)
-            .Any(part => part.StartsWith("On", StringComparison.Ordinal) && part.Length > "On".Length);
-
-    /// <summary>Whether the file's handler class implements the event-handler interface.</summary>
-    private static bool ImplementsEventHandler(string file)
-    {
-        SyntaxTree tree;
-
-        try
-        {
-            tree = CSharpSyntaxTree.ParseText(SourceTree.Read(file), new CSharpParseOptions(LanguageVersion.Preview), file);
-        }
-        catch (IOException)
-        {
-            return false;
-        }
-
-        var declared = tree.GetRoot().DescendantNodes().OfType<BaseTypeDeclarationSyntax>()
-            .FirstOrDefault(type => type.Identifier.ValueText.EndsWith("Handler", StringComparison.Ordinal));
-
-        return declared is TypeDeclarationSyntax typed
-            && typed.BaseList is not null
-            && typed.BaseList.Types.Select(type => BaseName(type.Type)).Any(IsEventHandlerBase);
-    }
-
     private static string BaseName(TypeSyntax type) => type switch
     {
         GenericNameSyntax generic => $"{generic.Identifier.ValueText}<{string.Join(",", generic.TypeArgumentList.Arguments)}>",
@@ -719,48 +894,21 @@ sealed class DotnetBackendReader : IBackendReader
         string MessageType,
         int DependencyCount,
         List<CodeCall> AggregateCalls,
+        List<CodeCall> FactoryCalls,
         List<CodeCollaborator> Collaborators,
         List<CodeLoopRead> LoopReads,
         List<CodeMemoryFilter> MemoryFilters);
 
-    /// <summary>A written anchor on a reaction or job record.</summary>
-    private static readonly System.Text.RegularExpressions.Regex RecordImplementsTag = new(
-        @"<implements>\s*(?<id>(?:reaction|job)/[A-Za-z0-9][A-Za-z0-9._-]*)\s*</implements>",
-        System.Text.RegularExpressions.RegexOptions.Compiled);
-
-    /// <summary>The reaction or job record id a class's anchor tag names, or null when it names none.</summary>
-    private static string? RecordTag(BaseTypeDeclarationSyntax declared) =>
-        RecordImplementsTag.Match(declared.GetLeadingTrivia().ToString()) is { Success: true } match
-            ? match.Groups["id"].Value
-            : null;
-
-    /// <summary>The collected details of a handler file's handler class, or empty details when none parses.</summary>
-    private static ClassDetails HandlerDetails(
+    /// <summary>The collected details of a handler class.</summary>
+    private static ClassDetails HandlerDetailsOf(
+        BaseTypeDeclarationSyntax declared,
+        SyntaxTree tree,
         string file,
         Dictionary<string, List<HelperMethod>> helpers,
         HashSet<string> aggregateRoots,
         HashSet<string> holders,
         bool isQuery)
     {
-        SyntaxTree tree;
-
-        try
-        {
-            tree = CSharpSyntaxTree.ParseText(SourceTree.Read(file), new CSharpParseOptions(LanguageVersion.Preview), file);
-        }
-        catch (IOException)
-        {
-            return new ClassDetails("", 1, [], [], [], [], "", 0, [], [], [], []);
-        }
-
-        var declared = tree.GetRoot().DescendantNodes().OfType<BaseTypeDeclarationSyntax>()
-            .FirstOrDefault(type => type.Identifier.ValueText.EndsWith("Handler", StringComparison.Ordinal));
-
-        if (declared is null)
-        {
-            return new ClassDetails("", 1, [], [], [], [], "", 0, [], [], [], []);
-        }
-
         return new ClassDetails(
             declared.Identifier.ValueText,
             tree.GetLineSpan(declared.Span).StartLinePosition.Line + 1,
@@ -771,6 +919,7 @@ sealed class DotnetBackendReader : IBackendReader
             MessageTypeOf(declared),
             DependencyCountOf(declared),
             AggregateCallsOf(declared, tree, file, aggregateRoots),
+            FactoryCallsOf(declared, tree, file, aggregateRoots),
             CollaboratorsOf(declared, tree, file, holders),
             LoopReadsOf(declared, tree, file),
             isQuery ? MemoryFiltersOf(declared, tree, file) : []);
@@ -878,39 +1027,6 @@ sealed class DotnetBackendReader : IBackendReader
             .OrderBy(entry => entry.Value)
             .ThenBy(entry => entry.Key, StringComparer.Ordinal)
             .Select(entry => new CodeThrown(entry.Key, file, entry.Value))];
-    }
-
-    /// <summary>
-    ///     The simple names of the domain aggregate roots: the classes under the domain
-    ///     root deriving from a class whose name starts with <c>AggregateRoot</c>.
-    /// </summary>
-    private static HashSet<string> AggregateRootsOf(ConsumerConfig config)
-    {
-        var roots = new HashSet<string>(StringComparer.Ordinal);
-
-        foreach (var file in SourceTree.Files(config.DomainRoot, ".cs"))
-        {
-            SyntaxTree tree;
-
-            try
-            {
-                tree = CSharpSyntaxTree.ParseText(SourceTree.Read(file), new CSharpParseOptions(LanguageVersion.Preview), file);
-            }
-            catch (IOException)
-            {
-                continue;
-            }
-
-            foreach (var declared in tree.GetRoot().DescendantNodes().OfType<TypeDeclarationSyntax>())
-            {
-                if (DerivesFromAggregateRoot(declared))
-                {
-                    roots.Add(declared.Identifier.ValueText);
-                }
-            }
-        }
-
-        return roots;
     }
 
     /// <summary>
@@ -1054,6 +1170,59 @@ sealed class DotnetBackendReader : IBackendReader
                     file,
                     tree.GetLineSpan(invocation.Span).StartLinePosition.Line + 1));
             }
+        }
+
+        found.Sort((left, right) => left.Line.CompareTo(right.Line));
+
+        return found;
+    }
+
+    /// <summary>
+    ///     The static calls a handler makes on aggregate root types: an invocation
+    ///     whose bare receiver names a root type rather than a held value, with the
+    ///     root type name as receiver, in line order.
+    /// </summary>
+    private static List<CodeCall> FactoryCallsOf(
+        BaseTypeDeclarationSyntax declared,
+        SyntaxTree tree,
+        string file,
+        HashSet<string> aggregateRoots)
+    {
+        var found = new List<CodeCall>();
+
+        if (aggregateRoots.Count == 0)
+        {
+            return found;
+        }
+
+        var receivers = ReceiverTypes(declared);
+        var fields = FieldTypes(declared);
+
+        foreach (var invocation in declared.DescendantNodes().OfType<InvocationExpressionSyntax>())
+        {
+            if (invocation.Expression is not MemberAccessExpressionSyntax member
+                || member.Expression is not IdentifierNameSyntax plain)
+            {
+                continue;
+            }
+
+            var name = plain.Identifier.ValueText;
+
+            // A name the class injects, holds or declares is a call on a held
+            // aggregate; only a bare root type name is a static factory call.
+            if (receivers.ContainsKey(name)
+                || fields.ContainsKey(name)
+                || AggregateLocalType(invocation, name, receivers) is not null
+                || !aggregateRoots.Contains(name))
+            {
+                continue;
+            }
+
+            found.Add(new CodeCall(
+                name,
+                member.Name.Identifier.ValueText,
+                file,
+                tree.GetLineSpan(invocation.Span).StartLinePosition.Line + 1));
         }
 
         found.Sort((left, right) => left.Line.CompareTo(right.Line));

@@ -9,8 +9,8 @@ public sealed class StackReaderTests
 {
     /// <summary><c>model build</c> on the fixture prints the counts its contents hold.</summary>
     [Theory]
-    [InlineData("small", 69, 7, 0, 0)]
-    [InlineData("large", 89, 7, 1, 9)]
+    [InlineData("small", 72, 7, 0, 0)]
+    [InlineData("large", 92, 7, 1, 9)]
     public void Build_Prints_Fixture_Counts(string fixture, int records, int handlers, int screens, int scenarios)
     {
         using var temp = ModelFixture.Prepare(fixture);

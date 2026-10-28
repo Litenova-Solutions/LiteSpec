@@ -174,9 +174,9 @@ public sealed class DotnetBackendReaderTests
         WriteSource(temp.Path, Path.Combine("Domain", "Lending", "Loans", "Events"), "LoanRenewedEvent.cs", """
             namespace Library.Domain.Lending.Loans.Events;
 
-            public sealed record LoanRenewedEvent
+            /// <implements>event/loan.extended</implements>
+            public sealed record LoanRenewedEvent : IDomainEvent
             {
-                public const string Classification = "event/loan.extended";
             }
             """);
 
@@ -226,7 +226,7 @@ public sealed class DotnetBackendReaderTests
     }
 
     [Fact]
-    public void Reaction_Suffix_Without_The_Handler_Shape_Is_Not_Discovered()
+    public void Reaction_With_The_Handler_Shape_Is_Discovered_Without_The_Suffix()
     {
         using var temp = Cli.Temp("reader");
         WriteProject(temp.Path);
@@ -245,11 +245,14 @@ public sealed class DotnetBackendReaderTests
             }
             """);
 
-        Assert.Empty(new DotnetBackendReader().Read(ConsumerConfig.Load(temp.Path)).Reactions);
+        var reaction = Assert.Single(new DotnetBackendReader().Read(ConsumerConfig.Load(temp.Path)).Reactions);
+
+        Assert.Equal("NotifyOnCopyBorrowedReaction", reaction.Class);
+        Assert.Equal("reaction", reaction.Kind);
     }
 
     [Fact]
-    public void On_Handler_Outside_Its_Fact_Folder_Is_Not_Discovered()
+    public void On_Handler_Outside_Its_Fact_Folder_Links_Through_Its_Mark()
     {
         using var temp = Cli.Temp("reader");
         WriteProject(temp.Path);
@@ -262,7 +265,10 @@ public sealed class DotnetBackendReaderTests
             }
             """);
 
-        Assert.Empty(new DotnetBackendReader().Read(ConsumerConfig.Load(temp.Path)).Reactions);
+        var reaction = Assert.Single(new DotnetBackendReader().Read(ConsumerConfig.Load(temp.Path)).Reactions);
+
+        Assert.Equal("reaction", reaction.Kind);
+        Assert.Equal("reaction/lending.notify-reader-on-borrow", reaction.RecordId);
     }
 
     [Fact]

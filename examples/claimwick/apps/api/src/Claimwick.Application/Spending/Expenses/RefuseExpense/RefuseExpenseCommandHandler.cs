@@ -4,6 +4,7 @@ using LiteBus.Commands.Abstractions;
 
 namespace Claimwick.Application.Spending.Expenses.RefuseExpense;
 
+/// <implements>use-case/spending.refuse-expense</implements>
 internal sealed class RefuseExpenseCommandHandler(
     IExpenseRepository expenses,
     IClock clock) : ICommandHandler<RefuseExpenseCommand, RefuseExpenseCommandResult>
@@ -13,7 +14,7 @@ internal sealed class RefuseExpenseCommandHandler(
         CancellationToken cancellationToken)
     {
         var expense = await expenses.GetAsync(command.ExpenseId, cancellationToken);
-        expense.Reject(command.ApproverId, command.Reason, clock.UtcNow);
+        expense.Refuse(command.ApproverId, command.Reason, clock.UtcNow);
         expenses.Store(expense);
         return new RefuseExpenseCommandResult(expense.Id);
     }

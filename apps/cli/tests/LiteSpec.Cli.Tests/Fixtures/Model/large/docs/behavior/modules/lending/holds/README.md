@@ -41,6 +41,26 @@
       "approvedHash": "b0b109d2"
     },
     {
+      "type": "rule",
+      "id": "rule/hold.waiting-before-cancel",
+      "title": "Waiting before cancel",
+      "owner": "lending-team",
+      "status": "reviewed",
+      "kind": "precondition",
+      "statement": "A hold cancels only from Waiting.",
+      "governs": [
+        "use-case/lending.cancel-hold"
+      ],
+      "refusal": "result/cancel-hold.hold-ended",
+      "basedOn": [],
+      "fulfills": [
+        "requirement/borrowing.hold-pickup-window"
+      ],
+      "approvedBy": "lending-team",
+      "approvedOn": "2026-10-01",
+      "approvedHash": "07cece9a"
+    },
+    {
       "type": "event",
       "id": "event/hold.hold-placed",
       "title": "Hold placed",
@@ -73,7 +93,7 @@
   ],
   "approvedBy": "lending-team",
   "approvedOn": "2026-10-01",
-  "approvedHash": "eaebf948"
+  "approvedHash": "fa5cad76"
 }
 ---
 

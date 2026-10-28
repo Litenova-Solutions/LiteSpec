@@ -25,4 +25,8 @@ sealed record ScenarioInfo(
 sealed record TestRead(
     IReadOnlyList<ScenarioInfo> Scenarios,
     IReadOnlyList<CodeComment> Comments,
-    IReadOnlyDictionary<string, IReadOnlySet<string>> StepCalls);
+    IReadOnlyDictionary<string, IReadOnlySet<string>> StepCalls)
+{
+    /// <summary>Every test method the test roots declare, in file and line order.</summary>
+    public IReadOnlyList<MarkedElement> Elements { get; init; } = [];
+}
