@@ -35,6 +35,26 @@ Marten is the baseline provider, supplying the session, the read session, and do
 
 The table names the binding per provider. The obligation to project with filter, scope, ordering, and limit holds under each.
 
+A table the project keeps beside its documents, such as a counter or an append-only ledger written through plain SQL, is read through the same session. Under Marten, `AdvancedSql.QueryAsync<TRow>` returns any JSON-serializable type, so the SQL selects one JSON object per row, keyed in the casing the store's serializer uses, with the filter, ordering and limit in its `WHERE`, `ORDER BY` and `LIMIT`. The handler keeps no repository for such a table, and the project adds no read interface for it.
+
+**Example:** In the Claimwick product, each spending owner's running totals live in a `spending_totals` table that a command updates in place. The read-spending-totals query reads it through the session:
+
+```csharp
+internal sealed record SpendingTotalRow(Guid OwnerId, string Currency, decimal Submitted, decimal Approved);
+
+var rows = await session.AdvancedSql.QueryAsync<SpendingTotalRow>(
+    """
+    select jsonb_build_object(
+        'ownerId', owner_id, 'currency', currency, 'submitted', submitted, 'approved', approved)
+    from spending_totals
+    where owner_id = ?
+    order by currency
+    limit 100
+    """,
+    cancellationToken,
+    query.OwnerId.Value);
+```
+
 ### Commit Once in the Command Pipeline
 
 **Statement:** Exactly one global command post-handler MUST call `SaveChangesAsync` for a command pipeline.
