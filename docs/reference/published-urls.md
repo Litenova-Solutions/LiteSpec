@@ -42,7 +42,7 @@ The selection page produces the `AGENTS.md` block: `litespec init` writes it int
 
 ```text
 ## LiteSpec
-This project follows LiteSpec 2.0.0: size small, shape server, stacks dotnet and react, extensions none.
+This project follows LiteSpec 3.0.0: size small, shape server, stacks dotnet and react, extensions none.
 Before a task, read https://litespec.dev/2.0.0/select/server.dotnet.react/llms.txt and fetch only the pages the task touches.
 Selected extensions: none
 UI work: the pattern pages listed in that index.

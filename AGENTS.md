@@ -4,7 +4,7 @@ Read this file before you change the LiteSpec repository or a consumer applicati
 
 ## What LiteSpec Covers
 
-LiteSpec 2.0.0 is the contract for one bounded-context business application. A project names one size (small or large), one shape (server or client-only) and its stacks: one backend stack for a server project, and one stack per frontend.
+LiteSpec 3.0.0 is the contract for one bounded-context business application. A project names one size (small or large), one shape (server or client-only) and its stacks: one backend stack for a server project, and one stack per frontend.
 
 A stack is a folder with a `stack.md` page: `docs/backend/dotnet/`, `docs/frontend/web/react/`, `docs/frontend/web/svelte/`, `docs/frontend/blazor/` and `docs/frontend/mobile/android/`. Selecting a stack applies its folder, every folder above it, and their subfolders that hold no stack. An extension applies only when the project selects it.
 
