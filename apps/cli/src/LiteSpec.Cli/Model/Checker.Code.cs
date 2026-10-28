@@ -690,22 +690,31 @@ static class CodeChecks
                 ? kebab["mark-".Length..]
                 : UseCaseVocabulary.PastTenseOf(verb, model.Config.PastTense);
 
-            foreach (var raised in method.Events.Order(StringComparer.Ordinal))
+            bool NamesThePastTense(string raised)
             {
                 var stem = raised.EndsWith("Event", StringComparison.Ordinal) && raised.Length > "Event".Length
                     ? raised[..^"Event".Length]
                     : raised;
                 var stemKebab = Naming.Kebab(stem);
 
-                if (!stemKebab.EndsWith(past, StringComparison.Ordinal) && !HasPastTenseComplement(stemKebab, past))
-                {
-                    findings.Add(CodeFinding(
-                        "event-tense-mismatch",
-                        $"Aggregate method '{method.Aggregate}.{method.Method}' raises '{raised}', which does not end with the past tense '{past}' of its verb.",
-                        method.File,
-                        method.Line,
-                        null));
-                }
+                return stemKebab.EndsWith(past, StringComparison.Ordinal) || HasPastTenseComplement(stemKebab, past);
+            }
+
+            // The method's own fact is enough; a further event it raises names a consequence, such as
+            // the registrations a changed window archives.
+            if (method.Events.Any(NamesThePastTense))
+            {
+                continue;
+            }
+
+            foreach (var raised in method.Events.Order(StringComparer.Ordinal))
+            {
+                findings.Add(CodeFinding(
+                    "event-tense-mismatch",
+                    $"Aggregate method '{method.Aggregate}.{method.Method}' raises '{raised}', which does not end with the past tense '{past}' of its verb.",
+                    method.File,
+                    method.Line,
+                    null));
             }
         }
     }

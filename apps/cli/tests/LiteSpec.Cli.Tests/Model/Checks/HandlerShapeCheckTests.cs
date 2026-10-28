@@ -207,6 +207,28 @@ public sealed class HandlerShapeCheckTests
     }
 
     [Fact]
+    public void Method_Raising_Its_Own_Fact_And_A_Consequence_Passes()
+    {
+        using var temp = Cli.Temp("checks");
+        var model = TestModel.Model(TestModel.Config(temp.Path));
+        model.Code.AggregateMethods.Add(new AggregateMethod(
+            "Loan", "ChangeDueDate", ["LoanDueDateChangedEvent", "LoanRemindersClearedEvent"], Path.Combine(temp.Path, "Loan.cs"), 5));
+
+        Assert.DoesNotContain("event-tense-mismatch", TestModel.Codes(model));
+    }
+
+    [Fact]
+    public void Method_Raising_Only_Other_Facts_Reports_Each()
+    {
+        using var temp = Cli.Temp("checks");
+        var model = TestModel.Model(TestModel.Config(temp.Path));
+        model.Code.AggregateMethods.Add(new AggregateMethod(
+            "Loan", "ChangeDueDate", ["LoanExtendedEvent", "LoanRemindersClearedEvent"], Path.Combine(temp.Path, "Loan.cs"), 5));
+
+        Assert.Equal(2, Checker.Check(model).Findings.Count(finding => finding.Code == "event-tense-mismatch"));
+    }
+
+    [Fact]
     public void Mark_Method_Naming_Another_State_Reports()
     {
         using var temp = Cli.Temp("checks");
