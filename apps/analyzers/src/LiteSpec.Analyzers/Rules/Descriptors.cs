@@ -13,6 +13,7 @@ internal static class Descriptors
     private const string LayersCategory = "LiteSpec.Layers";
     private const string StyleCategory = "LiteSpec.Style";
     private const string TestsCategory = "LiteSpec.Tests";
+    private const string TraceabilityCategory = "LiteSpec.Traceability";
 
     private static readonly Provision DomainOuterLayers = Provision.Of("backend/dotnet/domain", "keep-domain-free-of-outer-layer-concerns");
     private static readonly Provision ClosedSets = Provision.Of("backend/dotnet/domain", "model-every-closed-set-of-domain-values-without-enums");
@@ -42,6 +43,11 @@ internal static class Descriptors
     private static readonly Provision PerRecordWork = Provision.Of("backend/application", "issue-per-record-work-from-a-job");
     private static readonly Provision UniquenessOutOfHandlers = Provision.Of("backend/persistence", "keep-uniqueness-out-of-handlers");
     private static readonly Provision ScenarioProof = Provision.Of("backend/dotnet/testing", "prove-each-scenario-with-a-test-that-calls-its-use-case");
+    private static readonly Provision PointToRecords = Provision.Of("core/system", "point-code-and-tests-up-to-records");
+    private static readonly Provision DeclaredStyle = Provision.Of("backend/dotnet/stack", "write-each-mark-in-the-declared-style");
+    private static readonly Provision RuntimeValues = Provision.Of("backend/dotnet/stack", "generate-runtime-values-from-the-records");
+    private static readonly Provision PartialTypes = Provision.Of("backend/dotnet/stack", "declare-marked-events-and-exceptions-as-partial-types");
+    private static readonly Provision MarkedAct = Provision.Of("backend/domain", "raise-the-declared-events-from-the-marked-act");
 
     public static readonly DiagnosticDescriptor LS1001 = Create("LS1001", DomainCategory, DomainOuterLayers,
         "Domain references an outer-layer concern",
@@ -210,6 +216,46 @@ internal static class Descriptors
         "Test contains no assertion",
         "Test '{0}' contains no assertion",
         "A test calls the behavior it proves and asserts the result, so a passing test proves something.");
+
+    public static readonly DiagnosticDescriptor LS5001 = Create("LS5001", TraceabilityCategory, PointToRecords,
+        "Code element carries no mark",
+        "'{0}' carries no mark naming the {1} record it serves",
+        "A code element of a recognized kind carries a mark naming the record it serves, in the style the project declares.");
+
+    public static readonly DiagnosticDescriptor LS5002 = Create("LS5002", TraceabilityCategory, PointToRecords,
+        "Mark names no usable record",
+        "'{0}' marks '{1}', which {2}",
+        "A mark names a record of a type its code element takes, spelled as the record states it.");
+
+    public static readonly DiagnosticDescriptor LS5003 = Create("LS5003", TraceabilityCategory, PointToRecords,
+        "Code element carries the wrong number of marks",
+        "'{0}' carries {1} marks but takes exactly one",
+        "A code element carries exactly the marks its kind takes: one mark for most kinds, one or more for aggregate methods, ports, adapters and tests.");
+
+    public static readonly DiagnosticDescriptor LS5004 = Create("LS5004", TraceabilityCategory, DeclaredStyle,
+        "Mark uses the undeclared style",
+        "Mark on '{0}' naming '{1}' uses the {2} style, but the project declares {3}",
+        "Every mark is written in the one style the project declares: a documentation tag for xml, an attribute for attribute.");
+
+    public static readonly DiagnosticDescriptor LS5005 = Create("LS5005", TraceabilityCategory, RuntimeValues,
+        "Runtime value differs from its record",
+        "'{0}' declares '{1}' as '{2}', but its record states '{3}'",
+        "A domain event declares Classification only with its event identifier, and a rule exception declares Code only with its rule's refusal code; otherwise the generator writes the value from the record.");
+
+    public static readonly DiagnosticDescriptor LS5006 = Create("LS5006", TraceabilityCategory, PartialTypes,
+        "Marked event or exception is not partial",
+        "'{0}' carries a mark and must be declared partial",
+        "A marked domain event or rule exception is declared partial, so the generator can add the runtime value as a second part.");
+
+    public static readonly DiagnosticDescriptor LS5007 = Create("LS5007", TraceabilityCategory, MarkedAct,
+        "Marked act raises an undeclared event",
+        "'{0}' marked with '{1}' raises '{2}', which the use case does not list in 'raises'",
+        "An aggregate method marked with a use case raises only the events the use case lists in raises.");
+
+    public static readonly DiagnosticDescriptor LS5008 = Create("LS5008", TraceabilityCategory, MarkedAct,
+        "Declared event is raised by no marked act",
+        "'{0}' marked with '{1}' raises no '{2}', which the use case lists in 'raises'",
+        "Every event a use case lists in raises is raised by a root method marked with the use case.");
 
     private static DiagnosticDescriptor Create(
         string id, string category, Provision provision, string title, string message, string description, bool compilationEnd = false) =>

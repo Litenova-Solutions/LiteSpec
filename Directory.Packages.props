@@ -7,6 +7,7 @@
     <ItemGroup>
         <PackageVersion Include="Markdig" Version="1.4.0" />
         <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="5.9.0" />
+        <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="5.9.0" />
         <PackageVersion Include="xunit.v3" Version="4.0.2" />
     </ItemGroup>
 </Project>

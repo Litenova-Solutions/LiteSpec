@@ -59,7 +59,7 @@ Rule `LS4001` runs in test projects only.
 
 ## Traceability Rules
 
-Rules `LS5001` to `LS5008` run across layers, as each page states.
+Rules `LS5001` to `LS5009` run across layers, as each page states.
 
 - [LS5001: Code Element Carries No Mark](ls5001.md): reports a code element of a recognized kind with no mark.
 - [LS5002: Mark Names No Usable Record](ls5002.md): reports a mark naming no record, or a record of a type its element does not take.
@@ -69,3 +69,4 @@ Rules `LS5001` to `LS5008` run across layers, as each page states.
 - [LS5006: Marked Event or Exception Is Not Partial](ls5006.md): reports a marked domain event or rule exception that is not `partial`.
 - [LS5007: Marked Act Raises an Undeclared Event](ls5007.md): reports a marked method raising an event its use case does not list.
 - [LS5008: Declared Event Is Raised by No Marked Act](ls5008.md): reports a listed event no method marked with its use case raises.
+- [LS5009: Two Permissions Generate One Constant Name](ls5009.md): reports two permission records whose names generate the same constant.

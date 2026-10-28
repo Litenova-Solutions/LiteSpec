@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <!-- Code fixes load beside the analyzers, so they target netstandard2.0. -->
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <LangVersion>latest</LangVersion>
+        <ImplicitUsings>disable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <RootNamespace>LiteSpec.Analyzers.CodeFixes</RootNamespace>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <IsPackable>false</IsPackable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" VersionOverride="4.14.0" PrivateAssets="all" />
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" VersionOverride="4.14.0" PrivateAssets="all" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="../LiteSpec.Analyzers/LiteSpec.Analyzers.csproj" PrivateAssets="all" />
+        <ProjectReference Include="../../../model/src/LiteSpec.Model.Core/LiteSpec.Model.Core.csproj" PrivateAssets="all" />
+        <ProjectReference Include="../../../model/src/LiteSpec.Model.Roslyn/LiteSpec.Model.Roslyn.csproj" PrivateAssets="all" />
+    </ItemGroup>
+
+</Project>

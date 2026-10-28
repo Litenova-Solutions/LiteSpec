@@ -82,6 +82,7 @@ Every LS5xxx rule has category `LiteSpec.Traceability`, a reference page `docs/a
 | LS5006 | `partial-missing` | `litespec/backend/dotnet/stack#declare-marked-events-and-exceptions-as-partial-types` | Domain |
 | LS5007 | `act-event-undeclared` | `litespec/backend/domain#raise-the-declared-events-from-the-marked-act` | Domain |
 | LS5008 | `act-event-unraised` | `litespec/backend/domain#raise-the-declared-events-from-the-marked-act` | Domain |
+| LS5009 | (generator) | `litespec/backend/dotnet/stack#generate-runtime-values-from-the-records` | Application, Infrastructure, WebApi |
 
 CLI-only findings and their provisions: `use-case-act-uncalled` (`litespec/backend/domain#call-the-marked-act-from-each-command-handler`); `aggregate-unimplemented`, `reaction-unimplemented`, `job-unimplemented`, `external-system-unimplemented`, `use-case-unexposed`, `use-case-unreached` (`litespec/core/model#implement-each-mapped-behavior-record-behind-a-mark`); `effect-unimplemented` (`litespec/core/system#declare-every-edge-between-records`); `mark-style-mixed` (`litespec/core/model#declare-one-mark-style`).
 
@@ -133,7 +134,7 @@ The generator in the analyzer package writes, per project, into namespace `LiteS
 - for each `partial` domain event with an `event/` mark: `public const string Classification = "<event id>";`;
 - for each `partial` rule exception with a `rule/` mark whose rule names a `refusal` result with a `code`: `public override string Code => "<code>";` (or a plain property when the base declares no virtual `Code`);
 - `LiteSpecRegistry`: per assembly, a read-only map from each marked type in that assembly to its record ids, and from each use-case id to its `access.grant`;
-- `LiteSpecPermissions`: in Application, Infrastructure and WebApi projects only, one `public const string` per `permission/` record, named by PascalCasing each kebab word of the permission name; two records producing one name stop generation with an error naming both.
+- `LiteSpecPermissions`: in Application, Infrastructure and WebApi projects only, one `public const string` per `permission/` record, named by PascalCasing each kebab word of the permission name; two records producing one name stop generation with LS5009 naming both.
 
 ## Rename
 

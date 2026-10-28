@@ -25,7 +25,7 @@ First, the analyzers work out the project layer from the `LiteSpecLayer` MSBuild
 
 Any other assembly name opts the project out, and so does an explicit `LiteSpecLayer` value of `None`. No rule runs in an opted-out project.
 
-Second, a rule registers only in the layers its provision covers. Domain rules run in Domain. `LS2001` runs in Application, Infrastructure, and WebApi. `LS2004`, `LS2005`, and `LS2007` to `LS2016` run in Application and Infrastructure. `LS2003` and `LS2006` run in WebApi. Style rules run in the five production projects. `LS4001` runs in test projects. `LS5001` to `LS5004` run in every layer, checking the kinds each layer holds. `LS5005` to `LS5008` run in Domain. The analyzers skip generated code.
+Second, a rule registers only in the layers its provision covers. Domain rules run in Domain. `LS2001` runs in Application, Infrastructure, and WebApi. `LS2004`, `LS2005`, and `LS2007` to `LS2016` run in Application and Infrastructure. `LS2003` and `LS2006` run in WebApi. Style rules run in the five production projects. `LS4001` runs in test projects. `LS5001` to `LS5004` run in every layer, checking the kinds each layer holds. `LS5005` to `LS5008` run in Domain. `LS5009` runs in Application, Infrastructure, and WebApi. The analyzers skip generated code.
 
 Third, most rules decide as the compiler reads each declaration. Rules `LS1003`, `LS1004`, and `LS3004` decide at the end of compilation, after every type is known.
 
@@ -104,4 +104,4 @@ The analyzer does not check that a `Guid` inside an identifier is a version 7 va
 ## Pages in This Section
 
 - [Check .NET Code with the Analyzers](check-dotnet-code-with-the-analyzers.md): install the package once, read the first findings, keep them as build errors, and lower one only where a deviation allows it.
-- [Analyzer rules overview](rules/README.md): find the reference page for each of the 41 rules, grouped by layer.
+- [Analyzer rules overview](rules/README.md): find the reference page for each of the 42 rules, grouped by layer.

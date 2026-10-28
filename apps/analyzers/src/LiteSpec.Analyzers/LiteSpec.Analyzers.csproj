@@ -37,6 +37,12 @@
     </ItemGroup>
 
     <ItemGroup>
+        <!-- The shared rule library and the mark reader load beside the analyzers, so they ship in the analyzer folder. -->
+        <ProjectReference Include="../../../model/src/LiteSpec.Model.Core/LiteSpec.Model.Core.csproj" PrivateAssets="all" />
+        <ProjectReference Include="../../../model/src/LiteSpec.Model.Roslyn/LiteSpec.Model.Roslyn.csproj" PrivateAssets="all" />
+    </ItemGroup>
+
+    <ItemGroup>
         <AdditionalFiles Include="AnalyzerReleases.Shipped.md" />
         <AdditionalFiles Include="AnalyzerReleases.Unshipped.md" />
     </ItemGroup>
@@ -47,6 +53,10 @@
 
     <ItemGroup>
         <None Include="$(OutputPath)$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+        <None Include="$(OutputPath)LiteSpec.Model.Core.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+        <None Include="$(OutputPath)LiteSpec.Model.Roslyn.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+        <!-- The code fixes build in their own project, which references this one; pack the solution build of it. -->
+        <None Include="../LiteSpec.Analyzers.CodeFixes/$(OutputPath)LiteSpec.Analyzers.CodeFixes.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
         <None Include="build/LiteSpec.Analyzers.props" Pack="true" PackagePath="build" />
         <None Include="README.md" Pack="true" PackagePath="/" />
     </ItemGroup>

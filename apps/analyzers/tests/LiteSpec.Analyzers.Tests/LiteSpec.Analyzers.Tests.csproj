@@ -9,10 +9,12 @@
     <ItemGroup>
         <PackageReference Include="xunit.v3" />
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp" VersionOverride="4.14.0" />
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" VersionOverride="4.14.0" />
     </ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="../../src/LiteSpec.Analyzers/LiteSpec.Analyzers.csproj" />
+        <ProjectReference Include="../../src/LiteSpec.Analyzers.CodeFixes/LiteSpec.Analyzers.CodeFixes.csproj" />
     </ItemGroup>
 
     <ItemGroup>

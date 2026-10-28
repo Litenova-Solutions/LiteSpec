@@ -8,4 +8,25 @@
     <ItemGroup>
         <CompilerVisibleProperty Include="LiteSpecLayer" />
     </ItemGroup>
+
+    <!--
+        Hands the traceability rules and the source generator the consumer's records:
+        the project file found above the project directory, and every Markdown page
+        under its folder. A project overrides the page glob with its own items:
+            <LiteSpecRecords Include="docs/**/*.md" />
+        Nothing is added when no project file is in reach.
+    -->
+    <PropertyGroup>
+        <LiteSpecProjectFile>$([MSBuild]::GetPathOfFileAbove(litespec.project.json, $(MSBuildProjectDirectory)))</LiteSpecProjectFile>
+        <LiteSpecProjectDirectory Condition="'$(LiteSpecProjectFile)' != ''">$([System.IO.Path]::GetDirectoryName($(LiteSpecProjectFile)))</LiteSpecProjectDirectory>
+    </PropertyGroup>
+    <ItemGroup Condition="'$(LiteSpecProjectFile)' != ''">
+        <AdditionalFiles Include="$(LiteSpecProjectFile)" />
+    </ItemGroup>
+    <ItemGroup Condition="'$(LiteSpecProjectFile)' != '' and '@(LiteSpecRecords)' == ''">
+        <AdditionalFiles Include="$(LiteSpecProjectDirectory)/**/*.md" Exclude="$(LiteSpecProjectDirectory)/**/node_modules/**/*;$(LiteSpecProjectDirectory)/**/bin/**/*;$(LiteSpecProjectDirectory)/**/obj/**/*" />
+    </ItemGroup>
+    <ItemGroup Condition="'$(LiteSpecProjectFile)' != '' and '@(LiteSpecRecords)' != ''">
+        <AdditionalFiles Include="@(LiteSpecRecords)" />
+    </ItemGroup>
 </Project>
