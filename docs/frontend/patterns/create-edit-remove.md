@@ -18,19 +18,29 @@ The drawings on this page use the Acme Supply back office: deliveries such as Ga
 
 ### Confirm or Undo Every Removal
 
+**ID:** `litespec/frontend/patterns/create-edit-remove#confirm-or-undo-every-removal`
+
 **Statement:** Every removal MUST either offer undo or ask for confirmation before it runs.
 
 **Rationale:** Staff remove the wrong record by misreading a row or misclicking, and without a way back the record is gone. An undo toast restores a reversible removal in one click, while a confirmation dialog makes an irreversible removal a deliberate choice. Either way the reader gets a moment to catch the mistake before it becomes permanent.
 
+**Reviewed for:** Which built removal runs without asking and offers no way back? Open the archive, delete, void, and suspend flows on built screens.
+
 ### Show the Created Record
+
+**ID:** `litespec/frontend/patterns/create-edit-remove#show-the-created-record`
 
 **Statement:** A successful create MUST take the reader to the created record or show it in place.
 
 **Rationale:** After creating, the reader needs proof that the record exists with the values entered, and the created record itself is that proof. A create that ends on an empty form or a bare toast leaves the reader unsure whether it worked, so they create it again and produce a duplicate.
 
+**Reviewed for:** Which built create flow ends away from its new record? Open the create dialogs, pages, and bulk flows on built screens.
+
 ## Patterns
 
 ### Creating One Record
+
+**ID:** `litespec/frontend/patterns/create-edit-remove#creating-one-record`
 
 **Question:** Staff create records such as deliveries, refunds, and products. A create with one to four inputs fits a dialog, and a longer one needs a page; a drawer never holds a create. The decision is which shape each create takes: dialog, page, template, copy, inline row, file import, steps, or a shortcut from elsewhere.
 
@@ -39,6 +49,8 @@ The drawings on this page use the Acme Supply back office: deliveries such as Ga
 **Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
 
 **Rationale:** The dialog stays the pick for one to four inputs: it keeps the list behind it and commits with one verb. The full page is the runner-up and the right one past four inputs or with sections. The inline table row is the one to refuse, because a form inside a table breaks the table structure and hides validation. Of the further options, the split button earns its place on the deliveries list, where three starting points already exist.
+
+**Reviewed for:** Which built creation form differs from the wireframe its catalog entry chose? Open the built dialog, page, and inline starts beside the catalog entry recording the chosen option and its reason.
 
 #### `a-dialog-for-two-or-three-inputs`: A Dialog for Two or Three Inputs
 
@@ -256,6 +268,8 @@ page
 
 ### Changing a Record That Already Exists
 
+**ID:** `litespec/frontend/patterns/create-edit-remove#changing-a-record-that-already-exists`
+
 **Question:** Staff change records that already exist, from renaming a delivery to raising a stock target. The decision is how the edit commits: one save per page, one per section, inline in the list, in a dialog or side panel, with impact stated first, blocked with a way out, or saved automatically. The hazard to avoid is the reader who edits one section and saves another, believing both are saved.
 
 **Default:** `one-save-per-page`
@@ -263,6 +277,8 @@ page
 **Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
 
 **Rationale:** One Save per page is the pick. A reader who changed three things saves once, and the dirty banner says what is pending. The impact statement is the runner-up for any change that breaks something. Refuse the inline list-row edit on this wide table. Autosave earns its place only for free text, beside the version history in the after-the-fact pattern.
+
+**Reviewed for:** Which built edit flow differs from the wireframe its catalog entry chose? Open the built save, autosave, and blocked edits beside the catalog entry recording the chosen option and its reason.
 
 #### `one-save-per-page`: One Save per Page
 
@@ -447,6 +463,8 @@ page
 
 ### Removing Something
 
+**ID:** `litespec/frontend/patterns/create-edit-remove#removing-something`
+
 **Question:** Staff remove records that should no longer be active. The decision is which kind of removal each record gets: archive, delete, blocked removal with the blocker named, reversal for money, void for codes, suspend for running services, a thirty-day trash, or an undo toast. Archive is preferred over delete because it is reversible and keeps the audit trail.
 
 **Default:** `archive-with-what-archiving-means`
@@ -454,6 +472,8 @@ page
 **Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
 
 **Rationale:** Archive stays the pick. It is reversible, it keeps the audit trail, and the Archived view is the way back. The thirty-day trash is the runner-up where delete is the verb the reader reaches for. Never ship a bare delete for anything with history. The delete dialog is only for records that have to go, and it says what is kept. The Undo toast earns its place for small reversible removes such as a plan entry.
+
+**Reviewed for:** Which built single removal differs from the wireframe its catalog entry chose? Open the built archive, delete, and trash flows beside the catalog entry recording the chosen option and its reason.
 
 #### `archive-with-what-archiving-means`: Archive, with What Archiving Means
 
@@ -647,6 +667,8 @@ page
 
 ### Removing Several at Once
 
+**ID:** `litespec/frontend/patterns/create-edit-remove#removing-several-at-once`
+
 **Question:** Staff remove or refund several records at once. The count itself is the risk, so the reader checks how many records and how much money are involved before committing. The decision is how the confirmation carries that check for small and large selections.
 
 **Default:** `a-dialog-naming-the-count-and-the-money`
@@ -654,6 +676,8 @@ page
 **Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
 
 **Rationale:** The dialog naming the count and the money stays the pick up to about twenty-five rows. The two figures are what the reader checks. The background job is the runner-up past that size, where a report lands afterwards. Never ship the typed count for an ordinary bulk remove. The dry-run plan earns its place where rows can refuse.
+
+**Reviewed for:** Which built bulk removal differs from the wireframe its catalog entry chose? Open the built count-and-money dialogs and background jobs beside the catalog entry recording the chosen option and its reason.
 
 #### `a-dialog-naming-the-count-and-the-money`: A Dialog Naming the Count and the Money
 
@@ -852,6 +876,8 @@ page
 
 ### Creating a Record and Then Filling It In
 
+**ID:** `litespec/frontend/patterns/create-edit-remove#creating-a-record-and-then-filling-it-in`
+
 **Question:** A new record such as a delivery needs a name, a date, a warehouse, a priced product, and a channel before it can sell, but staff may not know all five at once. The decision is how much a create requires up front and how the record gets finished: name-only draft, everything required, series defaults, checklist, wizard, nothing until publish, home-page guide, or point-of-use nudges.
 
 **Default:** `create-with-a-name-fill-the-rest-later`
@@ -859,6 +885,8 @@ page
 **Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
 
 **Rationale:** Create with a name and fill the rest later stays the pick. The record exists as a draft and every later addition is its own audited command. The home-page setup guide is the runner-up and the required companion, because a draft nobody finishes is a dead record. Never ship the everything-required option or the nothing-until-publish option. The point-of-use nudge earns its place beside the checklist for readers who skip guides.
+
+**Reviewed for:** Which built draft-first flow differs from the wireframe its catalog entry chose? Open the built name-first creates and setup guides beside the catalog entry recording the chosen option and its reason.
 
 #### `create-with-a-name-fill-the-rest-later`: Create with a Name, Fill the Rest Later
 
@@ -1056,6 +1084,8 @@ page
 
 ### Changing Something That Has Already Happened
 
+**ID:** `litespec/frontend/patterns/create-edit-remove#changing-something-that-has-already-happened`
+
 **Question:** A record of what is true now cannot always be edited: a charge already priced must stay reconstructable for invoices and audits. The decision is which shape each after-the-fact change takes: old value kept beside the new, refusal with the newer way named, dated correction, scheduled window, scoped change, reversal, version history, or two-person approval.
 
 **Default:** `the-old-value-stays-on-the-record-beside-the-new`
@@ -1063,6 +1093,8 @@ page
 **Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
 
 **Rationale:** Keeping the old value beside the new stays the pick. An order placed last month still resolves to the delivery it was placed for. The dated correction is the runner-up where a fact was entered wrong, and the reversal is the only shape for money. Never ship a silent overwrite of anything priced or shipped. Where no safe edit exists, the refusal with the newer way named is the option. The version history earns its place for names and text, with two-person approval for corrections to money.
+
+**Reviewed for:** Which built correction flow differs from the wireframe its catalog entry chose? Open the built past-change edits, reverses, and version histories beside the catalog entry recording the chosen option and its reason.
 
 #### `the-old-value-stays-on-the-record-beside-the-new`: The Old Value Stays on the Record Beside the New
 
@@ -1242,6 +1274,8 @@ page
 
 ### Duplicating a Record
 
+**ID:** `litespec/frontend/patterns/create-edit-remove#duplicating-a-record`
+
 **Question:** A duplicate is a create that starts from something. The copy carries the setup and never the history: prices and a delivery plan travel, and orders and money stay with the original.
 
 **Default:** `a-dialog-that-says-what-the-copy-carries`
@@ -1251,6 +1285,8 @@ page
 **Rationale:** The dialog that says what the copy carries is the pick: a duplicate that silently drops the prices is worse than no duplicate. The carry checklist is the runner-up where the parts vary per company. Never ship one-click duplication for a delivery. It earns its place for discount codes and plan entries, which carry no customers.
 
 An order is never duplicated, because it is one customer's payment.
+
+**Reviewed for:** Which built copy flow differs from the wireframe its catalog entry chose? Open the built duplicate dialogs and row-menu copies beside the catalog entry recording the chosen option and its reason.
 
 #### `a-dialog-that-says-what-the-copy-carries`: A Dialog That Says What the Copy Carries
 
@@ -1396,6 +1432,8 @@ page
 
 ### Putting a List in Order by Hand
 
+**ID:** `litespec/frontend/patterns/create-edit-remove#putting-a-list-in-order-by-hand`
+
 **Question:** Products, plan entries, and storefront sections all have an order the reader sets. The customer reads the order the reader left, so the control must work for a mouse, a keyboard, and a finger.
 
 **Default:** `drag-handles-in-the-list`
@@ -1405,6 +1443,8 @@ page
 **Rationale:** Drag handles in the list are the pick: direct, visible, and the order saves as it changes. Move up and Move down in the row menu are the required companion, because drag alone leaves keyboard and screen-reader users behind. Never ship typed position numbers alone. Two rows both numbered 3 are a question the page cannot answer.
 
 The storefront preview earns its place for sections, where the order is the design.
+
+**Reviewed for:** Which built manual ordering differs from the wireframe its catalog entry chose? Open the built drag handles, move commands, and pinned rows beside the catalog entry recording the chosen option and its reason.
 
 #### `drag-handles-in-the-list`: Drag Handles in the List
 
@@ -1555,6 +1595,8 @@ page
 
 ### Restoring an Archived Record
 
+**ID:** `litespec/frontend/patterns/create-edit-remove#restoring-an-archived-record`
+
 **Question:** Archive is only safe if restore works. A restore returns the record to where it was, with its history, and says so when something changed while it was away, such as a name taken since.
 
 **Default:** `restore-from-the-archived-view`
@@ -1564,6 +1606,8 @@ page
 **Rationale:** Restore from the archived view is the pick: the view is the way back, and the row says where the record returns to. The record-page banner is the runner-up for anyone arriving by link. Never ship a restore that silently un-archives parents or overwrites a newer name. Both need their own dialog.
 
 The Undo toast earns its place in the seconds after archiving, not as the way back days later.
+
+**Reviewed for:** Which built restore flow differs from the wireframe its catalog entry chose? Open the built archived views and undo toasts beside the catalog entry recording the chosen option and its reason.
 
 #### `restore-from-the-archived-view`: Restore from the Archived View
 
@@ -1717,6 +1761,8 @@ page
 
 ### Inviting a Team Member
 
+**ID:** `litespec/frontend/patterns/create-edit-remove#inviting-a-team-member`
+
 **Question:** Warehouse crew join per delivery, and staff join per company. An invitation names the person, the role, and the scope before sending, because wrongly granted access must be found and removed later.
 
 **Default:** `invite-by-email-with-the-role-chosen-first`
@@ -1726,6 +1772,8 @@ page
 **Rationale:** Invite by email with the role chosen first is the pick: person, role, and scope are all named on one dialog. The pending list with resend and revoke is the runner-up and the required companion, because an invitation waits far longer than sending takes. Never ship an open invite link for staff roles.
 
 It earns its place only for warehouse crew on one delivery. A request to join is refused: the company invites. Nobody applies.
+
+**Reviewed for:** Which built join flow differs from the wireframe its catalog entry chose? Open the built email invites, links, and pending lists beside the catalog entry recording the chosen option and its reason.
 
 #### `invite-by-email-with-the-role-chosen-first`: Invite by Email, with the Role Chosen First
 
@@ -1879,6 +1927,8 @@ page
 
 ### Publishing and Unpublishing a Listing
 
+**ID:** `litespec/frontend/patterns/create-edit-remove#publishing-and-unpublishing-a-listing`
+
 **Question:** A draft is private until customers can see it. Publishing says what customers will find, and unpublishing says what happens to what they found, because placed orders outlive either command.
 
 **Default:** `publish-with-the-readiness-check-beside-it`
@@ -1888,6 +1938,8 @@ page
 **Rationale:** Publish with the readiness check beside it is the pick: the reader reads what customers will find before they find it. Per-channel publish is the runner-up for companies that sell in more than one place. Never ship a silent unpublish. Placed orders stay valid and the page must say so.
 
 Pause earns its place where the listing stays visible but nothing may sell.
+
+**Reviewed for:** Which built listing-state flow differs from the wireframe its catalog entry chose? Open the built publish, pause, and per-channel controls beside the catalog entry recording the chosen option and its reason.
 
 #### `publish-with-the-readiness-check-beside-it`: Publish with the Readiness Check Beside It
 
@@ -2039,6 +2091,8 @@ page
 
 ### Scheduling a Change for Later
 
+**ID:** `litespec/frontend/patterns/create-edit-remove#scheduling-a-change-for-later`
+
 **Question:** Prices, fees, and sale windows change on fixed dates. A scheduled change names the value, the date, and the way to stop it, and the record shows both the current and the coming value until the date arrives.
 
 **Default:** `a-change-with-a-date-listed-with-the-record`
@@ -2048,6 +2102,8 @@ page
 **Rationale:** A change with a date, listed with the record, is the pick: current and coming values sit side by side with a cancel. The tier timeline is the runner-up where prices change on fixed dates. Never ship overlapping schedules on one record, and never a change without its customer preview where customers read the value.
 
 The sale window earns its place at creation, where open and close are set together.
+
+**Reviewed for:** Which built dated change differs from the wireframe its catalog entry chose? Open the built sale windows and scheduled tiers beside the catalog entry recording the chosen option and its reason.
 
 #### `a-change-with-a-date-listed-with-the-record`: A Change with a Date, Listed with the Record
 
@@ -2191,22 +2247,3 @@ page
 **Cost:** A preview is a second rendering of the storefront and can drift from it. It must render from the same listing read the customer gets, or it shows a page the customer never sees.
 
 **Reference:** Squarespace
-
-## Verification
-
-| ID | Mark | Evidence |
-|:---|:---|:---|
-| litespec/frontend/patterns/create-edit-remove#confirm-or-undo-every-removal | guidance | Which built removal runs without asking and offers no way back? Open the archive, delete, void, and suspend flows on built screens. |
-| litespec/frontend/patterns/create-edit-remove#show-the-created-record | guidance | Which built create flow ends away from its new record? Open the create dialogs, pages, and bulk flows on built screens. |
-| litespec/frontend/patterns/create-edit-remove#creating-one-record | guidance | Which built creation form differs from the wireframe its catalog entry chose? Open the built dialog, page, and inline starts beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/create-edit-remove#changing-a-record-that-already-exists | guidance | Which built edit flow differs from the wireframe its catalog entry chose? Open the built save, autosave, and blocked edits beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/create-edit-remove#removing-something | guidance | Which built single removal differs from the wireframe its catalog entry chose? Open the built archive, delete, and trash flows beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/create-edit-remove#removing-several-at-once | guidance | Which built bulk removal differs from the wireframe its catalog entry chose? Open the built count-and-money dialogs and background jobs beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/create-edit-remove#creating-a-record-and-then-filling-it-in | guidance | Which built draft-first flow differs from the wireframe its catalog entry chose? Open the built name-first creates and setup guides beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/create-edit-remove#changing-something-that-has-already-happened | guidance | Which built correction flow differs from the wireframe its catalog entry chose? Open the built past-change edits, reverses, and version histories beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/create-edit-remove#duplicating-a-record | guidance | Which built copy flow differs from the wireframe its catalog entry chose? Open the built duplicate dialogs and row-menu copies beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/create-edit-remove#putting-a-list-in-order-by-hand | guidance | Which built manual ordering differs from the wireframe its catalog entry chose? Open the built drag handles, move commands, and pinned rows beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/create-edit-remove#restoring-an-archived-record | guidance | Which built restore flow differs from the wireframe its catalog entry chose? Open the built archived views and undo toasts beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/create-edit-remove#inviting-a-team-member | guidance | Which built join flow differs from the wireframe its catalog entry chose? Open the built email invites, links, and pending lists beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/create-edit-remove#publishing-and-unpublishing-a-listing | guidance | Which built listing-state flow differs from the wireframe its catalog entry chose? Open the built publish, pause, and per-channel controls beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/create-edit-remove#scheduling-a-change-for-later | guidance | Which built dated change differs from the wireframe its catalog entry chose? Open the built sale windows and scheduled tiers beside the catalog entry recording the chosen option and its reason. |

@@ -22,13 +22,19 @@ A carried process sets `carriedBy: workflow`, maps each engine step to exactly o
 
 ### Declare the Engine Carrier
 
+**ID:** `litespec/ext/workflow-engine#declare-the-engine-carrier`
+
 **Statement:** A process carried by a workflow engine MUST set `carriedBy: workflow`.
 
 **Rationale:** A reader meeting a process asks first what moves it: reactions, a job, an operator, or an engine. The carrier marker answers that question on the aggregate itself, so nobody hunts the engine console for a process reactions drive.
 
 **Example:** The hold aggregate sets `carriedBy: workflow` while the loan aggregate stays reaction-driven.
 
+**Reviewed for:** The engine-carried aggregates set carriedBy workflow on their aggregate records.
+
 ### Map Each Engine Step to One Use Case
+
+**ID:** `litespec/ext/workflow-engine#map-each-engine-step-to-one-use-case`
 
 **Statement:** Each engine step MUST map to exactly one use case.
 
@@ -36,7 +42,11 @@ A carried process sets `carriedBy: workflow`, maps each engine step to exactly o
 
 **Example:** The engine step `cancel-hold` maps to `use-case/lending.cancel-hold` and to nothing else.
 
+**Reviewed for:** The engine definition lists one use case beside each step with no step sharing or missing.
+
 ### State Each Step Compensation
+
+**ID:** `litespec/ext/workflow-engine#state-each-step-compensation`
 
 **Statement:** Each mapped engine step MUST name its compensation or `none` with the reason.
 
@@ -44,7 +54,11 @@ A carried process sets `carriedBy: workflow`, maps each engine step to exactly o
 
 **Example:** The step `cancel-hold` names `use-case/lending.place-hold` as its compensation, while `borrow-copy` names `none` because the copy has left the shelf.
 
+**Reviewed for:** Each mapped step names its compensation or none with the reason beside the map.
+
 ### Reject Unmapped Engine Steps
+
+**ID:** `litespec/ext/workflow-engine#reject-unmapped-engine-steps`
 
 **Statement:** An engine step with no mapped use case MUST fail `behavior-unrecorded`.
 
@@ -52,7 +66,11 @@ A carried process sets `carriedBy: workflow`, maps each engine step to exactly o
 
 **Example:** A new engine step added in the console with no use case behind it fails `behavior-unrecorded` at the next check.
 
+**Checked by:** `litespec model check` reports `behavior-unrecorded` for an engine step that maps to no use case.
+
 ### Keep Engine Retry Configuration in Implementation
+
+**ID:** `litespec/ext/workflow-engine#keep-engine-retry-configuration-in-implementation`
 
 **Statement:** Engine retry and timeout configuration MUST live in code outside the records.
 
@@ -60,15 +78,21 @@ A carried process sets `carriedBy: workflow`, maps each engine step to exactly o
 
 **Example:** The engine's five-attempt retry with exponential backoff lives in the worker configuration, while the records name only the step and its compensation.
 
+**Reviewed for:** Retry counts, backoff curves, and step timeouts live in worker code with none in the records.
+
 ## Conventions
 
 ### Name Engine Steps After Use Cases
+
+**ID:** `litespec/ext/workflow-engine#name-engine-steps-after-use-cases`
 
 **Default:** Each engine step carries the id of its mapped use case.
 
 **Replacement:** A project records its engine step naming convention in its workflow documentation.
 
 **Rationale:** A step named after its use case needs no map to read: the name is the map. Any other naming works when the map stays beside the process.
+
+**Reviewed for:** Engine steps carry their use-case ids, or the workflow documentation records the naming convention.
 
 ## Dependencies
 
@@ -77,14 +101,3 @@ Packages: None.
 Related extensions: `jobs` for the workers that poll the engine and drive its timers.
 
 Guides: None.
-
-## Verification
-
-| ID | Mark | Evidence |
-|:---|:---|:---|
-| litespec/ext/workflow-engine#declare-the-engine-carrier | guidance | The engine-carried aggregates set carriedBy workflow on their aggregate records. |
-| litespec/ext/workflow-engine#map-each-engine-step-to-one-use-case | guidance | The engine definition lists one use case beside each step with no step sharing or missing. |
-| litespec/ext/workflow-engine#state-each-step-compensation | guidance | Each mapped step names its compensation or none with the reason beside the map. |
-| litespec/ext/workflow-engine#reject-unmapped-engine-steps | checkable | `litespec model check` reports `behavior-unrecorded` for an engine step that maps to no use case. |
-| litespec/ext/workflow-engine#keep-engine-retry-configuration-in-implementation | guidance | Retry counts, backoff curves, and step timeouts live in worker code with none in the records. |
-| litespec/ext/workflow-engine#name-engine-steps-after-use-cases | guidance | Engine steps carry their use-case ids, or the workflow documentation records the naming convention. |

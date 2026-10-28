@@ -85,17 +85,27 @@ A route calls use cases, and each use case declares its results. A test proves e
 
 ### Select One Visual Authority
 
+**ID:** `litespec/frontend/ui#select-one-visual-authority`
+
 **Statement:** A workspace MUST record one shared UI package in `litespec.project.json`.
 
 **Rationale:** Two general-purpose visual systems in one workspace make every component choice ambiguous: each screen picks its source, and the product ships two looks. Recording one shared UI package in `litespec.project.json` settles the source for every controlled frontend. A frontend outside the contract declares another platform and says what replaces the contract.
 
+**Checked by:** `litespec consumer` reports controlled frontends with no `paths.uiPackage` in `litespec.project.json`, and `litespec ui` reports `[litespec/frontend/ui#select-one-visual-authority]` for a second general-purpose visual dependency. Run either at the consumer root.
+
 ### Pin the Baseline in the Shared Package
+
+**ID:** `litespec/frontend/ui#pin-the-baseline-in-the-shared-package`
 
 **Statement:** A workspace MUST install the pinned baseline from `litespec.manifest.json` once, into its shared UI package.
 
 **Rationale:** The baseline installed once in the shared UI package gives every application the same primitives at the same pinned version. Installing per application makes a copy per application, and each copy drifts on its own update schedule with nothing reporting the split. An additional baseline source is permitted only under a deviation recorded against this provision.
 
+**Reviewed for:** The shared UI package installs the pinned manifest baseline once, and applications install none. Look in the shared package manifest and lock, and the application manifests.
+
 ### Publish a Design Contract
+
+**ID:** `litespec/frontend/ui#publish-a-design-contract`
 
 **Statement:** A workspace MUST publish one design contract with its shared UI package, carrying the required sections: Brand, Tokens, Vocabulary, Patterns, Do, Do not, Motion, Voice.
 
@@ -114,7 +124,11 @@ A route calls use cases, and each use case declares its results. A test proves e
 }
 ```
 
+**Checked by:** `litespec ui` reports `[litespec/frontend/ui#publish-a-design-contract]` for a missing contract, a missing metadata block, a package mismatch, or a missing required section. Run it at the consumer root.
+
 ### Declare a Closed Floorplan Set
+
+**ID:** `litespec/frontend/ui#declare-a-closed-floorplan-set`
 
 **Statement:** The `Patterns` section of the design contract MUST list every floorplan the package provides, each with a when-to-use rule.
 
@@ -132,7 +146,11 @@ A route calls use cases, and each use case declares its results. A test proves e
 | `form-page` | `FormPage` | Supplies the input of one command, with one primary action. |
 ```
 
+**Reviewed for:** The design contract Patterns section lists every floorplan with its when-to-use rule. Look in the design contract.
+
 ### Compose Each Route from One Floorplan
+
+**ID:** `litespec/frontend/ui#compose-each-route-from-one-floorplan`
 
 **Statement:** A route MUST render exactly one floorplan from the declared set, unless it is a recorded freestyle route.
 
@@ -140,67 +158,111 @@ A route calls use cases, and each use case declares its results. A test proves e
 
 **Example:** An order route composes the entity floorplan and fills each slot from the order.
 
+**Reviewed for:** Routes render exactly one declared floorplan, or record a freestyle decision. Look in the route sources and the suite output reading the floorplan name from each frame.
+
 ### Keep Layout Inside Floorplans
+
+**ID:** `litespec/frontend/ui#keep-layout-inside-floorplans`
 
 **Statement:** Route code MUST NOT declare layout outside its floorplan and display composites.
 
 **Rationale:** A layout declaration in a route file is a second layout beside the floorplan: the route draws its own spacing while claiming the floorplan's shape. The next route copies the declaration because it looks like the local way to draw, and the floorplan stops describing what routes render. Floorplan and display composites own layout, so one change there reaches every route composing them.
 
+**Reviewed for:** Route files declare no layout outside floorplan and display composites. Look in the route sources.
+
 ### Record a Freestyle Route
+
+**ID:** `litespec/frontend/ui#record-a-freestyle-route`
 
 **Statement:** A route that composes no declared floorplan MUST name the decision record that justifies its layout.
 
 **Rationale:** A route that composes no declared floorplan is either the first consumer of a floorplan that does not exist yet or a genuine one-off. Naming the decision record that justifies its layout makes either case reviewable and keeps the declared set closed. A second route of the same shape is the signal to add the floorplan instead of recording another freestyle route.
 
+**Reviewed for:** Freestyle routes name the decision record justifying their layout. Look in the freestyle routes and the decision records.
+
 ### Derive Each Page Type from a Named Reference
+
+**ID:** `litespec/frontend/ui#derive-each-page-type-from-a-named-reference`
 
 **Statement:** Every route MUST name its page type's reference, with a freestyle route naming its decision record instead.
 
 **Rationale:** An author with no named reference invents a page from primitives, and the next author invents another page for the same type. Naming the page type's reference keeps every page of one type on the one drawing it derives from, so the type stays one design. A freestyle route names its decision record instead, since it derives from no reference.
 
+**Reviewed for:** Routes name their page type reference, and freestyle routes name their decision record instead. Look in the route sources.
+
 ### Select a Tone from the Closed Set
+
+**ID:** `litespec/frontend/ui#select-a-tone-from-the-closed-set`
 
 **Statement:** A state indicator MUST take one tone from the closed set, each application declaring its state-to-tone mapping once as an exhaustive table of glossary terms.
 
 **Rationale:** A page that picks its own color picks a meaning nobody agreed to: the same red celebrates on one screen and warns on another. One state-to-tone mapping per application, declared once as an exhaustive table of glossary terms, makes the same state read the same way on every screen. A new state fails to compile until its tone and its word exist, so no state ships uncolored or mislabeled.
 
+**Reviewed for:** Applications declare their state-to-tone mapping once as an exhaustive table of glossary terms. Look in the application state mapping.
+
 ### Keep Tokens in One Definition
+
+**ID:** `litespec/frontend/ui#keep-tokens-in-one-definition`
 
 **Statement:** An application MUST use the shared token definition and declare no value, with no literal color in any shipped definition.
 
 **Rationale:** One token definition is what makes two applications look like one product. An application uses the shared definition and declares no value of its own, so no second definition introduces a value the first has no opinion about. A definition the shared package ships declares no literal color, so every value traces to the declared baseline.
 
+**Reviewed for:** Applications use the shared token definition with no declared value and no literal color in shipped definitions. Look in the application and shared token definitions.
+
 ### Hold the Declared Base Color
+
+**ID:** `litespec/frontend/ui#hold-the-declared-base-color`
 
 **Statement:** A token definition MUST carry only the values the declared baseline publishes, except under a recorded deviation.
 
 **Rationale:** A token value outside the published ramp is a second palette beside the declared one, and the next author copies the value because it looks approved. Carrying only the values the declared baseline publishes keeps the palette to what the baseline designed. A recorded deviation keeps a deliberate departure visible in the design contract instead of hidden in the tokens.
 
+**Reviewed for:** Token definitions carry only declared baseline values, with each departure recorded as a deviation. Look in the token definitions and the deviation records.
+
 ### Keep Separators at the Subtle Step
+
+**ID:** `litespec/frontend/ui#keep-separators-at-the-subtle-step`
 
 **Statement:** A structural separator or input border MUST NOT be darker than the border step the declared base color publishes.
 
 **Rationale:** A separator darker than its neighbors reads as emphasis, so authors stop trusting the token and start picking weights by eye. The border step the declared base color publishes keeps every structural separator and input border at one weight, so weight carries no accidental meaning.
 
+**Reviewed for:** Structural separators and input borders sit at the published border step or lighter. Look in the token definitions and the rendered separators.
+
 ### Select a Command Surface by Size
+
+**ID:** `litespec/frontend/ui#select-a-command-surface-by-size`
 
 **Statement:** A command MUST use the surface the Concepts table assigns to its input.
 
 **Rationale:** The surface fits the input: a button for a reversible action, a confirmation dialog for an irreversible one, a form dialog for one to four inputs, and a form page beyond that. A form dialog with more inputs than the table allows scrolls, loses its title, and hides the refusal beside the field that caused it. An oversized surface for a small command costs the reader attention the command has no use for.
 
+**Reviewed for:** Commands use the surface the Concepts table assigns to their input. Look in the command surfaces.
+
 ### Show the Trace ID in Error Detail
+
+**ID:** `litespec/frontend/ui#show-the-trace-id-in-error-detail`
 
 **Statement:** Every error the user sees MUST show its trace identifier in copyable form in the error detail, from the problem body or the `X-Trace-Id` header.
 
 **Rationale:** Support reads the trace identifier to find the failed request, and the reader copies it from the detail without retyping. Shown in copyable form from the problem body or the `X-Trace-Id` header, it connects the reader's report to the server's logs. The headline carries what happened in words; the identifier belongs in the detail.
 
+**Reviewed for:** Visible errors show the trace identifier copyably in the detail, from the problem body or the `X-Trace-Id` header. Look in the error surfaces.
+
 ### Check Every Route
+
+**ID:** `litespec/frontend/ui#check-every-route`
 
 **Statement:** Every route MUST pass each route suite check.
 
 **Rationale:** The route suite visits every route and asserts each check the Concepts section names: the floorplan, the reference, accessibility, the heading, the landmark, reflow, text spacing, keyboard use, and status announcements. The suite discovers its routes from the application route definition, so a new route is checked with no new specification. Every route passing every check keeps each address inside the contract by default.
 
+**Reviewed for:** The route suite output shows every discovered route passing each check. Look in the suite output and the CI job logs.
+
 ### Prove Every Result a Route Calls
+
+**ID:** `litespec/frontend/ui#prove-every-result-a-route-calls`
 
 **Statement:** Every result a called use case returns MUST be proved by a passing test or a known-gap record with owner and end date.
 
@@ -208,19 +270,31 @@ A route calls use cases, and each use case declares its results. A test proves e
 
 **Example:** A test calls the use case and asserts one refusal result.
 
+**Reviewed for:** Results called from route code are proved by passing tests or named by known-gap records with owner and end date. Look in the route call sites, the test runs, and the known-gap records.
+
 ### Restrict Styling to Semantic Tokens
+
+**ID:** `litespec/frontend/ui#restrict-styling-to-semantic-tokens`
 
 **Statement:** A style MUST use a semantic token rather than a raw value.
 
 **Rationale:** A raw value in a style answers to no token: the theme leaves it unchanged through every restyle, and the next author copies the value instead of the token. The shared package definition is the approved style surface, holding the tokens, the fonts, and the documented resets. A style built from semantic tokens stays inside the product's visual language by construction.
 
+**Reviewed for:** Styles use semantic tokens rather than raw values. Look in the stylesheets and the shared package definition.
+
 ### Govern Behavior Packages
+
+**ID:** `litespec/frontend/ui#govern-behavior-packages`
 
 **Statement:** A behavior package MUST name the decision record approving it for the capability it supplies, and render through baseline components and tokens.
 
 **Rationale:** A behavior package adds a capability the baseline lacks, such as a chart or a rich editor, and naming the decision record that approves it for that capability keeps the approval tied to the need. Approval follows the capability rather than the visual catalog, so no package duplicates a component the baseline already provides. Rendering through baseline components and tokens keeps the new capability inside the product's look.
 
+**Reviewed for:** Behavior packages name their approving decision record and render through baseline components and tokens. Look in the package declarations and the decision records.
+
 ### Prove UI Behavior and Appearance
+
+**ID:** `litespec/frontend/ui#prove-ui-behavior-and-appearance`
 
 **Statement:** A primitive, composite, token, source, floorplan, or route change MUST name the evidence in the matrix in this section.
 
@@ -236,15 +310,23 @@ A route calls use cases, and each use case declares its results. A test proves e
 | Fork | The fork record and the component test |
 | Behavior package | The accessibility check for the capability it supplies |
 
+**Reviewed for:** Changes name the evidence the matrix assigns to their class. Look in the change descriptions and the named evidence.
+
 ### Record a Frontend Outside the Controlled Contract
+
+**ID:** `litespec/frontend/ui#record-a-frontend-outside-the-controlled-contract`
 
 **Statement:** A frontend outside the controlled platforms MUST declare an entry point record naming that platform and the boundaries replacing this contract.
 
 **Rationale:** A device client with no shared component and no router sits outside the floorplan set and the component rules: the contract's checks do not apply to it. Declaring an entry point record that names its platform and the boundaries replacing this contract keeps the decision visible, instead of letting the frontend report as one with nothing to check.
 
+**Reviewed for:** Frontends outside the controlled platforms declare an entry point record naming their platform and replacement boundaries. Look in the entry point records.
+
 ## Conventions
 
 ### Use the Product Profiles
+
+**ID:** `litespec/frontend/ui#use-the-product-profiles`
 
 **Default:** Select one density profile from `public-light`, `application-balanced`, or `admin-dense` for each controlled frontend.
 
@@ -252,7 +334,11 @@ A route calls use cases, and each use case declares its results. A test proves e
 
 **Rationale:** Density is a property of the audience: `public-light` suits a surface a visitor meets once, `application-balanced` suits a surface a signed-in user works in, and `admin-dense` suits a surface an operator reads all day. All three profiles share one baseline, so choosing per frontend changes density without changing the visual language.
 
+**Checked by:** `litespec ui` reports a controlled frontend with no `ui` block declaring its density profile or a profile outside `public-light`, `application-balanced`, `admin-dense`. Run it at the consumer root.
+
 ### Keep a Blocked Command Visible with Its Reason
+
+**ID:** `litespec/frontend/ui#keep-a-blocked-command-visible-with-its-reason`
 
 **Default:** Leave a command blocked only by the current state or role visible and disabled, with the reason beside it.
 
@@ -260,29 +346,4 @@ A route calls use cases, and each use case declares its results. A test proves e
 
 **Rationale:** A command blocked only by the current state or role stays visible and disabled, with the reason beside it. The reader looking for the action learns it exists and why it is unavailable, such as a missing permission or an unmet precondition. A control that vanishes instead looks like a product that does not offer the action at all.
 
-## Verification
-
-| ID | Mark | Evidence |
-|:---|:---|:---|
-| litespec/frontend/ui#select-one-visual-authority | checkable | `litespec consumer` reports controlled frontends with no `paths.uiPackage` in `litespec.project.json`, and `litespec ui` reports `[litespec/frontend/ui#select-one-visual-authority]` for a second general-purpose visual dependency. Run either at the consumer root. |
-| litespec/frontend/ui#pin-the-baseline-in-the-shared-package | guidance | The shared UI package installs the pinned manifest baseline once, and applications install none. Look in the shared package manifest and lock, and the application manifests. |
-| litespec/frontend/ui#publish-a-design-contract | checkable | `litespec ui` reports `[litespec/frontend/ui#publish-a-design-contract]` for a missing contract, a missing metadata block, a package mismatch, or a missing required section. Run it at the consumer root. |
-| litespec/frontend/ui#declare-a-closed-floorplan-set | guidance | The design contract Patterns section lists every floorplan with its when-to-use rule. Look in the design contract. |
-| litespec/frontend/ui#compose-each-route-from-one-floorplan | guidance | Routes render exactly one declared floorplan, or record a freestyle decision. Look in the route sources and the suite output reading the floorplan name from each frame. |
-| litespec/frontend/ui#keep-layout-inside-floorplans | guidance | Route files declare no layout outside floorplan and display composites. Look in the route sources. |
-| litespec/frontend/ui#record-a-freestyle-route | guidance | Freestyle routes name the decision record justifying their layout. Look in the freestyle routes and the decision records. |
-| litespec/frontend/ui#derive-each-page-type-from-a-named-reference | guidance | Routes name their page type reference, and freestyle routes name their decision record instead. Look in the route sources. |
-| litespec/frontend/ui#select-a-tone-from-the-closed-set | guidance | Applications declare their state-to-tone mapping once as an exhaustive table of glossary terms. Look in the application state mapping. |
-| litespec/frontend/ui#keep-tokens-in-one-definition | guidance | Applications use the shared token definition with no declared value and no literal color in shipped definitions. Look in the application and shared token definitions. |
-| litespec/frontend/ui#hold-the-declared-base-color | guidance | Token definitions carry only declared baseline values, with each departure recorded as a deviation. Look in the token definitions and the deviation records. |
-| litespec/frontend/ui#keep-separators-at-the-subtle-step | guidance | Structural separators and input borders sit at the published border step or lighter. Look in the token definitions and the rendered separators. |
-| litespec/frontend/ui#select-a-command-surface-by-size | guidance | Commands use the surface the Concepts table assigns to their input. Look in the command surfaces. |
-| litespec/frontend/ui#show-the-trace-id-in-error-detail | guidance | Visible errors show the trace identifier copyably in the detail, from the problem body or the `X-Trace-Id` header. Look in the error surfaces. |
-| litespec/frontend/ui#check-every-route | guidance | The route suite output shows every discovered route passing each check. Look in the suite output and the CI job logs. |
-| litespec/frontend/ui#prove-every-result-a-route-calls | guidance | Results called from route code are proved by passing tests or named by known-gap records with owner and end date. Look in the route call sites, the test runs, and the known-gap records. |
-| litespec/frontend/ui#restrict-styling-to-semantic-tokens | guidance | Styles use semantic tokens rather than raw values. Look in the stylesheets and the shared package definition. |
-| litespec/frontend/ui#govern-behavior-packages | guidance | Behavior packages name their approving decision record and render through baseline components and tokens. Look in the package declarations and the decision records. |
-| litespec/frontend/ui#prove-ui-behavior-and-appearance | guidance | Changes name the evidence the matrix assigns to their class. Look in the change descriptions and the named evidence. |
-| litespec/frontend/ui#record-a-frontend-outside-the-controlled-contract | guidance | Frontends outside the controlled platforms declare an entry point record naming their platform and replacement boundaries. Look in the entry point records. |
-| litespec/frontend/ui#use-the-product-profiles | checkable | `litespec ui` reports a controlled frontend with no `ui` block declaring its density profile or a profile outside `public-light`, `application-balanced`, `admin-dense`. Run it at the consumer root. |
-| litespec/frontend/ui#keep-a-blocked-command-visible-with-its-reason | guidance | Commands blocked only by state or role stay visible and disabled with the reason beside them. Look in the command surfaces. |
+**Reviewed for:** Commands blocked only by state or role stay visible and disabled with the reason beside them. Look in the command surfaces.

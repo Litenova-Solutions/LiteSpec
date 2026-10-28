@@ -18,19 +18,29 @@ The drawings on this page use the Acme Supply settings: the team with Sam Rivera
 
 ### Show a New Secret Once
 
+**ID:** `litespec/frontend/patterns/admin-screens#show-a-new-secret-once`
+
 **Statement:** A screen MUST show a newly created API key or secret in full only once, at creation.
 
 **Rationale:** A secret that stays readable on screen can be copied by anyone who later opens the page, including from a shared screen or a screenshot. Showing it once forces the person creating it to store it in a vault or environment file at once, so no later visit can leak it.
 
+**Reviewed for:** Which newly created credential stays readable after its creation dialog closes? Open the creation flow for keys and secrets on a built settings screen.
+
 ### Show What a Role Allows Before Granting It
+
+**ID:** `litespec/frontend/patterns/admin-screens#show-what-a-role-allows-before-granting-it`
 
 **Statement:** An invitation or role change MUST show what the chosen role allows before it is sent.
 
 **Rationale:** Role names such as Picker or Manager hide what they grant. A sender who sees only the name can grant access to refunds or data by mistake. Showing the granted capabilities beside the name lets the sender confirm the access itself before the invitation goes out.
 
+**Reviewed for:** Which invitation or role change goes out without listing the chosen capabilities? Open the invite and role-change flows on a built team screen.
+
 ## Patterns
 
 ### Team Members and Their Roles
+
+**ID:** `litespec/frontend/patterns/admin-screens#team-members-and-their-roles`
 
 **Question:** The team is the staff who work for the company, and a role states what each person may do. The staff member holding the Owner role invites people, grants roles, limits some staff to one warehouse, and suspends or removes people. Everyone else sees names and roles, and nothing more.
 
@@ -39,6 +49,8 @@ The drawings on this page use the Acme Supply settings: the team with Sam Rivera
 **Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
 
 **Rationale:** The members table with invitations below is the default because it answers three questions in one scan: who is in, who is invited, and what each may do. The permission matrix is the runner-up; prefer it on the role page, where capabilities are compared across roles. Never ship the matrix as the team page, because the team page manages people, and a capability grid hides who holds what.
+
+**Reviewed for:** Which built staff list or invitation breaks from the chosen wireframe? Open the built team screen, with its invitations, beside the catalog entry recording the chosen option and its reason.
 
 #### `members-with-the-invitations-below`: Members with the Invitations Below
 
@@ -181,6 +193,8 @@ page
 
 ### API Keys and Webhooks
 
+**ID:** `litespec/frontend/patterns/admin-screens#api-keys-and-webhooks`
+
 **Question:** Company systems read the product through API keys. Order updates reach those systems through webhooks. A key secret shows once and never again. Each webhook delivery states whether it arrived. A missed order update is money unaccounted for.
 
 **Default:** `keys-table-with-the-grants-in-line`
@@ -188,6 +202,8 @@ page
 **Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
 
 **Rationale:** The keys table with the shown-once dialog is the default: the list states each key's grants, and the dialog protects the secret at creation. The endpoint with its delivery log is the runner-up; prefer it on the webhooks tab, where deliveries are the work. Never show the secret outside the creation dialog: a secret that can be read again is not a secret.
+
+**Reviewed for:** Which built credential or delivery list breaks from the chosen wireframe? Open the built keys screen, with grants in line, beside the catalog entry recording the chosen option and its reason.
 
 #### `keys-table-with-the-grants-in-line`: Keys Table with the Grants in Line
 
@@ -340,6 +356,8 @@ page
 
 ### Bringing Data from Spreadsheets
 
+**ID:** `litespec/frontend/patterns/admin-screens#bringing-data-from-spreadsheets`
+
 **Question:** Contacts, budget lines, and newsletter consents arrive from spreadsheets. Each import names what was brought in and what was refused. Each refusal names why. The back office fixes refused rows without importing the file twice.
 
 **Default:** `imports-with-the-refused-rows-below`
@@ -347,6 +365,8 @@ page
 **Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
 
 **Rationale:** The imports table with the refused rows below is the best option. History and repairs sit on one page. The column mapping is the runner-up. Prefer it at import time where the match is decided. Never ship the dropzone alone. An import without refused rows hides the work it creates.
+
+**Reviewed for:** Which built column match or refused row breaks from the chosen wireframe? Open the built import flow beside the catalog entry recording the chosen option and its reason.
 
 #### `imports-with-the-refused-rows-below`: Imports with the Refused Rows Below
 
@@ -491,6 +511,8 @@ page
 
 ### Connecting the Payment Account
 
+**ID:** `litespec/frontend/patterns/admin-screens#connecting-the-payment-account`
+
 **Question:** Customer money arrives through the company payment account. Each refund reverses a charge that customer made. The company connects the account once. It chooses which methods customers may use. It reads what each method costs.
 
 **Default:** `connected-account-with-the-methods-below`
@@ -498,6 +520,8 @@ page
 **Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
 
 **Rationale:** The connected account card with the methods list is the best option. Connection state and methods each have their place and costs sit in line. The capability checklist is the runner-up. Prefer it while the connection is new and methods still need approval. Never show the methods without the account card. A method means nothing while the account is disconnected.
+
+**Reviewed for:** Which built connection step or method list breaks from the chosen wireframe? Open the built payment setup beside the catalog entry recording the chosen option and its reason.
 
 #### `connected-account-with-the-methods-below`: Connected Account with the Methods Below
 
@@ -639,6 +663,8 @@ page
 
 ### Supplier Invoice
 
+**ID:** `litespec/frontend/patterns/admin-screens#supplier-invoice`
+
 **Question:** The supplier invoices the company each month. The invoice holds the plan, the fee per order, and the text-message cost. The company reads what each line charges. It downloads the invoice for the books. It pays by direct debit under its mandate.
 
 **Default:** `invoice-sheet-with-its-lines`
@@ -646,6 +672,8 @@ page
 **Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
 
 **Rationale:** The invoice sheet with its lines is the best option. It reads as the document the books need, with the mandate and the download beside it. The plan page with the mandate is the runner-up. Prefer it for changing the plan rather than reading a month. Never show usage lines without their rates. A metered figure without its rate cannot be checked.
+
+**Reviewed for:** Which built invoice sheet or usage line breaks from the chosen wireframe? Open the built billing screens beside the catalog entry recording the chosen option and its reason.
 
 #### `invoice-sheet-with-its-lines`: Invoice Sheet with Its Lines
 
@@ -785,6 +813,8 @@ page
 
 ### Discount and Promotion Codes
 
+**ID:** `litespec/frontend/patterns/admin-screens#discount-and-promotion-codes`
+
 **Question:** A code takes money off an order. Each code has its own value, use limit, and dates. The company watches what each code costs. It retires what leaks. It issues new codes for partners and campaigns.
 
 **Default:** `code-table-with-use-and-state`
@@ -794,6 +824,8 @@ page
 **Rationale:** The code table with usage and state is the best option. It shows value, use, and dates in one scan. Retiring a leaked code is one command on the row. The editor is the runner-up.
 
 Prefer it for creating a code with several conditions. Never ship the redemption-only list. Redemptions explain the past and the company manages the codes.
+
+**Reviewed for:** Which built code table or redemption list breaks from the chosen wireframe? Open the built promotion screens beside the catalog entry recording the chosen option and its reason.
 
 #### `code-table-with-use-and-state`: Code Table with Use and State
 
@@ -941,16 +973,3 @@ page
 **Cost:** A confirmation dialog per retirement slows staff who retire several codes after one leak.
 
 **Reference:** GitHub
-
-## Verification
-
-| ID | Mark | Evidence |
-|:---|:---|:---|
-| litespec/frontend/patterns/admin-screens#show-a-new-secret-once | guidance | Which newly created credential stays readable after its creation dialog closes? Open the creation flow for keys and secrets on a built settings screen. |
-| litespec/frontend/patterns/admin-screens#show-what-a-role-allows-before-granting-it | guidance | Which invitation or role change goes out without listing the chosen capabilities? Open the invite and role-change flows on a built team screen. |
-| litespec/frontend/patterns/admin-screens#team-members-and-their-roles | guidance | Which built staff list or invitation breaks from the chosen wireframe? Open the built team screen, with its invitations, beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/admin-screens#api-keys-and-webhooks | guidance | Which built credential or delivery list breaks from the chosen wireframe? Open the built keys screen, with grants in line, beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/admin-screens#bringing-data-from-spreadsheets | guidance | Which built column match or refused row breaks from the chosen wireframe? Open the built import flow beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/admin-screens#connecting-the-payment-account | guidance | Which built connection step or method list breaks from the chosen wireframe? Open the built payment setup beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/admin-screens#supplier-invoice | guidance | Which built invoice sheet or usage line breaks from the chosen wireframe? Open the built billing screens beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/admin-screens#discount-and-promotion-codes | guidance | Which built code table or redemption list breaks from the chosen wireframe? Open the built promotion screens beside the catalog entry recording the chosen option and its reason. |

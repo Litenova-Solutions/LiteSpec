@@ -18,35 +18,57 @@ Backend settings bind to named options classes that the host validates at startu
 
 ### Set the SDK Floor at the Workspace Root
 
+**ID:** `litespec/backend/dotnet/config#set-the-sdk-floor-at-the-workspace-root`
+
 **Statement:** The root `global.json` MUST set the first feature band of the manifest .NET major release as its SDK version and roll forward with `latestMajor`.
 
 **Rationale:** The first feature band of the manifest's major release is the lowest SDK that builds the workspace, and `latestMajor` roll-forward lets any newer SDK build it too. A patch or feature-band release then needs no workspace change, and two machines with different SDKs still build the same output. The manifest names the major release; `Directory.Build.props` sets its target framework.
 
+**Reviewed for:** The root `global.json` sets the manifest major release's first feature band with `latestMajor` roll-forward.
+
 ### Centralize .NET Build Settings
+
+**ID:** `litespec/backend/dotnet/config#centralize-net-build-settings`
 
 **Statement:** `apps/api/Directory.Build.props` MUST set the target framework of the manifest .NET stack release, and enable nullable types, implicit usings, and warnings as errors.
 
 **Rationale:** When each project sets its own framework, nullability, usings, and warnings, one project silently builds under weaker rules and its warnings go unread. One file owns those settings, so a change applies to every project and review sees it in one diff.
 
+**Reviewed for:** `apps/api/Directory.Build.props` sets the manifest target framework with nullable types, implicit usings, and warnings as errors.
+
 ### Centralize NuGet Versions
+
+**ID:** `litespec/backend/dotnet/config#centralize-nuget-versions`
 
 **Statement:** `apps/api/Directory.Packages.props` MUST enable central package management and carry the exact manifest pins.
 
 **Rationale:** A version written in a project file is invisible to the manifest that owns it, and two projects drift to two versions of one package. With central management, project files name packages only, and one file carries the exact pins, so an upgrade touches one place.
 
+**Reviewed for:** `apps/api/Directory.Packages.props` enables central management with the manifest pins, and project files carry no versions.
+
 ### Commit the Tool Manifest
+
+**ID:** `litespec/backend/dotnet/config#commit-the-tool-manifest`
 
 **Statement:** The root `.config/dotnet-tools.json` MUST pin every local .NET tool that a documented command invokes.
 
 **Rationale:** A tool installed by version range resolves differently on two machines, and a build that passes locally fails in CI. Pinning every tool a documented command invokes means local and CI runs use one version; when a tool ships in the manifest's .NET release, its pin matches that release. The manifest pins the Stryker.NET runner that `litespec/backend/dotnet/testing#gate-changed-lines-with-mutation-testing` names.
 
+**Reviewed for:** The root `.config/dotnet-tools.json` pins each local tool a documented command invokes, including the Stryker.NET runner.
+
 ### Validate Backend Options at Startup
+
+**ID:** `litespec/backend/dotnet/config#validate-backend-options-at-startup`
 
 **Statement:** A configuration section MUST bind to a named options class validated for required fields, ranges, and formats at startup.
 
 **Rationale:** A required setting read through a raw lookup fails on the first request that needs it, which may be hours after a bad deploy. Binding each section to a validated options class fails startup instead, with the field, range, or format named. This provision states the .NET form of `litespec/workspace/config#validate-backend-configuration-at-startup`.
 
+**Reviewed for:** Each configuration section binds a named options class validated for required fields, ranges, and formats, failing startup on bad values.
+
 ### Bind Setting Records to Options
+
+**ID:** `litespec/backend/dotnet/config#bind-setting-records-to-options`
 
 **Statement:** A setting record set by the founder or the operator MUST bind to a named options class validated at startup.
 
@@ -54,17 +76,8 @@ Backend settings bind to named options classes that the host validates at startu
 
 **Example:** The receipt threshold binds to `SpendingOptions` with its range; startup fails when the configured value leaves the range.
 
+**Reviewed for:** Each founder-set or operator-set setting binds a named options class validated at startup; tenant-set values live in stored tenant state.
+
 ## Conventions
 
 None.
-
-## Verification
-
-| ID | Mark | Evidence |
-|:---|:---|:---|
-| litespec/backend/dotnet/config#set-the-sdk-floor-at-the-workspace-root | guidance | The root `global.json` sets the manifest major release's first feature band with `latestMajor` roll-forward. |
-| litespec/backend/dotnet/config#centralize-net-build-settings | guidance | `apps/api/Directory.Build.props` sets the manifest target framework with nullable types, implicit usings, and warnings as errors. |
-| litespec/backend/dotnet/config#centralize-nuget-versions | guidance | `apps/api/Directory.Packages.props` enables central management with the manifest pins, and project files carry no versions. |
-| litespec/backend/dotnet/config#commit-the-tool-manifest | guidance | The root `.config/dotnet-tools.json` pins each local tool a documented command invokes, including the Stryker.NET runner. |
-| litespec/backend/dotnet/config#validate-backend-options-at-startup | guidance | Each configuration section binds a named options class validated for required fields, ranges, and formats, failing startup on bad values. |
-| litespec/backend/dotnet/config#bind-setting-records-to-options | guidance | Each founder-set or operator-set setting binds a named options class validated at startup; tenant-set values live in stored tenant state. |

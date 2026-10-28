@@ -22,6 +22,8 @@ It switches on no record type: the promotion decision is a core record every pro
 
 ### Declare the Release Stage
 
+**ID:** `litespec/ext/stage#declare-the-release-stage`
+
 **Statement:** A consumer MUST declare `pre-production` or `production` as its release stage in `litespec.project.json`.
 
 **Rationale:** The release stage is a project fact, not a departure from any rule, so it lives as data in the `stage` selection: `releaseStage` holds `pre-production` or `production`, beside the deferrals the early stage allows. Without the declared stage, tools and reviewers cannot tell which provisions the project owes today.
@@ -32,7 +34,11 @@ It switches on no record type: the promotion decision is a core record every pro
 {"id": "stage", "criterion": "no deployment holds customer data", "reviewBy": "2026-12-01", "releaseStage": "pre-production"}
 ```
 
+**Checked by:** `litespec consumer` refuses a `stage` selection with a missing or unknown `releaseStage`.
+
 ### Defer Named Provisions Until Promotion
+
+**ID:** `litespec/ext/stage#defer-named-provisions-until-promotion`
 
 **Statement:** A `pre-production` consumer MUST name each deferred provision with its end date in the stage extension selection, with a `production` consumer carrying no deferred provisions.
 
@@ -44,35 +50,57 @@ It switches on no record type: the promotion decision is a core record every pro
 {"id": "stage", "criterion": "no deployment holds customer data", "reviewBy": "2026-12-01", "releaseStage": "pre-production", "deferredProvisions": [{"provision": "litespec/ext/compat#classify-breaking-contract-changes", "until": "2026-12-01"}]}
 ```
 
+**Checked by:** `litespec consumer` refuses a deferral naming an unknown provision or past its `until` date, and any deferral in `production`.
+
 ### Promote Through a Recorded Decision
+
+**ID:** `litespec/ext/stage#promote-through-a-recorded-decision`
 
 **Statement:** A consumer MUST approve its promotion to `production` as a decision before its first deployment holds customer data, ending every deferred provision.
 
 **Rationale:** Promotion is the moment relaxed provisions end, and an unrecorded moment never arrives: the relaxed provisions last until somebody notices they never ended. The decision carries its owner, status, decider, and decide-by date like any decision, and approving it before the first deployment holds customer data keeps the data under full rules from day one. The decision also covers the migration and cutover work that moves customer data into production.
 
+**Reviewed for:** The promotion decision under `docs/intent/decisions/` carries approval before the first deployment holds customer data and ends every deferred provision.
+
 ### Record Rested-On Draft Intent
+
+**ID:** `litespec/ext/stage#record-rested-on-draft-intent`
 
 **Statement:** A `pre-production` consumer MUST name, in its promotion decision, each draft decision and requirement that a reviewed Behavior record rests on.
 
 **Rationale:** A reviewed Behavior record resting on a draft nobody named looks settled while its foundation can still move. Naming each rested-on draft decision and requirement in the promotion decision keeps the open intent visible beside the records built on it, so promotion settles exactly the intent the Behavior assumed.
 
+**Reviewed for:** The promotion decision names each draft decision and requirement that a reviewed Behavior record rests on.
+
 ### Resolve Rested-On Draft Intent at Promotion
+
+**ID:** `litespec/ext/stage#resolve-rested-on-draft-intent-at-promotion`
 
 **Statement:** A consumer MUST approve or retire each named draft intent before its first deployment holds customer data.
 
 **Rationale:** Draft intent covered by the early stage expires at promotion: the promotion decision approves or retires each named draft, so no Behavior record enters production resting on a guess. A draft still open at promotion keeps the promotion unapproved with it.
 
+**Reviewed for:** Each named draft intent carries approval or retirement before the first deployment holds customer data.
+
 ### Hold Transcribed Records in Draft
+
+**ID:** `litespec/ext/stage#hold-transcribed-records-in-draft`
 
 **Statement:** A Behavior record with `source: transcribed` MUST stay in `draft` until its `fulfills` or `serves` parent is approved.
 
 **Rationale:** A transcribed record carries what working code does, not what anyone decided, so reviewing it would approve behavior with no promise behind it. Holding it in draft until its requirement or journey parent is approved keeps every reviewed record a carried promise. The `transcribed-reviewed` check reports a transcribed record that reached reviewed early.
 
+**Reviewed for:** Each transcribed Behavior record stays in draft until its fulfills or serves parent is approved.
+
 ### End Transcription at the Named Decision
+
+**ID:** `litespec/ext/stage#end-transcription-at-the-named-decision`
 
 **Statement:** A consumer MUST name the decision ending transcription in `adoption.transcriptionEndsWith`, and carry no transcribed record after that decision is approved.
 
 **Rationale:** Transcription is adoption work with an end: once the named decision is approved, every Behavior record states decided behavior, and any record still marked transcribed is a promise nobody made. Naming the decision in the project file fixes the end where tools read it. The `transcribed-after-adoption` check reports a transcribed record left after the end.
+
+**Reviewed for:** The project file names the transcription-ending decision, and no transcribed record remains after its approval.
 
 ## Conventions
 
@@ -85,15 +113,3 @@ Packages: None.
 Related extensions: None.
 
 Guides: None.
-
-## Verification
-
-| ID | Mark | Evidence |
-|:---|:---|:---|
-| litespec/ext/stage#declare-the-release-stage | checkable | `litespec consumer` refuses a `stage` selection with a missing or unknown `releaseStage`. |
-| litespec/ext/stage#defer-named-provisions-until-promotion | checkable | `litespec consumer` refuses a deferral naming an unknown provision or past its `until` date, and any deferral in `production`. |
-| litespec/ext/stage#promote-through-a-recorded-decision | guidance | The promotion decision under `docs/intent/decisions/` carries approval before the first deployment holds customer data and ends every deferred provision. |
-| litespec/ext/stage#record-rested-on-draft-intent | guidance | The promotion decision names each draft decision and requirement that a reviewed Behavior record rests on. |
-| litespec/ext/stage#resolve-rested-on-draft-intent-at-promotion | guidance | Each named draft intent carries approval or retirement before the first deployment holds customer data. |
-| litespec/ext/stage#hold-transcribed-records-in-draft | guidance | Each transcribed Behavior record stays in draft until its fulfills or serves parent is approved. |
-| litespec/ext/stage#end-transcription-at-the-named-decision | guidance | The project file names the transcription-ending decision, and no transcribed record remains after its approval. |

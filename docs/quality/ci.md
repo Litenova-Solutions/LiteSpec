@@ -65,47 +65,77 @@ The supply-chain job groups every check that keeps third-party code safe to ship
 
 ### Run Applicable Gates on Every Pull Request
 
+**ID:** `litespec/quality/ci#run-applicable-gates-on-every-pull-request`
+
 **Statement:** Every pull request MUST run the jobs the jobs table selects for its changed areas.
 
 **Rationale:** Each job guards one surface, so a pull request that skips the job for its changed area merges unchecked work. A job skipped because its surface did not change is recorded with that reason on the pull request, which keeps the skipped surface visible to the reviewer. The supply-chain gate that `litespec/quality/ci#enforce-the-supply-chain-gate` requires is one of these jobs.
 
+**Reviewed for:** The pull request checks list shows each selected job passing, with skipped jobs recorded with their reason.
+
 ### Check Documentation on Every Pull Request
+
+**ID:** `litespec/quality/ci#check-documentation-on-every-pull-request`
 
 **Statement:** The docs job MUST run on every pull request and fail on a page that breaks the page contract, configuration, language, or prose rules.
 
 **Rationale:** Documentation breaks take many small forms: a record with a missing field, a rejected term, a misconfigured path, a page outside its [page contract](../core/authoring.md). Each one is trivial to fix at the pull request that introduced it and hard to trace once later pages build on it. Running the docs job on every pull request catches each break where it started.
 
+**Checked by:** `litespec consumer` fails on a page that breaks the page contract, configuration, language, or prose rules.
+
 ### Keep Generated Contracts Fresh
+
+**ID:** `litespec/quality/ci#keep-generated-contracts-fresh`
 
 **Statement:** CI MUST regenerate committed OpenAPI and API types from source deterministically and fail on any difference.
 
 **Rationale:** A committed contract that no longer matches its source sends consumers a stale API: a frontend builds against operations the backend no longer serves. Regenerating from source on CI and failing on any difference proves the committed files match the code. Generation stays deterministic, with no timestamps, machine paths, or unstable ordering, so an identical source always yields identical files.
 
+**Reviewed for:** Regenerating OpenAPI and API types from source on the pull request produces no diff.
+
 ### Refuse Backend Calls Outside the Generated Client
+
+**ID:** `litespec/quality/ci#refuse-backend-calls-outside-the-generated-client`
 
 **Statement:** The contract job MUST fail a pull request whose frontend code calls the backend outside the generated client.
 
 **Rationale:** Regenerating the contract proves the committed client matches the API, but a hand-written fetch beside it still compiles and drifts on the next contract change. Failing the pull request keeps every backend call inside the generated client that `litespec/frontend/data#use-one-configured-client-per-application` names, so a contract change breaks the build at the call sites that must move.
 
+**Reviewed for:** The contract job report shows a clean regeneration and a lint report with no backend call outside the generated client.
+
 ### Review Schema Artifacts
+
+**ID:** `litespec/quality/ci#review-schema-artifacts`
 
 **Statement:** A persistence change MUST publish a schema artifact that names its reviewer and lists every destructive operation with its reason.
 
 **Rationale:** A persistence change reaches production data, so its reviewer needs to see exactly what the database will do before it runs. The schema artifact shows that: the Marten schema plan and document transformation, or the generated EF Core migration with its reviewed SQL. Listing every destructive operation with its reason forces the author to name data loss before the reviewer approves it.
 
+**Reviewed for:** Each persistence change carries a schema artifact naming its reviewer with every destructive operation and its reason.
+
 ### Require Zero Surviving Mutants on Changed Lines
+
+**ID:** `litespec/quality/ci#require-zero-surviving-mutants-on-changed-lines`
 
 **Statement:** Every pull request MUST show zero surviving mutants on its changed lines.
 
 **Rationale:** Mutation testing judges test strength where the change is: Stryker.NET `--since` scopes the backend run and StrykerJS `--incremental` scopes the frontend run, so the gate costs minutes per pull request. A project-wide percentage is confounded by suite size, so a large suite hides weak new tests behind a high score, while a full nightly run stays a trend rather than a gate. Stryker.NET 5.0.0 and StrykerJS 9.x are free and maintained under Apache-2.0. The .NET form lives on `litespec/backend/dotnet/testing#gate-changed-lines-with-mutation-testing`. A surviving mutant no test can kill is decided once by a person through the equivalent-mutant escape hatch, recorded as a deviation naming this provision.
 
+**Reviewed for:** The mutation job report for the pull request shows zero surviving mutants on its changed lines.
+
 ### Run Measured Checks on Every Pull Request
+
+**ID:** `litespec/quality/ci#run-measured-checks-on-every-pull-request`
 
 **Statement:** The measure job MUST run the check each measured requirement names for its kind.
 
 **Rationale:** Each kind has one tool, as the measured-checks table on this page maps: k6 thresholds for API latency and errors, Lighthouse CI assert for frontend performance and weight, axe in the route suite for accessibility, OpenTelemetry with OpenSLO files compiled by Sloth for availability and latency objectives, and an ASVS 5.0 level with the ZAP baseline, free static analysis, OSV-Scanner, and Gitleaks for security. The tools write their result files under `TestResults/`, the builder reads them the way it reads test runs, and `litespec model check` reports `requirement-unmeasured` for a measured requirement with no check or no passing run. Every tool the table names is free and maintained; CodeQL is used only on public repositories, as `litespec/quality/security#scan-every-pull-request-with-a-free-static-analyzer` states.
 
+**Checked by:** `litespec model check` reports `requirement-unmeasured` for a measured requirement with no check or no passing run.
+
 ### Enforce the Supply-Chain Gate
+
+**ID:** `litespec/quality/ci#enforce-the-supply-chain-gate`
 
 **Statement:** CI MUST enforce the supply-chain gate on every pull request.
 
@@ -113,49 +143,81 @@ The supply-chain job groups every check that keeps third-party code safe to ship
 
 **Example:** The build job that produces the artifact generates the inventory from the same frozen lockfile. It stores the inventory beside the artifact, under the release version.
 
+**Reviewed for:** The supply-chain report shows scan, pin, inventory, and license evidence with a deviation for each unhandled high-severity advisory.
+
 ### Publish the Intent Diff on Every Pull Request
+
+**ID:** `litespec/quality/ci#publish-the-intent-diff-on-every-pull-request`
 
 **Statement:** CI MUST publish the intent diff of every pull request as one comment updated on every push.
 
 **Rationale:** The comment holds `litespec model diff <base>` in Markdown: REMOVED, MODIFIED, and ADDED records in that order, each breaking change marked with its reason, in the book's words. One comment updated on every push keeps the approval surface current without burying the approver in stale copies. The [model command page](../tools/model.md) states the diff formats.
 
+**Reviewed for:** The pull request shows one intent-diff comment matching its latest push.
+
 ### Show Intent Counts in the Job Summary
+
+**ID:** `litespec/quality/ci#show-intent-counts-in-the-job-summary`
 
 **Statement:** CI MUST show the intent counts in the job summary of every pull request.
 
 **Rationale:** Breaking, removed, modified, and added counts give the glanceable view beside the full comment: a reviewer sees the size and risk of the intent change before opening it. The counts come from the same diff the comment holds, so the two never disagree.
 
+**Reviewed for:** The CI run summary for the pull request lists the breaking, removed, modified, and added counts.
+
 ### Publish a Book Preview for Every Change
+
+**ID:** `litespec/quality/ci#publish-a-book-preview-for-every-change`
 
 **Statement:** CI MUST publish a preview of the book for every change.
 
 **Rationale:** The intent diff names what moved, while the preview shows it rendered, with the changed records readable beside their neighbors. The approver clicks from the comment into the preview for full context.
 
+**Reviewed for:** The pull request links a book preview built from the change.
+
 ### Map Record Areas to Owners
+
+**ID:** `litespec/quality/ci#map-record-areas-to-owners`
 
 **Statement:** A consumer MUST map its record areas to owners in CODEOWNERS.
 
 **Rationale:** Product pages map to the product owner and each module to its team, so every record has a team that answers for it. An owners entry maps a readable owner name to its CODEOWNERS handles, so records carry names reviewers read while the check follows the mapping. The file lives at `.github/CODEOWNERS`, `CODEOWNERS`, or `docs/CODEOWNERS`, and `litespec model check` reports `owner-unknown` for a record whose owner, directly or through its mapped handles, belongs to no team owning its path.
 
+**Checked by:** `litespec model check` reports `owner-unknown` for a record whose owner belongs to no team owning its path, directly or through its mapped handles.
+
 ### Approve Breaking Changes by the Highest Record Owner
+
+**ID:** `litespec/quality/ci#approve-breaking-changes-by-the-highest-record-owner`
 
 **Statement:** A breaking change MUST carry approval from the owner of the highest record it touches.
 
 **Rationale:** Breaking means intent a person already approved now moves: a removed or narrowed requirement, an added refusal or precondition, a removed result, state, transition, or scenario, a weakened rule, or a changed quality measure or target. The owner of the highest touched record approves through the CODEOWNERS review, with branch protection requiring it before merge. Approval needs no new field: status, decider, and date already record who decided what by when.
 
+**Reviewed for:** Each pull request with a breaking change shows approval from the team owning the highest record it touches.
+
 ### Promote Verified Artifacts
+
+**ID:** `litespec/quality/ci#promote-verified-artifacts`
 
 **Statement:** CI MUST build one immutable artifact and promote that same artifact through staging and production.
 
 **Rationale:** Staging tests prove something about the artifact they ran against. When production deploys a fresh build from the same branch instead, it ships code the tests never saw, because the branch may have moved between the two builds. Promoting the one tested artifact through staging and production keeps the tested code and the shipped code identical.
 
+**Reviewed for:** The staging and production deployments reference the one artifact the release job passed.
+
 ### Protect the Default Branch
+
+**ID:** `litespec/quality/ci#protect-the-default-branch`
 
 **Statement:** The default branch MUST require the jobs table entries for the project's size, a reviewed pull request, and a clean merge state.
 
 **Rationale:** The default branch is the source every environment deploys from, so an unreviewed or unchecked commit there reaches production with no further review. Requiring the jobs table entries, a reviewed pull request, and a clean merge state keeps every commit on the branch reviewed and verified. A direct push or a bypassed check is permitted only during a documented repository recovery action.
 
+**Reviewed for:** The default branch settings require the jobs-table entries, a reviewed pull request, and a clean merge state.
+
 ### Record Every Branch Protection Bypass
+
+**ID:** `litespec/quality/ci#record-every-branch-protection-bypass`
 
 **Statement:** A direct push or bypassed check on the default branch MUST produce a record naming the actor, the reason, and the change it admitted.
 
@@ -163,15 +225,23 @@ The supply-chain job groups every check that keeps third-party code safe to ship
 
 **Example:** The record is the recovery decision itself where one exists. A bypass smaller than a decision takes a dated entry in the operations log at `docs/behavior/operations/log/`.
 
+**Reviewed for:** Each bypass entry in the operations log or recovery decision names its actor, reason, and admitted change.
+
 ### Keep a Canonical Job Graph
+
+**ID:** `litespec/quality/ci#keep-a-canonical-job-graph`
 
 **Statement:** Consumer CI MUST use the job names and responsibilities the jobs table states.
 
 **Rationale:** The release job reruns the table's jobs by name, and the branch protection settings require them by name. When a consumer renames a job or moves its checks elsewhere, those references point at a job that no longer exists, and the gate stops checking without failing. Fixed names and responsibilities keep every reference resolving to the checks the table states.
 
+**Reviewed for:** The consumer workflows use the job names and responsibilities the jobs table states.
+
 ## Conventions
 
 ### Apply the Documented Defaults
+
+**ID:** `litespec/quality/ci#apply-the-documented-defaults`
 
 **Default:** Keep one workflow per job the jobs table lists and use the job names the jobs table states.
 
@@ -179,31 +249,10 @@ The supply-chain job groups every check that keeps third-party code safe to ship
 
 **Rationale:** One workflow per job keeps each gate readable, runnable, and skippable on its own. When containerized integration tests or browser tests join CI, they join as jobs the table names rather than as hidden steps inside another job, so the selection rules and the branch protection keep working unchanged.
 
+**Reviewed for:** Each consumer workflow file matches one jobs-table job and name, or the workflow-layout convention names another arrangement.
+
 ## Reference Example
 
 This informative example demonstrates `litespec/quality/ci#run-applicable-gates-on-every-pull-request` and `litespec/quality/ci#promote-verified-artifacts`.
 
 A backend-only pull request runs `build`, `test-backend`, `mutation`, `measure`, `model`, `docs`, `contract`, and `supply-chain`: the docs job runs even without a documentation change because it checks every pull request. A pull request that changes a frontend also runs `test-frontend`. The `release` job reruns every job on the release commit and promotes the artifact that passed.
-
-## Verification
-
-| ID | Mark | Evidence |
-|:---|:---|:---|
-| litespec/quality/ci#run-applicable-gates-on-every-pull-request | guidance | The pull request checks list shows each selected job passing, with skipped jobs recorded with their reason. |
-| litespec/quality/ci#check-documentation-on-every-pull-request | checkable | `litespec consumer` fails on a page that breaks the page contract, configuration, language, or prose rules. |
-| litespec/quality/ci#keep-generated-contracts-fresh | guidance | Regenerating OpenAPI and API types from source on the pull request produces no diff. |
-| litespec/quality/ci#refuse-backend-calls-outside-the-generated-client | guidance | The contract job report shows a clean regeneration and a lint report with no backend call outside the generated client. |
-| litespec/quality/ci#review-schema-artifacts | guidance | Each persistence change carries a schema artifact naming its reviewer with every destructive operation and its reason. |
-| litespec/quality/ci#require-zero-surviving-mutants-on-changed-lines | guidance | The mutation job report for the pull request shows zero surviving mutants on its changed lines. |
-| litespec/quality/ci#run-measured-checks-on-every-pull-request | checkable | `litespec model check` reports `requirement-unmeasured` for a measured requirement with no check or no passing run. |
-| litespec/quality/ci#enforce-the-supply-chain-gate | guidance | The supply-chain report shows scan, pin, inventory, and license evidence with a deviation for each unhandled high-severity advisory. |
-| litespec/quality/ci#publish-the-intent-diff-on-every-pull-request | guidance | The pull request shows one intent-diff comment matching its latest push. |
-| litespec/quality/ci#show-intent-counts-in-the-job-summary | guidance | The CI run summary for the pull request lists the breaking, removed, modified, and added counts. |
-| litespec/quality/ci#publish-a-book-preview-for-every-change | guidance | The pull request links a book preview built from the change. |
-| litespec/quality/ci#map-record-areas-to-owners | checkable | `litespec model check` reports `owner-unknown` for a record whose owner belongs to no team owning its path, directly or through its mapped handles. |
-| litespec/quality/ci#approve-breaking-changes-by-the-highest-record-owner | guidance | Each pull request with a breaking change shows approval from the team owning the highest record it touches. |
-| litespec/quality/ci#promote-verified-artifacts | guidance | The staging and production deployments reference the one artifact the release job passed. |
-| litespec/quality/ci#protect-the-default-branch | guidance | The default branch settings require the jobs-table entries, a reviewed pull request, and a clean merge state. |
-| litespec/quality/ci#record-every-branch-protection-bypass | guidance | Each bypass entry in the operations log or recovery decision names its actor, reason, and admitted change. |
-| litespec/quality/ci#keep-a-canonical-job-graph | guidance | The consumer workflows use the job names and responsibilities the jobs table states. |
-| litespec/quality/ci#apply-the-documented-defaults | guidance | Each consumer workflow file matches one jobs-table job and name, or the workflow-layout convention names another arrangement. |

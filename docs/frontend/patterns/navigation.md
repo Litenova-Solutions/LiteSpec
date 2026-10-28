@@ -18,19 +18,29 @@ The drawings on this page use the Acme Supply console: seven areas from Home to 
 
 ### Mark the Current Section
 
+**ID:** `litespec/frontend/patterns/navigation#mark-the-current-section`
+
 **Statement:** The navigation MUST mark the section that holds the current page.
 
 **Rationale:** A marked section tells a reader who arrived from a link, a notification, or a search which area holds the open page. Without it, every page looks like the start, and the reader reopens the sidebar to learn where they already are.
 
+**Reviewed for:** Which built screen fails to highlight the area holding its open page? Open three built screens reached by link, notification, and search.
+
 ### Give Every Page Its Own Address
+
+**ID:** `litespec/frontend/patterns/navigation#give-every-page-its-own-address`
 
 **Statement:** Every page MUST have its own URL that opens it directly.
 
 **Rationale:** A direct address lets a reader share, bookmark, and reopen a page, and lets a notification or a record link to it. Without it, support cannot send the page under discussion, and a refresh drops the reader back to the start.
 
+**Reviewed for:** Which built screen cannot be opened directly from its copied link? Paste three copied addresses into a fresh tab.
+
 ## Patterns
 
 ### Sidebar
+
+**ID:** `litespec/frontend/patterns/navigation#sidebar`
 
 **Question:** Seven top-level areas organize the console. Settings alone holds thirty routes. Groups expand to two levels. The current item stays marked wherever it sits.
 
@@ -41,6 +51,8 @@ The drawings on this page use the Acme Supply console: seven areas from Home to 
 **Rationale:** Keep the grouped areas with expandable sub-items. Seven areas with two levels are what Fluent allows. The expandable group is the shape sidebar components ship. The counts beside groups are the runner-up for areas that hold a queue, such as refunds.
 
 A count beside every area reports status the reader did not ask for. Never ship the flat list of every page. Over a hundred entries is an index, not a map, and it belongs in the command palette.
+
+**Reviewed for:** Which built area list breaks from the wireframe its catalog entry chose? Open the built console frame, with its grouped areas and marked item, beside the catalog entry recording the chosen option and its reason.
 
 #### `grouped-areas-with-expandable-sub-items`: Grouped Areas with Expandable Sub-Items
 
@@ -308,6 +320,8 @@ page
 
 ### Breadcrumb
 
+**ID:** `litespec/frontend/patterns/navigation#breadcrumb`
+
 **Question:** Trails run four levels deep on a product variant. A trail never wraps and may scroll sideways. The last item carries aria-current. Dutch strings sometimes appear in an English frame.
 
 **Default:** `the-trail-as-the-parent-chain`
@@ -317,6 +331,8 @@ page
 **Rationale:** Keep the parent chain with the last item marked current: it is the only place a record states its place in the tree. The left-truncating trail with an overflow menu is the runner-up for four-level chains. It keeps the current page visible where sideways scrolling hides it.
 
 Never ship no trail at all: on a phone the sidebar is closed, so the trail is the only statement of where a record sits.
+
+**Reviewed for:** Which built parent chain differs from the wireframe its catalog entry chose? Open a built four-level trail, with its truncation and parent links, beside the catalog entry recording the chosen option and its reason.
 
 #### `the-trail-as-the-parent-chain`: The Trail as the Parent Chain
 
@@ -496,6 +512,8 @@ page
 
 ### Header Bar
 
+**ID:** `litespec/frontend/patterns/navigation#header-bar`
+
 **Question:** The bar carries the page title, a sidebar toggle, a help control, and the theme. It does not carry the company name. It does not say who is acting. It says nothing about location beyond the page title.
 
 **Default:** `the-bar-with-the-company-name`
@@ -505,6 +523,8 @@ page
 **Rationale:** Keep the bar with the company name and the acting person added. A support conversation needs both facts before anything else. The sidebar toggle is what opens the phone sheet.
 
 The deployment identity band is the runner-up for sandbox deployments only, where naming the deployment on every page avoids confusion with production. Never ship no bar at all: burying the theme and language in the sidebar foot turns a visible control into three taps.
+
+**Reviewed for:** Which built top band breaks from the wireframe its catalog entry chose? Open the built product header, with its company name and deployment identity, beside the catalog entry recording the chosen option and its reason.
 
 #### `the-bar-with-the-company-name`: The Bar with the Company Name
 
@@ -709,6 +729,8 @@ page
 
 ### Tabs Within a Page
 
+**ID:** `litespec/frontend/patterns/navigation#tabs-within-a-page`
+
 **Question:** Sibling pages of one area sit in a sub-page navigation. A second tab row uses a subordinate level. Tab sets stay small, at about six. The active tab belongs in the URL.
 
 **Default:** `the-shipped-tab-row-with-the-tab-in-the-url`
@@ -718,6 +740,8 @@ page
 **Rationale:** Keep the tab row with the active tab in the URL. A pasted link carries the facet. The row sits where every tab implementation puts it.
 
 Tabs as real links are the runner-up and the most defensible alternative. Middle click and the back button then behave as expected. Prefer them where each facet is its own route. Never ship the segmented control for facets: three segments is its ceiling and it cannot carry counts or overflow.
+
+**Reviewed for:** Which built tab row differs from the wireframe its catalog entry chose? Open the built in-page tabs, with the active tab in the URL, beside the catalog entry recording the chosen option and its reason.
 
 #### `the-shipped-tab-row-with-the-tab-in-the-url`: The Shipped Tab Row, with the Tab in the URL
 
@@ -913,6 +937,8 @@ page
 
 ### Icons in the Frame
 
+**ID:** `litespec/frontend/patterns/navigation#icons-in-the-frame`
+
 **Question:** Seven area icons, a sidebar toggle, a help mark, and the theme. Every one of these is a named component with an accessible label, never a raw element.
 
 **Default:** `an-icon-beside-every-label`
@@ -922,6 +948,8 @@ page
 **Rationale:** Keep an icon beside every label, drawn from one icon set. Seven areas need a visual catch. The icon reinforces the label rather than replacing it.
 
 Words-only areas with icon-only actions are the runner-up where icon budget is short, with each action carrying a tooltip and an accessible name. Never ship state-carrying icons in the frame: theme and language as bare glyphs force the reader to hover both to tell them apart.
+
+**Reviewed for:** Which built label or action carries an icon outside the recorded set? Open the built frame, with its labeled actions and marked current item, beside the catalog entry recording the chosen option and its reason.
 
 #### `an-icon-beside-every-label`: An Icon Beside Every Label
 
@@ -1135,6 +1163,8 @@ page
 
 ### Language and Theme
 
+**ID:** `litespec/frontend/patterns/navigation#language-and-theme`
+
 **Question:** Two switches change nothing about the data. They are the most error-prone controls on the page. An explicit choice is preferred to the account default. A missing translation falls back to the other language.
 
 **Default:** `both-switches-in-the-header-each-showing-its-value`
@@ -1144,6 +1174,8 @@ page
 **Rationale:** Keep both switches in the header, each showing its value. The reader sees what is set without opening anything. The theme is one tap at the end of a shift.
 
 The account menu is the runner-up for language only, since language rarely changes and the menu groups it with the account it belongs to. Never ship no switch at all. One language is a commercial decision about which companies the product serves. It is not a UI simplification. The product already serves companies in two languages.
+
+**Reviewed for:** Which built switch differs from the wireframe its catalog entry chose? Open the built locale and appearance controls, in the header and account menu, beside the catalog entry recording the chosen option and its reason.
 
 #### `both-switches-in-the-header-each-showing-its-value`: Both Switches in the Header, Each Showing Its Value
 
@@ -1335,6 +1367,8 @@ page
 
 ### Command Palette
 
+**ID:** `litespec/frontend/patterns/navigation#command-palette`
+
 **Question:** An operations manager working a list often needs one record or one command and then the list again. The palette jumps straight to the order for Garcia Interiors. It runs the next step from the keyboard, so the reader never loses the page they were working.
 
 **Default:** `cmd-k-dialog-with-grouped-results`
@@ -1346,6 +1380,8 @@ page
 Recent items first is the runner-up. It fits warehouse and support work that moves between a few records. Recency is personal state, and it reads wrong on a shared machine.
 
 Never ship command verbs with a preview as the default palette. Every verb becomes a second path to a use case. Each one needs its own permission and refusal wording to keep.
+
+**Reviewed for:** Which built jump-to dialog breaks from the wireframe its catalog entry chose? Open the built palette, with its grouped results and recent items, beside the catalog entry recording the chosen option and its reason.
 
 #### `cmd-k-dialog-with-grouped-results`: Cmd+K Dialog with Grouped Results
 
@@ -1525,6 +1561,8 @@ page
 
 ### Account Menu
 
+**ID:** `litespec/frontend/patterns/navigation#account-menu`
+
 **Question:** The frame names who is acting, for which company, with what access. The account sits at the foot of the sidebar with a way to switch identity beside it on a development deployment.
 
 **Default:** `an-avatar-menu-in-the-header`
@@ -1536,6 +1574,8 @@ page
 The sidebar foot is the runner-up, but the foot is far from the top of a long page. It is out of reach without opening the sheet on a phone.
 
 Never ship the bare sign-out link. An account with no page turns language, sessions, and closing into support messages.
+
+**Reviewed for:** Which built sign-in menu differs from the wireframe its catalog entry chose? Open the built account controls, in the sidebar foot or header, beside the catalog entry recording the chosen option and its reason.
 
 #### `the-account-in-the-sidebar-foot`: The Account in the Sidebar Foot
 
@@ -1684,6 +1724,8 @@ page
 
 ### Notification Inbox
 
+**ID:** `litespec/frontend/patterns/navigation#notification-inbox`
+
 **Question:** Refunds, disputes, invitations, and warehouse incidents all need somebody who was looking elsewhere. The console lists them under Needs attention on Home and nowhere else.
 
 **Default:** `a-bell-in-the-header-with-a-dropdown-panel`
@@ -1695,6 +1737,8 @@ page
 The inbox page is the runner-up for support days with dozens of items, where triage needs filters rather than a dropdown.
 
 Never ship no notifications. Polling seven areas by hand is how a dispute deadline is missed.
+
+**Reviewed for:** Which built attention list breaks from the wireframe its catalog entry chose? Open the built inbox and bell, with triage and unread states, beside the catalog entry recording the chosen option and its reason.
 
 #### `needs-attention-on-the-home-page`: Needs Attention on the Home Page
 
@@ -1823,6 +1867,8 @@ page
 
 ### Help and Support
 
+**ID:** `litespec/frontend/patterns/navigation#help-and-support`
+
 **Question:** The navigation names a help topic per page, so help can open the guide for the page on screen. The console links a help page from the sidebar.
 
 **Default:** `contextual-help-beside-the-page-it-explains`
@@ -1832,6 +1878,8 @@ page
 **Rationale:** Open the guide for the current page in a side panel. The navigation already carries a help topic per page, so contextual help is a lookup rather than a search. The help page stays as the index behind the panel.
 
 Never ship no help entry: a warehouse lead stuck at the dock with a queue has nowhere else to turn.
+
+**Reviewed for:** Which built guidance entry differs from the wireframe its catalog entry chose? Open the built help surfaces, from sidebar entry to contextual hints, beside the catalog entry recording the chosen option and its reason.
 
 #### `a-help-page-from-the-sidebar`: A Help Page from the Sidebar
 
@@ -1974,6 +2022,8 @@ page
 
 ### Workspace Switcher
 
+**ID:** `litespec/frontend/patterns/navigation#workspace-switcher`
+
 **Question:** People who run several sites think in sites: one warehouse at a time, switched between often. The console carries a warehouse's sections as tabs on the warehouse page.
 
 **Default:** `a-workspace-switcher-at-the-top-of-the-sidebar`
@@ -1985,6 +2035,8 @@ page
 The trail sibling menu is the runner-up on record pages four levels deep, where the sidebar context is far away.
 
 Never ship back-to-list as the only path. It costs the most to exactly the companies with the most sites.
+
+**Reviewed for:** Which built warehouse picker breaks from the wireframe its catalog entry chose? Open the built switcher, with recent workspaces first, beside the catalog entry recording the chosen option and its reason.
 
 #### `warehouse-sections-as-tabs-on-the-warehouse-page`: Warehouse Sections as Tabs on the Warehouse Page
 
@@ -2120,6 +2172,8 @@ page
 
 ### Phone Navigation
 
+**ID:** `litespec/frontend/patterns/navigation#phone-navigation`
+
 **Question:** Below 768 px the sidebar hides and a menu glyph shows in the bar. The question is what the glyph opens, and whether a phone wants a bottom bar instead.
 
 **Default:** `the-sidebar-as-an-off-canvas-sheet`
@@ -2131,6 +2185,8 @@ page
 The sheet with recent pages above the areas is the runner-up once recents exist, since resuming work beats re-walking the tree.
 
 Never ship the desktop table unchanged on a phone: a warehouse lead pinching across 268 orders is a refusal to design.
+
+**Reviewed for:** Which built narrow-screen frame differs from the wireframe its catalog entry chose? Open the built phone layout, with its bottom bar or sheet, beside the catalog entry recording the chosen option and its reason.
 
 #### `the-sidebar-as-an-off-canvas-sheet`: The Sidebar as an Off-Canvas Sheet
 
@@ -2280,22 +2336,3 @@ page
 **Rationale:** The desktop table renders as drawn and scrolls sideways in its box. Nothing to design, nothing to maintain, and every column survives.
 
 **Cost:** A warehouse lead pinches across 268 orders to find one. Never ship this: sideways scrolling on a phone is a refusal to design.
-
-## Verification
-
-| ID | Mark | Evidence |
-|:---|:---|:---|
-| litespec/frontend/patterns/navigation#mark-the-current-section | guidance | Which built screen fails to highlight the area holding its open page? Open three built screens reached by link, notification, and search. |
-| litespec/frontend/patterns/navigation#give-every-page-its-own-address | guidance | Which built screen cannot be opened directly from its copied link? Paste three copied addresses into a fresh tab. |
-| litespec/frontend/patterns/navigation#sidebar | guidance | Which built area list breaks from the wireframe its catalog entry chose? Open the built console frame, with its grouped areas and marked item, beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/navigation#breadcrumb | guidance | Which built parent chain differs from the wireframe its catalog entry chose? Open a built four-level trail, with its truncation and parent links, beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/navigation#header-bar | guidance | Which built top band breaks from the wireframe its catalog entry chose? Open the built product header, with its company name and deployment identity, beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/navigation#tabs-within-a-page | guidance | Which built tab row differs from the wireframe its catalog entry chose? Open the built in-page tabs, with the active tab in the URL, beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/navigation#icons-in-the-frame | guidance | Which built label or action carries an icon outside the recorded set? Open the built frame, with its labeled actions and marked current item, beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/navigation#language-and-theme | guidance | Which built switch differs from the wireframe its catalog entry chose? Open the built locale and appearance controls, in the header and account menu, beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/navigation#command-palette | guidance | Which built jump-to dialog breaks from the wireframe its catalog entry chose? Open the built palette, with its grouped results and recent items, beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/navigation#account-menu | guidance | Which built sign-in menu differs from the wireframe its catalog entry chose? Open the built account controls, in the sidebar foot or header, beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/navigation#notification-inbox | guidance | Which built attention list breaks from the wireframe its catalog entry chose? Open the built inbox and bell, with triage and unread states, beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/navigation#help-and-support | guidance | Which built guidance entry differs from the wireframe its catalog entry chose? Open the built help surfaces, from sidebar entry to contextual hints, beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/navigation#workspace-switcher | guidance | Which built warehouse picker breaks from the wireframe its catalog entry chose? Open the built switcher, with recent workspaces first, beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/navigation#phone-navigation | guidance | Which built narrow-screen frame differs from the wireframe its catalog entry chose? Open the built phone layout, with its bottom bar or sheet, beside the catalog entry recording the chosen option and its reason. |

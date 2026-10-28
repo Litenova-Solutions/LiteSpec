@@ -22,11 +22,17 @@ Durable state is what the user made: it is persisted, versioned, and exported. D
 
 ### Own Storage in Infrastructure
 
+**ID:** `litespec/frontend/blazor/browser#own-storage-in-infrastructure`
+
 **Statement:** Browser storage MUST be reached only through an Infrastructure adapter implementing an Application-declared interface.
 
 **Rationale:** When storage sits behind an Application interface, a test replaces the browser with an in-memory implementation and every component keeps working. If a component or page called the browser API directly, its tests would need a browser host, and swapping the storage mechanism would touch every caller.
 
+**Reviewed for:** Every storage call in components and pages resolves the Application interface its adapter implements.
+
 ### Version and Scope Every Storage Key
+
+**ID:** `litespec/frontend/blazor/browser#version-and-scope-every-storage-key`
 
 **Statement:** A storage key MUST use the form `{product}.{area}.v{n}` and be declared once as a constant beside its adapter.
 
@@ -34,33 +40,53 @@ Durable state is what the user made: it is persisted, versioned, and exported. D
 
 **Example:** `shop.cart.v1` names its product, its area, and its shape version.
 
+**Reviewed for:** Each storage key is a constant beside its adapter carrying product, area, and version.
+
 ### Provide a Migration for Every Changed Shape
+
+**ID:** `litespec/frontend/blazor/browser#provide-a-migration-for-every-changed-shape`
 
 **Statement:** A change to a persisted shape MUST ship a migration that reads every previously released version and produces the current one.
 
 **Rationale:** Users keep data written by installs older than the current build, and the product starts against whatever those installs left behind. Without a migration the new build either crashes on the old shape or discards it. The migration runs at startup before the store finishes loading. Data it cannot interpret waits under a quarantine key, reported but never silently deleted, because deleting unreadable user data destroys work the user cannot recreate.
 
+**Reviewed for:** Each changed persisted shape ships a migration reading every released version into the current one.
+
 ### Treat Reads as Fallible
+
+**ID:** `litespec/frontend/blazor/browser#treat-reads-as-fallible`
 
 **Statement:** A storage adapter MUST return a typed result covering unavailable, absent, corrupt, and present.
 
 **Rationale:** The browser can deny, partition, or fill storage at any time, and each of those differs from nothing stored yet. A typed result forces the caller to handle each outcome: the application starts and stays usable when storage is unavailable, with durable writes disabled and the user told once, instead of crashing or mistaking denied storage for empty state.
 
+**Reviewed for:** The adapter returns unavailable, absent, corrupt, and present as typed outcomes.
+
 ### Bound What Is Stored
+
+**ID:** `litespec/frontend/blazor/browser#bound-what-is-stored`
 
 **Statement:** An aggregate persisting a growing collection MUST state its bound and its eviction rule.
 
 **Rationale:** Browser quotas are small and shared across the origin, so a collection that grows without a bound eventually fails a write the user cannot diagnose. A stated bound with an eviction rule keeps the collection inside the quota, so a write never fails for lack of room. Large generated assets are cached by the service worker rather than written to key storage.
 
+**Reviewed for:** Each aggregate persisting a growing collection states its bound and eviction rule.
+
 ### Provide Export and Import
+
+**ID:** `litespec/frontend/blazor/browser#provide-export-and-import`
 
 **Statement:** Durable state MUST export to one versioned file that imports the same version, transforms an older version, and refuses a newer version.
 
 **Rationale:** With no server, the exported file is the only copy of the user's work outside the browser that holds it. A versioned file that imports its own version, transforms older ones, and refuses newer ones keeps that copy trustworthy across installs. Device-local state is excluded from the export. The file carries its own schema version. A refusal names the application version that wrote the file. A partial import of an unknown shape would drop fields silently, so the rule refuses instead.
 
+**Reviewed for:** An export reimports to identical durable state, transforms older versions, and refuses newer ones.
+
 ## Conventions
 
 ### Select the Storage Mechanism per Shape
+
+**ID:** `litespec/frontend/blazor/browser#select-the-storage-mechanism-per-shape`
 
 **Default:** Use key-value storage for small records, an indexed store for growing or multi-key collections, and the cache API for generated assets.
 
@@ -68,7 +94,11 @@ Durable state is what the user made: it is persisted, versioned, and exported. D
 
 **Rationale:** Each mechanism fits a different access pattern: key-value storage reads one small record, an indexed store queries a growing collection, and the cache API serves generated assets. Serializing a large collection into a single key-value entry rewrites the whole entry on every change.
 
+**Reviewed for:** Each persisted shape uses key-value storage, an indexed store, or the cache API per its access pattern.
+
 ### Keep a Stable Serialization Contract
+
+**ID:** `litespec/frontend/blazor/browser#keep-a-stable-serialization-contract`
 
 **Default:** Give persisted records explicit property names and tolerate unknown properties on read.
 
@@ -76,7 +106,11 @@ Durable state is what the user made: it is persisted, versioned, and exported. D
 
 **Rationale:** Explicit property names keep the stored shape readable to any build, and tolerating unknown properties lets an older install read a record a newer install wrote without crashing. Without that tolerance, one extra field breaks every install that has not updated yet.
 
+**Reviewed for:** A record carrying an unknown property still reads.
+
 ### Record the Classification
+
+**ID:** `litespec/frontend/blazor/browser#record-the-classification`
 
 **Default:** Store durable and device-local state under separate key prefixes.
 
@@ -84,16 +118,4 @@ Durable state is what the user made: it is persisted, versioned, and exported. D
 
 **Rationale:** Export, clearing, and any future sync each need one kind of state without the other. Separate prefixes let each of them address durable and device-local state independently, instead of filtering key by key and risking a device-local value leaking into an export.
 
-## Verification
-
-| ID | Mark | Evidence |
-|:---|:---|:---|
-| litespec/frontend/blazor/browser#own-storage-in-infrastructure | guidance | Every storage call in components and pages resolves the Application interface its adapter implements. |
-| litespec/frontend/blazor/browser#version-and-scope-every-storage-key | guidance | Each storage key is a constant beside its adapter carrying product, area, and version. |
-| litespec/frontend/blazor/browser#provide-a-migration-for-every-changed-shape | guidance | Each changed persisted shape ships a migration reading every released version into the current one. |
-| litespec/frontend/blazor/browser#treat-reads-as-fallible | guidance | The adapter returns unavailable, absent, corrupt, and present as typed outcomes. |
-| litespec/frontend/blazor/browser#bound-what-is-stored | guidance | Each aggregate persisting a growing collection states its bound and eviction rule. |
-| litespec/frontend/blazor/browser#provide-export-and-import | guidance | An export reimports to identical durable state, transforms older versions, and refuses newer ones. |
-| litespec/frontend/blazor/browser#select-the-storage-mechanism-per-shape | guidance | Each persisted shape uses key-value storage, an indexed store, or the cache API per its access pattern. |
-| litespec/frontend/blazor/browser#keep-a-stable-serialization-contract | guidance | A record carrying an unknown property still reads. |
-| litespec/frontend/blazor/browser#record-the-classification | guidance | Durable and device-local keys use separate prefixes. |
+**Reviewed for:** Durable and device-local keys use separate prefixes.

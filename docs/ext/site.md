@@ -22,6 +22,8 @@ It switches on no record type: prices and claims read requirement entries and te
 
 ### Render Every Page to Static Files
 
+**ID:** `litespec/ext/site#render-every-page-to-static-files`
+
 **Statement:** The site build MUST write every page as a static file that needs no server at request time.
 
 **Rationale:** A static file needs no application server, no database, and no per-request rendering: the host serves bytes. The failure surface shrinks to the file set itself, so a traffic spike or a database outage cannot take the marketing pages down with the application.
@@ -34,7 +36,11 @@ dist/pricing/index.html
 dist/nl/prijzen/index.html
 ```
 
+**Reviewed for:** The build output holds every page as a static file needing no server.
+
 ### Avoid Client Scripts Without a Named Interactive Need
+
+**ID:** `litespec/ext/site#avoid-client-scripts-without-a-named-interactive-need`
 
 **Statement:** A page MUST NOT ship a client script unless the site records the interactive need that script serves.
 
@@ -42,13 +48,21 @@ dist/nl/prijzen/index.html
 
 **Example:** The theme switch is the one script: `/assets/theme.js`, named in the layout as the reader-chosen scheme.
 
+**Reviewed for:** Each shipped script in the build output traces to a recorded interactive need.
+
 ### Load Every Script from the Site Origin
+
+**ID:** `litespec/ext/site#load-every-script-from-the-site-origin`
 
 **Statement:** The site MUST serve every client script from its own origin.
 
 **Rationale:** A script from another origin runs with the page's authority while living outside the release: it can change, fail, or track readers without a site deployment. Serving every script from the site's own origin keeps the release self-contained and reviewable in one place.
 
+**Reviewed for:** Every client script tag in the built pages points at the site origin.
+
 ### State Allowed Sources in a Content Security Policy
+
+**ID:** `litespec/ext/site#state-allowed-sources-in-a-content-security-policy`
 
 **Statement:** The site MUST publish a content security policy naming every source its pages load.
 
@@ -60,13 +74,21 @@ dist/nl/prijzen/index.html
 Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'
 ```
 
+**Reviewed for:** The published content security policy names every source the pages load.
+
 ### Load Nothing from a Third-Party Origin
+
+**ID:** `litespec/ext/site#load-nothing-from-a-third-party-origin`
 
 **Statement:** A page MUST NOT load fonts, scripts, styles, images, or analytics from a third-party origin.
 
 **Rationale:** Fonts, scripts, styles, images, or analytics from another origin send reader visits to that party and fail when that party fails. Shipping all of them with the site keeps reader privacy inside the site's own control and removes the outside dependency.
 
+**Reviewed for:** No built page references a font, script, style, image, or analytics address outside the site origin.
+
 ### Give Every Page One Main Heading and Landmark Elements
+
+**ID:** `litespec/ext/site#give-every-page-one-main-heading-and-landmark-elements`
 
 **Statement:** Every page MUST carry exactly one top-level heading and landmark elements for its regions.
 
@@ -81,13 +103,21 @@ Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'
 <footer>...</footer>
 ```
 
+**Reviewed for:** Each built page carries one top-level heading with header, navigation, main, and footer landmarks.
+
 ### Name Every Page with a Title and a Description
+
+**ID:** `litespec/ext/site#name-every-page-with-a-title-and-a-description`
 
 **Statement:** Every page MUST state a title element and a description its search result shows.
 
 **Rationale:** Search results and browser tabs show the title first and the description beneath it; a page without either appears under a file name with a guessed snippet. Both come from the page frontmatter, so each page states its own instead of inheriting the site's.
 
+**Reviewed for:** Each built page states its own title element and description.
+
 ### Point Every Page at Its Absolute Canonical Address
+
+**ID:** `litespec/ext/site#point-every-page-at-its-absolute-canonical-address`
 
 **Statement:** Every page MUST carry a canonical link with the absolute address of that page.
 
@@ -99,7 +129,11 @@ Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'
 <link rel="canonical" href="https://example.test/pricing/" />
 ```
 
+**Reviewed for:** Each built page links its absolute canonical address.
+
 ### Reference Language Alternates from Every Translated Page
+
+**ID:** `litespec/ext/site#reference-language-alternates-from-every-translated-page`
 
 **Statement:** Every page on a site with more than one language MUST link each language alternate with its language tag and a default fallback.
 
@@ -113,7 +147,11 @@ Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'
 <link rel="alternate" hreflang="x-default" href="https://example.test/pricing/" />
 ```
 
+**Reviewed for:** Each translated page links its language alternates with tags and a default fallback.
+
 ### Generate a Sitemap Covering Every Page
+
+**ID:** `litespec/ext/site#generate-a-sitemap-covering-every-page`
 
 **Statement:** The site build MUST generate a sitemap listing every page with the language alternates of that page.
 
@@ -128,7 +166,11 @@ Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'
 </url>
 ```
 
+**Reviewed for:** The generated sitemap lists every page with its language alternates.
+
 ### Point Crawler Rules at the Sitemap
+
+**ID:** `litespec/ext/site#point-crawler-rules-at-the-sitemap`
 
 **Statement:** The site MUST publish crawler rules pointing to the sitemap address.
 
@@ -142,7 +184,11 @@ Allow: /
 Sitemap: https://example.test/sitemap.xml
 ```
 
+**Reviewed for:** The `robots.txt` at the site root points at the sitemap address.
+
 ### List Every Page for Language Models
+
+**ID:** `litespec/ext/site#list-every-page-for-language-models`
 
 **Statement:** The site build MUST generate a page list naming every page with its address and description.
 
@@ -156,13 +202,21 @@ Sitemap: https://example.test/sitemap.xml
 - [Pricing](https://example.test/pricing/): What each plan costs.
 ```
 
+**Reviewed for:** The generated page list names every page with its address and description.
+
 ### Publish Full Page Text for Language Models
+
+**ID:** `litespec/ext/site#publish-full-page-text-for-language-models`
 
 **Statement:** The site build MUST generate a full-text file with the text of every default-language page.
 
 **Rationale:** A model that reads the whole site at once needs the text without fetching each page. The `llms-full.txt` file carries the plain text of the default-language pages, and non-default languages stay out so the file holds one language.
 
+**Reviewed for:** The generated full-text file holds the text of every default-language page.
+
 ### Publish a Markdown Copy Beside Every Page
+
+**ID:** `litespec/ext/site#publish-a-markdown-copy-beside-every-page`
 
 **Statement:** Every page MUST link a Markdown copy of its own text served beside that page.
 
@@ -174,7 +228,11 @@ Sitemap: https://example.test/sitemap.xml
 <link rel="alternate" type="text/markdown" href="https://example.test/pricing/index.md" />
 ```
 
+**Reviewed for:** Each built page links a Markdown copy served beside it.
+
 ### Mark Pages with JSON-LD Structured Data
+
+**ID:** `litespec/ext/site#mark-pages-with-json-ld-structured-data`
 
 **Statement:** Every page MUST carry JSON-LD structured data for the organization, the site, and the page with breadcrumbs, offers, questions, or article body where each applies.
 
@@ -186,7 +244,11 @@ Sitemap: https://example.test/sitemap.xml
 {"@context": "https://schema.org", "@type": "Organization", "name": "Example"}
 ```
 
+**Reviewed for:** Each built page carries its JSON-LD graph for the organization, the site, and the page.
+
 ### Keep Each Repeated Fact in One Data Source
+
+**ID:** `litespec/ext/site#keep-each-repeated-fact-in-one-data-source`
 
 **Statement:** A repeated fact MUST live in one data source every page reads, as a term entry with labels per language for a product word.
 
@@ -194,13 +256,21 @@ Sitemap: https://example.test/sitemap.xml
 
 **Example:** The footer and the imprint page both read `company.legalName` from the site data.
 
+**Reviewed for:** Each repeated fact lives in one data source, with each product word as a term entry.
+
 ### Render Every Language from One Page Structure
+
+**ID:** `litespec/ext/site#render-every-language-from-one-page-structure`
 
 **Statement:** Each language MUST supply only text into one page structure the site holds once.
 
 **Rationale:** When each language owns its own markup, one redesign must land in every language separately and one of them lags. One page structure with per-language text keeps structure in one file, so a translation adds wording without ever forking the page.
 
+**Reviewed for:** One page structure renders every language, with each language supplying only text.
+
 ### Mark Unfinished Facts with Visible Placeholders
+
+**ID:** `litespec/ext/site#mark-unfinished-facts-with-visible-placeholders`
 
 **Statement:** A page whose owner has not supplied a fact MUST carry a visible placeholder naming that fact.
 
@@ -208,19 +278,31 @@ Sitemap: https://example.test/sitemap.xml
 
 **Example:** A page awaiting its final price carries `[[FILL: launch price]]` where the price stands.
 
+**Reviewed for:** Each missing fact shows a visible placeholder naming it on its page.
+
 ### Reject a Release Build Carrying a Placeholder
+
+**ID:** `litespec/ext/site#reject-a-release-build-carrying-a-placeholder`
 
 **Statement:** A release build MUST fail while a visible placeholder remains on any page.
 
 **Rationale:** A placeholder that reaches the public site states a falsehood to every reader. Failing the release build while one remains stops the falsehood at the gate, while a development build only warns so authors keep working.
 
+**Reviewed for:** A release build fails while a placeholder remains on any page.
+
 ### Read Site Prices and Claims from Consumer Records
+
+**ID:** `litespec/ext/site#read-site-prices-and-claims-from-consumer-records`
 
 **Statement:** Every price and claim on the site MUST come from the consumer records the site convention names.
 
 **Rationale:** Prices and claims are commercial facts the site repeats without owning. Reading them from the named consumer records keeps one owner for each fact, so a price changed in the record reaches the site on the next build instead of waiting for someone to remember the site.
 
+**Reviewed for:** Each site price and claim traces to the consumer record the site convention names.
+
 ### Declare Each Static Site in the Project Record
+
+**ID:** `litespec/ext/site#declare-each-static-site-in-the-project-record`
 
 **Statement:** A consumer selecting this extension MUST declare each static site with its name, path, and generator.
 
@@ -232,9 +314,13 @@ Sitemap: https://example.test/sitemap.xml
 {"name": "marketing", "path": "sites/marketing", "generator": "astro"}
 ```
 
+**Reviewed for:** Each static site the project ships appears as a `sites` entry in `litespec.project.json` with its name, path, and generator.
+
 ## Conventions
 
 ### Generate the Site with Astro
+
+**ID:** `litespec/ext/site#generate-the-site-with-astro`
 
 **Default:** Generate the site with Astro and prerender every page to static output.
 
@@ -248,7 +334,11 @@ Sitemap: https://example.test/sitemap.xml
 export default defineConfig({ output: 'static' });
 ```
 
+**Reviewed for:** Astro generates the site with prerendered static output, or the site-generator convention names another generator.
+
 ### Render Components on the Server with Astro or Svelte
+
+**ID:** `litespec/ext/site#render-components-on-the-server-with-astro-or-svelte`
 
 **Default:** Write components in Astro or Svelte and render every component on the server.
 
@@ -256,7 +346,11 @@ export default defineConfig({ output: 'static' });
 
 **Rationale:** Astro and Svelte components both render to HTML at build time. Neither hydrates in the browser, so interactivity stays absent by construction rather than by discipline.
 
+**Reviewed for:** Astro or Svelte sources render on the server, or the site-component convention names other sources.
+
 ### Use Tailwind for Site Styles
+
+**ID:** `litespec/ext/site#use-tailwind-for-site-styles`
 
 **Default:** Write site styles with Tailwind.
 
@@ -264,7 +358,11 @@ export default defineConfig({ output: 'static' });
 
 **Rationale:** Tailwind compiles its utility classes at build time into the stylesheet the pages link. The whole visual system ships from the site's own origin with no outside style dependency.
 
+**Reviewed for:** Tailwind styles build the site, or the site-style convention names another stylesheet source.
+
 ### Default to a Light Scheme with a Reader-Chosen Dark Scheme
+
+**ID:** `litespec/ext/site#default-to-a-light-scheme-with-a-reader-chosen-dark-scheme`
 
 **Default:** Present a light scheme by default with a dark scheme the reader chooses.
 
@@ -272,13 +370,19 @@ export default defineConfig({ output: 'static' });
 
 **Rationale:** Light is the initial scheme every reader sees first. The reader switches to dark without an account, and the choice persists in the browser alone with nothing stored on a server.
 
+**Reviewed for:** Light is the initial scheme with a reader-chosen dark scheme, or the site-scheme convention names other schemes.
+
 ### Read Prices and Claims from Brief and Business Requirements
+
+**ID:** `litespec/ext/site#read-prices-and-claims-from-brief-and-business-requirements`
 
 **Default:** Read site prices and claims from the consumer product brief and its business requirements.
 
 **Replacement:** A consumer records a site-facts convention naming the records its prices and claims read.
 
 **Rationale:** The product brief and the business requirements hold commercial facts in every consumer, but each tree keeps them at its own paths. Naming the records without fixing paths lets every consumer resolve its own, where one fixed path would bind all trees to one layout.
+
+**Reviewed for:** Prices and claims read the brief and business requirements, or the site-facts convention names other records.
 
 ## Dependencies
 
@@ -287,34 +391,3 @@ Packages: The site generator and its companions come from the pins in `litespec.
 Related extensions: The `locale` extension owns locales and catalogs when the site ships in more than one language.
 
 Guides: None.
-
-## Verification
-
-| ID | Mark | Evidence |
-|:---|:---|:---|
-| litespec/ext/site#render-every-page-to-static-files | guidance | The build output holds every page as a static file needing no server. |
-| litespec/ext/site#avoid-client-scripts-without-a-named-interactive-need | guidance | Each shipped script in the build output traces to a recorded interactive need. |
-| litespec/ext/site#load-every-script-from-the-site-origin | guidance | Every client script tag in the built pages points at the site origin. |
-| litespec/ext/site#state-allowed-sources-in-a-content-security-policy | guidance | The published content security policy names every source the pages load. |
-| litespec/ext/site#load-nothing-from-a-third-party-origin | guidance | No built page references a font, script, style, image, or analytics address outside the site origin. |
-| litespec/ext/site#give-every-page-one-main-heading-and-landmark-elements | guidance | Each built page carries one top-level heading with header, navigation, main, and footer landmarks. |
-| litespec/ext/site#name-every-page-with-a-title-and-a-description | guidance | Each built page states its own title element and description. |
-| litespec/ext/site#point-every-page-at-its-absolute-canonical-address | guidance | Each built page links its absolute canonical address. |
-| litespec/ext/site#reference-language-alternates-from-every-translated-page | guidance | Each translated page links its language alternates with tags and a default fallback. |
-| litespec/ext/site#generate-a-sitemap-covering-every-page | guidance | The generated sitemap lists every page with its language alternates. |
-| litespec/ext/site#point-crawler-rules-at-the-sitemap | guidance | The `robots.txt` at the site root points at the sitemap address. |
-| litespec/ext/site#list-every-page-for-language-models | guidance | The generated page list names every page with its address and description. |
-| litespec/ext/site#publish-full-page-text-for-language-models | guidance | The generated full-text file holds the text of every default-language page. |
-| litespec/ext/site#publish-a-markdown-copy-beside-every-page | guidance | Each built page links a Markdown copy served beside it. |
-| litespec/ext/site#mark-pages-with-json-ld-structured-data | guidance | Each built page carries its JSON-LD graph for the organization, the site, and the page. |
-| litespec/ext/site#keep-each-repeated-fact-in-one-data-source | guidance | Each repeated fact lives in one data source, with each product word as a term entry. |
-| litespec/ext/site#render-every-language-from-one-page-structure | guidance | One page structure renders every language, with each language supplying only text. |
-| litespec/ext/site#mark-unfinished-facts-with-visible-placeholders | guidance | Each missing fact shows a visible placeholder naming it on its page. |
-| litespec/ext/site#reject-a-release-build-carrying-a-placeholder | guidance | A release build fails while a placeholder remains on any page. |
-| litespec/ext/site#read-site-prices-and-claims-from-consumer-records | guidance | Each site price and claim traces to the consumer record the site convention names. |
-| litespec/ext/site#declare-each-static-site-in-the-project-record | guidance | Each static site the project ships appears as a `sites` entry in `litespec.project.json` with its name, path, and generator. |
-| litespec/ext/site#generate-the-site-with-astro | guidance | Astro generates the site with prerendered static output, or the site-generator convention names another generator. |
-| litespec/ext/site#render-components-on-the-server-with-astro-or-svelte | guidance | Astro or Svelte sources render on the server, or the site-component convention names other sources. |
-| litespec/ext/site#use-tailwind-for-site-styles | guidance | Tailwind styles build the site, or the site-style convention names another stylesheet source. |
-| litespec/ext/site#default-to-a-light-scheme-with-a-reader-chosen-dark-scheme | guidance | Light is the initial scheme with a reader-chosen dark scheme, or the site-scheme convention names other schemes. |
-| litespec/ext/site#read-prices-and-claims-from-brief-and-business-requirements | guidance | Prices and claims read the brief and business requirements, or the site-facts convention names other records. |

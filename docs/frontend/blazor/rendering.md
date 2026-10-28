@@ -14,29 +14,47 @@ A route is one address in the product, declared on a page with an `@page` templa
 
 ### Render on the Client Only
 
+**ID:** `litespec/frontend/blazor/rendering#render-on-the-client-only`
+
 **Statement:** A page MUST render without server-side execution at first paint.
 
 **Rationale:** The stack promises a product with no server of its own. Interactive server rendering, automatic render mode, and prerendering each need a live server connection at first paint, which breaks that promise and stops the product working offline. Rendering on the client only keeps the published output static files that any host can serve.
 
+**Reviewed for:** The published output declares no server render mode.
+
 ### Declare Routes on Pages
+
+**ID:** `litespec/frontend/blazor/rendering#declare-routes-on-pages`
 
 **Statement:** A routable component MUST live under `Pages/`, declare one `@page` template, and type every route parameter.
 
 **Rationale:** One `@page` template on a page under `Pages/` makes each address findable and each route's input typed. Feature components stay unroutable, so no address reaches an interior piece of a page. An unparsable parameter renders the not-found state rather than throwing, so a mistyped link shows a page instead of a crash.
 
+**Reviewed for:** Each routable component under `Pages/` declares one `@page` template with typed parameters.
+
 ### Give Every Route Explicit States
+
+**ID:** `litespec/frontend/blazor/rendering#give-every-route-explicit-states`
 
 **Statement:** A route MUST define its loading, empty, error, forbidden, not-found, and ready behavior.
 
 **Rationale:** A route without declared states shows whatever its components default to while loading, empty, or failing: usually a blank page or a crash. Six named states leave no gap: loading until persisted reads complete, empty, error, forbidden for an address the actor may not read, not-found for an unparsable parameter, and ready. Each state name is a term in the project's glossary, so every route describes the same states in the same words. This realizes litespec/frontend/rendering#represent-route-states.
 
+**Reviewed for:** Each route renders loading, empty, error, forbidden, not-found, and ready, with not-found for bad parameters.
+
 ### Keep the Acquisition Surface Static
+
+**ID:** `litespec/frontend/blazor/rendering#keep-the-acquisition-surface-static`
 
 **Statement:** A marketing, search-landing, or informational page MUST be served as a static document outside the WebAssembly application.
 
 **Rationale:** A first-time visitor reads a landing page, and downloading the WebAssembly runtime first makes that read slow for no reason. Static documents outside the application load immediately. The application boundary begins where a visitor starts using the product, so only users pay the runtime cost.
 
+**Reviewed for:** Each landing page loads without fetching the framework payload.
+
 ### Operate Offline After First Load
+
+**ID:** `litespec/frontend/blazor/rendering#operate-offline-after-first-load`
 
 **Statement:** A client MUST register a service worker that caches the application shell and framework payload.
 
@@ -44,9 +62,13 @@ A route is one address in the product, declared on a page with an `@page` templa
 
 The worker also shapes the online path. It serves the version it cached, so a visitor who never goes offline still runs yesterday's payload until the worker updates. The worker therefore declares its update strategy and what a visitor sees while a new version installs, so an update never surprises a user mid-task.
 
+**Reviewed for:** The application starts offline after first load, within the limits its use cases state.
+
 ## Conventions
 
 ### Name Routes for the Reader
+
+**ID:** `litespec/frontend/blazor/rendering#name-routes-for-the-reader`
 
 **Default:** Use lowercase hyphen-separated route segments that match the documented use case or page name.
 
@@ -54,7 +76,11 @@ The worker also shapes the online path. It serves the version it cached, so a vi
 
 **Rationale:** The address bar shows the route to the reader, so its segments should name the use case or page the reader asked for. A storage key, internal identifier, or layer name in the address exposes an implementation choice and breaks when the implementation changes.
 
+**Reviewed for:** Each route template matches its documented use case name.
+
 ### Keep Navigation State in the URL
+
+**ID:** `litespec/frontend/blazor/rendering#keep-navigation-state-in-the-url`
 
 **Default:** Place filters, selected tabs, and pagination in the route or query string.
 
@@ -62,14 +88,4 @@ The worker also shapes the online path. It serves the version it cached, so a vi
 
 **Rationale:** Filters, selected tabs, and pagination in the route or query string survive a refresh and travel inside a shared link. The same state in a component vanishes on the first refresh and reaches nobody the reader sends the link to. This realizes litespec/frontend/rendering#keep-address-parameters-validated-by-a-schema.
 
-## Verification
-
-| ID | Mark | Evidence |
-|:---|:---|:---|
-| litespec/frontend/blazor/rendering#render-on-the-client-only | guidance | The published output declares no server render mode. |
-| litespec/frontend/blazor/rendering#declare-routes-on-pages | guidance | Each routable component under `Pages/` declares one `@page` template with typed parameters. |
-| litespec/frontend/blazor/rendering#give-every-route-explicit-states | guidance | Each route renders loading, empty, error, forbidden, not-found, and ready, with not-found for bad parameters. |
-| litespec/frontend/blazor/rendering#keep-the-acquisition-surface-static | guidance | Each landing page loads without fetching the framework payload. |
-| litespec/frontend/blazor/rendering#operate-offline-after-first-load | guidance | The application starts offline after first load, within the limits its use cases state. |
-| litespec/frontend/blazor/rendering#name-routes-for-the-reader | guidance | Each route template matches its documented use case name. |
-| litespec/frontend/blazor/rendering#keep-navigation-state-in-the-url | guidance | Filters, tabs, and pagination survive a refresh through the route or query string. |
+**Reviewed for:** Filters, tabs, and pagination survive a refresh through the route or query string.

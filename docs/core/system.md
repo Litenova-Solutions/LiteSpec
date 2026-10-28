@@ -56,17 +56,27 @@ Each page owns its tables and rules, and this page cites them without copying. A
 
 ### Keep Decision Authority with Accountable People
 
+**ID:** `litespec/core/system#keep-decision-authority-with-accountable-people`
+
 **Statement:** An agent MUST stop affected work and record the question in a draft decision when an unknown fact changes behavior, money, data, access, or recovery.
 
 **Rationale:** Agents meet open questions in the middle of a task: an unknown approval policy, an unclear access rule, a missing recovery target. When the answer changes behavior, money, data, access, or recovery, only an accountable person can give it. Stopping and recording the question in a draft decision, with a decider and a decide-by date, keeps the choice visible and owned, instead of buried in code nobody approved. Decision owners approve outcomes, terms, policies, criteria, commitments, and risk, and an agent contribution stays a proposal until one of them accepts it.
 
+**Reviewed for:** The draft decision pages under `docs/intent/decisions/` naming the open question, the decider, and the decide-by date.
+
 ### Drive Work from Approved Records
+
+**ID:** `litespec/core/system#drive-work-from-approved-records`
 
 **Statement:** An agent MUST start behavior work from the approved Intent records and the reviewed Behavior records that own the behavior.
 
 **Rationale:** A prompt, ticket, chat message, or code comment can start work, but none of them holds the approved behavior. Starting from the owning records keeps the agent building what reviewers approved, and keeps the records as the lasting statement of what the code should do. Without this rule, each task reinterprets intent from its starting message, and the records drift from the code until nobody trusts either.
 
+**Reviewed for:** The change report listing the approved Intent and reviewed Behavior records the work started from.
+
 ### Point Code and Tests up to Records
+
+**ID:** `litespec/core/system#point-code-and-tests-up-to-records`
 
 **Statement:** Code and tests MUST point up to the record they serve, with each handler linking to exactly one record: a command or query handler through its folder, which carries the use-case name, and an event handler through its `implements` tag naming its reaction.
 
@@ -74,13 +84,21 @@ Each page owns its tables and rules, and this page cites them without copying. A
 
 **Example:** The folder holding the reimburse-expense handler anchors `use-case/spending.reimburse-expense`, and the reminder event handler carries an implements tag naming `reaction/spending.send-approver-reminders-on-expense-submitted`.
 
+**Checked by:** `litespec model check` emits no `behavior-unrecorded` finding for code and tests that name no parent record.
+
 ### Declare Every Edge Between Records
+
+**ID:** `litespec/core/system#declare-every-edge-between-records`
 
 **Statement:** Every edge between use cases, reactions, jobs, notifications, integration events, and external systems MUST be declared in a record and checked.
 
 **Rationale:** The declared edges form the effect graph the checks verify: an undeclared edge is the defect, not the mechanism that carries it. The graph holds no cycles except through domain events with a stated end condition. An inline edge states whether it shares the caller's transaction, and atomic consistency spans no async edge. The [behavior page](behavior.md) states the edge fields, and the [layers page](layers.md) states how Implementation is checked against them.
 
+**Checked by:** `litespec model check` emits no `effect-undeclared` or `effect-loop` finding across use cases, reactions, jobs, notifications, and integration events.
+
 ### Deliver One Complete Use Case
+
+**ID:** `litespec/core/system#deliver-one-complete-use-case`
 
 **Statement:** A use case MUST complete with behavior, persistence, entry points, evidence, and operating impact.
 
@@ -88,13 +106,21 @@ Each page owns its tables and rules, and this page cites them without copying. A
 
 **Example:** A use case without its tests and operating records is not complete.
 
+**Reviewed for:** The use case page with its behavior, persistence, entry points, tests, and operating records present.
+
 ### Update Records with Behavior
+
+**ID:** `litespec/core/system#update-records-with-behavior`
 
 **Statement:** An observable behavior change MUST update its use case page, implementation, tests, product records, decision, journey, and operating records together.
 
 **Rationale:** Approved records map to current names and paths only when each behavior change carries them along. A change that moves code but leaves the use case page, the tests, or the journey behind splits the project into approved fiction and unreviewed fact. Updating the records in the same change keeps the review of behavior and the review of its description in one place.
 
+**Reviewed for:** The behavior change with its use case page, tests, product records, decision, journey, and operating records changed together.
+
 ### Keep Computed Facts in Proof
+
+**ID:** `litespec/core/system#keep-computed-facts-in-proof`
 
 **Statement:** A fact computed from code MUST live in Proof and not in an Intent or Behavior record.
 
@@ -102,9 +128,13 @@ Each page owns its tables and rules, and this page cites them without copying. A
 
 **Example:** The book marks a chapter verified when every scenario passes, and stale when a scenario's semantic hash changes after its test last passed.
 
+**Reviewed for:** Which Intent or Behavior records restate a fact computed from code? Look at the statuses and counts the change adds, beside the book and model output.
+
 ## Conventions
 
 ### Use This Consumer Documentation Layout
+
+**ID:** `litespec/core/system#use-this-consumer-documentation-layout`
 
 **Default:** Use the consumer documentation layout in this section, creating a directory only when its first real artifact exists.
 
@@ -177,7 +207,11 @@ docs/
 
 Create an optional directory only when its first real artifact exists. Never create empty directories or placeholder records during inception.
 
+**Reviewed for:** The `docs/` tree matching the layout, or the project documentation naming the replacement layout.
+
 ### Group Module Use Case Files by Aggregate
+
+**ID:** `litespec/core/system#group-module-use-case-files-by-aggregate`
 
 **Default:** Group module use case files under a plural kebab-case aggregate subdirectory, each holding that aggregate's page, including a module with one aggregate.
 
@@ -185,7 +219,11 @@ Create an optional directory only when its first real artifact exists. Never cre
 
 **Rationale:** Each aggregate needs its own directory for its page and use cases, so grouping use case files under a plural kebab-case aggregate subdirectory gives every aggregate one home, including a module with one aggregate. The subdirectory costs one repeated path segment where the names coincide, as in `modules/products/products/`. The use case identifier stays `use-case/<module>.<name>`; only the directory changes.
 
+**Reviewed for:** Each use case file under its module directory or its aggregate subdirectory.
+
 ### Keep Operational and Security References Under Operations
+
+**ID:** `litespec/core/system#keep-operational-and-security-references-under-operations`
 
 **Default:** Keep operating and security reference prose under `docs/behavior/operations/`.
 
@@ -193,7 +231,11 @@ Create an optional directory only when its first real artifact exists. Never cre
 
 **Rationale:** One home for operating and security reference prose means an on-call reader looks in `docs/behavior/operations/` first and finds the runbooks, limits, and inventories there. Scattering that prose across product and domain pages buries it where an incident never looks. Enforceable security and privacy rules still belong to their owning use case sections and rules, since those are what the code and tests prove.
 
+**Reviewed for:** Operating and security reference prose under `docs/behavior/operations/`, or the project documentation naming the replacement home.
+
 ### Use Established Technical Terms
+
+**ID:** `litespec/core/system#use-established-technical-terms`
 
 **Default:** Use aggregate, command, query, reaction, repository, projection, outbox, idempotency, and transaction with their accepted technical meanings.
 
@@ -201,7 +243,11 @@ Create an optional directory only when its first real artifact exists. Never cre
 
 **Rationale:** Names such as aggregate, command, query, reaction, repository, projection, outbox, idempotency, and transaction carry established meanings that developers and agents already share. Replacing one with a softer synonym hides the pattern and forces every reader to guess what the new word covers. When a term is unfamiliar, explain it and give an example instead of renaming it.
 
+**Reviewed for:** Prose using aggregate, command, query, reaction, repository, projection, outbox, idempotency, and transaction with their accepted meanings.
+
 ### Use Ordinary Capitalization in Prose
+
+**ID:** `litespec/core/system#use-ordinary-capitalization-in-prose`
 
 **Default:** Write module, aggregate, use case, journey, rule, event, and decision as ordinary nouns in prose.
 
@@ -209,25 +255,10 @@ Create an optional directory only when its first real artifact exists. Never cre
 
 **Rationale:** Lowercase module, aggregate, use case, journey, rule, event, and decision read as ordinary nouns, while exact record types and code types keep their declared capitalization. The contrast tells a reader whether a word names the concept or the artifact. Capitalizing both blurs that distinction on every page.
 
+**Reviewed for:** Prose writing module, aggregate, use case, journey, rule, event, and decision in lowercase outside names and identifiers.
+
 ## Reference Example
 
 This informative example demonstrates `litespec/core/system#deliver-one-complete-use-case`, `litespec/core/system#update-records-with-behavior`, `litespec/core/system#point-code-and-tests-up-to-records`, `litespec/core/system#declare-every-edge-between-records`, and `litespec/core/system#keep-computed-facts-in-proof`.
 
 The `use-case/spending.submit-expense` use case is complete only with its behavior, persistence, entry points, tests, and operating records. A change to the receipt threshold updates the use case page, the tests, the requirement, the decision, the journey, and the operating records in the same change. The handler folder points up to the use case record, every edge the change adds is declared on its record, and the book marks the chapter verified only after the tests pass.
-
-## Verification
-
-| ID | Mark | Evidence |
-|:---|:---|:---|
-| litespec/core/system#keep-decision-authority-with-accountable-people | guidance | The draft decision pages under `docs/intent/decisions/` naming the open question, the decider, and the decide-by date. |
-| litespec/core/system#drive-work-from-approved-records | guidance | The change report listing the approved Intent and reviewed Behavior records the work started from. |
-| litespec/core/system#point-code-and-tests-up-to-records | checkable | `litespec model check` emits no `behavior-unrecorded` finding for code and tests that name no parent record. |
-| litespec/core/system#declare-every-edge-between-records | checkable | `litespec model check` emits no `effect-undeclared` or `effect-loop` finding across use cases, reactions, jobs, notifications, and integration events. |
-| litespec/core/system#deliver-one-complete-use-case | guidance | The use case page with its behavior, persistence, entry points, tests, and operating records present. |
-| litespec/core/system#update-records-with-behavior | guidance | The behavior change with its use case page, tests, product records, decision, journey, and operating records changed together. |
-| litespec/core/system#keep-computed-facts-in-proof | guidance | Which Intent or Behavior records restate a fact computed from code? Look at the statuses and counts the change adds, beside the book and model output. |
-| litespec/core/system#use-this-consumer-documentation-layout | guidance | The `docs/` tree matching the layout, or the project documentation naming the replacement layout. |
-| litespec/core/system#group-module-use-case-files-by-aggregate | guidance | Each use case file under its module directory or its aggregate subdirectory. |
-| litespec/core/system#keep-operational-and-security-references-under-operations | guidance | Operating and security reference prose under `docs/behavior/operations/`, or the project documentation naming the replacement home. |
-| litespec/core/system#use-established-technical-terms | guidance | Prose using aggregate, command, query, reaction, repository, projection, outbox, idempotency, and transaction with their accepted meanings. |
-| litespec/core/system#use-ordinary-capitalization-in-prose | guidance | Prose writing module, aggregate, use case, journey, rule, event, and decision in lowercase outside names and identifiers. |

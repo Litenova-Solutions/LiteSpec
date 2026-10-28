@@ -18,19 +18,29 @@ The drawings on this page use the Acme Supply shop: order SO-1042 for Maria Garc
 
 ### Show the Currency of Every Amount
 
+**ID:** `litespec/frontend/patterns/money-time-density#show-the-currency-of-every-amount`
+
 **Statement:** Every amount MUST show its currency.
 
 **Rationale:** A currency on every amount keeps EUR 125.00 distinct from GBP 125.00 on every screen and export. Without it, a second currency turns each bare figure into a guess, and a pasted number carries no way to settle the guess.
 
+**Reviewed for:** Which built figure hides its currency? Open the amounts on built tables, statements, and charts.
+
 ### State the Time Zone of a Shared Moment
+
+**ID:** `litespec/frontend/patterns/money-time-density#state-the-time-zone-of-a-shared-moment`
 
 **Statement:** A moment shown to readers in different time zones MUST state its time zone.
 
 **Rationale:** A stated zone keeps 09:32 in Amsterdam from reading as 09:32 in London. Without it, two readers plan the same delivery window an hour apart, and the warehouse meets only one of them.
 
+**Reviewed for:** Which built shared moment omits its zone? Open the dates and times on built screens read across zones.
+
 ## Patterns
 
 ### Writing an Amount
+
+**ID:** `litespec/frontend/patterns/money-time-density#writing-an-amount`
 
 **Question:** A reader meets amounts in tables, statements, and exports. One table writes EUR 45.00, and one statement writes the euro sign before 45.00. The question is which form the product keeps. It also asks how a negative reads and which separator the product uses.
 
@@ -41,6 +51,8 @@ The drawings on this page use the Acme Supply shop: order SO-1042 for Maria Garc
 **Rationale:** Ship the code format in the reader's language with a true minus. It keeps one convention and answers negatives and separators. The runner-up is the plain code table. It shows the same choice without refund rows.
 
 Choose the symbol with code in the header only when the back office and the customer surface show the same form. Never ship the no currency option. It loses the currency in exports. Never ship mixed decimals. It breaks the alignment tables exist for.
+
+**Reviewed for:** Which built money text differs from the wireframe its catalog entry chose? Open the built codes, symbols, and red negatives beside the catalog entry recording the chosen option and its reason.
 
 #### `currency-code-and-two-decimals-everywhere`: Currency Code and Two Decimals, Everywhere
 
@@ -256,6 +268,8 @@ page
 
 ### Statement That Adds Up
 
+**ID:** `litespec/frontend/patterns/money-time-density#statement-that-adds-up`
+
 **Question:** A statement has one purpose. Money adds up top to bottom. Each kind forms a group with a subtotal. A grand total closes the statement at the foot. A count under each line helps a reader spot a missing line.
 
 **Default:** `groups-subtotals-and-a-grand-total`
@@ -265,6 +279,8 @@ page
 **Rationale:** Keep groups, subtotals, and a grand total. Keep a count under each line. The count is the only completeness check. The runner-up ends in the payouts it became. It fits finance work against bank lines.
 
 Add links on every line later as a behavior of the pick. Never ship the one figure option as the statement. It hides how the figure was reached.
+
+**Reviewed for:** Which built totals page differs from the wireframe its catalog entry chose? Open the built groups, subtotals, and payout endings beside the catalog entry recording the chosen option and its reason.
 
 #### `groups-subtotals-and-a-grand-total`: Groups, Subtotals and a Grand Total
 
@@ -484,6 +500,8 @@ page
 
 ### Writing a Moment
 
+**ID:** `litespec/frontend/patterns/money-time-density#writing-a-moment`
+
 **Question:** Every date uses the zone the screen works in. Each table keeps one form. The orders table writes 8 Oct 2026, 09:32. A messages table that mixes Sent 6 hours ago with For 2 Jan 2030, 10:00 in one column breaks that rule.
 
 **Default:** `one-form-per-table-with-the-zone-stated-once`
@@ -493,6 +511,8 @@ page
 **Rationale:** Keep one form per table. State the zone once in the header. A column then reads as a column.
 
 The runner-up puts absolute over relative. It fits incident and delivery surfaces where recency leads. Never ship relative only on a reconciled page. Nothing there can be cited.
+
+**Reviewed for:** Which built date text differs from the wireframe its catalog entry chose? Open the built absolute, relative, and weekday forms beside the catalog entry recording the chosen option and its reason.
 
 #### `one-form-per-table-with-the-zone-stated-once`: One Form per Table, with the Zone Stated Once
 
@@ -655,6 +675,8 @@ page
 
 ### Choosing a Period
 
+**ID:** `litespec/frontend/patterns/money-time-density#choosing-a-period`
+
 **Question:** A statements page can put the period in the heading. It offers two plain buttons beside it. Nothing says which is previous and which is next. The period cannot be typed.
 
 **Default:** `chevrons-either-side-of-the-period-as-the-heading`
@@ -662,6 +684,8 @@ page
 **Compact:** The recommended option reflows. One column carries the content. Header actions sit under the title. A table scrolls inside its own region.
 
 **Rationale:** Ship chevrons beside the heading with a month dropdown. Walking is one click and jumping avoids twelve clicks. The runner-up uses presets with typeable bounds. It fits charts and exports where the period is not a month. Never ship the period as a filter chip. The period is the subject, not a refinement.
+
+**Reviewed for:** Which built period control differs from the wireframe its catalog entry chose? Open the built chevrons, tabs, and painted calendars beside the catalog entry recording the chosen option and its reason.
 
 #### `chevrons-either-side-of-the-period-as-the-heading`: Chevrons Either Side of the Period as the Heading
 
@@ -859,6 +883,8 @@ page
 
 ### How Much Fits Before It Breaks
 
+**ID:** `litespec/frontend/patterns/money-time-density#how-much-fits-before-it-breaks`
+
 **Question:** A table can run at 47 pixels a row. Three columns hold two lines each. At 390 pixels a five-column table has to drop a column. It truncates names to Garcia with an ellipsis unless the page changes shape.
 
 **Default:** `the-full-width-with-nothing-truncated`
@@ -868,6 +894,8 @@ page
 **Rationale:** Keep the table at desktop width. Use two-line cells with no truncation. Switch to the record list under 640 pixels. That pair answers honestly at both widths.
 
 The runner-up wraps rather than truncates. It fits where one column holds names of any length. Never ship shortened figures near a statement. A rounded money figure is not a money figure.
+
+**Reviewed for:** Which built dense table differs from the wireframe its catalog entry chose? Open the built 390-pixel lists and pinned first columns beside the catalog entry recording the chosen option and its reason.
 
 #### `the-full-width-with-nothing-truncated`: The Full Width, with Nothing Truncated
 
@@ -1047,6 +1075,8 @@ page
 
 ### Counting Things
 
+**ID:** `litespec/frontend/patterns/money-time-density#counting-things`
+
 **Question:** One rule governs this whole category: read a number the system can count; never type it. A hand-typed figure will not be updated and a reviewer will trust it anyway.
 
 **Default:** `counts-in-the-sidebar-on-the-rows-that-hold-work`
@@ -1056,6 +1086,8 @@ page
 **Rationale:** Keep counts where the reader would otherwise fetch them. The sidebar rows that hold work carry them, and the tabs above a list carry them. The runner-up is the stat tiles with their measure stated.
 
 It is the better choice for the home page where the question is how large the month is. Never ship counts with the report that produces them, since the report name is system language on a number page.
+
+**Reviewed for:** Which built tally differs from the wireframe its catalog entry chose? Open the built sidebar counts, tiles, and dated claims beside the catalog entry recording the chosen option and its reason.
 
 #### `counts-in-the-sidebar-on-the-rows-that-hold-work`: Counts in the Sidebar, on the Rows That Hold Work
 
@@ -1224,6 +1256,8 @@ page
 
 ### Sales over Time
 
+**ID:** `litespec/frontend/patterns/money-time-density#sales-over-time`
+
 **Question:** A dashboard can answer how the season is going with a number. A number says where the product stands. Only a line says whether it is speeding up or slowing down.
 
 **Default:** `daily-columns-with-the-total-above`
@@ -1233,6 +1267,8 @@ page
 **Rationale:** Ship the daily columns with the total above and the peak labeled. They answer how much and when in one glance. The runner-up is the cumulative line against the previous season.
 
 It is the better choice once the product has a season to beat. Never ship the chart without its table, since a figure nobody can read exactly is a figure nobody can cite.
+
+**Reviewed for:** Which built trend chart differs from the wireframe its catalog entry chose? Open the built columns, areas, and sparklines beside the catalog entry recording the chosen option and its reason.
 
 #### `daily-columns-with-the-total-above`: Daily Columns with the Total Above
 
@@ -1367,6 +1403,8 @@ page
 
 ### Sales by Product Variant
 
+**ID:** `litespec/frontend/patterns/money-time-density#sales-by-product-variant`
+
 **Question:** The autumn range sells three lamp variants and a guide. The company asks which variant carries the season, and the answer is a share, not a total.
 
 **Default:** `horizontal-bars-with-the-figure-on-each-row`
@@ -1376,6 +1414,8 @@ page
 **Rationale:** Ship the horizontal bars with the figure on each row. Every variant reads with its count and its money in one glance. The runner-up is the table with a bar in each row.
 
 It is the better choice once variants gain states such as paused or sold out. Never ship the donut alone, since an angle nobody can read exactly is decoration and not a figure.
+
+**Reviewed for:** Which built mix chart differs from the wireframe its catalog entry chose? Open the built bars, tiles, and donuts beside the catalog entry recording the chosen option and its reason.
 
 #### `horizontal-bars-with-the-figure-on-each-row`: Horizontal Bars with the Figure on Each Row
 
@@ -1508,6 +1548,8 @@ page
 
 ### Sell-Through Against Capacity
 
+**ID:** `litespec/frontend/patterns/money-time-density#sell-through-against-capacity`
+
 **Question:** The autumn run made 10,000 lamps and 9,412 are sold. The distance between the two is the decision to make more variants, move marketing money, or call the run sold out.
 
 **Default:** `a-bar-with-sold-held-and-left-in-words`
@@ -1517,6 +1559,8 @@ page
 **Rationale:** Ship the progress bar with sold, held, and left in words. One glance says how far the run has sold and what is still movable. The runner-up is the per-variant sell-through table.
 
 It is the better choice when one variant is gone and the others are not. Never ship the countdown alone, since 468 left without the run size hides whether the stock is nearly gone or barely touched.
+
+**Reviewed for:** Which built fill-rate view differs from the wireframe its catalog entry chose? Open the built bars, countdowns, and capacity tables beside the catalog entry recording the chosen option and its reason.
 
 #### `a-bar-with-sold-held-and-left-in-words`: A Bar with Sold, Held and Left in Words
 
@@ -1650,6 +1694,8 @@ page
 
 ### Figure Against an Earlier Period
 
+**ID:** `litespec/frontend/patterns/money-time-density#figure-against-an-earlier-period`
+
 **Question:** A tile that says EUR 63,350.00 answers how much. Only the tile that adds August EUR 48,340.00 beside it answers whether the month was good.
 
 **Default:** `tiles-with-a-delta-pill-and-the-previous-figure`
@@ -1659,6 +1705,8 @@ page
 **Rationale:** Ship the tiles with a delta pill and the previous figure in words. The comparison is visible and the basis is stated. The runner-up is the tiles with sparklines.
 
 It is the better choice on the home page where the shape of the month matters more than one earlier figure. Never ship a bare percentage with no basis, since up 12 percent without the basis is a claim and not a comparison.
+
+**Reviewed for:** Which built comparison tile differs from the wireframe its catalog entry chose? Open the built deltas, sparklines, and KPI tables beside the catalog entry recording the chosen option and its reason.
 
 #### `tiles-with-a-delta-pill-and-the-previous-figure`: Tiles with a Delta Pill and the Previous Figure
 
@@ -1796,6 +1844,8 @@ page
 
 ### When the Money Arrives
 
+**ID:** `litespec/frontend/patterns/money-time-density#when-the-money-arrives`
+
 **Question:** The payment provider holds the money of the company and pays it out on its own days. The company plans wages and supplier runs around those days, so the schedule is a planning surface, not a history.
 
 **Default:** `upcoming-payouts-with-the-sales-each-one-holds`
@@ -1805,6 +1855,8 @@ page
 **Rationale:** Ship the list of upcoming payouts with the sales each one holds: the company sees what arrives and when in one place. The runner-up is the past payouts table with bank references, which is the better choice for finance reconciling against the bank.
 
 Never ship the single next-payout tile as the page: one arrival without the ones after it cannot plan a month.
+
+**Reviewed for:** Which built payout view differs from the wireframe its catalog entry chose? Open the built upcoming, weekly, and journey views beside the catalog entry recording the chosen option and its reason.
 
 #### `upcoming-payouts-with-the-sales-each-one-holds`: Upcoming Payouts with the Sales Each One Holds
 
@@ -1947,6 +1999,8 @@ page
 
 ### Vendor's Invoice to the Company
 
+**ID:** `litespec/frontend/patterns/money-time-density#vendors-invoice-to-the-company`
+
 **Question:** Billing holds what the company owes its software vendor: the Business subscription and anything metered. The invoice is the one document where the vendor is the seller. It reads as the sale of the vendor, not as the sale of the company.
 
 **Default:** `the-invoice-as-a-document-with-the-usage-behind-each-line`
@@ -1956,6 +2010,8 @@ page
 **Rationale:** Ship the document-style invoice with the usage behind each line: finance sees what the fee paid for without opening another page. The runner-up is the paid invoice with its mandate reference, which is the better state of the same document once the money has moved.
 
 Never ship the invoice without its VAT lines: a business invoice without VAT is not an invoice.
+
+**Reviewed for:** Which built supplier bill differs from the wireframe its catalog entry chose? Open the built documents, states, and usage lines beside the catalog entry recording the chosen option and its reason.
 
 #### `the-invoice-as-a-document-with-the-usage-behind-each-line`: The Invoice as a Document, with the Usage Behind Each Line
 
@@ -2107,6 +2163,8 @@ page
 
 ### Two VAT Rates on One Page
 
+**ID:** `litespec/frontend/patterns/money-time-density#two-vat-rates-on-one-page`
+
 **Question:** Books carry 9% and a lamp carries 21%. The customer sees one total. The accounts show two rates on the page the tax return is built from.
 
 **Default:** `the-vat-split-under-the-order-total`
@@ -2116,6 +2174,8 @@ page
 **Rationale:** Ship the VAT split under the order total. The customer total stays one figure and the books get both rates. The runner-up is the per-rate report with taxable bases, which is the better choice at quarter end when finance files the return.
 
 Never ship prices with no VAT note at all: a lawful price states what the tax is.
+
+**Reviewed for:** Which built mixed-rate view differs from the wireframe its catalog entry chose? Open the built splits, badges, and per-rate summaries beside the catalog entry recording the chosen option and its reason.
 
 #### `the-vat-split-under-the-order-total`: The VAT Split Under the Order Total
 
@@ -2265,6 +2325,8 @@ page
 
 ### Numbers at Phone Width
 
+**ID:** `litespec/frontend/patterns/money-time-density#numbers-at-phone-width`
+
 **Question:** Alex Morgan checks the dispatch of the day from the warehouse floor on a phone. At 390 pixels a money column, a date column, and a state badge do not fit side by side. The page chooses what the number needs beside it.
 
 **Default:** `kpis-in-pairs-with-the-orders-under-them`
@@ -2274,6 +2336,8 @@ page
 **Rationale:** Ship the two-column KPI pair with the record list under it. The figures of the day stay visible and every order keeps its amount right-aligned. The runner-up is the aligned statement. It is the better choice for finance pages where the adding up is the point.
 
 Never ship the desktop table unchanged at 390: a table that scrolls sideways for its money column hides the answer.
+
+**Reviewed for:** Which built narrow figure differs from the wireframe its catalog entry chose? Open the built pairs, per-row figures, and halved charts at 390 pixels beside the catalog entry recording the chosen option and its reason.
 
 #### `kpis-in-pairs-with-the-orders-under-them`: KPIs in Pairs with the Orders Under Them
 
@@ -2422,6 +2486,8 @@ page
 
 ### Showing an Identifier
 
+**ID:** `litespec/frontend/patterns/money-time-density#showing-an-identifier`
+
 **Question:** One design rule governs identifiers: an identifier shown on screen is labeled and copyable, and a raw code never reaches the screen. A serial page that shows SN-0C893968A2 as plain text breaks it, and so does a messages list showing identifiers where a subject should be.
 
 **Default:** `a-code-monospaced-labeled-and-copyable`
@@ -2431,6 +2497,8 @@ page
 **Rationale:** Ship the labeled, monospaced, copyable code on the record. It is the shape of the rule and the one thing a support case needs quoted. The runner-up is the identifier as the record name. It is the better choice for records with no human name, such as a warehouse serial.
 
 Never ship the page with no identifier: a record nobody can quote is a record support cannot help with.
+
+**Reviewed for:** Which built code display differs from the wireframe its catalog entry chose? Open the built monospaced, labeled, and copyable codes beside the catalog entry recording the chosen option and its reason.
 
 #### `a-code-monospaced-labeled-and-copyable`: A Code, Monospaced, Labeled and Copyable
 
@@ -2624,25 +2692,3 @@ page
 **Rationale:** Where a record has no subject yet, the state says so and the code is behind a copy control. A list shows subjects, never raw codes.
 
 **Cost:** A draft with no subject reads as broken, and a subject is a thing the company has to write before the row is useful. That is the cost of not showing an identifier.
-
-## Verification
-
-| ID | Mark | Evidence |
-|:---|:---|:---|
-| litespec/frontend/patterns/money-time-density#show-the-currency-of-every-amount | guidance | Which built figure hides its currency? Open the amounts on built tables, statements, and charts. |
-| litespec/frontend/patterns/money-time-density#state-the-time-zone-of-a-shared-moment | guidance | Which built shared moment omits its zone? Open the dates and times on built screens read across zones. |
-| litespec/frontend/patterns/money-time-density#writing-an-amount | guidance | Which built money text differs from the wireframe its catalog entry chose? Open the built codes, symbols, and red negatives beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/money-time-density#statement-that-adds-up | guidance | Which built totals page differs from the wireframe its catalog entry chose? Open the built groups, subtotals, and payout endings beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/money-time-density#writing-a-moment | guidance | Which built date text differs from the wireframe its catalog entry chose? Open the built absolute, relative, and weekday forms beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/money-time-density#choosing-a-period | guidance | Which built period control differs from the wireframe its catalog entry chose? Open the built chevrons, tabs, and painted calendars beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/money-time-density#how-much-fits-before-it-breaks | guidance | Which built dense table differs from the wireframe its catalog entry chose? Open the built 390-pixel lists and pinned first columns beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/money-time-density#counting-things | guidance | Which built tally differs from the wireframe its catalog entry chose? Open the built sidebar counts, tiles, and dated claims beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/money-time-density#sales-over-time | guidance | Which built trend chart differs from the wireframe its catalog entry chose? Open the built columns, areas, and sparklines beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/money-time-density#sales-by-product-variant | guidance | Which built mix chart differs from the wireframe its catalog entry chose? Open the built bars, tiles, and donuts beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/money-time-density#sell-through-against-capacity | guidance | Which built fill-rate view differs from the wireframe its catalog entry chose? Open the built bars, countdowns, and capacity tables beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/money-time-density#figure-against-an-earlier-period | guidance | Which built comparison tile differs from the wireframe its catalog entry chose? Open the built deltas, sparklines, and KPI tables beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/money-time-density#when-the-money-arrives | guidance | Which built payout view differs from the wireframe its catalog entry chose? Open the built upcoming, weekly, and journey views beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/money-time-density#vendors-invoice-to-the-company | guidance | Which built supplier bill differs from the wireframe its catalog entry chose? Open the built documents, states, and usage lines beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/money-time-density#two-vat-rates-on-one-page | guidance | Which built mixed-rate view differs from the wireframe its catalog entry chose? Open the built splits, badges, and per-rate summaries beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/money-time-density#numbers-at-phone-width | guidance | Which built narrow figure differs from the wireframe its catalog entry chose? Open the built pairs, per-row figures, and halved charts at 390 pixels beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/money-time-density#showing-an-identifier | guidance | Which built code display differs from the wireframe its catalog entry chose? Open the built monospaced, labeled, and copyable codes beside the catalog entry recording the chosen option and its reason. |

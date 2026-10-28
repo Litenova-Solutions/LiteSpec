@@ -18,19 +18,29 @@ The drawings on this page use order SO-1042 for Maria Garcia: paid, EUR 125.00, 
 
 ### Show One Primary Action in a Record Header
 
+**ID:** `litespec/frontend/patterns/record-detail#show-one-primary-action-in-a-record-header`
+
 **Statement:** A record header MUST show at most one primary action.
 
 **Rationale:** One primary action names the step readers take most often next on the record, such as Message customer on order SO-1042. Without that single answer, two equal buttons force the reader to compare labels on every visit, and the hurried click lands on the wrong command.
 
+**Checked by:** `litespec patterns check` refuses a wireframe header holding two primary actions; a reviewer confirms each built record header holds at most one.
+
 ### Keep Destructive Commands Out of the Primary Place
+
+**ID:** `litespec/frontend/patterns/record-detail#keep-destructive-commands-out-of-the-primary-place`
 
 **Statement:** A destructive command MUST NOT take the primary action's place or style in a record header.
 
 **Rationale:** The primary place draws the hurried click, so it holds only the safe next step. A destructive command styled or placed as primary turns a routine visit into a discontinued product or a voided order, with no step between intent and loss.
 
+**Reviewed for:** Which built record header hands a destructive command the primary style? Open the headers on built record screens and read each command's tone.
+
 ## Patterns
 
 ### Record Header
+
+**ID:** `litespec/frontend/patterns/record-detail#record-header`
 
 **Question:** One record, stated at the top. A record header always carries a title. It carries a breadcrumb when the record has a parent. It offers exactly one primary action, with everything else secondary beside it. A common failure puts a destructive action where the primary should be.
 
@@ -41,6 +51,8 @@ The drawings on this page use order SO-1042 for Maria Garcia: paid, EUR 125.00, 
 **Rationale:** Keep the title, state, breadcrumb, and one primary action. The state beside the title answers the first question on every record. The runner-up is the overflow menu option. It is the better choice once a record carries four or more commands.
 
 Prefer the state-driven primary on records with a clear next step, such as an unpaid order. Never ship the title-less option. It fails the check for exactly one `h1` per page.
+
+**Reviewed for:** Which built title row differs from the wireframe its catalog entry chose? Open the built states, facts, and overflow menus beside the catalog entry recording the chosen option and its reason.
 
 #### `title-state-breadcrumb-one-primary-action`: Title, State, Breadcrumb, One Primary Action
 
@@ -255,6 +267,8 @@ page
 
 ### Record Tabs
 
+**ID:** `litespec/frontend/patterns/record-detail#record-tabs`
+
 **Question:** A record holds at most three sections, and further facets become tabs. A product record carries four facets. Tab sets stay small, at six at most, and the active tab stays in the URL.
 
 **Default:** `four-tabs-with-the-active-one-in-the-url`
@@ -264,6 +278,8 @@ page
 **Rationale:** Keep the four tabs with the active one in the URL. Four stays inside every cited ceiling, and each panel repeats its tab label as a heading. The runner-up is the side rail option. It is the better choice past five facets or where one facet is a long form.
 
 Prefer the counts option only where a facet can be empty and the count saves a wasted click. Never ship the icon tabs. Icons are forbidden in tab labels, and they add a second channel for one meaning.
+
+**Reviewed for:** Which built facet row differs from the wireframe its catalog entry chose? Open the built counts, icons, and phone selects beside the catalog entry recording the chosen option and its reason.
 
 #### `four-tabs-with-the-active-one-in-the-url`: Four Tabs with the Active One in the URL
 
@@ -454,6 +470,8 @@ page
 
 ### Record Summary
 
+**ID:** `litespec/frontend/patterns/record-detail#record-summary`
+
 **Question:** The section at the top of a record answers what the reader is looking at without scrolling. It states the record's identity. A summary that states supporting information answers the wrong question.
 
 **Default:** `facts-about-the-record-itself`
@@ -463,6 +481,8 @@ page
 **Rationale:** Keep the facts about the record itself. A delivery summary states when, where, and how full, which is the identity of the record rather than its support. The runner-up is the copyable identifiers option. It is the better choice on records a reader quotes elsewhere, such as an order read out on the phone.
 
 Prefer the progress bar summary only for the one figure the company watches daily. Never ship the heading-less value row. Values with no section break the rule that a section is the only box.
+
+**Reviewed for:** Which built fact block differs from the wireframe its catalog entry chose? Open the built key values, figures, and tiles beside the catalog entry recording the chosen option and its reason.
 
 #### `facts-about-the-record-itself`: Facts About the Record Itself
 
@@ -666,6 +686,8 @@ page
 
 ### Record Aside
 
+**ID:** `litespec/frontend/patterns/record-detail#record-aside`
+
 **Question:** A record page has an aside slot for what supports the record rather than describing it. An order record puts its history there, which is the right use. A record with no supporting content leaves the slot empty.
 
 **Default:** `history-in-the-aside-sections-in-the-main-column`
@@ -675,6 +697,8 @@ page
 **Rationale:** Give the pick to history in the aside. History supports the order without describing it, which is exactly what the aside slot is for. The runner-up is the decision panel. It is the better choice on records that wait for someone, such as a dispute with a deadline.
 
 Prefer the people and labels aside on records a team hands between shifts. Never ship the empty aside state by accident. An order with nothing pending and no history reads as a rendering fault.
+
+**Reviewed for:** Which built side column differs from the wireframe its catalog entry chose? Open the built history, decisions, and related asides beside the catalog entry recording the chosen option and its reason.
 
 #### `history-in-the-aside-sections-in-the-main-column`: History in the Aside, Sections in the Main Column
 
@@ -898,6 +922,8 @@ page
 
 ### Record Timeline
 
+**ID:** `litespec/frontend/patterns/record-detail#record-timeline`
+
 **Question:** What happened to one record. Entries read newest first. Every entry carries a timestamp and a byline, because the reader asks who did this and when.
 
 **Default:** `newest-first-with-actor-and-timestamp`
@@ -907,6 +933,8 @@ page
 **Rationale:** Keep the newest-first timeline with actor and timestamp. It answers who and when on every line. The runner-up is the filtered timeline. It is the better choice once a record carries dozens of entries across kinds.
 
 Prefer the day-grouped option for dispatch records, where entries cluster on one morning. Never ship the actor-grouped timeline as the main history. It destroys the chronological order a timeline exists to give.
+
+**Reviewed for:** Which built event feed differs from the wireframe its catalog entry chose? Open the built day groups, diffs, and note mixes beside the catalog entry recording the chosen option and its reason.
 
 #### `newest-first-with-actor-and-timestamp`: Newest First with Actor and Timestamp
 
@@ -1083,6 +1111,8 @@ page
 
 ### Related Records
 
+**ID:** `litespec/frontend/patterns/record-detail#related-records`
+
 **Question:** An order belongs to a delivery, a customer, and a channel. A delivery belongs to a warehouse and a schedule. A common failure states the parent in prose in the description rather than linking to it.
 
 **Default:** `each-relation-is-a-link-with-its-state`
@@ -1092,6 +1122,8 @@ page
 **Rationale:** Ship the link with state list. Each relation is a link carrying its own state, so a reader can jump and knows what they will find. The runner-up is the preview card option. It is the better choice where the parent facts decide the next step, such as a parcel read against its delivery.
 
 Prefer the filtered list counts on records whose children number in the hundreds. Never ship the bare cross-reference line. It cannot carry the parent state and it hides in the description.
+
+**Reviewed for:** Which built relation link differs from the wireframe its catalog entry chose? Open the built chains, cards, and counts beside the catalog entry recording the chosen option and its reason.
 
 #### `each-relation-is-a-link-with-its-state`: Each Relation Is a Link with Its State
 
@@ -1286,6 +1318,8 @@ page
 
 ### Record the Reader May Not Change
 
+**ID:** `litespec/frontend/patterns/record-detail#record-the-reader-may-not-change`
+
 **Question:** Some records refuse some roles. A page a role cannot use shows the refusal with the reason and the grant that helps. The question is whether the refusal covers the whole page or a part of one.
 
 **Default:** `the-commands-are-refused-the-record-is-not`
@@ -1295,6 +1329,8 @@ page
 **Rationale:** Keep the refused commands on a readable record. Warehouse staff can read an order and cannot refund it, and each refusal names the grant that would allow it. The runner-up is the ask for access option. It is the better choice where access is routinely granted, such as a seasonal worker joining support.
 
 Prefer the field-withheld option only where the values themselves are restricted, such as customer personal data under a warehouse role. Never ship the role switcher on production. Acting as somebody is a development capability, and the button would be a security hole with a label on it.
+
+**Reviewed for:** Which built locked record differs from the wireframe its catalog entry chose? Open the built refused commands, banners, and withheld fields beside the catalog entry recording the chosen option and its reason.
 
 #### `the-commands-are-refused-the-record-is-not`: The Commands Are Refused, the Record Is Not
 
@@ -1484,6 +1520,8 @@ page
 
 ### Record Change History
 
+**ID:** `litespec/frontend/patterns/record-detail#record-change-history`
+
 **Question:** Several people touch one order before the week ends. The customer corrects an email. The manager answers. Finance adds a note.
 
 When the customer disputes what happened, the company answers from the record itself. It names who did what and when. The audit trail is that answer. It reads beside the facts it explains.
@@ -1495,6 +1533,8 @@ When the customer disputes what happened, the company answers from the record it
 **Rationale:** Keep the history tab on the record. It keeps one route. The tab state stays in the URL. A reader checking a claim opens History without losing the order. The runner-up is the per-field history.
 
 It fits disputes about one value such as the email that carried the confirmation. Prefer the full-page log only for long-lived records whose trail outgrows a tab. Never ship the money-only trail as the audit. The edits that explain the money are missing there.
+
+**Reviewed for:** Which built audit trail differs from the wireframe its catalog entry chose? Open the built tabs, panels, and per-field histories beside the catalog entry recording the chosen option and its reason.
 
 #### `history-as-a-tab-on-the-record`: History as a Tab on the Record
 
@@ -1700,6 +1740,8 @@ page
 
 ### Record Notes
 
+**ID:** `litespec/frontend/patterns/record-detail#record-notes`
+
 **Question:** Support and finance think on the record, not beside it. They record why the confirmation was resent. They record what the customer was told. They record what still waits. A note is staff writing with a byline and a time. The reader must always know whether the customer can see it.
 
 **Default:** `a-notes-section-with-the-composer-on-top`
@@ -1709,6 +1751,8 @@ page
 **Rationale:** Keep the notes section with the composer on top. The newest note reads first. Internal scope is the default. It cannot leak. The runner-up is the internal-or-customer composer.
 
 It fits records where staff write to the customer from the same box. Prefer resolved notes only once open notes grow hard to scan. Never ship notes without a scope marker. A reader who cannot tell internal from customer-visible will write the wrong one.
+
+**Reviewed for:** Which built annotation feed differs from the wireframe its catalog entry chose? Open the built composers, mixes, and resolved piles beside the catalog entry recording the chosen option and its reason.
 
 #### `a-notes-section-with-the-composer-on-top`: A Notes Section with the Composer on Top
 
@@ -1860,6 +1904,8 @@ page
 
 ### Record Attachments
 
+**ID:** `litespec/frontend/patterns/record-detail#record-attachments`
+
 **Question:** A dispute needs its evidence, a delivery needs its packing list, and a product needs its photos. An attachment is a file the company put on the record, with who added it and when. The reader must know what each file is before opening it.
 
 **Default:** `a-file-list-with-a-drop-zone`
@@ -1869,6 +1915,8 @@ page
 **Rationale:** Keep the file list with a drop zone. Each row names the file and its kind. It names who added it and its size. The drop zone invites the next file. The runner-up is the evidence-grouped option.
 
 It fits a dispute. The bank asks for kinds there rather than files. Prefer thumbnails only where images dominate, such as product photos. Never ship the drop-zone-only section. A record whose files hide behind an upload control reads as empty.
+
+**Reviewed for:** Which built file section differs from the wireframe its catalog entry chose? Open the built lists, thumbnails, and drop zones beside the catalog entry recording the chosen option and its reason.
 
 #### `a-file-list-with-a-drop-zone`: A File List with a Drop Zone
 
@@ -2010,6 +2058,8 @@ page
 
 ### Property List with Copy
 
+**ID:** `litespec/frontend/patterns/record-detail#property-list-with-copy`
+
 **Question:** Support reads a reference out on the phone and pastes an identifier into a dispute. A property list is a set of labeled values where the identifiers copy with one click. The reader must know the copy landed.
 
 **Default:** `every-identifier-copies`
@@ -2019,6 +2069,8 @@ page
 **Rationale:** Keep the always-visible copy button on each identifier. Support reaches for it without hunting. The runner-up is the in-place confirmation option. It fits records where a miscopied reference causes real mistakes.
 
 Prefer hover-only copy nowhere. Touch screens have no hover and the button would never appear. Never ship a property list whose long values clip without a way to expand them.
+
+**Reviewed for:** Which built copyable fact differs from the wireframe its catalog entry chose? Open the built identifiers, hovers, and truncations beside the catalog entry recording the chosen option and its reason.
 
 #### `every-identifier-copies`: Every Identifier Copies
 
@@ -2164,6 +2216,8 @@ page
 
 ### Record Header on a Phone
 
+**ID:** `litespec/frontend/patterns/record-detail#record-header-on-a-phone`
+
 **Question:** Warehouse staff read records on a phone at the dock, 390 px wide, one hand free. The header must state which record, what state, and the one step that matters without scrolling sideways or hiding the title.
 
 **Default:** `stacked-title-full-width-primary-the-rest-in-a-menu`
@@ -2173,6 +2227,8 @@ page
 **Rationale:** Keep the stacked title with a full-width primary and the rest in a menu. It keeps the desktop order of title then actions. The primary stays reachable by thumb. The runner-up is the sticky foot bar.
 
 It fits records where the step is taken mid-scroll, such as scanning at the dock. Prefer the scrolling action row only where every action is equally likely. Never ship actions that need sideways scrolling to be found. A hidden Refund at the dock stops the queue.
+
+**Reviewed for:** Which built narrow title row differs from the wireframe its catalog entry chose? Open the built stacked headers and foot action bars at 390 pixels beside the catalog entry recording the chosen option and its reason.
 
 #### `stacked-title-full-width-primary-the-rest-in-a-menu`: Stacked Title, Full-Width Primary, the Rest in a Menu
 
@@ -2320,6 +2376,8 @@ page
 
 ### Previous and Next Record
 
+**ID:** `litespec/frontend/patterns/record-detail#previous-and-next-record`
+
 **Question:** Support works a queue, not a record. The next order in the list waits. The next dispute waits for an answer. Moving on must be one step that keeps the list order. The reader never returns to the list merely to open its neighbor.
 
 **Default:** `chevrons-beside-the-breadcrumb`
@@ -2329,6 +2387,8 @@ page
 **Rationale:** Keep the chevrons beside the breadcrumb. They keep the list order. They cost almost no space. The runner-up is the jump-by-search option.
 
 It fits readers who know the next record number rather than its neighbor. Prefer the list drawer on triage queues where the reader skims many records. Never ship movement without a position. Chevrons that never say 4 of 268 leave the reader lost in the queue.
+
+**Reviewed for:** Which built neighbor step differs from the wireframe its catalog entry chose? Open the built chevrons, drawers, and jump searches beside the catalog entry recording the chosen option and its reason.
 
 #### `chevrons-beside-the-breadcrumb`: Chevrons Beside the Breadcrumb
 
@@ -2487,6 +2547,8 @@ page
 
 ### Order Record
 
+**ID:** `litespec/frontend/patterns/record-detail#order-record`
+
 **Question:** The order is the record support opens most. Maria Garcia ordered SO-1042. It totals EUR 125.00 for two lamps, a delivery fee, and a cable tray. It must state its lines, its payments, and its refunds in one reading. The money adds up. Every refund reads against the payment it reverses.
 
 **Default:** `summary-three-sections-history-in-the-aside`
@@ -2496,6 +2558,8 @@ page
 **Rationale:** Keep the record-page shape with a summary, three sections, and history in the aside. Customer, lines, and money each keep their own section. The runner-up is the money-first layout. It fits finance readers who reconcile payments against refunds.
 
 Prefer the tabbed layout only once an order outgrows three sections. Never ship the phone layout as the desktop page. Stacked sections waste most of the width there.
+
+**Reviewed for:** Which built worked order differs from the wireframe its catalog entry chose? Open the built summary, tabs, and phone order screens beside the catalog entry recording the chosen option and its reason.
 
 #### `summary-three-sections-history-in-the-aside`: Summary, Three Sections, History in the Aside
 
@@ -2669,24 +2733,3 @@ page
 **Cost:** Stacking puts the money last, so a refund at the counter is a long scroll away. The history also drops to the foot, where nobody on a phone reads it.
 
 **Reference:** Shopify
-
-## Verification
-
-| ID | Mark | Evidence |
-|:---|:---|:---|
-| litespec/frontend/patterns/record-detail#show-one-primary-action-in-a-record-header | checkable | `litespec patterns check` refuses a wireframe header holding two primary actions; a reviewer confirms each built record header holds at most one. |
-| litespec/frontend/patterns/record-detail#keep-destructive-commands-out-of-the-primary-place | guidance | Which built record header hands a destructive command the primary style? Open the headers on built record screens and read each command's tone. |
-| litespec/frontend/patterns/record-detail#record-header | guidance | Which built title row differs from the wireframe its catalog entry chose? Open the built states, facts, and overflow menus beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/record-detail#record-tabs | guidance | Which built facet row differs from the wireframe its catalog entry chose? Open the built counts, icons, and phone selects beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/record-detail#record-summary | guidance | Which built fact block differs from the wireframe its catalog entry chose? Open the built key values, figures, and tiles beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/record-detail#record-aside | guidance | Which built side column differs from the wireframe its catalog entry chose? Open the built history, decisions, and related asides beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/record-detail#record-timeline | guidance | Which built event feed differs from the wireframe its catalog entry chose? Open the built day groups, diffs, and note mixes beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/record-detail#related-records | guidance | Which built relation link differs from the wireframe its catalog entry chose? Open the built chains, cards, and counts beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/record-detail#record-the-reader-may-not-change | guidance | Which built locked record differs from the wireframe its catalog entry chose? Open the built refused commands, banners, and withheld fields beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/record-detail#record-change-history | guidance | Which built audit trail differs from the wireframe its catalog entry chose? Open the built tabs, panels, and per-field histories beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/record-detail#record-notes | guidance | Which built annotation feed differs from the wireframe its catalog entry chose? Open the built composers, mixes, and resolved piles beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/record-detail#record-attachments | guidance | Which built file section differs from the wireframe its catalog entry chose? Open the built lists, thumbnails, and drop zones beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/record-detail#property-list-with-copy | guidance | Which built copyable fact differs from the wireframe its catalog entry chose? Open the built identifiers, hovers, and truncations beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/record-detail#record-header-on-a-phone | guidance | Which built narrow title row differs from the wireframe its catalog entry chose? Open the built stacked headers and foot action bars at 390 pixels beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/record-detail#previous-and-next-record | guidance | Which built neighbor step differs from the wireframe its catalog entry chose? Open the built chevrons, drawers, and jump searches beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/record-detail#order-record | guidance | Which built worked order differs from the wireframe its catalog entry chose? Open the built summary, tabs, and phone order screens beside the catalog entry recording the chosen option and its reason. |

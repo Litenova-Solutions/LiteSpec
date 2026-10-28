@@ -22,13 +22,19 @@ It adds four `onErasure` positions to data classes: `tombstone`, `discard`, `cas
 
 ### Keep a Tombstone Where Deletion Stays Visible
 
+**ID:** `litespec/ext/privacy#keep-a-tombstone-where-deletion-stays-visible`
+
 **Statement:** A data class whose rows outlive erasure as references MUST use `onErasure: tombstone` with the fields its marker keeps.
 
 **Rationale:** Some rows are referenced after they are gone: remote servers hold copies, audit trails cite row ids, and support tools link to deleted accounts. Erasing the row breaks those references, while keeping it breaks the erasure duty. A tombstone keeps the row id and the erasure date and drops every other field, so references resolve to a marker that says the subject is gone.
 
 **Example:** ZITADEL deletes a user by moving it to a terminal state and deleting its read-model rows while the events stay for audit, and Sentry writes a tombstone for a discarded issue so that later events for it are dropped at intake instead of stored again.
 
+**Reviewed for:** The aggregate pages mark referenced-after-erasure classes tombstone with the marker fields each keeps.
+
 ### Discard Rows That Leave No Trace
+
+**ID:** `litespec/ext/privacy#discard-rows-that-leave-no-trace`
 
 **Statement:** A data class with no duty to keep a marker MUST use `onErasure: discard`.
 
@@ -36,7 +42,11 @@ It adds four `onErasure` positions to data classes: `tombstone`, `discard`, `cas
 
 **Example:** Lago discards a customer: the profile is hidden and its relations end, while finalized invoices and credit notes stay as the ledger.
 
+**Reviewed for:** The `onErasure` entries on the aggregate pages carry discard where no marker duty exists.
+
 ### Remove Child Rows Through Their Parent Only
+
+**ID:** `litespec/ext/privacy#remove-child-rows-through-their-parent-only`
 
 **Statement:** A data class erased only as a cascade from a parent erasure MUST use `onErasure: cascade-only` with the parent it follows.
 
@@ -44,7 +54,11 @@ It adds four `onErasure` positions to data classes: `tombstone`, `discard`, `cas
 
 **Example:** Cal.com deletes a user by removing the account and letting the database cascade remove the rows that hang off it, with no retention schedule; a product at this rung declares cascade-only and names the cascade path.
 
+**Reviewed for:** The child class entries name cascade-only with the parent class, and the parent erasure tests clear the children.
+
 ### Move Data to Its Next Controller Instead of Erasing
+
+**ID:** `litespec/ext/privacy#move-data-to-its-next-controller-instead-of-erasing`
 
 **Statement:** A data class handed to another controller MUST use `onErasure: transferred` with the receiver and the handover record.
 
@@ -52,7 +66,11 @@ It adds four `onErasure` positions to data classes: `tombstone`, `discard`, `cas
 
 **Example:** A support tool sends a loan summary and the reader message to a hosted AI model to draft a reply; the position names the model provider, its region and its retention, and the product stores none of it.
 
+**Reviewed for:** The handed-over class entries name transferred with the receiver and the handover record.
+
 ### Scope Erasure to What the Subject Requested
+
+**ID:** `litespec/ext/privacy#scope-erasure-to-what-the-subject-requested`
 
 **Statement:** Erasure that answers a subject request MUST use `reach: requested` and touch only the data the request names.
 
@@ -60,7 +78,11 @@ It adds four `onErasure` positions to data classes: `tombstone`, `discard`, `cas
 
 **Example:** A request naming one hold erases that hold and leaves the reader's other loans untouched.
 
+**Reviewed for:** The erasure use cases cite the request they answer and touch only the data it names.
+
 ### Approve the Erasure Sentence in Intent
+
+**ID:** `litespec/ext/privacy#approve-the-erasure-sentence-in-intent`
 
 **Statement:** The literal sentence the subject reads about an erasure MUST be approved in Intent before the erasure ships.
 
@@ -68,7 +90,11 @@ It adds four `onErasure` positions to data classes: `tombstone`, `discard`, `cas
 
 **Example:** Mastodon shows on its account deletion form that content other servers have cached may persist, next to the promise that the account and its posts are removed; that sentence is the approved user-facing copy for a requested reach.
 
+**Reviewed for:** The confirmation sentence in the Intent requirement carries an approval before the release that shows it.
+
 ### Complete the Subject Export Before Erasure
+
+**ID:** `litespec/ext/privacy#complete-the-subject-export-before-erasure`
 
 **Statement:** A data class with `exportFirst` MUST complete the subject export before its erasure runs.
 
@@ -76,7 +102,11 @@ It adds four `onErasure` positions to data classes: `tombstone`, `discard`, `cas
 
 **Example:** Claimwick makes finance download the tax-relevant data before a shredder runs, and refuses to shred when anything changed after that download.
 
+**Reviewed for:** The export-first classes show a completed export before each erasure run in the run evidence.
+
 ### Require a Fresh Export After Changes
+
+**ID:** `litespec/ext/privacy#require-a-fresh-export-after-changes`
 
 **Statement:** Erasure under `unchangedSinceExport` MUST stop and ask for a fresh export when the data changed since the last export.
 
@@ -84,7 +114,11 @@ It adds four `onErasure` positions to data classes: `tombstone`, `discard`, `cas
 
 **Example:** A reader who corrected their address after exporting it gets a fresh export first, and the erasure waits for it.
 
+**Reviewed for:** The erasure runs after mid-window edits show a fresh export completed first.
+
 ### Purge Erased Data from Restored Backups
+
+**ID:** `litespec/ext/privacy#purge-erased-data-from-restored-backups`
 
 **Statement:** A restore runbook MUST name the sweep job that re-applies erasure after the restore.
 
@@ -92,7 +126,11 @@ It adds four `onErasure` positions to data classes: `tombstone`, `discard`, `cas
 
 **Example:** The database restore runbook names `job/privacy.sweep-restored-erasure`, which runs before traffic returns and deletes every row erased since the backup.
 
+**Checked by:** `litespec model check` reports `restore-without-sweep` for a restore runbook that names no sweep job.
+
 ### Record Which Duty Wins Each Conflict
+
+**ID:** `litespec/ext/privacy#record-which-duty-wins-each-conflict`
 
 **Statement:** Each retention conflict MUST name the winning duty, its basis, the owner recording the exception, and the review date.
 
@@ -100,9 +138,13 @@ It adds four `onErasure` positions to data classes: `tombstone`, `discard`, `cas
 
 **Example:** Claimwick keeps the expense ledger for seven years under tax law while erasing the submitter contact, and the retention row names the finance owner and the next review date. ZITADEL keeps its audit events while erasing the user they describe, under the same rule.
 
+**Reviewed for:** The retention schedule rows name the winning duty with its basis, recording owner, and review date.
+
 ## Conventions
 
 ### Keep Tombstone Fields Minimal
+
+**ID:** `litespec/ext/privacy#keep-tombstone-fields-minimal`
 
 **Default:** A tombstone keeps the row id and the erasure date, and no other field.
 
@@ -110,13 +152,19 @@ It adds four `onErasure` positions to data classes: `tombstone`, `discard`, `cas
 
 **Rationale:** Every field on a tombstone is data kept past erasure. The row id and the date satisfy references and audits, and anything wider needs its own rule.
 
+**Reviewed for:** The tombstone entries keep the row id and the erasure date, or the project lists wider fields with the rule behind each.
+
 ### Run One Sweep Job per Data Class
+
+**ID:** `litespec/ext/privacy#run-one-sweep-job-per-data-class`
 
 **Default:** Each sweep job covers one data class.
 
 **Replacement:** A project names the data classes each sweep job covers.
 
 **Rationale:** One sweep per class keeps the blast radius small: a broken sweep delays one class while the others complete. A shared sweep is one failure away from resurrecting every class at once.
+
+**Reviewed for:** Each sweep job page covers one data class, or the project names the classes each job covers.
 
 ## Dependencies
 
@@ -125,20 +173,3 @@ Packages: None.
 Related extensions: `audit` for tamper-resistant evidence of erasure runs, and `tenancy` for erasure that crosses tenant lines.
 
 Guides: None.
-
-## Verification
-
-| ID | Mark | Evidence |
-|:---|:---|:---|
-| litespec/ext/privacy#keep-a-tombstone-where-deletion-stays-visible | guidance | The aggregate pages mark referenced-after-erasure classes tombstone with the marker fields each keeps. |
-| litespec/ext/privacy#discard-rows-that-leave-no-trace | guidance | The `onErasure` entries on the aggregate pages carry discard where no marker duty exists. |
-| litespec/ext/privacy#remove-child-rows-through-their-parent-only | guidance | The child class entries name cascade-only with the parent class, and the parent erasure tests clear the children. |
-| litespec/ext/privacy#move-data-to-its-next-controller-instead-of-erasing | guidance | The handed-over class entries name transferred with the receiver and the handover record. |
-| litespec/ext/privacy#scope-erasure-to-what-the-subject-requested | guidance | The erasure use cases cite the request they answer and touch only the data it names. |
-| litespec/ext/privacy#approve-the-erasure-sentence-in-intent | guidance | The confirmation sentence in the Intent requirement carries an approval before the release that shows it. |
-| litespec/ext/privacy#complete-the-subject-export-before-erasure | guidance | The export-first classes show a completed export before each erasure run in the run evidence. |
-| litespec/ext/privacy#require-a-fresh-export-after-changes | guidance | The erasure runs after mid-window edits show a fresh export completed first. |
-| litespec/ext/privacy#purge-erased-data-from-restored-backups | checkable | `litespec model check` reports `restore-without-sweep` for a restore runbook that names no sweep job. |
-| litespec/ext/privacy#record-which-duty-wins-each-conflict | guidance | The retention schedule rows name the winning duty with its basis, recording owner, and review date. |
-| litespec/ext/privacy#keep-tombstone-fields-minimal | guidance | The tombstone entries keep the row id and the erasure date, or the project lists wider fields with the rule behind each. |
-| litespec/ext/privacy#run-one-sweep-job-per-data-class | guidance | Each sweep job page covers one data class, or the project names the classes each job covers. |

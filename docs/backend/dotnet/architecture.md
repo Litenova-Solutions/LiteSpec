@@ -18,6 +18,8 @@ A type is visible only to the projects that need it: implementations stay `inter
 
 ### Use Five Application Projects
 
+**ID:** `litespec/backend/dotnet/architecture#use-five-application-projects`
+
 **Statement:** An application MUST use Domain, Application.Abstractions, Application, Infrastructure, and WebApi as its five baseline projects.
 
 **Rationale:** `Application.Abstractions` holds the contracts that more than one module names: the pipeline's own positions, the cross-module ports, the transport-neutral failures, and the published integration events. It references Domain and the required LiteBus module abstractions, and nothing else, so no type in it can name a use case, a handler, or a module.
@@ -38,7 +40,11 @@ apps/api/src/{ProjectName}.Infrastructure/
 apps/api/src/{ProjectName}.WebApi/
 ```
 
+**Reviewed for:** The solution projects: exactly Domain, Application.Abstractions, Application, Infrastructure, and WebApi.
+
 ### Keep One Application Assembly
+
+**ID:** `litespec/backend/dotnet/architecture#keep-one-application-assembly`
 
 **Statement:** An application MUST place commands, queries, results, validators, handlers, reaction classes, and module-owned ports in one Application project, and cross-module contracts in Application.Abstractions.
 
@@ -46,7 +52,11 @@ apps/api/src/{ProjectName}.WebApi/
 
 This provision states the .NET form of `litespec/backend/architecture#keep-one-application-part`.
 
+**Reviewed for:** The Application project files hold every command, query, result, validator, handler, and reaction class, with cross-module contracts in Application.Abstractions.
+
 ### Mirror Modules in Folders and Namespaces
+
+**ID:** `litespec/backend/dotnet/architecture#mirror-modules-in-folders-and-namespaces`
 
 **Statement:** Every project MUST give each module one folder and namespace.
 
@@ -61,7 +71,11 @@ Claimwick.Application/Spending/Expenses/SubmitExpense/SubmitExpenseCommandHandle
 
 The handler above lives in namespace `Claimwick.Application.Spending.Expenses.SubmitExpense`.
 
+**Reviewed for:** The module folders and namespaces in every project: one folder and namespace per module, named for the module.
+
 ### Keep Implementation Types Internal
+
+**ID:** `litespec/backend/dotnet/architecture#keep-implementation-types-internal`
 
 **Statement:** A handler, validator, definition, persistence implementation, or endpoint implementation MUST be declared `internal sealed`.
 
@@ -69,9 +83,13 @@ The handler above lives in namespace `Claimwick.Application.Spending.Expenses.Su
 
 This provision states the .NET form of `litespec/backend/architecture#keep-implementation-types-hidden`.
 
+**Reviewed for:** Handler, validator, definition, persistence, and endpoint implementation declarations: each `internal sealed`.
+
 ## Conventions
 
 ### Keep Composition in Hosts
+
+**ID:** `litespec/backend/dotnet/architecture#keep-composition-in-hosts`
 
 **Default:** Keep service registration in `Program.cs` and host registration modules.
 
@@ -90,7 +108,11 @@ WebApiServiceRegistration.AddWebApi(...)
 
 `AddInfrastructure` receives configuration and host environment values needed to bind and validate provider options. `AddWebApi` owns Problem Details, authentication, authorization, endpoint discovery, and OpenAPI. `Program.cs` keeps their call order visible.
 
+**Reviewed for:** Service registration calls: each one in `Program.cs` or a host registration module.
+
 ### Use One Public Assembly Marker per Scanned Project
+
+**ID:** `litespec/backend/dotnet/architecture#use-one-public-assembly-marker-per-scanned-project`
 
 **Default:** Expose one `public static` assembly marker in each project that an approved scanner reads.
 
@@ -98,13 +120,4 @@ WebApiServiceRegistration.AddWebApi(...)
 
 **Rationale:** Scanners need an assembly reference, and without a marker developers make handlers public to supply one. One public static marker per scanned project gives the scanner its reference while every handler stays internal.
 
-## Verification
-
-| ID | Mark | Evidence |
-|:---|:---|:---|
-| litespec/backend/dotnet/architecture#use-five-application-projects | guidance | The solution projects: exactly Domain, Application.Abstractions, Application, Infrastructure, and WebApi. |
-| litespec/backend/dotnet/architecture#keep-one-application-assembly | guidance | The Application project files hold every command, query, result, validator, handler, and reaction class, with cross-module contracts in Application.Abstractions. |
-| litespec/backend/dotnet/architecture#mirror-modules-in-folders-and-namespaces | guidance | The module folders and namespaces in every project: one folder and namespace per module, named for the module. |
-| litespec/backend/dotnet/architecture#keep-implementation-types-internal | guidance | Handler, validator, definition, persistence, and endpoint implementation declarations: each `internal sealed`. |
-| litespec/backend/dotnet/architecture#keep-composition-in-hosts | guidance | Service registration calls: each one in `Program.cs` or a host registration module. |
-| litespec/backend/dotnet/architecture#use-one-public-assembly-marker-per-scanned-project | guidance | Each scanned project: exactly one public static assembly marker. |
+**Reviewed for:** Each scanned project: exactly one public static assembly marker.

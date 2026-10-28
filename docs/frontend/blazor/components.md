@@ -14,49 +14,79 @@ Each component belongs to one feature folder under `Features/{Module}/{UseCase}/
 
 ### Keep Components Presentational
 
+**ID:** `litespec/frontend/blazor/components#keep-components-presentational`
+
 **Statement:** A component MUST NOT call a browser API, read persisted state directly, or contain a rule.
 
 **Rationale:** A rule inside a component runs only inside a rendered page, so no unit test reaches it and no second caller reuses it. A browser call inside a component ties every test of that component to a browser host. When components only show values and report interaction, rendering stays cheap and testable.
 
+**Reviewed for:** No component resolves storage, interop, or a Domain service.
+
 ### Declare Every Parameter Type
+
+**ID:** `litespec/frontend/blazor/components#declare-every-parameter-type`
 
 **Statement:** A component parameter MUST declare a concrete type owned by its feature.
 
 **Rationale:** A typed parameter states the component's contract at its boundary, so a wrong call fails at compile time. A loosely typed bag of values hides that contract until the component runs. A Domain aggregate as a parameter couples rendering to the core model, so a domain change ripples into every view that names it. This realizes litespec/frontend/components#keep-component-inputs-narrow.
 
+**Reviewed for:** Each component parameter declares a feature-owned concrete type.
+
 ### Raise Events Rather Than Mutating
+
+**ID:** `litespec/frontend/blazor/components#raise-events-rather-than-mutating`
 
 **Statement:** A child component MUST report upward through `EventCallback` rather than mutate a parent-owned object.
 
 **Rationale:** A callback names the relationship between child and parent in the markup: the child reports, the parent decides. Mutating a parent-owned object or writing to a shared store hides that relationship, so a reader cannot tell which component changed the value or when.
 
+**Reviewed for:** Each child component reports upward through a callback parameter.
+
 ### Own the Layer Contract
+
+**ID:** `litespec/frontend/blazor/components#own-the-layer-contract`
 
 **Statement:** A feature view model MUST expose no Domain aggregate, Domain closed set, or Application result.
 
 **Rationale:** Each layer mirrors the shape it needs so a change in one layer does not ripple into the others, as `litespec/backend/architecture#own-each-layers-contract-types` requires. A view model that names a Domain aggregate or an Application result breaks that isolation: the view then compiles against the core model and breaks with it. Shared-kernel typed identifiers and value objects are the one sanctioned crossing. This rule pairs with `litespec/frontend/blazor/structure#keep-domain-free-of-browser-concerns`: that rule stops Domain from naming browser types, and this rule stops the view from naming Domain types. Both are needed, because a view model can name an aggregate even when Domain names no component.
 
+**Reviewed for:** No view model exposes a Domain or Application type.
+
 ### Resolve Browser Behavior Through an Interface
+
+**ID:** `litespec/frontend/blazor/components#resolve-browser-behavior-through-an-interface`
 
 **Statement:** A component MUST resolve browser behavior through an Application-owned interface rather than inject the interop runtime.
 
 **Rationale:** A component that injects the interop runtime directly runs only where a JavaScript host exists, so its tests need a browser. Resolving browser behavior through an Application-owned interface lets a test substitute a double and assert what the component renders for each answer the browser could give.
 
+**Reviewed for:** No component injects the interop runtime directly.
+
 ### Place One Component per File
+
+**ID:** `litespec/frontend/blazor/components#place-one-component-per-file`
 
 **Statement:** A `.razor` file MUST declare one routable or reusable component named for what it renders.
 
 **Rationale:** One component per file named for what it renders makes each component findable by name. A file holding several components hides all but the first from search and review. Logic beyond trivial rendering moves to a code-behind partial class, so the markup stays readable.
 
+**Reviewed for:** Each `.razor` file declares one routable or reusable component.
+
 ### Keep Accessibility in the Component
+
+**ID:** `litespec/frontend/blazor/components#keep-accessibility-in-the-component`
 
 **Statement:** A component MUST own focus management, keyboard interaction, labeling, and live-region announcements for its interaction.
 
 **Rationale:** Only the component knows which element should receive focus, which keys it answers, and what a screen reader should announce. A page composing the component cannot supply any of that. When the component owns focus, keyboard interaction, labeling, and announcements, every page that composes it is accessible without extra work. This realizes litespec/frontend/components#support-keyboard-focus-labels-and-announcements.
 
+**Reviewed for:** Keyboard paths, focus, labels, and announcements work in each interactive component.
+
 ## Conventions
 
 ### Name for the Boundary Role
+
+**ID:** `litespec/frontend/blazor/components#name-for-the-boundary-role`
 
 **Default:** Give a feature component a role suffix such as `{UseCase}Form`, `{UseCase}Summary`, `{Concept}List`, or `{Concept}Card`.
 
@@ -64,7 +94,11 @@ Each component belongs to one feature folder under `Features/{Module}/{UseCase}/
 
 **Rationale:** A role suffix tells a reader what the component renders before opening it: a form, a summary, a list, or a card. A shared primitive takes the primitive's name instead, because naming it for the first feature that needed it hides it from the second. This realizes litespec/frontend/components#name-components-for-their-role.
 
+**Reviewed for:** Each feature component name matches its rendered role.
+
 ### Apply One Styling System
+
+**ID:** `litespec/frontend/blazor/components#apply-one-styling-system`
 
 **Default:** Use one styling system with tokens defined once.
 
@@ -72,16 +106,4 @@ Each component belongs to one feature folder under `Features/{Module}/{UseCase}/
 
 **Rationale:** One styling system with tokens defined once makes a restyle a token edit rather than a search through components. A hard-coded color, spacing value, or font size duplicates a token, and the two drift apart on the next design change. This realizes litespec/frontend/components#use-declared-visual-variants.
 
-## Verification
-
-| ID | Mark | Evidence |
-|:---|:---|:---|
-| litespec/frontend/blazor/components#keep-components-presentational | guidance | No component resolves storage, interop, or a Domain service. |
-| litespec/frontend/blazor/components#declare-every-parameter-type | guidance | Each component parameter declares a feature-owned concrete type. |
-| litespec/frontend/blazor/components#raise-events-rather-than-mutating | guidance | Each child component reports upward through a callback parameter. |
-| litespec/frontend/blazor/components#own-the-layer-contract | guidance | No view model exposes a Domain or Application type. |
-| litespec/frontend/blazor/components#resolve-browser-behavior-through-an-interface | guidance | No component injects the interop runtime directly. |
-| litespec/frontend/blazor/components#place-one-component-per-file | guidance | Each `.razor` file declares one routable or reusable component. |
-| litespec/frontend/blazor/components#keep-accessibility-in-the-component | guidance | Keyboard paths, focus, labels, and announcements work in each interactive component. |
-| litespec/frontend/blazor/components#name-for-the-boundary-role | guidance | Each feature component name matches its rendered role. |
-| litespec/frontend/blazor/components#apply-one-styling-system | guidance | Each color, spacing, and font value is a defined token. |
+**Reviewed for:** Each color, spacing, and font value is a defined token.

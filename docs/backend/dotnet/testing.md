@@ -18,6 +18,8 @@ Each scenario is proved by a test that carries a `proves` tag naming the scenari
 
 ### Keep the Test Projects the Size Requires
 
+**ID:** `litespec/backend/dotnet/testing#keep-the-test-projects-the-size-requires`
+
 **Statement:** A backend solution MUST hold exactly the test projects its size requires: Architecture and Integration for small, adding Acceptance for large.
 
 **Rationale:** The required suites match the size: Architecture and Integration for small, adding Acceptance for large. Unit test projects stay optional in both sizes, and Acceptance stays optional for small. An Acceptance project without the executable BDD extension is an unnamed baseline project: select the extension, or name the project for what it actually is. This provision states the .NET form of `litespec/backend/testing#keep-the-test-suites-the-size-requires`.
@@ -32,19 +34,31 @@ Each scenario is proved by a test that carries a `proves` tag naming the scenari
 
 A small solution holds the first two; Acceptance appears when the executable BDD extension activates.
 
+**Reviewed for:** The solution tree under `apps/api/tests/` holds Architecture and Integration test projects, with Acceptance added when size is large.
+
 ### Test HTTP Integration Through the Real Host
+
+**ID:** `litespec/backend/dotnet/testing#test-http-integration-through-the-real-host`
 
 **Statement:** An HTTP integration test MUST run through `WebApplicationFactory` with the real configuration, covering Problem Details, authentication, and resource authorization.
 
 **Rationale:** A test host with substituted configuration proves the substitutes, not the product. Running through `WebApplicationFactory` with the real configuration, and covering Problem Details, authentication, and resource authorization, exercises the boundary clients actually call. Persistence behavior against PostgreSQL is covered by `litespec/backend/persistence#test-persistence-against-postgresql`; both run on the harness that `litespec/backend/dotnet/testing#use-one-production-faithful-integration-harness` owns. This provision states the .NET form of `litespec/backend/testing#test-http-integration-through-the-real-application-host`.
 
+**Reviewed for:** HTTP integration test files run through `WebApplicationFactory` with the real configuration and cover Problem Details, authentication, and resource authorization.
+
 ### Enforce Architecture Rules
+
+**ID:** `litespec/backend/dotnet/testing#enforce-architecture-rules`
 
 **Statement:** An architecture test MUST assert the structural boundaries that `litespec/backend/architecture#test-structural-boundaries` names, running in the Release test pass.
 
 **Rationale:** Layer references, visibility, and folder placement are boundaries the compiler does not enforce, so a review miss lands in the main branch and every later change copies it. Architecture tests assert the boundaries that `litespec/backend/architecture#test-structural-boundaries` names, and run in the Release test pass. This provision states the .NET form of `litespec/backend/testing#assert-architecture-boundaries-with-tests`.
 
+**Reviewed for:** Architecture test files assert the named structural boundaries, and the Release test pass runs them.
+
 ### Prove Each Scenario with a Test That Calls Its Use Case
+
+**ID:** `litespec/backend/dotnet/testing#prove-each-scenario-with-a-test-that-calls-its-use-case`
 
 **Statement:** Each scenario MUST be proved by a test carrying one `/// <proves>scenario/<use-case>.<name></proves>` tag, calling its use case, and asserting the result the scenario names.
 
@@ -58,13 +72,21 @@ A test carries no coverage tag; the `proves` tag is its only record citation. A 
 /// <proves>scenario/submit-expense.submitting-with-a-receipt-succeeds</proves>
 ```
 
+**Reviewed for:** Each scenario's proving test file carries the `scenario/` `proves` tag, names the use case message type, asserts the named result, and passes in the latest run.
+
 ### Use One Production-Faithful Integration Harness
+
+**ID:** `litespec/backend/dotnet/testing#use-one-production-faithful-integration-harness`
 
 **Statement:** The integration project MUST own one PostgreSQL container fixture, one `ApiFactory`, and one database isolation helper, either a `DatabaseReset` or a template database clone.
 
 **Rationale:** The fixture starts the pinned PostgreSQL once per test run as an xUnit v3 assembly fixture, and supplies each class its connection string before the host builds, so every test sees the same configuration. A container per test class multiplies run time by the class count while adding no isolation a cloned database lacks. "One harness" binds the integration project: an activated BDD extension brings its own host for the acceptance project, because the two projects run different lifetimes, and that host reuses this fixture's container and reset helper rather than starting another database. This provision states the .NET form of `litespec/backend/testing#share-one-production-faithful-integration-harness`.
 
+**Reviewed for:** The integration test project holds one container fixture, one `ApiFactory`, and one isolation helper.
+
 ### Gate Changed Lines with Mutation Testing
+
+**ID:** `litespec/backend/dotnet/testing#gate-changed-lines-with-mutation-testing`
 
 **Statement:** Each pull request MUST show zero surviving mutants on its changed lines from a Stryker.NET run scoped with `--since`.
 
@@ -72,31 +94,28 @@ A test carries no coverage tag; the `proves` tag is its only record citation. A 
 
 **Example:** A pull request changing the submit-expense handler shows a Stryker.NET report with zero surviving mutants on its changed lines; a surviving mutant fails the pull request.
 
+**Reviewed for:** Each pull request shows a Stryker.NET `--since` report with zero surviving mutants on its changed lines.
+
 ### Seed Property Tests from Example Tables
+
+**ID:** `litespec/backend/dotnet/testing#seed-property-tests-from-example-tables`
 
 **Statement:** Property tests for each calculation rule MUST run on FsCheck with cases seeded from the rule's scenario examples table.
 
 **Rationale:** A calculation rule carries an examples table on its scenarios, and those rows seed the property cases: the properties hold for the agreed examples before they are checked against generated inputs. FsCheck is the .NET property library, free and maintained. The Domain test project owns the FsCheck reference under `litespec/backend/dotnet/packages#use-this-baseline-package-ownership`.
 
+**Reviewed for:** Each calculation rule's property tests run on FsCheck with cases drawn from the rule's scenario examples table.
+
 ### Generate Model Tests from Declared Transitions
+
+**ID:** `litespec/backend/dotnet/testing#generate-model-tests-from-declared-transitions`
 
 **Statement:** Each aggregate MUST carry a model-based test generated from its declared transitions and run with FsCheck.
 
 **Rationale:** The aggregate's declared transitions are the model: the test walks them and checks that each succeeds from its stated state while undeclared moves are refused. Generating the test from the record keeps it aligned with the declared lifecycle. FsCheck runs the generated model.
 
+**Reviewed for:** Each aggregate's model-based test runs on FsCheck against the aggregate's declared transitions.
+
 ## Conventions
 
 None.
-
-## Verification
-
-| ID | Mark | Evidence |
-|:---|:---|:---|
-| litespec/backend/dotnet/testing#keep-the-test-projects-the-size-requires | guidance | The solution tree under `apps/api/tests/` holds Architecture and Integration test projects, with Acceptance added when size is large. |
-| litespec/backend/dotnet/testing#test-http-integration-through-the-real-host | guidance | HTTP integration test files run through `WebApplicationFactory` with the real configuration and cover Problem Details, authentication, and resource authorization. |
-| litespec/backend/dotnet/testing#enforce-architecture-rules | guidance | Architecture test files assert the named structural boundaries, and the Release test pass runs them. |
-| litespec/backend/dotnet/testing#prove-each-scenario-with-a-test-that-calls-its-use-case | guidance | Each scenario's proving test file carries the `scenario/` `proves` tag, names the use case message type, asserts the named result, and passes in the latest run. |
-| litespec/backend/dotnet/testing#use-one-production-faithful-integration-harness | guidance | The integration test project holds one container fixture, one `ApiFactory`, and one isolation helper. |
-| litespec/backend/dotnet/testing#gate-changed-lines-with-mutation-testing | guidance | Each pull request shows a Stryker.NET `--since` report with zero surviving mutants on its changed lines. |
-| litespec/backend/dotnet/testing#seed-property-tests-from-example-tables | guidance | Each calculation rule's property tests run on FsCheck with cases drawn from the rule's scenario examples table. |
-| litespec/backend/dotnet/testing#generate-model-tests-from-declared-transitions | guidance | Each aggregate's model-based test runs on FsCheck against the aggregate's declared transitions. |

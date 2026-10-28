@@ -22,13 +22,19 @@ A listing query states its `claim` mode and its `score`, while a bulk money comm
 
 ### State the Claim Mode
 
+**ID:** `litespec/ext/queues#state-the-claim-mode`
+
 **Statement:** A work queue MUST state its claim mode as disabled, optional, or required.
 
 **Rationale:** Two people clearing the same item double-pay, double-approve, or double-refuse. The claim mode says whether items need no claim, accept an optional hold, or require one before action, so the queue never leaves two hands on one item.
 
 **Example:** The payout queue requires a claim before release, while the review queue leaves claiming optional.
 
+**Reviewed for:** The queue use cases state disabled, optional, or required on their claim field.
+
 ### Order Queue Items by Score
+
+**ID:** `litespec/ext/queues#order-queue-items-by-score`
 
 **Statement:** A work queue MUST order its items by a score that cites a calculation rule.
 
@@ -36,7 +42,11 @@ A listing query states its `claim` mode and its `score`, while a bulk money comm
 
 **Example:** The dispute queue orders by `rule/dispute.urgency-score`, which weighs amount, age, and evidence gaps.
 
+**Reviewed for:** The queue listings sort by a score citing the calculation rule behind it.
+
 ### Show the Score Beside Each Item
+
+**ID:** `litespec/ext/queues#show-the-score-beside-each-item`
 
 **Statement:** A queue listing MUST show each item score with the inputs that set it.
 
@@ -44,7 +54,11 @@ A listing query states its `claim` mode and its `score`, while a bulk money comm
 
 **Example:** Each dispute row shows `urgency 82: EUR 1,900, 6 days old, evidence missing`.
 
+**Reviewed for:** The queue rows display each score with the inputs that set it.
+
 ### Release Claims Past Their Lease
+
+**ID:** `litespec/ext/queues#release-claims-past-their-lease`
 
 **Statement:** A claimed item MUST return to the queue when its claim lease expires.
 
@@ -52,7 +66,11 @@ A listing query states its `claim` mode and its `score`, while a bulk money comm
 
 **Example:** A payout claimed Friday and untouched returns to the queue when its one-hour lease expires.
 
+**Reviewed for:** The claim tests show untouched items returning after their lease expires.
+
 ### Show a Preview Before Bulk Money Actions
+
+**ID:** `litespec/ext/queues#show-a-preview-before-bulk-money-actions`
 
 **Statement:** A bulk money command MUST render a preview of every affected item before acting.
 
@@ -60,7 +78,11 @@ A listing query states its `claim` mode and its `score`, while a bulk money comm
 
 **Example:** The bulk release previews forty-two payouts totaling EUR 18,400 before asking for confirmation.
 
+**Reviewed for:** The bulk money commands render every affected item with its amount before acting.
+
 ### Confirm Bulk Money Actions Out of Band
+
+**ID:** `litespec/ext/queues#confirm-bulk-money-actions-out-of-band`
 
 **Statement:** A bulk money command MUST require its `confirmBy` code from outside the session.
 
@@ -68,15 +90,21 @@ A listing query states its `claim` mode and its `score`, while a bulk money comm
 
 **Example:** The bulk release asks for the six-digit code sent to the finance phone before moving any money.
 
+**Reviewed for:** The bulk money commands ask for the out-of-band code before moving money.
+
 ## Conventions
 
 ### Order Unscored Queues by Age
+
+**ID:** `litespec/ext/queues#order-unscored-queues-by-age`
 
 **Default:** A queue without a score lists its oldest item first.
 
 **Replacement:** A project names its fallback queue order in its queue documentation.
 
 **Rationale:** Age is the honest fallback: the item waiting longest goes first. Any other fallback works when the queue states it.
+
+**Reviewed for:** Queues without a score list oldest first, or the queue documentation names another fallback order.
 
 ## Dependencies
 
@@ -85,15 +113,3 @@ Packages: None.
 Related extensions: None.
 
 Guides: None.
-
-## Verification
-
-| ID | Mark | Evidence |
-|:---|:---|:---|
-| litespec/ext/queues#state-the-claim-mode | guidance | The queue use cases state disabled, optional, or required on their claim field. |
-| litespec/ext/queues#order-queue-items-by-score | guidance | The queue listings sort by a score citing the calculation rule behind it. |
-| litespec/ext/queues#show-the-score-beside-each-item | guidance | The queue rows display each score with the inputs that set it. |
-| litespec/ext/queues#release-claims-past-their-lease | guidance | The claim tests show untouched items returning after their lease expires. |
-| litespec/ext/queues#show-a-preview-before-bulk-money-actions | guidance | The bulk money commands render every affected item with its amount before acting. |
-| litespec/ext/queues#confirm-bulk-money-actions-out-of-band | guidance | The bulk money commands ask for the out-of-band code before moving money. |
-| litespec/ext/queues#order-unscored-queues-by-age | guidance | Queues without a score list oldest first, or the queue documentation names another fallback order. |

@@ -18,19 +18,29 @@ The drawings on this page use the Acme Supply back office: 268 orders including 
 
 ### State What Failed and the Next Step
 
+**ID:** `litespec/frontend/patterns/feedback-and-states#state-what-failed-and-the-next-step`
+
 **Statement:** A refusal or error message MUST state what failed and the next step the reader can take.
 
 **Rationale:** A message that only says something went wrong leaves the reader guessing whether to retry, fix input, or ask for help, and most readers retry blindly or give up. Naming what failed plus the one next step turns the dead end into a task the reader can complete.
 
+**Reviewed for:** Which built failure message omits the cause or the way forward? Open the refused commands and failed reads on built screens.
+
 ### Keep the Reader's Input Through a Failure
+
+**ID:** `litespec/frontend/patterns/feedback-and-states#keep-the-readers-input-through-a-failure`
 
 **Statement:** A failed save MUST keep the reader's unsaved input on the screen.
 
 **Rationale:** Retyping a whole form to fix one refused field wastes the reader's time and introduces new typos. Worse, readers who lose work to a failure stop trusting the form and copy long answers elsewhere before saving.
 
+**Reviewed for:** Which built form drops typed values after a refused save? Open the failed submits on built forms and check every field.
+
 ## Patterns
 
 ### Nothing Has Ever Existed
+
+**ID:** `litespec/frontend/patterns/feedback-and-states#nothing-has-ever-existed`
 
 **Question:** No record of this kind exists yet. The page states that plainly, says what the first record is for, and offers the one command that creates it.
 
@@ -39,6 +49,8 @@ The drawings on this page use the Acme Supply back office: 268 orders including 
 **Compact:** The recommended option reflows: one column with the header actions under the title.
 
 **Rationale:** The pick stays on the positive title with one action. It is the smallest shape and the only option that asks nothing of a reader who has nothing yet. The runner-up is the setup guide on Home. Prefer it when the first order needs steps across several pages. Never ship the table with a dashed sample row. It shows a record that does not exist, and opening it leads nowhere.
+
+**Reviewed for:** Which built first-run screen departs from the wireframe its catalog entry chose? Open the built empty lists and setup guides beside the catalog entry recording the chosen option and its reason.
 
 #### `positive-title-one-action`: Positive Title, One Action
 
@@ -238,6 +250,8 @@ page
 
 ### Nothing Matches What Was Asked For
 
+**ID:** `litespec/frontend/patterns/feedback-and-states#nothing-matches-what-was-asked-for`
+
 **Question:** A search found nothing, but records exist. The page must say so, name the term that failed, and offer a way back.
 
 **Default:** `different-copy-and-it-names-the-term`
@@ -245,6 +259,8 @@ page
 **Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
 
 **Rationale:** The pick stays on the copy that names the term. It says what failed and what to change, with the count proving the data exists. The runner-up is the table that keeps its headers. Prefer it where readers filter all day and want the columns to stay put. Never ship the empty state with no actions. A search that names its term can always offer to clear it.
+
+**Reviewed for:** Which built no-results screen departs from the wireframe its catalog entry chose? Open the built filtered empties and suggestion rows beside the catalog entry recording the chosen option and its reason.
 
 #### `different-copy-and-it-names-the-term`: Different Copy, and It Names the Term
 
@@ -427,6 +443,8 @@ page
 
 ### Loading
 
+**ID:** `litespec/frontend/patterns/feedback-and-states#loading`
+
 **Question:** The page waits for its first read. The wait needs a shape that holds its place until the rows arrive.
 
 **Default:** `skeletons-at-the-real-row-height`
@@ -434,6 +452,8 @@ page
 **Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
 
 **Rationale:** The pick stays on skeletons at the real row height. Nothing moves when the data lands, even on a slow phone read. The runner-up is the thin bar over the old rows. Prefer it for a re-read where the reader keeps their place, such as a changed filter. Never ship nothing at all. Any read slower than a blink reads as a failed page.
+
+**Reviewed for:** Which built waiting state departs from the wireframe its catalog entry chose? Open the built skeletons, spinners, and progress bars beside the catalog entry recording the chosen option and its reason.
 
 #### `skeletons-at-the-real-row-height`: Skeletons at the Real Row Height
 
@@ -625,6 +645,8 @@ page
 
 ### Command the API Refused
 
+**ID:** `litespec/frontend/patterns/feedback-and-states#command-the-api-refused`
+
 **Question:** The API refused a command. The page must say what went wrong, why, and what the reader can do instead.
 
 **Default:** `the-refusal-sentence-its-code-and-a-way-to-fix-it`
@@ -632,6 +654,8 @@ page
 **Compact:** The recommended option reflows: one column with the header actions under the title.
 
 **Rationale:** The pick stays on the refusal sentence with its code and fix. It meets WCAG 3.3.1 and 3.3.3 in one place. The runner-up is the refusal inside the dialog that sent it. Prefer it where closing would lose what the reader typed, such as a refund amount. Never ship the refusal only on the record timeline. A reader who sent the command from elsewhere never returns to find it.
+
+**Reviewed for:** Which built refusal notice departs from the wireframe its catalog entry chose? Open the built refused commands, with codes and fixes, beside the catalog entry recording the chosen option and its reason.
 
 #### `the-refusal-sentence-its-code-and-a-way-to-fix-it`: The Refusal Sentence, Its Code and a Way to Fix It
 
@@ -811,6 +835,8 @@ page
 
 ### Command That Worked
 
+**ID:** `litespec/frontend/patterns/feedback-and-states#command-that-worked`
+
 **Question:** A command worked. The page must show what changed, so the reader trusts the result without asking.
 
 **Default:** `evidence-on-the-page-not-only-a-toast`
@@ -818,6 +844,8 @@ page
 **Compact:** The recommended option reflows: one column with the header actions under the title.
 
 **Rationale:** The pick stays on evidence on the page. State, money, and timeline all say what changed after a refund. The runner-up is the toast with `Undo`. Prefer it for a reversible change such as hiding a product from the store. Never ship no message at all. It fails WCAG 4.1.3, since a screen reader user gets no signal.
+
+**Reviewed for:** Which built success notice departs from the wireframe its catalog entry chose? Open the built confirmations, toasts, and quiet saves beside the catalog entry recording the chosen option and its reason.
 
 #### `evidence-on-the-page-not-only-a-toast`: Evidence on the Page, Not Only a Toast
 
@@ -992,6 +1020,8 @@ page
 
 ### Fact Somebody Has to Read Before Acting
 
+**ID:** `litespec/frontend/patterns/feedback-and-states#fact-somebody-has-to-read-before-acting`
+
 **Question:** Some pages must state a fact before staff act, such as low stock or a closing window. Only a command result is an alert; a static fact is a notice. A tone paints the object in that state, never a full band across other work.
 
 **Default:** `a-neutral-notice-above-the-page`
@@ -1001,6 +1031,8 @@ page
 **Rationale:** Keep one neutral sentence above the page, with no tone and no band. It says why the page holds its state and stays out of the work. The runner-up is the side column, which suits an Acme Supply order where the refund window changes the next step. Never ship a full-width toned band for one record.
 
 A banner stays for facts on every page, such as `Sandbox`.
+
+**Reviewed for:** Which built must-read notice departs from the wireframe its catalog entry chose? Open the built callouts, hints, and banners beside the catalog entry recording the chosen option and its reason.
 
 #### `a-neutral-notice-above-the-page`: A Neutral Notice Above the Page
 
@@ -1186,6 +1218,8 @@ page
 
 ### Reader May Not Do This
 
+**ID:** `litespec/frontend/patterns/feedback-and-states#reader-may-not-do-this`
+
 **Question:** Staff meet pages their role cannot use, so each such page must show the reason and the grant that would help. A back office with several roles meets this state on most pages, so it needs one shape.
 
 **Default:** `the-commands-are-refused-each-with-its-grant-named`
@@ -1195,6 +1229,8 @@ page
 **Rationale:** Keep the explained action. Each refused command names the role that grants it, and the record stays readable. At the pickup counter reading the record is the point. The runner-up is the read-only section with values as text, which suits a fee form where a form that fails on `Save` hurts more.
 
 Never refuse the whole page to a warehouse lead. Hiding a customer name needed at the counter costs more than the secrecy gains.
+
+**Reviewed for:** Which built forbidden view departs from the wireframe its catalog entry chose? Open the built refused pages, absent tabs, and read-only sections beside the catalog entry recording the chosen option and its reason.
 
 #### `the-commands-are-refused-each-with-its-grant-named`: The Commands Are Refused, Each with Its Grant Named
 
@@ -1369,6 +1405,8 @@ page
 
 ### Connection Is Gone
 
+**ID:** `litespec/frontend/patterns/feedback-and-states#connection-is-gone`
+
 **Question:** Staff lose the connection while working, so the page on screen goes stale. The decision is what a stale page says: how fresh its data is, what still works, and when to retry.
 
 **Default:** `a-banner-saying-what-is-stale-and-what-still-works`
@@ -1378,6 +1416,8 @@ page
 **Rationale:** Keep one band saying what is stale, when it was read, and what still works. A stale page the reader can read beats a page that shows nothing. The runner-up is the failed read state, which suits a page with nothing to show because the read itself failed.
 
 Never ship a queued refund as a quiet default. A refund nobody confirmed is a liability, and the page says plainly that the money has not moved.
+
+**Reviewed for:** Which built offline screen departs from the wireframe its catalog entry chose? Open the built stale banners and queued commands beside the catalog entry recording the chosen option and its reason.
 
 #### `a-banner-saying-what-is-stale-and-what-still-works`: A Banner Saying What Is Stale and What Still Works
 
@@ -1546,6 +1586,8 @@ page
 
 ### Sign-In Ran Out
 
+**ID:** `litespec/frontend/patterns/feedback-and-states#sign-in-ran-out`
+
 **Question:** A session ends while the reader is working. Sign-in runs on the application's own origin, and a refused or ended session lands on `/signed-out`. The reader's unsent work is what this state must not lose.
 
 **Default:** `a-dialog-over-the-work-which-stays-where-it-is`
@@ -1555,6 +1597,8 @@ page
 **Rationale:** Keep the dialog over the work, which stays where it is. It keeps unsent work on screen and names the one thing to do. The runner-up is the warning before the end, which suits a reader still at the desk who never meets the expired state.
 
 Never ship the toast alone. The message leaves in seconds and the typed work leaves with it.
+
+**Reviewed for:** Which built expired session departs from the wireframe its catalog entry chose? Open the built sign-out pages and re-auth dialogs beside the catalog entry recording the chosen option and its reason.
 
 #### `signed-out-on-its-own-page`: Signed Out, on Its Own Page
 
@@ -1693,6 +1737,8 @@ page
 
 ### Somebody Else Saved First
 
+**ID:** `litespec/frontend/patterns/feedback-and-states#somebody-else-saved-first`
+
 **Question:** Two people edit one record. The API refuses the second save with `concurrency/record.changed-elsewhere`, worded as `Someone else changed this`. The reader's unsent edits are still on the page.
 
 **Default:** `the-refusal-above-save-with-her-value-under-the-field`
@@ -1702,6 +1748,8 @@ page
 **Rationale:** Keep the refusal above `Save`, with her value under the field. It refuses in the dictionary's words and fixes only what collided, with no dialog and no lost keystroke. The runner-up is the field-by-field choice, which suits a record where both people changed several fields.
 
 Never ship `read-only-until-reload`. It deletes Alex's notes to resolve an arrival time.
+
+**Reviewed for:** Which built conflict screen departs from the wireframe its catalog entry chose? Open the built field-by-field merges and presence cues beside the catalog entry recording the chosen option and its reason.
 
 #### `the-refusal-above-save-with-her-value-under-the-field`: The Refusal Above Save, with Her Value Under the Field
 
@@ -1860,6 +1908,8 @@ page
 
 ### Work That Runs Without You
 
+**ID:** `litespec/frontend/patterns/feedback-and-states#work-that-runs-without-you`
+
 **Question:** An import or a bulk refund runs for minutes, longer than the reader waits on one page. The reader starts it and does other work. The job must stay visible while it runs and report its result when it is done.
 
 **Default:** `an-activity-tray-like-an-upload-panel`
@@ -1869,6 +1919,8 @@ page
 **Rationale:** Keep the activity tray, like an upload panel. It stays visible on every page, it never holds the reader, and it answers progress without being asked. The runner-up is the job page with the failures listed.
 
 It suits a bulk refund where 2 of 31 need a person and the rest do not. Never ship the dialog that holds the reader. Minutes of a blocked page are the cost this pattern exists to remove.
+
+**Reviewed for:** Which built background job departs from the wireframe its catalog entry chose? Open the built trays, job sections, and progress rows beside the catalog entry recording the chosen option and its reason.
 
 #### `an-activity-tray-like-an-upload-panel`: An Activity Tray, Like an Upload Panel
 
@@ -2009,6 +2061,8 @@ page
 
 ### This Record Does Not Exist
 
+**ID:** `litespec/frontend/patterns/feedback-and-states#this-record-does-not-exist`
+
 **Question:** A link names a record that is gone, mistyped, or at another company. A problem state words it as `Not found`. The reader needs a way back, not a code.
 
 **Default:** `not-found-with-the-way-back`
@@ -2018,6 +2072,8 @@ page
 **Rationale:** Keep `Not found`, with the way back. It names the record, covers the three ways a record goes missing, and offers the list and the search. The runner-up is the record state.
 
 It suits a section whose read failed rather than a page whose record is gone. Never ship the bare code. A code means nothing to a reader, and a dead end with a number on it is still a dead end.
+
+**Reviewed for:** Which built missing-record screen departs from the wireframe its catalog entry chose? Open the built not-found and gone states beside the catalog entry recording the chosen option and its reason.
 
 #### `the-shipped-record-state`: The Shipped Record State
 
@@ -2140,6 +2196,8 @@ page
 
 ### Something Went Wrong on Our Side
 
+**ID:** `litespec/frontend/patterns/feedback-and-states#something-went-wrong-on-our-side`
+
 **Question:** The server fails a read or a command. A problem state words it as `That did not go through`, with a reference the reader can quote. The reader must know what did not happen.
 
 **Default:** `the-shipped-failure-with-its-reference`
@@ -2149,6 +2207,8 @@ page
 **Rationale:** Keep the failure with its reference. It words the failure once, says what did not move, and gives support something to read back. The runner-up is the outcome page.
 
 It suits a failed command where the money sentence deserves a page of its own. Never ship the old data with its quiet line. Figures the server could not confirm are misinformation, and a quiet line does not make them honest.
+
+**Reviewed for:** Which built server-failure screen departs from the wireframe its catalog entry chose? Open the built outage pages and retrying bars beside the catalog entry recording the chosen option and its reason.
 
 #### `the-shipped-failure-with-its-reference`: The Shipped Failure with Its Reference
 
@@ -2282,6 +2342,8 @@ page
 
 ### Back Office Is Down for a Short While
 
+**ID:** `litespec/frontend/patterns/feedback-and-states#back-office-is-down-for-a-short-while`
+
 **Question:** A planned window stops the back office. The warehouse keeps its printed pick lists, but the dispatch desk checks every parcel against the system, so dispatch waits too. The reader needs the window, what still works, and when to come back.
 
 **Default:** `told-ahead-of-time-on-every-page`
@@ -2291,6 +2353,8 @@ page
 **Rationale:** Keep the advance notice on every page. A window nobody meets by surprise is a window the warehouse can plan around, and the printed pick lists are the plan. The runner-up is the maintenance page itself.
 
 It is what every page becomes while the window runs. Never ship the message alone as the only signal. A Thursday message tells, and only the back office reminds on Sunday at 02:00.
+
+**Reviewed for:** Which built maintenance screen departs from the wireframe its catalog entry chose? Open the built countdowns and read-only windows beside the catalog entry recording the chosen option and its reason.
 
 #### `told-ahead-of-time-on-every-page`: Told Ahead of Time, on Every Page
 
@@ -2421,6 +2485,8 @@ page
 
 ### Too Many Tries
 
+**ID:** `litespec/frontend/patterns/feedback-and-states#too-many-tries`
+
 **Question:** The reader hits a limit: too many exports, too many sign-in tries, or too many sends. The API answers `429` with when to try again. The page must state the wait and the reason, briefly.
 
 **Default:** `the-button-waits-and-says-how-long`
@@ -2430,6 +2496,8 @@ page
 **Rationale:** Keep the button that waits and says how long. It turns the limit into a 40-second wait with its reason attached, which is all a reader who hit 12 exports needs. The runner-up is the limit stated before it hits.
 
 It suits a reader planning a month of exports rather than one too many. Never ship the spinner that never says why. A wait the reader cannot name reads as a page that broke, and reloading restarts it.
+
+**Reviewed for:** Which built rate-limit screen departs from the wireframe its catalog entry chose? Open the built waits, queues, and 429 pages beside the catalog entry recording the chosen option and its reason.
 
 #### `the-button-waits-and-says-how-long`: The Button Waits, and Says How Long
 
@@ -2558,25 +2626,3 @@ page
 **Rationale:** This is what happens when the `429` is swallowed into a loading state: the search spins with no message. It is drawn to be refused: a wait the reader cannot name reads as a page that broke.
 
 **Cost:** The spinner is indistinguishable from a hang. Every second past the first is a second the reader spends deciding whether to reload, which restarts the wait.
-
-## Verification
-
-| ID | Mark | Evidence |
-|:---|:---|:---|
-| litespec/frontend/patterns/feedback-and-states#state-what-failed-and-the-next-step | guidance | Which built failure message omits the cause or the way forward? Open the refused commands and failed reads on built screens. |
-| litespec/frontend/patterns/feedback-and-states#keep-the-readers-input-through-a-failure | guidance | Which built form drops typed values after a refused save? Open the failed submits on built forms and check every field. |
-| litespec/frontend/patterns/feedback-and-states#nothing-has-ever-existed | guidance | Which built first-run screen departs from the wireframe its catalog entry chose? Open the built empty lists and setup guides beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/feedback-and-states#nothing-matches-what-was-asked-for | guidance | Which built no-results screen departs from the wireframe its catalog entry chose? Open the built filtered empties and suggestion rows beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/feedback-and-states#loading | guidance | Which built waiting state departs from the wireframe its catalog entry chose? Open the built skeletons, spinners, and progress bars beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/feedback-and-states#command-the-api-refused | guidance | Which built refusal notice departs from the wireframe its catalog entry chose? Open the built refused commands, with codes and fixes, beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/feedback-and-states#command-that-worked | guidance | Which built success notice departs from the wireframe its catalog entry chose? Open the built confirmations, toasts, and quiet saves beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/feedback-and-states#fact-somebody-has-to-read-before-acting | guidance | Which built must-read notice departs from the wireframe its catalog entry chose? Open the built callouts, hints, and banners beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/feedback-and-states#reader-may-not-do-this | guidance | Which built forbidden view departs from the wireframe its catalog entry chose? Open the built refused pages, absent tabs, and read-only sections beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/feedback-and-states#connection-is-gone | guidance | Which built offline screen departs from the wireframe its catalog entry chose? Open the built stale banners and queued commands beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/feedback-and-states#sign-in-ran-out | guidance | Which built expired session departs from the wireframe its catalog entry chose? Open the built sign-out pages and re-auth dialogs beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/feedback-and-states#somebody-else-saved-first | guidance | Which built conflict screen departs from the wireframe its catalog entry chose? Open the built field-by-field merges and presence cues beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/feedback-and-states#work-that-runs-without-you | guidance | Which built background job departs from the wireframe its catalog entry chose? Open the built trays, job sections, and progress rows beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/feedback-and-states#this-record-does-not-exist | guidance | Which built missing-record screen departs from the wireframe its catalog entry chose? Open the built not-found and gone states beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/feedback-and-states#something-went-wrong-on-our-side | guidance | Which built server-failure screen departs from the wireframe its catalog entry chose? Open the built outage pages and retrying bars beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/feedback-and-states#back-office-is-down-for-a-short-while | guidance | Which built maintenance screen departs from the wireframe its catalog entry chose? Open the built countdowns and read-only windows beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/feedback-and-states#too-many-tries | guidance | Which built rate-limit screen departs from the wireframe its catalog entry chose? Open the built waits, queues, and 429 pages beside the catalog entry recording the chosen option and its reason. |

@@ -22,97 +22,159 @@ Selecting `report` switches on the setting record type: the request budget and e
 
 ### Record Reporting Need
 
+**ID:** `litespec/ext/report#record-reporting-need`
+
 **Statement:** A reporting proposal MUST record the report, representative data volume, plan or limitation, latency target, maximum result, and operating owner.
 
 **Rationale:** Reporting infrastructure costs a Worker, storage, and operating attention, so the team writes down the report, a representative data volume, the plan or limitation, the latency target, the maximum result, and the operating owner before building any of it. The use case page carries that record with its owner and status, and it shows why a normal request projection cannot meet the boundary.
 
+**Reviewed for:** The use case page holds the report, volume, plan, target, maximum, and owner.
+
 ### Avoid Speculative Reporting Systems
+
+**ID:** `litespec/ext/report#avoid-speculative-reporting-systems`
 
 **Statement:** A project MUST NOT create reporting infrastructure for possible future analytics.
 
 **Rationale:** A reporting system built for analytics the product may never need charges its full operating cost from day one while serving no accepted query. Each report or export earns its infrastructure with a current cost boundary, not a guess about future analysis.
 
+**Reviewed for:** Each reporting system traces to an accepted current query or export.
+
 ### Parameterize Report SQL
+
+**ID:** `litespec/ext/report#parameterize-report-sql`
 
 **Statement:** A reporting query MUST parameterize every actor, tenant, filter, range, sort, and pagination value.
 
 **Rationale:** A report concatenates actor, tenant, filters, ranges, sorting, and pagination into SQL that reads across the database. Binding every one of those values as a parameter keeps tenant and actor isolation intact and closes the injection hole string concatenation opens.
 
+**Reviewed for:** Each report query binds actor, tenant, filter, range, sort, and pagination values as parameters in code.
+
 ### Keep Raw SQL in Infrastructure
+
+**ID:** `litespec/ext/report#keep-raw-sql-in-infrastructure`
 
 **Statement:** Infrastructure MUST own raw reporting SQL and connection handling.
 
 **Rationale:** Raw SQL names tables, dialects, and connection handling that belong to one provider. Keeping it in Infrastructure lets Application and Domain state what the report means without depending on how one database phrases it.
 
+**Reviewed for:** Raw report SQL and connection handling sit in Infrastructure code.
+
 ### Review Report Plans
+
+**ID:** `litespec/ext/report#review-report-plans`
 
 **Statement:** A report owner MUST review query plans and indexes with representative data.
 
 **Rationale:** A query that flies over a hundred local rows can scan millions in production. The report owner reviews query plans and indexes against representative data, so the true cost shows before the report ships rather than after it slows the database.
 
+**Reviewed for:** The review record shows query plans and indexes checked against representative data.
+
 ### Apply Item-Read Authorization
+
+**ID:** `litespec/ext/report#apply-item-read-authorization`
 
 **Statement:** A report or export MUST enforce actor, role, ownership, tenant, and sensitive-field rules that apply to item reads.
 
 **Rationale:** A report that reads ten thousand rows at once crosses the same actor, role, ownership, tenant, and sensitive-field boundaries as ten thousand single reads. Enforcing the item-read rules on the bulk path stops the report from exposing rows its reader may not open one by one.
 
+**Reviewed for:** Each report and export enforces the item-read rules in the authorization tests.
+
 ### Run Budget-Exceeding Exports in Worker
+
+**ID:** `litespec/ext/report#run-budget-exceeding-exports-in-worker`
 
 **Statement:** An export exceeding its request budget MUST run through Worker, with the budget a setting record the export's use case names.
 
 **Rationale:** An export that outlasts its request budget holds an HTTP connection open while the reader waits and the server counts threads. Running it in a Worker returns the request immediately, and the budget in its setting record tells the team exactly when an export outgrows the request path.
 
+**Reviewed for:** Each export past its request budget runs through a Worker, with the budget in its setting record.
+
 ### Protect Export Output
+
+**ID:** `litespec/ext/report#protect-export-output`
 
 **Statement:** An export worker MUST store output in approved object storage with an owner, expiry, and short-lived authorized download.
 
 **Rationale:** An export file concentrates sensitive rows into one downloadable object that outlives the request that built it. Approved object storage with an owner, an expiry, and a short-lived authorized download gives that object controlled access and a defined end instead of a permanent public link.
 
+**Reviewed for:** Export output sits in approved object storage with an owner, an expiry, and a short-lived authorized download.
+
 ### Scope Export Output to the Tenant
+
+**ID:** `litespec/ext/report#scope-export-output-to-the-tenant`
 
 **Statement:** An export MUST store its output under a tenant-scoped object-storage path.
 
 **Rationale:** Export addresses are predictable, and a shared folder lets one tenant guess another tenant's file name. A tenant-scoped storage path puts each tenant's exports under its own prefix, so a guessed address stays inside the guesser's own data.
 
+**Reviewed for:** Each export stores its output under a tenant-scoped path in object storage.
+
 ### Define Report Limits
+
+**ID:** `litespec/ext/report#define-report-limits`
 
 **Statement:** A report specification MUST state each bound as a setting record: maximum date range, rows, execution time, concurrent jobs, output size, and storage lifetime.
 
 **Rationale:** Date range, rows, execution time, concurrent jobs, output size, and storage lifetime each cap one dimension of report cost. Setting records hold all six, so a runaway report hits a documented bound instead of an exhausted database, a full disk, or a surprise invoice.
 
+**Reviewed for:** Each report bound lives as a setting record beside the report.
+
 ### Declare Export Paging
+
+**ID:** `litespec/ext/report#declare-export-paging`
 
 **Statement:** An export query MUST state `paging` or `none` with its reason.
 
 **Rationale:** An export reads many rows at once, so it states how the read is bounded: `paging` bounds each run, and `none` with a reason states why the export reads all rows at once. Without the declaration, a reviewer cannot tell a bounded export from one that grows with the table.
 
+**Reviewed for:** Which export queries lack `paging` or `none` with its reason? Look at the export query beside the report.
+
 ### Audit Export Reads
+
+**ID:** `litespec/ext/report#audit-export-reads`
 
 **Statement:** An export query MUST state its `audit` reason and target.
 
 **Rationale:** An export file concentrates sensitive rows into one downloadable object, so the use case states why the bulk read is audited and where the audit lands. Without the stated audit, the concentrated read leaves no trace a reviewer can follow.
 
+**Reviewed for:** Which export queries lack a stated `audit` reason and target? Look at the export query beside the report.
+
 ### Support Report Cancellation
+
+**ID:** `litespec/ext/report#support-report-cancellation`
 
 **Statement:** A report implementation MUST support cancellation and remove expired outputs.
 
 **Rationale:** A reader who closes the tab leaves the report running, and an export nobody downloads still occupies storage. Cancellation stops the abandoned work, and expiry removes the abandoned file, so neither consumes resources indefinitely.
 
+**Reviewed for:** Report work cancels on request and expired output clears in the cancellation tests.
+
 ### Escape Formula-Leading Export Values
+
+**ID:** `litespec/ext/report#escape-formula-leading-export-values`
 
 **Statement:** A CSV or spreadsheet export MUST escape formula-leading values unless a reviewed field intentionally contains a formula.
 
 **Rationale:** A value starting with `=`, `+`, `-`, or `@` becomes a live formula when the export opens in a spreadsheet, running in the opener's application with the opener's data. Escaping those values keeps data as data, except in a reviewed field the team intentionally fills with a formula.
 
+**Reviewed for:** Exported values starting a formula are escaped, except in reviewed formula fields.
+
 ### Define Export Encoding and Columns
+
+**ID:** `litespec/ext/report#define-export-encoding-and-columns`
 
 **Statement:** An export format MUST use explicit character encoding and a stable column contract.
 
 **Rationale:** An export without a stated encoding arrives garbled on the first machine that guesses differently, and columns that shift per release break every parser built on them. Explicit encoding with a stable column contract lets consumers parse the file without guessing either.
 
+**Reviewed for:** Each export states its character encoding and stable columns in its format record.
+
 ## Conventions
 
 ### Keep Report Definitions in Application
+
+**ID:** `litespec/ext/report#keep-report-definitions-in-application`
 
 **Default:** Keep report definitions in Application under their module.
 
@@ -120,7 +182,11 @@ Selecting `report` switches on the setting record type: the request budget and e
 
 **Rationale:** What a report means and who may run it are business choices. Keeping the definition in Application under its module puts those choices beside the module's other rules instead of buried in query code.
 
+**Reviewed for:** Report definitions sit in their module, or the report-definition convention names where they live.
+
 ### Keep Report Providers in Infrastructure
+
+**ID:** `litespec/ext/report#keep-report-providers-in-infrastructure`
 
 **Default:** Keep SQL, row mappings, and storage providers in Infrastructure.
 
@@ -128,13 +194,19 @@ Selecting `report` switches on the setting record type: the request budget and e
 
 **Rationale:** SQL text, row mappings, and storage calls change per provider while the report's meaning stays fixed. Keeping them in Infrastructure swaps the provider without touching the report's business rules.
 
+**Reviewed for:** SQL and storage code sit in Infrastructure, or the report-provider convention names where they live.
+
 ### Separate Worker Orchestration
+
+**ID:** `litespec/ext/report#separate-worker-orchestration`
 
 **Default:** Keep Worker orchestration separate from report rules.
 
 **Replacement:** A consumer records a report-orchestration convention naming where its scheduling and progress tracking live.
 
 **Rationale:** Scheduling, chunking, and progress tracking run the report without defining it. Keeping Worker orchestration apart from the report's rules lets either change without dragging the other along.
+
+**Reviewed for:** Worker orchestration sits apart from report rules, or the report-orchestration convention names where it lives.
 
 ## Dependencies
 
@@ -143,26 +215,3 @@ Packages: This extension selects no report or object-storage package. Each provi
 Related extensions: The `jobs` extension owns Worker scheduling when an export runs past its request budget.
 
 Guides: None.
-
-## Verification
-
-| ID | Mark | Evidence |
-|:---|:---|:---|
-| litespec/ext/report#record-reporting-need | guidance | The use case page holds the report, volume, plan, target, maximum, and owner. |
-| litespec/ext/report#avoid-speculative-reporting-systems | guidance | Each reporting system traces to an accepted current query or export. |
-| litespec/ext/report#parameterize-report-sql | guidance | Each report query binds actor, tenant, filter, range, sort, and pagination values as parameters in code. |
-| litespec/ext/report#keep-raw-sql-in-infrastructure | guidance | Raw report SQL and connection handling sit in Infrastructure code. |
-| litespec/ext/report#review-report-plans | guidance | The review record shows query plans and indexes checked against representative data. |
-| litespec/ext/report#apply-item-read-authorization | guidance | Each report and export enforces the item-read rules in the authorization tests. |
-| litespec/ext/report#run-budget-exceeding-exports-in-worker | guidance | Each export past its request budget runs through a Worker, with the budget in its setting record. |
-| litespec/ext/report#protect-export-output | guidance | Export output sits in approved object storage with an owner, an expiry, and a short-lived authorized download. |
-| litespec/ext/report#scope-export-output-to-the-tenant | guidance | Each export stores its output under a tenant-scoped path in object storage. |
-| litespec/ext/report#define-report-limits | guidance | Each report bound lives as a setting record beside the report. |
-| litespec/ext/report#declare-export-paging | guidance | Which export queries lack `paging` or `none` with its reason? Look at the export query beside the report. |
-| litespec/ext/report#audit-export-reads | guidance | Which export queries lack a stated `audit` reason and target? Look at the export query beside the report. |
-| litespec/ext/report#support-report-cancellation | guidance | Report work cancels on request and expired output clears in the cancellation tests. |
-| litespec/ext/report#escape-formula-leading-export-values | guidance | Exported values starting a formula are escaped, except in reviewed formula fields. |
-| litespec/ext/report#define-export-encoding-and-columns | guidance | Each export states its character encoding and stable columns in its format record. |
-| litespec/ext/report#keep-report-definitions-in-application | guidance | Report definitions sit in their module, or the report-definition convention names where they live. |
-| litespec/ext/report#keep-report-providers-in-infrastructure | guidance | SQL and storage code sit in Infrastructure, or the report-provider convention names where they live. |
-| litespec/ext/report#separate-worker-orchestration | guidance | Worker orchestration sits apart from report rules, or the report-orchestration convention names where it lives. |

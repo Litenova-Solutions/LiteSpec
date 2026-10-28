@@ -18,11 +18,17 @@ An AppHost that runs the API alone stays under `apps/api/src/` with the projects
 
 ### Declare Size and Stacks in Project Config
 
+**ID:** `litespec/backend/dotnet/workspace#declare-size-and-stacks-in-project-config`
+
 **Statement:** `litespec.project.json` MUST declare `size` as `small` or `large` and one stack per frontend in `paths.frontends` beside the `dotnet` backend.
 
 **Rationale:** Size decides which record types and test projects apply, and each stack decides which technology pages and checks apply. An undeclared size or stack leaves tools guessing which rules bind the workspace. This provision states the .NET form of `litespec/workspace/structure#declare-size-and-application-stacks-in-project-config`.
 
+**Reviewed for:** `litespec.project.json` declares `size` as `small` or `large` and one stack per frontend beside the `dotnet` backend.
+
 ### Keep .NET Production and Test Projects Separate
+
+**ID:** `litespec/backend/dotnet/workspace#keep-net-production-and-test-projects-separate`
 
 **Statement:** Production projects MUST live under `apps/api/src/` and test projects under `apps/api/tests/`, with the solution directly under `apps/api/`.
 
@@ -54,7 +60,11 @@ apps/api/
 
 Worker is conditional on the extension that runs background work. Acceptance.Tests is required when `size` is large and optional otherwise. Domain.Tests and Application.Tests are optional in both sizes. `AppHost` and `ServiceDefaults` are local hosting and diagnostics projects rather than application layers. An application that orchestrates its local dependencies another way ships neither and records no deviation for their absence.
 
+**Reviewed for:** Production project files sit under `apps/api/src/`, test project files under `apps/api/tests/`, and the solution file directly under `apps/api/`.
+
 ### Keep One Workspace Solution Beside the API Solution
+
+**ID:** `litespec/backend/dotnet/workspace#keep-one-workspace-solution-beside-the-api-solution`
 
 **Statement:** A root solution MUST list the .NET projects of more than one deployable unit, with builds, test runs, and configuration still naming the API solution.
 
@@ -62,7 +72,11 @@ Worker is conditional on the extension that runs background work. Acceptance.Tes
 
 **Example:** A workspace with an API and a command-line tool carries `apps/api/{ProjectName}.slnx`, `apps/cli/{ProjectName}.Cli.slnx` where one exists, and a root `{ProjectName}.slnx` listing both sets.
 
+**Reviewed for:** Any root solution file lists the .NET projects of more than one deployable, while builds, test runs, and configuration name the API solution.
+
 ### Place a Workspace AppHost Beside the Applications It Runs
+
+**ID:** `litespec/backend/dotnet/workspace#place-a-workspace-apphost-beside-the-applications-it-runs`
 
 **Statement:** An AppHost that runs more than one application under `apps/` MUST live at `apps/apphost/{ProjectName}.AppHost/` rather than under `apps/api/src/`.
 
@@ -86,15 +100,8 @@ apps/
 
 The workspace solution of `litespec/backend/dotnet/workspace#keep-one-workspace-solution-beside-the-api-solution` lists the AppHost, and the API solution lists it too when a test project references it.
 
+**Reviewed for:** An AppHost running a frontend sits at `apps/apphost/`; an API-only AppHost sits under `apps/api/src/`.
+
 ## Conventions
 
 None.
-
-## Verification
-
-| ID | Mark | Evidence |
-|:---|:---|:---|
-| litespec/backend/dotnet/workspace#declare-size-and-stacks-in-project-config | guidance | `litespec.project.json` declares `size` as `small` or `large` and one stack per frontend beside the `dotnet` backend. |
-| litespec/backend/dotnet/workspace#keep-net-production-and-test-projects-separate | guidance | Production project files sit under `apps/api/src/`, test project files under `apps/api/tests/`, and the solution file directly under `apps/api/`. |
-| litespec/backend/dotnet/workspace#keep-one-workspace-solution-beside-the-api-solution | guidance | Any root solution file lists the .NET projects of more than one deployable, while builds, test runs, and configuration name the API solution. |
-| litespec/backend/dotnet/workspace#place-a-workspace-apphost-beside-the-applications-it-runs | guidance | An AppHost running a frontend sits at `apps/apphost/`; an API-only AppHost sits under `apps/api/src/`. |

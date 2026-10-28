@@ -18,19 +18,29 @@ The drawings on this page use the Acme Supply back office: the spring lighting l
 
 ### Name the Command on a Confirm Action
 
+**ID:** `litespec/frontend/patterns/dialogs-and-overlays#name-the-command-on-a-confirm-action`
+
 **Statement:** A confirmation dialog MUST label its confirm action with the command it runs.
 
 **Rationale:** Staff often scan only the buttons before clicking, so the button text is the last chance to state what happens. A button labeled `OK` or `Yes` forces the reader to reread the dialog title to know what they confirm, and under time pressure they click without rereading and run the wrong command.
 
+**Reviewed for:** Which built confirmation labels its commit button with a bare Yes or OK? Open the confirm dialogs on built screens.
+
 ### Return Focus When an Overlay Closes
+
+**ID:** `litespec/frontend/patterns/dialogs-and-overlays#return-focus-when-an-overlay-closes`
 
 **Statement:** An overlay MUST return focus to the control that opened it when it closes.
 
 **Rationale:** Keyboard and screen-reader users navigate by focus position, so closing an overlay must put them back where they started. Focus that falls back to the top of the page strands them far from their row in a long list, and they must tab through the whole page to continue.
 
+**Reviewed for:** Which built overlay leaves focus lost after it closes? Open and dismiss each dialog, drawer, popover, menu, and toast on built screens with a keyboard.
+
 ## Patterns
 
 ### Confirming a Command That Cannot Be Taken Back
+
+**ID:** `litespec/frontend/patterns/dialogs-and-overlays#confirming-a-command-that-cannot-be-taken-back`
 
 **Question:** When does a command deserve a confirmation step? A launch cancellation cannot be taken back. A confirmation used on routine commands becomes a reflex click that protects nothing.
 
@@ -41,6 +51,8 @@ The drawings on this page use the Acme Supply back office: the spring lighting l
 **Rationale:** Keep the dialog that names the object, states the consequence in numbers, and offers the alternative in the same surface. The runner-up is the dialog with the consequence as numbers. It is the better choice wherever money moves, because the reader sees the number before confirming.
 
 Prefer the typed name only for the single most dangerous object in a deployment. Never ship the undo toast for an irreversible cancellation. An undo there is a second command rather than a reversal.
+
+**Reviewed for:** Which built irreversible step departs from the wireframe its catalog entry chose? Open the built typed confirms and undo offers beside the catalog entry recording the chosen option and its reason.
 
 #### `name-the-object-state-the-consequence-offer-the-alternative`: Name the Object, State the Consequence, Offer the Alternative
 
@@ -232,6 +244,8 @@ page
 
 ### Short Task in a Dialog
 
+**ID:** `litespec/frontend/patterns/dialogs-and-overlays#short-task-in-a-dialog`
+
 **Question:** A short task with one to four inputs and nothing to consult fits a dialog. More than four inputs, sections, or steps belong on a full page. The decision is which surface each short command takes, and what to do when a dialog would need a second dialog.
 
 **Default:** `two-or-three-inputs-one-dialog`
@@ -241,6 +255,8 @@ page
 **Rationale:** Keep one dialog shape for commands with one to four inputs: title, fields, one verb, no navigation. The runner-up is the task on the page. It is the better choice for commands that repeat all day, where leaving the page costs more than the dialog saves.
 
 Prefer the page once a command carries five inputs. Never ship a dialog over a dialog. A helper that supports the nesting does not make it readable.
+
+**Reviewed for:** Which built two-input task departs from the wireframe its catalog entry chose? Open the built small dialogs and palette runs beside the catalog entry recording the chosen option and its reason.
 
 #### `two-or-three-inputs-one-dialog`: Two or Three Inputs, One Dialog
 
@@ -441,6 +457,8 @@ page
 
 ### Drawer Beside the List
 
+**ID:** `litespec/frontend/patterns/dialogs-and-overlays#drawer-beside-the-list`
+
 **Question:** A list action opens a drawer so a reader can see a record without leaving the list. The drawer holds read-only context that supports the task. Below a narrow width the drawer takes the whole screen with a Back control.
 
 **Default:** `read-only-record-beside-the-list`
@@ -450,6 +468,8 @@ page
 **Rationale:** Keep the read-only record beside the list. The list keeps its scroll and its filters while the record reads beside it, and nothing in the drawer is editable. Below 768 px the drawer becomes a full screen with a Back.
 
 Prefer the tabbed drawer when support compares refunds across facts, history, and messages. Never ship the filter drawer. Filters belong in the toolbar, and a drawer over the results hides the list the filters describe.
+
+**Reviewed for:** Which built side preview departs from the wireframe its catalog entry chose? Open the built drawer variants over and next to the list, with the catalog entry recording the chosen option and its reason.
 
 #### `read-only-record-beside-the-list`: Read-Only Record Beside the List
 
@@ -678,6 +698,8 @@ page
 
 ### Toast at the Edge of the Screen
 
+**ID:** `litespec/frontend/patterns/dialogs-and-overlays#toast-at-the-edge-of-the-screen`
+
 **Question:** A command ends with a short message at the edge of the screen. One message carries at most one action. Nothing critical belongs in something that disappears on a timer.
 
 **Default:** `a-confirmation-that-closes-by-itself`
@@ -687,6 +709,8 @@ page
 **Rationale:** Keep the self-closing confirmation for success, and the staying undo toast where an undo exists. The runner-up is the toast that links to the result. It suits commands whose result lives elsewhere, because the link going away costs nothing.
 
 Never ship two actions on one toast. Two buttons turn a transient message into a small panel with a timer. Never ship a toast as the only route to a result.
+
+**Reviewed for:** Which built edge notice departs from the wireframe its catalog entry chose? Open the built confirmations, undos, and refusal slots beside the catalog entry recording the chosen option and its reason.
 
 #### `a-confirmation-that-closes-by-itself`: A Confirmation That Closes by Itself
 
@@ -863,6 +887,8 @@ page
 
 ### Menu of a Row's Commands
 
+**ID:** `litespec/frontend/patterns/dialogs-and-overlays#menu-of-a-rows-commands`
+
 **Question:** A row with several commands shows the first inline and keeps the rest behind a menu. The decision is how that menu groups its items, explains disabled ones, and handles search and submenus.
 
 **Default:** `a-menu-with-groups-and-a-destructive-item-last`
@@ -872,6 +898,8 @@ page
 **Rationale:** Keep the menu with groups and the destructive item last after a separator, with nothing disabled without a reason. The runner-up is the menu that states why an item is disabled. It is the better choice where a command is often disabled, because the reason in place beats a hover.
 
 Never ship a confirmation inside a menu. A confirmation there is a dialog over a menu, the same nesting the project forbids for dialogs.
+
+**Reviewed for:** Which built row menu departs from the wireframe its catalog entry chose? Open the built grouped menus, split buttons, and search fields beside the catalog entry recording the chosen option and its reason.
 
 #### `a-menu-with-groups-and-a-destructive-item-last`: A Menu with Groups and a Destructive Item Last
 
@@ -1076,6 +1104,8 @@ page
 
 ### Short Panel That Opens Beside a Control
 
+**ID:** `litespec/frontend/patterns/dialogs-and-overlays#short-panel-that-opens-beside-a-control`
+
 **Question:** A popover is a small panel anchored to a control: not a dialog and not a toast. It closes when the reader looks away. The decision is what earns such a panel: term explanations, row previews, pickers, calendars, copy confirmations, hover cards, or coach marks.
 
 **Default:** `a-popover-that-explains-what-a-term-means`
@@ -1085,6 +1115,8 @@ page
 **Rationale:** Keep the popover that explains what a term means. A defined term carries its glossary entry where it is read, and only for terms the application has defined. The runner-up is the row preview popover. It suits dense lists where a hover card saves a navigation, and it must open on focus as well as hover.
 
 Never ship a menu and a popover for the same thing. The pair teaches that floating layers stack, and stacked layers confuse readers about which one to dismiss.
+
+**Reviewed for:** Which built hover card or hint departs from the wireframe its catalog entry chose? Open the built popovers, previews, and coach marks beside the catalog entry recording the chosen option and its reason.
 
 #### `a-row-preview-popover-on-hover-and-focus`: A Row Preview Popover on Hover and Focus
 
@@ -1276,6 +1308,8 @@ page
 
 ### Bar That Stays While the Reader Works
 
+**ID:** `litespec/frontend/patterns/dialogs-and-overlays#bar-that-stays-while-the-reader-works`
+
 **Question:** A persistent bar is a band the page keeps, worded as a fact about the page, the deployment, or the record. A tone may not paint a full-width band on a page about other work. The decision is which facts earn a bar and where each bar sits.
 
 **Default:** `a-neutral-band-for-what-this-page-is`
@@ -1285,6 +1319,8 @@ page
 **Rationale:** Ship the neutral band stating a fact about the deployment, the same on every page. The bar on the record page is the runner-up for facts true of one record only, drawn as a notice on that record.
 
 Never ship the bar naming a deadline: a full-width caution band paints the whole page, and the tone covers work the page is not about.
+
+**Reviewed for:** Which built persistent band departs from the wireframe its catalog entry chose? Open the built unsaved-work, deadline, and read-only bars beside the catalog entry recording the chosen option and its reason.
 
 #### `a-neutral-band-for-what-this-page-is`: A Neutral Band for What This Page Is
 
@@ -1449,6 +1485,8 @@ page
 
 ### Bottom Sheet on a Phone
 
+**ID:** `litespec/frontend/patterns/dialogs-and-overlays#bottom-sheet-on-a-phone`
+
 **Question:** On a phone there is no beside and no center: a dialog becomes a sheet from the bottom edge. Material keeps a modal bottom sheet one swipe from dismissed, with a handle, a title, and actions stacked full width.
 
 **Default:** `order-actions-in-a-bottom-sheet`
@@ -1458,6 +1496,8 @@ page
 **Rationale:** Ship the order-actions sheet for commands and the filters sheet with its sticky apply bar for filters: both keep a handle, a title, and a full-width footer above the home indicator. The half-height sheet is the runner-up where the content is genuinely long, because detents let the reader choose half or full.
 
 Never ship the sheet with no dismissal: it traps the reader on the smallest screen, where every trap costs the most.
+
+**Reviewed for:** Which built thumb-reach sheet departs from the wireframe its catalog entry chose? Open the built half, full, and filter sheets beside the catalog entry recording the chosen option and its reason.
 
 #### `order-actions-in-a-bottom-sheet`: Order Actions in a Bottom Sheet
 
@@ -1620,6 +1660,8 @@ page
 
 ### Dialog with a Long Body and a Sticky Footer
 
+**ID:** `litespec/frontend/patterns/dialogs-and-overlays#dialog-with-a-long-body-and-a-sticky-footer`
+
 **Question:** Some commands need more words than a dialog holds: terms, line items, per-audience consequences. The footer must stay where the thumb is while the body scrolls, or the reader agrees to what they cannot see.
 
 **Default:** `a-scrolling-body-with-a-pinned-footer`
@@ -1629,6 +1671,8 @@ page
 **Rationale:** Ship the scrolling body with a pinned footer: one scrolling body, one pinned footer, nothing else. The summary pinned above the footer is the runner-up wherever money moves, because the reader sees the totals above the footer before confirming.
 
 Never ship the dialog with no pinned footer: buttons that scroll away ask the reader to agree first and find how after.
+
+**Reviewed for:** Which built scrolling dialog departs from the wireframe its catalog entry chose? Open the built pinned footers and collapsed sections beside the catalog entry recording the chosen option and its reason.
 
 #### `a-scrolling-body-with-a-pinned-footer`: A Scrolling Body with a Pinned Footer
 
@@ -1804,6 +1848,8 @@ page
 
 ### Keyboard Shortcut Help Overlay
 
+**ID:** `litespec/frontend/patterns/dialogs-and-overlays#keyboard-shortcut-help-overlay`
+
 **Question:** Staff who live in lists learn keys faster than clicks. Linear and GitHub both answer `?` with an overlay, grouped by where the keys work, closable with the same key.
 
 **Default:** `a-grouped-grid-of-shortcuts`
@@ -1813,6 +1859,8 @@ page
 **Rationale:** Ship the grouped grid of shortcuts: three groups, one grid, every key the application honors, closed by the same key. The this-page-only list is the runner-up on dense pages, where it answers the only keys that work there.
 
 Never ship tooltips alone: they hide the catalog from the reader who would learn it fastest.
+
+**Reviewed for:** Which built shortcut list departs from the wireframe its catalog entry chose? Open the built grouped grids and palette shortcut views beside the catalog entry recording the chosen option and its reason.
 
 #### `a-grouped-grid-of-shortcuts`: A Grouped Grid of Shortcuts
 
@@ -1980,6 +2028,8 @@ page
 
 ### Context Menu Where the Pointer Is
 
+**ID:** `litespec/frontend/patterns/dialogs-and-overlays#context-menu-where-the-pointer-is`
+
 **Question:** A right click asks what this thing can do. Linear and VS Code answer at the pointer with the same commands the row menu holds. The menu is a shortcut rather than a second set.
 
 **Default:** `a-right-click-menu-on-a-row`
@@ -1989,6 +2039,8 @@ page
 **Rationale:** Ship the right-click menu on the row: the row's own commands at the pointer, nothing added, nothing missing, closed by clicking elsewhere. The bulk-selection menu is the runner-up for bulk work, where the menu rewrites itself for the selection count.
 
 Never ship silence: it hands the gesture to the browser, whose commands act on the page rather than the record.
+
+**Reviewed for:** Which built right-click menu departs from the wireframe its catalog entry chose? Open the built row, bulk, and empty-space menus beside the catalog entry recording the chosen option and its reason.
 
 #### `a-right-click-menu-on-a-row`: A Right-Click Menu on a Row
 
@@ -2142,21 +2194,3 @@ page
 **Rationale:** Included to refuse it: silence hands the gesture to the browser, whose commands act on the page rather than the record. Staff learn the gesture does nothing for them and stop trying.
 
 **Cost:** It puts Inspect element beside Reload on a row about money. The absence is not neutral. It teaches that right click is not part of the application.
-
-## Verification
-
-| ID | Mark | Evidence |
-|:---|:---|:---|
-| litespec/frontend/patterns/dialogs-and-overlays#name-the-command-on-a-confirm-action | guidance | Which built confirmation labels its commit button with a bare Yes or OK? Open the confirm dialogs on built screens. |
-| litespec/frontend/patterns/dialogs-and-overlays#return-focus-when-an-overlay-closes | guidance | Which built overlay leaves focus lost after it closes? Open and dismiss each dialog, drawer, popover, menu, and toast on built screens with a keyboard. |
-| litespec/frontend/patterns/dialogs-and-overlays#confirming-a-command-that-cannot-be-taken-back | guidance | Which built irreversible step departs from the wireframe its catalog entry chose? Open the built typed confirms and undo offers beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/dialogs-and-overlays#short-task-in-a-dialog | guidance | Which built two-input task departs from the wireframe its catalog entry chose? Open the built small dialogs and palette runs beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/dialogs-and-overlays#drawer-beside-the-list | guidance | Which built side preview departs from the wireframe its catalog entry chose? Open the built drawer variants over and next to the list, with the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/dialogs-and-overlays#toast-at-the-edge-of-the-screen | guidance | Which built edge notice departs from the wireframe its catalog entry chose? Open the built confirmations, undos, and refusal slots beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/dialogs-and-overlays#menu-of-a-rows-commands | guidance | Which built row menu departs from the wireframe its catalog entry chose? Open the built grouped menus, split buttons, and search fields beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/dialogs-and-overlays#short-panel-that-opens-beside-a-control | guidance | Which built hover card or hint departs from the wireframe its catalog entry chose? Open the built popovers, previews, and coach marks beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/dialogs-and-overlays#bar-that-stays-while-the-reader-works | guidance | Which built persistent band departs from the wireframe its catalog entry chose? Open the built unsaved-work, deadline, and read-only bars beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/dialogs-and-overlays#bottom-sheet-on-a-phone | guidance | Which built thumb-reach sheet departs from the wireframe its catalog entry chose? Open the built half, full, and filter sheets beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/dialogs-and-overlays#dialog-with-a-long-body-and-a-sticky-footer | guidance | Which built scrolling dialog departs from the wireframe its catalog entry chose? Open the built pinned footers and collapsed sections beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/dialogs-and-overlays#keyboard-shortcut-help-overlay | guidance | Which built shortcut list departs from the wireframe its catalog entry chose? Open the built grouped grids and palette shortcut views beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/dialogs-and-overlays#context-menu-where-the-pointer-is | guidance | Which built right-click menu departs from the wireframe its catalog entry chose? Open the built row, bulk, and empty-space menus beside the catalog entry recording the chosen option and its reason. |

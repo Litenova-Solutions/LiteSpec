@@ -20,6 +20,8 @@ The OpenAPI generator builds the published contract from metadata declared on ea
 
 ### Use One Endpoint per Operation
 
+**ID:** `litespec/backend/dotnet/api#use-one-endpoint-per-operation`
+
 **Statement:** A WebApi endpoint MUST implement `IEndpoint`, map one route operation, convert input to an Application message, dispatch through its mediator, and map the result.
 
 **Rationale:** When one class owns one route, a reviewer finds the input mapping, the dispatch, and the result mapping for that route in one place, and no route drifts into a second pattern unnoticed. Without that rule, operations share classes or helpers, and a change to one route silently affects another. This provision states the .NET form of `litespec/backend/api#map-one-operation-per-endpoint`.
@@ -35,19 +37,31 @@ internal interface IEndpoint
 
 At startup, WebApi scans its own assembly for non-abstract `IEndpoint` implementations, registers each one once as a singleton, and calls `MapEndpoint` in type-name order. The scan uses framework reflection and dependency injection, so it needs no extra scanning package.
 
+**Reviewed for:** Each mapped route: one `IEndpoint` type converting input, dispatching through its mediator, and mapping the result.
+
 ### Exclude MVC Controllers from the Stack
+
+**ID:** `litespec/backend/dotnet/api#exclude-mvc-controllers-from-the-stack`
 
 **Statement:** A WebApi project MUST NOT route requests through MVC controllers or `ControllerBase`.
 
 **Rationale:** Controllers and endpoint classes route, filter, and map errors through different models. When both exist, a reviewer checks two mappings for every behavior, and error responses drift apart. One model means one place defines how requests reach handlers and how failures reach clients.
 
+**Checked by:** `dotnet build` of the WebApi project reports no LiteSpec.Analyzers LS2003 diagnostic.
+
 ### Declare Operation Metadata in the Contract
+
+**ID:** `litespec/backend/dotnet/api#declare-operation-metadata-in-the-contract`
 
 **Statement:** An operation MUST declare a stable `operationId`, its authorization, request, success, and Problem Details metadata, and typed results or `Produces` metadata, and a summary.
 
 **Rationale:** Generated clients name their calls from `operationId`, so an unnamed or unstable operation breaks every client regeneration. Authorization and Problem Details metadata tell a client which policies apply and which failures to handle; without them the client guesses. Route-lambda comments never reach the contract, so the summary and description are declared explicitly. This provision states the .NET form of `litespec/backend/api#declare-stable-operation-metadata-in-the-contract`.
 
+**Reviewed for:** Each operation: a stable `operationId`, authorization, request, success, and Problem Details metadata, typed results or `Produces` entries, and a summary.
+
 ### Derive HTTP Statuses from Refusal Codes
+
+**ID:** `litespec/backend/dotnet/api#derive-http-statuses-from-refusal-codes`
 
 **Statement:** WebApi MUST map each refusal code to its HTTP status in one global handler.
 
@@ -62,7 +76,11 @@ builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
 The handler maps each known exception type to its status and code, and answers 500 with code `internal_error` for the rest.
 
+**Reviewed for:** The WebApi global handler: one `IExceptionHandler` mapping each refusal code to its outcome-table status.
+
 ### Mark Polymorphic Transport Models with Discriminators
+
+**ID:** `litespec/backend/dotnet/api#mark-polymorphic-transport-models-with-discriminators`
 
 **Statement:** A data-bearing set MUST map to an abstract base record with one sealed record per case, published as `oneOf` with a string discriminator.
 
@@ -76,9 +94,13 @@ The handler maps each known exception type to its status and code, and answers 5
 - Opt derived types in explicitly, so an unregistered runtime subtype fails serialization.
 - Complete discriminator metadata that the generator omits with a document or schema transformer.
 
+**Reviewed for:** Each data-bearing set: an abstract base record with one sealed record per case, published as `oneOf` with a string discriminator.
+
 ## Conventions
 
 ### Use the Endpoint Folder Layout
+
+**ID:** `litespec/backend/dotnet/api#use-the-endpoint-folder-layout`
 
 **Default:** Place each endpoint in a folder named for its use case under its module and aggregate, with the files this provision names.
 
@@ -121,7 +143,11 @@ The handler maps each known exception type to its status and code, and answers 5
   Program.cs
 ```
 
+**Reviewed for:** Each endpoint folder under its module and aggregate: the endpoint, request and response models, and mappings named for the use case.
+
 ### Keep Program.cs as Composition
+
+**ID:** `litespec/backend/dotnet/api#keep-programcs-as-composition`
 
 **Default:** `Program.cs` holds module registration, middleware order, endpoint discovery, health endpoints, OpenAPI, and host startup, ending with an empty partial `Program` class.
 
@@ -131,14 +157,4 @@ The handler maps each known exception type to its status and code, and answers 5
 
 **Example:** The visible order is trusted forwarded headers, exception handling, transport security, authentication, authorization, endpoints, and then health. Forwarded headers appear only when the deployment boundary requires trusted proxies. OpenAPI and Scalar map only in Development.
 
-## Verification
-
-| ID | Mark | Evidence |
-|:---|:---|:---|
-| litespec/backend/dotnet/api#use-one-endpoint-per-operation | guidance | Each mapped route: one `IEndpoint` type converting input, dispatching through its mediator, and mapping the result. |
-| litespec/backend/dotnet/api#exclude-mvc-controllers-from-the-stack | checkable | `dotnet build` of the WebApi project reports no LiteSpec.Analyzers LS2003 diagnostic. |
-| litespec/backend/dotnet/api#declare-operation-metadata-in-the-contract | guidance | Each operation: a stable `operationId`, authorization, request, success, and Problem Details metadata, typed results or `Produces` entries, and a summary. |
-| litespec/backend/dotnet/api#derive-http-statuses-from-refusal-codes | guidance | The WebApi global handler: one `IExceptionHandler` mapping each refusal code to its outcome-table status. |
-| litespec/backend/dotnet/api#mark-polymorphic-transport-models-with-discriminators | guidance | Each data-bearing set: an abstract base record with one sealed record per case, published as `oneOf` with a string discriminator. |
-| litespec/backend/dotnet/api#use-the-endpoint-folder-layout | guidance | Each endpoint folder under its module and aggregate: the endpoint, request and response models, and mappings named for the use case. |
-| litespec/backend/dotnet/api#keep-programcs-as-composition | guidance | `Program.cs`: module registration, middleware order, endpoint discovery, health endpoints, OpenAPI, and host startup in the recorded order. |
+**Reviewed for:** `Program.cs`: module registration, middleware order, endpoint discovery, health endpoints, OpenAPI, and host startup in the recorded order.

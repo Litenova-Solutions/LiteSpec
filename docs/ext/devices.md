@@ -22,6 +22,8 @@ The block names the messages the entry point exchanges, the version rule devices
 
 ### Describe Device Messages as a Channel Fragment
 
+**ID:** `litespec/ext/devices#describe-device-messages-as-a-channel-fragment`
+
 **Statement:** A device protocol MUST describe its messages as an AsyncAPI channel fragment with named operations and payloads.
 
 **Rationale:** Devices and servers evolve apart: a scanner runs last year's firmware against this week's server. A channel fragment names each direction, each message, and each payload in one shape both sides read, so a mismatch shows in the record before it shows on the loading dock.
@@ -39,13 +41,21 @@ protocol:
     payload: { code, reason }
 ```
 
+**Reviewed for:** The protocol blocks on the device entry points list named operations with payloads in the channel shape.
+
 ### Version the Device Protocol
+
+**ID:** `litespec/ext/devices#version-the-device-protocol`
 
 **Statement:** A device protocol MUST state its version rule with numbering, overlap, and the upgrade path.
 
 **Rationale:** Old firmware cannot be recalled from the field, so several protocol versions stay live at once. Numbering tells a device which version it speaks, overlap tells the server how long to answer old versions, and the upgrade path tells the device how to move forward. Without the three, a server upgrade bricks every device that missed the memo.
 
+**Reviewed for:** The protocol blocks state numbering, overlap, and the upgrade path devices follow.
+
 ### State Client Rules with Scenarios
+
+**ID:** `litespec/ext/devices#state-client-rules-with-scenarios`
 
 **Statement:** Each client rule in a device protocol MUST carry the scenarios that prove it.
 
@@ -53,7 +63,11 @@ protocol:
 
 **Example:** The rule `a scanner queues scans while offline` carries the scenario `a scan queued offline uploads on reconnect`.
 
+**Reviewed for:** Each client rule in the protocol blocks points at scenarios that prove it.
+
 ### Identify Retries with a Nonce
+
+**ID:** `litespec/ext/devices#identify-retries-with-a-nonce`
 
 **Statement:** Each mutating device message MUST carry a client-generated nonce as its idempotency key.
 
@@ -61,7 +75,11 @@ protocol:
 
 **Example:** A loan scan carries `nonce: 7f3a`, and the second delivery of the same nonce returns the first attempt's result.
 
+**Reviewed for:** The mutating messages in the protocol blocks carry a client-generated nonce scoped to the device.
+
 ### Simulate Offline Uploads Before Applying
+
+**ID:** `litespec/ext/devices#simulate-offline-uploads-before-applying`
 
 **Statement:** An offline upload with `simulate` MUST return its outcome without writing.
 
@@ -69,7 +87,11 @@ protocol:
 
 **Example:** A scanner uploads three hundred queued scans with `simulate`, reviews the two the server would refuse, and then uploads for real.
 
+**Reviewed for:** Simulated uploads in the device tests return outcomes with no writes behind them.
+
 ### Apply Forced Uploads over Newer State
+
+**ID:** `litespec/ext/devices#apply-forced-uploads-over-newer-state`
 
 **Statement:** An offline upload with `force` MUST apply over newer server state and record the overwrite.
 
@@ -77,9 +99,13 @@ protocol:
 
 **Example:** A corrected count uploads with `force`, overwrites the server value, and leaves an overwrite record naming the operator.
 
+**Reviewed for:** Forced uploads in the device tests overwrite newer server values and leave overwrite records.
+
 ## Conventions
 
 ### Version Protocols by Date
+
+**ID:** `litespec/ext/devices#version-protocols-by-date`
 
 **Default:** Protocol versions use calendar numbering of the form `YYYY.N`.
 
@@ -87,13 +113,19 @@ protocol:
 
 **Rationale:** Calendar numbering tells a support engineer how old a device is at a glance. Any scheme works when every device and the server share it.
 
+**Reviewed for:** Protocol versions read as calendar numbers, or the device documentation names the numbering scheme.
+
 ### Replay Uploads in Queue Order
+
+**ID:** `litespec/ext/devices#replay-uploads-in-queue-order`
 
 **Default:** The server applies an offline queue in the order the device queued it.
 
 **Replacement:** A project names the order its server applies offline queues.
 
 **Rationale:** Queue order matches what the operator saw on the device: first scanned, first applied. Another order replays the day out of sequence and surprises everyone reading the log.
+
+**Reviewed for:** The server applies offline queues in device order in the upload tests, or the project names another order.
 
 ## Dependencies
 
@@ -102,16 +134,3 @@ Packages: None.
 Related extensions: `concurrency` for the nonce idempotency keys and overlapping-write handling.
 
 Guides: None.
-
-## Verification
-
-| ID | Mark | Evidence |
-|:---|:---|:---|
-| litespec/ext/devices#describe-device-messages-as-a-channel-fragment | guidance | The protocol blocks on the device entry points list named operations with payloads in the channel shape. |
-| litespec/ext/devices#version-the-device-protocol | guidance | The protocol blocks state numbering, overlap, and the upgrade path devices follow. |
-| litespec/ext/devices#state-client-rules-with-scenarios | guidance | Each client rule in the protocol blocks points at scenarios that prove it. |
-| litespec/ext/devices#identify-retries-with-a-nonce | guidance | The mutating messages in the protocol blocks carry a client-generated nonce scoped to the device. |
-| litespec/ext/devices#simulate-offline-uploads-before-applying | guidance | Simulated uploads in the device tests return outcomes with no writes behind them. |
-| litespec/ext/devices#apply-forced-uploads-over-newer-state | guidance | Forced uploads in the device tests overwrite newer server values and leave overwrite records. |
-| litespec/ext/devices#version-protocols-by-date | guidance | Protocol versions read as calendar numbers, or the device documentation names the numbering scheme. |
-| litespec/ext/devices#replay-uploads-in-queue-order | guidance | The server applies offline queues in device order in the upload tests, or the project names another order. |

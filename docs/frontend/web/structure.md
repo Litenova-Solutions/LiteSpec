@@ -8,6 +8,8 @@ React and Svelte frontends share one folder layout: a frame holding the values s
 
 ### Use the Frontend Application Tree
 
+**ID:** `litespec/frontend/web/structure#use-the-frontend-application-tree`
+
 **Statement:** A frontend MUST use the frame, routes, and modules layout its stack page states.
 
 **Rationale:** The frame, routes, and modules layout gives every file one predictable home: cross-route values in the frame, one address per route file or folder, and use-case code under the module that owns it. A reader moves from a use case to its code by path alone, on either stack. This realizes litespec/frontend/structure#organize-a-frontend-into-frame-routes-and-modules.
@@ -50,13 +52,21 @@ apps/{frontend}/
 
 The generated route artifacts, build output, and dependency folders stay untracked.
 
+**Reviewed for:** Each frontend tree matches the frame, routes, and modules layout its stack page states.
+
 ### Refuse Stack-Specific Folder Names
+
+**ID:** `litespec/frontend/web/structure#refuse-stack-specific-folder-names`
 
 **Statement:** A React folder MUST NOT be named `lib`, nor a Svelte folder under `src/lib` be named `stores`.
 
 **Rationale:** A `lib` folder on React would sit beside `src/app` as a second frame, and `src/app` already holds the frame. A `stores` folder on Svelte would gather shared state in one place, while the rules put shared state in the frame or beside its readers. Refusing both names stops the second home before anything moves into it.
 
+**Reviewed for:** No React folder takes the name `lib`, and no Svelte folder under `src/lib` takes the name `stores`.
+
 ### Keep a Route File Thin
+
+**ID:** `litespec/frontend/web/structure#keep-a-route-file-thin`
 
 **Statement:** A route file MUST hold its input, its load, and its component, with no reusable logic and no import of another route file.
 
@@ -84,7 +94,11 @@ export async function load({ parent, url }) {
 }
 ```
 
+**Reviewed for:** Each route file holds only its input, its load, and its component, importing no other route file.
+
 ### Keep Imports Directional
+
+**ID:** `litespec/frontend/web/structure#keep-imports-directional`
 
 **Statement:** An import MUST point from a route to a module to the frame to a shared package, and never in the reverse direction.
 
@@ -106,15 +120,23 @@ src/routes -> src/lib/modules -> src/lib/app -> packages/*
 
 A module importing a route reverses the flow, as does a shared package importing an application. A frame module reaching into one module's use-case folder for a second module's data tangles two layers. On Svelte, imports resolve through the alias its stack page names.
 
+**Reviewed for:** Every import follows the route to module to frame to package direction.
+
 ### Locate the Frame in the App Folder
+
+**ID:** `litespec/frontend/web/structure#locate-the-frame-in-the-app-folder`
 
 **Statement:** A frontend MUST place cross-route values in the frame folder its stack page states: client configuration, session read, language choice, permissions, formatting, and shell data.
 
 **Rationale:** Client configuration, session read, language choice, permissions, formatting, and shell data cross every route. Filed in the frame folder, each has one home; filed in a route, each exists once per route with copies to keep equal. A browser API reached from a use-case module belongs here too, because a module renders and reads data rather than touching the device. This realizes litespec/frontend/structure#locate-cross-route-values-in-the-frame.
 
+**Reviewed for:** The frame folder its stack page names holds every cross-route value and browser use.
+
 ## Conventions
 
 ### Use the Generated Route Tree
+
+**ID:** `litespec/frontend/web/structure#use-the-generated-route-tree`
 
 **Default:** Generate the typed route artifacts from the files under `src/routes` with the router's own command, and keep them untracked.
 
@@ -122,7 +144,11 @@ A module importing a route reverses the flow, as does a shared package importing
 
 **Rationale:** The typed route artifacts derive from the files under `src/routes`, so generating them with the router's own command and leaving them untracked keeps one source of truth. Committed artifacts add a second copy that a renamed route file leaves behind.
 
+**Reviewed for:** The build and type-check scripts each run the router's generate command, and the generated artifacts stay untracked.
+
 ### Use Explicit Public Entry Points for Workspace Packages
+
+**ID:** `litespec/frontend/web/structure#use-explicit-public-entry-points-for-workspace-packages`
 
 **Default:** Export a workspace package only through its documented package root or a documented subpath in its manifest.
 
@@ -130,7 +156,11 @@ A module importing a route reverses the flow, as does a shared package importing
 
 **Rationale:** A package manifest names what an application may import: the package root or a documented subpath. An application importing an internal source path couples itself to a layout the package may rearrange, and the next package edit breaks the importer. This realizes litespec/frontend/structure#use-explicit-public-entry-points-for-shared-packages.
 
+**Reviewed for:** Every application import resolves to the package root or a documented subpath its package manifest exports.
+
 ### Keep Tests Near Their Ownership Boundary
+
+**ID:** `litespec/frontend/web/structure#keep-tests-near-their-ownership-boundary`
 
 **Default:** Name a logic test `*.test.ts` beside its module, and keep browser suites under one `tests/` root per frontend.
 
@@ -138,15 +168,4 @@ A module importing a route reverses the flow, as does a shared package importing
 
 **Rationale:** A logic test beside its module stays discoverable from the code it covers, while the browser suites share one `tests/` root per frontend with one fixture set and one deployment, so they run as one suite instead of scattered files. This realizes litespec/frontend/structure#place-tests-at-their-ownership-boundary.
 
-## Verification
-
-| ID | Mark | Evidence |
-|:---|:---|:---|
-| litespec/frontend/web/structure#use-the-frontend-application-tree | guidance | Each frontend tree matches the frame, routes, and modules layout its stack page states. |
-| litespec/frontend/web/structure#refuse-stack-specific-folder-names | guidance | No React folder takes the name `lib`, and no Svelte folder under `src/lib` takes the name `stores`. |
-| litespec/frontend/web/structure#keep-a-route-file-thin | guidance | Each route file holds only its input, its load, and its component, importing no other route file. |
-| litespec/frontend/web/structure#keep-imports-directional | guidance | Every import follows the route to module to frame to package direction. |
-| litespec/frontend/web/structure#locate-the-frame-in-the-app-folder | guidance | The frame folder its stack page names holds every cross-route value and browser use. |
-| litespec/frontend/web/structure#use-the-generated-route-tree | guidance | The build and type-check scripts each run the router's generate command, and the generated artifacts stay untracked. |
-| litespec/frontend/web/structure#use-explicit-public-entry-points-for-workspace-packages | guidance | Every application import resolves to the package root or a documented subpath its package manifest exports. |
-| litespec/frontend/web/structure#keep-tests-near-their-ownership-boundary | guidance | Each logic test sits beside its module as `*.test.ts`, and the browser suites share one `tests/` root per frontend. |
+**Reviewed for:** Each logic test sits beside its module as `*.test.ts`, and the browser suites share one `tests/` root per frontend.

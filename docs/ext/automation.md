@@ -22,13 +22,19 @@ Developers own the `catalog` of triggers, conditions, and actions as reviewed re
 
 ### Review the Automation Catalog
 
+**ID:** `litespec/ext/automation#review-the-automation-catalog`
+
 **Statement:** Each trigger, condition, and action in the automation catalog MUST be a reviewed record.
 
 **Rationale:** The catalog is the product's promise surface: every tenant rule is built from it. Reviewing each entry pins what it does, what it costs, and what it refuses, so tenant rules compose from parts the team stands behind.
 
 **Example:** The action `invoice.send-reminder` is a reviewed record stating its rate cap and its suppression rule.
 
+**Reviewed for:** Each catalog trigger, condition, and action shows a reviewed status on its record.
+
 ### Treat Tenant Rules as Data
+
+**ID:** `litespec/ext/automation#treat-tenant-rules-as-data`
 
 **Statement:** A tenant automation instance MUST live as tenant data outside review.
 
@@ -36,7 +42,11 @@ Developers own the `catalog` of triggers, conditions, and actions as reviewed re
 
 **Example:** A tenant's rule `remind overdue invoices every Monday` is stored data, while its trigger, condition, and action each point at reviewed catalog entries.
 
+**Reviewed for:** Tenant instances live in tenant storage with no review status on any instance.
+
 ### Refuse Unknown Catalog Entries
+
+**ID:** `litespec/ext/automation#refuse-unknown-catalog-entries`
 
 **Statement:** An instance naming a trigger, condition, or action outside the catalog MUST be refused.
 
@@ -44,7 +54,11 @@ Developers own the `catalog` of triggers, conditions, and actions as reviewed re
 
 **Example:** An instance naming the retired trigger `expense.submitted` is refused with the catalog's current trigger list.
 
+**Reviewed for:** The instance tests refuse entries outside the catalog with the current catalog in the refusal.
+
 ### Version Catalog Entries
+
+**ID:** `litespec/ext/automation#version-catalog-entries`
 
 **Statement:** Each catalog entry MUST carry a version that instances cite.
 
@@ -52,7 +66,11 @@ Developers own the `catalog` of triggers, conditions, and actions as reviewed re
 
 **Example:** The condition `order.total-above` moves from version 3 to version 4, and existing instances keep running version 3 until the tenant re-saves.
 
+**Reviewed for:** Each catalog entry carries a version, and the stored instances cite the version they run.
+
 ### State What a Hook May Rely On
+
+**ID:** `litespec/ext/automation#state-what-a-hook-may-rely-on`
 
 **Statement:** Each hook MUST state its may contract: the payload, retries, timeout, and signature the customer endpoint relies on.
 
@@ -60,7 +78,11 @@ Developers own the `catalog` of triggers, conditions, and actions as reviewed re
 
 **Example:** The hook `invoice.paid` states three retries spaced a minute apart, a ten-second timeout, and an HMAC signature header.
 
+**Reviewed for:** Each hook record lists payload, retries, timeout, and signature for its customer endpoint.
+
 ### State What a Hook May Not Assume
+
+**ID:** `litespec/ext/automation#state-what-a-hook-may-not-assume`
 
 **Statement:** Each hook MUST state its may-not contract: the ordering, timing, and payload bounds the customer endpoint never assumes.
 
@@ -68,7 +90,11 @@ Developers own the `catalog` of triggers, conditions, and actions as reviewed re
 
 **Example:** The hook `invoice.paid` states that deliveries may repeat, may arrive out of order, and carry no line-item detail.
 
+**Reviewed for:** Each hook record lists the ordering, timing, and payload bounds its endpoint leaves unassumed.
+
 ### Isolate Hook Failures from the Trigger
+
+**ID:** `litespec/ext/automation#isolate-hook-failures-from-the-trigger`
 
 **Statement:** A hook MUST leave its trigger's outcome unchanged when the customer endpoint fails.
 
@@ -76,15 +102,21 @@ Developers own the `catalog` of triggers, conditions, and actions as reviewed re
 
 **Example:** A hook call that times out is retried three times and then logged as failed, while the paid invoice stays paid.
 
+**Reviewed for:** The hook tests fail the endpoint while the trigger outcome stays unchanged.
+
 ## Conventions
 
 ### Bound Tenant Rule Runs per Period
+
+**ID:** `litespec/ext/automation#bound-tenant-rule-runs-per-period`
 
 **Default:** Each tenant instance states a monthly run cap taken from the catalog default.
 
 **Replacement:** A project names its run-cap scheme in its automation documentation.
 
 **Rationale:** One tenant's runaway rule can starve every other tenant's automation. A monthly cap from the catalog default bounds the damage, and the tenant raises it by asking instead of by accident.
+
+**Reviewed for:** Each stored instance carries a monthly run cap, or the automation documentation names the cap scheme.
 
 ## Dependencies
 
@@ -93,16 +125,3 @@ Packages: None.
 Related extensions: `integrations` for the provider isolation and failure mapping behind hook calls.
 
 Guides: None.
-
-## Verification
-
-| ID | Mark | Evidence |
-|:---|:---|:---|
-| litespec/ext/automation#review-the-automation-catalog | guidance | Each catalog trigger, condition, and action shows a reviewed status on its record. |
-| litespec/ext/automation#treat-tenant-rules-as-data | guidance | Tenant instances live in tenant storage with no review status on any instance. |
-| litespec/ext/automation#refuse-unknown-catalog-entries | guidance | The instance tests refuse entries outside the catalog with the current catalog in the refusal. |
-| litespec/ext/automation#version-catalog-entries | guidance | Each catalog entry carries a version, and the stored instances cite the version they run. |
-| litespec/ext/automation#state-what-a-hook-may-rely-on | guidance | Each hook record lists payload, retries, timeout, and signature for its customer endpoint. |
-| litespec/ext/automation#state-what-a-hook-may-not-assume | guidance | Each hook record lists the ordering, timing, and payload bounds its endpoint leaves unassumed. |
-| litespec/ext/automation#isolate-hook-failures-from-the-trigger | guidance | The hook tests fail the endpoint while the trigger outcome stays unchanged. |
-| litespec/ext/automation#bound-tenant-rule-runs-per-period | guidance | Each stored instance carries a monthly run cap, or the automation documentation names the cap scheme. |

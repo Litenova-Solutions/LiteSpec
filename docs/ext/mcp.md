@@ -22,11 +22,17 @@ This extension switches on no record type. Authentication, authorization, and pe
 
 ### Record the Server as an Entry Point
 
+**ID:** `litespec/ext/mcp#record-the-server-as-an-entry-point`
+
 **Statement:** A project shipping an MCP server MUST record it as an entry point of kind `mcp` whose title names the MCP server.
 
 **Rationale:** The entry point record names how callers arrive: `litespec/core/access#name-every-entry-point-with-its-kind` keeps one closed set of kinds, and an MCP server is a channel a local model client calls, so it takes the kind `mcp` and its title says which protocol it speaks. Without the record, the server's reach stays invisible to reviewers of the access records.
 
+**Reviewed for:** The entry point list names an `mcp` entry titled for the shipped MCP server.
+
 ### Pass Server Instructions at Initialize
+
+**ID:** `litespec/ext/mcp#pass-server-instructions-at-initialize`
 
 **Statement:** An MCP server MUST pass an `instructions` value at initialize stating its transport, its audience, its write surface, and its refusal behavior.
 
@@ -34,7 +40,11 @@ This extension switches on no record type. Authentication, authorization, and pe
 
 **Example:** "Runs over stdio, one account per process, against the hosted API. Reads cover the account's own data, and three tools create or change records. A policy refusal returns the refusal code, and a write needing a person's confirmation refuses until they give it."
 
+**Reviewed for:** The initialize response carries a non-empty `instructions` value stating transport, audience, write surface, and refusal behavior.
+
 ### Write One Tool Description for One Decision
+
+**ID:** `litespec/ext/mcp#write-one-tool-description-for-one-decision`
 
 **Statement:** An MCP tool MUST title its action imperatively, describe its behavior declaratively, use positive parameter polarity, and state its side effects.
 
@@ -55,39 +65,61 @@ This extension switches on no record type. Authentication, authorization, and pe
 }
 ```
 
+**Reviewed for:** The declared tools directory shows imperative titles, declarative behavior, positive parameter polarity, and stated side effects.
+
 ### Scope Each Tool to Named Use Cases
+
+**ID:** `litespec/ext/mcp#scope-each-tool-to-named-use-cases`
 
 **Statement:** Each tool MUST name the use cases and permissions it reaches.
 
 **Rationale:** Each tool opens product behavior to a model acting for the user, so the team names exactly which use cases and permissions each tool reaches. Without the named scope, a reviewer cannot tell whether a tool reads one account or writes across many, and a broad tool ships without the scrutiny its reach needs.
 
+**Reviewed for:** Each tool description names the use cases and permissions the tool reaches.
+
 ### Confirm Every Writing Tool
+
+**ID:** `litespec/ext/mcp#confirm-every-writing-tool`
 
 **Statement:** Every tool that writes MUST refuse until the person confirms the write.
 
 **Rationale:** A model misreads intent the way any agent does: it can pause the wrong subscription or delete the record the user asked about. Refusing each write until the person confirms keeps the person behind every change while leaving reads fast. Without confirmation, one misunderstood sentence becomes a changed record nobody approved.
 
+**Reviewed for:** Each writing tool refuses until the person confirms the write.
+
 ### Exclude Secrets and Personal Data
+
+**ID:** `litespec/ext/mcp#exclude-secrets-and-personal-data`
 
 **Statement:** Tool descriptions and logs MUST exclude secrets and personal data from every field they carry.
 
 **Rationale:** Tool descriptions travel to the model on every call, and logs persist for operators long after the call ends. A secret copied into either grants access to whoever reads it next, and personal data in either spreads beyond the consent that collected it. Descriptions and logs name the fields without carrying the values.
 
+**Reviewed for:** Tool descriptions and logs carry field names with no secret or personal values.
+
 ### State the Distribution and Update Path
+
+**ID:** `litespec/ext/mcp#state-the-distribution-and-update-path`
 
 **Statement:** The server documentation MUST state how a user installs and updates the server.
 
 **Rationale:** The server runs on the user's machine, not on the product's servers, so no deployment pipeline updates it. Without documented install and update steps, users run stale servers with stale tool descriptions, and a security fix waits on users who never learn it exists.
 
+**Reviewed for:** The server documentation states install and update steps.
+
 ## Conventions
 
 ### State the Refusing Side on Each Refusal
+
+**ID:** `litespec/ext/mcp#state-the-refusing-side-on-each-refusal`
 
 **Default:** Prefix an input-shape refusal with `Needs:`, a human-confirmation refusal with `Needs confirmation:`, and a server-side refusal with `Refused:`.
 
 **Replacement:** A project names another refusal vocabulary for its tools in its documentation.
 
 **Rationale:** A refusal without a source sends the model guessing: it rephrases input the server rejected on policy, or it waits for a person when its own input was malformed. The prefix names the failing side, so the model repairs its own input after `Needs:`, asks the person after `Needs confirmation:`, and reports the server after `Refused:`, instead of retrying a refusal no retry satisfies.
+
+**Reviewed for:** Refusals carry the `Needs:`, `Needs confirmation:`, and `Refused:` prefixes, or the project names another refusal vocabulary in its documentation.
 
 ## Dependencies
 
@@ -96,16 +128,3 @@ Packages: `@modelcontextprotocol/server`.
 Related extensions: `None.`
 
 Guides: `None.`
-
-## Verification
-
-| ID | Mark | Evidence |
-|:---|:---|:---|
-| litespec/ext/mcp#record-the-server-as-an-entry-point | guidance | The entry point list names an `mcp` entry titled for the shipped MCP server. |
-| litespec/ext/mcp#pass-server-instructions-at-initialize | guidance | The initialize response carries a non-empty `instructions` value stating transport, audience, write surface, and refusal behavior. |
-| litespec/ext/mcp#write-one-tool-description-for-one-decision | guidance | The declared tools directory shows imperative titles, declarative behavior, positive parameter polarity, and stated side effects. |
-| litespec/ext/mcp#scope-each-tool-to-named-use-cases | guidance | Each tool description names the use cases and permissions the tool reaches. |
-| litespec/ext/mcp#confirm-every-writing-tool | guidance | Each writing tool refuses until the person confirms the write. |
-| litespec/ext/mcp#exclude-secrets-and-personal-data | guidance | Tool descriptions and logs carry field names with no secret or personal values. |
-| litespec/ext/mcp#state-the-distribution-and-update-path | guidance | The server documentation states install and update steps. |
-| litespec/ext/mcp#state-the-refusing-side-on-each-refusal | guidance | Refusals carry the `Needs:`, `Needs confirmation:`, and `Refused:` prefixes, or the project names another refusal vocabulary in its documentation. |

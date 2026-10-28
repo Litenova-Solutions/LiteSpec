@@ -36,26 +36,26 @@ The registry build command is `shadcn-svelte build`. The state-to-tone table liv
 
 ### Select a Rendering Mode by Audience
 
+**ID:** `litespec/frontend/web/svelte/stack#select-a-rendering-mode-by-audience`
+
 **Statement:** A Svelte frontend MUST render as a static application when it is a console, and on the server when a public page is indexed.
 
 **Rationale:** A console opens inside the application a signed-in user already has, so its first response has nothing to index and ships as static files. A public page arrives by message or search result, so its title and links belong in the first response and it renders on the server. A page counts as indexed when its readers reach it from a message or a search result. A device client asks one question over and over and takes a static page with no router.
 
 **Example:** A back-office console and an internal admin console ship as static files. A public storefront runs as a Node server that hydrates in the browser. A warehouse handheld client ships as one static page.
 
+**Reviewed for:** Each frontend renders in the mode its audience requires: static files for a console, server rendering for an indexed public page.
+
 ### Build a Device Client as One Static Page
+
+**ID:** `litespec/frontend/web/svelte/stack#build-a-device-client-as-one-static-page`
 
 **Statement:** A device client MUST ship as one static page with no router.
 
 **Rationale:** A device client shows one answer on repeat: one question, one screen, no navigation. A router would add downloads for destinations the client never visits. One static page carries exactly what the device needs.
 
+**Reviewed for:** Each device client ships as one static page with no router.
 
 ## Conventions
 
 None.
-
-## Verification
-
-| ID | Mark | Evidence |
-|:---|:---|:---|
-| litespec/frontend/web/svelte/stack#select-a-rendering-mode-by-audience | guidance | Each frontend renders in the mode its audience requires: static files for a console, server rendering for an indexed public page. |
-| litespec/frontend/web/svelte/stack#build-a-device-client-as-one-static-page | guidance | Each device client ships as one static page with no router. |

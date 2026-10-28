@@ -26,6 +26,8 @@ A scenario states one behavior the product shows, written in `given`, `when`, `t
 
 ### Keep the Test Suites the Size Requires
 
+**ID:** `litespec/backend/testing#keep-the-test-suites-the-size-requires`
+
 **Statement:** A backend codebase MUST hold exactly the test suites its size requires: architecture and integration for small, adding acceptance for large.
 
 **Rationale:** Each suite owns one boundary and one harness, so a project that keeps exactly its suites knows where each new test belongs. A missing suite pushes its tests into another suite's harness, where they run with the wrong fixtures, and an extra unnamed suite collects the tests nobody placed. Unit suites stay optional in both sizes, and acceptance stays optional for small. An acceptance suite without the executable BDD extension is an unnamed baseline suite: select the extension, or name the suite for what it actually is.
@@ -40,13 +42,21 @@ acceptance-tests/
 
 A small codebase holds the first two. Acceptance appears when the executable BDD extension activates.
 
+**Reviewed for:** The test folders hold architecture and integration suites, with acceptance added for large projects only.
+
 ### Test Domain in Isolation
+
+**ID:** `litespec/backend/testing#test-domain-in-isolation`
 
 **Statement:** A Domain test MUST use explicit inputs with no database, HTTP host, container, clock, or mock.
 
 **Rationale:** Domain behavior is deterministic: explicit inputs in, new state or a refusal out. A database, host, container, clock, or mock in a Domain test hides nondeterminism behind the call, so the same test passes and fails without a code change. The suite covers factories, every lifecycle state, allowed and rejected transitions, invariants, value equality, collections, money rules, exceptions, and raised events.
 
+**Reviewed for:** Domain test files take explicit inputs, with no database, host, container, clock, or mock in their bodies.
+
 ### Test Application Coordination
+
+**ID:** `litespec/backend/testing#test-application-coordination`
 
 **Statement:** An Application test MUST substitute repositories, clocks, actor accessors, and external ports, then assert the handler's coordination.
 
@@ -54,13 +64,21 @@ A small codebase holds the first two. Acceptance appears when the executable BDD
 
 **Example:** A handler test for submitting an expense substitutes the expense and policy repositories, sends a command carrying an expense identifier, an employee identifier, an amount, and a receipt, and asserts the returned expense identifier alongside what was loaded and staged. A second test sends an expense above the threshold with no receipt and asserts the `spending.receipt-missing` refusal. Both tests run with no database connection, because the repositories are substitutes.
 
+**Reviewed for:** Application test files substitute repositories, clocks, actor accessors, and ports, and assert loaded, called, staged, and returned values.
+
 ### Test HTTP Integration Through the Real Application Host
+
+**ID:** `litespec/backend/testing#test-http-integration-through-the-real-application-host`
 
 **Statement:** An HTTP integration test MUST run through the real application host with the real configuration, covering Problem Details, authentication, and resource authorization.
 
 **Rationale:** Only the real host wires the real routing, serialization, authentication, and authorization. A test that bypasses the host proves the handler again and misses the boundary where status codes, Problem Details shapes, and policy denials are actually produced. Persistence behavior is covered against PostgreSQL under `litespec/backend/persistence#test-persistence-against-postgresql`, and both run on the harness that `litespec/backend/testing#share-one-production-faithful-integration-harness` owns.
 
+**Reviewed for:** HTTP integration tests run through the real host factory with production configuration, covering Problem Details bodies, authentication, and authorization.
+
 ### Isolate Integration State
+
+**ID:** `litespec/backend/testing#isolate-integration-state`
 
 **Statement:** An integration test MUST reset database state between tests through one documented strategy and depend on no test order.
 
@@ -68,13 +86,21 @@ A small codebase holds the first two. Acceptance appears when the executable BDD
 
 The default strategy is one database per test class, cloned from a migrated template. The harness applies the schema once per run to a template database. Each test class then receives its own database cloned from that template and drops that database when the class finishes. A clone takes milliseconds, so every class starts from an empty migrated schema without a second container. A project that resets tables between tests instead records that strategy in its testing documentation.
 
+**Reviewed for:** The testing documentation names one reset strategy, and integration tests share no mutable business state across runs.
+
 ### Assert Architecture Boundaries with Tests
+
+**ID:** `litespec/backend/testing#assert-architecture-boundaries-with-tests`
 
 **Statement:** An architecture test MUST assert the structural boundaries that `litespec/backend/architecture#test-structural-boundaries` names.
 
 **Rationale:** The compiler does not enforce project references, visibility, or folder placement, so a review miss on any of them lands in the main branch silently. An architecture test turns each structural boundary into a failure the suite reports on the change that broke it.
 
+**Reviewed for:** Architecture test files assert project references, visibility, folders, and inheritance against the compiled code.
+
 ### Tag the Test That Proves Each Scenario
+
+**ID:** `litespec/backend/testing#tag-the-test-that-proves-each-scenario`
 
 **Statement:** Each scenario MUST be proved by a test carrying its proves tag, calling its use case through the public boundary, and asserting the result the scenario names.
 
@@ -82,7 +108,11 @@ The default strategy is one database per test class, cloned from a migrated temp
 
 **Example:** An acceptance scenario for submitting an expense carries the tag for `scenario/submit-expense.submitting-with-a-receipt-succeeds`, drives the submit-expense steps, and asserts the submitted expense. An integration test for the same scenario constructs the submit-expense message, sends it through the host, and asserts the same result. The tag names the scenario, the call crosses the public boundary, and the model builder confirms the claim from the test body.
 
+**Reviewed for:** The book pairs each scenario with its proving test, the boundary call in its body, and its latest passing run.
+
 ### Prove Each Rule Through Its Scenarios
+
+**ID:** `litespec/backend/testing#prove-each-rule-through-its-scenarios`
 
 **Statement:** A rule claim MUST confirm only through a scenario the same test proves.
 
@@ -90,7 +120,11 @@ The default strategy is one database per test class, cloned from a migrated temp
 
 **Example:** A test proving the scenario for an expense above the threshold with no receipt claims the receipt rule alongside the scenario. The scenario sends the command and asserts the `spending.receipt-missing` refusal, and the rule claim confirms because the same test proves the scenario. No separate tag names the validator or the store.
 
+**Reviewed for:** Rule claims sit on tests beside a proved scenario claim for the same use case.
+
 ### Match Tests by Fully Qualified Name
+
+**ID:** `litespec/backend/testing#match-tests-by-fully-qualified-name`
 
 **Statement:** A test run MUST match results to tests by fully qualified name.
 
@@ -98,7 +132,11 @@ The default strategy is one database per test class, cloned from a migrated temp
 
 **Example:** Renaming a submit-expense test leaves the old qualified name with no matching result, and the scenario shows unproven until the new name runs and passes.
 
+**Reviewed for:** Test result files record namespace, containing types, and method for each test, with no data-row arguments.
+
 ### Derive Expected Values from the Scenario
+
+**ID:** `litespec/backend/testing#derive-expected-values-from-the-scenario`
 
 **Statement:** A test MUST take its expected values only from the Then of the scenario it proves.
 
@@ -106,7 +144,11 @@ The default strategy is one database per test class, cloned from a migrated temp
 
 **Example:** A scenario whose Then says the expense is submitted asserts the submitted state and the returned identifier from the scenario text. The test author reads no handler code to learn the expected values.
 
+**Reviewed for:** Test assertions repeat the expected endings written in the Then of their scenarios.
+
 ### Refuse Surviving Mutants on Changed Lines
+
+**ID:** `litespec/backend/testing#refuse-surviving-mutants-on-changed-lines`
 
 **Statement:** A change MUST leave no surviving mutant on its changed lines.
 
@@ -114,7 +156,11 @@ The default strategy is one database per test class, cloned from a migrated temp
 
 **Example:** A change touching the receipt check runs mutation over those lines with the scenario suite. Zero survivors lets the change land; one survivor sends the change back for a stronger assertion.
 
+**Reviewed for:** The mutation report for each change shows zero survivors on its changed lines.
+
 ### Prove Every Calculation with Property Tests
+
+**ID:** `litespec/backend/testing#prove-every-calculation-with-property-tests`
 
 **Statement:** Every calculation rule MUST be proved by property tests seeded from its scenario examples.
 
@@ -122,7 +168,11 @@ The default strategy is one database per test class, cloned from a migrated temp
 
 **Example:** A rounding rule with three reviewed rows seeds a property test asserting the rounded total against the stated bound for each generated input.
 
+**Reviewed for:** Calculation rules pair with property test files seeded from their scenario example rows.
+
 ### Prove Every Aggregate with a Model-Based Test
+
+**ID:** `litespec/backend/testing#prove-every-aggregate-with-a-model-based-test`
 
 **Statement:** Every aggregate MUST be proved by a model-based test generated from its declared transitions.
 
@@ -130,13 +180,21 @@ The default strategy is one database per test class, cloned from a migrated temp
 
 **Example:** An expense test generates walks across submitted, approved, rejected, and reimbursed, checking each move against the declared transitions. A walk attempting reimbursement from submitted ends in the refusal the transitions table allows.
 
+**Reviewed for:** Aggregates pair with model-based test files walking their declared transition tables.
+
 ### Use Evidence Rather Than One Coverage Target
+
+**ID:** `litespec/backend/testing#use-evidence-rather-than-one-coverage-target`
 
 **Statement:** A repository MUST NOT treat one coverage percentage as the definition of sufficient testing.
 
 **Rationale:** A single coverage percentage rewards tests that execute lines without asserting behavior: a suite reaches the target while proving no scenario. Coverage stays useful as review input, so the project collects line and branch numbers without treating any value as sufficient. The evidence is scenario proof, domain edge cases, integration boundaries, security behavior, and architecture rules, with mutation results on changed lines under `litespec/backend/testing#refuse-surviving-mutants-on-changed-lines`.
 
+**Reviewed for:** No build gate names a coverage percentage, while line and branch numbers stay available for review.
+
 ### Share One Production-Faithful Integration Harness
+
+**ID:** `litespec/backend/testing#share-one-production-faithful-integration-harness`
 
 **Statement:** The integration suite MUST own one database container fixture, one application host factory, and one database isolation helper.
 
@@ -144,9 +202,13 @@ The default strategy is one database per test class, cloned from a migrated temp
 
 One harness binds the integration suite. An activated BDD extension brings its own host for the acceptance suite, because the two suites run different lifetimes. That second host reuses this fixture's container and reset helper rather than starting another database.
 
+**Reviewed for:** The integration suite holds one container fixture, one host factory, and one isolation helper.
+
 ## Conventions
 
 ### Mirror Production Module Names
+
+**ID:** `litespec/backend/testing#mirror-production-module-names`
 
 **Default:** Mirror the production module and aggregate folder names inside each test project.
 
@@ -171,7 +233,11 @@ Architecture tests/
 
 Production modules keep the same folder names in every test tree, apart from the exempt harness files.
 
+**Reviewed for:** Test trees list the same module folders as production, apart from the exempt harness files.
+
 ### Name Tests by Observable Behavior
+
+**ID:** `litespec/backend/testing#name-tests-by-observable-behavior`
 
 **Default:** Name a test `{MethodOrOperation}_{Condition}_{ExpectedResult}` and its class after the production type it covers.
 
@@ -179,7 +245,11 @@ Production modules keep the same folder names in every test tree, apart from the
 
 **Rationale:** A failing test name is often the first thing read in a broken build. A name that states operation, condition, and expected result identifies the broken behavior without opening the file, while `Test1` or `HappyPath` describes the author's intent rather than the behavior that failed.
 
+**Reviewed for:** Test names state operation, condition, and expected result on classes named for production types.
+
 ### Use Builders for Valid Defaults
+
+**ID:** `litespec/backend/testing#use-builders-for-valid-defaults`
 
 **Default:** Create a test data builder that produces valid state by default and exposes business-named customization.
 
@@ -187,7 +257,11 @@ Production modules keep the same folder names in every test tree, apart from the
 
 **Rationale:** Builders that start from valid state keep each test focused on the one value it changes. Constructing state by bypassing Domain methods is reserved for a persistence compatibility test, because only that test needs state the Domain would refuse.
 
+**Reviewed for:** Test data builders produce valid state by default with business-named customization.
+
 ### Keep Assertions Focused
+
+**ID:** `litespec/backend/testing#keep-assertions-focused`
 
 **Default:** Assert only the state, event, call, response, or error that the test covers.
 
@@ -195,32 +269,10 @@ Production modules keep the same folder names in every test tree, apart from the
 
 **Rationale:** A focused assertion fails only when the behavior it covers breaks. A broad object snapshot fails for an unrelated field addition, which trains readers to update it without reading it.
 
+**Reviewed for:** Test bodies assert their named outcome without whole-object snapshots.
+
 ## Reference Example
 
 This informative example demonstrates `litespec/backend/testing#test-domain-in-isolation`, `litespec/backend/testing#test-application-coordination`, and `litespec/backend/testing#test-http-integration-through-the-real-application-host`.
 
 A Domain test for publishing a draft post uses explicit inputs with no substitutes. An Application test for creating a draft substitutes the post repository and the clock, then asserts what was loaded, staged, and returned. An integration test for the same use case runs through the real host against the pinned PostgreSQL.
-
-## Verification
-
-| ID | Mark | Evidence |
-|:---|:---|:---|
-| litespec/backend/testing#keep-the-test-suites-the-size-requires | guidance | The test folders hold architecture and integration suites, with acceptance added for large projects only. |
-| litespec/backend/testing#test-domain-in-isolation | guidance | Domain test files take explicit inputs, with no database, host, container, clock, or mock in their bodies. |
-| litespec/backend/testing#test-application-coordination | guidance | Application test files substitute repositories, clocks, actor accessors, and ports, and assert loaded, called, staged, and returned values. |
-| litespec/backend/testing#test-http-integration-through-the-real-application-host | guidance | HTTP integration tests run through the real host factory with production configuration, covering Problem Details bodies, authentication, and authorization. |
-| litespec/backend/testing#isolate-integration-state | guidance | The testing documentation names one reset strategy, and integration tests share no mutable business state across runs. |
-| litespec/backend/testing#assert-architecture-boundaries-with-tests | guidance | Architecture test files assert project references, visibility, folders, and inheritance against the compiled code. |
-| litespec/backend/testing#tag-the-test-that-proves-each-scenario | guidance | The book pairs each scenario with its proving test, the boundary call in its body, and its latest passing run. |
-| litespec/backend/testing#prove-each-rule-through-its-scenarios | guidance | Rule claims sit on tests beside a proved scenario claim for the same use case. |
-| litespec/backend/testing#match-tests-by-fully-qualified-name | guidance | Test result files record namespace, containing types, and method for each test, with no data-row arguments. |
-| litespec/backend/testing#derive-expected-values-from-the-scenario | guidance | Test assertions repeat the expected endings written in the Then of their scenarios. |
-| litespec/backend/testing#refuse-surviving-mutants-on-changed-lines | guidance | The mutation report for each change shows zero survivors on its changed lines. |
-| litespec/backend/testing#prove-every-calculation-with-property-tests | guidance | Calculation rules pair with property test files seeded from their scenario example rows. |
-| litespec/backend/testing#prove-every-aggregate-with-a-model-based-test | guidance | Aggregates pair with model-based test files walking their declared transition tables. |
-| litespec/backend/testing#use-evidence-rather-than-one-coverage-target | guidance | No build gate names a coverage percentage, while line and branch numbers stay available for review. |
-| litespec/backend/testing#share-one-production-faithful-integration-harness | guidance | The integration suite holds one container fixture, one host factory, and one isolation helper. |
-| litespec/backend/testing#mirror-production-module-names | guidance | Test trees list the same module folders as production, apart from the exempt harness files. |
-| litespec/backend/testing#name-tests-by-observable-behavior | guidance | Test names state operation, condition, and expected result on classes named for production types. |
-| litespec/backend/testing#use-builders-for-valid-defaults | guidance | Test data builders produce valid state by default with business-named customization. |
-| litespec/backend/testing#keep-assertions-focused | guidance | Test bodies assert their named outcome without whole-object snapshots. |

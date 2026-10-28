@@ -22,13 +22,19 @@ An ingest job lists its `steps` in run order, names its closed `dropReasons` set
 
 ### Declare Ingest Steps in Order
 
+**ID:** `litespec/ext/pipeline#declare-ingest-steps-in-order`
+
 **Statement:** An ingest job MUST list its steps in run order with each step marked drop or enrich.
 
 **Rationale:** Order is the pipeline's meaning: enriching before dropping wastes work, and dropping before enriching loses context. Listing the steps in run order with each kind marked lets a reader replay the pipeline in their head.
 
 **Example:** The catalog ingest lists `drop-duplicates`, then `enrich-prices`, then `drop-below-threshold`.
 
+**Reviewed for:** The ingest job records list steps in run order with each marked drop or enrich.
+
 ### Define the Closed Drop Reason Set
+
+**ID:** `litespec/ext/pipeline#define-the-closed-drop-reason-set`
 
 **Statement:** An ingest job MUST name the closed set of reasons a step drops a record.
 
@@ -36,7 +42,11 @@ An ingest job lists its `steps` in run order, names its closed `dropReasons` set
 
 **Example:** The catalog ingest names `duplicate`, `below-threshold`, and `poison` as its only drop reasons.
 
+**Reviewed for:** The ingest job records name the closed drop reasons with no drop outside them.
+
 ### Record One Drop Reason per Dropped Record
+
+**ID:** `litespec/ext/pipeline#record-one-drop-reason-per-dropped-record`
 
 **Statement:** Each record a step drops MUST carry one reason from the closed set.
 
@@ -44,7 +54,11 @@ An ingest job lists its `steps` in run order, names its closed `dropReasons` set
 
 **Example:** A feed row dropped for matching an existing SKU carries `duplicate`.
 
+**Reviewed for:** The dropped records each carry one reason from the job's closed set.
+
 ### Read Enrichment Data from Declared Sources
+
+**ID:** `litespec/ext/pipeline#read-enrichment-data-from-declared-sources`
 
 **Statement:** An enrich step MUST read only the sources its job declares.
 
@@ -52,7 +66,11 @@ An ingest job lists its `steps` in run order, names its closed `dropReasons` set
 
 **Example:** The `enrich-prices` step reads the vendor price list its job declares, and nothing else.
 
+**Reviewed for:** The enrich steps read only the sources named on their job records.
+
 ### Bound the Ingest Buffer
+
+**ID:** `litespec/ext/pipeline#bound-the-ingest-buffer`
 
 **Statement:** An ingest job MUST state its buffer policy with capacity and overflow behavior.
 
@@ -60,7 +78,11 @@ An ingest job lists its `steps` in run order, names its closed `dropReasons` set
 
 **Example:** The catalog ingest buffers ten thousand rows and blocks the feed past that until the buffer drains.
 
+**Reviewed for:** The ingest job records state buffer capacity with the overflow behavior past it.
+
 ### Expose Drop Counts per Reason
+
+**ID:** `litespec/ext/pipeline#expose-drop-counts-per-reason`
 
 **Statement:** An ingest job MUST expose a count of dropped records per reason.
 
@@ -68,7 +90,11 @@ An ingest job lists its `steps` in run order, names its closed `dropReasons` set
 
 **Example:** The catalog dashboard shows twelve `poison` drops in the last hour beside zero `duplicate` drops.
 
+**Reviewed for:** The pipeline dashboards show dropped-record counts split by reason.
+
 ### State the Freshness Consequence
+
+**ID:** `litespec/ext/pipeline#state-the-freshness-consequence`
 
 **Statement:** Each query reading ingested data MUST state the freshness its readers observe.
 
@@ -76,15 +102,21 @@ An ingest job lists its `steps` in run order, names its closed `dropReasons` set
 
 **Example:** The catalog search query states `bounded (PT15M)`, matching the ingest job's quarter-hour window.
 
+**Reviewed for:** The queries over ingested data state the freshness their readers observe.
+
 ## Conventions
 
 ### Discard Poison Records After Three Attempts
+
+**ID:** `litespec/ext/pipeline#discard-poison-records-after-three-attempts`
 
 **Default:** A record that fails parsing three times is dropped with the poison reason.
 
 **Replacement:** A project names its poison threshold in its pipeline documentation.
 
 **Rationale:** One bad row must not stall the feed forever, and one strict parse must not drop rows a retry would save. Three attempts split the difference, and the poison reason keeps the casualty visible.
+
+**Reviewed for:** Unparsable rows drop as poison after three attempts, or the pipeline documentation names another threshold.
 
 ## Dependencies
 
@@ -93,16 +125,3 @@ Packages: None.
 Related extensions: `jobs` for the lease, cursor, and per-item issues behind the ingest job.
 
 Guides: None.
-
-## Verification
-
-| ID | Mark | Evidence |
-|:---|:---|:---|
-| litespec/ext/pipeline#declare-ingest-steps-in-order | guidance | The ingest job records list steps in run order with each marked drop or enrich. |
-| litespec/ext/pipeline#define-the-closed-drop-reason-set | guidance | The ingest job records name the closed drop reasons with no drop outside them. |
-| litespec/ext/pipeline#record-one-drop-reason-per-dropped-record | guidance | The dropped records each carry one reason from the job's closed set. |
-| litespec/ext/pipeline#read-enrichment-data-from-declared-sources | guidance | The enrich steps read only the sources named on their job records. |
-| litespec/ext/pipeline#bound-the-ingest-buffer | guidance | The ingest job records state buffer capacity with the overflow behavior past it. |
-| litespec/ext/pipeline#expose-drop-counts-per-reason | guidance | The pipeline dashboards show dropped-record counts split by reason. |
-| litespec/ext/pipeline#state-the-freshness-consequence | guidance | The queries over ingested data state the freshness their readers observe. |
-| litespec/ext/pipeline#discard-poison-records-after-three-attempts | guidance | Unparsable rows drop as poison after three attempts, or the pipeline documentation names another threshold. |

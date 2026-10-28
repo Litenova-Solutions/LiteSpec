@@ -18,11 +18,17 @@ Marten is the baseline provider, supplying the session, the read session, and do
 
 ### Stage Aggregate Writes Through Repositories
 
+**ID:** `litespec/backend/dotnet/persistence#stage-aggregate-writes-through-repositories`
+
 **Statement:** A command handler MUST reach persistence only through a Domain repository, never through `IDocumentSession`.
 
 **Rationale:** Infrastructure implements each Domain repository with the scoped session, so the handler stages work without naming a provider type. A repository that exposed the session, a generic query, or a save operation would hand the handler the provider surface the layer exists to hide. This provision states the .NET form of `litespec/backend/persistence#stage-aggregate-writes-through-domain-repositories`.
 
+**Reviewed for:** Command handler files under `apps/api/src/` name only Domain repository interfaces in their persistence calls; no handler file names `IDocumentSession`.
+
 ### Query Through IQuerySession
+
+**ID:** `litespec/backend/dotnet/persistence#query-through-iquerysession`
 
 **Statement:** A query handler MUST project through `IQuerySession`, applying filter, scope, ordering, and limit before materialization.
 
@@ -55,7 +61,11 @@ var rows = await session.AdvancedSql.QueryAsync<SpendingTotalRow>(
     query.OwnerId.Value);
 ```
 
+**Reviewed for:** Query handler files project through `IQuerySession` with filter, scope, ordering, and limit applied before materialization.
+
 ### Commit Once in the Command Pipeline
+
+**ID:** `litespec/backend/dotnet/persistence#commit-once-in-the-command-pipeline`
 
 **Statement:** Exactly one global command post-handler MUST call `SaveChangesAsync` for a command pipeline.
 
@@ -63,7 +73,11 @@ var rows = await session.AdvancedSql.QueryAsync<SpendingTotalRow>(
 
 The obligation is one commit for one pipeline, not one named method. Under the baseline provider that commit is `IDocumentSession.SaveChangesAsync`. Under the `efcore` extension it is `DbContext.SaveChangesAsync`. The pipeline wraps the call in an explicit transaction when it writes through more than one context. Under `consistency: atomic` that commit covers everything the handler staged. Other modes split work across commands: each command still commits once, and the driver resumes from its cursor or runs the declared compensation.
 
+**Reviewed for:** One command post-handler file calls `SaveChangesAsync`; no handler, repository, validator, reaction, or endpoint file calls it.
+
 ### Enforce Uniqueness with Marten Unique Indexes
+
+**ID:** `litespec/backend/dotnet/persistence#enforce-uniqueness-with-marten-unique-indexes`
 
 **Statement:** Each Marten aggregate document MUST enforce its uniqueness rules through a unique index over the stored value or an identity derived from its owner.
 
@@ -85,7 +99,11 @@ A payout exists at most once per expense, so its document id is the expense id:
 session.Store(new PayoutDocument(expense.Id, payoutNumber));
 ```
 
+**Reviewed for:** Each Marten aggregate document with a uniqueness rule carries a unique index or an owner-derived identity in the store configuration.
+
 ### Claim Cross-Record Keys with a Claims Document
+
+**ID:** `litespec/backend/dotnet/persistence#claim-cross-record-keys-with-a-claims-document`
 
 **Statement:** Each cross-record uniqueness key MUST be claimed through a claims document keyed by the key text and written with `session.Insert`, never with `Store`.
 
@@ -102,7 +120,11 @@ public sealed record BarcodeClaim(string Barcode);
 session.Insert(new BarcodeClaim(barcode));
 ```
 
+**Reviewed for:** Each cross-record key travels through a claims document written with `session.Insert`, with no `Store` call on the claims type.
+
 ### Map Constraint Violations with the PostgreSQL Refusal Classifier
+
+**ID:** `litespec/backend/dotnet/persistence#map-constraint-violations-with-the-postgresql-refusal-classifier`
 
 **Statement:** Each Marten unique index MUST map by name to its conflict refusal code in `PostgreSqlConstraintRefusalClassifier`.
 
@@ -119,7 +141,11 @@ services.UseFaultRefusalClassifierInstance(
     }));
 ```
 
+**Reviewed for:** The service registration pairs each unique index name with its conflict refusal code in the PostgreSQL refusal classifier.
+
 ### Apply Optimistic Concurrency to Every Aggregate Document
+
+**ID:** `litespec/backend/dotnet/persistence#apply-optimistic-concurrency-to-every-aggregate-document`
 
 **Statement:** Each Marten aggregate document type MUST enable optimistic concurrency.
 
@@ -131,7 +157,11 @@ services.UseFaultRefusalClassifierInstance(
 options.Schema.For<ExpenseDocument>().UseOptimisticConcurrency(true);
 ```
 
+**Reviewed for:** Each Marten aggregate document type enables optimistic concurrency, per type or through the document policy.
+
 ### Map Marten Concurrency Faults to Conflict Refusals
+
+**ID:** `litespec/backend/dotnet/persistence#map-marten-concurrency-faults-to-conflict-refusals`
 
 **Statement:** A classifier MUST translate Marten's `ConcurrencyException` into the use case conflict refusal.
 
@@ -139,9 +169,13 @@ options.Schema.For<ExpenseDocument>().UseOptimisticConcurrency(true);
 
 **Example:** Two approvers race on one submitted expense; the loser throws `ConcurrencyException` at commit, and the classifier returns the approve conflict refusal so the caller re-reads the expense before deciding again.
 
+**Reviewed for:** A `ConcurrencyException` at commit reaches the caller as the use case conflict refusal through the registered classifier.
+
 ## Conventions
 
 ### Use This Infrastructure Layout
+
+**ID:** `litespec/backend/dotnet/persistence#use-this-infrastructure-layout`
 
 **Default:** Place Marten configuration, repositories, commit behavior, and serialization under one Infrastructure persistence folder.
 
@@ -177,13 +211,19 @@ The module folders follow `litespec/backend/architecture#organize-every-layer-by
 
 Aggregate-specific configuration stays beside its aggregate, while session and commit plumbing stay under the Marten root.
 
+**Reviewed for:** Marten configuration, repository, commit, and serialization files sit under the one Infrastructure persistence folder.
+
 ### Register One Scoped Session
+
+**ID:** `litespec/backend/dotnet/persistence#register-one-scoped-session`
 
 **Default:** Register `IDocumentSession` with the WebApi request or Worker operation scope.
 
 **Replacement:** A project names the session scope each request or operation uses in its project documentation.
 
 **Rationale:** One session per WebApi request or Worker operation means the repositories and the commit handler in one command resolve the same instance. Two sessions would stage and commit separately, splitting one command across two units of work. This provision states the .NET form of `litespec/backend/persistence#use-one-session-per-command`.
+
+**Reviewed for:** The service registration wires `IDocumentSession` once per WebApi request or Worker operation scope.
 
 ## Reference Example
 
@@ -209,18 +249,3 @@ internal sealed class PostRepository(
     }
 }
 ```
-
-## Verification
-
-| ID | Mark | Evidence |
-|:---|:---|:---|
-| litespec/backend/dotnet/persistence#stage-aggregate-writes-through-repositories | guidance | Command handler files under `apps/api/src/` name only Domain repository interfaces in their persistence calls; no handler file names `IDocumentSession`. |
-| litespec/backend/dotnet/persistence#query-through-iquerysession | guidance | Query handler files project through `IQuerySession` with filter, scope, ordering, and limit applied before materialization. |
-| litespec/backend/dotnet/persistence#commit-once-in-the-command-pipeline | guidance | One command post-handler file calls `SaveChangesAsync`; no handler, repository, validator, reaction, or endpoint file calls it. |
-| litespec/backend/dotnet/persistence#enforce-uniqueness-with-marten-unique-indexes | guidance | Each Marten aggregate document with a uniqueness rule carries a unique index or an owner-derived identity in the store configuration. |
-| litespec/backend/dotnet/persistence#claim-cross-record-keys-with-a-claims-document | guidance | Each cross-record key travels through a claims document written with `session.Insert`, with no `Store` call on the claims type. |
-| litespec/backend/dotnet/persistence#map-constraint-violations-with-the-postgresql-refusal-classifier | guidance | The service registration pairs each unique index name with its conflict refusal code in the PostgreSQL refusal classifier. |
-| litespec/backend/dotnet/persistence#apply-optimistic-concurrency-to-every-aggregate-document | guidance | Each Marten aggregate document type enables optimistic concurrency, per type or through the document policy. |
-| litespec/backend/dotnet/persistence#map-marten-concurrency-faults-to-conflict-refusals | guidance | A `ConcurrencyException` at commit reaches the caller as the use case conflict refusal through the registered classifier. |
-| litespec/backend/dotnet/persistence#use-this-infrastructure-layout | guidance | Marten configuration, repository, commit, and serialization files sit under the one Infrastructure persistence folder. |
-| litespec/backend/dotnet/persistence#register-one-scoped-session | guidance | The service registration wires `IDocumentSession` once per WebApi request or Worker operation scope. |

@@ -22,11 +22,17 @@ This extension switches on no optional record type. Each provider is recorded as
 
 ### Record Each Provider as an External System
 
+**ID:** `litespec/ext/integrations#record-each-provider-as-an-external-system`
+
 **Statement:** An integration MUST record its provider as an external system naming actor, operations, and erasure.
 
 **Rationale:** The external-system record bounds the dependency: `litespec/core/access#name-the-actor-for-every-external-system` names the party behind it, `litespec/core/access#declare-every-operation-on-every-external-system` names every operation the product may call, and `litespec/core/access#declare-erasure-for-every-external-system` names how personal data leaves it. A provider with no record gains new messages and fallbacks without review.
 
+**Reviewed for:** Each provider has an external system page in the Behavior systems home naming actor, operations, and erasure.
+
 ### Call Only Declared Operations
+
+**ID:** `litespec/ext/integrations#call-only-declared-operations`
 
 **Statement:** A `calls` effect MUST name an operation the cited external system declares.
 
@@ -34,7 +40,11 @@ This extension switches on no optional record type. Each provider is recorded as
 
 **Example:** The payout effect cites `calls` on the payout bank `send-batch` operation with its timeout and retry count.
 
+**Reviewed for:** Each calls effect names an operation the cited external system declares.
+
 ### Run Provider Calls from Event Handlers or Jobs
+
+**ID:** `litespec/ext/integrations#run-provider-calls-from-event-handlers-or-jobs`
 
 **Statement:** A provider call SHOULD run from an event handler or a job, never from a command handler.
 
@@ -44,7 +54,11 @@ This extension switches on no optional record type. Each provider is recorded as
 
 **Example:** The reimburse-expense command records a pending payout on the expense, and the event handler for the recorded fact calls the payout provider through the business-action port.
 
+**Reviewed for:** Each provider call runs from an event handler or a job, and each inline call carries a deviation naming its compensation.
+
 ### Define Business-Action Ports
+
+**ID:** `litespec/ext/integrations#define-business-action-ports`
 
 **Statement:** Application MUST own a public external-service interface named for its business action.
 
@@ -52,7 +66,11 @@ This extension switches on no optional record type. Each provider is recorded as
 
 **Example:** `IPayoutSender` describes the business action without exposing a payout-bank client.
 
+**Reviewed for:** Each Application port names a business action with no provider in its name or signature.
+
 ### Isolate Provider Implementations
+
+**ID:** `litespec/ext/integrations#isolate-provider-implementations`
 
 **Statement:** Infrastructure MUST own provider clients, SDKs, authentication, and transport models.
 
@@ -60,37 +78,61 @@ This extension switches on no optional record type. Each provider is recorded as
 
 **Example:** `IStripeClient` is provider infrastructure rather than an Application port.
 
+**Checked by:** `ExternalPortTests` assert the Application assembly references no provider SDK or transport type.
+
 ### Bind Client Configuration
+
+**ID:** `litespec/ext/integrations#bind-client-configuration`
 
 **Statement:** An external client MUST bind its base address, credentials, timeout, and policy through validated options.
 
 **Rationale:** Base address, credentials, timeout, and policy decide where the client calls and how it behaves. Binding them through validated options checks each value at startup. A missing or invalid value fails fast instead of misdirecting the first live call.
 
+**Checked by:** `ExternalClientTests` reject missing or invalid external client configuration.
+
 ### Use Managed HTTP Clients
+
+**ID:** `litespec/ext/integrations#use-managed-http-clients`
 
 **Statement:** An HTTP integration MUST use `HttpClientFactory` and applicable service discovery.
 
 **Rationale:** `HttpClientFactory` centralizes handler lifetime, and service discovery resolves provider addresses in one place. Both keep HTTP construction out of the use case. A hand-built client in each call site would scatter both concerns.
 
+**Checked by:** `ExternalClientTests` assert HTTP registration uses the owned factory and declared discovery path.
+
 ### Reject Per-Request HTTP Clients
+
+**ID:** `litespec/ext/integrations#reject-per-request-http-clients`
 
 **Statement:** An HTTP integration MUST NOT construct a new HTTP client for each request.
 
 **Rationale:** A new HTTP client per request skips the central handler configuration and opens sockets the process never reuses. Under load, the exhausted sockets fail calls that the provider would have served. Managed clients reuse what per-request construction throws away.
 
+**Checked by:** `ExternalClientTests` report no per-request HTTP client construction.
+
 ### Bound Transient Retries
+
+**ID:** `litespec/ext/integrations#bound-transient-retries`
 
 **Statement:** An external client MUST retry transient failures with bounded attempts and jitter.
 
 **Rationale:** A provider outage tempts every caller to retry at once, and the synchronized wave hits the provider the moment it recovers. Bounded attempts cap the load and jitter spreads it over time. An unbounded retry turns each caller into a second outage.
 
+**Checked by:** `ExternalRetryTests` verify bounded jittered retry for transient failures.
+
 ### Protect Non-Idempotent Calls
+
+**ID:** `litespec/ext/integrations#protect-non-idempotent-calls`
 
 **Statement:** An external client MUST NOT retry a non-idempotent provider call without provider idempotency and documented replay behavior.
 
 **Rationale:** Retrying a payout, a shipment, or any irreversible provider call can perform it twice. The retry is safe only with provider idempotency behind it and documented replay behavior stating what a repeat does. Without both, the project trades one failed call for two completed effects.
 
+**Checked by:** `ExternalRetryTests` show no retry without documented provider protection.
+
 ### Translate Provider Failure Outcomes
+
+**ID:** `litespec/ext/integrations#translate-provider-failure-outcomes`
 
 **Statement:** An integration MUST map provider errors to project-owned results and stable diagnostics.
 
@@ -100,19 +142,31 @@ The project's own error catalog holds the stable codes. `litespec/backend/api#re
 
 **Example:** A rejected payout file and an unsettled batch both map to the project's `payout-refused` code. The provider's own code travels in diagnostics.
 
+**Checked by:** `ExternalFailureTests` assert provider failures map to project-owned results and stable diagnostics.
+
 ### Exclude Provider Internals
+
+**ID:** `litespec/ext/integrations#exclude-provider-internals`
 
 **Statement:** An API MUST NOT expose provider bodies, credentials, headers, exception types, or internal account identifiers.
 
 **Rationale:** Provider bodies, headers, exception types, and account identifiers carry secrets, implementation details, and sometimes another account's data. An API that returns them leaks all three to its callers. The mapped project-owned outcome carries the meaning without the internals.
 
+**Checked by:** `ExternalFailureTests` expose no provider body, credential, header, type, or account identifier.
+
 ### Trust Inbound Integration Events by Declared Trust
+
+**ID:** `litespec/ext/integrations#trust-inbound-integration-events-by-declared-trust`
 
 **Statement:** An inbound integration event MUST declare `trust` as trigger-only or payload with its correlation.
 
 **Rationale:** Readers place one of two trusts in an inbound fact: trigger-only wakes a read of the source, while payload is fit to act on. The trust states which one, and the correlation states how the event matches, so no handler guesses how far to follow a stranger's fields. `litespec/core/behavior#describe-every-integration-event-for-its-direction` states the record, and `litespec/core/behavior#reach-every-inbound-integration-event-through-a-webhook` gives each inbound fact one door.
 
+**Reviewed for:** Each inbound integration event declares trigger-only or payload trust with its correlation.
+
 ### Verify Inbound Provider Messages
+
+**ID:** `litespec/ext/integrations#verify-inbound-provider-messages`
 
 **Statement:** An inbound provider handler MUST verify signature, timestamp tolerance, replay protection, content type, size, schema, and event identity before processing.
 
@@ -122,13 +176,21 @@ Order matters here. Verify the signature first, over the raw body, before parsin
 
 **Example:** A failed signature returns `401` with no body. A message that names the failed check tells an unauthenticated caller how to pass it.
 
+**Checked by:** `ExternalInboundTests` reject invalid signatures, timestamps, content, size, schema, and identities.
+
 ### Process Duplicate Messages Safely
+
+**ID:** `litespec/ext/integrations#process-duplicate-messages-safely`
 
 **Statement:** An inbound provider handler MUST store or process duplicate events idempotently.
 
 **Rationale:** A provider repeats delivery after a timeout or an acknowledgement failure, so the same event arrives twice. Storing or processing duplicates idempotently leaves one accepted effect. A handler without that protection pays, ships, or notifies twice.
 
+**Checked by:** `ExternalInboundTests` leave one accepted external effect.
+
 ### Reject Formula-Leading Import Values
+
+**ID:** `litespec/ext/integrations#reject-formula-leading-import-values`
 
 **Statement:** A CSV or spreadsheet import MUST reject or neutralize a value that begins with a formula-leading character.
 
@@ -136,13 +198,21 @@ Order matters here. Verify the signature first, over the raw body, before parsin
 
 **Example:** An import that rejects the value reports the row and the field. An import that neutralizes it records what it changed. A silently altered value is a data defect the owner cannot see.
 
+**Checked by:** `ExternalInboundTests` reject or neutralize formula-leading import values.
+
 ### Simulate Integration Boundaries
+
+**ID:** `litespec/ext/integrations#simulate-integration-boundaries`
 
 **Statement:** An integration test MUST use WireMock.Net or a protocol-specific local endpoint.
 
 **Rationale:** A live provider account makes tests slow, flaky, and expensive, and some failure modes never occur on demand. WireMock.Net or a protocol-specific local endpoint simulates the network contract under test control. The suite then covers provider behavior without calling the provider.
 
+**Checked by:** `ExternalTestTests` run each provider contract against a controllable local endpoint.
+
 ### Cover Provider Failure Modes
+
+**ID:** `litespec/ext/integrations#cover-provider-failure-modes`
 
 **Statement:** An integration test MUST cover timeout, connection failure, transient response, permanent response, malformed payload, rate limit, duplicate delivery, and unexpected response shape.
 
@@ -150,9 +220,13 @@ Order matters here. Verify the signature first, over the raw body, before parsin
 
 An unexpected response shape is the mode a provider produces without failing. A well-formed response can carry a field that moved, a type that changed, or a value no one planned for. The response parses. The behavior is still wrong. Every other listed mode reports that response as an error. [A provider that versions its API](https://stripe.com/docs/api/versioning) changes shape on a schedule. A pinned version still changes on the day the provider raises it.
 
+**Checked by:** `ExternalTestTests` suite covers every declared failure mode.
+
 ## Conventions
 
 ### Group Provider Code
+
+**ID:** `litespec/ext/integrations#group-provider-code`
 
 **Default:** Place provider code under `Infrastructure/Integrations/{Provider}/`.
 
@@ -160,7 +234,11 @@ An unexpected response shape is the mode a provider produces without failing. A 
 
 **Rationale:** Each provider's transport code lives under `Infrastructure/Integrations/{Provider}/`. One folder per provider keeps provider code inside one Infrastructure boundary. A reader finds everything about a provider in one place.
 
+**Reviewed for:** Each provider's code sits under `Infrastructure/Integrations/{Provider}/`, or the project names another root in its documentation.
+
 ### Keep Provider Components Together
+
+**ID:** `litespec/ext/integrations#keep-provider-components-together`
 
 **Default:** Keep one options class, client, transport models, mappings, and registration module in each provider folder.
 
@@ -168,13 +246,19 @@ An unexpected response shape is the mode a provider produces without failing. A 
 
 **Rationale:** Options, client, transport models, mappings, and the registration module change together when the provider changes. Keeping them in the provider folder keeps each change in one place. A registration module stored elsewhere is the file every provider change forgets.
 
+**Reviewed for:** Each provider folder holds its options, client, models, mappings, and registration, or the project names another grouping in its documentation.
+
 ### Keep Ports Near Use Cases
+
+**ID:** `litespec/ext/integrations#keep-ports-near-use-cases`
 
 **Default:** Keep business-action ports with their Application use cases.
 
 **Replacement:** A project keeps business-action ports in one shared ports folder.
 
 **Rationale:** A business-action port exists because its use case needs that behavior. Keeping the port with its Application use cases states the need next to the needer. A ports folder far from the use cases hides which behavior each port serves.
+
+**Reviewed for:** Each business-action port sits with its Application use cases, or the project keeps its ports in one shared folder.
 
 ## Dependencies
 
@@ -183,29 +267,3 @@ Packages: `Microsoft.Extensions.Http.Resilience`, `WireMock.Net` in integration 
 Related extensions: `outbox`.
 
 Guides: `None.`
-
-## Verification
-
-| ID | Mark | Evidence |
-|:---|:---|:---|
-| litespec/ext/integrations#record-each-provider-as-an-external-system | guidance | Each provider has an external system page in the Behavior systems home naming actor, operations, and erasure. |
-| litespec/ext/integrations#call-only-declared-operations | guidance | Each calls effect names an operation the cited external system declares. |
-| litespec/ext/integrations#run-provider-calls-from-event-handlers-or-jobs | guidance | Each provider call runs from an event handler or a job, and each inline call carries a deviation naming its compensation. |
-| litespec/ext/integrations#define-business-action-ports | guidance | Each Application port names a business action with no provider in its name or signature. |
-| litespec/ext/integrations#isolate-provider-implementations | checkable | `ExternalPortTests` assert the Application assembly references no provider SDK or transport type. |
-| litespec/ext/integrations#bind-client-configuration | checkable | `ExternalClientTests` reject missing or invalid external client configuration. |
-| litespec/ext/integrations#use-managed-http-clients | checkable | `ExternalClientTests` assert HTTP registration uses the owned factory and declared discovery path. |
-| litespec/ext/integrations#reject-per-request-http-clients | checkable | `ExternalClientTests` report no per-request HTTP client construction. |
-| litespec/ext/integrations#bound-transient-retries | checkable | `ExternalRetryTests` verify bounded jittered retry for transient failures. |
-| litespec/ext/integrations#protect-non-idempotent-calls | checkable | `ExternalRetryTests` show no retry without documented provider protection. |
-| litespec/ext/integrations#translate-provider-failure-outcomes | checkable | `ExternalFailureTests` assert provider failures map to project-owned results and stable diagnostics. |
-| litespec/ext/integrations#exclude-provider-internals | checkable | `ExternalFailureTests` expose no provider body, credential, header, type, or account identifier. |
-| litespec/ext/integrations#trust-inbound-integration-events-by-declared-trust | guidance | Each inbound integration event declares trigger-only or payload trust with its correlation. |
-| litespec/ext/integrations#verify-inbound-provider-messages | checkable | `ExternalInboundTests` reject invalid signatures, timestamps, content, size, schema, and identities. |
-| litespec/ext/integrations#process-duplicate-messages-safely | checkable | `ExternalInboundTests` leave one accepted external effect. |
-| litespec/ext/integrations#reject-formula-leading-import-values | checkable | `ExternalInboundTests` reject or neutralize formula-leading import values. |
-| litespec/ext/integrations#simulate-integration-boundaries | checkable | `ExternalTestTests` run each provider contract against a controllable local endpoint. |
-| litespec/ext/integrations#cover-provider-failure-modes | checkable | `ExternalTestTests` suite covers every declared failure mode. |
-| litespec/ext/integrations#group-provider-code | guidance | Each provider's code sits under `Infrastructure/Integrations/{Provider}/`, or the project names another root in its documentation. |
-| litespec/ext/integrations#keep-provider-components-together | guidance | Each provider folder holds its options, client, models, mappings, and registration, or the project names another grouping in its documentation. |
-| litespec/ext/integrations#keep-ports-near-use-cases | guidance | Each business-action port sits with its Application use cases, or the project keeps its ports in one shared folder. |

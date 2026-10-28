@@ -34,13 +34,19 @@ A LiteSpec release is a tagged snapshot of the repository, and the highest git t
 
 ### State the Provision Lifecycle
 
+**ID:** `litespec/core/maintaining#state-the-provision-lifecycle`
+
 **Statement:** A maintainer MUST keep each provision in exactly one of three states: draft, active, or retired.
 
 **Rationale:** The three states tell a maintainer what an identifier promises. An active identifier names a rule that holds and that a Verification row or validator check cites. A retired identifier names nothing, so a citation to it is a defect rather than a reference. Without the lifecycle, a half-written provision and a removed one look identical to a cited one.
 
 **Example:** A provision is added in draft. When cited from a Verification row it becomes active. When its assertion is folded into a richer provision, the provision is retired.
 
+**Reviewed for:** Each provision sits in exactly one lifecycle state, with retired identifiers cited nowhere.
+
 ### Replace Every Citation on a Rename
+
+**ID:** `litespec/core/maintaining#replace-every-citation-on-a-rename`
 
 **Statement:** A provision rename MUST replace every citation of the old identifier in one change.
 
@@ -48,19 +54,29 @@ A LiteSpec release is a tagged snapshot of the repository, and the highest git t
 
 **Example:** Renaming a provision changes its heading, its ID, its Verification row, and every citation together.
 
+**Checked by:** `litespec validate` emits no `ID_UNKNOWN_REFERENCE` diagnostic.
+
 ### Publish a LiteSpec Release from a Tag
+
+**ID:** `litespec/core/maintaining#publish-a-litespec-release-from-a-tag`
 
 **Statement:** A LiteSpec release MUST carry the highest git tag in the manifest version, the changelog entry, the consumer template version, and the tool and analyzer package versions.
 
 **Rationale:** A git tag is the only durable artifact that names a release: branches move and files change, but the tag stays. Reading the current release from the highest tag gives maintainers, consumers, and tools one shared answer. Writing that version into the manifest, the changelog, the template, and the tool package in the same release keeps the four from disagreeing.
 
+**Checked by:** `dotnet test --solution LiteSpec.slnx` fails `ReleaseVersionTests` when the changelog, the template, or either package version differs from the manifest version, and `.github/workflows/release.yml` refuses a tag that does not name the manifest version.
+
 ### List Every Stack Shape and Extension in the Manifest
+
+**ID:** `litespec/core/maintaining#list-every-stack-shape-and-extension-in-the-manifest`
 
 **Statement:** The LiteSpec manifest MUST list every stack, shape, extension, and version pin the release carries.
 
 **Rationale:** The manifest is the release record that tools read: stacks and shapes decide which pages apply, extensions decide which conditional bundles a project selects from, and pins decide which versions build. A stack, shape, extension, or pin the manifest omits is one no consumer selects and no tool resolves. Listing all of them in one file keeps the release reproducible from its tag.
 
 **Example:** The Behavior extensions `privacy`, `devices`, `automation`, `workflow-engine`, `pipeline`, `queues`, and `ai` each appear with their page path and activation scope.
+
+**Checked by:** `litespec validate` fails when a stack, shape, extension, or pin the release carries is missing from the manifest.
 
 ## Conventions
 
@@ -89,12 +105,3 @@ A rule changes, so the maintainer updates the heading and replaces the identifie
 ### Step Three, Releasing
 
 The maintainer runs `git describe --tags --abbrev=0` to find the tag with the highest version number. That tag names the current release. The maintainer sets the manifest and tool package versions, adds the changelog entry, and tags the commit with the new version number.
-
-## Verification
-
-| ID | Mark | Evidence |
-|:---|:---|:---|
-| litespec/core/maintaining#state-the-provision-lifecycle | guidance | Each provision sits in exactly one lifecycle state, with retired identifiers cited nowhere. |
-| litespec/core/maintaining#replace-every-citation-on-a-rename | checkable | `litespec validate` emits no `ID_UNKNOWN_REFERENCE` diagnostic. |
-| litespec/core/maintaining#publish-a-litespec-release-from-a-tag | checkable | `dotnet test --solution LiteSpec.slnx` fails `ReleaseVersionTests` when the changelog, the template, or either package version differs from the manifest version, and `.github/workflows/release.yml` refuses a tag that does not name the manifest version. |
-| litespec/core/maintaining#list-every-stack-shape-and-extension-in-the-manifest | checkable | `litespec validate` fails when a stack, shape, extension, or pin the release carries is missing from the manifest. |

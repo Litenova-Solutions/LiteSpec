@@ -14,6 +14,8 @@ Three core projects hold the shared code: Domain for rules and state, Applicatio
 
 ### Use the Mobile Solution Tree
 
+**ID:** `litespec/frontend/mobile/structure#use-the-mobile-solution-tree`
+
 **Statement:** A consumer selecting a mobile stack MUST hold its mobile apps in one solution at `apps/mobile/` with core projects under `src/` and one app project per platform named `{ProjectName}.{Platform}`.
 
 **Rationale:** One solution gives every platform app one core to share, so a second platform reuses the domain model unchanged. Core projects under `src/` separate shared code from the platform apps that consume it, and one app project per platform named `{ProjectName}.{Platform}` makes each platform's screens findable by name. A reader moves from the solution to a screen by rule rather than by search. This replaces the API solution path in `litespec/workspace/structure#use-the-canonical-root-tree`, because a client-only consumer has no API directory.
@@ -36,25 +38,41 @@ apps/mobile/
 
 Framework-generated `bin`, `obj`, and `publish` folders remain untracked.
 
+**Reviewed for:** One solution at `apps/mobile/` holds the core projects under `src/` and one app project per platform named `{ProjectName}.{Platform}`.
+
 ### Hold the Domain in the App Only Without a Server
+
+**ID:** `litespec/frontend/mobile/structure#hold-the-domain-in-the-app-only-without-a-server`
 
 **Statement:** A mobile consumer MUST hold Domain, Application, and Infrastructure core projects in the `client-only` shape, and a `{ProjectName}.Client` core project with the generated API client instead of them in the `server` shape.
 
 **Rationale:** A product with no server carries its own domain model, so the app holds the Domain, Application, and Infrastructure projects that define it. A product with a server keeps its rules on the server, so the app holds a Client project with the generated API client and reaches every rule through that client rather than through a copy of the rules. A copied rule drifts from the server's rule on the first change, and the app then enforces a rule the server does not hold.
 
+**Reviewed for:** A `client-only` solution holds Domain, Application, and Infrastructure projects, and a `server` solution holds a Client project with the generated API client and no Domain copy.
+
 ### Keep Core Projects Platform-Free
+
+**ID:** `litespec/frontend/mobile/structure#keep-core-projects-platform-free`
 
 **Statement:** Domain, Application, Infrastructure, and Client core projects MUST target plain .NET and reference no platform SDK type.
 
 **Rationale:** A core project that names a platform SDK type compiles only for that platform, so a second platform app copies the core instead of reusing it. Targeting plain .NET with no platform reference keeps the core compiling for every platform unchanged. Platform differences stay behind the interfaces Application owns, with the platform projects holding the adapters.
 
+**Reviewed for:** Core projects target plain .NET and reference no platform SDK type.
+
 ### Organize Screens by Module
+
+**ID:** `litespec/frontend/mobile/structure#organize-screens-by-module`
 
 **Statement:** A screen MUST live under `Screens/` in the platform project, in a folder for its module when the product has more than one module.
 
 **Rationale:** Screens grouped by module let a reader holding a module record find its screens by path, the way the frontend module mirror maps use cases to folders. A single-module product keeps its screens directly under `Screens/`, because one folder would add a level that distinguishes nothing. Use-case code reached from a screen lives in Application, so the screen folder holds the screen and the handler holds the behavior. This realizes litespec/frontend/structure#mirror-the-backend-use-case-path-in-kebab-case only as far as the screen path follows the module name.
 
+**Reviewed for:** Each screen lives under `Screens/`, in its module folder where the product has more than one module.
+
 ### Keep Imports Directional
+
+**ID:** `litespec/frontend/mobile/structure#keep-imports-directional`
 
 **Statement:** A reference MUST point from the platform project to Infrastructure, Application, and Domain, from Infrastructure to Application and Domain, and from Application to Domain.
 
@@ -68,9 +86,13 @@ Infrastructure -> Application, Domain
 Application -> Domain
 ```
 
+**Reviewed for:** The reference graph matches the declared direction from the platform project inward.
+
 ## Conventions
 
 ### Place Platform Adapters in the Platform Project
+
+**ID:** `litespec/frontend/mobile/structure#place-platform-adapters-in-the-platform-project`
 
 **Default:** Place adapters for players, pickers, sensors, and storage locations in the platform project behind an interface Application owns, one type per platform API surface.
 
@@ -78,13 +100,4 @@ Application -> Domain
 
 **Rationale:** One type per platform API surface in the platform project, each implementing an interface declared in Application, puts every platform call behind a testable boundary the core tests can substitute. The platform project is the only layer that names the platform SDK, so each adapter resolves to its platform API by name. This realizes litespec/frontend/structure#locate-cross-route-values-in-the-frame.
 
-## Verification
-
-| ID | Mark | Evidence |
-|:---|:---|:---|
-| litespec/frontend/mobile/structure#use-the-mobile-solution-tree | guidance | One solution at `apps/mobile/` holds the core projects under `src/` and one app project per platform named `{ProjectName}.{Platform}`. |
-| litespec/frontend/mobile/structure#hold-the-domain-in-the-app-only-without-a-server | guidance | A `client-only` solution holds Domain, Application, and Infrastructure projects, and a `server` solution holds a Client project with the generated API client and no Domain copy. |
-| litespec/frontend/mobile/structure#keep-core-projects-platform-free | guidance | Core projects target plain .NET and reference no platform SDK type. |
-| litespec/frontend/mobile/structure#organize-screens-by-module | guidance | Each screen lives under `Screens/`, in its module folder where the product has more than one module. |
-| litespec/frontend/mobile/structure#keep-imports-directional | guidance | The reference graph matches the declared direction from the platform project inward. |
-| litespec/frontend/mobile/structure#place-platform-adapters-in-the-platform-project | guidance | Each platform API surface has one adapter type in the platform project behind an interface Application owns. |
+**Reviewed for:** Each platform API surface has one adapter type in the platform project behind an interface Application owns.

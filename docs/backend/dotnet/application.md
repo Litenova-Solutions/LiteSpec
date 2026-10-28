@@ -20,6 +20,8 @@ A validator checks structural input, such as an empty title or a malformed ident
 
 ### Keep Command Handlers to Load, Call and Stage
 
+**ID:** `litespec/backend/dotnet/application#keep-command-handlers-to-load-call-and-stage`
+
 **Statement:** A command handler MUST load or create one aggregate through its repository, call one domain method on it, stage it, and return the result.
 
 **Rationale:** The handler body has three steps: the load or creation, the one domain call, and the stage. A required load uses the throwing `GetByIdAsync` and an optional lookup uses the nullable `FindBy...Async` under `litespec/backend/dotnet/domain#keep-repository-interfaces-in-domain`. The message carries the pipeline-stamped timestamp as `HandledAt` under `litespec/backend/application#take-one-timestamp-per-message` (see `litespec/backend/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis`), so the handler stamps decisions without reading a clock. Validation, authorization, idempotency, audit, holds, and the commit are pipeline stages; messages, provider calls, and writes to other aggregates run in event handlers after the commit under `litespec/backend/dotnet/application#dispatch-declared-effects-through-their-entry-points`. A use case whose record declares `consistency: atomic` over several aggregates is the one exception: the handler loads, calls, and stages each aggregate its `changes` names, one method each. This provision states the .NET form of `litespec/backend/application#keep-command-handlers-to-load-call-and-stage`.
@@ -40,13 +42,21 @@ internal sealed class ApproveExpenseCommandHandler(IExpenseRepository expenseRep
 }
 ```
 
+**Reviewed for:** Each command handler: one aggregate loaded or created, one domain method called, staged through its repository, and nothing else; `dotnet build` reports find-or-create as LS2014 and looped stores as LS2015.
+
 ### Report Input Problems as Validity
+
+**ID:** `litespec/backend/dotnet/application#report-input-problems-as-validity`
 
 **Statement:** A validator MUST report its findings as Validity, with each ValidationFailure carrying a member, a code, and a message, and no HTTP status.
 
 **Rationale:** Every validator for the message runs, and the pipeline merges the findings before it refuses the request, so the caller fixes the whole form at once. The member tells the caller which input failed, the stable code lets a client branch on the reason, and the message explains the problem in words safe to show. Validity values come from the pinned mediator's abstractions, named in `litespec/backend/dotnet/application#use-the-pinned-mediator-entry-points`, so every project reports the same shape. This provision states the .NET form of `litespec/backend/application#report-input-problems-as-validity-findings`.
 
+**Reviewed for:** Each validator: findings as `Validity`, with each `ValidationFailure` carrying member, code, and message, and no HTTP status.
+
 ### Keep Query Handlers Free of Writes
+
+**ID:** `litespec/backend/dotnet/application#keep-query-handlers-free-of-writes`
 
 **Statement:** A query handler MUST take no repository and stage, store, delete or dispatch nothing.
 
@@ -54,7 +64,11 @@ internal sealed class ApproveExpenseCommandHandler(IExpenseRepository expenseRep
 
 **Example:** The list-expenses query projects its rows through `IQuerySession`, taking no repository and staging nothing.
 
+**Reviewed for:** Each query handler: no repository, projecting through `IQuerySession`, staging, storing, deleting and dispatching nothing; `dotnet build` reports a repository in a query handler as LS2011.
+
 ### Dispatch Declared Effects Through Their Entry Points
+
+**ID:** `litespec/backend/dotnet/application#dispatch-declared-effects-through-their-entry-points`
 
 **Statement:** An event handler MUST dispatch each declared `sends` effect through the messenger port, each declared `calls` effect through its external-system port, and each declared `issues` effect through `ICommandMediator`, after the commit that stored the fact it answers, while the aggregate raises each declared `publishes` effect as a domain event the outbox stages in the same commit.
 
@@ -67,7 +81,11 @@ internal sealed class ApproveExpenseCommandHandler(IExpenseRepository expenseRep
 outbox.StageCollectedEvents();
 ```
 
+**Checked by:** `litespec model check` reports `effect-undeclared` for a dispatch no record declares; each event handler dispatches sends through the messenger port, calls through its external-system port, and issues through `ICommandMediator`, after the commit.
+
 ### Run Reactions in Dedicated Handlers
+
+**ID:** `litespec/backend/dotnet/application#run-reactions-in-dedicated-handlers`
 
 **Statement:** A reaction MUST run in one class carrying one anchor tag naming its reaction record.
 
@@ -84,7 +102,11 @@ internal sealed class SendDueNoticeOnLoanBorrowedHandler(...)
 }
 ```
 
+**Reviewed for:** Each reaction in Application: one handler class carrying its record's anchor tag, named `{Action}On{Fact}Handler` in the `On{Fact}` folder.
+
 ### Run Jobs as Hosted Operations
+
+**ID:** `litespec/backend/dotnet/application#run-jobs-as-hosted-operations`
 
 **Statement:** A job MUST run as one hosted operation carrying one anchor tag naming its job record.
 
@@ -100,15 +122,23 @@ internal sealed class EraseExpiredPersonalDataJob(...)
 }
 ```
 
+**Reviewed for:** Each job: one hosted operation carrying its record's anchor tag, honoring scope, batch size, lease, and cursor.
+
 ### Bind the Pipeline to the Pinned LiteBus APIs
+
+**ID:** `litespec/backend/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis`
 
 **Statement:** An Application MUST compose its command pipeline through the LiteBus APIs this provision names for commit, authorization, audit, fault classification, delivery, event staging, and the timestamp.
 
 **Rationale:** One pinned binding per position keeps every project's pipeline identical. The commit runs through `commands.UseMartenUnitOfWork()`, which registers the LiteBus `IUnitOfWork` at `HandlerPriorities.UnitOfWork`, so the pipeline commits once under `litespec/backend/dotnet/persistence#commit-once-in-the-command-pipeline`. Authorization runs through a guard derived from `LiteBus.Messaging.Abstractions.DeclarationGuard<TMessage, TValue>`, reading the declaration from the message definition under `litespec/backend/application#enforce-target-authorization-in-the-pipeline`. Audit runs through `AuditDeclaration.Audited(...).WithTargetFrom<TCommand>(...).WithReasonFrom<TCommand>(...)` in an `IAuditDefinition<TCommand>`, declaring the target and reason beside the message under `litespec/backend/application#declare-audit-values-beside-the-message`. Fault classification runs through `UseFaultRefusalClassifierInstance(new PostgreSqlConstraintRefusalClassifier(map))`, mapping each store fault to its refusal under `litespec/backend/persistence#map-a-constraint-violation-to-its-refusal`. Delivery runs through `outbox.EnablePerHandlerDelivery()`, reaching each handler separately under `litespec/ext/outbox#deliver-each-event-to-each-handler-separately`. Event staging runs through `outbox.StageCollectedEvents()`, staging the facts `IDomainEventCollector` collected in the same commit as the aggregate change. The timestamp runs through `IExecutionContext.HandledAt`, stamping each message once for the handler to read as `HandledAt` under `litespec/backend/application#take-one-timestamp-per-message`.
 
+**Reviewed for:** The command pipeline composition: one pinned LiteBus API per position, for commit, authorization, audit, fault classification, delivery, event staging, and the timestamp.
+
 ## Conventions
 
 ### Use the Operation Folder Layout
+
+**ID:** `litespec/backend/dotnet/application#use-the-operation-folder-layout`
 
 **Default:** Place each operation in a folder named for its use case under its module and aggregate, with the files this provision names.
 
@@ -167,13 +197,19 @@ internal sealed class EraseExpiredPersonalDataJob(...)
 
 Module and aggregate order, including the single-aggregate flat form, follow `litespec/backend/architecture#organize-every-layer-by-module-and-use-case`.
 
+**Reviewed for:** Each operation folder under its module and aggregate: the message, result, validator, and handler files named for the use case; each event handler in its `On{Fact}` folder.
+
 ### Use the Pinned Mediator Entry Points
+
+**ID:** `litespec/backend/dotnet/application#use-the-pinned-mediator-entry-points`
 
 **Default:** Dispatch a command through `ICommandMediator.SendAsync` and a query through `IQueryMediator.QueryAsync`, from the LiteBus version the manifest pins.
 
 **Replacement:** A project names its dispatch entry points in its Application documentation.
 
 **Rationale:** One pinned library means every dispatch site in every project reads the same way, and an agent finds all callers of a message with one search. A project that replaces the default still keeps commands and queries on separate entry points, because that separation is required by `litespec/backend/application#dispatch-commands-and-queries-through-separate-entry-points` and no replacement removes it.
+
+**Reviewed for:** Each dispatch site: commands through `ICommandMediator.SendAsync` and queries through `IQueryMediator.QueryAsync`, from the pinned LiteBus version.
 
 ## Reference Example
 
@@ -256,17 +292,3 @@ internal sealed class MarkBookLentOnLoanBorrowedHandler(
 ```
 
 The command handler stages only the loan; borrowing raises `LoanBorrowedEvent`, and the event handler records the lent state on the book after the commit. It commits nothing: the post-handler commits once, and an event handler that needs a write issues a command through `ICommandMediator`.
-
-## Verification
-
-| ID | Mark | Evidence |
-|:---|:---|:---|
-| litespec/backend/dotnet/application#keep-command-handlers-to-load-call-and-stage | guidance | Each command handler: one aggregate loaded or created, one domain method called, staged through its repository, and nothing else; `dotnet build` reports find-or-create as LS2014 and looped stores as LS2015. |
-| litespec/backend/dotnet/application#report-input-problems-as-validity | guidance | Each validator: findings as `Validity`, with each `ValidationFailure` carrying member, code, and message, and no HTTP status. |
-| litespec/backend/dotnet/application#keep-query-handlers-free-of-writes | guidance | Each query handler: no repository, projecting through `IQuerySession`, staging, storing, deleting and dispatching nothing; `dotnet build` reports a repository in a query handler as LS2011. |
-| litespec/backend/dotnet/application#dispatch-declared-effects-through-their-entry-points | checkable | `litespec model check` reports `effect-undeclared` for a dispatch no record declares; each event handler dispatches sends through the messenger port, calls through its external-system port, and issues through `ICommandMediator`, after the commit. |
-| litespec/backend/dotnet/application#run-reactions-in-dedicated-handlers | guidance | Each reaction in Application: one handler class carrying its record's anchor tag, named `{Action}On{Fact}Handler` in the `On{Fact}` folder. |
-| litespec/backend/dotnet/application#run-jobs-as-hosted-operations | guidance | Each job: one hosted operation carrying its record's anchor tag, honoring scope, batch size, lease, and cursor. |
-| litespec/backend/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis | guidance | The command pipeline composition: one pinned LiteBus API per position, for commit, authorization, audit, fault classification, delivery, event staging, and the timestamp. |
-| litespec/backend/dotnet/application#use-the-operation-folder-layout | guidance | Each operation folder under its module and aggregate: the message, result, validator, and handler files named for the use case; each event handler in its `On{Fact}` folder. |
-| litespec/backend/dotnet/application#use-the-pinned-mediator-entry-points | guidance | Each dispatch site: commands through `ICommandMediator.SendAsync` and queries through `IQueryMediator.QueryAsync`, from the pinned LiteBus version. |

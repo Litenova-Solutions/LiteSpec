@@ -365,31 +365,49 @@ Field tables render as tables. Scenarios group under their result. Field names n
 
 ### Write Every Record in Its Home
 
+**ID:** `litespec/core/model#write-every-record-in-its-home`
+
 **Statement:** A project MUST keep every record in the home its type names.
 
 **Rationale:** One home per type tells a reader where to open a record and tells the builder where to read it. A record kept anywhere else is invisible to the checks that scan its home, so it looks sound while nothing validates it.
 
 **Example:** A decision lives at `docs/intent/decisions/0001-receipt-threshold.md`.
 
+**Checked by:** `litespec model check` reports `record-shape` for a record outside its home.
+
 ### State the Common Fields on Every Record
+
+**ID:** `litespec/core/model#state-the-common-fields-on-every-record`
 
 **Statement:** Every written record MUST carry its type, identifier, title, owner, and status.
 
 **Rationale:** Type, identifier, title, owner, and status are the fields every join needs. Without them on every record, the builder cannot connect decisions to requirements, scenarios to results, or records to owners, and the model falls apart into loose pages.
 
+**Checked by:** `litespec model check` reports `record-shape` for a record missing a common field.
+
 ### Use the Layer Status Vocabulary
+
+**ID:** `litespec/core/model#use-the-layer-status-vocabulary`
 
 **Statement:** Every written record MUST carry the status vocabulary of its layer.
 
 **Rationale:** Intent and governance records use draft, approved, and retired, while Behavior records use draft, reviewed, and retired. One vocabulary per layer tells a reader whether a person approved the promise or reviewed the behavior. A Behavior record marked approved claims a founder decision nobody made.
 
+**Checked by:** `litespec model check` reports `invalid-field` for a status outside the record layer vocabulary.
+
 ### Hold Approval Behind Open Questions
+
+**ID:** `litespec/core/model#hold-approval-behind-open-questions`
 
 **Statement:** A record MUST NOT stand approved or reviewed while it carries an open question.
 
 **Rationale:** An open question names a fact the record still needs, with the decider and the date that will settle it. Approving the record first would claim settled intent while the missing fact can still move it. Answering the question or retiring the record clears the gate. A question that auto-approves after the veto window is closed, not open, so the gate still holds.
 
+**Checked by:** `litespec model check` reports `record-shape` for an approved or reviewed record carrying an open question.
+
 ### Record Approval as Data
+
+**ID:** `litespec/core/model#record-approval-as-data`
 
 **Statement:** An approved or reviewed record MUST carry approvedBy, approvedOn, and approvedHash over its semantic fields.
 
@@ -406,49 +424,81 @@ Field tables render as tables. Scenarios group under their result. Field names n
 }
 ```
 
+**Checked by:** `litespec model check` reports `approval-reopened` for a record whose semantic fields changed after approval.
+
 ### Approve Tier 1 Records by a Person
+
+**ID:** `litespec/core/model#approve-tier-1-records-by-a-person`
 
 **Statement:** A tier 1 record MUST carry explicit approval or review by a named person.
 
 **Rationale:** A record carrying money, door, personal-data, or access risk decides what money moves, who passes, whose data is kept, or who may act. Only a named person weighs those consequences; the veto window auto-approval never decides them. Tier 3 records carry no risk, so their draft questions can auto-approve after the window.
 
+**Reviewed for:** Which tier 1 records lack a named personal approver? Look at `approvedBy` on records carrying risk.
+
 ### Write Links on the Record That Points
+
+**ID:** `litespec/core/model#write-links-on-the-record-that-points`
 
 **Statement:** A link MUST live as fields on the record it starts from.
 
 **Rationale:** One writing site keeps a link and its source in one edit: changing the source updates the link in the same change. Links written on the target instead would scatter each relationship across every page it touches.
 
+**Checked by:** `litespec model check` reports `reference-unresolved` for a link whose target no record carries.
+
 ### Connect Every Use Case to Intent
+
+**ID:** `litespec/core/model#connect-every-use-case-to-intent`
 
 **Statement:** A use case MUST carry serves, fulfills, or both.
 
 **Rationale:** A use case with no served journey step or goal and no fulfilled requirement answers to nothing above it: no promise explains why it exists. Pointing up with serves or fulfills ties every behavior to the Intent that asks for it. `record-orphaned` fails a use case carrying neither.
 
+**Checked by:** `litespec model check` reports `record-orphaned` for a use case with neither `serves` nor `fulfills`.
+
 ### Serve Every Journey Step
+
+**ID:** `litespec/core/model#serve-every-journey-step`
 
 **Statement:** Every journey step MUST have a serving use case.
 
 **Rationale:** A step no use case serves promises a moment the product never builds. Use cases point up with serves, so each step id collects the behaviors that carry the walker through it. `step-unserved` fails a step with no serving use case.
 
+**Checked by:** `litespec model check` reports `step-unserved` for a journey step with no serving use case.
+
 ### Follow the Authority Order
+
+**ID:** `litespec/core/model#follow-the-authority-order`
 
 **Statement:** A conflict MUST resolve toward the higher authority.
 
 **Rationale:** Intent records outrank Behavior records: constraint over product, product over requirement, requirement over rule, rule over use case, use case over result, and result over scenario. The order settles a conflict without a meeting: a use case asking for behavior its rule forbids loses to the rule. Where Intent has spoken, the specification wins over code; where Intent is silent, working code is evidence for a question. Decisions explain choices and research informs them, but neither outranks the ladder, so prose never silently overrides an approved record.
 
+**Reviewed for:** Conflict decisions under `docs/intent/decisions/` name the higher record that won, in the order this page states.
+
 ### Resolve Ties by the Later Decision
+
+**ID:** `litespec/core/model#resolve-ties-by-the-later-decision`
 
 **Statement:** A tie MUST resolve toward the later approved decision.
 
 **Rationale:** Two records at one level can disagree with no higher record to settle them. The later approved decision wins because it decided with knowledge of the earlier one. When no later decision separates them, their shared owner decides, so every tie still has exactly one judge.
 
+**Reviewed for:** Each tie-breaking decision carries a later approval date than the peer records it settles.
+
 ### Hold Approval Behind Draft Decisions
+
+**ID:** `litespec/core/model#hold-approval-behind-draft-decisions`
 
 **Statement:** A record MUST NOT stand approved or reviewed behind a draft decision.
 
 **Rationale:** Approval means the reasoning behind the record already holds. A record approved behind a draft decision claims settled intent while its foundation can still move. The builder also writes each record effective status: draft when the record, a decision deciding it, or a requirement it fulfills is a draft. A result or a scenario takes its use case effective status.
 
+**Checked by:** `litespec model check` reports `draft-gate` for an approved or reviewed record behind a draft decision.
+
 ### Record Accepted Gaps as Known Gaps
+
+**ID:** `litespec/core/model#record-accepted-gaps-as-known-gaps`
 
 **Statement:** An accepted gap MUST live as a known gap with owner and end date.
 
@@ -472,7 +522,11 @@ Field tables render as tables. Scenarios group under their result. Field names n
 
 The `use-case-unimplemented` check reports without failing until 2027-06-01, and the expenses team answers for closing the gap, which satisfies this provision.
 
+**Checked by:** `litespec model check` reports `record-shape` and `known-gap-expired` for a gap missing its owner, date, or renewal.
+
 ### Apply Guidance Precedence
+
+**ID:** `litespec/core/model#apply-guidance-precedence`
 
 **Statement:** A conflict MUST resolve toward the project deviation, the extension, the deeper page, or the shallower page, in that order.
 
@@ -498,7 +552,11 @@ The record names the provision it departs from, the reason, and the review date,
 
 A deviation that governs code no record describes names those files in `code`, as paths from the repository root. While the deviation is approved and its `reviewBy` date has not passed, `model check` reports the findings on those files as known instead of failing on them; after the review date they fail again.
 
+**Reviewed for:** Every departure from a shared provision resolves to a deviation record under `docs/governance/deviations/` with reason and review date.
+
 ### Keep One Owner and Status on Every Record
+
+**ID:** `litespec/core/model#keep-one-owner-and-status-on-every-record`
 
 **Statement:** Every page MUST name one owner and one status.
 
@@ -506,25 +564,41 @@ A deviation that governs code no record describes names those files in `code`, a
 
 **Example:** A draft names its `decider` and `decideBy` date. The three statuses and what each allows: a draft awaits its decider, approved or reviewed holds, and retired means a replacement holds.
 
+**Checked by:** `litespec model check` reports `owner-unknown` and `draft-without-decider` for a page missing its owner or draft decider.
+
 ### Retire Records with Replaces
+
+**ID:** `litespec/core/model#retire-records-with-replaces`
 
 **Statement:** A replacing decision MUST name the decision it replaces, and no other record type carries `replaces`.
 
 **Rationale:** Only decisions keep the past: the retired decision stands beside its replacement so the reasoning stays readable. Every other record changes in place, because retired copies of rules or use cases would fork the intent readers must follow. A rename rewrites every citation in the same change, so no dangling reference survives.
 
+**Checked by:** `litespec model check` reports `invalid-field` for `replaces` outside a decision and `reference-unresolved` for an unknown target.
+
 ### Name What Every Decision Decides
+
+**ID:** `litespec/core/model#name-what-every-decision-decides`
 
 **Statement:** Every decision that is not retired MUST name at least one record it settles in `decides`.
 
 **Rationale:** The draft gate and the computed effective status both follow `decides`. A decision that names nothing holds back nothing, so its approval state constrains no record and its draft gate checks nothing. Naming at least one settled record gives the decision something to govern.
 
+**Checked by:** `litespec model check` reports `decision-decides-nothing` for a decision with an empty `decides` field.
+
 ### Resolve Every Page Link
+
+**ID:** `litespec/core/model#resolve-every-page-link`
 
 **Statement:** Every Markdown link outside code on a page under the record roots MUST point at an existing file, by its relative path.
 
 **Rationale:** A link that points at a moved file or a bare identifier reads as navigation and leads nowhere. Requiring every link to name an existing file by its relative path keeps the documentation clickable at every commit. Identifiers are cited in backticks instead, so the two never confuse.
 
+**Checked by:** `litespec model check` reports `link-unresolved` for a page link naming no file.
+
 ### Declare Size Stacks and Optional Types
+
+**ID:** `litespec/core/model#declare-size-stacks-and-optional-types`
 
 **Statement:** A project MUST declare its size, stacks, and optional types.
 
@@ -532,7 +606,11 @@ A deviation that governs code no record describes names those files in `code`, a
 
 **Example:** The running Claimwick example declares large with a server shape and two stacks.
 
+**Checked by:** `litespec model check` reports `size-type-missing` and `record-shape` for a project missing its declaration or a required type.
+
 ### Give Every Use Case Its Results
+
+**ID:** `litespec/core/model#give-every-use-case-its-results`
 
 **Statement:** A use case MUST end in a success result and name its refusals.
 
@@ -577,7 +655,11 @@ The running Claimwick example carries this in `use-case/spending.submit-expense`
 
 Success names the submitted ending, the refusal carries the code `spending.receipt-missing`, and the scenario pairs one given and when with the success result, which satisfies this provision.
 
+**Checked by:** `litespec model check` reports `use-case-without-success` and `scenario-result-unresolved` for a use case missing its success or a scenario naming no result.
+
 ### Derive Generic Refusals
+
+**ID:** `litespec/core/model#derive-generic-refusals`
 
 **Statement:** Generic refusals MUST be derived from access and input, never written as records.
 
@@ -585,31 +667,51 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 
 **Example:** A scenario for `use-case/spending.submit-expense` points at `result/spending.submit-expense.forbidden` with no result record of that id on the page.
 
+**Reviewed for:** Which result records carry a generic refusal id? Look for ids ending in `.forbidden` or `.invalid-input` beside the use case pages.
+
 ### Author One Slice at a Time
+
+**ID:** `litespec/core/model#author-one-slice-at-a-time`
 
 **Statement:** Authoring MUST complete one feature from problem to scenario before starting the next.
 
 **Rationale:** A feature worked from problem to scenario stays reviewable at every level: each record lands with the Intent above it already written. Parallel slices leave Behavior records resting on Intent nobody wrote yet, and reviewers cannot tell a settled choice from a guess.
 
+**Reviewed for:** Approved Behavior records show approved Intent above them through their `fulfills` and `decides` links.
+
 ### Raise Modeling Questions with a Decider and a Date
+
+**ID:** `litespec/core/model#raise-modeling-questions-with-a-decider-and-a-date`
 
 **Statement:** A question found while modeling MUST travel up as a draft question carrying its decider and its decision date.
 
 **Rationale:** A Behavior record written around an open question bakes the guess into states, rules, and scenarios. Sending the question up with its decider, its date, its recommendation, its ballot group, and its tier keeps it owned and dated, while the Behavior record stays draft until the answer lands. A draft past its date that cannot auto-approve becomes a known gap with its owner, so it never silently blocks.
 
+**Reviewed for:** Open modeling questions appear as draft questions carrying a decider and a date.
+
 ### Hold Transcribed Records in Draft
+
+**ID:** `litespec/core/model#hold-transcribed-records-in-draft`
 
 **Statement:** A record with source transcribed MUST NOT stand reviewed while its fulfills or serves parent is unapproved.
 
 **Rationale:** Transcription copies working code into a record during adoption, so the record describes what exists rather than what Intent asked for. Draft holds it visibly unfinished until its fulfills or serves parent is approved. `transcribed-reviewed` fails a transcribed record standing reviewed.
 
+**Checked by:** `litespec model check` reports `transcribed-reviewed` for a transcribed record standing reviewed.
+
 ### End Transcription at the Named Decision
+
+**ID:** `litespec/core/model#end-transcription-at-the-named-decision`
 
 **Statement:** Every transcribed record MUST clear before the adoption decision is approved.
 
 **Rationale:** Transcription mode exists to adopt working code, not to write Behavior from code forever. `adoption.transcriptionEndsWith` names the decision that ends the mode, and approving it closes the door: `transcribed-after-adoption` fails on any record still carrying source transcribed. Clearing means the record earns its Intent parent and drops the transcribed mark, or retires with the code it copied.
 
+**Checked by:** `litespec model check` reports `transcribed-after-adoption` for a transcribed record after the adoption decision is approved.
+
 ### Compute Proof Statuses in the Builder
+
+**ID:** `litespec/core/model#compute-proof-statuses-in-the-builder`
 
 **Statement:** Implemented, verified, stale, reachable, and effective status MUST come from the builder, never from handwriting.
 
@@ -617,15 +719,23 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 
 **Example:** A use case reads implemented when its handler exists.
 
+**Checked by:** `litespec model check` reports `use-case-unimplemented`, `proves-unconfirmed`, and `refusal-not-thrown` for a use case whose handler, proof, or refusal code is missing.
+
 ### Mark Every Check with Its Tier
+
+**ID:** `litespec/core/model#mark-every-check-with-its-tier`
 
 **Statement:** Every check MUST carry its tier and block or report as that tier states.
 
 **Rationale:** The tier tells a reader what a finding means: G reads records only and always blocks, S reads code through a stack reader and blocks only where the reader is qualified, and A reports and never blocks. `litespec model check` prints the tier beside each finding, so a review tells a blocking defect from advice at a glance.
 
+**Reviewed for:** Which findings lack a tier letter, or block outside their tier? Look at the output of `litespec model check`.
+
 ## Conventions
 
 ### Render Generated Regions from the Model
+
+**ID:** `litespec/core/model#render-generated-regions-from-the-model`
 
 **Default:** A generated region renders only facts derived from records.
 
@@ -633,35 +743,4 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 
 **Rationale:** A generated region sits inside a record page, so everything in it reads with record authority. Facts computed from code, such as implemented and verified counts, describe the world rather than the promise, and rendering them beside records would lend them authority they do not hold. The book and the model output carry code-computed facts where readers meet them as computed.
 
-## Verification
-
-| ID | Mark | Evidence |
-|:---|:---|:---|
-| litespec/core/model#write-every-record-in-its-home | checkable | `litespec model check` reports `record-shape` for a record outside its home. |
-| litespec/core/model#state-the-common-fields-on-every-record | checkable | `litespec model check` reports `record-shape` for a record missing a common field. |
-| litespec/core/model#use-the-layer-status-vocabulary | checkable | `litespec model check` reports `invalid-field` for a status outside the record layer vocabulary. |
-| litespec/core/model#hold-approval-behind-open-questions | checkable | `litespec model check` reports `record-shape` for an approved or reviewed record carrying an open question. |
-| litespec/core/model#record-approval-as-data | checkable | `litespec model check` reports `approval-reopened` for a record whose semantic fields changed after approval. |
-| litespec/core/model#approve-tier-1-records-by-a-person | guidance | Which tier 1 records lack a named personal approver? Look at `approvedBy` on records carrying risk. |
-| litespec/core/model#write-links-on-the-record-that-points | checkable | `litespec model check` reports `reference-unresolved` for a link whose target no record carries. |
-| litespec/core/model#connect-every-use-case-to-intent | checkable | `litespec model check` reports `record-orphaned` for a use case with neither `serves` nor `fulfills`. |
-| litespec/core/model#serve-every-journey-step | checkable | `litespec model check` reports `step-unserved` for a journey step with no serving use case. |
-| litespec/core/model#follow-the-authority-order | guidance | Conflict decisions under `docs/intent/decisions/` name the higher record that won, in the order this page states. |
-| litespec/core/model#resolve-ties-by-the-later-decision | guidance | Each tie-breaking decision carries a later approval date than the peer records it settles. |
-| litespec/core/model#hold-approval-behind-draft-decisions | checkable | `litespec model check` reports `draft-gate` for an approved or reviewed record behind a draft decision. |
-| litespec/core/model#record-accepted-gaps-as-known-gaps | checkable | `litespec model check` reports `record-shape` and `known-gap-expired` for a gap missing its owner, date, or renewal. |
-| litespec/core/model#apply-guidance-precedence | guidance | Every departure from a shared provision resolves to a deviation record under `docs/governance/deviations/` with reason and review date. |
-| litespec/core/model#keep-one-owner-and-status-on-every-record | checkable | `litespec model check` reports `owner-unknown` and `draft-without-decider` for a page missing its owner or draft decider. |
-| litespec/core/model#retire-records-with-replaces | checkable | `litespec model check` reports `invalid-field` for `replaces` outside a decision and `reference-unresolved` for an unknown target. |
-| litespec/core/model#name-what-every-decision-decides | checkable | `litespec model check` reports `decision-decides-nothing` for a decision with an empty `decides` field. |
-| litespec/core/model#resolve-every-page-link | checkable | `litespec model check` reports `link-unresolved` for a page link naming no file. |
-| litespec/core/model#declare-size-stacks-and-optional-types | checkable | `litespec model check` reports `size-type-missing` and `record-shape` for a project missing its declaration or a required type. |
-| litespec/core/model#give-every-use-case-its-results | checkable | `litespec model check` reports `use-case-without-success` and `scenario-result-unresolved` for a use case missing its success or a scenario naming no result. |
-| litespec/core/model#derive-generic-refusals | guidance | Which result records carry a generic refusal id? Look for ids ending in `.forbidden` or `.invalid-input` beside the use case pages. |
-| litespec/core/model#author-one-slice-at-a-time | guidance | Approved Behavior records show approved Intent above them through their `fulfills` and `decides` links. |
-| litespec/core/model#raise-modeling-questions-with-a-decider-and-a-date | guidance | Open modeling questions appear as draft questions carrying a decider and a date. |
-| litespec/core/model#hold-transcribed-records-in-draft | checkable | `litespec model check` reports `transcribed-reviewed` for a transcribed record standing reviewed. |
-| litespec/core/model#end-transcription-at-the-named-decision | checkable | `litespec model check` reports `transcribed-after-adoption` for a transcribed record after the adoption decision is approved. |
-| litespec/core/model#compute-proof-statuses-in-the-builder | checkable | `litespec model check` reports `use-case-unimplemented`, `proves-unconfirmed`, and `refusal-not-thrown` for a use case whose handler, proof, or refusal code is missing. |
-| litespec/core/model#mark-every-check-with-its-tier | guidance | Which findings lack a tier letter, or block outside their tier? Look at the output of `litespec model check`. |
-| litespec/core/model#render-generated-regions-from-the-model | guidance | Which generated regions render code-computed facts? Look inside the generated fences beside the book and the model output. |
+**Reviewed for:** Which generated regions render code-computed facts? Look inside the generated fences beside the book and the model output.

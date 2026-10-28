@@ -31,17 +31,27 @@ It switches on `scenario`, so its BDD scenarios prove scenario records.
 
 ### Select Shared Critical Examples
 
+**ID:** `litespec/backend/dotnet/ext/bdd#select-shared-critical-examples`
+
 **Statement:** A test author MUST create a BDD scenario only when business-language form improves shared understanding of cross-layer behavior.
 
 **Rationale:** A scenario costs maintenance on every behavior change, so the suite earns its keep only where business-language form improves shared understanding of cross-layer behavior. Each selected scenario gives product, domain, engineering, and testing discussions one executable example instead of four retellings.
 
+**Reviewed for:** Every BDD scenario in the acceptance suite traces to a cross-layer example the team discusses in business language.
+
 ### Avoid Routine Scenario Duplication
+
+**ID:** `litespec/backend/dotnet/ext/bdd#avoid-routine-scenario-duplication`
 
 **Statement:** A test author MUST NOT duplicate every unit or validation test as a BDD scenario.
 
 **Rationale:** A unit test fails at the exact rule and runs in milliseconds; the same test duplicated as a BDD scenario fails at a public boundary after a full setup. Duplication slows the suite and moves the failure away from its cause, so routine behavior stays in its narrower tests.
 
+**Reviewed for:** Unit and validation tests in the narrower suites have no duplicate BDD scenario in the acceptance suite.
+
 ### Prove a Scenario from Every BDD Scenario
+
+**ID:** `litespec/backend/dotnet/ext/bdd#prove-a-scenario-from-every-bdd-scenario`
 
 **Statement:** Every BDD scenario MUST carry one `proves` claim naming the scenario it proves.
 
@@ -49,57 +59,93 @@ It switches on `scenario`, so its BDD scenarios prove scenario records.
 
 **Example:** `/// <proves>scenario/cancel-order.canceling-twice-is-refused</proves>` traces a cancellation BDD scenario to its scenario record.
 
+**Reviewed for:** Every BDD scenario in the acceptance suite carries one `proves` claim naming a scenario record.
+
 ### Drive Public Behavior
+
+**ID:** `litespec/backend/dotnet/ext/bdd#drive-public-behavior`
 
 **Statement:** A BDD step MUST call the HTTP API or another declared public system boundary.
 
 **Rationale:** A step that calls the HTTP API or another declared public boundary proves what a caller can observe. A step that reaches past the boundary depends on implementation details, so a refactoring breaks the scenario without breaking the behavior.
 
+**Reviewed for:** Every step definition in the acceptance suite calls the HTTP API or another declared public boundary.
+
 ### Assert Observable Outcomes
+
+**ID:** `litespec/backend/dotnet/ext/bdd#assert-observable-outcomes`
 
 **Statement:** A BDD scenario MUST assert a response, later read, durable event, audit record, or other observable outcome.
 
 **Rationale:** A scenario that runs requests without asserting proves only that nothing threw. Asserting a response, a later read, a durable event, an audit record, or another observable outcome shows the public boundary achieved the expected behavior.
 
+**Reviewed for:** Every BDD scenario in the acceptance suite asserts a response, read, event, record, or other observable outcome.
+
 ### Limit Database Assertions
+
+**ID:** `litespec/backend/dotnet/ext/bdd#limit-database-assertions`
 
 **Statement:** A BDD scenario MUST use direct database assertions only for a documented durable boundary.
 
 **Rationale:** The database is an implementation detail, so asserting its rows couples the scenario to storage shapes. A direct assertion is allowed only for a documented durable boundary, such as an outbox record, where the stored row is itself the promised evidence.
 
+**Reviewed for:** Every direct database assertion in the acceptance suite names its documented durable boundary.
+
 ### Own Scenario Data
+
+**ID:** `litespec/backend/dotnet/ext/bdd#own-scenario-data`
 
 **Statement:** Each BDD scenario MUST own its identifiers, actor context, requests, responses, and expected state.
 
 **Rationale:** A scenario that borrows identifiers or state prepared elsewhere breaks when that other setup changes. Owning its identifiers, actor context, requests, responses, and expected state keeps each scenario self-contained and runnable alone.
 
+**Reviewed for:** Every BDD scenario in the acceptance suite declares its own identifiers, actor context, requests, responses, and expected state.
+
 ### Isolate Scenario Execution
+
+**ID:** `litespec/backend/dotnet/ext/bdd#isolate-scenario-execution`
 
 **Statement:** The acceptance suite MUST reset database state between scenarios and avoid scenario-order dependencies.
 
 **Rationale:** State left by one scenario becomes a hidden precondition of the next, and the suite passes only in one order. Resetting database state between scenarios removes that coupling, so any scenario runs alone or in any order.
 
+**Reviewed for:** The acceptance suite resets database state between scenarios, and every scenario passes alone and in any order.
+
 ### Translate Business Phrases
+
+**ID:** `litespec/backend/dotnet/ext/bdd#translate-business-phrases`
 
 **Statement:** A BDD step definition MUST translate a business phrase into a typed test-driver call.
 
 **Rationale:** HTTP calls, JSON shapes, and assertion mechanics in a step definition hide the business phrase the scenario promises. Translating each phrase into a typed test-driver call keeps the scenario readable while the driver owns the boundary mechanics.
 
+**Reviewed for:** Every step definition in the acceptance suite delegates to a typed test-driver call.
+
 ### Exclude Production Internals
+
+**ID:** `litespec/backend/dotnet/ext/bdd#exclude-production-internals`
 
 **Statement:** A BDD step definition MUST NOT resolve repositories, handlers, sessions, or the production service provider.
 
 **Rationale:** Resolving a repository, handler, session, or the production service provider runs the behavior without the boundary the scenario claims to verify. The scenario then passes while the public path stays untested, so step definitions resolve none of them.
 
+**Reviewed for:** No step definition in the acceptance suite resolves a repository, handler, session, or the production service provider.
+
 ### Preserve Scenario Failures
+
+**ID:** `litespec/backend/dotnet/ext/bdd#preserve-scenario-failures`
 
 **Statement:** A BDD hook MUST await asynchronous setup and cleanup without replacing the original scenario failure.
 
 **Rationale:** Setup and cleanup are asynchronous, and an unawaited hook leaves the next scenario running against a half-reset database. A hook that throws during cleanup can also replace the scenario's own failure, hiding the real cause. Awaiting both without replacing the original failure keeps the evidence trustworthy.
 
+**Reviewed for:** Every hook in the acceptance suite awaits setup and cleanup and keeps the original scenario failure.
+
 ## Conventions
 
 ### Group Feature Files by Module
+
+**ID:** `litespec/backend/dotnet/ext/bdd#group-feature-files-by-module`
 
 **Default:** Group feature files or feature classes under module folders in `Acceptance.Tests`.
 
@@ -107,7 +153,11 @@ It switches on `scenario`, so its BDD scenarios prove scenario records.
 
 **Rationale:** A scenario filed by business module sits beside the vocabulary it exercises, so a reader finds every example of one module in one folder. A flat or technically grouped suite scatters them.
 
+**Reviewed for:** Feature files or feature classes in `Acceptance.Tests` sit under module folders, or the project documentation names another grouping.
+
 ### Keep Steps Vocabulary-Scoped
+
+**ID:** `litespec/backend/dotnet/ext/bdd#keep-steps-vocabulary-scoped`
 
 **Default:** Keep step definitions narrow and reusable only within one business vocabulary.
 
@@ -115,7 +165,11 @@ It switches on `scenario`, so its BDD scenarios prove scenario records.
 
 **Rationale:** A step reused across vocabularies, such as a generic success step, means something subtly different in each place and couples unrelated modules to one definition. Steps narrow to one business vocabulary keep their meaning exact.
 
+**Reviewed for:** Every reusable step set in the acceptance suite serves one business vocabulary, or the project documentation names another scope.
+
 ### Limit Scenario Context
+
+**ID:** `litespec/backend/dotnet/ext/bdd#limit-scenario-context`
 
 **Default:** Store values for one scenario in a scenario context object.
 
@@ -123,13 +177,19 @@ It switches on `scenario`, so its BDD scenarios prove scenario records.
 
 **Rationale:** One context object holding the scenario's own values keeps shared state visible and small. Resolving services from it turns it into a service locator that hides what the scenario depends on.
 
+**Reviewed for:** The scenario context object in the acceptance suite holds scenario state only, or the project documentation names another use.
+
 ### Mark Pull-Request Scenarios
+
+**ID:** `litespec/backend/dotnet/ext/bdd#mark-pull-request-scenarios`
 
 **Default:** Mark the small pull-request subset separately from the proves claim: a Reqnroll scenario with the `@critical` tag, a LightBDD scenario with a critical test trait.
 
 **Replacement:** A project names its own release-gating mark in its documentation.
 
 **Rationale:** The `@critical` tag, or the LightBDD critical trait, selects the small subset whose failure stops a release, for fast pull-request feedback. The marking stays separate from the proves claim, which records scenario proof rather than release gating. A marking that every scenario carries selects nothing, so the subset keeps a stated size bound and an owner who keeps it there.
+
+**Reviewed for:** The pull-request subset in the acceptance suite stays small and owned, marked separately from proves claims.
 
 ## Dependencies
 
@@ -138,23 +198,3 @@ Packages: `Reqnroll` and `Reqnroll.xunit.v3` for Gherkin features, or `LightBDD.
 Related extensions: None.
 
 Guides: None.
-
-## Verification
-
-| ID | Mark | Evidence |
-|:---|:---|:---|
-| litespec/backend/dotnet/ext/bdd#select-shared-critical-examples | guidance | Every BDD scenario in the acceptance suite traces to a cross-layer example the team discusses in business language. |
-| litespec/backend/dotnet/ext/bdd#avoid-routine-scenario-duplication | guidance | Unit and validation tests in the narrower suites have no duplicate BDD scenario in the acceptance suite. |
-| litespec/backend/dotnet/ext/bdd#prove-a-scenario-from-every-bdd-scenario | guidance | Every BDD scenario in the acceptance suite carries one `proves` claim naming a scenario record. |
-| litespec/backend/dotnet/ext/bdd#drive-public-behavior | guidance | Every step definition in the acceptance suite calls the HTTP API or another declared public boundary. |
-| litespec/backend/dotnet/ext/bdd#assert-observable-outcomes | guidance | Every BDD scenario in the acceptance suite asserts a response, read, event, record, or other observable outcome. |
-| litespec/backend/dotnet/ext/bdd#limit-database-assertions | guidance | Every direct database assertion in the acceptance suite names its documented durable boundary. |
-| litespec/backend/dotnet/ext/bdd#own-scenario-data | guidance | Every BDD scenario in the acceptance suite declares its own identifiers, actor context, requests, responses, and expected state. |
-| litespec/backend/dotnet/ext/bdd#isolate-scenario-execution | guidance | The acceptance suite resets database state between scenarios, and every scenario passes alone and in any order. |
-| litespec/backend/dotnet/ext/bdd#translate-business-phrases | guidance | Every step definition in the acceptance suite delegates to a typed test-driver call. |
-| litespec/backend/dotnet/ext/bdd#exclude-production-internals | guidance | No step definition in the acceptance suite resolves a repository, handler, session, or the production service provider. |
-| litespec/backend/dotnet/ext/bdd#preserve-scenario-failures | guidance | Every hook in the acceptance suite awaits setup and cleanup and keeps the original scenario failure. |
-| litespec/backend/dotnet/ext/bdd#group-feature-files-by-module | guidance | Feature files or feature classes in `Acceptance.Tests` sit under module folders, or the project documentation names another grouping. |
-| litespec/backend/dotnet/ext/bdd#keep-steps-vocabulary-scoped | guidance | Every reusable step set in the acceptance suite serves one business vocabulary, or the project documentation names another scope. |
-| litespec/backend/dotnet/ext/bdd#limit-scenario-context | guidance | The scenario context object in the acceptance suite holds scenario state only, or the project documentation names another use. |
-| litespec/backend/dotnet/ext/bdd#mark-pull-request-scenarios | guidance | The pull-request subset in the acceptance suite stays small and owned, marked separately from proves claims. |

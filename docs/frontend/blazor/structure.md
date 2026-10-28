@@ -14,6 +14,8 @@ Four production projects hold the client: Domain for rules and state, Applicatio
 
 ### Use the Client Solution Tree
 
+**ID:** `litespec/frontend/blazor/structure#use-the-client-solution-tree`
+
 **Statement:** A client solution MUST contain Domain, Application, Infrastructure, and Web production projects and no server project.
 
 **Rationale:** Four production projects give each layer one home, and the absence of a server project means the tree cannot silently gain a server dependency. A reader finds behavior by layer and a build compiles each layer separately. This replaces the API solution path in `litespec/workspace/structure#use-the-canonical-root-tree`, because a client-only consumer has no API directory.
@@ -42,19 +44,31 @@ apps/web/
 
 Framework-generated `bin`, `obj`, and `publish` folders remain untracked.
 
+**Reviewed for:** The client solution holds Domain, Application, Infrastructure, and Web projects with no server project.
+
 ### Organize Features by Module and Use Case
+
+**ID:** `litespec/frontend/blazor/structure#organize-features-by-module-and-use-case`
 
 **Statement:** A feature MUST live under `Features/{Module}/{UseCase}/` using the module and use case names its records declare.
 
 **Rationale:** The domain tree names each module and use case, and the client tree repeats those names, so a reader moves from a record to its code by path alone. A feature filed anywhere else is findable only by search, and a renamed use case leaves its code behind. This realizes litespec/frontend/structure#mirror-the-backend-use-case-path-in-kebab-case.
 
+**Reviewed for:** Each feature path under `Features/` resolves to a declared module and use case.
+
 ### Isolate Module Internals
+
+**ID:** `litespec/frontend/blazor/structure#isolate-module-internals`
 
 **Statement:** A module MUST NOT reference another module's internal feature types.
 
 **Rationale:** A module's internal types are its own to change. When another module references them, a change in one module breaks code in another. Page composition may still render public components from several modules, because a page is the one place that combines modules. Truly shared code moves to `Components/` only after two real consumers prove the need, so the shared folder never fills with guesses.
 
+**Reviewed for:** No cross-module reference resolves an internal feature type.
+
 ### Keep Imports Directional
+
+**ID:** `litespec/frontend/blazor/structure#keep-imports-directional`
 
 **Statement:** A reference MUST point from pages to features to components and Application, and from Infrastructure inward.
 
@@ -67,15 +81,23 @@ Pages -> Features -> Components and Application -> Domain
 Infrastructure -> Application and Domain
 ```
 
+**Reviewed for:** The reference graph matches the declared direction from pages inward.
+
 ### Keep Domain Free of Browser Concerns
+
+**ID:** `litespec/frontend/blazor/structure#keep-domain-free-of-browser-concerns`
 
 **Statement:** Domain and Application MUST contain no interop, component, HTTP, browser storage, render-loop timer, or document object model type.
 
 **Rationale:** Interop, component, HTTP, storage, timer, and document types each need a browser to run. If Domain or Application named them, every core test would need a browser host. Keeping them out mirrors the baseline rule that Domain carries no persistence or web package, so the core stays testable as plain .NET.
 
+**Reviewed for:** Domain and Application reference no browser or interop type.
+
 ## Conventions
 
 ### Place Interop Adapters Together
+
+**ID:** `litespec/frontend/blazor/structure#place-interop-adapters-together`
 
 **Default:** Place browser API wrappers in `{ProjectName}.Infrastructure/Interop/`, one type per API surface.
 
@@ -83,7 +105,11 @@ Infrastructure -> Application and Domain
 
 **Rationale:** One type per browser API surface in `Infrastructure/Interop/`, each implementing an interface declared in Application, puts every browser call in one folder behind a testable boundary. The static scripts they call live in `{ProjectName}.Web/wwwroot/interop/` with matching names, so each wrapper resolves to its script by name. This realizes litespec/frontend/structure#locate-cross-route-values-in-the-frame.
 
+**Reviewed for:** Each browser API surface has one adapter type in `Infrastructure/Interop/` with a matching script in `wwwroot/interop/`.
+
 ### Keep Static Content Out of the Assembly
+
+**ID:** `litespec/frontend/blazor/structure#keep-static-content-out-of-the-assembly`
 
 **Default:** Serve generated runtime content from `wwwroot/` and fetch it rather than embedding it as a resource.
 
@@ -91,14 +117,4 @@ Infrastructure -> Application and Domain
 
 **Rationale:** Content served from `wwwroot/` and fetched at runtime changes without a rebuild: a content edit ships as a file, not a release. Embedded content couples every wording fix to a compile and bloats the assembly the visitor downloads before anything renders.
 
-## Verification
-
-| ID | Mark | Evidence |
-|:---|:---|:---|
-| litespec/frontend/blazor/structure#use-the-client-solution-tree | guidance | The client solution holds Domain, Application, Infrastructure, and Web projects with no server project. |
-| litespec/frontend/blazor/structure#organize-features-by-module-and-use-case | guidance | Each feature path under `Features/` resolves to a declared module and use case. |
-| litespec/frontend/blazor/structure#isolate-module-internals | guidance | No cross-module reference resolves an internal feature type. |
-| litespec/frontend/blazor/structure#keep-imports-directional | guidance | The reference graph matches the declared direction from pages inward. |
-| litespec/frontend/blazor/structure#keep-domain-free-of-browser-concerns | guidance | Domain and Application reference no browser or interop type. |
-| litespec/frontend/blazor/structure#place-interop-adapters-together | guidance | Each browser API surface has one adapter type in `Infrastructure/Interop/` with a matching script in `wwwroot/interop/`. |
-| litespec/frontend/blazor/structure#keep-static-content-out-of-the-assembly | guidance | Published output serves runtime content from `wwwroot/` rather than embedded resources. |
+**Reviewed for:** Published output serves runtime content from `wwwroot/` rather than embedded resources.

@@ -8,20 +8,29 @@ The Blazor stack is the technology binding for a product that has no server of i
 
 ### Keep Blazor Outside the UI Contract
 
+**ID:** `litespec/frontend/blazor/stack#keep-blazor-outside-the-ui-contract`
+
 **Statement:** A consumer selecting this stack MUST NOT apply the controlled UI contract.
 
 **Rationale:** The controlled UI contract's route checks read TypeScript sources, so they cannot read a `.razor` component. Applying them to this stack would fail every check for lack of readable input. The Blazor pages state the styling, accessibility, and state rules that apply instead, so nothing is left ungoverned.
 
+**Reviewed for:** The consumer's stack selection and CI jobs apply no UI contract page or route check.
+
 ### Publish Static WebAssembly Output
+
+**ID:** `litespec/frontend/blazor/stack#publish-static-webassembly-output`
 
 **Statement:** A consumer MUST publish a standalone Blazor WebAssembly application to static files.
 
 **Rationale:** Standalone WebAssembly compiles to static files, which is what lets the product run with no server and offline. Blazor Server, interactive server rendering, and prerendering each reintroduce a server dependency, which stops the product working offline and contradicts the `client-only` shape.
 
+**Reviewed for:** The published output holds static files with no server assembly or server render mode.
 
 ## Conventions
 
 ### Verify with the .NET Toolchain
+
+**ID:** `litespec/frontend/blazor/stack#verify-with-the-net-toolchain`
 
 **Default:** Run client verification through `dotnet` rather than a Node package manager.
 
@@ -36,7 +45,11 @@ dotnet build apps/web/{ProjectName}.slnx --configuration Release
 dotnet test apps/web/{ProjectName}.slnx --configuration Release --no-build
 ```
 
+**Reviewed for:** The CI client job runs `dotnet build` and `dotnet test`.
+
 ### Record a First-Load Budget
+
+**ID:** `litespec/frontend/blazor/stack#record-a-first-load-budget`
 
 **Default:** Record the compressed transfer size of the framework payload as a limit entry in `docs/behavior/operations/limits.md`.
 
@@ -44,11 +57,4 @@ dotnet test apps/web/{ProjectName}.slnx --configuration Release --no-build
 
 **Rationale:** A WebAssembly client downloads a runtime before it renders anything, so first load is the slowest moment of the product. A recorded budget on compressed transfer size makes that wait a reviewed number instead of a surprise. Directory size does not describe the wait, because the visitor downloads compressed bytes over the network.
 
-## Verification
-
-| ID | Mark | Evidence |
-|:---|:---|:---|
-| litespec/frontend/blazor/stack#keep-blazor-outside-the-ui-contract | guidance | The consumer's stack selection and CI jobs apply no UI contract page or route check. |
-| litespec/frontend/blazor/stack#publish-static-webassembly-output | guidance | The published output holds static files with no server assembly or server render mode. |
-| litespec/frontend/blazor/stack#verify-with-the-net-toolchain | guidance | The CI client job runs `dotnet build` and `dotnet test`. |
-| litespec/frontend/blazor/stack#record-a-first-load-budget | guidance | A limit entry in `docs/behavior/operations/limits.md` records the compressed transfer size budget the publish job enforces. |
+**Reviewed for:** A limit entry in `docs/behavior/operations/limits.md` records the compressed transfer size budget the publish job enforces.

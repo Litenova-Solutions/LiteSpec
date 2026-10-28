@@ -18,19 +18,29 @@ The drawings on this page use the Acme Supply catalog: the Oak desk lamp at EUR 
 
 ### Name Every Field with a Visible Label
 
+**ID:** `litespec/frontend/patterns/forms-and-fields#name-every-field-with-a-visible-label`
+
 **Statement:** Every field MUST carry a visible label that names its value.
 
 **Rationale:** A placeholder disappears on the first keystroke, so a filled field with no label no longer says what it holds. Screen readers announce the label, and sighted staff returning to a filled form read it to check each value before saving. Without a visible label, both groups guess what each value means.
 
+**Reviewed for:** Which built input lacks a shown label naming its value? Open every form on built screens and read each field's label.
+
 ### Keep Entered Values After a Refused Submit
+
+**ID:** `litespec/frontend/patterns/forms-and-fields#keep-entered-values-after-a-refused-submit`
 
 **Statement:** A form MUST keep every entered value when the API refuses a submit.
 
 **Rationale:** Clearing the form after a refusal forces staff to retype every value to fix one field, which wastes time and adds new typos. Keeping all values lets the reader repair only the field the message names and submit again.
 
+**Reviewed for:** Which built form drops typed values after a refused submit? Open the refused submits on built forms and check every field.
+
 ## Patterns
 
 ### Money Field
+
+**ID:** `litespec/frontend/patterns/forms-and-fields#money-field`
 
 **Question:** The back office holds prices, fees, refunds, and settlement figures, and staff type every one of them; the software chooses none. The field is where that rule meets a keyboard. The decision is how a money field takes its value: text input shape, currency naming, symbol prefix, error wording, and totals restated beside it.
 
@@ -41,6 +51,8 @@ The drawings on this page use the Acme Supply catalog: the Oak desk lamp at EUR 
 **Rationale:** The HMRC prefix with the currency in the label stays the pick. The prefix renders in light and dark themes. It names the currency to a screen reader while hiding the symbol from it. It refuses nothing you can type.
 
 The customer total restatement is the runner-up. It belongs on every price the customer sees. It stops the fee from surprising either side at checkout. Never ship the stepper. You cannot reach a continuous price by stepping.
+
+**Reviewed for:** Which built amount input breaks from the wireframe its catalog entry chose? Open the built price, currency, and total fields beside the catalog entry recording the chosen option and its reason.
 
 #### `text-input-currency-in-the-label-symbol-inside`: Text Input, Currency in the Label, Symbol Inside
 
@@ -236,6 +248,8 @@ page
 
 ### Choosing a Record
 
+**ID:** `litespec/frontend/patterns/forms-and-fields#choosing-a-record`
+
 **Question:** You choose a reference to another record from a picker showing names. Nobody types an identifier. The failure to avoid is a select reading "Choose a warehouse" beside a field holding "WH-0C893968A2" as if it were a value to type.
 
 **Default:** `searchable-picker-showing-names`
@@ -243,6 +257,8 @@ page
 **Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
 
 **Rationale:** The searchable picker over names stays the pick: nobody types an identifier, and search beats scrolling for every list longer than a screen. The picker with one distinguishing fact per row is the runner-up for records that share a name. Never ship a bare identifier field: a code such as WH-0C893968A2 is not a value you can type or check.
+
+**Reviewed for:** Which built record picker breaks from the wireframe its catalog entry chose? Open the built searchable pickers and recent lists beside the catalog entry recording the chosen option and its reason.
 
 #### `searchable-picker-showing-names`: Searchable Picker Showing Names
 
@@ -414,6 +430,8 @@ page
 
 ### Date and Time Field
 
+**ID:** `litespec/frontend/patterns/forms-and-fields#date-and-time-field`
+
 **Question:** Staff enter dates and times for deliveries, shifts, and dispatch plans. The decision is which control takes the value: three text inputs, one field with a calendar, date and time side by side, relative entry, or presets. The native browser date input is refused: it draws the browser chrome instead of the application control, and GDS rejected it for implementation problems across browsers.
 
 **Default:** `one-text-field-with-a-calendar-that-opens-beside-it`
@@ -423,6 +441,8 @@ page
 **Rationale:** One typed field with a calendar beside it stays the pick. There is always a way to type. The calendar serves you when you would rather click.
 
 The three GDS inputs are the runner-up where accessibility review demands them. They cost the slowest entry in the form. Never ship the native date input. It draws the browser chrome instead of the application control. It renders differently everywhere.
+
+**Reviewed for:** Which built calendar input breaks from the wireframe its catalog entry chose? Open the built date, duration, and range fields beside the catalog entry recording the chosen option and its reason.
 
 #### `three-text-inputs-with-a-format-hint`: Three Text Inputs with a Format Hint
 
@@ -601,6 +621,8 @@ page
 
 ### Text Field and Its States
 
+**ID:** `litespec/frontend/patterns/forms-and-fields#text-field-and-its-states`
+
 **Question:** Every text field draws several states: empty, filled, focused, refused, disabled, and read-only. The label stays visible above the input in all of them. A placeholder is never the label, because it vanishes on the first keystroke.
 
 **Default:** `label-above-help-under-six-states-on-one-page`
@@ -608,6 +630,8 @@ page
 **Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
 
 **Rationale:** The six-state reference page stays the pick, because it is the only option that pins every state one field must draw. Inline validation that confirms a good value is the runner-up for create forms, where it saves a refused submit. Never ship the placeholder as the label: it vanishes on first keystroke, and its color misses contrast.
+
+**Reviewed for:** Which built text input breaks from the wireframe its catalog entry chose? Open the built labels, counts, and growing areas beside the catalog entry recording the chosen option and its reason.
 
 #### `label-above-help-under-six-states-on-one-page`: Label Above, Help Under, Six States on One Page
 
@@ -781,6 +805,8 @@ page
 
 ### Choosing One of a Few Options
 
+**ID:** `litespec/frontend/patterns/forms-and-fields#choosing-one-of-a-few-options`
+
 **Question:** You choose from a closed set, such as a naming rule or a plan. The GOV.UK rules say a select is a last resort and radios beat a select. Nothing is pre-selected in a question, though settings allow it. The decision is which control carries the choice: radio list, segmented control, cards, select, checkbox list, listbox, or plain buttons.
 
 **Default:** `a-radio-list-with-a-description-per-option`
@@ -790,6 +816,8 @@ page
 **Rationale:** The radio list with a description per option stays the pick. Each choice carries the sentence that lets you choose between names that sound alike. The segmented control is the runner-up for two or three short values with no descriptions.
 
 Never ship the native `multi-select`. GOV.UK rules it out for its usability and assistive record. A checkbox list replaces it.
+
+**Reviewed for:** Which built single-choice control breaks from the wireframe its catalog entry chose? Open the built radios, segments, and plan cards beside the catalog entry recording the chosen option and its reason.
 
 #### `a-radio-list-with-a-description-per-option`: A Radio List with a Description per Option
 
@@ -984,6 +1012,8 @@ page
 
 ### Switch or a Checkbox
 
+**ID:** `litespec/frontend/patterns/forms-and-fields#switch-or-a-checkbox`
+
 **Question:** The storefront editor holds a toggle for the platform credit line, and settings pages hold many more switches and checkboxes. This pattern decides which control each setting deserves: switch or checkbox. It also decides what the label must say, since the label carries the difference between the two.
 
 **Default:** `a-switch-with-the-label-and-its-consequence`
@@ -993,6 +1023,8 @@ page
 **Rationale:** The switch with its consequence stated stays the pick. The label says what is on. The line under it says what turning it off does.
 
 The instant-apply switch with an undo toast is the runner-up for low-risk settings you flip often. Never ship a switch whose label names the control instead of the outcome. You need no documentation to learn what on means.
+
+**Reviewed for:** Which built toggle breaks from the wireframe its catalog entry chose? Open the built switches, checkboxes, and instant applies beside the catalog entry recording the chosen option and its reason.
 
 #### `a-switch-with-the-label-and-its-consequence`: A Switch with the Label and Its Consequence
 
@@ -1178,6 +1210,8 @@ page
 
 ### Upload Field
 
+**ID:** `litespec/frontend/patterns/forms-and-fields#upload-field`
+
 **Question:** Acme Supply records take files: a logo image or a customer spreadsheet. A logo needs a stated type and size, and a customer import needs stated columns and row-level refusals. The decision is how the upload field states its contract and reports progress and refusals.
 
 **Default:** `a-drop-zone-that-states-what-it-accepts`
@@ -1185,6 +1219,8 @@ page
 **Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
 
 **Rationale:** Keep the drop zone that states its types and size limit. Nobody learns the limit by being refused. The per-file progress tray is the runner-up for imports of several files, where one bar per file beats one bar for all. Never ship a CSV upload with no stated columns: a file refused for a format nobody stated is a refusal the application caused.
+
+**Reviewed for:** Which built file input breaks from the wireframe its catalog entry chose? Open the built drop zones, CSV reads, and progress rows beside the catalog entry recording the chosen option and its reason.
 
 #### `a-drop-zone-that-states-what-it-accepts`: A Drop Zone That States What It Accepts
 
@@ -1367,6 +1403,8 @@ page
 
 ### Reporting a Refused Submit
 
+**ID:** `litespec/frontend/patterns/forms-and-fields#reporting-a-refused-submit`
+
 **Question:** A submit refused by the API must report what is wrong and where. GOV.UK asks for a summary with focus and links, plus a message on each field, meeting WCAG 3.3.1 and 3.3.3. The decision is how the form carries that report.
 
 **Default:** `a-summary-above-the-form-plus-a-message-on-each-field`
@@ -1374,6 +1412,8 @@ page
 **Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
 
 **Rationale:** Keep the GOV.UK summary with focus, plus per-field messages. It meets WCAG 3.3.1 and 3.3.3, and the links carry you to each field. Inline validation on blur is the runner-up as a complement, never a replacement. It confirms good values early but cannot orient you facing three errors. Never ship the dialog summary: it hides the form you must fix.
+
+**Reviewed for:** Which built submit-error report breaks from the wireframe its catalog entry chose? Open the built summaries and per-field messages beside the catalog entry recording the chosen option and its reason.
 
 #### `a-summary-above-the-form-plus-a-message-on-each-field`: A Summary Above the Form, Plus a Message on Each Field
 
@@ -1567,6 +1607,8 @@ page
 
 ### Work That Is Not Saved
 
+**ID:** `litespec/frontend/patterns/forms-and-fields#work-that-is-not-saved`
+
 **Question:** A form must show work that is not saved. Nothing may read as saved before it is, and leaving must not drop typed work without a warning. The decision is how the form marks unsaved work and guards the way out.
 
 **Default:** `a-visible-unsaved-marker-beside-the-save`
@@ -1574,6 +1616,8 @@ page
 **Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
 
 **Rationale:** Keep the visible unsaved marker beside Save. You never have to remember whether anything was typed. The sticky save bar is the runner-up for long settings pages where the form actions scroll out of view. Never ship silent autosave on money or access. Each save would be an audited command. An audit entry per keystroke batch is not a trail you can read.
+
+**Reviewed for:** Which built unsaved marker breaks from the wireframe its catalog entry chose? Open the built dirty flags, drafts, and save bars beside the catalog entry recording the chosen option and its reason.
 
 #### `a-visible-unsaved-marker-beside-the-save`: A Visible Unsaved Marker Beside the Save
 
@@ -1756,6 +1800,8 @@ page
 
 ### Picking a Period
 
+**ID:** `litespec/frontend/patterns/forms-and-fields#picking-a-period`
+
 **Question:** Settlement and reporting run on periods. Two typed dates cover every window but ask for both edges, while presets cover the common windows in one tap. The decision is how the period control combines typing and presets.
 
 **Default:** `two-date-inputs-with-presets`
@@ -1763,6 +1809,8 @@ page
 **Compact:** Below the `md` breakpoint the painted calendar shows one month. The second month of the window follows below it. The compact option is `a-calendar-with-the-range-painted`.
 
 **Rationale:** Keep two typed dates with presets. One tap covers the common windows, typing covers the rare ones, and both edges stay visible. The two-month painted calendar is the runner-up for reporting screens where the window itself is the question. Never ship presets alone with no typed fallback: no preset reaches the launch to delivery window the settlement check wants.
+
+**Reviewed for:** Which built range picker breaks from the wireframe its catalog entry chose? Open the built presets, month pickers, and painted calendars beside the catalog entry recording the chosen option and its reason.
 
 #### `two-date-inputs-with-presets`: Two Date Inputs with Presets
 
@@ -1957,6 +2005,8 @@ page
 
 ### Slug or URL Field with a Preview
 
+**ID:** `litespec/frontend/patterns/forms-and-fields#slug-or-url-field-with-a-preview`
+
 **Question:** A product takes a slug, the short part typed in, and customers read the full address: they link it and print it. The decision is how the field takes the slug and previews the address before saving.
 
 **Default:** `slug-with-the-live-address-under-it`
@@ -1964,6 +2014,8 @@ page
 **Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
 
 **Rationale:** Keep the slug with its live address under it. You type the short part and read the full address before saving. The transliteration from the name is the runner-up for creation, where typing the same words twice is pure overhead. Never ship an address that cannot be read before it is saved.
+
+**Reviewed for:** Which built address input breaks from the wireframe its catalog entry chose? Open the built slugs, transliterations, and availability checks beside the catalog entry recording the chosen option and its reason.
 
 #### `slug-with-the-live-address-under-it`: Slug with the Live Address Under It
 
@@ -2112,6 +2164,8 @@ page
 
 ### Capacity Field
 
+**ID:** `litespec/frontend/patterns/forms-and-fields#capacity-field`
+
 **Question:** A price tier takes units from one warehouse stock: the Amsterdam warehouse holds 10,000 units, and every tier draws from the same shelves. The decision is how the capacity field shows the ceiling, the split, and the refusal past it.
 
 **Default:** `a-number-with-the-warehouse-ceiling-restated`
@@ -2119,6 +2173,8 @@ page
 **Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
 
 **Rationale:** Keep the number with the warehouse ceiling restated. One field, the stock it draws from, and what is left sit on the same screen. The split across tiers is the runner-up for the product page, where the question is the whole stock rather than one tier. Never ship a capacity with no ceiling stated: a number without its stock is a number that oversells.
+
+**Reviewed for:** Which built ceiling input breaks from the wireframe its catalog entry chose? Open the built splits, steppers, and overage messages beside the catalog entry recording the chosen option and its reason.
 
 #### `a-number-with-the-warehouse-ceiling-restated`: A Number with the Warehouse Ceiling Restated
 
@@ -2263,6 +2319,8 @@ page
 
 ### Color Field for the Storefront Accent
 
+**ID:** `litespec/frontend/patterns/forms-and-fields#color-field-for-the-storefront-accent`
+
 **Question:** The company brands its storefront with one accent color: a `#RRGGBB` value dark enough for white button text to read on it. The field takes the value and proves the contrast before the page refuses it.
 
 **Default:** `hex-field-with-a-swatch-and-a-contrast-readout`
@@ -2270,6 +2328,8 @@ page
 **Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
 
 **Rationale:** The hex field with a swatch and a contrast readout is the pick. It takes any color, shows it, and states the ratio the validation enforces. The customer-button preview is the runner-up beside it, because a ratio is believed once it is seen. Never ship a free color with no contrast check: a pale accent ships white text nobody can read.
+
+**Reviewed for:** Which built accent picker breaks from the wireframe its catalog entry chose? Open the built swatches, wells, and contrast readouts beside the catalog entry recording the chosen option and its reason.
 
 #### `hex-field-with-a-swatch-and-a-contrast-readout`: Hex Field with a Swatch and a Contrast Readout
 
@@ -2428,6 +2488,8 @@ page
 
 ### Repeatable Group for Price Tiers
 
+**ID:** `litespec/frontend/patterns/forms-and-fields#repeatable-group-for-price-tiers`
+
 **Question:** The Oak desk lamp sells in Standard, Trade, and Bulk: three groups with the same fields, each with its own name, price, and allocation. The group repeats, and the stock counts every repetition.
 
 **Default:** `stacked-cards-one-per-type`
@@ -2435,6 +2497,8 @@ page
 **Compact:** At phone width the table keeps its columns and scrolls sideways. The tier column stays first. The compact option is `a-table-with-inline-editing`.
 
 **Rationale:** The stacked cards are the pick: one card per tier with its price and allocation readable at once, and one command to add another. The dated price steps are the runner-up for launches, where time decides the price rather than the customer choice. Never ship a group whose repetitions cannot be removed: a tier added by mistake must leave without taking its sold units with it.
+
+**Reviewed for:** Which built tier group breaks from the wireframe its catalog entry chose? Open the built stacked cards and inline tables beside the catalog entry recording the chosen option and its reason.
 
 #### `stacked-cards-one-per-type`: Stacked Cards, One per Type
 
@@ -2594,6 +2658,8 @@ page
 
 ### Tag Input
 
+**ID:** `litespec/frontend/patterns/forms-and-fields#tag-input`
+
 **Question:** Products and customers carry short labels: oak, home, trade. Tags are typed freely but read everywhere, so the input must take new words and still keep old ones spelled one way.
 
 **Default:** `chips-with-type-to-add-and-suggestions`
@@ -2601,6 +2667,8 @@ page
 **Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
 
 **Rationale:** The chips with type-to-add and suggestions are the pick: new words are allowed and old ones are offered, so `oak` is spelled once. The checkbox list is the runner-up where the tag set is closed and counted. Never ship free text with no suggestions: it grows `oak`, `Oak`, and `oak-desk` side by side.
+
+**Reviewed for:** Which built label chip breaks from the wireframe its catalog entry chose? Open the built chips, popover lists, and inherited tags beside the catalog entry recording the chosen option and its reason.
 
 #### `chips-with-type-to-add-and-suggestions`: Chips with Type-to-Add and Suggestions
 
@@ -2776,6 +2844,8 @@ page
 
 ### Address Field
 
+**ID:** `litespec/frontend/patterns/forms-and-fields#address-field`
+
 **Question:** Acme Supply answers for its orders with a name, an address, and a telephone number on every customer message. The address field takes the street the law asks for and the postcode the mail needs.
 
 **Default:** `postcode-lookup-that-fills-the-street`
@@ -2783,6 +2853,8 @@ page
 **Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
 
 **Rationale:** The postcode lookup is the pick: two short values you know produce the street you would mistype. The country-first manual entry is the runner-up for companies outside the lookup coverage. Never ship a single free-text address box: one line cannot be split into street, postcode, and city again.
+
+**Reviewed for:** Which built location input breaks from the wireframe its catalog entry chose? Open the built lookups, country shapes, and map pins beside the catalog entry recording the chosen option and its reason.
 
 #### `postcode-lookup-that-fills-the-street`: Postcode Lookup That Fills the Street
 
@@ -2933,6 +3005,8 @@ page
 
 ### Email Body Editor
 
+**ID:** `litespec/frontend/patterns/forms-and-fields#email-body-editor`
+
 **Question:** Acme Supply mails every customer when goods are dispatched, and the message carries the customer name, the order number, and the delivery window. The editor takes the company words once and fills the customer facts per order.
 
 **Default:** `subject-plus-body-with-variable-chips`
@@ -2940,6 +3014,8 @@ page
 **Compact:** The preview sits below the editor. You scroll between writing and reading. The compact option is `side-by-side-preview-of-the-customer-message`.
 
 **Rationale:** The subject plus body with variable chips is the pick: you write the sentence and place the facts where they belong. The side-by-side customer preview is the runner-up beside it, because a template is believed once it is seen filled. Never ship a template with no preview: variables are spelled in one place and filled in another, and only the filled copy proves they meet.
+
+**Reviewed for:** Which built message composer breaks from the wireframe its catalog entry chose? Open the built subject-plus-body forms and variable chips beside the catalog entry recording the chosen option and its reason.
 
 #### `subject-plus-body-with-variable-chips`: Subject Plus Body with Variable Chips
 
@@ -3096,27 +3172,3 @@ page
 **Cost:** A copy per sending is storage that grows with every order, and each copy holds personal data under retention rules. The record must expire with the order, not live beside it.
 
 **Reference:** Postmark
-
-## Verification
-
-| ID | Mark | Evidence |
-|:---|:---|:---|
-| litespec/frontend/patterns/forms-and-fields#name-every-field-with-a-visible-label | guidance | Which built input lacks a shown label naming its value? Open every form on built screens and read each field's label. |
-| litespec/frontend/patterns/forms-and-fields#keep-entered-values-after-a-refused-submit | guidance | Which built form drops typed values after a refused submit? Open the refused submits on built forms and check every field. |
-| litespec/frontend/patterns/forms-and-fields#money-field | guidance | Which built amount input breaks from the wireframe its catalog entry chose? Open the built price, currency, and total fields beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/forms-and-fields#choosing-a-record | guidance | Which built record picker breaks from the wireframe its catalog entry chose? Open the built searchable pickers and recent lists beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/forms-and-fields#date-and-time-field | guidance | Which built calendar input breaks from the wireframe its catalog entry chose? Open the built date, duration, and range fields beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/forms-and-fields#text-field-and-its-states | guidance | Which built text input breaks from the wireframe its catalog entry chose? Open the built labels, counts, and growing areas beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/forms-and-fields#choosing-one-of-a-few-options | guidance | Which built single-choice control breaks from the wireframe its catalog entry chose? Open the built radios, segments, and plan cards beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/forms-and-fields#switch-or-a-checkbox | guidance | Which built toggle breaks from the wireframe its catalog entry chose? Open the built switches, checkboxes, and instant applies beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/forms-and-fields#upload-field | guidance | Which built file input breaks from the wireframe its catalog entry chose? Open the built drop zones, CSV reads, and progress rows beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/forms-and-fields#reporting-a-refused-submit | guidance | Which built submit-error report breaks from the wireframe its catalog entry chose? Open the built summaries and per-field messages beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/forms-and-fields#work-that-is-not-saved | guidance | Which built unsaved marker breaks from the wireframe its catalog entry chose? Open the built dirty flags, drafts, and save bars beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/forms-and-fields#picking-a-period | guidance | Which built range picker breaks from the wireframe its catalog entry chose? Open the built presets, month pickers, and painted calendars beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/forms-and-fields#slug-or-url-field-with-a-preview | guidance | Which built address input breaks from the wireframe its catalog entry chose? Open the built slugs, transliterations, and availability checks beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/forms-and-fields#capacity-field | guidance | Which built ceiling input breaks from the wireframe its catalog entry chose? Open the built splits, steppers, and overage messages beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/forms-and-fields#color-field-for-the-storefront-accent | guidance | Which built accent picker breaks from the wireframe its catalog entry chose? Open the built swatches, wells, and contrast readouts beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/forms-and-fields#repeatable-group-for-price-tiers | guidance | Which built tier group breaks from the wireframe its catalog entry chose? Open the built stacked cards and inline tables beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/forms-and-fields#tag-input | guidance | Which built label chip breaks from the wireframe its catalog entry chose? Open the built chips, popover lists, and inherited tags beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/forms-and-fields#address-field | guidance | Which built location input breaks from the wireframe its catalog entry chose? Open the built lookups, country shapes, and map pins beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/forms-and-fields#email-body-editor | guidance | Which built message composer breaks from the wireframe its catalog entry chose? Open the built subject-plus-body forms and variable chips beside the catalog entry recording the chosen option and its reason. |

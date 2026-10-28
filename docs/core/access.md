@@ -66,11 +66,17 @@ An actor, role, or external system page carries a Summary section stating what t
 
 ### Keep Access Records in Their Homes
 
+**ID:** `litespec/core/access#keep-access-records-in-their-homes`
+
 **Statement:** An access record MUST live in the home its type names.
 
 **Rationale:** One home per type tells a reader where to open a record and tells the book where to render it. A record kept anywhere else looks written while readers open the home and find nothing there.
 
+**Reviewed for:** Which access records sit outside the homes their type names? Look at the actor, role, permission, entry point, and external system homes.
+
 ### Name Every Actor with Its Kind
+
+**ID:** `litespec/core/access#name-every-actor-with-its-kind`
 
 **Statement:** An actor MUST name its kind in `kind`.
 
@@ -78,7 +84,11 @@ An actor, role, or external system page carries a Summary section stating what t
 
 **Example:** An employee actor carries `person`, and a payout service carries `system`.
 
+**Checked by:** `litespec model check` reports `record-shape` for an actor without `kind` and `invalid-field` for a kind outside person, organization, and system.
+
 ### Record Every Role Hold with Its Scope
+
+**ID:** `litespec/core/access#record-every-role-hold-with-its-scope`
 
 **Statement:** An actor that acts through a role MUST record the hold in `holds`.
 
@@ -90,7 +100,11 @@ An actor, role, or external system page carries a Summary section stating what t
 "holds": [{ "role": "role/employee", "scope": "self" }]
 ```
 
+**Reviewed for:** Which actor holds lack a role or a scope? Look at `holds` on each actor page.
+
 ### Scope Every Role
+
+**ID:** `litespec/core/access#scope-every-role`
 
 **Statement:** A role MUST name its scope in `scope`.
 
@@ -98,7 +112,11 @@ An actor, role, or external system page carries a Summary section stating what t
 
 **Example:** A scope of `team` bounds the role to one team, while `platform` bounds it to the whole product.
 
+**Checked by:** `litespec model check` reports `record-shape` for a role without `scope` and `invalid-field` for a scope outside kebab-case form.
+
 ### Grant Permissions Through Roles
+
+**ID:** `litespec/core/access#grant-permissions-through-roles`
 
 **Statement:** A role MUST name the permissions it allows in `allows`.
 
@@ -106,7 +124,11 @@ An actor, role, or external system page carries a Summary section stating what t
 
 **Example:** `role/employee` allows `permission/submit-expense`, which the submit use case cites in its grant.
 
+**Checked by:** `litespec model check` reports `record-shape` for a role with no `allows` entry.
+
 ### State Every Permission with Its Meaning
+
+**ID:** `litespec/core/access#state-every-permission-with-its-meaning`
 
 **Statement:** A permission MUST state what it allows in `meaning`.
 
@@ -114,7 +136,11 @@ An actor, role, or external system page carries a Summary section stating what t
 
 **Example:** `permission/submit-expense` carries "Submit an expense for approval."
 
+**Checked by:** `litespec model check` reports `record-shape` for a permission without `meaning`.
+
 ### Declare Access on Every Use Case
+
+**ID:** `litespec/core/access#declare-access-on-every-use-case`
 
 **Statement:** Each use case MUST declare its access with auth, grant, and tenant scope.
 
@@ -126,7 +152,11 @@ An actor, role, or external system page carries a Summary section stating what t
 "access": { "auth": ["session"], "grant": "permission/manage-copies", "tenant": "own" }
 ```
 
+**Checked by:** `litespec model check` reports `record-shape` for a use case without `access`, `auth`, `grant`, or `tenant`.
+
 ### Authenticate Every Caller Through a Declared Auth Kind
+
+**ID:** `litespec/core/access#authenticate-every-caller-through-a-declared-auth-kind`
 
 **Statement:** Each access declaration MUST name its auth kinds from session, token, device, link, app, anonymous, and system.
 
@@ -134,7 +164,11 @@ An actor, role, or external system page carries a Summary section stating what t
 
 **Example:** An expense approval names `session`, a self-checkout kiosk names `device`, and a nightly job names `system`.
 
+**Checked by:** `litespec model check` reports `invalid-field` for an `auth` kind outside session, token, device, link, app, anonymous, and system.
+
 ### Grant Every Use Case Through a Declared Grant
+
+**ID:** `litespec/core/access#grant-every-use-case-through-a-declared-grant`
 
 **Statement:** Each access declaration MUST name its grant as a permission, a self grant, anonymous, or system.
 
@@ -142,7 +176,11 @@ An actor, role, or external system page carries a Summary section stating what t
 
 **Example:** `permission/manage-copies` for staff work, `self(permission/read-loans)` for a reader reading their own loans, `anonymous` for a public catalog, and `system` for a self-checkout handler acting for the device.
 
+**Checked by:** `litespec model check` reports `invalid-field` for a grant outside permission, self, anonymous, and system, and `reference-unresolved` for a permission no record defines.
+
 ### Remove a Target That Must Be the Caller
+
+**ID:** `litespec/core/access#remove-a-target-that-must-be-the-caller`
 
 **Statement:** A message whose target must be the caller MUST carry no target and act on the caller, or declare a self grant that the authorization guard enforces.
 
@@ -150,7 +188,11 @@ An actor, role, or external system page carries a Summary section stating what t
 
 **Example:** "My loans" lists the signed-in reader's loans and takes no reader id.
 
+**Reviewed for:** Each use case whose grant is a self grant names no caller-owned target in its inputs, or its message has a self declaration the authorization guard enforces, and no handler compares the caller with a target (`LS2012`).
+
 ### Scope Every Grant to Its Tenant Reach
+
+**ID:** `litespec/core/access#scope-every-grant-to-its-tenant-reach`
 
 **Statement:** Each access declaration MUST name its tenant scope as own, cross, public, or none.
 
@@ -158,7 +200,11 @@ An actor, role, or external system page carries a Summary section stating what t
 
 **Example:** An expense report names `own`, a staff search across tenants names `cross`, a public catalog names `public`, and a health check names `none`.
 
+**Checked by:** `litespec model check` reports `invalid-field` for a tenant scope outside own, cross, public, and none.
+
 ### Derive Generic Refusals from Access and Input
+
+**ID:** `litespec/core/access#derive-generic-refusals-from-access-and-input`
 
 **Statement:** A use case MUST NOT write a result for a refusal that access and input already imply.
 
@@ -166,7 +212,11 @@ An actor, role, or external system page carries a Summary section stating what t
 
 **Example:** A call without the grant ends in `result/<name>.forbidden`, and a call with input that breaks its rules ends in `result/<name>.invalid-input`, with neither written as a record.
 
+**Reviewed for:** Which use case pages write a forbidden or invalid input result? Look at the results on each use case page beside the derived names.
+
 ### Review Cross Tenant Access as Tier 1
+
+**ID:** `litespec/core/access#review-cross-tenant-access-as-tier-1`
 
 **Statement:** A use case with cross tenant scope MUST carry tier 1 review through the security queue.
 
@@ -174,7 +224,11 @@ An actor, role, or external system page carries a Summary section stating what t
 
 **Example:** A staff search with `tenant: cross` appears in the security queue of the Behavior diff until the security reviewer accepts it.
 
+**Reviewed for:** Which cross grants shipped without security review? Look at the security queue in the Behavior diff.
+
 ### Cite the Setting or Plan Behind Every Entitlement
+
+**ID:** `litespec/core/access#cite-the-setting-or-plan-behind-every-entitlement`
 
 **Statement:** A grant that depends on a setting or a plan MUST cite that setting or plan.
 
@@ -182,7 +236,11 @@ An actor, role, or external system page carries a Summary section stating what t
 
 **Example:** A submit command cites `setting/spending.receipt-threshold`, so an expense above the line with no receipt is refused by the policy setting rather than by role.
 
+**Reviewed for:** Which entitlement grants lack a cited setting or plan? Look at the grant beside the settings each use case cites.
+
 ### Prove Hierarchies Derived Trust and Delegation with Scenarios
+
+**ID:** `litespec/core/access#prove-hierarchies-derived-trust-and-delegation-with-scenarios`
 
 **Statement:** A hierarchy, derived trust, or delegation pattern MUST prove its allowed and refused calls with scenarios.
 
@@ -190,7 +248,11 @@ An actor, role, or external system page carries a Summary section stating what t
 
 **Example:** A delegation story shows an assistant acting for a manager succeeding, and the same assistant acting without delegation ending in the derived forbidden result.
 
+**Reviewed for:** Which hierarchy, trust, or delegation patterns lack an allowed and a refused scenario? Look at the scenarios on the use cases that carry the pattern.
+
 ### Grant Across Tenants Only Through Declared Delegation
+
+**ID:** `litespec/core/access#grant-across-tenants-only-through-declared-delegation`
 
 **Statement:** A grant that acts across tenants through delegation MUST declare its delegation grant on both sides.
 
@@ -198,7 +260,11 @@ An actor, role, or external system page carries a Summary section stating what t
 
 **Example:** An assistant acts for a manager only where the manager delegation grant and the assistant acting grant both name the pairing.
 
+**Reviewed for:** Which cross tenant delegation grants lack a declared grant on both sides? Look at the delegation grants the tenancy extension declares.
+
 ### Name Every Entry Point with Its Kind
+
+**ID:** `litespec/core/access#name-every-entry-point-with-its-kind`
 
 **Statement:** An entry point MUST name its kind in `kind`.
 
@@ -206,7 +272,11 @@ An actor, role, or external system page carries a Summary section stating what t
 
 **Example:** The library app carries `browser`, a kiosk handshake carries `device`, and the nightly export carries `job`.
 
+**Checked by:** `litespec model check` reports `record-shape` for an entry point without `kind` and `invalid-field` for a kind outside browser, api, webhook, device, cli, mcp, served-content, reaction, and job.
+
 ### Describe Every Served Content Entry Point with Its Serving Fields
+
+**ID:** `litespec/core/access#describe-every-served-content-entry-point-with-its-serving-fields`
 
 **Statement:** A served content entry point MUST carry path, contentType, cacheControl, versioning, and fulfills.
 
@@ -214,7 +284,11 @@ An actor, role, or external system page carries a Summary section stating what t
 
 **Example:** A terms text carries its path, `text/html`, its cache window, its version rule, and the requirement it fulfills.
 
+**Checked by:** `litespec model check` reports `record-shape` for a served content entry point without path, contentType, cacheControl, versioning, or fulfills.
+
 ### Name the Actor for Every External System
+
+**ID:** `litespec/core/access#name-the-actor-for-every-external-system`
 
 **Statement:** An external system MUST name the actor it acts as in `actor`.
 
@@ -222,7 +296,11 @@ An actor, role, or external system page carries a Summary section stating what t
 
 **Example:** The text gateway names `actor/reader` as its actor.
 
+**Checked by:** `litespec model check` reports `record-shape` for an external system without `actor`.
+
 ### Declare Every Operation on Every External System
+
+**ID:** `litespec/core/access#declare-every-operation-on-every-external-system`
 
 **Statement:** An external system MUST declare every operation the product may call in `operations`.
 
@@ -230,7 +308,11 @@ An actor, role, or external system page carries a Summary section stating what t
 
 **Example:** A payout bank declares a `settle-batch` operation with its timeout, retry count, and response shape, which the payout effect cites as `calls`.
 
+**Checked by:** `litespec model check` reports `record-shape` for an external system without `operations` and `reference-unresolved` for a `calls` edge naming no declared operation.
+
 ### Declare Erasure for Every External System
+
+**ID:** `litespec/core/access#declare-erasure-for-every-external-system`
 
 **Statement:** An external system MUST declare how personal data it holds is erased in `erasure`.
 
@@ -238,27 +320,43 @@ An actor, role, or external system page carries a Summary section stating what t
 
 **Example:** A payout archive declares `impossible (settled payouts belong to the bank)` with the decision that accepts the limit, plus the sentence employees see.
 
+**Checked by:** `litespec model check` reports `record-shape` for an external system without `erasure` and `reference-unresolved` for an impossible erasure without an Intent decision.
+
 ### Write a Summary on Every Actor and Role Page
+
+**ID:** `litespec/core/access#write-a-summary-on-every-actor-and-role-page`
 
 **Statement:** An actor or role page MUST carry a Summary section.
 
 **Rationale:** The Summary states in plain sentences who the party is and what the grant is for, which the fields alone do not say. A reviewer meets the story first and the fields after, so the grant reads as a decision rather than a row.
 
+**Checked by:** `litespec consumer` fails an actor or role page without an H2 `Summary`.
+
 ### Write a Summary on Every External System Page
+
+**ID:** `litespec/core/access#write-a-summary-on-every-external-system-page`
 
 **Statement:** An external system page MUST carry a Summary section.
 
 **Rationale:** The Summary states in plain sentences what the outside system does for the product, which the message lists alone do not say. A reviewer meets the relationship first and the messages after, so the dependency reads as a decision rather than a row.
 
+**Checked by:** `litespec consumer` fails an external system page without an H2 `Summary`.
+
 ### Keep Permission and Entry Point Lists to Entries
+
+**ID:** `litespec/core/access#keep-permission-and-entry-point-lists-to-entries`
 
 **Statement:** A permission list or entry point list page MUST NOT carry a body section.
 
 **Rationale:** The lists hold entries only: each permission and entry point is one row with its fields, and prose around them would restate the meanings the entries already carry. A list with no body section stays readable as a list even as entries grow.
 
+**Reviewed for:** Which permission or entry point lists carry a body section? Look at the permission and entry point lists for H2 sections.
+
 ## Conventions
 
 ### Use Three Conventional Scope Levels
+
+**ID:** `litespec/core/access#use-three-conventional-scope-levels`
 
 **Default:** Use `platform`, `tenant`, and `self` as role scopes.
 
@@ -266,32 +364,4 @@ An actor, role, or external system page carries a Summary section stating what t
 
 **Rationale:** Three levels cover the grants most products need: product-wide administration, tenant-wide operation, and action on one's own records. A project with different boundaries names its own levels, and every role still carries exactly one scope.
 
-## Verification
-
-| ID | Mark | Evidence |
-|:---|:---|:---|
-| litespec/core/access#keep-access-records-in-their-homes | guidance | Which access records sit outside the homes their type names? Look at the actor, role, permission, entry point, and external system homes. |
-| litespec/core/access#name-every-actor-with-its-kind | checkable | `litespec model check` reports `record-shape` for an actor without `kind` and `invalid-field` for a kind outside person, organization, and system. |
-| litespec/core/access#record-every-role-hold-with-its-scope | guidance | Which actor holds lack a role or a scope? Look at `holds` on each actor page. |
-| litespec/core/access#scope-every-role | checkable | `litespec model check` reports `record-shape` for a role without `scope` and `invalid-field` for a scope outside kebab-case form. |
-| litespec/core/access#grant-permissions-through-roles | checkable | `litespec model check` reports `record-shape` for a role with no `allows` entry. |
-| litespec/core/access#state-every-permission-with-its-meaning | checkable | `litespec model check` reports `record-shape` for a permission without `meaning`. |
-| litespec/core/access#declare-access-on-every-use-case | checkable | `litespec model check` reports `record-shape` for a use case without `access`, `auth`, `grant`, or `tenant`. |
-| litespec/core/access#authenticate-every-caller-through-a-declared-auth-kind | checkable | `litespec model check` reports `invalid-field` for an `auth` kind outside session, token, device, link, app, anonymous, and system. |
-| litespec/core/access#grant-every-use-case-through-a-declared-grant | checkable | `litespec model check` reports `invalid-field` for a grant outside permission, self, anonymous, and system, and `reference-unresolved` for a permission no record defines. |
-| litespec/core/access#remove-a-target-that-must-be-the-caller | guidance | Each use case whose grant is a self grant names no caller-owned target in its inputs, or its message has a self declaration the authorization guard enforces, and no handler compares the caller with a target (`LS2012`). |
-| litespec/core/access#scope-every-grant-to-its-tenant-reach | checkable | `litespec model check` reports `invalid-field` for a tenant scope outside own, cross, public, and none. |
-| litespec/core/access#derive-generic-refusals-from-access-and-input | guidance | Which use case pages write a forbidden or invalid input result? Look at the results on each use case page beside the derived names. |
-| litespec/core/access#review-cross-tenant-access-as-tier-1 | guidance | Which cross grants shipped without security review? Look at the security queue in the Behavior diff. |
-| litespec/core/access#cite-the-setting-or-plan-behind-every-entitlement | guidance | Which entitlement grants lack a cited setting or plan? Look at the grant beside the settings each use case cites. |
-| litespec/core/access#prove-hierarchies-derived-trust-and-delegation-with-scenarios | guidance | Which hierarchy, trust, or delegation patterns lack an allowed and a refused scenario? Look at the scenarios on the use cases that carry the pattern. |
-| litespec/core/access#grant-across-tenants-only-through-declared-delegation | guidance | Which cross tenant delegation grants lack a declared grant on both sides? Look at the delegation grants the tenancy extension declares. |
-| litespec/core/access#name-every-entry-point-with-its-kind | checkable | `litespec model check` reports `record-shape` for an entry point without `kind` and `invalid-field` for a kind outside browser, api, webhook, device, cli, mcp, served-content, reaction, and job. |
-| litespec/core/access#describe-every-served-content-entry-point-with-its-serving-fields | checkable | `litespec model check` reports `record-shape` for a served content entry point without path, contentType, cacheControl, versioning, or fulfills. |
-| litespec/core/access#name-the-actor-for-every-external-system | checkable | `litespec model check` reports `record-shape` for an external system without `actor`. |
-| litespec/core/access#declare-every-operation-on-every-external-system | checkable | `litespec model check` reports `record-shape` for an external system without `operations` and `reference-unresolved` for a `calls` edge naming no declared operation. |
-| litespec/core/access#declare-erasure-for-every-external-system | checkable | `litespec model check` reports `record-shape` for an external system without `erasure` and `reference-unresolved` for an impossible erasure without an Intent decision. |
-| litespec/core/access#write-a-summary-on-every-actor-and-role-page | checkable | `litespec consumer` fails an actor or role page without an H2 `Summary`. |
-| litespec/core/access#write-a-summary-on-every-external-system-page | checkable | `litespec consumer` fails an external system page without an H2 `Summary`. |
-| litespec/core/access#keep-permission-and-entry-point-lists-to-entries | guidance | Which permission or entry point lists carry a body section? Look at the permission and entry point lists for H2 sections. |
-| litespec/core/access#use-three-conventional-scope-levels | guidance | Which role scopes fall outside platform, tenant, and self without a recorded project convention? Look at `scope` on each role page. |
+**Reviewed for:** Which role scopes fall outside platform, tenant, and self without a recorded project convention? Look at `scope` on each role page.

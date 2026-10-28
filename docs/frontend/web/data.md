@@ -28,6 +28,8 @@ The problem carries the `traceId` the API returns for the request, or the `X-Tra
 
 ### Generate the Client from the Published Contract
 
+**ID:** `litespec/frontend/web/data#generate-the-client-from-the-published-contract`
+
 **Statement:** A workspace MUST generate its client, types, schemas, query options, and mutation options from the API's published OpenAPI document.
 
 **Rationale:** A handwritten copy of a request, a response, or a schema drifts from the contract silently: the API changes and the copy still compiles. A generated client turns a contract change into a compile error in every application at once, so every affected call is fixed before anything ships. This realizes litespec/frontend/data#generate-the-client-from-the-published-contract.
@@ -42,13 +44,21 @@ The problem carries the `traceId` the API returns for the request, or the `X-Tra
 
 Each stack adds the TanStack Query plugin its stack page names.
 
+**Checked by:** `pnpm api:types` regenerates the client from the published OpenAPI document, and the contract check fails when the committed output differs.
+
 ### Map Every Failure to One Problem Type
+
+**ID:** `litespec/frontend/web/data#map-every-failure-to-one-problem-type`
 
 **Statement:** A frontend MUST convert every failure into one problem type, deciding from its code and showing the `traceId` in copyable form in each error's detail.
 
 **Rationale:** A raw response body shown to the user leaks whatever the API included and offers no consistent recovery path. Deciding from the code keeps each page's behavior stable across reworded messages, because a code is a published identifier. Showing the `traceId` in copyable form in the detail lets support find the exact request the user saw fail, without making an identifier the headline. This realizes litespec/frontend/data#map-every-failure-to-one-problem-type.
 
+**Reviewed for:** Each rendered error carries one problem shape decided from its code, with the `traceId` in copyable form in its detail.
+
 ### Place a Refusal Beside What Was Refused
+
+**ID:** `litespec/frontend/web/data#place-a-refusal-beside-what-was-refused`
 
 **Statement:** A refusal MUST render beside the record or control that was refused, in the sentence the application holds for that code.
 
@@ -64,7 +74,11 @@ Each stack adds the TanStack Query plugin its stack page names.
 <ProblemAlert error={mutation.error} describe={describe} />
 ```
 
+**Reviewed for:** Each refusal renders beside its refused record or control through the shared alert, in the application's sentence for that code.
+
 ### Validate a Form with the Generated Schema
+
+**ID:** `litespec/frontend/web/data#validate-a-form-with-the-generated-schema`
 
 **Statement:** A form MUST validate against the generated schema for its request body, extended with the application's own rules rather than replaced by them.
 
@@ -76,7 +90,11 @@ Each stack adds the TanStack Query plugin its stack page names.
 zRedeliverOrderRequestModel.extend({ reason: zRedeliverOrderRequestModel.shape.reason.trim().min(1, words.ui.required) })
 ```
 
+**Reviewed for:** Each form validates against the generated schema extended with the application's own rules, and a specification submitting contract-invalid input sees a client-side refusal.
+
 ### Update the Cache a Command Changed
+
+**ID:** `litespec/frontend/web/data#update-the-cache-a-command-changed`
 
 **Statement:** A successful command MUST invalidate every query whose answer it changed, and no other query.
 
@@ -84,13 +102,21 @@ zRedeliverOrderRequestModel.extend({ reason: zRedeliverOrderRequestModel.shape.r
 
 **Example:** A mutation invalidates the TanStack Query entries its command changed, and no others.
 
+**Reviewed for:** Each successful command invalidates the TanStack Query entries its command changed and no others.
+
 ### Assign State to the Narrowest Owner
+
+**ID:** `litespec/frontend/web/data#assign-state-to-the-narrowest-owner`
 
 **Statement:** A value MUST live with the narrowest owner that can hold it: server data, then the address, then form state, then the component's own state.
 
 **Rationale:** Each value has a narrowest owner that can hold it: server data in the cache, shared address state in the address, form input in form state, and anything else in the component's own state. A store above that order re-renders unrelated components on every change and hides where the value changes. Each stack page names the component's own state for its stack. This realizes litespec/frontend/data#assign-state-to-the-narrowest-owner.
 
+**Reviewed for:** Each value lives in the query cache, the address, form state, or the component state its stack page names, whichever is narrowest.
+
 ### Localize Copy Through Locale Dictionaries
+
+**ID:** `litespec/frontend/web/data#localize-copy-through-locale-dictionaries`
 
 **Statement:** Copy MUST resolve through locale dictionaries with fill and plural support, one chunk per language, and typed keys with a declared fallback.
 
@@ -98,9 +124,13 @@ zRedeliverOrderRequestModel.extend({ reason: zRedeliverOrderRequestModel.shape.r
 
 **Example:** Each stack page names its dictionary library. A workspace may carry its own dictionary machinery when it meets the same contract.
 
+**Reviewed for:** All copy resolves through the dictionary library its stack page names, with fill, plurals, one chunk per language, and typed keys with a declared fallback.
+
 ## Conventions
 
 ### Keep the Client Boundary in the Frame
+
+**ID:** `litespec/frontend/web/data#keep-the-client-boundary-in-the-frame`
 
 **Default:** Place the client configuration, problem mapping, and download helpers in the frame root, keeping them out of every use-case folder.
 
@@ -108,7 +138,11 @@ zRedeliverOrderRequestModel.extend({ reason: zRedeliverOrderRequestModel.shape.r
 
 **Rationale:** Client configuration, problem mapping, and download helpers serve every use case, so they belong in the frame root rather than copied per folder. One place means a base-address or header change is one edit instead of one per application. Each stack page names the frame root for its stack. This realizes litespec/frontend/data#keep-the-client-boundary-in-the-frame.
 
+**Reviewed for:** Client configuration, problem mapping, and download helpers sit only in the frame root the stack page names.
+
 ### Regenerate the Client Rather Than Editing It
+
+**ID:** `litespec/frontend/web/data#regenerate-the-client-rather-than-editing-it`
 
 **Default:** Regenerate the client from the document with the workspace's `api:types` command, and edit nothing under the generated directory.
 
@@ -116,7 +150,11 @@ zRedeliverOrderRequestModel.extend({ reason: zRedeliverOrderRequestModel.shape.r
 
 **Rationale:** The generated directory is output: a hand edit there works until the next generation overwrites it. Regenerating with the workspace's `api:types` command keeps the committed output provably equal to the document, and a reviewer reruns that command to check. This realizes litespec/frontend/data#regenerate-the-client-rather-than-editing-it.
 
+**Checked by:** `pnpm api:types` regenerates the client, and committed output that differs from generated output fails the contract check.
+
 ### Build a Form on the Shared Form Library
+
+**ID:** `litespec/frontend/web/data#build-a-form-on-the-shared-form-library`
 
 **Default:** Build a form on the shared package's form entry point and its registered field components.
 
@@ -124,17 +162,4 @@ zRedeliverOrderRequestModel.extend({ reason: zRedeliverOrderRequestModel.shape.r
 
 **Rationale:** A form library reached for directly in each use-case folder gives every folder its own idea of a field, and none of them knows how to show a refusal. Building on the shared package's form entry point and registered field components keeps every form's fields and refusal display identical. Each stack page names the form entry point for its stack. This realizes litespec/frontend/data#build-a-form-on-the-shared-form-library.
 
-## Verification
-
-| ID | Mark | Evidence |
-|:---|:---|:---|
-| litespec/frontend/web/data#generate-the-client-from-the-published-contract | checkable | `pnpm api:types` regenerates the client from the published OpenAPI document, and the contract check fails when the committed output differs. |
-| litespec/frontend/web/data#map-every-failure-to-one-problem-type | guidance | Each rendered error carries one problem shape decided from its code, with the `traceId` in copyable form in its detail. |
-| litespec/frontend/web/data#place-a-refusal-beside-what-was-refused | guidance | Each refusal renders beside its refused record or control through the shared alert, in the application's sentence for that code. |
-| litespec/frontend/web/data#validate-a-form-with-the-generated-schema | guidance | Each form validates against the generated schema extended with the application's own rules, and a specification submitting contract-invalid input sees a client-side refusal. |
-| litespec/frontend/web/data#update-the-cache-a-command-changed | guidance | Each successful command invalidates the TanStack Query entries its command changed and no others. |
-| litespec/frontend/web/data#assign-state-to-the-narrowest-owner | guidance | Each value lives in the query cache, the address, form state, or the component state its stack page names, whichever is narrowest. |
-| litespec/frontend/web/data#localize-copy-through-locale-dictionaries | guidance | All copy resolves through the dictionary library its stack page names, with fill, plurals, one chunk per language, and typed keys with a declared fallback. |
-| litespec/frontend/web/data#keep-the-client-boundary-in-the-frame | guidance | Client configuration, problem mapping, and download helpers sit only in the frame root the stack page names. |
-| litespec/frontend/web/data#regenerate-the-client-rather-than-editing-it | checkable | `pnpm api:types` regenerates the client, and committed output that differs from generated output fails the contract check. |
-| litespec/frontend/web/data#build-a-form-on-the-shared-form-library | guidance | Each form builds on the form entry point its stack page names with the shared registered field components. |
+**Reviewed for:** Each form builds on the form entry point its stack page names with the shared registered field components.

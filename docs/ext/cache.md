@@ -22,23 +22,37 @@ This extension switches on `setting`: the expiry of each cache is a setting reco
 
 ### Record Measured Cache Need
 
+**ID:** `litespec/ext/cache#record-measured-cache-need`
+
 **Statement:** A cache proposal MUST record its observed query, representative load, latency, source cost, and target.
 
 **Rationale:** A cache costs invalidation, capacity, and recovery work for as long as it lives. The proposal records the observed query, load, latency, cost, and target so a reviewer weighs that cost against measured gain. A cache approved without measurements stays until someone pays to remove it.
 
+**Reviewed for:** Which cache proposals lack observed query, load, latency, cost, or target? Look at the proposal behind each cache.
+
 ### Record Accepted Cache Staleness
+
+**ID:** `litespec/ext/cache#record-accepted-cache-staleness`
 
 **Statement:** A cached query MUST state its accepted staleness as `freshness: bounded` with its duration.
 
 **Rationale:** Accepted staleness is the contract each reader relies on: it states how stale a read may be before it counts as a defect. The served query states it as `freshness: bounded` with its duration on its output, so the cache and the query share one bound that is reviewed with the use case.
 
+**Reviewed for:** Which cached queries lack `freshness: bounded` with its duration on their output? Look at the served query beside each cache.
+
 ### Remove Unjustified Caches
+
+**ID:** `litespec/ext/cache#remove-unjustified-caches`
 
 **Statement:** A cache owner MUST remove a cache when measurements do not justify its operating cost.
 
 **Rationale:** Traffic shifts and sources get faster, so a cache that paid for itself last year can cost more than it saves today. The owner re-checks the measurements and removes the cache when they no longer justify its operating cost. A cache nobody owns stays forever, and its invalidation bugs stay with it.
 
+**Reviewed for:** Which caches stay past measurements that no longer justify their cost? Look at the owner reviews beside the operating cost.
+
 ### Compose Cache Keys from Result Inputs
+
+**ID:** `litespec/ext/cache#compose-cache-keys-from-result-inputs`
 
 **Statement:** A cache key MUST include its data-shape version, every result-affecting input, and applicable tenant or actor partition.
 
@@ -46,7 +60,11 @@ This extension switches on `setting`: the expiry of each cache is a setting reco
 
 **Example:** `post-summary:v2:tenant-42:post-17` identifies a versioned, tenant-scoped result.
 
+**Reviewed for:** Which keys miss the data-shape version, a result-affecting input, or the tenant or actor partition? Look at the key construction.
+
 ### Exclude Unsafe Cache Key Material
+
+**ID:** `litespec/ext/cache#exclude-unsafe-cache-key-material`
 
 **Statement:** A cache key MUST NOT contain a secret, unbounded raw input, or personal data that is not already a hash.
 
@@ -54,13 +72,21 @@ This extension switches on `setting`: the expiry of each cache is a setting reco
 
 **Example:** A per-account cache key carries the account's opaque identifier. A key that carried the address instead is replaced by a hash of it, and the entry is bound to the account that owns it.
 
+**Reviewed for:** Which keys contain a secret, unbounded input, or unhashed personal data? Look at the key construction.
+
 ### Define Cache Invalidation
+
+**ID:** `litespec/ext/cache#define-cache-invalidation`
 
 **Statement:** A cached value MUST define expiry as a setting record, invalidating write events, an invalidation owner, and behavior after invalidation failure.
 
 **Rationale:** Every cached value goes stale, and the only choice is whether the project decides the behavior up front or discovers it during an incident. Expiry, invalidating write events, an owner, and failure behavior state how long staleness lasts and who fixes it when invalidation fails. A cache without that contract serves stale data on a schedule nobody chose.
 
+**Reviewed for:** Which cached values lack expiry, invalidating events, an owner, or failure behavior? Look at the invalidation contract of each cache.
+
 ### Record a Manual Cache Invalidation
+
+**ID:** `litespec/ext/cache#record-a-manual-cache-invalidation`
 
 **Statement:** A manual invalidation MUST produce a record naming actor, scope, and reason, as an audit record in its category when the audit extension is selected.
 
@@ -68,7 +94,11 @@ This extension switches on `setting`: the expiry of each cache is a setting reco
 
 **Example:** A command that clears one tenant's cached price list records the tenant, the operator, and the incident it was run for.
 
+**Reviewed for:** Which manual clears lack a record naming actor, scope, and reason? Look at the invalidation runs.
+
 ### Prefer Bounded Staleness
+
+**ID:** `litespec/ext/cache#prefer-bounded-staleness`
 
 **Statement:** A cache owner SHOULD use a short expiry when precise invalidation costs more than recomputation.
 
@@ -76,19 +106,31 @@ This extension switches on `setting`: the expiry of each cache is a setting reco
 
 **Rationale:** Precise invalidation costs design and code, while a short expiry costs one recomputation per window. When recomputation is cheaper, a short expiry bounds staleness without the machinery. A longer expiry then needs a measured decision that says the extra staleness is worth its saving.
 
+**Reviewed for:** Which long expiries lack a measured staleness and operating-cost decision? Look at the expiry beside the invalidation cost.
+
 ### Keep Source Data Authoritative
+
+**ID:** `litespec/ext/cache#keep-source-data-authoritative`
 
 **Statement:** A cache implementation MUST keep required business data authoritative in its source of record.
 
 **Rationale:** The cache holds a derived copy that the system can drop at any time. Required business data stays authoritative in its source of record, so losing the cache loses speed and nothing else. A cache that owns the only copy turns every cache outage into data loss.
 
+**Reviewed for:** Which required business data lives authoritatively in the cache? Look at the source of record beside the cached copy.
+
 ### Define Cache Outage Behavior
+
+**ID:** `litespec/ext/cache#define-cache-outage-behavior`
 
 **Statement:** A cache outage MUST use the source when capacity permits or return a documented degraded response.
 
 **Rationale:** Cache infrastructure fails like any other dependency. The outage behavior states whether callers fall back to the source or receive a documented degraded response, so an outage degrades the product on purpose instead of by accident.
 
+**Reviewed for:** Which caches lack a documented source fallback or degraded response? Look at the outage behavior of each cache.
+
 ### Emit a Signal for Each Degraded Cache Path
+
+**ID:** `litespec/ext/cache#emit-a-signal-for-each-degraded-cache-path`
 
 **Statement:** A cache path MUST emit a metric distinguishing a cache miss, a cache error, and a degraded response.
 
@@ -96,7 +138,11 @@ This extension switches on `setting`: the expiry of each cache is a setting reco
 
 **Example:** The metric carries the cache name and the outcome, following [the OpenTelemetry semantic conventions](https://opentelemetry.io/docs/specs/semconv/) for the client it wraps.
 
+**Reviewed for:** Which cache paths share one counter across miss, error, and degraded response? Look at the emitted metrics.
+
 ### Bound Cache Refresh Work
+
+**ID:** `litespec/ext/cache#bound-cache-refresh-work`
 
 **Statement:** A cache implementation MUST bound simultaneous refresh work when concurrent misses could overload its source.
 
@@ -104,21 +150,31 @@ This extension switches on `setting`: the expiry of each cache is a setting reco
 
 **Example:** One request refreshes a key while concurrent callers await the same bounded work.
 
+**Reviewed for:** Which caches refresh without bound on concurrent misses? Look at the refresh path under concurrent load.
+
 ### Avoid Unbounded Key Locks
+
+**ID:** `litespec/ext/cache#avoid-unbounded-key-locks`
 
 **Statement:** A cache implementation MUST NOT create an unbounded per-key lock inventory.
 
 **Rationale:** Per-key locks trade duplicate refresh for memory, and the trade needs a ceiling. Untrusted or high-cardinality keys create one lock entry each, which exhausts memory under attacker-chosen or runaway keys. A bounded lock scheme sheds that state instead of growing it.
 
+**Reviewed for:** Which lock schemes grow one entry per key without bound? Look at the lock state under high-cardinality keys.
+
 ## Conventions
 
 ### Place Cache Access at an Outer Boundary
+
+**ID:** `litespec/ext/cache#place-cache-access-at-an-outer-boundary`
 
 **Default:** Place cache access in Infrastructure or a frontend data boundary.
 
 **Replacement:** A consumer records a cache-placement convention naming where its cache access lives.
 
 **Rationale:** Cache access lives in Infrastructure or a frontend data boundary, behind a port the use case owns when Application needs one. Domain code takes no cache dependency, so business rules read the same with or without a cache. A cache concern inside Domain would couple every rule to the cache's presence.
+
+**Reviewed for:** Which cache access lives inside Domain, or outside the recorded local convention? Look at the cache call sites.
 
 ## Dependencies
 
@@ -127,22 +183,3 @@ Packages: None.
 Related extensions: `audit` for manual invalidation records.
 
 Guides: None.
-
-## Verification
-
-| ID | Mark | Evidence |
-|:---|:---|:---|
-| litespec/ext/cache#record-measured-cache-need | guidance | Which cache proposals lack observed query, load, latency, cost, or target? Look at the proposal behind each cache. |
-| litespec/ext/cache#record-accepted-cache-staleness | guidance | Which cached queries lack `freshness: bounded` with its duration on their output? Look at the served query beside each cache. |
-| litespec/ext/cache#remove-unjustified-caches | guidance | Which caches stay past measurements that no longer justify their cost? Look at the owner reviews beside the operating cost. |
-| litespec/ext/cache#compose-cache-keys-from-result-inputs | guidance | Which keys miss the data-shape version, a result-affecting input, or the tenant or actor partition? Look at the key construction. |
-| litespec/ext/cache#exclude-unsafe-cache-key-material | guidance | Which keys contain a secret, unbounded input, or unhashed personal data? Look at the key construction. |
-| litespec/ext/cache#define-cache-invalidation | guidance | Which cached values lack expiry, invalidating events, an owner, or failure behavior? Look at the invalidation contract of each cache. |
-| litespec/ext/cache#record-a-manual-cache-invalidation | guidance | Which manual clears lack a record naming actor, scope, and reason? Look at the invalidation runs. |
-| litespec/ext/cache#prefer-bounded-staleness | guidance | Which long expiries lack a measured staleness and operating-cost decision? Look at the expiry beside the invalidation cost. |
-| litespec/ext/cache#keep-source-data-authoritative | guidance | Which required business data lives authoritatively in the cache? Look at the source of record beside the cached copy. |
-| litespec/ext/cache#define-cache-outage-behavior | guidance | Which caches lack a documented source fallback or degraded response? Look at the outage behavior of each cache. |
-| litespec/ext/cache#emit-a-signal-for-each-degraded-cache-path | guidance | Which cache paths share one counter across miss, error, and degraded response? Look at the emitted metrics. |
-| litespec/ext/cache#bound-cache-refresh-work | guidance | Which caches refresh without bound on concurrent misses? Look at the refresh path under concurrent load. |
-| litespec/ext/cache#avoid-unbounded-key-locks | guidance | Which lock schemes grow one entry per key without bound? Look at the lock state under high-cardinality keys. |
-| litespec/ext/cache#place-cache-access-at-an-outer-boundary | guidance | Which cache access lives inside Domain, or outside the recorded local convention? Look at the cache call sites. |

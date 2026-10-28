@@ -22,13 +22,19 @@ A model-mediated query names its closed `tools` set, proves itself with structur
 
 ### Name the Closed Tool Set
 
+**ID:** `litespec/ext/ai#name-the-closed-tool-set`
+
 **Statement:** A model-mediated query MUST name the closed set of tools the model calls.
 
 **Rationale:** A model with an open tool set invents tools, reaches past its grant, and surprises every review. A closed set names exactly what the model touches, so the grant, the tests, and the audit all read the same list.
 
 **Example:** The support answer query names `orders.lookup` and `docs.search` as its only tools.
 
+**Reviewed for:** The mediated queries list their closed tools with no call outside the list.
+
 ### Refuse Unknown Tools
+
+**ID:** `litespec/ext/ai#refuse-unknown-tools`
 
 **Statement:** A model-mediated query MUST refuse a run that calls a tool outside its closed set.
 
@@ -36,7 +42,11 @@ A model-mediated query names its closed `tools` set, proves itself with structur
 
 **Example:** A run that calls `billing.refund` outside its set is refused before the call leaves the product.
 
+**Reviewed for:** The mediated query tests refuse runs calling tools outside the closed set.
+
 ### Assert Structure and Never Wording
+
+**ID:** `litespec/ext/ai#assert-structure-and-never-wording`
 
 **Statement:** A scenario for a model-mediated query MUST assert the output structure and never its wording.
 
@@ -44,7 +54,11 @@ A model-mediated query names its closed `tools` set, proves itself with structur
 
 **Example:** The scenario asserts the answer carries `orderId` and one cited source, not the sentence around them.
 
+**Reviewed for:** The mediated query scenarios assert fields, codes, and cited sources with no exact-word assertions.
+
 ### Pin a Deterministic Stub in Proof
+
+**ID:** `litespec/ext/ai#pin-a-deterministic-stub-in-proof`
 
 **Statement:** Proof for a model-mediated query MUST run against a deterministic stub pinned by version.
 
@@ -52,7 +66,11 @@ A model-mediated query names its closed `tools` set, proves itself with structur
 
 **Example:** The support answer tests run against `stub-answers v4`, which returns one fixed tool trace per prompt.
 
+**Reviewed for:** The mediated query tests run against the pinned stub version with no live model calls.
+
 ### Record Provenance in the Output
+
+**ID:** `litespec/ext/ai#record-provenance-in-the-output`
 
 **Statement:** A model-mediated query MUST return provenance naming the model, the tools called, and the sources read.
 
@@ -60,7 +78,11 @@ A model-mediated query names its closed `tools` set, proves itself with structur
 
 **Example:** The answer returns `model: support-7, tools: [orders.lookup], sources: [order-8841]`.
 
+**Reviewed for:** The mediated query answers carry model, tools called, and sources read.
+
 ### Bound Tool Calls per Query
+
+**ID:** `litespec/ext/ai#bound-tool-calls-per-query`
 
 **Statement:** A model-mediated query MUST bound how many tool calls one run makes.
 
@@ -68,15 +90,21 @@ A model-mediated query names its closed `tools` set, proves itself with structur
 
 **Example:** The support answer query allows eight tool calls per run and refuses the ninth.
 
+**Reviewed for:** The mediated queries state a per-run tool-call bound enforced in the run tests.
+
 ## Conventions
 
 ### Record Every Model Run
+
+**ID:** `litespec/ext/ai#record-every-model-run`
 
 **Default:** Each model run writes its prompt hash, the tools called, and the outcome to the run log.
 
 **Replacement:** A project names its model-run evidence in its AI documentation.
 
 **Rationale:** Production answers need after-the-fact review: what was asked, what the model touched, and what came back. The run log holds the three without storing full prompts.
+
+**Reviewed for:** The run log holds prompt hash, tools called, and outcome per run, or the AI documentation names other evidence.
 
 ## Dependencies
 
@@ -85,15 +113,3 @@ Packages: None.
 Related extensions: `mcp` for the server shape when the product also serves tools to outside models.
 
 Guides: None.
-
-## Verification
-
-| ID | Mark | Evidence |
-|:---|:---|:---|
-| litespec/ext/ai#name-the-closed-tool-set | guidance | The mediated queries list their closed tools with no call outside the list. |
-| litespec/ext/ai#refuse-unknown-tools | guidance | The mediated query tests refuse runs calling tools outside the closed set. |
-| litespec/ext/ai#assert-structure-and-never-wording | guidance | The mediated query scenarios assert fields, codes, and cited sources with no exact-word assertions. |
-| litespec/ext/ai#pin-a-deterministic-stub-in-proof | guidance | The mediated query tests run against the pinned stub version with no live model calls. |
-| litespec/ext/ai#record-provenance-in-the-output | guidance | The mediated query answers carry model, tools called, and sources read. |
-| litespec/ext/ai#bound-tool-calls-per-query | guidance | The mediated queries state a per-run tool-call bound enforced in the run tests. |
-| litespec/ext/ai#record-every-model-run | guidance | The run log holds prompt hash, tools called, and outcome per run, or the AI documentation names other evidence. |

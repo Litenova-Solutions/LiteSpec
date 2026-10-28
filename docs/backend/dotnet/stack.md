@@ -8,11 +8,17 @@ A backend built on .NET declares the `dotnet` stack in `litespec.project.json`. 
 
 ### Declare `dotnet` as the Backend Stack
 
+**ID:** `litespec/backend/dotnet/stack#declare-dotnet-as-the-backend-stack`
+
 **Statement:** A project whose backend runs on .NET MUST name `dotnet` in the `stacks` of `litespec.project.json`.
 
 **Rationale:** The `stacks` entry applies every page in this folder with its checks and analyzers, so an undeclared backend follows no .NET rule. It also selects the readers the model builder uses for C# handlers, events, refusal codes, and scenarios.
 
+**Reviewed for:** The `stacks` array in `litespec.project.json`: `dotnet` listed when the backend runs on .NET.
+
 ### Read .NET Code Through the Stack Reader
+
+**ID:** `litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader`
 
 **Statement:** The .NET stack reader MUST read use-case folders, reaction anchor tags, injected repositories, returned codes, dispatch calls, proves tags, and test results.
 
@@ -20,20 +26,18 @@ A backend built on .NET declares the `dotnet` stack in `litespec.project.json`. 
 
 **Example:** The `ReimburseExpense` folder anchors the handler to `use-case/spending.reimburse-expense`; the reaction class carries `/// <implements>reaction/spending.send-approver-reminders-on-expense-submitted</implements>`.
 
+**Checked by:** `litespec model check` reports its tier beside each S finding read from C# code and test results.
+
 ### Write Test Results the Model Builder Reads
+
+**ID:** `litespec/backend/dotnet/stack#write-test-results-the-model-builder-reads`
 
 **Statement:** A .NET test run MUST write its results as TRX or JUnit XML under `paths.testResults`.
 
 **Rationale:** The model builder computes verified status from TRX and JUnit XML only. A run written in another format, or outside `paths.testResults`, verifies no scenario even when every test passes.
 
+**Checked by:** `litespec model check` reports no scenario verified when no result file exists.
+
 ## Conventions
 
 None.
-
-## Verification
-
-| ID | Mark | Evidence |
-|:---|:---|:---|
-| litespec/backend/dotnet/stack#declare-dotnet-as-the-backend-stack | guidance | The `stacks` array in `litespec.project.json`: `dotnet` listed when the backend runs on .NET. |
-| litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader | checkable | `litespec model check` reports its tier beside each S finding read from C# code and test results. |
-| litespec/backend/dotnet/stack#write-test-results-the-model-builder-reads | checkable | `litespec model check` reports no scenario verified when no result file exists. |

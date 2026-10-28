@@ -31,13 +31,19 @@ A need a lower layer meets that the upper layer leaves unstated travels up as a 
 
 ### Write Each Layer from the Layer Above It
 
+**ID:** `litespec/core/layers#write-each-layer-from-the-layer-above-it`
+
 **Statement:** Each record below Intent MUST be written from a record in the layer above it.
 
 **Rationale:** Each layer rests on the one above it: Behavior fulfils Intent, Implementation builds Behavior, and Proof proves Implementation. Derivation between records is part of that direction, so generic refusals derive from `access` and `input` without new records. Code with no parent record stays evidence for a question instead of becoming a record by silent transcription, so the spec wins where Intent has spoken.
 
 **Example:** A guard in code with no parent record raises a question; the agent drafts the requirement or rule and keeps the code.
 
+**Checked by:** `litespec model check` emits no `behavior-unrecorded` finding for code that names no parent record.
+
 ### Add Behavior Detail When Specifying Intent
+
+**ID:** `litespec/core/layers#add-behavior-detail-when-specifying-intent`
 
 **Statement:** Behavior that fulfils an Intent record MUST add the states, invariants, refusals, consistency, data classes with erasure positions, freshness, and tenant-scoped access the Intent record leaves unstated.
 
@@ -45,7 +51,11 @@ A need a lower layer meets that the upper layer leaves unstated travels up as a 
 
 **Example:** A reimbursement promise gains a process with Approved and Reimbursed states, a refusal for an expense that is already reimbursed, and atomic consistency over one aggregate.
 
+**Checked by:** `litespec model check` emits no `requirement-unfulfilled`, `record-orphaned`, `step-unserved`, `erasure-undeclared`, or `setting-default-without-requirement` finding across Behavior records.
+
 ### Raise Commercial and Observable Figures as Questions
+
+**ID:** `litespec/core/layers#raise-commercial-and-observable-figures-as-questions`
 
 **Statement:** An agent that meets a price, fee, rate, term, market, payer, personal-data retention period, person-observable freshness, or tenant-varying, market-varying, or date-varying default or figure MUST raise it as a draft question instead of deciding it.
 
@@ -53,7 +63,11 @@ A need a lower layer meets that the upper layer leaves unstated travels up as a 
 
 **Example:** A receipt threshold of EUR 25 goes to the ballot as a draft question with a recommendation instead of entering the setting silently.
 
+**Reviewed for:** Which prices, fees, rates, terms, markets, payers, retention periods, or observable figures did Behavior decide without a draft question? Look at the settings and rules the change adds, beside the question list.
+
 ### Implement Only Declared Behavior
+
+**ID:** `litespec/core/layers#implement-only-declared-behavior`
 
 **Statement:** Implementation MUST add only the code shapes its stack pages fix and no observable outcome, edge, write, or access grant its Behavior records leave undeclared.
 
@@ -61,13 +75,21 @@ A need a lower layer meets that the upper layer leaves unstated travels up as a 
 
 **Example:** A handler that returns a code no result declares fails `result-undeclared`; the fix declares the result or removes the code.
 
+**Checked by:** `litespec model check` emits no `behavior-unrecorded`, `write-undeclared`, `result-undeclared`, `effect-undeclared`, or `refusal-not-thrown` finding across the implementation.
+
 ### Prove Each Scenario Through the Public Boundary
+
+**ID:** `litespec/core/layers#prove-each-scenario-through-the-public-boundary`
 
 **Statement:** Each scenario MUST be proved by one test through the public boundary.
 
 **Rationale:** A scenario is the leaf of the record tree, so one test through the public boundary ties each leaf to running behavior. The checks `use-case-without-scenario` and `proves-unconfirmed` report the missing proof. A proof goes stale when its scenario's semantic hash changes, while rewording prose leaves the proof green.
 
+**Checked by:** `litespec model check` emits no `use-case-without-scenario` or `proves-unconfirmed` finding across scenarios and tests.
+
 ### Raise Open Needs as Draft Questions
+
+**ID:** `litespec/core/layers#raise-open-needs-as-draft-questions`
 
 **Statement:** A need a lower layer meets that the upper layer leaves unstated MUST travel up as a draft question carrying a decider and a decide-by date.
 
@@ -75,7 +97,11 @@ A need a lower layer meets that the upper layer leaves unstated travels up as a 
 
 **Example:** A missing reimbursement policy becomes a ballot item due 2026-11-01 with the founder as decider.
 
+**Reviewed for:** Which unstated needs lack a draft question with a decider and a decide-by date? Look at the lower-layer records the change adds, beside the ballot inbox.
+
 ### Enter World Facts as Cited Research or Constraints
+
+**ID:** `litespec/core/layers#enter-world-facts-as-cited-research-or-constraints`
 
 **Statement:** A fact learned from the world MUST enter Intent as research or a constraint that cites its source and date.
 
@@ -83,29 +109,47 @@ A need a lower layer meets that the upper layer leaves unstated travels up as a 
 
 **Example:** An observed two-day payout settlement window enters as research, then as a constraint draft citing that research.
 
+**Reviewed for:** Which world facts entered without a cited and dated research or constraint record? Look at the provider, regulation, and incident facts the change relies on.
+
 ### Flag Records When a Parent Record Changes
+
+**ID:** `litespec/core/layers#flag-records-when-a-parent-record-changes`
 
 **Statement:** Each record whose parent record changes MUST be flagged for update, and its review and proof stay stale until an agent updates it.
 
 **Rationale:** A change at the top reaches every record that fulfils or serves the changed parent, so the builder flags each one as parent-changed. Agents update the flagged records, and review and proof follow the update. Without the flag a Behavior record keeps proving a promise nobody makes anymore.
 
+**Reviewed for:** Which records with a changed parent still show a passing review and proof? Look at the flagged records beside their updated parents.
+
 ### Close Incident Deviations Within Seven Days
+
+**ID:** `litespec/core/layers#close-incident-deviations-within-seven-days`
 
 **Statement:** A production incident fix that ships before its question is answered MUST carry a time-boxed incident deviation that becomes a draft question within seven days.
 
 **Rationale:** A production incident ships its fix before any question is answered, at 02:00 if that is when the page fires. The time-boxed incident deviation records what shipped and why, and turning it into a draft question within seven days returns the choice to an accountable person. The release gate counts aged incident deviations, so a forgotten deviation stays visible.
 
+**Reviewed for:** Which incident fixes lack a deviation, or carry one older than seven days without a draft question? Look in the deviations records beside the release gate.
+
 ### Record Changed Provider Behavior as Observed Research
+
+**ID:** `litespec/core/layers#record-changed-provider-behavior-as-observed-research`
 
 **Statement:** A changed provider behavior MUST enter as research recording the observed behavior, then as a constraint draft citing that research.
 
 **Rationale:** The provider's behavior is a fact from the world, and research is where such facts enter. The constraint draft that follows cites the research, so the ballot item carries its evidence. Code is not the source: a failed reimbursement in production points at the world, and the world is cited.
 
+**Reviewed for:** Which provider changes lack observed research and a citing constraint draft? Look at the provider facts the change relies on, beside the research records.
+
 ### Build Ahead of a Regulation Only Under Its Constraint
+
+**ID:** `litespec/core/layers#build-ahead-of-a-regulation-only-under-its-constraint`
 
 **Statement:** Behavior that anticipates a regulation with a deadline MUST follow that regulation's constraint while its requirement stays a draft, blocking the release only after the statutory date.
 
 **Rationale:** A regulation with a deadline needs working behavior before its requirement passes review, so the constraint carries the rule in the meantime. The release stays shippable until the statutory date, and only then does the missing approval block it. Without this path teams either ship late or build the rule where no record owns it.
+
+**Reviewed for:** Which anticipatory behavior lacks a citing constraint, or blocks a release before the statutory date? Look at the regulation-driven Behavior records beside the constraint and its date.
 
 ## Conventions
 
@@ -118,19 +162,3 @@ This informative example demonstrates `litespec/core/layers#flag-records-when-a-
 Top-down: the founder answers the ballot with EUR 50 instead of EUR 25 for the receipt threshold. The requirement's statement changes, the builder marks the policy setting and the receipt rule as parent-changed, and an agent updates the setting default and the scenario where an expense without a receipt is refused. The developer reviews one two-line Behavior diff, the test changes, Proof goes green, and the book chapter shows the new promise.
 
 Bottom-up: a late reimbursement in production shows the payout bank settles batches every two days instead of daily. An agent records the observed behavior as research, then drafts a change to the settlement-window constraint citing it. The founder sees one tier-1 ballot item, and on approval the per-batch deadline rule and its scenarios follow.
-
-## Verification
-
-| ID | Mark | Evidence |
-|:---|:---|:---|
-| litespec/core/layers#write-each-layer-from-the-layer-above-it | checkable | `litespec model check` emits no `behavior-unrecorded` finding for code that names no parent record. |
-| litespec/core/layers#add-behavior-detail-when-specifying-intent | checkable | `litespec model check` emits no `requirement-unfulfilled`, `record-orphaned`, `step-unserved`, `erasure-undeclared`, or `setting-default-without-requirement` finding across Behavior records. |
-| litespec/core/layers#raise-commercial-and-observable-figures-as-questions | guidance | Which prices, fees, rates, terms, markets, payers, retention periods, or observable figures did Behavior decide without a draft question? Look at the settings and rules the change adds, beside the question list. |
-| litespec/core/layers#implement-only-declared-behavior | checkable | `litespec model check` emits no `behavior-unrecorded`, `write-undeclared`, `result-undeclared`, `effect-undeclared`, or `refusal-not-thrown` finding across the implementation. |
-| litespec/core/layers#prove-each-scenario-through-the-public-boundary | checkable | `litespec model check` emits no `use-case-without-scenario` or `proves-unconfirmed` finding across scenarios and tests. |
-| litespec/core/layers#raise-open-needs-as-draft-questions | guidance | Which unstated needs lack a draft question with a decider and a decide-by date? Look at the lower-layer records the change adds, beside the ballot inbox. |
-| litespec/core/layers#enter-world-facts-as-cited-research-or-constraints | guidance | Which world facts entered without a cited and dated research or constraint record? Look at the provider, regulation, and incident facts the change relies on. |
-| litespec/core/layers#flag-records-when-a-parent-record-changes | guidance | Which records with a changed parent still show a passing review and proof? Look at the flagged records beside their updated parents. |
-| litespec/core/layers#close-incident-deviations-within-seven-days | guidance | Which incident fixes lack a deviation, or carry one older than seven days without a draft question? Look in the deviations records beside the release gate. |
-| litespec/core/layers#record-changed-provider-behavior-as-observed-research | guidance | Which provider changes lack observed research and a citing constraint draft? Look at the provider facts the change relies on, beside the research records. |
-| litespec/core/layers#build-ahead-of-a-regulation-only-under-its-constraint | guidance | Which anticipatory behavior lacks a citing constraint, or blocks a release before the statutory date? Look at the regulation-driven Behavior records beside the constraint and its date. |

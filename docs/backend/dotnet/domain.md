@@ -24,17 +24,27 @@ Each aggregate identity is a small struct over one version 7 `Guid`, created by 
 
 ### Keep Domain Free of Outer-Layer Concerns
 
+**ID:** `litespec/backend/dotnet/domain#keep-domain-free-of-outer-layer-concerns`
+
 **Statement:** The Domain project MUST reference only the .NET base class library and project-owned Domain types.
 
 **Rationale:** A package reference is a direction: once Domain names a persistence or web type, business rules start depending on the framework instead of the framework depending on them. Keeping Domain to the base class library and project-owned types means a provider change cannot reach business behavior. Infrastructure registers persisted discriminators and mappings, so Domain carries no serialization attribute. This provision states the .NET form of `litespec/backend/domain#keep-domain-independent-of-outer-layers`.
 
+**Reviewed for:** The Domain project references: only the .NET base class library and project-owned Domain types.
+
 ### Use the Project Aggregate Root Contract
+
+**ID:** `litespec/backend/dotnet/domain#use-the-project-aggregate-root-contract`
 
 **Statement:** An aggregate root MUST be a sealed class deriving from the project-owned `AggregateRoot<TId>`, taking identity and event mechanics from that base.
 
 **Rationale:** One project-owned base gives every aggregate the same identity and event mechanics: typed identity, a pending event collection, protected recording, and clearing. The root is a sealed class, so no behavior extends an aggregate by inheritance. The root type name derives from the aggregate identifier, so the builder links the record by that name. A shared base that also owned timestamps, audit, tenancy, lifecycle, or persistence would force every aggregate to carry behavior most never need. The base carries the aggregate version only as persistence metadata that Domain never reads or sets. This provision states the .NET form of `litespec/backend/domain#take-identity-and-events-from-the-project-root-contract`.
 
+**Reviewed for:** Each aggregate root declaration: a sealed class deriving from the project-owned `AggregateRoot<TId>`.
+
 ### Model Child Entities as Sealed Classes
+
+**ID:** `litespec/backend/dotnet/domain#model-child-entities-as-sealed-classes`
 
 **Statement:** A child entity MUST be a sealed class deriving from the project-owned `Entity<TId>`.
 
@@ -68,7 +78,11 @@ public sealed class OrderLine : Entity<OrderLineId>
 
 `Order.AddLine` creates the line, and `Order.ChangeLineQuantity` calls `ChangeQuantity` after checking its invariant.
 
+**Reviewed for:** Each child entity declaration in the Domain project: a sealed class deriving from `Entity<TId>`, created through root methods.
+
 ### Model Value Objects as Records
+
+**ID:** `litespec/backend/dotnet/domain#model-value-objects-as-records`
 
 **Statement:** A value object MUST be an immutable C# record with no base type.
 
@@ -140,7 +154,11 @@ public sealed record PostTags
 
 If order is not part of the value, creation normalizes to the documented comparison order before storing values.
 
+**Reviewed for:** Each value object in the Domain project: an immutable record with static creation and no base type.
+
 ### Implement Domain Services as Stateless Classes
+
+**ID:** `litespec/backend/dotnet/domain#implement-domain-services-as-stateless-classes`
 
 **Statement:** A domain service MUST be a stateless sealed class accepting and returning Domain values.
 
@@ -164,7 +182,11 @@ public sealed class OrderPricingDomainService
 
 Application supplies the lines and passes the returned `Money` to `Order.ConfirmPrice`. The service has no repository, clock, logger, or provider client.
 
+**Reviewed for:** Each domain service in the Domain project: a stateless sealed class with Domain-only parameters and no provider calls.
+
 ### Model Every Aggregate Lifecycle with State Records
+
+**ID:** `litespec/backend/dotnet/domain#model-every-aggregate-lifecycle-with-state-records`
 
 **Statement:** An aggregate MUST expose its lifecycle only through one `State` property backed by an abstract `{Aggregate}State` record with sealed per-state records.
 
@@ -189,7 +211,11 @@ public abstract record ProfileState;
 public sealed record ProfileActiveState : ProfileState;
 ```
 
+**Reviewed for:** Each aggregate: one `State` property over an abstract state record with one sealed record per state.
+
 ### Model Every Closed Set of Domain Values Without Enums
+
+**ID:** `litespec/backend/dotnet/domain#model-every-closed-set-of-domain-values-without-enums`
 
 **Statement:** The Domain project MUST model every closed set as an abstract record base with sealed cases exposing one stable `Code`, converting labels through `FromCode`.
 
@@ -293,7 +319,11 @@ The diagram shows the `MerchantRole` hierarchy with its cases, `Code`, and `From
 
 ![The Domain hierarchy MerchantRole with sealed cases exposing Code and FromCode, and the same set at three layers: a mirrored union in Application, a string enum in Transport for a label-only set, and one string discriminator per case in Persistence.](../../assets/diagrams/dotnet-closed-set.svg)
 
+**Reviewed for:** Each closed set in the Domain project: an abstract record with sealed cases exposing `Code`, `FromCode` on data-less sets, and no `enum`.
+
 ### Use Strongly Typed Version 7 Identifiers
+
+**ID:** `litespec/backend/dotnet/domain#use-strongly-typed-version-7-identifiers`
 
 **Statement:** An aggregate identity MUST be a `readonly record struct` wrapping one version 7 `Guid`, declaring no implicit conversion, primitive alias, or public parameterless creation path.
 
@@ -347,7 +377,11 @@ public readonly record struct PostId : IStronglyTypedId, IParsable<PostId>
 
 The `IParsable<TId>` implementation supports Minimal API route and query binding. `Parse` follows the .NET parsing contract for malformed text. `From` applies the domain empty-identity rule.
 
+**Reviewed for:** Each aggregate identity: a `readonly record struct` over one version 7 `Guid`, with no conversion, alias, or parameterless creation.
+
 ### Make Money and Decimal Rules Explicit
+
+**ID:** `litespec/backend/dotnet/domain#make-money-and-decimal-rules-explicit`
 
 **Statement:** A monetary amount MUST use `decimal` inside one shared `Money` value object carrying an ISO 4217 currency code and serializing as `{ "amount": "12.50", "currency": "EUR" }`.
 
@@ -380,7 +414,11 @@ public sealed record Money
 
 The amount serializes as a string, so no reader parses it as binary floating point.
 
+**Reviewed for:** Each monetary amount: a `decimal` inside the shared `Money` object, serialized with amount and currency.
+
 ### Keep Repository Interfaces in Domain
+
+**ID:** `litespec/backend/dotnet/domain#keep-repository-interfaces-in-domain`
 
 **Statement:** A repository interface MUST expose only aggregate and Domain types for exactly one aggregate root, without `IQueryable`, a session, or a generic CRUD surface.
 
@@ -412,7 +450,11 @@ public async Task<Post> GetByIdAsync(PostId id, CancellationToken cancellationTo
 }
 ```
 
+**Reviewed for:** Each repository interface: Domain-only types for one aggregate root, with no `IQueryable`, session, or generic surface.
+
 ### Expose Cross-Record Keys from the Aggregate
+
+**ID:** `litespec/backend/dotnet/domain#expose-cross-record-keys-from-the-aggregate`
 
 **Statement:** An aggregate needing a cross-record uniqueness key MUST expose its current keys through a `UniquenessKeys` method.
 
@@ -425,13 +467,21 @@ public IReadOnlyCollection<string> UniquenessKeys() =>
     Copies.Select(copy => copy.Barcode).ToList().AsReadOnly();
 ```
 
+**Reviewed for:** Each aggregate with a cross-record uniqueness rule: a `UniquenessKeys` method returning its current keys, with no other uniqueness code in Domain.
+
 ### Raise Immutable Domain Facts
+
+**ID:** `litespec/backend/dotnet/domain#raise-immutable-domain-facts`
 
 **Statement:** A domain event MUST be a public immutable record named `{Aggregate}{PastFact}Event` implementing `IDomainEvent` and carrying business data only.
 
 **Rationale:** The `{Aggregate}{PastFact}Event` name tells a reader which aggregate raised the fact without opening the file. The event carries business data only: typed identifiers and the values its reactions need. It carries no aggregate, session, service, mutable collection, or exception, because a mutable payload lets a reaction observe state that changed after the fact. Envelope identity, such as message and causation identity, lives on the published integration event that carries the fact outside the process. The event type name derives from the event identifier: `AccessCodeIssuedEvent` is `event/access-code.issued`. An event whose name cannot follow its identifier states the identifier as a string literal in its type, which the builder links instead. Only the aggregate root raises events, through `RaiseDomainEvent` on the shared base. This provision states the .NET form of `litespec/backend/domain#raise-immutable-facts-as-domain-events`.
 
+**Reviewed for:** Each domain event: an immutable record named `{Aggregate}{PastFact}Event`, carrying business data only.
+
 ### Reject Business Violations with Domain Exceptions
+
+**ID:** `litespec/backend/dotnet/domain#reject-business-violations-with-domain-exceptions`
 
 **Statement:** A rejected business rule MUST throw a `DomainException` subclass named `{DomainType}{Reason}Exception` carrying the refusal `code`.
 
@@ -475,13 +525,21 @@ Two rules that share a caller-visible refusal code because a boundary maps them 
 
 Application validators handle malformed caller input through validation errors. Aggregate and value-object exceptions remain the final check when direct Domain use violates a rule. Command handlers do not catch expected Domain exceptions. The host maps them through the documented error boundary.
 
+**Reviewed for:** Each rejected business rule: its own `DomainException` type carrying the refusal `code`, with no transport status.
+
 ### Document Every Public Domain Contract
+
+**ID:** `litespec/backend/dotnet/domain#document-every-public-domain-contract`
 
 **Statement:** Every public Domain type and member MUST carry XML documentation stating the business constraint, result, or failure it represents.
 
 **Rationale:** A public Domain member is a business promise, and its XML documentation is where a reader learns the constraint, result, or failure it represents. A summary that restates the member name adds nothing; a mutation method names its source states, resulting state, protected invariant, and recorded event. Without that, callers infer the contract from the implementation and miss the rule. This provision states the .NET form of `litespec/backend/domain#describe-every-public-domain-contract-in-documentation`.
 
+**Checked by:** `dotnet build` of the Domain project reports no LiteSpec.Analyzers LS1011 diagnostic.
+
 ### Raise the Past Tense of a Method's Own Verb
+
+**ID:** `litespec/backend/dotnet/domain#raise-the-past-tense-of-a-methods-own-verb`
 
 **Statement:** Each aggregate method that changes state MUST raise an event named for the past tense of its verb.
 
@@ -489,11 +547,15 @@ Application validators handle malformed caller input through validation errors. 
 
 **Example:** `Abandon` raises `OrderAbandonedEvent` and passes; `Abandon` raising `OrderVoidedEvent` is reported, as is `Cancel` raising `OrderCanceledEvent` with one `l`. `AssignToApprover` raising `ExpenseAssignedToApproverEvent` passes with its `to` complement, and `MarkOverdue` raising `LoanOverdueEvent` passes by naming its state.
 
+**Checked by:** `litespec model check` reports `event-tense-mismatch` (tier A) for an aggregate method raising an event not ending with the past tense of its verb, allowing a prepositional complement and a `mark` method naming its state.
+
 ## Conventions
 
 *Read each code block in the Conventions section as the named design rule only, without its namespace and unrelated declarations.*
 
 ### Define the Shared Domain Contracts Once
+
+**ID:** `litespec/backend/dotnet/domain#define-the-shared-domain-contracts-once`
 
 **Default:** Declare the shared Domain contracts once in the Domain project and reuse them across every module.
 
@@ -571,7 +633,11 @@ public abstract class AggregateRoot<TId> : Entity<TId>, IAggregateRoot
 
 Concrete aggregates validate that `id.Value` is not `Guid.Empty` before or while calling the base constructor. The base remains free of aggregate-specific exceptions.
 
+**Reviewed for:** The shared Domain contracts: each declared once, with `DomainException` declaring its abstract `Code` and `AggregateRoot<TId>` deriving from `Entity<TId>`.
+
 ### Keep ID Representations Aligned at Every Boundary
+
+**ID:** `litespec/backend/dotnet/domain#keep-id-representations-aligned-at-every-boundary`
 
 **Default:** Represent an identifier the same way in Domain, persistence, transport, and generated clients.
 
@@ -603,7 +669,11 @@ if (typeof(IStronglyTypedId).IsAssignableFrom(context.JsonTypeInfo.Type))
 }
 ```
 
+**Reviewed for:** Each identifier at Domain, persistence, transport, and client boundaries: the same UUID text form.
+
 ### Use the Domain Module Layout
+
+**ID:** `litespec/backend/dotnet/domain#use-the-domain-module-layout`
 
 **Default:** Give each aggregate a folder named with its plural root name, holding its states, events, exceptions, and concepts in the files this provision names.
 
@@ -679,6 +749,8 @@ if (typeof(IStronglyTypedId).IsAssignableFrom(context.JsonTypeInfo.Type))
 ```
 
 Each aggregate-specific repository interface stays with the aggregate it loads. Application, Infrastructure, and WebApi use the same module and per-aggregate folder names, per `litespec/backend/architecture#organize-every-layer-by-module-and-use-case`.
+
+**Reviewed for:** Each Domain module folder: one plural folder per aggregate holding its states, events, exceptions, and concepts.
 
 ## Reference Example
 
@@ -784,26 +856,3 @@ public sealed record PostPublishedEvent(
 ```
 
 The event payload captures the publication fact without carrying the mutable `Post`. An event reaction implementation uses values from the transition or loads a current read model when it needs current data.
-
-## Verification
-
-| ID | Mark | Evidence |
-|:---|:---|:---|
-| litespec/backend/dotnet/domain#keep-domain-free-of-outer-layer-concerns | guidance | The Domain project references: only the .NET base class library and project-owned Domain types. |
-| litespec/backend/dotnet/domain#use-the-project-aggregate-root-contract | guidance | Each aggregate root declaration: a sealed class deriving from the project-owned `AggregateRoot<TId>`. |
-| litespec/backend/dotnet/domain#model-child-entities-as-sealed-classes | guidance | Each child entity declaration in the Domain project: a sealed class deriving from `Entity<TId>`, created through root methods. |
-| litespec/backend/dotnet/domain#model-value-objects-as-records | guidance | Each value object in the Domain project: an immutable record with static creation and no base type. |
-| litespec/backend/dotnet/domain#implement-domain-services-as-stateless-classes | guidance | Each domain service in the Domain project: a stateless sealed class with Domain-only parameters and no provider calls. |
-| litespec/backend/dotnet/domain#model-every-aggregate-lifecycle-with-state-records | guidance | Each aggregate: one `State` property over an abstract state record with one sealed record per state. |
-| litespec/backend/dotnet/domain#model-every-closed-set-of-domain-values-without-enums | guidance | Each closed set in the Domain project: an abstract record with sealed cases exposing `Code`, `FromCode` on data-less sets, and no `enum`. |
-| litespec/backend/dotnet/domain#use-strongly-typed-version-7-identifiers | guidance | Each aggregate identity: a `readonly record struct` over one version 7 `Guid`, with no conversion, alias, or parameterless creation. |
-| litespec/backend/dotnet/domain#make-money-and-decimal-rules-explicit | guidance | Each monetary amount: a `decimal` inside the shared `Money` object, serialized with amount and currency. |
-| litespec/backend/dotnet/domain#keep-repository-interfaces-in-domain | guidance | Each repository interface: Domain-only types for one aggregate root, with no `IQueryable`, session, or generic surface. |
-| litespec/backend/dotnet/domain#expose-cross-record-keys-from-the-aggregate | guidance | Each aggregate with a cross-record uniqueness rule: a `UniquenessKeys` method returning its current keys, with no other uniqueness code in Domain. |
-| litespec/backend/dotnet/domain#raise-immutable-domain-facts | guidance | Each domain event: an immutable record named `{Aggregate}{PastFact}Event`, carrying business data only. |
-| litespec/backend/dotnet/domain#reject-business-violations-with-domain-exceptions | guidance | Each rejected business rule: its own `DomainException` type carrying the refusal `code`, with no transport status. |
-| litespec/backend/dotnet/domain#document-every-public-domain-contract | checkable | `dotnet build` of the Domain project reports no LiteSpec.Analyzers LS1011 diagnostic. |
-| litespec/backend/dotnet/domain#raise-the-past-tense-of-a-methods-own-verb | checkable | `litespec model check` reports `event-tense-mismatch` (tier A) for an aggregate method raising an event not ending with the past tense of its verb, allowing a prepositional complement and a `mark` method naming its state. |
-| litespec/backend/dotnet/domain#define-the-shared-domain-contracts-once | guidance | The shared Domain contracts: each declared once, with `DomainException` declaring its abstract `Code` and `AggregateRoot<TId>` deriving from `Entity<TId>`. |
-| litespec/backend/dotnet/domain#keep-id-representations-aligned-at-every-boundary | guidance | Each identifier at Domain, persistence, transport, and client boundaries: the same UUID text form. |
-| litespec/backend/dotnet/domain#use-the-domain-module-layout | guidance | Each Domain module folder: one plural folder per aggregate holding its states, events, exceptions, and concepts. |

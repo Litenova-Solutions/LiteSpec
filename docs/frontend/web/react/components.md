@@ -8,6 +8,8 @@ A React component is a function using hooks, with props and events typed under s
 
 ### Write Components as Functions
 
+**ID:** `litespec/frontend/web/react/components#write-components-as-functions`
+
 **Statement:** A component MUST be a function component using hooks, not a class component.
 
 **Rationale:** Hooks are the reactivity model the renderer understands: state, derivation, and effects all flow through them. Class lifecycle methods split the same logic across mount and update paths that no new code follows. An effect covers what derivation cannot express, so nothing needs a class.
@@ -23,19 +25,18 @@ function OrderTotal({ orderId }: { orderId: string }) {
 }
 ```
 
+**Reviewed for:** Every component in the workspace is a function component using hooks, with no class component.
+
 ### Keep Component Boundaries Typed
+
+**ID:** `litespec/frontend/web/react/components#keep-component-boundaries-typed`
 
 **Statement:** A component MUST type its props and its events under strict mode.
 
 **Rationale:** An untyped prop fails at the call site the next author writes, which is the most expensive place to learn a shape: after writing the code that uses it. Strict mode turns that failure into a build error at the author's own call. Typed events do the same for what the component reports.
 
+**Checked by:** `pnpm type-check` runs under strict mode and fails on an untyped prop or event.
+
 ## Conventions
 
 None.
-
-## Verification
-
-| ID | Mark | Evidence |
-|:---|:---|:---|
-| litespec/frontend/web/react/components#write-components-as-functions | guidance | Every component in the workspace is a function component using hooks, with no class component. |
-| litespec/frontend/web/react/components#keep-component-boundaries-typed | checkable | `pnpm type-check` runs under strict mode and fails on an untyped prop or event. |

@@ -18,19 +18,29 @@ The drawings on this page use the Acme Supply back office: order SO-1042 for Mar
 
 ### Name the Page in One Heading
 
+**ID:** `litespec/frontend/patterns/page-frames#name-the-page-in-one-heading`
+
 **Statement:** Each page MUST show one top-level heading that names the record, list, or task it holds.
 
 **Rationale:** One heading names the open record, list, or task, so a reader who arrived from a link or a search knows where they landed. Without it, two headings compete for that job, and the reader guesses which line to trust while assistive tech announces the wrong one.
 
+**Reviewed for:** Which built screen splits its title across headings or omits it? Open every built page and read its top-level heading.
+
 ### Show One Primary Action in a Page Frame
+
+**ID:** `litespec/frontend/patterns/page-frames#show-one-primary-action-in-a-page-frame`
 
 **Statement:** A page frame MUST show at most one primary action outside its rows and overlays.
 
 **Rationale:** One primary action names the step readers take most often next on the page, such as New delivery on a deliveries list. Without that single answer, two equal buttons force the reader to compare labels on every visit, and the hurried click lands on the wrong one.
 
+**Reviewed for:** Which built frame carries two primary actions outside rows and overlays? Open every built page frame and count the primary actions.
+
 ## Patterns
 
 ### Home Page
+
+**ID:** `litespec/frontend/patterns/page-frames#home-page`
 
 **Question:** The first page after sign-in tells the reader what needs doing now, most urgent first, before any figure. A home page typically holds a greeting, stat tiles, a setup section, a needs-attention list, and a coming-up list. The disagreement is how much of that sits above the fold, and whether the tiles lead or the work leads.
 
@@ -41,6 +51,8 @@ The drawings on this page use the Acme Supply back office: order SO-1042 for Mar
 **Rationale:** Work first, tiles second stays the pick. The manager reads the queue and stops, and the figures wait below for the curious reader. The Linear-style my-work split is the runner-up. Prefer it once assignment is a real command and two people share one queue.
 
 Never ship the tiles-first order as the default. Three stat tiles push the queue below the fold and the page reads as a report instead of a task list.
+
+**Reviewed for:** Which built start screen breaks from the wireframe its catalog entry chose? Open the built queues, tiles, and next actions beside the catalog entry recording the chosen option and its reason.
 
 #### `work-first-tiles-second`: Work First, Tiles Second
 
@@ -222,6 +234,8 @@ page
 
 ### List Page
 
+**ID:** `litespec/frontend/patterns/page-frames#list-page`
+
 **Question:** Find one record among many. The frame is fixed: header, views, search, filters, one table, pagination. The decision is which controls earn their place, because a search box on its own is not enough across 268 rows.
 
 **Default:** `search-and-a-state-filter-only`
@@ -231,6 +245,8 @@ page
 **Rationale:** Search plus one state filter stays the pick. Two controls answer the two questions readers ask, and a bare list needs only the filter added. The GitHub-style dense filter bar is the runner-up. Prefer it past a few hundred rows across many customers, where the query is restated in words.
 
 Never ship two tables on one page. A list page holds one table, and a second table is a second route wearing a disguise.
+
+**Reviewed for:** Which built collection screen breaks from the wireframe its catalog entry chose? Open the built searches, views, and play modes beside the catalog entry recording the chosen option and its reason.
 
 #### `search-and-a-state-filter-only`: Search and a State Filter Only
 
@@ -410,6 +426,8 @@ page
 
 ### Queue
 
+**ID:** `litespec/frontend/patterns/page-frames#queue`
+
 **Question:** Process items in batches. The queue is the one list page where selection is the interface. The whole page has to answer what the checkbox selects, and what happens to a thousand of them.
 
 **Default:** `select-all-on-the-page-banner-for-the-rest`
@@ -419,6 +437,8 @@ page
 **Rationale:** The Gmail-style page banner stays the pick. Selecting the page and then explicitly selecting the rest is the clearest answer to the select-all problem, and money deserves the second click. The Zendesk-style play mode is the runner-up. Prefer it when each decision needs different information and batch work is rare.
 
 Never ship the toolbar-replacing bulk bar. The layout jumps mid-decision and the search box vanishes when the reader wants to refine it.
+
+**Reviewed for:** Which built batch-selection screen breaks from the wireframe its catalog entry chose? Open the built select-all banners and play modes beside the catalog entry recording the chosen option and its reason.
 
 #### `select-all-on-the-page-banner-for-the-rest`: Select All on the Page, Banner for the Rest
 
@@ -587,6 +607,8 @@ page
 
 ### Record Page
 
+**ID:** `litespec/frontend/patterns/page-frames#record-page`
+
 **Question:** One record, and everything done to it. The frame carries a summary, at most three sections, and an aside. The decision is how to divide the page: tabs against stacked sections, and what earns the aside.
 
 **Default:** `summary-sections-aside-for-history`
@@ -596,6 +618,8 @@ page
 **Rationale:** Summary with sections and history in the aside stays the pick. What defines the record runs down the main column while history supports it from the side. The Linear-style properties rail is the runner-up. Prefer it when the aside must carry editable values rather than history.
 
 Never ship the facts-in-header variant. A dense header pushes every command below the fold on a phone and fights the trail for space.
+
+**Reviewed for:** Which built single-record screen breaks from the wireframe its catalog entry chose? Open the built summaries, tabs, and asides beside the catalog entry recording the chosen option and its reason.
 
 #### `summary-sections-aside-for-history`: Summary, Sections, Aside for History
 
@@ -796,6 +820,8 @@ page
 
 ### Form Page
 
+**ID:** `litespec/frontend/patterns/page-frames#form-page`
+
 **Question:** Take one command's input. New-record pages are often inconsistent. One wraps its fields in a section with a left label column, while another draws bare fields with no box and no Cancel. Both are this frame.
 
 **Default:** `one-section-one-column-of-fields-cancel-beside-save`
@@ -805,6 +831,8 @@ page
 **Rationale:** One section, one column, Cancel beside Save stays the pick. A single command reads as a list of questions with one place to submit and one to leave. The GOV.UK one-question-per-screen flow is the runner-up. Prefer it when each answer changes the next question and nothing may be skipped.
 
 Never ship the stepper for creating a product. Three steps for work that fits one page is one step too many.
+
+**Reviewed for:** Which built input screen breaks from the wireframe its catalog entry chose? Open the built sections, steppers, and save bars beside the catalog entry recording the chosen option and its reason.
 
 #### `one-section-one-column-of-fields-cancel-beside-save`: One Section, One Column of Fields, Cancel Beside Save
 
@@ -981,6 +1009,8 @@ page
 
 ### Report Page
 
+**ID:** `litespec/frontend/patterns/page-frames#report-page`
+
 **Question:** Read figures over one period. An Acme Supply statement puts the period in the heading with August 2026 and October 2026 buttons beside it. Nothing says which is previous and which is next.
 
 **Default:** `chevron-pair-with-the-period-as-the-heading`
@@ -990,6 +1020,8 @@ page
 **Rationale:** The chevron pair with the period as the heading stays the pick. A reader cannot mistake a chevron for a tab. The list still allows a jump across months. The Shopify-style cards with sparklines are the runner-up. Prefer them mid-month when the question is trend rather than settlement.
 
 Never ship the two unlabeled month buttons. Nothing says which is previous and which is next.
+
+**Reviewed for:** Which built figures screen breaks from the wireframe its catalog entry chose? Open the built period pickers and breakdown tabs beside the catalog entry recording the chosen option and its reason.
 
 #### `chevron-pair-with-the-period-as-the-heading`: Chevron Pair with the Period as the Heading
 
@@ -1164,6 +1196,8 @@ page
 
 ### Settings Home
 
+**ID:** `litespec/frontend/patterns/page-frames#settings-home`
+
 **Question:** Find one setting among many areas. A settings home can carry a whole tree: thirty routes under `/settings`, and the home page has to hold all of them.
 
 **Default:** `grouped-links-one-line-each`
@@ -1173,6 +1207,8 @@ page
 **Rationale:** Grouped links stay the pick. Each area names what it holds. The page never grows a form. Thirty routes fit in a handful of sections. The Stripe-style left navigation is the runner-up. Prefer it once areas gain enough depth to deserve their own tree.
 
 Never ship the frequency grouping. Readers look for a thing, not for how often they change it.
+
+**Reviewed for:** Which built setup index breaks from the wireframe its catalog entry chose? Open the built grouped links, cards, and checklists beside the catalog entry recording the chosen option and its reason.
 
 #### `grouped-links-one-line-each`: Grouped Links, One Line Each
 
@@ -1328,6 +1364,8 @@ page
 
 ### Editor Page
 
+**ID:** `litespec/frontend/patterns/page-frames#editor-page`
+
 **Question:** Edit what a customer sees, with a live preview beside the form. A storefront editor holds the look in a form. It shows the result in a preview card beside the form. It must carry a Cancel and a dirty state. Without them, leaving silently discards work.
 
 **Default:** `form-left-live-preview-right-one-save`
@@ -1337,6 +1375,8 @@ page
 **Rationale:** Form left with a live preview right stays the pick. Every control writes straight into the preview. Nobody saves to find out what a change looks like. The Webflow-style floating panel is the runner-up. Prefer it when the visual dominates, such as a cover image judged at real size.
 
 Never ship the preview-above-the-form stack. Every edit pushes the preview off screen, which defeats a live preview.
+
+**Reviewed for:** Which built preview screen breaks from the wireframe its catalog entry chose? Open the built form-plus-preview splits and device frames beside the catalog entry recording the chosen option and its reason.
 
 #### `form-left-live-preview-right-one-save`: Form Left, Live Preview Right, One Save
 
@@ -1543,6 +1583,8 @@ page
 
 ### Outcome Page
 
+**ID:** `litespec/frontend/patterns/page-frames#outcome-page`
+
 **Question:** Where a flow ends: an order confirmed, a payment that failed, a link that expired. One state, one statement of what happened, one next step. Flows often end in a toast instead, so this frame states what an ending page holds.
 
 **Default:** `one-statement-one-next-step`
@@ -1552,6 +1594,8 @@ page
 **Rationale:** One statement with one next step stays the pick. A reader who came to learn whether it worked leaves in one glance. The GOV.UK confirmation band is the runner-up. Prefer it when the flow leaves a reference the reader must keep.
 
 Never ship the toast-only outcome for anything the reader may need to return to. A moment is not a place.
+
+**Reviewed for:** Which built result screen breaks from the wireframe its catalog entry chose? Open the built statements, references, and refusal outcomes beside the catalog entry recording the chosen option and its reason.
 
 #### `one-statement-one-next-step`: One Statement, One Next Step
 
@@ -1710,6 +1754,8 @@ page
 
 ### Live Operations Page
 
+**ID:** `litespec/frontend/patterns/page-frames#live-operations-page`
+
 **Question:** Dispatch day is happening: the docks are open, scanners are reading, and the warehouse lead needs the count at a glance. The decision is what earns the glance: the total, the per-dock split, or only the exceptions.
 
 **Default:** `the-count-the-docks-the-exceptions`
@@ -1719,6 +1765,8 @@ page
 **Rationale:** The count with docks and exceptions stays the pick. The warehouse lead reads one number first. Then comes the per-dock split, then only what needs a person. The exceptions-only wall is the runner-up. Prefer it on the wall display once the day is steady and the count is already known.
 
 Never ship the timeline as the main view. A list of six hundred dispatches is a log, not a page.
+
+**Reviewed for:** Which built wall display breaks from the wireframe its catalog entry chose? Open the built counts, docks, and exception views beside the catalog entry recording the chosen option and its reason.
 
 #### `the-count-the-docks-the-exceptions`: The Count, the Docks, the Exceptions
 
@@ -1860,6 +1908,8 @@ page
 
 ### Calendar or Schedule Page
 
+**ID:** `litespec/frontend/patterns/page-frames#calendar-or-schedule-page`
+
 **Question:** Ninety-three deliveries ahead need a shape that answers when, not what. The decision is density: a grid that shows the month against a list that shows the next delivery.
 
 **Default:** `month-grid-with-deliveries-marked`
@@ -1867,6 +1917,8 @@ page
 **Compact:** Seven columns do not fit a phone. The agenda list is the phone shape, with each day as a date chip beside its deliveries. The compact option is `agenda-grouped-by-day`.
 
 **Rationale:** The month grid stays the pick: ninety-three deliveries ahead need density, and the grid shows the month the list cannot. The agenda list is the runner-up. Prefer it on a phone, where seven columns become unreadable whichever way they are drawn. Never ship the week lanes as the default. Two warehouses fit, and the third warehouse breaks the shape.
+
+**Reviewed for:** Which built date view breaks from the wireframe its catalog entry chose? Open the built month grids, agendas, and week lanes beside the catalog entry recording the chosen option and its reason.
 
 #### `month-grid-with-deliveries-marked`: Month Grid with Deliveries Marked
 
@@ -2015,6 +2067,8 @@ page
 
 ### Onboarding or Setup Page
 
+**ID:** `litespec/frontend/patterns/page-frames#onboarding-or-setup-page`
+
 **Question:** A new company has an account and nothing else. The decision is how much the page does. A checklist waits, a wizard leads, and a single page states the three steps and gets out of the way.
 
 **Default:** `checklist-with-a-progress-bar`
@@ -2022,6 +2076,8 @@ page
 **Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
 
 **Rationale:** The checklist with a progress bar stays the pick: it states the three steps, shows which is done, and waits without leading. The stepper wizard is the runner-up. Prefer it when a step cannot be skipped and the next depends on the last. Never ship the single page with a Save per section: three saves for a first run is three chances to leave half set up.
+
+**Reviewed for:** Which built first-run guide breaks from the wireframe its catalog entry chose? Open the built checklists, wizards, and templates beside the catalog entry recording the chosen option and its reason.
 
 #### `checklist-with-a-progress-bar`: Checklist with a Progress Bar
 
@@ -2170,6 +2226,8 @@ page
 
 ### Error or Not-Found Page
 
+**ID:** `litespec/frontend/patterns/page-frames#error-or-not-found-page`
+
 **Question:** Something is missing, broken or refused. The decision is how much the page owns: a dead end with links back, or a working page that names the fix and offers it.
 
 **Default:** `centered-not-found-with-links-back`
@@ -2177,6 +2235,8 @@ page
 **Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
 
 **Rationale:** The centered not-found with links back stays the pick: it says what happened, says where to go, and does both in one glance. The permission refusal with the fix is the runner-up. Prefer it whenever the page knows who can resolve it, because Back is not a fix. Never ship the inline error alone for a missing page. A retry button on a page that will never exist is a promise that cannot be kept.
+
+**Reviewed for:** Which built dead end breaks from the wireframe its catalog entry chose? Open the built not-found, outage, and refused views beside the catalog entry recording the chosen option and its reason.
 
 #### `centered-not-found-with-links-back`: Centered Not-Found with Links Back
 
@@ -2307,6 +2367,8 @@ page
 
 ### Record Drawer
 
+**ID:** `litespec/frontend/patterns/page-frames#record-drawer`
+
 **Question:** Read a record without leaving the list. It exists so a reader can compare a row against what the row actually holds. The constraint is width: a 420-pixel drawer inside a 1440 screen holds facts and nothing else.
 
 **Default:** `drawer-beside-the-list-read-only`
@@ -2314,6 +2376,8 @@ page
 **Compact:** At 390 pixels there is no beside. The drawer takes the whole screen with a Back control that returns to the list at the same scroll position. The compact option is `phone-width-drawer-becomes-a-full-page`.
 
 **Rationale:** The read-only drawer beside the list stays the pick: the list context is the whole reason to use a drawer, so nothing covers it. The inline detail band is the runner-up. Prefer it when the record is four facts and the comparison must sit inside the table. Never ship the drawer holding an edit. Repeatable work in a narrow overlay gives two nested control sets in one thin column.
+
+**Reviewed for:** Which built side record breaks from the wireframe its catalog entry chose? Open the built read-only, edit, and timeline drawers beside the catalog entry recording the chosen option and its reason.
 
 #### `drawer-beside-the-list-read-only`: Drawer Beside the List, Read-Only
 
@@ -2519,24 +2583,3 @@ page
 **Rationale:** At 390 pixels there is no beside. The drawer takes the whole screen. A Back control returns to the list at the same scroll position.
 
 **Cost:** The list has to be kept alive behind the full-screen view, which is a navigation model rather than a layout. A real Back is the honest version of this.
-
-## Verification
-
-| ID | Mark | Evidence |
-|:---|:---|:---|
-| litespec/frontend/patterns/page-frames#name-the-page-in-one-heading | guidance | Which built screen splits its title across headings or omits it? Open every built page and read its top-level heading. |
-| litespec/frontend/patterns/page-frames#show-one-primary-action-in-a-page-frame | guidance | Which built frame carries two primary actions outside rows and overlays? Open every built page frame and count the primary actions. |
-| litespec/frontend/patterns/page-frames#home-page | guidance | Which built start screen breaks from the wireframe its catalog entry chose? Open the built queues, tiles, and next actions beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/page-frames#list-page | guidance | Which built collection screen breaks from the wireframe its catalog entry chose? Open the built searches, views, and play modes beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/page-frames#queue | guidance | Which built batch-selection screen breaks from the wireframe its catalog entry chose? Open the built select-all banners and play modes beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/page-frames#record-page | guidance | Which built single-record screen breaks from the wireframe its catalog entry chose? Open the built summaries, tabs, and asides beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/page-frames#form-page | guidance | Which built input screen breaks from the wireframe its catalog entry chose? Open the built sections, steppers, and save bars beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/page-frames#report-page | guidance | Which built figures screen breaks from the wireframe its catalog entry chose? Open the built period pickers and breakdown tabs beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/page-frames#settings-home | guidance | Which built setup index breaks from the wireframe its catalog entry chose? Open the built grouped links, cards, and checklists beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/page-frames#editor-page | guidance | Which built preview screen breaks from the wireframe its catalog entry chose? Open the built form-plus-preview splits and device frames beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/page-frames#outcome-page | guidance | Which built result screen breaks from the wireframe its catalog entry chose? Open the built statements, references, and refusal outcomes beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/page-frames#live-operations-page | guidance | Which built wall display breaks from the wireframe its catalog entry chose? Open the built counts, docks, and exception views beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/page-frames#calendar-or-schedule-page | guidance | Which built date view breaks from the wireframe its catalog entry chose? Open the built month grids, agendas, and week lanes beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/page-frames#onboarding-or-setup-page | guidance | Which built first-run guide breaks from the wireframe its catalog entry chose? Open the built checklists, wizards, and templates beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/page-frames#error-or-not-found-page | guidance | Which built dead end breaks from the wireframe its catalog entry chose? Open the built not-found, outage, and refused views beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/page-frames#record-drawer | guidance | Which built side record breaks from the wireframe its catalog entry chose? Open the built read-only, edit, and timeline drawers beside the catalog entry recording the chosen option and its reason. |

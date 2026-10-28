@@ -8,31 +8,49 @@ The Android stack is the technology binding for a product that ships a native An
 
 ### Build with .NET for Android
 
+**ID:** `litespec/frontend/mobile/android/stack#build-with-net-for-android`
+
 **Statement:** A consumer selecting this stack MUST build the Android app as a `net{dotnet}-android` project with .NET for Android at the .NET version and Android API level `litespec.manifest.json` pins (`stack.dotnet`, `stack.android`), using plain Android views with no .NET MAUI or Xamarin.Forms product screen.
 
 **Rationale:** One target framework keeps every Android build on the same runtime and API surface, so a screen written against one API level behaves the same on every build machine. Pinning both versions in the manifest makes the toolchain a reviewed number instead of a local install detail. Plain Android views keep the app on the platform toolkit the views page governs, while a MAUI or Forms layer would add a second UI framework with its own rules.
 
+**Reviewed for:** The Android project targets `net{dotnet}-android` at the manifest pins with plain Android views and no MAUI or Forms screen.
+
 ### Keep Android Outside the UI Contract
+
+**ID:** `litespec/frontend/mobile/android/stack#keep-android-outside-the-ui-contract`
 
 **Statement:** A consumer selecting this stack MUST NOT apply the controlled UI contract.
 
 **Rationale:** The controlled UI contract's route checks read TypeScript sources, so they cannot read an Android view written in C#. Applying them to this stack would fail every check for lack of readable input, as `litespec/frontend/blazor/stack#keep-blazor-outside-the-ui-contract` states for blazor. The mobile and Android pages state the styling, accessibility, and state rules that apply instead, so nothing is left ungoverned.
 
+**Reviewed for:** The consumer's stack selection and CI jobs apply no UI contract page or route check.
+
 ### Record the Minimum Android Version
+
+**ID:** `litespec/frontend/mobile/android/stack#record-the-minimum-android-version`
 
 **Statement:** The app project MUST set `SupportedOSPlatformVersion` with a project decision recording why that floor was chosen.
 
 **Rationale:** The floor decides which devices install the app and which platform APIs the code reaches without a guard. An unrecorded floor drifts with each toolchain update, silently dropping devices or blocking APIs. A decision naming the reason lets a later reader move the floor deliberately instead of guessing what it protected.
 
+**Reviewed for:** The app project sets `SupportedOSPlatformVersion` with a decision recording why that floor was chosen.
+
 ### Pin Every Android Binding Package
+
+**ID:** `litespec/frontend/mobile/android/stack#pin-every-android-binding-package`
 
 **Statement:** An AndroidX or Google binding package MUST be pinned in `litespec.manifest.json` and approved before use, as `litespec/workspace/dependencies#approve-new-packages-explicitly` requires.
 
 **Rationale:** Binding packages track platform releases closely, so an unpinned binding moves the app to untested platform behavior on the next restore. Pinning the version in the manifest makes each binding a reviewed number with a fixed API surface. Approval before use records the use case, the owning layer, and the removal condition, so an unused binding leaves the tree.
 
+**Reviewed for:** Each AndroidX or Google binding resolves to a manifest pin with an approval decision.
+
 ## Conventions
 
 ### Verify with the .NET Toolchain
+
+**ID:** `litespec/frontend/mobile/android/stack#verify-with-the-net-toolchain`
 
 **Default:** Build and publish the Android app through `dotnet` rather than Gradle or Android Studio, with publish producing an AAB.
 
@@ -47,7 +65,11 @@ dotnet build apps/mobile/{ProjectName}.Mobile.slnx
 dotnet publish apps/mobile/src/{ProjectName}.Android -c Release
 ```
 
+**Reviewed for:** The CI mobile job runs `dotnet build` and `dotnet publish` with no Gradle or Android Studio step.
+
 ### Record a Package Size Budget
+
+**ID:** `litespec/frontend/mobile/android/stack#record-a-package-size-budget`
 
 **Default:** Record the published AAB size as a limit entry in `docs/behavior/operations/limits.md`.
 
@@ -55,7 +77,11 @@ dotnet publish apps/mobile/src/{ProjectName}.Android -c Release
 
 **Rationale:** An install payload is the slowest moment of adoption, so its size deserves a reviewed number instead of a surprise. A recorded budget on the published AAB size makes growth visible before the store listing carries it. Untracked sizes grow with each asset until installs stall on slow networks.
 
+**Reviewed for:** A limit entry in `docs/behavior/operations/limits.md` records the AAB size budget the publish job enforces.
+
 ### Store Streamed Media Uncompressed
+
+**ID:** `litespec/frontend/mobile/android/stack#store-streamed-media-uncompressed`
 
 **Default:** List media the app plays from assets through `AssetManager.OpenFd` in `AndroidStoreUncompressedFileExtensions`.
 
@@ -63,14 +89,4 @@ dotnet publish apps/mobile/src/{ProjectName}.Android -c Release
 
 **Rationale:** `AssetManager.OpenFd` maps a file descriptor onto the asset, which works only when the package stores the file uncompressed. A compressed asset forces the player onto a slower path or fails the open, with the failure surfacing on a device rather than at build time. Listing each streamed extension keeps the packaging choice beside the playback code that depends on it.
 
-## Verification
-
-| ID | Mark | Evidence |
-|:---|:---|:---|
-| litespec/frontend/mobile/android/stack#build-with-net-for-android | guidance | The Android project targets `net{dotnet}-android` at the manifest pins with plain Android views and no MAUI or Forms screen. |
-| litespec/frontend/mobile/android/stack#keep-android-outside-the-ui-contract | guidance | The consumer's stack selection and CI jobs apply no UI contract page or route check. |
-| litespec/frontend/mobile/android/stack#record-the-minimum-android-version | guidance | The app project sets `SupportedOSPlatformVersion` with a decision recording why that floor was chosen. |
-| litespec/frontend/mobile/android/stack#pin-every-android-binding-package | guidance | Each AndroidX or Google binding resolves to a manifest pin with an approval decision. |
-| litespec/frontend/mobile/android/stack#verify-with-the-net-toolchain | guidance | The CI mobile job runs `dotnet build` and `dotnet publish` with no Gradle or Android Studio step. |
-| litespec/frontend/mobile/android/stack#record-a-package-size-budget | guidance | A limit entry in `docs/behavior/operations/limits.md` records the AAB size budget the publish job enforces. |
-| litespec/frontend/mobile/android/stack#store-streamed-media-uncompressed | guidance | Each media extension the app streams through `AssetManager.OpenFd` appears in `AndroidStoreUncompressedFileExtensions`. |
+**Reviewed for:** Each media extension the app streams through `AssetManager.OpenFd` appears in `AndroidStoreUncompressedFileExtensions`.

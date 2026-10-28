@@ -18,19 +18,29 @@ The drawings on this page use the Acme Supply orders list: 268 orders across man
 
 ### Keep a List's View in Its Address
 
+**ID:** `litespec/frontend/patterns/lists-and-tables#keep-a-lists-view-in-its-address`
+
 **Statement:** A list MUST keep its filters, sort order, and page in the URL.
 
 **Rationale:** A view kept in the address survives the back button, a refresh, and a pasted link, so all three return to the same rows. Without it, opening one record loses the filters the reader set, and a link sent to a colleague opens the unfiltered first page instead of the rows under discussion.
 
+**Reviewed for:** Which built list loses its filters, sort, or page on refresh? Open built lists, change the view, and reload the address.
+
 ### Align Money to the Right with Its Currency
+
+**ID:** `litespec/frontend/patterns/lists-and-tables#align-money-to-the-right-with-its-currency`
 
 **Statement:** A table MUST right-align a money column and show the currency of every amount in it.
 
 **Rationale:** Right alignment lines up place value down the column, so a reader compares hundreds against thousands without reading each figure digit by digit. A currency on every amount keeps EUR 125.00 distinct from a bare 125.00, so an export or a screenshot never leaves finance guessing which money it shows.
 
+**Reviewed for:** Which built money column centers its figures or hides a currency? Open the money columns on built tables.
+
 ## Patterns
 
 ### Choosing the Columns
+
+**ID:** `litespec/frontend/patterns/lists-and-tables#choosing-the-columns`
 
 **Question:** Which columns does the orders table show. The reader picks rows by order, customer, date, state, and money. The delivery name sits under the order code as a second line.
 
@@ -41,6 +51,8 @@ The drawings on this page use the Acme Supply orders list: 268 orders across man
 **Rationale:** Keep the default five columns. They answer which order, who, when, what state, and how much. The runner-up is the Columns popover. Add it once more than one team asks for a sixth fact such as method or channel.
 
 Saved views are the later answer, when finance and the warehouse want different tables. Never ship the question-shaped headers. They cost width and read as a form.
+
+**Reviewed for:** Which built column set breaks from the wireframe its catalog entry chose? Open the built choosers and saved views beside the catalog entry recording the chosen option and its reason.
 
 #### `five-columns-nothing-removable`: Five Columns, Nothing Removable
 
@@ -288,6 +300,8 @@ page
 
 ### Sorting
 
+**ID:** `litespec/frontend/patterns/lists-and-tables#sorting`
+
 **Question:** How does a reader reorder the orders table. The table starts newest first. Each sortable header offers its own order, and the sort lives in the URL so a link carries it.
 
 **Default:** `every-sortable-header-carries-an-arrow`
@@ -297,6 +311,8 @@ page
 **Rationale:** Give every sortable header its own arrow. The arrow states that headers sort on touch screens too. The runner-up is headers on a desktop with a Sort control on the phone list. It becomes necessary the moment the table turns into rows below 640 pixels.
 
 Never ship multi-column sort. No back-office question needs two keys.
+
+**Reviewed for:** Which built sort control breaks from the wireframe its catalog entry chose? Open the built arrows, stacks, and phone sort controls beside the catalog entry recording the chosen option and its reason.
 
 #### `arrow-on-the-sorted-column-only`: Arrow on the Sorted Column Only
 
@@ -509,6 +525,8 @@ page
 
 ### Filters
 
+**ID:** `litespec/frontend/patterns/lists-and-tables#filters`
+
 **Question:** How does a reader narrow the orders table. Search alone answers one question. Each closed filter control shows how many values it applies, and several categories never share one dropdown.
 
 **Default:** `one-filter-per-category-visible`
@@ -518,6 +536,8 @@ page
 **Rationale:** Show one visible control per category. A reader sees what can narrow the table without opening anything, and each category keeps its own control. The runner-up is faceted buttons with counts. Prefer it once a category holds more than a few values and the reader needs the split before choosing.
 
 Never ship every category inside one dropdown. It hides the applied state and contradicts the stated rule.
+
+**Reviewed for:** Which built filter control breaks from the wireframe its catalog entry chose? Open the built chips, panels, and facet buttons beside the catalog entry recording the chosen option and its reason.
 
 #### `one-filter-per-category-visible`: One Filter per Category, Visible
 
@@ -785,6 +805,8 @@ page
 
 ### Row Density
 
+**ID:** `litespec/frontend/patterns/lists-and-tables#row-density`
+
 **Question:** How tall is a row in the orders table. Carbon defines five heights from 24 to 64 pixels, and the header, toolbar, and pagination match the row size. The default table runs near 47 pixels per row, between `md` and `lg`.
 
 **Default:** `40-pixels-the-default`
@@ -794,6 +816,8 @@ page
 **Rationale:** Keep 40 pixels. Two lines fit, the row scans, and it matches the default size. The runner-up is 32 pixels, for a working queue where every row is read once and acted on.
 
 Never ship a density control the reader sets. Most readers set it once, and a screenshot suite then holds three versions of every page. The phone answer is a record list.
+
+**Reviewed for:** Which built row height breaks from the wireframe its catalog entry chose? Open the built 24, 32, 40, and 48 pixel rows beside the catalog entry recording the chosen option and its reason.
 
 #### `40-pixels-the-default`: 40 Pixels, the Default
 
@@ -1003,6 +1027,8 @@ page
 
 ### Bulk Action Bar
 
+**ID:** `litespec/frontend/patterns/lists-and-tables#bulk-action-bar`
+
 **Question:** What appears once order rows are selected. The bar names the count and the money, then offers the commands. A refund on the wrong scope is the expensive mistake this pattern guards against.
 
 **Default:** `a-bar-above-the-table-naming-the-count`
@@ -1012,6 +1038,8 @@ page
 **Rationale:** Keep a bar above the table naming the count and the money. On a refunds page the total is the thing a reader checks before acting. The runner-up is a floating pill, for reversible bulk work such as resending confirmations or tagging, where the bar leaves the table in place.
 
 Never ship the bar at the foot. On a long table the action sits off screen while the checkboxes that enabled it do not.
+
+**Reviewed for:** Which built selection bar breaks from the wireframe its catalog entry chose? Open the built count bars, pills, and dropdowns beside the catalog entry recording the chosen option and its reason.
 
 #### `a-bar-above-the-table-naming-the-count`: A Bar Above the Table Naming the Count
 
@@ -1244,6 +1272,8 @@ page
 
 ### Pagination
 
+**ID:** `litespec/frontend/patterns/lists-and-tables#pagination`
+
 **Question:** How does a reader move through 268 orders. The range and two chevrons move one page at a time. Numbered pages add a jump, and the count still says where the reader is.
 
 **Default:** `count-left-numbered-pages-right`
@@ -1253,6 +1283,8 @@ page
 **Rationale:** Keep the count with numbered pages. The reader can jump, and the range still says where they are. The runner-up is the compact pager, where width is tight and nobody jumps further than one page at a time.
 
 Never ship the jump field. Typing a page number then Enter is slower than clicking for almost every reader.
+
+**Reviewed for:** Which built page control breaks from the wireframe its catalog entry chose? Open the built chevrons, load-more buttons, and compact pagers beside the catalog entry recording the chosen option and its reason.
 
 #### `count-left-numbered-pages-right`: Count Left, Numbered Pages Right
 
@@ -1456,6 +1488,8 @@ page
 
 ### Row Actions
 
+**ID:** `litespec/frontend/patterns/lists-and-tables#row-actions`
+
 **Question:** The orders table shows rows of orders. Each row may carry its own commands. How many commands sit on the row, and where do the rest live.
 
 **Default:** `one-inline-action-the-rest-in-a-row-menu`
@@ -1463,6 +1497,8 @@ page
 **Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
 
 **Rationale:** Keep one inline command with the rest in the row menu. The common job stays one click away and the row stays narrow. Prefer the side preview where acting needs the record context, such as the lines before a resend. Never ship hover-revealed actions. Hover fails on touch, and a second focusable render doubles the table for no gain.
+
+**Reviewed for:** Which built row command breaks from the wireframe its catalog entry chose? Open the built inline actions and row menus beside the catalog entry recording the chosen option and its reason.
 
 #### `one-inline-action-the-rest-in-a-row-menu`: One Inline Action, the Rest in a Row Menu
 
@@ -1646,6 +1682,8 @@ page
 
 ### Table's Own States
 
+**ID:** `litespec/frontend/patterns/lists-and-tables#tables-own-states`
+
 **Question:** The orders table is sometimes empty, still loading, or failed to load. Each case needs its own words and layout. What shows for each state of the table itself.
 
 **Default:** `no-data-yet-table-replaced`
@@ -1653,6 +1691,8 @@ page
 **Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
 
 **Rationale:** Keep three sentences for three facts. No data yet, no results, and loading each replace the table they stand for. Prefer the slow-read note that names what is loading when the list takes seconds. Never ship a bare spinner over the table body. Rows that shift when the data lands move the row the reader already chose.
+
+**Reviewed for:** Which built table state breaks from the wireframe its catalog entry chose? Open the built no-data, failed-read, and slow-read states beside the catalog entry recording the chosen option and its reason.
 
 #### `no-data-yet-table-replaced`: No Data yet, Table Replaced
 
@@ -1828,6 +1868,8 @@ page
 
 ### Status in a Column
 
+**ID:** `litespec/frontend/patterns/lists-and-tables#status-in-a-column`
+
 **Question:** Each order row carries a state such as Paid or Disputed. Some states need a decision and some need none. How does the State column tell them apart.
 
 **Default:** `tone-only-on-the-states-that-block`
@@ -1835,6 +1877,8 @@ page
 **Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
 
 **Rationale:** Give a tone only to the states that block. Disputed and Awaiting payment take a badge because somebody must act. Paid and Completed stay plain words. Prefer the reason on a second line for a disputes queue where the word alone never answers why. Never ship progress marks. Four blocks per row on a 268-row list cannot serve a lifecycle that branches.
+
+**Reviewed for:** Which built state badge breaks from the wireframe its catalog entry chose? Open the built tones, dots, and progress steps beside the catalog entry recording the chosen option and its reason.
 
 #### `a-badge-for-every-state`: A Badge for Every State
 
@@ -2002,6 +2046,8 @@ page
 
 ### Money Column
 
+**ID:** `litespec/frontend/patterns/lists-and-tables#money-column`
+
 **Question:** Each order row shows what the customer paid. The column header names the currency. What does the money cell say beyond the number.
 
 **Default:** `number-only-right-aligned`
@@ -2009,6 +2055,8 @@ page
 **Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
 
 **Rationale:** Keep the number only. The header names the currency and repeating EUR on every row is noise. Prefer the refunded part under the charged amount where refunds are the work rather than the exception. Never ship money as a share of the total. A derived percentage column answers a question no orders list is asked.
+
+**Reviewed for:** Which built amount column breaks from the wireframe its catalog entry chose? Open the built aligned figures, shares, and totals footers beside the catalog entry recording the chosen option and its reason.
 
 #### `number-only-right-aligned`: Number Only, Right-Aligned
 
@@ -2181,6 +2229,8 @@ page
 
 ### Exporting the List
 
+**ID:** `litespec/frontend/patterns/lists-and-tables#exporting-the-list`
+
 **Question:** A reader takes the orders list elsewhere. Download serves one spreadsheet now. Print serves a paper sheet. A schedule serves a repeated question. Which export does the list offer.
 
 **Default:** `one-export-button-that-downloads-csv`
@@ -2188,6 +2238,8 @@ page
 **Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
 
 **Rationale:** Keep one Export button that downloads the filtered rows as CSV. The accountant job costs one click and no decisions. Prefer a background export past a few thousand rows where a download would time out. Never ship copy as the only export. Copying the visible page silently drops every row past the pager.
+
+**Reviewed for:** Which built download flow breaks from the wireframe its catalog entry chose? Open the built CSV buttons, dialogs, and histories beside the catalog entry recording the chosen option and its reason.
 
 #### `one-export-button-that-downloads-csv`: One Export Button That Downloads CSV
 
@@ -2370,6 +2422,8 @@ page
 
 ### Searching with Highlighted Matches
 
+**ID:** `litespec/frontend/patterns/lists-and-tables#searching-with-highlighted-matches`
+
 **Question:** A search box filters the orders table. A match on an email looks the same as a match on a name. How does the list show why each row matched.
 
 **Default:** `matches-highlighted-in-the-cells`
@@ -2377,6 +2431,8 @@ page
 **Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
 
 **Rationale:** Highlight the matches in the cells. The reader sees why each row matched without opening it. Prefer a scope control once readers search across deliveries and must say which one. Never ship a match column on its own. It spends a column stating what the highlight already shows.
+
+**Reviewed for:** Which built list search breaks from the wireframe its catalog entry chose? Open the built highlighted cells and match columns beside the catalog entry recording the chosen option and its reason.
 
 #### `matches-highlighted-in-the-cells`: Matches Highlighted in the Cells
 
@@ -2515,6 +2571,8 @@ page
 
 ### Grouped Rows
 
+**ID:** `litespec/frontend/patterns/lists-and-tables#grouped-rows`
+
 **Question:** Some questions are asked per group, not per row: what did today take, what does each delivery hold. A flat table answers them only after an export, while a group header with its own subtotal answers them on the page.
 
 **Default:** `grouped-by-day-with-subtotals`
@@ -2522,6 +2580,8 @@ page
 **Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
 
 **Rationale:** Keep grouped by day with subtotals. It answers what today took without a chart and without leaving the list. The runner-up is grouped by delivery with collapse toggles. Prefer it once deliveries grow so one day of rows stops fitting. Never ship two group levels: month-then-day nesting turns the list into a tree that paging cannot cross.
+
+**Reviewed for:** Which built group header breaks from the wireframe its catalog entry chose? Open the built day, delivery, and state groups beside the catalog entry recording the chosen option and its reason.
 
 #### `grouped-by-day-with-subtotals`: Grouped by Day with Subtotals
 
@@ -2689,6 +2749,8 @@ page
 
 ### Inline Row Expansion
 
+**ID:** `litespec/frontend/patterns/lists-and-tables#inline-row-expansion`
+
 **Question:** Some rows hold a second level: an order holds its lines, its units, its history. Opening the record for each one costs a page load per row. An expansion row under the row itself answers the question where it was asked.
 
 **Default:** `expand-to-the-order-lines`
@@ -2696,6 +2758,8 @@ page
 **Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
 
 **Rationale:** Keep expansion to the order lines. It answers what the customer bought, which is the question asked from the list. The runner-up is expansion to units with pickup state. Prefer it on the pickup list where handover is the work. Never ship expand-all: twenty expanded rows is a page nobody can scan, and one click fires a read per row.
+
+**Reviewed for:** Which built expandable row breaks from the wireframe its catalog entry chose? Open the built order lines, timelines, and expand-all controls beside the catalog entry recording the chosen option and its reason.
 
 #### `expand-to-the-order-lines`: Expand to the Order Lines
 
@@ -2838,6 +2902,8 @@ page
 
 ### Pinned and Resizing Columns
 
+**ID:** `litespec/frontend/patterns/lists-and-tables#pinned-and-resizing-columns`
+
 **Question:** A wide table scrolls, and a scrolling table loses its bearings. The order code leaves as the money arrives. Pinning the identity column keeps the row named, and resizing lets the reader spend width where their own data needs it.
 
 **Default:** `the-order-column-pinned-while-the-rest-scroll`
@@ -2845,6 +2911,8 @@ page
 **Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
 
 **Rationale:** Keep the order column pinned while the rest scroll. The row stays named at any scroll position, and it costs no control. The runner-up pins the actions too. Prefer it once rows carry inline commands that must stay reachable. Never ship draggable widths in a first release: per-user widths are stored state that support cannot see and screenshots cannot hold.
+
+**Reviewed for:** Which built fixed column breaks from the wireframe its catalog entry chose? Open the built frozen first columns and resize handles beside the catalog entry recording the chosen option and its reason.
 
 #### `the-order-column-pinned-while-the-rest-scroll`: The Order Column Pinned While the Rest Scroll
 
@@ -2973,6 +3041,8 @@ page
 
 ### Deliveries as a Grid
 
+**ID:** `litespec/frontend/patterns/lists-and-tables#deliveries-as-a-grid`
+
 **Question:** Deliveries are few and dated: the company runs a handful a week and asks how each one is doing. A table answers with rows of numbers, while a card answers with the run itself: its date, its warehouse, and how full it is.
 
 **Default:** `delivery-cards-with-a-load-bar`
@@ -2980,6 +3050,8 @@ page
 **Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
 
 **Rationale:** Keep delivery cards with a load bar. Four deliveries read better as four cards than as four rows. The bar answers the only question the list exists for. The runner-up is a date-led list. Prefer it once the year holds dozens of runs and cards stop fitting. Never ship the month calendar: it answers when, which the deliveries list is never asked.
+
+**Reviewed for:** Which built delivery overview breaks from the wireframe its catalog entry chose? Open the built cards, calendars, and table-grid toggles beside the catalog entry recording the chosen option and its reason.
 
 #### `delivery-cards-with-a-load-bar`: Delivery Cards with a Load Bar
 
@@ -3124,6 +3196,8 @@ page
 
 ### List on a Phone
 
+**ID:** `litespec/frontend/patterns/lists-and-tables#list-on-a-phone`
+
 **Question:** At 390 pixels the five-column table cannot survive: the columns either crush or scroll. Every option here answers the same question, what the orders list becomes on a phone. Each one keeps a different capability: reading, sorting, acting, or comparing.
 
 **Default:** `two-line-rows-with-money-right`
@@ -3131,6 +3205,8 @@ page
 **Compact:** Below 640 pixels the table becomes two-line rows with the amount right. Sorting moves to a Sort control. The compact option is `two-line-rows-with-money-right`.
 
 **Rationale:** Keep two-line rows with money right. The rows read well at 390 pixels and keep the order code, the customer, and the amount. They pair with a Sort control where sorting matters. The runner-up is a scroll container with a sticky first column. Prefer it for the rare phone task that needs every column. Never ship a phone list that hides behind search: a list that starts empty teaches the reader there is nothing to see.
+
+**Reviewed for:** Which built narrow list breaks from the wireframe its catalog entry chose? Open the built two-line rows, cards, and sticky columns at 390 pixels beside the catalog entry recording the chosen option and its reason.
 
 #### `two-line-rows-with-money-right`: Two-Line Rows with Money Right
 
@@ -3263,27 +3339,3 @@ page
 **Cost:** One line per order holds the customer or the code, never both with the money. The row identifies enough to be opened, nothing more.
 
 **Reference:** Gmail
-
-## Verification
-
-| ID | Mark | Evidence |
-|:---|:---|:---|
-| litespec/frontend/patterns/lists-and-tables#keep-a-lists-view-in-its-address | guidance | Which built list loses its filters, sort, or page on refresh? Open built lists, change the view, and reload the address. |
-| litespec/frontend/patterns/lists-and-tables#align-money-to-the-right-with-its-currency | guidance | Which built money column centers its figures or hides a currency? Open the money columns on built tables. |
-| litespec/frontend/patterns/lists-and-tables#choosing-the-columns | guidance | Which built column set breaks from the wireframe its catalog entry chose? Open the built choosers and saved views beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/lists-and-tables#sorting | guidance | Which built sort control breaks from the wireframe its catalog entry chose? Open the built arrows, stacks, and phone sort controls beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/lists-and-tables#filters | guidance | Which built filter control breaks from the wireframe its catalog entry chose? Open the built chips, panels, and facet buttons beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/lists-and-tables#row-density | guidance | Which built row height breaks from the wireframe its catalog entry chose? Open the built 24, 32, 40, and 48 pixel rows beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/lists-and-tables#bulk-action-bar | guidance | Which built selection bar breaks from the wireframe its catalog entry chose? Open the built count bars, pills, and dropdowns beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/lists-and-tables#pagination | guidance | Which built page control breaks from the wireframe its catalog entry chose? Open the built chevrons, load-more buttons, and compact pagers beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/lists-and-tables#row-actions | guidance | Which built row command breaks from the wireframe its catalog entry chose? Open the built inline actions and row menus beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/lists-and-tables#tables-own-states | guidance | Which built table state breaks from the wireframe its catalog entry chose? Open the built no-data, failed-read, and slow-read states beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/lists-and-tables#status-in-a-column | guidance | Which built state badge breaks from the wireframe its catalog entry chose? Open the built tones, dots, and progress steps beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/lists-and-tables#money-column | guidance | Which built amount column breaks from the wireframe its catalog entry chose? Open the built aligned figures, shares, and totals footers beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/lists-and-tables#exporting-the-list | guidance | Which built download flow breaks from the wireframe its catalog entry chose? Open the built CSV buttons, dialogs, and histories beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/lists-and-tables#searching-with-highlighted-matches | guidance | Which built list search breaks from the wireframe its catalog entry chose? Open the built highlighted cells and match columns beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/lists-and-tables#grouped-rows | guidance | Which built group header breaks from the wireframe its catalog entry chose? Open the built day, delivery, and state groups beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/lists-and-tables#inline-row-expansion | guidance | Which built expandable row breaks from the wireframe its catalog entry chose? Open the built order lines, timelines, and expand-all controls beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/lists-and-tables#pinned-and-resizing-columns | guidance | Which built fixed column breaks from the wireframe its catalog entry chose? Open the built frozen first columns and resize handles beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/lists-and-tables#deliveries-as-a-grid | guidance | Which built delivery overview breaks from the wireframe its catalog entry chose? Open the built cards, calendars, and table-grid toggles beside the catalog entry recording the chosen option and its reason. |
-| litespec/frontend/patterns/lists-and-tables#list-on-a-phone | guidance | Which built narrow list breaks from the wireframe its catalog entry chose? Open the built two-line rows, cards, and sticky columns at 390 pixels beside the catalog entry recording the chosen option and its reason. |
