@@ -6,7 +6,7 @@ Use this generated page to resolve a provision ID to its heading, owning page, a
 
 Run `litespec provisions` after any provision change. The repository validator fails when this page and the active standards disagree.
 
-The active release states 1660 provisions across 6 areas.
+The active release states 1661 provisions across 6 areas.
 
 ## backend
 
@@ -611,6 +611,7 @@ The active release states 1660 provisions across 6 areas.
 | litespec/core/principles#retire-public-behavior-deliberately | [Retire Public Behavior Deliberately](../core/principles.md#retire-public-behavior-deliberately) | rule | checkable | `litespec consumer` fails a retired use case that still names an entry point. |
 | litespec/core/principles#separate-authority-from-implementation | [Separate Authority from Implementation](../core/principles.md#separate-authority-from-implementation) | rule | checkable | `litespec consumer` fails a record that writes its own implemented, verified, stale, reachable, or effective status. |
 | litespec/core/principles#state-transaction-sharing-on-every-inline-edge | [State Transaction Sharing on Every Inline Edge](../core/principles.md#state-transaction-sharing-on-every-inline-edge) | rule | checkable | `litespec model check` reports no `record-shape` finding on the changed inline edges. |
+| litespec/core/principles#take-every-name-from-the-intent-above-it | [Take Every Name from the Intent Above It](../core/principles.md#take-every-name-from-the-intent-above-it) | rule | guidance | Which act carries a different name in its use case, method, event, permission, route or screen label than the record above it states? Compare the names of one act across its record, its handler, its endpoint and its screen. |
 | litespec/core/principles#treat-code-beyond-silent-intent-as-evidence-for-a-question | [Treat Code Beyond Silent Intent as Evidence for a Question](../core/principles.md#treat-code-beyond-silent-intent-as-evidence-for-a-question) | rule | guidance | Which working code outside Intent lacks a question carrying it? Look at the open questions beside the uncovered code. |
 | litespec/core/principles#write-each-layer-from-the-layer-above | [Write Each Layer from the Layer Above](../core/principles.md#write-each-layer-from-the-layer-above) | rule | checkable | `litespec model check` reports no `record-orphaned` finding on the changed records. |
 | litespec/core/release#advise-without-gating-as-an-agent | [Advise Without Gating as an Agent](../core/release.md#advise-without-gating-as-an-agent) | rule | guidance | Which releases show an agent as the gating reviewer? Look at the recorded reviewers beside each approval. |

@@ -64,6 +64,18 @@ Boundaries are where components meet and where future readers orient themselves.
 
 **Checked by:** `litespec model check` reports no `record-orphaned` finding on the changed records.
 
+### Take Every Name from the Intent Above It
+
+**ID:** `litespec/core/principles#take-every-name-from-the-intent-above-it`
+
+**Statement:** Every layer below a record MUST carry the name that record gives an act, a name chosen for what the act does in the business.
+
+**Rationale:** A name is a claim about what happens. The right name comes from asking what the act really does, including how it can end, and the record that states the act decides it; the use case, the aggregate method, the event, the permission, the route and the screen label then repeat it. A check that reports two names for one act reports drift, not the answer: the fix brings every layer to the name the intent states, and the intent changes first when its own word is wrong. A rename made only to quiet a check, or a name kept in one layer while the others move, leaves one act with two names.
+
+**Example:** In the Claimwick product, finance staff send an approved expense's payout to the bank, and the bank can refuse it when the company account cannot cover it. The act is a submission, not a payment: the use case is `submit-payout`, the method `SubmitPayout`, the event `PayoutSubmitted`, the permission `submit-payout`, and the screen's button reads "Submit payout". A later command records whether the bank paid or refused.
+
+**Reviewed for:** Which act carries a different name in its use case, method, event, permission, route or screen label than the record above it states? Compare the names of one act across its record, its handler, its endpoint and its screen.
+
 ### Compute Nothing Above Implementation from Code
 
 **ID:** `litespec/core/principles#compute-nothing-above-implementation-from-code`
