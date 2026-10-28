@@ -391,6 +391,29 @@ static partial class StandardsValidator
                 add(relative, sections[index].Line, "GLOSSARY_DEFINITION", $"term '{sections[index].Name}' must start with one definition sentence");
             }
         }
+
+        for (var index = 0; index < sections.Count; index++)
+        {
+            var start = sections[index].Line;
+            var end = index + 1 < sections.Count ? sections[index + 1].Line - 1 : lines.Length;
+            var group = new List<string>();
+            for (var cursor = start; cursor < end; cursor++)
+            {
+                var heading = H3Pattern().Match(lines[cursor]);
+                if (heading.Success)
+                {
+                    group.Add(heading.Groups[1].Value.Trim());
+                }
+            }
+
+            var ordered = group
+                .OrderBy(term => term, StringComparer.Create(CultureInfo.GetCultureInfo("en"), CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace))
+                .ToList();
+            if (group.Where((term, position) => term != ordered[position]).Any())
+            {
+                add(relative, sections[index].Line, "GLOSSARY_ORDER", $"glossary terms under '{sections[index].Name}' are not alphabetical");
+            }
+        }
     }
 
     static ParsedBlocks ParsePage(string relative, string raw, Action<string, int, string, string> add, Dictionary<string, string> globalIds, string root, bool @virtual = false)

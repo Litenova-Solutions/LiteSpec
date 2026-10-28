@@ -69,6 +69,11 @@ public sealed partial class StandardsValidatorTests
         root => StandardsFixture.Write(root, "docs/reference/glossary.md", "# Glossary\n\n## Topic\n\nA bounded standards subject. It has another definition sentence.\n"),
         ["GLOSSARY_DEFINITION"]);
 
+    [Fact(DisplayName = "glossary term order")]
+    public void GlossaryTermOrder() => Check(
+        root => StandardsFixture.Write(root, "docs/reference/glossary.md", "# Glossary\n\n## Topic\n\nThe sample group.\n\n### Zeta\n\nThe last sample term.\n\n### Alpha\n\nThe first sample term.\n"),
+        ["GLOSSARY_ORDER"]);
+
     [Fact(DisplayName = "non-action heading")]
     public void NonActionHeading() => Check(
         root =>

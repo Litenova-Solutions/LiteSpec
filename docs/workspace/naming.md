@@ -12,7 +12,35 @@ An aggregate root is the single type through which outside code changes an aggre
 
 ### Role Suffixes
 
-Each architectural role carries a fixed suffix: a command handler ends in `CommandHandler`, a result part carries its result name, an endpoint in `Endpoint`. The suffix table in the standards below lists every role with its pattern and one example. Full suffixes keep coordination apart from projection and boundary data apart from business objects.
+Each architectural role carries a fixed suffix: a command handler ends in `CommandHandler`, a result part carries its result name, an endpoint in `Endpoint`. The Role Suffixes table below lists every role with its pattern and one example. Full suffixes keep coordination apart from projection and boundary data apart from business objects.
+
+| Role | Pattern | Example |
+|:---|:---|:---|
+| Command message | `{UseCase}Command` | `CreateDraftCommand` |
+| Command result | `{UseCase}CommandResult` | `CreateDraftCommandResult` |
+| Command handler | `{UseCase}CommandHandler` | `CreateDraftCommandHandler` |
+| Command validator | `{UseCase}CommandValidator` | `CreateDraftCommandValidator` |
+| Query message | `{UseCase}Query` | `GetPostQuery` |
+| Query result | `{UseCase}QueryResult` | `GetPostQueryResult` |
+| Query result part | `{UseCase}QueryResult{Part}` | `ListPostsQueryResultItem` |
+| Command result part | `{UseCase}CommandResult{Part}` | `SubmitExpenseCommandResultLine` |
+| Query handler | `{UseCase}QueryHandler` | `GetPostQueryHandler` |
+| Query validator | `{UseCase}QueryValidator` | `GetPostQueryValidator` |
+| Aggregate state base | `{Aggregate}State` | `PostState` |
+| Aggregate state case, flat | `{Aggregate}{State}State` | `PostPublishedState` |
+| Aggregate state case, nested | `{Aggregate}State.{State}` | `PostState.Published` |
+| Domain event | `{Aggregate}{PastFact}Event` | `PostPublishedEvent` |
+| Event handler | `{Action}On{Fact}Handler` | `NotifySubscribersOnPostPublishedHandler` |
+| Repository implementation | `{Aggregate}Repository` | `PostRepository` |
+| Endpoint | `{UseCase}Endpoint` | `CreateDraftEndpoint` |
+| HTTP request model | `{UseCase}RequestModel` | `CreateDraftRequestModel` |
+| HTTP response model | `{UseCase}ResponseModel` | `CreateDraftResponseModel` |
+| HTTP response item model | `{UseCase}ResponseItemModel` | `ListPostsResponseItemModel` |
+| HTTP pagination model | `PaginationModel` | `PaginationModel` |
+| Polymorphic transport model base | `{Concept}Model` | `FulfillmentOutcomeModel` |
+| Polymorphic transport model case | `{Case}{Concept}Model` | `ShippedFulfillmentOutcomeModel` |
+| Persistence configuration | `{PersistedType}Configuration` | `PostConfiguration` |
+| Registration class | `{Layer}ServiceRegistration` | `InfrastructureServiceRegistration` |
 
 ## Standards
 
@@ -32,55 +60,21 @@ Each architectural role carries a fixed suffix: a command handler ends in `Comma
 
 **ID:** `litespec/workspace/naming#use-architectural-suffixes`
 
-**Statement:** An architectural type MUST carry the suffix its role assigns in the table in this section.
+**Statement:** An architectural type MUST carry the suffix its role assigns in the Role Suffixes table.
 
 **Example:**
-
-| Role | Pattern | Example |
-|:---|:---|:---|
-| Command message | `{UseCase}Command` | `CreateDraftCommand` |
-| Command result | `{UseCase}CommandResult` | `CreateDraftCommandResult` |
-| Command handler | `{UseCase}CommandHandler` | `CreateDraftCommandHandler` |
-| Command validator | `{UseCase}CommandValidator` | `CreateDraftCommandValidator` |
-| Query message | `{UseCase}Query` | `GetPostQuery` |
-| Query result | `{UseCase}QueryResult` | `GetPostQueryResult` |
-| Query result part | `{UseCase}QueryResult{Part}` | `ListPostsQueryResultItem` |
-| Command result part | `{UseCase}CommandResult{Part}` | `SubmitExpenseCommandResultLine` |
-| Query handler | `{UseCase}QueryHandler` | `GetPostQueryHandler` |
-| Query validator | `{UseCase}QueryValidator` | `GetPostQueryValidator` |
-| Aggregate state base | `{Aggregate}State` | `PostState` |
-| Aggregate state case, flat | `{Aggregate}{State}State` | `PostPublishedState` |
-| Aggregate state case, nested | `{Aggregate}State.{State}` | `PostState.Published` |
-| Domain event | `{Aggregate}{PastFact}Event` | `PostPublishedEvent` |
-| Event handler | `{Action}On{Fact}Handler` | `NotifySubscribersOnPostPublishedHandler` |
-| Repository interface | `I{Aggregate}Repository` | `IPostRepository` |
-| Repository implementation | `{Aggregate}Repository` | `PostRepository` |
-| Endpoint | `{UseCase}Endpoint` | `CreateDraftEndpoint` |
-| HTTP request model | `{UseCase}RequestModel` | `CreateDraftRequestModel` |
-| HTTP response model | `{UseCase}ResponseModel` | `CreateDraftResponseModel` |
-| HTTP response item model | `{UseCase}ResponseItemModel` | `ListPostsResponseItemModel` |
-| HTTP pagination model | `PaginationModel` | `PaginationModel` |
-| Polymorphic transport model base | `{Concept}Model` | `FulfillmentOutcomeModel` |
-| Polymorphic transport model case | `{Case}{Concept}Model` | `ShippedFulfillmentOutcomeModel` |
-| API mapping class | `{UseCase}ApiMappings` | `CreateDraftApiMappings` |
-| Options class | `{ConfigurationPurpose}Options` | `EmailOptions` |
-| Persistence configuration | `{PersistedType}Configuration` | `PostConfiguration` |
-| Registration class | `{Layer}ServiceRegistration` | `InfrastructureServiceRegistration` |
-| Assembly marker | `{Layer}AssemblyMarker` | `ApplicationAssemblyMarker` |
-
-In the dotnet stack, the repository interface carries the `I` prefix, options classes carry the `Options` suffix, and each scanned project carries an assembly marker.
 
 An event handler folder starts with `On` and names the business fact without the `Event` suffix: `OnPostPublished` holds `NotifySubscribersOnPostPublishedHandler` for `PostPublishedEvent` (`litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle`). The `On` prefix already marks the handler, and folder names carry no technical suffix, so `OnPostPublishedEvent` is wrong. The event type keeps its `Event` suffix (`litespec/workspace/naming#anchor-aggregate-owned-types-on-the-aggregate-root`).
 
 Application types keep their full suffix: `{UseCase}Result`, `{UseCase}Handler`, and `{UseCase}Validator` shorten away the command-or-query distinction the full name carries. A result part carries the full name of its result, as `litespec/workspace/naming#name-result-parts-after-their-result` states, not a bare summary name like `PostSummary`. The full role suffix distinguishes command coordination from query projection without opening the file.
 
-HTTP transport types keep their full suffix too: `{UseCase}Request` and `{UseCase}Response` shorten away the boundary marking. `Model` marks the type as passive boundary data rather than an operation or rich business object. Other project-owned, passive HTTP DTOs also name their concrete role and end in `Model`, such as `ListPostsResponseItemModel` or `PaginationModel`. Mapping classes use `ApiMappings` instead of the context-dependent `Mappings` suffix.
+HTTP transport types keep their full suffix too: `{UseCase}Request` and `{UseCase}Response` shorten away the boundary marking. `Model` marks the type as passive boundary data rather than an operation or rich business object. Other project-owned, passive HTTP DTOs also name their concrete role and end in `Model`, such as `ListPostsResponseItemModel` or `PaginationModel`.
 
 A polymorphic transport model mirrors a Domain discriminated union (`litespec/backend/api#mirror-a-domain-closed-set-as-a-transport-model-of-the-same-shape`). Its abstract base names the concept and each sealed case names its case, with both ending in `Model`: `FulfillmentOutcomeModel` and `ShippedFulfillmentOutcomeModel`.
 
 The transport name drops the Domain union's aggregate prefix, such as `OrderFulfillmentOutcome`, while its discriminator string keeps the Domain union's stable case code unchanged.
 
-**Reviewed for:** Each type name in `apps/api/src` and each frontend file name carries the suffix its role assigns in the table; `dotnet build` reports a missing handler, endpoint, or reaction suffix as `LS2005`, `LS2006`, or `LS2007`.
+**Checked by:** `dotnet build` reports `LS2005` for a handler missing its command or query suffix and `LS2006` for an endpoint missing its suffix, in the dotnet stack; each other type name in `apps/api/src` and each frontend file name carries the suffix its role assigns in the Role Suffixes table.
 
 ### Name Result Parts After Their Result
 
@@ -88,11 +82,11 @@ The transport name drops the Domain union's aggregate prefix, such as `OrderFulf
 
 **Statement:** Each type nested in a use-case result MUST be named after the result it belongs to, as `{UseCase}QueryResult{Part}` or `{UseCase}CommandResult{Part}`.
 
-**Rationale:** A result part named for its own shape instead of its result collides with every other use case shaping the same thing: two summaries named `PostSummary` answer different queries with different fields. Leading with the full result name keeps each part beside the result it belongs to in every listing, and keeps command coordination apart from query projection without opening the file.
+**Rationale:** A result part named for its own shape instead of its result collides with every other use case shaping the same thing: two summaries named `PostSummary` answer different queries with different fields. Leading with the full result name keeps each part beside the result it belongs to in every listing, and keeps command coordination apart from query projection without opening the file. The .NET form of this rule is `litespec/backend/dotnet/naming#name-result-parts-after-their-result`.
 
 **Example:** `ListPostsQueryResultItem` belongs to `ListPostsQueryResult`, and `ReadLoanQueryResultHold` belongs to `ReadLoanQueryResult`.
 
-**Reviewed for:** Each type nested in a use-case result in `apps/api/src` leads with its result name; `dotnet build` reports a result part not named after its result as `LS2009`.
+**Reviewed for:** Each type nested in a use-case result in `apps/api/src` leads with its result name.
 
 ### Group Event Handlers by the Fact They Handle
 
@@ -100,11 +94,11 @@ The transport name drops the Domain union's aggregate prefix, such as `OrderFulf
 
 **Statement:** Each event handler MUST live in a folder named `On{Fact}`, the event name without its `Event` suffix, inside the aggregate folder of the subscriber, and be named `{Action}On{Fact}Handler`.
 
-**Rationale:** The folder answers "what happens when this fact is recorded?" with one listing: one folder holds every handler of that fact in that module. The subscriber is the module whose records the handler changes, or for a handler that changes nothing, the module that owns the fact. A folder named for the handler instead scatters one fact across as many folders as handlers.
+**Rationale:** The folder answers "what happens when this fact is recorded?" with one listing: one folder holds every handler of that fact in that module. The subscriber is the module whose records the handler changes, or for a handler that changes nothing, the module that owns the fact. A folder named for the handler instead scatters one fact across as many folders as handlers. The .NET form of this rule is `litespec/backend/dotnet/naming#group-event-handlers-by-the-fact-they-handle`.
 
 **Example:** `Loans/Loans/OnLoanBorrowed/SendDueNoticeOnLoanBorrowedHandler` sends the due notice when a loan is borrowed.
 
-**Reviewed for:** Each event handler in `apps/api/src` lives in its `On{Fact}` folder and carries `{Action}On{Fact}Handler`; `dotnet build` reports a handler outside its fact folder as `LS2008`.
+**Reviewed for:** Each event handler in `apps/api/src` lives in its `On{Fact}` folder and carries `{Action}On{Fact}Handler`.
 
 ### Name Repository Variables After Their Interface
 
@@ -112,11 +106,11 @@ The transport name drops the Domain union's aggregate prefix, such as `OrderFulf
 
 **Statement:** Each repository parameter, field or local MUST be named after its interface without the `I` prefix, ending in `Repository`.
 
-**Rationale:** A short plural name hides which aggregate the variable guards: `orders` could be a list, a query, or the repository, and each reader guesses. Naming the variable after its interface keeps one name per repository at every use site, so a reviewer reads the dependency from the name alone.
+**Rationale:** A short plural name hides which aggregate the variable guards: `orders` could be a list, a query, or the repository, and each reader guesses. Naming the variable after its interface keeps one name per repository at every use site, so a reviewer reads the dependency from the name alone. The .NET form of this rule is `litespec/backend/dotnet/naming#name-repository-variables-after-their-interface`.
 
 **Example:** A parameter of type `IExpenseRepository` is named `expenseRepository`, and a field of type `ILoanRepository` is named `loanRepository`.
 
-**Reviewed for:** Each repository parameter, field, and local in `apps/api/src` carries its interface name without the `I` prefix; `dotnet build` reports a mismatch as `LS2010`.
+**Reviewed for:** Each repository parameter, field, and local in `apps/api/src` carries its interface name without the `I` prefix.
 
 ### Name Asynchronous Operations Completely
 

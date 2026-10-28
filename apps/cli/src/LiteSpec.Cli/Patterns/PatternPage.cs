@@ -231,7 +231,7 @@ sealed partial class PatternPage
                 problems.Add((pattern.Line, $"pattern '{pattern.Name}' repeats the slug '{pattern.Slug}'"));
             }
 
-            foreach (var required in new[] { "Question", "Default", "Rationale" }.Where(name => !pattern.Fields.ContainsKey(name)))
+            foreach (var required in new[] { "Question", "Default", "Compact", "Rationale" }.Where(name => !pattern.Fields.ContainsKey(name)))
             {
                 problems.Add((pattern.Line, $"pattern '{pattern.Name}' has no **{required}:**"));
             }

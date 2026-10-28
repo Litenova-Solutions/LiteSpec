@@ -56,7 +56,6 @@ static partial class StandardsValidator
         "SHAPE_PAGE",
         "STACK_FOLDER",
         "STACK_REFERENCE",
-        "EXTENSION_STACK_UNKNOWN",
         "GLOSSARY_DEFINITION",
         "GLOSSARY_ORDER",
         "HEADING_ACTION",
@@ -92,8 +91,6 @@ static partial class StandardsValidator
         "SCHEMA_INVALID",
         "SCHEMA_JSON",
         "SCHEMA_UNSUPPORTED_KEYWORD",
-        "STACK_COMPOSITION_EXTRA",
-        "STACK_COMPOSITION_MISSING",
         "STANDARD_DEVIATION_NORMATIVE",
         "STANDARD_DEVIATION_SENTENCE",
         "STANDARD_EXAMPLE_LABEL",
@@ -121,7 +118,6 @@ static partial class StandardsValidator
         "TEMPLATE_INDEX_PATH",
 
         "INDEX_MISSING_ROUTING",
-        "LAYER_OVERLAP",
         "LAYER_UNLISTED",
     ];
 

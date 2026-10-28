@@ -50,9 +50,9 @@ Three changes move trust or data outward: an access tenant scope widening to cro
 
 **Statement:** The application guard MUST authorize every protected operation from its use case's declared permissions, as `litespec/backend/application#enforce-target-authorization-in-the-pipeline` states, with endpoints adding only coarse policies.
 
-**Rationale:** One decision from one declaration stops two operations about the same record from asking different questions. The use case declares the permissions it needs, the guard resolves the actor's roles at the target's scope, and the decision follows. A message whose target must be the caller carries no target (`litespec/core/access#remove-a-target-that-must-be-the-caller`). A handler never compares the caller with a target and never throws the forbidden refusal itself; the guard decides, and `LS2012` reports a handler that decides on its own. Endpoints add only coarse policies, because a policy that cannot see business data cannot decide about an aggregate.
+**Rationale:** One decision from one declaration stops two operations about the same record from asking different questions. The use case declares the permissions it needs, the guard resolves the actor's roles at the target's scope, and the decision follows. A message whose target must be the caller carries no target (`litespec/core/access#remove-a-target-that-must-be-the-caller`). A handler never compares the caller with a target and never throws the forbidden refusal itself; the guard decides. Endpoints add only coarse policies, because a policy that cannot see business data cannot decide about an aggregate.
 
-**Reviewed for:** Each protected operation passes the application guard from its use case's declared permissions; `dotnet build` reports a handler that authorizes itself as `LS2012`.
+**Reviewed for:** Each protected operation passes the application guard from its use case's declared permissions.
 
 ### Restrict a Protected Collection in the Database
 

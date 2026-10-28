@@ -80,22 +80,18 @@ Other name-based checks work the same way:
 - An aggregate is any class that derives from a class named `AggregateRoot` with one type argument, in any namespace.
 - A child entity is any class that derives from a class named `Entity` with one type argument, in any namespace.
 - A Domain exception is any exception that derives from a class named `DomainException`, which itself derives from `System.Exception`.
-- A domain event is any type that implements an interface named `IDomainEvent`. `LS1013` additionally requires its file to sit under a folder named `Events`.
+- A domain event is any type that implements an interface named `IDomainEvent`.
 - A command handler is any class whose name ends in `CommandHandler` or that implements an interface named `ICommandHandler`.
 - A query handler is any class that implements an interface named `IQueryHandler`.
 - An endpoint is any class that implements an interface named `IEndpoint`.
 - An event handler is any class that implements an interface named `IEventHandler` or `IDomainEventReaction`. A job is any class that derives from a class named `BackgroundService` or implements an interface named `IHostedService`.
-- An event handler handles the event its `IEventHandler<TEvent>` type argument names. `LS2008` requires its namespace to end in `On{Fact}`, the event name without its `Event` suffix.
-- A use-case result is any type whose name ends in `QueryResult` or `CommandResult`. `LS2009` requires every other public or internal type in its namespace to start with the result name, except the message, handler, validator, and definition.
-- A repository variable is any parameter, field, or local typed as an interface named `I{Name}Repository`. `LS2010` requires its name to be `{name}Repository`, with a leading underscore allowed on a field.
-- `LS2011` reports a query handler constructor parameter typed as an interface named `I*Repository`.
-- `LS2012` reports a command or query handler that throws an exception type whose name ends in `ForbiddenException`, `UnauthorizedException`, or `AccessDeniedException`.
-- `LS2013` reports a call to `WithTarget` or `WithReason` on a type named `IAuditScope` inside a command handler, when the argument reads only the message.
-- `LS2014` reports a command handler that calls a repository method starting with `Find` and, in the same method, a static method or constructor that returns the found type.
-- `LS2015` reports a command handler whose `for`, `foreach`, or `while` body calls a repository `Store`, `Add`, `Update`, or `Delete` method.
-- `LS2016` reports a command or query handler constructor parameter whose type is listed in the `litespec.LS2016.pipeline_owned_types` `.editorconfig` key.
+- An event handler handles the event its `IEventHandler<TEvent>` type argument names.
+- A use-case result is any type whose name ends in `QueryResult` or `CommandResult`.
+- A repository variable is any parameter, field, or local typed as an interface named `I{Name}Repository`.
 - A session is any type named `IDocumentSession`, any type named `DbContext`, or any subclass of a type named `DbContext`.
 - A test is any method carrying an attribute named `Fact`, `Theory`, `Test`, `TestCase`, `TestCaseSource`, `TestMethod`, or `DataTestMethod`. An assertion is any call to a member of a type named `Assert`, or to a method whose name starts with `Assert`.
+
+What each rule reports when a name matches lives on its rule page: see the [Analyzer rules overview](rules/README.md).
 
 The analyzer does not check that a `Guid` inside an identifier is a version 7 value. Create the value with `Guid.CreateVersion7` and pass it in, which also satisfies `LS1009`.
 

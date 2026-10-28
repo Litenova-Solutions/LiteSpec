@@ -92,6 +92,7 @@ public sealed class PatternPageTests
     [InlineData("**Default:** `one-primary`", "**Default:** `missing`", "is not one of its options")]
     [InlineData("#### `two-equal`: Two equal actions", "#### Two equal actions", "an option heading is")]
     [InlineData("**Cost:** Other commands wait in a menu.", "", "has no **Cost:**")]
+    [InlineData("**Compact:** Actions move under the title.", "", "has no **Compact:**")]
     [InlineData("    action primary \"Mark as shipped\"", "    action primary \"Mark as shipped\"\n    action primary \"Refund\"", "at most one primary action")]
     [InlineData("**Compact:** Actions move under the title.", "**Layout:** Wide.", "is not a pattern field")]
     [InlineData("**Cost:** Other commands wait in a menu.", "**Cost:** Other commands wait in a menu.\n\n**Reviewed for:** Which built header matches?", "belongs to the pattern")]
