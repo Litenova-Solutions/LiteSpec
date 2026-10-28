@@ -105,7 +105,7 @@ The example adds a package to the narrowest owning project. A central version en
 
 **Replacement:** A project names the projects its analyzer run covers in its project documentation.
 
-**Rationale:** The analyzers report a breach of a .NET provision in the editor and the build, at the line that breaks it, with a link to the provision. Without them, a breach surfaces only in review, if at all. The package is a development dependency: it adds nothing to the built assemblies, so Domain stays package-free at run time. [Check .NET code with the analyzers](../../analyzers/check-dotnet-code-with-the-analyzers.md) sets it up, and [Analyzer rules](../../analyzers/README.md) lists what each rule reports.
+**Rationale:** The analyzers report a breach of a .NET provision in the editor and the build, at the line that breaks it, with a link to the provision. Without them, a breach surfaces only in review, if at all. The package is a development dependency: it adds nothing to the built assemblies, so Domain stays package-free at run time. `LS2016` reports a pipeline-owned collaborator in a handler constructor; its default list covers the LiteBus unit of work, idempotency store, and outbox, and a project adds its uniqueness claim service. [Check .NET code with the analyzers](../../analyzers/check-dotnet-code-with-the-analyzers.md) sets it up, and [Analyzer rules](../../analyzers/README.md) lists what each rule reports.
 
 **Example:**
 
@@ -113,6 +113,23 @@ The example adds a package to the narrowest owning project. A central version en
 <ItemGroup>
   <PackageReference Include="LiteSpec.Analyzers" PrivateAssets="all" />
 </ItemGroup>
+```
+
+### Raise the LiteBus Handler Analyzers to Errors
+
+**Default:** A project using LiteBus sets `LB1023` and `LB1024` to `error` in `.editorconfig` and lists its outside-world client types in `litebus.LB1024.forbidden_types`.
+
+**Replacement:** A project whose command handlers run on another mediator names the analyzers that report nested mediation and outside-world clients in its handlers.
+
+**Rationale:** Both LiteBus rules are off by default. `LB1023` reports nested mediation in a command handler and `LB1024` reports an outside-world client in a command handler, so consequences leave through event handlers after the commit under `litespec/backend/application#keep-command-handlers-to-load-call-and-stage`. The client list replaces the defaults, so it names every port that leaves the process. The same file lists the project's pipeline-owned collaborators in `litespec.LS2016.pipeline_owned_types`, such as its uniqueness claim service.
+
+**Example:**
+
+```text
+dotnet_diagnostic.LB1023.severity = error
+dotnet_diagnostic.LB1024.severity = error
+litebus.LB1024.forbidden_types = Claimwick.Infrastructure.Payout.PayoutBankClient
+litespec.LS2016.pipeline_owned_types = Claimwick.Infrastructure.Uniqueness.ExpenseKeyClaims
 ```
 
 ## Reference Example
@@ -132,3 +149,4 @@ An Application query handler may inject `IQuerySession` because Marten is the se
 | litespec/backend/dotnet/packages#reference-only-the-litebus-module-required | guidance | Each project file references only the LiteBus modules its code dispatches. |
 | litespec/backend/dotnet/packages#use-this-baseline-package-ownership | guidance | Each baseline package reference sits in the project the ownership table assigns. |
 | litespec/backend/dotnet/packages#run-litespecanalyzers-in-every-application-project | guidance | Each of the five application project files references `LiteSpec.Analyzers` at the manifest pin with `PrivateAssets="all"`. |
+| litespec/backend/dotnet/packages#raise-the-litebus-handler-analyzers-to-errors | guidance | `.editorconfig` sets `LB1023` and `LB1024` to error and lists `litebus.LB1024.forbidden_types`. |

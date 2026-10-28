@@ -2,7 +2,7 @@
 
 ## Intent
 
-The spending module is the Claimwick example's one business area: it turns product intent into operations by organizing the business state the company tracks, the rules that bind it, who may act on it, and the messages, work, and tunables around it. This page shows each piece as the project writes it: the module record, 3 aggregates (one unit of consistent state each) for expenses, receipts, and the policy store with their states, transitions, data classes, and data, the rules that bind them, the access chain of actors, roles, permissions, and entry points with the outside system for payouts, the Submit expense and List expenses use cases with their results and scenarios, and the reaction, jobs, notifications, setting, integration event, and retention row around them.
+The spending module is the Claimwick example's one business area: it turns product intent into operations by organizing the business state the company tracks, the rules that bind it, who may act on it, and the messages, work, and tunables around it. This page shows each piece as the project writes it: the module record, 4 aggregates for expenses, receipts, the policy store, and the export-request store with their states, transitions, data classes, and data, the rules that bind them, the access chain of actors, roles, permissions, and entry points with the outside system for payouts, the Submit expense and List expenses use cases with their results and scenarios, and the reaction, jobs, notifications, setting, integration event, and retention row around them.
 
 ## The Spending Module
 
@@ -24,15 +24,16 @@ Each aggregate below belongs to this module through its identifier: `aggregate/s
 
 ## Aggregates and Their States
 
-An aggregate is one unit of business state that stays consistent and changes in one step. Spending keeps 3, each on its own page under the module folder. Each aggregate declares its kind and its lifecycle as states entries with a name and a meaning, which applies `litespec/core/behavior#declare-the-kind-of-every-aggregate` and `litespec/core/behavior#model-each-aggregate-lifecycle-with-states`.
+An aggregate is one unit of business state that stays consistent and changes in one step. Spending keeps 4, each on its own page under the module folder. Each aggregate declares its kind and its lifecycle as states entries with a name and a meaning, which applies `litespec/core/behavior#declare-the-kind-of-every-aggregate` and `litespec/core/behavior#model-each-aggregate-lifecycle-with-states`.
 
 | Record | Home | Kind | States |
 |:--|:--|:--|:--|
 | `aggregate/spending.expense` | `docs/behavior/modules/spending/expenses/README.md` | entity | Submitted, Approved, Rejected, Reimbursed |
 | `aggregate/spending.receipt` | `docs/behavior/modules/spending/receipts/README.md` | entity | Attached, Removed |
 | `aggregate/spending.policy` | `docs/behavior/modules/spending/policies/README.md` | store | None |
+| `aggregate/spending.export-request` | `docs/behavior/modules/spending/export-requests/README.md` | store | None |
 
-An expense is one work cost an employee submitted. A receipt is proof of payment attached to an expense. The policy is a store: it holds the current receipt threshold value, names the spending settings store as its owner, and carries no states, because no invariant guards the stored value. The setting record below declares the threshold default and bounds. The store names its owner, which applies `litespec/core/behavior#name-the-owner-of-every-store`. Each expense state carries its meaning: Submitted waits for a decision, Approved and Rejected record a manager decision, and Reimbursed records the finance payout.
+An expense is one work cost an employee submitted. A receipt is proof of payment attached to an expense. The policy is a store: it holds the current receipt threshold value, names the spending settings store as its owner, and carries no states, because no invariant guards the stored value. The setting record below declares the threshold default and bounds. The store names its owner, which applies `litespec/core/behavior#name-the-owner-of-every-store`. The export-request store holds each export request with the file the builder job built for it, and names the spending module as its owner. Each expense state carries its meaning: Submitted waits for a decision, Approved and Rejected record a manager decision, and Reimbursed records the finance payout.
 
 ## Expense Transitions and Data
 
@@ -347,12 +348,12 @@ Spending keeps 10 use cases: 9 commands and 1 query. Each one is a command or a 
 | `use-case/spending.refuse-expense` | command | `journey/submit-and-reimburse#s2` | `permission/approve-expense` | expense | atomic | None |
 | `use-case/spending.reimburse-expense` | command | `journey/submit-and-reimburse#s3` | `permission/reimburse-expense` | expense | atomic | publishes `integration-event/payout.requested` after commit |
 | `use-case/spending.change-receipt-threshold` | command | None | `permission/manage-policy` | policy store | atomic | None |
-| `use-case/spending.export-expenses` | command | `journey/submit-and-reimburse#s3` | `permission/export-expenses` | None | None | None |
+| `use-case/spending.export-expenses` | command | `journey/submit-and-reimburse#s3` | `permission/export-expenses` | export-request store | atomic | None |
 | `use-case/spending.erase-personal-data` | command | None | `permission/erase-personal-data` | expense | atomic | None |
 | `use-case/spending.send-approver-reminder` | command | `journey/submit-and-reimburse#s2` | system | None | None | sends `notification/spending.approver-reminder` async |
 | `use-case/spending.list-expenses` | query | `journey/submit-and-reimburse#s4` | `self(permission/list-expenses)` | None | None | None |
 
-Set-receipt-threshold fulfills the receipt requirement, and erase-personal-data fulfills the erasure requirement, so every use case answers Intent through `serves` or `fulfills`. Reimburse carries `money` risk and erase carries `personal-data` risk, so both are tier 1 and need explicit review. The reminder command runs under the system grant through the reminder job: no person runs it.
+Set-receipt-threshold fulfills the receipt requirement, and erase-personal-data fulfills the erasure requirement, so every use case answers Intent through `serves` or `fulfills`. Reimburse carries `money` risk and erase carries `personal-data` risk, so both are tier 1 and need explicit review. The reminder command runs under the system grant through the reminder job: no person runs it. The export command records its request in the export-request store, and the builder job below builds the file, which applies `litespec/backend/application#run-heavy-work-as-a-request-then-a-build`.
 
 ## One Use Case Tying Them Together
 
@@ -520,7 +521,7 @@ The entry omits `timing`, so it reads as `async`. The reaction serves the journe
 
 ## The Jobs
 
-A job is scheduled, one-off, or operator work that issues use cases. Claimwick keeps 2 scheduled jobs. The reminder job runs nightly and issues the reminder command once per waiting expense. It lives at `docs/behavior/modules/spending/jobs/send-approver-reminders-on-expense-submitted.md`, declares its kind with a structured schedule, and states its scope, lease, service level, evidence, and runbook, which applies `litespec/core/behavior#declare-every-job-with-kind-and-structured-schedule`.
+A job is scheduled, one-off, or operator work that issues use cases. Claimwick keeps 3 scheduled jobs. The reminder job runs nightly and issues the reminder command once per waiting expense. It lives at `docs/behavior/modules/spending/jobs/send-approver-reminders-on-expense-submitted.md`, declares its kind with a structured schedule, and states its scope, lease, service level, evidence, and runbook, which applies `litespec/core/behavior#declare-every-job-with-kind-and-structured-schedule`.
 
 ```json
 {
@@ -577,7 +578,7 @@ A job is scheduled, one-off, or operator work that issues use cases. Claimwick k
 }
 ```
 
-This job carries the approval reminders feature down the tree: the feature promises reminders past three days, the five-day requirement bounds them, and the nightly schedule fires them. The second job, `job/spending.erase-expired-personal-data`, runs weekly and issues `use-case/spending.erase-personal-data` once per decided expense with an approved erasure request, enforcing the `submitter` data class.
+This job carries the approval reminders feature down the tree: the feature promises reminders past three days, the five-day requirement bounds them, and the nightly schedule fires them. The second job, `job/spending.erase-expired-personal-data`, runs weekly and issues `use-case/spending.erase-personal-data` once per decided expense with an approved erasure request, enforcing the `submitter` data class. The third job, `job/spending.build-expense-exports`, runs every five minutes and builds one file per requested export, storing each file beside its request, which applies `litespec/backend/application#issue-per-record-work-from-a-job`.
 
 ## The Notifications
 

@@ -77,7 +77,6 @@ sealed record Finding(string Code, string Message, string Path, int Line, string
             ["schedule-unstructured"] = "G",
             ["behavior-unrecorded"] = "S",
             ["use-case-unimplemented"] = "S",
-            ["use-case-access"] = "S",
             ["refusal-not-thrown"] = "S",
             ["proves-unconfirmed"] = "S",
             ["use-case-without-scenario"] = "S",
@@ -97,7 +96,7 @@ sealed record Finding(string Code, string Message, string Path, int Line, string
             ["repository-read-in-loop"] = "A",
             ["query-filters-in-memory"] = "A",
             ["dependency-count"] = "A",
-            ["send-before-commit"] = "A",
+            ["effect-before-commit"] = "S",
         };
 
     /// <summary>The finding tier: G blocks, S blocks where qualified, A reports.</summary>

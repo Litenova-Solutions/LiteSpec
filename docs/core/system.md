@@ -68,11 +68,11 @@ Each page owns its tables and rules, and this page cites them without copying. A
 
 ### Point Code and Tests up to Records
 
-**Statement:** Code and tests MUST point up to the record they serve through their folder or one anchor tag.
+**Statement:** Code and tests MUST point up to the record they serve, with each handler linking to exactly one record: a command or query handler through its folder, which carries the use-case name, and an event handler through its `implements` tag naming its reaction.
 
-**Rationale:** The folder or the anchor tag is the one link from Implementation to Behavior: the handler folder anchors the use case, and a reaction class carries an implements tag naming the reaction record. That link lets the checks read which record each file serves without guessing. Nothing above Implementation is computed from code, so the link points up and the records stay the authority.
+**Rationale:** The folder or the tag is the one link from Implementation to Behavior: the handler folder carries the use-case name, and an event handler carries an implements tag naming the reaction record. One record per handler lets the checks read which record each file serves without guessing. Nothing above Implementation is computed from code, so the link points up and the records stay the authority.
 
-**Example:** The folder holding the reimburse-expense handler anchors `use-case/spending.reimburse-expense`, and the reminder reaction class carries an implements tag naming `reaction/spending.send-approver-reminders-on-expense-submitted`.
+**Example:** The folder holding the reimburse-expense handler anchors `use-case/spending.reimburse-expense`, and the reminder event handler carries an implements tag naming `reaction/spending.send-approver-reminders-on-expense-submitted`.
 
 ### Declare Every Edge Between Records
 

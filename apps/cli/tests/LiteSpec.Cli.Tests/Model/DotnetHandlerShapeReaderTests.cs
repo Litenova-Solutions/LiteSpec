@@ -174,14 +174,15 @@ public sealed class DotnetHandlerShapeReaderTests
     }
 
     [Fact]
-    public void Reaction_Dependency_Count_Is_Collected()
+    public void Event_Handler_Dependency_Count_Is_Collected()
     {
         using var temp = Cli.Temp("reader");
         WriteProject(temp.Path);
-        WriteSource(temp.Path, "App", "SweepReaction.cs", """
-            namespace Library.Application;
+        WriteSource(temp.Path, Path.Combine("App", "Lending", "Loans", "OnCopyBorrowed"), "NotifyReaderOnCopyBorrowedHandler.cs", """
+            namespace Library.Application.Lending.Loans.OnCopyBorrowed;
 
-            public sealed class SweepReaction(IOrderRepository orders, IClock clock)
+            public sealed class NotifyReaderOnCopyBorrowedHandler(IOrderRepository orders, IClock clock)
+                : IEventHandler<CopyBorrowedEvent>
             {
             }
             """);

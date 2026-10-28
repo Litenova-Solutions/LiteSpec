@@ -24,7 +24,7 @@ This extension switches on no optional record type: integration events, settings
 
 **Statement:** A use case declaring `after-commit` `publishes` or `issues` effects MUST stage each effect in the outbox in the same transaction as its changes.
 
-**Rationale:** After-commit timing promises the message follows the commit: staged in the same transaction, the change and its message share one fate. An effect sent from memory instead would vanish on a crash between the commit and the send. `litespec/core/behavior#declare-every-effect-with-one-verb-and-its-timing` states the effect verbs and their timing, and `async` effects dispatch without the transaction.
+**Rationale:** After-commit timing promises the message follows the commit: staged in the same transaction, the change and its message share one fate. A `publishes` effect is a domain event the aggregate raises, and persistence stages that event in the outbox in the same commit as the aggregate, as `litespec/backend/application#publish-declared-integration-events-after-commit` requires. An effect sent from memory instead would vanish on a crash between the commit and the send. `litespec/core/behavior#declare-every-effect-with-one-verb-and-its-timing` states the effect verbs and their timing, and `async` effects dispatch without the transaction.
 
 ### Declare Published Facts as Integration Events
 
@@ -124,15 +124,23 @@ This extension switches on no optional record type: integration events, settings
 
 ### Accept Repeated Delivery
 
-**Statement:** An outbox consumer MUST handle the same message more than once.
+**Statement:** An event handler that receives an outbox delivery MUST handle the same message more than once.
 
-**Rationale:** The target can accept a message while the Worker crashes before recording completion, and the requeued claim then dispatches it again. Delivery promises at-least-once, so every consumer handles the same message more than once without corrupting its state.
+**Rationale:** The target can accept a message while the Worker crashes before recording completion, and the requeued claim then dispatches it again. Delivery promises at-least-once, so every event handler handles the same message more than once without corrupting its state.
 
 ### Identify Repeated Delivery
 
-**Statement:** An outbox consumer MUST use message ID or a business idempotency key at its Command or side-effect boundary.
+**Statement:** An event handler that receives an outbox delivery MUST use message ID or a business idempotency key at its Command or side-effect boundary.
 
-**Rationale:** Handling a repeat means recognizing it: the message ID or a business idempotency key gives the target a stable identity to check at its command or side-effect boundary. Without that key, the target processes the repeat as new work and pays, notifies, or ships twice.
+**Rationale:** Handling a repeat means recognizing it: the message ID or a business idempotency key gives the event handler a stable identity to check at its command or side-effect boundary. Without that key, the handler processes the repeat as new work and pays, notifies, or ships twice.
+
+### Deliver Each Event to Each Handler Separately
+
+**Statement:** The outbox MUST deliver an event to each of its handlers as a separate delivery with its own retries and dead letter.
+
+**Rationale:** One delivery for all handlers retries every handler when one fails. Each handler therefore gets its own delivery with its own retries and dead letter, and each delivery still ends in repeat-safe handling under `litespec/ext/outbox#accept-repeated-delivery`.
+
+**Example:** A loan-borrowed event feeds a due-notice handler and a statistics handler. The notice delivery retries on its own schedule while the statistics delivery stays complete.
 
 ### Await Target Acceptance
 
@@ -294,7 +302,7 @@ Guides: `None.`
 
 | ID | Mark | Evidence |
 |:---|:---|:---|
-| litespec/ext/outbox#stage-after-commit-effects-in-the-outbox | guidance | Each after-commit publishes and issues effect stages in the outbox in the same transaction as its changes. |
+| litespec/ext/outbox#stage-after-commit-effects-in-the-outbox | guidance | Each after-commit publishes and issues effect stages in the outbox in the same transaction as its changes, with each domain event staged in the same commit as its aggregate. |
 | litespec/ext/outbox#declare-published-facts-as-integration-events | guidance | Each publishes effect names an integration-event record carrying direction, payload, and trust. |
 | litespec/ext/outbox#record-durable-delivery-behavior | guidance | Each delivery specification documents guarantee, downstream boundary, duplicate behavior, retry horizon, recovery owner, record owner, and status. |
 | litespec/ext/outbox#exclude-manually-repeatable-reactions | guidance | Best-effort reactions that operators can repeat manually carry no outbox records. |
@@ -311,8 +319,9 @@ Guides: `None.`
 | litespec/ext/outbox#release-claim-transactions-before-calls | guidance | Claim transactions close before the Worker makes network calls. |
 | litespec/ext/outbox#restrict-completion-to-current-lease-owners | guidance | Record updates succeed only under the current lease and fencing value. |
 | litespec/ext/outbox#requeue-expired-claims | guidance | Expired claims return to eligible work for a live Worker. |
-| litespec/ext/outbox#accept-repeated-delivery | guidance | Each consumer keeps correct state when the same message arrives twice. |
-| litespec/ext/outbox#identify-repeated-delivery | guidance | Each consumer checks message ID or business key at its Command or side-effect boundary. |
+| litespec/ext/outbox#accept-repeated-delivery | guidance | Each event handler keeps correct state when the same message arrives twice. |
+| litespec/ext/outbox#identify-repeated-delivery | guidance | Each event handler checks message ID or business key at its Command or side-effect boundary. |
+| litespec/ext/outbox#deliver-each-event-to-each-handler-separately | guidance | Each event reaches each of its handlers as a separate delivery with its own retries and dead letter. |
 | litespec/ext/outbox#await-target-acceptance | guidance | Completion records follow target acceptance, with no early completion. |
 | litespec/ext/outbox#bound-delivery-retries | guidance | Retries run bounded exponential backoff with jitter. |
 | litespec/ext/outbox#classify-permanent-delivery-failure | guidance | Permanent failures stop at the retry bound with safe investigation and replay data retained. |

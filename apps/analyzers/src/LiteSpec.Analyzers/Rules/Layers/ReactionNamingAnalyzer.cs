@@ -6,7 +6,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace LiteSpec.Analyzers.Rules.Layers;
 
-/// <summary>LS2007: a reaction names its triggering fact and a job names its schedule.</summary>
+/// <summary>LS2007: an event handler names its triggering fact and a job names its schedule.</summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class ReactionNamingAnalyzer : LayerAnalyzer
 {
@@ -28,10 +28,10 @@ public sealed class ReactionNamingAnalyzer : LayerAnalyzer
             return;
         }
 
-        if (IsReaction(type) && !HasReactionName(type.Name))
+        if (IsEventHandler(type) && !HasEventHandlerName(type.Name))
         {
             context.ReportDiagnostic(Diagnostic.Create(
-                Descriptors.LS2007, type.Locations[0], type.Name, "reaction", "*Reaction or *On*Handler"));
+                Descriptors.LS2007, type.Locations[0], type.Name, "event handler", "{Action}On{Fact}Handler"));
         }
 
         if (IsJob(type) && !HasJobName(type.Name))
@@ -41,7 +41,7 @@ public sealed class ReactionNamingAnalyzer : LayerAnalyzer
         }
     }
 
-    private static bool IsReaction(INamedTypeSymbol type)
+    private static bool IsEventHandler(INamedTypeSymbol type)
     {
         foreach (var contract in type.AllInterfaces)
         {
@@ -75,14 +75,9 @@ public sealed class ReactionNamingAnalyzer : LayerAnalyzer
         return false;
     }
 
-    private static bool HasReactionName(string name)
+    private static bool HasEventHandlerName(string name)
     {
-        if (name.EndsWith("Reaction", StringComparison.Ordinal))
-        {
-            return true;
-        }
-
-        // {Action}On{PastFact}Handler, such as NotifySubscribersOnPostPublishedHandler.
+        // {Action}On{Fact}Handler, such as NotifySubscribersOnPostPublishedHandler.
         const string suffix = "Handler";
         if (!name.EndsWith(suffix, StringComparison.Ordinal))
         {

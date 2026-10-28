@@ -19,7 +19,7 @@ static partial class Checker
         "rule-name-negation", "use-case-without-success", "scenario-result-unresolved",
         "refusal-not-thrown", "use-case-unimplemented", "proves-unconfirmed",
         "size-type-missing", "product-not-singleton",
-        "journey-reach", "use-case-access",
+        "journey-reach",
         "use-case-without-scenario", "requirement-unfulfilled",
         "aggregate-name-clash", "decision-decides-nothing", "link-unresolved",
         "behavior-unrecorded", "state-unreachable", "transition-unresolved",
@@ -35,7 +35,7 @@ static partial class Checker
         "write-undeclared", "result-undeclared", "effect-undeclared",
         "use-case-verb-method", "event-tense-mismatch", "name-drift-across-layers", "operation-id-duplicate", "route-shape",
         "reasonless-name", "collaborator-holds-repository", "repository-read-in-loop",
-        "query-filters-in-memory", "dependency-count", "send-before-commit",
+        "query-filters-in-memory", "dependency-count", "effect-before-commit",
         "prose-missing", "many-aggregates", "question-aged",
     };
 

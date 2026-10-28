@@ -32,6 +32,15 @@ internal static class Descriptors
     private static readonly Provision ImplementationStyle = Provision.Of("backend/dotnet/naming", "keep-implementation-style-consistent");
     private static readonly Provision ModuleFolders = Provision.Of("backend/domain", "organize-a-module-by-aggregate-and-concept");
     private static readonly Provision RoleSuffixes = Provision.Of("workspace/naming", "use-architectural-suffixes");
+    private static readonly Provision EventHandlerFolders = Provision.Of("workspace/naming", "group-event-handlers-by-the-fact-they-handle");
+    private static readonly Provision ResultParts = Provision.Of("workspace/naming", "name-result-parts-after-their-result");
+    private static readonly Provision RepositoryVariables = Provision.Of("workspace/naming", "name-repository-variables-after-their-interface");
+    private static readonly Provision QueryProjection = Provision.Of("backend/application", "project-queries-directly");
+    private static readonly Provision TargetAuthorization = Provision.Of("backend/application", "enforce-target-authorization-in-the-pipeline");
+    private static readonly Provision AuditValues = Provision.Of("backend/application", "declare-audit-values-beside-the-message");
+    private static readonly Provision OutcomePath = Provision.Of("backend/application", "implement-one-outcome-path-per-command");
+    private static readonly Provision PerRecordWork = Provision.Of("backend/application", "issue-per-record-work-from-a-job");
+    private static readonly Provision UniquenessOutOfHandlers = Provision.Of("backend/persistence", "keep-uniqueness-out-of-handlers");
     private static readonly Provision ScenarioProof = Provision.Of("backend/dotnet/testing", "prove-each-scenario-with-a-test-that-calls-its-use-case");
 
     public static readonly DiagnosticDescriptor LS1001 = Create("LS1001", DomainCategory, DomainOuterLayers,
@@ -127,9 +136,54 @@ internal static class Descriptors
         "An endpoint is named {UseCase}Endpoint, so the model builder discovers each endpoint from its file name.");
 
     public static readonly DiagnosticDescriptor LS2007 = Create("LS2007", LayersCategory, RoleSuffixes,
-        "Reaction or job name hides its kind",
+        "Event handler or job name hides its kind",
         "'{0}' is a {1} and must be named '{2}'",
-        "A reaction is named {Action}On{PastFact}Handler or *Reaction, and a job *Job, *Worker, or *Recurring*, so the model builder discovers each reaction and job by name.");
+        "An event handler is named {Action}On{Fact}Handler, and a job *Job, *Worker, or *Recurring*, so the model builder discovers each event handler and job by name.");
+
+    public static readonly DiagnosticDescriptor LS2008 = Create("LS2008", LayersCategory, EventHandlerFolders,
+        "Event handler sits outside its fact folder",
+        "'{0}' handles '{1}' and must live in the 'On{2}' folder",
+        "An event handler lives in the On{Fact} folder inside its subscriber's aggregate folder, where {Fact} is the handled event name without its Event suffix. A handler of two facts reports nothing.");
+
+    public static readonly DiagnosticDescriptor LS2009 = Create("LS2009", LayersCategory, ResultParts,
+        "Result part not named after its result",
+        "'{0}' belongs to '{1}' and must start with '{1}'",
+        "A type declared in the same namespace as a {UseCase}QueryResult or {UseCase}CommandResult type is named after that result, as {UseCase}QueryResult{Part} or {UseCase}CommandResult{Part}. The message, handler, validator, definition, and result types keep their own names.");
+
+    public static readonly DiagnosticDescriptor LS2010 = Create("LS2010", LayersCategory, RepositoryVariables,
+        "Repository variable not named after its interface",
+        "'{0}' is typed '{1}' and must be named '{2}'",
+        "A repository parameter, field, or local is named after its interface without the I prefix, ending in Repository, such as loanRepository for ILoanRepository. A field may carry a leading underscore.");
+
+    public static readonly DiagnosticDescriptor LS2011 = Create("LS2011", LayersCategory, QueryProjection,
+        "Query handler takes a repository",
+        "Query handler '{0}' takes repository '{1}'; project through the read session instead",
+        "A query handler projects directly through the read session and takes no domain repository.");
+
+    public static readonly DiagnosticDescriptor LS2012 = Create("LS2012", LayersCategory, TargetAuthorization,
+        "Handler authorizes itself",
+        "Handler '{0}' throws '{1}'; the authorization guard authorizes every message",
+        "A command or query handler never throws the forbidden refusal itself; the authorization guard authorizes every message from the access its record declares.");
+
+    public static readonly DiagnosticDescriptor LS2013 = Create("LS2013", LayersCategory, AuditValues,
+        "Audit value read from the message in the handler",
+        "'{0}' reads only the message; declare the audit value beside the message",
+        "A command handler adds only the audit values it learns while running; a value read from the message is declared beside the message, so the pipeline records it on every outcome.");
+
+    public static readonly DiagnosticDescriptor LS2014 = Create("LS2014", LayersCategory, OutcomePath,
+        "Command handler finds or creates",
+        "Command handler '{0}' finds and creates '{1}'; run a query, then send the command that fits",
+        "Each command implements one use case with one success path; a flow that either finds or creates a record is two use cases that the boundary owning the flow chooses between.");
+
+    public static readonly DiagnosticDescriptor LS2015 = Create("LS2015", LayersCategory, PerRecordWork,
+        "Command handler changes records in a loop",
+        "Command handler '{0}' calls '{1}' in a loop; a job issues one command per record",
+        "A command handler never changes records in a loop; work over many records is a job that issues one command per record, each in its own unit of work.");
+
+    public static readonly DiagnosticDescriptor LS2016 = Create("LS2016", LayersCategory, UniquenessOutOfHandlers,
+        "Handler takes a pipeline-owned collaborator",
+        "Handler '{0}' takes '{1}', which the pipeline owns",
+        "A command or query handler takes no pipeline-owned collaborator through its constructor; the unit of work, idempotency store, outbox, and uniqueness claim service belong to the pipeline.");
 
     public static readonly DiagnosticDescriptor LS3001 = Create("LS3001", StyleCategory, AsyncNames,
         "Asynchronous method name lacks Async",

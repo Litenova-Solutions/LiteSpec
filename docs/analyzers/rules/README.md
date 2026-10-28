@@ -2,7 +2,7 @@
 
 ## Intent
 
-This index lists the 24 analyzer rules, one reference page per rule, grouped by the projects each rule runs in. A developer who meets an error opens the page with the same ID to see what the rule reports, where the error sits, and how to fix the code. Each entry carries a 1-line summary of what the rule reports.
+This index lists the 33 analyzer rules, one reference page per rule, grouped by the projects each rule runs in. A developer who meets an error opens the page with the same ID to see what the rule reports, where the error sits, and how to fix the code. Each entry carries a 1-line summary of what the rule reports.
 
 ## Domain Rules
 
@@ -24,14 +24,23 @@ Rules `LS1001` to `LS1013` run in Domain only.
 
 ## Outer-Layer Rules
 
-Rules `LS2001` and `LS2003` to `LS2007` run in Application, Infrastructure, or WebApi, as each page states.
+Rules `LS2001` and `LS2003` to `LS2016` run in Application, Infrastructure, or WebApi, as each page states.
 
 - [LS2001: Implementation Type Is Not Internal Sealed](ls2001.md): reports an implementation type that is not `internal sealed`.
 - [LS2003: WebApi Uses an MVC Controller](ls2003.md): reports an MVC controller.
 - [LS2004: Command Handler Writes Through a Document Session](ls2004.md): reports a command handler that writes through a session.
 - [LS2005: Handler Name Lacks Its Command or Query Suffix](ls2005.md): reports a handler whose name lacks its command or query suffix.
 - [LS2006: Endpoint Name Lacks Its Suffix](ls2006.md): reports an endpoint whose name does not end in `Endpoint`.
-- [LS2007: Reaction or Job Name Hides Its Kind](ls2007.md): reports a reaction or job whose name hides its kind.
+- [LS2007: Event Handler or Job Name Hides Its Kind](ls2007.md): reports an event handler or job whose name hides its kind.
+- [LS2008: Event Handler Sits Outside Its Fact Folder](ls2008.md): reports an event handler outside its `On{Fact}` folder.
+- [LS2009: Result Part Not Named After Its Result](ls2009.md): reports a result part not named after its result.
+- [LS2010: Repository Variable Not Named After Its Interface](ls2010.md): reports a repository variable not named after its interface.
+- [LS2011: Query Handler Takes a Repository](ls2011.md): reports a query handler that takes a repository.
+- [LS2012: Handler Authorizes Itself](ls2012.md): reports a handler that throws a forbidden refusal.
+- [LS2013: Audit Value Read from the Message in the Handler](ls2013.md): reports an audit value read from the message in the handler.
+- [LS2014: Command Handler Finds or Creates](ls2014.md): reports a command handler that finds or creates.
+- [LS2015: Command Handler Changes Records in a Loop](ls2015.md): reports a command handler that changes records in a loop.
+- [LS2016: Handler Takes a Pipeline-Owned Collaborator](ls2016.md): reports a handler that takes a pipeline-owned collaborator.
 
 ## Naming and Style Rules
 

@@ -34,6 +34,16 @@ This extension switches on no optional record type. Each provider is recorded as
 
 **Example:** The payout effect cites `calls` on the payout bank `send-batch` operation with its timeout and retry count.
 
+### Run Provider Calls from Event Handlers or Jobs
+
+**Statement:** A provider call SHOULD run from an event handler or a job, never from a command handler.
+
+**Deviation:** A project that keeps an inline provider call records a deviation naming the compensation that undoes it.
+
+**Rationale:** A command handler changes its aggregate and nothing else; each consequence runs after the commit, as `litespec/backend/application#call-external-systems-through-their-ports` requires. An event handler or a job calls the provider after the outbox delivers the fact, with one delivery per handler under `litespec/ext/outbox#deliver-each-event-to-each-handler-separately`, so a provider failure retries without rolling back the accepted change. A call whose result the command needs before it can answer records the intent first, and an event handler calls the provider; a project that keeps the call inline records a deviation naming the compensation that undoes it.
+
+**Example:** The reimburse-expense command records a pending payout on the expense, and the event handler for the recorded fact calls the payout provider through the business-action port.
+
 ### Define Business-Action Ports
 
 **Statement:** Application MUST own a public external-service interface named for its business action.
@@ -180,6 +190,7 @@ Guides: `None.`
 |:---|:---|:---|
 | litespec/ext/integrations#record-each-provider-as-an-external-system | guidance | Each provider has an external system page in the Behavior systems home naming actor, operations, and erasure. |
 | litespec/ext/integrations#call-only-declared-operations | guidance | Each calls effect names an operation the cited external system declares. |
+| litespec/ext/integrations#run-provider-calls-from-event-handlers-or-jobs | guidance | Each provider call runs from an event handler or a job, and each inline call carries a deviation naming its compensation. |
 | litespec/ext/integrations#define-business-action-ports | guidance | Each Application port names a business action with no provider in its name or signature. |
 | litespec/ext/integrations#isolate-provider-implementations | checkable | `ExternalPortTests` assert the Application assembly references no provider SDK or transport type. |
 | litespec/ext/integrations#bind-client-configuration | checkable | `ExternalClientTests` reject missing or invalid external client configuration. |

@@ -32,6 +32,19 @@ LiteSpec 3.0.0 is a top-down specification standard for one bounded-context busi
 - An `effect-undeclared` finding names a one-hop helper as `via 'Type.Method'`.
 - A term's `labels` sit outside the approval hash, so adding a language reopens no approval.
 - A project declares its use-case verb vocabulary in `vocabulary`: `verbs`, `phrasal` verbs counted as one, and `retired` synonyms with their replacement, checked by `use-case-verb-unknown`.
+- `effect-before-commit` (tier S) reports a command whose `sends` or `calls` effect runs inline; consequences run from an event handler or a job after the commit.
+
+### Application Layer
+
+- A command handler loads or creates one aggregate, calls one domain method, stages it and returns; validation, authorization, idempotency, audit, the timestamp, holds, the commit and fault classification are pipeline stages, and a change to another aggregate is a consequence. A record declaring `consistency: atomic` is the one exception.
+- Each command implements one use case with one success path; a find-or-create flow is two use cases the owning boundary chooses between, and a lost race ends with the use case's conflict refusal at commit.
+- Uniqueness is enforced by the store: a unique index, an identity derived from the owner, aggregate state for a once-only rule, or a key the aggregate declares and persistence claims at commit. Each constraint maps by name to its conflict refusal, and no handler reserves or checks a key.
+- Every aggregate carries a version the store compares at commit.
+- A message whose target must be the caller carries no target or declares a self grant the guard enforces.
+- Audit targets and reasons the message carries are declared beside it; the handler adds only values it learns while running.
+- Messages, provider calls and changes to other aggregates run in event handlers after the commit; the outbox delivers each event to each handler separately.
+- Query handlers take no repository and never write. Work over many records is a job issuing one command per record, each in its own unit of work.
+- Result parts are named `{UseCase}QueryResult{Part}` or `{UseCase}CommandResult{Part}`, event handlers are `{Action}On{Fact}Handler` in an `On{Fact}` folder of the subscriber's aggregate, and repository variables are named after their interface.
 
 ### Mobile
 
@@ -98,6 +111,7 @@ LiteSpec 2.0.0 is the standards contract for one bounded-context business applic
 - `LiteSpec.Analyzers` is a NuGet package of Roslyn analyzers that report a breach of a .NET provision as an error in the editor and the build, each diagnostic linking to its provision. Rules cover Domain (outer-layer references, closed value sets, state records, Domain exceptions, events and their placement, binary floating point, clock and random reads, repositories, documentation, and typed identifiers), the outer layers (implementation shape, handler and endpoint naming, reactions and jobs), naming and style, and one assertion rule for test projects.
 - A rule runs only in the layers its provision covers. The layer comes from the `LiteSpecLayer` MSBuild property or the assembly name suffix. The package runs on the .NET 9.0.300 SDK, Visual Studio 17.14, and later.
 - `docs/backend/dotnet/packages.md` adds the convention to reference the package from the five application projects, the manifest pins it, and the rules the analyzers check completely are marked `checkable`.
+- `LS2008` to `LS2016` report an event handler outside its fact folder, a result part not named after its result, a repository variable not named after its interface, a query handler taking a repository, a handler that authorizes itself, an audit value read from the message in the handler, a find-or-create command handler, a command handler changing records in a loop, and a pipeline-owned collaborator in a handler; `LS2007` accepts only `{Action}On{Fact}Handler` for an event handler. Projects on LiteBus raise `LB1023` and `LB1024` to errors.
 
 ### The Site
 

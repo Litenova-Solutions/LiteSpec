@@ -142,6 +142,14 @@ An actor, role, or external system page carries a Summary section stating what t
 
 **Example:** `permission/manage-copies` for staff work, `self(permission/read-loans)` for a reader reading their own loans, `anonymous` for a public catalog, and `system` for a self-checkout handler acting for the device.
 
+### Remove a Target That Must Be the Caller
+
+**Statement:** A message whose target must be the caller MUST carry no target and act on the caller, or declare a self grant that the authorization guard enforces.
+
+**Rationale:** A target that must equal the caller is a value the caller could forge: each handler would compare it with the verified identity, and each comparison is authorization logic in a handler. Carrying no target leaves nothing to forge, and the call acts on the caller from verified claims. Where the target must stay on the message, a self grant states the scope beside the use case, and the guard enforces it.
+
+**Example:** "My loans" lists the signed-in reader's loans and takes no reader id.
+
 ### Scope Every Grant to Its Tenant Reach
 
 **Statement:** Each access declaration MUST name its tenant scope as own, cross, public, or none.
@@ -271,6 +279,7 @@ An actor, role, or external system page carries a Summary section stating what t
 | litespec/core/access#declare-access-on-every-use-case | checkable | `litespec model check` reports `record-shape` for a use case without `access`, `auth`, `grant`, or `tenant`. |
 | litespec/core/access#authenticate-every-caller-through-a-declared-auth-kind | checkable | `litespec model check` reports `invalid-field` for an `auth` kind outside session, token, device, link, app, anonymous, and system. |
 | litespec/core/access#grant-every-use-case-through-a-declared-grant | checkable | `litespec model check` reports `invalid-field` for a grant outside permission, self, anonymous, and system, and `reference-unresolved` for a permission no record defines. |
+| litespec/core/access#remove-a-target-that-must-be-the-caller | guidance | Each use case whose grant is a self grant names no caller-owned target in its inputs, or its message has a self declaration the authorization guard enforces, and no handler compares the caller with a target (`LS2012`). |
 | litespec/core/access#scope-every-grant-to-its-tenant-reach | checkable | `litespec model check` reports `invalid-field` for a tenant scope outside own, cross, public, and none. |
 | litespec/core/access#derive-generic-refusals-from-access-and-input | guidance | Which use case pages write a forbidden or invalid input result? Look at the results on each use case page beside the derived names. |
 | litespec/core/access#review-cross-tenant-access-as-tier-1 | guidance | Which cross grants shipped without security review? Look at the security queue in the Behavior diff. |

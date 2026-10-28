@@ -32,7 +32,7 @@ Each aggregate identity is a small struct over one version 7 `Guid`, created by 
 
 **Statement:** An aggregate root MUST be a sealed class deriving from the project-owned `AggregateRoot<TId>`, taking identity and event mechanics from that base.
 
-**Rationale:** One project-owned base gives every aggregate the same identity and event mechanics: typed identity, a pending event collection, protected recording, and clearing. The root is a sealed class, so no behavior extends an aggregate by inheritance. The root type name derives from the aggregate identifier, so the builder links the record by that name. A shared base that also owned timestamps, audit, tenancy, lifecycle, or persistence would force every aggregate to carry behavior most never need. This provision states the .NET form of `litespec/backend/domain#take-identity-and-events-from-the-project-root-contract`.
+**Rationale:** One project-owned base gives every aggregate the same identity and event mechanics: typed identity, a pending event collection, protected recording, and clearing. The root is a sealed class, so no behavior extends an aggregate by inheritance. The root type name derives from the aggregate identifier, so the builder links the record by that name. A shared base that also owned timestamps, audit, tenancy, lifecycle, or persistence would force every aggregate to carry behavior most never need. The base carries the aggregate version only as persistence metadata that Domain never reads or sets. This provision states the .NET form of `litespec/backend/domain#take-identity-and-events-from-the-project-root-contract`.
 
 ### Model Child Entities as Sealed Classes
 
@@ -299,7 +299,7 @@ The diagram shows the `MerchantRole` hierarchy with its cases, `Code`, and `From
 
 **Rationale:** A bare `Guid` parameter accepts any identifier, including an empty one and one meant for another aggregate. The typed struct rejects `Guid.Empty` and the struct default in every factory, implements `IStronglyTypedId` and `IParsable<TId>`, and declares no implicit conversion or parameterless creation, so a wrong identifier fails at the boundary. New values arrive from the caller: a factory takes its identifier as an argument, and a method that needs several takes a generator. Domain reads no clock and calls no static source of time or randomness, which keeps business behavior deterministic and testable. This provision states the .NET form of `litespec/backend/domain#identify-aggregates-with-strongly-typed-version-7-values`.
 
-When two callers generate the same value, persistence rejects the duplicate key and the operation fails on the same path as any other write conflict.
+When two callers generate the same value, persistence rejects the duplicate key and the operation fails on the same path as any other write conflict, with the violation mapped to the use case conflict refusal under `litespec/backend/persistence#map-a-constraint-violation-to-its-refusal`.
 
 **Example:**
 
@@ -384,7 +384,7 @@ The amount serializes as a string, so no reader parses it as binary floating poi
 
 **Statement:** A repository interface MUST expose only aggregate and Domain types for exactly one aggregate root, without `IQueryable`, a session, or a generic CRUD surface.
 
-**Rationale:** One repository per aggregate keeps the write boundary aligned with the consistency boundary: the interface loads and stages complete aggregates of its own type, and nothing else. `GetByIdAsync` throws `{Aggregate}NotFoundException` for a required load, so handlers repeat no null check; a nullable `FindBy...Async` is reserved for lookups where absence is normal. `IQueryable`, sessions, and generic CRUD surfaces would leak query shaping and provider behavior into Domain, so the interface exposes none of them. This provision states the .NET form of `litespec/backend/domain#expose-repositories-for-one-aggregate-only`.
+**Rationale:** One repository per aggregate keeps the write boundary aligned with the consistency boundary: the interface loads and stages complete aggregates of its own type, and nothing else. `GetByIdAsync` throws `{Aggregate}NotFoundException` for a required load, so handlers repeat no null check; a nullable `FindBy...Async` is reserved for lookups where absence is normal. A flow that finds a record or creates it is two use cases that the boundary owning the flow chooses between, following `litespec/backend/application#implement-one-outcome-path-per-command`. `IQueryable`, sessions, and generic CRUD surfaces would leak query shaping and provider behavior into Domain, so the interface exposes none of them. This provision states the .NET form of `litespec/backend/domain#expose-repositories-for-one-aggregate-only`.
 
 This interface is the write side only. Reading for a Query uses a Read Model owned by Application and shaped by Infrastructure, and that path declares no Domain interface. A repository that gained a projection method would put query shapes in Domain, which is the coupling this layer exists to prevent. A `store` aggregate owns no repository interface; its port carries the state its owner holds.
 
@@ -410,6 +410,19 @@ public async Task<Post> GetByIdAsync(PostId id, CancellationToken cancellationTo
     var post = await session.LoadAsync<Post>(id, cancellationToken);
     return post ?? throw new PostNotFoundException();
 }
+```
+
+### Expose Cross-Record Keys from the Aggregate
+
+**Statement:** An aggregate needing a cross-record uniqueness key MUST expose its current keys through a `UniquenessKeys` method.
+
+**Rationale:** That method is the only uniqueness code in Domain: the aggregate declares its current keys, and persistence claims and releases them in the commit that changes the aggregate, following `litespec/backend/persistence#claim-a-cross-record-key-at-commit`. The method computes keys from current state and validates nothing about other records, because the store arbitrates the race. This provision states the .NET form of `litespec/backend/domain#declare-cross-record-keys-on-the-aggregate`.
+
+**Example:** In the library product, a book holding a list of copies returns each barcode:
+
+```csharp
+public IReadOnlyCollection<string> UniquenessKeys() =>
+    Copies.Select(copy => copy.Barcode).ToList().AsReadOnly();
 ```
 
 ### Raise Immutable Domain Facts
@@ -786,6 +799,7 @@ The event payload captures the publication fact without carrying the mutable `Po
 | litespec/backend/dotnet/domain#use-strongly-typed-version-7-identifiers | guidance | Each aggregate identity: a `readonly record struct` over one version 7 `Guid`, with no conversion, alias, or parameterless creation. |
 | litespec/backend/dotnet/domain#make-money-and-decimal-rules-explicit | guidance | Each monetary amount: a `decimal` inside the shared `Money` object, serialized with amount and currency. |
 | litespec/backend/dotnet/domain#keep-repository-interfaces-in-domain | guidance | Each repository interface: Domain-only types for one aggregate root, with no `IQueryable`, session, or generic surface. |
+| litespec/backend/dotnet/domain#expose-cross-record-keys-from-the-aggregate | guidance | Each aggregate with a cross-record uniqueness rule: a `UniquenessKeys` method returning its current keys, with no other uniqueness code in Domain. |
 | litespec/backend/dotnet/domain#raise-immutable-domain-facts | guidance | Each domain event: an immutable record named `{Aggregate}{PastFact}Event`, carrying business data only. |
 | litespec/backend/dotnet/domain#reject-business-violations-with-domain-exceptions | guidance | Each rejected business rule: its own `DomainException` type carrying the refusal `code`, with no transport status. |
 | litespec/backend/dotnet/domain#document-every-public-domain-contract | checkable | `dotnet build` of the Domain project reports no LiteSpec.Analyzers LS1011 diagnostic. |

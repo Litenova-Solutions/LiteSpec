@@ -26,7 +26,7 @@ A [module](../reference/glossary.md) is one business area organizing language, r
 
 ### Commands and Queries
 
-CQRS separates the command and query models inside the one Application part: a command mutates aggregates through domain repositories, while a query projects read results without loading one. A reaction answers its trigger by issuing a command or sending a notification, and a job issues one command per item in its scope; neither travels the command pipeline itself. Publishing a post, for example, runs a `PublishPostCommand` through the handler and the domain repository, while reading a post runs a query that projects the stored data directly to its result.
+CQRS separates the command and query models inside the one Application part: a command mutates one aggregate through its domain repository, while a query projects read results without loading an aggregate and without writing. A use case whose record declares `consistency: atomic` over several aggregates is the declared exception, naming each aggregate it changes. A reaction answers its trigger by issuing a command or sending a notification, and a job issues one command per item in its scope; neither travels the command pipeline itself. Publishing a post, for example, runs a `PublishPostCommand` through the handler and the domain repository, while reading a post runs a query that projects the stored data directly to its result.
 
 ### From Records to Code
 
@@ -76,7 +76,7 @@ WebApi/
 
 **Statement:** An application MUST place commands, queries, results, validators, handlers, reaction classes, and module-owned ports in one Application part, and cross-module contracts in Application.Abstractions.
 
-**Rationale:** Commands, queries, reactions, and jobs coordinate the same use cases, so splitting them into Write, Read, Contracts, and event-handler parts buys unused deployment boundaries at the cost of a dependency every use case crosses. Reaction classes live in Application folders named for their records. The separation this backend keeps is the one [Fowler describes as CQRS](https://www.martinfowler.com/bliki/CQRS.html): separate command and query models inside one Application part, with cross-module contracts in Application.Abstractions.
+**Rationale:** Commands, queries, reactions, and jobs coordinate the same use cases, so splitting them into Write, Read, Contracts, and event-handler parts buys unused deployment boundaries at the cost of a dependency every use case crosses. Event handlers live in Application `On{Fact}` folders of the aggregate whose records they change, under `litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle`. The separation this backend keeps is the one [Fowler describes as CQRS](https://www.martinfowler.com/bliki/CQRS.html): separate command and query models inside one Application part, with cross-module contracts in Application.Abstractions.
 
 ### Organize Every Layer by Module and Use Case
 
@@ -145,9 +145,9 @@ Domain's shared kernel is the one folder of that name a solution keeps. Its memb
 
 ### Separate Command and Query Behavior
 
-**Statement:** A command MUST mutate aggregates through domain repositories while a query projects read results without loading one.
+**Statement:** A command MUST mutate one aggregate through its domain repository while a query projects read results without loading an aggregate or writing.
 
-**Rationale:** Reads that load aggregates pay for invariant enforcement no read needs, and writes that read from projections enforce rules against stale shapes. Commands mutate aggregates through domain repositories while queries project read results without loading one. An enabled persistence extension may replace the read boundary for named aggregate paths, but a command still enforces no invariant from a read projection.
+**Rationale:** Reads that load aggregates pay for invariant enforcement no read needs, and writes that read from projections enforce rules against stale shapes. Commands mutate one aggregate through its domain repository, following `litespec/backend/application#keep-command-handlers-to-load-call-and-stage`, with a use case declaring `consistency: atomic` over several aggregates as the declared exception. Queries project read results without loading an aggregate and write nothing, following `litespec/backend/application#keep-query-handlers-free-of-writes`. An enabled persistence extension may replace the read boundary for named aggregate paths, but a command still enforces no invariant from a read projection.
 
 ### Declare the Execution Host for Work That Outlives a Request
 
@@ -224,7 +224,7 @@ Publishing a post follows this direction:
 | litespec/backend/architecture#place-a-type-at-the-lowest-folder-that-holds-its-consumers | guidance | Each type sits in the lowest folder holding every consumer that names it, with no Shared, Common, Util, Helpers, Core, or Misc folder. |
 | litespec/backend/architecture#keep-implementation-types-hidden | guidance | Handlers, validators, definitions, persistence implementations, and endpoint implementations in the solution stay inside their own part and closed to extension. |
 | litespec/backend/architecture#keep-business-invariants-in-domain | guidance | State transitions and invariants in the codebase run inside their aggregate or value object, with no copy in a handler. |
-| litespec/backend/architecture#separate-command-and-query-behavior | guidance | Commands in Application mutate through domain repositories while queries project without loading an aggregate. |
+| litespec/backend/architecture#separate-command-and-query-behavior | guidance | Commands in Application mutate one aggregate through its domain repository while queries project without loading an aggregate or writing. |
 | litespec/backend/architecture#declare-the-execution-host-for-work-that-outlives-a-request | guidance | A decision record under `docs/intent/decisions/` names the execution host for durable dispatch, queue consumption, and scheduled work. |
 | litespec/backend/architecture#create-a-worker-project-when-background-work-needs-its-own-process | guidance | The execution-host decision and the solution project list show background work needing its own process running in a Worker project. |
 | litespec/backend/architecture#test-structural-boundaries | guidance | The architecture tests in the test projects cover project references, package boundaries, visibility, module folders, and aggregate inheritance, and the latest test run passes. |

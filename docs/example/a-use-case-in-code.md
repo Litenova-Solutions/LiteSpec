@@ -12,9 +12,9 @@ Every layer organizes its folders by module, then aggregate, then use case (`lit
 
 | Project | Submit expense files |
 |:---|:---|
-| `Claimwick.Domain` | `Spending/Expenses/` with the aggregate, its states, events, exceptions, and repository interface, plus `Spending/Policies/IPolicyRepository.cs` for the active policy |
+| `Claimwick.Domain` | `Spending/Expenses/` with the aggregate, its states, events, exceptions, and repository interface |
 | `Claimwick.Application.Abstractions` | `IClock.cs`, the shared clock contract; it holds only contracts more than one module names |
-| `Claimwick.Application` | `Spending/Expenses/SubmitExpense/` with the command, the handler, and the result |
+| `Claimwick.Application` | `Spending/Expenses/SubmitExpense/` with the command, the handler, the validator, and the result, plus `Spending/IPolicyStore.cs` for the policy store port |
 | `Claimwick.Infrastructure` | The example holds no Infrastructure project; in a project, the repository implementation sits under one persistence folder |
 | `Claimwick.WebApi` | `Endpoints/Spending/Expenses/SubmitExpense/SubmitExpenseEndpoint.cs`, with `SubmitExpenseRequestModel.cs` and `SubmitExpenseResponseModel.cs` beside it |
 
@@ -87,7 +87,7 @@ namespace Claimwick.Domain.Spending.Expenses.Events;
 public sealed record ExpenseSubmittedEvent(Guid ExpenseId, decimal Amount, string Currency, Guid EmployeeId) : IDomainEvent;
 ```
 
-Domain owns one repository interface per aggregate serving that aggregate only, with Domain types and no query surface (`litespec/backend/dotnet/domain#keep-repository-interfaces-in-domain`). `IExpenseRepository` loads, stages, and deletes expenses, and `IPolicyRepository` loads the stored policy that carries the current threshold.
+Domain owns one repository interface per aggregate serving that aggregate only, with Domain types and no query surface (`litespec/backend/dotnet/domain#keep-repository-interfaces-in-domain`). `IExpenseRepository` loads, stages, and deletes expenses.
 
 ```csharp
 namespace Claimwick.Domain.Spending.Expenses;
@@ -95,8 +95,8 @@ namespace Claimwick.Domain.Spending.Expenses;
 /// <summary>Loads and stages expenses; queries read through the read session instead.</summary>
 public interface IExpenseRepository
 {
-    /// <summary>Loads one expense by its identity.</summary>
-    Task<Expense> GetAsync(Guid id, CancellationToken cancellationToken);
+    /// <summary>Loads one expense by its identity, throwing ExpenseNotFoundException when no expense matches.</summary>
+    Task<Expense> GetByIdAsync(Guid id, CancellationToken cancellationToken);
 
     /// <summary>Stages a new or changed expense for the pipeline's one commit.</summary>
     void Store(Expense expense);
@@ -106,23 +106,25 @@ public interface IExpenseRepository
 }
 ```
 
+The policy is a store, so it reaches code through a port instead of a repository (`litespec/backend/application#expose-store-state-through-ports`). `IPolicyStore` reads and writes the current threshold: the submit handler reads it, and the change-receipt-threshold handler writes it.
+
 ```csharp
-namespace Claimwick.Domain.Spending.Policies;
+namespace Claimwick.Application.Spending;
 
-/// <summary>Loads and stages the company spending policy.</summary>
-public interface IPolicyRepository
+/// <summary>Reads and writes the current receipt threshold.</summary>
+public interface IPolicyStore
 {
-    /// <summary>Loads the active policy.</summary>
-    Task<Policy> GetActiveAsync(CancellationToken cancellationToken);
+    /// <summary>Reads the current receipt threshold.</summary>
+    Task<Money> GetReceiptThresholdAsync(CancellationToken cancellationToken);
 
-    /// <summary>Stages a changed policy for the pipeline's one commit.</summary>
-    void Store(Policy policy);
+    /// <summary>Stores a changed receipt threshold.</summary>
+    Task SetReceiptThresholdAsync(Money threshold, CancellationToken cancellationToken);
 }
 ```
 
 ## The Command and Its Handler
 
-Submit expense owns one use-case folder with its command, handler, and result (`litespec/backend/application#use-this-use-case-layout`, `litespec/backend/dotnet/application#use-the-operation-folder-layout`). The [Application Layer](../backend/application.md) and the [.NET Application Layer](../backend/dotnet/application.md) pages state the folder layout. The command is an immutable record carrying the expense and employee identities with the amount, currency, and receipt (`litespec/backend/application#keep-messages-immutable`).
+Submit expense owns one use-case folder with its command, handler, validator, and result (`litespec/backend/application#use-this-use-case-layout`, `litespec/backend/dotnet/application#use-the-operation-folder-layout`). The [Application Layer](../backend/application.md) and the [.NET Application Layer](../backend/dotnet/application.md) pages state the folder layout. The command is an immutable record carrying the expense and employee identities with the amount, currency, and receipt (`litespec/backend/application#keep-messages-immutable`).
 
 ```csharp
 namespace Claimwick.Application.Spending.Expenses.SubmitExpense;
@@ -132,32 +134,32 @@ public sealed record SubmitExpenseCommand(Guid ExpenseId, Guid EmployeeId, decim
 
 The receipt precondition is enforced where the aggregate is created: the `Expense.Submit` factory throws, so the handler carries no rule logic of its own. The record grants `permission/submit-expense` in its access, and the authorization guard checks that permission from the message, so the handler holds no authorization logic either (`litespec/backend/application#enforce-target-authorization-in-the-pipeline`).
 
-The handler is internal and sealed (`litespec/backend/dotnet/architecture#keep-implementation-types-internal`). Its method ends in `Async` and takes its cancellation token last (`litespec/backend/dotnet/naming#name-asynchronous-methods-completely`). The handler loads the active policy through its repository (`litespec/backend/dotnet/persistence#stage-aggregate-writes-through-repositories`), calls `Expense.Submit`, stages the new expense, and returns a `SubmitExpenseCommandResult`, leaving commit, error mapping, and authorization to their owners (`litespec/backend/application#keep-command-handlers-narrow`). Exactly one post-handler commits after it (`litespec/backend/dotnet/persistence#commit-once-in-the-command-pipeline`).
+The handler is internal and sealed (`litespec/backend/dotnet/architecture#keep-implementation-types-internal`). Its method ends in `Async` and takes its cancellation token last (`litespec/backend/dotnet/naming#name-asynchronous-methods-completely`). The validator parses the amount and currency into `Money` first (`litespec/backend/application#parse-input-in-the-validator`), so the handler reconstructs it without a check. The handler reads the receipt threshold through the policy store port (`litespec/backend/application#expose-store-state-through-ports`), creates the expense with `Expense.Submit`, stages it through its repository (`litespec/backend/dotnet/persistence#stage-aggregate-writes-through-repositories`), and returns a `SubmitExpenseCommandResult`, leaving commit, error mapping, and authorization to their owners (`litespec/backend/application#keep-command-handlers-to-load-call-and-stage`). Exactly one post-handler commits after it (`litespec/backend/dotnet/persistence#commit-once-in-the-command-pipeline`).
 
 ```csharp
+using Claimwick.Application.Spending;
 using Claimwick.Domain;
 using Claimwick.Domain.Spending.Expenses;
-using Claimwick.Domain.Spending.Policies;
 using LiteBus.Commands.Abstractions;
 
 namespace Claimwick.Application.Spending.Expenses.SubmitExpense;
 
 internal sealed class SubmitExpenseCommandHandler(
-    IExpenseRepository expenses,
-    IPolicyRepository policies) : ICommandHandler<SubmitExpenseCommand, SubmitExpenseCommandResult>
+    IExpenseRepository expenseRepository,
+    IPolicyStore policyStore) : ICommandHandler<SubmitExpenseCommand, SubmitExpenseCommandResult>
 {
     public async Task<SubmitExpenseCommandResult> HandleAsync(
         SubmitExpenseCommand command,
         CancellationToken cancellationToken)
     {
-        var policy = await policies.GetActiveAsync(cancellationToken);
+        var threshold = await policyStore.GetReceiptThresholdAsync(cancellationToken);
         var expense = Expense.Submit(
             command.ExpenseId,
             command.EmployeeId,
             Money.Create(command.Amount, command.Currency),
             command.ReceiptId,
-            policy.ReceiptThreshold);
-        expenses.Store(expense);
+            threshold);
+        expenseRepository.Store(expense);
         return new SubmitExpenseCommandResult(expense.Id);
     }
 }

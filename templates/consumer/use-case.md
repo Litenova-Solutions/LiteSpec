@@ -57,9 +57,16 @@
   },
   "effects": [
     {
-      "issues": "<use-case/<module>.<name>, or replace this key with sends, publishes, or calls>",
+      "issues": "<use-case/<module>.<name>>",
       "timing": "<inline|after-commit|async>",
-      "sharesTransaction": "<true or false when the timing is inline with issues, otherwise remove this line>",
+      "sharesTransaction": "<true or false when the timing is inline, otherwise remove this line>",
+      "onFailure": "<retry (<attempts>, <backoff>) then dead-letter|skip-and-log|discard>",
+      "before": "<Another entry target with its reason, or remove this line>",
+      "forEach": "<Scope, or remove this line>"
+    },
+    {
+      "sends": "<notification/<module>.<name>, or replace this key with publishes or calls>",
+      "timing": "<after-commit|async>",
       "onFailure": "<retry (<attempts>, <backoff>) then dead-letter|skip-and-log|discard>",
       "before": "<Another entry target with its reason, or remove this line>",
       "forEach": "<Scope, or remove this line>"

@@ -3,11 +3,11 @@ using LiteSpec.Analyzers.Tests.Support;
 
 namespace LiteSpec.Analyzers.Tests.Layers;
 
-/// <summary>Tests for LS2007, reaction and job names.</summary>
+/// <summary>Tests for LS2007, event handler and job names.</summary>
 public sealed class ReactionNamingAnalyzerTests
 {
-    [Fact(DisplayName = "LS2007 reports a reaction without a reaction name")]
-    public Task ReportsAReactionWithoutAReactionName() =>
+    [Fact(DisplayName = "LS2007 reports an event handler without an event handler name")]
+    public Task ReportsAnEventHandlerWithoutAnEventHandlerName() =>
         Verify.AnalyzerAsync<ReactionNamingAnalyzer>("""
             namespace Shop.Orders;
 
@@ -34,14 +34,26 @@ public sealed class ReactionNamingAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
-    [Fact(DisplayName = "LS2007 accepts a Reaction suffix")]
-    public Task AcceptsAReactionSuffix() =>
+    [Fact(DisplayName = "LS2007 reports a Reaction suffix")]
+    public Task ReportsAReactionSuffix() =>
         Verify.AnalyzerAsync<ReactionNamingAnalyzer>("""
             namespace Shop.Orders;
 
             public interface IDomainEventReaction { }
 
-            internal sealed class OrderPlacedReaction : IDomainEventReaction
+            internal sealed class {|LS2007:OrderPlacedReaction|} : IDomainEventReaction
+            {
+            }
+            """, assemblyName: "Shop.Application");
+
+    [Fact(DisplayName = "LS2007 accepts the On fact handler shape on either contract")]
+    public Task AcceptsTheOnFactHandlerShapeOnEitherContract() =>
+        Verify.AnalyzerAsync<ReactionNamingAnalyzer>("""
+            namespace Shop.Orders;
+
+            public interface IDomainEventReaction { }
+
+            internal sealed class NotifySubscribersOnOrderPlacedHandler : IDomainEventReaction
             {
             }
             """, assemblyName: "Shop.Application");
@@ -92,7 +104,7 @@ public sealed class ReactionNamingAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
-    [Fact(DisplayName = "LS2007 ignores a class that is neither reaction nor job")]
+    [Fact(DisplayName = "LS2007 ignores a class that is neither event handler nor job")]
     public Task IgnoresAnOrdinaryClass() =>
         Verify.AnalyzerAsync<ReactionNamingAnalyzer>("""
             namespace Shop.Orders;
@@ -102,8 +114,8 @@ public sealed class ReactionNamingAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
-    [Fact(DisplayName = "LS2007 ignores a reaction outside Application and Infrastructure")]
-    public Task IgnoresReactionOutsideItsLayers() =>
+    [Fact(DisplayName = "LS2007 ignores an event handler outside Application and Infrastructure")]
+    public Task IgnoresEventHandlerOutsideItsLayers() =>
         Verify.AnalyzerAsync<ReactionNamingAnalyzer>("""
             namespace Shop.Orders;
 

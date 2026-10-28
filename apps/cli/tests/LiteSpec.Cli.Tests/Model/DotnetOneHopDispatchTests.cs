@@ -31,12 +31,12 @@ public sealed class DotnetOneHopDispatchTests
     {
         using var temp = Cli.Temp("onehop");
         WriteProject(temp.Path);
-        WriteApp(temp.Path, Path.Combine("Lending", "Loans", "BorrowCopy", "NotifyOnBorrowReaction.cs"), PublisherReaction);
-        WriteApp(temp.Path, Path.Combine("Lending", "Loans", "BorrowCopy", "LoanEventRelay.cs"), PublisherHelper);
+        WriteApp(temp.Path, Path.Combine("Lending", "Loans", "OnLoanBorrowed", "PublishEventOnLoanBorrowedHandler.cs"), PublisherReaction);
+        WriteApp(temp.Path, Path.Combine("Lending", "Loans", "OnLoanBorrowed", "LoanEventRelay.cs"), PublisherHelper);
 
         var reaction = Assert.Single(
             new DotnetBackendReader().Read(ConsumerConfig.Load(temp.Path)).Reactions,
-            found => found.Class == "NotifyOnBorrowReaction");
+            found => found.Class == "PublishEventOnLoanBorrowedHandler");
         var dispatch = Assert.Single(reaction.Dispatches!);
 
         Assert.Equal("publishes", dispatch.Verb);
@@ -183,9 +183,9 @@ public sealed class DotnetOneHopDispatchTests
         """;
 
     const string PublisherReaction = """
-        namespace Library.Application.Lending.Loans.BorrowCopy;
+        namespace Library.Application.Lending.Loans.OnLoanBorrowed;
 
-        public sealed class NotifyOnBorrowReaction(IEventPublisher events) : IDomainEventReaction
+        public sealed class PublishEventOnLoanBorrowedHandler(IEventPublisher events) : IEventHandler<LoanBorrowedEvent>
         {
             public Task HandleAsync(LoanBorrowedEvent message, IOrderMessenger messenger)
             {
@@ -195,7 +195,7 @@ public sealed class DotnetOneHopDispatchTests
         """;
 
     const string PublisherHelper = """
-        namespace Library.Application.Lending.Loans.BorrowCopy;
+        namespace Library.Application.Lending.Loans.OnLoanBorrowed;
 
         internal static class LoanEventRelay
         {

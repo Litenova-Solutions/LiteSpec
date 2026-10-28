@@ -76,9 +76,9 @@ A domain event cannot substitute for an audit record. A domain event carries dom
 
 **Statement:** A handler MUST contribute only the audit values that the handler alone determines.
 
-**Rationale:** The declaration, the actor, and the request context already fix most fields before the handler runs. Only the handler knows the values it alone determines, such as a generated target identity or a composed reason. Letting the handler write the rest invites a second copy of each field that drifts from the first.
+**Rationale:** The declaration beside the message already fixes the audit target and the reason value the message carries, as `litespec/backend/application#declare-audit-values-beside-the-message` requires, so the pipeline records both on every outcome, including a denial. Only the handler knows the values it learns while running, such as a generated target identity or a reason value composed from loaded state. Letting the handler write the rest invites a second copy of each field that drifts from the first.
 
-**Example:** A create handler contributes the identity it generated. It contributes no actor, action code, or timestamp.
+**Example:** A create handler contributes the identity it generated. It contributes no actor, action code, timestamp, or value the message already carries.
 
 ### Exclude Derived Audit Trails
 
@@ -178,7 +178,7 @@ A pseudonymous identifier is still personal data where the party holding it can 
 
 **Statement:** An audit record MUST NOT contain a copy of the state before or after the audited change.
 
-**Rationale:** The domain event stream already holds each change under its own retention. Copying before and after state into the trail duplicates that storage and widens every record with data the reviewer did not ask for. The trail adds the actor and the reason, which nothing else holds, and leaves the change itself to the stream.
+**Rationale:** The domain event stream already holds each change under its own retention. Copying before and after state into the trail duplicates that storage and widens every record with data the reviewer did not ask for. The trail adds the actor and the reason value, which nothing else holds, and leaves the change itself to the stream.
 
 ### Commit a Success Record with Its Business Change
 
@@ -312,11 +312,11 @@ The algorithm is named because two implementations that each choose their own ca
 
 ### Declare Audit Selection Beside the Command
 
-**Default:** Declare the action, target kind, and category as an attribute on the Command type, beside the use-case `audit` field.
+**Default:** Declare the action, target kind, category, and reason selector as an attribute on the Command type, beside the use-case `audit` field.
 
 **Replacement:** A consumer records a selection-declaration convention naming where each Command declares its audit selection.
 
-**Rationale:** The declaration stays with the code it describes, so a review reads both at once. The use-case page carries the audit position or exemption, and the attribute carries the action, target kind, and category the producer writes. A selection kept in a separate file drifts from the Commands it names.
+**Rationale:** The declaration stays with the code it describes, so a review reads both at once. The use-case page carries the audit position or exemption, and the attribute carries the action, target kind, and category the producer writes. The reason selector names the message field that carries the reason value, so the pipeline reads the declared reason without handler help. A selection kept in a separate file drifts from the Commands it names.
 
 ### Use a Fixed Category Vocabulary
 
@@ -360,7 +360,7 @@ Guides: [Build an audit trail](../guide/audit-trail.md).
 | litespec/ext/audit#cover-the-required-audit-categories | guidance | Which required categories have no selection entry? Look at the declared selection beside the eight listed categories. |
 | litespec/ext/audit#exclude-indiscriminate-auditing | guidance | Which audited categories lack a recorded selection reason? Look at the declared selection. |
 | litespec/ext/audit#emit-audit-records-at-the-mediation-boundary | guidance | Which audit writes run inside handlers instead of the mediation pipeline? Look at the producer stages and the handler code. |
-| litespec/ext/audit#restrict-handler-contribution-to-determined-values | guidance | Which handler contributions repeat actor, action code, or timestamp? Look at the handler audit calls. |
+| litespec/ext/audit#restrict-handler-contribution-to-determined-values | guidance | Which handler contributions repeat the declared target or reason value, the actor, action code, or timestamp? Look at the handler audit calls. |
 | litespec/ext/audit#exclude-derived-audit-trails | guidance | Which trail writes derive from events, triggers, or capture? Look at the producer source. |
 | litespec/ext/audit#record-the-required-audit-fields | guidance | Which records lack actor, action, target, outcome, business time, record time, or tenant? Look at the stored audit rows. |
 | litespec/ext/audit#state-the-action-as-use-case-identity | guidance | Which action values name something other than the invoked use case? Look at the action column beside the use case pages. |
@@ -395,7 +395,7 @@ Guides: [Build an audit trail](../guide/audit-trail.md).
 | litespec/ext/audit#record-bulk-export | guidance | Which exports produced no record naming the requested scope? Look at the export paths. |
 | litespec/ext/audit#reject-an-undeclared-command | guidance | Which Commands build or start with no audit position or exemption? Look at the build or startup gate. |
 | litespec/ext/audit#keep-audit-infrastructure-in-one-location | guidance | Which audit parts live outside the documented location or the recorded local convention? Look under `Infrastructure/Auditing/`. |
-| litespec/ext/audit#declare-audit-selection-beside-the-command | guidance | Which Commands lack the declaration attribute or the recorded local convention? Look at the Command types. |
+| litespec/ext/audit#declare-audit-selection-beside-the-command | guidance | Which Commands lack the declaration attribute with its action, target kind, category, and reason selector, or the recorded local convention? Look at the Command types. |
 | litespec/ext/audit#use-a-fixed-category-vocabulary | guidance | Which category values fall outside the eight-value vocabulary or the recorded local convention? Look at the declared selection. |
 | litespec/ext/audit#store-the-trail-beside-the-business-data | guidance | Which trails live outside the business database or the recorded local convention? Look at the audit store and its privileges. |
 | litespec/ext/audit#publish-a-copy-to-the-security-platform | guidance | Which published copies leave the local store non-authoritative, or bypass the recorded local convention? Look at the delivery path. |

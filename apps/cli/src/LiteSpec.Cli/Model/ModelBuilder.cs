@@ -896,7 +896,15 @@ static partial class ModelBuilder
     {
         var stem = className;
 
-        foreach (var suffix in new[] { "BackgroundService", "HostedService", "Reaction", "Worker", "Job" })
+        // An event handler is {Action}On{Fact}Handler, and the fact is what its trigger holds.
+        var on = stem.IndexOf("On", StringComparison.Ordinal);
+
+        if (stem.EndsWith("Handler", StringComparison.Ordinal) && on > 0 && on + "On".Length < stem.Length - "Handler".Length)
+        {
+            stem = stem[(on + "On".Length)..^"Handler".Length];
+        }
+
+        foreach (var suffix in new[] { "BackgroundService", "HostedService", "Worker", "Job" })
         {
             if (stem.EndsWith(suffix, StringComparison.Ordinal) && stem.Length > suffix.Length)
             {

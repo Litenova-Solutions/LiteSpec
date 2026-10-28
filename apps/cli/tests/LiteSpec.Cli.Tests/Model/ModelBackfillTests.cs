@@ -144,15 +144,18 @@ public sealed class ModelBackfillTests
     {
         using var fixture = ModelFixture.Prepare("large");
 
+        var factFolder = Path.Combine(
+            fixture.Path, "apps", "api", "src", "Library.Application",
+            "Lending", "Loans", "OnLoanBorrowed");
+        Directory.CreateDirectory(factFolder);
+
         File.WriteAllText(
-            Path.Combine(
-                fixture.Path, "apps", "api", "src", "Library.Application",
-                "Lending", "Loans", "SendDueNoticeOnLoanBorrowedReaction.cs"),
+            Path.Combine(factFolder, "SendDueNoticeOnLoanBorrowedHandler.cs"),
             """
-            namespace Library.Application.Lending.Loans;
+            namespace Library.Application.Lending.Loans.OnLoanBorrowed;
 
             /// <implements>reaction/lending.send-due-notice-on-loan-borrowed</implements>
-            public sealed class SendDueNoticeOnLoanBorrowedReaction(IHoldRepository holds)
+            public sealed class SendDueNoticeOnLoanBorrowedHandler(IHoldRepository holds) : IEventHandler<LoanBorrowedEvent>
             {
                 public Task Handle() => Task.CompletedTask;
             }

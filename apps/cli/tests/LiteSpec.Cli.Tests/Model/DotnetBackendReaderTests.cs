@@ -186,12 +186,52 @@ public sealed class DotnetBackendReaderTests
     }
 
     [Fact]
-    public void Reaction_Without_A_Tag_Belongs_To_Its_Use_Case_Folder()
+    public void On_Handler_With_A_Tag_Links_To_Its_Reaction()
     {
         using var temp = Cli.Temp("reader");
         WriteProject(temp.Path);
-        WriteSource(temp.Path, Path.Combine("App", "Lending", "Loans", "BorrowCopy"), "NotifyOnCopyBorrowedReaction.cs", """
-            namespace Library.Application.Lending.Loans.BorrowCopy;
+        WriteSource(temp.Path, Path.Combine("App", "Lending", "Loans", "OnCopyBorrowed"), "NotifyReaderOnCopyBorrowedHandler.cs", """
+            namespace Library.Application.Lending.Loans.OnCopyBorrowed;
+
+            /// <implements>reaction/lending.notify-reader-on-borrow</implements>
+            public sealed class NotifyReaderOnCopyBorrowedHandler : IEventHandler<CopyBorrowedEvent>
+            {
+            }
+            """);
+
+        var reaction = Assert.Single(new DotnetBackendReader().Read(ConsumerConfig.Load(temp.Path)).Reactions);
+
+        Assert.Equal("NotifyReaderOnCopyBorrowedHandler", reaction.Class);
+        Assert.Equal("reaction", reaction.Kind);
+        Assert.Equal("reaction/lending.notify-reader-on-borrow", reaction.RecordId);
+    }
+
+    [Fact]
+    public void On_Handler_Without_A_Tag_Is_Discovered_Without_A_Record()
+    {
+        using var temp = Cli.Temp("reader");
+        WriteProject(temp.Path);
+        WriteSource(temp.Path, Path.Combine("App", "Lending", "Loans", "OnCopyBorrowed"), "NotifyReaderOnCopyBorrowedHandler.cs", """
+            namespace Library.Application.Lending.Loans.OnCopyBorrowed;
+
+            public sealed class NotifyReaderOnCopyBorrowedHandler : IEventHandler<CopyBorrowedEvent>
+            {
+            }
+            """);
+
+        var reaction = Assert.Single(new DotnetBackendReader().Read(ConsumerConfig.Load(temp.Path)).Reactions);
+
+        Assert.Equal("reaction", reaction.Kind);
+        Assert.Null(reaction.RecordId);
+    }
+
+    [Fact]
+    public void Reaction_Suffix_Without_The_Handler_Shape_Is_Not_Discovered()
+    {
+        using var temp = Cli.Temp("reader");
+        WriteProject(temp.Path);
+        WriteSource(temp.Path, "App", "NotifyOnCopyBorrowedReaction.cs", """
+            namespace Library.Application;
 
             public sealed class NotifyOnCopyBorrowedReaction : IDomainEventReaction<CopyBorrowedEvent>
             {
@@ -200,15 +240,66 @@ public sealed class DotnetBackendReaderTests
         WriteSource(temp.Path, "App", "SweepReaction.cs", """
             namespace Library.Application;
 
-            public sealed class SweepReaction : IDomainEventReaction<CopyBorrowedEvent>
+            public sealed class SweepReaction
             {
             }
             """);
 
-        var reactions = new DotnetBackendReader().Read(ConsumerConfig.Load(temp.Path)).Reactions;
+        Assert.Empty(new DotnetBackendReader().Read(ConsumerConfig.Load(temp.Path)).Reactions);
+    }
 
-        Assert.Equal("use-case/lending.borrow-copy", Assert.Single(reactions, reaction => reaction.Class == "NotifyOnCopyBorrowedReaction").UseCaseId);
-        Assert.Null(Assert.Single(reactions, reaction => reaction.Class == "SweepReaction").UseCaseId);
+    [Fact]
+    public void On_Handler_Outside_Its_Fact_Folder_Is_Not_Discovered()
+    {
+        using var temp = Cli.Temp("reader");
+        WriteProject(temp.Path);
+        WriteSource(temp.Path, Path.Combine("App", "Lending", "Loans", "BorrowCopy"), "NotifyReaderOnCopyBorrowedHandler.cs", """
+            namespace Library.Application.Lending.Loans.BorrowCopy;
+
+            /// <implements>reaction/lending.notify-reader-on-borrow</implements>
+            public sealed class NotifyReaderOnCopyBorrowedHandler : IEventHandler<CopyBorrowedEvent>
+            {
+            }
+            """);
+
+        Assert.Empty(new DotnetBackendReader().Read(ConsumerConfig.Load(temp.Path)).Reactions);
+    }
+
+    [Fact]
+    public void On_Handler_Without_The_Interface_Is_Not_Discovered()
+    {
+        using var temp = Cli.Temp("reader");
+        WriteProject(temp.Path);
+        WriteSource(temp.Path, Path.Combine("App", "Lending", "Loans", "OnCopyBorrowed"), "NotifyReaderOnCopyBorrowedHandler.cs", """
+            namespace Library.Application.Lending.Loans.OnCopyBorrowed;
+
+            /// <implements>reaction/lending.notify-reader-on-borrow</implements>
+            public sealed class NotifyReaderOnCopyBorrowedHandler
+            {
+            }
+            """);
+
+        Assert.Empty(new DotnetBackendReader().Read(ConsumerConfig.Load(temp.Path)).Reactions);
+    }
+
+    [Fact]
+    public void On_Handler_Is_Not_Read_As_A_Use_Case_Handler()
+    {
+        using var temp = Cli.Temp("reader");
+        WriteProject(temp.Path);
+        WriteSource(temp.Path, Path.Combine("App", "Lending", "Loans", "OnCopyBorrowed"), "NotifyReaderOnCopyBorrowedHandler.cs", """
+            namespace Library.Application.Lending.Loans.OnCopyBorrowed;
+
+            /// <implements>reaction/lending.notify-reader-on-borrow</implements>
+            public sealed class NotifyReaderOnCopyBorrowedHandler : IEventHandler<CopyBorrowedEvent>
+            {
+            }
+            """);
+
+        var code = new DotnetBackendReader().Read(ConsumerConfig.Load(temp.Path));
+
+        Assert.Single(code.Reactions);
+        Assert.Empty(code.Handlers);
     }
 
     static void WriteSource(string root, string project, string file, string text)

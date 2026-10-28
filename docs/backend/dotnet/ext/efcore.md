@@ -234,15 +234,23 @@ This extension switches on no optional record type.
 
 ### Configure Optimistic Tokens
 
-**Statement:** An EF Core aggregate using concurrency MUST configure a provider-backed token and carry expected version through its command.
+**Statement:** An EF Core aggregate MUST configure a provider-backed concurrency token and carry expected version through its command.
 
-**Rationale:** The provider-backed token carries the caller's expected version into the write, so EF Core detects a concurrent change instead of silently overwriting it. Without the token, the last writer wins and the first writer's work vanishes.
+**Rationale:** The provider-backed token carries the caller's expected version into the write, so EF Core detects a concurrent change instead of silently overwriting it. Without the token, the last writer wins and the first writer's work vanishes. Every EF Core aggregate configures the token, following `litespec/backend/persistence#version-every-aggregate`.
 
 ### Map EF Core Concurrency Conflict
 
 **Statement:** An EF Core post-handler MUST translate `DbUpdateConcurrencyException` into the Application conflict contract.
 
 **Rationale:** A `DbUpdateConcurrencyException` names a provider type that Application does not expose. Translating it into the project-owned conflict contract keeps the failure transport-neutral and lets the error boundary map it like any other conflict.
+
+### Map Unique Constraint Violations to Their Refusals
+
+**Statement:** Each EF Core unique constraint MUST map by name to the conflict refusal of the use cases that can violate it.
+
+**Rationale:** The post-handler translates the provider violation through the same fault classification that maps `DbUpdateConcurrencyException`, so a uniqueness race and a version race reach the caller as named conflict refusals alike. This provision states the EF Core form of `litespec/backend/persistence#map-a-constraint-violation-to-its-refusal`.
+
+**Example:** A book barcode column carries a unique constraint named `uq_book_barcode`; a registration that loses the barcode race translates to `book-barcode-taken` through the map, the same path a stale version takes to the approve conflict.
 
 ### Reject Automatic Command Retry
 
@@ -313,8 +321,9 @@ Guides: None.
 | litespec/backend/dotnet/ext/efcore#keep-migration-files-together | checkable | `dotnet test` fails `EfCoreMigrationsTests` when a migration commit misses its migration, model snapshot, or reviewed SQL. |
 | litespec/backend/dotnet/ext/efcore#test-migration-starting-states | checkable | `dotnet test` fails `EfCoreMigrationsTests` when a migration does not apply from an empty database and from the previous release database. |
 | litespec/backend/dotnet/ext/efcore#reject-startup-schema-mutation | checkable | `dotnet test` fails `EfCoreMigrationsTests` when production or staging startup calls `EnsureCreated`, `EnsureDeleted`, or `Migrate`. |
-| litespec/backend/dotnet/ext/efcore#configure-optimistic-tokens | checkable | `dotnet test` fails `EfCoreConcurrencyTests` when a command misses its expected version or its configured EF Core token. |
+| litespec/backend/dotnet/ext/efcore#configure-optimistic-tokens | checkable | `dotnet test` fails `EfCoreConcurrencyTests` when an aggregate misses its configured token or a command misses its expected version. |
 | litespec/backend/dotnet/ext/efcore#map-ef-core-concurrency-conflict | checkable | `dotnet test` fails `EfCoreConcurrencyTests` when a `DbUpdateConcurrencyException` escapes the Application conflict contract. |
+| litespec/backend/dotnet/ext/efcore#map-unique-constraint-violations-to-their-refusals | checkable | `dotnet test` fails `EfCoreConcurrencyTests` when a unique constraint violation escapes the Application conflict contract. |
 | litespec/backend/dotnet/ext/efcore#reject-automatic-command-retry | checkable | `dotnet test` fails `EfCoreConcurrencyTests` when a post-handler retries the complete command automatically after a concurrency exception. |
 | litespec/backend/dotnet/ext/efcore#use-the-ef-core-infrastructure-layout | guidance | EF Core Infrastructure paths follow the default layout, or the project documentation names another persistence layout. |
 | litespec/backend/dotnet/ext/efcore#use-snake-case-relational-names | checkable | `dotnet test` fails `EfCoreTests` when a generated migration carries a database name outside the verified snake-case form. |

@@ -14,14 +14,14 @@ public sealed class ReactionTriggerTests
         using var temp = ModelFixture.Prepare("small");
         Write(temp.Path, "docs/behavior/modules/lending/loans/notify-overdue.md", UseCasePage);
         Write(temp.Path, "docs/behavior/modules/lending/reactions/notify-on-borrow.md", ReactionPage);
-        Write(temp.Path, "apps/api/src/Library.Application/Lending/Loans/LoanBorrowedReaction.cs", ReactionFile);
+        Write(temp.Path, "apps/api/src/Library.Application/Lending/Loans/OnLoanBorrowed/NotifyReaderOnLoanBorrowedHandler.cs", ReactionFile);
 
         using var document = Build(temp.Path);
         var root = document.RootElement;
 
         Assert.Contains(
             root.GetProperty("links").GetProperty("implements").EnumerateArray(),
-            link => link.GetProperty("path").GetString() == "apps/api/src/Library.Application/Lending/Loans/LoanBorrowedReaction.cs"
+            link => link.GetProperty("path").GetString() == "apps/api/src/Library.Application/Lending/Loans/OnLoanBorrowed/NotifyReaderOnLoanBorrowedHandler.cs"
                 && link.GetProperty("to").GetString() == "use-case/lending.notify-overdue"
                 && link.GetProperty("kind").GetString() == "reaction");
         Assert.True(root.GetProperty("status").GetProperty("use-case/lending.notify-overdue").GetProperty("implemented").GetBoolean());
@@ -125,10 +125,10 @@ public sealed class ReactionTriggerTests
         """;
 
     const string ReactionFile = """
-        namespace Library.Application.Lending.Loans;
+        namespace Library.Application.Lending.Loans.OnLoanBorrowed;
 
         /// <summary>Notifies the reader when a loan is borrowed.</summary>
-        public sealed class LoanBorrowedReaction : IEventHandler<LoanBorrowedEvent>
+        public sealed class NotifyReaderOnLoanBorrowedHandler : IEventHandler<LoanBorrowedEvent>
         {
             public Task HandleAsync(LoanBorrowedEvent raised) => Task.CompletedTask;
         }

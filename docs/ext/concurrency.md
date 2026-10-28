@@ -18,7 +18,7 @@ This extension replaces no baseline provision. `litespec/ext/concurrency#return-
 
 This extension switches on `setting`: key retention is a setting record under `litespec/ext/concurrency#set-key-retention`.
 
-Its client-key standards apply to operations whose `idempotency.mode` is `key`, and its version standards apply where `consistency` requires conflicting writes to be rejected.
+Its client-key standards apply to operations whose `idempotency.mode` is `key`. Every stored aggregate already carries a version that the store compares at commit under `litespec/backend/persistence#version-every-aggregate`; the version standards on this page govern what the caller sees for a conflict.
 
 ## Standards
 
@@ -30,15 +30,15 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`, 
 
 ### Limit Version Checks
 
-**Statement:** An implementation MUST NOT add version checks without a documented conflicting-write case.
+**Statement:** An implementation MUST NOT require a caller-supplied version without a documented conflicting-write case.
 
-**Rationale:** Each version check adds a rejection path callers have to handle. A check without a documented conflicting-write case rejects callers to protect nothing. The document stays the gate: no case, no check.
+**Rationale:** Every stored aggregate already carries a baseline version that the store compares at commit, so the version itself needs no document. Requiring the caller to supply a version adds a rejection path the caller has to handle: a missing or stale caller version refuses an otherwise valid write. The conflicting-write document stays the gate for that caller burden: no case, no caller-version requirement.
 
 ### Compare Expected Aggregate Versions
 
-**Statement:** A conflicting-write implementation MUST store and compare the aggregate version through its selected persistence model.
+**Statement:** An implementation MUST compare the caller-supplied version with the stored version in the same transaction as the change.
 
-**Rationale:** The aggregate version stored with the state marks which write the caller saw. Comparing the expected version on write detects a competing accepted write against the same state. Storing and comparing it through the selected persistence model keeps the check inside the same transaction as the change.
+**Rationale:** The caller-supplied version marks which write the caller saw, and the stored version marks what the database holds. Comparing the two in the same transaction as the change detects a competing accepted write against the same state, through the selected persistence model. A comparison outside the transaction races the commit it claims to guard.
 
 ### Map Failed Expected Versions
 
@@ -48,7 +48,7 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`, 
 
 ### Reject Silent Overwrites
 
-**Statement:** A conflicting-write implementation MUST NOT silently overwrite a conflicting accepted change.
+**Statement:** An implementation MUST NOT silently overwrite a conflicting accepted change.
 
 **Rationale:** A conflicting write that silently replaces the accepted change destroys work another caller committed. The losing caller never learns its change is gone. Rejecting the conflict instead hands the caller the facts it needs to reconcile.
 
@@ -71,6 +71,12 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`, 
 **Statement:** An HTTP API MUST NOT expose a provider-specific version value in another contract field.
 
 **Rationale:** The `ETag` is the one contract field that carries the persistence version. A provider-specific version leaked into another field gives callers a second version to depend on. Hiding it keeps the coordination behind one boundary the project can change.
+
+### Run Idempotency in the Pipeline
+
+**Statement:** Idempotency MUST run as a pipeline stage after authorization and validation, before the handler.
+
+**Rationale:** Authorization and validation run first, so a denied or invalid attempt neither consumes a client key nor replays a stored result. The handler runs after, so a replayed key returns the stored response without executing the handler again. Any other order either spends keys on attempts the pipeline would refuse or executes work the store already accepted.
 
 ### Scope Client Keys
 
@@ -227,13 +233,14 @@ Guides: None.
 | ID | Mark | Evidence |
 |:---|:---|:---|
 | litespec/ext/concurrency#document-write-conflict-behavior | guidance | Which conflicting-write use cases lack conflicts, invalid state, winner behavior, or caller response? Look at the use case pages. |
-| litespec/ext/concurrency#limit-version-checks | checkable | `ConcurrencyVersionTests` link every version check to a documented conflicting-write case. |
-| litespec/ext/concurrency#compare-expected-aggregate-versions | checkable | `ConcurrencyVersionTests` race conflicting aggregate writes with expected versions. |
+| litespec/ext/concurrency#limit-version-checks | checkable | `ConcurrencyVersionTests` link every caller-version requirement to a documented conflicting-write case. |
+| litespec/ext/concurrency#compare-expected-aggregate-versions | checkable | `ConcurrencyVersionTests` race conflicting aggregate writes with caller-supplied expected versions. |
 | litespec/ext/concurrency#map-failed-expected-versions | checkable | `ConcurrencyVersionTests` assert a failed expected version returns 409 Problem Details with its stable code. |
 | litespec/ext/concurrency#reject-silent-overwrites | checkable | `ConcurrencyVersionTests` assert conflicting accepted writes preserve the winner without silent replacement. |
 | litespec/ext/concurrency#apply-http-version-preconditions | checkable | `ConcurrencyVersionTests` require and validate a strong persistence-derived ETag. |
 | litespec/ext/concurrency#return-precondition-outcomes | checkable | `ConcurrencyVersionTests` return 428 for a missing `If-Match` and 409 for a stale version. |
 | litespec/ext/concurrency#hide-provider-version-values | checkable | `ConcurrencyVersionTests` assert public transport models expose no provider-specific version field. |
+| litespec/ext/concurrency#run-idempotency-in-the-pipeline | guidance | Which idempotent operations run idempotency outside a pipeline stage after authorization and validation, before the handler? Look at the pipeline stage order. |
 | litespec/ext/concurrency#scope-client-keys | checkable | `IdempotencyKeyTests` assert keys from different tenants, actors, or operations do not replay each other. |
 | litespec/ext/concurrency#store-idempotency-state-atomically | checkable | `IdempotencyKeyTests` commit fingerprint, state, response, and expiry with the accepted business change. |
 | litespec/ext/concurrency#reject-conflicting-key-reuse | checkable | `IdempotencyKeyTests` assert reused keys with changed input return the documented rejection. |

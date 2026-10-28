@@ -5,8 +5,9 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 namespace LiteSpec.Model.Readers.Dotnet;
 
 /// <summary>
-///     Reads the backend through the parser: handlers by folder, reactions and jobs
-///     by interface, events by name, failure codes from Code members, and comments as text.
+///     Reads the backend through the parser: handlers by folder, reactions by
+///     event-handler shape, jobs by name, events by name, failure codes from Code
+///     members, and comments as text.
 /// </summary>
 sealed class DotnetBackendReader : IBackendReader
 {
@@ -166,6 +167,13 @@ sealed class DotnetBackendReader : IBackendReader
                 continue;
             }
 
+            // An event handler file ends in Handler too, but it implements a reaction
+            // rather than a use case, so the reaction reader below owns it.
+            if (ImplementsEventHandler(file))
+            {
+                continue;
+            }
+
             var module = Naming.Kebab(parts[0]);
             var operation = parts[2];
             var kind = name.EndsWith("QueryHandler.cs", StringComparison.Ordinal) ? "query" : "command";
@@ -271,7 +279,7 @@ sealed class DotnetBackendReader : IBackendReader
 
             // A hosted service named for the host rather than the job still runs a use case
             // when its implements tag says so.
-            var kind = Classify(declared.Identifier.ValueText, bases)
+            var kind = Classify(declared.Identifier.ValueText, bases, file)
                 ?? (tags.Count > 0 && bases.Any(baseName =>
                         baseName is "BackgroundService" or "IHostedService"
                         || baseName.StartsWith("BackgroundService<", StringComparison.Ordinal))
@@ -286,7 +294,7 @@ sealed class DotnetBackendReader : IBackendReader
                     file,
                     tree.GetLineSpan(declared.Span).StartLinePosition.Line + 1,
                     kind,
-                    tags.FirstOrDefault() ?? UseCaseOfFolder(config, file),
+                    tags.FirstOrDefault() ?? (kind == "reaction" ? null : UseCaseOfFolder(config, file)),
                     RecordTag(declared),
                     RepositoriesOf(declared, tree, file),
                     RefusalsOf(declared, tree, file),
@@ -578,7 +586,7 @@ sealed class DotnetBackendReader : IBackendReader
         };
     }
 
-    private static string? Classify(string name, List<string> bases)
+    private static string? Classify(string name, List<string> bases, string file)
     {
         // A job is named as one. A hosted service that wires the host at startup (a schema
         // check, a topology, a probe) is plumbing, and a type that only mentions recurring
@@ -589,19 +597,65 @@ sealed class DotnetBackendReader : IBackendReader
             return "job";
         }
 
-        if (bases.Any(baseName =>
-            baseName.StartsWith("IEventHandler<", StringComparison.Ordinal)
-            || baseName is "IDomainEventReaction"))
-        {
-            return "reaction";
-        }
-
-        if (name.EndsWith("Reaction", StringComparison.Ordinal))
+        // An event handler answers one fact: its name joins the action to the fact,
+        // it implements the event-handler interface, and it lives in the fact folder.
+        if (IsEventHandlerName(name)
+            && bases.Any(IsEventHandlerBase)
+            && InFactFolder(file))
         {
             return "reaction";
         }
 
         return null;
+    }
+
+    /// <summary>Whether the name joins an action to a fact: {Action}On{Fact}Handler.</summary>
+    private static bool IsEventHandlerName(string name)
+    {
+        const string suffix = "Handler";
+
+        if (!name.EndsWith(suffix, StringComparison.Ordinal) || name.Length <= suffix.Length)
+        {
+            return false;
+        }
+
+        var stem = name[..^suffix.Length];
+        var on = stem.IndexOf("On", StringComparison.Ordinal);
+
+        return on > 0 && on + "On".Length < stem.Length;
+    }
+
+    /// <summary>Whether the base type is the event-handler interface, generic or not.</summary>
+    private static bool IsEventHandlerBase(string baseName) =>
+        baseName is "IEventHandler"
+        || baseName.StartsWith("IEventHandler<", StringComparison.Ordinal);
+
+    /// <summary>Whether the file sits in a folder named for the fact it answers: On{Fact}.</summary>
+    private static bool InFactFolder(string file) =>
+        file.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
+            .SkipLast(1)
+            .Any(part => part.StartsWith("On", StringComparison.Ordinal) && part.Length > "On".Length);
+
+    /// <summary>Whether the file's handler class implements the event-handler interface.</summary>
+    private static bool ImplementsEventHandler(string file)
+    {
+        SyntaxTree tree;
+
+        try
+        {
+            tree = CSharpSyntaxTree.ParseText(SourceTree.Read(file), new CSharpParseOptions(LanguageVersion.Preview), file);
+        }
+        catch (IOException)
+        {
+            return false;
+        }
+
+        var declared = tree.GetRoot().DescendantNodes().OfType<BaseTypeDeclarationSyntax>()
+            .FirstOrDefault(type => type.Identifier.ValueText.EndsWith("Handler", StringComparison.Ordinal));
+
+        return declared is TypeDeclarationSyntax typed
+            && typed.BaseList is not null
+            && typed.BaseList.Types.Select(type => BaseName(type.Type)).Any(IsEventHandlerBase);
     }
 
     private static string BaseName(TypeSyntax type) => type switch

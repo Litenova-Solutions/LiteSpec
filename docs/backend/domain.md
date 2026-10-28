@@ -42,7 +42,7 @@ A closed set is a fixed menu of values where the type system knows every case, s
 
 **Statement:** An aggregate root MUST take its identity and event mechanics from the project-owned root contract.
 
-**Rationale:** One root contract gives every aggregate the same identity and event mechanics, so Infrastructure collects events from any aggregate the same way. The contract owns typed identity, pending events, recording, and clearing, and nothing else: no timestamp, audit, tenant, lifecycle, or persistence behavior, because any of those would couple every aggregate to a concern only some need.
+**Rationale:** One root contract gives every aggregate the same identity and event mechanics, so Infrastructure collects events from any aggregate the same way. The contract owns typed identity, pending events, recording, and clearing, and carries the aggregate version only as persistence metadata that Domain never reads or sets: no timestamp, audit, tenant, lifecycle, or other persistence behavior, because any of those would couple every aggregate to a concern only some need.
 
 ### Model Every Aggregate Lifecycle with State Types
 
@@ -100,7 +100,7 @@ An unapproved expense keeps its state, and the refusal carries the stable code `
 
 **Rationale:** A dedicated identity type stops one aggregate's identifier from passing where another's is expected, and with no conversion, alias, or creation path around its validation, there is no quiet route back to a bare value. The type rejects the empty value, and each factory also rejects its default. New values arrive from the caller: a factory takes its identifier as an argument, and a method that needs several identifiers takes a generator. Domain reads no clock and calls no static source of time or randomness.
 
-Version 7 values come from the caller-supplied generator, so Domain observes no business time and decides nothing about clocks. Persistence rejects a duplicate key and the write fails, which is the same path as any other write conflict.
+Version 7 values come from the caller-supplied generator, so Domain observes no business time and decides nothing about clocks. Persistence rejects a duplicate key and the write fails, which is the same path as any other write conflict, with the violation mapped to the use case conflict refusal under `litespec/backend/persistence#map-a-constraint-violation-to-its-refusal`.
 
 **Example:** A post identifier wraps one version 7 UUID, rejects the empty value, and parses from text through a named method.
 
@@ -156,13 +156,21 @@ A domain service is stateless and takes no port, so its tests are Domain tests. 
 
 **Statement:** A domain repository MUST serve exactly one aggregate root, exposing only aggregate and Domain types, with no composable query, session, or generic CRUD surface.
 
-**Rationale:** One domain repository per aggregate keeps the write side shaped by the aggregates it loads: a required load looks the aggregate up by identity and reports a missing aggregate through the missing-resource refusal, so a handler repeats no absence check, while an optional lookup is reserved for cases where absence is normal. A composable query, session, or generic CRUD surface would expose store mechanics to every handler.
+**Rationale:** One domain repository per aggregate keeps the write side shaped by the aggregates it loads: a required load looks the aggregate up by identity and reports a missing aggregate through the missing-resource refusal, so a handler repeats no absence check, while an optional lookup is reserved for cases where absence is normal. A flow that finds a record or creates it is two use cases that the boundary owning the flow chooses between, following `litespec/backend/application#implement-one-outcome-path-per-command`. A composable query, session, or generic CRUD surface would expose store mechanics to every handler.
 
 This boundary is the write side only. Reading for a query uses a read model owned by Application and shaped by Infrastructure, and that path declares no Domain contract. A repository that gained a projection method would put query shapes in Domain, which is the coupling this layer exists to prevent.
 
 **Example:** A post repository loads a post by identity and reports a missing post through the missing-resource refusal, plus a staging call that stages the aggregate.
 
 The Infrastructure implementation owns that refusal. The command pipeline owns the commit. The staging call stages the aggregate through the selected provider.
+
+### Declare Cross-Record Keys on the Aggregate
+
+**Statement:** An aggregate needing a cross-record uniqueness key MUST expose its current keys through `UniquenessKeys`.
+
+**Rationale:** That method is the only uniqueness code in Domain: the aggregate declares its current keys, and persistence claims and releases them in the commit that changes the aggregate, following `litespec/backend/persistence#claim-a-cross-record-key-at-commit`. The aggregate computes keys from its own state and validates nothing about other records, because the store arbitrates the race.
+
+**Example:** In the library product, a book holding a list of copy barcodes returns each barcode from `UniquenessKeys`, so adding a copy claims the new barcode at commit. In the Claimwick product, a payout carrying a reference that is unique across payouts and adjustments returns that reference, so a duplicate reference fails the commit on either record.
 
 ### Raise Immutable Facts as Domain Events
 
@@ -323,6 +331,7 @@ Event clearing is delivery mechanics, not a business mutation. Infrastructure ca
 | litespec/backend/domain#keep-binary-floating-point-out-of-exact-quantities | guidance | No Domain value uses binary floating point for money, a rate applied to money, or an exactly compared quantity. |
 | litespec/backend/domain#use-stateless-domain-services-for-ownerless-rules | guidance | Each domain service is stateless over Domain values, with no persistence, messaging, logging, clock, authorization, or provider call. |
 | litespec/backend/domain#expose-repositories-for-one-aggregate-only | guidance | Each domain repository serves one aggregate root with aggregate and Domain types only, and no composable query, session, or generic CRUD surface. |
+| litespec/backend/domain#declare-cross-record-keys-on-the-aggregate | guidance | Each aggregate with a cross-record uniqueness rule exposes its current keys through `UniquenessKeys`, with no other uniqueness code in Domain. |
 | litespec/backend/domain#raise-immutable-facts-as-domain-events | guidance | Each domain event is immutable, named for its aggregate and fact, and carries business data only. |
 | litespec/backend/domain#reject-business-violations-with-dedicated-refusals | guidance | Each rejected business rule ends its use case in a dedicated refusal carrying its stable code, with no transport status. |
 | litespec/backend/domain#reference-other-aggregates-by-id | guidance | Each aggregate stores other aggregates as typed identifiers, with no object reference. |

@@ -3,7 +3,7 @@ using LiteSpec.Tests.Support;
 
 namespace LiteSpec.Tests.Model.Checks;
 
-/// <summary>Proves the handler shape checks: the use-case verb against the aggregate method, event tense, names across layers, route shape, reasonless names, collaborators, loop reads, memory filters, dependency counts and inline sends.</summary>
+/// <summary>Proves the handler shape checks: the use-case verb against the aggregate method, event tense, names across layers, route shape, reasonless names, collaborators, loop reads, memory filters, dependency counts and inline effects.</summary>
 public sealed class HandlerShapeCheckTests
 {
     [Fact]
@@ -443,14 +443,14 @@ public sealed class HandlerShapeCheckTests
     }
 
     [Fact]
-    public void Sends_After_Commit_Pass()
+    public void Effects_After_Commit_Pass()
     {
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.void-order", Path.Combine(temp.Path, "void.md"), """{"kind": "command", "effects": [{"sends": "notification/lending.voided", "timing": "after-commit"}]}"""));
+            TestModel.Record("use-case", "use-case/lending.void-order", Path.Combine(temp.Path, "void.md"), """{"kind": "command", "effects": [{"sends": "notification/lending.voided", "timing": "after-commit"}, {"calls": "external-system/billing#void", "timing": "after-commit"}]}"""));
 
-        Assert.DoesNotContain("send-before-commit", TestModel.Codes(model));
+        Assert.DoesNotContain("effect-before-commit", TestModel.Codes(model));
     }
 
     [Fact]
@@ -461,9 +461,26 @@ public sealed class HandlerShapeCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/lending.void-order", Path.Combine(temp.Path, "void.md"), """{"kind": "command", "effects": [{"sends": "notification/lending.voided", "timing": "inline"}]}"""));
 
-        var finding = Checker.Check(model).Findings.Single(finding => finding.Code == "send-before-commit");
+        var finding = Checker.Check(model).Findings.Single(finding => finding.Code == "effect-before-commit");
 
         Assert.Contains("void-order", finding.Message, StringComparison.Ordinal);
+        Assert.Contains("notification/lending.voided", finding.Message, StringComparison.Ordinal);
+        Assert.Contains("after the commit from an event handler or a job", finding.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Inline_Call_Reports()
+    {
+        using var temp = Cli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("use-case", "use-case/lending.void-order", Path.Combine(temp.Path, "void.md"), """{"kind": "command", "effects": [{"calls": "external-system/billing#void", "timing": "inline"}]}"""));
+
+        var finding = Checker.Check(model).Findings.Single(finding => finding.Code == "effect-before-commit");
+
+        Assert.Contains("void-order", finding.Message, StringComparison.Ordinal);
+        Assert.Contains("external-system/billing#void", finding.Message, StringComparison.Ordinal);
+        Assert.Contains("after the commit from an event handler or a job", finding.Message, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -474,7 +491,7 @@ public sealed class HandlerShapeCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/lending.list-loans", Path.Combine(temp.Path, "list.md"), """{"kind": "query", "effects": [{"sends": "notification/lending.listed", "timing": "inline"}]}"""));
 
-        Assert.DoesNotContain("send-before-commit", TestModel.Codes(model));
+        Assert.DoesNotContain("effect-before-commit", TestModel.Codes(model));
     }
 
     [Fact]

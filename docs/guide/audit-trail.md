@@ -54,10 +54,10 @@ The shape carries no person name, no address, no message body, and no state snap
 
 ### Declare the Selection on Each Command
 
-Attach the values fixed per use case (action identity, target kind, category) to the command type with an attribute, as `litespec/ext/audit#declare-audit-selection-beside-the-command` requires. The command record's `audit` field selects which use cases are audited and why; async work audits at request time.
+Attach the values fixed per use case (action identity, target kind, category) to the command type with an attribute, as `litespec/ext/audit#declare-audit-selection-beside-the-command` requires. Declare the audit target and reason beside the message: the attribute names the message fields that carry the target identity and the reason value, so the pipeline records both on every outcome, including a denial. The command record's `audit` field selects which use cases are audited and why; async work audits at request time.
 
 ```csharp
-[Audited("catalog.add-product", TargetKind = "product", Category = AuditCategory.Configuration)]
+[Audited("catalog.add-product", TargetKind = "product", Category = AuditCategory.Configuration, Target = nameof(AddProductCommand.ProductId), Reason = nameof(AddProductCommand.Reason))]
 public sealed record AddProductCommand(...) : ICommand<AddProductCommandResult>;
 
 [NotAudited("A public catalog read discloses no tenant-owned data.")]
@@ -96,11 +96,11 @@ internal sealed class OpenAuditScopePreHandler(IAuditScopeFactory factory) : ICo
 
 ### Enrich from the Handler
 
-Let the command handler contribute only the values it alone determines, as `litespec/ext/audit#restrict-handler-contribution-to-determined-values` requires. A generated identity and a composed reason are the usual two.
+Let the command handler contribute only the values it alone determines, as `litespec/ext/audit#restrict-handler-contribution-to-determined-values` requires. A generated identity and a reason value composed from loaded state are the usual two.
 
 ```csharp
 var product = Product.Create(ProductId.New(), ...);
-products.Store(product);
+productRepository.Store(product);
 audit.Target(product.Id);
 ```
 

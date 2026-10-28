@@ -25,6 +25,8 @@ The model builder reads the written records, the code anchors, the routes, the t
 
 `backfill` drafts Behavior records from code during adoption: for each use case, reaction, and job a handler folder or an anchor tag places, it reads the repositories, dispatches, and refusal codes the code model already holds and drafts the missing frontmatter. A use case gains `changes` or `reads`, `effects` entries, and refusal results; a reaction gains `reads` and its edges; a job gains `reads` and its edges. Every touched record is marked transcribed. Existing entries are never removed or rewritten; only missing entries are appended. With a module name it covers that module only; without one it covers every module. With `--dry-run` it prints the plan and writes nothing. It prints a per-module completeness table first, then one line per planned record, then the count of files updated and records backfilled.
 
+The .NET stack reader discovers a reaction from an event handler: a class named `{Action}On{Fact}Handler` in an `On{Fact}` folder that implements `IEventHandler`. The handler's `<implements>reaction/...</implements>` tag names its reaction record.
+
 Aggregate transitions and data, and scenario examples, may be written as Markdown tables the builder parses, so the parts people debate read naturally even in the raw file. A front-matter field wins over a table with the same name.
 
 The eight subcommands share one reader:
@@ -125,7 +127,6 @@ Every check has a tier. G reads records only and always blocks. S reads code thr
 | `schedule-unstructured` | G | A job schedule is neither an `every` duration nor a `cron` expression. |
 | `behavior-unrecorded` | S | A handler, endpoint, reaction, domain event, or refusal code in code is named by no record. The remedy reads: delete the code, or write its parent record from a requirement, drafting the requirement if none exists. |
 | `use-case-unimplemented` | S | No code implements the use case and no known gap covers it. |
-| `use-case-access` | S | The code runs beyond the access grant the use case declares. |
 | `refusal-not-thrown` | S | A refusal result names a code the code never throws. |
 | `proves-unconfirmed` | S | No proving step of a claimed scenario reaches its use case, no assertion matches its refusal by code, client alias, or HTTP status, and no integration fact drives its use case or rule. |
 | `use-case-without-scenario` | S | A use case has no scenario. It runs at large size only. |
@@ -145,7 +146,7 @@ Every check has a tier. G reads records only and always blocks. S reads code thr
 | `repository-read-in-loop` | A | A repository read sits inside a `for`, `foreach` or `while` body. |
 | `query-filters-in-memory` | A | A query handler filters a repository list with LINQ in memory. |
 | `dependency-count` | A | A handler, reaction or job takes more than ten constructor dependencies. |
-| `send-before-commit` | A | A command use case sends a notification with `inline` timing. |
+| `effect-before-commit` | S | A command use case declares a `sends` or `calls` effect with `inline` timing. |
 
 The `render` subcommand writes these generated regions, each fenced by `<!-- generated:<name> -->` and `<!-- /generated:<name> -->`: `history`, `use-case-coverage`, `sub-processors`, `runbook-index`, `rule-map`, `operations-log`, `open-questions`, `journeys`, `glossary`, `deviations`, `census`, `aggregate-map`, `audit-register`, `alert-inventory`, and `counts`.
 

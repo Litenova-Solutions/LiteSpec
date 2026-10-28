@@ -114,7 +114,7 @@ A use case is one independently testable goal: a page beside its aggregate with 
 | `input` | `{ name, meaning, rules, source, classification }` entries; source is `caller`, `claim`, or `derived`. |
 | `changes`, `reads` | Aggregate ids touched, including `store` aggregates. |
 | `consistency` | `{ mode, because }`: mode of `atomic`, `per-record`, `compensated`, or `best-effort`. |
-| `effects` | `{ issues / sends / publishes / calls, timing, onFailure, before, forEach }` entries with exactly one verb; timing is `inline`, `after-commit`, or `async`. An inline `issues` entry states `sharesTransaction`. |
+| `effects` | `{ issues / sends / publishes / calls, timing, onFailure, before, forEach }` entries with exactly one verb; timing is `inline`, `after-commit`, or `async`. On a command, a `sends` or `calls` effect uses `after-commit` or `async` timing. An inline `issues` entry states `sharesTransaction`. |
 | `idempotency` | `{ mode, key, scope, reason }`: mode of `key`, `state`, `not-pending`, or `none`; `key` templates `{field}` placeholders over the input field names; `scope` is `tenant`, `account`, `login`, or `global`. |
 | `audit` | `{ reason, target }` with reason of `required`, `optional`, or `none`, or `{ exempt }` with its justification. Commands are audited by default with reason `none`, and async work audits at request time. |
 
@@ -447,7 +447,7 @@ The specification names only what carries business meaning. Child entities and v
 
 **Statement:** Each reservation rule MUST name the use case releasing it in `releasedBy`, or `never` with its cost.
 
-**Rationale:** A held claim with no release is a leak: places, funds, or names stay locked past their need, and nobody owns freeing them. Naming the releasing use case states the end of the hold beside its start, and `never` with its cost admits a hold that truly lasts, with the price on record. The `reservation-without-release` check reports a reservation with no release.
+**Rationale:** A held claim with no release is a leak: places, funds, or names stay locked past their need, and nobody owns freeing them. Naming the releasing use case states the end of the hold beside its start, and `never` with its cost admits a hold that truly lasts, with the price on record. Persistence claims the added keys and releases the removed ones in the commit that changes the aggregate (`litespec/backend/persistence#claim-a-cross-record-key-at-commit`). The `reservation-without-release` check reports a reservation with no release.
 
 ### Freeze Every Commercial Data Value
 
@@ -557,7 +557,7 @@ The specification names only what carries business meaning. Child entities and v
 
 **Statement:** Each use case MUST declare its `auth`, its grant, and its tenant scope in `access`.
 
-**Rationale:** Access split across prose and code is widened silently: a new caller arrives, the grant stretches, and no record shows it. Declaring the auth kind, the grant of `permission/<name>`, `self(permission/<name>)`, `anonymous`, or `system`, and the tenant scope of `own`, `cross`, `public`, or `none` states who calls and how far the call reaches in one place. Tenant scope `cross` routes the use case to the security queue of the behavior diff. The `use-case-access` check reports code reaching past the grant.
+**Rationale:** Access split across prose and code is widened silently: a new caller arrives, the grant stretches, and no record shows it. Declaring the auth kind, the grant of `permission/<name>`, `self(permission/<name>)`, `anonymous`, or `system`, and the tenant scope of `own`, `cross`, `public`, or `none` states who calls and how far the call reaches in one place. Tenant scope `cross` routes the use case to the security queue of the behavior diff. The authorization guard enforces the grant (`litespec/backend/application#enforce-target-authorization-in-the-pipeline`), and `LS2012` reports a handler that authorizes itself.
 
 **Example:** The reimburse-expense command declares session auth, the reimburse-expense permission, and own tenant scope, while the self-checkout scan declares device auth with a system grant.
 
@@ -599,7 +599,7 @@ The specification names only what carries business meaning. Child entities and v
 
 **Statement:** Each effect entry MUST carry exactly one verb and its timing.
 
-**Rationale:** An edge no record declares is the defect: hidden calls between use cases, reactions, jobs, notifications, integration events, and external systems. Declaring each edge with exactly one verb of `issues`, `sends`, `publishes`, or `calls`, with its timing of `inline`, `after-commit`, or `async`, its failure handling, and its `before` and `forEach` where they apply, states every coupling as data. The `effect-undeclared` check reports an edge the records never declared.
+**Rationale:** An edge no record declares is the defect: hidden calls between use cases, reactions, jobs, notifications, integration events, and external systems. Declaring each edge with exactly one verb of `issues`, `sends`, `publishes`, or `calls`, with its timing of `inline`, `after-commit`, or `async`, its failure handling, and its `before` and `forEach` where they apply, states every coupling as data. On a command, a `sends` or `calls` effect carries `after-commit` or `async` timing, and an event handler runs the consequence after the commit. The `effect-undeclared` check reports an edge the records never declared.
 
 **Example:** The reimburse-expense command publishes the reimbursed integration event after commit.
 
@@ -759,7 +759,7 @@ The specification names only what carries business meaning. Child entities and v
 
 **Statement:** Each reaction MUST live with the module whose records it changes, or with the notification module when it only sends.
 
-**Rationale:** Reactions filed by trigger scatter: one module behavior hides on a dozen trigger pages, and nobody sees the module whole. Filing each reaction with the module it changes keeps each module behavior in one place. The trigger page shows reactions to its event as a view derived from records.
+**Rationale:** Reactions filed by trigger scatter: one module behavior hides on a dozen trigger pages, and nobody sees the module whole. Filing each reaction with the module it changes keeps each module behavior in one place. Its event handler lives in that module's code under the `On{Fact}` folder (`litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle`). The trigger page shows reactions to its event as a view derived from records.
 
 ### Name Each Reaction for Its Act and Its Trigger
 
@@ -953,7 +953,7 @@ This informative example demonstrates `litespec/core/behavior#declare-the-kind-o
 | litespec/core/behavior#bound-every-caller-supplied-input-value | guidance | Each caller-sourced money or access input cites its bounding rule beside the input. |
 | litespec/core/behavior#name-every-aggregate-a-use-case-changes-or-reads | checkable | `litespec model check` reports `write-undeclared` for a write outside `changes` and `reference-unresolved` for an unknown aggregate. |
 | litespec/core/behavior#state-the-consistency-of-every-use-case | checkable | `litespec model check` reports `consistency-unexplained` for an atomic multi-aggregate write with no `because`. |
-| litespec/core/behavior#declare-every-effect-with-one-verb-and-its-timing | checkable | `litespec model check` reports `effect-undeclared` for an edge the records never declared; `litespec consumer` fails an effect entry without exactly one verb or its timing. |
+| litespec/core/behavior#declare-every-effect-with-one-verb-and-its-timing | checkable | `litespec model check` reports `effect-undeclared` for an edge the records never declared and `effect-before-commit` for a command `sends` or `calls` effect with `inline` timing; `litespec consumer` fails an effect entry without exactly one verb or its timing. |
 | litespec/core/behavior#state-the-transaction-sharing-of-every-inline-call | checkable | `litespec consumer` fails an inline `issues` effect without `sharesTransaction`. |
 | litespec/core/behavior#keep-the-effect-graph-free-of-cycles | checkable | `litespec model check` reports `effect-loop` for a cycle with no stated end condition. |
 | litespec/core/behavior#name-the-events-each-use-case-raises | guidance | Each use case names its raised domain events in `raises` beside the use-case page. |
@@ -975,7 +975,7 @@ This informative example demonstrates `litespec/core/behavior#declare-the-kind-o
 | litespec/core/behavior#trigger-every-reaction-from-a-declared-event | checkable | `litespec model check` reports `reaction-trigger-unresolved` for a trigger naming an unknown event. |
 | litespec/core/behavior#issue-or-send-from-every-reaction | checkable | `litespec model check` reports `record-shape` for a reaction with no `effects` and for top-level `issues` or `sends`. |
 | litespec/core/behavior#write-no-aggregate-directly-from-a-reaction | guidance | Each reaction changes aggregates only through the use case it issues. |
-| litespec/core/behavior#file-every-reaction-with-the-module-it-changes | guidance | Each reaction page sits with the module it changes, or with the notification module when it only sends. |
+| litespec/core/behavior#file-every-reaction-with-the-module-it-changes | guidance | Each reaction page sits with the module it changes, or with the notification module when it only sends, and its event handler lives in that module's code under the `On{Fact}` folder. |
 | litespec/core/behavior#name-each-reaction-for-its-act-and-its-trigger | checkable | `litespec model check` reports `reaction-name-form` for a reaction name without a declared verb or without `-on-`. |
 | litespec/core/behavior#state-the-failure-handling-of-every-reaction | checkable | `litespec consumer` fails a reaction with `onFailure` outside the retry and dead-letter shape; `litespec model check` reports `record-shape` for prose handling, a missing or malformed retry, and a malformed duration. |
 | litespec/core/behavior#point-reaction-scenarios-at-the-issued-result | checkable | `litespec model check` reports `scenario-result-unresolved` for a reaction scenario ending outside the issued use case results. |

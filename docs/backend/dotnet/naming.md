@@ -30,6 +30,26 @@ A C# file takes its primary type's exact name, so a reader finds any type by its
 
 **Rationale:** File-scoped namespaces, braces on every body, explicit access modifiers, and sealed concrete classes change diff readability rather than behavior. One shared setting removes the debate from every review and keeps generated and hand-written code alike.
 
+### Name Result Parts After Their Result
+
+**Statement:** Each C# file holding a use-case result part MUST be named `{UseCase}QueryResult{Part}.cs` or `{UseCase}CommandResult{Part}.cs` after its result.
+
+**Rationale:** The file name carries the full role suffix, so a reader tells the owning result without opening the file. The type inside carries the same name under `litespec/backend/dotnet/naming#match-c-files-and-primary-types`. This provision states the .NET form of `litespec/workspace/naming#name-result-parts-after-their-result`.
+
+**Example:** `ListPostsQueryResultItem.cs` holds the item part of the list-posts result, and `ReadLoanQueryResultHold.cs` holds the hold part of the read-loan result; a bare `PostSummary.cs` hides its owner.
+
+### Group Event Handlers by the Fact They Handle
+
+**Statement:** Each C# event handler MUST live in a folder named `On{Fact}` under its subscriber aggregate folder, in a file named `{Action}On{Fact}Handler.cs` with its namespace ending in `.On{Fact}`.
+
+**Rationale:** The folder answers what happens when the fact is recorded with one listing: `Loans/Loans/OnLoanBorrowed/` holds `SendDueNoticeOnLoanBorrowedHandler.cs` beside every other handler of the borrowed fact in that module. `dotnet build` reports a misnamed handler as `LS2007` and a handler outside its fact folder as `LS2008`. This provision states the .NET form of `litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle`.
+
+### Name Repository Variables After Their Interface
+
+**Statement:** Each C# repository parameter, field or local MUST be named after its interface without the `I` prefix, ending in `Repository`.
+
+**Rationale:** The variable repeats the interface name in camel case, so a reader tells the guarded aggregate from the use: `expenseRepository` serves `IExpenseRepository`, and `loanRepository` serves `ILoanRepository`. A private field keeps its leading underscore, as `_expenseRepository`. `dotnet build` reports any other name as `LS2010`. This provision states the .NET form of `litespec/workspace/naming#name-repository-variables-after-their-interface`.
+
 ## Conventions
 
 ### Name No Folder or Type for the Absence of a Reason
@@ -69,4 +89,7 @@ internal sealed class CreateDraftCommandHandler(
 | litespec/backend/dotnet/naming#match-c-files-and-primary-types | checkable | `dotnet build` reports no LiteSpec.Analyzers LS3003 diagnostic across the application projects. |
 | litespec/backend/dotnet/naming#name-asynchronous-methods-completely | checkable | `dotnet build` reports no LiteSpec.Analyzers LS3001 or LS3002 diagnostic across the application projects. |
 | litespec/backend/dotnet/naming#keep-implementation-style-consistent | guidance | Production C# files use file-scoped namespaces, braces on every body, explicit access modifiers, and sealed concrete classes. |
+| litespec/backend/dotnet/naming#name-result-parts-after-their-result | checkable | `dotnet build` reports no LiteSpec.Analyzers LS2009 diagnostic across the application projects. |
+| litespec/backend/dotnet/naming#group-event-handlers-by-the-fact-they-handle | checkable | `dotnet build` reports no LiteSpec.Analyzers LS2007 or LS2008 diagnostic across the application projects. |
+| litespec/backend/dotnet/naming#name-repository-variables-after-their-interface | checkable | `dotnet build` reports no LiteSpec.Analyzers LS2010 diagnostic across the application projects. |
 | litespec/backend/dotnet/naming#name-no-folder-or-type-for-the-absence-of-a-reason | checkable | `litespec model check` reports `reasonless-name` (tier A) for a folder or type named for the absence of a reason outside the declared shared kernel. |

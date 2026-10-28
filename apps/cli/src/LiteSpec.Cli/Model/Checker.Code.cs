@@ -35,7 +35,7 @@ static class CodeChecks
         CheckRepositoryReadInLoop(model, findings);
         CheckQueryFiltersInMemory(model, findings);
         CheckDependencyCount(model, findings);
-        CheckSendBeforeCommit(model, findings);
+        CheckEffectBeforeCommit(model, findings);
     }
 
     /// <summary>
@@ -1223,7 +1223,7 @@ static class CodeChecks
         }
     }
 
-    private static void CheckSendBeforeCommit(ProjectModel model, List<Finding> findings)
+    private static void CheckEffectBeforeCommit(ProjectModel model, List<Finding> findings)
     {
         foreach (var useCase in model.Records.Where(record => record.Type == "use-case" && record.Field("kind") == "command"))
         {
@@ -1236,20 +1236,27 @@ static class CodeChecks
 
             foreach (var entry in effects.EnumerateArray())
             {
-                if (entry.ValueKind == JsonValueKind.Object
-                    && entry.TryGetProperty("sends", out var sends)
-                    && sends.ValueKind == JsonValueKind.String
-                    && sends.GetString() is { Length: > 0 } target
-                    && entry.TryGetProperty("timing", out var timing)
-                    && timing.ValueKind == JsonValueKind.String
-                    && timing.GetString() == "inline")
+                if (entry.ValueKind != JsonValueKind.Object
+                    || !entry.TryGetProperty("timing", out var timing)
+                    || timing.ValueKind != JsonValueKind.String
+                    || timing.GetString() != "inline")
                 {
-                    findings.Add(CodeFinding(
-                        "send-before-commit",
-                        $"Use case '{useCase.Id}' sends '{target}' inline, before its commit.",
-                        useCase.File,
-                        useCase.Line,
-                        useCase.Id));
+                    continue;
+                }
+
+                foreach (var verb in new[] { "sends", "calls" })
+                {
+                    if (entry.TryGetProperty(verb, out var effect)
+                        && effect.ValueKind == JsonValueKind.String
+                        && effect.GetString() is { Length: > 0 } target)
+                    {
+                        findings.Add(CodeFinding(
+                            "effect-before-commit",
+                            $"Use case '{useCase.Id}' {verb} '{target}' inline; it runs after the commit from an event handler or a job.",
+                            useCase.File,
+                            useCase.Line,
+                            useCase.Id));
+                    }
                 }
             }
         }

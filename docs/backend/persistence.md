@@ -136,6 +136,54 @@ A tool that alters the schema from application startup is not a reviewed step wh
 
 **Example:** The reimburse-expense command takes its number from the spending payout sequence, never from a list count.
 
+### Enforce Uniqueness in the Store
+
+**Statement:** Each uniqueness rule MUST be enforced by the store, through a unique index over the stored value or, for a record that exists at most once per owner, through an identity derived from its owner.
+
+**Rationale:** The store is the only place that sees every concurrent write, while a check in code sees only its own transaction: two commands that both check and then both write store the same value twice. A unique index or an owner-derived identity makes the second write fail in the store instead. When the rule ignores case or spacing, the stored value is normalized before writing and the index covers the normalized field, so differently cased writes still collide.
+
+**Example:** In the Claimwick product, each payout carries a legal document number that is unique per spending owner; the store holds a unique index over the owner and number pair, so two concurrent reimbursements collide on the index and the loser ends with the use case conflict refusal instead of sharing one number. In the library product, each book barcode is unique across books; two clerks registering the same barcode at once collide on the barcode unique index, and the second commit refuses with `book-barcode-taken`.
+
+### Model a Once-Only Rule as Aggregate State
+
+**Statement:** Each rule that an action happens at most once for a record MUST be state on that record's aggregate.
+
+**Rationale:** A flag on the aggregate travels with the record it guards, so the rule is checked where the record is changed: the aggregate sees the earlier action in its own state and refuses the repeat or leaves it without effect. A counter or marker kept anywhere else splits the rule from the record, and the two disagree under concurrent writes.
+
+**Example:** In the library product, a loan charges its overdue fee at most once: the loan records that it charged the fee, and a repeat command finds the flag and refuses with the loan conflict refusal. In the Claimwick product, an expense is reimbursed at most once: the reimbursed state carries the fact, so a second reimbursement finds an expense that is already reimbursed and ends with `spending.not-approved`.
+
+### Claim a Cross-Record Key at Commit
+
+**Statement:** A uniqueness rule that no single-record constraint can express MUST be declared by the aggregate as a key and claimed and released by persistence in the commit that changes the aggregate.
+
+**Rationale:** Some rules fit no single-record constraint: a value held in a list inside the aggregate, or a value that is unique across two record kinds. For those, the aggregate declares its current keys through `UniquenessKeys` (see `litespec/backend/domain#declare-cross-record-keys-on-the-aggregate`), and persistence compares the keys at load with the keys at commit, inserting the added keys and deleting the removed ones in the same transaction, so the database still arbitrates the race.
+
+**Example:** In the library product, a book holds a list of copy barcodes and each barcode belongs to one book: the book declares each barcode as a key, and the commit that adds a copy claims the new barcode while releasing a removed one. In the Claimwick product, a payout reference that is unique across payouts and adjustments is declared by each aggregate that carries it, so a reference already used by either record blocks the other at commit.
+
+### Keep Uniqueness Out of Handlers
+
+**Statement:** A handler MUST NOT reserve, claim, check or release a uniqueness key.
+
+**Rationale:** A reservation made in a handler runs outside the commit that needs it: it can leak when the command fails later, and it teaches every later handler to coordinate with the store directly. The store enforces the rule at commit through `litespec/backend/persistence#enforce-uniqueness-in-the-store` and `litespec/backend/persistence#claim-a-cross-record-key-at-commit`, and the pipeline turns a lost race into the use case conflict refusal under `litespec/backend/application#refuse-a-lost-race-as-a-conflict`, so the handler carries no reservation, check, or cleanup.
+
+**Example:** The register-reader handler creates the reader aggregate and stages it through its Domain repository, reserving no card number and checking no registry first. When two registrations race for one card number, the second commit violates the unique index and refuses with the use case conflict, with no reservation or cleanup code in the handler. The submit-expense handler likewise stages the expense and leaves the payout number to the store sequence.
+
+### Map a Constraint Violation to Its Refusal
+
+**Statement:** Each unique constraint MUST map by name to the conflict refusal of the use cases that can violate it.
+
+**Rationale:** The pipeline fault classification turns a store fault into the use case named conflict refusal, following `litespec/backend/application#refuse-a-lost-race-as-a-conflict`. The map keys each unique constraint by name, so the classifier knows which refusal the violation answers. An unmapped violation still fails the commit, but it reaches the caller as a generic conflict that names no rule and suggests no next step.
+
+**Example:** The barcode unique index is named `uq_book_barcode`, and the map pairs it with `book-barcode-taken`: a registration that loses the barcode race refuses with that code. The payout number index is named `uq_payout_owner_number`, and the map pairs it with the reimburse conflict refusal, so each racing command names the number it lost.
+
+### Version Every Aggregate
+
+**Statement:** Each stored aggregate MUST carry a version that the store compares at commit, so a lost update fails the commit.
+
+**Rationale:** Without a compared version, two commands that load the same aggregate both commit, and the second silently overwrites the first. The store compares the version each command loaded with the version it commits against, so a stale write fails the commit instead of erasing newer work. A failed comparison ends with the use case conflict refusal, following `litespec/backend/application#refuse-a-lost-race-as-a-conflict`.
+
+**Example:** Two approvers open the same submitted expense; the first approval commits and moves the version forward, and the second approval fails its version comparison and refuses with the approve conflict instead of overwriting the first decision. In the library product, two clerks extending one loan race the same way, and the loser re-reads the loan before deciding again.
+
 ## Conventions
 
 ### Use One Persistence Folder
@@ -260,6 +308,12 @@ An accepted business rule caps `Order.Lines` at 200 entries inside the aggregate
 | litespec/backend/persistence#test-persistence-against-postgresql | guidance | Persistence tests run against the pinned PostgreSQL with no in-memory substitute. |
 | litespec/backend/persistence#read-collection-queries-in-the-store-with-paging-and-filters | checkable | `litespec model check` reports `query-filters-in-memory` (tier A) for a query handler filtering a repository list in memory. |
 | litespec/backend/persistence#assign-document-numbers-from-a-sequence | guidance | Each legal document number allocates from a per-owner sequence taken in the command transaction. |
+| litespec/backend/persistence#enforce-uniqueness-in-the-store | guidance | Each uniqueness rule pairs with a store unique index or an owner-derived identity in the store configuration, with normalized values indexed on the normalized field. |
+| litespec/backend/persistence#model-a-once-only-rule-as-aggregate-state | guidance | Each at-most-once rule lives as state on its aggregate, with a repeat ending in the refusal or without effect. |
+| litespec/backend/persistence#claim-a-cross-record-key-at-commit | guidance | Each cross-record uniqueness rule declares keys on its aggregate, claimed and released in the committing transaction. |
+| litespec/backend/persistence#keep-uniqueness-out-of-handlers | checkable | `dotnet build` reports no LiteSpec.Analyzers LS2016 diagnostic across the application projects. |
+| litespec/backend/persistence#map-a-constraint-violation-to-its-refusal | guidance | Each unique constraint name pairs with the conflict refusal of its violating use cases in the fault classification map. |
+| litespec/backend/persistence#version-every-aggregate | guidance | Each stored aggregate carries a version the store compares at commit, with a stale write ending in the use case conflict refusal. |
 | litespec/backend/persistence#use-one-persistence-folder | guidance | Store configuration, repositories, and commit behavior sit under the one persistence folder. |
 | litespec/backend/persistence#use-one-session-per-command | guidance | The repositories and the commit handler in one command resolve one session. |
 | litespec/backend/persistence#review-query-plans-for-new-indexes | guidance | New indexes record their accepted query and the plan that justified it. |

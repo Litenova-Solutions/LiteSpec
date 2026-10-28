@@ -213,7 +213,7 @@ Each written link lives as a field on the record it starts from: a decision carr
 
 Behavior records point up: `serves` points to a goal or a journey step, and `fulfills` points to a requirement. Records never point down: a journey names no use case, and a requirement names no rule.
 
-Containment needs no link field: it follows the identifier. An aggregate belongs to the module its identifier names, a reaction, job, notification, or setting belongs to the module its identifier names, and a result or a scenario belongs to the use case its identifier names. An integration event belongs to the published set. The builder computes the remaining links from code, routes, and tests: `implements` from code to a use case, rule, or event; `calls` from a screen to a use case; and `proves` from a test to a scenario. Code and tests point up to the record they serve, through their folder or one anchor tag.
+Containment needs no link field: it follows the identifier. An aggregate belongs to the module its identifier names, a reaction, job, notification, or setting belongs to the module its identifier names, and a result or a scenario belongs to the use case its identifier names. An integration event belongs to the published set. The builder computes the remaining links from code, routes, and tests: `implements` from code to a use case, rule, or event; `calls` from a screen to a use case; and `proves` from a test to a scenario. Code and tests point up to the record they serve: a command or query handler through its folder, which carries the use-case name, and an event handler through its `implements` tag naming its reaction, with each handler implementing exactly one record.
 
 ### Authority
 
@@ -342,13 +342,13 @@ Every check has a tier.
 | `schedule-unstructured` | G | a schedule outside every or cron |
 | `behavior-unrecorded` | S | code with no parent record: delete the code, or write its parent record from a requirement, drafting the requirement if none exists |
 | `use-case-unimplemented` | S | a use case with no handler |
-| `use-case-access` | S | access wider than the grant |
 | `refusal-not-thrown` | S | a declared refusal code missing from the handler |
 | `proves-unconfirmed` | S | a proves link with no passing test behind it |
 | `use-case-without-scenario` | S | a use case with no scenario |
 | `write-undeclared` | S | a write outside changes |
 | `result-undeclared` | S | an outcome no result declares |
 | `effect-undeclared` | S | an edge no record declares |
+| `effect-before-commit` | S | a command use case declaring a `sends` or `calls` effect with `inline` timing |
 | `prose-missing` | A | a use case needing Goal and What Happens without them |
 | `many-aggregates` | A | more than one atomic write group |
 | `question-aged` | A | a question past its date still open |

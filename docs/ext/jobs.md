@@ -28,9 +28,9 @@ This extension switches on no optional record type: the job, setting, and runboo
 
 ### Issue One Run per Item in Scope
 
-**Statement:** A job MUST run its `issues` once per item in its `scope` within its `batchSize`.
+**Statement:** A job MUST issue one command per item in its `scope` within its `batchSize`, each in its own unit of work.
 
-**Rationale:** The scope states what each run selects, the batch size bounds how many items one batch takes, and `issues` names the use cases run per item. One run per item keeps retries, evidence, and idempotency per item: a failed item replays without replaying its batch.
+**Rationale:** The scope states what each run selects, the batch size bounds how many items one batch takes, and `issues` names the command run per item. Each item runs as one command in its own unit of work, as `litespec/backend/application#issue-per-record-work-from-a-job` requires: a failed item replays without replaying its batch.
 
 ### Resume Driven Work Through the Cursor
 
@@ -253,7 +253,7 @@ Guides: `None.`
 | ID | Mark | Evidence |
 |:---|:---|:---|
 | litespec/ext/jobs#carry-the-schedule-on-the-job-record | guidance | Each scheduled and one-off job record carries a structured schedule with its timezone. |
-| litespec/ext/jobs#issue-one-run-per-item-in-scope | guidance | Each job run executes its issued use cases once per item in its scope within its batch size. |
+| litespec/ext/jobs#issue-one-run-per-item-in-scope | guidance | Each job run issues one command per item in its scope within its batch size, each in its own unit of work. |
 | litespec/ext/jobs#resume-driven-work-through-the-cursor | guidance | Each job driving a process names its resume position in its cursor, with a scenario covering the remainder after a halfway failure. |
 | litespec/ext/jobs#run-operator-jobs-under-their-guard | guidance | Each operator job run stays inside its runsWhere under its guard. |
 | litespec/ext/jobs#run-jobs-in-worker | guidance | Worker sources hold every scheduled job, and WebApi request handling holds none. |

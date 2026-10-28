@@ -428,7 +428,7 @@ static class ModelCommand
     /// <summary>The tier each check code carries, for findings that carry no tier yet.</summary>
     static string TierByCode(string code) => code switch
     {
-        "behavior-unrecorded" or "use-case-unimplemented" or "use-case-access"
+        "behavior-unrecorded" or "use-case-unimplemented"
             or "refusal-not-thrown" or "proves-unconfirmed" or "use-case-without-scenario"
             or "write-undeclared" or "result-undeclared" or "effect-undeclared" => "S",
         "prose-missing" or "many-aggregates" or "question-aged" => "A",

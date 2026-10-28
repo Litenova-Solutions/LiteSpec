@@ -2,7 +2,7 @@
 
 ## Intent
 
-The Analyzers section explains the LiteSpec.Analyzers package, which checks .NET server code against the LiteSpec standard while the compiler runs and reports each break as an error in the editor and the build. The package checks project boundaries, modeling in Domain, the project that holds the business rules, and naming across the 5 application projects, with one assertion rule in test projects, reporting 24 errors, one per rule, with a link from each error to the standard it enforces. A backend developer uses these pages to install the package once and to clear each finding by fixing the code it names.
+The Analyzers section explains the LiteSpec.Analyzers package, which checks .NET server code against the LiteSpec standard while the compiler runs and reports each break as an error in the editor and the build. The package checks project boundaries, modeling in Domain, the project that holds the business rules, and naming across the 5 application projects, with one assertion rule in test projects, reporting 33 errors, one per rule, with a link from each error to the standard it enforces. A backend developer uses these pages to install the package once and to clear each finding by fixing the code it names.
 
 ## How the Pages Fit Together
 
@@ -25,7 +25,7 @@ First, the analyzers work out the project layer from the `LiteSpecLayer` MSBuild
 
 Any other assembly name opts the project out, and so does an explicit `LiteSpecLayer` value of `None`. No rule runs in an opted-out project.
 
-Second, a rule registers only in the layers its provision covers. Domain rules run in Domain. `LS2001` runs in Application, Infrastructure, and WebApi. `LS2004`, `LS2005`, and `LS2007` run in Application and Infrastructure. `LS2003` and `LS2006` run in WebApi. Style rules run in the five production projects. `LS4001` runs in test projects. The analyzers skip generated code.
+Second, a rule registers only in the layers its provision covers. Domain rules run in Domain. `LS2001` runs in Application, Infrastructure, and WebApi. `LS2004`, `LS2005`, and `LS2007` to `LS2016` run in Application and Infrastructure. `LS2003` and `LS2006` run in WebApi. Style rules run in the five production projects. `LS4001` runs in test projects. The analyzers skip generated code.
 
 Third, most rules decide as the compiler reads each declaration. Rules `LS1003`, `LS1004`, and `LS3004` decide at the end of compilation, after every type is known.
 
@@ -84,7 +84,16 @@ Other name-based checks work the same way:
 - A command handler is any class whose name ends in `CommandHandler` or that implements an interface named `ICommandHandler`.
 - A query handler is any class that implements an interface named `IQueryHandler`.
 - An endpoint is any class that implements an interface named `IEndpoint`.
-- A reaction is any class that implements an interface named `IEventHandler` or `IDomainEventReaction`. A job is any class that derives from a class named `BackgroundService` or implements an interface named `IHostedService`.
+- An event handler is any class that implements an interface named `IEventHandler` or `IDomainEventReaction`. A job is any class that derives from a class named `BackgroundService` or implements an interface named `IHostedService`.
+- An event handler handles the event its `IEventHandler<TEvent>` type argument names. `LS2008` requires its namespace to end in `On{Fact}`, the event name without its `Event` suffix.
+- A use-case result is any type whose name ends in `QueryResult` or `CommandResult`. `LS2009` requires every other public or internal type in its namespace to start with the result name, except the message, handler, validator, and definition.
+- A repository variable is any parameter, field, or local typed as an interface named `I{Name}Repository`. `LS2010` requires its name to be `{name}Repository`, with a leading underscore allowed on a field.
+- `LS2011` reports a query handler constructor parameter typed as an interface named `I*Repository`.
+- `LS2012` reports a command or query handler that throws an exception type whose name ends in `ForbiddenException`, `UnauthorizedException`, or `AccessDeniedException`.
+- `LS2013` reports a call to `WithTarget` or `WithReason` on a type named `IAuditScope` inside a command handler, when the argument reads only the message.
+- `LS2014` reports a command handler that calls a repository method starting with `Find` and, in the same method, a static method or constructor that returns the found type.
+- `LS2015` reports a command handler whose `for`, `foreach`, or `while` body calls a repository `Store`, `Add`, `Update`, or `Delete` method.
+- `LS2016` reports a command or query handler constructor parameter whose type is listed in the `litespec.LS2016.pipeline_owned_types` `.editorconfig` key.
 - A session is any type named `IDocumentSession`, any type named `DbContext`, or any subclass of a type named `DbContext`.
 - A test is any method carrying an attribute named `Fact`, `Theory`, `Test`, `TestCase`, `TestCaseSource`, `TestMethod`, or `DataTestMethod`. An assertion is any call to a member of a type named `Assert`, or to a method whose name starts with `Assert`.
 
@@ -93,4 +102,4 @@ The analyzer does not check that a `Guid` inside an identifier is a version 7 va
 ## Pages in This Section
 
 - [Check .NET Code with the Analyzers](check-dotnet-code-with-the-analyzers.md): install the package once, read the first findings, keep them as build errors, and lower one only where a deviation allows it.
-- [Analyzer rules overview](rules/README.md): find the reference page for each of the 24 rules, grouped by layer.
+- [Analyzer rules overview](rules/README.md): find the reference page for each of the 33 rules, grouped by layer.

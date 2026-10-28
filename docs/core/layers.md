@@ -57,7 +57,7 @@ A need a lower layer meets that the upper layer leaves unstated travels up as a 
 
 **Statement:** Implementation MUST add only the code shapes its stack pages fix and no observable outcome, edge, write, or access grant its Behavior records leave undeclared.
 
-**Rationale:** The stack pages fix the code shapes, so the handler, the repository call, and the published event each have one prescribed form. An observable outcome, edge, write, or access grant outside the records splits the project into approved fiction and unreviewed fact. The checks `behavior-unrecorded`, `write-undeclared`, `result-undeclared`, `effect-undeclared`, `use-case-access`, and `refusal-not-thrown` report the excess.
+**Rationale:** The stack pages fix the code shapes, so the handler, the repository call, and the published event each have one prescribed form. An observable outcome, edge, write, or access grant outside the records splits the project into approved fiction and unreviewed fact. The checks `behavior-unrecorded`, `write-undeclared`, `result-undeclared`, `effect-undeclared`, and `refusal-not-thrown` report the excess, and analyzer `LS2012` reports a handler that authorizes itself.
 
 **Example:** A handler that returns a code no result declares fails `result-undeclared`; the fix declares the result or removes the code.
 
@@ -126,7 +126,7 @@ Bottom-up: a late reimbursement in production shows the payout bank settles batc
 | litespec/core/layers#write-each-layer-from-the-layer-above-it | checkable | `litespec model check` emits no `behavior-unrecorded` finding for code that names no parent record. |
 | litespec/core/layers#add-behavior-detail-when-specifying-intent | checkable | `litespec model check` emits no `requirement-unfulfilled`, `record-orphaned`, `step-unserved`, `erasure-undeclared`, or `setting-default-without-requirement` finding across Behavior records. |
 | litespec/core/layers#raise-commercial-and-observable-figures-as-questions | guidance | Which prices, fees, rates, terms, markets, payers, retention periods, or observable figures did Behavior decide without a draft question? Look at the settings and rules the change adds, beside the question list. |
-| litespec/core/layers#implement-only-declared-behavior | checkable | `litespec model check` emits no `behavior-unrecorded`, `write-undeclared`, `result-undeclared`, `effect-undeclared`, `use-case-access`, or `refusal-not-thrown` finding across the implementation. |
+| litespec/core/layers#implement-only-declared-behavior | checkable | `litespec model check` emits no `behavior-unrecorded`, `write-undeclared`, `result-undeclared`, `effect-undeclared`, or `refusal-not-thrown` finding across the implementation. |
 | litespec/core/layers#prove-each-scenario-through-the-public-boundary | checkable | `litespec model check` emits no `use-case-without-scenario` or `proves-unconfirmed` finding across scenarios and tests. |
 | litespec/core/layers#raise-open-needs-as-draft-questions | guidance | Which unstated needs lack a draft question with a decider and a decide-by date? Look at the lower-layer records the change adds, beside the ballot inbox. |
 | litespec/core/layers#enter-world-facts-as-cited-research-or-constraints | guidance | Which world facts entered without a cited and dated research or constraint record? Look at the provider, regulation, and incident facts the change relies on. |
