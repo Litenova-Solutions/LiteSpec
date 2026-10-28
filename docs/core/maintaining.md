@@ -30,6 +30,15 @@ A citation names the cited provision by its current identifier, whether the cita
 
 A LiteSpec release is a tagged snapshot of the repository, and the highest git tag names the current release. Between releases, five places name the release being prepared: the version in `litespec.manifest.json`, the topmost `CHANGELOG.md` entry, the consumer template's `reviewedLiteSpecVersion`, and the package versions in `apps/cli/src/LiteSpec.Cli/LiteSpec.Cli.csproj` and `apps/analyzers/src/LiteSpec.Analyzers/LiteSpec.Analyzers.csproj`. Tagging that version number makes it current. The manifest lists every stack, shape, extension, and version pin the release carries. Publishing the release puts the `LiteSpec.Cli` tool package, the `LiteSpec.Analyzers` package, and the site at the release version together, so the tool carries the manifest, schemas, docs, and templates the version names. A consumer upgrades by changing the tool version and `reviewedLiteSpecVersion` together. Each schema `$id` carries that release under `https://litespec.dev/<version>/schemas/`, so a consumer that pins the release keeps resolving the shapes it reviewed.
 
+### Release Diagnostics
+
+These checks report a manifest or schema the release cannot ship, so they are listed here instead of beside a provision.
+
+| Family | Meaning | Codes |
+|:---|:---|:---|
+| `MANIFEST_*` | The manifest is not valid JSON, names a path or anchor that does not exist, or lists a shape page twice. | `MANIFEST_JSON`, `MANIFEST_PATH`, `MANIFEST_ANCHOR`, `MANIFEST_DUPLICATE_PATH` |
+| `SCHEMA_*` | A schema carries the wrong release `$id`, is not valid JSON, rejects its values, or uses a keyword the evaluator does not implement. | `SCHEMA_ID`, `SCHEMA_JSON`, `SCHEMA_INVALID`, `SCHEMA_UNSUPPORTED_KEYWORD` |
+
 ## Standards
 
 ### State the Provision Lifecycle

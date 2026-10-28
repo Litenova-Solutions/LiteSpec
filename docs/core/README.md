@@ -2,13 +2,13 @@
 
 ## Intent
 
-The Core pages state what every LiteSpec project shares: the principles, the layers, the records that hold intent and behavior, and the rules for agents, writing, and releases. Read them in the order below when starting a project, then load only the pages each task touches.
+The Core pages state what every LiteSpec project shares: the principles, the record layers, the records that hold intent and behavior, and the rules for agents, writing, and releases. Read them in the order below when starting a project, then load only the pages each task touches.
 
 ## Reading Order
 
 - [Principles](principles.md): the founding rules that settle choices no narrower page covers.
 - [Model](model.md): the record types, their links, and what the builder computes.
-- [Layers](layers.md): the four layers and the translation rules between them.
+- [Layers](layers.md): the four record layers and the translation rules between them.
 - [Intent](intent.md): where a project states its business intent and in what form.
 - [Behavior](behavior.md): the modules, aggregates, rules, events, use cases, reactions, jobs, and scenarios inside the bounded context.
 - [Access](access.md): the actors, roles, permissions, entry points, and external systems that govern who may do what and how it is reached.

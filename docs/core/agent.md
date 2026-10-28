@@ -8,7 +8,7 @@ An agent is software that reads task context, edits files, and runs checks. This
 
 ### The Project Model and the Agent Context
 
-A consumer project describes itself with records of fixed types in four layers: Intent states the promises, Behavior states how the system keeps them, Implementation is code only, and Proof shows the checks. The [model page](model.md) states the record types and their links. An agent queries that model for the records a task touches: `litespec model query <id>` prints one record with its links in both directions, such as a use case with its rules, results, and scenarios.
+A consumer project describes itself with records of fixed types in four record layers: Intent states the promises, Behavior states how the system keeps them, Implementation is code only, and Proof shows the checks. The [model page](model.md) states the record types and their links. An agent queries that model for the records a task touches: `litespec model query <id>` prints one record with its links in both directions, such as a use case with its rules, results, and scenarios.
 
 The generated agent context is the rendered summary of that selection: the smallest record set that covers the request, with the links the builder joined between records. Code, screens, and tests point up to the records they serve. Reading the context before editing starts the run from decided Intent instead of repository guesswork.
 

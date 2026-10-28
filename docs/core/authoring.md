@@ -16,9 +16,9 @@ Standards state required boundaries, and Conventions state replaceable defaults.
 
 ### Documentation Layers
 
-A reader arrives with one question, and each page answers the one for its layer.
+A reader arrives with one question, and each page answers the one for its documentation layer.
 
-| Layer | Page style | The question it answers |
+| Documentation layer | Page style | The question it answers |
 |:---|:---|:---|
 | 1 | Tutorial | How do I get a first working result? |
 | 2 | How-to | How do I reach this one goal? |
@@ -26,7 +26,7 @@ A reader arrives with one question, and each page answers the one for its layer.
 | 3b | Reference, command | What are the exact values and how do I run this? |
 | 4 | The `Underneath` section of a command page | What does the command run, and how do I run it myself? |
 
-An explanation page builds understanding: what LiteSpec is, why it works the way it does, and how its parts fit. It sits beside the layers because a reader takes it before or between tasks, not during one. An index routes readers to pages, and the glossary resolves one term each, so neither sits in a layer. A page links down a layer. Any page may link to the glossary.
+An explanation page builds understanding: what LiteSpec is, why it works the way it does, and how its parts fit. It sits beside the documentation layers because a reader takes it before or between tasks, not during one. An index routes readers to pages, and the glossary resolves one term each, so neither sits in a documentation layer. A page links down a documentation layer. Any page may link to the glossary.
 
 ### Page Styles
 
@@ -38,13 +38,13 @@ Every LiteSpec page uses exactly one style, decided by where the page lives.
 | Stack | `stack.md` in a stack folder | `templates/standard/topic.md` | Intent, optional Concepts, Standards, Conventions |
 | Extension | An `ext/` folder | `templates/standard/extension.md` | Intent, Activation, Baseline Relationship, Standards, Conventions, Dependencies |
 | Pattern | `docs/frontend/patterns/` | [UI patterns](../frontend/patterns.md) | Intent, optional Concepts, optional Standards, optional Conventions, Patterns |
-| Reference | `docs/reference/`, and one page per rule in `docs/analyzers/rules/` | `templates/standard/reference.md` | Intent, Reference, optional Notes |
+| Reference | `docs/reference/` except the generated provision index, and one page per rule in `docs/analyzers/rules/` | `templates/standard/reference.md` | Intent, Reference, optional Notes |
 | Command | `docs/tools/` | `templates/standard/command.md` | Name, Synopsis, Description, Arguments, Options, Exit Codes, Examples, Underneath |
 | How-to | `docs/guide/`, and the other pages of `docs/analyzers/` | `templates/standard/how-to.md` | Purpose, optional Prerequisites, Procedure, Check |
 | Tutorial | `docs/tutorial/` | `templates/standard/tutorial.md` | Purpose, Prerequisites, Lesson, What You Built |
 | Explanation | `docs/learn/` and `docs/example/` | None | Intent, then sections of its own |
 | Index | A `README.md` | None | Intent, then navigation groups |
-| Glossary | `docs/reference/glossary.md` | None | One heading and definition per term, in alphabetical order |
+| Glossary | `docs/reference/glossary.md` | None | H2 groups in alphabetical order, each with one intro sentence, then one H3 heading and definition per term |
 
 A consumer page is a record or one of these styles. Each one opens with the specification metadata block the record schema defines.
 
@@ -97,8 +97,8 @@ These rules apply to every page style:
 - A tutorial follows one path. An option or an alternative belongs on a how-to page.
 - A Standards section opens directly with its first provision heading; provision headings are the content.
 - A Concepts section holds definitions, diagrams, and vocabulary; obligations belong in Standards.
-- An Activation section states the scope, the kinds, and the criterion that selects the extension.
-- A Baseline Relationship section compares against the baseline; obligations belong in Standards.
+- An Activation section states the activation scope, the kinds, and the criterion that selects the extension.
+- A Baseline Relationship section compares against the baseline it replaces; obligations belong in Standards.
 
 ### Provisions
 
@@ -129,7 +129,7 @@ A Standard states one testable obligation:
 - Conditions and scope belong in the Statement sentence.
 - Every other paragraph of the provision sits under a Rationale or an Example label and adds no obligation.
 - A Deviation appears if and only if the Statement uses `SHOULD` or `SHOULD NOT`.
-- `SHOULD` keeps the standard's rule with a narrow recorded departure; a Convention is a project-owned default the project replaces by naming its own convention, not by recording a deviation.
+- `SHOULD` keeps the standard's rule with a deviation; a Convention is a project-owned default the project replaces by naming its own convention, not by recording a deviation.
 
 A Convention states a default a project may replace:
 
@@ -143,9 +143,9 @@ A Convention states a default a project may replace:
 **Rationale:** Why this is the default.
 ```
 
-A project that departs from a Standard records a deviation that cites the provision. A project that replaces a Convention names its own convention in its documentation. A Replacement names the local convention or its recording place, not a deviation. The [model page](model.md) states the deviation record.
+A project that departs from a Standard records a deviation that cites the provision. A project that replaces a Convention names its own convention in its documentation. A Replacement names the local convention or its recording place, not a deviation. A convention with no specific recording place uses `A consumer can replace this default with an explicit local convention.` as its whole Replacement. The [model page](model.md) states the deviation record.
 
-A pattern provision carries its question, its default option, its compact behavior, and its rationale, and then its options with their wireframes. [UI patterns](../frontend/patterns.md) states the pattern contract and the wireframe language.
+A pattern provision carries its question, its default option, and its rationale, with an optional compact behavior, and then its options with their wireframes. [UI patterns](../frontend/patterns.md) states the pattern contract and the wireframe language.
 
 ### Provision Identifiers
 
@@ -163,17 +163,7 @@ The heading carries no identifier text. A renamed heading renames the ID, so the
 
 ### Record Identifiers
 
-A consumer record identifier is `type/home.name` in kebab-case: the type names the record kind, and `home.name` names the module or set that owns it. The [model page](model.md) states the record types and their homes. The reaction, job, notification, setting, and integration-event types use these forms:
-
-| Type | Form | Home |
-|:---|:---|:---|
-| `reaction` | `reaction/<module>.<name>` | The module whose records the reaction changes |
-| `job` | `job/<module>.<name>` | The module |
-| `notification` | `notification/<module>.<name>` | The module |
-| `setting` | `setting/<module>.<name>` | The module |
-| `integration-event` | `integration-event/<name>` | The published set |
-
-A journey step identifier is `journey/<name>#<step-id>`, with step identifiers `s1`, `s2`, and so on. A derived generic result is `result/<use-case-home.name>.forbidden` or `result/<use-case-home.name>.invalid-input`; scenarios may point at derived results, which are never written as records.
+A consumer record identifier is `type/home.name` in kebab-case: the type names the record kind, and `home.name` names the module or set that owns it. The [model page](model.md) states the form each type uses, and the [identifier page](../backend/identifiers.md) states the name rules, the checks, and how citations resolve.
 
 ### Provision Layout
 
@@ -195,11 +185,23 @@ Every provision has the same parts in the same order:
 
 1. The heading names the provision.
 2. The ID line holds the ID the heading derives, so a reader copies it from where the provision stands.
-3. A rule states its `Statement`; a convention states its `Default` and `Replacement`; a pattern states its `Question`, `Default` and `Compact`.
+3. A rule states its `Statement`; a convention states its `Default` and `Replacement`; a pattern states its `Question`, `Default` and `Rationale`, with an optional `Compact`.
 4. `Rationale` and `Example` follow.
-5. The verification line comes last among the fields. `Checked by` marks a provision a tool checks (`checkable`) and starts with the checking command in backticks, then the finding code, then the scope. `Reviewed for` marks a provision a person judges (`guidance`) and asks the one question a reviewer answers, naming the observable evidence and where to look. Evidence like "verify compliance" says nothing and is refused.
+5. The verification line comes last among the fields. `Checked by` marks a provision a tool checks (`checkable`) and starts with the checking command in backticks, then the code the tool reports where the tool emits one, then the scope. `Reviewed for` marks a provision a person judges (`guidance`) and asks the one question a reviewer answers, naming the observable evidence and where to look. Evidence like "verify compliance" says nothing and is refused.
 
 A pattern's options follow its verification line. `litespec provisions` writes the [provision index](../reference/provisions.md) from these lines; nothing else repeats them.
+
+### Validator Diagnostics
+
+These checks report page defects that no single provision owns, so they are listed here instead of beside a provision.
+
+| Code | Meaning |
+|:---|:---|
+| `LINK_BROKEN` | A link names a file that does not exist or a malformed percent escape. |
+| `ANCHOR_BROKEN` | A link anchor names no heading in its target file. |
+| `PAGE_TITLE_COUNT` | A page carries other than one H1. |
+| `HEADING_EMPTY_BODY` | A heading carries no body and no nested heading. |
+| `PATTERN_INVALID` | A pattern page or wireframe breaks the pattern contract in [UI patterns](../frontend/patterns.md). |
 
 ### Generated Regions
 
@@ -259,7 +261,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Rationale:** Obligation hides when it sits in Concepts, Rationale, or an example: a project replaces a default it saw nowhere in the labeled assertions. One location for every modal lets readers and tools find each obligation in the same place. A prohibition written as `cannot` and a rule written as `never` belong in the same labels.
 
-**Checked by:** `litespec validate` emits no `PROSE_NORMATIVE_LOCATION`, `STANDARD_INFORMATIVE_NORMATIVE`, or `CONVENTION_NORMATIVE` diagnostic.
+**Checked by:** `litespec validate` emits no `PROSE_NORMATIVE_LOCATION` or `STANDARD_INFORMATIVE_NORMATIVE` diagnostic.
 
 ### Use One Term for One Concept
 
@@ -299,6 +301,18 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 **Rationale:** Term drift is invisible one page at a time and plain across a module: each page looks fine while the project slowly speaks two languages. The expensive case is a synonym that is a defined term elsewhere, because one word then names two things and every reader guesses which one.
 
 **Checked by:** `litespec consumer` emits no `GLOSSARY_REJECTED_SYNONYM` diagnostic.
+
+### State Mannered Terms Literally
+
+**ID:** `litespec/core/authoring#state-mannered-terms-literally`
+
+**Statement:** Authored prose MUST NOT use a mannered term the project glossary lists.
+
+**Rationale:** A metaphor or stock phrase reads smoothly while hiding what the project means: each reader pictures a different act behind the same flourish. The glossary lists each mannered term with the literal phrase that carries its meaning, so the check points at the flourish and names the plain words to reach for.
+
+**Example:** The glossary lists `{ "term": "leverage", "instead": "use" }`, so prose reads "use the retry queue" rather than "leverage the retry queue".
+
+**Checked by:** `litespec consumer` emits no `GLOSSARY_MANNERED_TERM` diagnostic.
 
 ### Check the Vocabulary on Every Surface a Reader Meets
 
@@ -351,7 +365,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Rationale:** Titles and headings read as names in indexes, tabs, and search results. Title Case capitalizes every word except articles (`a`, `an`, `the`), coordinating conjunctions (`and`, `but`, `for`, `nor`, `or`, `so`, `yet`), and prepositions of four letters or fewer (`as`, `at`, `by`, `for`, `from`, `in`, `into`, `of`, `off`, `on`, `onto`, `over`, `per`, `to`, `up`, `upon`, `via`, `with`); the first and last words stay capitalized, and code, identifiers, and file names keep their own case.
 
-**Checked by:** `litespec validate` emits no `PAGE_TITLE_CASE` diagnostic.
+**Checked by:** `litespec validate` emits no `PAGE_TITLE_CASE` or `PAGE_HEADING_CASE` diagnostic.
 
 ### Use the Declared Page Contract
 
@@ -381,7 +395,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Rationale:** One fixed marker reads the same on every page and gives the validator one shape to accept.
 
-**Checked by:** `litespec validate` emits no `PAGE_EMPTY_SECTION` diagnostic.
+**Checked by:** `litespec validate` emits no `PAGE_EMPTY_SECTION` or `PAGE_EMPTY_SECTION_TEXT` diagnostic.
 
 ### Route the Reader Before Listing Pages
 
@@ -413,7 +427,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Statement:** A page MUST NOT describe both a command and the mechanism that command runs, outside an `Underneath` section.
 
-**Rationale:** A reader who wanted the command reads mechanism detail as noise, and a reader who wanted the mechanism reads the command wrapper as an obstacle. One layer per page serves each reader, and the `Underneath` section holds the mechanism for the reader who asks for it.
+**Rationale:** A reader who wanted the command reads mechanism detail as noise, and a reader who wanted the mechanism reads the command wrapper as an obstacle. One documentation layer per page serves each reader, and the `Underneath` section holds the mechanism for the reader who asks for it.
 
 **Reviewed for:** Which command pages mix mechanism into other sections? Look outside the Underneath section of each command page the change touches.
 
@@ -423,7 +437,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Statement:** A command page MUST state under `Underneath` what the command runs or the sentence `Nothing beneath this command is separately runnable.`.
 
-**Rationale:** A wrapper nobody can see through leaves a failure with no command to run by hand and no layer to inspect. Stating what the command runs, or that nothing beneath it is separately runnable, gives every failure a next step.
+**Rationale:** A wrapper nobody can see through leaves a failure with no command to run by hand and no documentation layer to inspect. Stating what the command runs, or that nothing beneath it is separately runnable, gives every failure a next step.
 
 **Example:** A command with nothing separately runnable writes `Nothing beneath this command is separately runnable.` under `Underneath`.
 
@@ -485,9 +499,21 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Statement:** A glossary entry MUST hold its definition in the paragraph under its term heading.
 
-**Rationale:** The heading anchor already carries the term identifier, so a `Term` line repeats it. A trailing `Rejected` line stays only where rejections exist.
+**Rationale:** The heading anchor already carries the term identifier, so a `Term` line repeats it. Lines after the definition name the record layer, established aliases, the source, and rejected synonyms where they exist.
 
 **Reviewed for:** Which glossary entries open with something other than the definition, or carry a Term line? Look in `docs/reference/glossary.md`.
+
+### Order Glossary Groups Alphabetically
+
+**ID:** `litespec/core/authoring#order-glossary-groups-alphabetically`
+
+**Statement:** Glossary groups MUST stand in alphabetical order, each opening with one intro sentence.
+
+**Rationale:** Groups in a fixed order with one opening sentence tell a reader where a term lives before any term is read. An unordered group hides its terms from a reader who guesses the wrong place, and a group without its sentence opens on terms with no shared context.
+
+**Example:** The code, product, and standard term groups open the glossary in that order, each with one sentence saying what its terms name.
+
+**Checked by:** `litespec validate` emits no `GLOSSARY_ORDER` or `GLOSSARY_DEFINITION` diagnostic.
 
 ### Write Atomic Standards Provisions
 
@@ -499,7 +525,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Example:** `### Keep Business Invariants in Domain` owns one obligation about where invariants are enforced.
 
-**Checked by:** `litespec validate` emits no `STANDARD_LABEL_INVALID`, `STANDARD_LABEL_ORDER`, `STANDARD_SENTENCE_COUNT`, `STANDARD_MODAL_COUNT`, `STANDARD_MODAL_VOCABULARY`, `STANDARD_MISSING_DEVIATION`, `STANDARD_UNEXPECTED_DEVIATION`, or `STANDARD_UNLABELED_CONTENT` diagnostic.
+**Checked by:** `litespec validate` emits no `STANDARD_LABEL_INVALID`, `STANDARD_LABEL_ORDER`, `STANDARD_LABEL_DUPLICATE`, `STANDARD_SENTENCE_COUNT`, `STANDARD_MODAL_COUNT`, `STANDARD_MODAL_VOCABULARY`, `STANDARD_MISSING_DEVIATION`, `STANDARD_UNEXPECTED_DEVIATION`, `STANDARD_DEVIATION_NORMATIVE`, `STANDARD_DEVIATION_SENTENCE`, `STANDARD_MISSING_REQUIREMENT`, `STANDARD_REQUIREMENT_COUNT`, `STANDARD_UNLABELED_CONTENT`, or `PROVISION_RESTATES_HEADING` diagnostic.
 
 ### Identify Actionable Conventions
 
@@ -509,7 +535,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Rationale:** A Convention heading under `## Conventions` makes each replaceable default traceable: a project cites exactly the default it replaces. Without the contract, defaults hide in prose and replacements cite paragraphs instead of identifiers.
 
-**Checked by:** `litespec validate` emits no `CONVENTION_MISSING_DEFAULT`, `CONVENTION_MISSING_REPLACEMENT`, `CONVENTION_DEFAULT_SENTENCE`, or `CONVENTION_REPLACEMENT_SENTENCE` diagnostic.
+**Checked by:** `litespec validate` emits no `CONVENTION_MISSING_DEFAULT`, `CONVENTION_MISSING_REPLACEMENT`, `CONVENTION_DEFAULT_SENTENCE`, `CONVENTION_REPLACEMENT_SENTENCE`, `CONVENTION_REPLACEMENT_DEVIATION`, or `PROVISION_RESTATES_HEADING` diagnostic.
 
 ### Attach Examples to Their Provisions
 
@@ -519,7 +545,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Rationale:** An example floating free of its provision reads as a second rule: readers obey the illustration instead of the obligation. Belonging to its provision, or to a Reference Example that names every provision it demonstrates, marks it as illustration.
 
-**Checked by:** `litespec validate` emits no `STANDARD_EXAMPLE_LABEL` or `PAGE_UNKNOWN_SECTION` diagnostic.
+**Checked by:** `litespec validate` emits no `STANDARD_EXAMPLE_LABEL`, `PAGE_UNKNOWN_SECTION`, or `REFERENCE_EXAMPLE_DECLARATION` diagnostic.
 
 ### Use the Declared Identifier Grammar
 
@@ -569,9 +595,9 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **ID:** `litespec/core/authoring#use-the-declared-record-identifier-grammar`
 
-**Statement:** A consumer record identifier MUST be `type/home.name` in kebab-case, using the form this page states for its type.
+**Statement:** A consumer record identifier MUST be `type/home.name` in kebab-case, using the form the Project Model states for its type.
 
-**Rationale:** The type names the record kind and `home.name` names the owning module or set, so an identifier resolves with no lookup table. One grammar for every record kind keeps identifiers writable by hand and checkable by tool, including the reaction, job, notification, setting, and integration-event forms.
+**Rationale:** The type names the record kind and `home.name` names the owning module or set, so an identifier resolves with no lookup table. One grammar for every record kind keeps identifiers writable by hand and checkable by tool. The [model page](model.md) states the form each type uses, and the [identifier page](../backend/identifiers.md) states the name rules and checks.
 
 **Example:** `reaction/spending.send-approver-reminders-on-expense-submitted` is a reaction owned by the spending module, and `journey/submit-and-reimburse#s2` is the second step of a journey.
 
@@ -587,7 +613,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Example:** `### Keep Shared UI in One Package` on `docs/frontend/components.md` is followed by the ID line `litespec/frontend/components#keep-shared-ui-in-one-package`.
 
-**Checked by:** `litespec validate` reports a provision whose first line is not its ID line, or whose ID line differs from the ID its heading derives.
+**Checked by:** `litespec validate` emits no `ID_LINE_MISSING` or `ID_LINE_MISMATCH` diagnostic.
 
 ### Map Provisions to Evidence
 
@@ -597,7 +623,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Rationale:** A provision with no verification line is a rule nobody checks: people assume a tool covers it while no tool was told. One line per provision, beside the rule it checks, makes each rule reviewable by a person or a tool.
 
-**Checked by:** `litespec validate` reports a provision with no verification line, with more than one, or with one before its other fields.
+**Checked by:** `litespec validate` emits no `VERIFY_MISSING_ID`, `VERIFY_DUPLICATE_ID`, `VERIFY_ORDER`, or `VERIFY_HEADER` diagnostic.
 
 ### Mark Every Provision Checkable or Guidance
 
@@ -607,7 +633,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Rationale:** The label tells a reader who judges the provision: a tool (`checkable`) or a person (`guidance`). Without it, a team automates a judgment call or hand-reviews what a command already proves.
 
-**Checked by:** `litespec validate` reports a verification line with any other label.
+**Checked by:** `litespec validate` reports `VERIFY_MISSING_ID` for a provision whose verification line opens with any other label.
 
 ### Name Observable Evidence in Verification Lines
 
@@ -617,7 +643,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Rationale:** A line that restates its Statement sends the reviewer in a circle: the evidence confirms that the rule says what it says. Naming the artifact and its location turns the line into an instruction the reviewer follows.
 
-**Checked by:** `litespec validate` reports evidence that names no artifact or repeats a template.
+**Checked by:** `litespec validate` emits no `VERIFY_GENERIC_EVIDENCE`, `VERIFY_TEMPLATED_EVIDENCE`, `VERIFY_DUPLICATE_EVIDENCE`, or `VERIFY_COMMAND` diagnostic.
 
 ### Give One Observable Fact One Mark Across Pages
 
@@ -705,7 +731,7 @@ The figures below render from the retention schedule at build time.
 
 **Statement:** No field on an Intent or Behavior record MUST be filled from code.
 
-**Rationale:** Code implements Behavior, so a field filled from an implementation restates what already ships instead of stating the promise under review. A fact learned from the world enters Intent as research or a constraint, cited and dated, and a need the upper layer does not state travels up as a draft question. Derivation between records stays allowed.
+**Rationale:** Code implements Behavior, so a field filled from an implementation restates what already ships instead of stating the promise under review. A fact learned from the world enters Intent as research or a constraint, cited and dated, and a need the upper record layer does not state travels up as a draft question. Derivation between records stays allowed.
 
 **Example:** A positivity guard found in a handler becomes a draft rule with its question, while the code stays untouched until the rule is reviewed.
 

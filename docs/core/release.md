@@ -214,7 +214,7 @@ A consumer adopts one LiteSpec release by installing the `LiteSpec.Cli` tool pac
 
 **Statement:** A backend change MUST pass the release build and the backend test suites.
 
-**Rationale:** The release build compiles the solution in release mode, catching the conditional and optimization-gated breaks a debug build hides. The architecture, integration, and acceptance suites the size requires prove layering, wiring, and behavior in turn. Skipping any of them ships backend code the project's own suites do not fully prove.
+**Rationale:** The release build compiles the solution in release mode, catching the conditional and optimization-gated breaks a debug build hides. The architecture, integration, and acceptance suites the size requires prove architecture layering, wiring, and behavior in turn. Skipping any of them ships backend code the project's own suites do not fully prove.
 
 **Reviewed for:** Which backend changes lack a passing release build or suite result? Look at the build and suite reports beside the change.
 

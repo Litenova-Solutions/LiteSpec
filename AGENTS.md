@@ -79,7 +79,7 @@ Each page uses the sections of its page style. A Standard states one testable ob
 
 **ID:** `litespec/frontend/components#keep-shared-ui-in-one-package`
 
-**Statement:** ...   (a convention: Default and Replacement; a pattern: Question, Default and Compact)
+**Statement:** ...   (a convention: Default and Replacement; a pattern: Question, Default and Rationale, with an optional Compact)
 
 **Rationale:** ...
 
@@ -109,9 +109,9 @@ Read the full provision before you apply any of these:
 - Keep Domain free of persistence, web, mediator, logging and dependency injection. (`litespec/backend/architecture#point-dependencies-inward`)
 - Model each aggregate lifecycle with an abstract state and sealed state records. (`litespec/backend/dotnet/domain#model-every-aggregate-lifecycle-with-state-records`)
 - Model each closed set in Domain as a record hierarchy instead of an enum. (`litespec/backend/dotnet/domain#model-every-closed-set-of-domain-values-without-enums`)
-- Give each layer its own messages, results and transport models. (`litespec/backend/architecture#own-each-layers-contract-types`)
+- Give each architecture layer its own messages, results and transport models. (`litespec/backend/architecture#own-each-layers-contract-types`)
 - Give each rejected Domain rule its own exception type and stable refusal code. (`litespec/backend/dotnet/domain#reject-business-violations-with-domain-exceptions`)
-- Organize every layer by the same modules, aggregates and use cases. (`litespec/backend/architecture#organize-every-layer-by-module-and-use-case`)
+- Organize every architecture layer by the same modules, aggregates and use cases. (`litespec/backend/architecture#organize-every-layer-by-module-and-use-case`)
 - Write commands through repositories, and commit once in the command pipeline. (`litespec/backend/application#keep-command-handlers-to-load-call-and-stage`, `litespec/backend/persistence#commit-each-command-pipeline-once`)
 - Derive the actor from verified claims, and authorize each target from declared permissions. (`litespec/backend/application#enforce-target-authorization-in-the-pipeline`)
 - Use the controlled shadcn/ui baseline for React and the shadcn-svelte baseline for Svelte. (`litespec/frontend/ui#select-one-visual-authority`, `litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package`)

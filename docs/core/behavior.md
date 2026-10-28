@@ -133,7 +133,7 @@ A query reads without changing and declares what its readers receive. Its output
 
 ### Use-Case Verbs
 
-A use-case name starts with a verb, and each verb keeps one meaning and one kind across the project. LiteSpec ships the baseline below; a project adds its domain verbs in `litespec.project.json` `vocabulary` and retires more synonyms there, and never redefines a baseline verb.
+A use-case name starts with a verb, and each verb keeps one meaning and one kind across the project. LiteSpec ships the baseline vocabulary below; a project adds its domain verbs in `litespec.project.json` `vocabulary` and retires more synonyms there, and never redefines a verb from the baseline vocabulary.
 
 | Verb | Kind | Means |
 |:---|:---|:---|
@@ -164,7 +164,7 @@ A use-case name starts with a verb, and each verb keeps one meaning and one kind
 | `post`, `reverse` | command | A ledger transaction and its correction. |
 | `retry`, `verify` | command | Work run again, and a check run again. |
 
-The baseline retires these synonyms: `get`, `fetch`, `lookup` and `count` become `read`; `browse` becomes `list`; `find` becomes `search`; `update`, `edit`, `modify`, `revise`, `set`, `adjust`, `configure` and `rename` become `change`; `define`, `compose`, `save` and `new` become `create`; `delete` becomes `remove`; `notify`, `remind` and `email` become `send`; `suggest` and `ask` become `answer`; `mark`, `note` and `log` become `record`; `end` becomes `close`; `finish` becomes `complete`; `abandon` becomes `cancel`; `lapse` becomes `expire`; `clone` and `copy` become `duplicate`; `replay` becomes `retry`; `recheck` becomes `verify`; `archive` becomes `retire`; `reject` and `deny` become `refuse`; `unpublish` and `hide` become `withdraw`.
+The baseline vocabulary retires these synonyms: `get`, `fetch`, `lookup` and `count` become `read`; `browse` becomes `list`; `find` becomes `search`; `update`, `edit`, `modify`, `revise`, `set`, `adjust`, `configure` and `rename` become `change`; `define`, `compose`, `save` and `new` become `create`; `delete` becomes `remove`; `notify`, `remind` and `email` become `send`; `suggest` and `ask` become `answer`; `mark`, `note` and `log` become `record`; `end` becomes `close`; `finish` becomes `complete`; `abandon` becomes `cancel`; `lapse` becomes `expire`; `clone` and `copy` become `duplicate`; `replay` becomes `retry`; `recheck` becomes `verify`; `archive` becomes `retire`; `reject` and `deny` become `refuse`; `unpublish` and `hide` become `withdraw`.
 
 A reaction is named for what it does and the fact it answers, `<verb>-<what>-on-<fact>`, such as `send-due-notice-on-loan-borrowed`. A job carries the verb of the command it issues, so `expire-lapsed-holds` issues `expire-holds`.
 
@@ -333,9 +333,9 @@ The specification names only what carries business meaning. Child entities and v
 
 **ID:** `litespec/core/behavior#mark-each-term-with-its-layer`
 
-**Statement:** Each glossary term MUST carry its layer, intent or behavior, with the established synonyms its readers know in `aliases`.
+**Statement:** Each glossary term MUST carry its record layer, intent or behavior, with the established synonyms its readers know in `aliases`.
 
-**Rationale:** Business words and design words age on different clocks: a business term moves when the market moves, while a design term moves when the model moves. The layer tells each reader which clock the word follows, and the aliases let industry readers find LiteSpec own words without learning a second vocabulary first.
+**Rationale:** Business words and design words age on different clocks: a business term moves when the market moves, while a design term moves when the model moves. The record layer tells each reader which clock the word follows, and the aliases let industry readers find LiteSpec own words without learning a second vocabulary first.
 
 **Example:** The term `refusal` carries `layer: behavior` with `aliases: ["rejection", "error"]`.
 
@@ -607,7 +607,7 @@ The specification names only what carries business meaning. Child entities and v
 
 **Example:** `expense-reimbursement-requested` names the requested reimbursement; `expense-reimbursement-staged` names the staging step and is reported.
 
-**Checked by:** `litespec model check` reports `integration-event-wording` (tier A) for an outbound event named with an internal word.
+**Checked by:** `litespec model check` reports `integration-event-wording` (tier G) for an outbound event named with an internal word.
 
 ### Reach Every Inbound Integration Event Through a Webhook
 
@@ -635,11 +635,11 @@ The specification names only what carries business meaning. Child entities and v
 
 **Statement:** Each use case MUST start with a verb from the baseline vocabulary or the domain verbs the project declares in `litespec.project.json`.
 
-**Rationale:** One verb per meaning keeps use cases findable: `read` versus `get` and `change` versus `update` stop competing when every project starts from one closed baseline and adds only its domain verbs. A shared first word groups related behavior in every listing, and a retired synonym points at its replacement instead of spreading silently. The `use-case-verb-unknown` check reports a use-case name starting outside the baseline and the project verbs, and names the replacement of a retired synonym.
+**Rationale:** One verb per meaning keeps use cases findable: `read` versus `get` and `change` versus `update` stop competing when every project starts from one closed baseline vocabulary and adds only its domain verbs. A shared first word groups related behavior in every listing, and a retired synonym points at its replacement instead of spreading silently. The `use-case-verb-unknown` check reports a use-case name starting outside the baseline vocabulary and the project verbs, and names the replacement of a retired synonym.
 
-**Example:** The vocabulary declares `verbs: ["borrow"]` and `phrasal: ["check-in"]`, so `use-case/lending.borrow-copy` and `use-case/lending.check-in-copy` pass, `use-case/lending.list-loans` passes on the baseline, and `use-case/lending.update-copy` is told to use `change`.
+**Example:** The vocabulary declares `verbs: ["borrow"]` and `phrasal: ["check-in"]`, so `use-case/lending.borrow-copy` and `use-case/lending.check-in-copy` pass, `use-case/lending.list-loans` passes on the baseline vocabulary, and `use-case/lending.update-copy` is told to use `change`.
 
-**Checked by:** `litespec model check` reports `use-case-verb-unknown` for a use-case name starting outside the baseline and the project verbs.
+**Checked by:** `litespec model check` reports `use-case-verb-unknown` for a use-case name starting outside the baseline vocabulary and the project verbs.
 
 ### Keep One Kind per Verb
 
@@ -647,7 +647,7 @@ The specification names only what carries business meaning. Child entities and v
 
 **Statement:** Each use case MUST open with a verb of its own kind: a reading verb for a query, and a changing verb for a command.
 
-**Rationale:** The first word is the first thing a reader trusts. A query named `change-...` or a command named `read-...` makes every listing lie about what the use case may touch, and a reviewer stops reading names at all. The baseline gives each verb a kind, a project names its own reading verbs in `queryVerbs`, and its other domain verbs open either kind. The `use-case-verb-kind` check reports a use case whose verb names the other kind.
+**Rationale:** The first word is the first thing a reader trusts. A query named `change-...` or a command named `read-...` makes every listing lie about what the use case may touch, and a reviewer stops reading names at all. The baseline vocabulary gives each verb a kind, a project names its own reading verbs in `queryVerbs`, and its other domain verbs open either kind. The `use-case-verb-kind` check reports a use case whose verb names the other kind.
 
 **Example:** `use-case/lending.list-loans` is a query and passes; `use-case/lending.read-overdue-count` declared as a command is reported, and so is `use-case/lending.change-copy` declared as a query.
 
@@ -865,7 +865,7 @@ The specification names only what carries business meaning. Child entities and v
 
 **Statement:** Each use case MUST declare its success result and every refusal with its code.
 
-**Rationale:** Callers branch on named endings: success, or one refusal with its stable code. A use case with no named success leaves readers guessing what good looks like, and a refusal without a code leaves each layer reporting the same breach another way. The `use-case-without-success` check reports a use case with no success result, and `result-undeclared` reports a code the records never declared.
+**Rationale:** Callers branch on named endings: success, or one refusal with its stable code. A use case with no named success leaves readers guessing what good looks like, and a refusal without a code leaves each architecture layer reporting the same breach another way. The `use-case-without-success` check reports a use case with no success result, and `result-undeclared` reports a code the records never declared.
 
 **Example:** The reimburse-expense command declares `reimbursed` with `spending.not-approved` and `spending.already-reimbursed`.
 
@@ -889,7 +889,7 @@ The specification names only what carries business meaning. Child entities and v
 
 **Statement:** Each use case MUST list its refusals so the first match wins.
 
-**Rationale:** Two refusals matching one call need an order: without precedence, each layer picks its own refusal, and callers branch on a different code per stack. Listing refusals in precedence order makes the first match the one every layer reports.
+**Rationale:** Two refusals matching one call need an order: without precedence, each architecture layer picks its own refusal, and callers branch on a different code per stack. Listing refusals in precedence order makes the first match the one every architecture layer reports.
 
 **Reviewed for:** The refusal entries on each use-case page stand in precedence order with first match winning.
 
@@ -1193,7 +1193,7 @@ The specification names only what carries business meaning. Child entities and v
 
 **Rationale:** Retention decided per aggregate scatters: one module erases in days what another keeps for years, and no page shows the whole. Listing every data class on one schedule with its basis, period, enforcement, processors with their forwarding and acceptance, and the conflict rule where keeping and erasing collide states the whole as debated rows. Personal or sensitive keeping cites its Intent requirement. The `retention-without-enforcement` check reports a row nothing enforces.
 
-**Checked by:** `litespec model check` reports `retention-without-enforcement` for a retention row nothing enforces.
+**Checked by:** `litespec model check` reports `retention-without-enforcement` for a data class nothing enforces.
 
 ### Keep Design Choices Out of the Records
 

@@ -2,30 +2,30 @@
 
 ## Intent
 
-LiteSpec records form four layers: Intent states the promises, Behavior states how the system keeps them, Implementation builds that behavior in code, and Proof shows that it holds. This page states the translation rules between the layers: Specify, Implement, and Verify. Agents apply it at every layer boundary, and reviewers use it to judge whether each layer says only what belongs to it.
+LiteSpec records form four record layers: Intent states the promises, Behavior states how the system keeps them, Implementation builds that behavior in code, and Proof shows that it holds. This page states the translation rules between the record layers: Specify, Implement, and Verify. Agents apply it at every record-layer boundary, and reviewers use it to judge whether each record layer says only what belongs to it.
 
 ## Concepts
 
-### The Four Layers
+### The Four Record Layers
 
-LiteSpec work moves through four layers. Each layer answers one question, and each has its own writers and reviewers.
+LiteSpec work moves through four record layers. Each record layer answers one question, and each has its own writers and reviewers.
 
-| Layer | Question | Writes | Reviews |
+| Record layer | Question | Writes | Reviews |
 |:--|:--|:--|:--|
 | Intent | Why build it, and what do we promise? | Agents draft, the founder decides | The founder and product people |
 | Behavior | How does the system behave to keep the promises? | Agents | Developers; the security reviewer for access, outside calls, and personal-data flows |
 | Implementation | How is it built? | Agents | S-tier checks; developers sample |
 | Proof | How do we know it holds? | The builder | G-tier and S-tier checks |
 
-The [intent page](intent.md) states the Intent records, and the [behavior page](behavior.md) states the Behavior records. Implementation holds code only, and Proof holds tests, check results, computed statuses, and the rendered book. Governance records, `deviation` and `known-gap`, attach to any layer.
+The [intent page](intent.md) states the Intent records, and the [behavior page](behavior.md) states the Behavior records. Implementation holds code only, and Proof holds tests, check results, computed statuses, and the rendered book. Governance records, `deviation` and `known-gap`, attach to any record layer.
 
 ### Translation Rules
 
-Three rules join the layers. Specify translates Intent into Behavior: it adds the behavior detail the promises leave unstated. Implement translates Behavior into Implementation: it adds the code shapes the stack pages fix. Verify translates Implementation into Proof: one test proves each scenario through the public boundary.
+Three rules join the record layers. Specify translates Intent into Behavior: it adds the behavior detail the promises leave unstated. Implement translates Behavior into Implementation: it adds the code shapes the stack pages fix. Verify translates Implementation into Proof: one test proves each scenario through the public boundary.
 
 ### Questions and World Facts
 
-A need a lower layer meets that the upper layer leaves unstated travels up as a draft question. The question carries the question itself, a decider, a decide-by date, a recommendation, a ballot group, and a tier. A fact learned from the world enters Intent as research or a constraint that cites its source and date. A change at the top marks every record whose parent changed, agents update those records, and review and proof follow.
+A need a lower record layer meets that the upper record layer leaves unstated travels up as a draft question. The question carries the question itself, a decider, a decide-by date, a recommendation, a ballot group, and a tier. A fact learned from the world enters Intent as research or a constraint that cites its source and date. A change at the top marks every record whose parent changed, agents update those records, and review and proof follow.
 
 ## Standards
 
@@ -33,9 +33,9 @@ A need a lower layer meets that the upper layer leaves unstated travels up as a 
 
 **ID:** `litespec/core/layers#write-each-layer-from-the-layer-above-it`
 
-**Statement:** Each record below Intent MUST be written from a record in the layer above it.
+**Statement:** Each record below Intent MUST be written from a record in the record layer above it.
 
-**Rationale:** Each layer rests on the one above it: Behavior fulfils Intent, Implementation builds Behavior, and Proof proves Implementation. Derivation between records is part of that direction, so generic refusals derive from `access` and `input` without new records. Code with no parent record stays evidence for a question instead of becoming a record by silent transcription, so the spec wins where Intent has spoken.
+**Rationale:** Each record layer rests on the one above it: Behavior fulfils Intent, Implementation builds Behavior, and Proof proves Implementation. Derivation between records is part of that direction, so generic refusals derive from `access` and `input` without new records. Code with no parent record stays evidence for a question instead of becoming a record by silent transcription, so the spec wins where Intent has spoken.
 
 **Example:** A guard in code with no parent record raises a question; the agent drafts the requirement or rule and keeps the code.
 
@@ -91,13 +91,13 @@ A need a lower layer meets that the upper layer leaves unstated travels up as a 
 
 **ID:** `litespec/core/layers#raise-open-needs-as-draft-questions`
 
-**Statement:** A need a lower layer meets that the upper layer leaves unstated MUST travel up as a draft question carrying a decider and a decide-by date.
+**Statement:** A need a lower record layer meets that the upper record layer leaves unstated MUST travel up as a draft question carrying a decider and a decide-by date.
 
-**Rationale:** The lower layer does not decide what the upper layer left unstated, so the need travels up with its context instead of turning into a guess. The question carries a recommendation, a ballot group, and a tier. Tier 1 needs explicit approval or review, while a tier-3 draft carrying a recommendation auto-approves after its decide-by date plus the veto window, recorded as approved by the veto window. A draft past its decide-by date without auto-approval is reported as a known gap with its owner, and it blocks nothing silently.
+**Rationale:** The lower record layer does not decide what the upper record layer left unstated, so the need travels up with its context instead of turning into a guess. The question carries a recommendation, a ballot group, and a tier. Tier 1 needs explicit approval or review, while a tier-3 draft carrying a recommendation auto-approves after its decide-by date plus the veto window, recorded as approved by the veto window. A draft past its decide-by date without auto-approval is reported as a known gap with its owner, and it blocks nothing silently.
 
 **Example:** A missing reimbursement policy becomes a ballot item due 2026-11-01 with the founder as decider.
 
-**Reviewed for:** Which unstated needs lack a draft question with a decider and a decide-by date? Look at the lower-layer records the change adds, beside the ballot inbox.
+**Reviewed for:** Which unstated needs lack a draft question with a decider and a decide-by date? Look at the added records from a lower record layer, beside the ballot inbox.
 
 ### Enter World Facts as Cited Research or Constraints
 

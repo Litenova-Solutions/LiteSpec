@@ -25,7 +25,7 @@ The system addresses five recurring problems:
 - Product intent is lost between a request and its implementation.
 - An agent invents a missing rule when a record leaves a decision implicit.
 - Standard technical concepts are renamed until developers no longer recognize the established pattern.
-- A use case ships in one layer while persistence, public entry points, tests, or operating impact stay incomplete.
+- A use case ships one part while persistence, public entry points, tests, or operating impact stay incomplete.
 - Documentation claims behavior that code and automated evidence do not support.
 
 The system makes the record durable and the agent replaceable: a different person, model, or tool continues from the same approved records and reaches the same required boundaries.
@@ -48,7 +48,7 @@ The system holds one delivery approach and one operating model:
 
 ### What the System Combines
 
-The system combines product intent, domain behavior, access control, operations, and project upkeep into one specification that joins intent to code. The [intent page](intent.md) states goals, problems, features, constraints, research, decisions, requirements, and journeys. The [behavior page](behavior.md) states the bounded context, the glossary, modules, aggregates, rules, events, use cases, results, scenarios, reactions, jobs, notifications, and settings. The [access page](access.md) states actors, roles, permissions, entry points, and external systems. The [layers page](layers.md) states how each layer is written from the one above it, and the [model page](model.md) states records, identifiers, links, authority, authoring order, verification, and the builder that computes how intent connects to code.
+The system combines product intent, domain behavior, access control, operations, and project upkeep into one specification that joins intent to code. The [intent page](intent.md) states goals, problems, features, constraints, research, decisions, requirements, and journeys. The [behavior page](behavior.md) states the bounded context, the glossary, modules, aggregates, rules, events, use cases, results, scenarios, reactions, jobs, notifications, and settings. The [access page](access.md) states actors, roles, permissions, entry points, and external systems. The [layers page](layers.md) states how each record layer is written from the one above it, and the [model page](model.md) states records, identifiers, links, authority, authoring order, verification, and the builder that computes how intent connects to code.
 
 Each page owns its tables and rules, and this page cites them without copying. A reader who needs a record type, a link field, or the authority order opens the owning page.
 
@@ -102,7 +102,7 @@ Each page owns its tables and rules, and this page cites them without copying. A
 
 **Statement:** A use case MUST complete with behavior, persistence, entry points, evidence, and operating impact.
 
-**Rationale:** A use case is done only when a caller can run it and operations can support it: behavior, storage, entry points, automated evidence, and operating impact together. Accepting a thinner slice leaves the missing layers for later, and later rarely itemizes what shipped half-built. Placeholder work leaves the use case unimplemented. Multi-step product outcomes belong to a journey rather than stretching one use case across several goals.
+**Rationale:** A use case is done only when a caller can run it and operations can support it: behavior, storage, entry points, automated evidence, and operating impact together. Accepting a thinner slice leaves the missing parts for later, and later rarely itemizes what shipped half-built. Placeholder work leaves the use case unimplemented. Multi-step product outcomes belong to a journey rather than stretching one use case across several goals.
 
 **Example:** A use case without its tests and operating records is not complete.
 

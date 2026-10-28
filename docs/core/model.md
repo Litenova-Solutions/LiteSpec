@@ -2,30 +2,30 @@
 
 ## Intent
 
-A LiteSpec project describes itself with records, written statements of fixed types joined by fixed links. This page states the four layers, the record types with their identifiers and homes, the common fields, the links, the authority order, the authoring order, the statuses, the approval data, the risk tiers, the questions, the transcription mode, the model builder, the check tiers, and the book and the diffs. People write and approve Intent, agents write Behavior from it, and the model builder computes how code and tests connect to the records.
+A LiteSpec project describes itself with records, written statements of fixed types joined by fixed links. This page states the four record layers, the record types with their identifiers and homes, the common fields, the links, the authority order, the authoring order, the statuses, the approval data, the risk tiers, the questions, the transcription mode, the model builder, the check tiers, and the book and the diffs. People write and approve Intent, agents write Behavior from it, and the model builder computes how code and tests connect to the records.
 
 ## Concepts
 
-### The Four Layers
+### The Four Record Layers
 
-Each layer answers one question, is written from the layer above it, and owns its records. Nothing above Implementation is computed from code.
+Each record layer answers one question, is written from the record layer above it, and owns its records. Nothing above Implementation is computed from code.
 
-| Layer | Question | Writes | Reviews | Records |
+| Record layer | Question | Writes | Reviews | Records |
 |:--|:--|:--|:--|:--|
 | Intent | Why build it, and what do we promise? | agents draft, the founder decides | the founder and product people | product, goal, problem, feature, requirement, constraint, decision, research, journey, actor, term (`layer: intent`) |
 | Behavior | How does the system behave to keep the promises? | agents | developers; the security reviewer for access, outside calls and personal-data flows | module, aggregate, rule, event, integration-event, use-case, result, scenario, reaction, job, notification, setting, role, permission, entry-point, external-system, runbook, term (`layer: behavior`) |
 | Implementation | How is it built? | agents | S-tier checks; developers sample | code only |
 | Proof | How do we know it holds? | the builder | G-tier and S-tier checks | tests, check results, computed statuses, the rendered book |
 
-Governance records attach to any layer: `deviation` and `known-gap`.
+Governance records attach to any record layer: `deviation` and `known-gap`.
 
-Three translation rules join the layers. Specify moves Intent to Behavior: it adds states, invariants, refusals, consistency, data classes with their erasure positions, freshness, and access with tenant scope, and it leaves open any price, fee, rate, term, market, payer, retention period for personal data, observable freshness, or default or figure that differs by tenant, market, or date, each as a draft question. Implement moves Behavior to Implementation: it adds the code shapes the stack pages fix, and adds no observable outcome no result declares, no edge no record declares, no write outside `changes`, and no access wider than the grant. Verify moves Implementation to Proof: one test proves each scenario through the public boundary, and a proof goes stale when its scenario semantic hash changes.
+Three translation rules join the record layers. Specify moves Intent to Behavior: it adds states, invariants, refusals, consistency, data classes with their erasure positions, freshness, and access with tenant scope, and it leaves open any price, fee, rate, term, market, payer, retention period for personal data, observable freshness, or default or figure that differs by tenant, market, or date, each as a draft question. Implement moves Behavior to Implementation: it adds the code shapes the stack pages fix, and adds no observable outcome no result declares, no edge no record declares, no write outside `changes`, and no access wider than the grant. Verify moves Implementation to Proof: one test proves each scenario through the public boundary, and a proof goes stale when its scenario semantic hash changes.
 
 ### Record Types and Page Styles
 
 Each type answers one question.
 
-| Type | Layer | Question |
+| Type | Record layer | Question |
 |:--|:--|:--|
 | `product` | intent | What is built, for whom, and what is excluded? |
 | `goal` | intent | Which measurable outcome does the product serve? |
@@ -64,17 +64,17 @@ Each record page uses the page style the [Authoring Standard](authoring.md) name
 
 ### The Docs Layout
 
-A consumer keeps its documentation in one folder per layer, so the folder a page sits in says who writes it, who reviews it, and what it may contain.
+A consumer keeps its documentation in one folder per record layer, so the folder a page sits in says who writes it, who reviews it, and what it may contain.
 
-| Folder | Layer | Holds |
+| Folder | Record layer | Holds |
 |:---|:---|:---|
 | `docs/intent/` | Intent | The brief, goals, problems, features, requirement pages by area, constraints, decisions, journeys, actors, research, and the product documents the business publishes, such as legal texts and the writing voice |
 | `docs/behavior/` | Behavior | Modules with their aggregates, use cases, reactions, jobs, notifications and settings; rule pages; access (roles, permissions, entry points); external systems; integration events; the retention schedule; runbooks and operating procedures |
 | `docs/implementation/` | Implementation | Guides for people working in the code: frontend architecture, the command reference, the published API guide, and setup guides. These pages describe code and hold no records |
 | `docs/proof/` | Proof | Evidence the tools compute or a run leaves behind: generated registers, gate files, and operating logs. No person writes a fact here that a tool can compute |
-| `docs/governance/` | Governance | Deviations and known gaps, which can attach to any layer |
+| `docs/governance/` | Governance | Deviations and known gaps, which can attach to any record layer |
 
-The glossary (`docs/glossary.json`) and the example cast stay at the top of `docs/`, because every layer uses them.
+The glossary (`docs/glossary.json`) and the example cast stay at the top of `docs/`, because every record layer uses them.
 
 ### Pages and Entries
 
@@ -164,7 +164,7 @@ Every written record carries the shared fields in this table. Entries inherit `o
 | `id` | always | The identifier |
 | `title` | always | The display title, free to change |
 | `owner` | pages; entries inherit | One name from the closed owner list |
-| `status` | pages; entries inherit | Draft, approved or reviewed, or retired, in the layer vocabulary |
+| `status` | pages; entries inherit | Draft, approved or reviewed, or retired, in the record-layer vocabulary |
 | `decider` | on drafts | The owner deciding by the date |
 | `decideBy` | on drafts | The decision date in ISO form |
 | `replaces` | decision, when replacing | The decision this decision replaces |
@@ -293,69 +293,11 @@ Every check has a tier.
 
 `litespec model check` prints the tier beside each finding.
 
-| Code | Tier | What Fails |
-|:--|:--|:--|
-| `record-shape` | G | a record outside its home or missing a common field |
-| `invalid-field` | G | a field the record type does not declare, or a value outside its vocabulary |
-| `identifier-*` | G | an identifier outside the declared grammar |
-| `reference-unresolved` | G | a link whose target no record carries |
-| `link-unresolved` | G | a page link naming no file |
-| `owner-unknown` | G | a page naming an owner outside the closed list |
-| `draft-without-decider` | G | a draft missing its decider or date |
-| `draft-gate` | G | an approved record behind a draft decision |
-| `product-not-singleton` | G | a product count other than one |
-| `size-type-missing` | G | a project missing its declaration or a required type |
-| `requirement-unfulfilled` | G | a requirement nothing fulfills |
-| `requirement-unmeasured` | G | a measured requirement with no check of its measure |
-| `decision-decides-nothing` | G | a decision with an empty decides field |
-| `journey-reach` | G | a use case that no journey reaches and no caller names |
-| `state-unreachable` | G | a state no transition reaches |
-| `transition-unresolved` | G | a transition naming a missing state or use case |
-| `use-case-without-success` | G | a use case with no success result |
-| `scenario-result-unresolved` | G | a scenario naming a missing result |
-| `calculation-without-table` | G | a calculation rule with no scenario examples table |
-| `rule-name-negation` | G | a rule name missing the negation its statement makes |
-| `known-gap-expired` | G | an expired known gap |
-| `gap-unknown-check` | G | a known gap naming an unknown check |
-| `aggregate-name-clash` | G | two aggregates sharing one name |
-| `use-case-name-clash` | G | two use cases sharing one name |
-| `reaction-trigger-unresolved` | G | a reaction whose trigger resolves to nothing |
-| `erasure-undeclared` | G | a personal or sensitive field with no erasure position |
-| `record-orphaned` | G | a use case with neither serves nor fulfills |
-| `step-unserved` | G | a journey step no use case serves |
-| `effect-loop` | G | an effect cycle outside a domain event with a stated end |
-| `consistency-unexplained` | G | an atomic change over several aggregates with no because rule |
-| `query-output-missing` | G | a query with no declared output |
-| `paging-undeclared` | G | a collection query with no paging |
-| `widening-unjustified` | G | output visible beyond its sources with no wideningBecause |
-| `retention-without-enforcement` | G | a retention row nothing enforces |
-| `risk-without-acceptance` | G | a retained or exempt personal class with no acceptedBy in Intent |
-| `exemption-expired` | G | an erasure exemption past its review date |
-| `setting-default-without-requirement` | G | a commercial, legal, or varying default with no requirement |
-| `reservation-without-release` | G | a reservation with no releasedBy |
-| `notification-without-sender` | G | a notification no reaction or use case sends |
-| `except-without-fallback` | G | an except with no fallback requirement, or a fallback carrying except |
-| `approval-reopened` | G | semantic fields changed after approval |
-| `transcribed-reviewed` | G | a transcribed record standing reviewed |
-| `transcribed-after-adoption` | G | a transcribed record after adoption ends |
-| `operator-job-without-guard` | G | an operator job with no guard |
-| `schedule-unstructured` | G | a schedule outside every or cron |
-| `behavior-unrecorded` | S | code with no parent record: delete the code, or write its parent record from a requirement, drafting the requirement if none exists |
-| `use-case-unimplemented` | S | a use case with no handler |
-| `refusal-not-thrown` | S | a declared refusal code missing from the handler, or a code matching a `refusals.composed` template whose key no code declares |
-| `proves-unconfirmed` | S | a proves link with no passing test behind it |
-| `use-case-without-scenario` | S | a use case with no scenario |
-| `write-undeclared` | S | a write outside changes |
-| `result-undeclared` | S | an outcome no result declares |
-| `effect-undeclared` | S | an edge no record declares |
-| `effect-before-commit` | S | a command use case declaring a `sends` or `calls` effect with `inline` timing |
-| `prose-missing` | A | a use case needing Goal and What Happens without them |
-| `many-aggregates` | A | more than one atomic write group |
-| `question-aged` | A | a question past its date still open |
+The [model command page](../tools/model.md) lists every finding code with its tier and meaning.
 
 ### The Book and the Diffs
 
-The book and the diffs live in the Proof layer. The book renders each journey as one chapter: the goal, `finishedWhen`, the steps as sentences, `ifItGoesWrong`; the requirements it fulfills, with their statements and their `except` and fallback inline; for each step, the serving use case goal in one line; the Then clauses of its scenarios, as context; a consequences box, as context, naming new refusals in product words, data kept and for how long, and money effects; and the open questions.
+The book and the diffs live in the Proof record layer. The book renders each journey as one chapter: the goal, `finishedWhen`, the steps as sentences, `ifItGoesWrong`; the requirements it fulfills, with their statements and their `except` and fallback inline; for each step, the serving use case goal in one line; the Then clauses of its scenarios, as context; a consequences box, as context, naming new refusals in product words, data kept and for how long, and money effects; and the open questions.
 
 Field tables render as tables. Scenarios group under their result. Field names never render literally in Intent chapters.
 
@@ -389,9 +331,9 @@ Field tables render as tables. Scenarios group under their result. Field names n
 
 **ID:** `litespec/core/model#use-the-layer-status-vocabulary`
 
-**Statement:** Every written record MUST carry the status vocabulary of its layer.
+**Statement:** Every written record MUST carry the status vocabulary of its record layer.
 
-**Rationale:** Intent and governance records use draft, approved, and retired, while Behavior records use draft, reviewed, and retired. One vocabulary per layer tells a reader whether a person approved the promise or reviewed the behavior. A Behavior record marked approved claims a founder decision nobody made.
+**Rationale:** Intent and governance records use draft, approved, and retired, while Behavior records use draft, reviewed, and retired. One vocabulary per record layer tells a reader whether a person approved the promise or reviewed the behavior. A Behavior record marked approved claims a founder decision nobody made.
 
 **Checked by:** `litespec model check` reports `invalid-field` for a status outside the record layer vocabulary.
 

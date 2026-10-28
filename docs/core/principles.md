@@ -2,17 +2,17 @@
 
 ## Intent
 
-These principles settle a design choice when no narrower provision prefers one design: each layer is written from the layer above, commitments flow down while facts flow up, and every edge between records is declared. This page states those principles with the engineering rules that still hold: one source for each fact, mechanical proof of boundaries, restraint about new machinery, and names that state boundary intent. Apply it when two designs both satisfy the narrower pages, and read the [layers page](layers.md) for the boundaries these principles govern.
+These principles settle a design choice when no narrower provision prefers one design: each record layer is written from the record layer above, commitments flow down while facts flow up, and every edge between records is declared. This page states those principles with the engineering rules that still hold: one source for each fact, mechanical proof of boundaries, restraint about new machinery, and names that state boundary intent. Apply it when two designs both satisfy the narrower pages, and read the [layers page](layers.md) for the boundaries these principles govern.
 
 ## Concepts
 
 ### Top-Down Writing
 
-Each layer is written from the layer above it: Intent states the promises, Behavior states how the system keeps them, Implementation builds what Behavior states, and Proof shows that it holds. Code and tests point up to the record they serve, through their folder or one anchor tag. Nothing above Implementation is computed from code.
+Each record layer is written from the record layer above it: Intent states the promises, Behavior states how the system keeps them, Implementation builds what Behavior states, and Proof shows that it holds. Code and tests point up to the record they serve, through their folder or one anchor tag. Nothing above Implementation is computed from code.
 
 ### Commitments Flow Down and Facts Flow Up
 
-A commitment made in Intent travels down: Behavior fulfills it, Implementation builds it, and Proof checks it. A fact learned from the world, such as a provider behavior, a regulation, or an incident, enters Intent as research or a constraint, cited and dated. What a lower layer needs, and the upper layer does not say, travels up as a draft question with a decider and a date. Nothing travels up from code.
+A commitment made in Intent travels down: Behavior fulfills it, Implementation builds it, and Proof checks it. A fact learned from the world, such as a provider behavior, a regulation, or an incident, enters Intent as research or a constraint, cited and dated. What a lower record layer needs, and the upper record layer does not say, travels up as a draft question with a decider and a date. Nothing travels up from code.
 
 ### The Spec Wins Where Intent Has Spoken
 
@@ -56,9 +56,9 @@ Boundaries are where components meet and where future readers orient themselves.
 
 **ID:** `litespec/core/principles#write-each-layer-from-the-layer-above`
 
-**Statement:** A consumer MUST write each layer from the layer above it, from Intent down to Proof.
+**Statement:** A consumer MUST write each record layer from the record layer above it, from Intent down to Proof.
 
-**Rationale:** A layer written from the layer above inherits decided promises instead of inventing its own: Behavior fulfills Intent, Implementation builds Behavior, and Proof checks Implementation. A layer written from below restates guesses as rules, and the next upper-layer change leaves two versions of one promise.
+**Rationale:** A record layer written from the record layer above inherits decided promises instead of inventing its own: Behavior fulfills Intent, Implementation builds Behavior, and Proof checks Implementation. A record layer written from below restates guesses as rules, and the next upper record-layer change leaves two versions of one promise.
 
 **Example:** A use case names the requirement it fulfills before its handler exists.
 
@@ -100,13 +100,13 @@ Boundaries are where components meet and where future readers orient themselves.
 
 **ID:** `litespec/core/principles#raise-what-a-lower-layer-needs-as-a-question`
 
-**Statement:** A consumer MUST raise what a lower layer needs, and the upper layer does not state, as a draft question with a decider and a date.
+**Statement:** A consumer MUST raise what a lower record layer needs, and the upper record layer does not state, as a draft question with a decider and a date.
 
-**Rationale:** A need that travels up as a draft question reaches the person who decides it, with a date that keeps it visible. A need filled in quietly at the lower layer becomes an undecided promise that later readers trust. A draft past its date that no rule auto-approves is reported as a known gap with its owner.
+**Rationale:** A need that travels up as a draft question reaches the person who decides it, with a date that keeps it visible. A need filled in quietly at the lower record layer becomes an undecided promise that later readers trust. A draft past its date that no rule auto-approves is reported as a known gap with its owner.
 
 **Example:** A use case that needs a price its requirements do not state raises a draft question with the founder as decider and a decideBy date.
 
-**Reviewed for:** Which lower-layer needs lack a draft question with a decider and a date? Look at the open questions beside the records that need them.
+**Reviewed for:** Which needs from a lower record layer lack a draft question with a decider and a date? Look at the open questions beside the records that need them.
 
 ### Follow Intent Where It Has Spoken
 
@@ -260,9 +260,9 @@ Boundaries are where components meet and where future readers orient themselves.
 
 **ID:** `litespec/core/principles#classify-record-authority`
 
-**Statement:** A record MUST carry exactly one status of its layer: draft, approved, or retired for Intent and governance records, and draft, reviewed, or retired for Behavior records.
+**Statement:** A record MUST carry exactly one status of its record layer: draft, approved, or retired for Intent and governance records, and draft, reviewed, or retired for Behavior records.
 
-**Rationale:** Exactly one status tells every reader what a record is: under review, authoritative, or past. Intent records turn approved while Behavior records turn reviewed, so each layer names its own authority without borrowing the other. A draft without a decider and decideBy date waits on nobody and decides nothing.
+**Rationale:** Exactly one status tells every reader what a record is: under review, authoritative, or past. Intent records turn approved while Behavior records turn reviewed, so each record layer names its own authority without borrowing the other. A draft without a decider and decideBy date waits on nobody and decides nothing.
 
 **Checked by:** `litespec consumer` fails a record with a missing or unknown status, or a draft without `decider` and `decideBy` date.
 
@@ -346,9 +346,9 @@ Boundaries are where components meet and where future readers orient themselves.
 
 **ID:** `litespec/core/principles#prefer-direct-owned-dependencies`
 
-**Default:** Use a selected framework type directly inside the layer that owns it until an architectural boundary exists.
+**Default:** Use a selected framework type directly inside the architecture layer that owns it until an architectural boundary exists.
 
-**Replacement:** A consumer records a wrapping convention naming the layers that use project-owned abstractions.
+**Replacement:** A consumer records a wrapping convention naming the architecture layers that use project-owned abstractions.
 
 **Rationale:** Using a selected framework type directly keeps one concept where two would add nothing: the abstraction and what it hides. A project-owned abstraction earns its place for provider replacement, a test boundary, a stable domain concept, or an architecture boundary. Wrapping the framework everywhere else doubles the API the team maintains without isolating any real change.
 

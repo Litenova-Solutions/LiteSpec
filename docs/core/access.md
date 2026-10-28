@@ -188,7 +188,7 @@ An actor, role, or external system page carries a Summary section stating what t
 
 **Example:** "My loans" lists the signed-in reader's loans and takes no reader id.
 
-**Reviewed for:** Each use case whose grant is a self grant names no caller-owned target in its inputs, or its message has a self declaration the authorization guard enforces, and no handler compares the caller with a target (`LS2012`).
+**Reviewed for:** Each use case whose grant is a self grant names no caller-owned target in its inputs, or its message has a self declaration the authorization guard enforces, and no handler compares the caller with a target.
 
 ### Scope Every Grant to Its Tenant Reach
 

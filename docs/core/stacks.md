@@ -18,6 +18,17 @@ Every SDK, framework, and package version resolves from `litespec.manifest.json`
 
 When an extension or a consumer override replaces baseline behavior, it names every baseline provision ID it replaces. Unrelated stack provisions stay active, so a replacement stays inside the boundary it named. Each extension states how it composes with the Behavior fields its boundary touches, such as the audit field, the tenant scope, or the job record.
 
+### Selection Diagnostics
+
+These checks report a manifest selection no page can apply, so they are listed here instead of beside a provision.
+
+| Family | Meaning | Codes |
+|:---|:---|:---|
+| `STACK_*` | A stack folder is outside the backend or frontend docs, is missing, holds no `stack.md`, or requires or pairs with a stack the manifest does not ship. | `STACK_FOLDER`, `STACK_REFERENCE` |
+| `SHAPE_PAGE` | A shape backend page is not a page directly in `docs/backend/`. | `SHAPE_PAGE` |
+| `LAYER_*` | A page sits in no known docs area, or no stack selection applies it. | `LAYER_UNLISTED`, `LAYER_UNREACHABLE` |
+| `EXTENSION_*` | An extension sits outside its declared path, is missing from the manifest, or lacks its activation scope, kinds, criterion, baseline, or dependencies, or it replaces an unknown provision or restates one it replaces. | `EXTENSION_LOCATION`, `EXTENSION_UNLISTED`, `EXTENSION_SCOPE`, `EXTENSION_KIND`, `EXTENSION_ACTIVATION`, `EXTENSION_BASELINE`, `EXTENSION_DEPENDENCIES`, `EXTENSION_REPLACES_UNKNOWN`, `EXTENSION_REPLACES_ENFORCED` |
+
 ## Standards
 
 ### Apply the Complete Stack

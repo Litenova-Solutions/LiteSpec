@@ -127,7 +127,7 @@ Every check has a tier. G reads records only and always blocks. S reads code thr
 | `schedule-unstructured` | G | A job schedule is neither an `every` duration nor a `cron` expression. |
 | `behavior-unrecorded` | S | A handler, endpoint, reaction, domain event, or refusal code in code is named by no record. The remedy reads: delete the code, or write its parent record from a requirement, drafting the requirement if none exists. |
 | `use-case-unimplemented` | S | No code implements the use case and no known gap covers it. |
-| `refusal-not-thrown` | S | A refusal result names a code the code never throws. |
+| `refusal-not-thrown` | S | A refusal result names a code the code never throws, or a code matching a `refusals.composed` template whose key no code declares. |
 | `proves-unconfirmed` | S | No proving step of a claimed scenario reaches its use case, no assertion matches its refusal by code, client alias, or HTTP status, and no integration fact drives its use case or rule. |
 | `use-case-without-scenario` | S | A use case has no scenario. It runs at large size only. |
 | `write-undeclared` | S | The code writes an aggregate outside `changes`. |

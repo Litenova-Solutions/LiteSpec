@@ -38,7 +38,7 @@ The [model page](model.md) states the authority order that settles conflicts bet
 
 A decision sets the position, and a requirement page states it as requirements. Behavior records name the requirements they fulfill and the journey steps they serve, and the code carries what happens today. When Behavior contradicts a requirement, either the code carries a defect or the business changed. A changed business means a new decision, approved by a person, before any page or code moves.
 
-What a lower layer needs and the upper layer does not say travels up as a draft question with a decider and a date. A fact learned from the world enters Intent as research or a constraint, cited and dated. Nothing travels up from code: where Intent is silent, working code is evidence for a question, not a defect to delete and not a source to transcribe silently.
+What a lower record layer needs and the upper record layer does not say travels up as a draft question with a decider and a date. A fact learned from the world enters Intent as research or a constraint, cited and dated. Nothing travels up from code: where Intent is silent, working code is evidence for a question, not a defect to delete and not a source to transcribe silently.
 
 ### Requirements with Except and Fallback
 
