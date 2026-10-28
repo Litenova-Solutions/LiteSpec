@@ -63,7 +63,7 @@ page
     action "Add to the plan"
   region "Trip plan"
     list 3
-      item: text "Hotel booked" · text muted "08:00" · text muted "Chris Novak"
+      item: text "Hotel booked" · text muted "08:00" · text muted "Eli"
   dialog "Add to the trip plan"
     field "What" text
     field "When" text = "06:30"
@@ -151,19 +151,19 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "Refunds"
+  breadcrumb "Home" "Expenses" "Reversals"
   header
-    heading "Refunds"
-    text "31 orders to decide. None of these is a refund yet."
-    action primary "Start a refund"
-  region "New refund"
-    field "Order" text = "SO-1042"
-    field "Route" select = "Bank refund"
+    heading "Reversals"
+    text "31 expenses to decide. None of these is a reversal yet."
+    action primary "Start a reversal"
+  region "New reversal"
+    field "Expense" text = "EXP-1042"
+    field "Route" select = "Bank reversal"
     field "Amount" number = "45.00"
     action "Cancel"
     action primary "Add"
-  table 4 "Order" "Customer" "Asked" "Amount"
-    item: text "SO-1041" · text "Elin Lindqvist" · text "214 days ago" · text "EUR 45.00"
+  table 4 "Expense" "Spender" "Asked" "Amount"
+    item: text "EXP-1041" · text "Elin Lindqvist" · text "214 days ago" · text "EUR 45.00"
 ```
 
 **Rationale:** The table grows a form row at the top. Nothing opens, nothing closes, and the reader sees what they are adding in the context of what is already there.
@@ -176,36 +176,36 @@ page
 page
   breadcrumb "Home" "Settings" "Data imports" "New"
   header
-    heading "Import products"
+    heading "Import expenses"
     text "Bring in a list you already hold. Nothing is published until you check it."
   region "Your file"
     field "Drop a CSV here or choose a file" file
     text muted "Up to 5 MB, 2,000 rows. UTF-8, comma separated."
     link "Download a template"
   region "What will happen"
-    text "One product per row, as a draft. Nothing is charged and nothing is sent."
+    text "One expense per row, as a draft. Nothing is paid and nothing is sent."
     action "Cancel"
     action primary "Check the file"
 ```
 
-**Rationale:** A bulk create runs in three steps: the file, a check of what it made, and a report. This is the shape for a season of products or a list of customers, where one dialog per record would take all day.
+**Rationale:** A bulk create runs in three steps: the file, a check of what it made, and a report. This is the shape for a trip of expenses or a list of spenders, where one dialog per record would take all day.
 
-**Cost:** An import writes across many records at once. A partial failure has to be reportable and undoable while nothing is charged.
+**Cost:** An import writes across many records at once. A partial failure has to be reportable and undoable while nothing is paid.
 
 #### `one-question-per-step-kept-as-a-draft`: One Question per Step, Kept as a Draft
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "New delivery"
+  breadcrumb "Home" "Expenses" "New trip"
   header
-    heading "New delivery"
+    heading "New trip"
     text "Step 2 of 3. Every answer is kept as a draft."
   region "When is it"
-    field "Loading starts" text = "14/03/2026 06:30"
+    field "Boards" text = "14/03/2026 06:30"
     field "Departs" text
   region "Already answered"
-    fact "Name" "Garcia Interiors restock"
-    fact "Warehouse" "Amsterdam warehouse"
+    fact "Name" "Rotterdam client visit"
+    fact "Site" "Rotterdam client site"
   region "Draft"
     message "This draft was started 6 minutes ago. It stays a draft until step 3 is done." info
     action "Back"
@@ -220,24 +220,24 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Deliveries"
+    heading "Trips"
     text "93 scheduled."
-    action primary "New delivery"
+    action primary "New trip"
     action quiet "Next ›"
   region "Scheduled"
     list 3
-      item: text "Garcia Interiors restock" · text muted "9 Oct 2026" · status "Scheduled" info · action "Open"
-  menu "More ways to create a delivery"
-    action "Blank delivery"
+      item: text "Rotterdam client visit" · text muted "9 Oct 2026" · status "Scheduled" info · action "Open"
+  menu "More ways to create a trip"
+    action "Blank trip"
     action "From a template"
-    action "Duplicate Garcia Interiors restock"
+    action "Duplicate Rotterdam client visit"
 ```
 
-**Rationale:** The way Shopify Polaris draws a split button: the main face creates a blank delivery. The chevron names the other ways to start. Three starting points already exist on this list, and this is the control that holds them without a toggle inside the form.
+**Rationale:** The way Shopify Polaris draws a split button: the main face creates a blank trip. The chevron names the other ways to start. Three starting points already exist on this list, and this is the control that holds them without a toggle inside the form.
 
-**Cost:** The chevron hides the template and the duplicate from anyone who never opens it. A first-time user still lands on the blank form and never learns the faster start exists.
+**Cost:** The chevron hides the template and the duplicate from anyone who never opens it. A first-time reader still lands on the blank form and never learns the faster start exists.
 
 **Reference:** Shopify Polaris
 
@@ -245,19 +245,19 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Deliveries"
+    heading "Trips"
     text "93 scheduled. Press Ctrl K to create from anywhere."
-    action "New delivery"
+    action "New trip"
   region "Scheduled"
     list 2
-      item: text "Garcia Interiors restock" · text muted "9 Oct 2026" · status "Scheduled" info
+      item: text "Rotterdam client visit" · text muted "9 Oct 2026" · status "Scheduled" info
   dialog "Create something"
-    field "What to create" search = "Create delivery"
-    action "Create delivery"
-    action "Create product"
-    action "Create discount"
+    field "What to create" search = "Create trip"
+    action "Create trip"
+    action "Create policy"
+    action "Create budget code"
 ```
 
 **Rationale:** The way Linear opens creation: one shortcut, one input, and the record type is chosen by typing. A manager who lives in the back office creates without traveling to the list first.
@@ -270,7 +270,7 @@ page
 
 **ID:** `litespec/frontend/patterns/create-edit-remove#changing-a-record-that-already-exists`
 
-**Question:** Staff change records that already exist, from renaming a delivery to raising a stock target. The decision is how the edit commits: one save per page, one per section, inline in the list, in a dialog or side panel, with impact stated first, blocked with a way out, or saved automatically. The hazard to avoid is the reader who edits one section and saves another, believing both are saved.
+**Question:** Staff change records that already exist, from renaming a trip to raising a budget ceiling. The decision is how the edit commits: one save per page, one per section, inline in the list, in a dialog or side panel, with impact stated first, blocked with a way out, or saved automatically. The hazard to avoid is the reader who edits one section and saves another, believing both are saved.
 
 **Default:** `one-save-per-page`
 
@@ -284,16 +284,16 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Desk lamps" "Oak desk lamp"
+  breadcrumb "Home" "Policies" "Travel" "Travel policy"
   header
-    heading "Oak desk lamp"
-    status "On sale" positive
-    text "What this product is, and the labeling rule its units carry."
+    heading "Travel policy"
+    status "Active" positive
+    text "What this policy is, and the coding rule its lines carry."
   region "Edits"
-    message "Two changes not saved. The warehouse still shows the old ones." info
-    field "Name" text = "Oak desk lamp"
-    field "Description" textarea = "Solid oak desk lamp with a linen shade."
-    field "Labeling" radio = "Batch label"
+    message "Two changes not saved. The portal still shows the old ones." info
+    field "Name" text = "Travel policy"
+    field "Description" textarea = "Train, hotel and meals inside the trip ceiling."
+    field "Coding" radio = "Batch code"
     action "Discard both"
     action primary "Save 2 changes"
 ```
@@ -306,21 +306,21 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Desk lamps" "Oak desk lamp"
+  breadcrumb "Home" "Policies" "Travel" "Travel policy"
   header
-    heading "Oak desk lamp"
-    status "On sale" positive
+    heading "Travel policy"
+    status "Active" positive
   region "The name"
     status "Not saved" caution
-    field "Name" text = "Oak desk lamp"
-    field "Description" textarea = "Solid oak desk lamp with a linen shade."
+    field "Name" text = "Travel policy"
+    field "Description" textarea = "Train, hotel and meals inside the trip ceiling."
     action primary "Save the name"
-  region "Unit labeling"
-    field "Labeling" radio = "Batch label"
-    action primary "Save the labeling"
+  region "Line coding"
+    field "Coding" radio = "Batch code"
+    action primary "Save the coding"
 ```
 
-**Rationale:** Each section's button repeats its own verb: Save the name, Save the labeling. Nothing is ambiguous about what each button commits.
+**Rationale:** Each section's button repeats its own verb: Save the name, Save the coding. Nothing is ambiguous about what each button commits.
 
 **Cost:** It still makes two commits on one screen, so the reader must remember to press both buttons. It works only because each button names what it commits.
 
@@ -328,15 +328,15 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Deliveries"
+    heading "Trips"
     text "93 scheduled."
-    action primary "New delivery"
+    action primary "New trip"
   toolbar
-    field "Search deliveries" search
-  table 4 "Delivery" "Date" "State" "Committed"
-    item: field "Name" text = "Garcia Interiors restock" · field "Date" text = "09/10/2026" · status "Scheduled" info · action "Save" · action "Cancel"
+    field "Search trips" search
+  table 4 "Trip" "Date" "State" "Committed"
+    item: field "Name" text = "Rotterdam client visit" · field "Date" text = "09/10/2026" · status "Scheduled" info · action "Save" · action "Cancel"
 ```
 
 **Rationale:** One cell becomes an input, the row looks different while it does, and Save and Cancel sit in the row. NN/g's rule: the row must visibly change or people edit by accident.
@@ -349,20 +349,20 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Oak desk lamp" "Stock"
+  breadcrumb "Home" "Policies" "Travel policy" "Budget"
   header
-    heading "Raise the stock target"
-    text "Amsterdam warehouse holds 500 Oak desk lamps. 412 are committed."
+    heading "Raise the budget ceiling"
+    text "Amsterdam sales holds EUR 10,000. EUR 8,240 is committed."
   region "New target"
-    field "Units in stock" number = "600"
-    message "Two things happen when you save this. 188 more units go on sale at EUR 45.00." caution
-    text "Listed on the storefront within a minute. No way to take them back once sold."
+    field "Ceiling" number = "12000"
+    message "Two things happen when you save this. EUR 3,760 more can be claimed at EUR 45.00 a line." caution
+    text "Published on the portal within a minute. No way to take it back once claimed."
   region "Nothing here changes"
-    fact "Committed" "412 units"
-    fact "Orders" "96 unchanged"
-    fact "Bought units" "Stay at EUR 45.00"
+    fact "Committed" "EUR 8,240"
+    fact "Expenses" "96 unchanged"
+    fact "Claimed lines" "Stay at EUR 45.00"
     action "Cancel"
-    action primary "Raise it and put 188 on sale"
+    action primary "Raise it and release EUR 3,760"
 ```
 
 **Rationale:** Where a change breaks something, the page says what before the reader commits: who is affected, what stops working, and what cannot be changed back.
@@ -373,40 +373,40 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Deliveries"
+    heading "Trips"
     text "93 scheduled."
   region "Scheduled"
     list 3
-      item: text "Garcia Interiors restock" · text muted "9 Oct 2026" · status "Scheduled" info · action "Rename"
-  dialog "Rename this delivery"
-    field "Name" text = "Garcia Interiors restock"
-    text muted "Customers see this. 96 orders carry the old name on their paperwork."
+      item: text "Rotterdam client visit" · text muted "9 Oct 2026" · status "Scheduled" info · action "Rename"
+  dialog "Rename this trip"
+    field "Name" text = "Rotterdam client visit"
+    text muted "Spenders see this. 96 expenses carry the old name on their paperwork."
     action "Cancel"
     action primary "Rename it"
 ```
 
 **Rationale:** Two fields do not need a page. A dialog holds them, the list stays behind, and the reader sees the change in context as soon as it lands.
 
-**Cost:** Carbon says a modal is not for repeatable work. Renaming a product happens a dozen times a season, which is repeatable enough to matter.
+**Cost:** Carbon says a modal is not for repeatable work. Renaming a trip happens a dozen times a quarter, which is repeatable enough to matter.
 
 #### `editing-blocked-with-the-reason-and-the-way-out`: Editing Blocked, with the Reason and the Way Out
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Oak desk lamp" "Pricing"
+  breadcrumb "Home" "Policies" "Travel policy" "Ceilings"
   header
-    heading "Pricing"
-    text "Oak desk lamp went on sale 12 Jan 2026. EUR 45.00 is the price the 412 sold units carry."
+    heading "Ceilings"
+    text "Travel policy went active 12 Jan 2026. EUR 45.00 is the ceiling the 412 claimed lines carry."
   region "Standard"
     field "Standard, in euros" number = "45.00"
-    message "The price the customers who already bought were charged. It cannot change." neutral
-    action disabled "Change the price everyone paid"
-    link "Price the remaining stock instead"
-  region "Still on sale"
-    field "Price for the 88 units still on sale, in euros" number = "50.00"
-    action primary "Save the new price"
+    message "The ceiling the spenders who already claimed were paid. It cannot change." neutral
+    action disabled "Change the ceiling everyone claimed"
+    link "Raise the remaining budget instead"
+  region "Still active"
+    field "Ceiling for the 88 lines still active, in euros" number = "50.00"
+    action primary "Save the new ceiling"
 ```
 
 **Rationale:** This is a change that the record's own state forbids. The field is read-only, the reason is stated on the field, and the command that would unblock it is named.
@@ -417,23 +417,23 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Desk lamps" "Oak desk lamp"
+  breadcrumb "Home" "Policies" "Travel" "Travel policy"
   header
-    heading "Oak desk lamp"
-    status "On sale" positive
+    heading "Travel policy"
+    status "Active" positive
     text "Saved 14:22."
     action "History"
   region "Notice"
-    message "Every change saves as you type. The warehouse reads the saved version within a minute." info
-  region "The product"
-    field "Name" text = "Oak desk lamp"
-    field "Description" textarea = "Solid oak desk lamp with a linen shade."
-    field "Labeling" radio = "Batch label"
+    message "Every change saves as you type. The portal reads the saved version within a minute." info
+  region "The policy"
+    field "Name" text = "Travel policy"
+    field "Description" textarea = "Train, hotel and meals inside the trip ceiling."
+    field "Coding" radio = "Batch code"
 ```
 
 **Rationale:** The way Notion saves: there is no Save button, every keystroke lands, and the header always says when. A description edited over an afternoon cannot be lost to a closed tab.
 
-**Cost:** Two people typing at once overwrite each other without noticing, and every keystroke is an audit entry unless the trail groups them. It fits free text, not prices or counts.
+**Cost:** Two people typing at once overwrite each other without noticing, and every keystroke is an audit entry unless the trail groups them. It fits free text, not ceilings or counts.
 
 **Reference:** Notion
 
@@ -441,21 +441,21 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Deliveries"
+    heading "Trips"
     text "93 scheduled."
   region "Scheduled"
     list 3
-      item: text "Garcia Interiors restock" · text muted "9 Oct 2026" · status "Scheduled" info · action "Rename"
-  drawer right "Rename this delivery"
-    field "Name" text = "Garcia Interiors restock"
-    field "Loading starts" text = "09/10/2026 06:30"
+      item: text "Rotterdam client visit" · text muted "9 Oct 2026" · status "Scheduled" info · action "Rename"
+  drawer right "Rename this trip"
+    field "Name" text = "Rotterdam client visit"
+    field "Boards" text = "09/10/2026 06:30"
     action "Cancel"
     action primary "Save"
 ```
 
-**Rationale:** The way HubSpot edits a record: the list stays on screen and the form opens beside it. Renaming twelve deliveries in a row means twelve saves without twelve page loads.
+**Rationale:** The way HubSpot edits a record: the list stays on screen and the form opens beside it. Renaming twelve trips in a row means twelve saves without twelve page loads.
 
 **Cost:** It breaks the rule that a form is a dialog or a page, never a drawer. Create and edit would then disagree about where a form lives. The panel is also too narrow for sections or steps.
 
@@ -479,23 +479,23 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Deliveries"
+    heading "Trips"
     text "93 scheduled, 4 archived."
-    action "New delivery"
+    action "New trip"
   toolbar
-    field "Search deliveries" search
+    field "Search trips" search
   region "Scheduled"
     list 3
-      item: text "Garcia Interiors restock" · text muted "9 Oct 2026" · status "Scheduled" info · action "Open"
+      item: text "Rotterdam client visit" · text muted "9 Oct 2026" · status "Scheduled" info · action "Open"
   region "Archived"
     list 1
-      item: text "Okafor Office restock" · text muted "28 Feb 2026" · status "Archived" neutral · action "Restore"
-  menu "More actions for Garcia Interiors restock"
+      item: text "Okafor Office visit" · text muted "28 Feb 2026" · status "Archived" neutral · action "Restore"
+  menu "More actions for Rotterdam client visit"
     action "Open"
-    action "Duplicate this delivery"
-    action destructive "Archive this delivery"
+    action "Duplicate this trip"
+    action destructive "Archive this trip"
 ```
 
 **Rationale:** Archive is the default removal. The dialog says what stops being visible and what is kept, and the record keeps its place with a state that says it is archived.
@@ -506,24 +506,24 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "Garcia Interiors restock" "Incidents" "INC-0207"
+  breadcrumb "Home" "Expenses" "Rotterdam client visit" "Incidents" "INC-0207"
   header
     heading "Incident INC-0207"
-    text "14 Mar 2026, loading bay."
+    text "14 Mar 2026, front desk."
     action destructive "Delete"
   region "What was recorded"
-    fact "Who" "A driver, no name given"
+    fact "Who" "A courier, no name given"
     fact "When" "14 Mar 2026, 08:41"
-    fact "Who decided" "Chris Novak"
+    fact "Who decided" "Eli"
     fact "Why" "The original could not be produced, so nothing was handed over"
   dialog "Delete this incident?"
-    text "The incident record is removed. The dispatch log keeps the decision and the time."
+    text "The incident record is removed. The payout log keeps the decision and the time."
     message "This cannot be undone. Nothing about the decision is lost." critical
     action "Keep it"
     action destructive "Delete the record"
 ```
 
-**Rationale:** Some records must go rather than be hidden. The dialog says the record is gone for good, and it names what is kept, because the dispatch log still holds the decision and the time.
+**Rationale:** Some records must go rather than be hidden. The dialog says the record is gone for good, and it names what is kept, because the payout log still holds the decision and the time.
 
 **Cost:** Everything the company holds has to stay reconstructable for an audit, which means 'delete' removes the operational record and keeps the evidence. Two different things under one verb.
 
@@ -531,15 +531,15 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "Okafor Office restock"
+  breadcrumb "Home" "Expenses" "Okafor Office visit"
   header
-    heading "Okafor Office restock"
-    text "3 Nov 2026, Rotterdam warehouse. 1,204 orders."
+    heading "Okafor Office visit"
+    text "3 Nov 2026, Rotterdam office. 1,204 expenses."
     action destructive "Archive"
-  dialog "This delivery cannot be archived yet"
-    text "Two product lines are still open. Open lines are promised to customers."
-    fact "Oak desk lamp" "412 of 500 committed. Open."
-    fact "Pine bookshelf" "0 committed. Open."
+  dialog "This trip cannot be archived yet"
+    text "Two policy lines are still open. Open lines are promised to spenders."
+    fact "Travel policy" "412 of 500 committed. Open."
+    fact "Hotel night" "0 committed. Open."
     action "Close the line"
     action primary "Close both lines first"
 ```
@@ -552,95 +552,95 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "SO-1042"
+  breadcrumb "Home" "Expenses" "EXP-1042"
   header
-    heading "SO-1042"
-    status "Refunded" neutral
-    text "Fully refunded 8 Oct 2026, 11:04, by Priya Shah."
-    action "Message customer"
+    heading "EXP-1042"
+    status "Reversed" neutral
+    text "Fully reversed 8 Oct 2026, 11:04, by Cara."
+    action "Message spender"
   region "The money, before and after"
-    fact "Paid by the customer" "EUR 125.00"
-    fact "Refunded in full" "EUR 125.00"
-    fact "Still to refund" "EUR 0.00"
-  region "What was ordered"
+    fact "Paid to the spender" "EUR 125.00"
+    fact "Reversed in full" "EUR 125.00"
+    fact "Still to reversal" "EUR 0.00"
+  region "What was claimed"
     list 2
-      item: text "Oak desk lamp, 2 units" · text muted "Returned at 11:04" · status "Returned" neutral
+      item: text "Travel policy, 2 lines" · text muted "Returned at 11:04" · status "Returned" neutral
 ```
 
-**Rationale:** A refund does not remove an order. It reverses the order and leaves the record. The customer is shown the order before and after, so the reversal is visible as a fact rather than an absence.
+**Rationale:** A reversal does not remove an expense. It reverses the expense and leaves the record. The spender is shown the expense before and after, so the reversal is visible as a fact rather than an absence.
 
-**Cost:** The record grows rather than shrinks. A list of orders has to show an order that was fully reversed without it looking empty.
+**Cost:** The record grows rather than shrinks. A list of expenses has to show an expense that was fully reversed without it looking empty.
 
 #### `void-where-the-record-must-stay-but-stop-counting`: Void, Where the Record Must Stay but Stop Counting
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "SO-1042" "Codes"
+  breadcrumb "Home" "Expenses" "EXP-1042" "Codes"
   header
-    heading "SO-1042"
+    heading "EXP-1042"
     text "2 codes, both unused."
     action destructive "Void a code"
-  region "Discount codes"
+  region "Budget codes"
     list 2
       item: text "EUR 10.00 off" · text muted "VC-0C893968A2" · status "Not used" neutral · action "Void it"
   dialog "Void this code"
-    message "VC-0C893968A2 stops working at once. Maria Garcia needs a replacement." caution
-    field "Send Maria Garcia the replacement now" checkbox
+    message "VC-0C893968A2 stops working at once. Ava needs a replacement." caution
+    field "Send Ava the replacement now" checkbox
     field "Keep the reason on the record" checkbox
     action "Cancel"
     action destructive "Void and replace"
 ```
 
-**Rationale:** This is a code that was issued and is now withdrawn. The code stops working, the code stays on the order, and the record says why.
+**Rationale:** This is a code that was issued and is now withdrawn. The code stops working, the code stays on the expense, and the record says why.
 
-**Cost:** Void and refund are different verbs for different effects and a reader has to know which is which. Voiding a code that was already used is refused outright, because the order log holds that.
+**Cost:** Void and reverse are different verbs for different effects and a reader has to know which is which. Voiding a code that was already used is refused outright, because the expense log holds that.
 
 #### `suspend-for-something-that-must-keep-running`: Suspend, for Something That Must Keep Running
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Storefront"
+  breadcrumb "Home" "Policies" "Portal"
   header
-    heading "Storefront"
+    heading "Portal"
     status "Paused" caution
     text "Paused since 2 Oct 2026, 14:22."
     action primary "Take it off pause"
   region "Notice"
-    message "Nothing can be bought here. Orders already placed still ship." caution
-    action "See the message customers get"
+    message "Nothing can be claimed here. Expenses already filed still pay." caution
+    action "See the message spenders get"
   region "What is still true"
-    fact "Address" "shop.acme-supply.example"
-    fact "Products listed" "48 on sale"
-    fact "Orders placed" "1,204, all unchanged"
-  region "What a customer sees"
-    text "This shop is not taking orders at the moment. Orders already placed still ship."
+    fact "Address" "expenses.harbor-pine.example"
+    fact "Policies published" "48 active"
+    fact "Expenses filed" "1,204, all unchanged"
+  region "What a spender sees"
+    text "This portal is not taking expenses at the moment. Expenses already filed still pay."
 ```
 
 **Rationale:** Pause the record rather than removing it. The record keeps every property and stops accepting what it accepts. The page says what is still possible while it is paused.
 
-**Cost:** A pause is invisible to a customer unless something tells them. The same page has to answer what happens to somebody who tries to order while this is paused.
+**Cost:** A pause is invisible to a spender unless something tells them. The same page has to answer what happens to somebody who tries to file while this is paused.
 
 #### `trash-with-thirty-days-to-change-your-mind`: Trash with Thirty Days to Change Your Mind
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Deliveries"
+    heading "Trips"
     text "93 scheduled, 3 in the trash."
     action destructive "Empty the trash"
   toolbar
-    field "Search deliveries" search
+    field "Search trips" search
   region "Notice"
-    message "The trash empties itself after 30 days. Placed orders are never in it." info
+    message "The trash empties itself after 30 days. Filed expenses are never in it." info
   region "Trash"
     list 3
-      item: text "Okafor Office restock" · text muted "Deletes 7 Nov 2026" · action "Restore" · action destructive "Delete now"
+      item: text "Okafor Office visit" · text muted "Deletes 7 Nov 2026" · action "Restore" · action destructive "Delete now"
 ```
 
 **Rationale:** The way Google Drive removes: delete moves the record to a trash that empties itself after thirty days. The verb stays delete, which is what the reader reaches for, and the reversibility stays too.
 
-**Cost:** There is still a day when the record goes for good. The trash needs its own view, its own emptying rule, and an answer for records with placed orders.
+**Cost:** There is still a day when the record goes for good. The trash needs its own view, its own emptying rule, and an answer for records with filed expenses.
 
 **Reference:** Google Drive
 
@@ -648,20 +648,20 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "SO-1042" "Delivery" "Plan"
+  breadcrumb "Home" "Expenses" "EXP-1042" "Trip" "Plan"
   header
-    heading "Garcia Interiors restock"
-    text "Delivery plan, 5 entries."
+    heading "Rotterdam client visit"
+    text "Trip plan, 5 entries."
     action "Add to the plan"
-  region "Delivery plan"
+  region "Trip plan"
     list 3
-      item: text "Loading bay booked" · text muted "08:00" · text muted "Chris Novak"
-  toast "Jordan Lee on customer messages was removed. Undo within 8 seconds." info
+      item: text "Meeting room booked" · text muted "08:00" · text muted "Eli"
+  toast "Ben on spender messages was removed. Undo within 8 seconds." info
 ```
 
 **Rationale:** The way Gmail removes mail: the command applies at once and the toast carries the way back for eight seconds. Removing a plan entry is too small for a dialog and exactly the size of an Undo.
 
-**Cost:** It only fits what is cheap to reverse. Money, orders, and anything the audit trail holds still need the dialog that says what happens. An Undo that expires is not a record.
+**Cost:** It only fits what is cheap to reverse. Money, expenses, and anything the audit trail holds still need the dialog that says what happens. An Undo that expires is not a record.
 
 **Reference:** Gmail
 
@@ -669,7 +669,7 @@ page
 
 **ID:** `litespec/frontend/patterns/create-edit-remove#removing-several-at-once`
 
-**Question:** Staff remove or refund several records at once. The count itself is the risk, so the reader checks how many records and how much money are involved before committing. The decision is how the confirmation carries that check for small and large selections.
+**Question:** Staff remove or reverse several records at once. The count itself is the risk, so the reader checks how many records and how much money are involved before committing. The decision is how the confirmation carries that check for small and large selections.
 
 **Default:** `a-dialog-naming-the-count-and-the-money`
 
@@ -683,23 +683,23 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "Refunds"
+  breadcrumb "Home" "Expenses" "Reversals"
   header
-    heading "Refunds"
-    text "31 orders. 3 selected."
-    action primary "Refund these 3"
-  table 3 "Order" "Customer" "Amount"
-    item: text "SO-1042" · text "Maria Garcia" · text "EUR 90.00"
-  dialog "Refund 3 orders in full?"
-    fact "Maria Garcia, SO-1042" "EUR 90.00"
-    fact "Tom Becker, SO-1041" "EUR 40.45"
-    fact "Elin Lindqvist, SO-1040" "EUR 45.00"
+    heading "Reversals"
+    text "31 expenses. 3 selected."
+    action primary "Reversal these 3"
+  table 3 "Expense" "Spender" "Amount"
+    item: text "EXP-1042" · text "Ava" · text "EUR 90.00"
+  dialog "Reversal 3 expenses in full?"
+    fact "Ava, EXP-1042" "EUR 90.00"
+    fact "Tom Becker, EXP-1041" "EUR 40.45"
+    fact "Elin Lindqvist, EXP-1040" "EUR 45.00"
     fact "Total going back" "EUR 175.45"
     action "Cancel"
-    action destructive "Refund 3 orders"
+    action destructive "Reversal 3 expenses"
 ```
 
-**Rationale:** A bulk refund confirmation, which lists the records and totals the money before the commit button. The count and the amount are the two things a reader must check.
+**Rationale:** A bulk reversal confirmation, which lists the records and totals the money before the commit button. The count and the amount are the two things a reader must check.
 
 **Cost:** Twenty-five rows in a dialog mean scrolling inside a dialog. Past about five rows the total carries the meaning, and few readers check each line.
 
@@ -707,22 +707,22 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "Refunds"
+  breadcrumb "Home" "Expenses" "Reversals"
   header
-    heading "Refunds"
-    text "31 orders. 25 on this page are selected."
+    heading "Reversals"
+    text "31 expenses. 25 on this page are selected."
   region "Scope"
-    message "All 25 on this page are selected. 1,204 refunds match this filter in total." info
+    message "All 25 on this page are selected. 1,204 reversals match this filter in total." info
     action "Select all 1,204 instead"
-  table 3 "Order" "Customer" "Amount"
-    item: text "SO-1042" · text "Maria Garcia" · text "EUR 90.00"
-  dialog "Refund the 25 on this page?"
-    text "Only these 25, out of the 1,204 refunds that match this filter."
-    fact "Order money going back" "EUR 1,204.50"
-    fact "Taken off the Acme Supply balance" "EUR 1,204.50"
+  table 3 "Expense" "Spender" "Amount"
+    item: text "EXP-1042" · text "Ava" · text "EUR 90.00"
+  dialog "Reversal the 25 on this page?"
+    text "Only these 25, out of the 1,204 reversals that match this filter."
+    fact "Expense money going back" "EUR 1,204.50"
+    fact "Taken off the Harbor and Pine balance" "EUR 1,204.50"
     message "6 of the 25 are older than 180 days. This method will not take those back." caution
     action "Cancel"
-    action destructive "Refund these 25"
+    action destructive "Reversal these 25"
 ```
 
 **Rationale:** Where the selection could be page-scoped or filter-scoped, the dialog says which. Gmail's banner exists for exactly this and Shopify documents the same escalation.
@@ -735,43 +735,43 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Deliveries"
+    heading "Trips"
     text "241 in all. 4 selected."
   toolbar
-    field "Search deliveries" search
+    field "Search trips" search
   region "Selection"
     text "4 selected, all completed, none scheduled."
     action "Clear"
     action "Restore"
     action primary "Archive these 4"
-  region "Deliveries"
+  region "Trips"
     list 3
-      item: text "Okafor Office restock" · text muted "9 Oct 2026, completed" · action "Open"
+      item: text "Okafor Office visit" · text muted "9 Oct 2026, completed" · action "Open"
 ```
 
 **Rationale:** Archive is cheap and reversible, so a bulk archive needs only a count in the selection bar, not a dialog listing every record.
 
-**Cost:** Archiving 200 deliveries hides 200 deliveries, and the reader has no way back except an Archived view. The safety net is the view, not the dialog.
+**Cost:** Archiving 200 trips hides 200 trips, and the reader has no way back except an Archived view. The safety net is the view, not the dialog.
 
 #### `a-partial-bulk-refusal-some-rows-will-not-do-it`: A Partial Bulk Refusal: Some Rows Will Not Do It
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "Refunds"
+  breadcrumb "Home" "Expenses" "Reversals"
   header
-    heading "Refunds"
-    text "31 orders. 3 selected."
-  table 3 "Order" "Customer" "Amount"
-    item: text "SO-1042" · text "Maria Garcia" · text "EUR 90.00"
-  dialog "Refund 1 of the 3?"
-    text "Two of these are outside the refund window, so the bank will refuse them."
-    message "SO-1042, EUR 90.00. Maria Garcia, 6 days old. The bank will take this one." positive
-    message "SO-1040, EUR 45.00. Elin Lindqvist, 181 days old. Outside the window." critical
-    message "SO-1038, EUR 45.00. Ade Okafor, 214 days old. Outside the window." critical
+    heading "Reversals"
+    text "31 expenses. 3 selected."
+  table 3 "Expense" "Spender" "Amount"
+    item: text "EXP-1042" · text "Ava" · text "EUR 90.00"
+  dialog "Reversal 1 of the 3?"
+    text "Two of these are outside the reversal window, so the bank will refuse them."
+    message "EXP-1042, EUR 90.00. Ava, 6 days old. The bank will take this one." positive
+    message "EXP-1040, EUR 45.00. Elin Lindqvist, 181 days old. Outside the window." critical
+    message "EXP-1038, EUR 45.00. Ade Okafor, 214 days old. Outside the window." critical
     action "Cancel"
-    action destructive "Refund the one that works"
+    action destructive "Reversal the one that works"
 ```
 
 **Rationale:** When some of the selection cannot take the command, the dialog says which and why before anything runs, and offers to do the rest.
@@ -785,14 +785,14 @@ page
   breadcrumb "Home" "Settings" "Data imports" "IMP-4F82C1A9"
   header
     heading "Data imports"
-    text "4 imports. 1 holds 1,988 orders."
+    text "4 imports. 1 holds 1,988 expenses."
     action destructive "Undo this import"
   region "What was imported"
-    fact "Orders created" "1,988"
-    fact "Order lines created" "2,361"
-    fact "Amount charged to anybody" "EUR 0.00"
+    fact "Expenses created" "1,988"
+    fact "Expense lines created" "2,361"
+    fact "Amount paid to anybody" "EUR 0.00"
   dialog "Undo this import?"
-    text "This removes 1,988 orders and 2,361 order lines."
+    text "This removes 1,988 expenses and 2,361 expense lines."
     field "Type 1,988 to confirm" text
     action "Keep the import"
     action disabled "Undo the import"
@@ -806,22 +806,22 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "Plans" "March restock plan"
+  breadcrumb "Home" "Expenses" "Plans" "March trip plan"
   header
-    heading "March restock plan"
-    text "Four deliveries, 214 units committed between them."
+    heading "March trip plan"
+    text "Four trips, 214 lines committed between them."
     action destructive "Cancel the plan"
-  table 3 "Delivery" "Date" "Committed"
-    item: text "Delivery 8" · text "27 Oct 2026" · text "86"
-  dialog "Cancel the March restock plan?"
-    text "86 units were delivered on delivery 8. That delivery cannot be called back."
-    text "128 units on deliveries 9 and 10 would be refunded, EUR 5,760.00 in total."
-    message "The 86 delivered units are with the customers. Nothing here can undo that." critical
+  table 3 "Trip" "Date" "Committed"
+    item: text "Trip 8" · text "27 Oct 2026" · text "86"
+  dialog "Cancel the March trip plan?"
+    text "86 lines were paid on trip 8. That trip cannot be called back."
+    text "128 lines on trips 9 and 10 would be reversed, EUR 5,760.00 in total."
+    message "The 86 paid lines are with the spenders. Nothing here can undo that." critical
     action "Keep the plan"
     action destructive "Cancel the plan"
 ```
 
-**Rationale:** Canceling a plan of deliveries is one command with several effects, and the dialog lists them per row rather than as a total. What the reader needs is not the sum but which deliveries have customers.
+**Rationale:** Canceling a plan of trips is one command with several effects, and the dialog lists them per row rather than as a total. What the reader needs is not the sum but which trips have spenders.
 
 **Cost:** A dialog that varies per row is a table in a dialog, which is a page. Past a handful of rows, the consequence list belongs on a page of its own.
 
@@ -829,22 +829,22 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "Bulk jobs"
+  breadcrumb "Home" "Expenses" "Bulk jobs"
   header
     heading "Bulk jobs"
     text "One running. Reports land here and stay."
-    action "New bulk refund"
+    action "New bulk reversal"
   region "Running now"
     status "Running" info
-    text "Refund 1,204 orders in full. Started 8 Oct 2026, 14:22 by Priya Shah."
+    text "Reverse 1,204 expenses in full. Started 8 Oct 2026, 14:22 by Cara."
     figure "Done" "746 of 1,204"
     action "Cancel the rest"
   region "Finished"
     list 2
-      item: text "Archive 200 completed deliveries" · text muted "Finished 8 Oct 2026, 11:04" · status "200 archived" positive · action "Read the report"
+      item: text "Archive 200 completed trips" · text muted "Finished 8 Oct 2026, 11:04" · status "200 archived" positive · action "Read the report"
 ```
 
-**Rationale:** The way Shopify runs bulk operations: past a size no dialog can carry, the selection runs as a job, and a report lands afterwards. Refunding 1,204 orders cannot be checked on screen, so it is checked in the report instead.
+**Rationale:** The way Shopify runs bulk operations: past a size no dialog can carry, the selection runs as a job, and a report lands afterwards. Reversing 1,204 expenses cannot be checked on screen, so it is checked in the report instead.
 
 **Cost:** The reader walks away and comes back, so the job needs progress, a cancel, and a report that names every row it refused. A job that fails halfway also needs a rule for what already ran.
 
@@ -854,15 +854,15 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "Refunds" "Plan"
+  breadcrumb "Home" "Expenses" "Reversals" "Plan"
   header
-    heading "Plan: refund 3 orders"
+    heading "Plan: reversal 3 expenses"
     text "Nothing has run. This is what would happen."
-  table 3 "Order" "Customer" "What would happen"
-    item: text "SO-1042" · text "Maria Garcia" · status "Will refund" positive
-  region "Two orders are outside the window"
-    message "Offer credit or record a bank transfer for those two instead." caution
-    fact "1 order, on the original payment" "EUR 90.00"
+  table 3 "Expense" "Spender" "What would happen"
+    item: text "EXP-1042" · text "Ava" · status "Will reversal" positive
+  region "Two expenses are outside the window"
+    message "Deduct it or record a bank transfer for those two instead." caution
+    fact "1 expense, on the original payout" "EUR 90.00"
     action "Back to the selection"
     action "Discard the plan"
     action destructive "Apply to the 1 that works"
@@ -870,7 +870,7 @@ page
 
 **Rationale:** This option works the way Terraform plans before it applies. A page says what each row will do, so the refusals are read before anything runs rather than after. Three rows fit, and three hundred still fit, because it is a page.
 
-**Cost:** The plan can go stale between reading and applying: a payment can settle, and a window can close. The apply step must recheck every row and say which answer changed.
+**Cost:** The plan can go stale between reading and applying: a payout can settle, and a window can close. The apply step must recheck every row and say which answer changed.
 
 **Reference:** Terraform
 
@@ -878,7 +878,7 @@ page
 
 **ID:** `litespec/frontend/patterns/create-edit-remove#creating-a-record-and-then-filling-it-in`
 
-**Question:** A new record such as a delivery needs a name, a date, a warehouse, a priced product, and a channel before it can sell, but staff may not know all five at once. The decision is how much a create requires up front and how the record gets finished: name-only draft, everything required, series defaults, checklist, wizard, nothing until publish, home-page guide, or point-of-use nudges.
+**Question:** A new record such as a trip needs a name, a date, a site, a priced fare, and a cost centre before it can file, but staff may not know all five at once. The decision is how much a create requires up front and how the record gets finished: name-only draft, everything required, series defaults, checklist, wizard, nothing until publish, home-page guide, or point-of-use nudges.
 
 **Default:** `create-with-a-name-fill-the-rest-later`
 
@@ -892,48 +892,48 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "Garcia Interiors restock"
+  breadcrumb "Home" "Expenses" "Rotterdam client visit"
   header
-    heading "Garcia Interiors restock"
+    heading "Rotterdam client visit"
     status "Draft" neutral
     text "Nothing about it is scheduled yet."
     action primary "Finish it"
   region "Notice"
-    message "A draft cannot take money. It needs a date, a warehouse, one priced product and a channel." info
-  region "Four things this delivery still needs"
-    fact "Name" "Garcia Interiors restock. Set on 8 Oct 2026."
-    fact "When and where" "No date, no warehouse."
-    fact "A product, priced" "Nothing to order yet."
-    action "Set the date and warehouse"
+    message "A draft cannot take expenses. It needs a date, a site, one priced fare and a cost centre." info
+  region "Four things this trip still needs"
+    fact "Name" "Rotterdam client visit. Set on 8 Oct 2026."
+    fact "When and where" "No date, no site."
+    fact "A fare, priced" "Nothing to claim yet."
+    action "Set the date and site"
 ```
 
 **Rationale:** The name is the only required field, and the record exists as a draft. Every later addition is its own audited and reconstructable command.
 
-**Cost:** A draft delivery is nearly useless on its own. If nothing prompts the reader to finish it, it sits unfinished on a list. The home-page setup guide is what prompts the reader to finish it.
+**Cost:** A draft trip is nearly useless on its own. If nothing prompts the reader to finish it, it sits unfinished on a list. The home-page setup guide is what prompts the reader to finish it.
 
 #### `everything-required-before-the-record-exists`: Everything Required Before the Record Exists
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "New delivery"
+  breadcrumb "Home" "Expenses" "New trip"
   header
-    heading "New delivery"
-    text "Five things. A delivery cannot exist without them."
-  region "The delivery"
+    heading "New trip"
+    text "Five things. A trip cannot exist without them."
+  region "The trip"
     field "Name" text
     field "Description" textarea
   region "When and where"
-    field "Loading starts" text
+    field "Boards" text
     field "Departs" text
-    field "Warehouse" select = "Amsterdam warehouse"
-  region "What is on sale"
-    field "Product name" text = "Oak desk lamp"
-    field "Price, in euros" number = "45.00"
+    field "Site" select = "Rotterdam client site"
+  region "What is active"
+    field "Fare name" text = "Travel policy"
+    field "Amount, in euros" number = "45.00"
     action "Cancel"
-    action primary "Create the delivery"
+    action primary "Create the trip"
 ```
 
-**Rationale:** The record is not created until it is whole: name, date, warehouse, one product, and one channel. Nothing half-made is ever in a list.
+**Rationale:** The record is not created until it is whole: name, date, site, one fare, and one cost centre. Nothing half-made is ever in a list.
 
 **Cost:** It asks for a five-part form before anything exists, and a reader who only wants to pencil in a date has to do all of it.
 
@@ -941,43 +941,43 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "Plans" "March restock plan" "New delivery"
+  breadcrumb "Home" "Expenses" "Plans" "March trip plan" "New trip"
   header
-    heading "New delivery"
-    text "The March restock plan runs four deliveries. This is the fifth."
-  region "What this delivery takes from the plan"
-    fact "Warehouse" "Amsterdam warehouse. Shared."
-    fact "Products" "Oak desk lamp, Pine bookshelf. Shared."
-    fact "Delivery plan" "6 entries. Shared."
+    heading "New trip"
+    text "The March trip plan runs four trips. This is the fifth."
+  region "What this trip takes from the plan"
+    fact "Site" "Rotterdam client site. Shared."
+    fact "Policies" "Travel policy, Hotel night. Shared."
+    fact "Trip plan" "6 entries. Shared."
     fact "Team" "Nobody assigned for this date. Not shared."
-  region "What this delivery sets"
+  region "What this trip sets"
     field "Date" text = "24/11/2026"
-    field "Loading starts" text = "06:30"
+    field "Boards" text = "06:30"
     action "Cancel"
-    action primary "Create the delivery"
+    action primary "Create the trip"
 ```
 
-**Rationale:** The plan carries the warehouse, the delivery plan, and the products, and each delivery is created already holding them. One create makes many records with no repetition.
+**Rationale:** The plan carries the site, the trip plan, and the fares, and each trip is created already holding them. One create makes many records with no repetition.
 
-**Cost:** A delivery created from a plan can be edited away from it, and then the two disagree. The plan has to state which fields are shared and what diverging means.
+**Cost:** A trip created from a plan can be edited away from it, and then the two disagree. The plan has to state which fields are shared and what diverging means.
 
 #### `a-checklist-that-closes-itself`: A Checklist That Closes Itself
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "Garcia Interiors restock"
+  breadcrumb "Home" "Expenses" "Rotterdam client visit"
   header
-    heading "Garcia Interiors restock"
+    heading "Rotterdam client visit"
     status "Draft" neutral
-    text "14 Mar 2026, loading 06:30, Amsterdam warehouse."
+    text "14 Mar 2026, boards 06:30, Rotterdam client site."
     action primary "Publish"
-  region "Before this can sell"
+  region "Before this can file"
     field "Name and description" checkbox = "Done"
-    field "Date, hours and warehouse" checkbox = "Done"
-    field "A product, priced" checkbox = "Done"
-    field "List it on the storefront" checkbox
+    field "Date, hours and site" checkbox = "Done"
+    field "A fare, priced" checkbox = "Done"
+    field "List it on the portal" checkbox
     action "List it"
-    field "Write the dispatch plan" checkbox
+    field "Write the payout plan" checkbox
     action "Set it up"
 ```
 
@@ -989,25 +989,25 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "New delivery"
+  breadcrumb "Home" "Expenses" "New trip"
   header
-    heading "New delivery"
-    text "Step 2 of 4, the products. Stopping now keeps a draft."
-  region "The products"
+    heading "New trip"
+    text "Step 2 of 4, the fares. Stopping now keeps a draft."
+  region "The fares"
     status "Priced" positive
-    field "Price, in euros" number = "45.00"
-    field "Units" number = "500"
-    action "Add a second product"
+    field "Amount, in euros" number = "45.00"
+    field "Lines" number = "500"
+    action "Add a second fare"
   region "Steps"
-    text "1 The delivery, done. 2 The products, now. 3 Where it sells. 4 Publish."
+    text "1 The trip, done. 2 The fares, now. 3 Who pays. 4 Publish."
     action "Save and close"
     action "Back"
     action primary "Continue"
 ```
 
-**Rationale:** One flow from nothing to on sale: the delivery, its products, its channel, and the publish step. The reader never lands on a draft they have to finish by hand.
+**Rationale:** One flow from nothing to published: the trip, its fares, its cost centre, and the publish step. The reader never lands on a draft they have to finish by hand.
 
-**Cost:** Carbon says simplify before a wizard, and a stepper is only for a linear flow of three or more steps. Going on sale is linear, so this is the case a stepper exists for.
+**Cost:** Carbon says simplify before a wizard, and a stepper is only for a linear flow of three or more steps. Publishing is linear, so this is the case a stepper exists for.
 
 **Reference:** Carbon
 
@@ -1015,17 +1015,17 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "New delivery" "Publish"
+  breadcrumb "Home" "Expenses" "New trip" "Publish"
   header
-    heading "Publish Garcia Interiors restock"
+    heading "Publish Rotterdam client visit"
     text "Nothing has been saved yet. This is the last step."
   region "What will exist when you publish"
-    fact "Delivery" "Garcia Interiors restock, 14 Mar 2026"
-    fact "Place" "Amsterdam warehouse, 40 pallets"
-    fact "Product" "Oak desk lamp, EUR 45.00"
-    fact "Count" "One product, 500 units"
-  region "Where it will sell"
-    fact "Storefront" "shop.acme-supply.example, published"
+    fact "Trip" "Rotterdam client visit, 14 Mar 2026"
+    fact "Place" "Rotterdam client site, 40 receipts"
+    fact "Fare" "Train fare, EUR 45.00"
+    fact "Count" "One fare, 500 lines"
+  region "Where it will publish"
+    fact "Portal" "expenses.harbor-pine.example, published"
     action "Back to the form"
     action primary "Publish it"
 ```
@@ -1040,12 +1040,12 @@ page
 page
   breadcrumb "Home"
   header
-    heading "Good afternoon, Sam Rivera"
-    text "Two things need you today. Garcia Interiors restock is scheduled."
-    action primary "New delivery"
+    heading "Good afternoon, Dana"
+    text "Two things need you today. Rotterdam client visit is scheduled."
+    action primary "New trip"
   region "Finish the setup"
     figure "Done" "3 of 5"
-    fact "Connect the bank payouts" "Connected 2 Oct by Sam Rivera."
+    fact "Connect the bank payouts" "Connected 2 Oct by Dana."
     fact "Set the returns policy" "Still the default text."
     action "Set it"
     action quiet "Dismiss"
@@ -1061,19 +1061,19 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "Garcia Interiors restock"
+  breadcrumb "Home" "Expenses" "Rotterdam client visit"
   header
-    heading "Garcia Interiors restock"
+    heading "Rotterdam client visit"
     status "Draft" neutral
-    text "Sat 14 Mar 2026, loading 06:30, Amsterdam warehouse."
+    text "Sat 14 Mar 2026, boards 06:30, Rotterdam client site."
   region "Publish"
     action disabled "Publish"
-    message "Two things are missing: a priced product and a channel on sale." neutral
-  region "Products"
-    text "No product yet. A customer cannot order what has no price."
-    action primary "Add a product"
-  region "Storefront"
-    text "Nothing is listed, so the storefront shows the delivery as coming soon."
+    message "Two things are missing: a priced fare and a channel live." neutral
+  region "Fares"
+    text "No fare yet. A spender cannot claim what has no ceiling."
+    action primary "Add a fare"
+  region "Portal"
+    text "Nothing is published, so the portal shows the trip as coming soon."
 ```
 
 **Rationale:** This option works the way Webflow gates publish. No checklist page: the missing piece is named where it is missing. The publish button says what it needs, and the section that needs it says so too.
@@ -1086,13 +1086,13 @@ page
 
 **ID:** `litespec/frontend/patterns/create-edit-remove#changing-something-that-has-already-happened`
 
-**Question:** A record of what is true now cannot always be edited: a charge already priced must stay reconstructable for invoices and audits. The decision is which shape each after-the-fact change takes: old value kept beside the new, refusal with the newer way named, dated correction, scheduled window, scoped change, reversal, version history, or two-person approval.
+**Question:** A record of what is true now cannot always be edited: an expense already paid must stay reconstructable for billing and audits. The decision is which shape each after-the-fact change takes: old value kept beside the new, refusal with the newer way named, dated correction, scheduled window, scoped change, reversal, version history, or two-person approval.
 
 **Default:** `the-old-value-stays-on-the-record-beside-the-new`
 
 **Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
 
-**Rationale:** Keeping the old value beside the new stays the pick. An order placed last month still resolves to the delivery it was placed for. The dated correction is the runner-up where a fact was entered wrong, and the reversal is the only shape for money. Never ship a silent overwrite of anything priced or shipped. Where no safe edit exists, the refusal with the newer way named is the option. The version history earns its place for names and text, with two-person approval for corrections to money.
+**Rationale:** Keeping the old value beside the new stays the pick. An expense filed last month still resolves to the trip it was filed for. The dated correction is the runner-up where a fact was entered wrong, and the reversal is the only shape for money. Never ship a silent overwrite of anything priced or paid. Where no safe edit exists, the refusal with the newer way named is the option. The version history earns its place for names and text, with two-person approval for corrections to money.
 
 **Reviewed for:** Which built correction flow differs from the wireframe its catalog entry chose? Open the built past-change edits, reverses, and version histories beside the catalog entry recording the chosen option and its reason.
 
@@ -1100,18 +1100,18 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "Garcia Interiors restock"
+  breadcrumb "Home" "Expenses" "Rotterdam client visit"
   header
-    heading "Garcia Interiors restock"
-    text "Sat 14 Mar 2026, Amsterdam warehouse. 1,204 orders."
+    heading "Rotterdam client visit"
+    text "Sat 14 Mar 2026, Rotterdam client site. 1,204 expenses."
     action "Rename"
   region "The name over time"
-    text "Orders already placed carry the name they were placed under."
+    text "Expenses already filed carry the name they were filed under."
     timeline 3
-      item: text "Garcia Interiors restock" · text muted "8 Oct 2026, 14:22" · text muted "Alex Morgan"
+      item: text "Rotterdam client visit" · text muted "8 Oct 2026, 14:22" · text muted "Ben"
 ```
 
-**Rationale:** A rename shows what it was and when. The record never loses the earlier name, because an order placed last month must still resolve to the delivery it was placed for.
+**Rationale:** A rename shows what it was and when. The record never loses the earlier name, because an expense filed last month must still resolve to the trip it was filed for.
 
 **Cost:** Every edit grows the record, and a reader looking for 'what is this called' has to skip past what it used to be called.
 
@@ -1119,41 +1119,41 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Oak desk lamp" "Pricing"
+  breadcrumb "Home" "Policies" "Travel policy" "Ceilings"
   header
-    heading "Pricing"
-    text "Oak desk lamp went on sale 12 Jan 2026."
+    heading "Ceilings"
+    text "Travel policy went active 12 Jan 2026."
   region "Refused"
-    message "That price has already been charged. 412 units were sold at EUR 45.00." critical
-    text "Changing it would make the records disagree with the customer."
-    action disabled "Change the price everyone paid"
-    link "Price the remaining stock instead"
-  region "Still on sale"
-    field "Price for the 88 units still on sale, in euros" number = "50.00"
-    action primary "Save the new price"
+    message "That ceiling has already been claimed. 412 lines were claimed at EUR 45.00." critical
+    text "Changing it would make the records disagree with the spender."
+    action disabled "Change the ceiling everyone claimed"
+    link "Raise the remaining budget instead"
+  region "Still active"
+    field "Ceiling for the 88 lines still active, in euros" number = "50.00"
+    action primary "Save the new ceiling"
 ```
 
 **Rationale:** Some edits cannot happen at all after the fact. The command is not disabled silently: it says what cannot change, and names the command that achieves what the reader was trying to do.
 
-**Cost:** A reader who wants a price change on a sold unit is told no and offered the replacement command instead. That is the correct answer, but refusals still generate support cases.
+**Cost:** A reader who wants a ceiling change on a claimed line is told no and offered the replacement command instead. That is the correct answer, but refusals still generate support cases.
 
 #### `a-correction-dated-and-attributed`: A Correction, Dated and Attributed
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "Garcia Interiors restock" "Incidents" "INC-0207"
+  breadcrumb "Home" "Expenses" "Rotterdam client visit" "Incidents" "INC-0207"
   header
     heading "Incident INC-0207"
     status "Closed" neutral
-    text "14 Mar 2026, loading bay. Recorded 14 Mar, corrected 2 Oct."
+    text "14 Mar 2026, front desk. Recorded 14 Mar, corrected 2 Oct."
   region "What happened"
-    fact "Who" "A driver, no name given"
-    fact "What" "Presented another customer's pickup slip"
-    fact "Why" "The original slip could not be produced"
-    text muted "Corrected 2 Oct 2026 by Priya Shah."
+    fact "Who" "A courier, no name given"
+    fact "What" "Presented another spender's receipt"
+    fact "Why" "The original receipt could not be produced"
+    text muted "Corrected 2 Oct 2026 by Cara."
   region "The corrections"
     timeline 2
-      item: text "Why corrected" · text muted "2 Oct 2026, 09:12" · text muted "Priya Shah"
+      item: text "Why corrected" · text muted "2 Oct 2026, 09:12" · text muted "Cara"
 ```
 
 **Rationale:** Where a figure was entered wrong, the correction is a statement about the past. The record carries the correction as its own dated fact rather than overwriting the wrong one.
@@ -1164,15 +1164,15 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Delivery fee"
+  breadcrumb "Home" "Policies" "Late fee"
   header
-    heading "Delivery fee"
-    text "What the customer pays on top of the order. You keep all of it."
+    heading "Late fee"
+    text "What the spender pays on top of the expense. You keep all of it."
   region "The fee"
     fact "Now, since 1 Oct 2026" "EUR 5.00"
     fact "From 1 November 2026, scheduled" "EUR 6.00"
     field "Change the scheduled fee, in euros" number = "6.00"
-    text muted "Takes effect on 1 November 2026. The 1,204 orders already placed keep EUR 5.00."
+    text muted "Takes effect on 1 November 2026. The 1,204 expenses already filed keep EUR 5.00."
     action "Cancel"
     action primary "Schedule the change"
 ```
@@ -1181,23 +1181,23 @@ page
 
 **Cost:** Two values on one record is a rule every read honors. What this is worth carries a date that a reader has to notice.
 
-#### `a-change-that-only-reaches-what-has-not-shipped`: A Change That Only Reaches What Has Not Shipped
+#### `a-change-that-only-reaches-what-has-not-shipped`: A Change That Only Reaches What Has Not Paid
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "SO-1042" "Delivery" "Plan"
+  breadcrumb "Home" "Expenses" "EXP-1042" "Trip" "Plan"
   header
-    heading "Delivery plan"
+    heading "Trip plan"
     text "6 entries, sorted by start time."
     action "Add to the plan"
   region "Scope"
-    message "This is this delivery only. A change here does not reach any dispatched delivery." info
+    message "This is this trip only. A change here does not reach any paid trip." info
   region "Entries"
     list 3
-      item: text "Stock check" · text muted "06:30" · text muted "Changed 8 Oct, 14:22" · action "More actions"
+      item: text "Receipt check" · text muted "06:30" · text muted "Changed 8 Oct, 14:22" · action "More actions"
 ```
 
-**Rationale:** The edit page says which population the change reaches, and which it cannot. Editing a delivery plan changes this delivery. Editing the warehouse does not.
+**Rationale:** The edit page says which population the change reaches, and which it cannot. Editing a trip plan changes this trip. Editing the office does not.
 
 **Cost:** It needs a read that counts the affected population. That count is a fact the API answers rather than a number typed into the copy.
 
@@ -1205,18 +1205,18 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Invoices" "Mismatches" "M-0091"
+  breadcrumb "Home" "Billing" "Mismatches" "M-0091"
   header
     heading "Mismatch M-0091"
-    text "Order SO-1042, EUR 45.00 recorded twice."
+    text "Expense EXP-1042, EUR 45.00 recorded twice."
     action destructive "Reverse the second"
   region "What the two records say"
-    fact "Recorded by the storefront" "EUR 45.00"
+    fact "Recorded by the portal" "EUR 45.00"
     fact "Recorded by the bank file" "EUR 45.00"
     fact "Counted so far" "EUR 90.00"
     fact "After the reversal" "EUR 45.00"
   region "Why"
-    field "Reason" textarea = "The bank file imported the same payment twice."
+    field "Reason" textarea = "The bank file imported the same payout twice."
     action "Cancel"
     action destructive "Reverse the second record"
 ```
@@ -1229,15 +1229,15 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "Garcia Interiors restock" "Versions"
+  breadcrumb "Home" "Expenses" "Rotterdam client visit" "Versions"
   header
-    heading "Garcia Interiors restock"
-    text "Sat 14 Mar 2026, Amsterdam warehouse. 1,204 orders."
+    heading "Rotterdam client visit"
+    text "Sat 14 Mar 2026, Rotterdam client site. 1,204 expenses."
   region "Notice"
-    message "Restoring writes a new version. Orders keep the name they were placed under." info
+    message "Restoring writes a new version. Expenses keep the name they were filed under." info
   region "Versions"
     list 3
-      item: text "Garcia Interiors March order" · text muted "Version 11, 12 Jan 2026, 09:04 by Alex Morgan" · action "Restore"
+      item: text "Rotterdam March trip" · text muted "Version 11, 12 Jan 2026, 09:04 by Ben" · action "Restore"
 ```
 
 **Rationale:** This option works the way Notion keeps versions. Every save is a version with a who and a when. Restoring writes a new version rather than rewriting the old. A name changed in October reads in June as what it was then.
@@ -1250,16 +1250,16 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Invoices" "Mismatches" "M-0091" "CR-0031"
+  breadcrumb "Home" "Billing" "Mismatches" "M-0091" "CR-0031"
   header
     heading "Correction CR-0031"
-    text "Mismatch M-0091, order SO-1042. Waiting on one approval."
+    text "Mismatch M-0091, expense EXP-1042. Waiting on one approval."
   region "What was asked"
-    fact "Asked by" "Priya Shah, 8 Oct 2026, 09:12"
+    fact "Asked by" "Cara, 8 Oct 2026, 09:12"
     fact "Change" "Reverse the second EUR 45.00 record"
-    fact "Reason" "The bank file imported the same payment twice."
+    fact "Reason" "The bank file imported the same payout twice."
   region "Rule"
-    message "Priya Shah asked for this correction, so Priya Shah cannot approve it." caution
+    message "Cara asked for this correction, so Cara cannot approve it." caution
   region "Decide"
     field "Note for the record" textarea
     action "Refuse"
@@ -1268,7 +1268,7 @@ page
 
 **Rationale:** The way GitHub guards a protected branch: a change to what is settled needs a second person. A correction to money that one person could type alone is the case this exists for.
 
-**Cost:** Every correction waits on someone else, and a team of one cannot use it at all. It fits corrections to money and the dispatch log, not names and text.
+**Cost:** Every correction waits on someone else, and a team of one cannot use it at all. It fits corrections to money and the payout log, not names and text.
 
 **Reference:** GitHub
 
@@ -1276,15 +1276,15 @@ page
 
 **ID:** `litespec/frontend/patterns/create-edit-remove#duplicating-a-record`
 
-**Question:** A duplicate is a create that starts from something. The copy carries the setup and never the history: prices and a delivery plan travel, and orders and money stay with the original.
+**Question:** A duplicate is a create that starts from something. The copy carries the setup and never the history: ceilings and a trip plan travel, and expenses and money stay with the original.
 
 **Default:** `a-dialog-that-says-what-the-copy-carries`
 
 **Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
 
-**Rationale:** The dialog that says what the copy carries is the pick: a duplicate that silently drops the prices is worse than no duplicate. The carry checklist is the runner-up where the parts vary per company. Never ship one-click duplication for a delivery. It earns its place for discount codes and plan entries, which carry no customers.
+**Rationale:** The dialog that says what the copy carries is the pick: a duplicate that silently drops the ceilings is worse than no duplicate. The carry checklist is the runner-up where the parts vary per company. Never ship one-click duplication for a trip. It earns its place for budget codes and plan entries, which carry no spenders.
 
-An order is never duplicated, because it is one customer's payment.
+An expense is never duplicated, because it is one spender's claim.
 
 **Reviewed for:** Which built copy flow differs from the wireframe its catalog entry chose? Open the built duplicate dialogs and row-menu copies beside the catalog entry recording the chosen option and its reason.
 
@@ -1292,26 +1292,26 @@ An order is never duplicated, because it is one customer's payment.
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Deliveries"
+    heading "Trips"
     text "93 scheduled."
-    action "New delivery"
+    action "New trip"
   toolbar
-    field "Search deliveries" search
-  region "Deliveries"
+    field "Search trips" search
+  region "Trips"
     list 1
-      item: text "Garcia Interiors restock" · text muted "Sat 14 Mar 2026 · Amsterdam warehouse" · status "Draft" neutral · text "0 of 40 pallets" · action "Open"
+      item: text "Rotterdam client visit" · text muted "Sat 14 Mar 2026 · Rotterdam client site" · status "Draft" neutral · text "0 of 40 receipts" · action "Open"
   dialog
-    heading "Duplicate Garcia Interiors restock"
-    field "Name of the copy" text = "Garcia Interiors restock (copy)"
-    text "The copy carries the delivery plan, the products and prices, and the dispatch plan."
-    text "Orders, committed units and money stay with the original. The copy starts as a draft."
+    heading "Duplicate Rotterdam client visit"
+    field "Name of the copy" text = "Rotterdam client visit (copy)"
+    text "The copy carries the trip plan, the fares and ceilings, and the payout plan."
+    text "Expenses, committed lines and money stay with the original. The copy starts as a draft."
     action "Cancel"
     action primary "Duplicate it"
 ```
 
-**Rationale:** The way Shopify duplicates a product: the dialog names what the copy carries before it exists. The copy starts as a draft, so nothing about it is on sale until the reader says so.
+**Rationale:** The way Shopify duplicates a product: the dialog names what the copy carries before it exists. The copy starts as a draft, so nothing about it is active until the reader says so.
 
 **Cost:** A long carried list makes a long dialog, and most of it is read once. Past about six parts the checklist option carries the meaning better.
 
@@ -1321,11 +1321,11 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Discounts" "Codes"
+  breadcrumb "Home" "Policies" "Budget codes" "Codes"
   header
-    heading "Discount codes"
-    text "4 codes. All of them reduce the product, never the fee."
-    action "New discount code"
+    heading "Budget codes"
+    text "4 codes. All of them reduce the expense, never the fee."
+    action "New budget code"
   region "Codes"
     table 3 "Code" "Reduction" "Used"
       item: text "WELCOME10 copy" · text "EUR 10.00 off" · text "0 of 200" · menu "More"
@@ -1333,9 +1333,9 @@ page
   toast info "WELCOME10 copy was created as a draft."
 ```
 
-**Rationale:** The way Mailchimp duplicates a campaign: one menu item with no questions, and the copy lands as a draft, confirmed by a toast. A discount code carries no customers, so there is nothing to check first.
+**Rationale:** The way Mailchimp duplicates a campaign: one menu item with no questions, and the copy lands as a draft, confirmed by a toast. A budget code carries no spenders, so there is nothing to check first.
 
-**Cost:** No moment to rename or choose what travels. It fits records with no customers and no money. A delivery duplicated this way would surprise everyone in June.
+**Cost:** No moment to rename or choose what travels. It fits records with no spenders and no money. A trip duplicated this way would surprise everyone in June.
 
 **Reference:** Mailchimp
 
@@ -1343,20 +1343,20 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Oak desk lamp" "Tiers"
+  breadcrumb "Home" "Policies" "Travel policy" "Codes"
   header
-    heading "Price tiers"
-    text "2 tiers. 412 sold between them."
-    action "New price tier"
-  region "Tiers"
+    heading "Budget codes"
+    text "2 codes. 412 claimed between them."
+    action "New budget code"
+  region "Codes"
     list 3
-      item: field "Name of the copy" text = "Copy of Standard" · text muted "EUR 45.00 · 0 sold · draft, not on sale" · action "Keep the name"
-    text "Standard at EUR 45.00 with 412 sold and Large at EUR 60.00 sit below."
+      item: field "Name of the copy" text = "Copy of Standard" · text muted "EUR 45.00 · 0 claimed · draft, not active" · action "Keep the name"
+    text "Standard at EUR 45.00 with 412 claimed and Large at EUR 60.00 sit below."
 ```
 
-**Rationale:** The way Figma duplicates a layer: the copy appears beside the original as Copy of, already selected for rename. Duplicating a price tier is renaming plus a price check, and both happen in the list.
+**Rationale:** The way Figma duplicates a layer: the copy appears beside the original as Copy of, already selected for rename. Duplicating a budget code is renaming plus a ceiling check, and both happen in the list.
 
-**Cost:** The copy exists before it is named, so a list can fill with Copy of Standard rows that nobody renamed. It needs the draft state to say the copy is not on sale yet.
+**Cost:** The copy exists before it is named, so a list can fill with Copy of Standard rows that nobody renamed. It needs the draft state to say the copy is not active yet.
 
 **Reference:** Figma
 
@@ -1364,25 +1364,25 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "Garcia Interiors restock" "Duplicate"
+  breadcrumb "Home" "Expenses" "Rotterdam client visit" "Duplicate"
   header
-    heading "Duplicate Garcia Interiors restock"
+    heading "Duplicate Rotterdam client visit"
     text "Tick what the copy carries. The rest stays behind."
   region "What travels"
-    field "Name of the copy" text = "Garcia Interiors restock (copy)"
-    field "Delivery plan, 6 entries" checkbox
-    field "Products and prices, Oak desk lamp and Pine bookshelf" checkbox
-    field "Dispatch plan, 1 dock and 2 bays" checkbox
-    field "Team assignments, Chris Novak and Jordan Lee" checkbox
-    text "Orders, committed units and money never travel. The copy starts as a draft."
+    field "Name of the copy" text = "Rotterdam client visit (copy)"
+    field "Trip plan, 6 entries" checkbox
+    field "Fares and ceilings, Train fare and Hotel night" checkbox
+    field "Payout plan, 1 run and 2 batches" checkbox
+    field "Team assignments, Eli and Ben" checkbox
+    text "Expenses, committed lines and money never travel. The copy starts as a draft."
   footer
     action "Cancel"
     action primary "Duplicate it"
 ```
 
-**Rationale:** The way Notion duplicates a page with its subpages offered as toggles: every part is a checkbox with its size beside it. A reader who wants the prices but not the team says so here.
+**Rationale:** The way Notion duplicates a page with its subpages offered as toggles: every part is a checkbox with its size beside it. A reader who wants the ceilings but not the team says so here.
 
-**Cost:** Six checkboxes for a routine duplicate is five too many on the tenth use. It fits the first duplicate of a season, not the weekly one.
+**Cost:** Six checkboxes for a routine duplicate is five too many on the tenth use. It fits the first duplicate of a quarter, not the weekly one.
 
 **Reference:** Notion
 
@@ -1390,20 +1390,20 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "SO-1042"
+  breadcrumb "Home" "Expenses" "EXP-1042"
   header
-    heading "SO-1042"
+    heading "EXP-1042"
     status "Paid" positive
-    text "Maria Garcia · EUR 125.00 · paid 8 Oct 2026, 09:32."
-  message critical "An order cannot be duplicated. SO-1042 is the payment Maria Garcia made. A copy would claim a payment that never happened."
+    text "Ava · EUR 125.00 · paid 8 Oct 2026, 09:32."
+  message critical "An expense cannot be duplicated. EXP-1042 is the claim Ava made. A copy would claim a payout that never happened."
   region "What to do instead"
-    text "To sell the same products to someone else, create a manual order. It carries its own number and its own payment."
-    action primary "Create a manual order"
+    text "To claim the same lines for someone else, create a manual expense. It carries its own number and its own payout."
+    action primary "Create a manual expense"
 ```
 
-**Rationale:** The way Stripe treats a paid invoice as a fact: it can be credited but never copied. An order is one customer payment for one set of products, so duplicating it would invent a payment that never happened.
+**Rationale:** The way Stripe treats a paid invoice as a fact: it can be credited but never copied. An expense is one spender claim for one set of lines, so duplicating it would invent a claim that never happened.
 
-**Cost:** The reader who wants a second order like this one must build it by hand. The manual order is the way out. This page must name it, or the refusal leaves the reader with nowhere to go.
+**Cost:** The reader who wants a second expense like this one must build it by hand. The manual expense is the way out. This page must name it, or the refusal leaves the reader with nowhere to go.
 
 **Reference:** Stripe
 
@@ -1411,30 +1411,30 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "Plans" "March restock plan" "Delivery 9" "Duplicate"
+  breadcrumb "Home" "Expenses" "Plans" "March trip plan" "Trip 9" "Duplicate"
   header
-    heading "Duplicate delivery 9"
-    text "March restock plan · Tue 3 Nov 2026. The copy joins the same series."
+    heading "Duplicate trip 9"
+    text "March trip plan · Tue 3 Nov 2026. The copy joins the same series."
   region "The copy takes from the series"
-    fact "Place" "Amsterdam warehouse, shared"
-    fact "Products" "Oak desk lamp, Pine bookshelf, shared at EUR 45.00"
-    fact "Delivery plan" "Shared, 6 entries"
+    fact "Place" "Rotterdam client site, shared"
+    fact "Policies" "Travel policy, Hotel night, shared at EUR 45.00"
+    fact "Trip plan" "Shared, 6 entries"
     field "Date of the copy" text = "24/11/2026"
-    text "Delivery 9 moved its loading slot to 19:30. The copy takes the series 20:00, not the change."
+    text "Trip 9 moved its boarding slot to 19:30. The copy takes the series 20:00, not the change."
   footer
     action "Cancel"
-    action primary "Duplicate the delivery"
+    action primary "Duplicate the trip"
 ```
 
-**Rationale:** The series holds what every delivery shares, so the duplicate only asks for the date. The shared parts are named, not chosen, because the series owns them.
+**Rationale:** The series holds what every trip shares, so the duplicate only asks for the date. The shared parts are named, not chosen, because the series owns them.
 
-**Cost:** Anything the delivery changed away from the series raises the question of which version travels. The page must say the series version wins, or the copy silently keeps the divergence.
+**Cost:** Anything the trip changed away from the series raises the question of which version travels. The page must say the series version wins, or the copy silently keeps the divergence.
 
 ### Putting a List in Order by Hand
 
 **ID:** `litespec/frontend/patterns/create-edit-remove#putting-a-list-in-order-by-hand`
 
-**Question:** Products, plan entries, and storefront sections all have an order the reader sets. The customer reads the order the reader left, so the control must work for a mouse, a keyboard, and a finger.
+**Question:** Policies, plan entries, and portal sections all have an order the reader sets. The spender reads the order the reader left, so the control must work for a mouse, a keyboard, and a finger.
 
 **Default:** `drag-handles-in-the-list`
 
@@ -1442,7 +1442,7 @@ page
 
 **Rationale:** Drag handles in the list are the pick: direct, visible, and the order saves as it changes. Move up and Move down in the row menu are the required companion, because drag alone leaves keyboard and screen-reader users behind. Never ship typed position numbers alone. Two rows both numbered 3 are a question the page cannot answer.
 
-The storefront preview earns its place for sections, where the order is the design.
+The portal preview earns its place for sections, where the order is the design.
 
 **Reviewed for:** Which built manual ordering differs from the wireframe its catalog entry chose? Open the built drag handles, move commands, and pinned rows beside the catalog entry recording the chosen option and its reason.
 
@@ -1450,16 +1450,16 @@ The storefront preview earns its place for sections, where the order is the desi
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Desk lamps"
+  breadcrumb "Home" "Policies" "Travel"
   header
-    heading "Products"
-    text "3 products. Customers read them in this order."
-  message info "Drag a row to move it. The order saves on drop and the storefront follows within a minute."
-  region "Products"
+    heading "Policies"
+    text "3 policies. Spenders read them in this order."
+  message info "Drag a row to move it. The order saves on drop and the portal follows within a minute."
+  region "Fares"
     list 3
-      item: text "1" · text "Oak desk lamp" · text muted "EUR 45.00 · 412 sold" · menu "More"
-    text "Spring offer at EUR 40.00 and Pine bookshelf at EUR 120.00 follow below."
-    text "The first product is the one customers see first."
+      item: text "1" · text "Travel policy" · text muted "EUR 45.00 · 412 claimed" · menu "More"
+    text "Spring rate at EUR 40.00 and Hotel night at EUR 120.00 follow below."
+    text "The first policy is the one spenders see first."
 ```
 
 **Rationale:** The way Notion reorders blocks: a grip sits on every row, the dragged row lifts, and a line shows where it will land. The order saves on drop, so there is nothing to forget.
@@ -1472,14 +1472,14 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "SO-1042" "Delivery" "Plan"
+  breadcrumb "Home" "Expenses" "EXP-1042" "Trip" "Plan"
   header
-    heading "Garcia Interiors restock"
-    text "Delivery plan · 6 entries, sorted by start time."
-  region "Delivery plan"
+    heading "Rotterdam client visit"
+    text "Trip plan · 6 entries, sorted by start time."
+  region "Trip plan"
     list 3
       item: text "Labels printed" · text muted "Set 2 Oct · position 2 of 6" · text "07:00" · menu "More"
-    text "Stock check at 06:30 sits above. Loading bay booked at 08:00 sits below."
+    text "Receipt check at 06:30 sits above. Meeting room booked at 08:00 sits below."
     text "Every move announces its new position. The order saves with each move."
   popover "More"
     action "Move up"
@@ -1498,20 +1498,20 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Desk lamps"
+  breadcrumb "Home" "Policies" "Travel"
   header
-    heading "Products"
-    text "3 products. Numbers set the customer order."
-  region "Products"
+    heading "Policies"
+    text "3 policies. Numbers set the sequence spenders read."
+  region "Fares"
     list 3
-      item: text "Oak desk lamp" · text muted "EUR 45.00 · 412 sold" · field "Position of Oak desk lamp" number = "1"
-    text "Spring offer holds 2 and Pine bookshelf holds 3. Two rows with the same number are refused."
+      item: text "Travel policy" · text muted "EUR 45.00 · 412 claimed" · field "Position of Travel policy" number = "1"
+    text "Spring rate holds 2 and Hotel night holds 3. Two rows with the same number are refused."
   footer
     action "Reset"
-    action primary "Save the order"
+    action primary "Save the expense"
 ```
 
-**Rationale:** The way WordPress orders menu items: a number on each row, one save for the whole list. Jumping a row from 14 to 1 is one keystroke where dragging would cross the whole list.
+**Rationale:** The way WordPress expenses menu items: a number on each row, one save for the whole list. Jumping a row from 14 to 1 is one keystroke where dragging would cross the whole list.
 
 **Cost:** Two rows numbered 3 are a question the page cannot answer, and renumbering fourteen rows by hand is slower than dragging one. Numbers suit a jump across a long list and nothing else.
 
@@ -1521,49 +1521,49 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Deliveries"
+    heading "Trips"
     text "93 scheduled. Sorted by date, 2 pinned."
   toolbar
-    field "Search deliveries" search
+    field "Search trips" search
     field "Sort" select = "Date"
-  region "Deliveries"
+  region "Trips"
     list 4
-      item: text "Garcia Interiors restock" · text muted "Sat 14 Mar 2026 · pinned by Alex Morgan" · status "Pinned" info · text "412 units" · action "Unpin"
-    text "Becker Bouw restock stays pinned below. Dated rows follow the sort."
+      item: text "Rotterdam client visit" · text muted "Sat 14 Mar 2026 · pinned by Ben" · status "Pinned" info · text "412 lines" · action "Unpin"
+    text "Becker Bouw trip stays pinned below. Dated rows follow the sort."
     text "Pinned rows stay first in every sort. Unpinning returns a row to the rule."
 ```
 
-**Rationale:** The way Shopify sorts products: the list follows a rule such as price or date, and pinned rows stay above it. Ninety-three deliveries need no hand ordering. The two that matter stay first by hand.
+**Rationale:** The way Shopify sorts products: the list follows a rule such as price or date, and pinned rows stay above it. Ninety-three trips need no hand ordering. The two that matter stay first by hand.
 
 **Cost:** Two orders on one list is a rule every reader must learn: pinned first, then the rule. A reader who sorts by name and finds two rows out of place has to be told why.
 
 **Reference:** Shopify
 
-#### `order-the-storefront-sections-on-the-preview`: Order the Storefront Sections on the Preview
+#### `order-the-storefront-sections-on-the-preview`: Order the Portal Sections on the Preview
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Storefront"
+  breadcrumb "Home" "Policies" "Portal"
   header
-    heading "Storefront"
-    text "shop.acme-supply.example · what customers read, in order."
+    heading "Portal"
+    text "expenses.harbor-pine.example · what spenders read, in order."
   split 1:1
     region "Sections"
       list 3
-        item: text "2" · text "Oak desk lamp" · text muted "412 sold · on sale"
+        item: text "2" · text "Travel policy" · text muted "412 claimed · active"
       text "Drag a section. The preview follows."
-    region "Customer preview"
-      heading small "Spring offers"
+    region "Spender preview"
+      heading small "Spring rates"
       text "From EUR 40.00 · ends 1 Feb."
-      heading small "Oak desk lamp"
-      text "EUR 45.00 · 412 sold."
+      heading small "Travel policy"
+      text "EUR 45.00 · 412 claimed."
 ```
 
 **Rationale:** The way Squarespace orders page sections: list and preview sit side by side, and moving a row moves the preview with it. The order is the design, so it is judged as one.
 
-**Cost:** Two panes need a wide screen. Below 768 px the preview stacks under the list and the judgement breaks. It also fits sections, not products, which customers read as a list either way.
+**Cost:** Two panes need a wide screen. Below 768 px the preview stacks under the list and the judgement breaks. It also fits sections, not policies, which spenders read as a list either way.
 
 **Reference:** Squarespace
 
@@ -1571,14 +1571,14 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "SO-1042" "Delivery" "Plan"
+  breadcrumb "Home" "Expenses" "EXP-1042" "Trip" "Plan"
   header
-    heading "Garcia Interiors restock"
-    text "Delivery plan · 6 entries."
-  region "Delivery plan"
+    heading "Rotterdam client visit"
+    text "Trip plan · 6 entries."
+  region "Trip plan"
     list 3
-      item: text "Loading bay booked" · text muted "Moved to top by Alex Morgan · position 1 of 6" · text "08:00" · menu "More"
-    text "Stock check at 06:30 and four more entries sit below."
+      item: text "Meeting room booked" · text muted "Moved to top by Ben · position 1 of 6" · text "08:00" · menu "More"
+    text "Receipt check at 06:30 and four more entries sit below."
     text "Jumps save at once, like every other move."
   popover "More"
     action "Move up"
@@ -1613,18 +1613,18 @@ The Undo toast earns its place in the seconds after archiving, not as the way ba
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Deliveries"
+    heading "Trips"
     text "93 scheduled, 4 archived."
-    action "New delivery"
+    action "New trip"
   toolbar
-    field "Search deliveries" search
+    field "Search trips" search
   region "Archived"
     list 3
-      item: text "Okafor Office restock" · text muted "28 Feb 2026 · archived 2 Oct" · text "Returns as Scheduled" · action "Restore"
-    text "A restore returns the record to the state it held. Nothing goes back on sale by itself."
-  toast positive "Okafor Office restock is back under Scheduled."
+      item: text "Okafor Office visit" · text muted "28 Feb 2026 · archived 2 Oct" · text "Returns as Scheduled" · action "Restore"
+    text "A restore returns the record to the state it held. Nothing goes back live by itself."
+  toast positive "Okafor Office visit is back under Scheduled."
 ```
 
 **Rationale:** The way Shopify restores an archived product: the Archived view lists what is hidden, and each row carries its own Restore. The record returns to the state it held, not to a draft.
@@ -1637,21 +1637,21 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Deliveries"
+    heading "Trips"
     text "93 scheduled, 4 archived."
-    action "New delivery"
+    action "New trip"
   toolbar
-    field "Search deliveries" search
-  region "Deliveries"
+    field "Search trips" search
+  region "Trips"
     list 2
-      item: text "Garcia Interiors restock" · text muted "9 Oct 2026 · Amsterdam warehouse" · status "Scheduled" info · text "1 of 40 pallets"
-    text "Okafor Office restock left this list a moment ago. Undo is fastest where the archive happened."
-  toast info "Okafor Office restock was archived. Undo."
+      item: text "Rotterdam client visit" · text muted "9 Oct 2026 · Rotterdam client site" · status "Scheduled" info · text "1 of 40 receipts"
+    text "Okafor Office visit left this list a moment ago. Undo is fastest where the archive happened."
+  toast info "Okafor Office visit was archived. Undo."
 ```
 
-**Rationale:** The way Gmail keeps an Undo on every archive: the toast is the way back in the seconds after the selection. Archiving the wrong delivery is fixed where it happened, without a visit to another view.
+**Rationale:** The way Gmail keeps an Undo on every archive: the toast is the way back in the seconds after the selection. Archiving the wrong trip is fixed where it happened, without a visit to another view.
 
 **Cost:** Eight seconds and it is gone, so this is a correction for slips, not the way back. Anyone restoring a day later still needs the archived view.
 
@@ -1661,15 +1661,15 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "Okafor Office restock"
+  breadcrumb "Home" "Expenses" "Okafor Office visit"
   header
-    heading "Okafor Office restock"
-    text "28 Feb 2026 · Rotterdam warehouse. Archived 2 Oct."
+    heading "Okafor Office visit"
+    text "28 Feb 2026 · Rotterdam office. Archived 2 Oct."
     action "Open"
-  message caution "This delivery is archived. Archived 2 Oct 2026 by Alex Morgan. Customers cannot see it and nothing about it is scheduled."
+  message caution "This trip is archived. Archived 2 Oct 2026 by Ben. Spenders cannot see it and nothing about it is scheduled."
   region "Restore it"
-    text "It returns as Scheduled, with its plan, its prices and its 0 committed units. Nothing goes back on sale by itself."
-    action primary "Restore this delivery"
+    text "It returns as Scheduled, with its plan, its ceilings and its 0 committed lines. Nothing goes back live by itself."
+    action primary "Restore this trip"
 ```
 
 **Rationale:** The way GitHub reopens a closed issue from the issue itself: the archived banner sits on the record, with Restore beside it. Anyone arriving by link or search restores without finding the archived view first.
@@ -1682,23 +1682,23 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "Okafor Office restock" "Tiers"
+  breadcrumb "Home" "Expenses" "Okafor Office visit" "Codes"
   header
-    heading "Price tiers"
-    text "Okafor Office restock · archived 2 Oct."
-  region "Tiers"
+    heading "Budget codes"
+    text "Okafor Office visit · archived 2 Oct."
+  region "Codes"
     list 1
       item: text "Standard" · text muted "EUR 45.00 · 0 committed · archived" · action "Restore"
   dialog
-    heading "Restore Standard as well as its delivery?"
-    text "Standard belongs to Okafor Office restock, which is still archived. A price tier cannot return while its delivery stays hidden."
-    text "Restoring both returns the delivery as Scheduled and the tier with it. Neither goes back on sale by itself."
+    heading "Restore Standard as well as its trip?"
+    text "Standard belongs to Okafor Office visit, which is still archived. A budget code cannot return while its trip stays hidden."
+    text "Restoring both returns the trip as Scheduled and the code with it. Neither goes back live by itself."
     action primary "Restore both"
-    action "Restore the delivery first"
+    action "Restore the trip first"
     action "Cancel"
 ```
 
-**Rationale:** The way Jira refuses to reopen a subtask whose parent is closed: the restore names the blocker and offers the way out. A price tier cannot return while its delivery stays archived.
+**Rationale:** The way Jira refuses to reopen a subtask whose parent is closed: the restore names the blocker and offers the way out. A budget code cannot return while its trip stays archived.
 
 **Cost:** It asks for two dialogs for one restore, and the offer to restore both at once is a second command hiding inside the first. It must say both are restored, not only the row that was selected.
 
@@ -1708,23 +1708,23 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Oak desk lamp" "Tiers"
+  breadcrumb "Home" "Policies" "Travel policy" "Codes"
   header
-    heading "Price tiers"
-    text "2 tiers on sale. 1 archived."
-  region "Tiers"
+    heading "Budget codes"
+    text "2 codes active. 1 archived."
+  region "Codes"
     list 2
-      item: text "Standard" · text muted "EUR 45.00 · 0 sold · archived 2 Oct" · action "Restore"
-    text "Standard at EUR 45.00 with 412 sold stays on sale above."
+      item: text "Standard" · text muted "EUR 45.00 · 0 claimed · archived 2 Oct" · action "Restore"
+    text "Standard at EUR 45.00 with 412 claimed stays active above."
   dialog
     heading "Standard is already taken"
-    text "Another tier took the name while this one was archived. The restored tier comes back renamed."
+    text "Another code took the name while this one was archived. The restored code comes back renamed."
     field "Name on return" text = "Standard (restored)"
     action "Cancel"
     action primary "Restore it renamed"
 ```
 
-**Rationale:** The way Notion renames a restored page when the title is taken: the restore keeps both records by renaming the restored record. Two tiers called Standard would disagree on the invoice, so only one keeps the name.
+**Rationale:** The way Notion renames a restored page when the title is taken: the restore keeps both records by renaming the restored record. Two codes called Standard would disagree on the expense, so only one keeps the name.
 
 **Cost:** The restored record comes back under a name nobody chose, and renaming it again is a second command. The dialog must show the name it will hold, not only the clash.
 
@@ -1734,26 +1734,26 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Deliveries"
+    heading "Trips"
     text "4 archived. 2 selected."
   toolbar
-    field "Search deliveries" search
+    field "Search trips" search
   region "Archived"
     list 3
-      item: field "Select Okafor Office restock" checkbox · text "Okafor Office restock" · text muted "28 Feb 2026 · returns as Scheduled"
-    text "Lindqvist Studio samples returns as Scheduled. Becker Bouw trial returns as Ended."
+      item: field "Select Okafor Office visit" checkbox · text "Okafor Office visit" · text muted "28 Feb 2026 · returns as Scheduled"
+    text "Lindqvist Studio trip returns as Scheduled. Becker Bouw trip returns as Ended."
     action "Clear"
     action primary "Restore these 2"
   dialog
-    heading "Restore 2 deliveries?"
-    text "Both return as Scheduled, with their plans and prices. Neither goes back on sale by itself."
+    heading "Restore 2 trips?"
+    text "Both return as Scheduled, with their plans and ceilings. Neither goes back live by itself."
     action "Cancel"
     action primary "Restore both"
 ```
 
-**Rationale:** The way Google Drive restores a selection: the count is the confirmation, and every record returns to where it was. Archiving a whole season by mistake is fixed by selecting the same records and restoring them together.
+**Rationale:** The way Google Drive restores a selection: the count is the confirmation, and every record returns to where it was. Archiving a whole quarter by mistake is fixed by selecting the same records and restoring them together.
 
 **Cost:** A bulk restore can return records to states the reader forgot, including one that clashes. The report afterwards must name each record and where it landed.
 
@@ -1763,7 +1763,7 @@ page
 
 **ID:** `litespec/frontend/patterns/create-edit-remove#inviting-a-team-member`
 
-**Question:** Warehouse crew join per delivery, and staff join per company. An invitation names the person, the role, and the scope before sending, because wrongly granted access must be found and removed later.
+**Question:** Trip crew join per trip, and staff join per company. An invitation names the person, the role, and the scope before sending, because wrongly granted access must be found and removed later.
 
 **Default:** `invite-by-email-with-the-role-chosen-first`
 
@@ -1771,7 +1771,7 @@ page
 
 **Rationale:** Invite by email with the role chosen first is the pick: person, role, and scope are all named on one dialog. The pending list with resend and revoke is the runner-up and the required companion, because an invitation waits far longer than sending takes. Never ship an open invite link for staff roles.
 
-It earns its place only for warehouse crew on one delivery. A request to join is refused: the company invites. Nobody applies.
+It earns its place only for trip crew on one trip. A request to join is refused: the company invites. Nobody applies.
 
 **Reviewed for:** Which built join flow differs from the wireframe its catalog entry chose? Open the built email invites, links, and pending lists beside the catalog entry recording the chosen option and its reason.
 
@@ -1786,20 +1786,20 @@ page
     action "Invite someone"
   region "Team"
     list 3
-      item: text "Sam Rivera" · text muted "Owner · Acme Supply" · menu "More"
-    text "Alex Morgan and Chris Novak sit below. Chris serves Garcia Interiors restock."
+      item: text "Dana" · text muted "Owner · Harbor and Pine" · menu "More"
+    text "Ben and Eli sit below. Eli serves Rotterdam client visit."
   dialog
     heading "Invite someone"
     field "Email" text = "noa.vermeer@example.com"
-    field "Role" select = "Warehouse lead"
-    field "Scope" select = "Garcia Interiors restock"
+    field "Role" select = "Trip lead"
+    field "Scope" select = "Rotterdam client visit"
     action "Cancel"
     action primary "Send the invitation"
 ```
 
-**Rationale:** The way Slack invites: one dialog, the email, and the role with what it can do beside it. The scope line says whether Noa joins the company or one delivery, before the invitation exists.
+**Rationale:** The way Slack invites: one dialog, the email, and the role with what it can do beside it. The scope line says whether Noa joins the company or one trip, before the invitation exists.
 
-**Cost:** It sends one invitation per person, typed by hand. Assigning forty pickers for a season needs the link option beside it.
+**Cost:** It sends one invitation per person, typed by hand. Assigning forty temps for a quarter needs the link option beside it.
 
 **Reference:** Slack
 
@@ -1809,48 +1809,48 @@ page
 page
   breadcrumb "Home" "Settings" "Team" "Invite link"
   header
-    heading "Invite the warehouse crew"
-    text "Garcia Interiors restock · Sat 14 Mar 2026. The link joins as Picker and expires with the delivery."
+    heading "Invite the trip crew"
+    text "Rotterdam client visit · Sat 14 Mar 2026. The link joins as Temp and expires with the trip."
   region "The link"
-    fact "Invite link" "acme-supply.example/join/7K4Q-2M9X"
+    fact "Invite link" "harbor-pine.example/join/7K4Q-2M9X"
     action quiet "Copy"
-    fact "Role" "Picker"
-    fact "Scope" "Garcia Interiors restock"
+    fact "Role" "Temp"
+    fact "Scope" "Rotterdam client visit"
     fact "Uses" "12 of 60"
     fact "Expires" "15 Mar 2026, 18:00"
-    message caution "Anyone with this link joins as Picker for Garcia Interiors restock. It never grants finance, manager or owner access."
+    message caution "Anyone with this link joins as Temp for Rotterdam client visit. It never grants finance, manager or owner access."
   footer
     action destructive "Revoke the link"
     action "Copy it again"
 ```
 
-**Rationale:** The way Discord invites: a link with an expiry and a use count, for forty pickers nobody wants to type by hand. The link joins one delivery in one role, and nothing else.
+**Rationale:** The way Discord invites: a link with an expiry and a use count, for forty temps nobody wants to type by hand. The link joins one trip in one role, and nothing else.
 
-**Cost:** Anyone with the link joins, including anyone it was forwarded to. It fits warehouse crew on one delivery and is refused for owner, finance, and manager roles.
+**Cost:** Anyone with the link joins, including anyone it was forwarded to. It fits trip crew on one trip and is refused for owner, finance, and manager roles.
 
 **Reference:** Discord
 
-#### `invite-to-one-delivery-not-the-company`: Invite to One Delivery, Not the Company
+#### `invite-to-one-delivery-not-the-company`: Invite to One Trip, Not the Company
 
 ```wireframe
 page
   breadcrumb "Home" "Settings" "Team" "Invite"
   header
     heading "Invite Noa Vermeer"
-    text "Loading bay · Sat 14 Mar 2026. Picker for one delivery."
+    text "Front desk · Sat 14 Mar 2026. Temp for one trip."
   region "The grant"
     text "Noa Vermeer · noa.vermeer@example.com."
-    field "Role on the delivery" select = "Picker"
-    field "Delivery" select = "Garcia Interiors restock"
+    field "Role on the trip" select = "Temp"
+    field "Trip" select = "Rotterdam client visit"
     text "After 15 Mar 2026, 18:00 this grant ends by itself. Nothing about Noa stays except the audit trail."
   footer
     action "Cancel"
     action primary "Send the invitation"
 ```
 
-**Rationale:** The way Linear invites to one team rather than the workspace: the scope is chosen up front and printed on the invitation. Noa works the loading bay on 14 Mar and sees nothing else afterwards.
+**Rationale:** The way Linear invites to one team rather than the workspace: the scope is chosen up front and printed on the invitation. Noa works the front desk on 14 Mar and sees nothing else afterwards.
 
-**Cost:** Scopes multiply: sixty deliveries a year is sixty small grants to read later. The team page must group by person as well as by delivery, or nobody can answer what Noa can do.
+**Cost:** Scopes multiply: sixty trips a year is sixty small grants to read later. The team page must group by person as well as by trip, or nobody can answer what Noa can do.
 
 **Reference:** Linear
 
@@ -1866,7 +1866,7 @@ page
   tabs "People 6" "Invitations 2" "Roles 6"
     region "Invitations"
       list 2
-        item: text "noa.vermeer@example.com" · text muted "Picker · Garcia Interiors restock · sent 6 Oct, expires 13 Oct" · status "Waiting" caution · action "Resend" · action "Revoke"
+        item: text "noa.vermeer@example.com" · text muted "Temp · Rotterdam client visit · sent 6 Oct, expires 13 Oct" · status "Waiting" caution · action "Resend" · action "Revoke"
       text "An invitation expires 7 days after it is sent. lena.bakker@example.com expired 8 Oct and needs reissue."
 ```
 
@@ -1888,10 +1888,10 @@ page
   tabs "People 6" "Invitations 2" "Roles 6"
     region "Invitations"
       list 1
-        item: text "lena.bakker@example.com" · text muted "Support · Acme Supply · sent 1 Oct, expired 8 Oct" · status "Expired" neutral · action "Reissue"
+        item: text "lena.bakker@example.com" · text muted "Support · Harbor and Pine · sent 1 Oct, expired 8 Oct" · status "Expired" neutral · action "Reissue"
   dialog
     heading "Reissue the invitation?"
-    text "The link from 1 Oct stays dead. A new invitation goes to lena.bakker@example.com as Support for Acme Supply, expiring 15 Oct."
+    text "The link from 1 Oct stays dead. A new invitation goes to lena.bakker@example.com as Support for Harbor and Pine, expiring 15 Oct."
     field "Note with it" text = "The first one expired before you opened it."
     action "Cancel"
     action primary "Reissue it"
@@ -1915,7 +1915,7 @@ page
     region "Requests"
       message caution "This back office has no join request. This queue would let strangers ask for access to money."
       list 1
-        item: text "unknown@example.com" · text muted "Asked 8 Oct 2026 · wants Picker for Garcia Interiors restock" · status "Waiting" caution · action "Approve" · action "Refuse"
+        item: text "unknown@example.com" · text muted "Asked 8 Oct 2026 · wants Temp for Rotterdam client visit" · status "Waiting" caution · action "Approve" · action "Refuse"
       text "The refused shape: invite the team instead."
 ```
 
@@ -1925,41 +1925,41 @@ page
 
 **Reference:** Slack
 
-### Publishing and Unpublishing a Listing
+### Publishing and Unpublishing a Policy
 
-**ID:** `litespec/frontend/patterns/create-edit-remove#publishing-and-unpublishing-a-listing`
+**ID:** `litespec/frontend/patterns/create-edit-remove#publishing-and-unpublishing-a-policy`
 
-**Question:** A draft is private until customers can see it. Publishing says what customers will find, and unpublishing says what happens to what they found, because placed orders outlive either command.
+**Question:** A draft is private until spenders can see it. Publishing says what spenders will find, and unpublishing says what happens to what they found, because filed expenses outlive either command.
 
 **Default:** `publish-with-the-readiness-check-beside-it`
 
 **Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
 
-**Rationale:** Publish with the readiness check beside it is the pick: the reader reads what customers will find before they find it. Per-channel publish is the runner-up for companies that sell in more than one place. Never ship a silent unpublish. Placed orders stay valid and the page must say so.
+**Rationale:** Publish with the readiness check beside it is the pick: the reader reads what spenders will find before they find it. Per-channel publish is the runner-up for companies that publish in more than one place. Never ship a silent unpublish. Filed expenses stay valid and the page must say so.
 
-Pause earns its place where the listing stays visible but nothing may sell.
+Pause earns its place where the policy stays visible but nothing may be claimed.
 
-**Reviewed for:** Which built listing-state flow differs from the wireframe its catalog entry chose? Open the built publish, pause, and per-channel controls beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Which built policy-state flow differs from the wireframe its catalog entry chose? Open the built publish, pause, and per-channel controls beside the catalog entry recording the chosen option and its reason.
 
 #### `publish-with-the-readiness-check-beside-it`: Publish with the Readiness Check Beside It
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Oak desk lamp"
+  breadcrumb "Home" "Policies" "Travel policy"
   header
-    heading "Oak desk lamp"
+    heading "Travel policy"
     status "Draft" neutral
-    text "EUR 45.00 · 500 units."
+    text "EUR 45.00 · 500 lines."
     action primary "Publish"
-  region "Price tiers"
+  region "Budget codes"
     list 1
-      item: text "Standard" · text muted "EUR 45.00 · 500 units" · status "Priced" positive
+      item: text "Standard" · text muted "EUR 45.00 · 500 lines" · status "Priced" positive
   dialog
-    heading "Publish Oak desk lamp?"
-    text "Customers will find this. The storefront lists it within a minute of publishing."
-    fact "A name and a description" "Oak desk lamp · solid oak, linen shade"
-    fact "A price" "Standard at EUR 45.00, 500 units"
-    fact "A channel on sale" "Storefront"
+    heading "Publish Travel policy?"
+    text "Spenders will find this. The portal lists it within a minute of publishing."
+    fact "A name and a description" "Travel policy · train, hotel and meals"
+    fact "A ceiling" "Standard at EUR 45.00, 500 lines"
+    fact "A channel live" "Portal"
     action "Keep it a draft"
     action primary "Publish it"
 ```
@@ -1970,30 +1970,30 @@ page
 
 **Reference:** Webflow
 
-#### `unpublish-with-the-customer-consequences-stated`: Unpublish with the Customer Consequences Stated
+#### `unpublish-with-the-customer-consequences-stated`: Unpublish with the Spender Consequences Stated
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Oak desk lamp"
+  breadcrumb "Home" "Policies" "Travel policy"
   header
-    heading "Oak desk lamp"
-    status "On sale" positive
-    text "412 sold. The storefront lists it now."
+    heading "Travel policy"
+    status "Active" positive
+    text "412 claimed. The portal shows it now."
     action destructive "Unpublish"
-  region "Storefront"
+  region "Portal"
     list 1
-      item: text "shop.acme-supply.example" · text muted "Listed since 12 Jan 2026" · status "Live" positive
+      item: text "expenses.harbor-pine.example" · text muted "Published since 12 Jan 2026" · status "Live" positive
   dialog
-    heading "Unpublish Oak desk lamp?"
-    text "Sales stop within a minute. The storefront shows the product as unavailable and phone orders cannot take it."
-    message positive "The 412 orders already placed stay valid and still ship."
+    heading "Unpublish Travel policy?"
+    text "Filing stops within a minute. The portal shows the policy as unavailable and phone filing cannot take it."
+    message positive "The 412 expenses already filed stay valid and still pay."
     action destructive "Unpublish it"
     action "Keep it published"
 ```
 
-**Rationale:** The way Shopify unpublishes a sales channel: the dialog says what stops and what stays, because placed orders outlive the listing. Unpublishing stops sales. It touches nothing sold.
+**Rationale:** The way Shopify unpublishes a sales channel: the dialog says what stops and what stays, because filed expenses outlive the policy. Unpublishing stops filing. It touches nothing claimed.
 
-**Cost:** It states two truths on one dialog, and the second is the one customers will ask about. The page behind it must keep answering for the sold units after the listing is gone.
+**Cost:** It states two truths on one dialog, and the second is the one spenders will ask about. The page behind it must keep answering for the claimed lines after the policy is gone.
 
 **Reference:** Shopify
 
@@ -2001,24 +2001,24 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Oak desk lamp" "Publish"
+  breadcrumb "Home" "Policies" "Travel policy" "Publish"
   header
-    heading "Oak desk lamp"
+    heading "Travel policy"
     status "Draft" neutral
-    text "Nothing about it is on sale yet."
+    text "Nothing about it is published yet."
   region "Publish on a date"
     field "Date" text = "13/01/2026"
     field "Time" text = "10:00"
-    message info "At 13 Jan 2026, 10:00 the product publishes itself: Standard at EUR 45.00 on the storefront. Cancel the schedule any time before then."
+    message info "At 13 Jan 2026, 10:00 the policy publishes itself: Standard at EUR 45.00 on the portal. Cancel the schedule any time before then."
   footer
     action "Publish it now"
     action "Cancel"
     action primary "Schedule it"
 ```
 
-**Rationale:** The way WordPress schedules a post: the date is set on the draft and the publish happens without anyone present. A sale starting at 10:00 on a Tuesday should not need Sam Rivera at the desk at 10:00.
+**Rationale:** The way WordPress schedules a post: the date is set on the draft and the publish happens without anyone present. A policy going live at 10:00 on a Tuesday should not need Dana at the desk at 10:00.
 
-**Cost:** A scheduled publish can fire after the draft changed: the price moved, or the stock moved. The scheduler must recheck at the hour and hold the publish with the reason named.
+**Cost:** A scheduled publish can fire after the draft changed: the ceiling moved, or the budget moved. The scheduler must recheck at the hour and hold the publish with the reason named.
 
 **Reference:** WordPress
 
@@ -2026,17 +2026,17 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Oak desk lamp"
+  breadcrumb "Home" "Policies" "Travel policy"
   header
-    heading "Oak desk lamp"
+    heading "Travel policy"
     status "Draft" neutral
-    text "EUR 45.00 · 500 units."
+    text "EUR 45.00 · 500 lines."
     action disabled "Publish"
-  message info "Publish needs two more pieces. Nothing about this product is on sale until both are set."
+  message info "Publish needs two more pieces. Nothing about this policy is published until both are set."
   region "What is missing"
     list 2
-      item: text "A price" · text muted "Nothing to order yet. The storefront cannot list a product with no price." · action "Add a price"
-    text "A channel on sale is the second piece. The storefront is published but lists nothing for this product."
+      item: text "A ceiling" · text muted "Nothing to claim yet. The portal cannot show a policy with no ceiling." · action "Add a ceiling"
+    text "A live channel is the second piece. The portal is published but shows nothing for this policy."
 ```
 
 **Rationale:** The way Squarespace blocks publish on an unfinished site: the button stays, and the missing pieces are listed with links to each field. A disabled button alone would read as broken.
@@ -2045,26 +2045,26 @@ page
 
 **Reference:** Squarespace
 
-#### `pause-sales-without-unpublishing`: Pause Sales Without Unpublishing
+#### `pause-sales-without-unpublishing`: Pause Filing Without Unpublishing
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Oak desk lamp"
+  breadcrumb "Home" "Policies" "Travel policy"
   header
-    heading "Oak desk lamp"
+    heading "Travel policy"
     status "Paused" caution
-    text "Paused 8 Oct 2026, 14:22 by Alex Morgan. The page stays up."
-    action primary "Resume sales"
-  message caution "Nothing can be bought here. The 412 orders already placed stay valid and still ship."
-  region "What a customer sees"
-    heading small "Oak desk lamp"
-    text "Sales are paused at the moment. Orders already placed still ship."
-    text "More units go on sale when returned stock arrives."
+    text "Paused 8 Oct 2026, 14:22 by Ben. The page stays up."
+    action primary "Resume filing"
+  message caution "Nothing can be claimed here. The 412 expenses already filed stay valid and still pay."
+  region "What a spender sees"
+    heading small "Travel policy"
+    text "Filing is paused at the moment. Expenses already filed still pay."
+    text "More lines go live when the returned budget arrives."
 ```
 
-**Rationale:** The way Shopify pauses a store: the page stays up and says so, sales stop, and everything sold stays valid. A product that may restock needs the pause, not the unpublish.
+**Rationale:** The way Shopify pauses a store: the page stays up and says so, filing stops, and everything claimed stays valid. A policy that may reopen needs the pause, not the unpublish.
 
-**Cost:** Paused reads as broken to a customer who does not read the message. The customer message must say when sales return, or customers stop trusting the pause.
+**Cost:** Paused reads as broken to a spender who does not read the message. The spender message must say when filing returns, or spenders stop trusting the pause.
 
 **Reference:** Shopify
 
@@ -2072,20 +2072,20 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Oak desk lamp" "Channels"
+  breadcrumb "Home" "Policies" "Travel policy" "Channels"
   header
-    heading "Oak desk lamp"
-    text "One product, three channels, three states."
+    heading "Travel policy"
+    text "One policy, three channels, three states."
   region "Channels"
     list 3
-      item: text "Storefront" · text muted "shop.acme-supply.example · live since 12 Jan 2026" · status "Live" positive · action "Unpublish"
-    text "Phone orders at Canal Street 12 are ready and never published. The partner reseller holds no stock."
-    text "Each channel publishes on its own. Placed orders stay valid on every channel either way."
+      item: text "Portal" · text muted "expenses.harbor-pine.example · live since 12 Jan 2026" · status "Live" positive · action "Unpublish"
+    text "Phone filings at Canal Street 12 are ready and never published. The partner office holds no budget."
+    text "Each channel publishes on its own. Filed expenses stay valid on every channel either way."
 ```
 
-**Rationale:** The way Shopify publishes per sales channel: each channel holds its own state, so phone orders can sell while the storefront waits. It shows one publish button per channel, each with its own check.
+**Rationale:** The way Shopify publishes per sales channel: each channel holds its own state, so phone filing can run while the portal waits. It shows one publish button per channel, each with its own check.
 
-**Cost:** Three channels in three states is a matrix the reader must hold in mind. The product page must show every channel at once, or one sells what another promised not to.
+**Cost:** Three channels in three states is a matrix the reader must hold in mind. The policy page must show every channel at once, or one publishes what another promised not to.
 
 **Reference:** Shopify
 
@@ -2093,30 +2093,30 @@ page
 
 **ID:** `litespec/frontend/patterns/create-edit-remove#scheduling-a-change-for-later`
 
-**Question:** Prices, fees, and sale windows change on fixed dates. A scheduled change names the value, the date, and the way to stop it, and the record shows both the current and the coming value until the date arrives.
+**Question:** Ceilings, fees, and live windows change on fixed dates. A scheduled change names the value, the date, and the way to stop it, and the record shows both the current and the coming value until the date arrives.
 
 **Default:** `a-change-with-a-date-listed-with-the-record`
 
 **Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
 
-**Rationale:** A change with a date, listed with the record, is the pick: current and coming values sit side by side with a cancel. The tier timeline is the runner-up where prices change on fixed dates. Never ship overlapping schedules on one record, and never a change without its customer preview where customers read the value.
+**Rationale:** A change with a date, listed with the record, is the pick: current and coming values sit side by side with a cancel. The code timeline is the runner-up where ceilings change on fixed dates. Never ship overlapping schedules on one record, and never a change without its spender preview where spenders read the value.
 
-The sale window earns its place at creation, where open and close are set together.
+The live window earns its place at creation, where open and close are set together.
 
-**Reviewed for:** Which built dated change differs from the wireframe its catalog entry chose? Open the built sale windows and scheduled tiers beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Which built dated change differs from the wireframe its catalog entry chose? Open the built live windows and scheduled codes beside the catalog entry recording the chosen option and its reason.
 
 #### `a-change-with-a-date-listed-with-the-record`: A Change with a Date, Listed with the Record
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Delivery fee"
+  breadcrumb "Home" "Policies" "Late fee"
   header
-    heading "Delivery fee"
-    text "What the customer pays on top of the order. You keep all of it."
+    heading "Late fee"
+    text "What the spender pays on top of the expense. You keep all of it."
   region "The fee"
     fact "Now, since 1 Oct 2026" "EUR 5.00"
     fact "From 1 November 2026, scheduled" "EUR 6.00"
-    message info "Orders placed before 1 Nov keep EUR 5.00. Orders after pay EUR 6.00."
+    message info "Expenses filed before 1 Nov keep EUR 5.00. Expenses after pay EUR 6.00."
     field "Change the scheduled fee, in euros" number = "6.00"
   footer
     action destructive "Cancel the schedule"
@@ -2125,44 +2125,44 @@ page
 
 **Rationale:** The way WordPress lists a scheduled post beside its drafts: the coming change is a row with a date and a cancel. The fee page shows now and next together.
 
-**Cost:** Two values on one record is a rule every read must honor: orders placed before the date keep the old fee. Any page that prints the fee must print its date too.
+**Cost:** Two values on one record is a rule every read must honor: expenses filed before the date keep the old fee. Any page that prints the fee must print its date too.
 
 **Reference:** WordPress
 
-#### `a-tier-ends-on-its-date`: A Tier Ends on Its Date
+#### `a-tier-ends-on-its-date`: A Code Ends on Its Date
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Oak desk lamp" "Standard" "Prices"
+  breadcrumb "Home" "Policies" "Travel policy" "Standard" "Ceilings"
   header
     heading "Standard"
-    text "One product, three prices, each with its dates."
-    action "Add a tier"
-  region "Prices"
+    text "One policy, three ceilings, each with its dates."
+    action "Add a code"
+  region "Ceilings"
     timeline 3
-      item: text "Last units · EUR 55.00" · text muted "From 1 Mar · 0 sold · scheduled" · status "Scheduled" info · action "Change" · action "Cancel"
-    text "Spring offer at EUR 40.00 ended 1 Feb with 88 sold. Standard at EUR 45.00 sells now, on sale until 1 Mar."
-    text "A unit bought keeps the price it was bought at. The timeline never rewrites a sale."
+      item: text "Last lines · EUR 55.00" · text muted "From 1 Mar · 0 claimed · scheduled" · status "Scheduled" info · action "Change" · action "Cancel"
+    text "Spring rate at EUR 40.00 ended 1 Feb with 88 claimed. Standard at EUR 45.00 applies now, active until 1 Mar."
+    text "A line claimed keeps the ceiling it was claimed at. The timeline never rewrites a claim."
 ```
 
-**Rationale:** Each price holds its own dates, and the timeline shows what sells when. Standard at three prices is three rows, not one price edited twice.
+**Rationale:** Each ceiling holds its own dates, and the timeline shows what applies when. Standard at three ceilings is three rows, not one ceiling edited twice.
 
-**Cost:** Three rows for one product is three records to read on every invoice and in every report. A customer who finds the old price can ask for the difference back, and the page must not hide that.
+**Cost:** Three rows for one policy is three records to read on every expense and in every report. A spender who finds the old ceiling can ask for the difference back, and the page must not hide that.
 
 #### `a-scheduled-change-canceled-before-it-runs`: A Scheduled Change Canceled Before It Runs
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Delivery fee"
+  breadcrumb "Home" "Policies" "Late fee"
   header
-    heading "Delivery fee"
-    text "What the customer pays on top of the order. You keep all of it."
+    heading "Late fee"
+    text "What the spender pays on top of the expense. You keep all of it."
   region "The fee"
     fact "Now, since 1 Oct 2026" "EUR 5.00"
     fact "From 1 November 2026, scheduled" "EUR 6.00"
   dialog
     heading "Cancel the scheduled fee?"
-    text "The fee stays EUR 5.00. Nothing about any order changes, because the EUR 6.00 never took effect."
+    text "The fee stays EUR 5.00. Nothing about any expense changes, because the EUR 6.00 never took effect."
     text "The schedule stays in the history as canceled, with who canceled it and when."
     action "Keep the schedule"
     action destructive "Cancel it"
@@ -2178,14 +2178,14 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Delivery fee"
+  breadcrumb "Home" "Policies" "Late fee"
   header
-    heading "Delivery fee"
-    text "What the customer pays on top of the order. You keep all of it."
-  message critical "1 November already holds a change. The fee becomes EUR 6.00 that morning, scheduled by Priya Shah. One record cannot become two fees on the same date."
+    heading "Late fee"
+    text "What the spender pays on top of the expense. You keep all of it."
+  message critical "1 November already holds a change. The fee becomes EUR 6.00 that morning, scheduled by Cara. One record cannot become two fees on the same date."
   region "Move one of them"
     field "Move the EUR 6.00 change to" text = "08/11/2026"
-    text "Its orders keep their date either way. Or cancel the EUR 6.00 change first, then schedule again."
+    text "Its expenses keep their date either way. Or cancel the EUR 6.00 change first, then schedule again."
   footer
     action "Cancel"
     action primary "Move it and schedule mine"
@@ -2197,53 +2197,53 @@ page
 
 **Reference:** Google Calendar
 
-#### `the-sale-window-set-at-creation`: The Sale Window, Set at Creation
+#### `the-sale-window-set-at-creation`: The Live Window, Set at Creation
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Oak desk lamp" "Standard"
+  breadcrumb "Home" "Policies" "Travel policy" "Standard"
   header
     heading "Standard"
-    status "On sale" positive
-    text "EUR 45.00 · 412 of 500 sold."
-  region "The sale window"
+    status "Active" positive
+    text "EUR 45.00 · 412 of 500 claimed."
+  region "The live window"
     field "Opens" text = "12/01/2026 10:00"
     field "Closes" text = "14/03/2026 22:00"
-    text "Before 12 Jan the product reads Coming soon. After 14 Mar 22:00 it reads Ended, and the order list is final."
+    text "Before 12 Jan the policy reads Coming soon. After 14 Mar 22:00 it reads Ended, and the expense list is final."
   footer
     action primary "Save the window"
 ```
 
-**Rationale:** Opens and closes are two dates on the record, and the state follows them. Standard sells from 12 Jan to 14 Mar without anyone present at either end.
+**Rationale:** Opens and closes are two dates on the record, and the state follows them. Standard applies from 12 Jan to 14 Mar without anyone present at either end.
 
-**Cost:** A window set at creation is rarely rechecked: it opens on an unfinished product or closes on a selling one. The product page must show the window beside the state, always.
+**Cost:** A window set at creation is rarely rechecked: it opens on an unfinished policy or closes on a live one. The policy page must show the window beside the state, always.
 
-#### `what-the-customer-sees-before-and-after`: What the Customer Sees, Before and After
+#### `what-the-customer-sees-before-and-after`: What the Spender Sees, Before and After
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Delivery fee" "Schedule"
+  breadcrumb "Home" "Policies" "Late fee" "Schedule"
   header
     heading "Fee change, 1 November"
-    text "What the customer reads on the order line, now and after."
+    text "What the spender reads on the expense line, now and after."
   split 1:1
     region "Now"
-      text "Oak desk lamp · EUR 45.00."
-      text "Plus EUR 5.00 delivery fee · total EUR 50.00."
+      text "Travel policy · EUR 45.00."
+      text "Plus EUR 5.00 trip fee · total EUR 50.00."
     region "After 1 November"
-      text "Oak desk lamp · EUR 45.00."
-      text "Plus EUR 6.00 delivery fee · total EUR 51.00."
-  message info "The product stays the same. Only the fee line changes, on orders placed from 1 Nov."
+      text "Travel policy · EUR 45.00."
+      text "Plus EUR 6.00 trip fee · total EUR 51.00."
+  message info "The policy stays the same. Only the fee line changes, on expenses filed from 1 Nov."
   region "The schedule"
     fact "Takes effect" "1 November 2026, 00:00"
-    fact "Set by" "Priya Shah · 8 Oct 2026"
+    fact "Set by" "Cara · 8 Oct 2026"
   footer
     action destructive "Cancel the schedule"
     action primary "Keep it scheduled"
 ```
 
-**Rationale:** The way Squarespace previews a scheduled site change: the reader reads the customer page twice, now and after. A fee change is judged by its customer line, not by its row on a settings page.
+**Rationale:** The way Squarespace previews a scheduled site change: the reader reads the spender page twice, now and after. A fee change is judged by its spender line, not by its row on a settings page.
 
-**Cost:** A preview is a second rendering of the storefront and can drift from it. It must render from the same listing read the customer gets, or it shows a page the customer never sees.
+**Cost:** A preview is a second rendering of the portal and can drift from it. It must render from the same policy read the spender gets, or it shows a page the spender never sees.
 
 **Reference:** Squarespace
