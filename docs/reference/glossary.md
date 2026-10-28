@@ -28,6 +28,12 @@ One rule deciding whether an actor is allowed to perform an action on a target.
 
 Source: RBAC.
 
+### Caller
+
+The party making the current call, distinct from the Actor record holding roles.
+
+Source: LiteSpec.
+
 ### Central Package Management
 
 One central file pinning every dependency version in the workspace.
@@ -50,7 +56,15 @@ Source: DDD.
 
 One boundary interface that loads and stages complete aggregates.
 
-Source: DDD. Rejected: repository used alone, which hides whether the boundary loads a whole aggregate or a row.
+Source: DDD.
+
+Rejected: repository used alone, which hides whether the boundary loads a whole aggregate or a row.
+
+### Endpoint
+
+One class serving one route operation, converting HTTP input to an Application message and mapping the result back.
+
+Source: web API practice.
 
 ### Entity
 
@@ -70,6 +84,12 @@ The committed file recording the exact resolved dependency versions.
 
 Source: the package managers.
 
+### Operation
+
+One route operation, carrying its stable operation id and served by one endpoint class.
+
+Source: web API practice.
+
 ### Persistence Constraint
 
 One rule enforced by durable storage, such as uniqueness.
@@ -87,6 +107,12 @@ Source: CQRS.
 Data shaped for a query, served without loading an aggregate.
 
 Source: CQRS.
+
+### Route
+
+One HTTP path with its method, resolving to the one endpoint class serving it.
+
+Source: web API practice.
 
 ### Trace Context
 
@@ -118,7 +144,9 @@ One unit of business state that stays consistent and changes in one step. Its ki
 
 Layer: Behavior.
 
-Source: DDD. Rejected: entity, which in DDD also names a child inside an aggregate.
+Source: DDD.
+
+Rejected: entity, which in DDD also names a child inside an aggregate.
 
 ### Aggregate Data
 
@@ -214,7 +242,9 @@ One dated choice with options weighed, evidence cited, and a decider named.
 
 Layer: Intent.
 
-Source: decision records. Rejected: product decision, which hides that every LiteSpec decision is a product decision.
+Source: decision records.
+
+Rejected: product decision, which hides that every LiteSpec decision is a product decision.
 
 ### Deviation
 
@@ -222,7 +252,9 @@ One recorded departure from a provision, with reason and review date.
 
 Layer: Intent or Behavior.
 
-Source: compliance and quality practice. Rejected: override and standards override, which sound permanent where a deviation expires.
+Source: compliance and quality practice.
+
+Rejected: override and standards override, which sound permanent where a deviation expires.
 
 ### Domain
 
@@ -390,6 +422,14 @@ Layer: Behavior.
 
 Source: LiteSpec.
 
+### Outcome
+
+One named success or failure kind at the API boundary, answered with the status the outcome table assigns it.
+
+Layer: Behavior.
+
+Source: LiteSpec.
+
 ### Permission
 
 One allowed action from the shared closed list.
@@ -494,7 +534,9 @@ One behavior the product shows or one guarantee it keeps. An exception names its
 
 Layer: Intent.
 
-Source: BABOK and IREB. Rejected: product rule, which clashes with the rule record.
+Source: BABOK and IREB.
+
+Rejected: product rule, which clashes with the rule record.
 
 ### Research
 
@@ -502,7 +544,9 @@ One outside fact informing a choice.
 
 Layer: Intent.
 
-Source: plain English. Rejected: decision evidence, which states where the fact is used instead of what it is.
+Source: plain English.
+
+Rejected: decision evidence, which states where the fact is used instead of what it is.
 
 ### Result
 
@@ -550,7 +594,9 @@ One testable example proving one result, stated as given, when, then. A scenario
 
 Layer: Behavior.
 
-Source: BDD and Gherkin. Rejected: acceptance criterion, which names the review use instead of the example.
+Source: BDD and Gherkin.
+
+Rejected: acceptance criterion, which names the review use instead of the example.
 
 ### Setting
 
@@ -676,6 +722,12 @@ One of the three check depths: G reads records only and always blocks, S reads c
 
 Source: LiteSpec.
 
+### Checkable
+
+One provision a tool checks, carrying a Checked by verification line.
+
+Source: LiteSpec.
+
 ### Command Page
 
 One page that documents one shipped command: its arguments, options, exit codes, and what it runs underneath.
@@ -686,7 +738,9 @@ Source: LiteSpec.
 
 The list of shipped components published with each release artifact.
 
-Source: supply-chain practice. Rejected: SBOM, which names one format where the inventory names the content.
+Source: supply-chain practice.
+
+Rejected: SBOM, which names one format where the inventory names the content.
 
 ### Configuration Page
 
@@ -703,6 +757,18 @@ Source: the W3C QA Framework.
 ### Consequences Summary
 
 The generated box on each ballot and book chapter stating new refusals, kept data, and money effects as context.
+
+Source: LiteSpec.
+
+### Consumer
+
+One project built against a pinned LiteSpec release.
+
+Source: LiteSpec.
+
+### Contract
+
+One named set of obligations or shapes holding between parts, such as a page, a provision, a pattern, a release, or an API.
 
 Source: LiteSpec.
 
@@ -736,6 +802,12 @@ One committed file produced from an authored source, such as generated types.
 
 Source: LiteSpec.
 
+### Diagnostic
+
+One issue litespec validate reports about standards material.
+
+Source: LiteSpec.
+
 ### Effective Status
 
 The status of a record after draft intent above it is taken into account: draft when it, a deciding decision, or a fulfilled requirement is draft.
@@ -757,6 +829,18 @@ Source: Diataxis.
 ### Extension
 
 One conditional standards bundle a project selects when its criterion holds.
+
+Source: LiteSpec.
+
+### Finding
+
+One issue litespec model check or litespec consumer reports, with its tier, code, message, path, and line.
+
+Source: LiteSpec.
+
+### Guidance
+
+One provision a person judges, carrying a Reviewed for verification line.
 
 Source: LiteSpec.
 
@@ -818,7 +902,9 @@ Source: LiteSpec.
 
 One page template for prose or record lists.
 
-Source: LiteSpec. Rejected: page class, which reads as a code type.
+Source: LiteSpec.
+
+Rejected: page class, which reads as a code type.
 
 ### Pattern
 
@@ -829,6 +915,18 @@ Source: LiteSpec.
 ### Preset
 
 One ready-made selection of shape, stacks, and frontends for a new project.
+
+Source: LiteSpec.
+
+### Project
+
+One bounded-context business application built with LiteSpec.
+
+Source: LiteSpec.
+
+### Provision
+
+One testable obligation or replaceable default on a standards page, carrying an identifier and a verification line.
 
 Source: LiteSpec.
 
@@ -920,7 +1018,9 @@ Source: LiteSpec.
 
 The opening block stating a page type, owner, status, and records.
 
-Source: LiteSpec. Rejected: frontmatter, which names the Markdown fence instead of the record data.
+Source: LiteSpec.
+
+Rejected: frontmatter, which names the Markdown fence instead of the record data.
 
 ### Stack
 
@@ -986,4 +1086,6 @@ Source: LiteSpec.
 
 The repository that holds a consumer application or the standards.
 
-Source: LiteSpec. Rejected: repo, which shortens the word every path already shortens.
+Source: LiteSpec.
+
+Rejected: repo, which shortens the word every path already shortens.

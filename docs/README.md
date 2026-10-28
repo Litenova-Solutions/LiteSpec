@@ -2,7 +2,7 @@
 
 ## Intent
 
-LiteSpec is a standard for building one business application from written rules that tools check, and this index lists every page of that standard grouped by the area it governs. Developers and agents open it at the start of a task to find the page that states the rules for that task. A project applies only the folders named by its selection in `litespec.project.json` (its size, shape, technology stacks, and extensions), so most readers need only a few groups. Readers who are new to LiteSpec start with the [Learn overview](learn/README.md).
+LiteSpec is a standard for building one business application from written rules that tools check, and this index lists every page of that standard grouped by the area it governs. Developers and agents open it at the start of a task to find the page that states the rules for that task. A project applies only the folders named by its selection in `litespec.project.json` (its size, shape, technology stacks, and extensions), so most readers need only a few groups.
 
 ## Which Page Do You Want
 
@@ -16,6 +16,8 @@ A standards page states the provisions a reader cites for one concern.
 A project applies only some folders below. [Read the Standard](learn/reading-the-standard.md) explains which folders a selection applies and how a provision ID cites one rule.
 
 ## Learn
+
+Readers who are new to LiteSpec start with the [Learn overview](learn/README.md).
 
 - [Learn overview](learn/README.md): the reading order for the explanation pages.
 - [Why LiteSpec Exists](learn/why-litespec.md): the problem LiteSpec solves, for a team that is deciding whether LiteSpec fits.

@@ -90,7 +90,7 @@ These rules apply to every page style:
 
 - A page that owns provisions lives at `docs/<area>/<page>.md` or deeper, with a lowercase file name.
 - A page has one H1.
-- The index page of a section or folder, its `README.md`, is titled `Overview`, so a reader tells a section from its first page. A link to it names its section: `[Backend overview](../backend/README.md)`.
+- The index page of a section or folder, its `README.md`, is titled `Overview`, so a reader tells a section from its first page. The documentation root index keeps its own title. A link to a section index names its section: `[Backend overview](../backend/README.md)`.
 - A required section with nothing to say contains only `None.`
 - An example sits inside the provision it illustrates, or in a Reference Example that names every provision it demonstrates.
 - A tutorial, how-to, explanation, reference, command, or index page owns no provisions.

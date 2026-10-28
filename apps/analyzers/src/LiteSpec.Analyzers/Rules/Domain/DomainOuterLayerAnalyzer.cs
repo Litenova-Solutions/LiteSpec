@@ -12,6 +12,7 @@ namespace LiteSpec.Analyzers.Rules.Domain;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class DomainOuterLayerAnalyzer : LayerAnalyzer
 {
+    // The user-facing copy of this list lives in the Detection Limits section of docs/analyzers/README.md.
     private static readonly string[] OuterLayerNamespaces =
     [
         "Microsoft.EntityFrameworkCore",

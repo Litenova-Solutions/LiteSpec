@@ -10,6 +10,19 @@ C# code in a .NET backend names its files, asynchronous methods, and implementat
 
 A C# file takes its primary type's exact name, so a reader finds any type by its file. An asynchronous method ends in `Async` and takes its cancellation token last, so callers see both asynchrony and cancellation in the signature. File-scoped namespaces, braces on every body, explicit access modifiers, and sealed concrete classes keep diffs readable across every project.
 
+### C# Role Suffixes
+
+| Role | Pattern | Example |
+|:---|:---|:---|
+| Repository interface | `I{Aggregate}Repository` | `IPostRepository` |
+| API mapping class | `{UseCase}ApiMappings` | `CreateDraftApiMappings` |
+| Options class | `{ConfigurationPurpose}Options` | `EmailOptions` |
+| Assembly marker | `{Layer}AssemblyMarker` | `ApplicationAssemblyMarker` |
+
+In the dotnet stack, the repository interface carries the `I` prefix, options classes carry the `Options` suffix, and each scanned project carries an assembly marker.
+
+Mapping classes use `ApiMappings` instead of the context-dependent `Mappings` suffix.
+
 ## Standards
 
 ### Match C# Files and Primary Types
