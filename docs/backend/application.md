@@ -109,7 +109,7 @@ The handler loads or creates, calls once, stages, and returns. Validation, autho
 
 **Statement:** Each command MUST implement one use case with one success path, so a flow that finds a record or else creates it is two use cases that the boundary owning the flow chooses between.
 
-**Rationale:** A get-or-create command hides two use cases with different access, audit, and refusals behind one name. The boundary that owns the flow, an endpoint, an event handler, or a job, runs a query and then sends the command that fits. When the create loses a race, it refuses with its conflict under `litespec/backend/application#refuse-a-lost-race-as-a-conflict`, and the owner sends the other command.
+**Rationale:** A get-or-create command hides two use cases with different access, audit, and refusals behind one name. The boundary that owns the flow, an endpoint, an event handler, or a job, runs a query and then sends the command that fits. When the create loses a race, it refuses with its conflict under `litespec/backend/application#refuse-a-lost-race-as-a-conflict`, and the owner sends the other command. Where the record is usually present, the owner may instead send the command first and, on the record's not-found refusal, send the create and then the command again; one shared helper holds that sequence, so no endpoint repeats it.
 
 **Example:** Signing in to the library with an unknown reader card runs as a query and then one of two commands: the endpoint queries `query/loans.find-reader-by-card`, then sends either `use-case/loans.register-reader` or `use-case/loans.record-reader-sign-in`.
 
