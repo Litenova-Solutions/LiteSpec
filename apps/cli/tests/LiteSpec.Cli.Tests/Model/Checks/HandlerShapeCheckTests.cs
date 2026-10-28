@@ -20,6 +20,20 @@ public sealed class HandlerShapeCheckTests
     }
 
     [Fact]
+    public void Handler_Recording_A_Request_Passes()
+    {
+        using var temp = Cli.Temp("checks");
+        var file = Path.Combine(temp.Path, "ReimburseExpenseCommandHandler.cs");
+        var model = TestModel.Model(TestModel.Config(temp.Path));
+        model.Code.Handlers.Add(new HandlerInfo(
+            "use-case/spending.reimburse-expense", "spending", "reimburse-expense", "ReimburseExpense", "command", file,
+            AggregateCalls: [new CodeCall("expense", "RequestPayout", file, 8)]));
+        model.Code.AggregateMethods.Add(new AggregateMethod("Expense", "RequestPayout", ["ExpensePayoutRequestedEvent"], file, 3));
+
+        Assert.DoesNotContain("use-case-verb-method", TestModel.Codes(model));
+    }
+
+    [Fact]
     public void Handler_Calling_Another_Verb_Reports()
     {
         using var temp = Cli.Temp("checks");

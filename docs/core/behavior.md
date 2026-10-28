@@ -671,11 +671,11 @@ The specification names only what carries business meaning. Child entities and v
 
 **Statement:** Each command use case MUST share its verb with the aggregate method its handler calls.
 
-**Rationale:** The use case is the doorway into one aggregate act. A different word at the door and at the act means two meanings have merged, or the use case is misnamed, and each reader guesses which word tells the truth. A handler calling no aggregate method answers to no act, so queries and ports stay out of this rule.
+**Rationale:** The use case is the doorway into one aggregate act. A different word at the door and at the act means two meanings have merged, or the use case is misnamed, and each reader guesses which word tells the truth. A handler calling no aggregate method answers to no act, so queries and ports stay out of this rule. A command that records a request for work an event handler finishes after the commit, as `litespec/backend/application#call-external-systems-through-their-ports` requires, performs the request: its method starts with `Request` and passes.
 
 **Example:** `use-case/orders.void-order` whose handler calls `Abandon` is reported; the project renames the use case to the domain word, or the method and its event to `Void` and `OrderVoidedEvent`.
 
-**Checked by:** `litespec model check` reports `use-case-verb-method` (tier A) for a command handler calling aggregate methods, none starting with the use-case verb.
+**Checked by:** `litespec model check` reports `use-case-verb-method` (tier A) for a command handler calling aggregate methods, none starting with the use-case verb or with `Request`.
 
 ### Connect Each Use Case to Intent
 

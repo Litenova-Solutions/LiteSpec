@@ -649,7 +649,10 @@ static class CodeChecks
             {
                 var kebab = Naming.Kebab(call.Method);
 
-                return kebab == verb || kebab.StartsWith(verb + "-", StringComparison.Ordinal);
+                // A command that records a request for work finished after the commit performs the request.
+                return kebab == verb
+                    || kebab.StartsWith(verb + "-", StringComparison.Ordinal)
+                    || kebab.StartsWith("request-", StringComparison.Ordinal);
             });
 
             if (!matches)
