@@ -1,12 +1,18 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using LiteSpec.Analyzers.Layers;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace LiteSpec.Analyzers.Rules.Layers;
 
-/// <summary>LS2009: a result part is named after the use-case result it belongs to.</summary>
+/// <summary>
+///     LS2009: a result part is named after the use-case result it belongs to. A result part is a type the result
+///     reaches through its properties, directly or through another part, declared beside it; a helper the handler
+///     uses is not a part.
+/// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class ResultPartNamingAnalyzer : LayerAnalyzer
 {
@@ -22,62 +28,79 @@ public sealed class ResultPartNamingAnalyzer : LayerAnalyzer
 
     private static void Analyze(SymbolAnalysisContext context)
     {
-        var type = (INamedTypeSymbol)context.Symbol;
-        if (type.ContainingType is not null)
+        var result = (INamedTypeSymbol)context.Symbol;
+        if (result.ContainingType is not null || !IsResult(result.Name))
         {
             return;
         }
 
-        if (type.DeclaredAccessibility is not (Accessibility.Public or Accessibility.Internal))
+        foreach (var part in PartsOf(result))
         {
-            return;
-        }
-
-        if (HasOwnName(type.Name))
-        {
-            return;
-        }
-
-        var space = type.ContainingNamespace;
-        if (space is null || space.IsGlobalNamespace)
-        {
-            return;
-        }
-
-        string? result = null;
-        foreach (var sibling in space.GetTypeMembers())
-        {
-            if (!IsResult(sibling.Name))
+            if (!part.Name.StartsWith(result.Name, StringComparison.Ordinal) && part.Locations.Length > 0 && part.Locations[0].IsInSource)
             {
-                continue;
+                context.ReportDiagnostic(Diagnostic.Create(
+                    Descriptors.LS2009, part.Locations[0], part.Name, result.Name));
             }
-
-            if (type.Name.StartsWith(sibling.Name, StringComparison.Ordinal))
-            {
-                return;
-            }
-
-            if (result is null || string.CompareOrdinal(sibling.Name, result) < 0)
-            {
-                result = sibling.Name;
-            }
-        }
-
-        if (result is not null)
-        {
-            context.ReportDiagnostic(Diagnostic.Create(
-                Descriptors.LS2009, type.Locations[0], type.Name, result));
         }
     }
 
-    private static bool HasOwnName(string name) =>
-        name.EndsWith("CommandResult", StringComparison.Ordinal)
-        || name.EndsWith("Command", StringComparison.Ordinal)
-        || name.EndsWith("QueryResult", StringComparison.Ordinal)
-        || name.EndsWith("Query", StringComparison.Ordinal)
-        || name.EndsWith("Handler", StringComparison.Ordinal)
-        || name.EndsWith("Validator", StringComparison.Ordinal)
-        || name.EndsWith("Definition", StringComparison.Ordinal);
+    // Every type declared in the result's namespace that the result reaches through public properties,
+    // following collections, nullables and arrays, and following each part's own properties in turn.
+    private static IEnumerable<INamedTypeSymbol> PartsOf(INamedTypeSymbol result)
+    {
+        var space = result.ContainingNamespace;
+        var seen = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default) { result };
+        var pending = new Stack<INamedTypeSymbol>();
+        pending.Push(result);
+
+        while (pending.Count > 0)
+        {
+            var current = pending.Pop();
+            foreach (var property in current.GetMembers().OfType<IPropertySymbol>())
+            {
+                if (property.IsStatic || property.DeclaredAccessibility != Accessibility.Public)
+                {
+                    continue;
+                }
+
+                foreach (var reached in TypesIn(property.Type))
+                {
+                    if (reached.ContainingType is null
+                        && SymbolEqualityComparer.Default.Equals(reached.ContainingNamespace, space)
+                        && seen.Add(reached))
+                    {
+                        pending.Push(reached);
+                        yield return reached;
+                    }
+                }
+            }
+        }
+    }
+
+    private static IEnumerable<INamedTypeSymbol> TypesIn(ITypeSymbol type)
+    {
+        switch (type)
+        {
+            case IArrayTypeSymbol array:
+                foreach (var element in TypesIn(array.ElementType))
+                {
+                    yield return element;
+                }
+
+                break;
+            case INamedTypeSymbol named:
+                yield return named.OriginalDefinition;
+                foreach (var argument in named.TypeArguments)
+                {
+                    foreach (var inner in TypesIn(argument))
+                    {
+                        yield return inner;
+                    }
+                }
+
+                break;
+        }
+    }
 
     private static bool IsResult(string name) =>
         name.EndsWith("QueryResult", StringComparison.Ordinal)

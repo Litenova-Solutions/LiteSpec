@@ -31,7 +31,7 @@ public sealed class ResultPartNamingAnalyzerTests
         Verify.AnalyzerAsync<ResultPartNamingAnalyzer>("""
             namespace Shop.Loans;
 
-            public sealed record ReadLoanQueryResult(int LoanId);
+            public sealed record ReadLoanQueryResult(int LoanId, LoanHoldItem[] Holds);
 
             public sealed record {|LS2009:LoanHoldItem|}(int HoldId);
             """, assemblyName: "Shop.Application");
@@ -81,8 +81,20 @@ public sealed class ResultPartNamingAnalyzerTests
         Verify.AnalyzerAsync<ResultPartNamingAnalyzer>("""
             namespace Shop.Core;
 
-            public sealed record ReadLoanQueryResult(int LoanId);
+            public sealed record ReadLoanQueryResult(int LoanId, LoanHoldItem[] Holds);
 
             public sealed record {|LS2009:LoanHoldItem|}(int HoldId);
             """, assemblyName: "Shop.Core", layer: "Application");
+
+    [Fact(DisplayName = "LS2009 ignores a helper the result does not reach")]
+    public Task IgnoresAHelperTheResultDoesNotReach() =>
+        Verify.AnalyzerAsync<ResultPartNamingAnalyzer>("""
+            namespace Shop.Loans;
+
+            public sealed record ReadLoanQueryResult(int LoanId);
+
+            internal sealed class LoanPageReader
+            {
+            }
+            """, assemblyName: "Shop.Application");
 }
