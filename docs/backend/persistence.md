@@ -238,7 +238,7 @@ A tool that alters the schema from application startup is not a reviewed step wh
 
 **Example:** The register-reader handler creates the reader aggregate and stages it through its Domain repository, reserving no card number and checking no registry first. When two registrations race for one card number, the second commit violates the unique index and refuses with the use case conflict, with no reservation or cleanup code in the handler. The submit-expense handler likewise stages the expense and leaves the payout number to the store sequence.
 
-**Checked by:** `dotnet build` reports no LiteSpec.Analyzers LS2016 diagnostic across the application projects.
+**Checked by:** `dotnet build` reports `LS2016` for a handler taking a pipeline-owned collaborator.
 
 ### Map a Constraint Violation to Its Refusal
 
@@ -273,6 +273,8 @@ A tool that alters the schema from application startup is not a reviewed step wh
 **Default:** Place store configuration, repositories, commit behavior, and serialization under one Infrastructure persistence folder.
 
 **Replacement:** A project names its persistence layout in its backend documentation.
+
+**Rationale:** One persistence folder holds store configuration, repositories, commit behavior, and serialization, so every persistence type has one discoverable home. Scattered configuration hides the provider setup across the project.
 
 **Example:**
 
@@ -347,6 +349,8 @@ The module folders follow the same module rule as every layer. Aggregate-specifi
 **Default:** Persist the aggregate state object itself rather than a flattened projection, round-tripping every state object through the configured serializer in integration tests.
 
 **Replacement:** A project names its state storage shape in its backend documentation.
+
+**Rationale:** The stored state object keeps the aggregate's lifecycle and its state-specific facts in one value, so a read materializes the same state the command stored. A flattened projection splits that value across members the store cannot version together, and a flag beside the object disagrees with it after the next transition.
 
 **Example:** A stable discriminator property uses `$state` with `draft`, `published`, and `archived` values. The persisted state value contains its state-specific data:
 

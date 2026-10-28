@@ -24,7 +24,7 @@ Marten is the baseline provider, supplying the session, the read session, and do
 
 **Rationale:** Infrastructure implements each Domain repository with the scoped session, so the handler stages work without naming a provider type. A repository that exposed the session, a generic query, or a save operation would hand the handler the provider surface the layer exists to hide. This provision states the .NET form of `litespec/backend/persistence#stage-aggregate-writes-through-domain-repositories`.
 
-**Reviewed for:** Command handler files under `apps/api/src/` name only Domain repository interfaces in their persistence calls; no handler file names `IDocumentSession`.
+**Checked by:** `dotnet build` reports `LS2004` for a command handler writing through a document session or database context.
 
 ### Query Through IQuerySession
 

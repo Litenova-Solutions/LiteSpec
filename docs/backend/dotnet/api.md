@@ -47,7 +47,7 @@ At startup, WebApi scans its own assembly for non-abstract `IEndpoint` implement
 
 **Rationale:** Controllers and endpoint classes route, filter, and map errors through different models. When both exist, a reviewer checks two mappings for every behavior, and error responses drift apart. One model means one place defines how requests reach handlers and how failures reach clients.
 
-**Checked by:** `dotnet build` of the WebApi project reports no LiteSpec.Analyzers LS2003 diagnostic.
+**Checked by:** `dotnet build` reports `LS2003` for a WebApi class deriving from `ControllerBase` or carrying `ApiController`.
 
 ### Declare Operation Metadata in the Contract
 

@@ -72,7 +72,7 @@ A test carries no coverage tag; the `proves` tag is its only record citation. A 
 /// <proves>scenario/submit-expense.submitting-with-a-receipt-succeeds</proves>
 ```
 
-**Reviewed for:** Each scenario's proving test file carries the `scenario/` `proves` tag, names the use case message type, asserts the named result, and passes in the latest run.
+**Checked by:** `dotnet build` reports `LS4001` for a test method with no assertion.
 
 ### Use One Production-Faithful Integration Harness
 

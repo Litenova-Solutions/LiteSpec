@@ -20,7 +20,7 @@ A C# file takes its primary type's exact name, so a reader finds any type by its
 
 **Rationale:** A file named for its type lets a reader and a tool find the type by the path. Two top-level types in one file break that lookup and merge their histories in review. Only a small private or file-scoped nested type stays with its owner.
 
-**Checked by:** `dotnet build` reports no LiteSpec.Analyzers LS3003 diagnostic across the application projects.
+**Checked by:** `dotnet build` reports `LS3003` for a C# file whose name differs from its primary type.
 
 ### Name Asynchronous Methods Completely
 
@@ -30,7 +30,7 @@ A C# file takes its primary type's exact name, so a reader finds any type by its
 
 **Rationale:** The `Async` suffix tells the caller the method is asynchronous, and the trailing `CancellationToken` tells the caller it can cancel. A cancelable method that hides either invites blocking calls and uncancellable waits. A method is cancelable when it performs I/O or awaits. This provision states the .NET form of `litespec/workspace/naming#name-asynchronous-operations-completely`.
 
-**Checked by:** `dotnet build` reports no LiteSpec.Analyzers LS3001 or LS3002 diagnostic across the application projects.
+**Checked by:** `dotnet build` reports `LS3001` for an async method name without `Async` and `LS3002` for a cancellation token that is misplaced or misnamed.
 
 ### Keep Implementation Style Consistent
 
@@ -40,7 +40,7 @@ A C# file takes its primary type's exact name, so a reader finds any type by its
 
 **Rationale:** File-scoped namespaces, braces on every body, explicit access modifiers, and sealed concrete classes change diff readability rather than behavior. One shared setting removes the debate from every review and keeps generated and hand-written code alike.
 
-**Reviewed for:** Production C# files use file-scoped namespaces, braces on every body, explicit access modifiers, and sealed concrete classes.
+**Checked by:** `dotnet build` reports `LS3004` for a concrete class with no derived type that is not sealed.
 
 ### Name Result Parts After Their Result
 
@@ -52,7 +52,7 @@ A C# file takes its primary type's exact name, so a reader finds any type by its
 
 **Example:** `ListPostsQueryResultItem.cs` holds the item part of the list-posts result, and `ReadLoanQueryResultHold.cs` holds the hold part of the read-loan result; a bare `PostSummary.cs` hides its owner.
 
-**Checked by:** `dotnet build` reports no LiteSpec.Analyzers LS2009 diagnostic across the application projects.
+**Checked by:** `dotnet build` reports `LS2009` for a result part not named after its result.
 
 ### Group Event Handlers by the Fact They Handle
 
@@ -62,7 +62,7 @@ A C# file takes its primary type's exact name, so a reader finds any type by its
 
 **Rationale:** The folder answers what happens when the fact is recorded with one listing: `Loans/Loans/OnLoanBorrowed/` holds `SendDueNoticeOnLoanBorrowedHandler.cs` beside every other handler of the borrowed fact in that module. `dotnet build` reports a misnamed handler as `LS2007` and a handler outside its fact folder as `LS2008`. This provision states the .NET form of `litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle`.
 
-**Checked by:** `dotnet build` reports no LiteSpec.Analyzers LS2007 or LS2008 diagnostic across the application projects.
+**Checked by:** `dotnet build` reports `LS2007` for an event handler or job name hiding its kind and `LS2008` for an event handler outside its fact folder.
 
 ### Name Repository Variables After Their Interface
 
@@ -72,7 +72,7 @@ A C# file takes its primary type's exact name, so a reader finds any type by its
 
 **Rationale:** The variable repeats the interface name in camel case, so a reader tells the guarded aggregate from the use: `expenseRepository` serves `IExpenseRepository`, and `loanRepository` serves `ILoanRepository`. A private field keeps its leading underscore, as `_expenseRepository`. `dotnet build` reports any other name as `LS2010`. This provision states the .NET form of `litespec/workspace/naming#name-repository-variables-after-their-interface`.
 
-**Checked by:** `dotnet build` reports no LiteSpec.Analyzers LS2010 diagnostic across the application projects.
+**Checked by:** `dotnet build` reports `LS2010` for a repository variable not named after its interface.
 
 ## Conventions
 
@@ -88,7 +88,7 @@ A C# file takes its primary type's exact name, so a reader finds any type by its
 
 **Example:** The declared `Example.Domain/Shared/` folder passes; `Billing/Helpers/` and `OrderManager` outside it are reported.
 
-**Checked by:** `litespec model check` reports `reasonless-name` (tier A) for a folder or type named for the absence of a reason outside the declared shared kernel.
+**Checked by:** `litespec model check` reports `reasonless-name` (tier S) for a folder or type named for the absence of a reason outside the declared shared kernel.
 
 ## Reference Example
 

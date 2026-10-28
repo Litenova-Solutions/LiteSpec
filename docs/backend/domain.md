@@ -196,7 +196,7 @@ The amount serializes as a string, so no reader parses it as binary floating poi
 
 **Example:** A tax rate multiplied into a `Money` amount uses an exact decimal type. A measured latency in a diagnostic log is not a Domain quantity and is outside this rule.
 
-**Reviewed for:** No Domain value uses binary floating point for money, a rate applied to money, or an exactly compared quantity.
+**Checked by:** `dotnet build` reports `LS1008` for a `double` or `float` type in Domain.
 
 ### Use Stateless Domain Services for Ownerless Rules
 
@@ -284,7 +284,7 @@ Application validators handle malformed caller input through validity findings. 
 
 **Rationale:** Domain behavior that read a clock or generated identifiers would return different results for the same call, which makes tests nondeterministic. Receiving time, randomness, and new identifiers as arguments keeps every Domain call a pure function of its inputs: a test supplies explicit values and stays deterministic. Application obtains each value through an owned port and passes it in. A method that needs more than one value receives a clock or a generator through its arguments, and version 7 identifiers come from the caller-supplied generator.
 
-**Reviewed for:** Domain behavior receives time, randomness, and identifiers as arguments, reading no clock.
+**Checked by:** `dotnet build` reports `LS1009` for a clock, randomness, or identifier read in Domain.
 
 ### Describe Every Public Domain Contract in Documentation
 
@@ -369,7 +369,7 @@ Domain/
 
 Each aggregate's domain repository stays with the aggregate it loads. Application, Infrastructure, and WebApi use the same module and per-aggregate folder names, per `litespec/backend/architecture#organize-every-layer-by-module-and-use-case`. Each stack page states the file names and extensions that carry this layout.
 
-**Reviewed for:** Each Domain module gives each aggregate its plural folder holding its states, events, refusals, and concepts.
+**Checked by:** `dotnet build` reports `LS1013` for a domain event outside its aggregate's `Events` folder.
 
 ### Use These Domain Names
 

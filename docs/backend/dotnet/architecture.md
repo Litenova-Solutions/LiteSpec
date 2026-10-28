@@ -83,7 +83,7 @@ The handler above lives in namespace `Claimwick.Application.Spending.Expenses.Su
 
 This provision states the .NET form of `litespec/backend/architecture#keep-implementation-types-hidden`.
 
-**Reviewed for:** Handler, validator, definition, persistence, and endpoint implementation declarations: each `internal sealed`.
+**Checked by:** `dotnet build` reports `LS2001` for an implementation type that is not `internal sealed`.
 
 ## Conventions
 

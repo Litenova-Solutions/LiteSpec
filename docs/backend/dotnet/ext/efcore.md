@@ -60,7 +60,7 @@ This extension switches on no optional record type.
 
 **Rationale:** A command that stages writes through one provider commits them in one atomic boundary. Without that, part of the business work can persist while the rest fails.
 
-**Checked by:** `dotnet test` fails `EfCoreTransactionTests` when a command stages aggregate work through more than one provider.
+**Reviewed for:** Which commands stage aggregate work through more than one provider? Look at the repository calls in each command handler.
 
 ### Reject Mixed Provider Writes
 
@@ -70,7 +70,7 @@ This extension switches on no optional record type.
 
 **Rationale:** Marten and EF Core commit independently, so a command writing through both can persist one half and lose the other. No transaction spans the two, so one local invariant cannot survive a mixed write.
 
-**Checked by:** `dotnet test` fails `EfCoreTransactionTests` when a command stages writes through both Marten-backed and EF Core-backed repositories.
+**Reviewed for:** Which commands stage writes through both Marten-backed and EF Core-backed repositories? Look at the repository calls in each command handler.
 
 ### Record Provider Selection
 
@@ -90,7 +90,7 @@ This extension switches on no optional record type.
 
 **Rationale:** The post-handler owns the command's one commit, and each provider's handler commits only its own session. Registering the wrong handler, or both, leaves the staged work uncommitted or commits the wrong session.
 
-**Checked by:** `dotnet test` fails `EfCoreTransactionTests` when a command resolves a post-handler other than its selected provider's.
+**Reviewed for:** Which commands resolve a post-handler other than their selected provider's? Look at the post-handler registration for each EF Core-owned command.
 
 ### Resolve Cross-Provider Invariants
 
@@ -110,7 +110,7 @@ This extension switches on no optional record type.
 
 **Rationale:** Handlers coordinate; repositories stage. When the repository stages changes through its scoped `DbContext`, no handler names a provider type and the commit stays in the post-handler.
 
-**Checked by:** `dotnet test` fails `EfCoreWriteTests` when a repository stages changes outside its scoped `DbContext`.
+**Reviewed for:** Which repositories stage changes outside their scoped `DbContext`? Look at the Infrastructure repository implementations.
 
 ### Exclude Direct Handler Commits
 
@@ -120,7 +120,7 @@ This extension switches on no optional record type.
 
 **Rationale:** A handler that injects `DbContext` or calls `SaveChangesAsync` commits mid-pipeline, before validation, authorization, or later stages finish. The selected post-handler owns the one commit, after the whole pipeline succeeds.
 
-**Checked by:** `dotnet test` fails `EfCoreWriteTests` when a handler injects `DbContext` or calls `SaveChangesAsync`.
+**Reviewed for:** Which handlers inject `DbContext` or call `SaveChangesAsync`? Look at the constructor parameters and bodies of each command handler.
 
 ### Define EF Core Query Roots
 
@@ -130,7 +130,7 @@ This extension switches on no optional record type.
 
 **Rationale:** Queries need an EF Core surface in Application, but exposing the Infrastructure `DbContext` would hand handlers the whole provider. One public `IApplicationDbContext` exposes only the required sets or named roots, and the permitted surface is those query types plus the manifest-pinned abstractions that declare them.
 
-**Checked by:** `dotnet test` fails `EfCoreReadTests` when Application exposes more EF Core surface than the owned `IApplicationDbContext`.
+**Reviewed for:** Which Application types expose EF Core surface beyond the owned `IApplicationDbContext`? Look at the public types in the Application project.
 
 ### Implement Query Roots in Infrastructure
 
@@ -140,7 +140,7 @@ This extension switches on no optional record type.
 
 **Rationale:** The application `DbContext` implements the owned interface, so provider configuration, connection handling, and mapping stay in Infrastructure while Application programs against the interface.
 
-**Checked by:** `dotnet test` fails `EfCoreReadTests` when the Infrastructure `DbContext` does not implement the owned query interface.
+**Reviewed for:** Does the Infrastructure `DbContext` implement the owned query interface? Look at the application `DbContext` class declaration.
 
 ### Retain Marten Query Boundary
 
@@ -150,7 +150,7 @@ This extension switches on no optional record type.
 
 **Rationale:** Marten-backed aggregates keep their `IQuerySession` boundary, so their queries neither gain an EF Core dependency nor lose the session they were written against.
 
-**Checked by:** `dotnet test` fails `EfCoreReadTests` when a Marten query handler leaves the `IQuerySession` boundary.
+**Reviewed for:** Which Marten query handlers leave the `IQuerySession` boundary? Look at the read calls in each Marten-owned query handler.
 
 ### Project EF Core Queries Directly
 
@@ -160,7 +160,7 @@ This extension switches on no optional record type.
 
 **Rationale:** `AsNoTracking` with filtering, deterministic order and limit before materialization returns shaped records without loading mutable aggregate state. Tracking, unfiltered loads, or nondeterministic paging waste work and return unstable pages. A read projection does not feed an invariant, because it may already be stale.
 
-**Checked by:** `dotnet test` fails `EfCoreReadTests` when a query tracks, skips filters, pages nondeterministically, skips projection, or feeds an invariant from a projection.
+**Reviewed for:** Which queries track entities, skip filters, page nondeterministically, skip projection, or feed an invariant from a projection? Look at the query bodies in each EF Core query handler.
 
 ### Avoid Per-Aggregate Read Stores
 
@@ -170,7 +170,7 @@ This extension switches on no optional record type.
 
 **Rationale:** One read-store interface per aggregate rebuilds a repository layer the context already provides, and each new aggregate adds another interface to maintain. `IApplicationDbContext` is the one query boundary.
 
-**Checked by:** `dotnet test` fails `EfCoreReadTests` when a per-aggregate read-store interface exists.
+**Reviewed for:** Which per-aggregate read-store interfaces exist beside `IApplicationDbContext`? Look at the interfaces in the Application project.
 
 ### Resolve the Tenant at Context Creation
 
@@ -180,7 +180,7 @@ This extension switches on no optional record type.
 
 **Rationale:** Resolving the tenant when the context is created applies the filter to every tenant-owned set by convention. A tenant passed per query is a parameter every new query can forget, leaking rows across tenants.
 
-**Checked by:** `dotnet test` fails `EfCoreReadTests` when a context resolves the tenant after creation or misses a tenant filter on an owned set.
+**Reviewed for:** Which contexts resolve the tenant after creation or miss a tenant filter on an owned set? Look at the `DbContext` creation and its entity configurations.
 
 ### Commit EF Core Command Work Once
 
@@ -190,7 +190,7 @@ This extension switches on no optional record type.
 
 **Rationale:** One `SaveChangesAsync` call per owned command keeps the provider transaction boundary intact. Two calls split one command across two transactions, so the second can fail after the first commits.
 
-**Checked by:** `dotnet test` fails `EfCoreCommitTests` when a post-handler calls `SaveChangesAsync` more than once for its owned command.
+**Reviewed for:** Which post-handlers call `SaveChangesAsync` more than once for one owned command? Look at each EF Core post-handler body.
 
 ### Process Changed Aggregate Events
 
@@ -200,7 +200,7 @@ This extension switches on no optional record type.
 
 **Rationale:** The post-handler collects domain events from the aggregates it changed and routes each to the reaction the reaction record declares, honoring its `onFailure` retry and dead-letter policy. Collecting from anywhere else drops events or delivers facts the commit did not store.
 
-**Checked by:** `dotnet test` fails `EfCoreCommitTests` when a domain event from a changed aggregate is dropped or misses its declared `onFailure` handling.
+**Reviewed for:** Which domain events from changed aggregates are dropped or miss their declared `onFailure` handling? Look at the event collection in each post-handler.
 
 ### Use Durable Outbox Delivery
 
@@ -210,7 +210,7 @@ This extension switches on no optional record type.
 
 **Rationale:** A command needing durable delivery stages its outbox record through EF Core, so business work and the record commit atomically. Committing a Marten session instead splits the two across providers.
 
-**Checked by:** `dotnet test` fails `EfCoreCommitTests` when a durable EF Core command commits a Marten session.
+**Reviewed for:** Which durable EF Core commands commit a Marten session? Look at the session calls in each durable command path.
 
 ### Stage EF Core Outbox Records Together
 
@@ -220,7 +220,7 @@ This extension switches on no optional record type.
 
 **Rationale:** Mapping and staging the outbox record through the same `DbContext` puts it in the command's transaction. Staging it anywhere else publishes facts the business commit did not store, or stores work no message ever delivers.
 
-**Checked by:** `dotnet test` fails `EfCoreOutboxTests` when a command stages its outbox record outside its aggregate `DbContext`.
+**Reviewed for:** Which commands stage their outbox record outside their aggregate `DbContext`? Look at the outbox staging calls in each command path.
 
 ### Reject Cross-Provider Outbox Storage
 
@@ -230,7 +230,7 @@ This extension switches on no optional record type.
 
 **Rationale:** A Marten session commits independently of the EF Core transaction, so an outbox record stored through Marten can persist while the aggregate change rolls back, or the reverse. The record travels with the work it describes.
 
-**Checked by:** `dotnet test` fails `EfCoreOutboxTests` when an EF Core command stores its outbox record through a Marten session.
+**Reviewed for:** Which EF Core commands store their outbox record through a Marten session? Look at the outbox staging calls in each command path.
 
 ### Configure EF Core Mappings in Infrastructure
 
@@ -240,7 +240,7 @@ This extension switches on no optional record type.
 
 **Rationale:** Entity configurations name tables, columns, and provider behavior, so they live with the provider in Infrastructure. Anywhere else, Application or Domain would name relational details they must not know.
 
-**Checked by:** `dotnet test` fails `EfCoreMappingTests` when an EF Core mapping lives outside an Infrastructure-owned configuration class.
+**Reviewed for:** Which EF Core mappings live outside an Infrastructure-owned configuration class? Look at the mapping classes in each project.
 
 ### Configure Relational Details Explicitly
 
@@ -260,7 +260,7 @@ This extension switches on no optional record type.
 
 **Rationale:** The aggregate owns its lifecycle state and state-specific facts, and relational storage records them without reshaping them. A relational column holds the active state record and its discriminator, which is the same contract the baseline provider stores in its document. The column holds no enumerated integer, because that discards the state-specific facts the record carries and reintroduces the shape `litespec/backend/domain#model-every-closed-set-of-domain-values-as-a-closed-type-hierarchy` removes. A state carrying its own fields maps to an owned type or to its own table. The discriminator selects which one a read materializes.
 
-**Checked by:** `dotnet test` fails `EfCoreStateTests` when persistence reshapes the aggregate's single Domain state value.
+**Reviewed for:** Which persistence mappings reshape the aggregate's single Domain state value? Look at the state columns and owned types in each mapping.
 
 ### Map Stable Relational State Shape
 
@@ -270,7 +270,7 @@ This extension switches on no optional record type.
 
 **Rationale:** Columns and owned types store each state's values while Domain keeps its record hierarchy. New lifecycle flags or duplicate nullable state properties in Domain would create a second lifecycle that disagrees with the first, so the mapping adds none.
 
-**Checked by:** `dotnet test` fails `EfCoreStateTests` when Domain gains a lifecycle flag or a duplicate nullable state property.
+**Reviewed for:** Which lifecycle flags or duplicate nullable state properties entered Domain for storage? Look at the aggregate classes in the Domain project.
 
 ### Use Direct State Mapping Only When Supported
 
@@ -280,7 +280,7 @@ This extension switches on no optional record type.
 
 **Rationale:** Owned or JSON mapping of state records works only when the pinned provider versions materialize, track, and round-trip every sealed state record. Without that proof, reads silently drop state values or return stale state.
 
-**Checked by:** `dotnet test` fails `EfCoreStateTests` when a state record does not materialize, track, or round-trip.
+**Reviewed for:** Which state records fail to materialize, track, or round-trip under the pinned versions? Look at a round-trip read of each sealed state record.
 
 ### Map Unsupported State Shapes in Infrastructure
 
@@ -290,7 +290,7 @@ This extension switches on no optional record type.
 
 **Rationale:** When direct mapping is unsupported, an Infrastructure persistence type with a discriminator and state-specific columns stores the state, and the repository maps it to and from the Domain hierarchy. Domain stays free of the storage shape.
 
-**Checked by:** `dotnet test` fails `EfCoreStateTests` when a discriminator value maps to no Domain state.
+**Reviewed for:** Which discriminator values map to no Domain state? Look at the discriminator map in each state mapping.
 
 ### Review New Persisted States
 
@@ -312,7 +312,7 @@ This extension switches on no optional record type.
 
 **Rationale:** A schema change without a migration reaches the database by hand or by drift, with no review and no record. The generated migration is the explicit, reviewed description of the evolution.
 
-**Checked by:** `dotnet test` fails `EfCoreMigrationsTests` when a schema diff carries no generated migration.
+**Reviewed for:** Which schema diffs carry no generated migration? Look at the migration list beside the model snapshot.
 
 ### Review Migration Effects
 
@@ -332,7 +332,7 @@ This extension switches on no optional record type.
 
 **Rationale:** Migrations applied as release work run in a controlled order with evidence, before the new code starts. Startup-owned execution races replicas against each other and against the old version.
 
-**Checked by:** `dotnet test` fails `EfCoreMigrationsTests` when the release record does not apply migrations before replica startup.
+**Reviewed for:** Which release records skip applying migrations before replica startup? Look at the release process record.
 
 ### Keep Migration Files Together
 
@@ -342,7 +342,7 @@ This extension switches on no optional record type.
 
 **Rationale:** The migration, the model snapshot, and the reviewed SQL committed together show the intended change and its exact relational effect. Any one alone leaves review guessing what the database will do.
 
-**Checked by:** `dotnet test` fails `EfCoreMigrationsTests` when a migration commit misses its migration, model snapshot, or reviewed SQL.
+**Reviewed for:** Which migration commits miss their migration, model snapshot, or reviewed SQL? Look at the files in each migration commit.
 
 ### Test Migration Starting States
 
@@ -352,7 +352,7 @@ This extension switches on no optional record type.
 
 **Rationale:** A migration applies to a fresh database and to the previous release's database, because setup and upgrade are the two paths that run in production. The previous release database is the schema of the last released artifact, not the schema of the previous commit. The test builds it by applying that artifact's migrations to an empty database, then applies the current ones on top. A test that starts from the current migrations minus one proves that the last migration applies, which is the start least likely to be broken.
 
-**Checked by:** `dotnet test` fails `EfCoreMigrationsTests` when a migration does not apply from an empty database and from the previous release database.
+**Reviewed for:** Which migrations fail from an empty database or from the previous release database? Look at the migration test runs.
 
 ### Reject Startup Schema Mutation
 
@@ -362,7 +362,7 @@ This extension switches on no optional record type.
 
 **Rationale:** Every replica runs startup, so a startup that mutates the schema races its siblings and applies schema work with no ordering or evidence. Production and staging startup own none of `EnsureCreated`, `EnsureDeleted`, or `Migrate`.
 
-**Checked by:** `dotnet test` fails `EfCoreMigrationsTests` when production or staging startup calls `EnsureCreated`, `EnsureDeleted`, or `Migrate`.
+**Reviewed for:** Which production or staging startup calls `EnsureCreated`, `EnsureDeleted`, or `Migrate`? Look at the startup paths of those environments.
 
 ### Configure Optimistic Tokens
 
@@ -372,7 +372,7 @@ This extension switches on no optional record type.
 
 **Rationale:** The provider-backed token carries the caller's expected version into the write, so EF Core detects a concurrent change instead of silently overwriting it. Without the token, the last writer wins and the first writer's work vanishes. Every EF Core aggregate configures the token, following `litespec/backend/persistence#version-every-aggregate`.
 
-**Checked by:** `dotnet test` fails `EfCoreConcurrencyTests` when an aggregate misses its configured token or a command misses its expected version.
+**Reviewed for:** Which aggregates miss their configured token, or which commands miss their expected version? Look at the entity configurations and command messages.
 
 ### Map EF Core Concurrency Conflict
 
@@ -382,7 +382,7 @@ This extension switches on no optional record type.
 
 **Rationale:** A `DbUpdateConcurrencyException` names a provider type that Application does not expose. Translating it into the project-owned conflict contract keeps the failure transport-neutral and lets the error boundary map it like any other conflict.
 
-**Checked by:** `dotnet test` fails `EfCoreConcurrencyTests` when a `DbUpdateConcurrencyException` escapes the Application conflict contract.
+**Reviewed for:** Which `DbUpdateConcurrencyException` paths escape the Application conflict contract? Look at the post-handler fault mapping.
 
 ### Map Unique Constraint Violations to Their Refusals
 
@@ -394,7 +394,7 @@ This extension switches on no optional record type.
 
 **Example:** A book barcode column carries a unique constraint named `uq_book_barcode`; a registration that loses the barcode race translates to `book-barcode-taken` through the map, the same path a stale version takes to the approve conflict.
 
-**Checked by:** `dotnet test` fails `EfCoreConcurrencyTests` when a unique constraint violation escapes the Application conflict contract.
+**Reviewed for:** Which unique constraint violations escape the Application conflict contract? Look at the post-handler fault mapping.
 
 ### Reject Automatic Command Retry
 
@@ -404,7 +404,7 @@ This extension switches on no optional record type.
 
 **Rationale:** After a concurrency conflict, the state changed under the caller. Retrying the whole command reruns business behavior against state the caller did not see or approve, so the post-handler reports the conflict and lets the caller reread and decide.
 
-**Checked by:** `dotnet test` fails `EfCoreConcurrencyTests` when a post-handler retries the complete command automatically after a concurrency exception.
+**Reviewed for:** Which post-handlers retry the complete command automatically after a concurrency exception? Look at the exception handling in each post-handler.
 
 ## Conventions
 
@@ -430,7 +430,7 @@ This extension switches on no optional record type.
 
 **Rationale:** The pinned naming-conventions package generates the names, and verifying each migration shows the exact names that reach the database. Casing itself is owned by `litespec/backend/persistence#use-database-naming-conventions`.
 
-**Checked by:** `dotnet test` fails `EfCoreTests` when a generated migration carries a database name outside the verified snake-case form.
+**Reviewed for:** Which generated migrations carry a database name outside the verified snake-case form? Look at the names in each generated migration.
 
 ## Dependencies
 

@@ -453,6 +453,8 @@ Module nesting, including the single-aggregate flat form, follows the cited fold
 
 **Replacement:** A project names its route shape in its backend documentation.
 
+**Rationale:** A route derived from its resource reads the same for every operation: the caller knows the record before opening the handler. An action segment reserved for operations that map to neither resource nor subresource keeps the exception visible instead of spreading verb-led routes.
+
 **Example:**
 
 ```text

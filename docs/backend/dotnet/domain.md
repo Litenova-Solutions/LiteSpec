@@ -30,7 +30,7 @@ Each aggregate identity is a small struct over one version 7 `Guid`, created by 
 
 **Rationale:** A package reference is a direction: once Domain names a persistence or web type, business rules start depending on the framework instead of the framework depending on them. Keeping Domain to the base class library and project-owned types means a provider change cannot reach business behavior. Infrastructure registers persisted discriminators and mappings, so Domain carries no serialization attribute. This provision states the .NET form of `litespec/backend/domain#keep-domain-independent-of-outer-layers`.
 
-**Reviewed for:** The Domain project references: only the .NET base class library and project-owned Domain types.
+**Checked by:** `dotnet build` reports `LS1001` for Domain code naming an outer-layer type.
 
 ### Use the Project Aggregate Root Contract
 
@@ -211,7 +211,7 @@ public abstract record ProfileState;
 public sealed record ProfileActiveState : ProfileState;
 ```
 
-**Reviewed for:** Each aggregate: one `State` property over an abstract state record with one sealed record per state.
+**Checked by:** `dotnet build` reports `LS1003` for an aggregate with no `State` property and `LS1004` for a state case left unsealed.
 
 ### Model Every Closed Set of Domain Values Without Enums
 
@@ -319,7 +319,7 @@ The diagram shows the `MerchantRole` hierarchy with its cases, `Code`, and `From
 
 ![The Domain hierarchy MerchantRole with sealed cases exposing Code and FromCode, and the same set at three layers: a mirrored union in Application, a string enum in Transport for a label-only set, and one string discriminator per case in Persistence.](../../assets/diagrams/dotnet-closed-set.svg)
 
-**Reviewed for:** Each closed set in the Domain project: an abstract record with sealed cases exposing `Code`, `FromCode` on data-less sets, and no `enum`.
+**Checked by:** `dotnet build` reports `LS1002` for an enum declared in Domain.
 
 ### Use Strongly Typed Version 7 Identifiers
 
@@ -377,7 +377,7 @@ public readonly record struct PostId : IStronglyTypedId, IParsable<PostId>
 
 The `IParsable<TId>` implementation supports Minimal API route and query binding. `Parse` follows the .NET parsing contract for malformed text. `From` applies the domain empty-identity rule.
 
-**Reviewed for:** Each aggregate identity: a `readonly record struct` over one version 7 `Guid`, with no conversion, alias, or parameterless creation.
+**Checked by:** `dotnet build` reports `LS1012` for an `Id` struct outside the strongly typed form, or a raw `Guid` as an aggregate identity.
 
 ### Make Money and Decimal Rules Explicit
 
@@ -450,7 +450,7 @@ public async Task<Post> GetByIdAsync(PostId id, CancellationToken cancellationTo
 }
 ```
 
-**Reviewed for:** Each repository interface: Domain-only types for one aggregate root, with no `IQueryable`, session, or generic surface.
+**Checked by:** `dotnet build` reports `LS1010` for a repository interface exposing a query surface.
 
 ### Expose Cross-Record Keys from the Aggregate
 
@@ -477,7 +477,7 @@ public IReadOnlyCollection<string> UniquenessKeys() =>
 
 **Rationale:** The `{Aggregate}{PastFact}Event` name tells a reader which aggregate raised the fact without opening the file. The event carries business data only: typed identifiers and the values its reactions need. It carries no aggregate, session, service, mutable collection, or exception, because a mutable payload lets a reaction observe state that changed after the fact. Envelope identity, such as message and causation identity, lives on the published integration event that carries the fact outside the process. The event type name derives from the event identifier: `AccessCodeIssuedEvent` is `event/access-code.issued`. An event whose name cannot follow its identifier states the identifier as a string literal in its type, which the builder links instead. Only the aggregate root raises events, through `RaiseDomainEvent` on the shared base. This provision states the .NET form of `litespec/backend/domain#raise-immutable-facts-as-domain-events`.
 
-**Reviewed for:** Each domain event: an immutable record named `{Aggregate}{PastFact}Event`, carrying business data only.
+**Checked by:** `dotnet build` reports `LS1007` for a domain event that is not an immutable record.
 
 ### Reject Business Violations with Domain Exceptions
 
@@ -525,7 +525,7 @@ Two rules that share a caller-visible refusal code because a boundary maps them 
 
 Application validators handle malformed caller input through validation errors. Aggregate and value-object exceptions remain the final check when direct Domain use violates a rule. Command handlers do not catch expected Domain exceptions. The host maps them through the documented error boundary.
 
-**Reviewed for:** Each rejected business rule: its own `DomainException` type carrying the refusal `code`, with no transport status.
+**Checked by:** `dotnet build` reports `LS1005` for a throw outside a `DomainException` subclass and `LS1006` for a domain exception that is misnamed or open.
 
 ### Document Every Public Domain Contract
 
@@ -535,7 +535,7 @@ Application validators handle malformed caller input through validation errors. 
 
 **Rationale:** A public Domain member is a business promise, and its XML documentation is where a reader learns the constraint, result, or failure it represents. A summary that restates the member name adds nothing; a mutation method names its source states, resulting state, protected invariant, and recorded event. Without that, callers infer the contract from the implementation and miss the rule. This provision states the .NET form of `litespec/backend/domain#describe-every-public-domain-contract-in-documentation`.
 
-**Checked by:** `dotnet build` of the Domain project reports no LiteSpec.Analyzers LS1011 diagnostic.
+**Checked by:** `dotnet build` reports `LS1011` for a public Domain type or member without XML documentation.
 
 ### Raise the Past Tense of a Method's Own Verb
 

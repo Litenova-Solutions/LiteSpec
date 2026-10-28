@@ -151,7 +151,7 @@ The example adds a package to the narrowest owning project. A central version en
 
 **Replacement:** A project whose command handlers run on another mediator names the analyzers that report nested mediation and outside-world clients in its handlers.
 
-**Rationale:** Both LiteBus rules are off by default. `LB1023` reports nested mediation in a command handler and `LB1024` reports an outside-world client in a command handler, so consequences leave through event handlers after the commit under `litespec/backend/application#keep-command-handlers-to-load-call-and-stage`. The client list replaces the defaults, so it names every port that leaves the process. The same file lists the project's pipeline-owned collaborators in `litespec.LS2016.pipeline_owned_types`, such as its uniqueness claim service.
+**Rationale:** Both LiteBus rules are off by default. `LB1023` reports nested mediation in a command handler and `LB1024` reports an outside-world client in a command handler, so consequences leave through event handlers after the commit under `litespec/backend/application#keep-command-handlers-to-load-call-and-stage`. The client list replaces the defaults, so it names every port that leaves the process. The same file lists the project's pipeline-owned collaborators under the key the [LS2016 rule page](../../analyzers/rules/ls2016.md) names, such as its uniqueness claim service.
 
 **Example:**
 
