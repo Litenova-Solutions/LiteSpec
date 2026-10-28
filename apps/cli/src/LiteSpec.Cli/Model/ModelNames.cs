@@ -73,7 +73,7 @@ static class ModelNames
                 continue;
             }
 
-            var verb = UseCaseVocabulary.VerbOf(name, model.Config.PhrasalVerbs);
+            var verb = UseCaseVerbs.VerbOf(name, model.Config.PhrasalVerbs);
             verbs[verb] = verbs.GetValueOrDefault(verb) + 1;
 
             if (name.Length > verb.Length)

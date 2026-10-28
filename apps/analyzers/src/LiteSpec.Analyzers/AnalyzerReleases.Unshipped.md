@@ -23,6 +23,7 @@ LS5006 | LiteSpec.Traceability | Error | Descriptors
 LS5007 | LiteSpec.Traceability | Error | Descriptors
 LS5008 | LiteSpec.Traceability | Error | Descriptors
 LS5009 | LiteSpec.Traceability | Error | GeneratorDiagnostics
+LS5010 | LiteSpec.Traceability | Error | Descriptors
 
 ### Removed Rules
 

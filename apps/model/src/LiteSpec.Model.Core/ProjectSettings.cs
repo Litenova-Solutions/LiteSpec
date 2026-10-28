@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace LiteSpec.Model;
 
@@ -36,12 +37,22 @@ public static class ProjectPhaseExtensions
 }
 
 /// <summary>
-///     The check settings a host reads from litespec.project.json: the mark style and the check phase.
+///     The check settings a host reads from litespec.project.json: the mark style, the check phase,
+///     and the domain verbs the project adds to the baseline use-case vocabulary.
 /// </summary>
 /// <param name="Marks">The declared mark style.</param>
 /// <param name="Phase">The declared check phase.</param>
 public sealed record ProjectSettings(MarkStyle Marks, ProjectPhase Phase)
 {
+    /// <summary>The domain verbs the project adds to the baseline vocabulary.</summary>
+    public IReadOnlyList<string> Verbs { get; init; } = Array.Empty<string>();
+
+    /// <summary>The project verbs that name a query, beside the baseline reading verbs.</summary>
+    public IReadOnlyList<string> QueryVerbs { get; init; } = Array.Empty<string>();
+
+    /// <summary>Multi-word verbs counted as one use-case opening.</summary>
+    public IReadOnlyList<string> PhrasalVerbs { get; init; } = Array.Empty<string>();
+
     /// <summary>
     ///     Reads the settings from the project file text. A missing value reads as its
     ///     default: xml marks and the working phase. An unknown value is an error the
@@ -84,8 +95,36 @@ public sealed record ProjectSettings(MarkStyle Marks, ProjectPhase Phase)
             return false;
         }
 
-        settings = new ProjectSettings(marks, phase);
+        settings = new ProjectSettings(marks, phase)
+        {
+            Verbs = VocabularyNames(root, "verbs"),
+            QueryVerbs = VocabularyNames(root, "queryVerbs"),
+            PhrasalVerbs = VocabularyNames(root, "phrasal"),
+        };
         return true;
+    }
+
+    private static IReadOnlyList<string> VocabularyNames(JsonText root, string name)
+    {
+        if (root.TryGetProperty("vocabulary", out var vocabulary)
+            && vocabulary.Kind == JsonKind.Object
+            && vocabulary.TryGetProperty(name, out var value)
+            && value.Kind == JsonKind.Array)
+        {
+            var names = new List<string>();
+
+            foreach (var entry in value.Items)
+            {
+                if (entry.GetString() is string text)
+                {
+                    names.Add(text);
+                }
+            }
+
+            return names;
+        }
+
+        return Array.Empty<string>();
     }
 
     private static bool TryReadMarks(JsonText root, out MarkStyle marks, out string? error)

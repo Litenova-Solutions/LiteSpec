@@ -10,9 +10,10 @@ namespace LiteSpec.Analyzers.Generation;
 
 /// <summary>
 /// The record facts the generator reads from the project file and the record pages: the declared
-/// mark style, the event identifiers, each rule's refusal code, the permission identifiers, and
-/// each use case's access grant. Statuses never gate generation: a mark to a record of any status
-/// still resolves, and the checks own the reporting.
+/// mark style, the event identifiers, each rule's refusal code, each permission with its scope,
+/// group and risks, each use case's access grant, and the project's vocabulary additions.
+/// Statuses never gate generation: a mark to a record of any status still resolves, and the
+/// checks own the reporting.
 /// </summary>
 internal sealed class RecordModel : IEquatable<RecordModel>
 {
@@ -22,30 +23,42 @@ internal sealed class RecordModel : IEquatable<RecordModel>
         MarkStyle.Xml,
         ImmutableArray<string>.Empty,
         ImmutableArray<RuleCode>.Empty,
+        ImmutableArray<PermissionFacts>.Empty,
+        ImmutableArray<UseCaseGrant>.Empty,
         ImmutableArray<string>.Empty,
-        ImmutableArray<UseCaseGrant>.Empty);
+        ImmutableArray<string>.Empty,
+        ImmutableArray<string>.Empty);
 
     /// <summary>Creates a record model.</summary>
     /// <param name="valid">Whether a project file was found and parsed.</param>
     /// <param name="style">The declared mark style.</param>
     /// <param name="eventIds">The event identifiers, sorted.</param>
     /// <param name="ruleCodes">Each rule with a refusal code, sorted by rule.</param>
-    /// <param name="permissionIds">The permission identifiers, sorted.</param>
+    /// <param name="permissions">Each permission with its scope, group and risks, sorted by id.</param>
     /// <param name="grants">Each use case with an access grant, sorted by use case.</param>
+    /// <param name="verbs">The domain verbs the project adds to the baseline.</param>
+    /// <param name="queryVerbs">The project verbs that name a query.</param>
+    /// <param name="phrasalVerbs">The multi-word verbs counted as one opening.</param>
     public RecordModel(
         bool valid,
         MarkStyle style,
         ImmutableArray<string> eventIds,
         ImmutableArray<RuleCode> ruleCodes,
-        ImmutableArray<string> permissionIds,
-        ImmutableArray<UseCaseGrant> grants)
+        ImmutableArray<PermissionFacts> permissions,
+        ImmutableArray<UseCaseGrant> grants,
+        ImmutableArray<string> verbs,
+        ImmutableArray<string> queryVerbs,
+        ImmutableArray<string> phrasalVerbs)
     {
         Valid = valid;
         Style = style;
         EventIds = eventIds;
         RuleCodes = ruleCodes;
-        PermissionIds = permissionIds;
+        Permissions = permissions;
         Grants = grants;
+        Verbs = verbs;
+        QueryVerbs = queryVerbs;
+        PhrasalVerbs = phrasalVerbs;
     }
 
     /// <summary>Whether a project file was found and parsed.</summary>
@@ -60,11 +73,20 @@ internal sealed class RecordModel : IEquatable<RecordModel>
     /// <summary>Each rule with a refusal code, sorted by rule.</summary>
     public ImmutableArray<RuleCode> RuleCodes { get; }
 
-    /// <summary>The permission identifiers, sorted.</summary>
-    public ImmutableArray<string> PermissionIds { get; }
+    /// <summary>Each permission with its scope, group and risks, sorted by id.</summary>
+    public ImmutableArray<PermissionFacts> Permissions { get; }
 
     /// <summary>Each use case with an access grant, sorted by use case.</summary>
     public ImmutableArray<UseCaseGrant> Grants { get; }
+
+    /// <summary>The domain verbs the project adds to the baseline.</summary>
+    public ImmutableArray<string> Verbs { get; }
+
+    /// <summary>The project verbs that name a query.</summary>
+    public ImmutableArray<string> QueryVerbs { get; }
+
+    /// <summary>The multi-word verbs counted as one opening.</summary>
+    public ImmutableArray<string> PhrasalVerbs { get; }
 
     /// <summary>
     /// Reads the model from the additional files: the project file beside the consumer root, and
@@ -143,8 +165,11 @@ internal sealed class RecordModel : IEquatable<RecordModel>
             settings.Marks,
             IdsOf(index, "event"),
             RuleCodesOf(index),
-            IdsOf(index, "permission"),
-            GrantsOf(index, grants));
+            PermissionsOf(index),
+            GrantsOf(index, grants),
+            ImmutableArray.CreateRange(settings.Verbs),
+            ImmutableArray.CreateRange(settings.QueryVerbs),
+            ImmutableArray.CreateRange(settings.PhrasalVerbs));
     }
 
     /// <inheritdoc />
@@ -154,8 +179,11 @@ internal sealed class RecordModel : IEquatable<RecordModel>
         && Style == other.Style
         && EventIds.SequenceEqual(other.EventIds)
         && RuleCodes.SequenceEqual(other.RuleCodes)
-        && PermissionIds.SequenceEqual(other.PermissionIds)
-        && Grants.SequenceEqual(other.Grants);
+        && Permissions.SequenceEqual(other.Permissions)
+        && Grants.SequenceEqual(other.Grants)
+        && Verbs.SequenceEqual(other.Verbs)
+        && QueryVerbs.SequenceEqual(other.QueryVerbs)
+        && PhrasalVerbs.SequenceEqual(other.PhrasalVerbs);
 
     /// <inheritdoc />
     public override bool Equals(object? obj) => obj is RecordModel other && Equals(other);
@@ -179,14 +207,29 @@ internal sealed class RecordModel : IEquatable<RecordModel>
                 hash = hash * 31 + rule.GetHashCode();
             }
 
-            foreach (var id in PermissionIds)
+            foreach (var permission in Permissions)
             {
-                hash = hash * 31 + StringComparer.Ordinal.GetHashCode(id);
+                hash = hash * 31 + permission.GetHashCode();
             }
 
             foreach (var grant in Grants)
             {
                 hash = hash * 31 + grant.GetHashCode();
+            }
+
+            foreach (var verb in Verbs)
+            {
+                hash = hash * 31 + StringComparer.Ordinal.GetHashCode(verb);
+            }
+
+            foreach (var verb in QueryVerbs)
+            {
+                hash = hash * 31 + StringComparer.Ordinal.GetHashCode(verb);
+            }
+
+            foreach (var verb in PhrasalVerbs)
+            {
+                hash = hash * 31 + StringComparer.Ordinal.GetHashCode(verb);
             }
 
             return hash;
@@ -394,6 +437,30 @@ internal sealed class RecordModel : IEquatable<RecordModel>
         return ImmutableArray.CreateRange(codes);
     }
 
+    private static ImmutableArray<PermissionFacts> PermissionsOf(RecordIndex index)
+    {
+        var seen = new HashSet<string>(StringComparer.Ordinal);
+        var found = new List<PermissionFacts>();
+
+        foreach (var record in index.ByType("permission"))
+        {
+            if (record.Id.Length == 0 || !seen.Add(record.Id))
+            {
+                continue;
+            }
+
+            found.Add(new PermissionFacts(
+                record.Id,
+                record.Field("scope") ?? string.Empty,
+                record.Field("group"),
+                ImmutableArray.CreateRange(record.Ids("risk"))));
+        }
+
+        found.Sort(static (left, right) => string.Compare(left.Id, right.Id, StringComparison.Ordinal));
+
+        return ImmutableArray.CreateRange(found);
+    }
+
     private static ImmutableArray<UseCaseGrant> GrantsOf(
         RecordIndex index, Dictionary<string, string> grants)
     {
@@ -454,6 +521,69 @@ internal sealed class RuleCode : IEquatable<RuleCode>
             var hash = 17;
             hash = hash * 31 + StringComparer.Ordinal.GetHashCode(RuleId);
             hash = hash * 31 + StringComparer.Ordinal.GetHashCode(Code);
+
+            return hash;
+        }
+    }
+}
+
+/// <summary>One permission with the facts the generated entry carries.</summary>
+internal sealed class PermissionFacts : IEquatable<PermissionFacts>
+{
+    /// <summary>Creates permission facts.</summary>
+    /// <param name="id">The permission identifier.</param>
+    /// <param name="scope">The reach at which a role grants it, or empty when the record states none.</param>
+    /// <param name="group">The group ordering it beside its peers, or null when the record states none.</param>
+    /// <param name="risks">The risks the record marks, in record order.</param>
+    public PermissionFacts(string id, string scope, string? group, ImmutableArray<string> risks)
+    {
+        Id = id;
+        Scope = scope;
+        Group = group;
+        Risks = risks;
+    }
+
+    /// <summary>The permission identifier.</summary>
+    public string Id { get; }
+
+    /// <summary>The reach at which a role grants it, or empty when the record states none.</summary>
+    public string Scope { get; }
+
+    /// <summary>The group ordering it beside its peers, or null when the record states none.</summary>
+    public string? Group { get; }
+
+    /// <summary>The risks the record marks, in record order.</summary>
+    public ImmutableArray<string> Risks { get; }
+
+    /// <inheritdoc />
+    public bool Equals(PermissionFacts? other) =>
+        other is not null
+        && string.Equals(Id, other.Id, StringComparison.Ordinal)
+        && string.Equals(Scope, other.Scope, StringComparison.Ordinal)
+        && string.Equals(Group, other.Group, StringComparison.Ordinal)
+        && Risks.SequenceEqual(other.Risks);
+
+    /// <inheritdoc />
+    public override bool Equals(object? obj) => obj is PermissionFacts other && Equals(other);
+
+    /// <inheritdoc />
+    public override int GetHashCode()
+    {
+        unchecked
+        {
+            var hash = 17;
+            hash = hash * 31 + StringComparer.Ordinal.GetHashCode(Id);
+            hash = hash * 31 + StringComparer.Ordinal.GetHashCode(Scope);
+
+            if (Group is not null)
+            {
+                hash = hash * 31 + StringComparer.Ordinal.GetHashCode(Group);
+            }
+
+            foreach (var risk in Risks)
+            {
+                hash = hash * 31 + StringComparer.Ordinal.GetHashCode(risk);
+            }
 
             return hash;
         }

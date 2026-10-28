@@ -756,7 +756,7 @@ static partial class Checker
                 continue;
             }
 
-            var verb = UseCaseVocabulary.VerbOf(name, model.Config.PhrasalVerbs);
+            var verb = UseCaseVerbs.VerbOf(name, model.Config.PhrasalVerbs);
 
             if (!Declares(model.Config, verb))
             {
@@ -768,10 +768,10 @@ static partial class Checker
             var kind = KindOf(model.Config, verb);
             var declared = useCase.Field("kind");
 
-            if ((kind == UseCaseVocabulary.VerbKind.Query && declared == "command")
-                || (kind == UseCaseVocabulary.VerbKind.Command && declared == "query"))
+            if ((kind == UseCaseVerbs.VerbKind.Query && declared == "command")
+                || (kind == UseCaseVerbs.VerbKind.Command && declared == "query"))
             {
-                findings.Add(new Finding("use-case-verb-kind", $"Use case '{useCase.Id}' is a {declared} but '{verb}' names a {(kind == UseCaseVocabulary.VerbKind.Query ? "query" : "command")}.", useCase.File, useCase.Line, SubjectOf(useCase)));
+                findings.Add(new Finding("use-case-verb-kind", $"Use case '{useCase.Id}' is a {declared} but '{verb}' names a {(kind == UseCaseVerbs.VerbKind.Query ? "query" : "command")}.", useCase.File, useCase.Line, SubjectOf(useCase)));
             }
         }
     }
@@ -785,7 +785,7 @@ static partial class Checker
                 continue;
             }
 
-            var verb = UseCaseVocabulary.VerbOf(name, model.Config.PhrasalVerbs);
+            var verb = UseCaseVerbs.VerbOf(name, model.Config.PhrasalVerbs);
 
             if (record.Type == "reaction")
             {
@@ -801,7 +801,7 @@ static partial class Checker
             // A job carries the verb of the command it issues.
             var issued = record.EdgeIds("issues")
                                .Where(id => Identifiers.TrySplit(id, out _, out _, out var target) && target is not null)
-                               .Select(id => { Identifiers.TrySplit(id, out _, out _, out var target); return UseCaseVocabulary.VerbOf(target!, model.Config.PhrasalVerbs); })
+                               .Select(id => { Identifiers.TrySplit(id, out _, out _, out var target); return UseCaseVerbs.VerbOf(target!, model.Config.PhrasalVerbs); })
                                .ToList();
 
             if (issued.Count > 0 && !issued.Contains(verb, StringComparer.Ordinal))
@@ -813,20 +813,15 @@ static partial class Checker
 
     /// <summary>Whether the baseline or the project declares the verb.</summary>
     private static bool Declares(ConsumerConfig config, string verb) =>
-        UseCaseVocabulary.Baseline.ContainsKey(verb)
-        || config.Verbs.Contains(verb, StringComparer.Ordinal)
-        || config.QueryVerbs.Contains(verb, StringComparer.Ordinal)
-        || config.PhrasalVerbs.Contains(verb, StringComparer.Ordinal);
+        UseCaseVerbs.IsDeclared(verb, config.Verbs, config.QueryVerbs, config.PhrasalVerbs);
 
     /// <summary>The kind a declared verb names: the baseline kind, a project query verb, or either.</summary>
-    private static UseCaseVocabulary.VerbKind KindOf(ConsumerConfig config, string verb) =>
-        UseCaseVocabulary.Baseline.TryGetValue(verb, out var kind) ? kind
-        : config.QueryVerbs.Contains(verb, StringComparer.Ordinal) ? UseCaseVocabulary.VerbKind.Query
-        : UseCaseVocabulary.VerbKind.Either;
+    private static UseCaseVerbs.VerbKind KindOf(ConsumerConfig config, string verb) =>
+        UseCaseVerbs.KindOf(verb, config.QueryVerbs);
 
     /// <summary>The message for an undeclared verb, naming its replacement when the verb is a retired synonym.</summary>
     private static string UnknownVerbMessage(ConsumerConfig config, string subject, string verb) =>
-        config.RetiredVerbs.TryGetValue(verb, out var replacement) || UseCaseVocabulary.Retired.TryGetValue(verb, out replacement)
+        config.RetiredVerbs.TryGetValue(verb, out var replacement) || UseCaseVerbs.Retired.TryGetValue(verb, out replacement)
             ? $"{subject} starts with '{verb}'; use '{replacement}'."
             : $"{subject} starts with '{verb}', which the vocabulary does not declare.";
 

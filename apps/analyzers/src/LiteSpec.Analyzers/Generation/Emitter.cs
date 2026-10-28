@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Text;
 using LiteSpec.Analyzers.Layers;
+using LiteSpec.Analyzers.Rules;
 using LiteSpec.Model;
 using Microsoft.CodeAnalysis;
 
@@ -34,7 +35,7 @@ internal static class Emitter
 
         if (records.EventIds.IsEmpty
             && records.RuleCodes.IsEmpty
-            && records.PermissionIds.IsEmpty
+            && records.Permissions.IsEmpty
             && records.Grants.IsEmpty
             && types.IsEmpty)
         {
@@ -89,7 +90,7 @@ internal static class Emitter
             || host.Layer == Layer.Infrastructure
             || host.Layer == Layer.WebApi)
         {
-            EmitPermissions(context, records.PermissionIds);
+            EmitPermissions(context, records);
         }
     }
 
@@ -183,49 +184,49 @@ internal static class Emitter
     private static string HintName(string kind, MarkedType type) =>
         kind + "." + type.FullName.Replace('`', '_') + ".g.cs";
 
-    private static void EmitPermissions(SourceProductionContext context, ImmutableArray<string> ids)
+    private static void EmitPermissions(SourceProductionContext context, RecordModel records)
     {
-        var named = new List<KeyValuePair<string, string>>();
+        var named = new List<NamedPermission>();
 
-        foreach (var id in ids)
+        foreach (var permission in records.Permissions)
         {
-            var name = ConstantName(id);
+            var name = ConstantName(permission.Id);
 
             if (name is not null)
             {
-                named.Add(new KeyValuePair<string, string>(name, id));
+                named.Add(new NamedPermission(name, permission, Reads(permission.Id, records)));
             }
         }
 
         named.Sort(static (left, right) =>
         {
-            var names = string.Compare(left.Key, right.Key, StringComparison.Ordinal);
+            var names = string.Compare(left.Name, right.Name, StringComparison.Ordinal);
 
             return names != 0
                 ? names
-                : string.Compare(left.Value, right.Value, StringComparison.Ordinal);
+                : string.Compare(left.Facts.Id, right.Facts.Id, StringComparison.Ordinal);
         });
 
         var collisions = 0;
 
         for (var index = 1; index < named.Count; index++)
         {
-            if (named[index].Key != named[index - 1].Key
-                || named[index].Value == named[index - 1].Value)
+            if (named[index].Name != named[index - 1].Name
+                || named[index].Facts.Id == named[index - 1].Facts.Id)
             {
                 continue;
             }
 
             collisions++;
 
-            if (index == 1 || named[index - 1].Key != named[index - 2].Key)
+            if (index == 1 || named[index - 1].Name != named[index - 2].Name)
             {
                 context.ReportDiagnostic(Diagnostic.Create(
                     GeneratorDiagnostics.PermissionCollision,
                     Location.None,
-                    named[index].Key,
-                    named[index - 1].Value,
-                    named[index].Value));
+                    named[index].Name,
+                    named[index - 1].Facts.Id,
+                    named[index].Facts.Id));
             }
         }
 
@@ -234,7 +235,80 @@ internal static class Emitter
             return;
         }
 
+        foreach (var permission in named)
+        {
+            if (VerbOf(permission.Facts.Id, records) is string verb
+                && !UseCaseVerbs.IsDeclared(verb, records.Verbs, records.QueryVerbs, records.PhrasalVerbs))
+            {
+                context.ReportDiagnostic(Diagnostic.Create(
+                    Descriptors.LS5010,
+                    Location.None,
+                    permission.Facts.Id,
+                    verb));
+            }
+        }
+
         context.AddSource("LiteSpecPermissions.g.cs", PermissionsText(named));
+    }
+
+    /// <summary>
+    /// Whether the permission only reads: its name opens with a reading verb from the use-case
+    /// vocabulary. A permission whose first word is no known verb reads false, and the caller
+    /// reports it.
+    /// </summary>
+    /// <param name="id">The permission identifier.</param>
+    /// <param name="records">The record facts with the project's vocabulary additions.</param>
+    /// <returns>Whether the permission only reads.</returns>
+    private static bool Reads(string id, RecordModel records)
+    {
+        if (VerbOf(id, records) is not string verb
+            || !UseCaseVerbs.IsDeclared(verb, records.Verbs, records.QueryVerbs, records.PhrasalVerbs))
+        {
+            return false;
+        }
+
+        return UseCaseVerbs.KindOf(verb, records.QueryVerbs) == UseCaseVerbs.VerbKind.Query;
+    }
+
+    /// <summary>The opening verb of the permission name, or null when the identifier carries none.</summary>
+    /// <param name="id">The permission identifier.</param>
+    /// <param name="records">The record facts with the project's vocabulary additions.</param>
+    /// <returns>The opening verb, or null.</returns>
+    private static string? VerbOf(string id, RecordModel records)
+    {
+        if (!Identifiers.TrySplit(id, out var prefix, out var home, out var name)
+            || prefix != "permission"
+            || home is not null
+            || name.Length == 0)
+        {
+            return null;
+        }
+
+        return UseCaseVerbs.VerbOf(name, records.PhrasalVerbs);
+    }
+
+    /// <summary>One permission with its constant name and whether it only reads.</summary>
+    private sealed class NamedPermission
+    {
+        /// <summary>Creates a named permission.</summary>
+        /// <param name="name">The constant name.</param>
+        /// <param name="facts">The facts the generated entry carries.</param>
+        /// <param name="reads">Whether the permission only reads.</param>
+        public NamedPermission(string name, PermissionFacts facts, bool reads)
+        {
+            Name = name;
+            Facts = facts;
+            Reads = reads;
+        }
+
+        /// <summary>The constant name.</summary>
+        public string Name { get; }
+
+        /// <summary>The facts the generated entry carries.</summary>
+        public PermissionFacts Facts { get; }
+
+        /// <summary>Whether the permission only reads.</summary>
+        public bool Reads { get; }
     }
 
     private static string AttributesText(bool xunit)
@@ -448,7 +522,7 @@ internal static class Emitter
         return text.ToString();
     }
 
-    private static string PermissionsText(List<KeyValuePair<string, string>> named)
+    private static string PermissionsText(List<NamedPermission> named)
     {
         var text = new StringBuilder();
         text.AppendLine("// <auto-generated/>");
@@ -461,13 +535,64 @@ internal static class Emitter
 
         foreach (var permission in named)
         {
-            text.AppendLine("        public const string " + permission.Key + " = \"" + Escape(permission.Value) + "\";");
+            text.AppendLine("        public const string " + permission.Name + " = \"" + Escape(permission.Facts.Id) + "\";");
         }
 
+        if (named.Count > 0)
+        {
+            text.AppendLine();
+        }
+
+        text.AppendLine("        internal sealed record LiteSpecPermission(string Id, string Scope, string? Group, bool Reads, System.Collections.Generic.IReadOnlyList<string> Risks);");
+        text.AppendLine();
+        text.AppendLine("        public static System.Collections.Generic.IReadOnlyList<LiteSpecPermission> All { get; } = new LiteSpecPermission[]");
+        text.AppendLine("        {");
+
+        foreach (var permission in named)
+        {
+            text.AppendLine("            " + PermissionEntryText(permission) + ",");
+        }
+
+        text.AppendLine("        };");
+        text.AppendLine();
+        text.AppendLine("        public static LiteSpecPermission Of(string id)");
+        text.AppendLine("        {");
+        text.AppendLine("            foreach (LiteSpecPermission permission in All)");
+        text.AppendLine("            {");
+        text.AppendLine("                if (permission.Id == id)");
+        text.AppendLine("                {");
+        text.AppendLine("                    return permission;");
+        text.AppendLine("                }");
+        text.AppendLine("            }");
+        text.AppendLine();
+        text.AppendLine("            throw new System.ArgumentException(\"Unknown permission '\" + id + \"'.\", \"id\");");
+        text.AppendLine("        }");
         text.AppendLine("    }");
         text.AppendLine("}");
 
         return text.ToString();
+    }
+
+    private static string PermissionEntryText(NamedPermission permission)
+    {
+        var risks = new StringBuilder();
+
+        foreach (var risk in permission.Facts.Risks)
+        {
+            if (risks.Length > 0)
+            {
+                risks.Append(", ");
+            }
+
+            risks.Append("\"" + Escape(risk) + "\"");
+        }
+
+        return "new LiteSpecPermission(\""
+            + Escape(permission.Facts.Id) + "\", \""
+            + Escape(permission.Facts.Scope) + "\", "
+            + (permission.Facts.Group is string group ? "\"" + Escape(group) + "\"" : "null") + ", "
+            + (permission.Reads ? "true" : "false") + ", new string[] { "
+            + (risks.Length > 0 ? risks.ToString() + " " : string.Empty) + "})";
     }
 
     private static string Escape(string value) =>

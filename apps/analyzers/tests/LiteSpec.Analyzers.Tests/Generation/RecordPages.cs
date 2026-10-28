@@ -93,5 +93,59 @@ internal static class RecordPages
         return Page("{\"type\": \"permission-list\", \"owner\": \"team\", \"status\": \"reviewed\", \"records\": [" + string.Join(", ", entries) + "]}");
     }
 
+    /// <summary>Builds the additional files with a project file carrying the vocabulary JSON.</summary>
+    /// <param name="vocabulary">The vocabulary object text.</param>
+    /// <param name="pages">The record pages with their file names.</param>
+    /// <returns>The additional files.</returns>
+    public static IReadOnlyList<(string Path, string Text)> FilesWithVocabulary(
+        string vocabulary, params (string Name, string Text)[] pages)
+    {
+        var files = new List<(string Path, string Text)>
+        {
+            (ProjectPath, "{\"marks\": \"xml\", \"paths\": {\"docs\": \"docs\", \"behaviorDocs\": \"docs/behavior\"}, \"vocabulary\": " + vocabulary + "}"),
+        };
+
+        foreach (var page in pages)
+        {
+            files.Add(("/project/docs/behavior/" + page.Name, page.Text));
+        }
+
+        return files;
+    }
+
+    /// <summary>Builds a permission entry with the scope, group and risks the record states.</summary>
+    /// <param name="id">The permission identifier.</param>
+    /// <param name="scope">The reach, or null for no scope field.</param>
+    /// <param name="group">The group, or null for no group field.</param>
+    /// <param name="risks">The risks, or null for no risk field.</param>
+    /// <returns>The entry object.</returns>
+    public static string PermissionEntry(string id, string? scope = null, string? group = null, string[]? risks = null)
+    {
+        var entry = "{\"type\": \"permission\", \"id\": \"" + id + "\", \"title\": \"A permission\", \"meaning\": \"Its meaning.\"";
+
+        if (scope is not null)
+        {
+            entry += ", \"scope\": \"" + scope + "\"";
+        }
+
+        if (group is not null)
+        {
+            entry += ", \"group\": \"" + group + "\"";
+        }
+
+        if (risks is not null)
+        {
+            entry += ", \"risk\": [" + string.Join(", ", risks.Select(risk => "\"" + risk + "\"")) + "]";
+        }
+
+        return entry + "}";
+    }
+
+    /// <summary>Builds a permission-list page holding the entries.</summary>
+    /// <param name="entries">The entry objects.</param>
+    /// <returns>The page text.</returns>
+    public static string PermissionFactsPage(params string[] entries) =>
+        Page("{\"type\": \"permission-list\", \"owner\": \"team\", \"status\": \"reviewed\", \"records\": [" + string.Join(", ", entries) + "]}");
+
     private static string Page(string json) => "---\n" + json + "\n---\n\n# Record\n";
 }

@@ -96,7 +96,7 @@ static partial class Checker
                 continue;
             }
 
-            var verb = UseCaseVocabulary.VerbOf(name, model.Config.PhrasalVerbs);
+            var verb = UseCaseVerbs.VerbOf(name, model.Config.PhrasalVerbs);
             var rest = name.Length == verb.Length ? "" : name[(verb.Length + 1)..];
             var words = rest.Split('-', StringSplitOptions.RemoveEmptyEntries);
             var known = false;

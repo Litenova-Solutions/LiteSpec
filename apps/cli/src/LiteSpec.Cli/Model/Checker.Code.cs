@@ -644,7 +644,7 @@ static class CodeChecks
                 continue;
             }
 
-            var verb = UseCaseVocabulary.VerbOf(handler.Name, model.Config.PhrasalVerbs);
+            var verb = UseCaseVerbs.VerbOf(handler.Name, model.Config.PhrasalVerbs);
             var matches = calls.Any(call =>
             {
                 var kebab = Naming.Kebab(call.Method);
@@ -680,7 +680,7 @@ static class CodeChecks
             }
 
             var kebab = Naming.Kebab(method.Method);
-            var verb = UseCaseVocabulary.VerbOf(kebab, model.Config.PhrasalVerbs);
+            var verb = UseCaseVerbs.VerbOf(kebab, model.Config.PhrasalVerbs);
 
             // A record method stores a fact from outside, and its event names that fact rather than the act of recording.
             if (verb == "record")
@@ -875,7 +875,7 @@ static class CodeChecks
                 continue;
             }
 
-            var verb = UseCaseVocabulary.VerbOf(name, model.Config.PhrasalVerbs);
+            var verb = UseCaseVerbs.VerbOf(name, model.Config.PhrasalVerbs);
             var segments = endpoint.Route.Split('/', StringSplitOptions.RemoveEmptyEntries);
             var plural = useCase is not null
                 && ModelBuilder.AggregateOf(model, useCase) is { } owner

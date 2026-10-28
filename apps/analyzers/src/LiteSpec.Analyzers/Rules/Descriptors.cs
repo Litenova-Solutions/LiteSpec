@@ -48,6 +48,7 @@ internal static class Descriptors
     private static readonly Provision RuntimeValues = Provision.Of("backend/dotnet/stack", "generate-runtime-values-from-the-records");
     private static readonly Provision PartialTypes = Provision.Of("backend/dotnet/stack", "declare-marked-events-and-exceptions-as-partial-types");
     private static readonly Provision MarkedAct = Provision.Of("backend/domain", "raise-the-declared-events-from-the-marked-act");
+    private static readonly Provision PermissionScope = Provision.Of("core/access", "state-the-scope-of-every-permission");
 
     public static readonly DiagnosticDescriptor LS1001 = Create("LS1001", DomainCategory, DomainOuterLayers,
         "Domain references an outer-layer concern",
@@ -256,6 +257,11 @@ internal static class Descriptors
         "Declared event is raised by no marked act",
         "'{0}' marked with '{1}' raises no '{2}', which the use case lists in 'raises'",
         "Every event a use case lists in raises is raised by a root method marked with the use case.");
+
+    public static readonly DiagnosticDescriptor LS5010 = Create("LS5010", TraceabilityCategory, PermissionScope,
+        "Permission opens with an undeclared verb",
+        "Permission '{0}' starts with '{1}', which the use-case vocabulary does not declare",
+        "A permission opens with a verb from the use-case vocabulary, so whether it only reads follows from the verb's kind; a project verb is declared in the vocabulary of litespec.project.json.");
 
     private static DiagnosticDescriptor Create(
         string id, string category, Provision provision, string title, string message, string description, bool compilationEnd = false) =>
