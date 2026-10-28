@@ -2,7 +2,7 @@
 
 ## Intent
 
-This page shows how each field kind takes its value to create or change records such as orders, deliveries, and products, and how a form reports a refused submit or unsaved work: money, record pickers, dates, text, single choices, switches, uploads, periods, slugs, capacity, colors, repeated groups, tags, addresses, and message templates. Each answer is drawn as options with a named default to build, and the product owner chooses among the options when the team builds or revises a form. One decided shape per field keeps entry fast and errors fixable, so staff type once and repair only what the message names.
+This page shows how each field kind takes its value to create or change records such as expenses, trips, and payouts, and how a form reports a refused submit or unsaved work: money, record pickers, dates, text, single choices, switches, uploads, periods, slugs, capacity, colors, repeated groups, tags, addresses, and message templates. Each answer is drawn as options with a named default to build, and the product owner chooses among the options when the team builds or revises a form. One decided shape per field keeps entry fast and errors fixable, so staff type once and repair only what the message names.
 
 ## Concepts
 
@@ -12,7 +12,7 @@ Each pattern answers one recurring question about a field kind, such as how a mo
 
 ### The Running Example
 
-The drawings on this page use the Acme Supply catalog: the Oak desk lamp at EUR 45.00, its Standard, Trade, and Bulk price tiers, the Amsterdam warehouse holding 10,000 units, and deliveries such as Garcia Interiors restock. On this page, `you` means the staff member entering values. The Standards section states the two rules every option keeps: every field carries a visible label naming its value, and a form keeps every entered value when the API refuses a submit.
+The drawings on this page use the Claimwick expense Ava files for the Rotterdam client visit: the EUR 45.00 hotel night, its booking fee, the Amsterdam sales cost centre, and the trips, payouts, and approval policies around them. On this page, `you` means the staff member entering values. The Standards section states the two rules every option keeps: every field carries a visible label naming its value, and a form keeps every entered value when the API refuses a submit.
 
 ## Standards
 
@@ -538,7 +538,7 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Settings" "Payments"
+  breadcrumb "Home" "Settings" "Policies"
   header
     heading "Receipt grace period"
     text "How long a spender has to file a receipt before the expense is refused."
@@ -1075,7 +1075,7 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Settings" "Payments"
+  breadcrumb "Home" "Settings" "Payouts"
   header
     heading "Payouts"
     text "How money reaches the spenders."
@@ -1123,7 +1123,7 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Settings" "Payments"
+  breadcrumb "Home" "Settings" "Payouts"
   header
     heading "Payouts"
     text "How money reaches the spenders."
@@ -2148,7 +2148,7 @@ page
   region "The domain"
     field "Domain" text = "expenses.harbor-pine.example"
     fact "Type" "CNAME"
-    fact "Name" "shop"
+    fact "Name" "expenses"
     fact "Value" "workspaces.claimwick.example"
     message info "Add this record where the domain lives, then verify. DNS changes take up to a day."
     status "Not verified" caution
@@ -2486,39 +2486,39 @@ page
 
 **Reference:** Figma
 
-### Repeatable Group for Price Tiers
+### Repeatable Group for Budget Codes
 
-**ID:** `litespec/frontend/patterns/forms-and-fields#repeatable-group-for-price-tiers`
+**ID:** `litespec/frontend/patterns/forms-and-fields#repeatable-group-for-budget-codes`
 
-**Question:** The Oak desk lamp sells in Standard, Trade, and Bulk: three groups with the same fields, each with its own name, price, and allocation. The group repeats, and the stock counts every repetition.
+**Question:** The trip budget holds TRIP10, MEAL20, and TAXI05: three groups with the same fields, each with its own name, ceiling, and allocation. The group repeats, and the budget counts every repetition.
 
 **Default:** `stacked-cards-one-per-type`
 
-**Compact:** At phone width the table keeps its columns and scrolls sideways. The tier column stays first. The compact option is `a-table-with-inline-editing`.
+**Compact:** At phone width the table keeps its columns and scrolls sideways. The code column stays first. The compact option is `a-table-with-inline-editing`.
 
-**Rationale:** The stacked cards are the pick: one card per tier with its price and allocation readable at once, and one command to add another. The dated price steps are the runner-up for launches, where time decides the price rather than the customer choice. Never ship a group whose repetitions cannot be removed: a tier added by mistake must leave without taking its sold units with it.
+**Rationale:** The stacked cards are the pick: one card per code with its ceiling and allocation readable at once, and one command to add another. The dated budget steps are the runner-up for quarters, where time decides the ceiling rather than the spender choice. Never ship a group whose repetitions cannot be removed: a code added by mistake must leave without taking its claimed amounts with it.
 
-**Reviewed for:** Which built tier group breaks from the wireframe its catalog entry chose? Open the built stacked cards and inline tables beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Which built code group breaks from the wireframe its catalog entry chose? Open the built stacked cards and inline tables beside the catalog entry recording the chosen option and its reason.
 
 #### `stacked-cards-one-per-type`: Stacked Cards, One per Type
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Oak desk lamp" "Price tiers"
+  breadcrumb "Home" "Finance" "Budgets" "Budget codes"
   header
-    heading "Price tiers"
-    text "What a customer picks and what the warehouse ships."
-  region "Three tiers"
+    heading "Budget codes"
+    text "What a spender claims and what the budget pays."
+  region "Three codes"
     list 3
-      item: text "Standard" · text muted "9,412 of 9,600 sold" · status "On sale" positive · text "EUR 45.00" · action "Edit"
+      item: text "TRIP10" · text muted "412 of 500 claimed" · status "Active" positive · text "EUR 500 cap" · action "Edit"
   footer
-    action "Add a price tier"
+    action "Add a budget code"
     action primary "Save order"
 ```
 
-**Rationale:** Shopify draws product variants as one row per variant with its price readable at once, because you compare repetitions before editing one. Sold tiers stay visible but lose their Remove.
+**Rationale:** Shopify draws product variants as one row per variant with its price readable at once, because you compare repetitions before editing one. Claimed codes stay visible but lose their Remove.
 
-**Cost:** A row shows the price but hides the dates, the discount rule, and the description, so editing still opens each tier. The list answers what, never why.
+**Cost:** A row shows the ceiling but hides the dates, the cost-centre rule, and the description, so editing still opens each code. The list answers what, never why.
 
 **Reference:** Shopify
 
@@ -2526,36 +2526,36 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Oak desk lamp" "Price tiers"
+  breadcrumb "Home" "Finance" "Budgets" "Budget codes"
   header
-    heading "Price tiers"
-    text "What a customer picks and what the warehouse ships."
-  region "Three tiers"
-    table 3 "Tier" "Price" "Units" "Sold"
-      item: text "Standard" · text "EUR 45.00" · text "9,600" · text "9,412"
-    field "Standard price in euros" text = "45.00"
+    heading "Budget codes"
+    text "What a spender claims and what the budget pays."
+  region "Three codes"
+    table 3 "Code" "Ceiling" "Claims" "Claimed"
+      item: text "TRIP10" · text "EUR 500" · text "500" · text "412"
+    field "TRIP10 ceiling in euros" text = "500"
   footer
-    action "Add a price tier"
+    action "Add a budget code"
     action primary "Save all"
 ```
 
 ```wireframe compact
 page
-  breadcrumb "Home" "Products" "Oak desk lamp" "Price tiers"
+  breadcrumb "Home" "Finance" "Budgets" "Budget codes"
   header
-    heading "Price tiers"
-    text "What a customer picks and what the warehouse ships."
-  region "Three tiers"
-    table 3 "Tier" "Price" "Units" "Sold"
-      item: text "Standard" · text "EUR 45.00" · text "9,600" · text "9,412"
+    heading "Budget codes"
+    text "What a spender claims and what the budget pays."
+  region "Three codes"
+    table 3 "Code" "Ceiling" "Claims" "Claimed"
+      item: text "TRIP10" · text "EUR 500" · text "500" · text "412"
   footer
-    action "Add a price tier"
+    action "Add a budget code"
     action primary "Save all"
 ```
 
-**Rationale:** Airtable edits values where they sit, so changing three prices costs three fields and no navigation. One row in edit state at a time keeps the table readable while it is also a form.
+**Rationale:** Airtable edits values where they sit, so changing three ceilings costs three fields and no navigation. One row in edit state at a time keeps the table readable while it is also a form.
 
-**Cost:** A table that is also a form validates cell by cell, and a refused cell must hold its row open. At phone width the columns scroll sideways, which hides the price behind a swipe.
+**Cost:** A table that is also a form validates cell by cell, and a refused cell must hold its row open. At phone width the columns scroll sideways, which hides the ceiling behind a swipe.
 
 **Reference:** Airtable
 
@@ -2563,73 +2563,73 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Oak desk lamp" "Price tiers"
+  breadcrumb "Home" "Finance" "Budgets" "Budget codes"
   header
-    heading "Price tiers"
-    text "What a customer picks and what the warehouse ships."
-  region "Tier 1 of 2"
-    field "Name" text = "Standard"
-    field "Price customers pay, in euros" text = "45.00"
-    field "Units on sale" text = "9600"
-    text muted "9,412 sold."
+    heading "Budget codes"
+    text "What a spender claims and what the budget pays."
+  region "Code 1 of 2"
+    field "Name" text = "TRIP10"
+    field "Ceiling, in euros" text = "500"
+    field "Maximum uses" text = "500"
+    text muted "412 claimed."
     action "Remove"
-  region "Tier 2 of 2"
-    field "Name" text = "Bulk"
-    field "Price customers pay, in euros" text = "20.00"
-    field "Units on sale" text = "400"
-    text muted "318 sold."
+  region "Code 2 of 2"
+    field "Name" text = "MEAL20"
+    field "Ceiling, in euros" text = "200"
+    field "Maximum uses" text = "400"
+    text muted "318 claimed."
     action "Remove"
   footer
-    action "Add another price tier"
-    action primary "Save tiers"
+    action "Add another budget code"
+    action primary "Save codes"
 ```
 
-**Rationale:** GOV.UK `add-another` repeats the full group once per entry with its own remove. Each repetition deserves the same labels, help, and errors as the first. Nothing about tier 2 is abbreviated.
+**Rationale:** GOV.UK `add-another` repeats the full group once per entry with its own remove. Each repetition deserves the same labels, help, and errors as the first. Nothing about code 2 is abbreviated.
 
-**Cost:** Three full groups make a long page, and the stock total has nowhere to sit. It fits creation, where each tier is new. It drags for review, where each tier is known.
+**Cost:** Three full groups make a long page, and the budget total has nowhere to sit. It fits creation, where each code is new. It drags for review, where each code is known.
 
 **Reference:** GOV.UK
 
-#### `dated-price-steps-for-the-launch`: Dated Price Steps for the Launch
+#### `dated-price-steps-for-the-launch`: Dated Budget Steps for the Quarter
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Oak desk lamp" "Price tiers"
+  breadcrumb "Home" "Finance" "Budgets" "Budget codes"
   header
-    heading "Price tiers"
-    text "Time decides the price. The customer pays whatever step is open."
+    heading "Budget codes"
+    text "Time decides the ceiling. The spender claims whatever step is open."
   region "Two steps"
     text muted "Steps never overlap. The next step opens the moment the current one closes."
     list 2
-      item: text "Regular, EUR 45.00" · text muted "1 Feb to 14 Mar 2026, 08:00, 7,412 of 7,600 sold" · status "On sale" positive · text "Open"
+      item: text "Q1, EUR 500" · text muted "1 Feb to 14 Mar 2026, 08:00, 412 of 500 claimed" · status "Active" positive · text "Open"
   footer
     action "Add a step"
     action primary "Save steps"
 ```
 
-**Rationale:** A launch tiers its prices by date, because early customers pay less for committing first. The dates are part of each step, so you answer the price on any day by reading one row.
+**Rationale:** A quarter steps its ceilings by date, because the budget resets each quarter. The dates are part of each step, so you answer the ceiling on any day by reading one row.
 
-**Cost:** Dated steps plus per-tier allocations divide one stock in two ways. They can disagree. A step can close with units left, or sell out with days left. One of the two has to win.
+**Cost:** Dated steps plus per-code allocations divide one budget in two ways. They can disagree. A step can close with money left, or run out with days left. One of the two has to win.
 
-#### `drag-to-reorder-with-the-customer-order-shown`: Drag to Reorder with the Customer Order Shown
+#### `drag-to-reorder-with-the-customer-order-shown`: Drag to Reorder with the Spender Order Shown
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Oak desk lamp" "Price tiers"
+  breadcrumb "Home" "Finance" "Budgets" "Budget codes"
   header
-    heading "Price tiers"
-    text "Customers meet them in this order. Drag a row to move it."
-  region "Three tiers"
-    text muted "The numbers are the customer order on the storefront."
+    heading "Budget codes"
+    text "Spenders meet them in this order. Drag a row to move it."
+  region "Three codes"
+    text muted "The numbers are the spender order on the filing form."
     list 3
-      item: icon "Reorder" · text "1, Standard" · text muted "EUR 45.00, on sale" · action quiet "Move up"
+      item: icon "Reorder" · text "1, TRIP10" · text muted "EUR 500 cap, active" · action quiet "Move up"
   footer
     action primary "Save order"
 ```
 
-**Rationale:** Linear and Trello order by dragging with button equivalents beside each row, because drag alone strands keyboard users. The customer order is numbered, so the back-office order and the storefront order cannot drift apart silently.
+**Rationale:** Linear and Trello order by dragging with button equivalents beside each row, because drag alone strands keyboard users. The spender order is numbered, so the finance order and the filing order cannot drift apart silently.
 
-**Cost:** Order is one more field per tier with its own conflicts: two people reordering at once, and a tier added in the middle. It needs the same version check as every shared write.
+**Cost:** Order is one more field per code with its own conflicts: two people reordering at once, and a code added in the middle. It needs the same version check as every shared write.
 
 **Reference:** Linear
 
@@ -2637,22 +2637,22 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Oak desk lamp" "Price tiers"
+  breadcrumb "Home" "Finance" "Budgets" "Budget codes"
   header
-    heading "Price tiers"
-    text "What a customer picks and what the warehouse ships."
-  message "That is more units than the warehouse holds. The Amsterdam warehouse holds 10,000 units." critical
-  region "Three tiers"
-    text muted "10,400 units on sale. The warehouse holds 10,000."
+    heading "Budget codes"
+    text "What a spender claims and what the budget pays."
+  message "That is more than the budget holds. Amsterdam sales holds EUR 10,000." critical
+  region "Three codes"
+    text muted "EUR 10,400 on the codes. The budget holds EUR 10,000."
     list 2
-      item: text "Standard, EUR 45.00" · text muted "10,000 units on sale. Lower it by 400 units." · text "10,000" · action "Change"
+      item: text "TRIP10, EUR 500 cap" · text muted "EUR 10,000 on the code. Lower it by EUR 400." · text "EUR 10,000" · action "Change"
   footer
-    action primary "Save tiers"
+    action primary "Save codes"
 ```
 
-**Rationale:** The refusal sits above the group and names the offending row below it. GOV.UK puts the summary first and the message on the field. Here the field is a row. Standard carries the overage because Standard grew last.
+**Rationale:** The refusal sits above the group and names the offending row below it. GOV.UK puts the summary first and the message on the field. Here the field is a row. TRIP10 carries the overage because TRIP10 grew last.
 
-**Cost:** Blaming one row for a stock total is a guess the page makes about intent: you may sooner cut Bulk than Standard. The message must offer both, not decide.
+**Cost:** Blaming one row for a budget total is a guess the page makes about intent: you may sooner cut MEAL20 than TRIP10. The message must offer both, not decide.
 
 **Reference:** GOV.UK
 
@@ -2660,13 +2660,13 @@ page
 
 **ID:** `litespec/frontend/patterns/forms-and-fields#tag-input`
 
-**Question:** Products and customers carry short labels: oak, home, trade. Tags are typed freely but read everywhere, so the input must take new words and still keep old ones spelled one way.
+**Question:** Expenses and trips carry short labels: travel, meals, client. Tags are typed freely but read everywhere, so the input must take new words and still keep old ones spelled one way.
 
 **Default:** `chips-with-type-to-add-and-suggestions`
 
 **Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
 
-**Rationale:** The chips with type-to-add and suggestions are the pick: new words are allowed and old ones are offered, so `oak` is spelled once. The checkbox list is the runner-up where the tag set is closed and counted. Never ship free text with no suggestions: it grows `oak`, `Oak`, and `oak-desk` side by side.
+**Rationale:** The chips with type-to-add and suggestions are the pick: new words are allowed and old ones are offered, so `travel` is spelled once. The checkbox list is the runner-up where the tag set is closed and counted. Never ship free text with no suggestions: it grows `travel`, `Travel`, and `travel-meals` side by side.
 
 **Reviewed for:** Which built label chip breaks from the wireframe its catalog entry chose? Open the built chips, popover lists, and inherited tags beside the catalog entry recording the chosen option and its reason.
 
@@ -2674,15 +2674,15 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Oak desk lamp" "Tags"
+  breadcrumb "Home" "Expenses" "EXP-1042" "Tags"
   header
     heading "Tags"
-    text "Short labels customers and staff read."
+    text "Short labels spenders and finance read."
   region "The tags"
     row
-      status "oak" neutral
-      status "home" neutral
-      status "new" neutral
+      status "travel" neutral
+      status "meals" neutral
+      status "client" neutral
     field "Tags" search = "tra"
     text muted "Lowercase letters, numbers and dashes. New words are allowed."
   footer
@@ -2690,13 +2690,13 @@ page
     action primary "Save tags"
   popover
     text "Suggestions"
-    text "trade-accounts, 12 products"
+    text "travel-meals, 12 expenses"
     text "Use tra as a new tag"
 ```
 
 **Rationale:** GitHub and Linear offer existing labels as you type. They accept a new word on Enter, so the old spelling wins without forbidding the new one. The count beside each suggestion says how shared it is.
 
-**Cost:** Suggestions must search across every product on every keystroke pause, and a slow search answers after you have already pressed Enter. The new word wins by timing, not by choice.
+**Cost:** Suggestions must search across every expense on every keystroke pause, and a slow search answers after you have already pressed Enter. The new word wins by timing, not by choice.
 
 **Reference:** GitHub
 
@@ -2704,10 +2704,10 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Oak desk lamp" "Tags"
+  breadcrumb "Home" "Expenses" "EXP-1042" "Tags"
   header
     heading "Tags"
-    text "Short labels customers and staff read."
+    text "Short labels spenders and finance read."
   region "The tags"
     action "3 tags chosen"
     text muted "Tick what applies. New tags are made on the tag list."
@@ -2716,16 +2716,16 @@ page
     action primary "Save tags"
   popover
     field "Search tags" search
-    field "oak" checkbox
-    field "home" checkbox
-    field "new" checkbox
-    field "trade-accounts" checkbox
+    field "travel" checkbox
+    field "meals" checkbox
+    field "client" checkbox
+    field "travel-meals" checkbox
     link "Manage the tag list"
   dialog
     heading "Manage the tag list"
-    text "Renaming a tag renames it on every product that carries it."
+    text "Renaming a tag renames it on every expense that carries it."
     list 4
-      item: text "oak" · action "Rename"
+      item: text "travel" · action "Rename"
     action "Done"
 ```
 
@@ -2739,18 +2739,18 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Oak desk lamp" "Tags"
+  breadcrumb "Home" "Expenses" "EXP-1042" "Tags"
   header
     heading "Tags"
-    text "Short labels customers and staff read."
+    text "Short labels spenders and finance read."
   region "The tags"
-    field "Tags" text = "oak, home, new"
+    field "Tags" text = "travel, meals, client"
     text muted "Separate tags with commas. Spaces at the edges are removed."
     text "Read as"
     row
-      status "oak" neutral
-      status "home" neutral
-      status "new" neutral
+      status "travel" neutral
+      status "meals" neutral
+      status "client" neutral
   footer
     action "Cancel"
     action primary "Save tags"
@@ -2758,35 +2758,35 @@ page
 
 **Rationale:** Stack Overflow and WordPress take tags as one comma-separated line with the parsed chips read back below. Pasting a list from elsewhere works without retyping. The readout shows exactly how the line was split.
 
-**Cost:** No suggestions means no shared spelling: `oak` and `Oak` become two tags and nobody is told. The readout shows the split but cannot judge the words.
+**Cost:** No suggestions means no shared spelling: `travel` and `Travel` become two tags and nobody is told. The readout shows the split but cannot judge the words.
 
 **Reference:** WordPress
 
-#### `color-coded-tags-for-audience-segments`: Color-Coded Tags for Audience Segments
+#### `color-coded-tags-for-audience-segments`: Color-Coded Tags for Spender Groups
 
 ```wireframe
 page
-  breadcrumb "Home" "Customers" "Segments"
+  breadcrumb "Home" "Spenders" "Groups"
   header
-    heading "Segments"
-    text "Who gets the trade mail for the Spring Launch."
-  region "The segments"
+    heading "Groups"
+    text "Who gets the receipt reminder before the close."
+  region "The groups"
     row
       status "Regulars" info
-      status "Early customers" positive
+      status "Early filers" positive
       status "At risk" caution
-    fact "Regulars" "1,204 customers, bought twice or more"
-    fact "Early customers" "2,000 customers, bought in the first week"
-    fact "At risk" "318 customers, bought last year, nothing since"
+    fact "Regulars" "1,204 spenders, filed twice or more"
+    fact "Early filers" "2,000 spenders, filed in the first week"
+    fact "At risk" "318 spenders, filed last quarter, nothing since"
     action "Add"
   footer
     action "Cancel"
-    action primary "Save segments"
+    action primary "Save groups"
 ```
 
-**Rationale:** Mailchimp and Klaviyo color segments by meaning, because a segment is read in lists where its word is small. The tone repeats the signal instead of decorating it.
+**Rationale:** Mailchimp and Klaviyo color groups by meaning, because a segment is read in lists where its word is small. The tone repeats the signal instead of decorating it.
 
-**Cost:** Five tones cover five meanings and no more. A sixth segment reuses a tone and the code breaks. Color is never the only signal, so the word stays anyway.
+**Cost:** Five tones cover five meanings and no more. A sixth group reuses a tone and the code breaks. Color is never the only signal, so the word stays anyway.
 
 **Reference:** Mailchimp
 
@@ -2794,15 +2794,15 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Oak desk lamp" "Tags"
+  breadcrumb "Home" "Expenses" "EXP-1042" "Tags"
   header
     heading "Tags"
-    text "Short labels customers and staff read."
+    text "Short labels spenders and finance read."
   region "The tags"
     row
-      status "oak" neutral
-      status "home" neutral
-    field "Tags" text = "Oak Range!"
+      status "travel" neutral
+      status "meals" neutral
+    field "Tags" text = "Travel Meals!"
     message "Tags hold lowercase letters, numbers and dashes. You entered capitals, a space and !." critical
   footer
     action "Cancel"
@@ -2819,16 +2819,16 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Oak desk lamp" "Standard" "Tags"
+  breadcrumb "Home" "Settings" "Standard" "Tags"
   header
     heading "Standard tags"
-    text "Labels on this price tier."
+    text "Labels on this approval policy."
   region "The tags"
-    text "From Oak desk lamp"
+    text "From every trip"
     row
-      status "oak" neutral
-      status "home" neutral
-    text muted "Every tier on the product carries these. Change them on the product."
+      status "travel" neutral
+      status "meals" neutral
+    text muted "Every trip under the policy carries these. Change them on the policy."
     field "On Standard itself" text = "featured"
     field "Add a tag" text
   footer
@@ -2836,9 +2836,9 @@ page
     action primary "Save tags"
 ```
 
-**Rationale:** HubSpot shows inherited properties with their source beside the local ones. A tier page answers the whole label set without hiding where each word came from. The page refuses removing an inherited word by pointing at its source.
+**Rationale:** HubSpot shows inherited properties with their source beside the local ones. A policy page answers the whole label set without hiding where each word came from. The page refuses removing an inherited word by pointing at its source.
 
-**Cost:** The page shows two lists where one was expected, and the inherited one cannot be edited here. If you want the tier untagged you must walk up the tree.
+**Cost:** The page shows two lists where one was expected, and the inherited one cannot be edited here. If you want the policy untagged you must walk up the tree.
 
 **Reference:** HubSpot
 
@@ -2846,7 +2846,7 @@ page
 
 **ID:** `litespec/frontend/patterns/forms-and-fields#address-field`
 
-**Question:** Acme Supply answers for its orders with a name, an address, and a telephone number on every customer message. The address field takes the street the law asks for and the postcode the mail needs.
+**Question:** Harbor and Pine answers for its expenses with a name, an address, and a telephone number on every spender message. The address field takes the street the law asks for and the postcode the mail needs.
 
 **Default:** `postcode-lookup-that-fills-the-street`
 
@@ -2863,7 +2863,7 @@ page
   breadcrumb "Home" "Settings" "Organization"
   header
     heading "Organization"
-    text "What Acme Supply is and where it works."
+    text "What Harbor and Pine is and where it works."
   region "The address"
     row
       field "Postcode" text = "1011 AB"
@@ -2872,7 +2872,7 @@ page
     field "Street" text = "Canal Street"
     field "City" text = "Amsterdam"
     field "Country" select = "Netherlands"
-    text muted "Customers read this address on their invoices and their mail."
+    text muted "Spenders read this address on their payouts and their mail."
   footer
     action "Cancel"
     action primary "Save address"
@@ -2891,7 +2891,7 @@ page
   breadcrumb "Home" "Settings" "Organization"
   header
     heading "Organization"
-    text "What Acme Supply is and where it works."
+    text "What Harbor and Pine is and where it works."
   region "The address"
     field "Find the address" search = "Canal"
     text muted "Start typing the street. The postcode and city follow."
@@ -2916,7 +2916,7 @@ page
   breadcrumb "Home" "Settings" "Organization"
   header
     heading "Organization"
-    text "What Acme Supply is and where it works."
+    text "What Harbor and Pine is and where it works."
   region "The address"
     field "Country" select = "Netherlands"
     text muted "The fields below follow the country."
@@ -2935,25 +2935,25 @@ page
 
 **Reference:** Stripe
 
-#### `warehouse-address-with-a-map-pin`: Warehouse Address with a Map Pin
+#### `warehouse-address-with-a-map-pin`: Office Address with a Map Pin
 
 ```wireframe
 page
-  breadcrumb "Home" "Settings" "Warehouses" "Amsterdam warehouse"
+  breadcrumb "Home" "Settings" "Offices" "Rotterdam office"
   header
-    heading "Amsterdam warehouse"
-    text "Where the docks are."
+    heading "Rotterdam office"
+    text "Where the finance team sits."
   region "The address"
-    fact "Warehouse" "Amsterdam warehouse"
-    fact "City" "Amsterdam"
-    fact "Docks" "Main dock, side dock"
-    image "Map pin, Amsterdam warehouse, Amsterdam, pin placed by Acme Supply"
+    fact "Office" "Rotterdam office"
+    fact "City" "Rotterdam"
+    fact "Rooms" "Finance room, audit room"
+    image "Map pin, Rotterdam office, Rotterdam, pin placed by Harbor and Pine"
   footer
     action "Move the pin"
     action primary "Save address"
 ```
 
-**Rationale:** The warehouse is pinned on a map beside its address, because drivers navigate to a pin, not to a street name. The company places the pin instead of guessing it from the postcode.
+**Rationale:** The office is pinned on a map beside its address, because auditors navigate to a pin, not to a street name. The company places the pin instead of guessing it from the postcode.
 
 **Cost:** A map is a third-party surface with its own terms and its own load time. A static pin box proves the pattern. The live map is a dependency, not a field.
 
@@ -2964,7 +2964,7 @@ page
   breadcrumb "Home" "Settings" "Organization"
   header
     heading "Organization"
-    text "What Acme Supply is and where it works."
+    text "What Harbor and Pine is and where it works."
   region "The address"
     field "Street and number" text = "Canal Street 12"
     row
@@ -2989,7 +2989,7 @@ page
   breadcrumb "Home" "Settings" "Organization"
   header
     heading "Organization"
-    text "What Acme Supply is and where it works."
+    text "What Harbor and Pine is and where it works."
   region "The address"
     fact "Street" "Canal Street 12"
     fact "Postcode and city" "1011 AB Amsterdam"
@@ -3007,13 +3007,13 @@ page
 
 **ID:** `litespec/frontend/patterns/forms-and-fields#email-body-editor`
 
-**Question:** Acme Supply mails every customer when goods are dispatched, and the message carries the customer name, the order number, and the delivery window. The editor takes the company words once and fills the customer facts per order.
+**Question:** Claimwick mails every spender when a payout is sent, and the message carries the spender name, the expense number, and the arrival date. The editor takes the company words once and fills the spender facts per expense.
 
 **Default:** `subject-plus-body-with-variable-chips`
 
 **Compact:** The preview sits below the editor. You scroll between writing and reading. The compact option is `side-by-side-preview-of-the-customer-message`.
 
-**Rationale:** The subject plus body with variable chips is the pick: you write the sentence and place the facts where they belong. The side-by-side customer preview is the runner-up beside it, because a template is believed once it is seen filled. Never ship a template with no preview: variables are spelled in one place and filled in another, and only the filled copy proves they meet.
+**Rationale:** The subject plus body with variable chips is the pick: you write the sentence and place the facts where they belong. The side-by-side spender preview is the runner-up beside it, because a template is believed once it is seen filled. Never ship a template with no preview: variables are spelled in one place and filled in another, and only the filled copy proves they meet.
 
 **Reviewed for:** Which built message composer breaks from the wireframe its catalog entry chose? Open the built subject-plus-body forms and variable chips beside the catalog entry recording the chosen option and its reason.
 
@@ -3021,53 +3021,53 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Settings" "Email" "Goods dispatched"
+  breadcrumb "Home" "Settings" "Email" "Payout sent"
   header
-    heading "Goods dispatched"
-    text "The message a customer looks for. Sent when goods are dispatched."
+    heading "Payout sent"
+    text "The message a spender looks for. Sent when a payout is sent."
   region "The message"
-    field "Subject" text = "Your Acme Supply order is on its way"
-    text "Hi customer, your order left the Amsterdam warehouse. It arrives soon."
+    field "Subject" text = "Your payout of EUR 125.00 is on its way"
+    text "Hi spender, your payout left Harbor and Pine. It arrives soon."
     row
-      status "customer_name" neutral
-      status "order_number" neutral
-      status "delivery_window" neutral
-    text muted "Variables fill per order when the mail is sent."
+      status "spender_name" neutral
+      status "expense_number" neutral
+      status "arrival_date" neutral
+    text muted "Variables fill per expense when the mail is sent."
     field "Insert a variable" select = "Choose a variable"
   footer
     action "Send a test"
     action primary "Save message"
 ```
 
-**Rationale:** Klaviyo and Mailchimp draw template variables as chips inside the sentence, because a variable is a word with a value, not code. You read the message as the customer will, with the facts marked.
+**Rationale:** Klaviyo and Mailchimp draw template variables as chips inside the sentence, because a variable is a word with a value, not code. You read the message as the spender will, with the facts marked.
 
 **Cost:** Chips inside an editable body are a small rich-text editor, not a `textarea`. Backspace across a chip, paste with chips, and undo all need answers. The plain-text option exists for that reason.
 
 **Reference:** Mailchimp
 
-#### `side-by-side-preview-of-the-customer-message`: Side-by-Side Preview of the Customer Message
+#### `side-by-side-preview-of-the-customer-message`: Side-by-Side Preview of the Spender Message
 
 ```wireframe
 page
-  breadcrumb "Home" "Settings" "Email" "Goods dispatched"
+  breadcrumb "Home" "Settings" "Email" "Payout sent"
   header
-    heading "Goods dispatched"
-    text "The message a customer looks for."
+    heading "Payout sent"
+    text "The message a spender looks for."
   split 1:1
     region "Edit"
-      field "Subject" text = "Your Acme Supply order is on its way"
-      field "Body" textarea = "Hi customer, your order left the Amsterdam warehouse."
-    card "Customer preview"
-      heading small "Your Acme Supply order is on its way"
-      text "Hi Maria Garcia,"
-      text "Your order SO-1042 left the Amsterdam warehouse. It arrives Sat 14 Mar 2026, 08:00 to 12:00."
-      text muted "Acme Supply, Canal Street 12, 1011 AB Amsterdam"
+      field "Subject" text = "Your payout of EUR 125.00 is on its way"
+      field "Body" textarea = "Hi spender, your payout left Harbor and Pine."
+    card "Spender preview"
+      heading small "Your payout of EUR 125.00 is on its way"
+      text "Hi Ava,"
+      text "Your expense EXP-1042 was paid. It arrives Sat 14 Mar 2026."
+      text muted "Harbor and Pine, Canal Street 12, 1011 AB Amsterdam"
   footer
     action "Send a test"
     action primary "Save message"
 ```
 
-**Rationale:** Postmark and SendGrid preview a template beside the editor with a real record filled in, because a variable is only proven by its value. The order of Maria Garcia fills every variable this template holds.
+**Rationale:** Postmark and SendGrid preview a template beside the editor with a real record filled in, because a variable is only proven by its value. The payout of Ava fills every variable this template holds.
 
 **Cost:** Two columns collapse to one on a phone, so the preview sits below the editor and you scroll between them. A long template makes a long round trip.
 
@@ -3077,18 +3077,18 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Settings" "Email" "Goods dispatched"
+  breadcrumb "Home" "Settings" "Email" "Payout sent"
   header
-    heading "Goods dispatched"
-    text "The message a customer looks for."
+    heading "Payout sent"
+    text "The message a spender looks for."
   split 1:1
     region "The message"
-      field "Subject" text = "Your Acme Supply order is on its way"
-      field "Body" textarea = "Hi customer, your order left the Amsterdam warehouse."
+      field "Subject" text = "Your payout of EUR 125.00 is on its way"
+      field "Body" textarea = "Hi spender, your payout left Harbor and Pine."
     region "Variables"
-      fact "((customer name))" "Maria Garcia"
-      fact "((order number))" "SO-1042"
-      fact "((delivery window))" "08:00 to 12:00"
+      fact "((spender name))" "Ava"
+      fact "((expense number))" "EXP-1042"
+      fact "((arrival date))" "14 Mar 2026"
       text muted "Spelled with double brackets. The value fills when the mail is sent."
   footer
     action "Send a test"
@@ -3097,7 +3097,7 @@ page
 
 **Rationale:** GOV.UK Notify writes templates as plain text with `((double bracket))` variables and lists each one beside the editor with an example value. Nothing about the message can break in a mail client that reads text.
 
-**Cost:** Double brackets are learned, not guessed: `((delivery window))` with one bracket fails silently or loudly depending on the parser. The editor must highlight what it recognizes as you type.
+**Cost:** Double brackets are learned, not guessed: `((arrival date))` with one bracket fails silently or loudly depending on the parser. The editor must highlight what it recognizes as you type.
 
 **Reference:** GOV.UK
 
@@ -3105,20 +3105,20 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Settings" "Email" "Goods dispatched"
+  breadcrumb "Home" "Settings" "Email" "Payout sent"
   header
-    heading "Goods dispatched"
-    text "The message a customer looks for."
+    heading "Payout sent"
+    text "The message a spender looks for."
   tabs "Nederlands" "English"
     region "Nederlands"
-      field "Subject" text = "Je bestelling is onderweg"
-      field "Body" textarea = "Hi customer, je bestelling heeft het Amsterdamse magazijn verlaten."
+      field "Subject" text = "Je uitbetaling is onderweg"
+      field "Body" textarea = "Hi spender, je uitbetaling is onderweg."
       status "English is missing" caution
   footer
     action primary "Save message"
 ```
 
-**Rationale:** Contentful and Shopify Translate keep one tab per locale with the missing ones badged. A customer reads exactly one language, and you know which ones exist. The badge names the gap instead of hiding it.
+**Rationale:** Contentful and Shopify Translate keep one tab per locale with the missing ones badged. A spender reads exactly one language, and you know which ones exist. The badge names the gap instead of hiding it.
 
 **Cost:** Two tabs are two templates to keep in step. A variable added to one is added to the other. The Dutch sentence grows while the English one waits. Tabs hide the drift they also cause.
 
@@ -3128,23 +3128,23 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Settings" "Email" "Goods dispatched"
+  breadcrumb "Home" "Settings" "Email" "Payout sent"
   header
-    heading "Goods dispatched"
-    text "The message a customer looks for."
-  message "Order number is missing. The body asks for ((order number)) and this test order holds none." critical
+    heading "Payout sent"
+    text "The message a spender looks for."
+  message "Expense number is missing. The body asks for ((expense number)) and this test expense holds none." critical
   region "The message"
-    field "Subject" text = "Your Acme Supply order is on its way"
-    field "Body" textarea = "Hi customer, your order is on its way."
-    message "((order number)) has no value on this order. Add a fallback." critical
+    field "Subject" text = "Your payout of EUR 125.00 is on its way"
+    field "Body" textarea = "Hi spender, your payout is on its way."
+    message "((expense number)) has no value on this expense. Add a fallback." critical
   footer
     action "Send a test"
     action primary "Save message"
 ```
 
-**Rationale:** GOV.UK Notify refuses a send whose personalization is missing and names the variable. A blank where the order number belongs is worse than no mail. The message offers the fallback shape, not the complaint.
+**Rationale:** GOV.UK Notify refuses a send whose personalization is missing and names the variable. A blank where the expense number belongs is worse than no mail. The message offers the fallback shape, not the complaint.
 
-**Cost:** The refusal can only name what the test record lacks. A variable filled on the test order but empty on a real one still sends blank. Every variable needs a fallback, not a test.
+**Cost:** The refusal can only name what the test record lacks. A variable filled on the test expense but empty on a real one still sends blank. Every variable needs a fallback, not a test.
 
 **Reference:** GOV.UK
 
@@ -3152,23 +3152,23 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "SO-1042" "Mail"
+  breadcrumb "Home" "Expenses" "EXP-1042" "Mail"
   header
-    heading "Goods dispatched"
-    text "Sent for order SO-1042."
+    heading "Payout sent"
+    text "Sent for expense EXP-1042."
   region "The sending"
-    fact "To" "maria@garcia-interiors.example"
+    fact "To" "ava@harbor-pine.example"
     fact "Sent" "8 Oct 2026, 09:33"
-    fact "Order" "SO-1042"
+    fact "Expense" "EXP-1042"
     status "Delivered" positive
-    text "Hi Maria Garcia,"
-    text "Your order SO-1042 left the Amsterdam warehouse. It arrives Sat 14 Mar 2026, 08:00 to 12:00."
+    text "Hi Ava,"
+    text "Your expense EXP-1042 was paid. It arrives Sat 14 Mar 2026."
   footer
     action "Resend"
 ```
 
-**Rationale:** Postmark activity keeps the sent copy with every variable filled. Reading what was sent settles a dispute about what the customer was told. The record is read-only: history does not take edits.
+**Rationale:** Postmark activity keeps the sent copy with every variable filled. Reading what was sent settles a dispute about what the spender was told. The record is read-only: history does not take edits.
 
-**Cost:** A copy per sending is storage that grows with every order, and each copy holds personal data under retention rules. The record must expire with the order, not live beside it.
+**Cost:** A copy per sending is storage that grows with every payout, and each copy holds personal data under retention rules. The record must expire with the payout, not live beside it.
 
 **Reference:** Postmark

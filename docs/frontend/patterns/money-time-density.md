@@ -12,7 +12,7 @@ Each pattern answers one recurring question about money, time, or density, such 
 
 ### The Running Example
 
-The drawings on this page use the Acme Supply shop: order SO-1042 for Maria Garcia at EUR 125.00, the September 2026 statement, and the autumn lamp range. Amounts use currency codes with two decimals, moments use the Europe/Amsterdam zone, and counts name what they count. The Standards section states the two rules every option keeps: every amount shows its currency, and a moment shared across zones states its zone.
+The drawings on this page use the Claimwick September 2026 statement: expense EXP-1042 for Ava at EUR 125.00, the payout run holding it, and the autumn travel season. Amounts use currency codes with two decimals, moments use the Europe/Amsterdam zone, and counts name what they count. The Standards section states the two rules every option keeps: every amount shows its currency, and a moment shared across zones states its zone.
 
 ## Standards
 
@@ -32,7 +32,7 @@ The drawings on this page use the Acme Supply shop: order SO-1042 for Maria Garc
 
 **Statement:** A moment shown to readers in different time zones MUST state its time zone.
 
-**Rationale:** A stated zone keeps 09:32 in Amsterdam from reading as 09:32 in London. Without it, two readers plan the same delivery window an hour apart, and the warehouse meets only one of them.
+**Rationale:** A stated zone keeps 09:32 in Amsterdam from reading as 09:32 in London. Without it, two readers plan the same payout window an hour apart, and finance meets only one of them.
 
 **Reviewed for:** Which built shared moment omits its zone? Open the dates and times on built screens read across zones.
 
@@ -48,9 +48,9 @@ The drawings on this page use the Acme Supply shop: order SO-1042 for Maria Garc
 
 **Compact:** The recommended option reflows. One column carries the content. Header actions sit under the title. A table scrolls inside its own region.
 
-**Rationale:** Ship the code format in the reader's language with a true minus. It keeps one convention and answers negatives and separators. The runner-up is the plain code table. It shows the same choice without refund rows.
+**Rationale:** Ship the code format in the reader's language with a true minus. It keeps one convention and answers negatives and separators. The runner-up is the plain code table. It shows the same choice without reversal rows.
 
-Choose the symbol with code in the header only when the back office and the customer surface show the same form. Never ship the no currency option. It loses the currency in exports. Never ship mixed decimals. It breaks the alignment tables exist for.
+Choose the symbol with code in the header only when the finance screens and the spender screens show the same form. Never ship the no currency option. It loses the currency in exports. Never ship mixed decimals. It breaks the alignment tables exist for.
 
 **Reviewed for:** Which built money text differs from the wireframe its catalog entry chose? Open the built codes, symbols, and red negatives beside the catalog entry recording the chosen option and its reason.
 
@@ -58,15 +58,15 @@ Choose the symbol with code in the header only when the back office and the cust
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders from 96 customers."
+    heading "Expenses"
+    text "268 expenses from 96 spenders."
     action "Download"
-  field "Order number, name or email" search
-  region "Orders"
-    table 4 "Order" "Customer" "Placed" "State" "Paid"
-      item: text "SO-1042" · text "Maria Garcia" · text "8 Oct 2026, 09:32" · status "Paid" positive · text "EUR 125.00"
+  field "Expense number, name or email" search
+  region "Expenses"
+    table 4 "Expense" "Spender" "Submitted" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · text "8 Oct 2026, 09:32" · status "Paid" positive · text "EUR 125.00"
 ```
 
 **Rationale:** A code is unambiguous and independent of reader locale. It reads the same in English and Dutch.
@@ -77,20 +77,20 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders from 96 customers."
+    heading "Expenses"
+    text "268 expenses from 96 spenders."
     action "Download"
-  field "Order number, name or email" search
-  region "Orders"
-    table 4 "Order" "Customer" "Placed" "State" "Paid (EUR)"
-      item: text "SO-1042" · text "Maria Garcia" · text "8 Oct 2026, 09:32" · status "Paid" positive · text "€125.00"
+  field "Expense number, name or email" search
+  region "Expenses"
+    table 4 "Expense" "Spender" "Submitted" "State" "Paid (EUR)"
+      item: text "EXP-1042" · text "Ava" · text "8 Oct 2026, 09:32" · status "Paid" positive · text "€125.00"
 ```
 
 **Rationale:** Many European products use this shape. The header says Paid in EUR. The symbol never stands alone. Assistive tech and WCAG 1.4.1 need the code beside it.
 
-**Cost:** The symbol assumes one locale. The euro sign fits Acme Supply. It fails for an account in another currency. A screen reader has no clear way to read it aloud.
+**Cost:** The symbol assumes one locale. The euro sign fits Harbor and Pine. It fails for an account in another currency. A screen reader has no clear way to read it aloud.
 
 **Reference:** WCAG 1.4.1
 
@@ -103,15 +103,15 @@ page
     heading "September 2026"
     text "Every euro of the month under the kind it is."
     action "Download"
-  region "Income"
-    fact "Lamp sales" "EUR 54,180"
-    fact "Service fees customers paid" "EUR 6,020"
-    fact "Design guides" "EUR 3,150"
-    fact "Total income" "EUR 63,350"
-  region "Costs"
-    fact "Payment fee" "−EUR 332.92"
-    fact "Platform fee" "−EUR 120.40"
-    fact "Net for Acme Supply" "EUR 62,896.68"
+  region "Spending"
+    fact "Travel" "EUR 54,180"
+    fact "Meals" "EUR 6,020"
+    fact "Lodging" "EUR 3,150"
+    fact "Total claimed" "EUR 63,350"
+  region "Fees"
+    fact "Booking fee" "−EUR 332.92"
+    fact "Card fee" "−EUR 120.40"
+    fact "Net paid out" "EUR 62,896.68"
 ```
 
 **Rationale:** Whole euros write as EUR 45. Amounts with cents write as EUR 45.45. A column of whole amounts reads as integers. That shape helps a reader find one amount.
@@ -122,37 +122,37 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders from 96 customers."
+    heading "Expenses"
+    text "268 expenses from 96 spenders."
     action "Download"
-  field "Order number, name or email" search
-  region "Orders"
-    table 4 "Order" "Customer" "Placed" "State" "Paid, in euros"
-      item: text "SO-1042" · text "Maria Garcia" · text "8 Oct 2026, 09:32" · status "Paid" positive · text "€125.00"
+  field "Expense number, name or email" search
+  region "Expenses"
+    table 4 "Expense" "Spender" "Submitted" "State" "Paid, in euros"
+      item: text "EXP-1042" · text "Ava" · text "8 Oct 2026, 09:32" · status "Paid" positive · text "€125.00"
 ```
 
 **Rationale:** The label names the currency in words. The cell carries the euro sign. A screen reader hears Paid in euros. A sighted reader sees the sign.
 
 **Cost:** Two carriers for one fact. The label grows, and the column header stops being a field name.
 
-#### `the-customer-s-currency-beside-the-company-s`: The Customer's Currency Beside the Company's
+#### `the-customer-s-currency-beside-the-company-s`: The Spender's Currency Beside the Company's
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders. 41 were bought in another currency."
+    heading "Expenses"
+    text "268 expenses. 41 were filed in another currency."
     action "Download"
-  field "Order number, name or email" search
-  region "Orders"
-    table 4 "Order" "Customer" "Placed" "Customer paid" "You receive"
-      item: text "SO-1027" · text "Elin Lindqvist" · text "8 Oct 2026, 09:31" · text "GBP 42.00" · text "EUR 48.30"
+  field "Expense number, name or email" search
+  region "Expenses"
+    table 4 "Expense" "Spender" "Submitted" "Spender paid" "Company pays"
+      item: text "EXP-1027" · text "Elin Lindqvist" · text "8 Oct 2026, 09:31" · text "GBP 42.00" · text "EUR 48.30"
 ```
 
-**Rationale:** Where a company sells abroad the cell carries both figures. It shows what the customer paid. It shows what the company receives. One row holds both with no second table.
+**Rationale:** Where a company pays across currencies the cell carries both figures. It shows what the spender paid. It shows what the company pays. One row holds both with no second table.
 
 **Cost:** Two figures make the widest money cell. The reader works out which one answers the question that day.
 
@@ -160,15 +160,15 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders. Every amount is in euros."
+    heading "Expenses"
+    text "268 expenses. Every amount is in euros."
     action "Download"
-  field "Order number, name or email" search
-  region "Orders"
-    table 4 "Order" "Customer" "Placed" "State" "Paid"
-      item: text "SO-1042" · text "Maria Garcia" · text "8 Oct 2026, 09:32" · status "Paid" positive · text "125.00"
+  field "Expense number, name or email" search
+  region "Expenses"
+    table 4 "Expense" "Spender" "Submitted" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · text "8 Oct 2026, 09:32" · status "Paid" positive · text "125.00"
 ```
 
 **Rationale:** A product with one currency writes no currency. It writes 125.00 right aligned. The account page states the currency once. The interface trusts that statement.
@@ -179,15 +179,15 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders from 96 customers."
+    heading "Expenses"
+    text "268 expenses from 96 spenders."
     action "Download"
-  field "Order number, name or email" search
-  region "Orders"
-    table 4 "Order" "Customer" "Placed" "State" "Paid"
-      item: text "SO-1042" · text "Maria Garcia" · text "8 Oct 2026, 09:32" · status "Paid" positive · text "EUR 125.00"
+  field "Expense number, name or email" search
+  region "Expenses"
+    table 4 "Expense" "Spender" "Submitted" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · text "8 Oct 2026, 09:32" · status "Paid" positive · text "EUR 125.00"
   region "Totals"
     fact "Total on this page" "EUR 3,112.50"
     fact "Total of every match" "EUR 33,480.00"
@@ -201,22 +201,22 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders from 96 customers."
+    heading "Expenses"
+    text "268 expenses from 96 spenders."
     action "Download"
   field "Language" select = "English"
-  region "Orders"
-    table 5 "Order" "Customer" "Placed" "State" "Amount"
-      item: text "SO-1030" · text "Tom Becker" · text "8 Oct 2026, 09:12" · status "Refunded" neutral · text "−EUR 50.00"
+  region "Expenses"
+    table 5 "Expense" "Spender" "Submitted" "State" "Amount"
+      item: text "EXP-1030" · text "Tom Becker" · text "8 Oct 2026, 09:12" · status "Reversed" neutral · text "−EUR 50.00"
   region "Note"
-    text muted "A Dutch page writes EUR 125,00. A refund uses a true minus."
+    text muted "A Dutch page writes EUR 125,00. A reversal uses a true minus."
 ```
 
-**Rationale:** Stripe dashboard and Shopify admin keep one amount format. The reader's language decides the separators. English shows EUR 1,203.65, and Dutch shows EUR 1.203,65. A refund uses a true minus before the code. The minus lines up with digits in a tabular column.
+**Rationale:** Stripe dashboard and Shopify admin keep one amount format. The reader's language decides the separators. English shows EUR 1,203.65, and Dutch shows EUR 1.203,65. A reversal uses a true minus before the code. The minus lines up with digits in a tabular column.
 
-**Cost:** Two colleagues on the same account see different separators, so a screenshot in a support case has to be read in its language. The minus is the only signal of money out, so the State column has to say Refunded as well.
+**Cost:** Two colleagues on the same account see different separators, so a screenshot in a support case has to be read in its language. The minus is the only signal of money out, so the State column has to say Reversed as well.
 
 **Reference:** Stripe dashboard, Shopify admin
 
@@ -224,20 +224,20 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders from 96 customers."
+    heading "Expenses"
+    text "268 expenses from 96 spenders."
     action "Download"
-  field "Order number, name or email" search
-  region "Orders"
-    table 4 "Order" "Customer" "Placed" "State" "Amount"
-      item: text "SO-1030" · text "Tom Becker" · text "8 Oct 2026, 09:12" · status "Refunded" neutral · status "−EUR 50.00" critical
+  field "Expense number, name or email" search
+  region "Expenses"
+    table 4 "Expense" "Spender" "Submitted" "State" "Amount"
+      item: text "EXP-1030" · text "Tom Becker" · text "8 Oct 2026, 09:12" · status "Reversed" neutral · status "−EUR 50.00" critical
 ```
 
 **Rationale:** Stripe dashboard writes a refund in red with its minus. Money out reads at a glance. The minus keeps the meaning for a reader who misses color.
 
-**Cost:** Red is also the error tone. A statement of refunds reads as a page of problems. The State column still says Refunded. Color alone never carries the meaning.
+**Cost:** Red is also the error tone. A statement of reversals reads as a page of problems. The State column still says Reversed. Color alone never carries the meaning.
 
 **Reference:** Stripe dashboard
 
@@ -250,14 +250,14 @@ page
     heading "September 2026"
     text "Every euro of the month under the kind it is."
     action "Download"
-  region "Income"
-    fact "Lamp sales" "EUR 54,180.00"
-    fact "Service fees customers paid" "EUR 6,020.00"
-    fact "Design guides" "EUR 3,150.00"
-  region "Refunds and fees"
-    fact "Refunds" "EUR (1,550.00)"
-    fact "Payment fee" "EUR (332.92)"
-    fact "Net for Acme Supply" "EUR 61,346.68"
+  region "Spending"
+    fact "Travel" "EUR 54,180.00"
+    fact "Meals" "EUR 6,020.00"
+    fact "Lodging" "EUR 3,150.00"
+  region "Reversals and fees"
+    fact "Reversals" "EUR (1,550.00)"
+    fact "Booking fee" "EUR (332.92)"
+    fact "Net paid out" "EUR 61,346.68"
 ```
 
 **Rationale:** Xero and QuickBooks write a negative in parentheses. Printed annual accounts do the same. A bookkeeper reads it without translation. Parentheses are harder to miss than a minus at small size.
@@ -291,20 +291,20 @@ page
     heading "September 2026"
     text "Every euro of the month under the kind it is."
     action "Download"
-  region "Income"
-    fact "Lamp sales, 1,204 units" "EUR 54,180.00"
-    fact "Service fees, 1,204 units" "EUR 6,020.00"
-    fact "Design guides, 126 guides" "EUR 3,150.00"
-    fact "Total income" "EUR 63,350.00"
-  region "Refunds and fees"
-    fact "Refunds, 31 units" "−EUR 1,550.00"
-    fact "Payment fee" "−EUR 332.92"
-    fact "Net for Acme Supply" "EUR 61,346.68"
+  region "Spending"
+    fact "Travel, 1,204 lines" "EUR 54,180.00"
+    fact "Meals, 1,204 lines" "EUR 6,020.00"
+    fact "Lodging, 126 nights" "EUR 3,150.00"
+    fact "Total claimed" "EUR 63,350.00"
+  region "Reversals and fees"
+    fact "Reversals, 31 lines" "−EUR 1,550.00"
+    fact "Booking fee" "−EUR 332.92"
+    fact "Net paid out" "EUR 61,346.68"
 ```
 
 **Rationale:** Each group holds its lines and a subtotal. A rule separates the grand total. The count under each line shows a missing line.
 
-**Cost:** The count repeats 1,204 twice. A reader opens the orders list to find which orders a line holds.
+**Cost:** The count repeats 1,204 twice. A reader opens the expenses list to find which expenses a line holds.
 
 #### `a-statement-where-every-line-links-to-its-records`: A Statement Where Every Line Links to Its Records
 
@@ -315,15 +315,15 @@ page
     heading "September 2026"
     text "Every figure opens the records behind it."
     action "Download"
-  region "Income"
-    fact "Lamp sales, 1,204 units" "EUR 54,180.00"
-    link "Open lamp sales EUR 54,180.00"
-    fact "Service fees, 1,204 units" "EUR 6,020.00"
-    link "Open service fees EUR 6,020.00"
-    fact "Total income" "EUR 63,350.00"
-  region "Refunds and fees"
-    fact "Refunds, 31 units" "−EUR 1,550.00"
-    link "Open refunds"
+  region "Spending"
+    fact "Travel, 1,204 lines" "EUR 54,180.00"
+    link "Open travel EUR 54,180.00"
+    fact "Meals, 1,204 lines" "EUR 6,020.00"
+    link "Open meals EUR 6,020.00"
+    fact "Total claimed" "EUR 63,350.00"
+  region "Reversals and fees"
+    fact "Reversals, 31 lines" "−EUR 1,550.00"
+    link "Open reversals"
 ```
 
 **Rationale:** Every figure links to the records behind it. Stripe balance summary works this way. A statement without audit links asks for trust.
@@ -339,18 +339,18 @@ page
   breadcrumb "Home" "Reports" "Statements" "September 2026"
   header
     heading "September 2026"
-    text "Closed on 30 September. The provider paid out by 5 October."
+    text "Closed on 30 September. Finance paid out by 5 October."
     action "Download"
   region "September, closed"
-    fact "Income, 1,204 units" "EUR 63,350.00"
-    fact "Refunds and fees" "−EUR 2,003.32"
-    fact "Paid out by the provider" "EUR 61,346.68"
+    fact "Spending, 1,204 lines" "EUR 63,350.00"
+    fact "Reversals and fees" "−EUR 2,003.32"
+    fact "Paid out to spenders" "EUR 61,346.68"
     text "This figure will not change."
   region "October so far"
-    fact "Income, 418 units" "EUR 20,900.00"
-    fact "Refunds and fees" "−EUR 697.22"
+    fact "Spending, 418 lines" "EUR 20,900.00"
+    fact "Reversals and fees" "−EUR 697.22"
     fact "Net so far" "EUR 20,202.78"
-    text "This one moves with every order."
+    text "This one moves with every expense."
 ```
 
 **Rationale:** A paid-out month states the past. The running month states the present. The closed month sits beside the running figure. Each reads as a different moment.
@@ -366,15 +366,15 @@ page
     heading "September 2026"
     text "Every euro of the month under the kind it is."
     action "Download"
-  region "Income"
-    fact "Lamp sales" "EUR 54,180.00"
-    fact "Service fees customers paid" "EUR 6,020.00"
-    fact "Design guides" "EUR 3,150.00"
-    fact "Total income" "EUR 63,350.00"
-  region "Refunds and fees"
-    fact "Refunds" "−EUR 1,550.00"
-    fact "Payment fee" "−EUR 332.92"
-    fact "Net for Acme Supply" "EUR 61,346.68"
+  region "Spending"
+    fact "Travel" "EUR 54,180.00"
+    fact "Meals" "EUR 6,020.00"
+    fact "Lodging" "EUR 3,150.00"
+    fact "Total claimed" "EUR 63,350.00"
+  region "Reversals and fees"
+    fact "Reversals" "−EUR 1,550.00"
+    fact "Booking fee" "−EUR 332.92"
+    fact "Net paid out" "EUR 61,346.68"
 ```
 
 **Rationale:** This option drops the count under each line. Shopify finance summary reads this way. Each line is one row and the page is shorter.
@@ -392,19 +392,19 @@ page
     heading "September 2026"
     text "Every euro of the month under the kind it is."
     action "Download"
-  region "Income after refunds"
-    fact "Lamp and guide sales" "EUR 57,330.00"
-    fact "Service fees customers paid" "EUR 6,020.00"
-    fact "Refunds, 31 units" "−EUR 1,550.00"
+  region "Spending after reversals"
+    fact "Travel and lodging" "EUR 57,330.00"
+    fact "Meals" "EUR 6,020.00"
+    fact "Reversals, 31 lines" "−EUR 1,550.00"
   region "Fees taken at each payment"
-    fact "Payment fee" "−EUR 332.92"
-    status "Provider price" neutral
-    fact "Platform fee" "−EUR 120.40"
-    status "Vendor price" info
+    fact "Booking fee" "−EUR 332.92"
+    status "Agency price" neutral
+    fact "Card fee" "−EUR 120.40"
+    status "Bank price" info
     fact "Total fees" "−EUR 453.32"
 ```
 
-**Rationale:** Two fee lines name who set them. One is the provider price and one is the vendor price. The month separates what it made from what each service took.
+**Rationale:** Two fee lines name who set them. One is the agency price and one is the bank price. The month separates what it spent from what each service took.
 
 **Cost:** Two marked lines form a rule to learn. The second section repeats the plan. The billing page already states the plan.
 
@@ -416,13 +416,13 @@ page
   header
     heading "October so far"
     text "As at 8 Oct 2026, 14:22. September is closed and paid out."
-  region "Net for Acme Supply"
+  region "Net paid out"
     figure "EUR 20,152.78"
-    fact "Lamp sales, 418 units" "EUR 18,810.00"
-    fact "Service fees kept" "EUR 2,090.00"
-    fact "Refunds, 12 units" "−EUR 540.00"
-    fact "Held for dispute SO-1031" "−EUR 50.00"
-    message "The provider holds EUR 50.00 while the bank decides SO-1031." caution
+    fact "Travel, 418 lines" "EUR 18,810.00"
+    fact "Meals" "EUR 2,090.00"
+    fact "Reversals, 12 lines" "−EUR 540.00"
+    fact "Held for dispute EXP-1031" "−EUR 50.00"
+    message "Finance holds EUR 50.00 while the bank decides EXP-1031." caution
 ```
 
 **Rationale:** One number opens the page. Stripe balance page opens this way. The lines below prove the figure. A business answers with one figure and checks with the rest.
@@ -438,11 +438,11 @@ page
   breadcrumb "Home" "Reports" "Statements" "September 2026"
   header
     heading "September 2026"
-    text "What the month made, and the payouts sent for it."
+    text "What the month spent, and the payouts sent for it."
     action "Download"
   region "Net for the month"
-    fact "Income" "EUR 63,350.00"
-    fact "Refunds" "−EUR 1,550.00"
+    fact "Spending" "EUR 63,350.00"
+    fact "Reversals" "−EUR 1,550.00"
     fact "Fees taken at each payment" "−EUR 453.32"
     fact "Net for the month" "EUR 61,346.68"
   region "Paid out to NL91 ABNA 0417 1643"
@@ -470,8 +470,8 @@ page
     action "Download"
   region "Comparison"
     table 6 "Line" "August 2026" "September 2026" "Change"
-      item: text "Lamp sales" · text "EUR 41,220.00" · text "EUR 54,180.00" · text "+EUR 12,960.00"
-    text muted "August held 918 orders. September held 1,148 orders."
+      item: text "Travel" · text "EUR 41,220.00" · text "EUR 54,180.00" · text "+EUR 12,960.00"
+    text muted "August held 918 expenses. September held 1,148 expenses."
 ```
 
 **Rationale:** This month sits beside last month with a change column. Xero comparative profit and loss works this way. Finance reads the trend without opening two pages. The change uses money, not percent.
@@ -480,29 +480,29 @@ page
 
 **Reference:** Xero
 
-#### `one-column-per-product-line`: One Column per Product Line
+#### `one-column-per-product-line`: One Column per Cost Centre
 
 ```wireframe
 page
   breadcrumb "Home" "Reports" "Statements" "September 2026"
   header
-    heading "September 2026, by product line"
-    text "The same statement, one column per product line."
+    heading "September 2026, by cost centre"
+    text "The same statement, One Column per Cost Centre."
     action "Download"
   region "Lines"
-    table 4 "Line" "Oak desk lamp" "Brass desk lamp" "Design guides" "Total"
-      item: text "Lamp sales" · text "EUR 44,955.00" · text "EUR 9,225.00" · text "EUR 0.00" · text "EUR 54,180.00"
+    table 4 "Line" "Amsterdam sales" "Rotterdam sales" "Utrecht sales" "Total"
+      item: text "Travel" · text "EUR 44,955.00" · text "EUR 9,225.00" · text "EUR 0.00" · text "EUR 54,180.00"
 ```
 
-**Rationale:** The same lines gain one column per product line. A total column closes the row. A weak line reads beside the line that carried the month.
+**Rationale:** The same lines gain One Column per Cost Centre. A total column closes the row. A weak line reads beside the line that carried the month.
 
-**Cost:** Three money columns miss a phone width. The table scrolls sideways with line names pinned. Delivery fees split across lines in a way readers do not expect.
+**Cost:** Three money columns miss a phone width. The table scrolls sideways with line names pinned. Booking fees split across lines in a way readers do not expect.
 
 ### Writing a Moment
 
 **ID:** `litespec/frontend/patterns/money-time-density#writing-a-moment`
 
-**Question:** Every date uses the zone the screen works in. Each table keeps one form. The orders table writes 8 Oct 2026, 09:32. A messages table that mixes Sent 6 hours ago with For 2 Jan 2030, 10:00 in one column breaks that rule.
+**Question:** Every date uses the zone the screen works in. Each table keeps one form. The expenses table writes 8 Oct 2026, 09:32. A messages table that mixes Sent 6 hours ago with For 2 Jan 2030, 10:00 in one column breaks that rule.
 
 **Default:** `one-form-per-table-with-the-zone-stated-once`
 
@@ -510,7 +510,7 @@ page
 
 **Rationale:** Keep one form per table. State the zone once in the header. A column then reads as a column.
 
-The runner-up puts absolute over relative. It fits incident and delivery surfaces where recency leads. Never ship relative only on a reconciled page. Nothing there can be cited.
+The runner-up puts absolute over relative. It fits dispute and payout surfaces where recency leads. Never ship relative only on a reconciled page. Nothing there can be cited.
 
 **Reviewed for:** Which built date text differs from the wireframe its catalog entry chose? Open the built absolute, relative, and weekday forms beside the catalog entry recording the chosen option and its reason.
 
@@ -518,15 +518,15 @@ The runner-up puts absolute over relative. It fits incident and delivery surface
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders from 96 customers."
+    heading "Expenses"
+    text "268 expenses from 96 spenders."
     action "Download"
-  field "Order number, name or email" search
-  region "Orders"
-    table 4 "Order" "Customer" "Placed Europe/Amsterdam" "Paid"
-      item: text "SO-1042" · text "Maria Garcia" · text "8 Oct 2026, 09:32" · text "EUR 125.00"
+  field "Expense number, name or email" search
+  region "Expenses"
+    table 4 "Expense" "Spender" "Submitted Europe/Amsterdam" "Paid"
+      item: text "EXP-1042" · text "Ava" · text "8 Oct 2026, 09:32" · text "EUR 125.00"
 ```
 
 **Rationale:** Every row keeps the same shape. The header names the zone once. A column reads as a column.
@@ -537,15 +537,15 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders from 96 customers."
+    heading "Expenses"
+    text "268 expenses from 96 spenders."
     action "Download"
-  field "Order number, name or email" search
-  region "Orders"
-    table 4 "Order" "Customer" "Placed Europe/Amsterdam" "Paid"
-      item: text "SO-1042" · text "Maria Garcia" · text "8 Oct 2026, 09:32, 12 seconds ago" · text "EUR 125.00"
+  field "Expense number, name or email" search
+  region "Expenses"
+    table 4 "Expense" "Spender" "Submitted Europe/Amsterdam" "Paid"
+      item: text "EXP-1042" · text "Ava" · text "8 Oct 2026, 09:32, 12 seconds ago" · text "EUR 125.00"
 ```
 
 **Rationale:** The moment and its age share one column. An incident hunt needs the relative. A statement check needs the absolute. Both are present.
@@ -556,7 +556,7 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Customers" "Messages"
+  breadcrumb "Home" "Spenders" "Messages"
   header
     heading "Messages"
     text "Only people who said yes to the kind."
@@ -564,10 +564,10 @@ page
   field "Search messages" search
   region "Messages"
     table 4 "Message" "Kind" "State" "Sent"
-      item: text "Autumn catalog reminder" · text "Newsletter" · status "Scheduled" info · text "10 hours ago"
+      item: text "Receipt reminder" · text "Reminder" · status "Scheduled" info · text "10 hours ago"
 ```
 
-**Rationale:** Every row is recent. The relative time is the whole answer. A dispatch log read on the day needs minutes ago and nothing else.
+**Rationale:** Every row is recent. The relative time is the whole answer. A payout log read on the day needs minutes ago and nothing else.
 
 **Cost:** Nothing here can be cited. A reader cannot say at 22:41. An audit question from March has no answer on the page.
 
@@ -575,17 +575,17 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "Deliveries"
+  breadcrumb "Home" "Trips" "Departures"
   header
-    heading "Deliveries"
+    heading "Departures"
     text "This week soonest first. All times are Europe/Amsterdam."
-  region "Runs"
+  region "This week"
     list 4
-      item: text "Garcia Interiors restock" · text "Fri, 9 Oct 2026, 08:00 to 12:00" · text "Amsterdam warehouse" · status "Scheduled" info
-    text "12 of 40 pallets."
+      item: text "Rotterdam client visit" · text "Fri, 9 Oct 2026, 08:00 to 12:00" · text "Amsterdam office" · status "Scheduled" info
+    text "12 of 40 seats."
 ```
 
-**Rationale:** The deliveries list writes weekday, date, and place. It keeps the year. A delivery list crosses years. A reader in November plans for March.
+**Rationale:** The departures list writes weekday, date, and place. It keeps the year. A departures list crosses years. A reader in November plans for March.
 
 **Cost:** The year adds noise for lists within one year. It widens a column in a table of six.
 
@@ -593,16 +593,16 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "Timeline"
+  breadcrumb "Home" "Expenses" "Timeline"
   header
     heading "Everything that happened"
     text "Newest first. All times Europe/Amsterdam."
   region "Today, 8 October 2026"
     list 4
-      item: text "SO-1042" · text "Maria Garcia placed an order" · text "09:32" · text "EUR 125.00"
+      item: text "EXP-1042" · text "Ava filed an expense" · text "09:32" · text "EUR 125.00"
   region "Yesterday, 7 October 2026"
     list 2
-      item: text "SO-1031" · text "Ade Okafor placed an order" · text "19:02" · text "EUR 45.00"
+      item: text "EXP-1031" · text "Ade Okafor filed an expense" · text "19:02" · text "EUR 45.00"
 ```
 
 **Rationale:** A list of events takes the day as its shape. The date becomes a heading, not a column. The row keeps what matters.
@@ -613,15 +613,15 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders from 96 customers."
+    heading "Expenses"
+    text "268 expenses from 96 spenders."
     action "Download"
-  field "Order number, name or email" search
-  region "Orders"
-    table 4 "Order" "Customer" "Placed" "Paid"
-      item: text "SO-1042" · text "Maria Garcia" · text "12 seconds ago" · text "EUR 125.00"
+  field "Expense number, name or email" search
+  region "Expenses"
+    table 4 "Expense" "Spender" "Submitted" "Paid"
+      item: text "EXP-1042" · text "Ava" · text "12 seconds ago" · text "EUR 125.00"
   region "Note"
     text muted "Sorted by the exact moment newest first. Every time is Europe/Amsterdam."
 ```
@@ -636,14 +636,14 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "Deliveries"
+  breadcrumb "Home" "Trips" "Departures"
   header
-    heading "Deliveries"
-    text "The next runs, soonest first."
-  region "Runs"
+    heading "Departures"
+    text "The next trips, soonest first."
+  region "This week"
     list 4
-      item: text "Garcia Interiors restock" · text "Tomorrow, Fri 9 Oct, 08:00 to 12:00" · text "Amsterdam warehouse" · status "Scheduled" info
-    text muted "Runs within seven days name the weekday. Later runs carry the year."
+      item: text "Rotterdam client visit" · text "Tomorrow, Fri 9 Oct, 08:00 to 12:00" · text "Amsterdam office" · status "Scheduled" info
+    text muted "Trips within seven days name the weekday. Later trips carry the year."
 ```
 
 **Rationale:** Google Calendar and Linear name the weekday near term. They write full date with year beyond that. The near future plans by weekday. The cutoff appears once under the list.
@@ -656,20 +656,20 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders from 3 warehouses in 3 time zones."
+    heading "Expenses"
+    text "268 expenses from 3 offices in 3 time zones."
     action "Download"
-  field "Order number, name or email" search
-  region "Orders"
-    table 4 "Order" "Customer" "Placed" "Paid"
-      item: text "SO-1042" · text "Maria Garcia" · text "8 Oct 2026, 09:32 CEST" · text "EUR 125.00"
+  field "Expense number, name or email" search
+  region "Expenses"
+    table 4 "Expense" "Spender" "Submitted" "Paid"
+      item: text "EXP-1042" · text "Ava" · text "8 Oct 2026, 09:32 CEST" · text "EUR 125.00"
   region "Note"
-    text muted "Each delivery uses its own zone. Your zone is Europe/Amsterdam."
+    text muted "Each trip uses its own zone. Your zone is Europe/Amsterdam."
 ```
 
-**Rationale:** Every moment carries its own zone. Orders on one page come from warehouses in different zones. A delivery in another zone is a real case.
+**Rationale:** Every moment carries its own zone. Expenses on one page come from offices in different zones. A trip in another zone is a real case.
 
 **Cost:** A column of repeated offsets is hard to read. The alternative states the zone once. That alternative reads wrong for another zone.
 
@@ -698,13 +698,13 @@ page
     action quiet "‹ Previous"
     action quiet "Next ›"
   field "Month" select = "September 2026"
-  region "Income"
-    fact "Lamp and guide sales" "EUR 57,330.00"
-    fact "Service fees customers paid" "EUR 6,020.00"
-    fact "Total income" "EUR 63,350.00"
-  region "Costs"
-    fact "Payment fee" "−EUR 332.92"
-    fact "Net for Acme Supply" "EUR 62,896.68"
+  region "Spending"
+    fact "Travel and lodging" "EUR 57,330.00"
+    fact "Meals" "EUR 6,020.00"
+    fact "Total claimed" "EUR 63,350.00"
+  region "Fees"
+    fact "Booking fee" "−EUR 332.92"
+    fact "Net paid out" "EUR 62,896.68"
 ```
 
 **Rationale:** The period is the heading. A chevron on each side walks months. A chevron cannot read as a tab.
@@ -722,9 +722,9 @@ page
     action "Download"
   tabs "August 2026" "September 2026" "October 2026"
     region "September 2026"
-      fact "Lamp and guide sales" "EUR 57,330.00"
-      fact "Total income" "EUR 63,350.00"
-      fact "Net for Acme Supply" "EUR 62,896.68"
+      fact "Travel and lodging" "EUR 57,330.00"
+      fact "Total claimed" "EUR 63,350.00"
+      fact "Net paid out" "EUR 62,896.68"
 ```
 
 **Rationale:** Months read as tabs, not buttons. GOV.UK uses this shape for comparison periods. It reads as a choice.
@@ -737,9 +737,9 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Reports" "Revenue"
+  breadcrumb "Home" "Reports" "Spending"
   header
-    heading "Revenue"
+    heading "Spending"
     text "Every euro that moved, by the day it moved."
   region "Period"
     action "Last 7 days"
@@ -750,7 +750,7 @@ page
     action "Apply"
     text muted "Showing 9 October to 8 November 2026. All 30 days."
   region "Daily"
-    image "Sales per day, line chart"
+    image "Spending per day, line chart"
     text muted "Peak 13 Oct, EUR 12,400.00."
 ```
 
@@ -764,21 +764,21 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Reports" "Revenue"
+  breadcrumb "Home" "Reports" "Spending"
   header
     heading "September 2026"
     text "Every euro of the month under the kind it is."
     action quiet "‹ Previous"
     action quiet "Next ›"
   region "The month"
-    fact "Lamp and guide sales" "EUR 57,330.00"
-    fact "Total income" "EUR 63,350.00"
-    fact "Net for Acme Supply" "EUR 62,896.68"
-  region "Sales per day"
+    fact "Travel and lodging" "EUR 57,330.00"
+    fact "Total claimed" "EUR 63,350.00"
+    fact "Net paid out" "EUR 62,896.68"
+  region "Spending per day"
     action "7 days"
     action "30 days"
     action "90 days"
-    image "Sales per day, line chart"
+    image "Spending per day, line chart"
     text muted "A different period from the statement above."
 ```
 
@@ -790,19 +790,19 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders."
-  field "Order number, name or email" search
+    heading "Expenses"
+    text "268 expenses."
+  field "Expense number, name or email" search
   region "Filters"
-    status "Placed in September 2026" neutral
+    status "Submitted in September 2026" neutral
     status "Paid" neutral
     action quiet "Clear both"
-    text "1,148 orders placed in September 2026 and paid."
-  region "Orders"
-    table 3 "Order" "Customer" "Placed" "Paid"
-      item: text "SO-1042" · text "Maria Garcia" · text "8 Oct 2026, 09:32" · text "EUR 125.00"
+    text "1,148 expenses submitted in September 2026 and paid."
+  region "Expenses"
+    table 3 "Expense" "Spender" "Submitted" "Paid"
+      item: text "EXP-1042" · text "Ava" · text "8 Oct 2026, 09:32" · text "EUR 125.00"
 ```
 
 **Rationale:** The period sits as one filter among several. It sits with other narrowing choices. It removes like any of them.
@@ -813,9 +813,9 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Reports" "Revenue"
+  breadcrumb "Home" "Reports" "Spending"
   header
-    heading "Revenue"
+    heading "Spending"
     text "9 September to 8 October 2026. All 30 days."
     action "Download"
   region "Range"
@@ -845,12 +845,12 @@ page
     action "Download"
   field "Month" select = "September"
   field "Year" select = "2026"
-  region "Income"
-    fact "Lamp and guide sales" "EUR 57,330.00"
-    fact "Total income" "EUR 63,350.00"
-  region "Costs"
-    fact "Payment fee" "−EUR 332.92"
-    fact "Net for Acme Supply" "EUR 62,896.68"
+  region "Spending"
+    fact "Travel and lodging" "EUR 57,330.00"
+    fact "Total claimed" "EUR 63,350.00"
+  region "Fees"
+    fact "Booking fee" "−EUR 332.92"
+    fact "Net paid out" "EUR 62,896.68"
 ```
 
 **Rationale:** Shopify reports pick month and year as two selects. Jumping from March to October takes two clicks with no calendar. The heading states the period in words. The download carries those words.
@@ -863,18 +863,18 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders."
+    heading "Expenses"
+    text "268 expenses."
   region "The period"
     field "From" = "01/09/2026"
     field "To" = "30/09/2026"
     action "Apply"
-    text muted "1,148 orders. Europe/Amsterdam."
-  region "Orders"
-    table 3 "Order" "Customer" "Placed" "Paid"
-      item: text "SO-1042" · text "Maria Garcia" · text "8 Oct 2026, 09:32" · text "EUR 125.00"
+    text muted "1,148 expenses. Europe/Amsterdam."
+  region "Expenses"
+    table 3 "Expense" "Spender" "Submitted" "Paid"
+      item: text "EXP-1042" · text "Ava" · text "8 Oct 2026, 09:32" · text "EUR 125.00"
 ```
 
 **Rationale:** One control stays always visible. It always shows the current range in words. A reader who exported the wrong range sees what it covered.
@@ -885,11 +885,11 @@ page
 
 **ID:** `litespec/frontend/patterns/money-time-density#how-much-fits-before-it-breaks`
 
-**Question:** A table can run at 47 pixels a row. Three columns hold two lines each. At 390 pixels a five-column table has to drop a column. It truncates names to Garcia with an ellipsis unless the page changes shape.
+**Question:** A table can run at 47 pixels a row. Three columns hold two lines each. At 390 pixels a five-column table has to drop a column. It truncates names to Rotterdam with an ellipsis unless the page changes shape.
 
 **Default:** `the-full-width-with-nothing-truncated`
 
-**Compact:** Under 640 pixels the table becomes a record list. One block per order holds customer, delivery, and amount. Newest comes first. Sorting by column goes with the table. The compact option is `at-390-pixels-a-record-list-rather-than-a-table`.
+**Compact:** Under 640 pixels the table becomes a record list. One block per expense holds spender, trip, and amount. Newest comes first. Sorting by column goes with the table. The compact option is `at-390-pixels-a-record-list-rather-than-a-table`.
 
 **Rationale:** Keep the table at desktop width. Use two-line cells with no truncation. Switch to the record list under 640 pixels. That pair answers honestly at both widths.
 
@@ -901,31 +901,31 @@ The runner-up wraps rather than truncates. It fits where one column holds names 
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders from 96 customers."
+    heading "Expenses"
+    text "268 expenses from 96 spenders."
     action "Download"
-  field "Order number, name or email" search
-  region "Orders"
-    table 4 "Order" "Customer" "Placed" "State" "Paid"
-      item: text "SO-1042" · text "Maria Garcia" · text "8 Oct 2026, 09:32" · status "Paid" positive · text "EUR 125.00"
+  field "Expense number, name or email" search
+  region "Expenses"
+    table 4 "Expense" "Spender" "Submitted" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · text "8 Oct 2026, 09:32" · status "Paid" positive · text "EUR 125.00"
 ```
 
 ```wireframe compact
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders, newest first."
+    heading "Expenses"
+    text "268 expenses, newest first."
     action "Download"
-  field "Order or customer" search
-  region "Orders"
+  field "Expense or spender" search
+  region "Expenses"
     list 4
-      item: text "SO-1042" · text "Maria Garcia" · text "Garcia Interiors restock" · text "8 Oct, 09:32" · status "Paid" positive · text "EUR 125.00"
+      item: text "EXP-1042" · text "Ava" · text "Rotterdam client visit" · text "8 Oct, 09:32" · status "Paid" positive · text "EUR 125.00"
 ```
 
-**Rationale:** At 1440 pixels the columns all have room. The delivery is the second line of the order cell. The customer email is the second line of the customer cell. Nothing needs an ellipsis.
+**Rationale:** At 1440 pixels the columns all have room. The trip is the second line of the expense cell. The spender email is the second line of the spender cell. Nothing needs an ellipsis.
 
 **Cost:** Five columns reach the ceiling at this width. A seventh column forces a truncation. The second line is where it goes.
 
@@ -933,61 +933,61 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders, newest first."
+    heading "Expenses"
+    text "268 expenses, newest first."
     action "Download"
-  field "Order or customer" search
-  region "Orders"
+  field "Expense or spender" search
+  region "Expenses"
     list 4
-      item: text "SO-1042" · text "Maria Garcia" · text "Garcia Interiors restock" · text "8 Oct, 09:32" · status "Paid" positive · text "EUR 125.00"
+      item: text "EXP-1042" · text "Ava" · text "Rotterdam client visit" · text "8 Oct, 09:32" · status "Paid" positive · text "EUR 125.00"
 ```
 
-**Rationale:** A phone has no room for columns. One block per order holds everything.
+**Rationale:** A phone has no room for columns. One block per expense holds everything.
 
-**Cost:** No sorting by column and no comparison across a column. On a phone a reader seeks one known order. The list serves that case.
+**Cost:** No sorting by column and no comparison across a column. On a phone a reader seeks one known expense. The list serves that case.
 
 #### `at-390-pixels-a-table-with-two-columns-and-no-truncation`: At 390 Pixels, a Table with Two Columns and No Truncation
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders."
+    heading "Expenses"
+    text "268 expenses."
     action "Download"
-  field "Order or customer" search
-  region "Orders"
-    table 6 "Order" "Paid"
-      item: text "SO-1042" · text "EUR 125.00"
+  field "Expense or spender" search
+  region "Expenses"
+    table 6 "Expense" "Paid"
+      item: text "EXP-1042" · text "EUR 125.00"
   region "Note"
-    text muted "The customer and delivery are on the record. Open one to read it."
+    text muted "The spender and trip are on the record. Open one to read it."
 ```
 
-**Rationale:** The table keeps two facts per row. It keeps the order and what it cost. The delivery and customer wait on the record.
+**Rationale:** The table keeps two facts per row. It keeps the expense and what it cost. The trip and spender wait on the record.
 
-**Cost:** Rows of order numbers and amounts cannot show customers. It works only when the reader arrives with an order number.
+**Cost:** Rows of expense numbers and amounts cannot show spenders. It works only when the reader arrives with an expense number.
 
 #### `three-densities-on-the-same-table`: Three Densities on the Same Table
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders. 40 pixels a row."
+    heading "Expenses"
+    text "268 expenses. 40 pixels a row."
     action "Download"
   field "Rows" select = "40"
-  field "Order number, name or email" search
-  region "Orders"
-    table 3 "Order" "Customer" "Placed" "State" "Paid"
-      item: text "SO-1042" · text "Maria Garcia" · text "8 Oct 2026, 09:32" · status "Paid" positive · text "EUR 125.00"
+  field "Expense number, name or email" search
+  region "Expenses"
+    table 3 "Expense" "Spender" "Submitted" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · text "8 Oct 2026, 09:32" · status "Paid" positive · text "EUR 125.00"
 ```
 
 **Rationale:** Carbon defines five heights. This option keeps three. It offers 24 to scan, 32 to work, and 40 to read. A reader sets it once.
 
-**Cost:** Screenshot tests hold three versions of every page. The setting is per user. Two colleagues can see different screens.
+**Cost:** Screenshot tests hold three versions of every page. The setting is per reader. Two colleagues can see different screens.
 
 **Reference:** Carbon
 
@@ -995,18 +995,18 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders. Long names wrap rather than cut."
+    heading "Expenses"
+    text "268 expenses. Long names wrap rather than cut."
     action "Download"
-  field "Order number, name or email" search
-  region "Orders"
-    table 3 "Order" "Customer" "Placed" "State" "Paid"
-      item: text "SO-1042" · text "Garcia Interiors restock autumn range" · text "Maria Garcia" · text "8 Oct 2026, 09:32" · text "EUR 125.00"
+  field "Expense number, name or email" search
+  region "Expenses"
+    table 3 "Expense" "Spender" "Submitted" "State" "Paid"
+      item: text "EXP-1042" · text "Rotterdam client visit autumn offsite" · text "Ava" · text "8 Oct 2026, 09:32" · text "EUR 125.00"
 ```
 
-**Rationale:** Nothing gets an ellipsis. A long delivery name wraps to a third line. The row grows. Uneven heights are the honest cost.
+**Rationale:** Nothing gets an ellipsis. A long trip name wraps to a third line. The row grows. Uneven heights are the honest cost.
 
 **Cost:** Rows of different heights break the scan line. A column of wrapped names is harder to compare than short ones.
 
@@ -1014,16 +1014,16 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders from 96 customers."
+    heading "Expenses"
+    text "268 expenses from 96 spenders."
     action "Download"
-  field "Order number, name or email" search
-  region "Orders"
-    table 4 "Order" "Delivery" "Customer" "Paid"
-      item: text "SO-1042" · text "Garcia Interiors restock" · text "Maria Garcia" · text "EUR 125.00"
-    text muted "Scroll sideways for the rest. The order stays pinned."
+  field "Expense number, name or email" search
+  region "Expenses"
+    table 4 "Expense" "Trip" "Spender" "Paid"
+      item: text "EXP-1042" · text "Rotterdam client visit" · text "Ava" · text "EUR 125.00"
+    text muted "Scroll sideways for the rest. The expense stays pinned."
 ```
 
 **Rationale:** Linear and Notion pin the name column while the rest scrolls. A seven-column table stays readable without dropping anything. The pinned cell keeps the card background.
@@ -1036,20 +1036,20 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders, newest first."
+    heading "Expenses"
+    text "268 expenses, newest first."
     action "Download"
-  field "Order or customer" search
-  region "Orders"
+  field "Expense or spender" search
+  region "Expenses"
     list 4
-      item: text "SO-1036" · text "Tom Becker" · text "Garcia Interiors restock" · text "8 Oct 2026, 09:30" · status "Paid" positive · action "Close"
+      item: text "EXP-1036" · text "Tom Becker" · text "Rotterdam client visit" · text "8 Oct 2026, 09:30" · status "Paid" positive · action "Close"
 ```
 
-**Rationale:** Shopify mobile orders show one line per order. A tap opens the row in place. The open row carries customer, delivery, and state. Many orders fit a phone with no dropped column.
+**Rationale:** Shopify mobile orders show one line per order. A tap opens the row in place. The open row carries spender, trip, and state. Many expenses fit a phone with no dropped column.
 
-**Cost:** Comparing customers takes a tap per row. The open row stays open across refresh. One open row at a time is the rule.
+**Cost:** Comparing spenders takes a tap per row. The open row stays open across refresh. One open row at a time is the rule.
 
 **Reference:** Shopify
 
@@ -1057,15 +1057,15 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders from 96 customers."
+    heading "Expenses"
+    text "268 expenses from 96 spenders."
     action "Download"
-  field "Order number, name or email" search
-  region "Orders"
-    table 5 "Order" "Customer" "Placed" "State" "Paid"
-      item: text "SO-1025" · text "Tom Becker" · text "6 Oct 2026, 11:20" · status "Paid" positive · text "EUR 1.28M"
+  field "Expense number, name or email" search
+  region "Expenses"
+    table 5 "Expense" "Spender" "Submitted" "State" "Paid"
+      item: text "EXP-1025" · text "Tom Becker" · text "6 Oct 2026, 11:20" · status "Paid" positive · text "EUR 1.28M"
     text muted "Large figures shorten to keep the width. Hover for the exact amount."
 ```
 
@@ -1093,23 +1093,23 @@ It is the better choice for the home page where the question is how large the mo
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "Refunds"
+  breadcrumb "Home" "Expenses" "Reversals"
   header
-    heading "Refunds"
+    heading "Reversals"
     status "Open" neutral
-    text "10 open. 2 are outside the refund window."
+    text "10 open. 2 are outside the reversal window."
   split 1:3
     nav side
-      link "Orders"
-      link "Late Payments 31"
-      link current "Refunds 10"
+      link "Expenses"
+      link "Late Payouts 31"
+      link current "Reversals 10"
       link "Exceptions 2"
-    region "Refunds"
+    region "Reversals"
       list 5
-        item: text "SO-1029" · text "Elin Lindqvist" · status "No route" critical · text "EUR 45.00" · action "Deal with it"
+        item: text "EXP-1029" · text "Elin Lindqvist" · status "No budget" critical · text "EUR 45.00" · action "Deal with it"
 ```
 
-**Rationale:** Refunds 10 in the sidebar, 1 thing to do on the home page. A count appears where a reader would otherwise have to go and get it.
+**Rationale:** Reversals 10 in the sidebar, 1 thing to do on the home page. A count appears where a reader would otherwise have to go and get it.
 
 **Cost:** Every count is a read on every page load. A count of 0 beside an area is an area that looks finished rather than unused.
 
@@ -1120,15 +1120,15 @@ page
   header
     heading "Good afternoon, Alex"
     text "Two things need you today."
-    action primary "New order"
-  region "Sold this month"
+    action primary "New expense"
+  region "Claimed this month"
     grid 3
-      card "Sold this month"
+      card "Claimed this month"
         figure "9,412"
-        text "Units across every product"
+        text "Lines across every trip"
   region "Needs attention"
     list 2
-      item: text "10 refunds need a decision" · text muted "2 are outside the refund window" · action "Deal with them"
+      item: text "10 reversals need a decision" · text muted "2 are outside the reversal window" · action "Deal with them"
 ```
 
 **Rationale:** The home page shape is label, figure, and one line saying what the figure counts. Carbon describes a KPI as a number with a single word description, and 3 to 5 tiles is a defensible row.
@@ -1141,15 +1141,15 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders from 96 customers."
+    heading "Expenses"
+    text "268 expenses from 96 spenders."
     field "Search" search
-  tabs "All 268" "Needs attention 12" "Awaiting money 31" "Refunded 18"
+  tabs "All 268" "Needs attention 12" "Awaiting payout 31" "Reversed 18"
     region "All"
-      table 3 "Order" "Customer" "Placed" "Paid"
-        item: text "SO-1042" · text "Maria Garcia" · text "8 Oct 2026, 09:32" · status "Paid" positive · text "EUR 125.00"
+      table 3 "Expense" "Spender" "Submitted" "Paid"
+        item: text "EXP-1042" · text "Ava" · text "8 Oct 2026, 09:32" · status "Paid" positive · text "EUR 125.00"
 ```
 
 **Rationale:** A count appears where a reader is about to choose: on a tab, beside a filter option. Anywhere else it is a number about a number.
@@ -1163,13 +1163,13 @@ page
   header
     heading "Good afternoon, Alex"
     text "Two things need you today."
-    action primary "New order"
+    action primary "New expense"
   region "Needs attention"
     list 2
-      item: text "Close out the Okafor Office fit-out" · text muted "The delivery is complete." · action "Close out"
-  region "Deliveries"
+      item: text "Close out the Okafor audit" · text muted "The review is complete." · action "Close out"
+  region "Trips"
     list 2
-      item: text "Garcia Interiors restock" · text muted "Sat 14 Mar 2026, 08:00 to 12:00" · status "Active" positive · action "Open delivery"
+      item: text "Rotterdam client visit" · text muted "Sat 14 Mar 2026, 08:00 to 12:00" · status "Active" positive · action "Open trip"
 ```
 
 **Rationale:** The home page holds the things that need doing and no figures. A count is a report, and this page is a queue.
@@ -1188,7 +1188,7 @@ page
     text "Every figure on this page is read by a report."
   region "What this company holds"
     table 7 "What" "Count" "Report"
-      item: text "Paid orders" · text "214" · link "Orders report"
+      item: text "Paid expenses" · text "214" · link "Expenses report"
 ```
 
 **Rationale:** Each figure names the report that reads it, so a reader who wants a number elsewhere can get it. A figure typed into a page is wrong from the next commit. These figures are read on demand.
@@ -1202,12 +1202,12 @@ page
   header
     heading "Good afternoon, Alex"
     text "Two things need you today."
-    action primary "New order"
-  region "Sold this month"
+    action primary "New expense"
+  region "Claimed this month"
     grid 3
-      card "Sold this month"
+      card "Claimed this month"
         figure "9,412"
-        text "Units across every product"
+        text "Lines across every trip"
         text muted "Read 2 min ago"
         action quiet "Refresh"
 ```
@@ -1225,10 +1225,10 @@ page
   header
     heading "Good afternoon, Alex"
     text "Two things need you today."
-    action primary "New order"
+    action primary "New expense"
   region "Against the targets you set"
     list 3
-      item: text "Oak desk lamp sold" · text muted "Target 10,000 by 14 Mar 2026" · text "9,412" · image "Target bar, 94 percent sold"
+      item: text "Rotterdam trip spend" · text muted "Target EUR 10,000 by 14 Mar 2026" · text "9,412" · image "Target bar, 94 percent spent"
 ```
 
 **Rationale:** Shopify goals and GitHub milestones draw the count against its target, so 9,412 reads as nearly full. The target is the company figure, stated beside the bar.
@@ -1247,26 +1247,26 @@ page
     text "Every figure as at 8 Oct 2026, 14:22, Europe/Amsterdam."
   region "September"
     list 6
-      item: text "Units sold" · text "9,412" · text muted "as at 8 Oct 2026, 14:22"
+      item: text "Lines claimed" · text "9,412" · text muted "as at 8 Oct 2026, 14:22"
 ```
 
 **Rationale:** Every figure carries the moment it was true. A number that moves now says when it was last read, which turns an unanchored claim into a dated fact.
 
 **Cost:** A date under every figure is a wall of dates. It is a data product rather than a dashboard.
 
-### Sales over Time
+### Spending over Time
 
-**ID:** `litespec/frontend/patterns/money-time-density#sales-over-time`
+**ID:** `litespec/frontend/patterns/money-time-density#spending-over-time`
 
-**Question:** A dashboard can answer how the season is going with a number. A number says where the product stands. Only a line says whether it is speeding up or slowing down.
+**Question:** A dashboard can answer how the quarter is going with a number. A number says where the budget stands. Only a line says whether it is speeding up or slowing down.
 
 **Default:** `daily-columns-with-the-total-above`
 
 **Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
 
-**Rationale:** Ship the daily columns with the total above and the peak labeled. They answer how much and when in one glance. The runner-up is the cumulative line against the previous season.
+**Rationale:** Ship the daily columns with the total above and the peak labeled. They answer how much and when in one glance. The runner-up is the cumulative line against the previous quarter.
 
-It is the better choice once the product has a season to beat. Never ship the chart without its table, since a figure nobody can read exactly is a figure nobody can cite.
+It is the better choice once the budget has a quarter to beat. Never ship the chart without its table, since a figure nobody can read exactly is a figure nobody can cite.
 
 **Reviewed for:** Which built trend chart differs from the wireframe its catalog entry chose? Open the built columns, areas, and sparklines beside the catalog entry recording the chosen option and its reason.
 
@@ -1274,16 +1274,16 @@ It is the better choice once the product has a season to beat. Never ship the ch
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Oak desk lamp" "Sales"
+  breadcrumb "Home" "Trips" "Rotterdam client visit" "Spending"
   header
-    heading "Oak desk lamp, sales"
+    heading "Rotterdam client visit, spending"
     text "The 30 days to 8 Oct 2026, Europe/Amsterdam."
     action "Download"
-  region "Units per day"
-    figure "8,176 units"
-    text "30 days. Peak 8 Oct, 488 units."
-    image "Daily unit sales, 9 September to 8 October 2026, bar chart"
-    text muted "Counts are units sold, before refunds."
+  region "Lines per day"
+    figure "8,176 lines"
+    text "30 days. Peak 8 Oct, 488 lines."
+    image "Daily lines claimed, 9 September to 8 October 2026, bar chart"
+    text muted "Counts are lines claimed, before reversals."
 ```
 
 **Rationale:** Shopify sales reports open with the total and draw the days as columns, so the headline and the shape sit together. The peak day is labeled in words, which is what the company quotes in the review.
@@ -1292,26 +1292,26 @@ page
 
 **Reference:** Shopify
 
-#### `cumulative-sales-against-the-previous-season`: Cumulative Sales Against the Previous Season
+#### `cumulative-sales-against-the-previous-season`: Cumulative Spending Against the Previous Quarter
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Oak desk lamp" "Sales"
+  breadcrumb "Home" "Trips" "Rotterdam client visit" "Spending"
   header
-    heading "Oak desk lamp, sales"
-    text "Sold so far, against the previous season."
+    heading "Rotterdam client visit, spending"
+    text "Claimed so far, against the previous quarter."
     action "Download"
-  region "Cumulative units sold"
-    figure "9,412 units"
-    text "1,042 ahead of the previous season."
-    text muted "Solid line is this season. Dashed line is the previous season."
-    image "Cumulative units sold against the previous season, line chart"
-    text muted "Both lines count the same weeks after the season launch."
+  region "Cumulative lines claimed"
+    figure "9,412 lines"
+    text "1,042 ahead of the previous quarter."
+    text muted "Solid line is this quarter. Dashed line is the previous quarter."
+    image "Cumulative lines claimed against the previous quarter, line chart"
+    text muted "Both lines count the same weeks after the quarter start."
 ```
 
-**Rationale:** Vercel analytics draw the previous period as a dashed line behind the current one, so the comparison needs no second chart. A sold line above a dashed line is the whole story of a growing season.
+**Rationale:** Vercel analytics draw the previous period as a dashed line behind the current one, so the comparison needs no second chart. A claimed line above a dashed line is the whole story of a growing quarter.
 
-**Cost:** A first-year product has no previous season, so the page says that rather than drawing one line and calling it a comparison. The dashed line also invites reading a gap that is a calendar shift.
+**Cost:** A first-year budget has no previous quarter, so the page says that rather than drawing one line and calling it a comparison. The dashed line also invites reading a gap that is a calendar shift.
 
 **Reference:** Vercel
 
@@ -1319,21 +1319,21 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Oak desk lamp" "Sales"
+  breadcrumb "Home" "Trips" "Rotterdam client visit" "Spending"
   header
-    heading "Oak desk lamp, sales"
-    text "Sold so far, week by week from the season launch."
+    heading "Rotterdam client visit, spending"
+    text "Claimed so far, week by week from the quarter start."
     action "Download"
-  region "Cumulative units sold"
-    figure "9,412 units"
+  region "Cumulative lines claimed"
+    figure "9,412 lines"
     fact "Average" "672 a week over 14 weeks"
-    image "Cumulative units sold, week by week, area chart"
-    text muted "The average covers the 14 weeks since the season launch."
+    image "Cumulative lines claimed, week by week, area chart"
+    text muted "The average covers the 14 weeks since the quarter start."
 ```
 
 **Rationale:** Stripe revenue charts fill under the line and state the average beside it, so the eye reads momentum and the figure reads pace. The fill makes a slow week visible as a flat stretch, not as a missing column.
 
-**Cost:** A fill under a cumulative line is decoration that can read as stock sitting somewhere. The average beside it is the figure that matters, and it has to say which weeks it covers.
+**Cost:** A fill under a cumulative line is decoration that can read as money sitting somewhere. The average beside it is the figure that matters, and it has to say which weeks it covers.
 
 **Reference:** Stripe
 
@@ -1341,21 +1341,21 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Oak desk lamp" "Sales"
+  breadcrumb "Home" "Trips" "Rotterdam client visit" "Spending"
   header
-    heading "Oak desk lamp, sales"
+    heading "Rotterdam client visit, spending"
     text "The 30 days to 8 Oct 2026, in weeks."
     action "Download"
-  region "Units per week"
-    figure "8,176 units"
+  region "Lines per week"
+    figure "8,176 lines"
     fact "Weekly average" "1,831, full weeks only"
-    image "Units sold per week with the weekly average marked, bar chart"
+    image "Lines claimed per week with the weekly average marked, bar chart"
     text muted "The last column holds two days, 7 and 8 October."
 ```
 
-**Rationale:** Plausible dashboards mark the average across the bars, so a glance says which weeks pulled their weight. Weekly columns suit a company that plans marketing spend by week, not by day.
+**Rationale:** Plausible dashboards mark the average across the bars, so a glance says which weeks pulled their weight. Weekly columns suit a company that plans payout runs by week, not by day.
 
-**Cost:** Weeks split the story the season tells: launch, steady sale, and last call. A week that holds two of them averages them away, and the final two-day column is not a week at all.
+**Cost:** Weeks split the story the quarter tells: kickoff, steady filing, and year-end close. A week that holds two of them averages them away, and the final two-day column is not a week at all.
 
 **Reference:** Plausible
 
@@ -1363,15 +1363,15 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Oak desk lamp" "Sales"
+  breadcrumb "Home" "Trips" "Rotterdam client visit" "Spending"
   header
-    heading "Oak desk lamp, sales"
+    heading "Rotterdam client visit, spending"
     text "The 30 days to 8 Oct 2026, by week."
     action "Download"
   region "By week"
-    table 6 "Week" "Units" "Income"
+    table 6 "Week" "Lines" "Claimed"
       item: text "8 to 14 September" · text "1,822" · text "EUR 81,990.00"
-    text muted "Income is units at the company prices, before refunds."
+    text muted "Claimed is lines at receipt amounts, before reversals."
 ```
 
 **Rationale:** GOV.UK data guidance asks that every chart ships with its data table. A figure nobody can read exactly is a figure nobody can cite. The table is also what a screen reader reads and what the download carries.
@@ -1380,40 +1380,40 @@ page
 
 **Reference:** GOV.UK
 
-#### `one-sparkline-per-channel`: One Sparkline per Channel
+#### `one-sparkline-per-channel`: One Sparkline per Cost Centre
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Oak desk lamp" "Sales"
+  breadcrumb "Home" "Trips" "Rotterdam client visit" "Spending"
   header
-    heading "Oak desk lamp, sales"
-    text "9,412 units across three channels."
+    heading "Rotterdam client visit, spending"
+    text "9,412 lines across three cost centres."
     action "Download"
-  region "By channel, last 14 weeks"
+  region "By cost centre, last 14 weeks"
     list 3
-      item: text "Online shop" · text muted "Orders placed in the company shop" · image "Online shop sales, sparkline" · text "7,340"
-    text muted "Each line is scaled to its own channel. Compare the figures, not the slopes."
+      item: text "Amsterdam sales" · text muted "Lines filed against Amsterdam sales" · image "Amsterdam sales spending, sparkline" · text "7,340"
+    text muted "Each line is scaled to its own cost centre. Compare the figures, not the slopes."
 ```
 
-**Rationale:** Vercel usage pages put a sparkline beside each meter, so three channels share one row each and the shape of each is comparable. The figure beside each line carries the exact count the line cannot.
+**Rationale:** Vercel usage pages put a sparkline beside each meter, so three cost centres share one row each and the shape of each is comparable. The figure beside each line carries the exact count the line cannot.
 
-**Cost:** Three sparklines share no axis, so a steep line can mean 30 units or 3,000. The figure beside each one is required, which makes the line a hint rather than the answer.
+**Cost:** Three sparklines share no axis, so a steep line can mean 30 lines or 3,000. The figure beside each one is required, which makes the line a hint rather than the answer.
 
 **Reference:** Vercel
 
-### Sales by Product Variant
+### Spending by Expense Kind
 
-**ID:** `litespec/frontend/patterns/money-time-density#sales-by-product-variant`
+**ID:** `litespec/frontend/patterns/money-time-density#spending-by-expense-kind`
 
-**Question:** The autumn range sells three lamp variants and a guide. The company asks which variant carries the season, and the answer is a share, not a total.
+**Question:** The Rotterdam trip claims three expense kinds and a fee. The company asks which kind carries the quarter, and the answer is a share, not a total.
 
 **Default:** `horizontal-bars-with-the-figure-on-each-row`
 
 **Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
 
-**Rationale:** Ship the horizontal bars with the figure on each row. Every variant reads with its count and its money in one glance. The runner-up is the table with a bar in each row.
+**Rationale:** Ship the horizontal bars with the figure on each row. Every kind reads with its count and its money in one glance. The runner-up is the table with a bar in each row.
 
-It is the better choice once variants gain states such as paused or sold out. Never ship the donut alone, since an angle nobody can read exactly is decoration and not a figure.
+It is the better choice once kinds gain states such as disputed or reversed. Never ship the donut alone, since an angle nobody can read exactly is decoration and not a figure.
 
 **Reviewed for:** Which built mix chart differs from the wireframe its catalog entry chose? Open the built bars, tiles, and donuts beside the catalog entry recording the chosen option and its reason.
 
@@ -1421,42 +1421,42 @@ It is the better choice once variants gain states such as paused or sold out. Ne
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Autumn range" "Sales"
+  breadcrumb "Home" "Trips" "Rotterdam client visit" "Spending"
   header
-    heading "Autumn range, by variant"
-    text "9,412 lamps and 126 guides, at the company prices."
+    heading "Rotterdam client visit, by kind"
+    text "9,412 lines and 126 nights, at receipt amounts."
     action "Download"
-  region "Lamps"
+  region "Lines"
     list 3
-      item: text "Oak desk lamp" · text muted "EUR 45.00, 6,204 units" · text "EUR 279,180.00" · image "Share bar, 65.9 percent"
-  region "Design guides"
-    fact "Lighting design guide" "EUR 3,150.00"
-    text muted "EUR 25.00, 126 guides. Guides keep their own scale."
+      item: text "Travel" · text muted "EUR 45.00, 6,204 lines" · text "EUR 279,180.00" · image "Share bar, 65.9 percent"
+  region "Lodging"
+    fact "Hotel nights" "EUR 3,150.00"
+    text muted "EUR 25.00, 126 nights. Nights keep their own scale."
 ```
 
-**Rationale:** Shopify product performance lists each variant with its bar and its money, so the ranking and the figures share one row. Every variant carries its price, its count, and its income, which is the whole question in one glance.
+**Rationale:** Shopify product performance lists each variant with its bar and its money, so the ranking and the figures share one row. Every kind carries its amount, its count, and its claimed total, which is the whole question in one glance.
 
-**Cost:** Bars share one scale, so the guide EUR 3,150.00 is a sliver beside the lamps. A second product line that matters needs its own scale, which this option refuses to give it.
+**Cost:** Bars share one scale, so the lodging EUR 3,150.00 is a sliver beside the travel. A second trip that matters needs its own scale, which this option refuses to give it.
 
 **Reference:** Shopify
 
-#### `one-stacked-bar-for-the-whole-range`: One Stacked Bar for the Whole Range
+#### `one-stacked-bar-for-the-whole-range`: One Stacked Bar for the Whole Trip
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Autumn range" "Sales"
+  breadcrumb "Home" "Trips" "Rotterdam client visit" "Spending"
   header
-    heading "Autumn range, by variant"
-    text "9,412 lamps at the company prices."
+    heading "Rotterdam client visit, by kind"
+    text "9,412 lines at receipt amounts."
     action "Download"
   region "The mix"
-    image "Autumn range mix, stacked strip"
+    image "Trip mix, stacked strip"
     list 3
-      item: text "Oak desk lamp" · text "6,204" · text "EUR 279,180.00"
-    text muted "Shares are of units sold, not of income."
+      item: text "Travel" · text "6,204" · text "EUR 279,180.00"
+    text muted "Shares are of lines claimed, not of money."
 ```
 
-**Rationale:** GitHub language bars compress a whole repository into one strip with its legend as figures. This is the right shape for a range with three variants and one total. The strip says the mix. The legend says the money.
+**Rationale:** GitHub language bars compress a whole repository into one strip with its legend as figures. This is the right shape for a trip with three kinds and one total. The strip says the mix. The legend says the money.
 
 **Cost:** A strip has no axis, so 22 percent and 24 percent are the same length to the eye. The legend carries every exact figure, which makes the strip a summary rather than the answer.
 
@@ -1466,18 +1466,18 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Autumn range" "Sales"
+  breadcrumb "Home" "Trips" "Rotterdam client visit" "Spending"
   header
-    heading "Autumn range, by variant"
-    text "Every variant with its price, its count and its share."
+    heading "Rotterdam client visit, by kind"
+    text "Every kind with its amount, its count and its share."
     action "Download"
-  region "By variant"
-    table 4 "Variant" "State" "Price" "Sold" "Share" "Income"
-      item: text "Oak desk lamp" · status "Active" positive · text "EUR 45.00" · text "6,204" · image "Share bar, 65.9 percent" · text "EUR 279,180.00"
-    text muted "The brass lamp is paused. Its sold units stand."
+  region "By kind"
+    table 4 "Kind" "State" "Amount" "Claimed" "Share" "Total"
+      item: text "Travel" · status "Active" positive · text "EUR 45.00" · text "6,204" · image "Share bar, 65.9 percent" · text "EUR 279,180.00"
+    text muted "The taxi kind is paused. Its claimed lines stand."
 ```
 
-**Rationale:** Notion progress columns put a bar inside the table cell, so the figure and its share never separate. The table also has room for the state each variant is in, which bars alone cannot carry.
+**Rationale:** Notion progress columns put a bar inside the table cell, so the figure and its share never separate. The table also has room for the state each kind is in, which bars alone cannot carry.
 
 **Cost:** Five columns need a wide page, so the table scrolls sideways on a phone. The bar in a scrolling table is the first thing cut off, which is where the share lives.
 
@@ -1487,36 +1487,36 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Autumn range" "Sales"
+  breadcrumb "Home" "Trips" "Rotterdam client visit" "Spending"
   header
-    heading "Autumn range, by variant"
-    text "Three variants, one season."
+    heading "Rotterdam client visit, by kind"
+    text "Three kinds, one quarter."
     action "Download"
-  region "By variant"
+  region "By kind"
     grid 3
-      card "Oak desk lamp"
+      card "Travel"
         figure "EUR 279,180.00"
-        text "EUR 45.00, 6,204 units, 65.9 percent"
+        text "EUR 45.00, 6,204 lines, 65.9 percent"
 ```
 
-**Rationale:** A per-variant summary gives each variant its own tile with sold and share. Three variants read as three facts rather than one ranking. Tiles suit a home page where the by-variant question is asked in passing.
+**Rationale:** A per-kind summary gives each kind its own tile with claimed and share. Three kinds read as three facts rather than one ranking. Tiles suit a home page where the by-variant question is asked in passing.
 
-**Cost:** Tiles cannot be sorted or compared at a glance the way bars can, and a fourth variant wraps the row. The price each tile needs makes every tile taller than the figure it carries.
+**Cost:** Tiles cannot be sorted or compared at a glance the way bars can, and a fourth kind wraps the row. The amount each tile needs makes every tile taller than the figure it carries.
 
 #### `a-donut-with-its-legend-as-figures`: A Donut with Its Legend as Figures
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Autumn range" "Sales"
+  breadcrumb "Home" "Trips" "Rotterdam client visit" "Spending"
   header
-    heading "Autumn range, by variant"
-    text "9,412 lamps at the company prices."
+    heading "Rotterdam client visit, by kind"
+    text "9,412 lines at receipt amounts."
     action "Download"
   region "The mix"
-    image "Lamp mix, donut chart: 65.9 percent oak, 22.4 percent small, 11.7 percent brass"
+    image "Kind mix, donut chart: 65.9 percent travel, 22.4 percent meals, 11.7 percent lodging"
     list 3
-      item: text "Oak desk lamp" · text "6,204" · text "EUR 279,180.00"
-    text muted "Shares are of units sold. The legend is the readable form of this chart."
+      item: text "Travel" · text "6,204" · text "EUR 279,180.00"
+    text muted "Shares are of lines claimed. The legend is the readable form of this chart."
 ```
 
 **Rationale:** Linear project progress rings the whole and lists each part with its count, so the shape invites the eye and the legend answers. The donut earns its place where the mix is the message and the ranking is settled.
@@ -1529,102 +1529,102 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Autumn range" "Sales"
+  breadcrumb "Home" "Trips" "Rotterdam client visit" "Spending"
   header
-    heading "Autumn range, by variant"
-    text "Units per week for two variants, last 30 days."
+    heading "Rotterdam client visit, by kind"
+    text "Lines per week for two kinds, last 30 days."
     action "Download"
-  region "Oak lamp against brass lamp"
-    text muted "Solid line is the oak lamp. Dashed line is the brass lamp."
-    image "Weekly units for the oak lamp and the brass lamp, line chart"
-    text muted "The last column holds two days. The small lamp is omitted."
+  region "Travel against lodging"
+    text muted "Solid line is travel. Dashed line is lodging."
+    image "Weekly lines for travel and lodging, line chart"
+    text muted "The last column holds two days. Meals are omitted."
 ```
 
-**Rationale:** Vercel analytics compare two series as lines over one axis. The oak lamp and the brass lamp share the weeks and diverge honestly. Lines suit the question of when the brass lamp slowed, which no total answers.
+**Rationale:** Vercel analytics compare two series as lines over one axis. Travel and lodging share the weeks and diverge honestly. Lines suit the question of when lodging slowed, which no total answers.
 
-**Cost:** Two lines are the most one chart carries before the tones run out. The small lamp needs its own chart or no line at all. Lines also share one axis, which flatters the brass lamp by drawing it at the oak lamp scale.
+**Cost:** Two lines are the most one chart carries before the tones run out. Meals need their own chart or no line at all. Lines also share one axis, which flatters lodging by drawing it at the travel scale.
 
 **Reference:** Vercel
 
-### Sell-Through Against Capacity
+### Spend Against the Budget
 
-**ID:** `litespec/frontend/patterns/money-time-density#sell-through-against-capacity`
+**ID:** `litespec/frontend/patterns/money-time-density#spend-against-the-budget`
 
-**Question:** The autumn run made 10,000 lamps and 9,412 are sold. The distance between the two is the decision to make more variants, move marketing money, or call the run sold out.
+**Question:** The quarter budget holds EUR 10,000 and EUR 9,412 is claimed. The distance between the two is the decision to move money, hold claims, or call the budget spent.
 
 **Default:** `a-bar-with-sold-held-and-left-in-words`
 
 **Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
 
-**Rationale:** Ship the progress bar with sold, held, and left in words. One glance says how far the run has sold and what is still movable. The runner-up is the per-variant sell-through table.
+**Rationale:** Ship the progress bar with claimed, held, and left in words. One glance says how far the budget has burned and what is still movable. The runner-up is the per-kind spend table.
 
-It is the better choice when one variant is gone and the others are not. Never ship the countdown alone, since 468 left without the run size hides whether the stock is nearly gone or barely touched.
+It is the better choice when one kind is gone and the others are not. Never ship the countdown alone, since EUR 468 left without the budget size hides whether the budget is nearly gone or barely touched.
 
 **Reviewed for:** Which built fill-rate view differs from the wireframe its catalog entry chose? Open the built bars, countdowns, and capacity tables beside the catalog entry recording the chosen option and its reason.
 
-#### `a-bar-with-sold-held-and-left-in-words`: A Bar with Sold, Held and Left in Words
+#### `a-bar-with-sold-held-and-left-in-words`: A Bar with Claimed, Held and Left in Words
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Oak desk lamp" "Sales"
+  breadcrumb "Home" "Finance" "Budgets" "TRIP10"
   header
-    heading "Oak desk lamp, sell-through"
-    text "The autumn run made 10,000 lamps."
-    action "Open product"
-  region "How far the run has sold"
-    figure "94.1 percent sold"
-    text "9,412 of 10,000 lamps. 468 left."
-    image "Sell-through bar, 94 percent sold"
-    fact "Sold" "9,412 lamps"
-    fact "Held" "120 lamps"
-    fact "Left to sell" "468 lamps"
-    text muted "Held lamps are reserved for open quotes and samples."
+    heading "TRIP10, spend"
+    text "The quarter budget holds EUR 10,000."
+    action "Open budget"
+  region "How far the budget has burned"
+    figure "94.1 percent spent"
+    text "EUR 9,412 of EUR 10,000. EUR 468 left."
+    image "Spend bar, 94 percent spent"
+    fact "Claimed" "EUR 9,412"
+    fact "Held" "EUR 120"
+    fact "Left to spend" "EUR 468"
+    text muted "Held money is reserved for open disputes and advances."
 ```
 
-**Rationale:** A commerce app draws sales as a bar against the run with the counts in words, so the glance and the figures agree. Sold, held, and left are three different decisions, which is why all three are named.
+**Rationale:** A budget app draws spending as a bar against the budget with the counts in words, so the glance and the figures agree. Claimed, held, and left are three different decisions, which is why all three are named.
 
-**Cost:** One bar hides which variant is gone, so a sold-out brass lamp behind a half-empty run reads as room to spare. The per-variant rows answer that, not this bar.
+**Cost:** One bar hides which kind is gone, so a spent taxi kind behind a half-empty budget reads as room to spare. The per-kind rows answer that, not this bar.
 
 #### `the-percentage-first-the-bar-under-it`: The Percentage First, the Bar Under It
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Oak desk lamp" "Sales"
+  breadcrumb "Home" "Finance" "Budgets" "TRIP10"
   header
-    heading "Oak desk lamp, sell-through"
-    text "The autumn run made 10,000 lamps."
-    action "Open product"
-  region "Sold"
+    heading "TRIP10, spend"
+    text "The quarter budget holds EUR 10,000."
+    action "Open budget"
+  region "Spent"
     figure "94.1 percent"
-    text "9,412 of 10,000 lamps. 468 left."
-    image "Sell-through bar, 94 percent sold"
-    fact "Held for quotes and samples" "120"
+    text "EUR 9,412 of EUR 10,000. EUR 468 left."
+    image "Spend bar, 94 percent spent"
+    fact "Held for disputes and advances" "EUR 120"
 ```
 
-**Rationale:** Kickstarter project pages lead with the funded percentage and draw the bar under it. The percentage is the sentence and the bar is the illustration. A run at 94 percent reads as nearly gone before a single count is read.
+**Rationale:** Kickstarter project pages lead with the funded percentage and draw the bar under it. The percentage is the sentence and the bar is the illustration. A budget at 94 percent reads as nearly gone before a single count is read.
 
 **Cost:** A percentage loves round numbers and this one is not round. The figure either shows its decimal or lies by one place in a thousand. The counts under it are required, not optional.
 
 **Reference:** Kickstarter
 
-#### `sell-through-per-variant`: Sell-Through per Variant
+#### `sell-through-per-variant`: Spend per Kind
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Oak desk lamp" "Sales"
+  breadcrumb "Home" "Finance" "Budgets" "TRIP10"
   header
-    heading "Oak desk lamp, sell-through"
-    text "9,412 of 10,000 lamps sold."
-    action "Open product"
-  region "By variant"
+    heading "TRIP10, spend"
+    text "EUR 9,412 of EUR 10,000 spent."
+    action "Open budget"
+  region "By kind"
     list 3
-      item: text "Oak desk lamp" · text muted "6,204 of 6,500 lamps" · text "95.4 percent" · image "Sell-through bar, 95 percent"
-    text muted "The brass lamp is paused. Its 200 unsold lamps cannot be bought."
+      item: text "Travel" · text muted "EUR 6,204 of EUR 6,500" · text "95.4 percent" · image "Spend bar, 95 percent"
+    text muted "The taxi kind is paused. Its EUR 200 unclaimed cannot be spent."
 ```
 
-**Rationale:** Shopify inventory by variant draws each variant against its own stock. One empty variant and two full ones are not the same as a third gone everywhere. Each row states what restocking that variant would take.
+**Rationale:** Shopify inventory by variant draws each variant against its own stock. One empty kind and two full ones are not the same as a third gone everywhere. Each row states what refilling that kind would take.
 
-**Cost:** Three bars share no scale unless the runs are close, and here they are not. The run total has to sit above the rows or the stock reads as three stocks.
+**Cost:** Three bars share no scale unless the budgets are close, and here they are not. The budget total has to sit above the rows or the budget reads as three budgets.
 
 **Reference:** Shopify
 
@@ -1632,21 +1632,21 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Oak desk lamp" "Sales"
+  breadcrumb "Home" "Finance" "Budgets" "TRIP10"
   header
-    heading "Oak desk lamp, sell-through"
-    text "Sold so far against the run it must fill."
-    action "Open product"
-  region "Against the run"
-    figure "9,412 of 10,000"
-    text muted "Solid area is sold. Line is the run of 10,000."
-    image "Cumulative lamps sold against the run of 10,000, area chart"
-    text muted "Held lamps are not sold, so they sit under the line."
+    heading "TRIP10, spend"
+    text "Claimed so far against the budget it must fit."
+    action "Open budget"
+  region "Against the budget"
+    figure "EUR 9,412 of EUR 10,000"
+    text muted "Solid area is claimed. Line is the budget of EUR 10,000."
+    image "Cumulative spending against the budget of EUR 10,000, area chart"
+    text muted "Held money is not claimed, so it sits under the line."
 ```
 
-**Rationale:** Metabase goal lines draw the target across the time series. The gap between sold and the run is visible at every week, not only today. The line answers when the run sold, which a bar cannot.
+**Rationale:** Metabase goal lines draw the target across the time series. The gap between claimed and the budget is visible at every week, not only today. The line answers when the budget burned, which a bar cannot.
 
-**Cost:** A run line at 10,000 flattens everything under it. A slow month reads as flat whether it sold 300 or 600 a week. The weekly figures behind the line carry the pace, not the chart.
+**Cost:** A budget line at EUR 10,000 flattens everything under it. A slow month reads as flat whether it spent EUR 300 or 600 a week. The weekly figures behind the line carry the pace, not the chart.
 
 **Reference:** Metabase
 
@@ -1654,41 +1654,41 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Oak desk lamp" "Sales"
+  breadcrumb "Home" "Finance" "Budgets" "TRIP10"
   header
-    heading "Oak desk lamp, sell-through"
+    heading "TRIP10, spend"
     text "As at 8 Oct 2026, 14:22, Europe/Amsterdam."
-    action "Open product"
-  region "Lamps left to sell"
-    figure "468"
-    text "Of 10,000. 9,412 sold, 120 held."
-    message caution "At the last 7 days pace of 2,036 lamps a week, the 468 go in about 2 days."
+    action "Open budget"
+  region "Money left to spend"
+    figure "EUR 468"
+    text "Of EUR 10,000. EUR 9,412 claimed, EUR 120 held."
+    message caution "At the last 7 days pace of EUR 2,036 a week, the EUR 468 goes in about 2 days."
 ```
 
-**Rationale:** Booking.com scarcity notes state what is left and at what pace it goes, because a count without a pace is not a decision. The tile says the stock sells out in about two days at the current pace, which is the reorder decision.
+**Rationale:** Booking.com scarcity notes state what is left and at what pace it goes, because a count without a pace is not a decision. The tile says the budget runs out in about two days at the current pace, which is the refill decision.
 
-**Cost:** A pace prediction is wrong the moment sales spike or stall, and a wrong countdown teaches the company to ignore the tile. It states its basis and its date, which this one does and most do not.
+**Cost:** A pace prediction is wrong the moment spending spikes or stalls, and a wrong countdown teaches the company to ignore the tile. It states its basis and its date, which this one does and most do not.
 
 **Reference:** Booking.com
 
-#### `capacity-sold-held-and-left-as-a-table`: Capacity, Sold, Held and Left as a Table
+#### `capacity-sold-held-and-left-as-a-table`: Capacity, Claimed, Held and Left as a Table
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Oak desk lamp" "Sales"
+  breadcrumb "Home" "Finance" "Budgets" "TRIP10"
   header
-    heading "Oak desk lamp, sell-through"
-    text "Every lamp accounted for, by variant."
-    action "Open product"
-  region "By variant"
-    table 4 "Variant" "Run" "Sold" "Held" "Left"
-      item: text "Oak desk lamp" · text "6,500" · text "6,204" · text "60" · text "236"
-    text muted "Held lamps are reserved for open quotes and samples."
+    heading "TRIP10, spend"
+    text "Every euro accounted for, by kind."
+    action "Open budget"
+  region "By kind"
+    table 4 "Kind" "Budget" "Claimed" "Held" "Left"
+      item: text "Travel" · text "EUR 6,500" · text "EUR 6,204" · text "EUR 60" · text "EUR 236"
+    text muted "Held money is reserved for open disputes and advances."
 ```
 
 **Rationale:** Shopify inventory by location is a table because four figures per row need columns, not bars. Every row adds up across, and every column adds down, so finance can check the arithmetic both ways.
 
-**Cost:** A table of four money-less counts reads as stocktaking, which is what it is. It answers the audit and bores the glance, so the bar belongs above it on the page that holds both.
+**Cost:** A table of four money-less counts reads as a ledger, which is what it is. It answers the audit and bores the glance, so the bar belongs above it on the page that holds both.
 
 **Reference:** Shopify
 
@@ -1712,18 +1712,18 @@ It is the better choice on the home page where the shape of the month matters mo
 
 ```wireframe
 page
-  breadcrumb "Home" "Reports" "Revenue"
+  breadcrumb "Home" "Reports" "Spending"
   header
     heading "September 2026"
     text "Against August 2026, same 30 days."
     action "Download"
   region "September against August"
     grid 3
-      card "Income"
+      card "Spending"
         figure "EUR 63,350.00"
         status "Up 31.1 percent" positive
         text muted "August EUR 48,340.00"
-        text "1,148 orders"
+        text "1,148 expenses"
 ```
 
 **Rationale:** Stripe home tiles compare each figure against the previous period with the basis stated under the delta. No reader asks compared to what. The pill carries direction and size. The words carry the basis.
@@ -1736,23 +1736,23 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Reports" "Revenue"
+  breadcrumb "Home" "Reports" "Spending"
   header
     heading "September 2026"
     text "Against August 2026, same 30 days."
     action "Download"
   region "September against August"
     grid 3
-      card "Income"
+      card "Spending"
         figure "EUR 63,350.00"
         status "Up 31.1 percent" positive
-        image "Income by day, sparkline"
+        image "Spending by day, sparkline"
         text muted "August EUR 48,340.00"
 ```
 
 **Rationale:** Vercel usage tiles pair each meter with its sparkline, so the month reads as a shape rather than as two endpoints. A steady climb and a last-week spike end at the same figure and mean different things.
 
-**Cost:** A sparkline shares no axis with its neighbors, so the refund line can look calmer than the income line while rising faster. The delta pill beside each one is still required.
+**Cost:** A sparkline shares no axis with its neighbors, so the reversal line can look calmer than the spending line while rising faster. The delta pill beside each one is still required.
 
 **Reference:** Vercel
 
@@ -1767,8 +1767,8 @@ page
     action "Download"
   region "September beside August"
     table 4 "Line" "August" "September" "Change"
-      item: text "Income" · text "EUR 48,340.00" · text "EUR 63,350.00" · status "Up EUR 15,010.00" positive
-    text muted "August held 918 orders. September held 1,148."
+      item: text "Spending" · text "EUR 48,340.00" · text "EUR 63,350.00" · status "Up EUR 15,010.00" positive
+    text muted "August held 918 expenses. September held 1,148."
 ```
 
 **Rationale:** Xero comparative profit and loss adds last period as a column with the change in money. The statement stays the statement and gains the trend. The change is in money because percent of a small August line misleads.
@@ -1781,16 +1781,16 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Reports" "Revenue"
+  breadcrumb "Home" "Reports" "Spending"
   header
     heading "September 2026"
-    text "Income EUR 63,350.00, up 31.1 percent on August EUR 48,340.00."
+    text "Spending EUR 63,350.00, up 31.1 percent on August EUR 48,340.00."
     action "Download"
   region "September"
     grid 3
-      card "Income"
+      card "Spending"
         figure "EUR 63,350.00"
-        text "1,148 orders"
+        text "1,148 expenses"
 ```
 
 **Rationale:** Linear cycle summaries state the comparison in one sentence under the heading. The page reads as a verdict rather than as a worksheet. The tiles under it stay clean figures with no pills competing for attention.
@@ -1803,14 +1803,14 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Reports" "Revenue"
+  breadcrumb "Home" "Reports" "Spending"
   header
     heading "September 2026"
     text "Every headline figure against August 2026."
     action "Download"
   region "Headline figures"
     table 5 "Figure" "August" "September" "Change"
-      item: text "Income" · text "EUR 48,340.00" · text "EUR 63,350.00" · status "Up 31.1 percent" positive
+      item: text "Spending" · text "EUR 48,340.00" · text "EUR 63,350.00" · status "Up 31.1 percent" positive
     text muted "Percent where the basis is large, money where it is small."
 ```
 
@@ -1824,16 +1824,16 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Reports" "Revenue"
+  breadcrumb "Home" "Reports" "Spending"
   header
     heading "September 2026"
     text "The first full month. There is no earlier period to compare."
     action "Download"
   region "September"
     grid 3
-      card "Income"
+      card "Spending"
         figure "EUR 63,350.00"
-        text muted "As at 30 September 2026, 1,148 orders"
+        text muted "As at 30 September 2026, 1,148 expenses"
 ```
 
 **Rationale:** GOV.UK statistics releases state the period with no comparison until the next release exists, because a comparison without a fair basis misleads. A new company in its first month has no August, so the tile says when instead of versus.
@@ -1846,35 +1846,35 @@ page
 
 **ID:** `litespec/frontend/patterns/money-time-density#when-the-money-arrives`
 
-**Question:** The payment provider holds the money of the company and pays it out on its own days. The company plans wages and supplier runs around those days, so the schedule is a planning surface, not a history.
+**Question:** Finance holds the approved expenses and pays them out on payout days. Spenders plan around those days, so the schedule is a planning surface, not a history.
 
 **Default:** `upcoming-payouts-with-the-sales-each-one-holds`
 
 **Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
 
-**Rationale:** Ship the list of upcoming payouts with the sales each one holds: the company sees what arrives and when in one place. The runner-up is the past payouts table with bank references, which is the better choice for finance reconciling against the bank.
+**Rationale:** Ship the list of upcoming payouts with the expenses each one holds: the company sees what goes out and when in one place. The runner-up is the past payouts table with bank references, which is the better choice for finance reconciling against the bank.
 
 Never ship the single next-payout tile as the page: one arrival without the ones after it cannot plan a month.
 
 **Reviewed for:** Which built payout view differs from the wireframe its catalog entry chose? Open the built upcoming, weekly, and journey views beside the catalog entry recording the chosen option and its reason.
 
-#### `upcoming-payouts-with-the-sales-each-one-holds`: Upcoming Payouts with the Sales Each One Holds
+#### `upcoming-payouts-with-the-sales-each-one-holds`: Upcoming Payouts with the Expenses Each One Holds
 
 ```wireframe
 page
   breadcrumb "Home" "Reports" "Payouts"
   header
     heading "Payouts"
-    text "What the provider sends to NL91 ABNA 0417 1643, and when."
+    text "What runs from NL91 ABNA 0417 1643, and when."
     action "Download"
   region "On the way and building up"
     table 4 "Arrives" "Holds" "Amount" "State"
-      item: text "Mon 12 Oct 2026" · text "Sales of 5 to 11 October, 418 orders" · text "EUR 8,412.55" · status "On its way" info
+      item: text "Mon 12 Oct 2026" · text "Expenses of 5 to 11 October, 418 expenses" · text "EUR 8,412.55" · status "On its way" info
 ```
 
-**Rationale:** The Stripe payouts list pairs each payout with its arrival date and the sales it holds. The company plans around arrivals rather than around sales. Each row states its state, because a payout building up is not a payout sent.
+**Rationale:** The Stripe payouts list pairs each payout with its arrival date and the expenses it holds. The company plans around arrivals rather than around filings. Each row states its state, because a payout building up is not a payout sent.
 
-**Cost:** A building payout moves with every order, so its amount is stale the moment the page sits open. The page must date each figure, which the list does and a tile cannot.
+**Cost:** A building payout moves with every expense, so its amount is stale the moment the page sits open. The page must date each figure, which the list does and a tile cannot.
 
 **Reference:** Stripe
 
@@ -1885,26 +1885,26 @@ page
   breadcrumb "Home" "Reports" "Payouts"
   header
     heading "Payouts"
-    text "What the provider sends to NL91 ABNA 0417 1643, and when."
+    text "What runs from NL91 ABNA 0417 1643, and when."
     action "Download"
   region "Week of 12 October, EUR 8,412.55"
     table 4 "Arrives" "Holds" "Amount" "State"
-      item: text "Mon 12 Oct" · text "Sales of 5 to 11 October, 418 orders" · text "EUR 8,412.55" · status "On its way" info
+      item: text "Mon 12 Oct" · text "Expenses of 5 to 11 October, 418 expenses" · text "EUR 8,412.55" · status "On its way" info
   region "Week of 5 October, EUR 6,117.46"
     table 4 "Arrives" "Holds" "Amount" "State"
-      item: text "Mon 5 Oct" · text "Sales of 28 to 30 September, 214 orders" · text "EUR 6,117.46" · status "Paid out" positive
+      item: text "Mon 5 Oct" · text "Expenses of 28 to 30 September, 214 expenses" · text "EUR 6,117.46" · status "Paid out" positive
   region "Week of 28 September, EUR 12,618.04"
     table 4 "Arrives" "Holds" "Amount" "State"
-      item: text "Mon 28 Sep" · text "Sales of 21 to 27 September, 302 orders" · text "EUR 12,618.04" · status "Paid out" positive
+      item: text "Mon 28 Sep" · text "Expenses of 21 to 27 September, 302 expenses" · text "EUR 12,618.04" · status "Paid out" positive
 ```
 
-**Rationale:** QuickBooks groups deposits by week with a total per group, because wages and supplier runs are planned by week. The group total is the figure the company carries into planning for the week.
+**Rationale:** QuickBooks groups deposits by week with a total per group, because payouts are planned by week. The group total is the figure the company carries into planning for the week.
 
 **Cost:** A week that holds two payouts, which happens around holidays, gets a total that covers two arrivals. The group then needs its dates restated, which the flat list never needs.
 
 **Reference:** QuickBooks
 
-#### `one-payout-s-journey-from-sale-to-bank`: One Payout's Journey from Sale to Bank
+#### `one-payout-s-journey-from-sale-to-bank`: One Payout's Journey from Approval to Bank
 
 ```wireframe
 page
@@ -1912,12 +1912,12 @@ page
   header
     heading "EUR 8,412.55"
     status "On its way" info
-    text "Sales of 5 to 11 October, 418 orders. Expected Tue 14 October."
+    text "Expenses of 5 to 11 October, 418 expenses. Expected Tue 14 October."
   region "Where it stands"
     timeline 4
       item: text "Sent to NL91 ABNA 0417 1643" · text muted "Mon 12 Oct 2026, 09:15"
-  region "Refunds"
-    text muted "Refunds before Monday are off. Later refunds wait for the next payout."
+  region "Reversals"
+    text muted "Reversals before Monday are off. Later reversals wait for the next payout."
 ```
 
 **Rationale:** The Wise transfer timeline states each step with its time. A reader waiting on money sees where it stands rather than a single pending state. The last step carries the expected date, which is the planning figure.
@@ -1933,7 +1933,7 @@ page
   breadcrumb "Home" "Reports" "Payouts"
   header
     heading "Payouts"
-    text "What arrived, with the reference each bank line carries."
+    text "What went out, with the reference each bank line carries."
     action "Download"
   region "Past payouts"
     table 4 "Paid out" "Covers" "Amount" "Bank reference"
@@ -1944,7 +1944,7 @@ page
 
 **Rationale:** The Revolut Business payout history carries the bank reference on each row, because finance ticks each payout against a bank line. The reference is copyable, which is the whole job of this table.
 
-**Cost:** A history answers reconciliation and nothing else: it says what arrived, never what is coming. The upcoming list has to sit above it or the page plans nothing.
+**Cost:** A history answers reconciliation and nothing else: it says what went out, never what is coming. The upcoming list has to sit above it or the page plans nothing.
 
 **Reference:** Revolut Business
 
@@ -1966,7 +1966,7 @@ page
     text muted "Marked days are payout days. 8 October is today."
   region "Under the month"
     list 3
-      item: text "Mon 5 Oct, paid out" · text muted "Sales of 28 to 30 September" · text "EUR 6,117.46"
+      item: text "Mon 5 Oct, paid out" · text muted "Expenses of 28 to 30 September" · text "EUR 6,117.46"
 ```
 
 **Rationale:** The Google Calendar month answers "when" faster than any list, because payout Mondays form a rhythm the eye keeps. The amounts sit under the month, so the calendar plans and the list below it states.
@@ -1982,11 +1982,11 @@ page
   header
     heading "Good afternoon, Alex Morgan"
     text "Two things need you today."
-    action primary "New order"
+    action primary "New expense"
   region "Next payout"
     card "Mon 12 Oct 2026"
       figure "EUR 8,412.55"
-      text "Sales of 5 to 11 October, 418 orders."
+      text "Expenses of 5 to 11 October, 418 expenses."
       link "All payouts"
       link "September statement"
 ```
@@ -2023,10 +2023,10 @@ page
     status "Unpaid" caution
     text "September 2026. Due 15 October 2026."
     action "Download PDF"
-  region "From Meridian Software"
-    fact "Seller" "Meridian Software B.V., Herengracht 420, Amsterdam"
+  region "From Claimwick"
+    fact "Seller" "Claimwick B.V., Herengracht 420, Amsterdam"
     fact "VAT" "NL987654321B01"
-    fact "To" "Acme Supply"
+    fact "To" "Harbor and Pine"
   region "Lines"
     table 4 "What" "Quantity" "Rate" "Amount"
       item: text "Business subscription, September 2026" · text "1 month" · text "EUR 49.00" · text "EUR 49.00"
@@ -2055,7 +2055,7 @@ page
     action "Download PDF"
   region "What the vendor charged"
     fact "Business subscription, September 2026" "EUR 49.00"
-    fact "Usage fee, 1,204 paid orders at EUR 0.10" "EUR 120.40"
+    fact "Usage fee, 1,204 paid expenses at EUR 0.10" "EUR 120.40"
     fact "Subtotal, excluding VAT" "EUR 169.40"
   region "Tax"
     fact "VAT, 21%" "EUR 35.57"
@@ -2080,8 +2080,8 @@ page
     status "Paid" positive
     text "August 2026. Paid 15 August 2026 by mandate ACM-2024-0117."
     action "Download PDF"
-  region "From Meridian Software"
-    fact "Seller" "Meridian Software B.V., Herengracht 420, Amsterdam"
+  region "From Claimwick"
+    fact "Seller" "Claimwick B.V., Herengracht 420, Amsterdam"
     fact "Paid" "15 August 2026, EUR 190.45"
   region "Lines"
     table 4 "What" "Quantity" "Rate" "Amount"
@@ -2111,7 +2111,7 @@ page
   message critical "The SEPA collection failed on 15 October 2026. Pay by transfer or fix the mandate."
   region "What happens next"
     fact "Due since 15 October 2026" "EUR 204.97"
-    fact "Pay by transfer to Meridian, reference 2026-1841" "EUR 204.97"
+    fact "Pay by transfer to Claimwick, reference 2026-1841" "EUR 204.97"
     fact "If unpaid on 29 October 2026, the plan pauses" "Plan pauses"
 ```
 
@@ -2128,7 +2128,7 @@ page
   breadcrumb "Home" "Invoices"
   header
     heading "Invoices"
-    text "What Acme Supply owes the vendor, newest first."
+    text "What Harbor and Pine owes Claimwick, newest first."
   region "Every invoice"
     table 5 "Invoice" "Period" "State" "Due" "Total"
       item: text "2026-1841" · text "September 2026" · status "Unpaid" caution · text "15 Oct 2026" · text "EUR 204.97"
@@ -2141,21 +2141,21 @@ page
 
 **Reference:** Stripe
 
-#### `the-usage-fee-line-opened-to-its-orders`: The Usage Fee Line Opened to Its Orders
+#### `the-usage-fee-line-opened-to-its-orders`: The Usage Fee Line Opened to Its Expenses
 
 ```wireframe
 page
   breadcrumb "Home" "Invoices" "2026-1841" "Usage fee"
   header
     heading "Usage fee, September 2026"
-    text "EUR 120.40 for 1,204 paid orders at EUR 0.10, on invoice 2026-1841."
-  region "Orders behind the fee"
-    table 3 "Product" "Paid orders" "Fee"
-      item: text "Oak desk lamp" · text "836" · text "EUR 83.60"
-    text muted "Refunded orders carry no usage fee."
+    text "EUR 120.40 for 1,204 paid expenses at EUR 0.10, on invoice 2026-1841."
+  region "Expenses behind the fee"
+    table 3 "Kind" "Paid expenses" "Fee"
+      item: text "Travel" · text "836" · text "EUR 83.60"
+    text muted "Reversed expenses carry no usage fee."
 ```
 
-**Rationale:** The AWS bill breaks each line into the usage behind it, because a metered fee without its meter is a figure on trust. The per-product counts add up to the 1,204 orders on the invoice, which is the check finance runs.
+**Rationale:** The AWS bill breaks each line into the usage behind it, because a metered fee without its meter is a figure on trust. The per-kind counts add up to the 1,204 expenses on the invoice, which is the check finance runs.
 
 **Cost:** Usage behind every line doubles the length of every invoice, so the breakdown belongs one step behind the document. A reader who never opens it trusts the line, which is what the invoice asks.
 
@@ -2165,42 +2165,42 @@ page
 
 **ID:** `litespec/frontend/patterns/money-time-density#two-vat-rates-on-one-page`
 
-**Question:** Books carry 9% and a lamp carries 21%. The customer sees one total. The accounts show two rates on the page the tax return is built from.
+**Question:** Books carry 9% and a hotel night carries 21%. The spender sees one total. The accounts show two rates on the page the tax return is built from.
 
 **Default:** `the-vat-split-under-the-order-total`
 
 **Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
 
-**Rationale:** Ship the VAT split under the order total. The customer total stays one figure and the books get both rates. The runner-up is the per-rate report with taxable bases, which is the better choice at quarter end when finance files the return.
+**Rationale:** Ship the VAT split under the expense total. The spender total stays one figure and the books get both rates. The runner-up is the per-rate report with taxable bases, which is the better choice at quarter end when finance files the return.
 
-Never ship prices with no VAT note at all: a lawful price states what the tax is.
+Never ship amounts with no VAT note at all: a lawful amount states what the tax is.
 
 **Reviewed for:** Which built mixed-rate view differs from the wireframe its catalog entry chose? Open the built splits, badges, and per-rate summaries beside the catalog entry recording the chosen option and its reason.
 
-#### `the-vat-split-under-the-order-total`: The VAT Split Under the Order Total
+#### `the-vat-split-under-the-order-total`: The VAT Split Under the Expense Total
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "SO-1042"
+  breadcrumb "Home" "Expenses" "EXP-1042"
   header
-    heading "SO-1042"
+    heading "EXP-1042"
     status "Paid" positive
-    text "Maria Garcia. Prices include VAT."
-  region "What she paid"
-    fact "Oak desk lamp, 2 at EUR 45.00" "EUR 90.00"
-    fact "Delivery fee" "EUR 10.00"
-    fact "Lighting design guide" "EUR 25.00"
-    fact "Paid by the customer" "EUR 125.00"
+    text "Ava. Amounts include VAT."
+  region "What she claimed"
+    fact "Hotel night, 2 at EUR 45.00" "EUR 90.00"
+    fact "Booking fee" "EUR 10.00"
+    fact "Design book" "EUR 25.00"
+    fact "Paid to the spender" "EUR 125.00"
   region "VAT in that total"
     fact "9% on books, base EUR 22.94" "EUR 2.06"
-    fact "21% on lamps and fee, base EUR 82.64" "EUR 17.36"
+    fact "21% on night and fee, base EUR 82.64" "EUR 17.36"
     fact "Total VAT" "EUR 19.42"
-    text muted "Books are taxed at 9%. Lamps and fees at 21%."
+    text muted "Books are taxed at 9%. Nights and fees at 21%."
 ```
 
-**Rationale:** The Coolblue receipts split VAT per rate under the total. One customer-facing figure opens into both rates. Each line states its base and its tax, which is what the return needs per rate.
+**Rationale:** The Coolblue receipts split VAT per rate under the total. One spender-facing figure opens into both rates. Each line states its base and its tax, which is what the return needs per rate.
 
-**Cost:** Three more rows under every total, which is heavy on a receipt for two lamps. The split belongs on the record and the export, not on every row of the orders list.
+**Cost:** Three more rows under every total, which is heavy on a receipt for two nights. The split belongs on the record and the export, not on every row of the expenses list.
 
 **Reference:** Coolblue
 
@@ -2238,42 +2238,42 @@ page
     heading "September 2026"
     text "Every euro of the month under the kind it is."
     action "Download"
-  region "Income"
-    fact "Lamp sales, 1,204 units" "EUR 54,180.00"
-    fact "Service fees customers paid" "EUR 6,020.00"
-    fact "Design guides, 126 guides" "EUR 3,150.00"
-    fact "Total income" "EUR 63,350.00"
-  region "VAT in that income"
-    fact "At 21%, on lamps and fees, base EUR 49,752.07" "EUR 10,447.93"
+  region "Spending"
+    fact "Travel, 1,204 lines" "EUR 54,180.00"
+    fact "Meals" "EUR 6,020.00"
+    fact "Books, 126 copies" "EUR 3,150.00"
+    fact "Total claimed" "EUR 63,350.00"
+  region "VAT in that spending"
+    fact "At 21%, on nights and fees, base EUR 49,752.07" "EUR 10,447.93"
     fact "At 9%, on books, base EUR 2,889.91" "EUR 260.09"
     fact "Total VAT collected" "EUR 10,708.02"
-    fact "Net for Acme Supply" "EUR 61,346.68"
+    fact "Net paid out" "EUR 61,346.68"
 ```
 
-**Rationale:** The Xero tax summary groups collected VAT by rate under the income it came from. The last group of the statement is the first draft of the return. Each line states its base, because the return taxes the base, not the gross.
+**Rationale:** The Xero tax summary groups collected VAT by rate under the spending it came from. The last group of the statement is the first draft of the return. Each line states its base, because the return taxes the base, not the gross.
 
 **Cost:** VAT on the statement repeats figures the VAT report owns, so two pages state the same tax. The statement group has to match the report to the cent, which is a second read that can disagree.
 
 **Reference:** Xero
 
-#### `rate-badges-beside-each-product`: Rate Badges Beside Each Product
+#### `rate-badges-beside-each-product`: Rate Badges Beside Each Kind
 
 ```wireframe
 page
-  breadcrumb "Home" "Products"
+  breadcrumb "Home" "Settings"
   header
-    heading "Products and fees"
+    heading "Kinds and fees"
     text "Every price includes VAT at the rate beside it."
     action "Tax settings"
   region "Every price with its rate"
     list 5
-      item: text "Oak desk lamp" · text muted "EUR 45.00, includes VAT" · status "21%" neutral · action "Edit"
-    text muted "A price in the shop always states that it includes VAT."
+      item: text "Hotel night" · text muted "EUR 45.00, includes VAT" · status "21%" neutral · action "Edit"
+    text muted "An amount on a receipt always states that it includes VAT."
 ```
 
-**Rationale:** The Shopify product tax settings show the rate beside each product. The company sees the tax where they set the price. A wrong rate is caught at the price, not at the return.
+**Rationale:** The Shopify product tax settings show the rate beside each product. The company sees the tax where they set the amount. A wrong rate is caught at the amount, not at the return.
 
-**Cost:** A rate on the product page is a setting shown as a fact, and a reader may not know where to change it. Each badge opens the tax settings instead of only stating the rate.
+**Cost:** A rate on the kinds page is a setting shown as a fact, and a reader may not know where to change it. Each badge opens the tax settings instead of only stating the rate.
 
 **Reference:** Shopify
 
@@ -2288,13 +2288,13 @@ page
     action "Download"
   region "Per rate"
     table 4 "Rate" "Base" "VAT" "Gross"
-      item: text "21%, lamps and fees" · text "EUR 133,520.66" · text "EUR 28,039.34" · text "EUR 161,560.00"
-    text muted "Gross is what customers paid, including VAT."
+      item: text "21%, nights and fees" · text "EUR 133,520.66" · text "EUR 28,039.34" · text "EUR 161,560.00"
+    text muted "Gross is what spenders claimed, including VAT."
 ```
 
 **Rationale:** The Exact VAT return overview lists each rate with its base and its tax, because the return is filed per rate. The two quarter lines are the two lines finance copies into the filing.
 
-**Cost:** A report per rate says nothing about which products produced it, so a surprising base needs the product sales behind it. The report opens those sales instead of only stating the base.
+**Cost:** A report per rate says nothing about which kinds produced it, so a surprising base needs the kind spending behind it. The report opens that spending instead of only stating the base.
 
 **Reference:** Exact
 
@@ -2302,24 +2302,24 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "SO-1042"
+  breadcrumb "Home" "Expenses" "EXP-1042"
   header
-    heading "SO-1042"
+    heading "EXP-1042"
     status "Paid" positive
-    text "Maria Garcia. Garcia Interiors restock."
-  region "What she paid"
-    fact "Oak desk lamp, 2 lamps, incl. 21% VAT" "EUR 90.00"
-    fact "Delivery fee, incl. 21% VAT" "EUR 10.00"
-    fact "Lighting design guide, incl. 9% VAT" "EUR 25.00"
+    text "Ava. Rotterdam client visit."
+  region "What she claimed"
+    fact "Hotel night, 2 nights, incl. 21% VAT" "EUR 90.00"
+    fact "Booking fee, incl. 21% VAT" "EUR 10.00"
+    fact "Design book, incl. 9% VAT" "EUR 25.00"
     fact "Paid, incl. VAT" "EUR 125.00"
   region "VAT in that total"
     action quiet "Show the VAT split"
-    text muted "The customer sees one total. The books see both rates."
+    text muted "The spender sees one total. The books see both rates."
 ```
 
-**Rationale:** The Apple store shows the inclusive price with the tax behind a note, because the customer reads one figure and the books read two. The note keeps the option clean while the breakdown stays one step away.
+**Rationale:** The Apple store shows the inclusive price with the tax behind a note, because the spender reads one figure and the books read two. The note keeps the option clean while the breakdown stays one step away.
 
-**Cost:** A breakdown behind a note is a breakdown a reader may never open, and finance opens it on every order it checks. What the return needs should not hide behind what the customer skims past.
+**Cost:** A breakdown behind a note is a breakdown a reader may never open, and finance opens it on every expense it checks. What the return needs should not hide behind what the spender skims past.
 
 **Reference:** Apple
 
@@ -2327,35 +2327,35 @@ page
 
 **ID:** `litespec/frontend/patterns/money-time-density#numbers-at-phone-width`
 
-**Question:** Alex Morgan checks the dispatch of the day from the warehouse floor on a phone. At 390 pixels a money column, a date column, and a state badge do not fit side by side. The page chooses what the number needs beside it.
+**Question:** Alex Morgan checks the payout of the day from the office floor on a phone. At 390 pixels a money column, a date column, and a state badge do not fit side by side. The page chooses what the number needs beside it.
 
 **Default:** `kpis-in-pairs-with-the-orders-under-them`
 
 **Compact:** At 390 pixels the figures pair two across with the latest records under them. Tables become record lists with one right-aligned amount per row. Statements keep their alignment with short labels, and charts halve their axis labels. The compact option is `kpis-in-pairs-with-the-orders-under-them`.
 
-**Rationale:** Ship the two-column KPI pair with the record list under it. The figures of the day stay visible and every order keeps its amount right-aligned. The runner-up is the aligned statement. It is the better choice for finance pages where the adding up is the point.
+**Rationale:** Ship the two-column KPI pair with the record list under it. The figures of the day stay visible and every expense keeps its amount right-aligned. The runner-up is the aligned statement. It is the better choice for finance pages where the adding up is the point.
 
 Never ship the desktop table unchanged at 390: a table that scrolls sideways for its money column hides the answer.
 
 **Reviewed for:** Which built narrow figure differs from the wireframe its catalog entry chose? Open the built pairs, per-row figures, and halved charts at 390 pixels beside the catalog entry recording the chosen option and its reason.
 
-#### `kpis-in-pairs-with-the-orders-under-them`: KPIs in Pairs with the Orders Under Them
+#### `kpis-in-pairs-with-the-orders-under-them`: KPIs in Pairs with the Expenses Under Them
 
 ```wireframe
 page
   header
-    heading "Saturday dispatch"
-    text "Today, 08:00 to 18:00. Amsterdam warehouse."
+    heading "Saturday payout"
+    text "Today, 08:00 to 18:00. Rotterdam office."
   grid 4
-    card "Picked"
+    card "Paid"
       figure "9,412"
       text muted "of 10,000"
-  region "Latest orders"
+  region "Latest expenses"
     list 3
-      item: text "SO-1042" · text muted "Maria Garcia, 09:32" · text "EUR 125.00"
+      item: text "EXP-1042" · text muted "Ava, 09:32" · text "EUR 125.00"
 ```
 
-**Rationale:** The Shopify mobile dashboard pairs its KPIs two across. Four figures fit above the fold of a phone without shrinking to decoration. The orders under them keep one amount each, right-aligned, which is the column the list is about.
+**Rationale:** The Shopify mobile dashboard pairs its KPIs two across. Four figures fit above the fold of a phone without shrinking to decoration. The expenses under them keep one amount each, right-aligned, which is the column the list is about.
 
 **Cost:** Two across at 390 pixels is 169 pixels a tile, so a long figure wraps or clips. Figures over ten characters need the single-column list, not the pair.
 
@@ -2369,11 +2369,11 @@ page
     heading "September 2026"
     text "Every headline figure, one per row."
   region "Headline figures"
-    fact "Income, 1,148 orders" "EUR 63,350.00"
-    fact "Units sold, every product" "9,412"
-    fact "Refunds, 31 units" "EUR 1,550.00"
-  region "Net for Acme Supply"
-    fact "Net, after refunds and fees" "EUR 61,346.68"
+    fact "Spending, 1,148 expenses" "EUR 63,350.00"
+    fact "Lines claimed, every trip" "9,412"
+    fact "Reversals, 31 lines" "EUR 1,550.00"
+  region "Net paid out"
+    fact "Net, after reversals and fees" "EUR 61,346.68"
 ```
 
 **Rationale:** The Revolut account lists one figure per row with its label on the left, because a phone column is one number wide. Every amount keeps its code and its decimals, which the paired tiles cannot promise.
@@ -2382,24 +2382,24 @@ page
 
 **Reference:** Revolut
 
-#### `orders-as-records-with-amounts-right-aligned`: Orders as Records with Amounts Right-Aligned
+#### `orders-as-records-with-amounts-right-aligned`: Expenses as Records with Amounts Right-Aligned
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders, newest first."
+    heading "Expenses"
+    text "268 expenses, newest first."
   toolbar
-    field "Order or customer" search
-  region "Orders"
+    field "Expense or spender" search
+  region "Expenses"
     list 4
-      item: text "SO-1042, Maria Garcia" · text muted "Garcia Interiors restock, 8 Oct 09:32, Paid" · text "EUR 125.00"
+      item: text "EXP-1042, Ava" · text muted "Rotterdam client visit, 8 Oct 09:32, Paid" · text "EUR 125.00"
 ```
 
 **Rationale:** The ING mobile activity list keeps one amount per row, right-aligned in tabular figures, so the money column survives without a table. The state sits under the name, where it is read second.
 
-**Cost:** No sorting by column and no comparison across a column, because there are no columns. A reader hunting one order they were told about is served. A reader auditing the day is not.
+**Cost:** No sorting by column and no comparison across a column, because there are no columns. A reader hunting one expense they were told about is served. A reader auditing the day is not.
 
 **Reference:** ING
 
@@ -2411,13 +2411,13 @@ page
   header
     heading "September 2026"
     text "Every euro of the month."
-  region "Income"
-    fact "Lamps" "EUR 54,180.00"
-    fact "Service fees" "EUR 6,020.00"
-    fact "Guides" "EUR 3,150.00"
-    fact "Income" "EUR 63,350.00"
+  region "Spending"
+    fact "Travel" "EUR 54,180.00"
+    fact "Meals" "EUR 6,020.00"
+    fact "Lodging" "EUR 3,150.00"
+    fact "Spending" "EUR 63,350.00"
   region "Out"
-    fact "Refunds" "EUR 1,550.00"
+    fact "Reversals" "EUR 1,550.00"
     fact "Fees" "EUR 453.32"
     fact "Out" "EUR 2,003.32"
   region "Net"
@@ -2434,14 +2434,14 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Products"
+  breadcrumb "Home" "Trips"
   header
-    heading "Oak desk lamp, sales"
+    heading "Rotterdam client visit, spending"
     text "30 days to 8 October 2026."
-  region "Units per day"
+  region "Lines per day"
     figure "8,176"
     text muted "Peak 8 Oct, 488."
-    image "Daily unit sales, bar chart, 9 September to 8 October 2026"
+    image "Daily lines claimed, bar chart, 9 September to 8 October 2026"
     text muted "Two labels at this width."
     link "Weekly table"
 ```
@@ -2456,26 +2456,26 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders, newest first."
+    heading "Expenses"
+    text "268 expenses, newest first."
   toolbar
-    field "Order or customer" search
-  table 5 "Order" "Customer" "Placed" "State" "Paid"
-    item: text "SO-1042" · text "Maria Garcia" · text "8 Oct, 09:32" · status "Paid" positive · text "EUR 125.00"
+    field "Expense or spender" search
+  table 5 "Expense" "Spender" "Submitted" "State" "Paid"
+    item: text "EXP-1042" · text "Ava" · text "8 Oct, 09:32" · status "Paid" positive · text "EUR 125.00"
 ```
 
 ```wireframe compact
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders, newest first."
+    heading "Expenses"
+    text "268 expenses, newest first."
   toolbar
-    field "Order or customer" search
+    field "Expense or spender" search
   list 3
-    item: text "SO-1042, Maria Garcia" · text muted "8 Oct, 09:32, Paid" · text "EUR 125.00"
+    item: text "EXP-1042, Ava" · text muted "8 Oct, 09:32, Paid" · text "EUR 125.00"
 ```
 
 **Rationale:** The GitHub mobile web turns wide tables into stacked lists under 640 pixels. The same page serves both widths without a second route. The swap follows the viewport, not the device.
@@ -2488,13 +2488,13 @@ page
 
 **ID:** `litespec/frontend/patterns/money-time-density#showing-an-identifier`
 
-**Question:** One design rule governs identifiers: an identifier shown on screen is labeled and copyable, and a raw code never reaches the screen. A serial page that shows SN-0C893968A2 as plain text breaks it, and so does a messages list showing identifiers where a subject should be.
+**Question:** One design rule governs identifiers: an identifier shown on screen is labeled and copyable, and a raw code never reaches the screen. A payout page that shows SH-88213 as plain text breaks it, and so does a messages list showing identifiers where a subject should be.
 
 **Default:** `a-code-monospaced-labeled-and-copyable`
 
 **Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
 
-**Rationale:** Ship the labeled, monospaced, copyable code on the record. It is the shape of the rule and the one thing a support case needs quoted. The runner-up is the identifier as the record name. It is the better choice for records with no human name, such as a warehouse serial.
+**Rationale:** Ship the labeled, monospaced, copyable code on the record. It is the shape of the rule and the one thing a support case needs quoted. The runner-up is the identifier as the record name. It is the better choice for records with no human name, such as a payout reference.
 
 Never ship the page with no identifier: a record nobody can quote is a record support cannot help with.
 
@@ -2504,24 +2504,24 @@ Never ship the page with no identifier: a record nobody can quote is a record su
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "SO-1042"
+  breadcrumb "Home" "Expenses" "EXP-1042"
   header
-    heading "SO-1042"
+    heading "EXP-1042"
     status "Paid" positive
-    text "Maria Garcia, Acme Supply."
-    action primary "Message customer"
+    text "Ava, Harbor and Pine."
+    action primary "Message spender"
   region "Codes to quote"
-    card "Order number"
-      text "SO-1042"
-      text muted "Quote it when you call about the order."
+    card "Expense number"
+      text "EXP-1042"
+      text muted "Quote it when you call about the expense."
       action quiet "Copy"
     card "Bank reference"
       text "SH-88213"
-      text muted "For a support case with the provider."
+      text muted "For a support case with the bank."
       action quiet "Copy"
-    card "Serial numbers"
-      text "SN-0C893968A2"
-      text muted "2 lamps, neither registered."
+    card "Receipt codes"
+      text "RC-0C893968A2"
+      text muted "2 receipts, neither matched."
       action quiet "Copy"
 ```
 
@@ -2537,14 +2537,14 @@ page
   header
     heading "Dispute D-0182"
     status "Disputed" critical
-    text "EUR 45.00 on order SO-1031. Opened 2 Oct 2026 by the provider."
+    text "EUR 45.00 on expense EXP-1031. Opened 2 Oct 2026 by the bank."
     action primary "Answer the bank"
   region "What each code is"
     list 3
-      item: text "Case number" · text muted "What the provider calls it" · text "D-0182" · action quiet "Copy"
+      item: text "Case number" · text muted "What the bank calls it" · text "D-0182" · action quiet "Copy"
 ```
 
-**Rationale:** The label says Order number rather than Reference, because a reference could be anything. A reader who knows what a thing is can use it. A reader who does not can ask.
+**Rationale:** The label says Expense number rather than Reference, because a reference could be anything. A reader who knows what a thing is can use it. A reader who does not can ask.
 
 **Cost:** Some identifiers have no natural name and end up labeled by their kind, which tells a reader nothing about where to use it.
 
@@ -2552,20 +2552,20 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "SO-1042"
+  breadcrumb "Home" "Expenses" "EXP-1042"
   header
-    heading "SO-1042"
+    heading "EXP-1042"
     status "Paid" positive
-    text "Maria Garcia. Garcia Interiors restock."
-    action primary "Message customer"
-  region "The order"
-    fact "Customer" "Maria Garcia"
-    fact "Placed" "8 Oct 2026, 09:32"
+    text "Ava. Rotterdam client visit."
+    action primary "Message spender"
+  region "The expense"
+    fact "Spender" "Ava"
+    fact "Submitted" "8 Oct 2026, 09:32"
     fact "Paid" "EUR 125.00"
-    fact "Lamps" "2, neither registered"
+    fact "Receipts" "2, neither matched"
   region "Details for a support case"
-    action quiet "Show the bank reference and both serial numbers"
-    text muted "Needed only when the provider asks about this payment."
+    action quiet "Show the bank reference and both receipt codes"
+    text muted "Needed only when the bank asks about this payment."
 ```
 
 **Rationale:** A code a reader usually does not need is hidden behind a disclosure. It is there for a support case and out of the way otherwise.
@@ -2576,20 +2576,20 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "Maria Garcia, 8 October"
+  breadcrumb "Home" "Expenses" "Ava, 8 October"
   header
-    heading "Maria Garcia, 8 October"
+    heading "Ava, 8 October"
     status "Paid" positive
-    text "Garcia Interiors restock. EUR 125.00."
+    text "Rotterdam client visit. EUR 125.00."
     action primary "Message her"
-  region "What she bought"
-    fact "Oak desk lamp, 2 lamps" "EUR 90.00"
-    fact "Delivery fee" "EUR 10.00"
-    fact "Lighting design guide" "EUR 25.00"
-    fact "Paid by the customer" "EUR 125.00"
-  region "Lamps"
+  region "What she claimed"
+    fact "Hotel night, 2 nights" "EUR 90.00"
+    fact "Booking fee" "EUR 10.00"
+    fact "Design book" "EUR 25.00"
+    fact "Paid to the spender" "EUR 125.00"
+  region "Nights"
     list 2
-      item: text "Oak desk lamp" · text muted "Covers one lamp" · status "Not registered" neutral
+      item: text "Hotel night" · text muted "Covers one night" · status "Unmatched" neutral
     text muted "Nothing technical on this page."
 ```
 
@@ -2601,21 +2601,21 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Serials" "SN-0C893968A2"
+  breadcrumb "Home" "Expenses" "Receipts" "RC-0C893968A2"
   header
-    heading "SN-0C893968A2"
-    status "Not registered" neutral
-    text "One Oak desk lamp, sold on order SO-1042."
-    action "Deactivate"
-  region "The serial"
-    fact "Covers" "One lamp"
-    fact "Owner" "Maria Garcia"
-    fact "Order" "SO-1042"
+    heading "RC-0C893968A2"
+    status "Unmatched" neutral
+    text "One hotel bill, filed on expense EXP-1042."
+    action "Match to a line"
+  region "The receipt code"
+    fact "Covers" "One bill"
+    fact "Spender" "Ava"
+    fact "Expense" "EXP-1042"
     fact "Issued" "8 Oct 2026, 09:34"
-    fact "Registered" "Never"
+    fact "Matched" "Never"
   region "How it was used"
     timeline 2
-      item: text "Assigned at packing" · text muted "8 Oct 2026, 09:34"
+      item: text "Attached at filing" · text muted "8 Oct 2026, 09:34"
 ```
 
 **Rationale:** Where a record has no human name, the identifier is the heading. The code is what the record is called and it is never repeated as a field.
@@ -2626,15 +2626,15 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "SO-1042"
+  breadcrumb "Home" "Expenses" "EXP-1042"
   header
-    heading "SO-1042"
+    heading "EXP-1042"
     status "Paid" positive
-    text "Maria Garcia. Garcia Interiors restock. Select a code to copy it."
+    text "Ava. Rotterdam client visit. Select a code to copy it."
   region "Codes"
     text muted "The bank reference was just copied. The confirmation lasts two seconds."
     list 3
-      item: text "Order number" · action "SO-1042"
+      item: text "Expense number" · action "EXP-1042"
   toast "Bank reference SH-88213 copied." positive
 ```
 
@@ -2653,10 +2653,10 @@ page
     heading "Disputes"
     text "5 open. Quote the full reference from the record."
   toolbar
-    field "Case, order or charge" search
+    field "Case, expense or charge" search
   region "Cases"
-    table 5 "Case" "Order" "Charge" "Opened" "Held"
-      item: text "D-0182" · text "SO-1031" · text "SH-88" · text "2 Oct 2026" · text "EUR 50.00"
+    table 5 "Case" "Expense" "Charge" "Opened" "Held"
+      item: text "D-0182" · text "EXP-1031" · text "SH-88" · text "2 Oct 2026" · text "EUR 50.00"
     text muted "Two charges shorten to the same four characters. Open the record for the full reference."
   region "On the record"
     card "Charge it disputes"
@@ -2675,7 +2675,7 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Customers" "Messages"
+  breadcrumb "Home" "Spenders" "Messages"
   header
     heading "Messages"
     text "Only the people who said yes to the kind."

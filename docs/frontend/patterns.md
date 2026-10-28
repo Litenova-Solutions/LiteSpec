@@ -48,7 +48,7 @@ A pattern carries four labeled fields, then its options.
 | `**Compact:**` | How the default behaves on a narrow screen |
 | `**Rationale:**` | Why the default, the runner-up and when to prefer it, and what to leave out |
 
-Each option is a `####` heading of the form ``#### `option-id`: Option name``. It carries one `wireframe` block, an optional `wireframe compact` block for a different phone layout, then `**Rationale:**`, `**Cost:**` and an optional `**Reference:**`. A `**Reference:**` names the outside product the option learns from; references are citations, not examples, and may name real products. An option ID is stable once published. The page's Standards hold the rules every option keeps.
+Each option is a `####` heading of the form ``#### `option-id`: Option name``. It carries one `wireframe` block, an optional `wireframe compact` block for a different phone layout, then `**Rationale:**`, `**Cost:**` and an optional `**Reference:**`. A `**Reference:**` names the outside product the option learns from; references are citations, not examples, and may name real products. A `**Rationale:**` or `**Cost:**` may name that product where it states what the option learns from it. An option ID is stable once published. The page's Standards hold the rules every option keeps.
 
 ### The Wireframe Language
 

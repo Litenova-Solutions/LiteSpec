@@ -99,7 +99,7 @@ A route calls use cases, and each use case declares its results. A test proves e
 
 **Statement:** A workspace MUST install the pinned baseline from `litespec.manifest.json` once, into its shared UI package.
 
-**Rationale:** The baseline installed once in the shared UI package gives every application the same primitives at the same pinned version. Installing per application makes a copy per application, and each copy drifts on its own update schedule with nothing reporting the split. An additional baseline source is permitted only under a deviation recorded against this provision.
+**Rationale:** The design baseline installed once in the shared UI package gives every application the same primitives at the same pinned version. Installing per application makes a copy per application, and each copy drifts on its own update schedule with nothing reporting the split. An additional design-baseline source is permitted only under a deviation recorded against this provision.
 
 **Reviewed for:** The shared UI package installs the pinned manifest baseline once, and applications install none. Look in the shared package manifest and lock, and the application manifests.
 
@@ -216,7 +216,7 @@ A route calls use cases, and each use case declares its results. A test proves e
 
 **Statement:** A token definition MUST carry only the values the declared baseline publishes, except under a recorded deviation.
 
-**Rationale:** A token value outside the published ramp is a second palette beside the declared one, and the next author copies the value because it looks approved. Carrying only the values the declared baseline publishes keeps the palette to what the baseline designed. A recorded deviation keeps a deliberate departure visible in the design contract instead of hidden in the tokens.
+**Rationale:** A token value outside the published ramp is a second palette beside the declared one, and the next author copies the value because it looks approved. Carrying only the values the declared baseline publishes keeps the palette to what the design baseline designed. A recorded deviation keeps a deliberate departure visible in the design contract instead of hidden in the tokens.
 
 **Reviewed for:** Token definitions carry only declared baseline values, with each departure recorded as a deviation. Look in the token definitions and the deviation records.
 
@@ -288,7 +288,7 @@ A route calls use cases, and each use case declares its results. A test proves e
 
 **Statement:** A behavior package MUST name the decision record approving it for the capability it supplies, and render through baseline components and tokens.
 
-**Rationale:** A behavior package adds a capability the baseline lacks, such as a chart or a rich editor, and naming the decision record that approves it for that capability keeps the approval tied to the need. Approval follows the capability rather than the visual catalog, so no package duplicates a component the baseline already provides. Rendering through baseline components and tokens keeps the new capability inside the product's look.
+**Rationale:** A behavior package adds a capability the design baseline lacks, such as a chart or a rich editor, and naming the decision record that approves it for that capability keeps the approval tied to the need. Approval follows the capability rather than the visual catalog, so no package duplicates a component the design baseline already provides. Rendering through baseline components and tokens keeps the new capability inside the product's look.
 
 **Reviewed for:** Behavior packages name their approving decision record and render through baseline components and tokens. Look in the package declarations and the decision records.
 
@@ -332,7 +332,7 @@ A route calls use cases, and each use case declares its results. A test proves e
 
 **Replacement:** A consumer can replace this default with an explicit local convention.
 
-**Rationale:** Density is a property of the audience: `public-light` suits a surface a visitor meets once, `application-balanced` suits a surface a signed-in staff member works in, and `admin-dense` suits a surface an operator reads all day. All three profiles share one baseline, so choosing per frontend changes density without changing the visual language.
+**Rationale:** Density is a property of the audience: `public-light` suits a surface a visitor meets once, `application-balanced` suits a surface a signed-in staff member works in, and `admin-dense` suits a surface an operator reads all day. All three profiles share one design baseline, so choosing per frontend changes density without changing the visual language.
 
 **Checked by:** `litespec ui` reports a controlled frontend with no `ui` block declaring its density profile or a profile outside `public-light`, `application-balanced`, `admin-dense`. Run it at the consumer root.
 
