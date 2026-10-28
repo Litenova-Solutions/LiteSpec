@@ -2,7 +2,7 @@
 
 ## Intent
 
-This page holds the patterns for the back-office list, which shows many records of one kind so a reader can find one record, compare rows, and act on them: columns, sorting, filters, row density, selection, paging, row actions, table states, status, money, export, search, grouping, expansion, pinning, cards, and phone layout. A team building a list screen starts from these patterns, an owner picks an option from the drawings, and the team records the choice in its pattern catalog, the file holding the project's interface decisions. One shared set of answers keeps every list in the product behaving the same way, so a reader who learns one list knows them all.
+This page holds the patterns for the expenses list, which shows many records of one kind so a reader can find one record, compare rows, and act on them: columns, sorting, filters, row density, selection, paging, row actions, table states, status, money, export, search, grouping, expansion, pinning, cards, and phone layout. A team building a list screen starts from these patterns, an owner picks an option from the drawings, and the team records the choice in its pattern catalog, the file holding the project's interface decisions. One shared set of answers keeps every list in the product behaving the same way, so a reader who learns one list knows them all.
 
 ## Concepts
 
@@ -12,7 +12,7 @@ Each pattern answers one recurring question about lists, such as which columns a
 
 ### The Running Example
 
-The drawings on this page use the Acme Supply orders list: 268 orders across many customers and deliveries, with order 7K4Q2M for Maria Garcia as one row. Filters, sorting, and paging narrow that list, and the money column shows amounts such as EUR 125.00. The Standards section states the two rules every option keeps: the list view lives in the address, and money columns align right with their currency.
+The drawings on this page use the Claimwick expenses list for Harbor and Pine: 268 expenses across many spenders and trips, with expense EXP-1042 for Ava as one row. Filters, sorting, and paging narrow that list, and the money column shows amounts such as EUR 125.00. The Standards section states the two rules every option keeps: the list view lives in the address, and money columns align right with their currency.
 
 ## Standards
 
@@ -42,15 +42,15 @@ The drawings on this page use the Acme Supply orders list: 268 orders across man
 
 **ID:** `litespec/frontend/patterns/lists-and-tables#choosing-the-columns`
 
-**Question:** Which columns does the orders table show. The reader picks rows by order, customer, date, state, and money. The delivery name sits under the order code as a second line.
+**Question:** Which columns does the expenses table show. The reader picks rows by expense, spender, date, state, and money. The trip name sits under the expense code as a second line.
 
 **Default:** `five-columns-nothing-removable`
 
 **Compact:** The recommended option reflows below `md`. One column, header actions under the title, and a table scrolls inside its own region.
 
-**Rationale:** Keep the default five columns. They answer which order, who, when, what state, and how much. The runner-up is the Columns popover. Add it once more than one team asks for a sixth fact such as method or channel.
+**Rationale:** Keep the default five columns. They answer which expense, who, when, what state, and how much. The runner-up is the Columns popover. Add it once more than one team asks for a sixth fact such as method or cost centre.
 
-Saved views are the later answer, when finance and the warehouse want different tables. Never ship the question-shaped headers. They cost width and read as a form.
+Saved views are the later answer, when finance and the auditors want different tables. Never ship the question-shaped headers. They cost width and read as a form.
 
 **Reviewed for:** Which built column set breaks from the wireframe its catalog entry chose? Open the built choosers and saved views beside the catalog entry recording the chosen option and its reason.
 
@@ -58,47 +58,47 @@ Saved views are the later answer, when finance and the warehouse want different 
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every paid order across every delivery, newest first."
+    heading "Expenses"
+    text "Every paid expense across every trip, newest first."
   toolbar
-    field "Search orders" search
-  region "Orders"
-    table 5 "Order" "Customer" "Placed" "State" "Paid"
-      item: field "Select 7K4Q2M" checkbox · text "7K4Q2M" · text muted "Garcia Interiors restock" · text "Maria Garcia" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
+    field "Search expenses" search
+  region "Expenses"
+    table 5 "Expense" "Spender" "Submitted" "State" "Paid"
+      item: field "Select EXP-1042" checkbox · text "EXP-1042" · text muted "Rotterdam client visit" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
   footer
     text "1 – 25 of 268"
     action quiet "‹ Previous"
     action quiet "Next ›"
 ```
 
-**Rationale:** The default set. Five columns is what fits 1440 without scrolling and covers the four questions: which order, who, when, what state, and what money.
+**Rationale:** The default set. Five columns is what fits 1440 without scrolling and covers the four questions: which expense, who, when, what state, and what money.
 
-**Cost:** Nothing can be dropped or added. A team that wants the delivery as its own column, or that hides the email, has no way to get there.
+**Cost:** Nothing can be dropped or added. A team that wants the trip as its own column, or that hides the email, has no way to get there.
 
 #### `six-columns-with-a-column-chooser`: Six Columns with a Column Chooser
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every paid order across every delivery, newest first."
+    heading "Expenses"
+    text "Every paid expense across every trip, newest first."
   toolbar
-    field "Search orders" search
+    field "Search expenses" search
     field "State" select = "Any state"
     action "Columns"
-  region "Orders"
-    table 6 "Order" "Delivery" "Customer" "Placed" "State" "Paid"
-      item: text "7K4Q2M" · text "Garcia Interiors restock" · text "Maria Garcia" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
+  region "Expenses"
+    table 6 "Expense" "Trip" "Spender" "Submitted" "State" "Paid"
+      item: text "EXP-1042" · text "Rotterdam client visit" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
   footer
     text "1 – 25 of 268"
     action quiet "‹ Previous"
     action quiet "Next ›"
 ```
 
-**Rationale:** Add the delivery as its own column and offer a chooser so each back-office user keeps the columns they use. TanStack draws this as a plain per-user map, so the state is cheap.
+**Rationale:** Add the trip as its own column and offer a chooser so each reader keeps the columns they use. TanStack draws this as a plain per-user map, so the state is cheap.
 
 **Cost:** The chooser is one more control, and a table where everyone sees different columns is harder to talk about in a support reply.
 
@@ -108,26 +108,26 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every paid order across every delivery, newest first."
+    heading "Expenses"
+    text "Every paid expense across every trip, newest first."
   toolbar
-    field "Search orders" search
+    field "Search expenses" search
     action "Columns"
   split 3:1
-    region "Orders"
-      table 5 "Order" "Customer" "Placed" "State" "Paid"
-        item: text "7K4Q2M" · text "Maria Garcia" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
+    region "Expenses"
+      table 5 "Expense" "Spender" "Submitted" "State" "Paid"
+        item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
     aside "Columns"
-      field "Order" checkbox
-      field "Customer" checkbox
-      field "Placed" checkbox
+      field "Expense" checkbox
+      field "Spender" checkbox
+      field "Submitted" checkbox
       field "State" checkbox
       field "Paid" checkbox
-      field "Delivery" checkbox
+      field "Trip" checkbox
       field "Method" checkbox
-      field "Channel" checkbox
+      field "Cost centre" checkbox
       action quiet "Reset"
   footer
     text "1 – 25 of 268"
@@ -143,131 +143,131 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every paid order across every delivery, newest first."
+    heading "Expenses"
+    text "Every paid expense across every trip, newest first."
   toolbar
-    field "Search orders" search
-  region "Orders"
-    table 4 "Order and delivery" "Customer" "State" "Paid"
-      item: field "Select 7K4Q2M" checkbox · text "7K4Q2M" · text muted "Garcia Interiors restock" · text "Maria Garcia" · status "Paid" positive · text "EUR 125.00"
+    field "Search expenses" search
+  region "Expenses"
+    table 4 "Expense and trip" "Spender" "State" "Paid"
+      item: field "Select EXP-1042" checkbox · text "EXP-1042" · text muted "Rotterdam client visit" · text "Ava" · status "Paid" positive · text "EUR 125.00"
   footer
     text "1 – 25 of 268"
     action quiet "‹ Previous"
     action quiet "Next ›"
 ```
 
-**Rationale:** Fold delivery into the order cell and customer into one cell. The table is three columns wide and each row reads as two records of two lines.
+**Rationale:** Fold trip into the expense cell and spender into one cell. The table is three columns wide and each row reads as two records of two lines.
 
-**Cost:** Sorting by delivery becomes impossible, because delivery is not a column. Carbon wants sorting in the headers, and a folded cell has nowhere to put an arrow.
+**Cost:** Sorting by trip becomes impossible, because trip is not a column. Carbon wants sorting in the headers, and a folded cell has nowhere to put an arrow.
 
 #### `columns-sized-to-their-content`: Columns Sized to Their Content
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every paid order across every delivery, newest first."
+    heading "Expenses"
+    text "Every paid expense across every trip, newest first."
   toolbar
-    field "Search orders" search
-  region "Orders"
-    table 5 "Order" "Customer" "Placed" "State" "Paid"
-      item: text "7K4Q2M" · text muted "Garcia Interiors restock" · text "Maria Garcia" · text muted "maria@garcia-interiors.example" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
+    field "Search expenses" search
+  region "Expenses"
+    table 5 "Expense" "Spender" "Submitted" "State" "Paid"
+      item: text "EXP-1042" · text muted "Rotterdam client visit" · text "Ava" · text muted "ava@harbor-pine.example" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
   footer
     text "1 – 25 of 268"
     action quiet "‹ Previous"
     action quiet "Next ›"
 ```
 
-**Rationale:** The money column is narrow and right-aligned, the customer column takes the slack, the date column is fixed. Each column is as wide as its values rather than an even split.
+**Rationale:** The money column is narrow and right-aligned, the spender column takes the slack, the date column is fixed. Each column is as wide as its values rather than an even split.
 
-**Cost:** A long customer name pushes its column wider on one row and narrower on the rest, because table layout is content-driven. Fixed widths are the only way to stop that.
+**Cost:** A long spender name pushes its column wider on one row and narrower on the rest, because table layout is content-driven. Fixed widths are the only way to stop that.
 
 #### `one-column-per-question-headers-that-name-the-question`: One Column per Question, Headers That Name the Question
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every paid order across every delivery, newest first."
+    heading "Expenses"
+    text "Every paid expense across every trip, newest first."
   toolbar
-    field "Search orders" search
+    field "Search expenses" search
     field "State" select = "Any state"
-    field "Delivery" select = "Any delivery"
-  region "Orders"
-    table 5 "Who bought" "For which delivery" "When they paid" "What state" "How much"
-      item: text "Maria Garcia" · text "Garcia Interiors restock" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
+    field "Trip" select = "Any trip"
+  region "Expenses"
+    table 5 "Who claimed" "For which trip" "When they were paid" "What state" "How much"
+      item: text "Ava" · text "Rotterdam client visit" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
   footer
     text "1 – 25 of 268"
     action quiet "‹ Previous"
     action quiet "Next ›"
 ```
 
-**Rationale:** Headers become the questions the reader asks: Who, Which delivery, When, State, How much. Each header is sortable, and the reader can name what they are looking at.
+**Rationale:** Headers become the questions the reader asks: Who, Which trip, When, State, How much. Each header is sortable, and the reader can name what they are looking at.
 
 **Cost:** Longer headers take width from the data. A question-shaped header breaks the one-word-per-column feel.
 
-#### `customer-first-order-code-deferred-to-the-record`: Customer First, Order Code Deferred to the Record
+#### `customer-first-order-code-deferred-to-the-record`: Spender First, Expense Code Deferred to the Record
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Three orders for Garcia Interiors restock, newest first."
+    heading "Expenses"
+    text "Three expenses for Rotterdam client visit, newest first."
   toolbar
-    field "Customer name" search
+    field "Spender name" search
     field "State" select = "Any state"
     action "Export"
-  region "Orders"
-    table 4 "Customer" "Delivery" "State" "Paid"
-      item: text "Maria Garcia" · text "Garcia Interiors restock" · status "Paid" positive · text "EUR 125.00" · action "Open"
+  region "Expenses"
+    table 4 "Spender" "Trip" "State" "Paid"
+      item: text "Ava" · text "Rotterdam client visit" · status "Paid" positive · text "EUR 125.00" · action "Open"
   footer
     text "1 – 3 of 3"
     action quiet "‹ Previous"
     action quiet "Next ›"
 ```
 
-**Rationale:** Support starts from who is asking, not from a code. The customer and the delivery lead, and the order code waits on the record where it is needed.
+**Rationale:** Support starts from who is asking, not from a code. The spender and the trip lead, and the expense code waits on the record where it is needed.
 
-**Cost:** Two orders by one customer for one delivery read as near-identical rows until one is opened. Nothing on the row tells them apart, which costs the scannable identity the default order column gives.
+**Cost:** Two expenses by one spender for one trip read as near-identical rows until one is opened. Nothing on the row tells them apart, which costs the scannable identity the default expense column gives.
 
 #### `a-columns-popover-listing-every-column`: A Columns Popover Listing Every Column
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every paid order across every delivery, newest first."
+    heading "Expenses"
+    text "Every paid expense across every trip, newest first."
   toolbar
-    field "Search orders" search
+    field "Search expenses" search
     action "Columns"
-  region "Orders"
-    table 5 "Order" "Customer" "Placed" "State" "Paid"
-      item: text "7K4Q2M" · text "Maria Garcia" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
+  region "Expenses"
+    table 5 "Expense" "Spender" "Submitted" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
   footer
     text "1 – 25 of 268"
     action quiet "‹ Previous"
     action quiet "Next ›"
   popover "Columns"
-    field "Order · Always shown" checkbox
-    field "Customer" checkbox
-    field "Placed" checkbox
+    field "Expense · Always shown" checkbox
+    field "Spender" checkbox
+    field "Submitted" checkbox
     field "State" checkbox
     field "Paid" checkbox
-    field "Delivery" checkbox
+    field "Trip" checkbox
     field "Method" checkbox
-    field "Channel" checkbox
+    field "Cost centre" checkbox
     action quiet "Reset to default"
 ```
 
-**Rationale:** The Columns control opens a popover with every column, a checkbox each, and Reset to default. The order column is always shown and says so. This is the shadcn/ui data-table view-options menu, and Linear Display panel works the same way.
+**Rationale:** The Columns control opens a popover with every column, a checkbox each, and Reset to default. The expense column is always shown and says so. This is the shadcn/ui data-table view-options menu, and Linear Display panel works the same way.
 
-**Cost:** The popover covers the table while it is open, and drag-to-reorder inside it is a second feature that most back-office users would never find.
+**Cost:** The popover covers the table while it is open, and drag-to-reorder inside it is a second feature that most readers would never find.
 
 **Reference:** shadcn/ui
 
@@ -275,24 +275,24 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
+    heading "Expenses"
     text "Finance view: what was paid, how, and what went back."
   toolbar
-    field "Search orders" search
+    field "Search expenses" search
     field "Date" select = "This month"
-  tabs "All orders" "Finance" "Dispatch list"
+  tabs "All expenses" "Finance" "Payout run"
     region "Finance"
-      table 5 "Order" "Placed" "Method" "Paid" "Refunded"
-        item: text "7K4Q2M" · text "8 Oct 09:32" · text "Bank transfer" · text "EUR 125.00" · text muted "No refund"
+      table 5 "Expense" "Submitted" "Method" "Paid" "Reversed"
+        item: text "EXP-1042" · text "8 Oct 09:32" · text "Bank transfer" · text "EUR 125.00" · text muted "No reversal"
   footer
     text "1 – 25 of 58"
     action quiet "‹ Previous"
     action quiet "Next ›"
 ```
 
-**Rationale:** HubSpot and Linear tie a column set to a saved view. All orders keep the default five, Finance swaps in method, paid, and refunded, and Dispatch list shows customer, delivery, and lines. Each role opens the table it needs, and a support reply can name the view.
+**Rationale:** HubSpot and Linear tie a column set to a saved view. All expenses keep the default five, Finance swaps in method, paid, and reversed, and Payout run shows spender, trip, and lines. Each role opens the table it needs, and a support reply can name the view.
 
 **Cost:** Views are a feature with their own lifecycle: who creates one, whether shared, and what follows when a column retires. Too much for a first release.
 
@@ -302,7 +302,7 @@ page
 
 **ID:** `litespec/frontend/patterns/lists-and-tables#sorting`
 
-**Question:** How does a reader reorder the orders table. The table starts newest first. Each sortable header offers its own order, and the sort lives in the URL so a link carries it.
+**Question:** How does a reader reorder the expenses table. The table starts newest first. Each sortable header offers its own order, and the sort lives in the URL so a link carries it.
 
 **Default:** `every-sortable-header-carries-an-arrow`
 
@@ -310,7 +310,7 @@ page
 
 **Rationale:** Give every sortable header its own arrow. The arrow states that headers sort on touch screens too. The runner-up is headers on a desktop with a Sort control on the phone list. It becomes necessary the moment the table turns into rows below 640 pixels.
 
-Never ship multi-column sort. No back-office question needs two keys.
+Never ship multi-column sort. No finance question needs two keys.
 
 **Reviewed for:** Which built sort control breaks from the wireframe its catalog entry chose? Open the built arrows, stacks, and phone sort controls beside the catalog entry recording the chosen option and its reason.
 
@@ -318,15 +318,15 @@ Never ship multi-column sort. No back-office question needs two keys.
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
+    heading "Expenses"
     text "Sorted by newest first."
   toolbar
-    field "Search orders" search
-  region "Orders"
-    table 5 "Order" "Customer" "Placed ↓" "State" "Paid"
-      item: text "7K4Q2M" · text "Maria Garcia" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
+    field "Search expenses" search
+  region "Expenses"
+    table 5 "Expense" "Spender" "Submitted ↓" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
   footer
     text "1 – 25 of 268"
     action quiet "‹ Previous"
@@ -341,17 +341,17 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every paid order across every delivery."
+    heading "Expenses"
+    text "Every paid expense across every trip."
   toolbar
-    field "Search orders" search
+    field "Search expenses" search
     field "State" select = "Any state"
     field "Sort" select = "Newest first"
-  region "Orders"
-    table 5 "Order" "Customer" "Placed" "State" "Paid"
-      item: text "7K4Q2M" · text "Maria Garcia" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
+  region "Expenses"
+    table 5 "Expense" "Spender" "Submitted" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
   footer
     text "1 – 25 of 268"
     action quiet "‹ Previous"
@@ -366,16 +366,16 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every paid order across every delivery."
+    heading "Expenses"
+    text "Every paid expense across every trip."
   toolbar
-    field "Search orders" search
+    field "Search expenses" search
     action "Reset sort"
-  region "Orders"
-    table 5 "Order ↕" "Customer ↕" "Placed ↓" "State ↕" "Paid ↕"
-      item: text "7K4Q2M" · text "Maria Garcia" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
+  region "Expenses"
+    table 5 "Expense ↕" "Spender ↕" "Submitted ↓" "State ↕" "Paid ↕"
+      item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
   footer
     text "1 – 25 of 268"
     action quiet "‹ Previous"
@@ -390,24 +390,24 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every paid order across every delivery."
+    heading "Expenses"
+    text "Every paid expense across every trip."
   toolbar
-    field "Search orders" search
+    field "Search expenses" search
     action "Sort: 2"
-  region "Orders"
-    text "Sorted by delivery, then by date inside each delivery."
-    table 5 "Order ↑ 1" "Delivery" "Customer" "Placed ↓ 2" "Paid"
-      item: text "7K4Q2M" · text "Garcia Interiors restock" · text "Maria Garcia" · text "8 Oct 09:32" · text "EUR 125.00"
+  region "Expenses"
+    text "Sorted by trip, then by date inside each trip."
+    table 5 "Expense ↑ 1" "Trip" "Spender" "Submitted ↓ 2" "Paid"
+      item: text "EXP-1042" · text "Rotterdam client visit" · text "Ava" · text "8 Oct 09:32" · text "EUR 125.00"
   footer
     text "1 – 25 of 268"
     action quiet "‹ Previous"
     action quiet "Next ›"
 ```
 
-**Rationale:** When a reader sorts by delivery and then by date, the table says so in words rather than relying on two arrows. Useful once a table genuinely needs a secondary key.
+**Rationale:** When a reader sorts by trip and then by date, the table says so in words rather than relying on two arrows. Useful once a table genuinely needs a secondary key.
 
 **Cost:** Almost no reader needs two keys, and the control is a menu of menus. Carbon treats sorting as one column at a time.
 
@@ -415,22 +415,22 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every paid order across every delivery, newest first. Click a heading to sort it."
+    heading "Expenses"
+    text "Every paid expense across every trip, newest first. Click a heading to sort it."
   toolbar
-    field "Search orders" search
-  region "Orders"
-    table 5 "Order" "Customer" "Placed" "State" "Paid"
-      item: text "7K4Q2M" · text "Maria Garcia" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
+    field "Search expenses" search
+  region "Expenses"
+    table 5 "Expense" "Spender" "Submitted" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
   footer
     text "1 – 25 of 268"
     action quiet "‹ Previous"
     action quiet "Next ›"
 ```
 
-**Rationale:** The order is stated once, in words, under the heading, and the headers stay plain. A reader who wants a different order clicks a header.
+**Rationale:** The sort is stated once, in words, under the heading, and the headers stay plain. A reader who wants a different sort clicks a header.
 
 **Cost:** The statement goes stale the moment a reader sorts by clicking, so the page contradicts itself unless the description updates too.
 
@@ -438,23 +438,23 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every paid order across every delivery."
+    heading "Expenses"
+    text "Every paid expense across every trip."
   toolbar
-    field "Search orders" search
-  region "Orders"
+    field "Search expenses" search
+  region "Expenses"
     text muted "Only date and money sort."
-    table 5 "Order" "Customer" "Placed ↓" "State" "Paid ↕"
-      item: text "7K4Q2M" · text "Maria Garcia" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
+    table 5 "Expense" "Spender" "Submitted ↓" "State" "Paid ↕"
+      item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
   footer
     text "1 – 25 of 268"
     action quiet "‹ Previous"
     action quiet "Next ›"
 ```
 
-**Rationale:** Only two headers are buttons: money and date. Order and state sort alphabetically, which almost nobody wants, so they are not buttons at all.
+**Rationale:** Only two headers are buttons: money and date. Expense and state sort alphabetically, which almost nobody wants, so they are not buttons at all.
 
 **Cost:** Selective sorting breaks the expectation that every header is a control, and it hides a capability rather than offering it.
 
@@ -462,15 +462,15 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every paid order across every delivery."
+    heading "Expenses"
+    text "Every paid expense across every trip."
   toolbar
-    field "Search orders" search
-  region "Orders"
-    table 6 "Order ↕" "Customer" "Placed ↓" "State ↕" "Paid ↕"
-      item: text "7K4Q2M" · text "Maria Garcia" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
+    field "Search expenses" search
+  region "Expenses"
+    table 6 "Expense ↕" "Spender" "Submitted ↓" "State ↕" "Paid ↕"
+      item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
   footer
     text "1 – 25 of 268"
     action quiet "‹ Previous"
@@ -479,7 +479,7 @@ page
 
 **Rationale:** Each sortable header is a ghost button with a faint up-down arrow, and the sorted one has a solid arrow. The shadcn/ui and TanStack table examples do the same, and so does Stripe.
 
-**Cost:** Five arrows is more ink in the header row, and the Customer header looks inert beside its neighbors.
+**Cost:** Five arrows is more ink in the header row, and the Spender header looks inert beside its neighbors.
 
 **Reference:** shadcn/ui
 
@@ -487,16 +487,16 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every paid order across every delivery."
+    heading "Expenses"
+    text "Every paid expense across every trip."
   toolbar
-    field "Search orders" search
+    field "Search expenses" search
     field "Sort" select = "Newest first"
-  region "Orders"
-    table 6 "Order ↕" "Customer" "Placed ↓" "State ↕" "Paid ↕"
-      item: text "7K4Q2M" · text "Maria Garcia" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
+  region "Expenses"
+    table 6 "Expense ↕" "Spender" "Submitted ↓" "State ↕" "Paid ↕"
+      item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
   footer
     text "1 – 25 of 268"
     action quiet "‹ Previous"
@@ -505,16 +505,16 @@ page
 
 ```wireframe compact
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every paid order across every delivery."
+    heading "Expenses"
+    text "Every paid expense across every trip."
   toolbar
-    field "Search orders" search
+    field "Search expenses" search
     field "Sort" select = "Newest first"
-  region "Orders"
+  region "Expenses"
     list 6
-      item: text "7K4Q2M · Garcia Interiors restock" · text "EUR 125.00" · text muted "Maria Garcia · 8 Oct 09:32" · status "Paid" positive
+      item: text "EXP-1042 · Rotterdam client visit" · text "EUR 125.00" · text muted "Ava · 8 Oct 09:32" · status "Paid" positive
 ```
 
 **Rationale:** Stripe sorts from the headers on a wide screen. Its mobile list carries a Sort control instead, because rows have no headers to click. The same URL parameter drives both.
@@ -527,7 +527,7 @@ page
 
 **ID:** `litespec/frontend/patterns/lists-and-tables#filters`
 
-**Question:** How does a reader narrow the orders table. Search alone answers one question. Each closed filter control shows how many values it applies, and several categories never share one dropdown.
+**Question:** How does a reader narrow the expenses table. Search alone answers one question. Each closed filter control shows how many values it applies, and several categories never share one dropdown.
 
 **Default:** `one-filter-per-category-visible`
 
@@ -543,26 +543,26 @@ Never ship every category inside one dropdown. It hides the applied state and co
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders across 40 deliveries."
+    heading "Expenses"
+    text "268 expenses across 40 trips."
   toolbar
-    field "Search orders" search
-    field "Delivery" select = "Any delivery"
+    field "Search expenses" search
+    field "Trip" select = "Any trip"
     field "State" select = "Any state"
     field "Date" select = "Any date"
-    field "Channel" select = "Any channel"
-  region "Orders"
-    table 5 "Order" "Customer" "Placed" "State" "Paid"
-      item: text "7K4Q2M" · text "Maria Garcia" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
+    field "Cost centre" select = "Any cost centre"
+  region "Expenses"
+    table 5 "Expense" "Spender" "Submitted" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
   footer
     text "1 – 25 of 268"
     action quiet "‹ Previous"
     action quiet "Next ›"
 ```
 
-**Rationale:** Delivery, state, date, and channel each get their own control in one row. No menu holds more than one category, so a reader can see what is available without opening anything.
+**Rationale:** Trip, state, date, and cost centre each get their own control in one row. No menu holds more than one category, so a reader can see what is available without opening anything.
 
 **Cost:** Four controls plus a search box is a wide toolbar. Below about 700 pixels they have to wrap or collapse, which is where the complexity moves.
 
@@ -570,22 +570,22 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "12 orders match."
+    heading "Expenses"
+    text "12 expenses match."
   toolbar
-    field "Search orders" search
-    field "Delivery" select = "Garcia Interiors restock"
+    field "Search expenses" search
+    field "Trip" select = "Rotterdam client visit"
     field "State" select = "Any state"
     field "Date" select = "This month"
     action quiet "Clear all"
   row
-    action quiet "Garcia Interiors restock x"
+    action quiet "Rotterdam client visit x"
     action quiet "This month x"
-  region "Orders"
-    table 4 "Order" "Customer" "Placed" "State" "Paid"
-      item: text "7K4Q2M" · text "Maria Garcia" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
+  region "Expenses"
+    table 4 "Expense" "Spender" "Submitted" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
   footer
     text "1 – 12 of 12"
     action quiet "‹ Previous"
@@ -600,22 +600,22 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders across 40 deliveries."
+    heading "Expenses"
+    text "268 expenses across 40 trips."
   toolbar
-    field "Search orders" search
-    field "Delivery" select = "Garcia Interiors restock"
+    field "Search expenses" search
+    field "Trip" select = "Rotterdam client visit"
     status "1" info
     field "State" select = "Paid"
     status "1" info
     field "Date" select = "Any date"
     status "0" neutral
     action quiet "Clear 2"
-  region "Orders"
-    table 5 "Order" "Customer" "Placed" "State" "Paid"
-      item: text "7K4Q2M" · text "Maria Garcia" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
+  region "Expenses"
+    table 5 "Expense" "Spender" "Submitted" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
   footer
     text "1 – 25 of 268"
     action quiet "‹ Previous"
@@ -630,22 +630,22 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders across 40 deliveries."
+    heading "Expenses"
+    text "268 expenses across 40 trips."
   split 1:3
     aside "Filter"
       field "Search" text
-      field "Delivery" select = "Any delivery"
+      field "Trip" select = "Any trip"
       field "State" select = "Any state"
-      field "Channel" select = "Any channel"
-      field "Only refunds" checkbox
+      field "Cost centre" select = "Any cost centre"
+      field "Only reversals" checkbox
       action primary "Apply"
       action quiet "Clear"
-    region "Orders"
-      table 6 "Order" "Customer" "Placed" "State" "Paid"
-        item: text "7K4Q2M" · text "Maria Garcia" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
+    region "Expenses"
+      table 6 "Expense" "Spender" "Submitted" "State" "Paid"
+        item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
   footer
     text "1 – 25 of 268"
     action quiet "‹ Previous"
@@ -662,16 +662,16 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders across 40 deliveries."
+    heading "Expenses"
+    text "268 expenses across 40 trips."
   toolbar
-    field "Search orders" search
+    field "Search expenses" search
     action "Filters (2)"
-  region "Orders"
-    table 5 "Order" "Customer" "Placed" "State" "Paid"
-      item: text "7K4Q2M" · text "Maria Garcia" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
+  region "Expenses"
+    table 5 "Expense" "Spender" "Submitted" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
   footer
     text "1 – 25 of 268"
     action quiet "‹ Previous"
@@ -686,20 +686,20 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every paid order across every delivery, newest first."
+    heading "Expenses"
+    text "Every paid expense across every trip, newest first."
   toolbar
-    field "Search orders" search
-  tabs "All 268" "Needs attention 12" "Awaiting money 31" "Refunded 18"
-    region "All orders"
+    field "Search expenses" search
+  tabs "All 268" "Needs attention 12" "Awaiting money 31" "Reversed 18"
+    region "All expenses"
       toolbar
-        field "Delivery" select = "Any delivery"
+        field "Trip" select = "Any trip"
         field "State" select = "Any state"
         field "Date" select = "Any date"
-      table 5 "Order" "Customer" "Placed" "State" "Paid"
-        item: text "7K4Q2M" · text "Maria Garcia" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
+      table 5 "Expense" "Spender" "Submitted" "State" "Paid"
+        item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
   footer
     text "1 – 25 of 268"
     action quiet "‹ Previous"
@@ -714,20 +714,20 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "58 of 268 orders match."
+    heading "Expenses"
+    text "58 of 268 expenses match."
   toolbar
-    field "Search orders" search
-    field "Delivery" select = "Garcia Interiors restock (41)"
+    field "Search expenses" search
+    field "Trip" select = "Rotterdam client visit (41)"
     field "State" select = "Any state (268)"
     field "Date" select = "This month (58)"
     action quiet "Clear all"
   message "Each count answers the other filters as set." info
-  region "Orders"
-    table 5 "Order" "Customer" "Placed" "State" "Paid"
-      item: text "7K4Q2M" · text "Maria Garcia" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
+  region "Expenses"
+    table 5 "Expense" "Spender" "Submitted" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
   footer
     text "1 – 25 of 58"
     action quiet "‹ Previous"
@@ -742,28 +742,28 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "58 of 268 orders match."
+    heading "Expenses"
+    text "58 of 268 expenses match."
   toolbar
-    field "Search orders" search
+    field "Search expenses" search
     action "State: Paid, Awaiting payment"
-    action "Delivery: Garcia Interiors restock"
-    action "Channel"
+    action "Trip: Rotterdam client visit"
+    action "Cost centre"
     action quiet "Clear 3"
-  region "Orders"
-    table 5 "Order" "Customer" "Placed" "State" "Paid"
-      item: text "7K4Q2M" · text "Maria Garcia" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
+  region "Expenses"
+    table 5 "Expense" "Spender" "Submitted" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
   footer
     text "1 – 25 of 58"
     action quiet "‹ Previous"
     action quiet "Next ›"
-  popover "Delivery"
-    field "Garcia Interiors restock (41)" checkbox
-    field "Becker spring refill (12)" checkbox
-    field "Lindqvist studio courier (5)" checkbox
-    field "Counter sale (0)" checkbox
+  popover "Trip"
+    field "Rotterdam client visit (41)" checkbox
+    field "Utrecht audit (12)" checkbox
+    field "Maastricht workshop (5)" checkbox
+    field "Office supplies (0)" checkbox
     action quiet "Clear this filter"
 ```
 
@@ -777,20 +777,20 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "12 orders match two conditions."
+    heading "Expenses"
+    text "12 expenses match two conditions."
   toolbar
-    field "Search orders" search
+    field "Search expenses" search
     action quiet "Clear all"
   row
     action quiet "State is Paid x"
-    action quiet "Delivery is Garcia Interiors restock x"
+    action quiet "Trip is Rotterdam client visit x"
     action quiet "Add condition"
-  region "Orders"
-    table 5 "Order" "Customer" "Placed" "State" "Paid"
-      item: text "7K4Q2M" · text "Maria Garcia" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
+  region "Expenses"
+    table 5 "Expense" "Spender" "Submitted" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
   footer
     text "1 – 12 of 12"
     action quiet "‹ Previous"
@@ -807,7 +807,7 @@ page
 
 **ID:** `litespec/frontend/patterns/lists-and-tables#row-density`
 
-**Question:** How tall is a row in the orders table. Carbon defines five heights from 24 to 64 pixels, and the header, toolbar, and pagination match the row size. The default table runs near 47 pixels per row, between `md` and `lg`.
+**Question:** How tall is a row in the expenses table. Carbon defines five heights from 24 to 64 pixels, and the header, toolbar, and pagination match the row size. The default table runs near 47 pixels per row, between `md` and `lg`.
 
 **Default:** `40-pixels-the-default`
 
@@ -823,15 +823,15 @@ Never ship a density control the reader sets. Most readers set it once, and a sc
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every paid order across every delivery, newest first."
+    heading "Expenses"
+    text "Every paid expense across every trip, newest first."
   toolbar
-    field "Search orders" search
-  region "Orders"
-    table 6 "Order" "Customer" "Placed" "State" "Paid"
-      item: text "7K4Q2M" · text "Maria Garcia" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
+    field "Search expenses" search
+  region "Expenses"
+    table 6 "Expense" "Spender" "Submitted" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
   footer
     text "1 – 25 of 268"
     action quiet "‹ Previous"
@@ -848,25 +848,25 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "Refunds"
+  breadcrumb "Home" "Expenses" "Reversals"
   header
-    heading "Refunds"
-    text "31 orders to decide. Sorted by how long you have left."
+    heading "Reversals"
+    text "31 payouts to decide. Sorted by how long you have left."
   toolbar
-    field "Search refunds" search
+    field "Search reversals" search
     field "Window" select = "Any window"
-  region "Refunds"
-    table 7 "Order ↑" "Customer" "State" "Amount" "Time left"
-      item: text "3H3C68" · text "Elin Lindqvist" · status "Window closed" critical · text "EUR 50.00" · text "Closed 34 days ago"
+  region "Reversals"
+    table 7 "Expense ↑" "Spender" "State" "Amount" "Time left"
+      item: text "EXP-1036" · text "Nina" · status "Window closed" critical · text "EUR 50.00" · text "Closed 34 days ago"
   footer
     text "1 – 25 of 31"
     action quiet "‹ Previous"
     action quiet "Next ›"
 ```
 
-**Rationale:** Carbon `xs`. One line per row, so the eye can travel straight down a column. The right choice for a queue a back-office user works through rather than reads.
+**Rationale:** Carbon `xs`. One line per row, so the eye can travel straight down a column. The right choice for a queue a finance reader works through rather than reads.
 
-**Cost:** One line means the delivery name and the customer email have nowhere to go. Both have to be dropped or opened from the row.
+**Cost:** One line means the trip name and the spender email have nowhere to go. Both have to be dropped or opened from the row.
 
 **Reference:** Carbon
 
@@ -874,16 +874,16 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Deliveries"
+  breadcrumb "Home" "Trips"
   header
-    heading "Deliveries"
-    text "Four deliveries, three with a date still ahead."
+    heading "Trips"
+    text "Four trips, three with a date still ahead."
   toolbar
-    field "Search deliveries" search
+    field "Search trips" search
   tabs "Scheduled 3" "Past 1" "All 4"
     region "Scheduled"
-      table 4 "Delivery ↑" "Date" "State" "Loaded" "Capacity"
-        item: text "Becker spring refill" · text "9 Oct 2026" · status "Scheduled" info · text "32" · text "40 pallets" · action "Open"
+      table 4 "Trip ↑" "Date" "State" "Claimed" "Budget"
+        item: text "Utrecht audit" · text "9 Oct 2026" · status "Scheduled" info · text "EUR 1,600" · text "EUR 2,000" · action "Open"
   footer
     text "1 – 4 of 4"
     action quiet "‹ Previous"
@@ -892,7 +892,7 @@ page
 
 **Rationale:** Carbon `sm`. Enough for a badge and one line, which covers a working table where every row gets an action.
 
-**Cost:** A two-line cell such as order number over delivery name does not fit, so the delivery has to become a column or drop.
+**Cost:** A two-line cell such as expense number over trip name does not fit, so the trip has to become a column or drop.
 
 **Reference:** Carbon
 
@@ -900,16 +900,16 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every paid order across every delivery, newest first."
+    heading "Expenses"
+    text "Every paid expense across every trip, newest first."
   toolbar
-    field "Search orders" search
+    field "Search expenses" search
     field "Rows" select = "Medium"
-  region "Orders"
-    table 8 "Order" "Customer" "Placed" "State" "Paid"
-      item: text "7K4Q2M" · text "Maria Garcia" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
+  region "Expenses"
+    table 8 "Expense" "Spender" "Submitted" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
   footer
     text "1 – 25 of 268"
     action quiet "‹ Previous"
@@ -926,16 +926,16 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "Refunds"
+  breadcrumb "Home" "Expenses" "Reversals"
   header
-    heading "Refunds"
-    text "31 orders to decide."
+    heading "Reversals"
+    text "31 payouts to decide."
   toolbar
-    field "Search refunds" search
+    field "Search reversals" search
     field "Window" select = "Any window"
-  region "Refunds"
-    table 6 "Order" "Customer" "State" "Amount" "Time left"
-      item: text "3H3C68" · text "Elin Lindqvist" · status "Window closed" critical · text "EUR 50.00" · text "Closed 34 days ago"
+  region "Reversals"
+    table 6 "Expense" "Spender" "State" "Amount" "Time left"
+      item: text "EXP-1036" · text "Nina" · status "Window closed" critical · text "EUR 50.00" · text "Closed 34 days ago"
   footer
     text "1 – 25 of 31"
     action quiet "‹ Previous"
@@ -952,16 +952,16 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every paid order across every delivery, newest first."
+    heading "Expenses"
+    text "Every paid expense across every trip, newest first."
   toolbar
-    field "Search orders" search
+    field "Search expenses" search
     field "State" select = "Any state"
-  region "Orders"
+  region "Expenses"
     list 5
-      item: text "7K4Q2M · Garcia Interiors restock" · text "EUR 125.00" · text muted "Maria Garcia · maria@garcia-interiors.example" · status "Paid" positive · action "Open"
+      item: text "EXP-1042 · Rotterdam client visit" · text "EUR 125.00" · text muted "Ava · ava@harbor-pine.example" · status "Paid" positive · action "Open"
   footer
     text "1 – 25 of 268"
     action quiet "‹ Previous"
@@ -972,29 +972,29 @@ page
 
 **Cost:** No columns, so no sorting and no comparison across a column. It trades every table capability for reading one record well.
 
-#### `comfortable-48-px-rows-for-a-delivery-list`: Comfortable 48 Px Rows for a Delivery List
+#### `comfortable-48-px-rows-for-a-delivery-list`: Comfortable 48 Px Rows for a Trip List
 
 ```wireframe
 page
-  breadcrumb "Home" "Deliveries"
+  breadcrumb "Home" "Trips"
   header
-    heading "Deliveries"
-    text "Four deliveries, three with a date still ahead."
+    heading "Trips"
+    text "Four trips, three with a date still ahead."
   toolbar
-    field "Search deliveries" search
+    field "Search trips" search
   tabs "Scheduled 3" "Past 1" "All 4"
     region "Scheduled"
-      table 4 "Delivery" "State" "Loaded"
-        item: text "Becker spring refill" · text muted "Fri 9 Oct 2026 · Rotterdam depot" · status "Scheduled" info · text "32 of 40 pallets" · action "Open"
+      table 4 "Trip" "State" "Claimed"
+        item: text "Utrecht audit" · text muted "Fri 9 Oct 2026 · Utrecht client site" · status "Scheduled" info · text "EUR 1,600 of EUR 2,000" · action "Open"
   footer
     text "1 – 4 of 4"
     action quiet "‹ Previous"
     action quiet "Next ›"
 ```
 
-**Rationale:** Shopify Polaris draws its product lists at a comfortable height with a second line under the name. Deliveries are read one by one rather than scanned down a column. The load bar answers the only question the row exists for.
+**Rationale:** Shopify Polaris draws its product lists at a comfortable height with a second line under the name. Trips are read one by one rather than scanned down a column. The budget bar answers the only question the row exists for.
 
-**Cost:** Eight rows need a scroll where the compact table shows fourteen. Wrong for any queue a back-office user works through in order.
+**Cost:** Eight rows need a scroll where the compact table shows fourteen. Wrong for any queue a finance reader works through in order.
 
 **Reference:** Shopify Polaris
 
@@ -1002,17 +1002,17 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "Refunds"
+  breadcrumb "Home" "Expenses" "Reversals"
   header
-    heading "Refunds"
-    text "31 orders to decide. Sorted by how long you have left."
+    heading "Reversals"
+    text "31 payouts to decide. Sorted by how long you have left."
     text "The header stays while the queue scrolls."
   toolbar
-    field "Search refunds" search
+    field "Search reversals" search
     field "Window" select = "Any window"
-  region "Refunds"
-    table 8 "Order" "Customer" "State" "Amount" "Time left"
-      item: text "3H3C68" · text "Elin Lindqvist" · status "Window closed" critical · text "EUR 50.00" · text "Closed 34 days ago"
+  region "Reversals"
+    table 8 "Expense" "Spender" "State" "Amount" "Time left"
+      item: text "EXP-1036" · text "Nina" · status "Window closed" critical · text "EUR 50.00" · text "Closed 34 days ago"
   footer
     text "1 – 25 of 31"
     action quiet "‹ Previous"
@@ -1029,13 +1029,13 @@ page
 
 **ID:** `litespec/frontend/patterns/lists-and-tables#bulk-action-bar`
 
-**Question:** What appears once order rows are selected. The bar names the count and the money, then offers the commands. A refund on the wrong scope is the expensive mistake this pattern guards against.
+**Question:** What appears once expense rows are selected. The bar names the count and the money, then offers the commands. A reversal on the wrong scope is the expensive mistake this pattern guards against.
 
 **Default:** `a-bar-above-the-table-naming-the-count`
 
 **Compact:** The recommended option reflows below `md`. One column, header actions under the title, and a table scrolls inside its own region.
 
-**Rationale:** Keep a bar above the table naming the count and the money. On a refunds page the total is the thing a reader checks before acting. The runner-up is a floating pill, for reversible bulk work such as resending confirmations or tagging, where the bar leaves the table in place.
+**Rationale:** Keep a bar above the table naming the count and the money. On a reversals page the total is the thing a reader checks before acting. The runner-up is a floating pill, for reversible bulk work such as resending receipts or tagging, where the bar leaves the table in place.
 
 Never ship the bar at the foot. On a long table the action sits off screen while the checkboxes that enabled it do not.
 
@@ -1045,23 +1045,23 @@ Never ship the bar at the foot. On a long table the action sits off screen while
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "Refunds"
+  breadcrumb "Home" "Expenses" "Reversals"
   header
-    heading "Refunds"
-    text "31 orders to decide."
+    heading "Reversals"
+    text "31 payouts to decide."
   toolbar
-    field "Search refunds" search
+    field "Search reversals" search
     field "Window" select = "Any window"
   region "Selected"
     text "3 selected"
-    text muted "EUR 200.00 of order money"
-    action "Refund in full"
-    action "Refund part"
-    action primary "Refund these 3"
+    text muted "EUR 200.00 of payout money"
+    action "Reverse in full"
+    action "Reverse part"
+    action primary "Reverse these 3"
     action quiet "Clear"
-  region "Refunds"
-    table 5 "Order" "Customer" "State" "Paid"
-      item: field "Select 7K4Q2M" checkbox · text "7K4Q2M" · text "Maria Garcia" · status "Paid" positive · text "EUR 125.00"
+  region "Reversals"
+    table 5 "Expense" "Spender" "State" "Paid"
+      item: field "Select EXP-1042" checkbox · text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
 ```
 
 **Rationale:** The bar states how many are selected and what that total is worth, then offers the commands. The count is the thing a reader checks before acting on money.
@@ -1072,19 +1072,19 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "Refunds"
+  breadcrumb "Home" "Expenses" "Reversals"
   header
-    heading "Refunds"
-    text "31 orders to decide."
+    heading "Reversals"
+    text "31 payouts to decide."
   region "Selected"
     text "3 selected"
     text muted "EUR 200.00"
     action quiet "Clear"
-    action "Refund part"
-    action primary "Refund these 3"
-  region "Refunds"
-    table 5 "Order" "Customer" "State" "Paid"
-      item: field "Select 7K4Q2M" checkbox · text "7K4Q2M" · text "Maria Garcia" · status "Paid" positive · text "EUR 125.00"
+    action "Reverse part"
+    action primary "Reverse these 3"
+  region "Reversals"
+    table 5 "Expense" "Spender" "State" "Paid"
+      item: field "Select EXP-1042" checkbox · text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
 ```
 
 **Rationale:** While a selection exists the toolbar is replaced by the bulk bar. One set of controls at a time, and the page cannot be read as offering search while it is offering actions.
@@ -1095,21 +1095,21 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "Refunds"
+  breadcrumb "Home" "Expenses" "Reversals"
   header
-    heading "Refunds"
-    text "31 orders to decide."
+    heading "Reversals"
+    text "31 payouts to decide."
   toolbar
-    field "Search refunds" search
+    field "Search reversals" search
     field "Window" select = "Any window"
-  region "Refunds"
-    table 5 "Order" "Customer" "State" "Paid"
-      item: field "Select 7K4Q2M" checkbox · text "7K4Q2M" · text "Maria Garcia" · status "Paid" positive · text "EUR 125.00"
+  region "Reversals"
+    table 5 "Expense" "Spender" "State" "Paid"
+      item: field "Select EXP-1042" checkbox · text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
   footer
     text "2 selected · EUR 175.00"
     action quiet "Clear"
-    action "Refund part"
-    action primary "Refund these 2"
+    action "Reverse part"
+    action primary "Reverse these 2"
   footer
     text "1 – 25 of 31"
     action quiet "‹ Previous"
@@ -1124,26 +1124,26 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "Refunds"
+  breadcrumb "Home" "Expenses" "Reversals"
   header
-    heading "Refunds"
-    text "31 orders to decide."
+    heading "Reversals"
+    text "31 payouts to decide."
   toolbar
-    field "Search refunds" search
+    field "Search reversals" search
     field "Window" select = "Any window"
-  message "All 25 on this page are selected. 1,204 refunds match this filter in total." info
+  message "All 25 on this page are selected. 1,204 reversals match this filter in total." info
   region "Selected"
     text "25 selected"
-    text muted "EUR 1,125.00 of order money on this page"
+    text muted "EUR 1,125.00 of payout money on this page"
     action quiet "Clear"
-    action "Refund part"
-    action primary "Refund these 25"
-  region "Refunds"
-    table 5 "Order" "Customer" "State" "Paid"
-      item: field "Select 7K4Q2M" checkbox · text "7K4Q2M" · text "Maria Garcia" · status "Paid" positive · text "EUR 125.00"
+    action "Reverse part"
+    action primary "Reverse these 25"
+  region "Reversals"
+    table 5 "Expense" "Spender" "State" "Paid"
+      item: field "Select EXP-1042" checkbox · text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
 ```
 
-**Rationale:** The bar carries both numbers: 25 on this page, 1,204 matching. It also names the money, because a refund bulk action on the wrong scope is the expensive mistake this page invites.
+**Rationale:** The bar carries both numbers: 25 on this page, 1,204 matching. It also names the money, because a reversal bulk action on the wrong scope is the expensive mistake this page invites.
 
 **Cost:** A long bar with two numbers and three buttons. It only fits above about 900 pixels, so the phone needs its own version of the same warning.
 
@@ -1151,33 +1151,33 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "Refunds"
+  breadcrumb "Home" "Expenses" "Reversals"
   header
-    heading "Refunds"
-    text "31 orders to decide."
+    heading "Reversals"
+    text "31 payouts to decide."
   toolbar
-    field "Search refunds" search
+    field "Search reversals" search
     field "Window" select = "Any window"
   region "Selected"
     text "3 selected"
     text muted "EUR 200.00"
     action quiet "Clear"
-    action "Refund part"
-    action primary "Refund these 3"
-  region "Refunds"
-    table 5 "Order" "Customer" "State" "Paid"
-      item: field "Select 7K4Q2M" checkbox · text "7K4Q2M" · text "Maria Garcia" · status "Paid" positive · text "EUR 125.00"
-  dialog "Refund 3 orders in full?"
-    text "EUR 200.00 goes back to 3 customers."
-    fact "Maria Garcia · 7K4Q2M" "EUR 125.00"
-    fact "Tom Becker · STT855" "EUR 50.00"
-    fact "Maria Garcia · PP0K9B" "EUR 25.00"
-    message "One of these orders is already 214 days old. The bank will not take that one back." caution
+    action "Reverse part"
+    action primary "Reverse these 3"
+  region "Reversals"
+    table 5 "Expense" "Spender" "State" "Paid"
+      item: field "Select EXP-1042" checkbox · text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
+  dialog "Reverse 3 payouts in full?"
+    text "EUR 200.00 comes back from 3 spenders."
+    fact "Ava · EXP-1042" "EUR 125.00"
+    fact "Eli · EXP-1033" "EUR 50.00"
+    fact "Ava · EXP-1035" "EUR 25.00"
+    message "One of these payouts is already 214 days old. The bank will not take that one back." caution
     action "Cancel"
-    action destructive "Refund 3 orders"
+    action destructive "Reverse 3 payouts"
 ```
 
-**Rationale:** The primary button opens a dialog naming the count and the money. A bulk refund is exactly the action NN/g says to interrupt when it is rare and irreversible.
+**Rationale:** The primary button opens a dialog naming the count and the money. A bulk reversal is exactly the action NN/g says to interrupt when it is rare and irreversible.
 
 **Cost:** Two steps for a batch the reader has spent a minute selecting. Acceptable on money, wrong for anything reversible such as a bulk tag.
 
@@ -1187,48 +1187,48 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every paid order across every delivery, newest first."
+    heading "Expenses"
+    text "Every paid expense across every trip, newest first."
   toolbar
-    field "Search orders" search
+    field "Search expenses" search
     field "State" select = "Any state"
-  region "Orders"
-    table 5 "Order" "Customer" "Placed" "State" "Paid"
-      item: text "7K4Q2M" · text "Maria Garcia" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
+  region "Expenses"
+    table 5 "Expense" "Spender" "Submitted" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
   footer
     text "1 – 25 of 268"
     action quiet "‹ Previous"
     action quiet "Next ›"
-  toast positive "Confirmations resent to 3 customers."
+  toast positive "Receipts resent to 3 spenders."
 ```
 
 **Rationale:** The bulk action runs with no confirmation and the bar becomes an undo toast. Carbon keeps an action-bearing toast until it is dismissed rather than letting a timer take the undo away.
 
-**Cost:** On money the evidence argues against this option. NN/g reports reflex clicking when confirmations are routine. A refund is not the place to train that reflex.
+**Cost:** On money the evidence argues against this option. NN/g reports reflex clicking when resends are routine. A reversal is not the place to train that reflex.
 
 #### `a-floating-pill-with-the-count-and-one-menu`: A Floating Pill with the Count and One Menu
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every paid order across every delivery, newest first."
+    heading "Expenses"
+    text "Every paid expense across every trip, newest first."
   toolbar
-    field "Search orders" search
+    field "Search expenses" search
     field "State" select = "Any state"
-  region "Orders"
-    table 6 "Order" "Customer" "Placed" "State" "Paid"
-      item: field "Select 7K4Q2M" checkbox · text "7K4Q2M" · text "Maria Garcia" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
+  region "Expenses"
+    table 6 "Expense" "Spender" "Submitted" "State" "Paid"
+      item: field "Select EXP-1042" checkbox · text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
   footer
     text "1 – 25 of 268"
     action quiet "‹ Previous"
     action quiet "Next ›"
   popover "Selected"
     text "3 selected"
-    action "Resend confirmation"
+    action "Resend receipt"
     action "Add tag"
     action quiet "More actions"
 ```
@@ -1243,30 +1243,30 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every paid order across every delivery, newest first."
+    heading "Expenses"
+    text "Every paid expense across every trip, newest first."
   toolbar
-    field "Search orders" search
+    field "Search expenses" search
     field "State" select = "Any state"
   toolbar
     text "3 selected"
     action quiet "Clear"
     action "Actions"
-  region "Orders"
-    table 5 "Order" "Customer" "Placed" "State" "Paid"
-      item: field "Select 7K4Q2M" checkbox · text "7K4Q2M" · text "Maria Garcia" · status "Paid" positive · text "EUR 125.00"
+  region "Expenses"
+    table 5 "Expense" "Spender" "Submitted" "State" "Paid"
+      item: field "Select EXP-1042" checkbox · text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
   popover "Actions"
-    action "Resend confirmation"
+    action "Resend receipt"
     action "Add tag"
     action "Export selected"
-    action destructive "Void 3 orders"
+    action destructive "Void 3 expenses"
 ```
 
 **Rationale:** Stripe dashboard keeps the bulk bar to a count and one Actions menu, drawn open here. Every command is named in one place, the bar stays narrow, and adding a fifth command costs no width.
 
-**Cost:** Two clicks to the common command instead of one, and nothing on the bar says that resending is what most back-office users reach for.
+**Cost:** Two clicks to the common command instead of one, and nothing on the bar says that resending is what most finance readers reach for.
 
 **Reference:** Stripe
 
@@ -1274,7 +1274,7 @@ page
 
 **ID:** `litespec/frontend/patterns/lists-and-tables#pagination`
 
-**Question:** How does a reader move through 268 orders. The range and two chevrons move one page at a time. Numbered pages add a jump, and the count still says where the reader is.
+**Question:** How does a reader move through 268 expenses. The range and two chevrons move one page at a time. Numbered pages add a jump, and the count still says where the reader is.
 
 **Default:** `count-left-numbered-pages-right`
 
@@ -1290,15 +1290,15 @@ Never ship the jump field. Typing a page number then Enter is slower than clicki
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every paid order across every delivery, newest first."
+    heading "Expenses"
+    text "Every paid expense across every trip, newest first."
   toolbar
-    field "Search orders" search
-  region "Orders"
-    table 5 "Order" "Customer" "Placed" "State" "Paid"
-      item: text "7K4Q2M" · text "Maria Garcia" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
+    field "Search expenses" search
+  region "Expenses"
+    table 5 "Expense" "Spender" "Submitted" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
   footer
     text "1 – 25 of 268"
     action quiet "1"
@@ -1318,15 +1318,15 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every paid order across every delivery, newest first."
+    heading "Expenses"
+    text "Every paid expense across every trip, newest first."
   toolbar
-    field "Search orders" search
-  region "Orders"
-    table 5 "Order" "Customer" "Placed" "State" "Paid"
-      item: text "7K4Q2M" · text "Maria Garcia" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
+    field "Search expenses" search
+  region "Expenses"
+    table 5 "Expense" "Spender" "Submitted" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
   footer
     text "1 – 25 of 268"
     field "Page size" select = "25 per page"
@@ -1335,7 +1335,7 @@ page
     action quiet "Next ›"
 ```
 
-**Rationale:** Carbon's three parts: items per page, the current range and total, and the current page. The page size is the control most tables leave out and back-office users most want on a long list.
+**Rationale:** Carbon's three parts: items per page, the current range and total, and the current page. The page size is the control most tables leave out and finance readers most want on a long list.
 
 **Cost:** Three controls in one bar. On a phone it becomes a row of three stacked lines, which pushes the table off screen.
 
@@ -1345,15 +1345,15 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every paid order across every delivery, newest first."
+    heading "Expenses"
+    text "Every paid expense across every trip, newest first."
   toolbar
-    field "Search orders" search
-  region "Orders"
-    table 5 "Order" "Customer" "Placed" "State" "Paid"
-      item: text "7K4Q2M" · text "Maria Garcia" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
+    field "Search expenses" search
+  region "Expenses"
+    table 5 "Expense" "Spender" "Submitted" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
   footer
     text "101 – 125 of 268"
     action quiet "First"
@@ -1375,15 +1375,15 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every paid order across every delivery, newest first."
+    heading "Expenses"
+    text "Every paid expense across every trip, newest first."
   toolbar
-    field "Search orders" search
-  region "Orders"
-    table 5 "Order" "Customer" "Placed" "State" "Paid"
-      item: text "7K4Q2M" · text "Maria Garcia" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
+    field "Search expenses" search
+  region "Expenses"
+    table 5 "Expense" "Spender" "Submitted" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
   footer
     text "1 – 25 of 268"
     field "Page" number = "1"
@@ -1400,15 +1400,15 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every paid order across every delivery, newest first."
+    heading "Expenses"
+    text "Every paid expense across every trip, newest first."
   toolbar
-    field "Search orders" search
-  region "Orders"
-    table 6 "Order" "Customer" "Placed" "State" "Paid"
-      item: text "7K4Q2M" · text "Maria Garcia" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
+    field "Search expenses" search
+  region "Expenses"
+    table 6 "Expense" "Spender" "Submitted" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
   footer
     action "Load 25 more"
     text muted "25 of 268 shown"
@@ -1424,35 +1424,35 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "Refunds"
+  breadcrumb "Home" "Expenses" "Reversals"
   header
-    heading "Refunds"
+    heading "Reversals"
     text "10 open. All of them are shown."
   toolbar
-    field "Search refunds" search
-  region "Refunds"
-    table 8 "Order" "Customer" "Asked" "State" "Paid"
-      item: text "3H3C68" · text "Elin Lindqvist" · text "7 Oct 22:14" · status "Open" neutral · text "EUR 50.00"
+    field "Search reversals" search
+  region "Reversals"
+    table 8 "Expense" "Spender" "Asked" "State" "Paid"
+      item: text "EXP-1036" · text "Nina" · text "7 Oct 22:14" · status "Open" neutral · text "EUR 50.00"
   text "All 10 shown."
 ```
 
 **Rationale:** Under about fifty records the whole list fits and pagination only adds a control that cannot do anything useful.
 
-**Cost:** It cannot be a rule for the whole back office. Orders reach thousands and deliveries reach hundreds, so the list page has to decide per query.
+**Cost:** It cannot be a rule for the whole product. Expenses reach thousands and trips reach hundreds, so the list page has to decide per query.
 
 #### `a-compact-pager-range-plus-two-chevrons`: A Compact Pager: Range Plus Two Chevrons
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every paid order across every delivery, newest first."
+    heading "Expenses"
+    text "Every paid expense across every trip, newest first."
   toolbar
-    field "Search orders" search
-  region "Orders"
-    table 5 "Order" "Customer" "Placed" "State" "Paid"
-      item: text "7K4Q2M" · text "Maria Garcia" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
+    field "Search expenses" search
+  region "Expenses"
+    table 5 "Expense" "Spender" "Submitted" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
   footer
     text "1 – 25 of 268"
     action quiet "‹ Previous"
@@ -1469,15 +1469,15 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "Refunds"
+  breadcrumb "Home" "Expenses" "Reversals"
   header
-    heading "Refunds"
-    text "10 open orders, all shown below."
+    heading "Reversals"
+    text "10 open reversals, all shown below."
   toolbar
-    field "Search refunds" search
-  region "Refunds"
-    table 8 "Order" "Customer" "Asked" "State" "Paid"
-      item: text "3H3C68" · text "Elin Lindqvist" · text "7 Oct 22:14" · status "Open" neutral · text "EUR 50.00"
+    field "Search reversals" search
+  region "Reversals"
+    table 8 "Expense" "Spender" "Asked" "State" "Paid"
+      item: text "EXP-1036" · text "Nina" · text "7 Oct 22:14" · status "Open" neutral · text "EUR 50.00"
 ```
 
 **Rationale:** GitHub draws no pagination on a list that fits one page: no range, no chevrons, no control that cannot do anything. The table ends and the page ends with it.
@@ -1490,7 +1490,7 @@ page
 
 **ID:** `litespec/frontend/patterns/lists-and-tables#row-actions`
 
-**Question:** The orders table shows rows of orders. Each row may carry its own commands. How many commands sit on the row, and where do the rest live.
+**Question:** The expenses table shows rows of expenses. Each row may carry its own commands. How many commands sit on the row, and where do the rest live.
 
 **Default:** `one-inline-action-the-rest-in-a-row-menu`
 
@@ -1504,16 +1504,16 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every paid order across every delivery, newest first."
+    heading "Expenses"
+    text "Every paid expense across every trip, newest first."
     action "Export CSV"
   toolbar
-    field "Order number, name or email" search
-  region "Orders"
-    table 5 "Order" "Customer" "Placed" "State" "Paid"
-      item: text "7K4Q2M" · text "Maria Garcia" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00" · action "Resend" · menu "More"
+    field "Expense number, name or email" search
+  region "Expenses"
+    table 5 "Expense" "Spender" "Submitted" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00" · action "Resend" · menu "More"
 ```
 
 **Rationale:** The first row command is drawn inline and everything else sits behind the row's overflow menu. It matches the Polaris instruction to put a row's other commands in its menu.
@@ -1526,18 +1526,18 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every paid order across every delivery, newest first. Click an order to open it."
+    heading "Expenses"
+    text "Every paid expense across every trip, newest first. Click an expense to open it."
   toolbar
-    field "Order number, name or email" search
-  region "Orders"
-    table 5 "Order" "Customer" "Placed" "State" "Paid"
-      item: link "7K4Q2M" · text "Maria Garcia" · text "8 Oct 09:32" · text "Paid" · text "EUR 125.00"
+    field "Expense number, name or email" search
+  region "Expenses"
+    table 5 "Expense" "Spender" "Submitted" "State" "Paid"
+      item: link "EXP-1042" · text "Ava" · text "8 Oct 09:32" · text "Paid" · text "EUR 125.00"
 ```
 
-**Rationale:** No commands on the row at all: clicking the order number opens the record, and every command lives there. The table is for finding, the record is for acting.
+**Rationale:** No commands on the row at all: clicking the expense number opens the record, and every command lives there. The table is for finding, the record is for acting.
 
 **Cost:** A bulk job becomes one row at a time, so this shape fits finding, not acting.
 
@@ -1545,16 +1545,16 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "Refunds"
+  breadcrumb "Home" "Expenses" "Reversals"
   header
-    heading "Refunds"
-    text "31 orders to decide. Each row carries the two commands that apply to it."
+    heading "Reversals"
+    text "31 payouts to decide. Each row carries the two commands that apply to it."
   toolbar
-    field "Search refunds" search
+    field "Search reversals" search
     field "Window" select = "Any window"
-  region "Refunds"
-    table 5 "Order" "Customer" "State" "Amount" "Time left"
-      item: text "7K4Q2M" · text "Maria Garcia" · status "Open" neutral · text "EUR 125.00" · text "174 days left" · action "Refund" · action "Offer credit"
+  region "Reversals"
+    table 5 "Expense" "Spender" "State" "Amount" "Time left"
+      item: text "EXP-1042" · text "Ava" · status "Open" neutral · text "EUR 125.00" · text "174 days left" · action "Reverse" · action "Deduct next payout"
 ```
 
 **Rationale:** Two commands is the NN/g ceiling for inline placement. Anything beyond two becomes crowded, so this shape only works where a row genuinely has two.
@@ -1567,15 +1567,15 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every paid order across every delivery, newest first."
+    heading "Expenses"
+    text "Every paid expense across every trip, newest first."
   toolbar
-    field "Order number, name or email" search
-  region "Orders"
-    table 5 "Order" "Customer" "Placed" "State" "Paid"
-      item: text "7K4Q2M" · text "Maria Garcia" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00" · menu "More"
+    field "Expense number, name or email" search
+  region "Expenses"
+    table 5 "Expense" "Spender" "Submitted" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00" · menu "More"
 ```
 
 **Rationale:** Every command sits behind the overflow. The row stays one link plus one dot, which keeps the table narrow enough for a phone.
@@ -1586,15 +1586,15 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every paid order across every delivery, newest first."
+    heading "Expenses"
+    text "Every paid expense across every trip, newest first."
   toolbar
-    field "Order number, name or email" search
-  region "Orders"
-    table 5 "Order" "Customer" "Placed" "State" "Paid"
-      item: text "7K4Q2M" · text "Maria Garcia" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00" · action quiet "Resend"
+    field "Expense number, name or email" search
+  region "Expenses"
+    table 5 "Expense" "Spender" "Submitted" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00" · action quiet "Resend"
     text muted "The row action shows on hover and stays in the tab order."
 ```
 
@@ -1606,19 +1606,19 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Deliveries"
+  breadcrumb "Home" "Trips"
   header
-    heading "Deliveries"
-    text "Four deliveries, three with a date still ahead."
+    heading "Trips"
+    text "Four trips, three with a date still ahead."
   toolbar
-    field "Search deliveries" search
-  region "Deliveries"
-    table 4 "Delivery" "Date" "State" "Loaded"
-      item: text "Becker spring refill" · text "9 Oct 2026" · status "Scheduled" info · text "32 of 40 pallets" · action "Open" · menu "More"
+    field "Search trips" search
+  region "Trips"
+    table 4 "Trip" "Date" "State" "Claimed"
+      item: text "Utrecht audit" · text "9 Oct 2026" · status "Scheduled" info · text "EUR 1,600 of EUR 2,000" · action "Open" · menu "More"
   popover
-    action "Open the delivery"
-    action "Duplicate the delivery"
-    action destructive "Discontinue"
+    action "Open the trip"
+    action "Duplicate the trip"
+    action destructive "Cancel"
 ```
 
 **Rationale:** The row's second command is a removal. It is drawn in the destructive tone and marked as the last item in the row menu. It never sits inline next to a harmless one.
@@ -1629,20 +1629,20 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every paid order across every delivery, newest first."
+    heading "Expenses"
+    text "Every paid expense across every trip, newest first."
   toolbar
-    field "Order number, name or email" search
-  region "Orders"
-    table 5 "Order" "Customer" "Placed" "State" "Paid"
-      item: text "7K4Q2M" · text "Maria Garcia" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00" · action "Resend" · menu "More"
+    field "Expense number, name or email" search
+  region "Expenses"
+    table 5 "Expense" "Spender" "Submitted" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00" · action "Resend" · menu "More"
   popover
-    action "Open the order"
-    action "Resend confirmation"
-    action "Copy the order link"
-    action destructive "Void the order"
+    action "Open the expense"
+    action "Resend receipt"
+    action "Copy the expense link"
+    action destructive "Void the expense"
 ```
 
 **Rationale:** The shadcn/ui dropdown menu on the row, drawn open: the harmless commands first, then a separator, then the destructive one last. The reader sees every command the row holds without guessing what the dots hide.
@@ -1655,26 +1655,26 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every paid order across every delivery, newest first."
+    heading "Expenses"
+    text "Every paid expense across every trip, newest first."
   toolbar
-    field "Order number, name or email" search
-  region "Orders"
-    table 5 "Order" "Customer" "Placed" "State" "Paid"
-      item: link "7K4Q2M" · text "Maria Garcia" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
+    field "Expense number, name or email" search
+  region "Expenses"
+    table 5 "Expense" "Spender" "Submitted" "State" "Paid"
+      item: link "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
   drawer right
-    heading "7K4Q2M"
-    text "Maria Garcia · Garcia Interiors restock"
-    fact "Lines" "2 Oak desk lamps and 1 desk chair"
+    heading "EXP-1042"
+    text "Ava · Rotterdam client visit"
+    fact "Lines" "2 train fares and 1 hotel night"
     fact "Total" "EUR 125.00"
-    action primary "Resend confirmation"
-    action "Copy the order link"
-    action destructive "Void the order"
+    action primary "Resend receipt"
+    action "Copy the expense link"
+    action destructive "Void the expense"
 ```
 
-**Rationale:** Shopify and Stripe open a row in a side panel that carries the record's facts and its commands together. Resending Maria Garcia's confirmation happens beside the order lines, so the reader checks what is sent before sending it.
+**Rationale:** Shopify and Stripe open a row in a side panel that carries the record's facts and its commands together. Resending Ava's receipt happens beside the expense lines, so the reader checks what is sent before sending it.
 
 **Cost:** A panel over the list hides the rows it came from. On a phone it is a full screen, which makes it a page by another name.
 
@@ -1684,7 +1684,7 @@ page
 
 **ID:** `litespec/frontend/patterns/lists-and-tables#tables-own-states`
 
-**Question:** The orders table is sometimes empty, still loading, or failed to load. Each case needs its own words and layout. What shows for each state of the table itself.
+**Question:** The expenses table is sometimes empty, still loading, or failed to load. Each case needs its own words and layout. What shows for each state of the table itself.
 
 **Default:** `no-data-yet-table-replaced`
 
@@ -1698,14 +1698,14 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Deliveries"
+  breadcrumb "Home" "Trips"
   header
-    heading "Deliveries"
-    text "Six deliveries a week, from a 40-pallet restock to a single parcel."
-    action primary "New delivery"
-  region "Deliveries"
-    message positive "No deliveries yet. A delivery holds the date, the warehouse, the load and what is on it."
-    action primary "New delivery"
+    heading "Trips"
+    text "Six trips a month, from a EUR 2,000 client visit to a single fare."
+    action primary "New trip"
+  region "Trips"
+    message positive "No trips yet. A trip holds the dates, the client site, the budget and what is on it."
+    action primary "New trip"
 ```
 
 **Rationale:** Nothing has ever existed, so the table and its headers are gone. One positive sentence offers the command that creates the first record.
@@ -1716,16 +1716,16 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "No orders match this search."
+    heading "Expenses"
+    text "No expenses match this search."
   toolbar
-    field "Order number, name or email" search = "maria becker"
-    field "Delivery" select = "Garcia Interiors restock"
+    field "Expense number, name or email" search = "ava eli"
+    field "Trip" select = "Rotterdam client visit"
     field "State" select = "Paid"
-  region "Orders"
-    message neutral "Nothing matches maria becker. 268 orders exist, but none match this term with Garcia Interiors restock and Paid applied."
+  region "Expenses"
+    message neutral "Nothing matches ava eli. 268 expenses exist, but none match this term with Rotterdam client visit and Paid applied."
     action "Clear the search"
     action "Clear the filters too"
 ```
@@ -1738,15 +1738,15 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every paid order across every delivery, newest first."
+    heading "Expenses"
+    text "Every paid expense across every trip, newest first."
   toolbar
-    field "Order number, name or email" search
-  region "Orders"
-    table 6 "Order" "Customer" "Placed" "State" "Paid"
-      item: text muted "Order" · text muted "Customer" · text muted "Placed" · text muted "State" · text muted "Paid"
+    field "Expense number, name or email" search
+  region "Expenses"
+    table 6 "Expense" "Spender" "Submitted" "State" "Paid"
+      item: text muted "Expense" · text muted "Spender" · text muted "Submitted" · text muted "State" · text muted "Paid"
 ```
 
 **Rationale:** Skeleton rows shaped like real rows at the real height, so nothing shifts when the data lands. Carbon asks for skeletons rather than a spinner over the body.
@@ -1759,17 +1759,17 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every paid order across every delivery, newest first."
+    heading "Expenses"
+    text "Every paid expense across every trip, newest first."
   toolbar
-    field "Order number, name or email" search
-  region "Orders"
-    message critical "These orders could not be refreshed. What you see is from 2 minutes ago."
+    field "Expense number, name or email" search
+  region "Expenses"
+    message critical "These expenses could not be refreshed. What you see is from 2 minutes ago."
     action "Try again"
-    table 4 "Order" "Customer" "State" "Paid"
-      item: text "7K4Q2M" · text "Maria Garcia" · status "Paid" positive · text "EUR 125.00"
+    table 4 "Expense" "Spender" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
 ```
 
 **Rationale:** The table rendered before, so a refresh failed. Keeping the headers and showing the error in place tells the reader the data they can see is stale rather than current.
@@ -1780,14 +1780,14 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every paid order across every delivery, newest first."
+    heading "Expenses"
+    text "Every paid expense across every trip, newest first."
   toolbar
-    field "Order number, name or email" search
-  region "Orders"
-    message critical "Orders could not be loaded. Nothing has been lost."
+    field "Expense number, name or email" search
+  region "Expenses"
+    message critical "Expenses could not be loaded. Nothing has been lost."
     action primary "Try again"
 ```
 
@@ -1801,17 +1801,17 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every paid order across every delivery, newest first."
+    heading "Expenses"
+    text "Every paid expense across every trip, newest first."
   toolbar
-    field "Order number, name or email" search
+    field "Expense number, name or email" search
     text "Read 12 s ago"
     action quiet "Stop"
-  region "Orders"
-    table 5 "Order" "Customer" "Placed" "State" "Paid"
-      item: text "7K4Q2M" · text "Maria Garcia" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
+  region "Expenses"
+    table 5 "Expense" "Spender" "Submitted" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
 ```
 
 **Rationale:** A queue reads itself on a timer. A quiet control says how often and when it last did, and offers to stop it.
@@ -1822,24 +1822,24 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "No orders match this search."
+    heading "Expenses"
+    text "No expenses match this search."
   toolbar
-    field "Order number, name or email" search = "maria becker"
-    field "Delivery" select = "Garcia Interiors restock"
-  region "Orders"
-    message neutral "Nothing matches maria becker. 268 orders exist, but none match this term."
+    field "Expense number, name or email" search = "ava eli"
+    field "Trip" select = "Rotterdam client visit"
+  region "Expenses"
+    message neutral "Nothing matches ava eli. 268 expenses exist, but none match this term."
     action "Clear the search"
   region "Recent searches"
     list 3
-      item: link "maria garcia"
+      item: link "ava"
 ```
 
 **Rationale:** The recent searches sit under a no-result state, so a mistyped term costs one click to repair instead of retyping. The recent terms are the reader's own, which makes them the most likely next query.
 
-**Cost:** Recent searches are stored state with their own lifecycle and their own privacy question. They also go stale as deliveries complete.
+**Cost:** Recent searches are stored state with their own lifecycle and their own privacy question. They also go stale as trips complete.
 
 **Reference:** Linear
 
@@ -1847,20 +1847,20 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every paid order across every delivery, newest first."
+    heading "Expenses"
+    text "Every paid expense across every trip, newest first."
   toolbar
-    field "Order number, name or email" search
+    field "Expense number, name or email" search
     action quiet "Stop"
-  region "Orders"
-    message info "Reading 268 orders. 6 s so far."
-    table 4 "Order" "Customer" "State" "Paid"
-      item: text muted "Order" · text muted "Customer" · text muted "State" · text muted "Paid"
+  region "Expenses"
+    message info "Reading 268 expenses. 6 s so far."
+    table 4 "Expense" "Spender" "State" "Paid"
+      item: text muted "Expense" · text muted "Spender" · text muted "State" · text muted "Paid"
 ```
 
-**Rationale:** A slow read is named while it runs: what is loading, how long it has taken, and a way to stop waiting. A reader who knows the list holds 268 orders waits. A reader watching a blank box leaves.
+**Rationale:** A slow read is named while it runs: what is loading, how long it has taken, and a way to stop waiting. A reader who knows the list holds 268 expenses waits. A reader watching a blank box leaves.
 
 **Cost:** A progress note needs the total before the rows arrive, which is a second read. It also teaches the reader that some lists are slow, which invites the question why.
 
@@ -1870,7 +1870,7 @@ page
 
 **ID:** `litespec/frontend/patterns/lists-and-tables#status-in-a-column`
 
-**Question:** Each order row carries a state such as Paid or Disputed. Some states need a decision and some need none. How does the State column tell them apart.
+**Question:** Each expense row carries a state such as Paid or Disputed. Some states need a decision and some need none. How does the State column tell them apart.
 
 **Default:** `tone-only-on-the-states-that-block`
 
@@ -1884,15 +1884,15 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every paid order across every delivery, newest first."
+    heading "Expenses"
+    text "Every paid expense across every trip, newest first."
   toolbar
-    field "Order number, name or email" search
-  region "Orders"
-    table 5 "Order" "Customer" "Placed" "State" "Paid"
-      item: text "7K4Q2M" · text "Maria Garcia" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
+    field "Expense number, name or email" search
+  region "Expenses"
+    table 5 "Expense" "Spender" "Submitted" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
 ```
 
 **Rationale:** Every state is a badge mapping a code to a word and a tone. The word is the signal. The tone repeats it.
@@ -1903,16 +1903,16 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every paid order across every delivery, newest first."
+    heading "Expenses"
+    text "Every paid expense across every trip, newest first."
   toolbar
-    field "Order number, name or email" search
-  region "Orders"
+    field "Expense number, name or email" search
+  region "Expenses"
     text muted "The State column holds one plain word."
-    table 5 "Order" "Customer" "Placed" "State" "Paid"
-      item: text "7K4Q2M" · text "Maria Garcia" · text "8 Oct 09:32" · text "Paid" · text "EUR 125.00"
+    table 5 "Expense" "Spender" "Submitted" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · text "Paid" · text "EUR 125.00"
 ```
 
 **Rationale:** Plain words with no tone, because none of these states needs a decision. The header says State and the column holds one word, which keeps the interface quiet.
@@ -1923,19 +1923,19 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every paid order across every delivery, newest first."
+    heading "Expenses"
+    text "Every paid expense across every trip, newest first."
   toolbar
-    field "Order number, name or email" search
-  region "Orders"
+    field "Expense number, name or email" search
+  region "Expenses"
     text muted "Disputed and Awaiting payment are toned. Paid is not."
-    table 5 "Order" "Customer" "Placed" "State" "Paid"
-      item: text "8M3DWR" · text "Ade Okafor" · text "8 Oct 06:22" · status "Awaiting payment" caution · text "EUR 45.00"
+    table 5 "Expense" "Spender" "Submitted" "State" "Paid"
+      item: text "EXP-1039" · text "Eli" · text "8 Oct 06:22" · status "Awaiting payment" caution · text "EUR 45.00"
 ```
 
-**Rationale:** States that need a decision get a tone. The rest are plain words. This satisfies the plain-text rule for states needing no action and keeps the table readable. It is what the default orders table draws.
+**Rationale:** States that need a decision get a tone. The rest are plain words. This satisfies the plain-text rule for states needing no action and keeps the table readable. It is what the default expenses table draws.
 
 **Cost:** The reader has to learn which states are toned, and a new state added later has to be classified before it is used.
 
@@ -1943,20 +1943,20 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every paid order across every delivery, newest first."
+    heading "Expenses"
+    text "Every paid expense across every trip, newest first."
   toolbar
-    field "Order number, name or email" search
+    field "Expense number, name or email" search
     field "Payment" select = "Any payment"
-    field "Order state" select = "Any order"
-  region "Orders"
-    table 6 "Order" "Customer" "Placed" "Payment" "Order state" "Paid"
-      item: text "7K4Q2M" · text "Maria Garcia" · text "8 Oct 09:32" · text "Paid" · text "Open" · text "EUR 125.00"
+    field "Expense state" select = "Any expense"
+  region "Expenses"
+    table 6 "Expense" "Spender" "Submitted" "Payment" "Expense state" "Paid"
+      item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · text "Paid" · text "Open" · text "EUR 125.00"
 ```
 
-**Rationale:** This fixes the default table's actual problem rather than hiding it. Payment state and order state are separate columns. Paid and Completed stop looking like two names for one thing.
+**Rationale:** This fixes the default table's actual problem rather than hiding it. Payment state and expense state are separate columns. Paid and Completed stop looking like two names for one thing.
 
 **Cost:** A seventh column on a table that already carries five, for a distinction most readers do not need until something is wrong.
 
@@ -1964,15 +1964,15 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every paid order across every delivery, newest first."
+    heading "Expenses"
+    text "Every paid expense across every trip, newest first."
   toolbar
-    field "Order number, name or email" search
-  region "Orders"
-    table 5 "Order" "Customer" "Placed" "State" "Paid"
-      item: text "7K4Q2M" · text "Maria Garcia" · text "8 Oct 09:32" · icon "dot" · text "Awaiting payment" · text "EUR 45.00"
+    field "Expense number, name or email" search
+  region "Expenses"
+    table 5 "Expense" "Spender" "Submitted" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · icon "dot" · text "Awaiting payment" · text "EUR 45.00"
 ```
 
 **Rationale:** The word carries the meaning and a small dot carries the tone. The column stays quiet and a scan still finds the one row that needs a decision.
@@ -1983,39 +1983,39 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every paid order across every delivery, newest first."
+    heading "Expenses"
+    text "Every paid expense across every trip, newest first."
   toolbar
-    field "Order number, name or email" search
-  region "Orders"
-    text muted "Placed, paid, packed, shipped."
-    table 4 "Order" "Customer" "Progress" "Paid"
-      item: text "7K4Q2M" · text "Maria Garcia" · image "Order progress, 3 of 4 steps done" · text "EUR 125.00"
+    field "Expense number, name or email" search
+  region "Expenses"
+    text muted "Submitted, approved, paid, closed."
+    table 4 "Expense" "Spender" "Progress" "Paid"
+      item: text "EXP-1042" · text "Ava" · image "Expense progress, 3 of 4 steps done" · text "EUR 125.00"
 ```
 
-**Rationale:** Where an order moves through a sequence, the column carries the sequence rather than the current step: placed, paid, packed, shipped. The reader sees both where it is and what is left.
+**Rationale:** Where an expense moves through a sequence, the column carries the sequence rather than the current step: submitted, approved, paid, closed. The reader sees both where it is and what is left.
 
-**Cost:** Four marks per row is heavy on a 268-row list, and it only works because the order lifecycle genuinely is linear. A state with branches cannot use it.
+**Cost:** Four marks per row is heavy on a 268-row list, and it only works because the expense lifecycle genuinely is linear. A state with branches cannot use it.
 
 #### `status-with-the-reason-on-a-second-line`: Status with the Reason on a Second Line
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every paid order across every delivery, newest first."
+    heading "Expenses"
+    text "Every paid expense across every trip, newest first."
   toolbar
-    field "Order number, name or email" search
+    field "Expense number, name or email" search
     field "Scope" select = "Needs attention"
-  region "Orders"
-    table 4 "Order" "Customer" "State" "Paid"
-      item: text "YB281K" · text "Ade Okafor" · text "7 Oct 19:02" · status "Disputed" critical · text muted "The bank asked for evidence" · text "EUR 45.00"
+  region "Expenses"
+    table 4 "Expense" "Spender" "State" "Paid"
+      item: text "EXP-1037" · text "Eli" · text "7 Oct 19:02" · status "Disputed" critical · text muted "Ben asked for evidence" · text "EUR 45.00"
 ```
 
-**Rationale:** The payments list pairs the state with its reason: Disputed with why the bank asked, Awaiting payment with how old the wait is. The word says what, the line says why, and the reader never opens a row to learn the reason.
+**Rationale:** The payouts list pairs the state with its reason: Disputed with why Ben asked, Awaiting payment with how old the wait is. The word says what, the line says why, and the reader never opens a row to learn the reason.
 
 **Cost:** Two lines doubles the row height for every row, including the paid ones whose reason is nothing. Only right on a queue where most rows need a decision.
 
@@ -2025,17 +2025,17 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Six orders still waiting on money."
+    heading "Expenses"
+    text "Six expenses still waiting on money."
   toolbar
-    field "Order number, name or email" search
+    field "Expense number, name or email" search
     field "Scope" select = "Awaiting payment"
-  region "Orders"
+  region "Expenses"
     text muted "The tone follows the age of the wait."
-    table 4 "Order" "Customer" "State" "Paid"
-      item: text "8M3DWR" · text "Ade Okafor" · status "Awaiting payment" caution · text muted "2 days old" · text "EUR 45.00"
+    table 4 "Expense" "Spender" "State" "Paid"
+      item: text "EXP-1039" · text "Eli" · status "Awaiting payment" caution · text muted "2 days old" · text "EUR 45.00"
 ```
 
 **Rationale:** Zendesk and Intercom color a waiting state by its age. An awaiting payment that is two hours old is neutral. At two days it turns caution. The tone answers how urgent the wait is, rather than only that there is one.
@@ -2048,13 +2048,13 @@ page
 
 **ID:** `litespec/frontend/patterns/lists-and-tables#money-column`
 
-**Question:** Each order row shows what the customer paid. The column header names the currency. What does the money cell say beyond the number.
+**Question:** Each expense row shows what the spender was paid. The column header names the currency. What does the money cell say beyond the number.
 
 **Default:** `number-only-right-aligned`
 
 **Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
 
-**Rationale:** Keep the number only. The header names the currency and repeating EUR on every row is noise. Prefer the refunded part under the charged amount where refunds are the work rather than the exception. Never ship money as a share of the total. A derived percentage column answers a question no orders list is asked.
+**Rationale:** Keep the number only. The header names the currency and repeating EUR on every row is noise. Prefer the reversed part under the charged amount where reversals are the work rather than the exception. Never ship money as a share of the total. A derived percentage column answers a question no expenses list is asked.
 
 **Reviewed for:** Which built amount column breaks from the wireframe its catalog entry chose? Open the built aligned figures, shares, and totals footers beside the catalog entry recording the chosen option and its reason.
 
@@ -2062,15 +2062,15 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every paid order across every delivery, newest first."
+    heading "Expenses"
+    text "Every paid expense across every trip, newest first."
   toolbar
-    field "Order number, name or email" search
-  region "Orders"
-    table 5 "Order" "Customer" "Placed" "State" "Paid"
-      item: text "7K4Q2M" · text "Maria Garcia" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
+    field "Expense number, name or email" search
+  region "Expenses"
+    table 5 "Expense" "Spender" "Submitted" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
 ```
 
 **Rationale:** The default shape. A column headed Paid is unambiguous about the currency, so repeating EUR on every row is noise.
@@ -2081,15 +2081,15 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every paid order across every delivery, newest first."
+    heading "Expenses"
+    text "Every paid expense across every trip, newest first."
   toolbar
-    field "Order number, name or email" search
-  region "Orders"
-    table 5 "Order" "Customer" "Placed" "State" "Paid (EUR)"
-      item: text "7K4Q2M" · text "Maria Garcia" · text "8 Oct 09:32" · status "Paid" positive · text "€125.00"
+    field "Expense number, name or email" search
+  region "Expenses"
+    table 5 "Expense" "Spender" "Submitted" "State" "Paid (EUR)"
+      item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "€125.00"
 ```
 
 **Rationale:** The symbol sits in the cell rather than the word EUR, which is shorter and still unambiguous in a Dutch-language back office. The column header names it as Paid, EUR.
@@ -2100,40 +2100,40 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every paid order across every delivery, newest first."
+    heading "Expenses"
+    text "Every paid expense across every trip, newest first."
   toolbar
-    field "Order number, name or email" search
+    field "Expense number, name or email" search
     field "Scope" select = "Any state"
-  region "Orders"
-    table 5 "Order" "Customer" "Placed" "State" "Paid"
-      item: text "3H3C68" · text "Elin Lindqvist" · text "7 Oct 22:14" · text "Refunded" · text muted "Nothing, refunded"
+  region "Expenses"
+    table 5 "Expense" "Spender" "Submitted" "State" "Paid"
+      item: text "EXP-1036" · text "Nina" · text "7 Oct 22:14" · text "Reversed" · text muted "Nothing, reversed"
 ```
 
-**Rationale:** EUR 0.00 is a real state, not an error, so the cell names it: Fully refunded. A bare zero reads as missing data, and the word says it is a fact.
+**Rationale:** EUR 0.00 is a real state, not an error, so the cell names it: Fully reversed. A bare zero reads as missing data, and the word says it is a fact.
 
 **Cost:** A word in a numeric column breaks the alignment. It has to be short enough not to push the column wide.
 
-#### `two-money-columns-charged-and-refunded`: Two Money Columns: Charged and Refunded
+#### `two-money-columns-charged-and-refunded`: Two Money Columns: Charged and Reversed
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every paid order across every delivery, newest first."
+    heading "Expenses"
+    text "Every paid expense across every trip, newest first."
   toolbar
-    field "Order number, name or email" search
+    field "Expense number, name or email" search
     field "Scope" select = "Any state"
-  region "Orders"
-    text muted "Refunded is the total that went back to the customer."
-    table 6 "Order" "Customer" "Placed" "State" "Charged" "Refunded"
-      item: text "3H3C68" · text "Elin Lindqvist" · text "7 Oct 22:14" · text "Refunded" · text "EUR 50.00" · text "EUR 50.00"
+  region "Expenses"
+    text muted "Reversed is the total that came back from the spender."
+    table 6 "Expense" "Spender" "Submitted" "State" "Charged" "Reversed"
+      item: text "EXP-1036" · text "Nina" · text "7 Oct 22:14" · text "Reversed" · text "EUR 50.00" · text "EUR 50.00"
 ```
 
-**Rationale:** Where refunds are common, the net matters more than the gross. A second column turns a negative into a fact rather than something the reader has to reconstruct.
+**Rationale:** Where reversals are common, the net matters more than the gross. A second column turns a negative into a fact rather than something the reader has to reconstruct.
 
 **Cost:** Two money columns on a five-column table is a lot of numbers. Most rows are identical in both, so the reader scans two equal columns to learn nothing.
 
@@ -2141,19 +2141,19 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Deliveries" "Garcia Interiors restock" "Orders"
+  breadcrumb "Home" "Trips" "Rotterdam client visit" "Expenses"
   header
-    heading "Garcia Interiors restock"
-    text "1,204 orders in this delivery."
+    heading "Rotterdam client visit"
+    text "1,204 expenses on this trip."
   toolbar
-    field "Search orders" search
+    field "Search expenses" search
     field "Scope" select = "Any state"
-  region "Orders"
-    table 6 "Order" "Customer" "Placed" "State" "Paid" "Share"
-      item: text "7K4Q2M" · text "Maria Garcia" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00" · text "100.0%"
+  region "Expenses"
+    table 6 "Expense" "Spender" "Submitted" "State" "Paid" "Share"
+      item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00" · text "100.0%"
 ```
 
-**Rationale:** For a table read to answer what this delivery took, the amount column is joined by a share. The reader gets proportion without a second table.
+**Rationale:** For a table read to answer what this trip claimed, the amount column is joined by a share. The reader gets proportion without a second table.
 
 **Cost:** A share is derived from the total, so it goes stale the moment the filter changes. One column of derived percentages is a small exception, not a pattern.
 
@@ -2161,19 +2161,19 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
+    heading "Expenses"
     text "Newest first, grouped by day."
   toolbar
-    field "Order number, name or email" search
+    field "Expense number, name or email" search
   region "Today, 8 Oct 2026"
-    table 3 "Order" "Customer" "Paid"
-      item: text "7K4Q2M" · text "Maria Garcia" · text "EUR 125.00"
+    table 3 "Expense" "Spender" "Paid"
+      item: text "EXP-1042" · text "Ava" · text "EUR 125.00"
     text muted "Total EUR 270.00."
   region "Yesterday, 7 Oct 2026"
-    table 2 "Order" "Customer" "Paid"
-      item: text "3H3C68" · text "Elin Lindqvist" · text "EUR 50.00"
+    table 2 "Expense" "Spender" "Paid"
+      item: text "EXP-1036" · text "Nina" · text "EUR 50.00"
     text muted "Total EUR 95.00."
 ```
 
@@ -2185,18 +2185,18 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Deliveries" "Garcia Interiors restock" "Orders"
+  breadcrumb "Home" "Trips" "Rotterdam client visit" "Expenses"
   header
-    heading "Garcia Interiors restock"
-    text "1,204 orders in this delivery."
+    heading "Rotterdam client visit"
+    text "1,204 expenses on this trip."
   toolbar
-    field "Search orders" search
+    field "Search expenses" search
     field "Scope" select = "Any state"
-  region "Orders"
-    table 5 "Order" "Customer" "Placed" "State" "Paid"
-      item: text "7K4Q2M" · text "Maria Garcia" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
+  region "Expenses"
+    table 5 "Expense" "Spender" "Submitted" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
     fact "Total on this page" "EUR 270.00"
-    text muted "The total covers the 25 orders on this page, not the 1,204 in the filter."
+    text muted "The total covers the 25 expenses on this page, not the 1,204 in the filter."
 ```
 
 **Rationale:** Shopify reports end the money column with a totals row. The row tells what the page holds and, where a filter narrows it, what the filter holds. Finance reads the answer without exporting the list to add it up.
@@ -2205,25 +2205,25 @@ page
 
 **Reference:** Shopify
 
-#### `refunded-shown-under-the-charged-amount`: Refunded Shown Under the Charged Amount
+#### `refunded-shown-under-the-charged-amount`: Reversed Shown Under the Charged Amount
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every paid order across every delivery, newest first."
+    heading "Expenses"
+    text "Every paid expense across every trip, newest first."
   toolbar
-    field "Order number, name or email" search
+    field "Expense number, name or email" search
     field "Scope" select = "Any state"
-  region "Orders"
-    table 5 "Order" "Customer" "Placed" "State" "Paid"
-      item: text "YB281K" · text "Ade Okafor" · text "7 Oct 19:02" · status "Disputed" critical · text "EUR 45.00" · text muted "EUR 45.00 back to the customer"
+  region "Expenses"
+    table 5 "Expense" "Spender" "Submitted" "State" "Paid"
+      item: text "EXP-1037" · text "Eli" · text "7 Oct 19:02" · status "Disputed" critical · text "EUR 45.00" · text muted "EUR 45.00 back from the spender"
 ```
 
-**Rationale:** Stripe invoice lines keep one money column. They put what went back on its second line: the charged amount, then what returned to the customer. One column stays scannable and the refund is still on the row.
+**Rationale:** Stripe invoice lines keep one money column. They put what went back on its second line: the charged amount, then what returned from the spender. One column stays scannable and the reversal is still on the row.
 
-**Cost:** Two lines doubles the row height, and a part refund needs a third fact, the net, which has nowhere to go in this cell.
+**Cost:** Two lines doubles the row height, and a part reversal needs a third fact, the net, which has nowhere to go in this cell.
 
 **Reference:** Stripe
 
@@ -2231,7 +2231,7 @@ page
 
 **ID:** `litespec/frontend/patterns/lists-and-tables#exporting-the-list`
 
-**Question:** A reader takes the orders list elsewhere. Download serves one spreadsheet now. Print serves a paper sheet. A schedule serves a repeated question. Which export does the list offer.
+**Question:** A reader takes the expenses list elsewhere. Download serves one spreadsheet now. Print serves a paper sheet. A schedule serves a repeated question. Which export does the list offer.
 
 **Default:** `one-export-button-that-downloads-csv`
 
@@ -2245,50 +2245,50 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every paid order for the Garcia Interiors restock, newest first."
+    heading "Expenses"
+    text "Every paid expense for the Rotterdam client visit, newest first."
   toolbar
-    field "Order number, name or email" search
+    field "Expense number, name or email" search
     action "Export CSV"
-  region "Orders"
-    table 5 "Order" "Customer" "Placed" "State" "Paid"
-      item: text "7K4Q2M" · text "Maria Garcia" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
+  region "Expenses"
+    table 5 "Expense" "Spender" "Submitted" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
 ```
 
-**Rationale:** The default behavior. One button in the toolbar downloads exactly the rows in the current filter as CSV. The accountant gets the Garcia Interiors restock orders with one click and no decisions.
+**Rationale:** The default behavior. One button in the toolbar downloads exactly the rows in the current filter as CSV. The accountant gets the Rotterdam client visit expenses with one click and no decisions.
 
-**Cost:** There is no choice of columns or format. A reader who wants only order number and paid, or an Excel file, trims or converts it elsewhere.
+**Cost:** There is no choice of columns or format. A reader who wants only expense number and paid, or an Excel file, trims or converts it elsewhere.
 
 #### `export-dialog-with-columns-and-format`: Export Dialog with Columns and Format
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every paid order for the Garcia Interiors restock, newest first."
+    heading "Expenses"
+    text "Every paid expense for the Rotterdam client visit, newest first."
   toolbar
-    field "Order number, name or email" search
+    field "Expense number, name or email" search
     action "Export"
-  region "Orders"
-    table 5 "Order" "Customer" "Placed" "State" "Paid"
-      item: text "7K4Q2M" · text "Maria Garcia" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
+  region "Expenses"
+    table 5 "Expense" "Spender" "Submitted" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
   dialog
-    heading "Export orders"
-    text "Exports the 268 orders in the current filter."
+    heading "Export expenses"
+    text "Exports the 268 expenses in the current filter."
     field "Format" select = "CSV"
-    field "Order" checkbox
-    field "Customer" checkbox
-    field "Placed" checkbox
+    field "Expense" checkbox
+    field "Spender" checkbox
+    field "Submitted" checkbox
     field "State" checkbox
     field "Paid" checkbox
     action "Cancel"
     action primary "Export"
 ```
 
-**Rationale:** The Export button opens a dialog where the reader picks the format and the columns before anything downloads. The reader states what leaves the back office rather than trimming a fixed file afterwards.
+**Rationale:** The Export button opens a dialog where the reader picks the format and the columns before anything downloads. The reader states what leaves the product rather than trimming a fixed file afterwards.
 
 **Cost:** Two steps instead of one. The dialog has to remember or reset its choices on the next visit. The single button never has to decide.
 
@@ -2296,61 +2296,61 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "Scheduled exports"
+  breadcrumb "Home" "Expenses" "Scheduled exports"
   header
     heading "Scheduled exports"
-    text "Acme Supply receives its orders by email, on a rhythm it sets once."
+    text "Harbor and Pine receives its expenses by email, on a rhythm it sets once."
     action "New schedule"
   region "Monday figures"
     text "One schedule per recipient, each with its own rhythm and scope."
     field "Every" select = "Monday 07:00"
-    field "Send to" text = "hello@acme-supply.example"
-    field "Scope" select = "Garcia Interiors restock"
-    message info "The next export runs Monday at 07:00 and covers the orders placed since the last one."
+    field "Send to" text = "finance@harbor-pine.example"
+    field "Scope" select = "Rotterdam client visit"
+    message info "The next export runs Monday at 07:00 and covers the expenses submitted since the last one."
 ```
 
-**Rationale:** The team sets a rhythm once and finance receives the orders without opening the back office. A Monday 07:00 email answers the weekly question before anyone asks it.
+**Rationale:** The team sets a rhythm once and finance receives the expenses without opening the product. A Monday 07:00 email answers the weekly question before anyone asks it.
 
-**Cost:** A schedule is invisible state. Nobody sees it on the orders page. A stale recipient keeps receiving figures until someone remembers the schedule exists.
+**Cost:** A schedule is invisible state. Nobody sees it on the expenses page. A stale recipient keeps receiving figures until someone remembers the schedule exists.
 
 #### `print-stylesheet-with-a-print-button`: Print Stylesheet with a Print Button
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every paid order for the Garcia Interiors restock, newest first."
+    heading "Expenses"
+    text "Every paid expense for the Rotterdam client visit, newest first."
   toolbar
-    field "Order number, name or email" search
+    field "Expense number, name or email" search
     action "Print"
-  region "Orders"
-    message info "Printing hides the sidebar and the toolbar and keeps the order rows."
-    table 5 "Order" "Customer" "Placed" "State" "Paid"
-      item: text "7K4Q2M" · text "Maria Garcia" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
+  region "Expenses"
+    message info "Printing hides the sidebar and the toolbar and keeps the expense rows."
+    table 5 "Expense" "Spender" "Submitted" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
 ```
 
-**Rationale:** The Print button opens the browser print path and the print stylesheet keeps only the rows: order, customer, placed, state, and paid. The pickup counter gets a pickup sheet that works when the network does not.
+**Rationale:** The Print button opens the browser print path and the print stylesheet keeps only the rows: expense, spender, submitted, state, and paid. Finance gets a review sheet that works when the network does not.
 
-**Cost:** Paper freezes the list at print time. An order paid after printing is missing. Nothing on the sheet says how old it is except the printed date.
+**Cost:** Paper freezes the list at print time. An expense paid after printing is missing. Nothing on the sheet says how old it is except the printed date.
 
 #### `per-row-receipt-download`: Per-Row Receipt Download
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every paid order for the Garcia Interiors restock, newest first."
+    heading "Expenses"
+    text "Every paid expense for the Rotterdam client visit, newest first."
   toolbar
-    field "Order number, name or email" search
+    field "Expense number, name or email" search
   region "Receipts"
-    text "One file per order, for answering one customer."
+    text "One file per expense, for answering one spender."
     list 1
-      item: text "7K4Q2M" · text "Maria Garcia" · status "Paid" positive · text "EUR 125.00" · action "Receipt"
+      item: text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00" · action "Receipt"
 ```
 
-**Rationale:** Each row carries its own receipt. Answering one customer means downloading one file rather than exporting the whole list and cutting it down. Order 7K4Q2M for Maria Garcia downloads as its own EUR 125.00 receipt.
+**Rationale:** Each row carries its own receipt. Answering one spender means downloading one file rather than exporting the whole list and cutting it down. Expense EXP-1042 for Ava downloads as its own EUR 125.00 receipt.
 
 **Cost:** A button on every row narrows the table. It invites downloading receipts one by one for a job that wants the whole list. That is slower than one export.
 
@@ -2358,17 +2358,17 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every paid order for the Garcia Interiors restock, newest first."
+    heading "Expenses"
+    text "Every paid expense for the Rotterdam client visit, newest first."
   toolbar
-    field "Order number, name or email" search
+    field "Expense number, name or email" search
     action "Copy visible rows"
-  region "Orders"
-    table 5 "Order" "Customer" "Placed" "State" "Paid"
-      item: text "7K4Q2M" · text "Maria Garcia" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
-  toast positive "25 visible orders copied as tab-separated values."
+  region "Expenses"
+    table 5 "Expense" "Spender" "Submitted" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
+  toast positive "25 visible expenses copied as tab-separated values."
 ```
 
 **Rationale:** One button copies the visible rows as tab-separated values, which paste straight into a spreadsheet. Nothing downloads, so there is no file to find, rename, or delete afterwards.
@@ -2379,18 +2379,18 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every paid order for the Garcia Interiors restock, newest first."
+    heading "Expenses"
+    text "Every paid expense for the Rotterdam client visit, newest first."
   toolbar
-    field "Order number, name or email" search
+    field "Expense number, name or email" search
     action disabled "Exporting"
-  region "Orders"
-    message info "Preparing 9,412 orders as CSV. The file arrives by email to hello@acme-supply.example."
+  region "Expenses"
+    message info "Preparing 9,412 expenses as CSV. The file arrives by email to finance@harbor-pine.example."
     text muted "34 percent done."
-    table 5 "Order" "Customer" "Placed" "State" "Paid"
-      item: text "7K4Q2M" · text "Maria Garcia" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
+    table 5 "Expense" "Spender" "Submitted" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
 ```
 
 **Rationale:** The bulk export prepares a large file while the reader keeps working, then email sends a download link. Past a few thousand rows a direct download times out, and a progress note beats a failed one.
@@ -2403,20 +2403,20 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "Export history"
+  breadcrumb "Home" "Expenses" "Export history"
   header
     heading "Export history"
-    text "Every file that left the orders list, newest first."
+    text "Every file that left the expenses list, newest first."
     action "New export"
   region "Export history"
     text "Files stay for 30 days, then they are removed."
     table 4 "File" "Rows" "Asked" "By"
-      item: text "garcia-restock-orders-oct.csv" · text "268" · text "8 Oct 09:41" · text "Priya Shah" · action "Download"
+      item: text "rotterdam-visit-expenses-oct.csv" · text "268" · text "8 Oct 09:41" · text "Cara" · action "Download"
 ```
 
-**Rationale:** The dashboard keeps every export in a list with its rows, its date, and who asked for it, and each one downloads again. The Monday figures are re-downloaded rather than re-built, and finance can see what left the back office.
+**Rationale:** The dashboard keeps every export in a list with its rows, its date, and who asked for it, and each one downloads again. The Monday figures are re-downloaded rather than re-built, and finance can see what left the product.
 
-**Cost:** Stored files with customer data need their own retention and access rule. A history nobody prunes becomes a second database of personal data.
+**Cost:** Stored files with spender data need their own retention and access rule. A history nobody prunes becomes a second database of personal data.
 
 **Reference:** Stripe
 
@@ -2424,13 +2424,13 @@ page
 
 **ID:** `litespec/frontend/patterns/lists-and-tables#searching-with-highlighted-matches`
 
-**Question:** A search box filters the orders table. A match on an email looks the same as a match on a name. How does the list show why each row matched.
+**Question:** A search box filters the expenses table. A match on an email looks the same as a match on a name. How does the list show why each row matched.
 
 **Default:** `matches-highlighted-in-the-cells`
 
 **Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
 
-**Rationale:** Highlight the matches in the cells. The reader sees why each row matched without opening it. Prefer a scope control once readers search across deliveries and must say which one. Never ship a match column on its own. It spends a column stating what the highlight already shows.
+**Rationale:** Highlight the matches in the cells. The reader sees why each row matched without opening it. Prefer a scope control once readers search across trips and must say which one. Never ship a match column on its own. It spends a column stating what the highlight already shows.
 
 **Reviewed for:** Which built list search breaks from the wireframe its catalog entry chose? Open the built highlighted cells and match columns beside the catalog entry recording the chosen option and its reason.
 
@@ -2438,15 +2438,15 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "2 of 268 orders match maria."
+    heading "Expenses"
+    text "2 of 268 expenses match ava."
   toolbar
-    field "Order number, name or email" search = "maria"
-  region "Orders"
-    table 5 "Order" "Customer" "Placed" "State" "Paid"
-      item: text "7K4Q2M" · text "Maria Garcia" · text "8 Oct 09:32" · text "Paid" · text "EUR 125.00"
+    field "Expense number, name or email" search = "ava"
+  region "Expenses"
+    table 5 "Expense" "Spender" "Submitted" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · text "Paid" · text "EUR 125.00"
 ```
 
 **Rationale:** The code search marks the matched text where it sits. The term stays visible in the box and every match glows in its cell, so the reader trusts the filter.
@@ -2455,26 +2455,26 @@ page
 
 **Reference:** GitHub
 
-#### `scoped-search-this-delivery-or-all-deliveries`: Scoped Search: This Delivery or All Deliveries
+#### `scoped-search-this-delivery-or-all-deliveries`: Scoped Search: This Trip or All Trips
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Searching Garcia Interiors restock for maria."
+    heading "Expenses"
+    text "Searching Rotterdam client visit for ava."
   toolbar
-    field "Order number, name or email" search = "maria"
-    field "Scope" select = "Garcia Interiors restock"
-  region "Orders"
-    text "1 match in Garcia Interiors restock. 1 more in all deliveries."
-    table 4 "Order" "Customer" "State" "Paid"
-      item: text "7K4Q2M" · text "Maria Garcia" · text "Paid" · text "EUR 125.00"
+    field "Expense number, name or email" search = "ava"
+    field "Scope" select = "Rotterdam client visit"
+  region "Expenses"
+    text "1 match in Rotterdam client visit. 1 more in all trips."
+    table 4 "Expense" "Spender" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · text "Paid" · text "EUR 125.00"
 ```
 
-**Rationale:** The search is scoped to the current view or the whole store from one control beside the box. A reader inside the Garcia Interiors restock searches it first and widens only when nothing matches.
+**Rationale:** The search is scoped to the current view or the whole company from one control beside the box. A reader inside the Rotterdam client visit searches it first and widens only when nothing matches.
 
-**Cost:** A scope is invisible once set. A reader who narrowed to one delivery last week searches it again today and wonders where the rest went.
+**Cost:** A scope is invisible once set. A reader who narrowed to one trip last week searches it again today and wonders where the rest went.
 
 **Reference:** Shopify
 
@@ -2482,15 +2482,15 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "3 of 268 orders match restock."
+    heading "Expenses"
+    text "3 of 268 expenses match visit."
   toolbar
-    field "Order number, name or email" search = "restock"
-  region "Orders"
-    table 4 "Order" "Customer" "Matched" "Paid"
-      item: text "7K4Q2M" · text "Maria Garcia" · text muted "Delivery: Garcia Interiors restock" · text "EUR 125.00"
+    field "Expense number, name or email" search = "visit"
+  region "Expenses"
+    table 4 "Expense" "Spender" "Matched" "Paid"
+      item: text "EXP-1042" · text "Ava" · text muted "Trip: Rotterdam client visit" · text "EUR 125.00"
 ```
 
 **Rationale:** The issue search says which field matched when the term sits somewhere the row does not show. The column answers why this row is here for matches in notes or metadata.
@@ -2503,16 +2503,16 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "2 of 268 orders match maria."
+    heading "Expenses"
+    text "2 of 268 expenses match ava."
   toolbar
-    field "Order number, name or email" search = "maria"
-  region "Orders"
+    field "Expense number, name or email" search = "ava"
+  region "Expenses"
     text "Enter opens the first match. Up and down move between them."
-    table 4 "Order" "Customer" "State" "Paid"
-      item: link "7K4Q2M" · text "Maria Garcia" · text "Paid" · text "EUR 125.00"
+    table 4 "Expense" "Spender" "State" "Paid"
+      item: link "EXP-1042" · text "Ava" · text "Paid" · text "EUR 125.00"
 ```
 
 **Rationale:** The first result is focused as the reader types, so Enter opens it without a click. Support answering a caller moves from term to record without touching the mouse.
@@ -2525,26 +2525,26 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every paid order across every delivery, newest first."
+    heading "Expenses"
+    text "Every paid expense across every trip, newest first."
   toolbar
-    field "Order number, name or email" search
-  region "Orders"
-    table 5 "Order" "Customer" "Placed" "State" "Paid"
-      item: text "7K4Q2M" · text "Maria Garcia" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
+    field "Expense number, name or email" search
+  region "Expenses"
+    table 5 "Expense" "Spender" "Submitted" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
   popover
     text "Recent searches"
-    action quiet "maria garcia"
-    action quiet "7K4Q2M"
+    action quiet "ava"
+    action quiet "EXP-1042"
     action quiet "disputed"
     action quiet "Clear recent searches"
 ```
 
 **Rationale:** The reader's own recent terms sit under an empty search box. A term searched twice a day costs one click instead of fourteen keystrokes.
 
-**Cost:** Recent terms are stored per user with their own privacy question, and a term from a finished delivery lingers until it is cleared.
+**Cost:** Recent terms are stored per user with their own privacy question, and a term from a finished trip lingers until it is cleared.
 
 **Reference:** Vercel
 
@@ -2552,15 +2552,15 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Searching for maria garcia restock."
+    heading "Expenses"
+    text "Searching for ava rotterdam visit."
   toolbar
-    field "Order number, name or email" search = "maria garcia restock"
+    field "Expense number, name or email" search = "ava rotterdam visit"
     action quiet "Stop"
-  region "Orders"
-    message info "Searching 268 orders for maria garcia restock."
+  region "Expenses"
+    message info "Searching 268 expenses for ava rotterdam visit."
 ```
 
 **Rationale:** The dashboard says when a search is still running rather than showing yesterday's rows as if they matched. The reader waits instead of acting on a stale list.
@@ -2573,68 +2573,68 @@ page
 
 **ID:** `litespec/frontend/patterns/lists-and-tables#grouped-rows`
 
-**Question:** Some questions are asked per group, not per row: what did today take, what does each delivery hold. A flat table answers them only after an export, while a group header with its own subtotal answers them on the page.
+**Question:** Some questions are asked per group, not per row: what did today pay, what does each trip hold. A flat table answers them only after an export, while a group header with its own subtotal answers them on the page.
 
 **Default:** `grouped-by-day-with-subtotals`
 
 **Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
 
-**Rationale:** Keep grouped by day with subtotals. It answers what today took without a chart and without leaving the list. The runner-up is grouped by delivery with collapse toggles. Prefer it once deliveries grow so one day of rows stops fitting. Never ship two group levels: month-then-day nesting turns the list into a tree that paging cannot cross.
+**Rationale:** Keep grouped by day with subtotals. It answers what today paid without a chart and without leaving the list. The runner-up is grouped by trip with collapse toggles. Prefer it once trips grow so one day of rows stops fitting. Never ship two group levels: month-then-day nesting turns the list into a tree that paging cannot cross.
 
-**Reviewed for:** Which built group header breaks from the wireframe its catalog entry chose? Open the built day, delivery, and state groups beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Which built group header breaks from the wireframe its catalog entry chose? Open the built day, trip, and state groups beside the catalog entry recording the chosen option and its reason.
 
 #### `grouped-by-day-with-subtotals`: Grouped by Day with Subtotals
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
+    heading "Expenses"
     text "Newest first, grouped by day."
   toolbar
-    field "Order number, name or email" search
+    field "Expense number, name or email" search
     field "Any state" select = "Any state"
-  region "Today, 8 Oct 2026, 4 orders"
+  region "Today, 8 Oct 2026, 4 expenses"
     fact "Subtotal" "EUR 270.00"
-    table 4 "Order" "Customer" "State" "Paid"
-      item: text "7K4Q2M" · text "Maria Garcia" · status "Paid" positive · text "EUR 125.00"
-  region "Yesterday, 7 Oct 2026, 2 orders"
+    table 4 "Expense" "Spender" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
+  region "Yesterday, 7 Oct 2026, 2 expenses"
     fact "Subtotal" "EUR 95.00"
-    table 4 "Order" "Customer" "State" "Paid"
-      item: text "YB281K" · text "Ade Okafor" · status "Disputed" critical · text "EUR 45.00"
+    table 4 "Expense" "Spender" "State" "Paid"
+      item: text "EXP-1037" · text "Eli" · status "Disputed" critical · text "EUR 45.00"
 ```
 
-**Rationale:** Bank statements and Stripe payouts group money by day with a subtotal per group. The reader sees the shape of the takings and still opens any row.
+**Rationale:** Bank statements and Stripe payouts group money by day with a subtotal per group. The reader sees the shape of the spending and still opens any row.
 
 **Cost:** Grouping removes the flat row order, so pagination and select-all both get harder to reason about across group edges.
 
 **Reference:** Stripe
 
-#### `grouped-by-delivery-with-collapse-toggles`: Grouped by Delivery with Collapse Toggles
+#### `grouped-by-delivery-with-collapse-toggles`: Grouped by Trip with Collapse Toggles
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Grouped by delivery. Becker spring refill and Lindqvist studio courier are collapsed."
+    heading "Expenses"
+    text "Grouped by trip. Utrecht audit and Maastricht workshop are collapsed."
   toolbar
-    field "Order number, name or email" search
-    field "Group" select = "Delivery"
-  region "Garcia Interiors restock, 3 orders"
+    field "Expense number, name or email" search
+    field "Group" select = "Trip"
+  region "Rotterdam client visit, 3 expenses"
     fact "Subtotal" "EUR 225.00"
     action quiet "Collapse"
-    table 4 "Order" "Customer" "State" "Paid"
-      item: text "7K4Q2M" · text "Maria Garcia" · status "Paid" positive · text "EUR 125.00"
-  region "Becker spring refill, 2 orders"
+    table 4 "Expense" "Spender" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
+  region "Utrecht audit, 2 expenses"
     fact "Subtotal" "EUR 90.00"
     action quiet "Expand"
-  region "Lindqvist studio courier, 1 order"
+  region "Maastricht workshop, 1 expense"
     fact "Subtotal" "EUR 45.00"
     action quiet "Expand"
 ```
 
-**Rationale:** Linear's group-by puts a toggle on each group header, so a reader following one delivery collapses the rest. The header carries the count and the subtotal even while collapsed.
+**Rationale:** Linear's group-by puts a toggle on each group header, so a reader following one trip collapses the rest. The header carries the count and the subtotal even while collapsed.
 
 **Cost:** Collapsed groups hide rows from find-in-page and from a reader who forgot they collapsed anything. The toggle state needs to survive a reload or it annoys.
 
@@ -2644,30 +2644,30 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
+    heading "Expenses"
     text "Grouped by state, disputed first."
   toolbar
-    field "Order number, name or email" search
+    field "Expense number, name or email" search
     field "Group" select = "State"
-  region "Disputed, 1 order"
+  region "Disputed, 1 expense"
     fact "Subtotal" "EUR 45.00"
-    table 4 "Order" "Customer" "Placed" "Paid"
-      item: text "YB281K" · text "Ade Okafor" · text "7 Oct 19:02" · text "EUR 45.00"
-  region "Awaiting payment, 1 order"
+    table 4 "Expense" "Spender" "Submitted" "Paid"
+      item: text "EXP-1037" · text "Eli" · text "7 Oct 19:02" · text "EUR 45.00"
+  region "Awaiting payment, 1 expense"
     fact "Subtotal" "EUR 45.00"
-    table 4 "Order" "Customer" "Placed" "Paid"
-      item: text "8M3DWR" · text "Ade Okafor" · text "8 Oct 06:22" · text "EUR 45.00"
-  region "Paid, 3 orders"
+    table 4 "Expense" "Spender" "Submitted" "Paid"
+      item: text "EXP-1039" · text "Eli" · text "8 Oct 06:22" · text "EUR 45.00"
+  region "Paid, 3 expenses"
     fact "Subtotal" "EUR 220.00"
-    table 4 "Order" "Customer" "Placed" "Paid"
-      item: text "7K4Q2M" · text "Maria Garcia" · text "8 Oct 09:32" · text "EUR 125.00"
+    table 4 "Expense" "Spender" "Submitted" "Paid"
+      item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · text "EUR 125.00"
 ```
 
 **Rationale:** Linear groups issues by status so the blocked ones read as one block. Here the disputed and awaiting rows sit together at the top, which is the triage order support wants.
 
-**Cost:** States change under the reader: paying an order moves it to another group, which reads as the row vanishing. The list has to say where it went.
+**Cost:** States change under the reader: paying an expense moves it to another group, which reads as the row vanishing. The list has to say where it went.
 
 **Reference:** Linear
 
@@ -2675,15 +2675,15 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Sorted by delivery, newest first inside each delivery."
+    heading "Expenses"
+    text "Sorted by trip, newest first inside each trip."
   toolbar
-    field "Order number, name or email" search
-    field "Sort" select = "Delivery"
-  table 5 "Order" "Delivery" "Customer" "State" "Paid"
-    item: text "7K4Q2M" · text "Garcia Interiors restock" · text "Maria Garcia" · status "Paid" positive · text "EUR 125.00"
+    field "Expense number, name or email" search
+    field "Sort" select = "Trip"
+  table 5 "Expense" "Trip" "Spender" "State" "Paid"
+    item: text "EXP-1042" · text "Rotterdam client visit" · text "Ava" · status "Paid" positive · text "EUR 125.00"
 ```
 
 **Rationale:** Carbon keeps the table flat and lets the reader sort by the would-be group field instead. Nothing hides, paging stays simple, and the eye groups adjacent equal values on its own.
@@ -2696,28 +2696,28 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "Refunds"
+  breadcrumb "Home" "Expenses" "Reversals"
   header
-    heading "Refunds"
-    text "31 orders to decide, grouped by day."
+    heading "Reversals"
+    text "31 payouts to decide, grouped by day."
   toolbar
-    field "Search refunds" search
+    field "Search reversals" search
     field "Any window" select = "Any window"
   region "Today, 8 Oct 2026, 2 selected"
     field "Select today, 8 Oct 2026" checkbox
     fact "Subtotal" "EUR 175.00"
-    table 4 "Order" "Customer" "State" "Paid"
-      item: text "7K4Q2M" · text "Maria Garcia" · status "Paid" positive · text "EUR 125.00"
-  region "Yesterday, 7 Oct 2026, 2 orders"
+    table 4 "Expense" "Spender" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
+  region "Yesterday, 7 Oct 2026, 2 expenses"
     field "Select yesterday, 7 Oct 2026" checkbox
     fact "Subtotal" "EUR 95.00"
-    table 4 "Order" "Customer" "State" "Paid"
-      item: text "YB281K" · text "Ade Okafor" · status "Disputed" critical · text "EUR 45.00"
+    table 4 "Expense" "Spender" "State" "Paid"
+      item: text "EXP-1037" · text "Eli" · status "Disputed" critical · text "EUR 45.00"
 ```
 
-**Rationale:** Outlook and Gmail let a reader tick a whole conversation from its header. Here one checkbox refunds the day orders together, which is the batch the team runs.
+**Rationale:** Outlook and Gmail let a reader tick a whole conversation from its header. Here one checkbox reverses the day payouts together, which is the batch the team runs.
 
-**Cost:** Selecting a group selects rows the reader may not have seen, including a disputed one that should never be batch-refunded. The confirm has to name them all.
+**Cost:** Selecting a group selects rows the reader may not have seen, including a disputed one that should never be batch-reversed. The confirm has to name them all.
 
 **Reference:** Outlook
 
@@ -2725,19 +2725,19 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
+    heading "Expenses"
     text "Grouped by month, then by day."
   toolbar
-    field "Order number, name or email" search
+    field "Expense number, name or email" search
     field "Any state" select = "Any state"
-  region "October 2026, 231 orders"
+  region "October 2026, 231 expenses"
     fact "Subtotal" "EUR 10,395.00"
-    text "Today, 8 Oct 2026, 4 orders, EUR 270.00"
-    table 4 "Order" "Customer" "State" "Paid"
-      item: text "7K4Q2M" · text "Maria Garcia" · status "Paid" positive · text "EUR 125.00"
-  region "September 2026, 37 orders"
+    text "Today, 8 Oct 2026, 4 expenses, EUR 270.00"
+    table 4 "Expense" "Spender" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
+  region "September 2026, 37 expenses"
     fact "Subtotal" "EUR 1,665.00"
 ```
 
@@ -2751,107 +2751,107 @@ page
 
 **ID:** `litespec/frontend/patterns/lists-and-tables#inline-row-expansion`
 
-**Question:** Some rows hold a second level: an order holds its lines, its units, its history. Opening the record for each one costs a page load per row. An expansion row under the row itself answers the question where it was asked.
+**Question:** Some rows hold a second level: an expense holds its lines, its receipts, its history. Opening the record for each one costs a page load per row. An expansion row under the row itself answers the question where it was asked.
 
 **Default:** `expand-to-the-order-lines`
 
 **Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
 
-**Rationale:** Keep expansion to the order lines. It answers what the customer bought, which is the question asked from the list. The runner-up is expansion to units with pickup state. Prefer it on the pickup list where handover is the work. Never ship expand-all: twenty expanded rows is a page nobody can scan, and one click fires a read per row.
+**Rationale:** Keep expansion to the expense lines. It answers what the spender claimed, which is the question asked from the list. The runner-up is expansion to lines with decision state. Prefer it on the decision list where handover is the work. Never ship expand-all: twenty expanded rows is a page nobody can scan, and one click fires a read per row.
 
-**Reviewed for:** Which built expandable row breaks from the wireframe its catalog entry chose? Open the built order lines, timelines, and expand-all controls beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Which built expandable row breaks from the wireframe its catalog entry chose? Open the built expense lines, timelines, and expand-all controls beside the catalog entry recording the chosen option and its reason.
 
-#### `expand-to-the-order-lines`: Expand to the Order Lines
+#### `expand-to-the-order-lines`: Expand to the Expense Lines
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every paid order, newest first."
+    heading "Expenses"
+    text "Every paid expense, newest first."
   toolbar
-    field "Order number, name or email" search
-  table 4 "Order" "Customer" "State" "Paid"
-    item: text "7K4Q2M" · text "Maria Garcia" · status "Paid" positive · text "EUR 125.00"
-  card "7K4Q2M lines"
+    field "Expense number, name or email" search
+  table 4 "Expense" "Spender" "State" "Paid"
+    item: text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
+  card "EXP-1042 lines"
     action quiet "Collapse"
-    fact "Oak desk lamp, 2" "EUR 90.00"
-    fact "Desk chair, 1" "EUR 35.00"
+    fact "Train fare, 2" "EUR 90.00"
+    fact "Hotel night, 1" "EUR 35.00"
 ```
 
-**Rationale:** Stripe's invoice list expands a row to its lines: what was bought, at what price, adding to the row total. Support answers 'what did I pay for' without leaving the list.
+**Rationale:** Stripe's invoice list expands a row to its lines: what was claimed, at what price, adding to the row total. Support answers 'what did I pay for' without leaving the list.
 
 **Cost:** The detail row breaks the column rhythm, and sorting reorders parents while children follow, which confuses a reader who sorted by money.
 
 **Reference:** Stripe
 
-#### `expand-to-the-order-timeline`: Expand to the Order Timeline
+#### `expand-to-the-order-timeline`: Expand to the Expense Timeline
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every paid order, newest first."
+    heading "Expenses"
+    text "Every paid expense, newest first."
   toolbar
-    field "Order number, name or email" search
-  table 4 "Order" "Customer" "State" "Paid"
-    item: text "7K4Q2M" · text "Maria Garcia" · status "Paid" positive · text "EUR 125.00"
-  card "7K4Q2M history"
+    field "Expense number, name or email" search
+  table 4 "Expense" "Spender" "State" "Paid"
+    item: text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
+  card "EXP-1042 history"
     action quiet "Collapse"
     timeline 3
-      item: text "Placed" · text muted "8 Oct 2026, 09:32"
+      item: text "Submitted" · text muted "8 Oct 2026, 09:32"
 ```
 
-**Rationale:** Zendesk expands a record to its history: placed, paid, confirmation sent. The history sits under the row it belongs to, newest last, so the reader sees what happened in order.
+**Rationale:** Zendesk expands a record to its history: submitted, paid, receipt sent. The history sits under the row it belongs to, newest last, so the reader sees what happened in order.
 
-**Cost:** History grows without bound: a disputed order's expansion is a page of its own. It needs trimming to the last few entries with a link to the rest.
+**Cost:** History grows without bound: a disputed expense's expansion is a page of its own. It needs trimming to the last few entries with a link to the rest.
 
 **Reference:** Zendesk
 
-#### `expand-to-units-and-pickup-state`: Expand to Units and Pickup State
+#### `expand-to-units-and-pickup-state`: Expand to Lines and Decision State
 
 ```wireframe
 page
-  breadcrumb "Home" "Deliveries" "Garcia Interiors restock" "Pickup list"
+  breadcrumb "Home" "Expenses" "Rotterdam client visit" "Decision list"
   header
-    heading "Pickup list"
-    text "Garcia Interiors restock, today. What is collected and what is not."
+    heading "Decision list"
+    text "Rotterdam client visit, today. What is decided and what is not."
   toolbar
-    field "Customer name or order number" search
-  table 3 "Order" "Customer" "Collected"
-    item: text "V7VZNX" · text "Elin Lindqvist" · text "1 of 2"
-  card "V7VZNX units"
+    field "Spender name or expense number" search
+  table 3 "Expense" "Spender" "Decided"
+    item: text "EXP-1038" · text "Nina" · text "1 of 2"
+  card "EXP-1038 lines"
     action quiet "Collapse"
-    fact "Oak desk lamp A-1041, Counter 1" "09:41"
-    fact "Oak desk lamp A-1042" "Not yet"
+    fact "Train fare L-1041, Ben" "09:41"
+    fact "Hotel night L-1042" "Not yet"
 ```
 
-**Rationale:** A pickup list expands an order to its units with what is collected and where. The warehouse lead works the list at the counter instead of opening forty records.
+**Rationale:** A decision list expands an expense to its lines with what is decided and by whom. Ben works the list between meetings instead of opening forty records.
 
-**Cost:** Pickup state changes by the second at busy times, so an expanded row goes stale while it is open. It needs the same refresh the pickup screen has.
+**Cost:** Decision state changes by the minute at busy times, so an expanded row goes stale while it is open. It needs the same refresh the decision screen has.
 
 #### `one-row-open-at-a-time`: One Row Open at a Time
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
+    heading "Expenses"
     text "Opening a row closes the one that is open."
   toolbar
-    field "Order number, name or email" search
-  table 4 "Order" "Customer" "State" "Paid"
-    item: text "STT855" · text "Tom Becker" · status "Paid" positive · text "EUR 50.00"
-  card "STT855 lines"
+    field "Expense number, name or email" search
+  table 4 "Expense" "Spender" "State" "Paid"
+    item: text "EXP-1033" · text "Eli" · status "Paid" positive · text "EUR 50.00"
+  card "EXP-1033 lines"
     action quiet "Collapse"
-    fact "Oak desk lamp, 1" "EUR 45.00"
-    fact "Shipping, 1" "EUR 5.00"
+    fact "Train fare, 1" "EUR 45.00"
+    fact "Booking fee, 1" "EUR 5.00"
 ```
 
 **Rationale:** Carbon's accordion rule applied to the table: opening a row closes the last one. The list never grows past one detail, so the reader cannot lose their place in it.
 
-**Cost:** Comparing two orders means opening, memorizing, closing, and opening. The rule trades comparison for tidiness.
+**Cost:** Comparing two expenses means opening, memorizing, closing, and opening. The rule trades comparison for tidiness.
 
 **Reference:** Carbon
 
@@ -2859,24 +2859,23 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every paid order, newest first."
+    heading "Expenses"
+    text "Every paid expense, newest first."
   toolbar
-    field "Order number, name or email" search
-    action "Collapse all"
-  table 3 "Order" "Customer" "Paid"
-    item: text "7K4Q2M" · text "Maria Garcia" · text "EUR 125.00"
-  card "7K4Q2M lines"
-    fact "2 Oak desk lamps" "EUR 90.00"
-    fact "Desk chair, 1" "EUR 35.00"
-  card "STT855 lines"
-    fact "Oak desk lamp, 1" "EUR 45.00"
-    fact "Shipping, 1" "EUR 5.00"
+    field "Expense number, name or email" search
+  table 3 "Expense" "Spender" "Paid"
+    item: text "EXP-1042" · text "Ava" · text "EUR 125.00"
+  card "EXP-1042 lines"
+    fact "2 train fares" "EUR 90.00"
+    fact "Hotel night, 1" "EUR 35.00"
+  card "EXP-1033 lines"
+    fact "Train fare, 1" "EUR 45.00"
+    fact "Booking fee, 1" "EUR 5.00"
 ```
 
-**Rationale:** GOV.UK's accordion pairs every toggle with a Show all control, so a reader checking every order's lines presses once instead of twenty-five times.
+**Rationale:** GOV.UK's accordion pairs every toggle with a Show all control, so a reader checking every expense's lines presses once instead of twenty-five times.
 
 **Cost:** Twenty expanded rows is a page nobody can scan, and each detail needs its own data, so Show all fires twenty-five reads at once.
 
@@ -2886,51 +2885,51 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "The order number opens the record. Nothing expands in place."
+    heading "Expenses"
+    text "The expense number opens the record. Nothing expands in place."
   toolbar
-    field "Order number, name or email" search
-  table 4 "Order" "Customer" "State" "Paid"
-    item: link "7K4Q2M" · text "Maria Garcia" · status "Paid" positive · text "EUR 125.00"
+    field "Expense number, name or email" search
+  table 4 "Expense" "Spender" "State" "Paid"
+    item: link "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
 ```
 
-**Rationale:** The order number is a link and everything lives on the record page. One pattern for detail everywhere, and the list stays a list.
+**Rationale:** The expense number is a link and everything lives on the record page. One pattern for detail everywhere, and the list stays a list.
 
-**Cost:** Every question costs a page load and a back button. Checking three orders means six page loads where expansion needs none.
+**Cost:** Every question costs a page load and a back button. Checking three expenses means six page loads where expansion needs none.
 
 ### Pinned and Resizing Columns
 
 **ID:** `litespec/frontend/patterns/lists-and-tables#pinned-and-resizing-columns`
 
-**Question:** A wide table scrolls, and a scrolling table loses its bearings. The order code leaves as the money arrives. Pinning the identity column keeps the row named, and resizing lets the reader spend width where their own data needs it.
+**Question:** A wide table scrolls, and a scrolling table loses its bearings. The expense code leaves as the money arrives. Pinning the identity column keeps the row named, and resizing lets the reader spend width where their own data needs it.
 
 **Default:** `the-order-column-pinned-while-the-rest-scroll`
 
 **Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
 
-**Rationale:** Keep the order column pinned while the rest scroll. The row stays named at any scroll position, and it costs no control. The runner-up pins the actions too. Prefer it once rows carry inline commands that must stay reachable. Never ship draggable widths in a first release: per-user widths are stored state that support cannot see and screenshots cannot hold.
+**Rationale:** Keep the expense column pinned while the rest scroll. The row stays named at any scroll position, and it costs no control. The runner-up pins the actions too. Prefer it once rows carry inline commands that must stay reachable. Never ship draggable widths in a first release: per-user widths are stored state that support cannot see and screenshots cannot hold.
 
 **Reviewed for:** Which built fixed column breaks from the wireframe its catalog entry chose? Open the built frozen first columns and resize handles beside the catalog entry recording the chosen option and its reason.
 
-#### `the-order-column-pinned-while-the-rest-scroll`: The Order Column Pinned While the Rest Scroll
+#### `the-order-column-pinned-while-the-rest-scroll`: The Expense Column Pinned While the Rest Scroll
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "The order column stays while the rest scroll under it."
+    heading "Expenses"
+    text "The expense column stays while the rest scroll under it."
   toolbar
-    field "Order number, name or email" search
-  table 8 "Order" "Delivery" "Placed" "Customer" "Channel" "State" "Method" "Paid"
-    item: text "7K4Q2M" · text "Garcia Interiors restock" · text "8 Oct 2026, 09:32" · text "Maria Garcia" · text "Online" · status "Paid" positive · text "Bank transfer" · text "EUR 125.00"
+    field "Expense number, name or email" search
+  table 8 "Expense" "Trip" "Submitted" "Spender" "Cost centre" "State" "Method" "Paid"
+    item: text "EXP-1042" · text "Rotterdam client visit" · text "8 Oct 2026, 09:32" · text "Ava" · text "Travel" · status "Paid" positive · text "Bank transfer" · text "EUR 125.00"
 ```
 
 **Rationale:** Shopify's orders index pins the order column and lets the other seven scroll under it. Nothing is folded, so every fact keeps its own scannable column.
 
-**Cost:** On a phone the reader sees the order code and one other column at a time. Pinning keeps the bearings, not the overview.
+**Cost:** On a phone the reader sees the expense code and one other column at a time. Pinning keeps the bearings, not the overview.
 
 **Reference:** Shopify
 
@@ -2938,14 +2937,14 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Order stays left, Resend stays right."
+    heading "Expenses"
+    text "Expense stays left, Resend stays right."
   toolbar
-    field "Order number, name or email" search
-  table 7 "Order" "Delivery" "Customer" "Channel" "State" "Paid" "Action"
-    item: text "7K4Q2M" · text "Garcia Interiors restock" · text "Maria Garcia" · text "Online" · status "Paid" positive · text "EUR 125.00" · action "Resend"
+    field "Expense number, name or email" search
+  table 7 "Expense" "Trip" "Spender" "Cost centre" "State" "Paid" "Action"
+    item: text "EXP-1042" · text "Rotterdam client visit" · text "Ava" · text "Travel" · status "Paid" positive · text "EUR 125.00" · action "Resend"
 ```
 
 **Rationale:** Airtable pins the record name on the left and the row commands on the right, so both survive any scroll position. Acting never requires scrolling back.
@@ -2958,17 +2957,17 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
+    heading "Expenses"
     text "Drag a header edge to resize. Double-click it to fit the content."
   toolbar
-    field "Order number, name or email" search
-  table 5 "Order" "Customer" "Placed" "State" "Paid"
-    item: text "7K4Q2M" · text "Maria Garcia" · text "8 Oct 2026, 09:32" · status "Paid" positive · text "EUR 125.00"
+    field "Expense number, name or email" search
+  table 5 "Expense" "Spender" "Submitted" "State" "Paid"
+    item: text "EXP-1042" · text "Ava" · text "8 Oct 2026, 09:32" · status "Paid" positive · text "EUR 125.00"
 ```
 
-**Rationale:** Airtable and Retool put a handle on every header edge: drag it and the column follows. A reader with long delivery names spends width there instead of on the order code.
+**Rationale:** Airtable and Retool put a handle on every header edge: drag it and the column follows. A reader with long trip names spends width there instead of on the expense code.
 
 **Cost:** Widths are per-user stored state that support cannot see, screenshots cannot hold, and a new column resets. A wide table of eight resizable columns is also eight ways to break the layout.
 
@@ -2978,14 +2977,14 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "The Customer column menu is open."
+    heading "Expenses"
+    text "The Spender column menu is open."
   toolbar
-    field "Order number, name or email" search
-  table 5 "Order" "Customer" "Placed" "State" "Paid"
-    item: text "7K4Q2M" · text "Maria Garcia" · text "8 Oct 2026, 09:32" · status "Paid" positive · text "EUR 125.00"
+    field "Expense number, name or email" search
+  table 5 "Expense" "Spender" "Submitted" "State" "Paid"
+    item: text "EXP-1042" · text "Ava" · text "8 Oct 2026, 09:32" · status "Paid" positive · text "EUR 125.00"
   popover
     action "Sort ascending"
     action "Sort descending"
@@ -2993,7 +2992,7 @@ page
     action "Hide column"
 ```
 
-**Rationale:** Notion lets any column pin left from its header menu. This option draws the menu open on Customer. The reader decides what their bearings are instead of the back office deciding for them.
+**Rationale:** Notion lets any column pin left from its header menu. This option draws the menu open on Spender. The reader decides what their bearings are instead of finance deciding for them.
 
 **Cost:** Pinning plus hiding plus sorting in one menu is three features wearing one trigger. Most readers find none of them.
 
@@ -3003,19 +3002,19 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
+    heading "Expenses"
     text "Every column scrolls together. Nothing stays."
   toolbar
-    field "Order number, name or email" search
-  table 7 "Order" "Delivery" "Customer" "Channel" "State" "Method" "Paid"
-    item: text "7K4Q2M" · text "Garcia Interiors restock" · text "Maria Garcia" · text "Online" · status "Paid" positive · text "Bank transfer" · text "EUR 125.00"
+    field "Expense number, name or email" search
+  table 7 "Expense" "Trip" "Spender" "Cost centre" "State" "Method" "Paid"
+    item: text "EXP-1042" · text "Rotterdam client visit" · text "Ava" · text "Travel" · status "Paid" positive · text "Bank transfer" · text "EUR 125.00"
 ```
 
 **Rationale:** Carbon's default: the table scrolls as one piece and every column leaves together. No sticky edges, no shadows, no special cases in the CSS.
 
-**Cost:** Halfway across, the money column arrives and the order code is gone. The reader scrolls back to check which row the amount belongs to.
+**Cost:** Halfway across, the money column arrives and the expense code is gone. The reader scrolls back to check which row the amount belongs to.
 
 **Reference:** Carbon
 
@@ -3023,14 +3022,14 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "The customer column is fitted to 150 pixels. Double-click its header edge to fit the longest value instead."
+    heading "Expenses"
+    text "The spender column is fitted to 150 pixels. Double-click its header edge to fit the longest value instead."
   toolbar
-    field "Order number, name or email" search
-  table 5 "Order" "Customer" "Placed" "State" "Paid"
-    item: text "7K4Q2M" · text "Maria Garcia, maria@garcia-interiors.example" · text "8 Oct 2026, 09:32" · status "Paid" positive · text "EUR 125.00"
+    field "Expense number, name or email" search
+  table 5 "Expense" "Spender" "Submitted" "State" "Paid"
+    item: text "EXP-1042" · text "Ava, ava@harbor-pine.example" · text "8 Oct 2026, 09:32" · status "Paid" positive · text "EUR 125.00"
 ```
 
 **Rationale:** Google Sheets fits a column to its widest value on a double-click of the header edge. No dragging, no stored widths: the table answers the data it holds right now.
@@ -3039,62 +3038,62 @@ page
 
 **Reference:** Google Sheets
 
-### Deliveries as a Grid
+### Trips as a Grid
 
-**ID:** `litespec/frontend/patterns/lists-and-tables#deliveries-as-a-grid`
+**ID:** `litespec/frontend/patterns/lists-and-tables#trips-as-a-grid`
 
-**Question:** Deliveries are few and dated: the company runs a handful a week and asks how each one is doing. A table answers with rows of numbers, while a card answers with the run itself: its date, its warehouse, and how full it is.
+**Question:** Trips are few and dated: the company runs a handful a month and asks how each one is doing. A table answers with rows of numbers, while a card answers with the trip itself: its dates, its client site, and how much of its budget is claimed.
 
-**Default:** `delivery-cards-with-a-load-bar`
+**Default:** `trip-cards-with-a-budget-bar`
 
 **Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
 
-**Rationale:** Keep delivery cards with a load bar. Four deliveries read better as four cards than as four rows. The bar answers the only question the list exists for. The runner-up is a date-led list. Prefer it once the year holds dozens of runs and cards stop fitting. Never ship the month calendar: it answers when, which the deliveries list is never asked.
+**Rationale:** Keep trip cards with a budget bar. Four trips read better as four cards than as four rows. The bar answers the only question the list exists for. The runner-up is a date-led list. Prefer it once the year holds dozens of trips and cards stop fitting. Never ship the month calendar: it answers when, which the trips list is never asked.
 
-**Reviewed for:** Which built delivery overview breaks from the wireframe its catalog entry chose? Open the built cards, calendars, and table-grid toggles beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Which built trip overview breaks from the wireframe its catalog entry chose? Open the built cards, calendars, and table-grid toggles beside the catalog entry recording the chosen option and its reason.
 
-#### `delivery-cards-with-a-load-bar`: Delivery Cards with a Load Bar
+#### `trip-cards-with-a-budget-bar`: Trip Cards with a Budget Bar
 
 ```wireframe
 page
-  breadcrumb "Home" "Deliveries"
+  breadcrumb "Home" "Trips"
   header
-    heading "Deliveries"
-    text "Four deliveries, three with a date still ahead."
-    action primary "New delivery"
+    heading "Trips"
+    text "Four trips, three with a date still ahead."
+    action primary "New trip"
   toolbar
-    field "Search deliveries" search
+    field "Search trips" search
   grid 4
-    card "Becker spring refill"
-      image "Route map"
-      text "Fri 9 Oct 2026, Rotterdam depot"
+    card "Rotterdam client visit"
+      image "Trip photo"
+      text "Fri 9 Oct 2026, Rotterdam client site"
       status "Scheduled" info
-      fact "Loaded" "32 of 40 pallets"
+      fact "Claimed" "EUR 125.00 of EUR 400.00"
       action "Open"
 ```
 
-**Rationale:** Each delivery is a card with its date, its warehouse, and how full it is. Four deliveries a week read as four runs, not as four rows of a table.
+**Rationale:** Each trip is a card with its dates, its client site, and how much of its budget is claimed. Four trips a month read as four trips, not as four rows of a table.
 
-**Cost:** Cards stop scanning past a dozen deliveries: no column to sort, no state to scan down. The pattern fits a handful, not a hundred.
+**Cost:** Cards stop scanning past a dozen trips: no column to sort, no state to scan down. The pattern fits a handful, not a hundred.
 
-#### `a-table-with-a-load-progress-column`: A Table with a Load Progress Column
+#### `a-table-with-a-budget-progress-column`: A Table with a Budget Progress Column
 
 ```wireframe
 page
-  breadcrumb "Home" "Deliveries"
+  breadcrumb "Home" "Trips"
   header
-    heading "Deliveries"
-    text "Four deliveries, three with a date still ahead."
-    action primary "New delivery"
+    heading "Trips"
+    text "Four trips, three with a date still ahead."
+    action primary "New trip"
   toolbar
-    field "Search deliveries" search
-  table 5 "Delivery" "Date" "State" "Loaded" "Action"
-    item: text "Becker spring refill" · text "9 Oct 2026" · status "Scheduled" info · text "32 of 40 pallets" · action "Open"
+    field "Search trips" search
+  table 5 "Trip" "Date" "State" "Claimed" "Action"
+    item: text "Rotterdam client visit" · text "9 Oct 2026" · status "Scheduled" info · text "EUR 125.00 of EUR 400.00" · action "Open"
 ```
 
-**Rationale:** Shopify's product list keeps the table and adds an inventory bar per row. The deliveries stay sortable and comparable, and the bar still answers how full each one is.
+**Rationale:** Shopify's product list keeps the table and adds an inventory bar per row. The trips stay sortable and comparable, and the bar still answers how much of the budget each one has claimed.
 
-**Cost:** A bar in a table row is a chart without an axis. 80 percent of 40 pallets and 53 percent of 60 pallets read as two bars of different lengths for different totals.
+**Cost:** A bar in a table row is a chart without an axis. 80 percent of EUR 400.00 and 53 percent of EUR 600.00 read as two bars of different lengths for different totals.
 
 **Reference:** Shopify
 
@@ -3102,47 +3101,47 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Deliveries"
+  breadcrumb "Home" "Trips"
   header
-    heading "Deliveries"
-    text "Four deliveries, three with a date still ahead."
-    action primary "New delivery"
+    heading "Trips"
+    text "Four trips, three with a date still ahead."
+    action primary "New trip"
   toolbar
-    field "Search deliveries" search
+    field "Search trips" search
   region "October 2026"
     list 2
-      item: text "Becker spring refill" · text muted "Rotterdam depot, 08:00" · status "Scheduled" info · text "32 of 40 pallets"
+      item: text "Rotterdam client visit" · text muted "Rotterdam client site, 08:00" · status "Scheduled" info · text "EUR 125.00 of EUR 400.00"
   region "December 2026"
     list 1
-      item: text "Okafor office setup" · text muted "Amsterdam warehouse, 08:00" · status "Draft" neutral · text "Not scheduled yet"
+      item: text "Utrecht audit" · text muted "Utrecht client site, 08:00" · status "Draft" neutral · text "Not scheduled yet"
 ```
 
-**Rationale:** Google Calendar's schedule view leads with the date and groups by month. A planner reads October, then December, then March, each run under its own day.
+**Rationale:** Google Calendar's schedule view leads with the date and groups by month. A planner reads October, then December, then March, each trip under its own day.
 
 **Cost:** Dates lead and states follow, so finding the one draft means reading every month. The view answers when, not what needs work.
 
 **Reference:** Google Calendar
 
-#### `a-month-calendar-with-delivery-chips`: A Month Calendar with Delivery Chips
+#### `a-month-calendar-with-trip-chips`: A Month Calendar with Trip Chips
 
 ```wireframe
 page
-  breadcrumb "Home" "Deliveries"
+  breadcrumb "Home" "Trips"
   header
-    heading "Deliveries"
-    text "October 2026. Two runs scheduled."
-    action primary "New delivery"
+    heading "Trips"
+    text "October 2026. Two trips scheduled."
+    action primary "New trip"
   toolbar
     action quiet "Previous month"
     action quiet "Next month"
   region "October 2026"
     grid 31
-      item: text "9" · text "Becker spring refill"
+      item: text "9" · text "Rotterdam client visit"
 ```
 
-**Rationale:** Google Calendar draws the month as a grid and each delivery as a chip on its day. Clashes show as two chips on one square, which no list makes visible.
+**Rationale:** Google Calendar draws the month as a grid and each trip as a chip on its day. Clashes show as two chips on one square, which no list makes visible.
 
-**Cost:** Four deliveries on thirty squares is mostly empty grid, and nothing on a chip says how full the run is. The calendar answers scheduling, not loading.
+**Cost:** Four trips on thirty squares is mostly empty grid, and nothing on a chip says how much of the budget is claimed. The calendar answers scheduling, not spending.
 
 **Reference:** Google Calendar
 
@@ -3150,20 +3149,20 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Deliveries"
+  breadcrumb "Home" "Trips"
   header
-    heading "Deliveries"
-    text "Four deliveries, three with a date still ahead."
-    action primary "New delivery"
+    heading "Trips"
+    text "Four trips, three with a date still ahead."
+    action primary "New trip"
   toolbar
-    field "Search deliveries" search
-  table 4 "Delivery" "Owner" "State" "Date"
-    item: text "Becker spring refill" · text "Alex Morgan" · text muted "Scheduled" · text "9 Oct 2026"
+    field "Search trips" search
+  table 4 "Trip" "Owner" "State" "Date"
+    item: text "Rotterdam client visit" · text "Ava" · text muted "Scheduled" · text "9 Oct 2026"
 ```
 
-**Rationale:** Linear's project list is one quiet row per project: name, owner, status, date. A team holding forty runs scans states down one column instead of opening forty cards.
+**Rationale:** Linear's project list is one quiet row per project: name, owner, status, date. A team holding forty trips scans states down one column instead of opening forty cards.
 
-**Cost:** Quiet rows hide the load: nothing says how full a run is until it is opened. The list answers state, not loading.
+**Cost:** Quiet rows hide the budget: nothing says how much is claimed until the trip is opened. The list answers state, not spending.
 
 **Reference:** Linear
 
@@ -3171,24 +3170,24 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Deliveries"
+  breadcrumb "Home" "Trips"
   header
-    heading "Deliveries"
-    text "Four deliveries, three with a date still ahead."
-    action primary "New delivery"
+    heading "Trips"
+    text "Four trips, three with a date still ahead."
+    action primary "New trip"
   toolbar
-    field "Search deliveries" search
+    field "Search trips" search
     field "View" select = "Grid"
   grid 2
-    card "Becker spring refill"
-      image "Route map"
-      text "Fri 9 Oct 2026, Rotterdam depot"
+    card "Rotterdam client visit"
+      image "Trip photo"
+      text "Fri 9 Oct 2026, Rotterdam client site"
       status "Scheduled" info
-      fact "Loaded" "32 of 40 pallets"
+      fact "Claimed" "EUR 125.00 of EUR 400.00"
       action "Open"
 ```
 
-**Rationale:** Notion lets the reader switch a view between table and board without leaving the page. Finance keeps the table, the warehouse lead keeps the cards, and both read the same deliveries.
+**Rationale:** Notion lets the reader switch a view between table and board without leaving the page. Finance keeps the table, the trip lead keeps the cards, and both read the same trips.
 
 **Cost:** Two views of one list is two layouts to build, two to test, and a toggle whose state must survive reloads and shared links.
 
@@ -3198,13 +3197,13 @@ page
 
 **ID:** `litespec/frontend/patterns/lists-and-tables#list-on-a-phone`
 
-**Question:** At 390 pixels the five-column table cannot survive: the columns either crush or scroll. Every option here answers the same question, what the orders list becomes on a phone. Each one keeps a different capability: reading, sorting, acting, or comparing.
+**Question:** At 390 pixels the five-column table cannot survive: the columns either crush or scroll. Every option here answers the same question, what the expenses list becomes on a phone. Each one keeps a different capability: reading, sorting, acting, or comparing.
 
 **Default:** `two-line-rows-with-money-right`
 
 **Compact:** Below 640 pixels the table becomes two-line rows with the amount right. Sorting moves to a Sort control. The compact option is `two-line-rows-with-money-right`.
 
-**Rationale:** Keep two-line rows with money right. The rows read well at 390 pixels and keep the order code, the customer, and the amount. They pair with a Sort control where sorting matters. The runner-up is a scroll container with a sticky first column. Prefer it for the rare phone task that needs every column. Never ship a phone list that hides behind search: a list that starts empty teaches the reader there is nothing to see.
+**Rationale:** Keep two-line rows with money right. The rows read well at 390 pixels and keep the expense code, the spender, and the amount. They pair with a Sort control where sorting matters. The runner-up is a scroll container with a sticky first column. Prefer it for the rare phone task that needs every column. Never ship a phone list that hides behind search: a list that starts empty teaches the reader there is nothing to see.
 
 **Reviewed for:** Which built narrow list breaks from the wireframe its catalog entry chose? Open the built two-line rows, cards, and sticky columns at 390 pixels beside the catalog entry recording the chosen option and its reason.
 
@@ -3212,18 +3211,18 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every paid order, newest first."
+    heading "Expenses"
+    text "Every paid expense, newest first."
   toolbar
-    field "Order number, name or email" search
+    field "Expense number, name or email" search
     field "Any state" select = "Any state"
   list 6
-    item: link "7K4Q2M" · text "EUR 125.00" · text muted "Maria Garcia, 8 Oct 09:32" · status "Paid" positive
+    item: link "EXP-1042" · text "EUR 125.00" · text muted "Ava, 8 Oct 09:32" · status "Paid" positive
 ```
 
-**Rationale:** Stripe's mobile list and Polaris condensed rows read as order over customer on the left, money over state on the right. Everything fits 390 pixels with nothing scrolling sideways.
+**Rationale:** Stripe's mobile list and Polaris condensed rows read as expense over spender on the left, money over state on the right. Everything fits 390 pixels with nothing scrolling sideways.
 
 **Cost:** No headers, so no sorting and no comparison down a column. Sorting moves to a control, and comparing moves to the desktop.
 
@@ -3233,26 +3232,26 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every cell keeps its label. 268 orders, two shown."
+    heading "Expenses"
+    text "Every cell keeps its label. 268 expenses, two shown."
   toolbar
-    field "Order number, name or email" search
-  region "7K4Q2M"
-    fact "Delivery" "Garcia Interiors restock"
-    fact "Customer" "Maria Garcia"
-    fact "Placed" "8 Oct 2026, 09:32"
+    field "Expense number, name or email" search
+  region "EXP-1042"
+    fact "Trip" "Rotterdam client visit"
+    fact "Spender" "Ava"
+    fact "Submitted" "8 Oct 2026, 09:32"
     fact "State" "Paid"
     fact "Paid" "EUR 125.00"
-  region "STT855"
-    fact "Customer" "Tom Becker"
+  region "EXP-1043"
+    fact "Spender" "Nina"
     fact "Paid" "EUR 50.00"
 ```
 
 **Rationale:** GOV.UK's responsive tables stack each row into labeled values on a narrow screen. Nothing is dropped and nothing needs discovering: every fact keeps its name.
 
-**Cost:** One order fills the screen, so six orders is six screens of scrolling. Thorough, and too long to scan.
+**Cost:** One expense fills the screen, so six expenses is six screens of scrolling. Thorough, and too long to scan.
 
 **Reference:** GOV.UK
 
@@ -3260,14 +3259,14 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Scroll sideways. The order column stays."
+    heading "Expenses"
+    text "Scroll sideways. The expense column stays."
   toolbar
-    field "Order number, name or email" search
-  table 5 "Order" "Customer" "Placed" "State" "Paid"
-    item: text "7K4Q2M" · text "Maria Garcia" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
+    field "Expense number, name or email" search
+  table 5 "Expense" "Spender" "Submitted" "State" "Paid"
+    item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
 ```
 
 **Rationale:** Shopify's mobile tables keep every column and scroll sideways under a pinned first column. Nothing is redesigned for the phone: the table is the table, with its bearings kept.
@@ -3280,62 +3279,62 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Order, placed and email return on the record."
+    heading "Expenses"
+    text "Expense, submitted and email return on the record."
   toolbar
-    field "Order number, name or email" search
-  table 3 "Customer" "State" "Paid"
-    item: text "Maria Garcia" · status "Paid" positive · text "EUR 125.00"
+    field "Expense number, name or email" search
+  table 3 "Spender" "State" "Paid"
+    item: text "Ava" · status "Paid" positive · text "EUR 125.00"
 ```
 
-**Rationale:** Financial tables keep customer, state, and money on a narrow screen and drop the rest. Three columns fit 390 pixels without scrolling, and opening the row recovers the dropped facts.
+**Rationale:** Financial tables keep spender, state, and money on a narrow screen and drop the rest. Three columns fit 390 pixels without scrolling, and opening the row recovers the dropped facts.
 
-**Cost:** The order code, the placed time, and the delivery all leave. Support identifying a caller by code finds the one column they need is gone.
+**Cost:** The expense code, the submitted time, and the trip all leave. Support identifying a caller by code finds the one column they need is gone.
 
-#### `a-card-per-order-with-its-actions`: A Card per Order with Its Actions
+#### `a-card-per-expense-with-its-actions`: A Card per Expense with Its Actions
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders, one card each."
+    heading "Expenses"
+    text "268 expenses, one card each."
   toolbar
-    field "Order number, name or email" search
+    field "Expense number, name or email" search
   grid 4
-    card "7K4Q2M, EUR 125.00"
-      text "Maria Garcia, Garcia Interiors restock"
+    card "EXP-1042, EUR 125.00"
+      text "Ava, Rotterdam client visit"
       status "Paid" positive
       action "Open"
       action "Resend"
 ```
 
-**Rationale:** Mobile order apps draw each order as a card with its own Resend button. The phone is for acting on one order, not for comparing twenty, so each card carries its command.
+**Rationale:** Mobile expense apps draw each expense as a card with its own Resend button. The phone is for acting on one expense, not for comparing twenty, so each card carries its command.
 
-**Cost:** Cards are tall: three orders fill the screen where rows fit six. A queue worked top to bottom becomes twice the scrolling.
+**Cost:** Cards are tall: three expenses fill the screen where rows fit six. A queue worked top to bottom becomes twice the scrolling.
 
 #### `search-and-chips-above-one-line-rows`: Search and Chips Above One-Line Rows
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Find an order, then open it."
+    heading "Expenses"
+    text "Find an expense, then open it."
   toolbar
-    field "Search orders" search
+    field "Search expenses" search
   row
     action "Needs attention"
     action "Paid"
     action "This week"
   list 6
-    item: text "Maria Garcia" · text "EUR 125.00" · text muted "7K4Q2M, Garcia Interiors restock" · status "Paid" positive
+    item: text "Ava" · text "EUR 125.00" · text muted "EXP-1042, Rotterdam client visit" · status "Paid" positive
 ```
 
 **Rationale:** Gmail's mobile list leads with search and a chip row, then one line per message. Finding beats browsing on a phone, so the list spends its width on the query, not the columns.
 
-**Cost:** One line per order holds the customer or the code, never both with the money. The row identifies enough to be opened, nothing more.
+**Cost:** One line per expense holds the spender or the code, never both with the money. The row identifies enough to be opened, nothing more.
 
 **Reference:** Gmail

@@ -12,7 +12,7 @@ Each pattern answers one recurring question about screen states, such as what a 
 
 ### The Running Example
 
-The drawings on this page use the Acme Supply back office: 268 orders including SO-1042 for Maria Garcia, refunds such as the EUR 125.00 on that order, and the delivery, payment, and warehouse facts around them. On this page, the reader is the staff member using the screen. The Standards section states the two rules every option keeps: a refusal or error message states what failed and the next step, and a failed save keeps the reader's input on screen.
+The drawings on this page use the Claimwick payout desk: 268 expenses including EXP-1042 for Ava, reversals such as the EUR 125.00 on that expense, and the trip, payout, and budget facts around them. On this page, the reader is the staff member using the screen. The Standards section states the two rules every option keeps: a refusal or error message states what failed and the next step, and a failed save keeps the reader's input on screen.
 
 ## Standards
 
@@ -48,7 +48,7 @@ The drawings on this page use the Acme Supply back office: 268 orders including 
 
 **Compact:** The recommended option reflows: one column with the header actions under the title.
 
-**Rationale:** The pick stays on the positive title with one action. It is the smallest shape and the only option that asks nothing of a reader who has nothing yet. The runner-up is the setup guide on Home. Prefer it when the first order needs steps across several pages. Never ship the table with a dashed sample row. It shows a record that does not exist, and opening it leads nowhere.
+**Rationale:** The pick stays on the positive title with one action. It is the smallest shape and the only option that asks nothing of a reader who has nothing yet. The runner-up is the setup guide on Home. Prefer it when the first expense needs steps across several pages. Never ship the table with a dashed sample row. It shows a record that does not exist, and opening it leads nowhere.
 
 **Reviewed for:** Which built first-run screen departs from the wireframe its catalog entry chose? Open the built empty lists and setup guides beside the catalog entry recording the chosen option and its reason.
 
@@ -56,17 +56,17 @@ The drawings on this page use the Acme Supply back office: 268 orders including 
 
 ```wireframe
 page
-  breadcrumb "Home" "Products"
+  breadcrumb "Home" "Policies"
   header
-    heading "Products"
-    text "Six kinds of stock, from a 12-unit gift box to the Oak desk lamp."
-    action primary "New product"
-  region "Products"
-    message "No products yet. A product holds a name, a SKU, a price and what is in stock." neutral
-    action primary "New product"
+    heading "Policies"
+    text "Six kinds of claims, from a 12-line per diem to the train fare."
+    action primary "New policy"
+  region "Policies"
+    message "No policies yet. A policy holds a name, a code, a ceiling and what is claimed." neutral
+    action primary "New policy"
 ```
 
-**Rationale:** The page shows one positive title, one line saying what a product is for, and one button that creates the first one.
+**Rationale:** The page shows one positive title, one line saying what a policy is for, and one button that creates the first one.
 
 **Cost:** The reader cannot see what a row will look like, so every column is undiscoverable until there is data. Carbon accepts this.
 
@@ -76,41 +76,41 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Products"
+  breadcrumb "Home" "Policies"
   header
-    heading "Products"
+    heading "Policies"
     text "Nothing here yet."
-    action primary "New product"
+    action primary "New policy"
   split 2:1
-    region "Products"
-      message "No products yet. A product holds a name, a SKU, a price and stock." neutral
-      action primary "New product"
-    aside "What a first product needs"
+    region "Policies"
+      message "No policies yet. A policy holds a name, a code, a ceiling and claims." neutral
+      action primary "New policy"
+    aside "What a first policy needs"
       list 4
-        item: text "A name" · text muted "Customers see it in the store"
+        item: text "A name" · text muted "Spenders see it in the portal"
 ```
 
-**Rationale:** The list holds nothing, and beside it the page says what the first product needs to be sellable. The empty state is a checklist rather than a sentence.
+**Rationale:** The list holds nothing, and beside it the page says what the first policy needs to be payable. The empty state is a checklist rather than a sentence.
 
-**Cost:** A list page whose job is finding becomes a setup page while empty. A reader with no products has no reason to want a list at all.
+**Cost:** A list page whose job is finding becomes a setup page while empty. A reader with no policies has no reason to want a list at all.
 
 #### `empty-with-the-first-record-s-shape-shown`: Empty with the First Record's Shape Shown
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders, newest first."
+    heading "Expenses"
+    text "268 expenses, newest first."
     action "Export"
   toolbar
-    field "Search orders" search
+    field "Search expenses" search
     field "State" select = "Any state"
-  region "Orders"
-    message "No orders yet. An order is made by a customer, not by you." neutral
-    action primary "List a product"
-    table 5 "Order" "Customer" "Placed" "State" "Paid"
-      item: text muted "SO-1042" · text muted "Maria Garcia" · text muted "8 Oct 2026, 09:32" · status "Paid" neutral · text muted "EUR 125.00"
+  region "Expenses"
+    message "No expenses yet. An expense is filed by a spender, not by you." neutral
+    action primary "Publish a policy"
+    table 5 "Expense" "Spender" "Filed" "State" "Paid"
+      item: text muted "EXP-1042" · text muted "Ava" · text muted "8 Oct 2026, 09:32" · status "Paid" neutral · text muted "EUR 125.00"
 ```
 
 **Rationale:** The table keeps its headers and shows a single dashed row with what a row will contain, so the columns are known before there is data.
@@ -123,18 +123,18 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Invoices"
+  breadcrumb "Home" "Statements"
   header
-    heading "Invoices"
+    heading "Statements"
     text "September 2026. Every euro of the month under the kind it is."
   region "Disputes"
     text muted "5 the month before."
     message "No open disputes. Nothing is being challenged by a bank this month." neutral
-  region "Unmatched payments"
+  region "Unmatched payouts"
     text muted "1 the month before."
-    message "Nothing unmatched. Every euro the bank sent matched an order." neutral
+    message "Nothing unmatched. Every euro the bank sent matched an expense." neutral
   region "Questions"
-    message "No customer questions. Nobody has asked about an order this month." neutral
+    message "No spender questions. Nobody has asked about an expense this month." neutral
 ```
 
 **Rationale:** One section of a page is empty while its neighbors are not. The empty state is scoped to its section and takes no page-level action.
@@ -145,7 +145,7 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Invoices" "Statements"
+  breadcrumb "Home" "Statements"
   header
     heading "Statements"
     text "Nothing has settled yet."
@@ -154,7 +154,7 @@ page
     action "See what settled in September"
   region "Why October is empty"
     text muted "Figures so far. They become the October statement when the month closes."
-    fact "Orders placed in October" "1,284"
+    fact "Expenses filed in October" "1,284"
     fact "First settlement covers" "4 Nov"
     fact "Amount expected" "EUR 62,180.00"
 ```
@@ -167,12 +167,12 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Invoices" "Disputes"
+  breadcrumb "Home" "Payouts" "Disputes"
   header
     heading "Disputes"
     text "5 open. The nearest closes in 19 days."
   region "Disputes"
-    message "Disputes are not visible to your role. You are Chris Novak, warehouse lead." neutral
+    message "Disputes are not visible to your role. You are Eli, support staff." neutral
     text "Disputes are readable by Support, Finance and Owners, because a dispute concerns money."
     action "Ask an owner for the role"
 ```
@@ -187,42 +187,42 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Products"
+  breadcrumb "Home" "Policies"
   header
-    heading "Products"
+    heading "Policies"
     text "One sample below, so the page reads as it will."
-    action primary "New product"
-  message "Oak desk lamp is a sample. Open it, change it, or remove it before listing it." info
+    action primary "New policy"
+  message "Travel policy is a sample. Open it, change it, or remove it before publishing it." info
   toolbar
-    field "Search products" search
-  region "Products"
-    text muted "Samples are never sold and never appear in exports."
+    field "Search policies" search
+  region "Policies"
+    text muted "Samples are never paid and never appear in exports."
     list 2
-      item: text "Oak desk lamp" · text muted "SKU LMP-OAK-01 · EUR 45.00" · status "Sample" info · action "Open"
+      item: text "Travel policy" · text muted "Code TRAVEL-01 · EUR 45.00" · status "Sample" info · action "Open"
   footer
     action destructive "Remove the samples"
 ```
 
 **Rationale:** The page shows real sample rows instead of an empty illustration, fenced with a `Sample` state and a notice. The reader learns the page by using it rather than by reading about it.
 
-**Cost:** Samples must stay out of every export, total, and customer surface. A sample left in place at go-live ships fake data as the company's own.
+**Cost:** Samples must stay out of every export, total, and spender surface. A sample left in place at go-live ships fake data as the company's own.
 
 #### `one-primary-action-and-two-quieter-ways-to-start`: One Primary Action and Two Quieter Ways to Start
 
 ```wireframe
 page
-  breadcrumb "Home" "Products"
+  breadcrumb "Home" "Policies"
   header
-    heading "Products"
-    text "Every product Acme Supply sells, newest first."
-  region "Products"
-    message "Create your first product. A product holds a name, a SKU, a price and stock." neutral
-    action primary "New product"
+    heading "Policies"
+    text "Every policy Harbor and Pine pays, newest first."
+  region "Policies"
+    message "Create your first policy. A policy holds a name, a code, a ceiling and claims." neutral
+    action primary "New policy"
     action "Start from a template"
-    link "What a product needs before it can sell"
+    link "What a policy needs before it can pay"
 ```
 
-**Rationale:** Shopify Polaris uses an `EmptyState` with one primary action, one secondary action, and a link to learn more. The reader can start blank, copy the shape of a standard gift box, or read what a product needs first.
+**Rationale:** Shopify Polaris uses an `EmptyState` with one primary action, one secondary action, and a link to learn more. The reader can start blank, copy the shape of the standard per diem, or read what a policy needs first.
 
 **Cost:** Three ways in is one decision more than one way in. A template only helps if the templates are good, so this needs at least one template that is worth copying.
 
@@ -234,17 +234,17 @@ page
 page
   breadcrumb "Home"
   header
-    heading "Good morning, Alex"
-    text "Acme Supply. Nothing listed yet."
+    heading "Good morning, Ben"
+    text "Harbor and Pine. Nothing published yet."
   region "Get ready to sell"
     text muted "2 of 5 done."
     list 5
-      item: text "Add a product" · text muted "A name, a SKU and its price" · action primary "New product"
+      item: text "Add a policy" · text muted "A name, a code and its ceiling" · action primary "New policy"
 ```
 
-**Rationale:** The steps to a first order live once, on Home, with progress. Each list page keeps a plain one-line empty state. Setup is a journey across pages, so it gets one place rather than seven.
+**Rationale:** The steps to a first expense live once, on Home, with progress. Each list page keeps a plain one-line empty state. Setup is a journey across pages, so it gets one place rather than seven.
 
-**Cost:** The guide has to know what is done, which is a read across several modules. It also needs a way to be dismissed, or it stays on Home after the company has shipped 10,000 orders.
+**Cost:** The guide has to know what is done, which is a read across several modules. It also needs a way to be dismissed, or it stays on Home after the company has paid 10,000 expenses.
 
 **Reference:** Shopify, Stripe
 
@@ -266,16 +266,16 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "No orders match this search."
+    heading "Expenses"
+    text "No expenses match this search."
   toolbar
-    field "Search orders" search = "maria ruiz"
-    field "Customer" select = "Garcia Interiors"
+    field "Search expenses" search = "ava prins"
+    field "Spender" select = "Harbor and Pine"
     field "State" select = "Paid"
-  region "Orders"
-    message "Nothing matches maria ruiz. 268 orders exist. None match this term with Garcia Interiors and Paid applied." neutral
+  region "Expenses"
+    message "Nothing matches ava prins. 268 expenses exist. None match this term with Harbor and Pine and Paid applied." neutral
     action "Clear the search"
     action quiet "Clear the filters too"
 ```
@@ -290,18 +290,18 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
+    heading "Expenses"
     text "Nothing matches."
     action quiet "Clear all"
   toolbar
-    field "Search orders" search = "garcia interiors paid"
-    field "Customer" select = "Garcia Interiors"
+    field "Search expenses" search = "harbor pine paid"
+    field "Spender" select = "Harbor and Pine"
     field "State" select = "Paid"
     field "Date" select = "This month"
-  region "Orders"
-    message "No orders match these four. 268 exist. Clear the search first, since it is the narrowest." neutral
+  region "Expenses"
+    message "No expenses match these four. 268 exist. Clear the search first, since it is the narrowest." neutral
     action "Clear the search only"
 ```
 
@@ -313,21 +313,21 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Nothing matches maria ruiz."
+    heading "Expenses"
+    text "Nothing matches ava prins."
   toolbar
-    field "Search orders" search = "maria ruiz"
-    field "Customer" select = "Any customer"
+    field "Search expenses" search = "ava prins"
+    field "Spender" select = "Any spender"
     field "State" select = "Any state"
   region "What comes close"
-    message "No customer called Maria Ruiz. Two records come close." neutral
+    message "No spender called Ava Prins. Two records come close." neutral
     list 2
-      item: text "Maria Garcia" · text muted "maria@garcia-interiors.example · 4 orders" · action "See her orders"
+      item: text "Ava" · text muted "ava@harbor-pine.example · 4 expenses" · action "See her expenses"
 ```
 
-**Rationale:** The empty state offers the nearest thing the reader probably meant: a similar customer name, or the same order without the filters. A search that helps is a search that proposes.
+**Rationale:** The empty state offers the nearest thing the reader probably meant: a similar spender name, or the same expense without the filters. A search that helps is a search that proposes.
 
 **Cost:** Every suggestion is a read the API must be able to answer. A wrong suggestion is worse than none, because it sends the reader further away.
 
@@ -335,19 +335,19 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "Refunds"
+  breadcrumb "Home" "Expenses" "Reversals"
   header
-    heading "Refunds"
+    heading "Reversals"
     text "Nothing matches."
   split 1:3
     aside "Filter"
       field "Search" search = "cosmo"
       field "Window" select = "Open now"
-      field "Channel" select = "Counter"
-      message "0 of 31 refunds match. The window and the channel are the narrowest." critical
+      field "Channel" select = "Phone"
+      message "0 of 31 reversals match. The window and the channel are the narrowest." critical
       action quiet "Clear"
-    region "Refunds"
-      message "Nothing matches. 31 refunds exist. The counter has none, and none are open." neutral
+    region "Reversals"
+      message "Nothing matches. 31 reversals exist. Phone filing has none, and none are open." neutral
       action "Clear the channel"
 ```
 
@@ -359,7 +359,7 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Invoices" "Disputes"
+  breadcrumb "Home" "Payouts" "Disputes"
   header
     heading "Disputes"
     text "Nothing in 2026."
@@ -378,13 +378,13 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "No orders in March 2024."
+    heading "Expenses"
+    text "No expenses in March 2024."
   tabs "2026 · 268" "2025 · 1,204" "2024 · 0"
     region "2024"
-      message "Nothing was sold in March 2024. 2024 holds 0 orders across all 12 months. 2025 holds 1,204." neutral
+      message "Nothing was claimed in March 2024. 2024 holds 0 expenses across all 12 months. 2025 holds 1,204." neutral
       action "Look at 2025"
 ```
 
@@ -396,17 +396,17 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders, newest first."
+    heading "Expenses"
+    text "268 expenses, newest first."
     action "Export"
   toolbar
-    field "Search orders" search = "maria ruiz"
-    field "Customer" select = "Garcia Interiors"
+    field "Search expenses" search = "ava prins"
+    field "Spender" select = "Harbor and Pine"
     field "State" select = "Paid"
-  region "Orders"
-    message "No orders match this search. Searching for maria ruiz in Garcia Interiors, Paid." neutral
+  region "Expenses"
+    message "No expenses match this search. Searching for ava prins in Harbor and Pine, Paid." neutral
     link "Clear the search and the filters"
 ```
 
@@ -420,19 +420,19 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders, newest first."
+    heading "Expenses"
+    text "268 expenses, newest first."
     action "Export"
   toolbar
-    field "Search orders" search
-    field "State" select = "Refunded"
-    field "Channel" select = "Counter"
+    field "Search expenses" search
+    field "State" select = "Reversed"
+    field "Channel" select = "Phone"
     action quiet "Clear filters"
-  region "Orders"
-    table 5 "Order" "Customer" "Placed" "State" "Paid"
-      item: text "No refunded counter orders" · text muted "31 orders were refunded, all of them placed in the store"
+  region "Expenses"
+    table 5 "Expense" "Spender" "Filed" "State" "Paid"
+      item: text "No reversed call expenses" · text muted "31 expenses were reversed, all of them filed by phone"
 ```
 
 **Rationale:** Stripe's payments list keeps the column headers when a filter finds nothing. The filters name columns, and the reader is still reading the same table. The message sits in one full-width row.
@@ -459,16 +459,16 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every order, newest first."
+    heading "Expenses"
+    text "Every expense, newest first."
   toolbar
-    field "Search orders" search
-  region "Orders"
-    image "Seven skeleton rows shaped like order rows"
+    field "Search expenses" search
+  region "Expenses"
+    image "Seven skeleton rows shaped like expense rows"
   footer
-    text "Reading 268 orders"
+    text "Reading 268 expenses"
 ```
 
 **Rationale:** This is Carbon's answer for a first read. Each skeleton row is shaped like the row it will become, so nothing moves when the data lands.
@@ -481,16 +481,16 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders. Searching."
+    heading "Expenses"
+    text "268 expenses. Searching."
   toolbar
-    field "Search orders" search = "maria"
+    field "Search expenses" search = "ava"
     text muted "Searching"
-  region "Orders"
-    table 5 "Order" "Customer" "Placed" "State" "Paid"
-      item: text "SO-1042" · text "Maria Garcia" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
+  region "Expenses"
+    table 5 "Expense" "Spender" "Filed" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
   footer
     text "1 to 3 of 3"
     action quiet "‹ Previous"
@@ -507,13 +507,13 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "New product"
+  breadcrumb "Home" "Policies" "New policy"
   header
-    heading "New product"
+    heading "New policy"
     text "Start with a name."
-  region "New product"
-    field "Name" = "Oak desk lamp"
-    field "Warehouse" select = "Amsterdam warehouse"
+  region "New policy"
+    field "Name" = "Travel policy"
+    field "Office" select = "Rotterdam office"
     field "Available from" = "09/10/2026"
   footer
     action "Cancel"
@@ -528,12 +528,12 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Invoices" "Statements" "September 2026"
+  breadcrumb "Home" "Statements" "September 2026"
   header
     heading "September 2026"
-    text "Matching 1,204 orders against the bank file."
+    text "Matching 1,204 expenses against the bank file."
   region "Reading the bank file"
-    figure "Matched payments" "842 of 1,204"
+    figure "Matched payouts" "842 of 1,204"
     text "70%. About 20 seconds left. Started 14:22."
   region "What is matched so far"
     text muted "Shown while it runs. Nothing here is final."
@@ -552,16 +552,16 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every order, newest first."
+    heading "Expenses"
+    text "Every expense, newest first."
   toolbar
-    field "Search orders" search
-  region "Orders"
-    table 3 "Order" "Customer" "Paid"
-      item: text "SO-1042" · text "Maria Garcia" · text "EUR 125.00"
-  dialog "Reading 1,204 orders"
+    field "Search expenses" search
+  region "Expenses"
+    table 3 "Expense" "Spender" "Paid"
+      item: text "EXP-1042" · text "Ava" · text "EUR 125.00"
+  dialog "Reading 1,204 expenses"
     text "This takes a moment on a deployment this size."
 ```
 
@@ -573,15 +573,15 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every order, newest first."
+    heading "Expenses"
+    text "Every expense, newest first."
   toolbar
-    field "Search orders" search
-  region "Orders"
-    table 5 "Order" "Customer" "Placed" "State" "Paid"
-      item: text "SO-1042" · text "Maria Garcia" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
+    field "Search expenses" search
+  region "Expenses"
+    table 5 "Expense" "Spender" "Filed" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
   footer
     text "1 to 5 of 268"
     action quiet "‹ Previous"
@@ -596,19 +596,19 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders, newest first."
+    heading "Expenses"
+    text "268 expenses, newest first."
     action "Export"
   toolbar
-    field "Search orders" search
+    field "Search expenses" search
     field "State" select = "Paid"
     text muted "Reading"
-  region "Orders"
-    message "Reading the latest orders. The rows below are the last answer." neutral
-    table 5 "Order" "Customer" "Placed" "State" "Paid"
-      item: text "SO-1042" · text "Maria Garcia" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
+  region "Expenses"
+    message "Reading the latest expenses. The rows below are the last answer." neutral
+    table 5 "Expense" "Spender" "Filed" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
   footer
     text "1 to 5 of 268"
     action quiet "‹ Previous"
@@ -625,16 +625,16 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every order, newest first."
+    heading "Expenses"
+    text "Every expense, newest first."
   toolbar
-    field "Search orders" search
-  region "Orders"
-    message "Still reading 1,204 orders for September. This is taking longer than usual." neutral
+    field "Search expenses" search
+  region "Expenses"
+    message "Still reading 1,204 expenses for September. This is taking longer than usual." neutral
     action quiet "Stop"
-    image "Skeleton rows shaped like order rows"
+    image "Skeleton rows shaped like expense rows"
 ```
 
 **Rationale:** Polaris and Material both time loading states: nothing for the first few hundred milliseconds, a skeleton after that, and words once the wait is long. After five seconds this one says what it is reading and offers to stop.
@@ -653,7 +653,7 @@ page
 
 **Compact:** The recommended option reflows: one column with the header actions under the title.
 
-**Rationale:** The pick stays on the refusal sentence with its code and fix. It meets WCAG 3.3.1 and 3.3.3 in one place. The runner-up is the refusal inside the dialog that sent it. Prefer it where closing would lose what the reader typed, such as a refund amount. Never ship the refusal only on the record timeline. A reader who sent the command from elsewhere never returns to find it.
+**Rationale:** The pick stays on the refusal sentence with its code and fix. It meets WCAG 3.3.1 and 3.3.3 in one place. The runner-up is the refusal inside the dialog that sent it. Prefer it where closing would lose what the reader typed, such as a reversal amount. Never ship the refusal only on the record timeline. A reader who sent the command from elsewhere never returns to find it.
 
 **Reviewed for:** Which built refusal notice departs from the wireframe its catalog entry chose? Open the built refused commands, with codes and fixes, beside the catalog entry recording the chosen option and its reason.
 
@@ -661,18 +661,18 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "SO-1042"
+  breadcrumb "Home" "Expenses" "EXP-1042"
   header
-    heading "SO-1042"
+    heading "EXP-1042"
     status "Paid" positive
-    text "Maria Garcia · Garcia Interiors."
-    action destructive "Refund"
-  message "The refund window has closed. This payment method refunds only within 180 days of the payment. This one is 214 days old." critical
+    text "Ava · Harbor and Pine."
+    action destructive "Reverse"
+  message "The recall window has closed. This payout route reverses only within 180 days of the payout. This one is 214 days old." critical
   link "Why"
   region "What can be done instead"
-    text muted "The refund window is the payment method's, not the company's."
+    text muted "The recall window is the bank's, not the company's."
     list 2
-      item: text "Offer the customer credit" · text muted "A credit against a future order" · action primary "Offer credit"
+      item: text "Offer the spender a deduction" · text muted "A deduction from a future payout" · action primary "Apply deduction"
 ```
 
 **Rationale:** The page uses one refusal shape: a title saying what is wrong, the detail saying why, and a `Why` link where the application can explain the refusal. The refusal sentence comes from the dictionary, not the component.
@@ -683,13 +683,13 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "SO-1042"
+  breadcrumb "Home" "Expenses" "EXP-1042"
   header
-    heading "Order lines"
-    text "SO-1042 · Maria Garcia · Garcia Interiors."
-  region "Order lines"
-    field "Oak desk lamps" number = "20"
-    message "Not enough stock. The Amsterdam warehouse holds 12 Oak desk lamps. The order asks for 20." critical
+    heading "Expense lines"
+    text "EXP-1042 · Ava · Harbor and Pine."
+  region "Expense lines"
+    field "Train fares" number = "20"
+    message "Not enough budget. The March budget holds EUR 120. The expense claims EUR 200." critical
   footer
     action "Cancel"
     action primary "Save the lines"
@@ -703,17 +703,17 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "SO-1042"
+  breadcrumb "Home" "Expenses" "EXP-1042"
   header
-    heading "SO-1042"
+    heading "EXP-1042"
     status "Paid" positive
-    text "Maria Garcia · Garcia Interiors."
-  message "The refund window has closed. This payment method refunds only within 180 days of the payment." critical
+    text "Ava · Harbor and Pine."
+  message "The recall window has closed. This payout route reverses only within 180 days of the payout." critical
   region "Details, if you need to report this"
-    text muted "Acme Supply sees this. The system records it against the order."
-    fact "Reference" "RF-SO-1042-181"
+    text muted "Harbor and Pine sees this. The system records it against the expense."
+    fact "Reference" "RF-EXP-1042-181"
     fact "When it was refused" "8 Oct 2026, 11:04"
-    fact "Code" "payments/refund.window-closed"
+    fact "Code" "payouts/reversal.window-closed"
     action quiet "Copy the code"
 ```
 
@@ -725,13 +725,13 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Oak desk lamp" "Availability"
+  breadcrumb "Home" "Policies" "Travel policy" "Status"
   header
-    heading "List the product"
-    text "Oak desk lamp is already listed since 13 Jan 2026, 10:00."
-  region "Availability"
-    message "Nothing to do. This listing went out on 13 Jan 2026 at 10:00, as scheduled." neutral
-    action "See the listing"
+    heading "Publish the policy"
+    text "Travel policy is already published since 13 Jan 2026, 10:00."
+  region "Status"
+    message "Nothing to do. This publication went out on 13 Jan 2026 at 10:00, as scheduled." neutral
+    action "See the publication"
 ```
 
 **Rationale:** Not every refusal is a problem. Some commands are refused because nothing needed doing, and a neutral tone says so better than an error tone.
@@ -742,17 +742,17 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders. 3 selected."
-  message "1 invoice was resent. 2 were not. Maria Garcia and Elin Lindqvist opted out of messages. Nothing was lost." critical
+    heading "Expenses"
+    text "268 expenses. 3 selected."
+  message "1 statement was resent. 2 were not. Ava and Elin Lindqvist opted out of messages. Nothing was lost." critical
   link "Why"
   toolbar
-    field "Search orders" search
-  region "Orders"
-    table 4 "Order" "Customer" "Result" "Paid"
-      item: text "SO-1042" · text "Maria Garcia" · status "Sent" positive · text "EUR 125.00"
+    field "Search expenses" search
+  region "Expenses"
+    table 4 "Expense" "Spender" "Result" "Paid"
+      item: text "EXP-1042" · text "Ava" · status "Sent" positive · text "EUR 125.00"
 ```
 
 **Rationale:** The refusal leads with what is intact, then what is wrong. NN/g's rule is that a message must not need reading twice. Naming the damage first is the difference between a refusal and a dead end.
@@ -765,19 +765,19 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "SO-1042"
+  breadcrumb "Home" "Expenses" "EXP-1042"
   header
-    heading "SO-1042"
-    status "Refunded" neutral
-    text "Maria Garcia · Garcia Interiors."
-    action primary "Message customer"
+    heading "EXP-1042"
+    status "Reversed" neutral
+    text "Ava · Harbor and Pine."
+    action primary "Message spender"
   region "The money"
-    fact "Paid by the customer" "EUR 125.00"
-    fact "Refunded" "EUR 45.00"
+    fact "Paid to the spender" "EUR 125.00"
+    fact "Reversed" "EUR 45.00"
     fact "Still to settle" "EUR 80.00"
   region "What happened"
     timeline 3
-      item: text "A second refund was refused" · text muted "8 Oct 2026, 11:06" · text muted "Acme Supply"
+      item: text "A second reversal was refused" · text muted "8 Oct 2026, 11:06" · text muted "Harbor and Pine"
 ```
 
 **Rationale:** When one command on one record is refused, it goes into the record's own timeline, where the reader looks for what happened. It does not sit at the top of a page they are passing through.
@@ -788,20 +788,20 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "SO-1042"
+  breadcrumb "Home" "Expenses" "EXP-1042"
   header
-    heading "SO-1042"
+    heading "EXP-1042"
     status "Paid" positive
-    text "Maria Garcia · Garcia Interiors."
-    action destructive "Refund"
+    text "Ava · Harbor and Pine."
+    action destructive "Reverse"
   region "The money"
-    fact "Paid by the customer" "EUR 125.00"
-    fact "Refunded so far" "EUR 0.00"
-  dialog "Refund SO-1042"
-    message "The refund window has closed. This payment method refunds only within 180 days." critical
+    fact "Paid to the spender" "EUR 125.00"
+    fact "Reversed so far" "EUR 0.00"
+  dialog "Reverse EXP-1042"
+    message "The recall window has closed. This payout route reverses only within 180 days." critical
     field "Amount" = "100.00"
     action "Close"
-    action primary "Offer credit instead"
+    action primary "Deduct instead"
 ```
 
 **Rationale:** Stripe's refund dialog keeps a refusal inside the dialog, above the amount, and leaves the dialog open so the reader can change what was refused. Focus moves to the message, and the alternative is one button away.
@@ -814,20 +814,20 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "SO-1042"
+  breadcrumb "Home" "Expenses" "EXP-1042"
   header
-    heading "SO-1042"
+    heading "EXP-1042"
     status "Paid" positive
-    text "Maria Garcia · Garcia Interiors. Paid 214 days ago."
-  region "Refunds"
-    text muted "Paid EUR 125.00 on 8 Mar 2026. Nothing refunded."
-    action disabled "Refund to the original payment"
-    message "This payment method takes a refund only within 180 days of the payment. This one is 214 days old." neutral
+    text "Ava · Harbor and Pine. Paid 214 days ago."
+  region "Reversals"
+    text muted "Paid EUR 125.00 on 8 Mar 2026. Nothing reversed."
+    action disabled "Reverse to the original account"
+    message "This payout route takes a reversal only within 180 days of the payout. This one is 214 days old." neutral
     list 2
-      item: text "Offer credit" · text muted "Acme Supply pays it from its own account" · action primary "Offer credit"
+      item: text "Apply deduction" · text muted "Harbor and Pine pays it from its own account" · action primary "Apply deduction"
 ```
 
-**Rationale:** GitHub's merge box disables `Merge` and says which check blocks it. Where the page already knows the refund window has closed, it says so beside the button, and the refusal never needs to happen.
+**Rationale:** GitHub's merge box disables `Merge` and says which check blocks it. Where the page already knows the recall window has closed, it says so beside the button, and the refusal never needs to happen.
 
 **Cost:** This option works only for refusals the page can predict from what it already read. The API still refuses, so the dictionary sentence and the button sentence must say the same thing.
 
@@ -843,7 +843,7 @@ page
 
 **Compact:** The recommended option reflows: one column with the header actions under the title.
 
-**Rationale:** The pick stays on evidence on the page. State, money, and timeline all say what changed after a refund. The runner-up is the toast with `Undo`. Prefer it for a reversible change such as hiding a product from the store. Never ship no message at all. It fails WCAG 4.1.3, since a screen reader user gets no signal.
+**Rationale:** The pick stays on evidence on the page. State, money, and timeline all say what changed after a reversal. The runner-up is the toast with `Undo`. Prefer it for a reversible change such as hiding a policy from the portal. Never ship no message at all. It fails WCAG 4.1.3, since a screen reader user gets no signal.
 
 **Reviewed for:** Which built success notice departs from the wireframe its catalog entry chose? Open the built confirmations, toasts, and quiet saves beside the catalog entry recording the chosen option and its reason.
 
@@ -851,22 +851,22 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "SO-1042"
+  breadcrumb "Home" "Expenses" "EXP-1042"
   header
-    heading "SO-1042"
-    status "Refunded" neutral
-    text "Fully refunded 8 Oct 2026, 11:04, by Priya Shah."
-    action primary "Message customer"
+    heading "EXP-1042"
+    status "Reversed" neutral
+    text "Fully reversed 8 Oct 2026, 11:04, by Cara."
+    action primary "Message spender"
   region "The money"
-    fact "Paid by the customer" "EUR 125.00"
-    fact "Refunded in full" "EUR 125.00"
-    fact "Kept by Acme Supply" "EUR 0.00"
+    fact "Paid to the spender" "EUR 125.00"
+    fact "Reversed in full" "EUR 125.00"
+    fact "Kept by Harbor and Pine" "EUR 0.00"
   region "What happened"
     timeline 4
-      item: text "Refunded, EUR 125.00" · text muted "8 Oct 2026, 11:04" · text muted "Priya Shah"
+      item: text "Reversed, EUR 125.00" · text muted "8 Oct 2026, 11:04" · text muted "Cara"
 ```
 
-**Rationale:** The record changes and the page says what changed: the state becomes `Refunded`, the money section shows the reversal, and the timeline gains an entry. That is evidence a toast cannot be.
+**Rationale:** The record changes and the page says what changed: the state becomes `Reversed`, the money section shows the reversal, and the timeline gains an entry. That is evidence a toast cannot be.
 
 **Cost:** The reader needs to find the evidence. A toast is faster and leaves nothing once it goes, so a toast alone is not evidence.
 
@@ -874,14 +874,14 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "SO-1042"
+  breadcrumb "Home" "Expenses" "EXP-1042"
   header
-    heading "SO-1042"
-    text "Maria Garcia · Garcia Interiors."
+    heading "EXP-1042"
+    text "Ava · Harbor and Pine."
   region "References"
-    text muted "Read them aloud at the pickup counter."
+    text muted "Read them aloud on the call."
     list 2
-      item: text "Order number" · text "SO-1042" · action quiet "Copy"
+      item: text "Expense number" · text "EXP-1042" · action quiet "Copy"
   toast "Bank reference copied." positive
 ```
 
@@ -895,16 +895,16 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Oak desk lamp"
+  breadcrumb "Home" "Policies" "Travel policy"
   header
-    heading "Oak desk lamp"
+    heading "Travel policy"
     status "Active" positive
-    text "Listed 8 Oct 2026, 14:22. The store shows it now."
+    text "Published 8 Oct 2026, 14:22. The portal shows it now."
     action "Edit"
-  message "Reaching customers now. The store picked this up at 14:22. The 412 units in stock are listed." neutral
-  region "What is listed"
+  message "Reaching spenders now. The portal picked this up at 14:22. The 412 claimed lines are published." neutral
+  region "What is published"
     list 1
-      item: text "Oak desk lamp" · text muted "EUR 45.00 · 412 in stock" · status "Active" positive
+      item: text "Travel policy" · text muted "EUR 45.00 · 412 claimed" · status "Active" positive
 ```
 
 **Rationale:** Where the command succeeded and the effect is still arriving, the notice says so and stays until it does. A toast that goes would leave the reader unsure.
@@ -915,14 +915,14 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "3 of 5 invoices resent."
-  message "2 were not sent. Those customers opted out of messages already. Nothing was sent to them." caution
-  region "Orders"
-    table 3 "Order" "Customer" "Result"
-      item: text "SO-1042" · text "Maria Garcia" · status "Sent" positive
+    heading "Expenses"
+    text "3 of 5 statements resent."
+  message "2 were not sent. Those spenders opted out of messages already. Nothing was sent to them." caution
+  region "Expenses"
+    table 3 "Expense" "Spender" "Result"
+      item: text "EXP-1042" · text "Ava" · status "Sent" positive
   footer
     action "Show the 2"
 ```
@@ -935,17 +935,17 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Oak desk lamp"
+  breadcrumb "Home" "Policies" "Travel policy"
   header
-    heading "Oak desk lamp"
+    heading "Travel policy"
     status "Paused" caution
-    text "Paused 8 Oct 2026, 14:22. Nothing can be ordered at this price."
+    text "Paused 8 Oct 2026, 14:22. Nothing can be claimed at this ceiling."
     action primary "List it again"
   region "The product"
-    fact "Ordered" "412 of 500"
-    fact "Price" "EUR 45.00"
+    fact "Claimed" "412 of 500"
+    fact "Ceiling" "EUR 45.00"
     fact "State" "Paused"
-    fact "Paused" "8 Oct 2026, 14:22, by Alex Morgan"
+    fact "Paused" "8 Oct 2026, 14:22, by Ben"
 ```
 
 **Rationale:** The lightest answer: the command runs and the thing it changed is visibly different. Nothing announces anything, so there is nothing to read twice.
@@ -958,19 +958,19 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Oak desk lamp" "List"
+  breadcrumb "Home" "Policies" "Travel policy" "Publish"
   header
-    heading "Oak desk lamp is listed"
-    text "Listed 8 Oct 2026, 14:22. The store shows it now."
+    heading "Travel policy is published"
+    text "Published 8 Oct 2026, 14:22. The portal shows it now."
   region "Two things this product still needs"
-    text muted "Listed does not mean ready. Nothing can ship without a dispatch plan."
+    text muted "Published does not mean ready. Nothing can pay without a payout plan."
     list 2
-      item: text "No dispatch plan" · text muted "Nothing can ship until there is a warehouse and one carrier" · action primary "Set dispatch up"
+      item: text "No payout plan" · text muted "Nothing can pay until there is a budget and one bank account" · action primary "Set payouts up"
   footer
-    action primary "Open Oak desk lamp"
+    action primary "Open Travel policy"
 ```
 
-**Rationale:** Where a command succeeded and the work is not done, the success names what is left rather than pretending it is finished. The listed product that still has no dispatch plan is the case.
+**Rationale:** Where a command succeeded and the work is not done, the success names what is left rather than pretending it is finished. The published policy that still has no payout plan is the case.
 
 **Cost:** It sits between a success and a checklist, so it needs its own place. A full outcome page already owns that place.
 
@@ -978,20 +978,20 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Products"
+  breadcrumb "Home" "Policies"
   header
-    heading "Products"
-    text "Oak desk lamp and the gift box."
-    action primary "New product"
-  region "Products"
+    heading "Policies"
+    text "Travel policy and the per diem."
+    action primary "New policy"
+  region "Policies"
     list 2
-      item: text "Gift box, standard" · text muted "EUR 30.00 · 120 in stock" · status "Hidden from the store" neutral
-  toast "Gift box, standard is hidden from the store." positive
+      item: text "Per diem, standard" · text muted "EUR 30.00 · 120 claimed" · status "Hidden from the portal" neutral
+  toast "Per diem, standard is hidden from the portal." positive
 ```
 
 **Rationale:** Gmail and Linear confirm a reversible change with a toast that carries `Undo`. The list already shows the change. The toast adds the one thing the page cannot, a way back for a few seconds.
 
-**Cost:** Never for money, access, or stock, which cannot be taken back quietly. `Undo` also needs the command to be reversible on the server, not hidden on the client.
+**Cost:** Never for money, access, or budgets, which cannot be taken back quietly. `Undo` also needs the command to be reversible on the server, not hidden on the client.
 
 **Reference:** Gmail, Linear
 
@@ -1002,10 +1002,10 @@ page
   breadcrumb "Home" "Settings" "Company"
   header
     heading "Company"
-    text "What customers and invoices show."
+    text "What spenders and statements show."
   region "Company"
-    field "Name" = "Acme Supply"
-    field "Email for customers" = "hello@acme-supply.example"
+    field "Name" = "Harbor and Pine"
+    field "Email for spenders" = "hello@harbor-pine.example"
     field "Phone" = "+31 20 555 0100"
   footer
     text "Saved at 14:22"
@@ -1022,13 +1022,13 @@ page
 
 **ID:** `litespec/frontend/patterns/feedback-and-states#fact-somebody-has-to-read-before-acting`
 
-**Question:** Some pages must state a fact before staff act, such as low stock or a closing window. Only a command result is an alert; a static fact is a notice. A tone paints the object in that state, never a full band across other work.
+**Question:** Some pages must state a fact before staff act, such as a low budget or a closing window. Only a command result is an alert; a static fact is a notice. A tone paints the object in that state, never a full band across other work.
 
 **Default:** `a-neutral-notice-above-the-page`
 
 **Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
 
-**Rationale:** Keep one neutral sentence above the page, with no tone and no band. It says why the page holds its state and stays out of the work. The runner-up is the side column, which suits an Acme Supply order where the refund window changes the next step. Never ship a full-width toned band for one record.
+**Rationale:** Keep one neutral sentence above the page, with no tone and no band. It says why the page holds its state and stays out of the work. The runner-up is the side column, which suits an Harbor and Pine expense where the recall window changes the next step. Never ship a full-width toned band for one record.
 
 A banner stays for facts on every page, such as `Sandbox`.
 
@@ -1038,17 +1038,17 @@ A banner stays for facts on every page, such as `Sandbox`.
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Oak desk lamp"
+  breadcrumb "Home" "Policies" "Travel policy"
   header
-    heading "Oak desk lamp"
+    heading "Travel policy"
     status "Active" positive
-    text "SKU LMP-OAK-01 at the Amsterdam warehouse."
-    action "Pause ordering"
-    action primary "Add a price tier"
-  message neutral "Stock is nearly gone. 588 units left of 10,000 sell in about four days."
-  region "Stock"
-    fact "Ordered" "9,412 of 10,000 units"
-    fact "Left" "588 units"
+    text "Code TRAVEL-01 at the Rotterdam office."
+    action "Pause filing"
+    action primary "Add a ceiling"
+  message neutral "Claims are nearly closed. 588 lines left of 10,000 pay in about four days."
+  region "Claims"
+    fact "Claimed" "9,412 of 10,000 lines"
+    fact "Left" "588 lines"
     text muted "At the pace of the last seven days the rest sells in four days."
 ```
 
@@ -1060,18 +1060,18 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "Refunds"
+  breadcrumb "Home" "Expenses" "Reversals"
   header
-    heading "Refunds"
-    text "31 orders to decide."
-  region "Outside the refund window"
-    message critical "12 of these cannot be refunded. This method refunds only within 180 days."
+    heading "Reversals"
+    text "31 expenses to decide."
+  region "Outside the recall window"
+    message critical "12 of these cannot be reversed. This route reverses only within 180 days."
     list 2
-      item: text "SO-1040" · text muted "Elin Lindqvist asked 214 days ago" · status "No route" critical · text "EUR 45.00" · action "Offer credit"
+      item: text "EXP-1040" · text muted "Elin Lindqvist asked 214 days ago" · status "No route" critical · text "EUR 45.00" · action "Apply deduction"
   region "Inside the window"
     text muted "These 19 the bank will take."
     list 2
-      item: text "SO-1042" · text muted "Maria Garcia asked 6 days ago" · status "Open" neutral · text "EUR 45.00" · action "Refund"
+      item: text "EXP-1042" · text muted "Ava asked 6 days ago" · status "Open" neutral · text "EUR 45.00" · action "Reverse"
 ```
 
 **Rationale:** A fact about one section goes in that section, not at the top of the page. The reader only meets it where it changes what they do.
@@ -1082,15 +1082,15 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Settings" "Delivery fee"
+  breadcrumb "Home" "Settings" "Late fee"
   header
-    heading "Delivery fee"
-    text "What the customer pays on top of the order."
+    heading "Late fee"
+    text "What the spender pays on top of the expense."
   region "The fee"
-    field "Per order, in euros" number = "6.00"
-    message caution "At EUR 6.00 about 1,204 customers bring EUR 7,224 a month."
+    field "Per expense, in euros" number = "6.00"
+    message caution "At EUR 6.00 about 1,204 spenders claim EUR 7,224 a month."
     field "Waive the fee for members" checkbox
-    text muted "Last month that meant EUR 310 across 62 orders."
+    text muted "Last month that meant EUR 310 across 62 expenses."
     row
       action "Cancel"
       action primary "Save"
@@ -1104,16 +1104,16 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Oak desk lamp" "Pricing"
+  breadcrumb "Home" "Policies" "Travel policy" "Ceilings"
   header
-    heading "Pricing"
-    text "What each unit costs and what the customer pays on top."
-  region "Prices"
-    field "Standard price, in euros" number = "45.00"
+    heading "Ceilings"
+    text "What each line costs and what the spender pays on top."
+  region "Ceilings"
+    field "Standard ceiling, in euros" number = "45.00"
     text muted "45.00 with up to two decimal places."
-    field "Delivery fee customers pay, in euros" number = "5.00"
-    text muted "Added at checkout and kept by Acme Supply."
-    text "A price already charged is kept. Only listed units take a new price."
+    field "Late fee spenders pay, in euros" number = "5.00"
+    text muted "Added at filing and kept by Harbor and Pine."
+    text "A ceiling already claimed is kept. Only published lines take a new ceiling."
     row
       action "Cancel"
       action primary "Save"
@@ -1133,10 +1133,10 @@ page
     text "Every charge on an account and what it is for."
   region "September 2026"
     fact "Business plan" "EUR 49.00"
-    fact "Per-order fee" "EUR 301.00"
-    text muted "A per-order fee is EUR 0.25 on 1,204 orders. Customers never pay it."
-    fact "Invoiced to Acme Supply" "EUR 350.00"
-    link "What the per-order fee covers"
+    fact "Per-expense fee" "EUR 301.00"
+    text muted "A per-expense fee is EUR 0.25 on 1,204 expenses. Spenders never pay it."
+    fact "Billed to Harbor and Pine" "EUR 350.00"
+    link "What the per-expense fee covers"
 ```
 
 **Rationale:** The page shows a term hint beside a heading or a table note, where the term is the product's and the glossary entry explains it. Nothing is interrupted.
@@ -1147,15 +1147,15 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "Garcia Interiors restock" "Cancel"
+  breadcrumb "Home" "Expenses" "Rotterdam client visit" "Cancel"
   header
-    heading "Cancel Garcia Interiors restock"
-    text "Sat 14 Mar 2026, 08:00 to 12:00 at the Amsterdam warehouse."
+    heading "Cancel Rotterdam client visit"
+    text "Sat 14 Mar 2026, 08:00 to 12:00 at the Rotterdam client site."
   region "What cancellation does"
-    text "This cannot be undone. No canceled delivery ever returns."
-    fact "Refunded" "EUR 54,180.00 to each payment used"
-    fact "Customers" "Every customer learns the delivery is off"
-    fact "Dispatch" "Two people on the plan stand down"
+    text "This cannot be undone. No canceled payout ever returns."
+    fact "Reversed" "EUR 54,180.00 to each account used"
+    fact "Spenders" "Every spender learns the payout is off"
+    fact "Staff" "Two people on the plan stand down"
     fact "Record" "The record stays readable in June"
     row
       action primary "Go back and keep it"
@@ -1170,20 +1170,20 @@ page
 
 ```wireframe
 page
-  message info "Sandbox, nothing is charged."
-  breadcrumb "Home" "Products"
+  message info "Sandbox, nothing is paid."
+  breadcrumb "Home" "Policies"
   header
-    heading "Products"
-    text "Every product Acme Supply sells, newest first."
-    action primary "New product"
-  region "Products"
+    heading "Policies"
+    text "Every policy Harbor and Pine pays, newest first."
+    action primary "New policy"
+  region "Policies"
     list 2
-      item: text "Oak desk lamp" · text muted "SKU LMP-OAK-01, EUR 45.00" · status "Active" positive · text "412 in stock"
+      item: text "Travel policy" · text muted "Code TRAVEL-01, EUR 45.00" · status "Active" positive · text "412 claimed"
 ```
 
 **Rationale:** The page uses a banner in GitHub's and Stripe's test-mode shape. It shows one centered sentence across the top of every page for a fact that holds on all of them. `Sandbox` is the case it exists for, in the `info` tone.
 
-**Cost:** A band is the loudest place on the screen. When used for a fact about one product, it breaks the rule above, so it needs a short list of what may go there.
+**Cost:** A band is the loudest place on the screen. When used for a fact about one policy, it breaks the rule above, so it needs a short list of what may go there.
 
 **Reference:** GitHub, Stripe
 
@@ -1191,23 +1191,23 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "SO-1042"
+  breadcrumb "Home" "Expenses" "EXP-1042"
   header
-    heading "SO-1042"
+    heading "EXP-1042"
     status "Paid" positive
-    text "Maria Garcia of Garcia Interiors."
-    action "Resend the invoice"
-    action "Refund"
+    text "Ava of Harbor and Pine."
+    action "Resend the statement"
+    action "Reverse"
   split 2:1
     region "The money"
-      fact "Two Oak desk lamps" "EUR 90.00"
-      fact "Delivery" "EUR 5.00"
-      fact "Paid by the customer" "EUR 125.00"
-      fact "Refunded so far" "EUR 0.00"
+      fact "Two train fares" "EUR 90.00"
+      fact "Late fee" "EUR 5.00"
+      fact "Paid to the spender" "EUR 125.00"
+      fact "Reversed so far" "EUR 0.00"
     aside
-      card "Before you refund"
-        message caution "The refund window closes on 6 Apr 2027, 180 days after payment."
-        text muted "After that Acme Supply can offer credit or a bank transfer."
+      card "Before you reverse"
+        message caution "The recall window closes on 6 Apr 2027, 180 days after payout."
+        text muted "After that Harbor and Pine can deduct it or take a bank transfer."
 ```
 
 **Rationale:** Stripe's payment page puts risk and dispute facts in a right-hand column beside the payment, and GitHub does the same for a pull request. The fact is next to the record it is about, and the main column stays for the work.
@@ -1226,9 +1226,9 @@ page
 
 **Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
 
-**Rationale:** Keep the explained action. Each refused command names the role that grants it, and the record stays readable. At the pickup counter reading the record is the point. The runner-up is the read-only section with values as text, which suits a fee form where a form that fails on `Save` hurts more.
+**Rationale:** Keep the explained action. Each refused command names the role that grants it, and the record stays readable. On a call reading the record is the point. The runner-up is the read-only section with values as text, which suits a fee form where a form that fails on `Save` hurts more.
 
-Never refuse the whole page to a warehouse lead. Hiding a customer name needed at the counter costs more than the secrecy gains.
+Never refuse the whole page to a support agent. Hiding a spender name needed on a call costs more than the secrecy gains.
 
 **Reviewed for:** Which built forbidden view departs from the wireframe its catalog entry chose? Open the built refused pages, absent tabs, and read-only sections beside the catalog entry recording the chosen option and its reason.
 
@@ -1236,24 +1236,24 @@ Never refuse the whole page to a warehouse lead. Hiding a customer name needed a
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "SO-1042"
+  breadcrumb "Home" "Expenses" "EXP-1042"
   header
-    heading "SO-1042"
+    heading "EXP-1042"
     status "Paid" positive
-    text "Maria Garcia of Garcia Interiors."
-    action disabled "Message the customer"
-    message neutral "Support and Owners message customers. Chris Novak is warehouse lead."
-  region "Refunds"
-    text muted "Paid in full on 8 Oct 2026. Nothing refunded."
-    action disabled "Refund this order"
-    message neutral "A refund moves EUR 125.00, so only Finance and Owners issue one."
-  region "The customer"
-    fact "Name" "Maria Garcia"
-    fact "Email" "maria@garcia-interiors.example"
+    text "Ava of Harbor and Pine."
+    action disabled "Message the spender"
+    message neutral "Support and Owners message spenders. Eli is support staff."
+  region "Reversals"
+    text muted "Paid in full on 8 Oct 2026. Nothing reversed."
+    action disabled "Reverse this expense"
+    message neutral "A reversal moves EUR 125.00, so only Finance and Owners issue one."
+  region "The spender"
+    fact "Name" "Ava"
+    fact "Email" "ava@harbor-pine.example"
     fact "Country" "Netherlands"
 ```
 
-**Rationale:** This is the explained action: the button is refused and the reason is visible text beside it, naming the role that can. The record stays readable, which at the counter is the point.
+**Rationale:** This is the explained action: the button is refused and the reason is visible text beside it, naming the role that can. The record stays readable, which on a call is the point.
 
 **Cost:** A page of refused commands looks broken to someone who does not know their role. The role's name in the reason is what makes it legible.
 
@@ -1261,41 +1261,41 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Invoices" "Statements"
+  breadcrumb "Home" "Statements"
   header
     heading "Statements"
     text "Settlements for every month."
   region "No access"
-    heading small "Statements stay hidden from warehouse lead"
-    text "Chris Novak is warehouse lead. Settlements concern money, so Finance and Owners read them."
-    action "Open the warehouse records instead"
+    heading small "Statements stay hidden from support staff"
+    text "Eli is support staff. Settlements concern money, so Finance and Owners read them."
+    action "Open the budget records instead"
 ```
 
 **Rationale:** The whole page is out of reach. A not-permitted state replaces the body with the reason and the grant, and nothing of the record is shown.
 
-**Cost:** Nothing at all is shown, so a warehouse lead cannot read a customer name to answer a question at the counter. That is a real cost on the surface where names matter.
+**Cost:** Nothing at all is shown, so a support agent cannot read a spender name to answer a question on a call. That is a real cost on the surface where names matter.
 
 #### `the-tab-is-absent-so-the-reader-never-sees-the-gap`: The Tab Is Absent, so the Reader Never Sees the Gap
 
 ```wireframe
 page
-  breadcrumb "Home" "Dispatch records"
+  breadcrumb "Home" "Payout records"
   header
-    heading "Dispatch records"
-    text "What the warehouse dispatched today, newest first."
+    heading "Payout records"
+    text "What finance paid today, newest first."
   split 1:3
     nav side
       link "Today"
-      link "Pick lists"
-      link current "Dispatch records"
+      link "Payout lists"
+      link current "Payout records"
       link "My shifts"
     region "Today"
-      text muted "Invoices and Reports stay absent here. An owner grants them."
+      text muted "Statements and Reports stay absent here. An owner grants them."
       list 3
-        item: text "SO-1042" · text muted "Picked, dock A by Chris Novak" · text "09:41"
+        item: text "EXP-1042" · text muted "Scanned, batch A by Ben" · text "09:41"
 ```
 
-**Rationale:** A tab, sidebar entry, or link appears only for a viewer who may open its page. Invoices, Reports, and the money pages stay absent from a warehouse lead's sidebar.
+**Rationale:** A tab, sidebar entry, or link appears only for a viewer who may open its page. Statements, Reports, and the money pages stay absent from a support agent's sidebar.
 
 **Cost:** The reader cannot find out the capability exists. On a surface where someone is guessing at what the product can do, that is a real cost.
 
@@ -1304,13 +1304,13 @@ page
 ```wireframe
 page
   message neutral "Read-only for support. Answering a bank case needs Finance."
-  breadcrumb "Home" "Invoices" "Disputes"
+  breadcrumb "Home" "Payouts" "Disputes"
   header
     heading "Disputes"
     text "5 open. The nearest closes in 19 days."
   region "Cases"
-    table 3 "Case" "Order" "Closes"
-      item: text "D-0182" · text "SO-1037" · text "19 days"
+    table 3 "Case" "Expense" "Closes"
+      item: text "D-0182" · text "EXP-1037" · text "19 days"
     action disabled "Answer"
     message neutral "Answering a bank case needs the Finance role."
 ```
@@ -1323,21 +1323,21 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Invoices" "Statements" "September 2026"
+  breadcrumb "Home" "Statements" "September 2026"
   header
     heading "September 2026"
     text "Every euro of the month under the kind it is."
-  message neutral "Customer names stay hidden for this role. Every amount stays visible."
+  message neutral "Spender names stay hidden for this role. Every amount stays visible."
   region "The month"
-    fact "Order sales, 1,204 orders" "EUR 54,180.00"
-    fact "Delivery fees, 1,204 orders" "EUR 6,020.00"
-    fact "Accessories, 126 units" "EUR 3,150.00"
+    fact "Claimed, 1,204 expenses" "EUR 54,180.00"
+    fact "Late fees, 1,204 expenses" "EUR 6,020.00"
+    fact "Meals, 126 lines" "EUR 3,150.00"
     fact "Total income" "EUR 63,350.00"
-    fact "Processor fee on 1,204 payments" "EUR -1,203.65"
-    fact "Net for Acme Supply" "EUR 62,146.35"
+    fact "Bank fee on 1,204 payouts" "EUR -1,203.65"
+    fact "Net for Harbor and Pine" "EUR 62,146.35"
 ```
 
-**Rationale:** Where the record itself is sensitive but its shape is not, the customer is withheld and the money is shown. A finance reader gets the reconciliation without the personal data.
+**Rationale:** Where the record itself is sensitive but its shape is not, the spender is withheld and the money is shown. A finance reader gets the reconciliation without the personal data.
 
 **Cost:** A screen reader reads whatever is in the `DOM`, so anything hidden this way needs to be absent rather than blurred. Blur alone is not a boundary.
 
@@ -1345,16 +1345,16 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "Refunds"
+  breadcrumb "Home" "Expenses" "Reversals"
   header
-    heading "Refunds"
+    heading "Reversals"
     status "Read only" neutral
-    text "31 orders to decide. Chris Novak is warehouse lead."
+    text "31 expenses to decide. Eli is support staff."
     action "Ask an owner for the finance role"
   region "To decide"
-    text muted "The Finance role lets a reader refund. Sam Rivera grants it."
+    text muted "The Finance role lets a reader reverse. Dana grants it."
     list 3
-      item: text "SO-1040" · text muted "Elin Lindqvist asked 214 days ago" · status "No route" critical · text "EUR 45.00" · action disabled "Refund"
+      item: text "EXP-1040" · text muted "Elin Lindqvist asked 214 days ago" · status "No route" critical · text "EUR 45.00" · action disabled "Reverse"
 ```
 
 **Rationale:** The refusal says which role the reader has, which role would be needed, and offers the command that asks for it. It tells everything a reader can be told without a support call.
@@ -1365,12 +1365,12 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Invoices" "Statements"
+  breadcrumb "Home" "Statements"
   header
     heading "Statements need the Finance role"
-    text "Chris Novak is warehouse lead. Statements show money, so Finance and Owners open them."
-  region "Ask Sam Rivera, the owner"
-    field "Message" textarea = "Need the September statement for the warehouse float."
+    text "Eli is support staff. Statements show money, so Finance and Owners open them."
+  region "Ask Dana, the owner"
+    field "Message" textarea = "Need the September statement for the office float."
     row
       action "Cancel"
       action primary "Send the request"
@@ -1386,15 +1386,15 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Settings" "Delivery fee"
+  breadcrumb "Home" "Settings" "Late fee"
   header
-    heading "Delivery fee"
-    text "What the customer pays on top of the order."
+    heading "Late fee"
+    text "What the spender pays on top of the expense."
   region "The fee"
-    text muted "Only Finance and Owners change the fee. Alex Morgan is operations manager."
-    fact "Per order" "EUR 5.00"
-    fact "Charged on" "Store orders"
-    fact "Last changed" "2 Sep 2026 by Priya Shah"
+    text muted "Only Finance and Owners change the fee. Ben is finance manager."
+    fact "Per expense" "EUR 5.00"
+    fact "Charged on" "Portal expenses"
+    fact "Last changed" "2 Sep 2026 by Cara"
 ```
 
 **Rationale:** Stripe shows settings as plain values to a role that reads but never changes them. One line at the top of the section names the role that edits. Nothing looks like a form that fails on `Save`.
@@ -1415,7 +1415,7 @@ page
 
 **Rationale:** Keep one band saying what is stale, when it was read, and what still works. A stale page the reader can read beats a page that shows nothing. The runner-up is the failed read state, which suits a page with nothing to show because the read itself failed.
 
-Never ship a queued refund as a quiet default. A refund nobody confirmed is a liability, and the page says plainly that the money has not moved.
+Never ship a queued reversal as a quiet default. A reversal nobody confirmed is a liability, and the page says plainly that the money has not moved.
 
 **Reviewed for:** Which built offline screen departs from the wireframe its catalog entry chose? Open the built stale banners and queued commands beside the catalog entry recording the chosen option and its reason.
 
@@ -1424,17 +1424,17 @@ Never ship a queued refund as a quiet default. A refund nobody confirmed is a li
 ```wireframe
 page
   message neutral "No connection to the server. Read 4 minutes ago. Reading and export work."
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders. Read 4 minutes ago."
+    heading "Expenses"
+    text "268 expenses. Read 4 minutes ago."
     action "Export"
   toolbar
-    field "Search" search = "SO-1042"
-  region "Orders"
-    table 3 "Order" "Customer" "Paid"
-      item: text "SO-1042" · text "Maria Garcia" · text "EUR 125.00"
-    action disabled "Open an order"
+    field "Search" search = "EXP-1042"
+  region "Expenses"
+    table 3 "Expense" "Spender" "Paid"
+      item: text "EXP-1042" · text "Ava" · text "EUR 125.00"
+    action disabled "Open an expense"
     message neutral "Nothing done here reaches the server while offline."
 ```
 
@@ -1446,17 +1446,17 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "SO-1042"
+  breadcrumb "Home" "Expenses" "EXP-1042"
   header
-    heading "SO-1042"
+    heading "EXP-1042"
     status "Paid" positive
-    text "Maria Garcia of Garcia Interiors."
-    action disabled "Message customer"
+    text "Ava of Harbor and Pine."
+    action disabled "Message spender"
     message neutral "Needs the connection back."
   message critical "Nothing here reaches the server. The connection dropped 4 minutes ago."
-  region "The customer"
-    fact "Name" "Maria Garcia"
-    fact "Email" "maria@garcia-interiors.example"
+  region "The spender"
+    fact "Name" "Ava"
+    fact "Email" "ava@harbor-pine.example"
     fact "Paid" "EUR 125.00"
 ```
 
@@ -1468,38 +1468,38 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "SO-1042"
+  breadcrumb "Home" "Expenses" "EXP-1042"
   header
-    heading "SO-1042"
+    heading "EXP-1042"
     status "Paid" positive
-    text "Maria Garcia of Garcia Interiors."
+    text "Ava of Harbor and Pine."
   message neutral "No connection. Two commands wait. Nothing reached the server and no money moved."
   region "Waiting to be sent"
     text muted "Held in this browser only. Clearing it loses them."
     list 2
-      item: text "Refund EUR 45.00" · text muted "Wanted at 11:02" · status "Waiting" neutral · action "Drop it"
+      item: text "Reverse EUR 45.00" · text muted "Wanted at 11:02" · status "Waiting" neutral · action "Drop it"
   region "What is already true"
-    fact "Paid by the customer" "EUR 125.00"
-    fact "Refunded" "Nothing yet"
+    fact "Paid to the spender" "EUR 125.00"
+    fact "Reversed" "Nothing yet"
 ```
 
 **Rationale:** A wanted command waits with a `Waiting` state, with what it does when the connection returns and a way to drop it. Nothing is lost, and nothing is claimed to have happened.
 
-**Cost:** A queued refund is a refund nobody has confirmed, and a queue of them is a liability. The page needs to say plainly that the money has not moved.
+**Cost:** A queued reversal is a reversal nobody has confirmed, and a queue of them is a liability. The page needs to say plainly that the money has not moved.
 
 #### `a-connection-control-in-the-header-always-present`: A Connection Control in the Header, Always Present
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
+    heading "Expenses"
     status "Offline" caution
     text "Read 4 minutes ago. The control stays on every page."
     action "Try again"
-  region "Orders"
-    table 3 "Order" "Customer" "Paid"
-      item: text "SO-1042" · text "Maria Garcia" · text "EUR 125.00"
+  region "Expenses"
+    table 3 "Expense" "Spender" "Paid"
+      item: text "EXP-1042" · text "Ava" · text "EUR 125.00"
 ```
 
 **Rationale:** The connection is a fact about the session rather than about a page. It lives in the header and holds on every page. A refresh control already exists for the queue version of this.
@@ -1510,9 +1510,9 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "SO-1042"
+  breadcrumb "Home" "Expenses" "EXP-1042"
   header
-    heading "SO-1042"
+    heading "EXP-1042"
   region "No page"
     heading small "This page cannot be shown"
     text "Read 11 minutes ago. Acting on that amount could move the wrong money."
@@ -1521,22 +1521,22 @@ page
 
 **Rationale:** Where the reader is about to act on money, a stale page is refused outright. The page says so and offers one thing: `Try again`.
 
-**Cost:** A reader who needs to answer a question at the counter gets nothing. The printed pick list exists precisely because the counter cannot refuse, which is why the two surfaces answer this differently.
+**Cost:** A reader who needs to answer a question on a call gets nothing. The printed payout list exists precisely because a caller cannot be refused, which is why the two surfaces answer this differently.
 
 #### `the-staleness-stated-on-the-values-themselves`: The Staleness Stated on the Values Themselves
 
 ```wireframe
 page
-  breadcrumb "Home" "Invoices" "Statements" "September 2026"
+  breadcrumb "Home" "Statements" "September 2026"
   header
     heading "September 2026"
     text "Every euro of the month under the kind it is."
   message neutral "Read 11 minutes ago. Each figure says when it was last true."
   region "The month"
-    fact "Order sales, true at 14:22" "EUR 54,180.00"
-    fact "Delivery fees, true at 14:22" "EUR 6,020.00"
-    fact "Refunds, true at 14:18" "EUR -1,550.00"
-    fact "Net for Acme Supply, mixed moments" "EUR 57,506.20"
+    fact "Claimed, true at 14:22" "EUR 54,180.00"
+    fact "Late fees, true at 14:22" "EUR 6,020.00"
+    fact "Reversals, true at 14:18" "EUR -1,550.00"
+    fact "Net for Harbor and Pine, mixed moments" "EUR 57,506.20"
 ```
 
 **Rationale:** Each figure that moved carries when it was last true. A reader comparing two rows sees which is fresher.
@@ -1547,13 +1547,13 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every order, newest first."
+    heading "Expenses"
+    text "Every expense, newest first."
   toolbar
-    field "Search" search = "SO-1042"
-  region "Orders"
+    field "Search" search = "EXP-1042"
+  region "Expenses"
     heading small "The server could not be reached"
     text "Check the connection and try again."
     action primary "Try again"
@@ -1568,14 +1568,14 @@ page
 ```wireframe
 page
   message caution "Not connected. Trying again in 8 seconds. Read at 14:18."
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders, newest first."
+    heading "Expenses"
+    text "268 expenses, newest first."
     action "Try now"
-  region "Orders"
-    table 3 "Order" "Customer" "Paid"
-      item: text "SO-1042" · text "Maria Garcia" · text "EUR 125.00"
+  region "Expenses"
+    table 3 "Expense" "Spender" "Paid"
+      item: text "EXP-1042" · text "Ava" · text "EUR 125.00"
 ```
 
 **Rationale:** Gmail shows one quiet retry line with a time and a `Try now` control. The page stays readable while the line says when it retries.
@@ -1609,8 +1609,8 @@ page
     text "The sign-in expired. Sign in again."
     action primary "Sign in again"
   region "The account"
-    fact "Last reader" "Alex Morgan, operations manager"
-    fact "Company" "Acme Supply"
+    fact "Last reader" "Ben, finance manager"
+    fact "Company" "Harbor and Pine"
     text muted "No back-office frame shows without a session."
 ```
 
@@ -1622,15 +1622,15 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "SO-1042" "Delivery"
+  breadcrumb "Home" "Expenses" "EXP-1042" "Trip"
   header
-    heading "Delivery"
-    text "Sat 14 Mar 2026 at the Amsterdam warehouse."
-  region "The delivery"
-    field "Name" text = "Garcia Interiors restock"
+    heading "Trip"
+    text "Sat 14 Mar 2026 at the Rotterdam client site."
+  region "The trip"
+    field "Name" text = "Rotterdam client visit"
     field "Date" text = "14/03/2026"
     field "Arrival" text = "08:00"
-    field "Notes" textarea = "Forty pallets for Garcia Interiors, dock A."
+    field "Notes" textarea = "Forty receipts for Harbor and Pine, batch A."
   dialog
     heading "The sign-in expired"
     text "Sign in again. What was typed stays on this page."
@@ -1648,15 +1648,15 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "SO-1042" "Delivery"
+  breadcrumb "Home" "Expenses" "EXP-1042" "Trip"
   header
-    heading "Delivery"
-    text "Sat 14 Mar 2026 at the Amsterdam warehouse."
+    heading "Trip"
+    text "Sat 14 Mar 2026 at the Rotterdam client site."
   message neutral "The sign-in expired. Everything typed stays here. Sign in again and save."
-  region "The delivery"
-    field "Name" text = "Garcia Interiors restock"
+  region "The trip"
+    field "Name" text = "Rotterdam client visit"
     field "Arrival" text = "07:00"
-    field "Notes" textarea = "Forty pallets for Garcia Interiors, dock A."
+    field "Notes" textarea = "Forty receipts for Harbor and Pine, batch A."
     text muted "Not saved yet."
     row
       action "Cancel"
@@ -1673,14 +1673,14 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders, newest first."
+    heading "Expenses"
+    text "268 expenses, newest first."
     action "Export"
-  region "Orders"
-    table 3 "Order" "Customer" "Paid"
-      item: text "SO-1042" · text "Maria Garcia" · text "EUR 125.00"
+  region "Expenses"
+    table 3 "Expense" "Spender" "Paid"
+      item: text "EXP-1042" · text "Ava" · text "EUR 125.00"
   toast caution "The sign-in ends in 5 minutes. Stay to keep working."
     action primary "Stay signed in"
 ```
@@ -1695,15 +1695,15 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "SO-1042" "Delivery"
+  breadcrumb "Home" "Expenses" "EXP-1042" "Trip"
   header
-    heading "Delivery"
-    text "Sat 14 Mar 2026 at the Amsterdam warehouse."
+    heading "Trip"
+    text "Sat 14 Mar 2026 at the Rotterdam client site."
   message critical "The sign-in expired. Sign in again."
-  region "The delivery"
-    field "Name" text = "Garcia Interiors restock"
+  region "The trip"
+    field "Name" text = "Rotterdam client visit"
     field "Arrival" text = "07:00"
-    field "Notes" textarea = "Forty pallets for Garcia Interiors, dock A."
+    field "Notes" textarea = "Forty receipts for Harbor and Pine, batch A."
     row
       action "Cancel"
       action primary "Save"
@@ -1717,14 +1717,14 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "SO-1042" "Delivery"
+  breadcrumb "Home" "Expenses" "EXP-1042" "Trip"
   header
-    heading "Delivery"
-    text "Sat 14 Mar 2026 at the Amsterdam warehouse."
-  region "The delivery"
-    field "Name" text = "Garcia Interiors restock"
+    heading "Trip"
+    text "Sat 14 Mar 2026 at the Rotterdam client site."
+  region "The trip"
+    field "Name" text = "Rotterdam client visit"
     field "Arrival" text = "07:00"
-    field "Notes" textarea = "Forty pallets for Garcia Interiors, dock A."
+    field "Notes" textarea = "Forty receipts for Harbor and Pine, batch A."
     row
       action "Cancel"
       action disabled "Save"
@@ -1747,7 +1747,7 @@ page
 
 **Rationale:** Keep the refusal above `Save`, with her value under the field. It refuses in the dictionary's words and fixes only what collided, with no dialog and no lost keystroke. The runner-up is the field-by-field choice, which suits a record where both people changed several fields.
 
-Never ship `read-only-until-reload`. It deletes Alex's notes to resolve an arrival time.
+Never ship `read-only-until-reload`. It deletes Ben's notes to resolve an arrival time.
 
 **Reviewed for:** Which built conflict screen departs from the wireframe its catalog entry chose? Open the built field-by-field merges and presence cues beside the catalog entry recording the chosen option and its reason.
 
@@ -1755,15 +1755,15 @@ Never ship `read-only-until-reload`. It deletes Alex's notes to resolve an arriv
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "SO-1042" "Delivery"
+  breadcrumb "Home" "Expenses" "EXP-1042" "Trip"
   header
-    heading "Delivery"
-    text "Sat 14 Mar 2026 at the Amsterdam warehouse."
-  message critical "Someone else changed this. Priya Shah saved at 09:34. Look, then save again."
-  region "The delivery"
-    field "Name" text = "Garcia Interiors restock"
+    heading "Trip"
+    text "Sat 14 Mar 2026 at the Rotterdam client site."
+  message critical "Someone else changed this. Cara saved at 09:34. Look, then save again."
+  region "The trip"
+    field "Name" text = "Rotterdam client visit"
     field "Arrival" text = "07:00"
-    message info "Priya Shah saved 08:00 at 09:34."
+    message info "Cara saved 08:00 at 09:34."
     action quiet "Use hers"
     field "Notes" textarea = "Arrival at 07:00, unloading by 11:00."
     row
@@ -1781,25 +1781,25 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "SO-1042" "Delivery"
+  breadcrumb "Home" "Expenses" "EXP-1042" "Trip"
   header
     heading "Two fields differ"
-    text "Priya Shah saved at 09:34. Choose one value per row, then save."
+    text "Cara saved at 09:34. Choose one value per row, then save."
   region "Arrival"
     fact "Yours, not saved" "07:00"
-    fact "Priya Shah, saved 09:34" "08:00"
+    fact "Cara, saved 09:34" "08:00"
     row
       action "Keep mine"
       action primary "Use hers"
   region "Notes"
     fact "Yours, not saved" "Arrival at 07:00, unloading by 11:00."
-    fact "Priya Shah, saved 09:34" "Arrival at 08:00, unloading by noon."
+    fact "Cara, saved 09:34" "Arrival at 08:00, scanning by noon."
     row
       action "Keep mine"
       action primary "Use hers"
 ```
 
-**Rationale:** Contentful and Airtable resolve a conflict per field: each row shows both values and takes one. Nothing is reloaded wholesale, so nothing Alex typed is lost.
+**Rationale:** Contentful and Airtable resolve a conflict per field: each row shows both values and takes one. Nothing is reloaded wholesale, so nothing Ben typed is lost.
 
 **Cost:** A row per field is a second form to build and to read. Past three fields it is longer than the form it argues about.
 
@@ -1809,17 +1809,17 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "SO-1042" "Delivery"
+  breadcrumb "Home" "Expenses" "EXP-1042" "Trip"
   header
-    heading "Delivery"
-    text "Sat 14 Mar 2026 at the Amsterdam warehouse."
-  region "The delivery"
-    field "Name" text = "Garcia Interiors restock"
+    heading "Trip"
+    text "Sat 14 Mar 2026 at the Rotterdam client site."
+  region "The trip"
+    field "Name" text = "Rotterdam client visit"
     field "Arrival" text = "07:00"
     field "Notes" textarea = "Arrival at 07:00, unloading by 11:00."
   dialog
     heading "Someone else changed this"
-    text "Priya Shah saved at 09:34 after this page opened. Edits stay on the page."
+    text "Cara saved at 09:34 after this page opened. Edits stay on the page."
     fact "She changed" "Arrival, notes"
     fact "You changed" "Arrival, notes"
     action "Use hers"
@@ -1829,7 +1829,7 @@ page
 
 **Rationale:** Dropbox and Office ask on a conflict: keep mine, take theirs, or look at both. The dialog offers three buttons with no field surgery, and it says whose version is whose.
 
-**Cost:** This is a whole-record choice. Alex's arrival time and his notes travel together, so he cannot keep one and take the other.
+**Cost:** This is a whole-record choice. Ben's arrival time and his notes travel together, so he cannot keep one and take the other.
 
 **Reference:** Dropbox, Office
 
@@ -1837,24 +1837,24 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "SO-1042" "Delivery"
+  breadcrumb "Home" "Expenses" "EXP-1042" "Trip"
   header
-    heading "Delivery"
-    text "Sat 14 Mar 2026 at the Amsterdam warehouse."
+    heading "Trip"
+    text "Sat 14 Mar 2026 at the Rotterdam client site."
   row
     avatar "PS"
-    text "Priya Shah edits this delivery too."
-  region "The delivery"
-    field "Name" text = "Garcia Interiors restock"
+    text "Cara edits this trip too."
+  region "The trip"
+    field "Name" text = "Rotterdam client visit"
     field "Arrival" text = "07:00"
-    message info "Priya Shah edits arrival now."
-    field "Notes" textarea = "Forty pallets for Garcia Interiors, dock A."
+    message info "Cara edits arrival now."
+    field "Notes" textarea = "Forty receipts for Harbor and Pine, batch A."
     row
       action "Cancel"
       action primary "Save"
 ```
 
-**Rationale:** Figma and Google Docs show who else is on the record before anyone saves. Alex sees Priya's avatar on the arrival field and waits or talks, and the refusal never needs to happen.
+**Rationale:** Figma and Google Docs show who else is on the record before anyone saves. Ben sees Cara's avatar on the arrival field and waits or talks, and the refusal never needs to happen.
 
 **Cost:** Presence is a live subscription per open record, and it only helps readers who look. The API still refuses, so this is early warning, not handling.
 
@@ -1864,25 +1864,25 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "SO-1042" "Delivery"
+  breadcrumb "Home" "Expenses" "EXP-1042" "Trip"
   header
-    heading "Delivery"
-    text "Sat 14 Mar 2026 at the Amsterdam warehouse."
-  message neutral "One change of hers sits in this form. Priya Shah fixed the dock at 09:34."
-  region "The delivery"
-    field "Name" text = "Garcia Interiors restock"
+    heading "Trip"
+    text "Sat 14 Mar 2026 at the Rotterdam client site."
+  message neutral "One change of hers sits in this form. Cara fixed the batch at 09:34."
+  region "The trip"
+    field "Name" text = "Rotterdam client visit"
     field "Arrival" text = "07:00"
-    message info "Priya Shah saved 08:00 at 09:34."
+    message info "Cara saved 08:00 at 09:34."
     action quiet "Use hers"
-    field "Notes" textarea = "Forty pallets for Garcia Interiors, dock A."
+    field "Notes" textarea = "Forty receipts for Harbor and Pine, batch A."
     row
       action "Cancel"
       action primary "Save"
 ```
 
-**Rationale:** Git merges what does not overlap and asks only about the rest. The dock Priya Shah fixed at 09:34 lands in Alex's form silently. Only the arrival time needs a choice.
+**Rationale:** Git merges what does not overlap and asks only about the rest. The batch Cara fixed at 09:34 lands in Ben's form silently. Only the arrival time needs a choice.
 
-**Cost:** The merge makes silent changes to a form the reader is editing. If Priya's dock fix surprises Alex at `Save`, the merge reads as tampering.
+**Cost:** The merge makes silent changes to a form the reader is editing. If Cara's batch fix surprises Ben at `Save`, the merge reads as tampering.
 
 **Reference:** Git
 
@@ -1890,35 +1890,35 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "SO-1042" "Delivery"
+  breadcrumb "Home" "Expenses" "EXP-1042" "Trip"
   header
-    heading "Delivery"
-    text "Sat 14 Mar 2026 at the Amsterdam warehouse."
-  message critical "Someone else changed this. Priya Shah saved at 09:34. Reload her version."
-  region "The delivery"
-    field "Name" text = "Garcia Interiors restock"
+    heading "Trip"
+    text "Sat 14 Mar 2026 at the Rotterdam client site."
+  message critical "Someone else changed this. Cara saved at 09:34. Reload her version."
+  region "The trip"
+    field "Name" text = "Rotterdam client visit"
     field "Arrival" text = "08:00"
-    field "Notes" textarea = "Forty pallets for Garcia Interiors, dock A."
+    field "Notes" textarea = "Forty receipts for Harbor and Pine, batch A."
     action primary "Reload her version"
 ```
 
-**Rationale:** This is the banking answer: the form locks, one button reloads Priya's version, and Alex's edits are dropped. It is drawn to be refused: nothing on this form is worth deleting notes over.
+**Rationale:** This is the banking answer: the form locks, one button reloads Cara's version, and Ben's edits are dropped. It is drawn to be refused: nothing on this form is worth deleting notes over.
 
-**Cost:** Alex's notes are gone. A lock that deletes work teaches the reader to type notes somewhere else first.
+**Cost:** Ben's notes are gone. A lock that deletes work teaches the reader to type notes somewhere else first.
 
 ### Work That Runs Without You
 
 **ID:** `litespec/frontend/patterns/feedback-and-states#work-that-runs-without-you`
 
-**Question:** An import or a bulk refund runs for minutes, longer than the reader waits on one page. The reader starts it and does other work. The job must stay visible while it runs and report its result when it is done.
+**Question:** An import or a bulk reversal runs for minutes, longer than the reader waits on one page. The reader starts it and does other work. The job must stay visible while it runs and report its result when it is done.
 
 **Default:** `an-activity-tray-like-an-upload-panel`
 
 **Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
 
-**Rationale:** Keep the activity tray, like an upload panel. It stays visible on every page, it never holds the reader, and it answers progress without being asked. The runner-up is the job page with the failures listed.
+**Rationale:** Keep the activity tray, like an upload panel. It stays visible on every page, it never holds the reader, and it answers progress without being asked. The runner-up is the job page with the failures published.
 
-It suits a bulk refund where 2 of 31 need a person and the rest do not. Never ship the dialog that holds the reader. Minutes of a blocked page are the cost this pattern exists to remove.
+It suits a bulk reversal where 2 of 31 need a person and the rest do not. Never ship the dialog that holds the reader. Minutes of a blocked page are the cost this pattern exists to remove.
 
 **Reviewed for:** Which built background job departs from the wireframe its catalog entry chose? Open the built trays, job sections, and progress rows beside the catalog entry recording the chosen option and its reason.
 
@@ -1926,22 +1926,22 @@ It suits a bulk refund where 2 of 31 need a person and the rest do not. Never sh
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders, newest first."
+    heading "Expenses"
+    text "268 expenses, newest first."
     action "Export"
   region
-    table 4 "Order" "Customer" "Placed" "State" "Paid"
-      item: text "SO-1042" · text "Maria Garcia" · text "8 Oct 2026, 09:32" · status "Paid" positive · text "EUR 125.00"
+    table 4 "Expense" "Spender" "Filed" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · text "8 Oct 2026, 09:32" · status "Paid" positive · text "EUR 125.00"
   popover
     heading small "Background work"
     text muted "1 running, 1 waiting"
-    card "Customer list import"
+    card "Spender list import"
       text "70% · 595 of 850 records"
-      text muted "Started 14:22 by Alex Morgan"
+      text muted "Started 14:22 by Ben"
     card "September export"
-      text "Waiting · 1,204 orders"
+      text "Waiting · 1,204 expenses"
       text muted "Starts when the import finishes"
 ```
 
@@ -1955,15 +1955,15 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Customers" "Customer list"
+  breadcrumb "Home" "Spenders" "Spender list"
   header
-    heading "Customer list"
+    heading "Spender list"
     text "850 records expected."
     action primary "Import records"
   region "Imports"
-    text "customer-list.csv · 70%"
-    text muted "Started 14:22 by Alex Morgan · 595 of 850 records"
-    text "september-orders.csv · Waiting"
+    text "spender-list.csv · 70%"
+    text muted "Started 14:22 by Ben · 595 of 850 records"
+    text "september-expenses.csv · Waiting"
     text muted "Starts when the import finishes"
     action "Stop"
     text muted "An import adds records. It never removes or changes the ones already here."
@@ -1971,7 +1971,7 @@ page
 
 **Rationale:** Shopify's bulk operations and Stripe's dashboard keep jobs on the page that started them, each with its state and a way to stop it. The reader who started the import finds it where they stood.
 
-**Cost:** The jobs live on one page. A reader who started an export and moved to refunds needs to go back to find it.
+**Cost:** The jobs live on one page. A reader who started an export and moved to reversals needs to go back to find it.
 
 **Reference:** Shopify, Stripe
 
@@ -1979,17 +1979,17 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Customers" "Customer list"
+  breadcrumb "Home" "Spenders" "Spender list"
   header
-    heading "Customer list"
+    heading "Spender list"
     text "850 records, imported 14:31."
   region
     list 2
-      item: text "Maria Garcia" · text muted "maria@garcia-interiors.example" · status "Imported" positive
+      item: text "Ava" · text muted "ava@harbor-pine.example" · status "Imported" positive
   region "What happened"
     timeline 2
-      item: text "850 records imported" · text muted "8 Oct 2026, 14:31" · text muted "Alex Morgan"
-  toast positive "850 records are on the customer list."
+      item: text "850 records imported" · text muted "8 Oct 2026, 14:31" · text muted "Ben"
+  toast positive "850 records are on the spender list."
 ```
 
 **Rationale:** GitHub Actions tells the reader when a run finishes. While it runs there is nothing to decide. A toast plus a timeline entry answers the only two questions: did it work, and where is the evidence.
@@ -2002,16 +2002,16 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "Refunds"
+  breadcrumb "Home" "Expenses" "Reversals"
   header
-    heading "Refunds"
-    text "Refunding 31 orders · 12 of 31 done · about 2 minutes left."
+    heading "Reversals"
+    text "Reversing 31 expenses · 12 of 31 done · about 2 minutes left."
   region
-    table 4 "Order" "Customer" "Result" "Refunded"
-      item: text "SO-1040" · text "Elin Lindqvist" · status "Sending" info · text "EUR 64.50"
+    table 4 "Expense" "Spender" "Result" "Reversed"
+      item: text "EXP-1040" · text "Elin Lindqvist" · status "Sending" info · text "EUR 64.50"
 ```
 
-**Rationale:** Mailchimp and Intercom show a bulk send on the rows it touches: each row gains its result as the job reaches it. The reader watches 31 refunds land one by one.
+**Rationale:** Mailchimp and Intercom show a bulk send on the rows it touches: each row gains its result as the job reaches it. The reader watches 31 reversals land one by one.
 
 **Cost:** Thirty-one rows update under the reader's eye. The pattern needs the reader to stay on the page, which is exactly what background work should not need.
 
@@ -2021,14 +2021,14 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "Refunds"
+  breadcrumb "Home" "Expenses" "Reversals"
   header
-    heading "Bulk refund · 29 of 31 sent"
-    text "Finished 8 Oct 2026, 11:04. Each refund went back on the customer payment."
-  message "2 were not sent. Their payments are past 180 days." caution
+    heading "Bulk reversal · 29 of 31 sent"
+    text "Finished 8 Oct 2026, 11:04. Each reversal went back to the company account."
+  message "2 were not sent. Their payouts are past 180 days." caution
   region "The 2 that need you"
     list 2
-      item: text "SO-1040 · Elin Lindqvist" · status "Not sent" critical · text "EUR 45.00" · action "Offer credit"
+      item: text "EXP-1040 · Elin Lindqvist" · status "Not sent" critical · text "EUR 45.00" · action "Apply deduction"
 ```
 
 **Rationale:** Stripe's bulk runs and Shopify's imports end on a page that lists what failed and why, each with its retry. The 29 that worked need no attention. The 2 that did not get all of it.
@@ -2041,13 +2041,13 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Customers" "Customer list"
+  breadcrumb "Home" "Spenders" "Spender list"
   header
-    heading "Customer list"
+    heading "Spender list"
     text "Importing."
   region
     list 2
-      item: text "Maria Garcia" · text muted "maria@garcia-interiors.example" · status "Imported" positive
+      item: text "Ava" · text muted "ava@harbor-pine.example" · status "Imported" positive
   dialog
     heading "Importing 850 records"
     text "595 of 850 records · 70% · about 1 minute left"
@@ -2079,10 +2079,10 @@ It suits a section whose read failed rather than a page whose record is gone. Ne
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every order, newest first."
+    heading "Expenses"
+    text "Every expense, newest first."
   region
     heading "Not found"
     text "This record does not exist, or it belongs to another company."
@@ -2096,13 +2096,13 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "SO-1099"
+  breadcrumb "Home" "Expenses" "EXP-1099"
   header
-    heading "Order SO-1099 does not exist"
+    heading "Expense EXP-1099 does not exist"
     text "It may be typed wrong, removed, or at another company."
-    text "Nothing was charged and nothing changed."
-    action primary "Back to Orders"
-    action "Search orders"
+    text "Nothing was paid and nothing changed."
+    action primary "Back to Expenses"
+    action "Search expenses"
 ```
 
 **Rationale:** Stripe's dashboard and Linear name the missing record, say what may have happened, and offer the list and the search. The reader typed one character wrong. The fix is one look away.
@@ -2115,21 +2115,21 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "SO-1042"
+  breadcrumb "Home" "Expenses" "EXP-1042"
   header
-    heading "SO-1042"
+    heading "EXP-1042"
     status "Paid" positive
-    text "Maria Garcia · Garcia Interiors"
+    text "Ava · Harbor and Pine"
   region "The money"
     fact "Paid" "EUR 125.00"
-    fact "Refunded so far" "EUR 0.00"
+    fact "Reversed so far" "EUR 0.00"
   region "Lines"
-    heading small "Line DL-9918 is not on this order"
-    text "This order holds 3 lines. The code may be typed wrong."
+    heading small "Line DL-9918 is not on this expense"
+    text "This expense holds 3 lines. The code may be typed wrong."
     action "See the 3 lines"
 ```
 
-**Rationale:** GitHub shows a missing comment inside an intact thread. The order exists. One line on it does not. Only the lines section says so.
+**Rationale:** GitHub shows a missing comment inside an intact thread. The expense exists. One line on it does not. Only the lines section says so.
 
 **Cost:** Use it only for a child that is missing from a parent that exists. Where the whole record is gone, a surviving page is a lie.
 
@@ -2139,13 +2139,13 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Gift box, standard"
+  breadcrumb "Home" "Policies" "Per diem, standard"
   header
     icon "Removed"
-    heading "Gift box, standard was removed"
-    text "Sam Rivera removed it on 2 Sep 2026, before anything was ordered."
+    heading "Per diem, standard was removed"
+    text "Dana removed it on 2 Sep 2026, before anything was claimed."
     text "Its record stays in the audit trail."
-    action primary "Back to Products"
+    action primary "Back to Policies"
 ```
 
 **Rationale:** Linear and Notion name who removed a page and when, because `does not exist` for something the reader saw yesterday reads as a fault. The audit trail already knows. The page says it.
@@ -2158,20 +2158,20 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "SO-1099"
+  breadcrumb "Home" "Expenses" "EXP-1099"
   header
-    heading "Order SO-1099 does not exist"
-    text "Two orders come close. Neither is called SO-1099."
+    heading "Expense EXP-1099 does not exist"
+    text "Two expenses come close. Neither is called EXP-1099."
   region "Close matches"
     toolbar
-      field "Search orders" search = "SO-1099"
+      field "Search expenses" search = "EXP-1099"
     list 2
-      item: text "SO-1042 · Maria Garcia" · text muted "maria@garcia-interiors.example" · action "Open"
+      item: text "EXP-1042 · Ava" · text muted "ava@harbor-pine.example" · action "Open"
 ```
 
-**Rationale:** GitHub's `404` offers search where the reader stands. The reader who mistyped an order number searches without going back to the list first.
+**Rationale:** GitHub's `404` offers search where the reader stands. The reader who mistyped an expense number searches without going back to the list first.
 
-**Cost:** A search box on an error page is a second search to keep in step with the list's. It earns its keep only where mistyped codes are common, which pickup codes are.
+**Cost:** A search box on an error page is a second search to keep in step with the list's. It earns its keep only where mistyped codes are common, which receipt codes are.
 
 **Reference:** GitHub
 
@@ -2214,15 +2214,15 @@ It suits a failed command where the money sentence deserves a page of its own. N
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "SO-1042"
+  breadcrumb "Home" "Expenses" "EXP-1042"
   header
-    heading "SO-1042"
+    heading "EXP-1042"
     status "Paid" positive
-    text "Maria Garcia · Garcia Interiors"
+    text "Ava · Harbor and Pine"
   region
     heading small "That did not go through"
-    text "The refund could not be sent. The money has not moved and the customer has not been told."
-    fact "Reference" "RF-SO-1042-181"
+    text "The reversal could not be sent. The money has not moved and the spender has not been told."
+    fact "Reference" "RF-EXP-1042-181"
     action quiet "Copy"
     action "Try again"
 ```
@@ -2235,15 +2235,15 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "SO-1042"
+  breadcrumb "Home" "Expenses" "EXP-1042"
   header
-    heading "The refund was not sent"
-    text "The money has not moved and Maria Garcia has not been told."
-    text "Nothing changed on order SO-1042."
-    fact "Reference" "RF-SO-1042-181"
+    heading "The reversal was not sent"
+    text "The money has not moved and Ava has not been told."
+    text "Nothing changed on expense EXP-1042."
+    fact "Reference" "RF-EXP-1042-181"
     action quiet "Copy"
     action primary "Try again"
-    action "Back to the order"
+    action "Back to the expense"
 ```
 
 **Rationale:** Stripe's dashboard failure page leads with what did not happen, because after a failed refund that is the reader's first question. The money sentence comes before the retry.
@@ -2256,21 +2256,21 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "SO-1042"
-  message "The invoice was not resent. Trying again in 8 seconds." caution
+  breadcrumb "Home" "Expenses" "EXP-1042"
+  message "The statement was not resent. Trying again in 8 seconds." caution
   header
-    heading "SO-1042"
+    heading "EXP-1042"
     status "Paid" positive
-    text "Maria Garcia · Garcia Interiors"
+    text "Ava · Harbor and Pine"
     action "Try now"
   region "Documents"
     list 1
-      item: text "Invoice INV-2041" · text muted "maria@garcia-interiors.example" · status "Paid" positive · action "Resend"
+      item: text "Statement ST-2041" · text muted "ava@harbor-pine.example" · status "Paid" positive · action "Resend"
 ```
 
 **Rationale:** Gmail retries a failed send and says when, with `Try now` for the impatient. A failure that clears on its own should not need a reader to clear it.
 
-**Cost:** Retrying a refund doubles it unless the command is idempotent. This suits reads and sends, and must never retry money blindly.
+**Cost:** Retrying a reversal doubles it unless the command is idempotent. This suits reads and sends, and must never retry money blindly.
 
 **Reference:** Gmail
 
@@ -2278,20 +2278,20 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders, newest first."
+    heading "Expenses"
+    text "268 expenses, newest first."
     action "Export"
   region
-    table 4 "Order" "Customer" "Placed" "State" "Paid"
-      item: text "SO-1042" · text "Maria Garcia" · text "8 Oct 2026, 09:32" · status "Paid" positive · text "EUR 125.00"
-  toast critical "The invoice for SO-1042 was not resent. Retry from here."
+    table 4 "Expense" "Spender" "Filed" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · text "8 Oct 2026, 09:32" · status "Paid" positive · text "EUR 125.00"
+  toast critical "The statement for EXP-1042 was not resent. Retry from here."
 ```
 
 **Rationale:** Gmail's failed send and Linear's failed sync follow this shape: the reader moved on, so the failure comes to them as a toast with its retry. The page behind is whatever they do now.
 
-**Cost:** A toast goes. A failed refund must also land in the record's timeline, or the evidence leaves with the message.
+**Cost:** A toast goes. A failed reversal must also land in the record's timeline, or the evidence leaves with the message.
 
 **Reference:** Gmail, Linear
 
@@ -2299,22 +2299,22 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "SO-1042"
+  breadcrumb "Home" "Expenses" "EXP-1042"
   header
-    heading "SO-1042"
+    heading "EXP-1042"
     status "Paid" positive
-    text "Maria Garcia · Garcia Interiors"
+    text "Ava · Harbor and Pine"
   region "The money"
     heading small "That did not go through"
-    text "The money could not be read. The customer below was read normally."
+    text "The money could not be read. The spender below was read normally."
     action "Try again"
-  region "The customer"
-    fact "Name" "Maria Garcia"
-    fact "Email" "maria@garcia-interiors.example"
+  region "The spender"
+    fact "Name" "Ava"
+    fact "Email" "ava@harbor-pine.example"
     fact "Country" "Netherlands"
 ```
 
-**Rationale:** React error boundaries and Vercel's per-section recovery follow this shape: the money section fails into its retry while the customer section stays readable. One failed read does not take the page.
+**Rationale:** React error boundaries and Vercel's per-section recovery follow this shape: the money section fails into its retry while the spender section stays readable. One failed read does not take the page.
 
 **Cost:** Two sections can fail two different ways on one page. Past one failure the page is a list of retries, and the outcome page takes over.
 
@@ -2324,19 +2324,19 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "SO-1042"
+  breadcrumb "Home" "Expenses" "EXP-1042"
   header
-    heading "SO-1042"
+    heading "EXP-1042"
     status "Paid" positive
-    text "Maria Garcia · Garcia Interiors"
+    text "Ava · Harbor and Pine"
   region "The money"
     fact "Paid" "EUR 125.00"
-    fact "Refunded so far" "EUR 0.00"
+    fact "Reversed so far" "EUR 0.00"
     text muted "These figures may be out of date. The last read failed at 14:22."
     link "Try again"
 ```
 
-**Rationale:** This is what happens when a failed re-read is swallowed: the old figures stay with a quiet line. It is drawn to be refused: a refund total that may be wrong is worse than none.
+**Rationale:** This is what happens when a failed re-read is swallowed: the old figures stay with a quiet line. It is drawn to be refused: a reversal total that may be wrong is worse than none.
 
 **Cost:** The reader acts on figures the server could not confirm. For money this is not a degradation. It is misinformation.
 
@@ -2344,13 +2344,13 @@ page
 
 **ID:** `litespec/frontend/patterns/feedback-and-states#back-office-is-down-for-a-short-while`
 
-**Question:** A planned window stops the back office. The warehouse keeps its printed pick lists, but the dispatch desk checks every parcel against the system, so dispatch waits too. The reader needs the window, what still works, and when to come back.
+**Question:** A planned window stops the back office. Finance keeps its printed payout lists, but the payout desk checks every receipt against the system, so payouts wait too. The reader needs the window, what still works, and when to come back.
 
 **Default:** `told-ahead-of-time-on-every-page`
 
 **Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
 
-**Rationale:** Keep the advance notice on every page. A window nobody meets by surprise is a window the warehouse can plan around, and the printed pick lists are the plan. The runner-up is the maintenance page itself.
+**Rationale:** Keep the advance notice on every page. A window nobody meets by surprise is a window finance can plan around, and the printed payout lists are the plan. The runner-up is the maintenance page itself.
 
 It is what every page becomes while the window runs. Never ship the message alone as the only signal. A Thursday message tells, and only the back office reminds on Sunday at 02:00.
 
@@ -2361,19 +2361,19 @@ It is what every page becomes while the window runs. Never ship the message alon
 ```wireframe
 page
   breadcrumb "Home"
-  message "The back office is unavailable Sun 15 Mar, 02:00 to 02:30. The warehouse keeps its printed pick lists." info
+  message "The back office is unavailable Sun 15 Mar, 02:00 to 02:30. Finance keeps its printed payout lists." info
   header
-    heading "Good morning, Alex"
-    text "Acme Supply · 40 pallets leave dock A at 08:00."
+    heading "Good morning, Ben"
+    text "Harbor and Pine · 40 receipts reach batch A at 08:00."
   region "What still works during the window"
-    fact "Printed pick lists" "Valid all night"
-    fact "Dispatch desk" "Waits until 02:30"
-    fact "Store" "Paused"
+    fact "Printed payout lists" "Valid all night"
+    fact "Payout desk" "Waits until 02:30"
+    fact "Portal" "Paused"
 ```
 
 **Rationale:** Stripe's status banner and Linear's scheduled maintenance follow this shape: one sentence on every page from days before, with the window and what still works. Nobody meets maintenance by surprise.
 
-**Cost:** A band on every page for days is days of noise for a 30-minute window. It must appear late enough to matter and early enough to plan the warehouse around.
+**Cost:** A band on every page for days is days of noise for a 30-minute window. It must appear late enough to matter and early enough to plan finance work around.
 
 **Reference:** Stripe, Linear
 
@@ -2383,16 +2383,16 @@ page
 page
   breadcrumb "Home"
   header
-    text muted "Acme Supply"
+    text muted "Harbor and Pine"
     heading "The back office is down for maintenance"
-    text "Back by 02:30. The warehouse keeps its printed pick lists. Dispatch waits until the system is back."
+    text "Back by 02:30. Finance keeps its printed payout lists. Payouts wait until the system is back."
     text muted "Started 02:00 · 18 minutes left"
     action primary "Check again"
 ```
 
 **Rationale:** GitHub and Vercel draw the window as a page: what is happening, when it ends, and what still works. During the window this is every page.
 
-**Cost:** Nothing can be read behind it, including the pick lists. Anything the warehouse needs must be printed before 02:00.
+**Cost:** Nothing can be read behind it, including the payout lists. Anything finance needs must be printed before 02:00.
 
 **Reference:** GitHub, Vercel
 
@@ -2400,22 +2400,22 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   message "The back office is in maintenance until 02:30. You can read. Nothing you do here reaches the server." neutral
   header
-    heading "Orders"
-    text "268 orders. Read 2 minutes ago."
+    heading "Expenses"
+    text "268 expenses. Read 2 minutes ago."
   region
-    table 4 "Order" "Customer" "Placed" "State" "Paid"
-      item: text "SO-1042" · text "Maria Garcia" · text "8 Oct 2026, 09:32" · status "Paid" positive · text "EUR 125.00"
-  region "Refunds"
-    action disabled "Refund an order"
-    message "Maintenance ends at 02:30. Refunds wait until then." neutral
+    table 4 "Expense" "Spender" "Filed" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · text "8 Oct 2026, 09:32" · status "Paid" positive · text "EUR 125.00"
+  region "Reversals"
+    action disabled "Reverse an expense"
+    message "Maintenance ends at 02:30. Reversals wait until then." neutral
 ```
 
-**Rationale:** Shopify and Notion degrade to reading when writing is unsafe. Orders can be read for the counter. Nothing that changes money is offered.
+**Rationale:** Shopify and Notion degrade to reading when writing is unsafe. Expenses can be read on a call. Nothing that changes money is offered.
 
-**Cost:** Read-only needs every command to know it is refused and why. A page that forgets one offers a refund that fails at 02:15.
+**Cost:** Read-only needs every command to know it is refused and why. A page that forgets one offers a reversal that fails at 02:15.
 
 **Reference:** Shopify, Notion
 
@@ -2427,12 +2427,12 @@ page
   header
     heading "Back soon"
     text "The back office is down for maintenance until 02:30."
-    text muted "Acme Supply"
+    text muted "Harbor and Pine"
   card
     row
       figure "Back in" "42 min"
-      figure "Printed pick lists" "Valid"
-      figure "Dispatch" "Waiting"
+      figure "Printed payout lists" "Valid"
+      figure "Payouts" "Waiting"
     action primary "Check again"
 ```
 
@@ -2448,18 +2448,18 @@ page
 page
   breadcrumb "Home"
   header
-    heading "Good morning, Alex"
-    text "Acme Supply · two days that need you."
+    heading "Good morning, Ben"
+    text "Harbor and Pine · two days that need you."
   region "This week"
-    fact "Garcia Interiors restock" "Sat 14 Mar · 08:00 to 12:00"
-    action "Open the dispatch plan"
-    fact "Maintenance, Sun 02:00 to 02:30" "Print the pick lists before you leave on Saturday."
+    fact "Rotterdam client visit" "Sat 14 Mar · 08:00 to 12:00"
+    action "Open the payout plan"
+    fact "Maintenance, Sun 02:00 to 02:30" "Print the payout lists before you leave on Saturday."
     action "What still works"
 ```
 
-**Rationale:** Incident.io and Linear put a planned window on Home days ahead, next to the work it touches. The dispatch plan for the day carries the note, not a banner.
+**Rationale:** Incident.io and Linear put a planned window on Home days ahead, next to the work it touches. The payout plan for the day carries the note, not a banner.
 
-**Cost:** Home is one page. A reader who lives in Orders never sees it, which is why this pairs with the banner option and never replaces it.
+**Cost:** Home is one page. A reader who lives in Expenses never sees it, which is why this pairs with the banner option and never replaces it.
 
 **Reference:** Incident.io, Linear
 
@@ -2473,13 +2473,13 @@ page
     text "What the system sent, and what the back office showed that night."
   region
     list 1
-      item: text "The back office is unavailable Sun 15 Mar, 02:00 to 02:30" · text muted "Sent Thu 12 Mar to Sam Rivera and Alex Morgan" · status "Sent" neutral
+      item: text "The back office is unavailable Sun 15 Mar, 02:00 to 02:30" · text muted "Sent Thu 12 Mar to Dana and Ben" · status "Sent" neutral
   region "On the back office that night"
     heading small "Nothing"
-    text "No banner, no page, no countdown. The warehouse finds out at 02:00."
+    text "No banner, no page, no countdown. Finance finds out at 02:00."
 ```
 
-**Rationale:** This is what happens when maintenance is announced by message only: owners get the mail on Thursday and the warehouse meets the window on Sunday. It is drawn to be refused as the only signal.
+**Rationale:** This is what happens when maintenance is announced by message only: owners get the mail on Thursday and finance meets the window on Sunday. It is drawn to be refused as the only signal.
 
 **Cost:** Nobody reads a Thursday message on Sunday at 02:00. A message tells. Only the back office can remind.
 
@@ -2503,15 +2503,15 @@ It suits a reader planning a month of exports rather than one too many. Never sh
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders, newest first."
+    heading "Expenses"
+    text "268 expenses, newest first."
     action disabled "Export (40 s)"
   message "12 exports in the last hour. The limit is 12 an hour. Try again in 40 seconds." neutral
   region
-    table 4 "Order" "Customer" "Placed" "State" "Paid"
-      item: text "SO-1042" · text "Maria Garcia" · text "8 Oct 2026, 09:32" · status "Paid" positive · text "EUR 125.00"
+    table 4 "Expense" "Spender" "Filed" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · text "8 Oct 2026, 09:32" · status "Paid" positive · text "EUR 125.00"
 ```
 
 **Rationale:** GitHub and Stripe answer `429` with `Retry-After`, and the button counts it down. The reader waits 40 seconds knowing why, instead of clicking a button that keeps refusing.
@@ -2527,9 +2527,9 @@ page
   breadcrumb "Home" "Sign in"
   header
     heading "Sign in"
-    text "Acme Supply · Alex Morgan, operations manager"
+    text "Harbor and Pine · Ben, finance manager"
   card
-    field "Email" text = "alex@acme-supply.example"
+    field "Email" text = "ben@harbor-pine.example"
     text muted "3 tries left. After that this sign-in waits 10 minutes."
     action primary "Continue"
 ```
@@ -2544,17 +2544,17 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders, newest first."
+    heading "Expenses"
+    text "268 expenses, newest first."
   region "Exports"
     list 1
-      item: text "september-orders.csv" · text muted "3rd in line · about 6 minutes" · text "Queued" · action "Leave the queue"
+      item: text "september-expenses.csv" · text muted "3rd in line · about 6 minutes" · text "Queued" · action "Leave the queue"
     text muted "Your export runs when the 2 ahead of it finish. Leaving the queue cancels it."
   region
-    table 3 "Order" "Customer" "Placed" "State" "Paid"
-      item: text "SO-1042" · text "Maria Garcia" · text "8 Oct 2026, 09:32" · status "Paid" positive · text "EUR 125.00"
+    table 3 "Expense" "Spender" "Filed" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · text "8 Oct 2026, 09:32" · status "Paid" positive · text "EUR 125.00"
 ```
 
 **Rationale:** Cloudflare's waiting room queues rather than refuses: the export is 3rd in line with its wait stated. The reader's work is held, not lost.
@@ -2567,18 +2567,18 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders, newest first."
+    heading "Expenses"
+    text "268 expenses, newest first."
     action "Export"
   region "Exports"
     fact "9 of 12 used this hour" "3 left"
     text "75% used. Your plan allows 12 an hour."
     text muted "The 13th export waits for the next hour."
   region
-    table 3 "Order" "Customer" "Placed" "State" "Paid"
-      item: text "SO-1042" · text "Maria Garcia" · text "8 Oct 2026, 09:32" · status "Paid" positive · text "EUR 125.00"
+    table 3 "Expense" "Spender" "Filed" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · text "8 Oct 2026, 09:32" · status "Paid" positive · text "EUR 125.00"
 ```
 
 **Rationale:** Stripe's API dashboard and Linear's limits page show usage against the ceiling before anything refuses. The reader who sees 9 of 12 plans the last 3.
@@ -2591,13 +2591,13 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
     heading "Too many tries"
     text "Try again in 10 minutes. Nothing was sent twice and nothing is lost."
-    fact "Reference" "RL-SO-1042-03"
+    fact "Reference" "RL-EXP-1042-03"
     action quiet "Copy"
-    action primary "Back to Orders"
+    action primary "Back to Expenses"
 ```
 
 **Rationale:** Cloudflare answers a hard stop with a page: too many tries, when to come back, and a reference. There is no retry button, because retrying is what caused this.
@@ -2610,16 +2610,16 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders. Searching."
+    heading "Expenses"
+    text "268 expenses. Searching."
   toolbar
-    field "Search orders" search = "maria"
+    field "Search expenses" search = "ava"
     text muted "Searching"
   region
-    table 3 "Order" "Customer" "Placed" "State" "Paid"
-      item: text "SO-1042" · text "Maria Garcia" · text "8 Oct 2026" · status "Paid" positive · text "EUR 125.00"
+    table 3 "Expense" "Spender" "Filed" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · text "8 Oct 2026" · status "Paid" positive · text "EUR 125.00"
     text muted "1 to 25 of 268"
 ```
 

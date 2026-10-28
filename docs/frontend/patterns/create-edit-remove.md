@@ -2,7 +2,7 @@
 
 ## Intent
 
-Staff create records such as orders, deliveries, and products, change them, and remove one or several, and this page shows the layout for each task as drawn options with a named default to build, including the special cases: draft-first creation, corrections to the past, duplicates, hand ordering, restoring archived work, invitations, publishing, and scheduled changes. The product owner chooses among the options when the team builds or revises a working screen. One decided shape per task keeps destructive and far-reaching commands predictable, so staff know what a command will do before they commit.
+Staff create records such as expenses, trips, and fares, change them, and remove one or several, and this page shows the layout for each task as drawn options with a named default to build, including the special cases: draft-first creation, corrections to the past, duplicates, hand ordering, restoring archived work, invitations, publishing, and scheduled changes. The product owner chooses among the options when the team builds or revises a working screen. One decided shape per task keeps destructive and far-reaching commands predictable, so staff know what a command will do before they commit.
 
 ## Concepts
 
@@ -12,7 +12,7 @@ Each pattern answers one recurring question about working with records, such as 
 
 ### The Running Example
 
-The drawings on this page use the Acme Supply back office: deliveries such as Garcia Interiors restock, orders such as SO-1042 for Maria Garcia, and products such as the Oak desk lamp at EUR 45.00. On this page, the reader is the staff member using the screen. The Standards section states the two rules every option keeps: every removal offers undo or asks for confirmation, and a successful create shows the created record.
+The drawings on this page use Harbor and Pine travel: trips such as Rotterdam client visit, expenses such as EXP-1042 for Ava, and fares such as the train fare at EUR 48.90. On this page, the reader is the staff member using the screen. The Standards section states the two rules every option keeps: every removal offers undo or asks for confirmation, and a successful create shows the created record.
 
 ## Standards
 
@@ -42,13 +42,13 @@ The drawings on this page use the Acme Supply back office: deliveries such as Ga
 
 **ID:** `litespec/frontend/patterns/create-edit-remove#creating-one-record`
 
-**Question:** Staff create records such as deliveries, refunds, and products. A create with one to four inputs fits a dialog, and a longer one needs a page; a drawer never holds a create. The decision is which shape each create takes: dialog, page, template, copy, inline row, file import, steps, or a shortcut from elsewhere.
+**Question:** Staff create records such as trips, reversals, and fares. A create with one to four inputs fits a dialog, and a longer one needs a page; a drawer never holds a create. The decision is which shape each create takes: dialog, page, template, copy, inline row, file import, steps, or a shortcut from elsewhere.
 
 **Default:** `a-dialog-for-two-or-three-inputs`
 
 **Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
 
-**Rationale:** The dialog stays the pick for one to four inputs: it keeps the list behind it and commits with one verb. The full page is the runner-up and the right one past four inputs or with sections. The inline table row is the one to refuse, because a form inside a table breaks the table structure and hides validation. Of the further options, the split button earns its place on the deliveries list, where three starting points already exist.
+**Rationale:** The dialog stays the pick for one to four inputs: it keeps the list behind it and commits with one verb. The full page is the runner-up and the right one past four inputs or with sections. The inline table row is the one to refuse, because a form inside a table breaks the table structure and hides validation. Of the further options, the split button earns its place on the trips list, where three starting points already exist.
 
 **Reviewed for:** Which built creation form differs from the wireframe its catalog entry chose? Open the built dialog, page, and inline starts beside the catalog entry recording the chosen option and its reason.
 
@@ -56,15 +56,15 @@ The drawings on this page use the Acme Supply back office: deliveries such as Ga
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "SO-1042" "Delivery" "Plan"
+  breadcrumb "Home" "Expenses" "EXP-1042" "Trip" "Plan"
   header
-    heading "Garcia Interiors restock"
-    text "Delivery plan, 6 entries."
+    heading "Rotterdam client visit"
+    text "Trip plan, 6 entries."
     action "Add to the plan"
-  region "Delivery plan"
+  region "Trip plan"
     list 3
-      item: text "Loading bay booked" · text muted "08:00" · text muted "Chris Novak"
-  dialog "Add to the delivery plan"
+      item: text "Hotel booked" · text muted "08:00" · text muted "Chris Novak"
+  dialog "Add to the trip plan"
     field "What" text
     field "When" text = "06:30"
     field "Who" text
@@ -80,20 +80,20 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "New delivery"
+  breadcrumb "Home" "Expenses" "New trip"
   header
-    heading "New delivery"
+    heading "New trip"
     text "Start with a name. Everything else can wait."
-  region "The delivery"
+  region "The trip"
     field "Name" text
     field "Description" textarea
   region "When"
-    field "Loading starts" text
-    field "Departs" text
+    field "Outbound" text
+    field "Return" text
   region "Where"
-    field "Warehouse" select = "Amsterdam warehouse"
+    field "Site" select = "Rotterdam client site"
     action "Cancel"
-    action primary "Create delivery"
+    action primary "Create trip"
 ```
 
 **Rationale:** The form pages with sections, steps, or more than four inputs. A page gives the fields room and gives the result a link.
@@ -104,22 +104,22 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "New delivery"
+  breadcrumb "Home" "Expenses" "New trip"
   header
-    heading "New delivery"
+    heading "New trip"
     text "Start from last time, or from nothing."
   region "Start from"
     field "Start from" select = "A template"
-    text muted "A template carries a customer, a warehouse and a delivery plan."
-  region "The delivery"
-    field "Template" select = "Restock, standard"
-    field "Name" text = "Garcia Interiors restock"
+    text muted "A template carries a spender, a site and a trip plan."
+  region "The trip"
+    field "Template" select = "Client visit, standard"
+    field "Name" text = "Rotterdam client visit"
     field "When" text = "09/10/2026"
     action "Cancel"
-    action primary "Create delivery"
+    action primary "Create trip"
 ```
 
-**Rationale:** One shape offers 'A blank delivery' or 'A template' at the top of the form. Choosing first means the fields below load with the template's customer, warehouse, and plan already filled.
+**Rationale:** One shape offers 'A blank trip' or 'A template' at the top of the form. Choosing first means the fields below load with the template's spender, site, and plan already filled.
 
 **Cost:** The starter control sits inside the form but is not part of it. Once a template is chosen the control stays visible with no further use, because the form cannot remove a control mid-create.
 
@@ -127,25 +127,25 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Deliveries"
+    heading "Trips"
     text "93 scheduled."
-    action "New delivery"
+    action "New trip"
   toolbar
-    field "Search deliveries" search
+    field "Search trips" search
   region "Scheduled"
     list 3
-      item: text "Garcia Interiors restock" · text muted "9 Oct 2026" · status "Scheduled" info · action "Open"
-  menu "More actions for Garcia Interiors restock"
+      item: text "Rotterdam client visit" · text muted "9 Oct 2026" · status "Scheduled" info · action "Open"
+  menu "More actions for Rotterdam client visit"
     action "Open"
-    action "Duplicate this delivery"
+    action "Duplicate this trip"
     action "Copy the plan to another"
 ```
 
-**Rationale:** Duplicate a delivery that worked, and then change what is different. The copy carries products and a plan, and it starts as a draft with nothing committed.
+**Rationale:** Duplicate a trip that worked, and then change what is different. The copy carries fares and a plan, and it starts as a draft with nothing committed.
 
-**Cost:** A duplicate of a shipped delivery is nearly meaningless: the orders and the money all belong to the original. It only works for a template-like record with no history.
+**Cost:** A duplicate of a completed trip is nearly meaningless: the expenses and the money all belong to the original. It only works for a template-like record with no history.
 
 #### `create-inline-in-the-table-as-an-empty-first-row`: Create Inline in the Table, as an Empty First Row
 

@@ -2,7 +2,7 @@
 
 ## Intent
 
-Settings screens configure the company itself, and this page shows each screen as drawn options with a named default to build: the team and its roles, API keys and webhooks, spreadsheet imports, the payment account, supplier invoices, and discount codes. The product owner chooses among the options when the team builds or revises a settings area. Consistent admin layouts keep powerful commands, such as granting access, rotating secrets, and paying invoices, safe to operate.
+Settings screens configure the company itself, and this page shows each screen as drawn options with a named default to build: the team and its roles, API keys and webhooks, spreadsheet imports, the payout account, subscription invoices, and budget codes. The product owner chooses among the options when the team builds or revises a settings area. Consistent admin layouts keep powerful commands, such as granting access, rotating secrets, and paying invoices, safe to operate.
 
 ## Concepts
 
@@ -12,7 +12,7 @@ Each pattern answers one recurring question about a settings screen, such as how
 
 ### The Running Example
 
-The drawings on this page use the Acme Supply settings: the team with Sam Rivera as Owner, the Counter sync API key, the contacts-2026-01.csv import, the Stripe payment account, supplier invoice INV-2026-09, and discount code DESK10. On this page, the reader is the staff member using the screen. The Standards section states the two rules every option keeps: a new secret shows in full only once, and an invitation or role change shows what the role allows before it is sent.
+The drawings on this page use the Claimwick settings for Harbor and Pine: the team with Dana as Owner, the Accounting export API key, the staff-2026-01.csv import, the Example Bank payout account, subscription invoice INV-2026-09, and budget code TRIP10. On this page, the reader is the staff member using the screen. The Standards section states the two rules every option keeps: a new secret shows in full only once, and an invitation or role change shows what the role allows before it is sent.
 
 ## Standards
 
@@ -32,7 +32,7 @@ The drawings on this page use the Acme Supply settings: the team with Sam Rivera
 
 **Statement:** An invitation or role change MUST show what the chosen role allows before it is sent.
 
-**Rationale:** Role names such as Picker or Manager hide what they grant. A sender who sees only the name can grant access to refunds or data by mistake. Showing the granted capabilities beside the name lets the sender confirm the access itself before the invitation goes out.
+**Rationale:** Role names such as Spender or Approver hide what they grant. A sender who sees only the name can grant reimbursement rights by mistake. Showing the granted capabilities beside the name lets the sender confirm the access itself before the invitation goes out.
 
 **Reviewed for:** Which invitation or role change goes out without listing the chosen capabilities? Open the invite and role-change flows on a built team screen.
 
@@ -42,7 +42,7 @@ The drawings on this page use the Acme Supply settings: the team with Sam Rivera
 
 **ID:** `litespec/frontend/patterns/admin-screens#team-members-and-their-roles`
 
-**Question:** The team is the staff who work for the company, and a role states what each person may do. The staff member holding the Owner role invites people, grants roles, limits some staff to one warehouse, and suspends or removes people. Everyone else sees names and roles, and nothing more.
+**Question:** The team is the staff who work for the company, and a role states what each person may do. The staff member holding the Owner role invites people, grants roles, limits some staff to one cost centre, and suspends or removes people. Everyone else sees names and roles, and nothing more.
 
 **Default:** `members-with-the-invitations-below`
 
@@ -59,14 +59,14 @@ page
   breadcrumb "Settings" "Team"
   header
     heading "Team"
-    text "Acme Supply · 5 members · 2 invitations outstanding."
+    text "Harbor and Pine · 5 members · 2 invitations outstanding."
     action primary "Invite member"
   region "Members"
     table 5 "Member" "Role" "Access" "State"
-      item: avatar "SR" · text "Sam Rivera" · text "Owner" · text "Everything" · status "Active" positive · action "Manage"
+      item: avatar "D" · text "Dana" · text "Owner" · text "Everything" · status "Active" positive · action "Manage"
   region "Invitations · 2"
     list 2
-      item: text "lina.meyer@example.org" · text muted "Invited as Picker · expires 13 Oct" · status "Sent" info · action "Resend"
+      item: text "nina@example.org" · text muted "Invited as Spender · expires 13 Oct" · status "Sent" info · action "Resend"
 ```
 
 **Rationale:** Linear lists members with role and state in line, and pending invitations below in the same view, because invited and active people are two states of one team list. The owner acts on a row, such as resending or revoking, without opening it.
@@ -82,12 +82,12 @@ page
   breadcrumb "Settings" "Team" "Roles"
   header
     heading "Roles"
-    text "Acme Supply · 4 roles beside the owner."
+    text "Harbor and Pine · 4 roles beside the owner."
     action primary "New role"
   region "What each role may do"
-    table 6 "Capability" "Manager" "Finance" "Warehouse lead" "Support"
-      item: text "Refund an order" · text "No" · text "Yes" · text "No" · text "No"
-    message "Warehouse staff dispatch goods and record it. Only Finance refunds." info
+    table 6 "Capability" "Approver" "Finance" "Auditor" "Spender"
+      item: text "Reimburse an expense" · text "No" · text "Yes" · text "No" · text "No"
+    message "Spenders submit and attach receipts. Only Finance reimburses." info
 ```
 
 **Rationale:** GitHub compares team roles in a capability matrix, which answers what each role may do without opening roles one by one. The matrix fits custom roles because it shows every capability side by side instead of hiding grants inside dialogs.
@@ -103,42 +103,42 @@ page
   breadcrumb "Settings" "Team"
   header
     heading "Team"
-    text "Acme Supply · 5 members · 2 invitations outstanding."
+    text "Harbor and Pine · 5 members · 2 invitations outstanding."
   region "Members"
     list 2
-      item: avatar "SR" · text "Sam Rivera" · text muted "Owner · everything" · status "Active" positive
+      item: avatar "D" · text "Dana" · text muted "Owner · everything" · status "Active" positive
   dialog "Invite member"
-    field "Email address" text = "lina.meyer@example.org"
-    field "Role" select = "Picker"
-    field "Access" select = "Amsterdam warehouse only"
-    text muted "Warehouse staff are limited to the building they work in."
+    field "Email address" text = "nina@example.org"
+    field "Role" select = "Spender"
+    field "Access" select = "Travel cost centre only"
+    text muted "Spenders are limited to the cost centre they claim for."
     text muted "The invitation expires in 7 days."
     action "Cancel"
     action primary "Send invitation"
 ```
 
-**Rationale:** Clerk invites with address, role, and scope in one dialog, because an invitation is one decision with three fields. The scope line limits warehouse staff to one building at the point of inviting.
+**Rationale:** Clerk invites with address, role, and scope in one dialog, because an invitation is one decision with three fields. The scope line limits spenders to one cost centre at the point of inviting.
 
 **Cost:** Inviting a whole seasonal crew means repeating the dialog per person, so bulk inviting needs a different shape.
 
 **Reference:** Clerk
 
-#### `warehouse-scoped-staff-cards`: Warehouse-Scoped Staff Cards
+#### `warehouse-scoped-staff-cards`: Cost-Centre-Scoped Staff Cards
 
 ```wireframe
 page
   breadcrumb "Settings" "Team"
   header
     heading "Team"
-    text "Acme Supply · seasonal staff work one warehouse."
+    text "Harbor and Pine · interns claim for one cost centre."
     action primary "Invite staff"
-  region "Amsterdam warehouse"
+  region "Travel cost centre"
     list 3
-      item: avatar "CN" · text "Chris Novak" · text muted "Warehouse lead · access ends 31 Mar" · status "Active" positive · action "Remove"
+      item: avatar "N" · text "Nina" · text muted "Spender · access ends 31 Mar" · status "Active" positive · action "Remove"
     message "Seasonal access ends on the date on the card. Nothing is removed by hand." info
 ```
 
-**Rationale:** Vercel scopes team access per project, which fits seasonal staff who work one warehouse and nothing else. The card names the building, the role, and the end of the access.
+**Rationale:** Vercel scopes team access per project, which fits interns who claim for one cost centre and nothing else. The card names the cost centre, the role, and the end of the access.
 
 **Cost:** Staff cards separate from the member list split the team into two places, and the owner checks both.
 
@@ -151,15 +151,15 @@ page
   breadcrumb "Settings" "Team"
   header
     heading "Team"
-    text "Acme Supply · 5 members."
+    text "Harbor and Pine · 5 members."
   region "Members"
     list 1
-      item: avatar "JL" · text "Jordan Lee" · text muted "Support · everything" · status "Active" positive · action "Suspend"
-  dialog "Suspend Jordan Lee"
+      item: avatar "E" · text "Eli" · text muted "Spender · two cost centres" · status "Active" positive · action "Suspend"
+  dialog "Suspend Eli"
     text "Sign-in stops at once. Open work stays assigned until it is moved."
     field "Reason" text
     text muted "Recorded in the audit trail. Required."
-    fact "Assigned refunds" "2 open · move them first"
+    fact "Open expenses" "2 submitted · decide them first"
     fact "History" "Kept · nothing is deleted"
     action "Cancel"
     action destructive "Suspend member"
@@ -178,10 +178,10 @@ page
   breadcrumb "Settings" "Team"
   header
     heading "Team"
-    text "Acme Supply · 5 members."
+    text "Harbor and Pine · 5 members."
   region "Members"
     list 5
-      item: avatar "SR" · text "Sam Rivera" · text muted "Owner"
+      item: avatar "D" · text "Dana" · text muted "Owner"
     message "Only the owner manages the team. Membership states and invitations are not shown here." info
 ```
 
@@ -195,7 +195,7 @@ page
 
 **ID:** `litespec/frontend/patterns/admin-screens#api-keys-and-webhooks`
 
-**Question:** Company systems read the product through API keys. Order updates reach those systems through webhooks. A key secret shows once and never again. Each webhook delivery states whether it arrived. A missed order update is money unaccounted for.
+**Question:** Company systems read the product through API keys. Expense updates reach those systems through webhooks. A key secret shows once and never again. Each webhook delivery states whether it arrived. A missed expense update is money unaccounted for.
 
 **Default:** `keys-table-with-the-grants-in-line`
 
@@ -217,10 +217,10 @@ page
   tabs "API keys" "Webhooks" "Origins"
     region "Keys"
       table 3 "Key" "Grants" "Last used" "State"
-        item: text "Counter sync" · text "Read orders, read products" · text "8 Oct, 09:31" · status "Live" positive · action "Rotate"
+        item: text "Accounting export" · text "Read expenses, read payouts" · text "8 Oct, 09:31" · status "Live" positive · action "Rotate"
 ```
 
-**Rationale:** The Stripe Dashboard lists API keys with grants, creation, and last use. The back office asks what a key may do and whether it is still used. Revoke and rotate sit on the row.
+**Rationale:** The Stripe Dashboard lists API keys with grants, creation, and last use. Finance asks what a key may do and whether it is still used. Revoke and rotate sit on the row.
 
 **Cost:** Grants in line fit only as short labels, so the full grant list lives on the key page one click down.
 
@@ -237,16 +237,16 @@ page
   tabs "API keys" "Webhooks" "Origins"
     region "Keys"
       list 2
-        item: text "Counter sync" · text muted "Read orders, read products" · status "Live" positive
+        item: text "Accounting export" · text muted "Read expenses, read payouts" · status "Live" positive
   dialog "Copy the secret now"
-    text "Grants: read dispatch state. Created by Alex Morgan on 8 Oct."
-    field "Secret" text = "acme_live_9P4R2M7Q8H2K5T1BX6DW"
+    text "Grants: read approval state. Created by Dana on 8 Oct."
+    field "Secret" text = "claimwick_live_9P4R2M7Q8H2K5T1BX6DW"
     action quiet "Copy"
     text muted "This secret shows once. It cannot be read again after this dialog closes."
     action primary "Secret stored, close"
 ```
 
-**Rationale:** GitHub shows a new token once with copy front and center, because the secret cannot be read again. The dialog states the grants so the back office stores the right secret against the right system.
+**Rationale:** GitHub shows a new token once with copy front and center, because the secret cannot be read again. The dialog states the grants so finance stores the right secret against the right system.
 
 **Cost:** A secret shown once is lost when the owner closes the dialog too soon, and the only repair is revoking and creating again.
 
@@ -259,18 +259,18 @@ page
   breadcrumb "Settings" "Developers" "Webhooks"
   header
     heading "Webhooks"
-    text "The addresses order updates are posted to."
+    text "The addresses expense updates are posted to."
     action primary "Register endpoint"
-  region "https://counter.acme-supply.example/hooks"
+  region "https://bank.harbor-pine.example/hooks"
     list 3
-      item: text "order.paid · SO-1042" · text muted "8 Oct, 09:32 · answered 200 in 180 ms" · status "Delivered" positive
+      item: text "expense.reimbursed · EXP-1042" · text muted "8 Oct, 09:32 · answered 200 in 180 ms" · status "Delivered" positive
     action quiet "Replay the failed delivery"
-  region "https://accounts.acme-supply.example/hooks"
-    message "Paused by Priya Shah on 1 Oct. Deliveries queue until it is resumed." caution
+  region "https://accounts.harbor-pine.example/hooks"
+    message "Paused by Dana on 1 Oct. Deliveries queue until it is resumed." caution
     action "Resume"
 ```
 
-**Rationale:** Svix draws each endpoint with its recent deliveries and their states, because the back office asks whether an update arrived. A failed delivery carries its next retry and a replay command.
+**Rationale:** Svix draws each endpoint with its recent deliveries and their states, because finance asks whether an update arrived. A failed delivery carries its next retry and a replay command.
 
 **Cost:** Deliveries multiply into the thousands on a busy day, so the list needs the endpoint as a filter and aggressive paging.
 
@@ -287,14 +287,14 @@ page
   tabs "API keys" "Webhooks" "Origins"
     region "Keys"
       list 1
-        item: text "Counter sync" · text muted "Read orders, read products" · status "Live" positive
+        item: text "Accounting export" · text muted "Read expenses, read payouts" · status "Live" positive
   dialog "Create API key"
-    field "Name" text = "Warehouse display"
-    field "Read orders and products" checkbox
-    field "Read dispatch state" checkbox
-    field "Read invoices" checkbox
-    field "Refund an order" checkbox
-    text muted "No key holds refunds. Only people refund."
+    field "Name" text = "Payout monitor"
+    field "Read expenses and receipts" checkbox
+    field "Read approval state" checkbox
+    field "Read payouts" checkbox
+    field "Reimburse an expense" checkbox
+    text muted "No key holds reimbursements. Only people reimburse."
     action "Cancel"
     action primary "Create key"
 ```
@@ -316,12 +316,12 @@ page
   tabs "API keys" "Webhooks" "Origins"
     region "Keys"
       list 1
-        item: text "Counter sync" · text muted "May be in a shared mailbox" · status "Live" positive · action "Rotate"
-  dialog "Rotate Counter sync"
+        item: text "Accounting export" · text muted "May be in a shared mailbox" · status "Live" positive · action "Rotate"
+  dialog "Rotate Accounting export"
     text "A new secret is issued at once. The old secret works for 24 hours."
     fact "New secret" "Shown once, on the next screen"
     fact "Old secret" "Works until 9 Oct, 09:32"
-    fact "Grants" "Unchanged · read orders, read products"
+    fact "Grants" "Unchanged · read expenses, read payouts"
     action "Cancel"
     action primary "Rotate key"
 ```
@@ -344,11 +344,11 @@ page
   tabs "API keys" "Webhooks" "Origins"
     region "Origins"
       list 3
-        item: text "https://shop.acme-supply.example" · text muted "The storefront checkout" · status "Allowed" positive · action "Remove"
-      message "The checkout refuses any page not listed here. Changes apply at once." info
+        item: text "https://intranet.harbor-pine.example" · text muted "The intranet expense form" · status "Allowed" positive · action "Remove"
+      message "The expense form refuses any page not listed here. Changes apply at once." info
 ```
 
-**Rationale:** Clerk lists allowed origins beside the keys, because the checkout runs on the company's pages and nowhere else. Each origin names where it is used.
+**Rationale:** Clerk lists allowed origins beside the keys, because the expense form runs on the company's pages and nowhere else. Each origin names where it is used.
 
 **Cost:** Origins are a third concern on a developers page, and keys, webhooks, and origins together crowd one set of tabs.
 
@@ -358,7 +358,7 @@ page
 
 **ID:** `litespec/frontend/patterns/admin-screens#bringing-data-from-spreadsheets`
 
-**Question:** Contacts, budget lines, and newsletter consents arrive from spreadsheets. Each import names what was brought in and what was refused. Each refusal names why. The back office fixes refused rows without importing the file twice.
+**Question:** Staff, budget lines, and payout consents arrive from spreadsheets. Each import names what was brought in and what was refused. Each refusal names why. Finance fixes refused rows without importing the file twice.
 
 **Default:** `imports-with-the-refused-rows-below`
 
@@ -379,10 +379,10 @@ page
     action primary "Register import"
   region "Imports"
     table 3 "File" "Brought in" "Accepted" "Refused" "State"
-      item: text "contacts-2026-01.csv" · text "Contacts" · text "1,204" · text "18" · status "Done with refusals" caution
-  region "Refused rows · contacts-2026-01.csv"
+      item: text "staff-2026-01.csv" · text "Staff" · text "1,204" · text "18" · status "Done with refusals" caution
+  region "Refused rows · staff-2026-01.csv"
     list 3
-      item: text "Row 44 · no address" · text muted "Name present, email address missing." · action "Drop row"
+      item: text "Row 44 · no email" · text muted "Name present, email address missing." · action "Drop row"
 ```
 
 **Rationale:** Shopify shows an import with its failed rows and the reason per row, because a spreadsheet is never clean. Staff repair the refused rows without touching the rows that already went in.
@@ -398,7 +398,7 @@ page
   breadcrumb "Settings" "Data imports" "Register"
   header
     heading "Register import"
-    text "contacts-2026-01.csv · 1,222 rows · match the columns."
+    text "staff-2026-01.csv · 1,222 rows · match the columns."
     action primary "Import 1,222 rows"
   region "Column mapping"
     field "Voornaam" select = "First name"
@@ -407,7 +407,7 @@ page
     field "Opmerkingen" select = "Ignore"
 ```
 
-**Rationale:** Mailchimp matches spreadsheet columns to fields before importing, because the file's names never equal the system's. Each row pairs one column with one field and the back office corrects the guesses.
+**Rationale:** Mailchimp matches spreadsheet columns to fields before importing, because the file's names never equal the system's. Each row pairs one column with one field and finance corrects the guesses.
 
 **Cost:** A wide file means twenty mapping rows, so the page needs the unmatched columns first and the matched ones collapsed.
 
@@ -420,7 +420,7 @@ page
   breadcrumb "Settings" "Data imports" "Register"
   header
     heading "Register import"
-    text "Bring contacts, budget lines or consents from a spreadsheet."
+    text "Bring staff, budget lines or consents from a spreadsheet."
   split 1:1
     region "Upload the file"
       field "Drop the spreadsheet here" file
@@ -428,10 +428,10 @@ page
       action quiet "Choose file"
     region "Start from the template"
       list 3
-        item: text "Contacts template" · text muted "First name, last name, email, phone, consent" · action "Download"
+        item: text "Staff template" · text muted "First name, last name, email, phone, cost centre" · action "Download"
 ```
 
-**Rationale:** Intercom pairs the upload with the template download, because the file imports cleanly only when it starts from the template. The back office downloads, fills, and drops in one loop.
+**Rationale:** Intercom pairs the upload with the template download, because the file imports cleanly only when it starts from the template. Finance downloads, fills, and drops in one loop.
 
 **Cost:** The template covers one kind of import, so contacts, budget lines, and consents each need their own and the page lists three.
 
@@ -444,7 +444,7 @@ page
   breadcrumb "Settings" "Data imports" "Register"
   header
     heading "Register import"
-    text "contacts-2026-01.csv · dry run · nothing written yet."
+    text "staff-2026-01.csv · dry run · nothing written yet."
     action primary "Import 1,204 rows"
   row
     figure "Accepted" "1,204"
@@ -469,14 +469,14 @@ page
   header
     heading "Data imports"
     text "What was brought in from spreadsheets, and what came of it."
-  region "Refused rows · contacts-2026-01.csv"
+  region "Refused rows · staff-2026-01.csv"
     list 1
-      item: text "Row 207 · address already held" · text muted "maria@garcia-interiors.example is already a contact." · action primary "Repair"
+      item: text "Row 207 · email already held" · text muted "ava@harbor-pine.example is already on staff." · action primary "Repair"
   dialog "Repair row 207"
-    text "maria@garcia-interiors.example is already a contact. Importing again would create a duplicate."
-    field "First name" text = "Maria"
+    text "ava@harbor-pine.example is already on staff. Importing again would create a duplicate."
+    field "First name" text = "Ava"
     field "Phone" text
-    text muted "The contact holds no phone number. This fills it."
+    text muted "The record holds no phone number. This fills it."
     action "Update contact"
     action "Drop row"
 ```
@@ -496,16 +496,16 @@ page
     heading "Data imports"
     text "What was brought in from spreadsheets, and what came of it."
     action primary "Register import"
-  message "newsletter-consents.csv was refused. 312 rows carry no consent date." critical
+  message "payout-consents.csv was refused. 312 rows carry no consent date." critical
   region "Repair the file"
-    text "Add the date each address consented, then import again."
+    text "Add the date each employee consented, then import again."
     action "Download the template"
     action primary "Import again"
 ```
 
 **Rationale:** Customer.io refuses a consent file without proof, because consent cannot be assumed and the company pays the fine. The page states the rule and the repair instead of importing part of the file.
 
-**Cost:** Refusing the whole file for some bad rows discards the good ones too, so the back office fixes and re-imports rather than continuing.
+**Cost:** Refusing the whole file for some bad rows discards the good ones too, so finance fixes and re-imports rather than continuing.
 
 **Reference:** Customer.io
 
@@ -513,7 +513,7 @@ page
 
 **ID:** `litespec/frontend/patterns/admin-screens#connecting-the-payment-account`
 
-**Question:** Customer money arrives through the company payment account. Each refund reverses a charge that customer made. The company connects the account once. It chooses which methods customers may use. It reads what each method costs.
+**Question:** Reimbursements leave through the company payout account. Each payout sends an approved expense to its spender. The company connects the account once. It chooses which payout methods to offer. It reads what each method costs.
 
 **Default:** `connected-account-with-the-methods-below`
 
@@ -530,19 +530,19 @@ page
   breadcrumb "Settings" "Payments"
   header
     heading "Payments"
-    text "The account customers pay into, and what it costs."
+    text "The account payouts leave from, and what it costs."
     action "Refresh capabilities"
-  card "Stripe"
+  card "Example Bank"
     status "Connected" positive
-    fact "Account" "Acme Supply · acct_1H8K2M"
-    fact "Payouts go to" "NL20 INGB 0001 2345 67 · Acme Supply"
+    fact "Account" "Harbor and Pine · acct_1H8K2M"
+    fact "Paid from" "NL20 INGB 0001 2345 67 · Harbor and Pine"
     fact "Capabilities checked" "8 Oct 2026, 09:32 · all methods live"
-    fact "Refunds" "Against each customer's own charge"
+    fact "Reversals" "Against each payout, within five days"
     action "Replace account"
     action destructive "Disconnect"
   region "Payment methods"
     table 4 "Method" "Cost" "State"
-      item: text "Bank payments" · text "EUR 0.29 per payment" · status "Live" positive · action "Disable"
+      item: text "Bank payouts" · text "EUR 0.29 per payout" · status "Live" positive · action "Disable"
 ```
 
 **Rationale:** Stripe draws the connected account above the enabled methods, because methods depend on the connection. The card states the account, the payout bank, and when the capabilities were last refreshed.
@@ -558,12 +558,12 @@ page
   breadcrumb "Settings" "Payments"
   header
     heading "Payments"
-    text "Connect the account customers pay into."
-  region "Connect Stripe"
+    text "Connect the account payouts leave from."
+  region "Connect Example Bank"
     timeline 3
-      item: status "Done" positive · text "Sign in at Stripe" · text muted "Acme Supply authorized the connection on 8 Oct."
-    action primary "Continue with Stripe"
-    message "The product never holds funds. The processor holds them and the product records the reference." info
+      item: status "Done" positive · text "Sign in at Example Bank" · text muted "Harbor and Pine authorized the connection on 8 Oct."
+    action primary "Continue with Example Bank"
+    message "The product never holds funds. The bank holds them and the product records the reference." info
 ```
 
 **Rationale:** Stripe Connect onboards in named steps, because connecting means signing in at the provider, approving methods, and setting the payout bank. The steps name what is done and what is left.
@@ -583,7 +583,7 @@ page
     action "Refresh capabilities"
   region "Capabilities"
     list 5
-      item: text "Accept bank payments" · text muted "Live · refunds within 180 days" · status "Live" positive
+      item: text "Send bank payouts" · text muted "Live · reversible within 5 days" · status "Live" positive
 ```
 
 **Rationale:** Adyen shows each method with its capabilities and approval state, because a method can be connected but not yet live. The checklist names what works and what is still pending.
@@ -599,14 +599,14 @@ page
   breadcrumb "Settings" "Payments"
   header
     heading "Payments"
-    text "What each method costs on last month's orders."
+    text "What each method costs on last month's payouts."
     action primary "Change methods"
-  region "September · 3,412 payments · EUR 168,204.00 taken"
+  region "September · 3,412 payouts · EUR 168,204.00 paid"
     table 3 "Method" "Share" "Fee" "Cost"
-      item: text "Bank payments" · text "71%" · text "EUR 0.29 per payment" · text "EUR 702.47"
+      item: text "Bank payouts" · text "71%" · text "EUR 0.29 per payout" · text "EUR 702.47"
 ```
 
-**Rationale:** Mollie quotes each method with its fee in line, because the back office compares costs when choosing methods. The estimate grounds the percentages in last month's orders.
+**Rationale:** Mollie quotes each method with its fee in line, because finance compares costs when choosing methods. The estimate grounds the percentages in last month's payouts.
 
 **Cost:** An estimate from last month misleads when the next month sells differently, so the figures need their basis in the open.
 
@@ -619,20 +619,20 @@ page
   breadcrumb "Settings" "Payments"
   header
     heading "Payments"
-    text "The account customers pay into, and what it costs."
-  region "Stripe · Connected"
-    text "Acme Supply · payouts to NL20 INGB 0001 2345 67."
+    text "The account payouts leave from, and what it costs."
+  region "Example Bank · Connected"
+    text "Harbor and Pine · payouts from NL20 INGB 0001 2345 67."
     action destructive "Disconnect"
-  dialog "Disconnect Stripe"
-    text "New orders stop at once. Orders already paid stay paid and still ship."
-    fact "Money taken" "Stays with the provider · payouts continue"
-    fact "Refunds" "Paused until an account is connected"
-    fact "Refund window" "Keeps running while disconnected"
+  dialog "Disconnect Example Bank"
+    text "New payouts stop at once. Payouts already sent stay sent and still arrive."
+    fact "Money sent" "Stays sent · payouts continue"
+    fact "New payouts" "Paused until an account is connected"
+    fact "Approval queue" "Keeps growing while disconnected"
     action "Keep it connected"
     action destructive "Disconnect"
 ```
 
-**Rationale:** GitHub states the blast radius before a destructive command, which disconnecting is: new orders stop at once. The dialog names what stops, what continues, and what happens to money already taken.
+**Rationale:** GitHub states the blast radius before a destructive command, which disconnecting is: new payouts stop at once. The dialog names what stops, what continues, and what happens to money already taken.
 
 **Cost:** A heavy dialog for a rare command is weight carried always and used once, but the cost of an accidental disconnect justifies it.
 
@@ -645,17 +645,17 @@ page
   breadcrumb "Settings" "Payments"
   header
     heading "Payments"
-    text "The account customers pay into, and what it costs."
-  region "No payment account connected"
-    text "Customers cannot pay until Acme Supply connects its payment account."
+    text "The account payouts leave from, and what it costs."
+  region "No payout account connected"
+    text "Nobody is reimbursed until Harbor and Pine connects its payout account."
     text muted "Connecting takes about five minutes with the provider."
     action primary "Connect account"
-  region "Open the store"
-    message "Disabled until a payment account is connected." neutral
-    action disabled "Open the store for orders"
+  region "Pay approved expenses"
+    message "Disabled until a payout account is connected." neutral
+    action disabled "Send the payout run"
 ```
 
-**Rationale:** Stripe shows an empty payments state with the single command that fixes it, because nothing can be sold until the account exists. The state names the step, not the product.
+**Rationale:** Stripe shows an empty payments state with the single command that fixes it, because nobody can be paid until the account exists. The state names the step, not the product.
 
 **Cost:** The empty state cannot show methods or costs, so the back office connects without knowing what each method costs.
 
@@ -665,7 +665,7 @@ page
 
 **ID:** `litespec/frontend/patterns/admin-screens#supplier-invoice`
 
-**Question:** The supplier invoices the company each month. The invoice holds the plan, the fee per order, and the text-message cost. The company reads what each line charges. It downloads the invoice for the books. It pays by direct debit under its mandate.
+**Question:** Claimwick invoices the company each month. The invoice holds the plan, the fee per expense, and the text-message cost. The company reads what each line charges. It downloads the invoice for the books. It pays by direct debit under its mandate.
 
 **Default:** `invoice-sheet-with-its-lines`
 
@@ -683,11 +683,11 @@ page
   header
     heading "Invoice INV-2026-09"
     status "Paid" positive
-    text "Acme Supply · September 2026 · paid 3 Oct by direct debit."
+    text "Harbor and Pine · September 2026 · paid 3 Oct by direct debit."
     action "Download PDF"
   card "INV-2026-09 · issued 1 Oct 2026 · due 15 Oct"
     fact "Business plan · September" "EUR 49.00"
-    fact "3,412 orders · EUR 0.35 each" "EUR 1,194.20"
+    fact "3,412 expenses · EUR 0.35 each" "EUR 1,194.20"
     fact "812 text messages · EUR 0.08 each" "EUR 64.96"
     figure "Total · paid 3 Oct" "EUR 1,308.16"
     text muted "Paid by direct debit under mandate MND-8841."
@@ -706,11 +706,11 @@ page
   breadcrumb "Settings" "Billing" "Invoices"
   header
     heading "Invoices"
-    text "What Meridian charged Acme Supply."
+    text "What Claimwick charged Harbor and Pine."
     action primary "Change plan"
   region "Invoices"
     list 3
-      item: text "INV-2026-09 · September" · text muted "Business plan · 3,412 orders · 812 messages" · text "EUR 1,308.16" · status "Paid" positive · action "Open"
+      item: text "INV-2026-09 · September" · text muted "Business plan · 3,412 expenses · 812 messages" · text "EUR 1,308.16" · status "Paid" positive · action "Open"
 ```
 
 **Rationale:** Chargebee lists invoices with state and total in line, because the company asks which month is paid and which is open. The overdue row carries the retry date.
@@ -730,7 +730,7 @@ page
     action primary "Change plan"
   split 1:1
     region "Business plan · EUR 49.00 a month"
-      fact "Orders included" "1,000 a month · then EUR 0.35 each"
+      fact "Expenses included" "1,000 a month · then EUR 0.35 each"
       fact "Text messages" "EUR 0.08 each"
       fact "Team" "Unlimited members"
       action "Change plan"
@@ -754,7 +754,7 @@ page
   breadcrumb "Settings" "Billing" "Invoices" "October"
   header
     heading "INV-2026-10 · October so far"
-    text "Draft · 412 orders · issued 1 Nov."
+    text "Draft · 412 expenses · issued 1 Nov."
     action "Download draft"
   region "Usage"
     table 3 "Line" "Used" "Rate" "Amount"
@@ -774,7 +774,7 @@ page
   breadcrumb "Settings" "Billing" "Invoices" "INV-2026-09"
   header
     heading "Invoice INV-2026-09"
-    text "Acme Supply · September 2026."
+    text "Harbor and Pine · September 2026."
     action "Download PDF"
   message "The direct debit for EUR 1,308.16 failed. The next attempt is 10 Oct." critical
   region "Fix the payment"
@@ -801,21 +801,21 @@ page
     text "September · 812 text messages · EUR 64.96."
   region "Cost by kind"
     table 2 "Kind" "Sent" "Failed" "Cost"
-      item: text "Delivery codes" · text "604" · text "3" · text "EUR 48.32"
+      item: text "Approval reminders" · text "604" · text "3" · text "EUR 48.32"
     message "Mail is free and unlimited. Failed messages are not charged." info
 ```
 
-**Rationale:** Resend breaks message cost down by kind, because delivery codes and reminders fail at different rates. The company reads what each kind costs before the invoice arrives.
+**Rationale:** Resend breaks message cost down by kind, because reminders and payout notices fail at different rates. The company reads what each kind costs before the invoice arrives.
 
 **Cost:** Mail is free and text is metered, so one shared cost page mixes two different stories; the channels need either one page with both sections or a page each.
 
 **Reference:** Resend
 
-### Discount and Promotion Codes
+### Budget Codes and Advances
 
-**ID:** `litespec/frontend/patterns/admin-screens#discount-and-promotion-codes`
+**ID:** `litespec/frontend/patterns/admin-screens#budget-codes-and-advances`
 
-**Question:** A code takes money off an order. Each code has its own value, use limit, and dates. The company watches what each code costs. It retires what leaks. It issues new codes for partners and campaigns.
+**Question:** A code funds one trip against its budget. Each code has its own ceiling, claim limit, and dates. Finance watches what each code spends. It retires what leaks. It issues new codes for trips and projects.
 
 **Default:** `code-table-with-use-and-state`
 
@@ -823,26 +823,26 @@ page
 
 **Rationale:** The code table with usage and state is the best option. It shows value, use, and dates in one scan. Retiring a leaked code is one command on the row. The editor is the runner-up.
 
-Prefer it for creating a code with several conditions. Never ship the redemption-only list. Redemptions explain the past and the company manages the codes.
+Prefer it for creating a code with several conditions. Never ship the claims-only list. Claims explain the past and finance manages the codes.
 
-**Reviewed for:** Which built code table or redemption list breaks from the chosen wireframe? Open the built promotion screens beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Which built code table or claims list breaks from the chosen wireframe? Open the built budget screens beside the catalog entry recording the chosen option and its reason.
 
 #### `code-table-with-use-and-state`: Code Table with Use and State
 
 ```wireframe
 page
-  breadcrumb "Products" "Discounts"
+  breadcrumb "Finance" "Budgets"
   header
-    heading "Discounts"
-    text "Discount codes, automatic discounts and vouchers across the company."
+    heading "Budgets"
+    text "Budget codes, per-diem rates and advances across the company."
     action primary "Issue code"
-  tabs "Discount codes" "Automatic" "Vouchers"
+  tabs "Budget codes" "Per-diem" "Advances"
     region "Codes"
       table 4 "Code" "Value" "Used" "Valid" "State"
-        item: text "DESK10" · text "10% off" · text "412 of 500" · text "1 Feb to 14 Mar" · status "Active" positive · action "Open"
+        item: text "TRIP10" · text "EUR 500 cap" · text "412 of 500" · text "1 Feb to 14 Mar" · status "Active" positive · action "Open"
 ```
 
-**Rationale:** Shopify lists discount codes with uses and limits in line, because the back office asks what each code costs and whether it leaked. The state badge names what the code does now.
+**Rationale:** Shopify lists discount codes with uses and limits in line, because finance asks what each code spends and whether it leaked. The state badge names what the code does now.
 
 **Cost:** The conditions behind a code fit only as a second line. The code page holds the full rule.
 
@@ -852,71 +852,71 @@ page
 
 ```wireframe
 page
-  breadcrumb "Products" "Discounts" "DESK10"
+  breadcrumb "Finance" "Budgets" "TRIP10"
   header
-    heading "DESK10"
-    text "Discount code · 412 of 500 used."
+    heading "TRIP10"
+    text "Budget code · 412 of 500 claimed."
     action destructive "Retire"
     action primary "Save changes"
   split 1:1
     region "Value"
-      field "Type" select = "Percentage off"
-      field "Percentage" number = "10"
+      field "Type" select = "Fixed ceiling"
+      field "Ceiling" number = "500"
       field "Maximum uses" number = "500"
       field "Valid until" date = "14 Mar 2026"
     aside
       region "Summary"
-        fact "Takes off" "10% of the order total"
-        fact "Used" "412 of 500"
-        fact "Cost so far" "EUR 1,854.00"
+        fact "Ceiling" "EUR 500 per trip"
+        fact "Claimed" "412 of 500"
+        fact "Spent so far" "EUR 1,854.00"
         fact "State" "Active"
 ```
 
-**Rationale:** Shopify edits a discount as named condition blocks, which fits a code that applies to some products, some channels, and some dates. Each block reads as one sentence of the rule.
+**Rationale:** Shopify edits a discount as named condition blocks, which fits a code that funds some cost centres, some cities, and some dates. Each block reads as one sentence of the rule.
 
 **Cost:** The blocks take a long page, so the back office cannot check one code and move to the next without scrolling past every condition.
 
 **Reference:** Shopify
 
-#### `vouchers-with-their-balances`: Vouchers with Their Balances
+#### `vouchers-with-their-balances`: Advances with Their Balances
 
 ```wireframe
 page
-  breadcrumb "Products" "Discounts"
+  breadcrumb "Finance" "Budgets"
   header
-    heading "Discounts"
-    text "Discount codes, automatic discounts and vouchers across the company."
-    action primary "Issue voucher"
-  tabs "Discount codes" "Automatic" "Vouchers"
-    region "Vouchers"
+    heading "Budgets"
+    text "Budget codes, per-diem rates and advances across the company."
+    action primary "Issue advance"
+  tabs "Budget codes" "Per-diem" "Advances"
+    region "Advances"
       list 3
-        item: text "Voucher AC-2026-0117" · text muted "Issued to Maria Garcia · 6 Oct" · text "EUR 25.00 of EUR 25.00 left" · status "Unused" info · action "Open"
+        item: text "Advance AC-2026-0117" · text muted "Issued to Ava · 6 Oct" · text "EUR 25.00 of EUR 25.00 left" · status "Unused" info · action "Open"
 ```
 
-**Rationale:** Shopify draws gift cards as balances that spend down, because a voucher is money held for a later order. The balance, not the code, is the figure the company watches.
+**Rationale:** Shopify draws gift cards as balances that spend down, because an advance is money held for a later expense. The balance, not the code, is the figure the company watches.
 
-**Cost:** Vouchers and discount codes share little beyond the word code, so one list for both reads as two lists stapled together.
+**Cost:** Advances and budget codes share little beyond the word code, so one list for both reads as two lists stapled together.
 
 **Reference:** Shopify
 
-#### `redemptions-newest-first`: Redemptions, Newest First
+#### `redemptions-newest-first`: Claims, Newest First
 
 ```wireframe
 page
-  breadcrumb "Products" "Discounts" "DESK10"
+  breadcrumb "Finance" "Budgets" "TRIP10"
   header
-    heading "DESK10 redemptions"
-    text "412 uses · EUR 1,854.00 taken off · newest first."
+    heading "TRIP10 claims"
+    text "412 claims · EUR 1,854.00 claimed · newest first."
     action "Export"
-  region "Redemptions"
-    table 3 "Order" "Customer" "Used" "Taken off"
-      item: text "SO-1042" · text "Maria Garcia" · text "8 Oct 2026, 09:32" · text "EUR 9.00"
+  region "Claims"
+    table 3 "Expense" "Spender" "Claimed" "Funded"
+      item: text "EXP-1042" · text "Ava" · text "8 Oct 2026, 09:32" · text "EUR 9.00"
     text muted "1 to 3 of 412"
 ```
 
-**Rationale:** Shopify lists discount redemptions per order, which answers where a leaked code went. Each line ties one use to the order that used it.
+**Rationale:** Shopify lists discount redemptions per order, which answers where a leaked code went. Each line ties one claim to the expense that used it.
 
-**Cost:** Redemptions multiply into the hundreds, so the list needs the code as a filter and is a report rather than the page.
+**Cost:** Claims multiply into the hundreds, so the list needs the code as a filter and is a report rather than the page.
 
 **Reference:** Shopify
 
@@ -924,27 +924,27 @@ page
 
 ```wireframe
 page
-  breadcrumb "Products" "Discounts"
+  breadcrumb "Finance" "Budgets"
   header
-    heading "Discounts"
-    text "Discount codes, automatic discounts and vouchers across the company."
+    heading "Budgets"
+    text "Budget codes, per-diem rates and advances across the company."
   toolbar
     field "Search codes" search
   region "Codes"
     list 2
-      item: text "DESK10" · text muted "10% off · 412 of 500 used" · status "Active" positive
-  dialog "Issue discount code"
+      item: text "TRIP10" · text muted "EUR 500 cap · 412 of 500 claimed" · status "Active" positive
+  dialog "Issue budget code"
     field "Code" text = "PARTNER-"
-    field "Value" select = "10% off"
+    field "Ceiling" select = "EUR 500"
     field "Maximum uses" number = "100"
-    text muted "Letters, numbers and dashes. Customers type it at checkout."
+    text muted "Letters, numbers and dashes. Spenders type it when they claim."
     action "Cancel"
     action primary "Issue code"
 ```
 
-**Rationale:** Shopify issues a discount code from a short dialog, because a code for a partner is five fields and no conditions. The dialog keeps the list behind it for the names already taken.
+**Rationale:** Shopify issues a discount code from a short dialog, because a code for a trip is five fields and no conditions. The dialog keeps the list behind it for the names already taken.
 
-**Cost:** Conditions beyond value, limit, and dates do not fit, so a code with channel or product rules needs the full editor anyway.
+**Cost:** Conditions beyond value, limit, and dates do not fit, so a code with cost-centre or city rules needs the full editor anyway.
 
 **Reference:** Shopify
 
@@ -952,23 +952,23 @@ page
 
 ```wireframe
 page
-  breadcrumb "Products" "Discounts"
+  breadcrumb "Finance" "Budgets"
   header
-    heading "Discounts"
-    text "Discount codes, automatic discounts and vouchers across the company."
+    heading "Budgets"
+    text "Budget codes, per-diem rates and advances across the company."
   region "Codes"
     list 1
-      item: text "LEAKED20" · text muted "20% off · 1,890 of 200 used · posted on social media" · status "Active" positive · action destructive "Retire"
+      item: text "LEAKED20" · text muted "EUR 200 cap · 1,890 of 200 claimed · posted on social media" · status "Active" positive · action destructive "Retire"
   dialog "Retire LEAKED20"
-    text "1,890 orders used this code, 1,690 over its limit of 200. Retiring stops new uses at once."
-    fact "Cost so far" "EUR 17,010.00"
-    fact "Orders placed" "Keep their discount"
-    fact "New checkouts" "The code is refused"
-    action "Keep it on sale"
+    text "1,890 expenses used this code, 1,690 over its limit of 200. Retiring stops new claims at once."
+    fact "Spent so far" "EUR 17,010.00"
+    fact "Expenses filed" "Keep their funding"
+    fact "New claims" "The code is refused"
+    action "Keep it active"
     action destructive "Retire code"
 ```
 
-**Rationale:** GitHub retires a leaked secret with the blast radius stated, which is what a leaked code needs. The dialog states the uses, the cost, and what happens to orders already placed.
+**Rationale:** GitHub retires a leaked secret with the blast radius stated, which is what a leaked code needs. The dialog states the claims, the spend, and what happens to expenses already filed.
 
 **Cost:** A confirmation dialog per retirement slows staff who retire several codes after one leak.
 

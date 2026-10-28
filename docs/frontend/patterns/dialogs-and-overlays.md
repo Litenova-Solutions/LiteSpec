@@ -12,7 +12,7 @@ Each pattern answers one recurring question about floating layers, such as when 
 
 ### The Running Example
 
-The drawings on this page use the Acme Supply back office: the spring lighting launch with 1,204 pre-orders, orders such as SO-1042 for Maria Garcia, and the refund and note commands staff run on them. On this page, the reader is the staff member using the screen. The Standards section states the two rules every option keeps: a confirmation dialog labels its confirm action with the command it runs, and an overlay returns focus to the control that opened it.
+The drawings on this page use the Claimwick payout desk: the March payout run with 1,204 payouts, expenses such as EXP-1042 for Ava, and the reversal and note commands staff run on them. On this page, the reader is the staff member using the screen. The Standards section states the two rules every option keeps: a confirmation dialog labels its confirm action with the command it runs, and an overlay returns focus to the control that opened it.
 
 ## Standards
 
@@ -42,7 +42,7 @@ The drawings on this page use the Acme Supply back office: the spring lighting l
 
 **ID:** `litespec/frontend/patterns/dialogs-and-overlays#confirming-a-command-that-cannot-be-taken-back`
 
-**Question:** When does a command deserve a confirmation step? A launch cancellation cannot be taken back. A confirmation used on routine commands becomes a reflex click that protects nothing.
+**Question:** When does a command deserve a confirmation step? A payout-run cancellation cannot be taken back. A confirmation used on routine commands becomes a reflex click that protects nothing.
 
 **Default:** `name-the-object-state-the-consequence-offer-the-alternative`
 
@@ -58,19 +58,19 @@ Prefer the typed name only for the single most dangerous object in a deployment.
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Spring lighting launch"
+  breadcrumb "Home" "Payouts" "March payout run"
   header
-    heading "Spring lighting launch"
-    text "Sat 14 Mar 2026 at the Amsterdam warehouse. 1,204 pre-orders."
-    action "Move the launch"
-  dialog "Cancel the spring lighting launch?"
-    text "1,204 customers pre-ordered and will be told the launch is off."
-    fact "Refunds" "EUR 54,180.00 on the payment each customer used"
-    text "Two people on the warehouse plan will be told to stand down."
-    message "This cannot be undone. A canceled launch cannot be scheduled again." critical
-    link "Move the launch instead of canceling it"
-    action "Keep the launch"
-    action destructive "Cancel the launch"
+    heading "March payout run"
+    text "Pays Sat 14 Mar 2026. 1,204 payouts."
+    action "Move the run"
+  dialog "Cancel the March payout run?"
+    text "1,204 spenders await payout and will be told the run is off."
+    fact "Held" "EUR 54,180.00 back in the March budget"
+    text "Two people on the payout rota will be told to stand down."
+    message "This cannot be undone. A canceled run cannot be scheduled again." critical
+    link "Move the run instead of canceling it"
+    action "Keep the run"
+    action destructive "Cancel the run"
 ```
 
 **Rationale:** The MOJ pattern: title asks, body states what it is and what happens, and the safe way out is in the same dialog. The commit button repeats the verb, as Carbon asks.
@@ -79,20 +79,20 @@ page
 
 **Reference:** MOJ
 
-#### `type-the-launch-name-to-confirm`: Type the Launch Name to Confirm
+#### `type-the-launch-name-to-confirm`: Type the Run Name to Confirm
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Spring lighting launch"
+  breadcrumb "Home" "Payouts" "March payout run"
   header
-    heading "Spring lighting launch"
-    text "Sat 14 Mar 2026 at the Amsterdam warehouse. 1,204 pre-orders."
-  dialog "Cancel this launch for good?"
-    text "1,204 customers will be refunded EUR 54,180.00 and told the launch is off."
+    heading "March payout run"
+    text "Pays Sat 14 Mar 2026. 1,204 payouts."
+  dialog "Cancel this run for good?"
+    text "1,204 spenders will be told the run is off; EUR 54,180.00 stays in the budget."
     message "This cannot be undone." critical
-    field "Type the launch name to confirm" text = "Spring lighting launch"
-    action "Keep the launch"
-    action disabled "Cancel the launch"
+    field "Type the run name to confirm" text = "March payout run"
+    action "Keep the run"
+    action disabled "Cancel the run"
 ```
 
 **Rationale:** Typing guards the single most dangerous object in a deployment. The expected string stays visible on screen. The commit button stays disabled until the typed name matches it.
@@ -105,20 +105,20 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Spring lighting launch"
+  breadcrumb "Home" "Payouts" "March payout run"
   header
-    heading "Spring lighting launch"
+    heading "March payout run"
     status "Canceled" neutral
-    text "Canceled at 14:22. 1,204 customers have been told."
-  region "Refunds"
-    fact "Sent" "EUR 54,180.00 on the payment each customer used"
+    text "Canceled at 14:22. 1,204 spenders have been told."
+  region "Budget"
+    fact "Returned" "EUR 54,180.00 to the March budget"
     fact "Messages" "1,204 sent at 14:22"
-  toast "Launch canceled at 14:22. Undo stays until dismissed." critical
+  toast "Run canceled at 14:22. Undo stays until dismissed." critical
 ```
 
 **Rationale:** The command runs and a toast names what happened with an Undo that stays until it is dismissed. Carbon keeps an action-bearing toast on screen for exactly that reason.
 
-**Cost:** On money this trains the reflex the confirmation exists to prevent. An Undo on a refund is a second refund command rather than a reversal of the first.
+**Cost:** On money this trains the reflex the confirmation exists to prevent. An Undo on a reversal is a second reversal command rather than a reversal of the first.
 
 **Reference:** Carbon
 
@@ -126,17 +126,17 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Spring lighting launch" "Cancel"
+  breadcrumb "Home" "Payouts" "March payout run" "Cancel"
   header
-    heading "Cancel the spring lighting launch?"
-    text "Sat 14 Mar 2026 at the Amsterdam warehouse."
+    heading "Cancel the March payout run?"
+    text "Pays Sat 14 Mar 2026."
   region "What happens if you do"
-    text "1,204 customers are refunded EUR 54,180.00 on the payment each one used."
-    text "Every customer gets a message saying the launch is off."
-    text "Two people on the warehouse plan are told to stand down."
-    message "This cannot be undone. A canceled launch cannot be scheduled again." critical
+    text "1,204 spenders keep EUR 54,180.00 of approved expenses."
+    text "Every spender gets a message saying the run is off."
+    text "Two people on the payout rota are told to stand down."
+    message "This cannot be undone. A canceled run cannot be scheduled again." critical
     action "Go back and keep it"
-    action destructive "Yes, cancel the launch"
+    action destructive "Yes, cancel the run"
 ```
 
 **Rationale:** For the most serious and irreversible action, leave the page entirely. The new page says what will be lost and offers the way back as a link.
@@ -149,23 +149,23 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "SO-1042"
+  breadcrumb "Home" "Expenses" "EXP-1042"
   header
-    heading "SO-1042"
+    heading "EXP-1042"
     status "Paid" positive
-    text "Maria Garcia of Garcia Interiors. Oak desk lamp, 2 lamps."
-    action "Refund"
+    text "Ava of Harbor and Pine. Train fare, 2 fares."
+    action "Reverse"
   region "What was bought"
-    fact "Two lamps" "EUR 90.00"
-    fact "Shipping" "EUR 5.00"
-    fact "Paid by the customer" "EUR 125.00"
-  dialog "Refund SO-1042 in full?"
-    fact "Lamps and extras" "EUR 125.00"
-    fact "Goes back to Maria Garcia" "EUR 125.00"
-    message "The two lamps go back to stock and sell again. Gift wrap is not refunded." neutral
-    action "Refund part of it"
+    fact "Two fares" "EUR 90.00"
+    fact "Booking fee" "EUR 5.00"
+    fact "Paid to the spender" "EUR 125.00"
+  dialog "Reverse EXP-1042 in full?"
+    fact "Fares and extras" "EUR 125.00"
+    fact "Returns from Ava" "EUR 125.00"
+    message "The two fares go back to drafts and claim again. Personal item is not reversed." neutral
+    action "Reverse part of it"
     action "Cancel"
-    action destructive "Refund in full"
+    action destructive "Reverse in full"
 ```
 
 **Rationale:** Where a command changes money, the dialog shows the money. This is the strongest form of the pattern: the reader sees the number before committing to it.
@@ -176,17 +176,17 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Spring lighting launch"
+  breadcrumb "Home" "Payouts" "March payout run"
   header
-    heading "Spring lighting launch"
-    text "Sat 14 Mar 2026 at the Amsterdam warehouse."
-    action "Cancel the launch"
-  dialog "This launch cannot be canceled yet"
-    text "Two packing lines are still running on the warehouse plan."
-    fact "Packing lines running" "2, since 08:00"
-    fact "Parcels picked" "184 this morning"
-    message "Close the lines first, then cancel the launch." neutral
-    action disabled "Cancel the launch"
+    heading "March payout run"
+    text "Pays Sat 14 Mar 2026."
+    action "Cancel the run"
+  dialog "This run cannot be canceled yet"
+    text "Two approval lines are still running on the payout rota."
+    fact "Approval lines running" "2, since 08:00"
+    fact "Receipts scanned" "184 this morning"
+    message "Close the lines first, then cancel the run." neutral
+    action disabled "Cancel the run"
     action primary "Close the lines first"
 ```
 
@@ -200,21 +200,21 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Spring lighting launch"
+  breadcrumb "Home" "Payouts" "March payout run"
   header
-    heading "Spring lighting launch"
-    text "Sat 14 Mar 2026 at the Amsterdam warehouse. 1,204 pre-orders."
-  dialog "Cancel the spring lighting launch?"
+    heading "March payout run"
+    text "Pays Sat 14 Mar 2026. 1,204 payouts."
+  dialog "Cancel the March payout run?"
     text "Tick every line to show each consequence was read."
-    field "Every customer is told the launch is off" checkbox
-    field "Each customer gets back what they paid" checkbox
+    field "Every spender is told the run is off" checkbox
+    field "Each spender keeps their approved expenses" checkbox
     field "The record stays and says what happened" checkbox
     message "This cannot be undone." critical
-    action "Keep the launch"
-    action destructive disabled "Cancel the launch"
+    action "Keep the run"
+    action destructive disabled "Cancel the run"
 ```
 
-**Rationale:** Safer destructive action. The commit button stays disabled until the reader ticks every consequence line. Unlike typing one name, ticking forces the eye across each line, so the refund route and the record-keeping are each acknowledged.
+**Rationale:** Safer destructive action. The commit button stays disabled until the reader ticks every consequence line. Unlike typing one name, ticking forces the eye across each line, so the reversal route and the record-keeping are each acknowledged.
 
 **Cost:** Three checkboxes for one command is the heaviest confirmation in this pattern. Past one object per deployment it becomes the reflex click the pattern exists to break.
 
@@ -222,21 +222,21 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Spring lighting launch"
+  breadcrumb "Home" "Payouts" "March payout run"
   header
-    heading "Spring lighting launch"
-    text "Sat 14 Mar 2026 at the Amsterdam warehouse. 1,204 pre-orders."
-  region "The launch"
+    heading "March payout run"
+    text "Pays Sat 14 Mar 2026. 1,204 payouts."
+  region "The run"
     fact "State" "Scheduled"
-    fact "Pre-orders" "1,204"
-    fact "Refunds if canceled" "EUR 54,180.00"
-  dialog "Cancel the spring lighting launch?"
-    message "1,204 customers get their money back, with a message saying the launch is off." critical
-    action primary "Keep the launch"
-    action destructive "Cancel the launch"
+    fact "Payouts" "1,204"
+    fact "Held if canceled" "EUR 54,180.00"
+  dialog "Cancel the March payout run?"
+    message "1,204 spenders keep their approved expenses, with a message saying the run is off." critical
+    action primary "Keep the run"
+    action destructive "Cancel the run"
 ```
 
-**Rationale:** One consequence in plain words, a danger icon, and focus on the safe action so Enter keeps the launch. Less copy than the name-the-object option, with the same protection.
+**Rationale:** One consequence in plain words, a danger icon, and focus on the safe action so Enter keeps the run. Less copy than the name-the-object option, with the same protection.
 
 **Cost:** One consequence means the other two move to the page or disappear. Where the money figure matters, the dialog with the consequence as numbers still wins because the reader never sees the amount here.
 
@@ -262,17 +262,17 @@ Prefer the page once a command carries five inputs. Never ship a dialog over a d
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "SO-1042"
+  breadcrumb "Home" "Expenses" "EXP-1042"
   header
-    heading "SO-1042"
+    heading "EXP-1042"
     status "Paid" positive
-    text "3 lines for Garcia Interiors. Placed 8 Oct 2026, 09:32."
+    text "3 lines for Harbor and Pine. Submitted 8 Oct 2026, 09:32."
   region "Notes"
     list 1
-      item: text "Garcia Interiors confirmed the Friday window" · text muted "Alex Morgan, 2 Oct 2026"
+      item: text "Harbor and Pine approved the Friday trip" · text muted "Cara, 2 Oct 2026"
   dialog "Add a note"
     field "Note" textarea
-    field "About" select = "The customer"
+    field "About" select = "The spender"
     action "Cancel"
     action primary "Add the note"
 ```
@@ -285,15 +285,15 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "SO-1042" "Warehouse" "Incidents" "New"
+  breadcrumb "Home" "Expenses" "EXP-1042" "Trip" "Incidents" "New"
   header
     heading "Record an incident"
-    text "What happened at the warehouse, in plain words."
+    text "What happened on the trip, in plain words."
   region "What happened"
     field "What happened" textarea
     field "When" text = "14/03/2026 22:41"
-    field "Where" select = "Loading bay 1"
-    field "Who was involved" select = "A driver, named below"
+    field "Where" select = "Rotterdam office"
+    field "Who was involved" select = "A colleague, named below"
     field "Who decided" text
     action "Cancel"
     action primary "Record it"
@@ -307,18 +307,18 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Stock count"
+  breadcrumb "Home" "Expenses" "Receipt count"
   header
-    heading "Stock count"
-    text "Sat 14 Mar 2026 at the Amsterdam warehouse."
+    heading "Receipt count"
+    text "Sat 14 Mar 2026 at the Rotterdam office."
     action "Invite people to the count"
   region "Counters"
     list 1
-      item: text "Chris Novak" · text muted "Warehouse lead"
+      item: text "Ben" · text muted "Finance lead"
   dialog "Invite people to the count"
     list 3
-      item: text "Chris Novak" · text muted "Warehouse lead"
-    field "What they will do" textarea = "Count the lighting stock from 21:00."
+      item: text "Ben" · text muted "Finance lead"
+    field "What they will do" textarea = "Count the meal receipts from 21:00."
     field "When they are needed" text = "14/03/2026 21:00"
     text muted "Invitations go by email and run out on 22 Mar."
     action "Cancel"
@@ -335,15 +335,15 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Settings" "Storefront"
+  breadcrumb "Home" "Settings" "Portal"
   header
-    heading "Storefront"
-    text "The logo customers see."
+    heading "Portal"
+    text "The logo spenders see."
   region "Logo"
     field "Drop a logo here or choose a file" file
     text muted "A square image of at most 2 MB."
   dialog "That file is not an image"
-    text "acme-supply-logo.psd is a design file. The storefront takes JPEG, PNG or WebP."
+    text "harbor-pine-logo.psd is a design file. The portal takes JPEG, PNG or WebP."
     action "Try another file"
     action "Cancel"
 ```
@@ -358,18 +358,18 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "Refunds"
+  breadcrumb "Home" "Expenses" "Reversals"
   header
-    heading "Refunds"
-    text "31 orders to decide. Ade Okafor paid EUR 45.00."
+    heading "Reversals"
+    text "31 expenses to decide. Ade Okafor spent EUR 45.00."
   toolbar
-    field "Search refunds" search
+    field "Search reversals" search
     field "Window" select = "Any window"
-  table 4 "Order" "Customer" "Amount" "Command"
-    item: field "Refund amount for SO-1035" text = "45.00" · field "Route" select = "Credit for a future order" · action "Cancel" · action primary "Offer credit"
+  table 4 "Expense" "Spender" "Amount" "Command"
+    item: field "Reversal amount for EXP-1035" text = "45.00" · field "Route" select = "Deduction from the next payout" · action "Cancel" · action primary "Apply deduction"
   region "The rest of the queue"
     list 4
-      item: text "SO-1037" · text muted "Elin Lindqvist" · status "No route" critical · text "EUR 45.00"
+      item: text "EXP-1037" · text muted "Elin Lindqvist" · status "No route" critical · text "EUR 45.00"
 ```
 
 **Rationale:** Where the command repeats, the task is completable on the main page rather than in a modal. An inline row becomes an editing row, which is where a repeatable task belongs.
@@ -382,16 +382,16 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "SO-1042" "Parcels"
+  breadcrumb "Home" "Expenses" "EXP-1042" "Receipts"
   header
-    heading "SO-1042"
-    text "Two parcels, neither collected."
-  region "Parcels"
+    heading "EXP-1042"
+    text "Two receipts, neither attached."
+  region "Receipts"
     list 1
-      item: text "PU-0C893968A2" · text muted "Oak desk lamp, 2 units" · status "Not collected" neutral
+      item: text "RC-0C893968A2" · text muted "Train fare, 2 fares" · status "Not attached" neutral
   dialog "Void this pickup code"
-    message "Voiding replaces the code. Maria Garcia must be sent a new one." caution
-    field "Send Maria Garcia the replacement now" checkbox
+    message "Voiding replaces the code. Ava must be sent a new one." caution
+    field "Send Ava the replacement now" checkbox
     field "Keep the reason on the record" checkbox
     action "Cancel"
     action destructive "Void and replace"
@@ -407,23 +407,23 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "SO-1042"
+  breadcrumb "Home" "Expenses" "EXP-1042"
   header
-    heading "SO-1042"
+    heading "EXP-1042"
     status "Paid" positive
-    text "3 lines for Garcia Interiors. Placed 8 Oct 2026, 09:32."
+    text "3 lines for Harbor and Pine. Submitted 8 Oct 2026, 09:32."
   region "Notes"
     list 2
-      item: text "Garcia Interiors confirmed the Friday window" · text muted "Alex Morgan, 2 Oct 2026"
+      item: text "Harbor and Pine approved the Friday trip" · text muted "Cara, 2 Oct 2026"
   dialog "Add a note"
     field "Note" textarea
-    field "About" select = "The customer"
+    field "About" select = "The spender"
     field "Add another after this" checkbox
     action "Cancel"
     action primary "Add the note"
 ```
 
-**Rationale:** Five notes cost five dialogs and zero navigation: a checkbox in the dialog keeps it open for repeat entry. It suits warehouse logging, where notes arrive in bursts.
+**Rationale:** Five notes cost five dialogs and zero navigation: a checkbox in the dialog keeps it open for repeat entry. It suits receipt logging, where notes arrive in bursts.
 
 **Cost:** A dialog that stays open hides the list it appends to, so the reader cannot see the note land. Past three repeats in a row, the task belongs on the page instead.
 
@@ -433,17 +433,17 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "SO-1042"
+  breadcrumb "Home" "Expenses" "EXP-1042"
   header
-    heading "SO-1042"
+    heading "EXP-1042"
     status "Paid" positive
-    text "3 lines for Garcia Interiors. Placed 8 Oct 2026, 09:32."
+    text "3 lines for Harbor and Pine. Submitted 8 Oct 2026, 09:32."
   region "Notes"
     list 1
-      item: text "Garcia Interiors confirmed the Friday window" · text muted "Alex Morgan, 2 Oct 2026"
-  dialog "Add a note to SO-1042"
+      item: text "Harbor and Pine approved the Friday trip" · text muted "Cara, 2 Oct 2026"
+  dialog "Add a note to EXP-1042"
     field "Note text" text = "note: bay 2 opens at"
-    action quiet "Save as a note on SO-1042"
+    action quiet "Save as a note on EXP-1042"
     action quiet "Save and add another"
     action quiet "Open the full notes page"
     text muted "Esc closes without saving."
@@ -467,7 +467,7 @@ page
 
 **Rationale:** Keep the read-only record beside the list. The list keeps its scroll and its filters while the record reads beside it, and nothing in the drawer is editable. Below 768 px the drawer becomes a full screen with a Back.
 
-Prefer the tabbed drawer when support compares refunds across facts, history, and messages. Never ship the filter drawer. Filters belong in the toolbar, and a drawer over the results hides the list the filters describe.
+Prefer the tabbed drawer when support compares reversals across facts, history, and messages. Never ship the filter drawer. Filters belong in the toolbar, and a drawer over the results hides the list the filters describe.
 
 **Reviewed for:** Which built side preview departs from the wireframe its catalog entry chose? Open the built drawer variants over and next to the list, with the catalog entry recording the chosen option and its reason.
 
@@ -475,22 +475,22 @@ Prefer the tabbed drawer when support compares refunds across facts, history, an
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders. Select a row to read it here."
+    heading "Expenses"
+    text "268 expenses. Select a row to read it here."
   toolbar
-    field "Search orders" search
+    field "Search expenses" search
     field "State" select = "Any state"
-  table 3 "Order" "Customer" "Paid"
-    item: text "SO-1042" · text "Maria Garcia" · text "EUR 125.00"
-  drawer right "SO-1042"
+  table 3 "Expense" "Spender" "Paid"
+    item: text "EXP-1042" · text "Ava" · text "EUR 125.00"
+  drawer right "EXP-1042"
     status "Paid" positive
-    fact "Customer" "Maria Garcia"
-    fact "Placed" "8 Oct 2026, 09:32"
+    fact "Spender" "Ava"
+    fact "Submitted" "8 Oct 2026, 09:32"
     fact "Paid" "EUR 125.00"
-    fact "Lines" "3, none shipped"
-    action "Resend the confirmation"
+    fact "Lines" "3, none approved"
+    action "Resend the receipt"
     link "Open the full record"
 ```
 
@@ -504,23 +504,23 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders. Select a row to read it over the list."
+    heading "Expenses"
+    text "268 expenses. Select a row to read it over the list."
   toolbar
-    field "Search orders" search
+    field "Search expenses" search
     field "State" select = "Any state"
-  table 3 "Order" "Customer" "Paid"
-    item: text "SO-1042" · text "Maria Garcia" · text "EUR 125.00"
-  drawer right "SO-1042"
+  table 3 "Expense" "Spender" "Paid"
+    item: text "EXP-1042" · text "Ava" · text "EUR 125.00"
+  drawer right "EXP-1042"
     status "Paid" positive
-    text "Maria Garcia of Garcia Interiors. Placed 8 Oct 2026, 09:32."
-    fact "Method" "Card"
+    text "Ava of Harbor and Pine. Submitted 8 Oct 2026, 09:32."
+    fact "Method" "Bank transfer"
     fact "Paid" "EUR 125.00"
-    fact "Lines" "3, none shipped"
-    fact "Refunds" "None"
-    action "Resend the confirmation"
+    fact "Lines" "3, none approved"
+    fact "Reversals" "None"
+    action "Resend the receipt"
     action primary "Open the record"
 ```
 
@@ -534,17 +534,17 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders. Select a row to change one thing."
+    heading "Expenses"
+    text "268 expenses. Select a row to change one thing."
   toolbar
-    field "Search orders" search
-  table 3 "Order" "Customer" "State"
-    item: text "SO-1042" · text "Maria Garcia" · status "Paid" positive
-  drawer right "SO-1042"
+    field "Search expenses" search
+  table 3 "Expense" "Spender" "State"
+    item: text "EXP-1042" · text "Ava" · status "Paid" positive
+  drawer right "EXP-1042"
     heading small "Change one thing"
-    text "The customer order is not affected."
+    text "The spender's expense is not affected."
     field "Internal state" select = "Calling back"
     field "Note" textarea
     action "Cancel"
@@ -561,19 +561,19 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "12 orders match. 2 filters applied."
+    heading "Expenses"
+    text "12 expenses match. 2 filters applied."
   toolbar
-    field "Search orders" search
+    field "Search expenses" search
     action "Filters"
-  table 3 "Order" "Customer" "Paid"
-    item: text "SO-1042" · text "Maria Garcia" · text "EUR 125.00"
+  table 3 "Expense" "Spender" "Paid"
+    item: text "EXP-1042" · text "Ava" · text "EUR 125.00"
   drawer right "Filters"
-    text "2 applied. 12 orders match."
-    field "Search" text = "lamp"
-    field "Product" select = "Oak desk lamp"
+    text "2 applied. 12 expenses match."
+    field "Search" text = "fare"
+    field "Line" select = "Train fare"
     field "State" select = "Paid"
     field "Date" text = "01/10/2026"
     action quiet "Clear both"
@@ -590,26 +590,26 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders. Open a row to read it beside the list."
+    heading "Expenses"
+    text "268 expenses. Open a row to read it beside the list."
   toolbar
-    field "Search orders" search
-  table 3 "Order" "Customer" "Paid"
-    item: text "SO-1042" · text "Maria Garcia" · text "EUR 125.00"
-  drawer right "Lines of SO-1042"
-    fact "Oak desk lamp, 2 units" "EUR 90.00"
-    fact "Shipping" "EUR 5.00"
-    fact "Gift wrap" "EUR 30.00"
+    field "Search expenses" search
+  table 3 "Expense" "Spender" "Paid"
+    item: text "EXP-1042" · text "Ava" · text "EUR 125.00"
+  drawer right "Lines of EXP-1042"
+    fact "Train fare, 2 fares" "EUR 90.00"
+    fact "Booking fee" "EUR 5.00"
+    fact "Personal item" "EUR 30.00"
     timeline 3
-      item: text "Paid by card" · text muted "8 Oct 2026, 09:34"
+      item: text "Paid by bank transfer" · text muted "8 Oct 2026, 09:34"
     link "Open the full record"
 ```
 
-**Rationale:** The row's second line opens in a drawer rather than navigating. That is cheap for a reader comparing two orders, and it keeps the scroll position and the filters.
+**Rationale:** The row's second line opens in a drawer rather than navigating. That is cheap for a reader comparing two expenses, and it keeps the scroll position and the filters.
 
-**Cost:** PatternFly's own guidance reserves `primary-detail` for comparing a short list of the same type, and requires a selected state and a close control. On 268 orders the comparison is rarer than the navigation.
+**Cost:** PatternFly's own guidance reserves `primary-detail` for comparing a short list of the same type, and requires a selected state and a close control. On 268 expenses the comparison is rarer than the navigation.
 
 **Reference:** PatternFly
 
@@ -617,21 +617,21 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "SO-1042"
+  breadcrumb "Home" "Expenses" "EXP-1042"
   header
-    heading "SO-1042"
+    heading "EXP-1042"
     status "Paid" positive
-    text "Maria Garcia of Garcia Interiors. Placed 8 Oct 2026, 09:32."
-    action "Back to all orders"
-  region "The customer"
-    fact "Name" "Maria Garcia"
-    fact "Email" "maria@garcia-interiors.example"
+    text "Ava of Harbor and Pine. Submitted 8 Oct 2026, 09:32."
+    action "Back to all expenses"
+  region "The spender"
+    fact "Name" "Ava"
+    fact "Email" "ava@harbor-pine.example"
   region "What was bought"
-    fact "Oak desk lamp, 2 lamps" "EUR 90.00"
-    fact "Shipping" "EUR 5.00"
+    fact "Train fare, 2 fares" "EUR 90.00"
+    fact "Booking fee" "EUR 5.00"
     fact "Paid" "EUR 125.00"
   footer sticky
-    action primary "Message the customer"
+    action primary "Message the spender"
 ```
 
 **Rationale:** At 390 pixels there is no room for beside, so the drawer takes the screen and Back returns to the list at the same scroll position.
@@ -642,26 +642,26 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders. Select a row to read it here."
+    heading "Expenses"
+    text "268 expenses. Select a row to read it here."
   toolbar
-    field "Search orders" search
-  table 3 "Order" "Customer" "Paid"
-    item: text "SO-1042" · text "Maria Garcia" · text "EUR 125.00"
-  drawer right "SO-1042"
+    field "Search expenses" search
+  table 3 "Expense" "Spender" "Paid"
+    item: text "EXP-1042" · text "Ava" · text "EUR 125.00"
+  drawer right "EXP-1042"
     status "Paid" positive
-    text "Maria Garcia of Garcia Interiors."
+    text "Ava of Harbor and Pine."
     tabs "Record" "History" "Messages"
       region "History"
         timeline 3
-          item: text "Confirmation resent" · text muted "8 Oct 2026, 11:02" · text muted "Jordan Lee"
-    action "Resend the confirmation"
+          item: text "Receipt resent" · text muted "8 Oct 2026, 11:02" · text muted "Eli"
+    action "Resend the receipt"
     action primary "Open the record"
 ```
 
-**Rationale:** The way Linear layers its peek view: the row stays selected behind while tabs divide facts from history. Three views in one drawer beat three navigations when support compares refunds.
+**Rationale:** The way Linear layers its peek view: the row stays selected behind while tabs divide facts from history. Three views in one drawer beat three navigations when support compares reversals.
 
 **Cost:** Tabs inside a drawer are two navigations deep on one screen. Readers lose track of which tab held the fact they half-read, and the Back control has two jobs.
 
@@ -671,22 +671,22 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders. Select a row to read it here."
+    heading "Expenses"
+    text "268 expenses. Select a row to read it here."
   toolbar
-    field "Search orders" search
-  table 3 "Order" "Customer" "Paid"
-    item: text "SO-1042" · text "Maria Garcia" · text "EUR 125.00"
-  drawer right "SO-1042"
+    field "Search expenses" search
+  table 3 "Expense" "Spender" "Paid"
+    item: text "EXP-1042" · text "Ava" · text "EUR 125.00"
+  drawer right "EXP-1042"
     status "Paid" positive
-    fact "Placed" "8 Oct 2026, 09:32"
-    fact "Method" "Card"
+    fact "Submitted" "8 Oct 2026, 09:32"
+    fact "Method" "Bank transfer"
     fact "Paid" "EUR 125.00"
-    fact "Lines" "3, none shipped"
+    fact "Lines" "3, none approved"
     text muted "Drag the left edge to widen. The width is kept for this browser."
-    action "Resend the confirmation"
+    action "Resend the receipt"
     action primary "Open the record"
 ```
 
@@ -716,16 +716,16 @@ Never ship two actions on one toast. Two buttons turn a transient message into a
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders. 3 confirmations resent."
+    heading "Expenses"
+    text "268 expenses. 3 receipts resent."
   toolbar
-    field "Search orders" search
+    field "Search expenses" search
     field "State" select = "Any state"
-  table 4 "Order" "Customer" "State" "Paid"
-    item: text "SO-1042" · text "Maria Garcia" · status "Paid" positive · text "EUR 125.00"
-  toast "Confirmations resent to 3 customers." positive
+  table 4 "Expense" "Spender" "State" "Paid"
+    item: text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
+  toast "Receipts resent to 3 spenders." positive
 ```
 
 **Rationale:** It carries no action, so it can leave on its own. Base UI's default timeout is 5,000 milliseconds, and nothing is lost by it going.
@@ -738,16 +738,16 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders. 3 selected for resending."
+    heading "Expenses"
+    text "268 expenses. 3 selected for resending."
   toolbar
-    field "Search orders" search
+    field "Search expenses" search
     field "State" select = "Any state"
-  table 4 "Order" "Customer" "State" "Paid"
-    item: text "SO-1042" · text "Maria Garcia" · status "Paid" positive · text "EUR 125.00"
-  toast "Confirmations resent to 3 customers. Undo stays until dismissed." positive
+  table 4 "Expense" "Spender" "State" "Paid"
+    item: text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
+  toast "Receipts resent to 3 spenders. Undo stays until dismissed." positive
 ```
 
 **Rationale:** The toast carries one action and persists until it is dismissed, which is Carbon's rule for an actionable notification. Undo is the action, and nothing else competes for it.
@@ -760,15 +760,15 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders. 3 selected for resending."
+    heading "Expenses"
+    text "268 expenses. 3 selected for resending."
   message "2 of the 3 confirmations could not be resent. Elin Lindqvist and Ade Okafor asked for no messages." critical
   toolbar
-    field "Search orders" search
-  table 4 "Order" "Customer" "State" "Paid"
-    item: text "SO-1042" · text "Maria Garcia" · status "Paid" positive · text "EUR 125.00"
+    field "Search expenses" search
+  table 4 "Expense" "Spender" "State" "Paid"
+    item: text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
 ```
 
 **Rationale:** The same slot holds a refusal, to show why a failure must not be transient. An alert sits on the page and stays until the command succeeds.
@@ -781,15 +781,15 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Standard tier"
+  breadcrumb "Home" "Budgets" "Travel budget"
   header
-    heading "Standard tier"
-    text "9,412 units sold and all shipped."
-  region "The tier"
-    fact "Sold" "9,412 of 10,000"
-    fact "Shipped" "9,380"
-    fact "Unshipped" "32"
-  toast "The price tier was closed. Undo and Dismiss are both on this message." caution
+    heading "Travel budget"
+    text "9,412 lines claimed and all paid."
+  region "The budget"
+    fact "Claimed" "9,412 of 10,000"
+    fact "Paid" "9,380"
+    fact "Unpaid" "32"
+  toast "The budget was closed. Undo and Dismiss are both on this message." caution
 ```
 
 **Rationale:** The toast offers Undo and Dismiss together, which is the shape most people reach for first.
@@ -802,15 +802,15 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders."
+    heading "Expenses"
+    text "268 expenses."
     action "Export"
   toolbar
-    field "Search orders" search
-  table 2 "Order" "Customer"
-    item: text "SO-1042" · text "Maria Garcia"
+    field "Search expenses" search
+  table 2 "Expense" "Spender"
+    item: text "EXP-1042" · text "Ava"
   toast "Your export is ready. Download is only on this message." positive
 ```
 
@@ -824,17 +824,17 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "Refunds"
+  breadcrumb "Home" "Expenses" "Reversals"
   header
-    heading "Refunds"
-    text "31 orders. 25 selected."
+    heading "Reversals"
+    text "31 expenses. 25 selected."
   toolbar
-    field "Search refunds" search
-  table 4 "Order" "Customer" "State" "Amount"
-    item: text "SO-1042" · text "Maria Garcia" · status "Open" neutral · text "EUR 90.00"
-  toast "12 refunds offered as credit." positive
-  toast "3 customers emailed." positive
-  toast "1 refund was refused by the bank." caution
+    field "Search reversals" search
+  table 4 "Expense" "Spender" "State" "Amount"
+    item: text "EXP-1042" · text "Ava" · status "Open" neutral · text "EUR 90.00"
+  toast "12 reversals taken as deductions." positive
+  toast "3 spenders emailed." positive
+  toast "1 reversal was refused by the bank." caution
 ```
 
 **Rationale:** Three toasts stack at the bottom edge, so several commands in quick succession each say what they did. Base UI caps the viewport at three.
@@ -847,15 +847,15 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders."
+    heading "Expenses"
+    text "268 expenses."
     action "Export"
   region "Latest exports"
     list 2
-      item: text "orders-2026-10-08.csv" · text muted "268 rows" · action "Download"
-  toast "Your export is ready. orders-2026-10-08.csv waits under Latest exports." positive
+      item: text "expenses-2026-10-08.csv" · text muted "268 rows" · action "Download"
+  toast "Your export is ready. expenses-2026-10-08.csv waits under Latest exports." positive
 ```
 
 **Rationale:** The way Vercel ends a deployment toast: the message links to the result, and the result also waits on the page. The toast going away costs nothing because the file does not go with it.
@@ -868,15 +868,15 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders."
+    heading "Expenses"
+    text "268 expenses."
     action "Export"
   region "Latest exports"
     list 1
-      item: text "orders-2026-10-01.csv" · text muted "241 rows" · action "Download"
-  toast "Exporting 166 of 268 orders. About a minute left." info
+      item: text "expenses-2026-10-01.csv" · text muted "241 rows" · action "Download"
+  toast "Exporting 166 of 268 expenses. About a minute left." info
 ```
 
 **Rationale:** The way Shopify reports a bulk export: a persistent notice with a bar and a count, dismissible only by canceling. The reader keeps working while the count climbs.
@@ -905,21 +905,21 @@ Never ship a confirmation inside a menu. A confirmation there is a dialog over a
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders."
+    heading "Expenses"
+    text "268 expenses."
   toolbar
-    field "Search orders" search
-  table 4 "Order" "Customer" "State" "Paid"
-    item: text "SO-1042" · text "Maria Garcia" · status "Paid" positive · text "EUR 125.00" · action "Resend"
+    field "Search expenses" search
+  table 4 "Expense" "Spender" "State" "Paid"
+    item: text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00" · action "Resend"
   menu "Row commands"
     action "Open the record"
-    action "Resend the confirmation"
-    action "Refund"
-    action disabled "Void the pickup code"
+    action "Resend the receipt"
+    action "Reverse"
+    action disabled "Void the receipt code"
     action "Report a problem"
-    action quiet "Copy the order number"
+    action quiet "Copy the expense number"
 ```
 
 **Rationale:** The recommended shape groups the items under small headings and puts the destructive one at the end, after a separator, in the destructive tone. Nothing is disabled without a reason.
@@ -930,20 +930,20 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders."
+    heading "Expenses"
+    text "268 expenses."
   toolbar
-    field "Search orders" search
-  table 4 "Order" "Customer" "State" "Paid"
-    item: text "SO-1042" · text "Maria Garcia" · status "Paid" positive · text "EUR 125.00"
+    field "Search expenses" search
+  table 4 "Expense" "Spender" "State" "Paid"
+    item: text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
   menu "Row commands"
     action "Open the record"
-    action "Resend the confirmation"
-    action "Refund"
-    action disabled "Void the pickup code"
-  message "Void the pickup code is unavailable: both parcels were collected at 22:41." neutral
+    action "Resend the receipt"
+    action "Reverse"
+    action disabled "Void the receipt code"
+  message "Void the receipt code is unavailable: both receipts were attached at 22:41." neutral
 ```
 
 **Rationale:** The disabled item carries its reason in place, so the reader learns it without pressing it. This is the fix for a menu whose commands are conditionally absent.
@@ -954,18 +954,18 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders."
+    heading "Expenses"
+    text "268 expenses."
   toolbar
-    field "Search orders" search
-  table 4 "Order" "Customer" "State" "Paid"
-    item: text "SO-1034" · text "Ade Okafor" · status "Disputed" critical · text "EUR 45.00"
+    field "Search expenses" search
+  table 4 "Expense" "Spender" "State" "Paid"
+    item: text "EXP-1034" · text "Ade Okafor" · status "Disputed" critical · text "EUR 45.00"
   menu "Row commands"
     action destructive "Withdraw the dispute"
   popover "Withdraw the dispute"
-    text "The payment provider is told the company accepts the charge."
+    text "The bank is told the company accepts the payout."
     message "This cannot be taken back." critical
     action "Keep it open"
     action destructive "Withdraw"
@@ -981,19 +981,19 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Oak desk lamp" "Pricing"
+  breadcrumb "Home" "Policies" "Train fare" "Pricing"
   header
-    heading "Oak desk lamp"
+    heading "Train fare"
     status "Scheduled" info
-    text "LMP-OAK-01. 412 in stock. 0 of 500 sold."
-    action primary "Publish the price list"
+    text "TRAVEL-01. 412 claimed. 0 of 500 paid."
+    action primary "Publish the policy"
     menu "More ways to publish"
       action "Publish now, ignoring the date"
       action "Schedule it for another time"
       action "Save as a template"
   region "What would be published"
-    table 3 "Product" "Price" "Stock"
-      item: text "Oak desk lamp" · text "EUR 45.00" · text "412"
+    table 3 "Policy" "Ceiling" "Claims"
+      item: text "Train fare" · text "EUR 45.00" · text "412"
 ```
 
 **Rationale:** One button carries the first command and its own half carries the menu. Both stay reachable without the reader ever opening anything to find the first one.
@@ -1004,17 +1004,17 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Products"
+  breadcrumb "Home" "Policies"
   header
-    heading "Products"
-    text "93 for sale."
+    heading "Policies"
+    text "93 active."
   toolbar
-    field "Search products" search
-  table 3 "Product" "Updated" "Command"
-    item: text "Oak desk lamp" · text muted "9 Oct 2026" · action "Open" · action "Publish"
+    field "Search policies" search
+  table 3 "Policy" "Updated" "Command"
+    item: text "Train fare" · text muted "9 Oct 2026" · action "Open" · action "Publish"
   region "The rest"
     list 2
-      item: text "Oak floor lamp" · text muted "7 of 400 sold"
+      item: text "Meal policy" · text muted "7 of 400 claimed"
 ```
 
 **Rationale:** One or two commands sit inline and nothing is hidden, for a row whose whole set is small. NN/g's ceiling for inline placement is two.
@@ -1027,21 +1027,21 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "SO-1042"
+  breadcrumb "Home" "Expenses" "EXP-1042"
   header
-    heading "SO-1042"
+    heading "EXP-1042"
     status "Paid" positive
-    text "Maria Garcia of Garcia Interiors. Placed 8 Oct 2026, 09:32."
-    action primary "Message customer"
+    text "Ava of Harbor and Pine. Submitted 8 Oct 2026, 09:32."
+    action primary "Message spender"
     menu "More"
-      action "Resend the confirmation"
-      action "Refund"
-      action "Refund part of it"
-      action disabled "Void the pickup code"
-      action quiet "Copy the order number"
-  region "The customer"
-    fact "Name" "Maria Garcia"
-    fact "Email" "maria@garcia-interiors.example"
+      action "Resend the receipt"
+      action "Reverse"
+      action "Reverse part of it"
+      action disabled "Void the receipt code"
+      action quiet "Copy the expense number"
+  region "The spender"
+    fact "Name" "Ava"
+    fact "Email" "ava@harbor-pine.example"
 ```
 
 **Rationale:** A page-level overflow holds every command for the record, rather than a menu per row: one menu instead of twenty-five.
@@ -1052,18 +1052,18 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders."
+    heading "Expenses"
+    text "268 expenses."
   toolbar
-    field "Search orders" search
-  table 4 "Order" "Customer" "State" "Paid"
-    item: text "SO-1042" · text "Maria Garcia" · status "Paid" positive · text "EUR 125.00"
+    field "Search expenses" search
+  table 4 "Expense" "Spender" "State" "Paid"
+    item: text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
   menu "Commands matching re, 4 of 7"
     action "Open the record"
-    action "Resend the confirmation"
-    action "Refund"
+    action "Resend the receipt"
+    action "Reverse"
     action "Report a problem"
 ```
 
@@ -1077,26 +1077,26 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders."
+    heading "Expenses"
+    text "268 expenses."
   toolbar
-    field "Search orders" search
-  table 4 "Order" "Customer" "State" "Paid"
-    item: text "SO-1042" · text "Maria Garcia" · status "Paid" positive · text "EUR 125.00"
+    field "Search expenses" search
+  table 4 "Expense" "Spender" "State" "Paid"
+    item: text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
   menu "Row commands"
     action "Open the record"
-    action "Resend the confirmation"
-    action "Refund"
-    action quiet "Copy the order number"
-  menu "Refund routes"
-    action "Refund in full"
-    action "Refund part of it"
-    action "Offer credit for a future order"
+    action "Resend the receipt"
+    action "Reverse"
+    action quiet "Copy the expense number"
+  menu "Reversal routes"
+    action "Reverse in full"
+    action "Reverse part of it"
+    action "Deduct from the next payout"
 ```
 
-**Rationale:** The way Radix UI nests submenus, which is what the shadcn menu is built on: Refund opens sideways into its three routes. Groups stay visible while the choice stays one hover away.
+**Rationale:** The way Radix UI nests submenus, which is what the shadcn menu is built on: Reverse opens sideways into its three routes. Groups stay visible while the choice stays one hover away.
 
 **Cost:** Sideways menus punish every reader on touch, where hover does not exist. Three routes fit. A fourth means the submenu needs its own scroll, and then it is a panel.
 
@@ -1122,22 +1122,22 @@ Never ship a menu and a popover for the same thing. The pair teaches that floati
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders."
+    heading "Expenses"
+    text "268 expenses."
   toolbar
-    field "Search orders" search
-  table 3 "Order" "Customer" "Parcel"
-    item: text "SO-1042" · text "Maria Garcia" · text "PCK-0C893968A2"
-  popover "PCK-0C893968A2"
-    text "Oak desk lamp, 2 units in order SO-1042."
-    fact "For" "Maria Garcia"
+    field "Search expenses" search
+  table 3 "Expense" "Spender" "Receipt"
+    item: text "EXP-1042" · text "Ava" · text "RC-0C893968A2"
+  popover "RC-0C893968A2"
+    text "Train fare, 2 fares in expense EXP-1042."
+    fact "For" "Ava"
     fact "Packed" "8 Oct 2026, 09:34"
-    fact "Collected" "Not collected"
+    fact "Attached" "Not attached"
 ```
 
-**Rationale:** Hovering a parcel code shows the parcel's facts. It gives context without leaving the list and costs one read.
+**Rationale:** Hovering a receipt code shows the receipt's facts. It gives context without leaving the list and costs one read.
 
 **Cost:** A hover affordance is invisible on touch and hard to discover on desktop. It needs focus as well as hover, which means two ways to render every row.
 
@@ -1145,17 +1145,17 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Invoices" "Costs"
+  breadcrumb "Home" "Billing" "Costs"
   header
     heading "What the plan costs"
     text "Every charge on the account, and what it is for."
   region "September charges"
     fact "Business plan" "EUR 49.00 a month"
-    fact "Order fee" "EUR 270.90"
+    fact "Expense fee" "EUR 270.90"
     fact "Per-line fee" "EUR 236.00"
     fact "Total for September" "EUR 555.90"
-  popover "Order fee"
-    text "0.5 percent of every order total. It pays for payment handling."
+  popover "Expense fee"
+    text "0.5 percent of every expense total. It pays for payout handling."
 ```
 
 **Rationale:** A word somebody may not know carries its glossary entry beside it. It answers the question where it is asked.
@@ -1166,17 +1166,17 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "New delivery"
+  breadcrumb "Home" "Trips" "New trip"
   header
-    heading "New delivery"
+    heading "New trip"
   region "Where and when"
-    field "Where" text = "Amst"
+    field "Where" text = "Rott"
     field "Reference" text
     field "Arrives" text = "14/03/2026"
-  popover "Warehouses matching Amst"
+  popover "Places matching Rott"
     list 3
-      item: text "Amsterdam warehouse" · text muted "40 pallets"
-    action quiet "No warehouse yet? Add one."
+      item: text "Rotterdam client site" · text muted "40 past trips"
+    action quiet "No place yet? Add one."
 ```
 
 **Rationale:** The record picker list opens in a popover rather than a dialog, anchored to the field. The rest of the form stays visible behind it.
@@ -1187,9 +1187,9 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "New delivery"
+  breadcrumb "Home" "Trips" "New trip"
   header
-    heading "New delivery"
+    heading "New trip"
   region "Window"
     field "Window opens" text = "14/03/2026"
     field "Window closes" text = "15/03/2026"
@@ -1212,19 +1212,19 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "SO-1042"
+  breadcrumb "Home" "Expenses" "EXP-1042"
   header
-    heading "SO-1042"
+    heading "EXP-1042"
     text "Quote these in a message to support."
   region "Identifiers"
-    fact "Order" "SO-1042"
+    fact "Expense" "EXP-1042"
     action quiet "Copy"
-    fact "Parcels" "PCK-0C893968A2"
+    fact "Receipts" "RC-0C893968A2"
     action quiet "Copy"
     fact "Bank reference" "SH-88213"
     action quiet "Copy"
   popover "Copied"
-    text "The parcel codes are on the customer message."
+    text "The receipt codes are on the spender message."
 ```
 
 **Rationale:** Copying an identifier is a command with no visible result otherwise, so the control confirms in place rather than opening anything.
@@ -1235,47 +1235,47 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "Refunds"
+  breadcrumb "Home" "Expenses" "Reversals"
   header
-    heading "Refunds"
-    text "31 orders. 12 outside the refund window."
+    heading "Reversals"
+    text "31 expenses. 12 outside the recall window."
   toolbar
-    field "Search refunds" search
-  table 3 "Order" "Customer" "Asked"
-    item: text "SO-1037" · text "Elin Lindqvist" · text muted "214 days ago"
+    field "Search reversals" search
+  table 3 "Expense" "Spender" "Asked"
+    item: text "EXP-1037" · text "Elin Lindqvist" · text muted "214 days ago"
   menu "Row commands"
-    action "Offer credit"
+    action "Apply deduction"
     action "Record a bank transfer"
-    action "Ask the customer"
-  popover "Refund window"
-    text "This payment method refunds only within 180 days."
+    action "Ask the spender"
+  popover "Recall window"
+    text "This payout route reverses only within 180 days."
 ```
 
 **Rationale:** The row menu holds commands and a popover holds context, side by side. A reviewer can see the two floating shapes next to each other.
 
 **Cost:** A page with both holds three floating layers counting the dialog, and a reader must learn which is which. This is why a page should show one overlay at a time.
 
-#### `a-customer-hover-card-with-recent-orders`: A Customer Hover Card with Recent Orders
+#### `a-customer-hover-card-with-recent-orders`: A Spender Hover Card with Recent Expenses
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders."
+    heading "Expenses"
+    text "268 expenses."
   toolbar
-    field "Search orders" search
-  table 3 "Order" "Customer" "Paid"
-    item: text "SO-1042" · text "Maria Garcia" · text "EUR 125.00"
-  popover "Maria Garcia"
-    item: avatar "MG" · text "Maria Garcia" · text muted "maria@garcia-interiors.example"
-    fact "Orders" "3, all paid"
+    field "Search expenses" search
+  table 3 "Expense" "Spender" "Paid"
+    item: text "EXP-1042" · text "Ava" · text "EUR 125.00"
+  popover "Ava"
+    item: avatar "A" · text "Ava" · text muted "ava@harbor-pine.example"
+    fact "Expenses" "3, all paid"
     fact "Paid in total" "EUR 215.00"
-    fact "Refunds" "None"
-    link "Open the customer"
+    fact "Reversals" "None"
+    link "Open the spender"
 ```
 
-**Rationale:** The way GitHub Primer draws a Hovercard: identity, facts, and one link, on hover and on focus. Support reads the customer without leaving the refunds queue.
+**Rationale:** The way GitHub Primer draws a Hovercard: identity, facts, and one link, on hover and on focus. Support reads the spender without leaving the reversals queue.
 
 **Cost:** A card that fetches on hover fires a read per row skimmed. Without focus support it is invisible on touch, where support increasingly works.
 
@@ -1285,16 +1285,16 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders."
+    heading "Expenses"
+    text "268 expenses."
   toolbar
-    field "Search orders" search
+    field "Search expenses" search
     action "Export"
-  table 3 "Order" "Customer" "Paid"
-    item: text "SO-1042" · text "Maria Garcia" · text "EUR 125.00"
-  popover "Export sends a file of these orders"
+  table 3 "Expense" "Spender" "Paid"
+    item: text "EXP-1042" · text "Ava" · text "EUR 125.00"
+  popover "Export sends a file of these expenses"
     text "The current search and filters decide the rows."
     action "Got it"
     action quiet "Do not show again"
@@ -1326,15 +1326,15 @@ Never ship the bar naming a deadline: a full-width caution band paints the whole
 
 ```wireframe
 page
-  message info "This is a sandbox. Nothing here is charged and nothing reaches a bank."
-  breadcrumb "Home" "Orders"
+  message info "This is a sandbox. Nothing here is paid and nothing reaches a bank."
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every paid order, newest first."
-  region "Orders"
-    field "Order number, name or email" search
-    table 3 "Order" "Customer" "State" "Paid"
-      item: text "SO-1042" · text "Maria Garcia" · status "Paid" positive · text "EUR 125.00"
+    heading "Expenses"
+    text "Every paid expense, newest first."
+  region "Expenses"
+    field "Expense number, name or email" search
+    table 3 "Expense" "Spender" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
 ```
 
 **Rationale:** A band across the back office that holds on every page, such as which deployment this is. It stays neutral, never a tone, because it is about the page rather than about work.
@@ -1345,10 +1345,10 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Settings" "Storefront"
+  breadcrumb "Home" "Settings" "Portal"
   header
-    heading "Storefront"
-    text "The accent color customers see."
+    heading "Portal"
+    text "The accent color spenders see."
   region "Settings"
     field "Accent color" text = "#2563EB"
     field "Typeface" select = "Inter"
@@ -1366,17 +1366,17 @@ page
 
 ```wireframe
 page
-  message caution "Answering closes on 21 October. 5 disputes charge back on 21 Oct if nothing is sent."
-  breadcrumb "Home" "Invoices" "Disputes"
+  message caution "Answering closes on 21 October. 5 disputes recall on 21 Oct if nothing is sent."
+  breadcrumb "Home" "Payouts" "Disputes"
   header
     heading "Disputes"
     text "5 open. The nearest closes in 19 days."
   region "Cases"
-    table 4 "Case" "Order" "Amount" "Closes"
-      item: text "D-0182" · text "SO-1034" · text "EUR 45.00" · status "19 days" caution
+    table 4 "Case" "Expense" "Amount" "Closes"
+      item: text "D-0182" · text "EXP-1034" · text "EUR 45.00" · status "19 days" caution
 ```
 
-**Rationale:** A band naming the date the bank charges back, so the disputes work under it has a clock the band states.
+**Rationale:** A band naming the date the bank recalls, so the disputes work under it has a clock the band states.
 
 **Cost:** A full-width caution band on a page about disputes is exactly the case the tone rule forbids. The tone paints the whole page rather than the thing in that state.
 
@@ -1384,15 +1384,15 @@ page
 
 ```wireframe
 page
-  message neutral "This is read-only for your role. You are Chris Novak, warehouse lead. Only finance can answer a dispute or issue a refund."
-  breadcrumb "Home" "Invoices" "Disputes"
+  message neutral "This is read-only for your role. You are Eli, support agent. Only finance can answer a dispute or issue a reversal."
+  breadcrumb "Home" "Payouts" "Disputes"
   header
     heading "Disputes"
     text "5 open. The nearest closes in 19 days."
   region "Cases"
-    table 3 "Case" "Order" "Amount" "Closes"
-      item: text "D-0182" · text "SO-1034" · text "EUR 45.00" · text "19 days" · action disabled "Answer"
-    message neutral "Only finance can answer a dispute. Support reads orders and messages customers."
+    table 3 "Case" "Expense" "Amount" "Closes"
+      item: text "D-0182" · text "EXP-1034" · text "EUR 45.00" · text "19 days" · action disabled "Answer"
+    message neutral "Only finance can answer a dispute. Support reads expenses and messages spenders."
 ```
 
 **Rationale:** Where a whole area is read-only for this role, one band names the reason and the grant. The page below is drawn as it would be for a reader who could act.
@@ -1403,16 +1403,16 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Oak desk lamp"
-  message caution "This product is not for sale. The price list opens Tue 13 Jan 2026 at 10:00."
+  breadcrumb "Home" "Policies" "Train fare"
+  message caution "This policy is not active. Its ceilings open Tue 13 Jan 2026 at 10:00."
   header
-    heading "Oak desk lamp"
+    heading "Train fare"
     status "Draft" neutral
-    text "LMP-OAK-01 · 412 in stock."
-    action primary "Publish the price list"
-  region "What is for sale"
-    fact "Stock" "412 in stock, none sold"
-    fact "Price" "EUR 45.00"
+    text "TRAVEL-01 · 412 claimed."
+    action primary "Publish the policy"
+  region "What is active"
+    fact "Claims" "412 claimed, none paid"
+    fact "Ceiling" "EUR 45.00"
 ```
 
 **Rationale:** The band is scoped to one record rather than the whole console. It appears only where the fact is true and disappears everywhere else.
@@ -1423,15 +1423,15 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
+    heading "Expenses"
     status "Sandbox" info
-    text "Every paid order, newest first. Nothing here is charged."
-  region "Orders"
-    field "Order number, name or email" search
-    table 3 "Order" "Customer" "State" "Paid"
-      item: text "SO-1042" · text "Maria Garcia" · status "Paid" positive · text "EUR 125.00"
+    text "Every paid expense, newest first. Nothing here is really paid."
+  region "Expenses"
+    field "Expense number, name or email" search
+    table 3 "Expense" "Spender" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
 ```
 
 **Rationale:** The sandbox is named in the heading and the switcher, rather than in a band. Nothing is lost and one element is removed from every page.
@@ -1442,10 +1442,10 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Settings" "Storefront"
+  breadcrumb "Home" "Settings" "Portal"
   header
-    heading "Storefront"
-    text "The accent color customers see."
+    heading "Portal"
+    text "The accent color spenders see."
   toolbar sticky
     text "Unsaved changes: accent color, typeface."
     action "Discard"
@@ -1465,16 +1465,16 @@ page
 
 ```wireframe
 page
-  message info "A payout settles on Friday. EUR 122.85 for the March delivery run, held by the payment provider until then."
+  message info "A payout settles on Friday. EUR 122.85 for the March payout run, held by the bank until then."
   action quiet "Dismiss the announcement"
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every paid order, newest first."
-  region "Orders"
-    field "Order number, name or email" search
-    table 3 "Order" "Customer" "State" "Paid"
-      item: text "SO-1042" · text "Maria Garcia" · status "Paid" positive · text "EUR 125.00"
+    heading "Expenses"
+    text "Every paid expense, newest first."
+  region "Expenses"
+    field "Expense number, name or email" search
+    table 3 "Expense" "Spender" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
 ```
 
 **Rationale:** The way GitHub Primer draws a dismissible Banner: the fact shows once per session and the close is remembered. It suits announcements, where the second reading has no value.
@@ -1493,30 +1493,30 @@ page
 
 **Compact:** Every option in this pattern is the phone behavior. A dialog becomes a sheet from the bottom edge with a handle, a title naming the record, and a full-width footer. The compact option is `order-actions-in-a-bottom-sheet`.
 
-**Rationale:** Ship the order-actions sheet for commands and the filters sheet with its sticky apply bar for filters: both keep a handle, a title, and a full-width footer above the home indicator. The half-height sheet is the runner-up where the content is genuinely long, because detents let the reader choose half or full.
+**Rationale:** Ship the expense-actions sheet for commands and the filters sheet with its sticky apply bar for filters: both keep a handle, a title, and a full-width footer above the home indicator. The half-height sheet is the runner-up where the content is genuinely long, because detents let the reader choose half or full.
 
 Never ship the sheet with no dismissal: it traps the reader on the smallest screen, where every trap costs the most.
 
 **Reviewed for:** Which built thumb-reach sheet departs from the wireframe its catalog entry chose? Open the built half, full, and filter sheets beside the catalog entry recording the chosen option and its reason.
 
-#### `order-actions-in-a-bottom-sheet`: Order Actions in a Bottom Sheet
+#### `order-actions-in-a-bottom-sheet`: Expense Actions in a Bottom Sheet
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders."
-  region "Orders"
-    field "Order number, name or email" search
-    table 2 "Order" "Customer" "Paid"
-      item: text "SO-1042" · text "Maria Garcia" · text "EUR 125.00"
+    heading "Expenses"
+    text "268 expenses."
+  region "Expenses"
+    field "Expense number, name or email" search
+    table 2 "Expense" "Spender" "Paid"
+      item: text "EXP-1042" · text "Ava" · text "EUR 125.00"
   drawer bottom
-    heading "Order SO-1042"
-    text "Maria Garcia · Garcia Interiors · EUR 125.00 paid."
-    action "Resend the confirmation"
-    action "Refund"
-    action quiet "Copy the order number"
+    heading "Expense EXP-1042"
+    text "Ava · Harbor and Pine · EUR 125.00 paid."
+    action "Resend the receipt"
+    action "Reverse"
+    action quiet "Copy the expense number"
     footer
       action "Cancel"
 ```
@@ -1531,19 +1531,19 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "12 orders match."
-  region "Orders"
-    field "Order number, name or email" search
-    table 2 "Order" "Customer" "Paid"
-      item: text "SO-1042" · text "Maria Garcia" · text "EUR 125.00"
+    heading "Expenses"
+    text "12 expenses match."
+  region "Expenses"
+    field "Expense number, name or email" search
+    table 2 "Expense" "Spender" "Paid"
+      item: text "EXP-1042" · text "Ava" · text "EUR 125.00"
   drawer bottom
     heading "Filters"
-    text "2 applied · 12 orders match."
+    text "2 applied · 12 expenses match."
     field "State" select = "Paid"
-    field "Product" select = "Oak desk lamp"
+    field "Line" select = "Train fare"
     footer
       action "Clear both"
       action primary "Show 12 results"
@@ -1559,18 +1559,18 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders."
-  region "Orders"
-    field "Order number, name or email" search
-    table 2 "Order" "Customer" "Paid"
-      item: text "SO-1042" · text "Maria Garcia" · text "EUR 125.00"
+    heading "Expenses"
+    text "268 expenses."
+  region "Expenses"
+    field "Expense number, name or email" search
+    table 2 "Expense" "Spender" "Paid"
+      item: text "EXP-1042" · text "Ava" · text "EUR 125.00"
   drawer bottom
-    heading "Order SO-1042"
+    heading "Expense EXP-1042"
     status "Paid" positive
-    text "Maria Garcia · EUR 125.00 paid by card."
+    text "Ava · EUR 125.00 paid by bank transfer."
     text "Half height. Pull the handle for the lines and the history."
     footer
       action "Expand"
@@ -1586,20 +1586,20 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Products"
+  breadcrumb "Home" "Policies"
   header
-    heading "Spring lighting launch"
-    text "Sat 14 Mar 2026 · Amsterdam warehouse."
-  region "The launch"
+    heading "March payout run"
+    text "Sat 14 Mar 2026 · Rotterdam client site."
+  region "The run"
     fact "State" "Scheduled"
-    fact "Pre-orders" "1,204"
+    fact "Payouts" "1,204"
   drawer bottom
-    heading "Cancel the spring lighting launch?"
-    text "1,204 customers · EUR 54,180.00 goes back."
-    message critical "This cannot be undone. A launch that has been canceled cannot be scheduled again."
+    heading "Cancel the March payout run?"
+    text "1,204 spenders · EUR 54,180.00 stays in the budget."
+    message critical "This cannot be undone. A run that has been canceled cannot be scheduled again."
     footer
-      action destructive "Cancel the launch"
-      action "Keep the launch"
+      action destructive "Cancel the run"
+      action "Keep the run"
 ```
 
 **Rationale:** The way an Apple action sheet seats the destructive row apart and last. The danger is separated, red, and below the fold of safe rows. The thumb meets safe actions first.
@@ -1612,18 +1612,18 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "SO-1042"
+  breadcrumb "Home" "Expenses" "EXP-1042"
   header
-    heading "SO-1042"
-    text "3 lines · Garcia Interiors."
+    heading "EXP-1042"
+    text "3 lines · Harbor and Pine."
   region "Notes"
     list 1
-      item: text "Garcia Interiors confirmed the Friday window" · text muted "Alex Morgan, 2 Oct 2026"
+      item: text "Harbor and Pine approved the Friday trip" · text muted "Cara, 2 Oct 2026"
   drawer bottom
     heading "Add a note"
-    text "Only Acme Supply sees these."
+    text "Only Harbor and Pine sees these."
     field "Note" textarea
-    field "About" select = "The customer"
+    field "About" select = "The spender"
     footer
       action "Cancel"
       action primary "Add the note"
@@ -1639,24 +1639,24 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "Refunds"
+  breadcrumb "Home" "Expenses" "Reversals"
   header
-    heading "Refunds"
-    text "31 orders to decide."
-  region "Refunds"
-    table 1 "Order" "Customer" "Amount"
-      item: text "SO-1035" · text "Ade Okafor" · text "EUR 45.00"
+    heading "Reversals"
+    text "31 expenses to decide."
+  region "Reversals"
+    table 1 "Expense" "Spender" "Amount"
+      item: text "EXP-1035" · text "Ade Okafor" · text "EUR 45.00"
   drawer bottom
-    heading "Choose a refund route"
-    text "Order SO-1035 · Ade Okafor · EUR 45.00 · 181 days old."
-    field "Refund route" radio = "Credit for a future order"
+    heading "Choose a reversal route"
+    text "Expense EXP-1035 · Ade Okafor · EUR 45.00 · 181 days old."
+    field "Reversal route" radio = "Deduction from the next payout"
     footer
-      action primary "Offer credit"
+      action primary "Apply deduction"
 ```
 
-**Rationale:** Some banking apps block the screen until a choice is made. This shows what that costs here: the reader is stuck until they pick a refund route.
+**Rationale:** Some banking apps block the screen until a choice is made. This shows what that costs here: the reader is stuck until they pick a reversal route.
 
-**Cost:** It traps the reader on the smallest screen, where every trap costs the most. Only a command that cannot wait earns this, and a refund route can always wait.
+**Cost:** It traps the reader on the smallest screen, where every trap costs the most. Only a command that cannot wait earns this, and a reversal route can always wait.
 
 ### Dialog with a Long Body and a Sticky Footer
 
@@ -1678,21 +1678,21 @@ Never ship the dialog with no pinned footer: buttons that scroll away ask the re
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "SO-1042"
+  breadcrumb "Home" "Expenses" "EXP-1042"
   header
-    heading "SO-1042"
-    text "Maria Garcia · Garcia Interiors · EUR 125.00 paid."
+    heading "EXP-1042"
+    text "Ava · Harbor and Pine · EUR 125.00 paid."
   region "What was bought"
-    fact "Oak desk lamp, 2 lamps" "EUR 90.00"
-    fact "Paid by the customer" "EUR 125.00"
+    fact "Train fare, 2 fares" "EUR 90.00"
+    fact "Paid to the spender" "EUR 125.00"
   dialog
-    heading "Refund SO-1042 in full?"
-    text "The two lamps go back to stock and sell again. The gift wrap was made for this order and is not refunded."
-    text "The refund goes back on the card payment the customer used. It arrives within five working days."
-    text "This payment is 31 days old, inside the 180-day window. Past it the fallbacks are credit or a payment the back office only records."
+    heading "Reverse EXP-1042 in full?"
+    text "The two fares go back to drafts and claim again. The personal item sits outside the policy and is not reversed."
+    text "The reversal returns to the Harbor and Pine account. It arrives within five working days."
+    text "This payout is 31 days old, inside the 180-day window. Past it the fallbacks are a deduction or a repayment the back office only records."
     footer
       action "Cancel"
-      action destructive "Refund EUR 125.00"
+      action destructive "Reverse EUR 125.00"
 ```
 
 **Rationale:** The way the Stripe Dashboard pins actions on a long refund dialog: the body scrolls under a footer that never moves. The commit stays in reach and the terms stay above it.
@@ -1705,30 +1705,30 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "SO-1042"
+  breadcrumb "Home" "Expenses" "EXP-1042"
   header
-    heading "SO-1042"
-    text "Maria Garcia · Garcia Interiors · EUR 125.00 paid."
+    heading "EXP-1042"
+    text "Ava · Harbor and Pine · EUR 125.00 paid."
   region "What was bought"
-    fact "Oak desk lamp, 2 lamps" "EUR 90.00"
-    fact "Paid by the customer" "EUR 125.00"
+    fact "Train fare, 2 fares" "EUR 90.00"
+    fact "Paid to the spender" "EUR 125.00"
   dialog
-    heading "Refund SO-1042 in full?"
-    text "Refunding SO-1042 · EUR 125.00 · 2 lamps and gift wrap."
+    heading "Reverse EXP-1042 in full?"
+    text "Reversing EXP-1042 · EUR 125.00 · 2 fares and personal item."
     region "The money"
-      text "EUR 125.00 goes back to Maria Garcia on the card payment she used. The gift wrap is not refunded."
-    region "The goods"
-      text "Both lamps go back to stock and sell again at the current price."
+      text "EUR 125.00 returns from Ava to the Harbor and Pine account. The personal item is not reversed."
+    region "The lines"
+      text "Both fares go back to drafts and claim again at the current ceiling."
     region "The window"
-      text "This payment is 31 days old, inside the 180-day window."
+      text "This payout is 31 days old, inside the 180-day window."
     region "The record"
-      text "Nothing is deleted. The order says it was refunded, when, and who approved it."
+      text "Nothing is deleted. The expense says it was reversed, when, and who approved it."
     footer
       action "Cancel"
-      action destructive "Refund EUR 125.00"
+      action destructive "Reverse EUR 125.00"
 ```
 
-**Rationale:** The way Atlassian pins modal headers on long content: the record and the amount stay named while the sections scroll. The reader never wonders which order the terms belong to.
+**Rationale:** The way Atlassian pins modal headers on long content: the record and the amount stay named while the sections scroll. The reader never wonders which expense the terms belong to.
 
 **Cost:** Pinned chrome eats a third of a phone dialog, and the body shows two lines at a time. On a short dialog the pinned header is furniture.
 
@@ -1738,26 +1738,26 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "SO-1042"
+  breadcrumb "Home" "Expenses" "EXP-1042"
   header
-    heading "SO-1042"
-    text "Maria Garcia · Garcia Interiors · EUR 125.00 paid."
+    heading "EXP-1042"
+    text "Ava · Harbor and Pine · EUR 125.00 paid."
   region "What was bought"
-    fact "Oak desk lamp, 2 lamps" "EUR 90.00"
-    fact "Paid by the customer" "EUR 125.00"
+    fact "Train fare, 2 fares" "EUR 90.00"
+    fact "Paid to the spender" "EUR 125.00"
   dialog
-    heading "Refund SO-1042 in full?"
+    heading "Reverse EXP-1042 in full?"
     list 4
       item: text "The money" · text muted "open"
-    text "EUR 125.00 goes back to Maria Garcia on the card payment she used."
+    text "EUR 125.00 returns from Ava to the Harbor and Pine account."
     footer
       action "Cancel"
-      action destructive "Refund EUR 125.00"
+      action destructive "Reverse EUR 125.00"
 ```
 
 **Rationale:** The way Shopify collapses modal sections: one open at a time, the rest one tap away. Four sections read as four lines until the reader wants one.
 
-**Cost:** Collapsed sections hide the term the reader most needed. The dialog must open the section that matters for this order, which means it must know which one that is.
+**Cost:** Collapsed sections hide the term the reader most needed. The dialog must open the section that matters for this expense, which means it must know which one that is.
 
 **Reference:** Shopify
 
@@ -1765,21 +1765,21 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "SO-1042"
+  breadcrumb "Home" "Expenses" "EXP-1042"
   header
-    heading "SO-1042"
-    text "Maria Garcia · Garcia Interiors · EUR 125.00 paid."
+    heading "EXP-1042"
+    text "Ava · Harbor and Pine · EUR 125.00 paid."
   region "What was bought"
-    fact "Oak desk lamp, 2 lamps" "EUR 90.00"
-    fact "Paid by the customer" "EUR 125.00"
+    fact "Train fare, 2 fares" "EUR 90.00"
+    fact "Paid to the spender" "EUR 125.00"
   dialog
-    heading "Refund SO-1042 in full?"
-    text "The two lamps go back to stock and sell again. The gift wrap was made for this order and is not refunded."
-    text "The refund goes back on the card payment the customer used and arrives within five working days."
-    fact "To Maria Garcia" "EUR 125.00"
+    heading "Reverse EXP-1042 in full?"
+    text "The two fares go back to drafts and claim again. The personal item sits outside the policy and is not reversed."
+    text "The reversal returns to the Harbor and Pine account and arrives within five working days."
+    fact "From Ava" "EUR 125.00"
     footer
       action "Cancel"
-      action destructive "Refund EUR 125.00"
+      action destructive "Reverse EUR 125.00"
 ```
 
 **Rationale:** The way Stripe pins the total above Pay: the number the click commits to stays visible while the terms scroll. The reader signs the number, not the scroll position.
@@ -1792,27 +1792,27 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "SO-1042"
+  breadcrumb "Home" "Expenses" "EXP-1042"
   header
-    heading "SO-1042"
-    text "Maria Garcia · Garcia Interiors · EUR 125.00 paid."
+    heading "EXP-1042"
+    text "Ava · Harbor and Pine · EUR 125.00 paid."
   region "What was bought"
-    fact "Oak desk lamp, 2 lamps" "EUR 90.00"
-    fact "Paid by the customer" "EUR 125.00"
+    fact "Train fare, 2 fares" "EUR 90.00"
+    fact "Paid to the spender" "EUR 125.00"
   dialog
-    heading "Refund SO-1042 in full?"
+    heading "Reverse EXP-1042 in full?"
     split 1:1
       region "Money and route"
-        fact "To the customer" "EUR 125.00"
-        fact "Route" "Original card payment"
+        fact "From the spender" "EUR 125.00"
+        fact "Route" "Original bank transfer"
         fact "Window" "31 of 180 days used"
-      region "Goods and record"
-        fact "Goods" "2 lamps, back to stock"
-        fact "Gift wrap" "Not refunded"
-        fact "Record" "Kept, marked refunded"
+      region "Lines and record"
+        fact "Lines" "2 fares, back to drafts"
+        fact "Personal item" "Not reversed"
+        fact "Record" "Kept, marked reversed"
     footer
       action "Cancel"
-      action destructive "Refund EUR 125.00"
+      action destructive "Reverse EUR 125.00"
 ```
 
 **Rationale:** The way Vercel widens a modal for dense settings: two columns of facts read side by side instead of stacked. Four sections fit without scrolling on a laptop.
@@ -1825,21 +1825,21 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "SO-1042"
+  breadcrumb "Home" "Expenses" "EXP-1042"
   header
-    heading "SO-1042"
-    text "Maria Garcia · Garcia Interiors · EUR 125.00 paid."
+    heading "EXP-1042"
+    text "Ava · Harbor and Pine · EUR 125.00 paid."
   region "What was bought"
-    fact "Oak desk lamp, 2 lamps" "EUR 90.00"
-    fact "Paid by the customer" "EUR 125.00"
+    fact "Train fare, 2 fares" "EUR 90.00"
+    fact "Paid to the spender" "EUR 125.00"
   dialog
-    heading "Refund SO-1042 in full?"
-    text "The two lamps go back to stock and sell again. The gift wrap was made for this order and is not refunded."
-    text "The refund goes back on the card payment the customer used. It arrives within five working days."
-    text "This payment is 31 days old, inside the 180-day window, so the bank accepts it."
-    message caution "The footer with Cancel and Refund sits below this body. Scroll to reach it."
+    heading "Reverse EXP-1042 in full?"
+    text "The two fares go back to drafts and claim again. The personal item sits outside the policy and is not reversed."
+    text "The reversal returns to the Harbor and Pine account. It arrives within five working days."
+    text "This payout is 31 days old, inside the 180-day window, so the bank accepts it."
+    message caution "The footer with Cancel and Reversal sits below this body. Scroll to reach it."
     action "Cancel"
-    action destructive "Refund EUR 125.00"
+    action destructive "Reverse EUR 125.00"
 ```
 
 **Rationale:** Included to refuse it: without a scroll cap the dialog grows past the viewport and the footer sits below the fold. The reader agrees first and finds how after.
@@ -1866,26 +1866,26 @@ Never ship tooltips alone: they hide the catalog from the reader who would learn
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders."
-  region "Orders"
-    field "Order number, name or email" search
-    table 2 "Order" "Customer" "Paid"
-      item: text "SO-1042" · text "Maria Garcia" · text "EUR 125.00"
+    heading "Expenses"
+    text "268 expenses."
+  region "Expenses"
+    field "Expense number, name or email" search
+    table 2 "Expense" "Spender" "Paid"
+      item: text "EXP-1042" · text "Ava" · text "EUR 125.00"
   dialog
     heading "Keyboard shortcuts"
     text "Press ? again to close."
     region "Everywhere"
       list 3
         item: text "Open this help" · text "?"
-    region "Orders list"
+    region "Expenses list"
       list 3
         item: text "Search the list" · text "/"
     region "Record"
       list 2
-        item: text "Message the customer" · text "M"
+        item: text "Message the spender" · text "M"
     footer
       action "Close"
 ```
@@ -1900,14 +1900,14 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders."
-  region "Orders"
-    field "Order number, name or email" search
-    table 2 "Order" "Customer" "Paid"
-      item: text "SO-1042" · text "Maria Garcia" · text "EUR 125.00"
+    heading "Expenses"
+    text "268 expenses."
+  region "Expenses"
+    field "Expense number, name or email" search
+    table 2 "Expense" "Spender" "Paid"
+      item: text "EXP-1042" · text "Ava" · text "EUR 125.00"
   dialog
     heading "Keyboard shortcuts"
     text "Press ? again to close."
@@ -1927,19 +1927,19 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders."
-  region "Orders"
-    field "Order number, name or email" search
-    table 2 "Order" "Customer" "Paid"
-      item: text "SO-1042" · text "Maria Garcia" · text "EUR 125.00"
+    heading "Expenses"
+    text "268 expenses."
+  region "Expenses"
+    field "Expense number, name or email" search
+    table 2 "Expense" "Spender" "Paid"
+      item: text "EXP-1042" · text "Ava" · text "EUR 125.00"
   dialog
     heading "Search and commands"
     field "Search commands" search = "resend"
     list 2
-      item: text "Resend the confirmation for SO-1042" · text muted "Enter to run"
+      item: text "Resend the receipt for EXP-1042" · text muted "Enter to run"
     text "? shows all shortcuts. Up and Down move. Esc closes."
 ```
 
@@ -1953,16 +1953,16 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders."
-  region "Orders"
-    field "Order number, name or email" search
-    table 2 "Order" "Customer" "Paid"
-      item: text "SO-1042" · text "Maria Garcia" · text "EUR 125.00"
+    heading "Expenses"
+    text "268 expenses."
+  region "Expenses"
+    field "Expense number, name or email" search
+    table 2 "Expense" "Spender" "Paid"
+      item: text "EXP-1042" · text "Ava" · text "EUR 125.00"
   dialog
-    heading "Shortcuts on Orders"
+    heading "Shortcuts on Expenses"
     text "Keys that work nowhere else are not listed here."
     list 3
       item: text "Search the list" · text "/"
@@ -1990,12 +1990,12 @@ page
     region "Everywhere"
       list 3
         item: text "Open this help" · text "?"
-    region "Orders list"
+    region "Expenses list"
       list 3
         item: text "Search the list" · text "/"
   region "Record"
     list 2
-      item: text "Message the customer" · text "M"
+      item: text "Message the spender" · text "M"
 ```
 
 **Rationale:** The way GitHub Docs prints its cheat sheet: one page, two columns, made for paper pinned beside a screen. Counter staff learn from paper faster than from a dialog.
@@ -2008,17 +2008,17 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders."
+    heading "Expenses"
+    text "268 expenses."
     action "Export"
-  region "Orders"
-    field "Order number, name or email" search
-    table 2 "Order" "Customer" "Paid"
-      item: text "SO-1042" · text "Maria Garcia" · text "EUR 125.00"
+  region "Expenses"
+    field "Expense number, name or email" search
+    table 2 "Expense" "Spender" "Paid"
+      item: text "EXP-1042" · text "Ava" · text "EUR 125.00"
   popover
-    text "Export these orders"
+    text "Export these expenses"
     text "E"
 ```
 
@@ -2046,20 +2046,20 @@ Never ship silence: it hands the gesture to the browser, whose commands act on t
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders."
-  region "Orders"
-    field "Order number, name or email" search
-    table 3 "Order" "Customer" "State" "Paid"
-      item: text "SO-1042" · text "Maria Garcia" · status "Paid" positive · text "EUR 125.00"
+    heading "Expenses"
+    text "268 expenses."
+  region "Expenses"
+    field "Expense number, name or email" search
+    table 3 "Expense" "Spender" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
   popover
-    menu "Order SO-1042"
+    menu "Expense EXP-1042"
       action "Open the record"
-      action "Resend the confirmation"
-      action "Refund"
-      action quiet "Copy the order number"
+      action "Resend the receipt"
+      action "Reverse"
+      action quiet "Copy the expense number"
 ```
 
 **Rationale:** The way Linear answers a right click: the row's own commands at the pointer, nothing added, nothing missing. The menu is a shortcut to the row menu rather than a second set.
@@ -2072,25 +2072,25 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders."
-  region "Orders"
-    field "Order number, name or email" search
-    table 3 "Order" "Customer" "State" "Paid"
-      item: text "SO-1042" · text "Maria Garcia" · status "Paid" positive · text "EUR 125.00"
+    heading "Expenses"
+    text "268 expenses."
+  region "Expenses"
+    field "Expense number, name or email" search
+    table 3 "Expense" "Spender" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
   popover
-    menu "Order SO-1042"
+    menu "Expense EXP-1042"
       action "Open the record (Enter)"
       action "Resend the confirmation (R)"
-      action "Refund"
-      action quiet "Copy the order number (Ctrl C)"
+      action "Reverse"
+      action quiet "Copy the expense number (Ctrl C)"
 ```
 
 **Rationale:** The way VS Code pairs icons with keys in its context menus: the icon scans and the key teaches. The pair stays the same everywhere the command appears.
 
-**Cost:** Icons for Refund and Report read as decoration. A wrong icon teaches faster than no icon, and every icon is a second name to keep true in two languages.
+**Cost:** Icons for Reverse and Report read as decoration. A wrong icon teaches faster than no icon, and every icon is a second name to keep true in two languages.
 
 **Reference:** VS Code
 
@@ -2098,19 +2098,19 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders. 3 selected."
-  region "Orders"
-    field "Order number, name or email" search
-    table 3 "Order" "Customer" "Paid"
-      item: text "SO-1042" · text "Maria Garcia" · text "EUR 125.00"
+    heading "Expenses"
+    text "268 expenses. 3 selected."
+  region "Expenses"
+    field "Expense number, name or email" search
+    table 3 "Expense" "Spender" "Paid"
+      item: text "EXP-1042" · text "Ava" · text "EUR 125.00"
   popover
-    menu "3 selected orders"
-      action "Resend to 3 customers"
-      action "Export 3 orders"
-      action quiet "Copy 3 order numbers (Ctrl C)"
+    menu "3 selected expenses"
+      action "Resend to 3 spenders"
+      action "Export 3 expenses"
+      action quiet "Copy 3 expense numbers (Ctrl C)"
 ```
 
 **Rationale:** The way Figma rewrites its right-click menu for a multi-selection: the count in every label, single-record commands gone. The reader cannot ask three rows to open one record.
@@ -2123,20 +2123,20 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders."
-  region "Orders"
-    field "Order number, name or email" search
-    table 2 "Order" "Customer" "Paid"
-      item: text "SO-1042" · text "Maria Garcia" · text "EUR 125.00"
+    heading "Expenses"
+    text "268 expenses."
+  region "Expenses"
+    field "Expense number, name or email" search
+    table 2 "Expense" "Spender" "Paid"
+      item: text "EXP-1042" · text "Ava" · text "EUR 125.00"
   popover
-    menu "Order SO-1042"
+    menu "Expense EXP-1042"
       action "Open the record"
-      action "Resend the confirmation"
-      action "Refund"
-      action quiet "Copy the order number"
+      action "Resend the receipt"
+      action "Reverse"
+      action quiet "Copy the expense number"
 ```
 
 **Rationale:** The way iOS answers a long press: the same menu, opened by time rather than button. Touch staff get the shortcut without a second design to learn.
@@ -2149,18 +2149,18 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders."
-  region "Orders"
-    field "Order number, name or email" search
-    table 3 "Order" "Customer" "State" "Paid"
-      item: text "SO-1042" · text "Maria Garcia" · status "Paid" positive · text "EUR 125.00"
+    heading "Expenses"
+    text "268 expenses."
+  region "Expenses"
+    field "Expense number, name or email" search
+    table 3 "Expense" "Spender" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
   popover
-    menu "Orders list"
+    menu "Expenses list"
       action "Refresh the list (R)"
-      action "Export these orders (E)"
+      action "Export these expenses (E)"
       action quiet "Copy the page link"
 ```
 
@@ -2174,14 +2174,14 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders."
-  region "Orders"
-    field "Order number, name or email" search
-    table 3 "Order" "Customer" "State" "Paid"
-      item: text "SO-1042" · text "Maria Garcia" · status "Paid" positive · text "EUR 125.00"
+    heading "Expenses"
+    text "268 expenses."
+  region "Expenses"
+    field "Expense number, name or email" search
+    table 3 "Expense" "Spender" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
   popover
     text "The browser answers, because the back office does not."
     menu "Browser"
