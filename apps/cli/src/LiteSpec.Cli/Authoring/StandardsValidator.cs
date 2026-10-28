@@ -189,14 +189,16 @@ static partial class StandardsValidator
             }
 
             var raw = ReadText(file);
-            var prose = string.Join('\n', StripFences(SplitLines(raw)).Select(item => item.Line));
+            var reader = PageReader.Parse(raw);
+            var prose = string.Join('\n', reader.Lines.Select((line, index) =>
+                reader.FencedLines.Contains(index + 1) || reader.GeneratedLines.Contains(index + 1) ? "" : line));
             var nonAscii = NonAsciiOffset(prose);
             if (nonAscii >= 0)
             {
                 Add(relative, LineNumber(prose, nonAscii), "PROSE_NON_ASCII", NonAsciiMessage(prose[nonAscii], "non-ASCII character "));
             }
 
-            parsedPages.Add(new ParsedPage(relative, raw, ParsePage(relative, raw, Add, globalIds, resolved)));
+            parsedPages.Add(new ParsedPage(relative, reader, ParsePage(relative, reader, Add, globalIds, resolved)));
         }
 
         CheckPageIdentity(parsedPages, Add);
@@ -367,8 +369,8 @@ static partial class StandardsValidator
     /// <summary>Everything one page parse collects for the later cross-page checks.</summary>
     private sealed record ParsedBlocks(string? Kind, List<Provision> Provisions);
 
-    /// <summary>One parsed page: its relative path, its raw text, and its blocks.</summary>
-    private sealed record ParsedPage(string Relative, string Raw, ParsedBlocks Parsed);
+    /// <summary>One parsed page: its relative path, its reader, and its blocks.</summary>
+    private sealed record ParsedPage(string Relative, PageReader Reader, ParsedBlocks Parsed);
 
 
     // Every provision identifier is litespec/<page>#<heading-slug>, computed from
@@ -379,12 +381,7 @@ static partial class StandardsValidator
 
     static readonly Lazy<Regex> CitationLazy = new(() => new Regex($"\\b(?:{IdPattern})\\b"));
 
-    // The old Verification table row shape. Standards pages carry verification
-    // beside each provision now, so a row in this shape is a leftover table.
-    static readonly Lazy<Regex> VerificationRowLazy = new(() => new Regex($"^\\|\\s*({IdPattern})\\s*\\|\\s*([^|]*?)\\s*\\|\\s*([^|]*?)\\s*\\|\\s*$"));
-
     static Regex CitationPattern => CitationLazy.Value;
-    static Regex VerificationRowPattern => VerificationRowLazy.Value;
 
     /// <summary>The action verbs a provision heading may start with.</summary>
     static readonly HashSet<string> ActionVerbs = new(
@@ -525,25 +522,15 @@ static partial class StandardsValidator
     // A fenced block is literal content, so the measures do not reach inside one.
     // The line is replaced rather than dropped, which keeps every reported line
     // number equal to the line number in the file.
-    static List<LineItem> StripFences(string[] lines)
+    static List<LineItem> CleanLines(PageReader reader)
     {
-        var result = new List<LineItem>(lines.Length);
-        var fence = false;
-        for (var index = 0; index < lines.Length; index++)
+        var result = new List<LineItem>(reader.Lines.Length);
+        for (var index = 0; index < reader.Lines.Length; index++)
         {
-            var markers = FenceMarkerPattern().Matches(lines[index]).Count;
-            if (markers > 0)
-            {
-                if (markers % 2 == 1)
-                {
-                    fence = !fence;
-                }
-
-                result.Add(new LineItem("", index + 1, true));
-                continue;
-            }
-
-            result.Add(new LineItem(fence ? "" : lines[index], index + 1, fence));
+            var number = index + 1;
+            var fenced = reader.FencedLines.Contains(number);
+            var generated = reader.GeneratedLines.Contains(number);
+            result.Add(new LineItem(fenced || generated ? "" : reader.Lines[index], number, fenced));
         }
 
         return result;
@@ -551,7 +538,4 @@ static partial class StandardsValidator
 
     [GeneratedRegex(@"\r?\n")]
     private static partial Regex NewlinePattern();
-
-    [GeneratedRegex("```")]
-    private static partial Regex FenceMarkerPattern();
 }

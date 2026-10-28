@@ -7,4 +7,9 @@
     <Project Path="apps/cli/src/LiteSpec.Cli/LiteSpec.Cli.csproj" />
     <Project Path="apps/cli/tests/LiteSpec.Cli.Tests/LiteSpec.Cli.Tests.csproj" />
   </Folder>
+  <Folder Name="/apps/model/">
+    <Project Path="apps/model/src/LiteSpec.Model.Core/LiteSpec.Model.Core.csproj" />
+    <Project Path="apps/model/src/LiteSpec.Model.Roslyn/LiteSpec.Model.Roslyn.csproj" />
+    <Project Path="apps/model/tests/LiteSpec.Model.Tests/LiteSpec.Model.Tests.csproj" />
+  </Folder>
 </Solution>

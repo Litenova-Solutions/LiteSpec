@@ -216,39 +216,9 @@ static partial class ModelBuilder
     /// </summary>
     private static void ComputeAuthority(ProjectModel model)
     {
-        var draftDecided = model.Records
-            .Where(record => record.Type == "decision" && record.Status == "draft")
-            .SelectMany(decision => decision.Ids("decides"))
-            .ToHashSet(StringComparer.Ordinal);
-
-        string Own(Record record) =>
-            record.Status == "draft" || draftDecided.Contains(record.Id) ? "draft" : record.Status ?? "approved";
-
-        static bool Live(string status) => status is "approved" or "reviewed";
-
-        foreach (var record in model.Records.Where(record => record.Type is "product" or "goal" or "problem" or "feature" or "requirement" or "constraint" or "decision" or "research" or "actor" or "module" or "role" or "permission" or "external-system" or "event" or "integration-event" or "aggregate" or "runbook" or "deviation" or "known-gap" or "term"))
+        foreach (var entry in Authority.EffectiveStatus(model.Records, record => UseCaseHolder(model, (Record)record)))
         {
-            model.EffectiveStatus[record.Id] = Own(record);
-        }
-
-        foreach (var record in model.Records.Where(record => record.Type is "rule" or "use-case" or "reaction" or "job" or "notification" or "setting" or "entry-point" or "journey"))
-        {
-            var own = Own(record);
-            var inherited = record.Ids("fulfills").Any(id =>
-                model.EffectiveStatus.TryGetValue(id, out var status) && status == "draft");
-
-            model.EffectiveStatus[record.Id] = Live(own) && inherited ? "draft" : own;
-        }
-
-        foreach (var record in model.Records.Where(record => record.Type is "result" or "scenario"))
-        {
-            var own = Own(record);
-            var useCase = UseCaseHolder(model, record);
-            var inherited = useCase is not null
-                && model.EffectiveStatus.TryGetValue(useCase.Id, out var status)
-                && status == "draft";
-
-            model.EffectiveStatus[record.Id] = Live(own) && inherited ? "draft" : own;
+            model.EffectiveStatus[entry.Key] = entry.Value;
         }
     }
 

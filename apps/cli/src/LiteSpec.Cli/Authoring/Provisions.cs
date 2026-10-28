@@ -24,15 +24,11 @@ static class Provisions
     // heading slug. The ID line right below the heading states it, so a reader
     // copies the identifier without composing it. No segment carries a sequence number.
     static readonly Regex ProvisionIdPattern = new($"^{IdSource}$");
-    static readonly Regex ProvisionHeading = new(@"^###\s+(.+?)\s*$");
     static readonly Regex ParseIdPattern = new(@"^litespec\/([a-z0-9]+(?:-[a-z0-9]+)*(?:\/[a-z0-9]+(?:-[a-z0-9]+)*)*)#([a-z0-9]+(?:-[a-z0-9]+)*)$");
-    static readonly Regex SectionHeading = new(@"^##\s+(.+?)\s*(?:\{#.*\})?\s*$");
-    static readonly Regex Fence = new(@"^\s*```");
     static readonly Regex AnchorSuffix = new(@"\s+\{#[^}]+\}\s*$");
     static readonly Regex SlugStrip = new(@"[^a-z0-9\s-]");
     static readonly Regex WhitespaceRun = new(@"\s+");
     static readonly Regex DashRun = new(@"-+");
-    static readonly Regex LineSplit = new(@"\r?\n");
 
     /// <summary>Turns a heading into the anchor slug the index links to.</summary>
     public static string HeadingSlug(string value)
@@ -97,17 +93,20 @@ static class Provisions
             }
 
             var page = PagePath(relative);
-            var lines = StripFences(LineSplit.Split(File.ReadAllText(file)));
-            var marks = CollectInlineMarks(lines, page, relative);
+            var reader = PageReader.Parse(File.ReadAllText(file));
+            var marks = CollectInlineMarks(reader, page, relative);
             var section = "";
 
-            foreach (var line in lines)
+            foreach (var heading in reader.Headings)
             {
-                var heading = SectionHeading.Match(line);
-
-                if (heading.Success)
+                if (heading.Level == 2)
                 {
-                    section = heading.Groups[1].Value.Trim();
+                    section = PageReader.StripAnchorSuffix(heading.Text).Trim();
+                }
+
+                if (heading.Level != 3)
+                {
+                    continue;
                 }
 
                 var pattern = section == "Patterns" && Patterns.PatternPage.IsPatternPage(relative);
@@ -116,14 +115,7 @@ static class Provisions
                     continue;
                 }
 
-                var provision = ProvisionHeading.Match(line);
-
-                if (!provision.Success)
-                {
-                    continue;
-                }
-
-                var title = provision.Groups[1].Value.Trim();
+                var title = heading.Text.Trim();
                 var slug = HeadingSlug(title);
                 var id = $"litespec/{page}#{slug}";
                 var verification = marks.TryGetValue(id, out var found) ? found : (Mark: "", Evidence: "");
@@ -196,26 +188,6 @@ static class Provisions
 
     static string Slash(string value) => value.Replace('\\', '/');
 
-    static string[] StripFences(string[] lines)
-    {
-        var output = new string[lines.Length];
-        var inside = false;
-
-        for (var index = 0; index < lines.Length; index++)
-        {
-            if (Fence.IsMatch(lines[index]))
-            {
-                inside = !inside;
-                output[index] = "";
-                continue;
-            }
-
-            output[index] = inside ? "" : lines[index];
-        }
-
-        return output;
-    }
-
     static List<string> Walk(string directory)
     {
         var result = new List<string>();
@@ -245,21 +217,41 @@ static class Provisions
     // the mark: "Checked by" is checkable with the command that checks it, and
     // "Reviewed for" is guidance with the question a reviewer answers. The index
     // keeps its Mark column, derived from the label.
-    static readonly Regex VerificationLine = new(@"^\*\*(Checked by|Reviewed for):\*\*\s*(.*)$");
-
-    static Dictionary<string, (string Mark, string Evidence)> CollectInlineMarks(string[] lines, string page, string relative)
+    static Dictionary<string, (string Mark, string Evidence)> CollectInlineMarks(PageReader reader, string page, string relative)
     {
         var marks = new Dictionary<string, (string Mark, string Evidence)>(StringComparer.Ordinal);
+        var verifications = new Dictionary<int, (string Mark, string Evidence)>();
+        foreach (var entry in reader.LabelAtLine)
+        {
+            if (entry.Value is "Checked by" or "Reviewed for"
+                && PageReader.TryParseVerificationLine(reader.Lines[entry.Key - 1], out var label, out var evidence))
+            {
+                verifications[entry.Key] = (label == "Checked by" ? "checkable" : "guidance", evidence);
+            }
+        }
+
         var section = "";
         string? current = null;
+        var headings = reader.Headings.Where(heading => heading.Level == 2 || heading.Level == 3).ToList();
+        var lines = headings.Select(heading => heading.Line).Concat(verifications.Keys).OrderBy(line => line).ToList();
+        var byLine = headings.ToDictionary(heading => heading.Line);
 
         foreach (var line in lines)
         {
-            var heading = SectionHeading.Match(line);
-
-            if (heading.Success)
+            if (verifications.TryGetValue(line, out var verification))
             {
-                section = heading.Groups[1].Value.Trim();
+                if (current is not null && !marks.ContainsKey(current))
+                {
+                    marks[current] = verification;
+                }
+
+                continue;
+            }
+
+            var heading = byLine[line];
+            if (heading.Level == 2)
+            {
+                section = PageReader.StripAnchorSuffix(heading.Text).Trim();
                 current = null;
                 continue;
             }
@@ -267,22 +259,7 @@ static class Provisions
             var pattern = section == "Patterns" && Patterns.PatternPage.IsPatternPage(relative);
             if (section == "Standards" || section == "Conventions" || pattern)
             {
-                var provision = ProvisionHeading.Match(line);
-
-                if (provision.Success)
-                {
-                    current = $"litespec/{page}#{HeadingSlug(provision.Groups[1].Value.Trim())}";
-                    continue;
-                }
-            }
-
-            var verification = VerificationLine.Match(line);
-
-            if (verification.Success && current is not null && !marks.ContainsKey(current))
-            {
-                marks[current] = (
-                    verification.Groups[1].Value == "Checked by" ? "checkable" : "guidance",
-                    verification.Groups[2].Value.Trim());
+                current = $"litespec/{page}#{HeadingSlug(heading.Text.Trim())}";
             }
         }
 

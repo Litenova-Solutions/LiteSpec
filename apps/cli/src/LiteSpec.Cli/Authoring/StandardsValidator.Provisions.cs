@@ -11,6 +11,10 @@ static partial class StandardsValidator
         ["validate", "provisions", "consumer", "ui", "model", "book", "patterns", "init", "new", "rename"],
         StringComparer.Ordinal);
 
+    static readonly HashSet<string> ProvisionLabels = new(
+        ["Statement", "Deviation", "Rationale", "Example", "Default", "Replacement"],
+        StringComparer.Ordinal);
+
     // A claim is the comparable core of a heading, a Statement, a Default, or a
     // summary bullet: lowercase words with punctuation, code marks, and any leading
     // actor and normative modal removed.
@@ -20,7 +24,7 @@ static partial class StandardsValidator
         return ClaimModalPattern().Replace(normalized, "").Trim();
     }
 
-    static void CheckProvisionBodies(string relative, List<Provision> provisions, Action<string, int, string, string> add)
+    static void CheckProvisionBodies(string relative, PageReader reader, List<Provision> provisions, Action<string, int, string, string> add)
     {
         foreach (var provision in provisions)
         {
@@ -36,15 +40,13 @@ static partial class StandardsValidator
                 // The ID line and the verification line belong to the provision
                 // frame, not to its labeled fields; the identity and verification
                 // checks own them.
-                if (IdLinePattern().IsMatch(item.Line) || VerificationLinePattern().IsMatch(item.Line))
+                if (PageReader.TryParseIdLine(item.Line, out _) || PageReader.TryParseVerificationLine(item.Line, out _, out _))
                 {
                     continue;
                 }
 
-                var label = ProvisionLabelPattern().Match(item.Line);
-                if (label.Success)
+                if (reader.LabelAtLine.TryGetValue(item.Number, out var name) && ProvisionLabels.Contains(name))
                 {
-                    var name = label.Groups[1].Value;
                     labels.Add((name, item.Number));
                     activeLabel = name;
                     if (!allowedLabels.Contains(name))
@@ -54,7 +56,7 @@ static partial class StandardsValidator
 
                     if (name is "Rationale" or "Example")
                     {
-                        if (HasNormativeVocabulary(item.Line))
+                        if (HasNormativeVocabulary(PageReader.VisibleText(item.Line)))
                         {
                             add(relative, item.Number, "STANDARD_INFORMATIVE_NORMATIVE", $"informative content in '{provision.Id}' contains normative vocabulary");
                         }
@@ -63,7 +65,7 @@ static partial class StandardsValidator
                     {
                         // The modal lives in the Statement; the Deviation states the
                         // bounded reason that permits a departure, in plain words.
-                        if (HasNormativeVocabulary(item.Line))
+                        if (HasNormativeVocabulary(PageReader.VisibleText(item.Line)))
                         {
                             add(relative, item.Number, "STANDARD_DEVIATION_NORMATIVE", $"Deviation for '{provision.Id}' contains normative vocabulary");
                         }
@@ -95,7 +97,7 @@ static partial class StandardsValidator
 
                 if (activeLabel is "Rationale" or "Example")
                 {
-                    if (HasNormativeVocabulary(item.Line))
+                    if (HasNormativeVocabulary(PageReader.VisibleText(item.Line)))
                     {
                         add(relative, item.Number, "STANDARD_INFORMATIVE_NORMATIVE", $"informative content in '{provision.Id}' contains normative vocabulary");
                     }
@@ -138,9 +140,8 @@ static partial class StandardsValidator
         }
     }
 
-    static bool HasNormativeVocabulary(string line)
+    static bool HasNormativeVocabulary(string visible)
     {
-        var visible = Prose.VisibleText(line);
         return ModalsPattern().Matches(visible).Count > 0 || OtherNormativePattern().IsMatch(visible);
     }
 
@@ -160,23 +161,24 @@ static partial class StandardsValidator
 
         var assertion = statements[0];
         var statement = assertion.Line["**Statement:**".Length..].Trim();
-        var modalCount = ModalsPattern().Matches(Prose.VisibleText(statement)).Count;
+        var visibleStatement = PageReader.VisibleText(statement);
+        var modalCount = ModalsPattern().Matches(visibleStatement).Count;
         if (modalCount != 1)
         {
             add(relative, assertion.Number, "STANDARD_MODAL_COUNT", $"Statement for '{provision.Id}' has {modalCount} normative modals");
         }
 
-        if (OtherNormativePattern().IsMatch(Prose.VisibleText(statement)))
+        if (OtherNormativePattern().IsMatch(visibleStatement))
         {
             add(relative, assertion.Number, "STANDARD_MODAL_VOCABULARY", $"Statement for '{provision.Id}' uses an unsupported normative term");
         }
 
-        if (Prose.Sentences(statement).Count != 1)
+        if (Prose.Sentences(visibleStatement).Count != 1)
         {
             add(relative, assertion.Number, "STANDARD_SENTENCE_COUNT", $"Statement for '{provision.Id}' must contain one sentence");
         }
 
-        var should = ShouldPattern().IsMatch(Prose.VisibleText(statement));
+        var should = ShouldPattern().IsMatch(visibleStatement);
         var deviations = nonblank.Where(item => item.Line.StartsWith("**Deviation:**", StringComparison.Ordinal)).ToList();
         if (should && deviations.Count == 0)
         {
@@ -188,7 +190,7 @@ static partial class StandardsValidator
             add(relative, deviations[0].Number, "STANDARD_UNEXPECTED_DEVIATION", $"non-recommendation '{provision.Id}' cannot contain a Deviation statement");
         }
 
-        if (deviations.Count > 0 && Prose.Sentences(deviations[0].Line["**Deviation:**".Length..].Trim()).Count != 1)
+        if (deviations.Count > 0 && Prose.Sentences(PageReader.VisibleText(deviations[0].Line["**Deviation:**".Length..].Trim())).Count != 1)
         {
             add(relative, deviations[0].Number, "STANDARD_DEVIATION_SENTENCE", $"Deviation for '{provision.Id}' must contain one sentence");
         }
@@ -208,19 +210,19 @@ static partial class StandardsValidator
             add(relative, provision.Line, "CONVENTION_MISSING_REPLACEMENT", $"convention '{provision.Id}' has no Replacement statement");
         }
 
-        if (defaults.Count > 0 && Prose.Sentences(defaults[0].Line["**Default:**".Length..].Trim()).Count != 1)
+        if (defaults.Count > 0 && Prose.Sentences(PageReader.VisibleText(defaults[0].Line["**Default:**".Length..].Trim())).Count != 1)
         {
             add(relative, defaults[0].Number, "CONVENTION_DEFAULT_SENTENCE", $"Default for '{provision.Id}' must contain one sentence");
         }
 
-        if (replacements.Count > 0 && Prose.Sentences(replacements[0].Line["**Replacement:**".Length..].Trim()).Count != 1)
+        if (replacements.Count > 0 && Prose.Sentences(PageReader.VisibleText(replacements[0].Line["**Replacement:**".Length..].Trim())).Count != 1)
         {
             add(relative, replacements[0].Number, "CONVENTION_REPLACEMENT_SENTENCE", $"Replacement for '{provision.Id}' must contain one sentence");
         }
 
         // A Replacement names the local convention that takes the default's
         // place. A departure instrument belongs to a Standard, never here.
-        if (replacements.Count > 0 && DeviationMentionPattern().IsMatch(Prose.VisibleText(replacements[0].Line["**Replacement:**".Length..])))
+        if (replacements.Count > 0 && DeviationMentionPattern().IsMatch(PageReader.VisibleText(replacements[0].Line["**Replacement:**".Length..])))
         {
             add(relative, replacements[0].Number, "CONVENTION_REPLACEMENT_DEVIATION", $"Replacement for '{provision.Id}' names an exception or deviation; name the local convention instead");
         }
@@ -259,8 +261,7 @@ static partial class StandardsValidator
                 continue;
             }
 
-            var text = Prose.VisibleText(item.Line);
-            if (ModalsPattern().Matches(text).Count > 0 || OtherNormativePattern().IsMatch(text))
+            if (HasNormativeVocabulary(PageReader.VisibleText(item.Line)))
             {
                 add(relative, item.Number, "PROSE_NORMATIVE_LOCATION", "normative vocabulary is outside a Statement, Default, or Replacement");
             }
@@ -271,7 +272,7 @@ static partial class StandardsValidator
     {
         // The ID line is the first line after the heading. It states the derived
         // ID, so a reader copies the identifier without composing it.
-        var ids = fields.Where(item => IdLinePattern().IsMatch(item.Line)).ToList();
+        var ids = fields.Where(item => PageReader.TryParseIdLine(item.Line, out _)).ToList();
         if (ids.Count == 0)
         {
             add(relative, provision.Line, "ID_LINE_MISSING", $"provision '{provision.Id}' has no ID line; the first line after the heading states its ID");
@@ -279,12 +280,12 @@ static partial class StandardsValidator
         }
 
         var first = fields.First(item => item.Line.Trim().Length > 0);
-        if (!IdLinePattern().IsMatch(first.Line))
+        if (!PageReader.TryParseIdLine(first.Line, out _))
         {
             add(relative, ids[0].Number, "ID_LINE_MISSING", $"ID line for '{provision.Id}' must be the first line after the heading");
         }
 
-        var stated = IdLinePattern().Match(ids[0].Line).Groups[1].Value;
+        PageReader.TryParseIdLine(ids[0].Line, out var stated);
         if (stated != provision.Id)
         {
             add(relative, ids[0].Number, "ID_LINE_MISMATCH", $"ID line states '{stated}' but the heading derives '{provision.Id}'");
@@ -296,7 +297,7 @@ static partial class StandardsValidator
         }
     }
 
-    static void CheckInlineVerification(string relative, List<LineItem> clean, List<Provision> provisions, string root, Action<string, int, string, string> add)
+    static void CheckInlineVerification(string relative, PageReader reader, List<Provision> provisions, string root, Action<string, int, string, string> add)
     {
         // Every provision carries its verification beside its heading: exactly one
         // verification line, last among its fields. The label names the mark:
@@ -309,11 +310,18 @@ static partial class StandardsValidator
         }
 
         // A leftover Verification table: the old header or one of its rows.
-        foreach (var item in clean)
+        foreach (var table in reader.Tables)
         {
-            if (VerifyHeaderPattern().IsMatch(item.Line) || VerificationRowPattern.IsMatch(item.Line))
+            if (table.Header.Count == 3 && table.Header[0] == "ID" && table.Header[1] == "Mark" && table.Header[2] == "Evidence")
             {
-                add(relative, item.Number, "VERIFY_HEADER", "standards pages carry verification beside each provision; remove the Verification table");
+                add(relative, table.HeaderLine, "VERIFY_HEADER", "standards pages carry verification beside each provision; remove the Verification table");
+                foreach (var row in table.Rows)
+                {
+                    if (row.Cells.Count == 3 && Provisions.IsProvisionId(row.Cells[0].Trim()))
+                    {
+                        add(relative, row.Line, "VERIFY_HEADER", "standards pages carry verification beside each provision; remove the Verification table");
+                    }
+                }
             }
         }
 
@@ -324,15 +332,20 @@ static partial class StandardsValidator
         {
             // A pattern's fields end at its first option; everything below that
             // is drawn options, not the pattern's own fields.
+            var cutoff = reader.Headings
+                .Where(heading => heading.Level == 4 && heading.Line > provision.Line)
+                .Select(heading => heading.Line)
+                .Append(int.MaxValue)
+                .Min();
             var fields = provision.Section == "Patterns"
-                ? provision.Body.TakeWhile(item => !item.Line.StartsWith("#### ", StringComparison.Ordinal)).ToList()
+                ? provision.Body.TakeWhile(item => item.Number < cutoff).ToList()
                 : provision.Body;
 
             CheckProvisionIdentity(relative, provision, fields, add);
 
             var lines = fields
                 .Select((item, index) => (Item: item, Index: index))
-                .Where(pair => VerificationLinePattern().IsMatch(pair.Item.Line))
+                .Where(pair => PageReader.TryParseVerificationLine(pair.Item.Line, out _, out _))
                 .ToList();
             if (lines.Count == 0)
             {
@@ -347,23 +360,22 @@ static partial class StandardsValidator
 
             var (found, position) = lines[0];
             var after = fields.Skip(position + 1).ToList();
-            if (after.Any(item => ProvisionLabelPattern().IsMatch(item.Line)
-                || VerificationLinePattern().IsMatch(item.Line)
+            if (after.Any(item => (reader.LabelAtLine.TryGetValue(item.Number, out var label) && ProvisionLabels.Contains(label))
+                || PageReader.TryParseVerificationLine(item.Line, out _, out _)
                 || item.Fenced
                 || item.Line.Trim().Length > 0))
             {
                 add(relative, found.Number, "VERIFY_ORDER", $"verification line for '{provision.Id}' must be last among its fields");
             }
 
-            var match = VerificationLinePattern().Match(found.Line);
-            var mark = match.Groups[1].Value == "Checked by" ? "checkable" : "guidance";
-            var evidence = match.Groups[2].Value.Trim();
-            if (HasNormativeVocabulary(found.Line))
+            PageReader.TryParseVerificationLine(found.Line, out var labelName, out var evidence);
+            var mark = labelName == "Checked by" ? "checkable" : "guidance";
+            if (HasNormativeVocabulary(PageReader.VisibleText(found.Line)))
             {
                 add(relative, found.Number, "STANDARD_INFORMATIVE_NORMATIVE", $"informative content in '{provision.Id}' contains normative vocabulary");
             }
 
-            if (GenericEvidencePattern().IsMatch(Prose.VisibleText(evidence)))
+            if (GenericEvidencePattern().IsMatch(PageReader.VisibleText(evidence)))
             {
                 add(relative, found.Number, "VERIFY_GENERIC_EVIDENCE", $"Verification for '{provision.Id}' uses generic evidence");
             }
@@ -471,15 +483,6 @@ static partial class StandardsValidator
     [GeneratedRegex(@"\b(?:REQUIRED|FORBIDDEN|SHALL)\b")]
     private static partial Regex OtherNormativePattern();
 
-    [GeneratedRegex(@"^\*\*(Statement|Deviation|Rationale|Example|Default|Replacement):\*\*")]
-    private static partial Regex ProvisionLabelPattern();
-
-    [GeneratedRegex(@"^\*\*ID:\*\*\s*`([^`]+)`\s*$")]
-    private static partial Regex IdLinePattern();
-
-    [GeneratedRegex(@"^\*\*(Checked by|Reviewed for):\*\*\s*(.*)$")]
-    private static partial Regex VerificationLinePattern();
-
     [GeneratedRegex(@"\b(?:exceptions?|deviations?)\b", RegexOptions.IgnoreCase)]
     private static partial Regex DeviationMentionPattern();
 
@@ -494,9 +497,6 @@ static partial class StandardsValidator
 
     [GeneratedRegex(@"\bSHOULD(?: NOT)?\b")]
     private static partial Regex ShouldPattern();
-
-    [GeneratedRegex(@"^\|\s*ID\s*\|\s*Mark\s*\|\s*Evidence\s*\|\s*$")]
-    private static partial Regex VerifyHeaderPattern();
 
     [GeneratedRegex(@"`([^`]+)`")]
     private static partial Regex EvidenceCommandPattern();

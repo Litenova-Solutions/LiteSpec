@@ -223,29 +223,25 @@ static partial class StandardsValidator
         }
     }
 
-    static string SectionBody(string[] lines, string sectionName)
+    static string SectionBody(PageReader reader, string sectionName)
     {
-        var start = Array.FindIndex(lines, line => PageAnchorSuffixPattern().Replace(line, "").Trim() == $"## {sectionName}");
+        var headings = reader.Headings.Where(heading => heading.Level == 2).ToList();
+        var start = headings.FindIndex(heading => PageReader.StripAnchorSuffix(heading.Text).Trim() == sectionName);
         if (start < 0)
         {
             return "";
         }
 
-        var end = start + 1;
-        while (end < lines.Length && !H2StartPattern().IsMatch(lines[end]))
-        {
-            end++;
-        }
-
-        return string.Join('\n', lines[(start + 1)..end]).Trim();
+        var startLine = headings[start].Line;
+        var endLine = start + 1 < headings.Count ? headings[start + 1].Line : reader.Lines.Length + 1;
+        return string.Join('\n', reader.Lines[startLine..(endLine - 1)]).Trim();
     }
 
     static bool TitleCase(string value)
     {
         // Code spans and explicit anchors keep their own case; the rule judges
         // the words around them.
-        value = PageAnchorSuffixPattern().Replace(value, "");
-        value = InlineCodePattern().Replace(value, " ");
+        value = PageReader.StripAnchorSuffix(value).Trim();
         var matches = TitleTokenPattern().Matches(value).Cast<Match>().ToList();
         return matches.Select((match, index) => (token: match.Value, index, start: match.Index)).All(item =>
         {
@@ -270,7 +266,7 @@ static partial class StandardsValidator
     // its H2 literals, and the root routing heading is a fixed literal too,
     // so those stay untouched here and change with the contract instead. The
     // generated provision index is tool output rather than authored headings.
-    static void CheckHeadingCase(string relative, string? kind, List<LineItem> clean, Action<string, int, string, string> add)
+    static void CheckHeadingCase(string relative, string? kind, PageReader reader, Action<string, int, string, string> add)
     {
         if (relative == Provisions.IndexPath)
         {
@@ -281,24 +277,22 @@ static partial class StandardsValidator
         var contractNames = contract is null
             ? new HashSet<string>(StringComparer.Ordinal)
             : new HashSet<string>(contract.Required.Concat(contract.Optional), StringComparer.Ordinal);
-        foreach (var item in clean)
+        foreach (var heading in reader.Headings)
         {
-            var heading = HeadingCasePattern().Match(item.Line);
-            if (!heading.Success)
+            if (heading.Level < 2 || heading.Level > 6)
             {
                 continue;
             }
 
-            var level = heading.Groups[1].Value.Length;
-            var title = PageAnchorSuffixPattern().Replace(heading.Groups[2].Value, "").Trim();
-            if (level == 2 && (title == RoutingHeading || contractNames.Contains(title)))
+            var title = PageReader.StripAnchorSuffix(heading.Text).Trim();
+            if (heading.Level == 2 && (title == RoutingHeading || contractNames.Contains(title)))
             {
                 continue;
             }
 
-            if (title.Length > 0 && !TitleCase(title))
+            if (title.Length > 0 && !TitleCase(heading.DisplayText))
             {
-                add(relative, item.Number, "PAGE_HEADING_CASE", $"H{level} '{title}' must use Title Case");
+                add(relative, heading.Line, "PAGE_HEADING_CASE", $"H{heading.Level} '{title}' must use Title Case");
             }
         }
     }
@@ -321,19 +315,7 @@ static partial class StandardsValidator
         return AddsNoContentPattern().IsMatch(text);
     }
 
-    static HashSet<string> AnchorsFor(string raw)
-    {
-        var anchors = new HashSet<string>(StringComparer.Ordinal);
-        foreach (Match match in HeadingLinePattern().Matches(raw))
-        {
-            var explicitAnchor = ExplicitAnchorPattern().Match(match.Groups[1].Value);
-            anchors.Add(explicitAnchor.Success ? explicitAnchor.Groups[1].Value : Provisions.HeadingSlug(match.Groups[1].Value));
-        }
-
-        return anchors;
-    }
-
-    static void CheckIndexAndGlossary(string relative, string? kind, string raw, List<PageSection> sections, Action<string, int, string, string> add)
+    static void CheckIndexAndGlossary(string relative, string? kind, PageReader reader, List<PageSection> sections, Action<string, int, string, string> add)
     {
         if (kind == "index" && (sections.Count == 0 || sections[0].Name != "Intent"))
         {
@@ -359,7 +341,8 @@ static partial class StandardsValidator
             add(relative, 1, "GLOSSARY_ORDER", "glossary terms are not alphabetical");
         }
 
-        var lines = SplitLines(raw);
+        var lines = reader.Lines;
+        var headingLines = reader.Headings.Select(heading => heading.Line).ToHashSet();
         for (var index = 0; index < sections.Count; index++)
         {
             var start = sections[index].Line;
@@ -378,7 +361,7 @@ static partial class StandardsValidator
                     continue;
                 }
 
-                if (H16Pattern().IsMatch(line))
+                if (headingLines.Contains(cursor + 1))
                 {
                     break;
                 }
@@ -386,7 +369,7 @@ static partial class StandardsValidator
                 firstParagraph.Add(line);
             }
 
-            if (Prose.Sentences(string.Join(' ', firstParagraph)).Count != 1)
+            if (Prose.Sentences(PageReader.VisibleText(string.Join(' ', firstParagraph))).Count != 1)
             {
                 add(relative, sections[index].Line, "GLOSSARY_DEFINITION", $"term '{sections[index].Name}' must start with one definition sentence");
             }
@@ -397,12 +380,11 @@ static partial class StandardsValidator
             var start = sections[index].Line;
             var end = index + 1 < sections.Count ? sections[index + 1].Line - 1 : lines.Length;
             var group = new List<string>();
-            for (var cursor = start; cursor < end; cursor++)
+            foreach (var heading in reader.Headings)
             {
-                var heading = H3Pattern().Match(lines[cursor]);
-                if (heading.Success)
+                if (heading.Level == 3 && heading.Line > start && heading.Line <= end)
                 {
-                    group.Add(heading.Groups[1].Value.Trim());
+                    group.Add(heading.Text.Trim());
                 }
             }
 
@@ -416,41 +398,26 @@ static partial class StandardsValidator
         }
     }
 
-    static ParsedBlocks ParsePage(string relative, string raw, Action<string, int, string, string> add, Dictionary<string, string> globalIds, string root, bool @virtual = false)
+    static ParsedBlocks ParsePage(string relative, PageReader reader, Action<string, int, string, string> add, Dictionary<string, string> globalIds, string root, bool @virtual = false)
     {
         var kind = PageClass(relative);
-        var lines = SplitLines(raw);
-        var clean = StripFences(lines);
+        var clean = CleanLines(reader);
         var sections = new List<PageSection>();
         var currentH2 = "";
-        var h1Count = 0;
-        var h1Title = "";
-        var h1Line = 1;
+        var h1s = reader.Headings.Where(heading => heading.Level == 1).ToList();
         var provisions = new List<Provision>();
 
-        for (var index = 0; index < clean.Count; index++)
+        foreach (var heading in reader.Headings)
         {
-            var line = clean[index].Line;
-            var h1 = H1Pattern().Match(line);
-            if (h1.Success)
+            if (heading.Level == 2)
             {
-                h1Count++;
-                h1Title = h1.Groups[1].Value;
-                h1Line = index + 1;
-            }
-
-            var h2 = H2Pattern().Match(line);
-            if (h2.Success)
-            {
-                var name = PageAnchorSuffixPattern().Replace(h2.Groups[1].Value, "");
-                currentH2 = name;
-                sections.Add(new PageSection(name, index + 1));
+                currentH2 = PageReader.StripAnchorSuffix(heading.Text).Trim();
+                sections.Add(new PageSection(currentH2, heading.Line));
 
                 continue;
             }
 
-            var heading = H3Pattern().Match(line);
-            if (!heading.Success)
+            if (heading.Level != 3)
             {
                 continue;
             }
@@ -469,10 +436,10 @@ static partial class StandardsValidator
             // The identifier is derived from the page path and the heading, and the
             // ID line right below the heading states it, so the heading carries
             // no ID text of its own.
-            var title = heading.Groups[1].Value.Trim();
+            var title = heading.Text.Trim();
             if (title.Contains("litespec/", StringComparison.Ordinal))
             {
-                add(relative, index + 1, "ID_IN_HEADING", $"provision heading '{title}' carries identifier text; the ID is computed from the page and the heading");
+                add(relative, heading.Line, "ID_IN_HEADING", $"provision heading '{title}' carries identifier text; the ID is computed from the page and the heading");
             }
 
             var id = $"litespec/{Provisions.PagePath(relative)}#{Provisions.HeadingSlug(title)}";
@@ -480,55 +447,52 @@ static partial class StandardsValidator
             // A pattern heading is the pattern's name, so its ID survives a change of default.
             if (!pattern && (!firstWord.Success || !ActionVerbs.Contains(firstWord.Value)))
             {
-                add(relative, index + 1, "HEADING_ACTION", $"provision heading '{title}' must start with an action verb");
+                add(relative, heading.Line, "HEADING_ACTION", $"provision heading '{title}' must start with an action verb");
             }
 
             if (globalIds.TryGetValue(id, out var first))
             {
-                add(relative, index + 1, "ID_DUPLICATE", $"provision ID '{id}' also appears in {first}");
+                add(relative, heading.Line, "ID_DUPLICATE", $"provision ID '{id}' also appears in {first}");
             }
             else
             {
-                globalIds[id] = $"{relative}:{index + 1}";
+                globalIds[id] = $"{relative}:{heading.Line}";
             }
 
-            var cursor = index + 1;
-            var body = new List<LineItem>();
-            while (cursor < clean.Count && !H23Pattern().IsMatch(clean[cursor].Line))
-            {
-                body.Add(clean[cursor++]);
-            }
+            var nextLine = reader.Headings
+                .Where(candidate => (candidate.Level == 2 || candidate.Level == 3) && candidate.Line > heading.Line)
+                .Select(candidate => candidate.Line)
+                .Append(int.MaxValue)
+                .Min();
+            var body = clean.Where(item => item.Number > heading.Line && item.Number < nextLine).ToList();
 
-            provisions.Add(new Provision(id, title, currentH2, index + 1, body));
+            provisions.Add(new Provision(id, title, currentH2, heading.Line, body));
         }
 
         // A heading with no body and no lower-level heading beneath it groups
         // nothing. It becomes a dead entry in any generated table of contents.
-        for (var index = 0; index < clean.Count; index++)
+        var levels = reader.Headings.ToDictionary(heading => heading.Line, heading => heading.Level);
+        foreach (var heading in reader.Headings)
         {
-            var heading = H24Pattern().Match(clean[index].Line);
-            if (!heading.Success)
+            if (heading.Level < 2 || heading.Level > 4)
             {
                 continue;
             }
 
-            var level = heading.Groups[1].Value.Length;
             var hasBody = false;
-            for (var cursor = index + 1; cursor < clean.Count; cursor++)
+            for (var line = heading.Line + 1; line <= reader.Lines.Length; line++)
             {
-                var next = H16Pattern().Match(clean[cursor].Line);
-                if (next.Success)
+                if (levels.TryGetValue(line, out var nextLevel))
                 {
-                    if (next.Groups[1].Value.Length <= level)
+                    if (nextLevel > heading.Level)
                     {
-                        break;
+                        hasBody = true;
                     }
 
-                    hasBody = true;
                     break;
                 }
 
-                if (clean[cursor].Line.Trim().Length > 0 || clean[cursor].Fenced)
+                if (reader.Lines[line - 1].Trim().Length > 0 || reader.FencedLines.Contains(line) || reader.GeneratedLines.Contains(line))
                 {
                     hasBody = true;
                     break;
@@ -537,34 +501,30 @@ static partial class StandardsValidator
 
             if (!hasBody)
             {
-                add(relative, index + 1, "HEADING_EMPTY_BODY", $"heading '{heading.Groups[2].Value}' has no body and no nested heading");
+                add(relative, heading.Line, "HEADING_EMPTY_BODY", $"heading '{heading.Text}' has no body and no nested heading");
             }
         }
 
         // An index navigates. A numbered procedure inside one duplicates a canonical
         // provision without citing it. (litespec/core/authoring#use-the-declared-page-contract)
-        if (kind == "index")
+        if (kind == "index" && reader.OrderedStepLines.Count > 0)
         {
-            var step = clean.FirstOrDefault(item => NumberedStepPattern().IsMatch(item.Line));
-            if (step is not null)
-            {
-                add(relative, step.Number, "INDEX_CONTAINS_PROCEDURE", "an index must not contain a numbered procedure");
-            }
+            add(relative, reader.OrderedStepLines[0], "INDEX_CONTAINS_PROCEDURE", "an index must not contain a numbered procedure");
         }
 
-        if (kind is not null && kind != "index" && h1Count != 1)
+        if (kind is not null && kind != "index" && h1s.Count != 1)
         {
-            add(relative, 1, "PAGE_TITLE_COUNT", $"expected one H1, found {h1Count}");
+            add(relative, h1s.Count > 1 ? h1s[1].Line : 1, "PAGE_TITLE_COUNT", $"expected one H1, found {h1s.Count}");
         }
 
-        if (kind is not null && kind != "index" && h1Count == 1 && !TitleCase(h1Title))
+        if (kind is not null && kind != "index" && h1s.Count == 1 && !TitleCase(h1s[0].DisplayText))
         {
-            add(relative, h1Line, "PAGE_TITLE_CASE", $"H1 '{h1Title}' must use Title Case");
+            add(relative, h1s[0].Line, "PAGE_TITLE_CASE", $"H1 '{h1s[0].Text}' must use Title Case");
         }
 
         CheckSectionOrder(relative, kind, sections, add);
-        CheckIndexAndGlossary(relative, kind, raw, sections, add);
-        CheckHeadingCase(relative, kind, clean, add);
+        CheckIndexAndGlossary(relative, kind, reader, sections, add);
+        CheckHeadingCase(relative, kind, reader, add);
         var contract = ExpectedSections(kind);
         if (contract is not null)
         {
@@ -576,7 +536,7 @@ static partial class StandardsValidator
                     continue;
                 }
 
-                var body = SectionBody(lines, section.Name);
+                var body = SectionBody(reader, section.Name);
                 if (body.Length == 0)
                 {
                     add(relative, section.Line, "PAGE_EMPTY_SECTION", $"H2 '{section.Name}' must contain content or 'None.'");
@@ -590,8 +550,26 @@ static partial class StandardsValidator
 
         if (kind == "topic" && sections.Any(section => section.Name == "Reference Example"))
         {
-            var example = SectionBody(lines, "Reference Example");
-            var firstLine = StripFences(SplitLines(example)).FirstOrDefault(item => item.Line.Trim().Length > 0)?.Line.Trim() ?? "";
+            var example = SectionBody(reader, "Reference Example");
+            var exampleHeading = reader.Headings.FirstOrDefault(heading => heading.Level == 2 && PageReader.StripAnchorSuffix(heading.Text).Trim() == "Reference Example");
+            var exampleEnd = reader.Headings
+                .Where(candidate => candidate.Level == 2 && exampleHeading is not null && candidate.Line > exampleHeading.Line)
+                .Select(candidate => candidate.Line)
+                .Append(reader.Lines.Length + 1)
+                .Min();
+            var firstLine = "";
+            if (exampleHeading is not null)
+            {
+                for (var line = exampleHeading.Line + 1; line < exampleEnd; line++)
+                {
+                    if (reader.Lines[line - 1].Trim().Length > 0 && !reader.FencedLines.Contains(line) && !reader.GeneratedLines.Contains(line))
+                    {
+                        firstLine = reader.Lines[line - 1].Trim();
+                        break;
+                    }
+                }
+            }
+
             var ids = CitationPattern.Matches(example);
             if (!firstLine.StartsWith("This informative example demonstrates ", StringComparison.Ordinal) || ids.Count == 0)
             {
@@ -601,15 +579,15 @@ static partial class StandardsValidator
         }
 
         var rules = provisions.Where(provision => provision.Section != "Patterns").ToList();
-        CheckProvisionBodies(relative, rules, add);
+        CheckProvisionBodies(relative, reader, rules, add);
         CheckProvisionClaims(relative, rules, add);
         CheckNormativeLocation(relative, clean, provisions, add);
-        CheckInlineVerification(relative, clean, provisions, root, add);
+        CheckInlineVerification(relative, reader, provisions, root, add);
 
         if (kind == "pattern")
         {
             var group = Path.GetFileNameWithoutExtension(relative);
-            foreach (var (line, message) in Patterns.PatternPage.Parse(group, raw).Check())
+            foreach (var (line, message) in Patterns.PatternPage.Parse(group, reader.Raw).Check())
             {
                 add(relative, line, "PATTERN_INVALID", message);
             }
@@ -618,44 +596,8 @@ static partial class StandardsValidator
         return new ParsedBlocks(kind, provisions);
     }
 
-    [GeneratedRegex(@"^#\s+(.+?)\s*$")]
-    private static partial Regex H1Pattern();
-
-    [GeneratedRegex(@"^##\s+(.+?)\s*$")]
-    private static partial Regex H2Pattern();
-
-    [GeneratedRegex(@"^###\s+(.+)$")]
-    private static partial Regex H3Pattern();
-
-    [GeneratedRegex(@"^##\s+")]
-    private static partial Regex H2StartPattern();
-
-    [GeneratedRegex(@"^#{2,3}\s+")]
-    private static partial Regex H23Pattern();
-
-    [GeneratedRegex(@"^(#{1,6})\s+")]
-    private static partial Regex H16Pattern();
-
-    [GeneratedRegex(@"^(#{2,4})\s+(.+?)\s*$")]
-    private static partial Regex H24Pattern();
-
-    [GeneratedRegex(@"^(#{2,6})\s+(.+?)\s*$")]
-    private static partial Regex HeadingCasePattern();
-
     [GeneratedRegex(@"^This [A-Za-z]+ adds no [A-Za-z]+\.$")]
     private static partial Regex AddsNoContentPattern();
-
-    [GeneratedRegex(@"\s+\{#[^}]+\}\s*$")]
-    private static partial Regex PageAnchorSuffixPattern();
-
-    [GeneratedRegex(@"^\s*\d+\.\s+\S")]
-    private static partial Regex NumberedStepPattern();
-
-    [GeneratedRegex(@"^\s*-\s+")]
-    private static partial Regex BulletPattern();
-
-    [GeneratedRegex(@"^\s*(?:[-*+] |\d+\.\s+)")]
-    private static partial Regex ListMarkerPattern();
 
     [GeneratedRegex(@"[A-Za-z0-9][A-Za-z0-9'./+-]*")]
     private static partial Regex TitleTokenPattern();
@@ -669,15 +611,6 @@ static partial class StandardsValidator
 
     [GeneratedRegex(@"^[A-Z]")]
     private static partial Regex TitleCapitalPattern();
-
-    [GeneratedRegex(@"^#{1,6}\s+(.+)$", RegexOptions.Multiline)]
-    private static partial Regex HeadingLinePattern();
-
-    [GeneratedRegex(@"\{#([^}]+)\}\s*$")]
-    private static partial Regex ExplicitAnchorPattern();
-
-    [GeneratedRegex(@"(^|/)reference/decisions/")]
-    private static partial Regex ReferenceDecisionsPattern();
 
     [GeneratedRegex(@"^[A-Za-z]+(?:-[A-Za-z]+)?")]
     private static partial Regex FirstWordPattern();

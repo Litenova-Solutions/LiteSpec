@@ -24,7 +24,12 @@
     </ItemGroup>
 
     <ItemGroup>
+        <PackageReference Include="Markdig" />
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="../../../model/src/LiteSpec.Model.Core/LiteSpec.Model.Core.csproj" />
     </ItemGroup>
 
     <ItemGroup>

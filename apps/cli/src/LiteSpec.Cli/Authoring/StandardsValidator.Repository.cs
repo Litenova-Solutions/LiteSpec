@@ -66,7 +66,8 @@ static partial class StandardsValidator
     {
         foreach (var page in parsedPages)
         {
-            var prose = string.Join('\n', StripFences(SplitLines(page.Raw)).Select(item => item.Line));
+            var prose = string.Join('\n', page.Reader.Lines.Select((line, index) =>
+                page.Reader.FencedLines.Contains(index + 1) || page.Reader.GeneratedLines.Contains(index + 1) ? "" : line));
             foreach (Match match in CitationPattern.Matches(prose))
             {
                 if (!activeIds.Contains(match.Value))
@@ -97,32 +98,34 @@ static partial class StandardsValidator
             var relative = Slash(Path.GetRelativePath(root, file));
             var virtualRelative = TemplateVirtualPath.GetValueOrDefault(Path.GetFileName(file), "docs/core/template.md");
             var normalized = NormalizeTemplate(relative, ReadText(file));
-            var stripped = string.Join('\n', StripFences(SplitLines(normalized)).Select(item => item.Line));
+            var templateReader = PageReader.Parse(normalized);
+            var stripped = string.Join('\n', templateReader.Lines.Select((line, index) =>
+                templateReader.FencedLines.Contains(index + 1) || templateReader.GeneratedLines.Contains(index + 1) ? "" : line));
             var nonAscii = NonAsciiOffset(stripped);
             if (nonAscii >= 0)
             {
                 add(relative, 1, "PROSE_NON_ASCII", NonAsciiMessage(stripped[nonAscii], "authoring template contains non-ASCII character "));
             }
 
-            ParsePage(virtualRelative, normalized, add, globalIds, root, @virtual: true);
+            ParsePage(virtualRelative, templateReader, add, globalIds, root, @virtual: true);
         }
     }
 
     static void CheckLinks(string root, List<string> files, Action<string, int, string, string> add)
     {
-        var anchors = new Dictionary<string, HashSet<string>>(StringComparer.Ordinal);
+        var readers = new Dictionary<string, PageReader>(StringComparer.Ordinal);
         foreach (var file in files)
         {
-            anchors[file] = AnchorsFor(ReadText(file));
+            readers[file] = PageReader.Parse(ReadText(file));
         }
 
         foreach (var file in files)
         {
-            var raw = ReadText(file);
+            var reader = readers[file];
             var relative = Slash(Path.GetRelativePath(root, file));
-            foreach (Match match in MarkdownLinkPattern().Matches(raw))
+            foreach (var link in reader.Links)
             {
-                var href = match.Groups[1].Value.Trim();
+                var href = link.Target.Trim();
                 if (AbsoluteUriPattern().IsMatch(href))
                 {
                     continue;
@@ -133,7 +136,7 @@ static partial class StandardsValidator
                 var anchor = parts.Length > 1 ? parts[1] : "";
                 if (!TryDecodeURIComponent(targetPart, out var decoded))
                 {
-                    add(relative, LineNumber(raw, match.Index), "LINK_BROKEN", $"link target '{href}' holds a malformed percent escape");
+                    add(relative, link.Line, "LINK_BROKEN", $"link target '{href}' holds a malformed percent escape");
                     continue;
                 }
 
@@ -142,20 +145,20 @@ static partial class StandardsValidator
                     : file;
                 if (targetPart.Length > 0 && !File.Exists(target) && !Directory.Exists(target))
                 {
-                    add(relative, LineNumber(raw, match.Index), "LINK_BROKEN", $"link target '{href}' does not exist");
+                    add(relative, link.Line, "LINK_BROKEN", $"link target '{href}' does not exist");
                     continue;
                 }
 
                 if (anchor.Length > 0 && (File.Exists(target) || Directory.Exists(target)) && target.EndsWith(".md", StringComparison.OrdinalIgnoreCase))
                 {
-                    if (!anchors.TryGetValue(target, out var targetAnchors))
+                    if (!readers.TryGetValue(target, out var targetReader))
                     {
-                        targetAnchors = AnchorsFor(ReadText(target));
+                        targetReader = PageReader.Parse(ReadText(target));
                     }
 
-                    if (!targetAnchors.Contains(anchor))
+                    if (!targetReader.Anchors.Contains(anchor))
                     {
-                        add(relative, LineNumber(raw, match.Index), "ANCHOR_BROKEN", $"anchor '#{anchor}' does not exist in '{Slash(Path.GetRelativePath(root, target))}'");
+                        add(relative, link.Line, "ANCHOR_BROKEN", $"anchor '#{anchor}' does not exist in '{Slash(Path.GetRelativePath(root, target))}'");
                     }
                 }
             }
@@ -253,29 +256,40 @@ static partial class StandardsValidator
             return;
         }
 
-        var lines = SplitLines(ReadText(file));
+        var reader = PageReader.Parse(ReadText(file));
         var routingLine = -1;
         var firstGroupLine = -1;
-        var currentHeading = "";
-        for (var index = 0; index < lines.Length; index++)
+        var h2s = reader.Headings.Where(heading => heading.Level == 2).ToList();
+        foreach (var heading in h2s)
         {
-            var heading = RoutingHeadingPattern().Match(lines[index]);
-            if (heading.Success)
+            if (heading.Text.Trim() == RoutingHeading && routingLine < 0)
             {
-                currentHeading = heading.Groups[1].Value;
-                if (currentHeading == RoutingHeading && routingLine < 0)
-                {
-                    routingLine = index + 1;
-                }
+                routingLine = heading.Line;
+                break;
+            }
+        }
 
-                continue;
+        // A navigation group is a section whose body lists links. Intent introduces
+        // the page and names no destination, so a link inside it starts no group.
+        foreach (var bulletLine in reader.NavBulletLines)
+        {
+            string? currentHeading = null;
+            foreach (var heading in h2s)
+            {
+                if (heading.Line < bulletLine)
+                {
+                    currentHeading = heading.Text.Trim();
+                }
+                else
+                {
+                    break;
+                }
             }
 
-            // A navigation group is a section whose body lists links. Intent introduces
-            // the page and names no destination, so a link inside it starts no group.
-            if (firstGroupLine < 0 && currentHeading.Length > 0 && currentHeading != "Intent" && currentHeading != RoutingHeading && NavBulletPattern().IsMatch(lines[index]))
+            if (currentHeading is not null && currentHeading.Length > 0 && currentHeading != "Intent" && currentHeading != RoutingHeading)
             {
-                firstGroupLine = index + 1;
+                firstGroupLine = bulletLine;
+                break;
             }
         }
 
@@ -293,13 +307,7 @@ static partial class StandardsValidator
 
     [GeneratedRegex(@"^[a-z0-9]+(?:-[a-z0-9]+)*$")] private static partial Regex KebabSegmentPattern();
 
-    [GeneratedRegex(@"\[[^\]]*\]\(([^)]+)\)")] private static partial Regex MarkdownLinkPattern();
-
     [GeneratedRegex(@"^(?:https?:|mailto:)")] private static partial Regex AbsoluteUriPattern();
 
     [GeneratedRegex(@"^\|\s*`([^`]+)`\s*\|\s*`([^`]+)`\s*\|")] private static partial Regex TemplateRowPattern();
-
-    [GeneratedRegex(@"^##\s+(.+?)\s*$")] private static partial Regex RoutingHeadingPattern();
-
-    [GeneratedRegex(@"^-\s+\[")] private static partial Regex NavBulletPattern();
 }

@@ -143,76 +143,13 @@ static partial class Checker
     }
 
     private static (IReadOnlyList<Finding> Findings, IReadOnlyList<Finding> Known) Suppress(
-        ProjectModel model, List<Finding> findings)
-    {
-        var today = DateOnly.FromDateTime(DateTime.UtcNow);
-        var gaps = model.Records.Where(record => record.Type == "known-gap").ToList();
-
-        // An approved deviation inside its review date holds the findings on the code files and the
-        // records it names.
-        var deviations = model.Records
-                              .Where(record => record.Type == "deviation"
-                                               && record.Status == "approved"
-                                               && record.Field("reviewBy") is { } reviewBy
-                                               && IsoDate(reviewBy, out var review)
-                                               && today <= review)
-                              .ToList();
-        var heldFiles = deviations
-                        .SelectMany(record => record.Ids("code"))
-                        .Select(path => path.Replace('\\', '/'))
-                        .ToHashSet(StringComparer.Ordinal);
-        var heldSubjects = deviations
-                           .SelectMany(record => record.Ids("subject"))
-                           .ToHashSet(StringComparer.Ordinal);
-        var kept = new List<Finding>();
-        var known = new List<Finding>();
-
-        foreach (var finding in findings)
-        {
-            if (finding.Code != "known-gap-expired" && heldFiles.Contains(RootRelative(model, finding.Path)))
-            {
-                known.Add(finding);
-                continue;
-            }
-
-            if (finding.Code == "known-gap-expired" || finding.Subject is null)
-            {
-                kept.Add(finding);
-                continue;
-            }
-
-            // A gap naming a use case also covers findings about the scenarios and results it holds.
-            var subjects = new List<string> { finding.Subject };
-
-            if ((finding.Subject.StartsWith("scenario/", StringComparison.Ordinal) || finding.Subject.StartsWith("result/", StringComparison.Ordinal))
-                && Identifiers.TrySplit(finding.Subject, out _, out var home, out _)
-                && home is not null
-                && ModelBuilder.UseCaseOf(model, home) is { } holder)
-            {
-                subjects.Add(holder.Id);
-            }
-
-            var covered = subjects.Any(heldSubjects.Contains) || gaps.Any(gap =>
-                gap.Field("check") == finding.Code
-                && gap.Ids("subject").Any(subject => subjects.Contains(subject, StringComparer.Ordinal))
-                && gap.Status != "retired"
-                && gap.Field("endsBy") is { } endsBy
-                && IsoDate(endsBy, out var ends)
-                && today <= ends);
-
-            (covered ? known : kept).Add(finding);
-        }
-
-        return (kept, known);
-    }
-
-    /// <summary>A finding's file as a forward-slash path from the project root.</summary>
-    private static string RootRelative(ProjectModel model, string path)
-    {
-        var relative = Path.IsPathRooted(path) ? Path.GetRelativePath(model.Config.Root, path) : path;
-
-        return relative.Replace('\\', '/');
-    }
+        ProjectModel model, List<Finding> findings) =>
+        Suppression.Partition(
+            findings,
+            model.Records,
+            model.Config.Root,
+            DateTime.UtcNow.Date,
+            home => ModelBuilder.UseCaseOf(model, home)?.Id);
 
     /// <summary>Record types using the Behavior status vocabulary.</summary>
     private static readonly HashSet<string> BehaviorTypes = new(StringComparer.Ordinal)

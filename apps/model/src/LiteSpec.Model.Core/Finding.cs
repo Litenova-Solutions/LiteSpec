@@ -1,3 +1,7 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
 namespace LiteSpec.Model;
 
 /// <summary>
@@ -8,7 +12,7 @@ namespace LiteSpec.Model;
 /// <param name="Path">The absolute path.</param>
 /// <param name="Line">The 1-based line.</param>
 /// <param name="Subject">The record id the finding is about, when there is one.</param>
-sealed record Finding(string Code, string Message, string Path, int Line, string? Subject)
+public sealed record Finding(string Code, string Message, string Path, int Line, string? Subject)
 {
     /// <summary>
     ///     Every finding code with its tier: G reads records only and always blocks,
@@ -106,10 +110,10 @@ sealed record Finding(string Code, string Message, string Path, int Line, string
     ///     Whether the project's stack reader is qualified, so S findings block:
     ///     the .NET reader is qualified, and every other stack only reports.
     /// </summary>
-    public static bool ReaderQualified(ConsumerConfig config) =>
-        config.Stacks.Contains("dotnet", StringComparer.Ordinal)
-        || config.Stacks.Contains("blazor", StringComparer.Ordinal)
-        || config.Stacks.Contains("android", StringComparer.Ordinal);
+    public static bool ReaderQualified(IEnumerable<string> stacks) =>
+        stacks.Contains("dotnet", StringComparer.Ordinal)
+        || stacks.Contains("blazor", StringComparer.Ordinal)
+        || stacks.Contains("android", StringComparer.Ordinal);
 
     /// <summary>Whether the finding blocks the check under a qualified or unqualified reader.</summary>
     public bool Blocks(bool readerQualified) => Tier == "G" || (Tier == "S" && readerQualified);

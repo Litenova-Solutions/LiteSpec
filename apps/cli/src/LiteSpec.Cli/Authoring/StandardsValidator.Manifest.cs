@@ -89,7 +89,7 @@ static partial class StandardsValidator
                 continue;
             }
 
-            if (anchor.Length > 0 && File.Exists(target) && !AnchorsFor(ReadText(target)).Contains(anchor))
+            if (anchor.Length > 0 && File.Exists(target) && !PageReader.Parse(ReadText(target)).Anchors.Contains(anchor))
             {
                 add("litespec.manifest.json", 1, "MANIFEST_ANCHOR", $"anchor '#{anchor}' does not exist in '{relative}'");
             }
@@ -399,11 +399,10 @@ static partial class StandardsValidator
                 continue;
             }
 
-            var raw = ReadText(file);
-            var lines = SplitLines(raw);
-            var activation = SectionBody(lines, "Activation");
-            var baseline = SectionBody(lines, "Baseline Relationship");
-            var dependencies = SectionBody(lines, "Dependencies");
+            var reader = PageReader.Parse(ReadText(file));
+            var activation = SectionBody(reader, "Activation");
+            var baseline = SectionBody(reader, "Baseline Relationship");
+            var dependencies = SectionBody(reader, "Dependencies");
             var scope = JsonString(ext?["activationScope"]) ?? "undefined";
             if (!activation.Contains($"Activation scope: `{scope}`.", StringComparison.Ordinal))
             {
@@ -411,14 +410,20 @@ static partial class StandardsValidator
             }
 
             var kindLine = SplitLines(activation).FirstOrDefault(line => line.StartsWith("Applicable specification kinds:", StringComparison.Ordinal)) ?? "";
-            var actualKinds = InlineCodePattern().Matches(kindLine).Cast<Match>().Select(match => match.Groups[1].Value).ToList();
+            var actualKinds = InlineCodes(kindLine);
             var expectedKinds = JsonStrings(ext?["applicableKinds"]);
             if (actualKinds.Count != expectedKinds.Count || actualKinds.Any(kind => !expectedKinds.Contains(kind)))
             {
                 add(extensionPath, 1, "EXTENSION_KIND", $"extension '{id}' applicable kinds do not match the manifest");
             }
 
-            var activationDetail = SplitLines(activation).Where(line => line.Trim().Length > 0 && !ActivationPrefixPattern().IsMatch(line.Trim())).ToList();
+            var activationDetail = SplitLines(activation).Where(line =>
+            {
+                var trimmed = line.Trim();
+                return trimmed.Length > 0
+                    && !trimmed.StartsWith("Activation scope:", StringComparison.Ordinal)
+                    && !trimmed.StartsWith("Applicable specification kinds:", StringComparison.Ordinal);
+            }).ToList();
             if (activationDetail.Count == 0)
             {
                 add(extensionPath, 1, "EXTENSION_ACTIVATION", $"extension '{id}' has no activation criterion");
@@ -547,9 +552,30 @@ static partial class StandardsValidator
         }
     }
 
-    [GeneratedRegex(@"`([^`]+)`")]
-    private static partial Regex InlineCodePattern();
+    static List<string> InlineCodes(string line)
+    {
+        var codes = new List<string>();
+        var search = 0;
+        while (true)
+        {
+            var open = line.IndexOf('`', search);
+            if (open < 0)
+            {
+                return codes;
+            }
 
-    [GeneratedRegex(@"^(?:Activation scope|Applicable specification kinds):")]
-    private static partial Regex ActivationPrefixPattern();
+            var close = line.IndexOf('`', open + 1);
+            if (close < 0)
+            {
+                return codes;
+            }
+
+            if (close > open + 1)
+            {
+                codes.Add(line.Substring(open + 1, close - open - 1));
+            }
+
+            search = close + 1;
+        }
+    }
 }

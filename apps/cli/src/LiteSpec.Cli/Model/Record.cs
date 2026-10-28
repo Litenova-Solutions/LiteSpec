@@ -5,7 +5,7 @@ namespace LiteSpec.Model;
 /// <summary>
 ///     One record: a page, an entry on a page, a term, or a derived generic result.
 /// </summary>
-sealed class Record
+sealed class Record : IRecordFacts
 {
     /// <summary>The record type, kebab-case.</summary>
     public string Type { get; init; } = "";

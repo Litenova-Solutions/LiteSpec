@@ -1,3 +1,5 @@
+using System;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace LiteSpec.Model;
@@ -5,34 +7,52 @@ namespace LiteSpec.Model;
 /// <summary>
 ///     Identifier shapes and citation matching.
 /// </summary>
-static partial class Identifiers
+public static class Identifiers
 {
     /// <summary>A citation of a project record.</summary>
     public static readonly Regex Citation = BuildCitation();
 
+    private static readonly Regex SharedCitationRegex = new Regex(
+        @"\blitespec/[a-z0-9]+(?:-[a-z0-9]+)*(?:/[a-z0-9]+(?:-[a-z0-9]+)*)*#[a-z0-9]+(?:-[a-z0-9]+)*",
+        RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
+    private static readonly Regex EventIdRegex = new Regex(
+        @"^event/[a-z0-9]+(?:-[a-z0-9]+)*\.[a-z0-9]+(?:-[a-z0-9]+)*$",
+        RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
+    private static readonly Regex RefusalCodeRegex = new Regex(
+        @"\b[a-z0-9]+(?:-[a-z0-9]+)*\.[a-z0-9]+(?:-[a-z0-9]+)*\b",
+        RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
+    private static readonly Regex ImplementsTagRegex = new Regex(
+        @"<implements>\s*(?<id>use-case/[A-Za-z0-9][A-Za-z0-9._-]*)\s*</implements>",
+        RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
+    private static readonly Regex ProvesTagRegex = new Regex(
+        @"<proves>\s*(?<id>(?:scenario|rule)/[A-Za-z0-9][A-Za-z0-9._-]*)\s*</proves>",
+        RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
+    private static readonly Regex ProvisionHeadingRegex = new Regex(
+        @"^###\s+(?<heading>.+?)\s*$",
+        RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
     /// <summary>A citation of a shared standards provision: litespec/&lt;page&gt;#&lt;slug&gt;.</summary>
-    [GeneratedRegex(@"\blitespec/[a-z0-9]+(?:-[a-z0-9]+)*(?:/[a-z0-9]+(?:-[a-z0-9]+)*)*#[a-z0-9]+(?:-[a-z0-9]+)*")]
-    public static partial Regex SharedCitation();
+    public static Regex SharedCitation() => SharedCitationRegex;
 
     /// <summary>A whole event record id, such as <c>event/expense.submitted</c>.</summary>
-    [GeneratedRegex(@"^event/[a-z0-9]+(?:-[a-z0-9]+)*.[a-z0-9]+(?:-[a-z0-9]+)*$")]
-    public static partial Regex EventId();
+    public static Regex EventId() => EventIdRegex;
 
     /// <summary>A refusal code in identifier form: module and name in kebab-case.</summary>
-    [GeneratedRegex(@"\b[a-z0-9]+(?:-[a-z0-9]+)*\.[a-z0-9]+(?:-[a-z0-9]+)*\b")]
-    public static partial Regex RefusalCode();
+    public static Regex RefusalCode() => RefusalCodeRegex;
 
     /// <summary>A written anchor on a reaction or job.</summary>
-    [GeneratedRegex(@"<implements>\s*(?<id>use-case/[A-Za-z0-9][A-Za-z0-9._-]*)\s*</implements>")]
-    public static partial Regex ImplementsTag();
+    public static Regex ImplementsTag() => ImplementsTagRegex;
 
     /// <summary>A test's claim of the scenario or rule it proves.</summary>
-    [GeneratedRegex(@"<proves>\s*(?<id>(?:scenario|rule)/[A-Za-z0-9][A-Za-z0-9._-]*)\s*</proves>")]
-    public static partial Regex ProvesTag();
+    public static Regex ProvesTag() => ProvesTagRegex;
 
     /// <summary>A shared provision carried as a heading, which holds no ID text.</summary>
-    [GeneratedRegex(@"^###\s+(?<heading>.+?)\s*$")]
-    public static partial Regex ProvisionHeading();
+    public static Regex ProvisionHeading() => ProvisionHeadingRegex;
 
     private static Regex BuildCitation()
     {
@@ -54,17 +74,17 @@ static partial class Identifiers
         home = null;
         name = "";
 
-        var slash = id.IndexOf('/', StringComparison.Ordinal);
+        var slash = id.IndexOf('/');
 
         if (slash <= 0 || slash == id.Length - 1)
         {
             return false;
         }
 
-        prefix = id[..slash];
+        prefix = id.Substring(0, slash);
 
-        var rest = id[(slash + 1)..];
-        var dot = rest.IndexOf('.', StringComparison.Ordinal);
+        var rest = id.Substring(slash + 1);
+        var dot = rest.IndexOf('.');
 
         if (dot < 0)
         {
@@ -72,10 +92,10 @@ static partial class Identifiers
             return true;
         }
 
-        home = rest[..dot];
-        name = rest[(dot + 1)..];
+        home = rest.Substring(0, dot);
+        name = rest.Substring(dot + 1);
 
-        return home.Length > 0 && name.Length > 0 && !name.Contains('.');
+        return home.Length > 0 && name.Length > 0 && name.IndexOf('.') < 0;
     }
 
     /// <summary>
@@ -84,7 +104,7 @@ static partial class Identifiers
     /// </summary>
     public static bool ValidName(string name, bool decision)
     {
-        var words = name.Split('-', StringSplitOptions.RemoveEmptyEntries);
+        var words = name.Split(new char[] { '-' }, StringSplitOptions.RemoveEmptyEntries);
 
         if (words.Length < 1 || words.Length > 6 || string.Join("-", words) != name)
         {
@@ -101,15 +121,26 @@ static partial class Identifiers
 
         foreach (var word in words)
         {
-            if (word.Length == 0
-                || word.Any(character => !char.IsAsciiLetterOrDigit(character))
-                || word.Any(char.IsUpper))
+            if (word.Length == 0 || !AsciiWord(word))
             {
                 return false;
             }
         }
 
-        return !decision || words[1..].Any(word => !AllDigits(word));
+        if (!decision)
+        {
+            return true;
+        }
+
+        for (var index = 1; index < words.Length; index++)
+        {
+            if (!AllDigits(words[index]))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /// <summary>Whether the whole name is digits, which no name may be.</summary>
@@ -119,6 +150,24 @@ static partial class Identifiers
     private static bool AllDigits(string word) =>
         word.Length > 0 && word.All(char.IsDigit);
 
+    private static bool AsciiWord(string word)
+    {
+        foreach (var character in word)
+        {
+            if (!AsciiLetterOrDigit(character) || char.IsUpper(character))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static bool AsciiLetterOrDigit(char character) =>
+        (character >= 'a' && character <= 'z')
+        || (character >= 'A' && character <= 'Z')
+        || (character >= '0' && character <= '9');
+
     /// <summary>
     ///     Splits a journey step link of the form journey/name#step into the journey id and the step.
     /// </summary>
@@ -127,15 +176,15 @@ static partial class Identifiers
         journey = "";
         step = "";
 
-        var hash = id.IndexOf('#', StringComparison.Ordinal);
+        var hash = id.IndexOf('#');
 
         if (hash <= 0 || hash == id.Length - 1)
         {
             return false;
         }
 
-        journey = id[..hash];
-        step = id[(hash + 1)..];
+        journey = id.Substring(0, hash);
+        step = id.Substring(hash + 1);
 
         return journey.StartsWith("journey/", StringComparison.Ordinal) && step.Length > 0;
     }
@@ -146,9 +195,9 @@ static partial class Identifiers
     /// </summary>
     public static string BaseId(string id)
     {
-        var hash = id.IndexOf('#', StringComparison.Ordinal);
+        var hash = id.IndexOf('#');
 
-        return hash < 0 ? id : id[..hash];
+        return hash < 0 ? id : id.Substring(0, hash);
     }
 
     /// <summary>
