@@ -12,11 +12,11 @@ A provision passes through three states.
 
 | State | Meaning |
 |:---|:---|
-| draft | The provision text is being written and nothing cites it yet. |
-| active | A Verification row or a validator check cites the provision. |
+| draft | The provision is being written and has no verification line yet, so it cannot land. |
+| active | The provision carries its ID line and its verification line. |
 | retired | The provision no longer holds and nothing cites it. |
 
-A provision moves from draft to active when its first citation lands, and from active to retired when a richer provision folds its assertion in. It never moves back to draft, and retirement is permanent: a retired identifier stays gone, so a reader who meets one knows it names nothing current.
+A provision moves from draft to active when its verification line is written, and from active to retired when a richer provision folds its assertion in. It never moves back to draft, and retirement is permanent: a retired identifier stays gone, so a reader who meets one knows it names nothing current.
 
 ### The Identifier
 
@@ -38,9 +38,9 @@ A LiteSpec release is a tagged snapshot of the repository, and the highest git t
 
 **Statement:** A maintainer MUST keep each provision in exactly one of three states: draft, active, or retired.
 
-**Rationale:** The three states tell a maintainer what an identifier promises. An active identifier names a rule that holds and that a Verification row or validator check cites. A retired identifier names nothing, so a citation to it is a defect rather than a reference. Without the lifecycle, a half-written provision and a removed one look identical to a cited one.
+**Rationale:** The three states tell a maintainer what an identifier promises. An active identifier names a rule that holds and that its verification line says how to check. A retired identifier names nothing, so a citation to it is a defect rather than a reference. Without the lifecycle, a half-written provision and a removed one look identical to a cited one.
 
-**Example:** A provision is added in draft. When cited from a Verification row it becomes active. When its assertion is folded into a richer provision, the provision is retired.
+**Example:** A provision is added in draft. When its verification line is written it becomes active. When its assertion is folded into a richer provision, the provision is retired.
 
 **Reviewed for:** Each provision sits in exactly one lifecycle state, with retired identifiers cited nowhere.
 
@@ -52,7 +52,7 @@ A LiteSpec release is a tagged snapshot of the repository, and the highest git t
 
 **Rationale:** A heading rename renames the identifier, and the repository keeps no alias to catch stragglers. Every citation the rename misses names a provision that no longer exists, and readers follow it nowhere. Replacing all of them in one change keeps the repository resolvable at every commit.
 
-**Example:** Renaming a provision changes its heading, its ID, its Verification row, and every citation together.
+**Example:** Renaming a provision changes its heading, its ID line, and every citation together.
 
 **Checked by:** `litespec validate` emits no `ID_UNKNOWN_REFERENCE` diagnostic.
 
@@ -88,15 +88,29 @@ This informative example demonstrates `litespec/core/maintaining#state-the-provi
 
 ### Step One, Adding a Provision
 
-A maintainer writes a new provision on a page. The provision stays in `draft` until a Verification row or a validator check cites it.
+A maintainer writes a new provision on a page. The provision stays in `draft` until it carries its ID line and its verification line.
 
 ```text
-### State the rule
-**Statement:** A consumer MUST do the thing.
-**Rationale:** The thing matters.
+### Submit Each Expense Once
+
+**Statement:** A spender MUST submit each expense once.
+
+**Rationale:** A second submission of one receipt pays it twice.
 ```
 
-The validator reports the new provision as uncited. The maintainer adds the Verification row that names the rule, and the provision becomes `active`.
+The validator reports the provision with no ID line and no verification line. The maintainer adds both, and the provision becomes `active`:
+
+```text
+### Submit Each Expense Once
+
+**ID:** `litespec/core/example#submit-each-expense-once`
+
+**Statement:** A spender MUST submit each expense once.
+
+**Rationale:** A second submission of one receipt pays it twice.
+
+**Reviewed for:** Which expense was submitted twice? Look at the submitted expenses for one receipt.
+```
 
 ### Step Two, Renaming
 

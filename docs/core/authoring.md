@@ -34,10 +34,10 @@ Every LiteSpec page uses exactly one style, decided by where the page lives.
 
 | Page style | Where it lives | Template | Sections, in order |
 |:---|:---|:---|:---|
-| Topic | Any area page that owns provisions | `templates/standard/topic.md` | Intent, optional Concepts, Standards, Conventions, optional Reference Example, Verification |
-| Stack | `stack.md` in a stack folder | `templates/standard/topic.md` | Intent, optional Concepts, Standards, Conventions, Verification |
-| Extension | An `ext/` folder | `templates/standard/extension.md` | Intent, Activation, Baseline Relationship, Standards, Conventions, Dependencies, Verification |
-| Pattern | `docs/frontend/patterns/` | [UI patterns](../frontend/patterns.md) | Intent, optional Concepts, optional Standards, optional Conventions, Patterns, Verification |
+| Topic | Any area page that owns provisions | `templates/standard/topic.md` | Intent, optional Concepts, Standards, Conventions, optional Reference Example |
+| Stack | `stack.md` in a stack folder | `templates/standard/topic.md` | Intent, optional Concepts, Standards, Conventions |
+| Extension | An `ext/` folder | `templates/standard/extension.md` | Intent, Activation, Baseline Relationship, Standards, Conventions, Dependencies |
+| Pattern | `docs/frontend/patterns/` | [UI patterns](../frontend/patterns.md) | Intent, optional Concepts, optional Standards, optional Conventions, Patterns |
 | Reference | `docs/reference/`, and one page per rule in `docs/analyzers/rules/` | `templates/standard/reference.md` | Intent, Reference, optional Notes |
 | Command | `docs/tools/` | `templates/standard/command.md` | Name, Synopsis, Description, Arguments, Options, Exit Codes, Examples, Underneath |
 | How-to | `docs/guide/`, and the other pages of `docs/analyzers/` | `templates/standard/how-to.md` | Purpose, optional Prerequisites, Procedure, Check |
@@ -175,17 +175,31 @@ A consumer record identifier is `type/home.name` in kebab-case: the type names t
 
 A journey step identifier is `journey/<name>#<step-id>`, with step identifiers `s1`, `s2`, and so on. A derived generic result is `result/<use-case-home.name>.forbidden` or `result/<use-case-home.name>.invalid-input`; scenarios may point at derived results, which are never written as records.
 
-### Verification Table
+### Provision Layout
 
-Every page that owns provisions ends with a Verification table that has one row per provision:
+Every provision has the same parts in the same order:
 
 ```markdown
-| ID | Mark | Evidence |
-|:---|:---|:---|
-| litespec/frontend/components#keep-shared-ui-in-one-package | guidance | Which shared primitives or composites live outside the shared package? Look in the workspace packages. |
+### Keep Shared UI in One Package
+
+**ID:** `litespec/frontend/components#keep-shared-ui-in-one-package`
+
+**Statement:** Shared primitives and composites MUST live in the one shared UI package.
+
+**Rationale:** ...
+
+**Example:** ...
+
+**Reviewed for:** Which shared primitives or composites live outside the shared package? Look in the workspace packages.
 ```
 
-A `checkable` row starts with the checking command in backticks, then the finding code, then the scope. A `guidance` row asks the one question a reviewer answers, naming the observable evidence and where to look. Evidence like "verify compliance" says nothing and is refused. Rows a tool generates come from that tool; one observable fact carries one mark across pages.
+1. The heading names the provision.
+2. The ID line holds the ID the heading derives, so a reader copies it from where the provision stands.
+3. A rule states its `Statement`; a convention states its `Default` and `Replacement`; a pattern states its `Question`, `Default` and `Compact`.
+4. `Rationale` and `Example` follow.
+5. The verification line comes last among the fields. `Checked by` marks a provision a tool checks (`checkable`) and starts with the checking command in backticks, then the finding code, then the scope. `Reviewed for` marks a provision a person judges (`guidance`) and asks the one question a reviewer answers, naming the observable evidence and where to look. Evidence like "verify compliance" says nothing and is refused.
+
+A pattern's options follow its verification line. `litespec provisions` writes the [provision index](../reference/provisions.md) from these lines; nothing else repeats them.
 
 ### Generated Regions
 
@@ -563,45 +577,47 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Checked by:** `litespec consumer` fails a record identifier outside the declared grammar.
 
+### Put the ID Under Every Provision Heading
+
+**ID:** `litespec/core/authoring#put-the-id-under-every-provision-heading`
+
+**Statement:** Every provision heading MUST be followed by an ID line holding the ID the heading derives.
+
+**Rationale:** A reader who cites a provision copies its ID from where the provision stands, instead of deriving a slug by hand or looking it up elsewhere. The heading stays the source: an ID line that disagrees with its heading is refused.
+
+**Example:** `### Keep Shared UI in One Package` on `docs/frontend/components.md` is followed by the ID line `litespec/frontend/components#keep-shared-ui-in-one-package`.
+
+**Checked by:** `litespec validate` reports a provision whose first line is not its ID line, or whose ID line differs from the ID its heading derives.
+
 ### Map Provisions to Evidence
 
 **ID:** `litespec/core/authoring#map-provisions-to-evidence`
 
-**Statement:** A page that owns provisions MUST give every provision one row in its Verification table.
+**Statement:** Every provision MUST end its fields with exactly one verification line.
 
-**Rationale:** A provision with no verification row is a rule nobody checks: people assume a tool covers it while no tool was told. One row per provision makes each rule reviewable by a person or a tool.
+**Rationale:** A provision with no verification line is a rule nobody checks: people assume a tool covers it while no tool was told. One line per provision, beside the rule it checks, makes each rule reviewable by a person or a tool.
 
-**Checked by:** `litespec validate` emits no `VERIFY_MISSING_ID` or `VERIFY_UNKNOWN_ID` diagnostic.
+**Checked by:** `litespec validate` reports a provision with no verification line, with more than one, or with one before its other fields.
 
 ### Mark Every Provision Checkable or Guidance
 
 **ID:** `litespec/core/authoring#mark-every-provision-checkable-or-guidance`
 
-**Statement:** A Verification row MUST mark its provision `checkable` or `guidance`.
+**Statement:** A verification line MUST open with `Checked by` for a provision a tool checks or `Reviewed for` for one a person judges.
 
-**Rationale:** The mark tells a reader who judges the provision: a tool or a person. Without it, a team automates a judgment call or hand-reviews what a command already proves.
+**Rationale:** The label tells a reader who judges the provision: a tool (`checkable`) or a person (`guidance`). Without it, a team automates a judgment call or hand-reviews what a command already proves.
 
-**Checked by:** `litespec validate` emits no `VERIFY_MARK` diagnostic.
+**Checked by:** `litespec validate` reports a verification line with any other label.
 
-### Name Observable Evidence in Verification Rows
+### Name Observable Evidence in Verification Lines
 
-**ID:** `litespec/core/authoring#name-observable-evidence-in-verification-rows`
+**ID:** `litespec/core/authoring#name-observable-evidence-in-verification-lines`
 
-**Statement:** A Verification row MUST name the observable evidence and where the reviewer looks.
+**Statement:** A verification line MUST name the observable evidence and where the reviewer looks.
 
-**Rationale:** A row that restates its Statement sends the reviewer in a circle: the evidence confirms that the rule says what it says. Naming the artifact and its location turns the row into an instruction the reviewer follows.
+**Rationale:** A line that restates its Statement sends the reviewer in a circle: the evidence confirms that the rule says what it says. Naming the artifact and its location turns the line into an instruction the reviewer follows.
 
-**Checked by:** `litespec validate` emits no `VERIFY_GENERIC_EVIDENCE` or `VERIFY_TEMPLATED_EVIDENCE` diagnostic.
-
-### Generate Repeated Verification Rows with the Owning Tool
-
-**ID:** `litespec/core/authoring#generate-repeated-verification-rows-with-the-owning-tool`
-
-**Statement:** A page MUST NOT hand-write a Verification row that a tool generates.
-
-**Rationale:** Pattern pages share one check across options; the owning tool writes those rows from the option IDs. A hand-written copy drifts from the generated set.
-
-**Reviewed for:** Which rows repeat a row the owning tool generates? Look at repeated rows beside the owning tool's output.
+**Checked by:** `litespec validate` reports evidence that names no artifact or repeats a template.
 
 ### Give One Observable Fact One Mark Across Pages
 
@@ -611,7 +627,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Rationale:** A fact checked by a tool on one page and judged by a person on another leaves each reviewer unsure which judgment holds.
 
-**Reviewed for:** Which shared facts carry different marks? Compare the marks of rows that name one check, using the provision index.
+**Reviewed for:** Which shared facts carry different labels? Compare the verification lines that name one check, using the provision index.
 
 ### Regenerate the Provision Index
 
