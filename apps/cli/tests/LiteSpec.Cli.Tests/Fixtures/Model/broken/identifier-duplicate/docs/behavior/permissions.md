@@ -12,6 +12,7 @@
       "owner": "lending-team",
       "status": "reviewed",
       "meaning": "Borrow an available copy.",
+      "scope": "self",
       "approvedBy": "lending-team",
       "approvedOn": "2026-10-01",
       "approvedHash": "024894ed"
@@ -23,6 +24,7 @@
       "owner": "lending-team",
       "status": "reviewed",
       "meaning": "Read own loans.",
+      "scope": "self",
       "approvedBy": "lending-team",
       "approvedOn": "2026-10-01",
       "approvedHash": "0727be70"
@@ -34,6 +36,7 @@
       "owner": "lending-team",
       "status": "reviewed",
       "meaning": "Register and retire copies.",
+      "scope": "platform",
       "approvedBy": "lending-team",
       "approvedOn": "2026-10-01",
       "approvedHash": "c307df4a"
@@ -45,6 +48,7 @@
       "owner": "lending-team",
       "status": "reviewed",
       "meaning": "Place and cancel holds.",
+      "scope": "self",
       "approvedBy": "lending-team",
       "approvedOn": "2026-10-01",
       "approvedHash": "e7f4de0a"
@@ -56,6 +60,7 @@
       "owner": "lending-team",
       "status": "reviewed",
       "meaning": "Borrow an available copy again.",
+      "scope": "self",
       "approvedBy": "lending-team",
       "approvedOn": "2026-10-01",
       "approvedHash": "6b02f0b6"

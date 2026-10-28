@@ -16,6 +16,12 @@ public abstract class TraceabilityAnalyzer : LayerAnalyzer
 {
     private protected sealed override void Register(CompilationStartAnalysisContext context)
     {
+        if (TraceabilityContext.TryGet(context.Compilation, out var cached) && cached is not null)
+        {
+            RegisterTraceability(context, cached);
+            return;
+        }
+
         var store = RecordStore.Load(context.Options, context.CancellationToken);
 
         if (store is null)
@@ -24,7 +30,7 @@ public abstract class TraceabilityAnalyzer : LayerAnalyzer
         }
 
         var layer = LayerResolver.Resolve(context.Compilation, context.Options);
-        var state = TraceabilityContext.Create(context.Compilation, layer, store);
+        var state = TraceabilityContext.GetOrCreate(context.Compilation, layer, store);
 
         RegisterTraceability(context, state);
     }

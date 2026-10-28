@@ -97,8 +97,8 @@ public sealed class ActEventTests
             [ProjectFile(), Aggregate(), UseCase(), Event()],
             assemblyName: "Shop.Domain");
 
-    [Fact(DisplayName = "LS5008 reports on each marked method when none raises the event")]
-    public Task ReportsOnEachMarkedMethod() =>
+    [Fact(DisplayName = "LS5008 reports once on the first marked method when none raises the event")]
+    public Task ReportsOnceOnTheFirstMarkedMethod() =>
         Verify.AnalyzerWithRecordsAsync<ActEventAnalyzer>(
             [("Source.cs", """
                 namespace Claimwick.Spending;
@@ -122,8 +122,39 @@ public sealed class ActEventTests
                     }
 
                     /// <implements>use-case/spending.submit-expense</implements>
-                    public void {|LS5008:Resubmit|}()
+                    public void Resubmit()
                     {
+                    }
+                }
+                """)],
+            [ProjectFile(), Aggregate(), UseCase(), Event()],
+            assemblyName: "Shop.Domain");
+
+    [Fact(DisplayName = "LS5008 accepts a declared event raised through a private helper")]
+    public Task AcceptsAnEventRaisedThroughAPrivateHelper() =>
+        Verify.AnalyzerWithRecordsAsync<ActEventAnalyzer>(
+            [("Source.cs", """
+                namespace Claimwick.Spending;
+
+                public abstract class AggregateRoot<TState>
+                {
+                    protected void RaiseDomainEvent(IDomainEvent e) { }
+                }
+
+                public interface IDomainEvent;
+
+                /// <implements>event/expense.submitted</implements>
+                public sealed record ExpenseSubmittedEvent : IDomainEvent;
+
+                /// <implements>aggregate/spending.expense</implements>
+                public sealed class Expense : AggregateRoot<object>
+                {
+                    /// <implements>use-case/spending.submit-expense</implements>
+                    public void Submit() => ApplySubmission();
+
+                    private void ApplySubmission()
+                    {
+                        RaiseDomainEvent(new ExpenseSubmittedEvent());
                     }
                 }
                 """)],

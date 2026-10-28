@@ -10,6 +10,7 @@ public sealed class RecordIndex
 {
     private readonly IReadOnlyList<IRecordFacts> records;
     private readonly Dictionary<string, IRecordFacts> byId;
+    private readonly Dictionary<string, IRecordFacts> useCaseByName;
 
     /// <summary>Builds the index over the records and computes their effective status.</summary>
     /// <param name="records">Every record, in read order.</param>
@@ -17,12 +18,21 @@ public sealed class RecordIndex
     {
         this.records = records;
         byId = new Dictionary<string, IRecordFacts>(StringComparer.Ordinal);
+        useCaseByName = new Dictionary<string, IRecordFacts>(StringComparer.Ordinal);
 
         foreach (var record in records)
         {
             if (record.Id.Length > 0 && !byId.ContainsKey(record.Id))
             {
                 byId.Add(record.Id, record);
+            }
+
+            if (record.Type == "use-case"
+                && Identifiers.TrySplit(record.Id, out _, out _, out var name)
+                && name.Length > 0
+                && !useCaseByName.ContainsKey(name))
+            {
+                useCaseByName.Add(name, record);
             }
         }
 
@@ -69,16 +79,6 @@ public sealed class RecordIndex
             return null;
         }
 
-        foreach (var candidate in records)
-        {
-            if (candidate.Type == "use-case"
-                && Identifiers.TrySplit(candidate.Id, out _, out _, out var name)
-                && name == home)
-            {
-                return candidate;
-            }
-        }
-
-        return null;
+        return useCaseByName.TryGetValue(home, out var holder) ? holder : null;
     }
 }

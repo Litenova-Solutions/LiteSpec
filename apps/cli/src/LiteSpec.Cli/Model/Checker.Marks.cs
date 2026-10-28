@@ -39,32 +39,40 @@ static partial class Checker
         {
             foreach (var mark in element.Marks)
             {
+                var subject = mark.RecordId.Length > 0 ? mark.RecordId : null;
+
                 if (!model.ById.TryGetValue(mark.RecordId, out var record))
                 {
-                    findings.Add(new Finding("mark-unresolved", $"{KindName(element.Kind)} '{DisplayName(element)}' marks '{mark.RecordId}', which matches no record.", mark.File, mark.Line, null));
+                    findings.Add(new Finding("mark-unresolved", $"{KindName(element.Kind)} '{DisplayName(element)}' marks '{mark.RecordId}', which matches no record.", mark.File, mark.Line, subject));
                 }
                 else if (!MarkRules.Accepts(element.Kind, mark.RecordId))
                 {
-                    findings.Add(new Finding("mark-unresolved", $"{KindName(element.Kind)} '{DisplayName(element)}' marks '{mark.RecordId}', which is a {record.Type} record, not a {ExpectedTypes(element.Kind)} record.", mark.File, mark.Line, null));
+                    findings.Add(new Finding("mark-unresolved", $"{KindName(element.Kind)} '{DisplayName(element)}' marks '{mark.RecordId}', which is a {record.Type} record, not a {ExpectedTypes(element.Kind)} record.", mark.File, mark.Line, subject));
+                }
+
+                if (Readers.TypeScript.FrontendMarks.PathMismatch(model, element, mark) is { } expected)
+                {
+                    findings.Add(new Finding("mark-unresolved", $"{KindName(element.Kind)} '{DisplayName(element)}' marks '{mark.RecordId}', but its folder mirrors '{expected}'.", mark.File, mark.Line, subject));
+                }
+
+                if (subject is not null && mark.Verb != MarkRules.Verb(element.Kind))
+                {
+                    findings.Add(new Finding("mark-unresolved", $"{KindName(element.Kind)} '{DisplayName(element)}' marks '{mark.RecordId}' with the {mark.Verb.ToTagName()} verb, but its kind takes {MarkRules.Verb(element.Kind).ToTagName()}.", mark.File, mark.Line, subject));
                 }
 
                 if (mark.Style != model.Config.Marks)
                 {
-                    findings.Add(new Finding("mark-style-mixed", $"{KindName(element.Kind)} '{DisplayName(element)}' writes its mark '{mark.RecordId}' in the {mark.Style.ToProjectValue()} style, but the project declares {model.Config.Marks.ToProjectValue()}.", mark.File, mark.Line, null));
+                    findings.Add(new Finding("mark-style-mixed", $"{KindName(element.Kind)} '{DisplayName(element)}' writes its mark '{mark.RecordId}' in the {mark.Style.ToProjectValue()} style, but the project declares {model.Config.Marks.ToProjectValue()}.", mark.File, mark.Line, subject));
                 }
             }
 
-            var duplicate = element.Marks
-                .GroupBy(mark => mark.RecordId, StringComparer.Ordinal)
-                .FirstOrDefault(group => group.Count() > 1);
+            var count = MarkRules.CheckCount(element.Kind, element.Marks.Select(mark => mark.RecordId).ToList());
 
-            if (duplicate is not null)
+            if (count.Violated)
             {
-                findings.Add(new Finding("mark-count", $"{KindName(element.Kind)} '{DisplayName(element)}' names '{duplicate.Key}' twice.", element.File, element.Line, null));
-            }
-            else if (MarkRules.TakesExactlyOne(element.Kind) && element.Marks.Count > 1)
-            {
-                findings.Add(new Finding("mark-count", $"{KindName(element.Kind)} '{DisplayName(element)}' carries {element.Marks.Count} marks, but its kind takes one.", element.File, element.Line, null));
+                findings.Add(count.Duplicate is not null
+                    ? new Finding("mark-count", $"{KindName(element.Kind)} '{DisplayName(element)}' names '{count.Duplicate}' twice.", element.File, element.Line, null)
+                    : new Finding("mark-count", $"{KindName(element.Kind)} '{DisplayName(element)}' carries {element.Marks.Count} marks, but its kind takes one.", element.File, element.Line, null));
             }
         }
     }
@@ -95,17 +103,21 @@ static partial class Checker
             {
                 var rule = element.Marks
                     .Select(mark => model.ById.TryGetValue(mark.RecordId, out var found) ? found : null)
-                    .FirstOrDefault(found => found is { Type: "rule" } candidate && ModelBuilder.RefusalResultCode(model, candidate) is not null);
+                    .FirstOrDefault(found => found is { Type: "rule" } candidate && RefusalCodeOf(model, candidate) is not null);
 
-                if (rule is null || actual == ModelBuilder.RefusalResultCode(model, rule))
+                if (rule is null || actual == RefusalCodeOf(model, rule))
                 {
                     continue;
                 }
 
-                findings.Add(new Finding("runtime-value-drift", $"Rule exception '{element.Class}' declares Code '{actual}', but its record states '{ModelBuilder.RefusalResultCode(model, rule)}'.", element.File, element.Line, SubjectOf(rule)));
+                findings.Add(new Finding("runtime-value-drift", $"Rule exception '{element.Class}' declares Code '{actual}', but its record states '{RefusalCodeOf(model, rule)}'.", element.File, element.Line, SubjectOf(rule)));
             }
         }
     }
+
+    /// <summary>The refusal code of the rule through the shared rule over the model.</summary>
+    private static string? RefusalCodeOf(ProjectModel model, Record rule) =>
+        RefusalCode.Of(rule, id => model.ById.TryGetValue(id, out var result) ? result : null);
 
     private static void CheckUseCaseActCalled(ProjectModel model, List<Finding> findings)
     {
@@ -184,44 +196,40 @@ static partial class Checker
             var marked = model.Code.AggregateMethods
                 .Where(method => method.UseCases.Contains(useCase.Id, StringComparer.Ordinal))
                 .ToList();
-            var raised = new HashSet<string>(StringComparer.Ordinal);
+            var methods = marked
+                .Select(method => new ActMethodRaises(RaisedIds(eventsByClass, method)))
+                .ToList();
 
-            foreach (var method in marked)
+            foreach (var decided in ActEvents.Check(useCase.Ids("raises"), methods))
             {
-                foreach (var raisedClass in method.Events)
+                var method = marked[decided.Method];
+
+                if (decided.Code == "act-event-undeclared")
                 {
-                    if (eventsByClass.TryGetValue(raisedClass, out var id))
-                    {
-                        raised.Add(id);
-                    }
+                    findings.Add(new Finding("act-event-undeclared", $"Aggregate method '{method.Aggregate}.{method.Method}' marked with '{useCase.Id}' raises '{decided.EventId}', which the use case does not list in raises.", method.File, method.Line, useCase.Id));
                 }
-            }
-
-            var declared = useCase.Ids("raises");
-
-            foreach (var method in marked)
-            {
-                var reported = new HashSet<string>(StringComparer.Ordinal);
-
-                foreach (var raisedClass in method.Events)
+                else
                 {
-                    if (eventsByClass.TryGetValue(raisedClass, out var id)
-                        && !declared.Contains(id, StringComparer.Ordinal)
-                        && reported.Add(id))
-                    {
-                        findings.Add(new Finding("act-event-undeclared", $"Aggregate method '{method.Aggregate}.{method.Method}' marked with '{useCase.Id}' raises '{id}', which the use case does not list in raises.", method.File, method.Line, useCase.Id));
-                    }
-                }
-            }
-
-            foreach (var id in declared)
-            {
-                if (!raised.Contains(id))
-                {
-                    findings.Add(new Finding("act-event-unraised", $"Use case '{useCase.Id}' lists '{id}' in raises, which no method marked with the use case raises.", useCase.File, useCase.Line, SubjectOf(useCase)));
+                    findings.Add(new Finding("act-event-unraised", $"Use case '{useCase.Id}' lists '{decided.EventId}' in raises, which no method marked with the use case raises.", method.File, method.Line, SubjectOf(useCase)));
                 }
             }
         }
+    }
+
+    /// <summary>The event ids the method raises: its raised classes resolved through marked events.</summary>
+    private static IReadOnlyList<string> RaisedIds(Dictionary<string, string> eventsByClass, AggregateMethod method)
+    {
+        var ids = new List<string>();
+
+        foreach (var raisedClass in method.Events)
+        {
+            if (eventsByClass.TryGetValue(raisedClass, out var id) && !ids.Contains(id, StringComparer.Ordinal))
+            {
+                ids.Add(id);
+            }
+        }
+
+        return ids;
     }
 
     private static void CheckRecordsImplemented(ProjectModel model, List<Finding> findings)

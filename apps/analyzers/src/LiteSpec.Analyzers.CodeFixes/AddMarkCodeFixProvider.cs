@@ -39,7 +39,7 @@ public sealed class AddMarkCodeFixProvider : CodeFixProvider
 
         var memberName = fix.Symbol is IMethodSymbol ? fix.Symbol.Name : null;
         var typeName = fix.Symbol is IMethodSymbol method ? method.ContainingType.Name : fix.Symbol.Name;
-        var candidates = Candidates.Derive(kind, fix.Folder, typeName, memberName, fix.Store.Index);
+        var candidates = Candidates.Derive(kind, fix.Folders, typeName, memberName, fix.Store.Index);
         var verb = MarkRules.Verb(kind);
         var style = fix.Store.Settings.Marks;
 

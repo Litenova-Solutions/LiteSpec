@@ -27,7 +27,7 @@ internal sealed class MarkedType : IEquatable<MarkedType>
     /// <param name="keyword">The declaration keyword: class, record, record struct, struct or interface.</param>
     /// <param name="kind">The code kind, or null when the type is of no known kind.</param>
     /// <param name="markIds">The record identifiers in source order, without duplicates.</param>
-    /// <param name="isPartial">Whether every declaration carries the partial modifier.</param>
+    /// <param name="isPartial">Whether the type and every enclosing type carry partial in every declaration.</param>
     /// <param name="hasClassification">Whether a Classification member is declared in source.</param>
     /// <param name="hasCode">Whether a Code member is declared in source.</param>
     /// <param name="baseHasVirtualCode">Whether a base type declares a virtual string Code.</param>
@@ -83,7 +83,7 @@ internal sealed class MarkedType : IEquatable<MarkedType>
     /// <summary>The record identifiers in source order, without duplicates.</summary>
     public ImmutableArray<string> MarkIds { get; }
 
-    /// <summary>Whether every declaration carries the partial modifier.</summary>
+    /// <summary>Whether the type and every enclosing type carry partial in every declaration.</summary>
     public bool IsPartial { get; }
 
     /// <summary>Whether a Classification member is declared in source.</summary>
@@ -149,15 +149,9 @@ internal sealed class MarkedType : IEquatable<MarkedType>
 
         var seen = new HashSet<string>(StringComparer.Ordinal);
         var ids = new List<string>();
-        var isPartial = true;
 
         foreach (var part in parts)
         {
-            if (!HasPartialModifier(part))
-            {
-                isPartial = false;
-            }
-
             foreach (var mark in MarkReader.Read(part))
             {
                 if (mark.RecordId.Length > 0 && seen.Add(mark.RecordId))
@@ -170,6 +164,17 @@ internal sealed class MarkedType : IEquatable<MarkedType>
         if (ids.Count == 0)
         {
             return null;
+        }
+
+        var isPartial = PartialTypes.IsPartial(symbol);
+
+        for (var outer = symbol.ContainingType; outer is not null; outer = outer.ContainingType)
+        {
+            if (!PartialTypes.IsPartial(outer))
+            {
+                isPartial = false;
+                break;
+            }
         }
 
         return new MarkedType(
@@ -254,19 +259,6 @@ internal sealed class MarkedType : IEquatable<MarkedType>
             var text = trivia.ToFullString();
 
             if (text.Contains("<implements") || text.Contains("<proves"))
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    private static bool HasPartialModifier(TypeDeclarationSyntax part)
-    {
-        foreach (var modifier in part.Modifiers)
-        {
-            if (modifier.IsKind(SyntaxKind.PartialKeyword))
             {
                 return true;
             }

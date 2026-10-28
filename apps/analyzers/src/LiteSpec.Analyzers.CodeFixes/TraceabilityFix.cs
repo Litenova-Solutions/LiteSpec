@@ -21,13 +21,13 @@ internal sealed class TraceabilityFix
         MemberDeclarationSyntax member,
         ISymbol? symbol,
         CodeKind? kind,
-        string folder)
+        IReadOnlyList<string> folders)
     {
         Store = store;
         Member = member;
         Symbol = symbol;
         Kind = kind;
-        Folder = folder;
+        Folders = folders;
     }
 
     /// <summary>The consumer's records.</summary>
@@ -42,8 +42,8 @@ internal sealed class TraceabilityFix
     /// <summary>The LiteSpec kind, or null when the member is of no known kind.</summary>
     public CodeKind? Kind { get; }
 
-    /// <summary>The containing folder name of the source file, or empty.</summary>
-    public string Folder { get; }
+    /// <summary>The three nearest folder names of the source file, containing first.</summary>
+    public IReadOnlyList<string> Folders { get; }
 
     /// <summary>
     ///     Reads the fix context for one diagnostic: the records from the
@@ -76,7 +76,7 @@ internal sealed class TraceabilityFix
         var symbol = model?.GetDeclaredSymbol(member, cancellationToken);
         var kind = await KindOfAsync(document, member, symbol, cancellationToken).ConfigureAwait(false);
 
-        return new TraceabilityFix(store, member, symbol, kind, FolderOf(document.FilePath));
+        return new TraceabilityFix(store, member, symbol, kind, FoldersOf(document.FilePath));
     }
 
     private static async Task<RecordStore?> LoadStoreAsync(Project project, CancellationToken cancellationToken)
@@ -225,23 +225,34 @@ internal sealed class TraceabilityFix
         return false;
     }
 
-    private static string FolderOf(string? filePath)
+    private static IReadOnlyList<string> FoldersOf(string? filePath)
     {
+        var folders = new List<string>();
+
         if (filePath is null || filePath.Length == 0)
         {
-            return string.Empty;
+            return folders;
         }
 
-        var slash = Math.Max(filePath.LastIndexOf('/'), filePath.LastIndexOf('\\'));
+        var directory = filePath.Replace('\\', '/');
+        var slash = directory.LastIndexOf('/');
 
-        if (slash <= 0)
+        if (slash < 0)
         {
-            return string.Empty;
+            return folders;
         }
 
-        var directory = filePath.Substring(0, slash);
-        var previous = Math.Max(directory.LastIndexOf('/'), directory.LastIndexOf('\\'));
+        directory = directory.Substring(0, slash);
+        var parts = directory.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
 
-        return previous < 0 ? directory : directory.Substring(previous + 1);
+        for (var index = parts.Length - 1; index >= 0 && folders.Count < 3; index--)
+        {
+            if (parts[index].Length > 0 && !parts[index].Contains(":"))
+            {
+                folders.Add(parts[index]);
+            }
+        }
+
+        return folders;
     }
 }

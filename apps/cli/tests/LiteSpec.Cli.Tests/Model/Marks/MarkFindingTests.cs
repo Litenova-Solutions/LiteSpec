@@ -23,7 +23,7 @@ public sealed class MarkFindingTests
 
         var finding = Assert.Single(unresolved, found => found.Message.Contains("matches no record"));
         Assert.Contains("use-case/lending.ghost", finding.Message);
-        Assert.Null(finding.Subject);
+        Assert.Equal("use-case/lending.ghost", finding.Subject);
     }
 
     [Fact]
@@ -35,7 +35,7 @@ public sealed class MarkFindingTests
         var finding = Assert.Single(unresolved, found => found.Message.Contains("not a use-case record"));
         Assert.Contains("rule/loan.copy-available", finding.Message);
         Assert.Contains("rule record", finding.Message);
-        Assert.Null(finding.Subject);
+        Assert.Equal("rule/loan.copy-available", finding.Subject);
     }
 
     [Fact]
@@ -68,6 +68,7 @@ public sealed class MarkFindingTests
         Assert.Contains("BorrowCopyCommandHandler", finding.Message);
         Assert.Contains("in the xml style", finding.Message);
         Assert.Contains("declares attribute", finding.Message);
+        Assert.Equal("use-case/lending.borrow-copy", finding.Subject);
     }
 
     [Fact]

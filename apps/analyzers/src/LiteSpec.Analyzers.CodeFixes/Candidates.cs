@@ -13,22 +13,37 @@ internal static class Candidates
 {
     /// <summary>
     ///     The candidate records for a missing mark: records of the kind's
-    ///     expected types whose identifier the folder and the type or member
+    ///     expected types whose identifier the folders and the type or member
     ///     name derive. An exact home-and-name match comes first, then
     ///     name-part matches, each in identifier order.
     /// </summary>
     /// <param name="kind">The kind of the unmarked element.</param>
-    /// <param name="folder">The containing folder name, or empty.</param>
+    /// <param name="folders">The nearest folder names, containing first.</param>
     /// <param name="typeName">The simple type name.</param>
     /// <param name="memberName">The member name for a method, else null.</param>
     /// <param name="index">The record index.</param>
     /// <returns>The candidates, exact matches first.</returns>
     public static IReadOnlyList<IRecordFacts> Derive(
-        CodeKind kind, string folder, string typeName, string? memberName, RecordIndex index)
+        CodeKind kind, IReadOnlyList<string> folders, string typeName, string? memberName, RecordIndex index)
     {
-        var home = Kebab(folder);
         var stem = Kebab(StripSuffix(kind, memberName ?? typeName));
-        var exact = home.Length > 0 && stem.Length > 0 ? home + "." + stem : stem;
+        var exacts = new HashSet<string>(StringComparer.Ordinal);
+
+        foreach (var folder in folders)
+        {
+            var home = Kebab(folder);
+
+            if (home.Length > 0 && stem.Length > 0)
+            {
+                exacts.Add(home + "." + stem);
+            }
+        }
+
+        if (exacts.Count == 0 && stem.Length > 0)
+        {
+            exacts.Add(stem);
+        }
+
         var exactMatches = new List<IRecordFacts>();
         var nameMatches = new List<IRecordFacts>();
 
@@ -36,7 +51,7 @@ internal static class Candidates
         {
             foreach (var record in index.ByType(type))
             {
-                if (record.Id == type + "/" + exact)
+                if (IsExact(record.Id, type, exacts))
                 {
                     exactMatches.Add(record);
                 }
@@ -110,6 +125,14 @@ internal static class Candidates
 
     private static int CompareIds(IRecordFacts left, IRecordFacts right) =>
         string.Compare(left.Id, right.Id, StringComparison.Ordinal);
+
+    private static bool IsExact(string recordId, string type, HashSet<string> exacts)
+    {
+        var prefix = type + "/";
+
+        return recordId.StartsWith(prefix, StringComparison.Ordinal)
+            && exacts.Contains(recordId.Substring(prefix.Length));
+    }
 
     /// <summary>Whether the record's name part matches the derived stem, wholly or as a tail.</summary>
     private static bool NameMatches(string recordId, string stem)

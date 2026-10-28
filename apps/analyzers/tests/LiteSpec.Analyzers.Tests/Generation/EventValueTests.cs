@@ -98,4 +98,46 @@ public sealed class EventValueTests
 
         Assert.Empty(run.Sources);
     }
+
+    [Fact(DisplayName = "A partial event nested in a non-partial type takes no generated value")]
+    public void NestedInNonPartialTakesNothing()
+    {
+        var run = GeneratorVerify.Run(
+            RecordPages.Sources("""
+                namespace Shop.Orders;
+
+                public interface IDomainEvent;
+
+                public sealed class ExpenseEvents
+                {
+                    /// <implements>event/expense.submitted</implements>
+                    public sealed partial record ExpenseSubmittedEvent(string ExpenseId) : IDomainEvent;
+                }
+                """),
+            RecordPages.Files("xml", ("events.md", RecordPages.EventPage("event/expense.submitted"))));
+
+        Assert.DoesNotContain(run.Sources.Keys, key => key.StartsWith("LiteSpecEvent.", StringComparison.Ordinal));
+        Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
+    }
+
+    [Fact(DisplayName = "A partial event nested in a partial type takes its classification")]
+    public void NestedInPartialTakesItsClassification()
+    {
+        var run = GeneratorVerify.Run(
+            RecordPages.Sources("""
+                namespace Shop.Orders;
+
+                public interface IDomainEvent;
+
+                public sealed partial class ExpenseEvents
+                {
+                    /// <implements>event/expense.submitted</implements>
+                    public sealed partial record ExpenseSubmittedEvent(string ExpenseId) : IDomainEvent;
+                }
+                """),
+            RecordPages.Files("xml", ("events.md", RecordPages.EventPage("event/expense.submitted"))));
+
+        Assert.Contains(run.Sources.Keys, key => key.StartsWith("LiteSpecEvent.", StringComparison.Ordinal));
+        Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
+    }
 }

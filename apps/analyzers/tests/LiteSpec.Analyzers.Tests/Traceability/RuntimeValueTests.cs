@@ -142,6 +142,72 @@ public sealed class RuntimeValueTests
             [ProjectFile(), Rule(refusal: "result/submit-expense.ghost")],
             assemblyName: "Shop.Domain");
 
+    [Fact(DisplayName = "LS5005 reports an exception Code differing from its bare refusal code")]
+    public Task ReportsAnExceptionCodeDriftFromABareRefusal() =>
+        Verify.AnalyzerWithRecordsAsync<RuntimeValueAnalyzer>(
+            [("Source.cs", """
+                using System;
+
+                namespace Claimwick.Spending;
+
+                public abstract class DomainException : Exception
+                {
+                    public virtual string Code => "base";
+                }
+
+                /// <implements>rule/spending.receipt-required</implements>
+                public sealed class ReceiptRequiredException : DomainException
+                {
+                    public override string {|LS5005:Code|} => "spending.other-code";
+                }
+                """)],
+            [ProjectFile(), Rule(refusal: "spending.receipt-missing")],
+            assemblyName: "Shop.Domain");
+
+    [Fact(DisplayName = "LS5005 accepts an exception Code equal to its bare refusal code")]
+    public Task AcceptsAnExceptionCodeEqualToItsBareRefusal() =>
+        Verify.AnalyzerWithRecordsAsync<RuntimeValueAnalyzer>(
+            [("Source.cs", """
+                using System;
+
+                namespace Claimwick.Spending;
+
+                public abstract class DomainException : Exception
+                {
+                    public virtual string Code => "base";
+                }
+
+                /// <implements>rule/spending.receipt-required</implements>
+                public sealed class ReceiptRequiredException : DomainException
+                {
+                    public override string Code => "spending.receipt-missing";
+                }
+                """)],
+            [ProjectFile(), Rule(refusal: "spending.receipt-missing")],
+            assemblyName: "Shop.Domain");
+
+    [Fact(DisplayName = "LS5005 ignores a refusal pointing at a success result with a code")]
+    public Task IgnoresARefusalToASuccessResult() =>
+        Verify.AnalyzerWithRecordsAsync<RuntimeValueAnalyzer>(
+            [("Source.cs", """
+                using System;
+
+                namespace Claimwick.Spending;
+
+                public abstract class DomainException : Exception
+                {
+                    public virtual string Code => "base";
+                }
+
+                /// <implements>rule/spending.receipt-required</implements>
+                public sealed class ReceiptRequiredException : DomainException
+                {
+                    public override string Code => "spending.other-code";
+                }
+                """)],
+            [ProjectFile(), Rule(), Result(outcome: "success", code: "spending.receipt-missing")],
+            assemblyName: "Shop.Domain");
+
     [Fact(DisplayName = "LS5005 does not run outside Domain")]
     public Task DoesNotRunOutsideDomain() =>
         Verify.AnalyzerWithRecordsAsync<RuntimeValueAnalyzer>(

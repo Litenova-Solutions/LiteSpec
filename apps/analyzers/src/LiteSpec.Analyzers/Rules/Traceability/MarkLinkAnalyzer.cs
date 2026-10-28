@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using LiteSpec.Analyzers.Layers;
 using LiteSpec.Model;
@@ -8,9 +9,10 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace LiteSpec.Analyzers.Rules.Traceability;
 
 /// <summary>
-///     LS5002: a mark names no record, or a record of a type its element does not
-///     take. LS5003: an element carries more marks than its kind takes. LS5004: a
-///     mark is written in the style the project did not declare.
+///     LS5002: a mark names no record, a record of a type its element does not
+///     take, or uses the verb its kind does not take. LS5003: an element carries
+///     more marks than its kind takes, or names one record twice. LS5004: a mark
+///     is written in the style the project did not declare.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class MarkLinkAnalyzer : TraceabilityAnalyzer
@@ -56,28 +58,28 @@ public sealed class MarkLinkAnalyzer : TraceabilityAnalyzer
         SymbolAnalysisContext context, TraceabilityContext state, ISymbol symbol, CodeKind? kind)
     {
         var members = Declarations(symbol);
-        var total = 0;
+        var ids = new List<string>();
 
         foreach (var member in members)
         {
             foreach (var mark in MarkReader.Read(member))
             {
-                total++;
+                ids.Add(mark.RecordId);
                 AnalyzeMark(context, state, symbol, kind, member, mark);
             }
         }
 
-        if (kind is not null && total > 0 && MarkRules.TakesExactlyOne(kind.Value) && total > 1)
+        if (kind is not null && MarkRules.CheckCount(kind.Value, ids).Violated)
         {
             TraceabilityReporter.Report(
                 state,
                 context.ReportDiagnostic,
                 Descriptors.LS5003,
                 "mark-count",
-                FirstRecordId(symbol),
+                subject: null,
                 symbol.Locations[0],
                 symbol.Name,
-                total);
+                ids.Count);
         }
     }
 
@@ -136,6 +138,20 @@ public sealed class MarkLinkAnalyzer : TraceabilityAnalyzer
                 "is a " + record.Type + " record, not a " + Expected(kind.Value) + " record");
         }
 
+        if (kind is not null && mark.Verb != MarkRules.Verb(kind.Value))
+        {
+            TraceabilityReporter.Report(
+                state,
+                context.ReportDiagnostic,
+                Descriptors.LS5002,
+                "mark-unresolved",
+                mark.RecordId,
+                location,
+                symbol.Name,
+                mark.RecordId,
+                "uses the " + mark.Verb.ToTagName() + " verb, but its kind takes " + MarkRules.Verb(kind.Value).ToTagName());
+        }
+
         AnalyzeStyle(context, state, symbol, mark, location);
     }
 
@@ -156,19 +172,6 @@ public sealed class MarkLinkAnalyzer : TraceabilityAnalyzer
                 mark.Style.ToProjectValue(),
                 state.Store.Settings.Marks.ToProjectValue());
         }
-    }
-
-    private static string? FirstRecordId(ISymbol symbol)
-    {
-        foreach (var mark in MarksOf(symbol))
-        {
-            if (mark.HasRecordId)
-            {
-                return mark.RecordId;
-            }
-        }
-
-        return null;
     }
 
     private static string Expected(CodeKind kind) =>

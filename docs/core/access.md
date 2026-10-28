@@ -20,6 +20,8 @@ A role is one named set of permissions granted together. Its scope is a kebab-ca
 
 A permission is one allowed action. The project keeps every permission in one shared list, and each permission states in `meaning` what it allows in one sentence. Roles allow permissions from that list, and use cases cite them in their grants, so the list is the one vocabulary both sides share.
 
+Each permission names in `scope` the reach at which a role grants it, using the same levels a role scope uses, such as `platform`, `tenant`, or `self`, or levels the project names itself. An optional `group` orders the permission beside its peers in role editors. The `risk` field marks a sensitive permission, and whether a permission only reads follows from the kind of its leading verb in the use-case verb table on the [behavior page](behavior.md).
+
 ### The Access Field
 
 Each use case declares `access` with three parts: how the caller proves identity, what grant the call checks, and which tenant reach the call has. The `auth` list names one or more of `session`, `token`, `device`, `link`, `app`, `anonymous`, or `system`. The `grant` is a permission such as `permission/manage-copies`, a self grant such as `self(permission/read-loans)`, or the open grants `anonymous` and `system`. A self grant allows the permission only on records the caller owns. The `tenant` scope is `own` for work inside the caller tenant, `cross` for work reaching across tenants, `public` for work with no tenant boundary, or `none` for work that touches no tenant data. The [behavior page](behavior.md) states the use case fields around access.
@@ -137,6 +139,18 @@ An actor, role, or external system page carries a Summary section stating what t
 **Example:** `permission/submit-expense` carries "Submit an expense for approval."
 
 **Checked by:** `litespec model check` reports `record-shape` for a permission without `meaning`.
+
+### State the Scope of Every Permission
+
+**ID:** `litespec/core/access#state-the-scope-of-every-permission`
+
+**Statement:** Each permission MUST state the scope at which a role grants it.
+
+**Rationale:** A grant without a named reach is decided in code: each check looks up the reach beside the permission list, and code then holds a second list of permissions.
+
+**Example:** `permission/manage-copies` carries `scope: platform`, the same level as the librarian role that grants it.
+
+**Checked by:** `litespec consumer` fails a permission entry without `scope`.
 
 ### Declare Access on Every Use Case
 

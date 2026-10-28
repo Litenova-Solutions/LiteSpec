@@ -12,9 +12,10 @@
       "owner": "claimwick-team",
       "status": "reviewed",
       "meaning": "Submit an expense and attach receipts.",
+      "scope": "self",
       "approvedBy": "claimwick-team",
       "approvedOn": "2026-10-01",
-      "approvedHash": "a180cb3d"
+      "approvedHash": "44c32b6c"
     },
     {
       "type": "permission",
@@ -23,9 +24,10 @@
       "owner": "claimwick-team",
       "status": "reviewed",
       "meaning": "Approve or reject a submitted expense.",
+      "scope": "team",
       "approvedBy": "claimwick-team",
       "approvedOn": "2026-10-01",
-      "approvedHash": "9e9435c4"
+      "approvedHash": "2a7e8a1e"
     },
     {
       "type": "permission",
@@ -34,9 +36,10 @@
       "owner": "claimwick-team",
       "status": "reviewed",
       "meaning": "Reimburse an approved expense.",
+      "scope": "platform",
       "approvedBy": "claimwick-team",
       "approvedOn": "2026-10-01",
-      "approvedHash": "726af931"
+      "approvedHash": "6074fccf"
     },
     {
       "type": "permission",
@@ -45,9 +48,10 @@
       "owner": "claimwick-team",
       "status": "reviewed",
       "meaning": "Read own expenses.",
+      "scope": "self",
       "approvedBy": "claimwick-team",
       "approvedOn": "2026-10-01",
-      "approvedHash": "8e3069da"
+      "approvedHash": "03f9f4ac"
     },
     {
       "type": "permission",
@@ -56,9 +60,10 @@
       "owner": "claimwick-team",
       "status": "reviewed",
       "meaning": "Set the receipt threshold.",
+      "scope": "team",
       "approvedBy": "claimwick-team",
       "approvedOn": "2026-10-01",
-      "approvedHash": "3808947a"
+      "approvedHash": "83be0b22"
     },
     {
       "type": "permission",
@@ -67,9 +72,10 @@
       "owner": "claimwick-team",
       "status": "reviewed",
       "meaning": "Export approved expenses for finance.",
+      "scope": "platform",
       "approvedBy": "claimwick-team",
       "approvedOn": "2026-10-01",
-      "approvedHash": "8b0b443a"
+      "approvedHash": "f899f8fa"
     },
     {
       "type": "permission",
@@ -78,9 +84,10 @@
       "owner": "claimwick-team",
       "status": "reviewed",
       "meaning": "Erase the personal data of a decided expense.",
+      "scope": "platform",
       "approvedBy": "claimwick-team",
       "approvedOn": "2026-10-01",
-      "approvedHash": "3fbe0b14"
+      "approvedHash": "5d156a95"
     }
   ]
 }

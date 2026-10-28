@@ -128,7 +128,7 @@ public sealed class DotnetHandlerShapeReaderTests
         var methods = Read(temp.Path).AggregateMethods;
 
         Assert.Equal("OrderAbandonedEvent", Assert.Single(methods.Single(method => method.Method == "Abandon").Events));
-        Assert.Equal("OrderNotedEvent", Assert.Single(methods.Single(method => method.Method == "Note").Events));
+        Assert.Empty(methods.Single(method => method.Method == "Note").Events);
         Assert.Empty(methods.Single(method => method.Method == "Touch").Events);
         Assert.DoesNotContain(methods, method => method.Method == "Wipe");
     }

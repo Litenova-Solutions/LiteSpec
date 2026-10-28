@@ -32,7 +32,7 @@ internal static class MarkEdits
         var newline = NewlineOf(text);
         var mark = style == MarkStyle.Xml
             ? "/// <" + verb.ToTagName() + ">" + recordId + "</" + verb.ToTagName() + ">"
-            : "[" + verb.ToAttributeName() + "(\"" + recordId + "\")]";
+            : "[LiteSpec." + verb.ToAttributeName() + "(\"" + recordId + "\")]";
 
         return text.WithChanges(new TextChange(
             new TextSpan(member.SpanStart, 0), mark + newline + indent));

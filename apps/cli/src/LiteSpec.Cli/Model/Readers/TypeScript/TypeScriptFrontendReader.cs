@@ -61,7 +61,44 @@ sealed partial class TypeScriptFrontendReader(FrontendConfig frontend) : IFronte
                     client, byRoute, byOperation);
             });
 
+        code.Elements.AddRange(ReadModuleMarks(config));
+
         return new ScreenRead([.. screens], cache.Comments());
+    }
+
+    /// <summary>
+    ///     Every use-case module's mark: the <c>litespec</c> constant its folder exports,
+    ///     or an unmarked element carrying the folder when it exports none, in file order.
+    ///     A frontend mark reads the same in both styles, so it carries the project's
+    ///     declared style and never reports <c>mark-style-mixed</c>.
+    /// </summary>
+    private IReadOnlyList<MarkedElement> ReadModuleMarks(ConsumerConfig config)
+    {
+        var root = FrontendMarks.ModulesRoot(frontend);
+        var found = new List<MarkedElement>();
+
+        foreach (var folder in FrontendMarks.ModuleFolders(root))
+        {
+            var name = Path.GetRelativePath(root, folder).Replace(Path.DirectorySeparatorChar, '/');
+            var mark = FrontendMarks.ReadModuleMark(folder);
+
+            found.Add(mark is { } read
+                ? new MarkedElement(
+                    CodeKind.FrontendModule, name, null, read.File, read.Line,
+                    [new CodeMark(read.Id, config.Marks, MarkVerb.Implements, read.File, read.Line)],
+                    InTests: false)
+                : new MarkedElement(
+                    CodeKind.FrontendModule, name, null, Path.GetFullPath(folder), 1, [],
+                    InTests: false));
+        }
+
+        return
+        [
+            .. found
+                .OrderBy(element => element.File, StringComparer.Ordinal)
+                .ThenBy(element => element.Line)
+                .ThenBy(element => element.Class, StringComparer.Ordinal),
+        ];
     }
 
     /// <summary>

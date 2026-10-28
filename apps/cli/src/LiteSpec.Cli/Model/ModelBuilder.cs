@@ -385,23 +385,14 @@ static partial class ModelBuilder
     }
 
     /// <summary>
-    ///     The code of the refusal result the rule names, or null when its refusal
-    ///     is a bare code, names no result, or names a result with no code.
+    ///     The refusal code of the rule: the code of the refusal result it names,
+    ///     or its bare refusal code. The shared refusal rule over the model.
     /// </summary>
     public static string? RefusalResultCode(ProjectModel model, Record rule)
     {
-        if (rule.Field("refusal") is not { } refusal
-            || !refusal.StartsWith("result/", StringComparison.Ordinal)
-            || !model.ById.TryGetValue(refusal, out var result)
-            || result.Type != "result"
-            || result.Field("outcome") != "refusal")
-        {
-            return null;
-        }
+        return RefusalCode.Of(rule, ById);
 
-        var code = result.Field("code");
-
-        return code is { Length: > 0 } ? code : null;
+        IRecordFacts? ById(string id) => model.ById.TryGetValue(id, out var result) ? result : null;
     }
 
     /// <summary>Whether any of the use case's inputs carries rules.</summary>

@@ -1015,7 +1015,7 @@
     "permissionEntry": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["type", "id", "title", "meaning"],
+      "required": ["type", "id", "title", "meaning", "scope"],
       "properties": {
         "type": { "const": "permission" },
         "id": { "$ref": "#/$defs/permissionId" },
@@ -1030,6 +1030,8 @@
         "terms": { "$ref": "#/$defs/termIdArray" },
         "questions": { "$ref": "#/$defs/questionsArray" },
         "meaning": { "$ref": "#/$defs/nonEmptyString" },
+        "scope": { "type": "string", "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$" },
+        "group": { "type": "string", "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$" },
         "risk": { "$ref": "#/$defs/riskArray" },
         "source": { "$ref": "#/$defs/transcribedSource" }
       },

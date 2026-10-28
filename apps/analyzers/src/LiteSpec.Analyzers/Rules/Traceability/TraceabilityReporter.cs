@@ -37,7 +37,7 @@ internal static class TraceabilityReporter
             : location.SourceTree.GetLineSpan(location.SourceSpan).StartLinePosition.Line + 1;
         var finding = new Finding(code, descriptor.Title.ToString(), path, line, subject);
 
-        if (state.Store.IsKnown(finding))
+        if (state.IsKnown(finding))
         {
             return;
         }

@@ -11,7 +11,8 @@
       "title": "Borrow copy",
       "owner": "lending-team",
       "status": "approved",
-      "meaning": "Borrow an available copy."
+      "meaning": "Borrow an available copy.",
+      "scope": "self"
     }
   ]
 }

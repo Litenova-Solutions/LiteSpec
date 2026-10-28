@@ -379,18 +379,9 @@ internal sealed class RecordModel : IEquatable<RecordModel>
                 continue;
             }
 
-            var refusal = record.Field("refusal");
+            var code = RefusalCode.Of(record, index.ById);
 
-            if (refusal is null || refusal.Length == 0)
-            {
-                continue;
-            }
-
-            var code = refusal.StartsWith("result/", StringComparison.Ordinal)
-                ? index.ById(refusal)?.Field("code")
-                : refusal;
-
-            if (code is null || code.Length == 0)
+            if (code is null)
             {
                 continue;
             }

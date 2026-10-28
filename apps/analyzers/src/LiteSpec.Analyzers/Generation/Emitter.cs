@@ -16,7 +16,7 @@ namespace LiteSpec.Analyzers.Generation;
 /// </summary>
 internal static class Emitter
 {
-    /// <summary>Writes every source the inputs call for, or nothing without a usable project file.</summary>
+    /// <summary>Writes every source the inputs call for, or nothing without a usable project file or with no records and no marks.</summary>
     /// <param name="context">The source production context.</param>
     /// <param name="records">The record facts.</param>
     /// <param name="types">The marked types.</param>
@@ -28,6 +28,15 @@ internal static class Emitter
         HostModel host)
     {
         if (!records.Valid)
+        {
+            return;
+        }
+
+        if (records.EventIds.IsEmpty
+            && records.RuleCodes.IsEmpty
+            && records.PermissionIds.IsEmpty
+            && records.Grants.IsEmpty
+            && types.IsEmpty)
         {
             return;
         }

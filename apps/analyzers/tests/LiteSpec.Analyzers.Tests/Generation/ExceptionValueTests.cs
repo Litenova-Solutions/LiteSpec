@@ -241,4 +241,40 @@ public sealed class ExceptionValueTests
 
         Assert.DoesNotContain(run.Sources.Keys, key => key.StartsWith("LiteSpecException.", StringComparison.Ordinal));
     }
+
+    [Fact(DisplayName = "A partial exception nested in a non-partial type takes no generated value")]
+    public void NestedInNonPartialTakesNothing()
+    {
+        var run = GeneratorVerify.Run(
+            RecordPages.Sources("""
+                namespace Shop.Orders;
+
+                public abstract class DomainException : System.Exception
+                {
+                    protected DomainException(string message)
+                        : base(message)
+                    {
+                    }
+
+                    public virtual string Code => "";
+                }
+
+                public sealed class SpendingErrors
+                {
+                    /// <implements>rule/expense.receipt-required</implements>
+                    public sealed partial class ReceiptRequiredException : DomainException
+                    {
+                        public ReceiptRequiredException()
+                            : base("A receipt is required.")
+                        {
+                        }
+                    }
+                }
+                """),
+            RecordPages.Files("xml", ("rules.md", RecordPages.RuleSetPage(
+                RecordPages.RuleEntry("rule/expense.receipt-required", "expense.receipt-missing")))));
+
+        Assert.DoesNotContain(run.Sources.Keys, key => key.StartsWith("LiteSpecException.", StringComparison.Ordinal));
+        Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
+    }
 }

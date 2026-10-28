@@ -141,7 +141,7 @@ static class ConsumerFixture
             """),
         new("docs/behavior/permissions.md",
             """
-            {"type":"permission-list","id":"permissions","title":"Permissions","owner":"fixture","status":"reviewed","records":[{"type":"permission","id":"permission/cancel-order","title":"Cancel order","owner":"fixture","status":"reviewed","meaning":"The holder cancels an order they placed.","approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}]}
+            {"type":"permission-list","id":"permissions","title":"Permissions","owner":"fixture","status":"reviewed","records":[{"type":"permission","id":"permission/cancel-order","title":"Cancel order","owner":"fixture","status":"reviewed","scope":"self","meaning":"The holder cancels an order they placed.","approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}]}
             """,
             """
             # Permissions

@@ -22,12 +22,15 @@ sealed class DotnetBackendReader : IBackendReader
         System.Text.RegularExpressions.RegexOptions.Compiled);
 
     /// <summary>
-    ///     Collects the cross-file names kind recognition needs: the aggregate roots, the
-    ///     domain exceptions, and the marked ports. Roots and exceptions seed from their
-    ///     direct bases and close over inheritance; ports are the interfaces carrying an
-    ///     external-system mark. Collected once per read.
+    ///     Collects the cross-file names kind recognition needs: the aggregate roots,
+    ///     the domain exceptions, the marked ports, and the handler, event handler,
+    ///     job and domain event contracts. Roots, exceptions and contracts seed from
+    ///     their direct bases and close over inheritance: any type whose declared
+    ///     base list names a type already known to carry the contract carries it
+    ///     too. Ports are the interfaces carrying an external-system mark.
+    ///     Collected once per read, from the parsed file cache.
     /// </summary>
-    private static KindContext KindsOf(ConsumerConfig config)
+    private static KindContext KindsOf(ConsumerConfig config, IReadOnlyDictionary<string, SyntaxTree> trees)
     {
         var backends = new[]
         {
@@ -48,13 +51,7 @@ sealed class DotnetBackendReader : IBackendReader
 
             foreach (var file in SourceTree.Files(root, ".cs"))
             {
-                SyntaxTree tree;
-
-                try
-                {
-                    tree = CSharpSyntaxTree.ParseText(SourceTree.Read(file), new CSharpParseOptions(LanguageVersion.Preview), file);
-                }
-                catch (IOException)
+                if (!trees.TryGetValue(file, out var tree))
                 {
                     continue;
                 }
@@ -97,7 +94,12 @@ sealed class DotnetBackendReader : IBackendReader
             Fixpoint(bases, parents => parents.Any(parent =>
                 parent.StartsWith("AggregateRoot", StringComparison.Ordinal))),
             Fixpoint(bases, parents => parents.Contains("DomainException")),
-            ports);
+            ports,
+            Fixpoint(bases, parents => parents.Contains("ICommandHandler")),
+            Fixpoint(bases, parents => parents.Contains("IQueryHandler")),
+            Fixpoint(bases, parents => parents.Contains("IEventHandler") || parents.Contains("IDomainEventReaction")),
+            Fixpoint(bases, parents => parents.Contains("BackgroundService") || parents.Contains("IHostedService")),
+            Fixpoint(bases, parents => parents.Contains("IDomainEvent")));
     }
 
     /// <summary>Closes the seeded names over direct inheritance: a type deriving a known name is known.</summary>
@@ -172,15 +174,18 @@ sealed class DotnetBackendReader : IBackendReader
         Path.GetFileName(root.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
 
     /// <summary>Reads every configured source root, parsing each file once.</summary>
-    public CodeModel Read(ConsumerConfig config)
+    public CodeModel Read(ConsumerConfig config) => Read(config, onParsed: null);
+
+    /// <summary>
+    ///     Reads every configured source root from one parse of each file: the
+    ///     kind closure, the helper index and the parallel read all share the
+    ///     same cached syntax trees.
+    /// </summary>
+    /// <param name="config">The consumer configuration naming the source roots.</param>
+    /// <param name="onParsed">Invoked with each file after it parses, or null for no callback.</param>
+    public CodeModel Read(ConsumerConfig config, Action<string>? onParsed)
     {
         var model = new CodeModel();
-        var context = KindsOf(config);
-
-        externalPorts = new HashSet<string>(context.MarkedPorts, StringComparer.Ordinal);
-        var helpers = IndexHelpers(config);
-        var aggregateRoots = new HashSet<string>(context.AggregateRoots, StringComparer.Ordinal);
-        var holders = RepositoryHoldersOf(config);
 
         var files = new List<string>();
 
@@ -188,6 +193,14 @@ sealed class DotnetBackendReader : IBackendReader
         {
             files.AddRange(SourceTree.Files(root, ".cs"));
         }
+
+        var trees = ParseTrees(files, onParsed);
+        var context = KindsOf(config, trees);
+
+        externalPorts = new HashSet<string>(context.MarkedPorts, StringComparer.Ordinal);
+        var helpers = IndexHelpers(config, trees);
+        var aggregateRoots = new HashSet<string>(context.AggregateRoots, StringComparer.Ordinal);
+        var holders = RepositoryHoldersOf(config, trees);
 
         var merged = new CodeModel();
         var gate = new object();
@@ -197,7 +210,10 @@ sealed class DotnetBackendReader : IBackendReader
             () => new CodeModel(),
             (file, _, local) =>
             {
-                ReadFile(config, file, local, context, helpers, aggregateRoots, holders);
+                if (trees.TryGetValue(file, out var tree))
+                {
+                    ReadFile(config, file, tree, local, context, helpers, aggregateRoots, holders);
+                }
 
                 return local;
             },
@@ -258,26 +274,51 @@ sealed class DotnetBackendReader : IBackendReader
         return model;
     }
 
+    /// <summary>
+    ///     Parses every file once, in parallel, into a cache from file path to
+    ///     syntax tree. A file that cannot be read is left out.
+    /// </summary>
+    private static IReadOnlyDictionary<string, SyntaxTree> ParseTrees(IReadOnlyList<string> files, Action<string>? onParsed)
+    {
+        var trees = new Dictionary<string, SyntaxTree>(files.Count, StringComparer.Ordinal);
+        var gate = new object();
+
+        System.Threading.Tasks.Parallel.ForEach(
+            files,
+            file =>
+            {
+                SyntaxTree tree;
+
+                try
+                {
+                    tree = CSharpSyntaxTree.ParseText(SourceTree.Read(file), new CSharpParseOptions(LanguageVersion.Preview), file);
+                }
+                catch (IOException)
+                {
+                    return;
+                }
+
+                lock (gate)
+                {
+                    trees[file] = tree;
+                }
+
+                onParsed?.Invoke(file);
+            });
+
+        return trees;
+    }
+
     private static void ReadFile(
         ConsumerConfig config,
         string file,
+        SyntaxTree tree,
         CodeModel model,
         KindContext context,
         Dictionary<string, List<HelperMethod>> helpers,
         HashSet<string> aggregateRoots,
         HashSet<string> holders)
     {
-        SyntaxTree tree;
-
-        try
-        {
-            tree = CSharpSyntaxTree.ParseText(SourceTree.Read(file), new CSharpParseOptions(LanguageVersion.Preview), file);
-        }
-        catch (IOException)
-        {
-            return;
-        }
-
         var root = tree.GetRoot();
         var classes = root.DescendantNodes().OfType<BaseTypeDeclarationSyntax>().ToList();
         var elements = MarkFacts.Read(tree, context, ProjectOf(config, file));
@@ -286,7 +327,7 @@ sealed class DotnetBackendReader : IBackendReader
         var methods = root.DescendantNodes().OfType<MethodDeclarationSyntax>()
             .ToDictionary(method => method.Identifier.Span, method => method);
 
-        ReadElements(file, tree, elements, types, methods, model, helpers, aggregateRoots, holders);
+        ReadElements(file, tree, elements, types, methods, model, helpers, aggregateRoots, holders, context);
         ReadAggregateMethods(file, tree, elements, types, model);
         ReadAuditActions(file, tree, classes, model);
 
@@ -346,7 +387,8 @@ sealed class DotnetBackendReader : IBackendReader
         CodeModel model,
         Dictionary<string, List<HelperMethod>> helpers,
         HashSet<string> aggregateRoots,
-        HashSet<string> holders)
+        HashSet<string> holders,
+        KindContext context)
     {
         foreach (var element in elements)
         {
@@ -373,7 +415,7 @@ sealed class DotnetBackendReader : IBackendReader
                 switch (kind)
                 {
                     case CodeKind.Handler:
-                        ReadHandler(file, tree, declared, marks, model, helpers, aggregateRoots, holders);
+                        ReadHandler(file, tree, declared, marks, model, helpers, aggregateRoots, holders, context);
                         break;
                     case CodeKind.EventHandler:
                     case CodeKind.Job:
@@ -406,6 +448,20 @@ sealed class DotnetBackendReader : IBackendReader
             }
         }
     }
+
+
+    /// <summary>Whether the type is class-like, as the shared kind reader decides: a class or a non-struct record.</summary>
+    private static bool IsClassLike(TypeDeclarationSyntax type) =>
+        type switch
+        {
+            ClassDeclarationSyntax => true,
+            RecordDeclarationSyntax record => !record.ClassOrStructKeyword.IsKind(SyntaxKind.StructKeyword),
+            _ => false,
+        };
+
+    /// <summary>Whether the name is a job name, as the shared kind reader decides.</summary>
+    private static bool HasJobName(string name) =>
+        name.EndsWith("Job", StringComparison.Ordinal) || name.EndsWith("Worker", StringComparison.Ordinal);
 
     /// <summary>The one mark naming the prefix, or null when the element carries none or several.</summary>
     private static string? SingleMark(IReadOnlyList<CodeMark> marks, string prefix)
@@ -459,14 +515,17 @@ sealed class DotnetBackendReader : IBackendReader
         CodeModel model,
         Dictionary<string, List<HelperMethod>> helpers,
         HashSet<string> aggregateRoots,
-        HashSet<string> holders)
+        HashSet<string> holders,
+        KindContext context)
     {
         var useCase = SingleMark(marks, "use-case/") ?? "";
 
         Identifiers.TrySplit(useCase, out _, out var home, out var name);
 
         var message = MessageTypeOf(declared);
-        var kind = ImplementsFace(declared, "IQueryHandler") && !ImplementsFace(declared, "ICommandHandler")
+        var handlesQuery = ImplementsFace(declared, "IQueryHandler") || context.QueryHandlers.Contains(declared.Identifier.ValueText);
+        var handlesCommand = ImplementsFace(declared, "ICommandHandler") || context.CommandHandlers.Contains(declared.Identifier.ValueText);
+        var kind = handlesQuery && !handlesCommand
             ? "query"
             : "command";
         var details = HandlerDetailsOf(declared, tree, file, helpers, aggregateRoots, holders, kind == "query");
@@ -655,9 +714,8 @@ sealed class DotnetBackendReader : IBackendReader
 
     /// <summary>
     ///     Reads the public methods of every aggregate root the file declares with the
-    ///     domain events each one raises and the use-case marks each one carries: a call
-    ///     to a method starting with <c>Raise</c> that takes a constructed event, such as
-    ///     <c>RaiseDomainEvent(new XEvent())</c>.
+    ///     domain events each one raises and the use-case marks each one carries, the
+    ///     raised events read through the shared raised-event rule.
     /// </summary>
     private static void ReadAggregateMethods(
         string file,
@@ -690,7 +748,7 @@ sealed class DotnetBackendReader : IBackendReader
                 model.AggregateMethods.Add(new AggregateMethod(
                     declared.Identifier.ValueText,
                     method.Identifier.ValueText,
-                    RaisedEvents(method),
+                    RaisedEvents.Of(method, declared),
                     file,
                     tree.GetLineSpan(method.Span).StartLinePosition.Line + 1)
                 {
@@ -698,36 +756,6 @@ sealed class DotnetBackendReader : IBackendReader
                 });
             }
         }
-    }
-
-    /// <summary>The domain events a method raises: each constructed event a Raise call takes.</summary>
-    private static List<string> RaisedEvents(MethodDeclarationSyntax method)
-    {
-        var events = new List<string>();
-
-        foreach (var invocation in method.DescendantNodes().OfType<InvocationExpressionSyntax>())
-        {
-            if (CalledName(invocation) is not { } called || !called.StartsWith("Raise", StringComparison.Ordinal))
-            {
-                continue;
-            }
-
-            foreach (var argument in invocation.ArgumentList.Arguments)
-            {
-                if (argument.Expression is BaseObjectCreationExpressionSyntax creation
-                    && creation is ObjectCreationExpressionSyntax { Type: var type })
-                {
-                    var raised = KindOf(SimpleTypeName(type));
-
-                    if (raised.Length > 0 && !events.Contains(raised, StringComparer.Ordinal))
-                    {
-                        events.Add(raised);
-                    }
-                }
-            }
-        }
-
-        return events;
     }
 
     /// <summary>
@@ -1033,7 +1061,7 @@ sealed class DotnetBackendReader : IBackendReader
     ///     The simple names of the classes whose own constructor takes a repository: a
     ///     parameter whose kind starts with <c>I</c> and ends with <c>Repository</c>.
     /// </summary>
-    private static HashSet<string> RepositoryHoldersOf(ConsumerConfig config)
+    private static HashSet<string> RepositoryHoldersOf(ConsumerConfig config, IReadOnlyDictionary<string, SyntaxTree> trees)
     {
         var holders = new HashSet<string>(StringComparer.Ordinal);
 
@@ -1041,13 +1069,7 @@ sealed class DotnetBackendReader : IBackendReader
         {
             foreach (var file in SourceTree.Files(root, ".cs"))
             {
-                SyntaxTree tree;
-
-                try
-                {
-                    tree = CSharpSyntaxTree.ParseText(SourceTree.Read(file), new CSharpParseOptions(LanguageVersion.Preview), file);
-                }
-                catch (IOException)
+                if (!trees.TryGetValue(file, out var tree))
                 {
                     continue;
                 }
@@ -1718,7 +1740,7 @@ sealed class DotnetBackendReader : IBackendReader
     ///     through a held interface resolves to the method behind it. A method without
     ///     parameters, or one making no dispatch, is indexed as nothing to attribute.
     /// </summary>
-    private static Dictionary<string, List<HelperMethod>> IndexHelpers(ConsumerConfig config)
+    private static Dictionary<string, List<HelperMethod>> IndexHelpers(ConsumerConfig config, IReadOnlyDictionary<string, SyntaxTree> trees)
     {
         var files = new List<string>();
 
@@ -1735,7 +1757,10 @@ sealed class DotnetBackendReader : IBackendReader
             () => new List<(HelperMethod Helper, List<string> Aliases)>(),
             (file, _, local) =>
             {
-                CollectHelpers(file, local);
+                if (trees.TryGetValue(file, out var tree))
+                {
+                    CollectHelpers(file, tree, local);
+                }
 
                 return local;
             },
@@ -1762,20 +1787,9 @@ sealed class DotnetBackendReader : IBackendReader
         return merged;
     }
 
-    /// <summary>Collects the dispatching helper methods one file declares.</summary>
-    private static void CollectHelpers(string file, List<(HelperMethod Helper, List<string> Aliases)> into)
+    /// <summary>Collects the dispatching helper methods one cached tree declares.</summary>
+    private static void CollectHelpers(string file, SyntaxTree tree, List<(HelperMethod Helper, List<string> Aliases)> into)
     {
-        SyntaxTree tree;
-
-        try
-        {
-            tree = CSharpSyntaxTree.ParseText(SourceTree.Read(file), new CSharpParseOptions(LanguageVersion.Preview), file);
-        }
-        catch (IOException)
-        {
-            return;
-        }
-
         foreach (var declared in tree.GetRoot().DescendantNodes().OfType<BaseTypeDeclarationSyntax>())
         {
             if (declared is not TypeDeclarationSyntax typed)

@@ -95,6 +95,7 @@ public sealed class PermissionTests
         Assert.Contains("permission/a-b", diagnostic.GetMessage(), StringComparison.Ordinal);
         Assert.Contains("permission/a--b", diagnostic.GetMessage(), StringComparison.Ordinal);
         Assert.False(run.Sources.ContainsKey("LiteSpecPermissions.g.cs"), "The permissions source must not be generated.");
+        Assert.True(run.Sources.ContainsKey("LiteSpecRegistry.g.cs"), "The registry is independent of the collision and stays.");
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
     }
 }

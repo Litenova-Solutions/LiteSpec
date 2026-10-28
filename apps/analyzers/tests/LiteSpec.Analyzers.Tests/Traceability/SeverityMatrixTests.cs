@@ -1,5 +1,9 @@
+using LiteSpec.Analyzers.Layers;
+using LiteSpec.Analyzers.Records;
 using LiteSpec.Analyzers.Rules.Traceability;
 using LiteSpec.Analyzers.Tests.Support;
+using LiteSpec.Model;
+using Microsoft.CodeAnalysis.CSharp;
 using static LiteSpec.Analyzers.Tests.Support.TraceabilityFixtures;
 
 namespace LiteSpec.Analyzers.Tests.Traceability;
@@ -202,5 +206,54 @@ public sealed class SeverityMatrixTests
                 """)],
             [ProjectFile(), UseCase(), KnownGap("mark-style-mixed", ["use-case/spending.submit-expense"])],
             assemblyName: "Shop.Application");
+
+    [Fact(DisplayName = "The traceability context is shared per compilation")]
+    public void ContextIsSharedPerCompilation()
+    {
+        var store = StoreWith([ProjectFile(), UseCase()]);
+        var compilation = CSharpCompilation.Create("Shop.Application");
+
+        var first = TraceabilityContext.GetOrCreate(compilation, Layer.Application, store);
+        var second = TraceabilityContext.GetOrCreate(compilation, Layer.Application, store);
+
+        Assert.Same(first, second);
+        Assert.True(TraceabilityContext.TryGet(compilation, out var cached));
+        Assert.Same(first, cached);
+    }
+
+    [Fact(DisplayName = "The hoisted known sets match the store")]
+    public void HoistedKnownSetsMatchStore()
+    {
+        var store = StoreWith([ProjectFile(), UseCase(), Deviation(["Source.cs"]), KnownGap("mark-style-mixed", ["use-case/spending.submit-expense"])]);
+        var compilation = CSharpCompilation.Create("Shop.Application");
+        var context = TraceabilityContext.GetOrCreate(compilation, Layer.Application, store);
+
+        var byFile = new Finding("mark-missing", "Missing.", "Source.cs", 1, null);
+        var byGap = new Finding("mark-style-mixed", "Mixed.", "Other.cs", 1, "use-case/spending.submit-expense");
+        var open = new Finding("mark-missing", "Missing.", "Other.cs", 1, "use-case/spending.submit-expense");
+
+        Assert.True(context.IsKnown(byFile));
+        Assert.True(context.IsKnown(byGap));
+        Assert.False(context.IsKnown(open));
+        Assert.Equal(store.IsKnown(byFile), context.IsKnown(byFile));
+        Assert.Equal(store.IsKnown(byGap), context.IsKnown(byGap));
+        Assert.Equal(store.IsKnown(open), context.IsKnown(open));
+    }
+
+    private static RecordStore StoreWith(IReadOnlyList<(string Path, string Source)> files)
+    {
+        var records = new List<RecordFile>();
+
+        foreach (var file in files)
+        {
+            records.Add(new RecordFile(file.Path, file.Source));
+        }
+
+        var store = RecordStore.Load(records);
+
+        Assert.NotNull(store);
+
+        return store!;
+    }
 }
 

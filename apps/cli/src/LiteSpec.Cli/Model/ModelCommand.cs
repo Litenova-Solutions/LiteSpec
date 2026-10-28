@@ -126,6 +126,11 @@ static class ModelCommand
                     Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(output))!);
                     File.WriteAllText(output, model.ToJson() + "\n");
 
+                    foreach (var file in FrontendRecords.Write(model))
+                    {
+                        Console.WriteLine(file);
+                    }
+
                     Console.WriteLine($"{Relative(root, output)}: {model.Records.Count} records, {model.Code.Handlers.Count} handlers, {model.Screens.Count} screens, {model.Tests.Count} scenarios.");
                     return 0;
                 }

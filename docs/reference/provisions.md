@@ -6,7 +6,7 @@ Use this generated page to resolve a provision ID to its heading, owning page, a
 
 Run `litespec provisions` after any provision change. The repository validator fails when this page and the active standards disagree.
 
-The active release states 1672 provisions across 6 areas.
+The active release states 1673 provisions across 6 areas.
 
 ## backend
 
@@ -358,6 +358,7 @@ The active release states 1672 provisions across 6 areas.
 | litespec/core/access#scope-every-grant-to-its-tenant-reach | [Scope Every Grant to Its Tenant Reach](../core/access.md#scope-every-grant-to-its-tenant-reach) | rule | checkable | `litespec model check` reports `invalid-field` for a tenant scope outside own, cross, public, and none. |
 | litespec/core/access#scope-every-role | [Scope Every Role](../core/access.md#scope-every-role) | rule | checkable | `litespec model check` reports `record-shape` for a role without `scope` and `invalid-field` for a scope outside kebab-case form. |
 | litespec/core/access#state-every-permission-with-its-meaning | [State Every Permission with Its Meaning](../core/access.md#state-every-permission-with-its-meaning) | rule | checkable | `litespec model check` reports `record-shape` for a permission without `meaning`. |
+| litespec/core/access#state-the-scope-of-every-permission | [State the Scope of Every Permission](../core/access.md#state-the-scope-of-every-permission) | rule | checkable | `litespec consumer` fails a permission entry without `scope`. |
 | litespec/core/access#use-three-conventional-scope-levels | [Use Three Conventional Scope Levels](../core/access.md#use-three-conventional-scope-levels) | convention | guidance | Which role scopes fall outside platform, tenant, and self without a recorded project convention? Look at `scope` on each role page. |
 | litespec/core/access#write-a-summary-on-every-actor-and-role-page | [Write a Summary on Every Actor and Role Page](../core/access.md#write-a-summary-on-every-actor-and-role-page) | rule | checkable | `litespec consumer` fails an actor or role page without an H2 `Summary`. |
 | litespec/core/access#write-a-summary-on-every-external-system-page | [Write a Summary on Every External System Page](../core/access.md#write-a-summary-on-every-external-system-page) | rule | checkable | `litespec consumer` fails an external system page without an H2 `Summary`. |
@@ -1548,7 +1549,7 @@ The active release states 1672 provisions across 6 areas.
 | litespec/frontend/web/structure#keep-imports-directional | [Keep Imports Directional](../frontend/web/structure.md#keep-imports-directional) | rule | guidance | Every import follows the route to module to frame to package direction. |
 | litespec/frontend/web/structure#keep-tests-near-their-ownership-boundary | [Keep Tests Near Their Ownership Boundary](../frontend/web/structure.md#keep-tests-near-their-ownership-boundary) | convention | guidance | Each logic test sits beside its module as `*.test.ts`, and the browser suites share one `tests/` root per frontend. |
 | litespec/frontend/web/structure#locate-the-frame-in-the-app-folder | [Locate the Frame in the App Folder](../frontend/web/structure.md#locate-the-frame-in-the-app-folder) | rule | guidance | The frame folder its stack page names holds every cross-route value and browser use. |
-| litespec/frontend/web/structure#mark-each-use-case-module-with-its-use-case | [Mark Each Use-Case Module with Its Use Case](../frontend/web/structure.md#mark-each-use-case-module-with-its-use-case) | rule | guidance | Which use-case folders export no `litespec` constant, or name a use case other than the one their path mirrors? Look in each folder under the modules root. |
+| litespec/frontend/web/structure#mark-each-use-case-module-with-its-use-case | [Mark Each Use-Case Module with Its Use Case](../frontend/web/structure.md#mark-each-use-case-module-with-its-use-case) | rule | checkable | `litespec model check` reports `mark-missing` (tier S) for a use-case folder exporting no `litespec` constant, and `mark-unresolved` (tier S) for one naming a use case its path does not mirror. |
 | litespec/frontend/web/structure#refuse-stack-specific-folder-names | [Refuse Stack-Specific Folder Names](../frontend/web/structure.md#refuse-stack-specific-folder-names) | rule | guidance | No React folder takes the name `lib`, and no Svelte folder under `src/lib` takes the name `stores`. |
 | litespec/frontend/web/structure#use-explicit-public-entry-points-for-workspace-packages | [Use Explicit Public Entry Points for Workspace Packages](../frontend/web/structure.md#use-explicit-public-entry-points-for-workspace-packages) | convention | guidance | Every application import resolves to the package root or a documented subpath its package manifest exports. |
 | litespec/frontend/web/structure#use-the-frontend-application-tree | [Use the Frontend Application Tree](../frontend/web/structure.md#use-the-frontend-application-tree) | rule | guidance | Each frontend tree matches the frame, routes, and modules layout its stack page states. |

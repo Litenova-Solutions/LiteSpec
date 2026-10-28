@@ -82,4 +82,59 @@ public sealed class PartialTypeTests
                 """)],
             [ProjectFile(), Event()],
             assemblyName: "Shop.Application");
+
+    [Fact(DisplayName = "LS5006 accepts a two-part event with every part partial")]
+    public Task AcceptsTwoPartEventWithEveryPartPartial() =>
+        Verify.AnalyzerWithRecordsAsync<PartialTypeAnalyzer>(
+            [
+                ("First.cs", """
+                    namespace Claimwick.Spending;
+
+                    public interface IDomainEvent;
+
+                    /// <implements>event/expense.submitted</implements>
+                    public sealed partial record ExpenseSubmittedEvent : IDomainEvent;
+                    """),
+                ("Second.cs", """
+                    namespace Claimwick.Spending;
+
+                    public sealed partial record ExpenseSubmittedEvent;
+                    """),
+            ],
+            [ProjectFile(), Event()],
+            assemblyName: "Shop.Domain");
+
+    [Fact(DisplayName = "LS5006 reports the enclosing type of a nested partial event")]
+    public Task ReportsEnclosingTypeOfNestedPartialEvent() =>
+        Verify.AnalyzerWithRecordsAsync<PartialTypeAnalyzer>(
+            [("Source.cs", """
+                namespace Claimwick.Spending;
+
+                public interface IDomainEvent;
+
+                public sealed class {|LS5006:ExpenseEvents|}
+                {
+                    /// <implements>event/expense.submitted</implements>
+                    public sealed partial record ExpenseSubmittedEvent : IDomainEvent;
+                }
+                """)],
+            [ProjectFile(), Event()],
+            assemblyName: "Shop.Domain");
+
+    [Fact(DisplayName = "LS5006 accepts a nested event with a partial enclosing type")]
+    public Task AcceptsNestedEventWithPartialEnclosingType() =>
+        Verify.AnalyzerWithRecordsAsync<PartialTypeAnalyzer>(
+            [("Source.cs", """
+                namespace Claimwick.Spending;
+
+                public interface IDomainEvent;
+
+                public sealed partial class ExpenseEvents
+                {
+                    /// <implements>event/expense.submitted</implements>
+                    public sealed partial record ExpenseSubmittedEvent : IDomainEvent;
+                }
+                """)],
+            [ProjectFile(), Event()],
+            assemblyName: "Shop.Domain");
 }

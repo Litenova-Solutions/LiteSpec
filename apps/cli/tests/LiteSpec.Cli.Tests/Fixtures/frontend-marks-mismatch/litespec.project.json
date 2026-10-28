@@ -1,0 +1,35 @@
+{
+  "project": {
+    "name": "Frontend Marks Fixture"
+  },
+  "size": "small",
+  "shape": "server",
+  "stacks": [
+    "svelte"
+  ],
+  "reviewedLiteSpecVersion": "3.0.0",
+  "owners": [
+    "lending-team"
+  ],
+  "paths": {
+    "docs": "docs",
+    "behaviorDocs": "docs/behavior",
+    "glossary": "docs/glossary.json",
+    "testRoots": [
+      "apps/api/tests"
+    ],
+    "frontends": [
+      {
+        "name": "web",
+        "path": "apps/web",
+        "platform": "svelte"
+      }
+    ]
+  },
+  "vocabulary": {
+    "verbs": [
+      "borrow",
+      "list"
+    ]
+  }
+}

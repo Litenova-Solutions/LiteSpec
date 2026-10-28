@@ -50,7 +50,7 @@ public sealed class AttributeGenerationTests
     {
         var run = GeneratorVerify.Run(
             RecordPages.Sources("namespace Shop.Orders; internal sealed class Placeholder;"),
-            RecordPages.Files("attribute"),
+            RecordPages.Files("attribute", ("events.md", RecordPages.EventPage("event/expense.submitted"))),
             extraReferences: [MetadataReference.CreateFromFile(typeof(Xunit.v3.ITraitAttribute).Assembly.Location)]);
 
         Assert.True(run.Sources.TryGetValue("LiteSpecAttributes.g.cs", out var attributes), "The attributes source is missing.");
@@ -65,7 +65,7 @@ public sealed class AttributeGenerationTests
     {
         var run = GeneratorVerify.Run(
             RecordPages.Sources("namespace Shop.Orders; internal sealed class Placeholder;"),
-            RecordPages.Files("attribute"));
+            RecordPages.Files("attribute", ("events.md", RecordPages.EventPage("event/expense.submitted"))));
 
         Assert.True(run.Sources.TryGetValue("LiteSpecAttributes.g.cs", out var attributes), "The attributes source is missing.");
         Assert.DoesNotContain("ITraitAttribute", attributes, StringComparison.Ordinal);
@@ -91,5 +91,16 @@ public sealed class AttributeGenerationTests
         Assert.True(run.Sources.TryGetValue("LiteSpecEvent.Shop.Orders.ExpenseSubmittedEvent.g.cs", out var part), "The event part is missing.");
         Assert.Contains("public const string Classification = \"event/expense.submitted\";", part, StringComparison.Ordinal);
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
+    }
+
+    [Fact(DisplayName = "A project file with no record pages generates nothing")]
+    public void NoRecordPagesGeneratesNothing()
+    {
+        var run = GeneratorVerify.Run(
+            RecordPages.Sources("namespace Shop.Orders; internal sealed class Placeholder;"),
+            RecordPages.Files("attribute"));
+
+        Assert.Empty(run.Sources);
+        Assert.Empty(run.ReportedDiagnostics);
     }
 }

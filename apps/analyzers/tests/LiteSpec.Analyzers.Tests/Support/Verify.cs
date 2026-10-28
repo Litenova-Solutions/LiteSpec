@@ -180,6 +180,74 @@ internal static partial class Verify
     }
 
     /// <summary>
+    ///     Asserts the code fix turns the source into the fixed source and the fixed
+    ///     compilation has no errors with the generator running: the target relies on
+    ///     the generated attribute, with no stub in the test source.
+    /// </summary>
+    public static async Task CodeFixWithGeneratorAsync<TAnalyzer, TFix>(
+        string source,
+        string fixedSource,
+        string? actionTitle,
+        IReadOnlyList<(string Path, string Source)> additionalFiles,
+        string assemblyName = "Shop.Domain",
+        string? layer = null)
+        where TAnalyzer : DiagnosticAnalyzer, new()
+        where TFix : CodeFixProvider, new()
+    {
+        await CodeFixFilesAsync<TAnalyzer, TFix>(
+            [("Source.cs", source)], [("Source.cs", fixedSource)], actionTitle,
+            additionalFiles, assemblyName, layer);
+
+        using var workspace = TestWorkspace([("Source.cs", fixedSource)], additionalFiles, assemblyName, true);
+        var project = workspace.CurrentSolution.Projects.Single();
+        var compilation = await project.GetCompilationAsync(TestContext.Current.CancellationToken);
+        Assert.NotNull(compilation);
+
+        var driver = GeneratorVerify.CreateDriver(
+            additionalFiles.Select(file => (file.Path, file.Source)).ToList(), layer);
+        var result = GeneratorVerify.RunToResult(driver, compilation!);
+        var errors = compilation!.AddSyntaxTrees(result.GeneratedTrees).GetDiagnostics()
+            .Where(d => d.Severity == DiagnosticSeverity.Error).ToList();
+        Assert.True(errors.Count == 0, "The fixed source does not compile with the generator:\n" + string.Join("\n", errors));
+    }
+
+    /// <summary>Reads the fix action titles in the order the provider offers them.</summary>
+    public static async Task<IReadOnlyList<string>> CodeFixActionTitlesAsync<TAnalyzer, TFix>(
+        IReadOnlyList<(string Path, string Source)> files,
+        IReadOnlyList<(string Path, string Source)> additionalFiles,
+        string assemblyName = "Shop.Domain",
+        string? layer = null)
+        where TAnalyzer : DiagnosticAnalyzer, new()
+        where TFix : CodeFixProvider, new()
+    {
+        using var workspace = TestWorkspace(files, additionalFiles, assemblyName, true);
+        var project = workspace.CurrentSolution.Projects.Single();
+        var compilation = await project.GetCompilationAsync(TestContext.Current.CancellationToken);
+        Assert.NotNull(compilation);
+
+        var options = new AnalyzerOptions(
+            additionalFiles.Select(file => (AdditionalText)new TestAdditionalText(file.Path, file.Source)).ToImmutableArray(),
+            new GlobalOptionsProvider(layer, null));
+        var diagnostics = (await compilation!
+            .WithAnalyzers([new TAnalyzer()], options)
+            .GetAnalyzerDiagnosticsAsync(TestContext.Current.CancellationToken))
+            .Where(d => d.Location.IsInSource)
+            .ToList();
+        Assert.NotEmpty(diagnostics);
+
+        var provider = new TFix();
+        var diagnostic = diagnostics.First(d => provider.FixableDiagnosticIds.Contains(d.Id));
+        var document = project.Solution.GetDocument(diagnostic.Location.SourceTree);
+        Assert.NotNull(document);
+
+        var actions = new List<CodeAction>();
+        await provider.RegisterCodeFixesAsync(new CodeFixContext(
+            document!, diagnostic, (action, _) => actions.Add(action), TestContext.Current.CancellationToken));
+
+        return actions.Select(action => action.Title).ToList();
+    }
+
+    /// <summary>
     ///     Asserts Fix All turns the sources into the fixed sources across the solution,
     ///     applying the fix with the equivalence key.
     /// </summary>

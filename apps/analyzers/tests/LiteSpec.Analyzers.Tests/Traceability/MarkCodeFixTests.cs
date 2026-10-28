@@ -78,7 +78,7 @@ public sealed class MarkCodeFixTests
 
                 public sealed class SubmitExpenseCommandResult;
 
-                [Implements("use-case/spending.submit-expense")]
+                [LiteSpec.Implements("use-case/spending.submit-expense")]
                 internal sealed class SubmitExpenseCommandHandler : ICommandHandler<SubmitExpenseCommand, SubmitExpenseCommandResult>
                 {
                 }
@@ -200,7 +200,7 @@ public sealed class MarkCodeFixTests
 
             public sealed class SubmitExpenseCommandResult;
 
-            [Implements("use-case/spending.submit-expense")]
+            [LiteSpec.Implements("use-case/spending.submit-expense")]
             internal sealed class SubmitExpenseCommandHandler : ICommandHandler<SubmitExpenseCommand, SubmitExpenseCommandResult>
             {
             }
@@ -428,4 +428,309 @@ public sealed class MarkCodeFixTests
         Assert.NotNull(new AddPartialCodeFixProvider().GetFixAllProvider());
         Assert.NotNull(new DeleteHandWrittenValueCodeFixProvider().GetFixAllProvider());
     }
+
+    [Fact(DisplayName = "Add mark writes a qualified attribute that compiles with the generator")]
+    public Task AddMarkWritesQualifiedAttributeCompilingWithGenerator() =>
+        Verify.CodeFixWithGeneratorAsync<MarkPresenceAnalyzer, AddMarkCodeFixProvider>(
+            """
+            using System;
+
+            namespace Claimwick.Spending;
+
+            public interface ICommandHandler<TCommand, TResult>;
+
+            public sealed class SubmitExpenseCommand;
+
+            public sealed class SubmitExpenseCommandResult;
+
+            internal sealed class SubmitExpenseCommandHandler : ICommandHandler<SubmitExpenseCommand, SubmitExpenseCommandResult>
+            {
+            }
+            """,
+            """
+            using System;
+
+            namespace Claimwick.Spending;
+
+            public interface ICommandHandler<TCommand, TResult>;
+
+            public sealed class SubmitExpenseCommand;
+
+            public sealed class SubmitExpenseCommandResult;
+
+            [LiteSpec.Implements("use-case/spending.submit-expense")]
+            internal sealed class SubmitExpenseCommandHandler : ICommandHandler<SubmitExpenseCommand, SubmitExpenseCommandResult>
+            {
+            }
+            """,
+            "Submit expense",
+            [ProjectFile(marks: "attribute"), UseCase()],
+            "Shop.Application");
+
+    [Fact(DisplayName = "Convert mark writes a qualified attribute that compiles with the generator")]
+    public Task ConvertMarkWritesQualifiedAttributeCompilingWithGenerator() =>
+        Verify.CodeFixWithGeneratorAsync<MarkLinkAnalyzer, ConvertMarkStyleCodeFixProvider>(
+            """
+            using System;
+
+            namespace Claimwick.Spending;
+
+            public interface ICommandHandler<TCommand, TResult>;
+
+            public sealed class SubmitExpenseCommand;
+
+            public sealed class SubmitExpenseCommandResult;
+
+            /// <implements>use-case/spending.submit-expense</implements>
+            internal sealed class SubmitExpenseCommandHandler : ICommandHandler<SubmitExpenseCommand, SubmitExpenseCommandResult>
+            {
+            }
+            """,
+            """
+            using System;
+
+            namespace Claimwick.Spending;
+
+            public interface ICommandHandler<TCommand, TResult>;
+
+            public sealed class SubmitExpenseCommand;
+
+            public sealed class SubmitExpenseCommandResult;
+
+            [LiteSpec.Implements("use-case/spending.submit-expense")]
+            internal sealed class SubmitExpenseCommandHandler : ICommandHandler<SubmitExpenseCommand, SubmitExpenseCommandResult>
+            {
+            }
+            """,
+            "Convert mark to attribute",
+            [ProjectFile(marks: "attribute"), UseCase()],
+            "Shop.Application");
+
+    [Fact(DisplayName = "Add mark ranks the module-folder exact match first in the real layout")]
+    public async Task AddMarkRanksModuleFolderExactFirst()
+    {
+        var titles = await Verify.CodeFixActionTitlesAsync<MarkPresenceAnalyzer, AddMarkCodeFixProvider>(
+            [("Spending/Expense/SubmitExpense/SubmitExpenseCommandHandler.cs", """
+                using System;
+
+                namespace Claimwick.Spending;
+
+                public interface ICommandHandler<TCommand, TResult>;
+
+                public sealed class SubmitExpenseCommand;
+
+                public sealed class SubmitExpenseCommandResult;
+
+                internal sealed class SubmitExpenseCommandHandler : ICommandHandler<SubmitExpenseCommand, SubmitExpenseCommandResult>
+                {
+                }
+                """)],
+            [ProjectFile(), UseCase("use-case/billing.submit-expense", "Submit billing expense"), UseCase()],
+            "Shop.Application");
+
+        Assert.Equal(["Submit expense", "Submit billing expense"], titles);
+    }
+
+    [Fact(DisplayName = "Add mark falls back to identifier order with no exact home")]
+    public async Task AddMarkFallsBackToIdentifierOrder()
+    {
+        var titles = await Verify.CodeFixActionTitlesAsync<MarkPresenceAnalyzer, AddMarkCodeFixProvider>(
+            [("Other/Thing/SubmitExpenseCommandHandler.cs", """
+                using System;
+
+                namespace Claimwick.Spending;
+
+                public interface ICommandHandler<TCommand, TResult>;
+
+                public sealed class SubmitExpenseCommand;
+
+                public sealed class SubmitExpenseCommandResult;
+
+                internal sealed class SubmitExpenseCommandHandler : ICommandHandler<SubmitExpenseCommand, SubmitExpenseCommandResult>
+                {
+                }
+                """)],
+            [ProjectFile(), UseCase("use-case/billing.submit-expense", "Submit billing expense"), UseCase()],
+            "Shop.Application");
+
+        Assert.Equal(["Submit billing expense", "Submit expense"], titles);
+    }
+
+    [Fact(DisplayName = "Add mark keeps the summary and adds the tag after it")]
+    public Task AddMarkKeepsSummary() =>
+        Verify.CodeFixAsync<MarkPresenceAnalyzer, AddMarkCodeFixProvider>(
+            """
+            using System;
+
+            namespace Claimwick.Spending;
+
+            public interface ICommandHandler<TCommand, TResult>;
+
+            public sealed class SubmitExpenseCommand;
+
+            public sealed class SubmitExpenseCommandResult;
+
+            /// <summary>Submits an expense.</summary>
+            internal sealed class SubmitExpenseCommandHandler : ICommandHandler<SubmitExpenseCommand, SubmitExpenseCommandResult>
+            {
+            }
+            """,
+            """
+            using System;
+
+            namespace Claimwick.Spending;
+
+            public interface ICommandHandler<TCommand, TResult>;
+
+            public sealed class SubmitExpenseCommand;
+
+            public sealed class SubmitExpenseCommandResult;
+
+            /// <summary>Submits an expense.</summary>
+            /// <implements>use-case/spending.submit-expense</implements>
+            internal sealed class SubmitExpenseCommandHandler : ICommandHandler<SubmitExpenseCommand, SubmitExpenseCommandResult>
+            {
+            }
+            """,
+            "Submit expense",
+            [ProjectFile(), UseCase()],
+            "Shop.Application");
+
+    [Fact(DisplayName = "Add mark keeps the summary and adds the qualified attribute after it")]
+    public Task AddMarkAttributeKeepsSummary() =>
+        Verify.CodeFixAsync<MarkPresenceAnalyzer, AddMarkCodeFixProvider>(
+            """
+            using System;
+
+            namespace Claimwick.Spending;
+
+            public interface ICommandHandler<TCommand, TResult>;
+
+            public sealed class SubmitExpenseCommand;
+
+            public sealed class SubmitExpenseCommandResult;
+
+            /// <summary>Submits an expense.</summary>
+            internal sealed class SubmitExpenseCommandHandler : ICommandHandler<SubmitExpenseCommand, SubmitExpenseCommandResult>
+            {
+            }
+            """,
+            """
+            using System;
+
+            namespace Claimwick.Spending;
+
+            public interface ICommandHandler<TCommand, TResult>;
+
+            public sealed class SubmitExpenseCommand;
+
+            public sealed class SubmitExpenseCommandResult;
+
+            /// <summary>Submits an expense.</summary>
+            [LiteSpec.Implements("use-case/spending.submit-expense")]
+            internal sealed class SubmitExpenseCommandHandler : ICommandHandler<SubmitExpenseCommand, SubmitExpenseCommandResult>
+            {
+            }
+            """,
+            "Submit expense",
+            [ProjectFile(marks: "attribute"), UseCase()],
+            "Shop.Application");
+
+    [Fact(DisplayName = "Convert mark to attribute keeps the summary")]
+    public Task ConvertMarkToAttributeKeepsSummary() =>
+        Verify.CodeFixAsync<MarkLinkAnalyzer, ConvertMarkStyleCodeFixProvider>(
+            """
+            using System;
+
+            namespace Claimwick.Spending;
+
+            public interface ICommandHandler<TCommand, TResult>;
+
+            public sealed class SubmitExpenseCommand;
+
+            public sealed class SubmitExpenseCommandResult;
+
+            /// <summary>Submits an expense.</summary>
+            /// <implements>use-case/spending.submit-expense</implements>
+            internal sealed class SubmitExpenseCommandHandler : ICommandHandler<SubmitExpenseCommand, SubmitExpenseCommandResult>
+            {
+            }
+            """,
+            """
+            using System;
+
+            namespace Claimwick.Spending;
+
+            public interface ICommandHandler<TCommand, TResult>;
+
+            public sealed class SubmitExpenseCommand;
+
+            public sealed class SubmitExpenseCommandResult;
+
+            /// <summary>Submits an expense.</summary>
+            [LiteSpec.Implements("use-case/spending.submit-expense")]
+            internal sealed class SubmitExpenseCommandHandler : ICommandHandler<SubmitExpenseCommand, SubmitExpenseCommandResult>
+            {
+            }
+            """,
+            "Convert mark to attribute",
+            [ProjectFile(marks: "attribute"), UseCase()],
+            "Shop.Application");
+
+    [Fact(DisplayName = "Convert mark to tag keeps the summary")]
+    public Task ConvertMarkToXmlKeepsSummary() =>
+        Verify.CodeFixFilesAsync<MarkLinkAnalyzer, ConvertMarkStyleCodeFixProvider>(
+            [("Source.cs", """
+                using System;
+
+                namespace Claimwick.Spending;
+
+                public interface ICommandHandler<TCommand, TResult>;
+
+                public sealed class SubmitExpenseCommand;
+
+                public sealed class SubmitExpenseCommandResult;
+
+                /// <summary>Submits an expense.</summary>
+                [LiteSpec.Implements("use-case/spending.submit-expense")]
+                internal sealed class SubmitExpenseCommandHandler : ICommandHandler<SubmitExpenseCommand, SubmitExpenseCommandResult>
+                {
+                }
+                """),
+             ("Attributes.cs", """
+                namespace LiteSpec;
+
+                internal sealed class ImplementsAttribute : System.Attribute
+                {
+                    public ImplementsAttribute(string id) { }
+                }
+                """)],
+            [("Source.cs", """
+                using System;
+
+                namespace Claimwick.Spending;
+
+                public interface ICommandHandler<TCommand, TResult>;
+
+                public sealed class SubmitExpenseCommand;
+
+                public sealed class SubmitExpenseCommandResult;
+
+                /// <summary>Submits an expense.</summary>
+                /// <implements>use-case/spending.submit-expense</implements>
+                internal sealed class SubmitExpenseCommandHandler : ICommandHandler<SubmitExpenseCommand, SubmitExpenseCommandResult>
+                {
+                }
+                """),
+             ("Attributes.cs", """
+                namespace LiteSpec;
+
+                internal sealed class ImplementsAttribute : System.Attribute
+                {
+                    public ImplementsAttribute(string id) { }
+                }
+                """)],
+            "Convert mark to documentation tag",
+            [ProjectFile(), UseCase()],
+            "Shop.Application");
 }

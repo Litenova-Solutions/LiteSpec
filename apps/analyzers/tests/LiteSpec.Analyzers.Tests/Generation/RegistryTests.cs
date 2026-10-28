@@ -95,4 +95,15 @@ public sealed class RegistryTests
         Assert.Contains("new System.Collections.Generic.Dictionary<string, string>();", registry, StringComparison.Ordinal);
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
     }
+
+    [Fact(DisplayName = "A project file with no record pages writes no registry")]
+    public void NoRecordPagesWritesNoRegistry()
+    {
+        var run = GeneratorVerify.Run(
+            RecordPages.Sources("namespace Shop.Spending; internal sealed class Placeholder;"),
+            RecordPages.Files("xml"));
+
+        Assert.Empty(run.Sources);
+        Assert.Empty(run.ReportedDiagnostics);
+    }
 }

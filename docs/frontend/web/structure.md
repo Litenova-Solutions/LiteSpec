@@ -71,7 +71,7 @@ import type { LiteSpecMark } from "$lib/litespec-records";
 export const litespec = { implements: "use-case/spending.submit-expense" } as const satisfies LiteSpecMark;
 ```
 
-**Reviewed for:** Which use-case folders export no `litespec` constant, or name a use case other than the one their path mirrors? Look in each folder under the modules root.
+**Checked by:** `litespec model check` reports `mark-missing` (tier S) for a use-case folder exporting no `litespec` constant, and `mark-unresolved` (tier S) for one naming a use case its path does not mirror.
 
 ### Refuse Stack-Specific Folder Names
 

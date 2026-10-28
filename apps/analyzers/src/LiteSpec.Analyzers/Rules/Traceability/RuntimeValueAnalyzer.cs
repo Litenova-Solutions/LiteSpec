@@ -80,7 +80,7 @@ public sealed class RuntimeValueAnalyzer : TraceabilityAnalyzer
     {
         var mark = ResolvingMark(state, type, "rule");
 
-        if (mark is null || RefusalCode(state, mark) is not string expected)
+        if (mark is null || ExpectedCode(state, mark) is not string expected)
         {
             return;
         }
@@ -122,28 +122,12 @@ public sealed class RuntimeValueAnalyzer : TraceabilityAnalyzer
         return null;
     }
 
-    /// <summary>
-    ///     The refusal code of the rule: the <c>code</c> of the result its
-    ///     <c>refusal</c> names, or the refusal itself when it is a code. Null
-    ///     when the rule names no refusal result with a code.
-    /// </summary>
-    private static string? RefusalCode(TraceabilityContext state, string ruleId)
+    /// <summary>The refusal code of the rule through the shared rule, or null when it names none.</summary>
+    private static string? ExpectedCode(TraceabilityContext state, string ruleId)
     {
         var rule = state.Store.Index.ById(ruleId);
 
-        if (rule?.Field("refusal") is not string refusal || refusal.Length == 0)
-        {
-            return null;
-        }
-
-        if (refusal.StartsWith("result/", System.StringComparison.Ordinal))
-        {
-            var result = state.Store.Index.ById(refusal);
-
-            return result?.Field("code") is string code && code.Length > 0 ? code : null;
-        }
-
-        return refusal;
+        return rule is null ? null : RefusalCode.Of(rule, state.Store.Index.ById);
     }
 
     /// <summary>Every hand-written string literal value of the named member declared on the type.</summary>

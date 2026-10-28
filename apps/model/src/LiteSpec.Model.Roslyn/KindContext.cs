@@ -5,7 +5,8 @@ namespace LiteSpec.Model.Roslyn;
 
 /// <summary>
 ///     Type names the host found elsewhere that syntax alone cannot resolve: the
-///     aggregate roots, domain exceptions, and marked ports known through
+///     aggregate roots, domain exceptions, marked ports, command handlers, query
+///     handlers, event handlers, job hosts, and domain events known through
 ///     inheritance across files. The CLI collects these across files before it
 ///     reads kinds; an analyzer fills them from symbols. Names are simple type
 ///     names without qualification or type arguments, compared with ordinal
@@ -23,11 +24,21 @@ public sealed class KindContext
     /// <param name="aggregateRoots">Simple names of known aggregate roots.</param>
     /// <param name="domainExceptions">Simple names of known domain exceptions.</param>
     /// <param name="markedPorts">Simple names of known marked ports.</param>
-    /// <exception cref="ArgumentNullException">Any collection is null.</exception>
+    /// <param name="commandHandlers">Simple names of types known to carry <c>ICommandHandler</c>, directly or through a base. Null means none are known.</param>
+    /// <param name="queryHandlers">Simple names of types known to carry <c>IQueryHandler</c>, directly or through a base. Null means none are known.</param>
+    /// <param name="eventHandlers">Simple names of types known to carry <c>IEventHandler</c> or <c>IDomainEventReaction</c>, directly or through a base. Null means none are known.</param>
+    /// <param name="jobHosts">Simple names of types known to derive <c>BackgroundService</c> or implement <c>IHostedService</c>, directly or through a base, before the Job or Worker name check. Null means none are known.</param>
+    /// <param name="domainEvents">Simple names of types known to carry <c>IDomainEvent</c>, directly or through a base, including interfaces that extend it. Null means none are known.</param>
+    /// <exception cref="ArgumentNullException">Any of <paramref name="aggregateRoots" />, <paramref name="domainExceptions" /> or <paramref name="markedPorts" /> is null.</exception>
     public KindContext(
         IEnumerable<string> aggregateRoots,
         IEnumerable<string> domainExceptions,
-        IEnumerable<string> markedPorts)
+        IEnumerable<string> markedPorts,
+        IEnumerable<string>? commandHandlers = null,
+        IEnumerable<string>? queryHandlers = null,
+        IEnumerable<string>? eventHandlers = null,
+        IEnumerable<string>? jobHosts = null,
+        IEnumerable<string>? domainEvents = null)
     {
         if (aggregateRoots is null)
         {
@@ -47,6 +58,11 @@ public sealed class KindContext
         AggregateRoots = new HashSet<string>(aggregateRoots, StringComparer.Ordinal);
         DomainExceptions = new HashSet<string>(domainExceptions, StringComparer.Ordinal);
         MarkedPorts = new HashSet<string>(markedPorts, StringComparer.Ordinal);
+        CommandHandlers = new HashSet<string>(commandHandlers ?? Array.Empty<string>(), StringComparer.Ordinal);
+        QueryHandlers = new HashSet<string>(queryHandlers ?? Array.Empty<string>(), StringComparer.Ordinal);
+        EventHandlers = new HashSet<string>(eventHandlers ?? Array.Empty<string>(), StringComparer.Ordinal);
+        JobHosts = new HashSet<string>(jobHosts ?? Array.Empty<string>(), StringComparer.Ordinal);
+        DomainEvents = new HashSet<string>(domainEvents ?? Array.Empty<string>(), StringComparer.Ordinal);
     }
 
     /// <summary>An empty context: no cross-file names are known.</summary>
@@ -60,4 +76,19 @@ public sealed class KindContext
 
     /// <summary>Simple names of known marked ports.</summary>
     public IReadOnlyCollection<string> MarkedPorts { get; }
+
+    /// <summary>Simple names of types known to carry <c>ICommandHandler</c>, directly or through a base.</summary>
+    public IReadOnlyCollection<string> CommandHandlers { get; }
+
+    /// <summary>Simple names of types known to carry <c>IQueryHandler</c>, directly or through a base.</summary>
+    public IReadOnlyCollection<string> QueryHandlers { get; }
+
+    /// <summary>Simple names of types known to carry <c>IEventHandler</c> or <c>IDomainEventReaction</c>, directly or through a base.</summary>
+    public IReadOnlyCollection<string> EventHandlers { get; }
+
+    /// <summary>Simple names of types known to derive <c>BackgroundService</c> or implement <c>IHostedService</c>, directly or through a base, before the Job or Worker name check.</summary>
+    public IReadOnlyCollection<string> JobHosts { get; }
+
+    /// <summary>Simple names of types known to carry <c>IDomainEvent</c>, directly or through a base, including interfaces that extend it.</summary>
+    public IReadOnlyCollection<string> DomainEvents { get; }
 }

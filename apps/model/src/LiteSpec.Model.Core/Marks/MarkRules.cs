@@ -86,6 +86,41 @@ public static class MarkRules
         return false;
     }
 
+    /// <summary>
+    ///     Decides whether an element's marks violate its kind's count rule: the
+    ///     kind takes exactly one mark and the element carries more, or one record
+    ///     id appears twice. An element with no marks is no violation: its missing
+    ///     mark is <c>mark-missing</c>, not <c>mark-count</c>. Both hosts call this,
+    ///     so the CLI and the analyzer agree on every kind.
+    /// </summary>
+    /// <param name="kind">The code kind.</param>
+    /// <param name="recordIds">The mark record ids, one entry per mark, in source order.</param>
+    /// <returns>The verdict, with the twice-named id when one id appears twice.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The kind is not a known value.</exception>
+    /// <exception cref="ArgumentNullException">The record ids are null.</exception>
+    public static MarkCount CheckCount(CodeKind kind, IReadOnlyList<string> recordIds)
+    {
+        if (recordIds is null)
+        {
+            throw new ArgumentNullException(nameof(recordIds));
+        }
+
+        var takesExactlyOne = TakesExactlyOne(kind);
+        var seen = new HashSet<string>(StringComparer.Ordinal);
+
+        foreach (var id in recordIds)
+        {
+            if (!seen.Add(id))
+            {
+                return new MarkCount(true, id);
+            }
+        }
+
+        return takesExactlyOne && recordIds.Count > 1
+            ? new MarkCount(true, null)
+            : new MarkCount(false, null);
+    }
+
     /// <summary>The finding codes of the mark findings, in rule id order.</summary>
     public static IReadOnlyList<string> FindingCodes => Codes;
 

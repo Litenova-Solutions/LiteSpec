@@ -3,15 +3,13 @@ using LiteSpec.Analyzers.Layers;
 using LiteSpec.Model;
 using LiteSpec.Model.Roslyn;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace LiteSpec.Analyzers.Rules.Traceability;
 
 /// <summary>
-///     LS5006: a marked domain event or rule exception is not a partial type, so
-///     the generator cannot write its runtime value.
+///     LS5006: a marked domain event or rule exception is not a partial type, or is
+///     nested in a type that is not partial, so the generator cannot write its runtime value.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class PartialTypeAnalyzer : TraceabilityAnalyzer
@@ -42,21 +40,39 @@ public sealed class PartialTypeAnalyzer : TraceabilityAnalyzer
             return;
         }
 
-        if (MarksOf(type).Count == 0 || IsPartial(type))
+        if (MarksOf(type).Count == 0)
         {
             return;
         }
 
         var subject = FirstRecordId(type);
 
-        TraceabilityReporter.Report(
-            state,
-            context.ReportDiagnostic,
-            Descriptors.LS5006,
-            "partial-missing",
-            subject,
-            type.Locations[0],
-            type.Name);
+        if (!PartialTypes.IsPartial(type))
+        {
+            TraceabilityReporter.Report(
+                state,
+                context.ReportDiagnostic,
+                Descriptors.LS5006,
+                "partial-missing",
+                subject,
+                type.Locations[0],
+                type.Name);
+        }
+
+        for (var outer = type.ContainingType; outer is not null; outer = outer.ContainingType)
+        {
+            if (!PartialTypes.IsPartial(outer))
+            {
+                TraceabilityReporter.Report(
+                    state,
+                    context.ReportDiagnostic,
+                    Descriptors.LS5006,
+                    "partial-missing",
+                    subject,
+                    outer.Locations[0],
+                    outer.Name);
+            }
+        }
     }
 
     private static string? FirstRecordId(INamedTypeSymbol type)
@@ -70,19 +86,5 @@ public sealed class PartialTypeAnalyzer : TraceabilityAnalyzer
         }
 
         return null;
-    }
-
-    private static bool IsPartial(INamedTypeSymbol type)
-    {
-        foreach (var member in Declarations(type))
-        {
-            if (member is TypeDeclarationSyntax declared
-                && declared.Modifiers.Any(SyntaxKind.PartialKeyword))
-            {
-                return true;
-            }
-        }
-
-        return false;
     }
 }

@@ -198,6 +198,124 @@ public sealed class MarkLinkTests
             [ProjectFile(), Aggregate(), UseCase(), UseCase("use-case/spending.approve-expense", "Approve expense"), Event()],
             assemblyName: "Shop.Domain");
 
+    [Fact(DisplayName = "LS5003 reports one record named twice on a multi-mark kind")]
+    public Task ReportsOneRecordNamedTwiceOnAMultiMarkKind() =>
+        Verify.AnalyzerWithRecordsAsync<MarkLinkAnalyzer>(
+            [("Source.cs", """
+                namespace Claimwick.Spending;
+
+                public abstract class AggregateRoot<TState>
+                {
+                    protected void RaiseDomainEvent(IDomainEvent e) { }
+                }
+
+                public interface IDomainEvent;
+
+                /// <implements>event/expense.submitted</implements>
+                public sealed record ExpenseSubmittedEvent : IDomainEvent;
+
+                /// <implements>aggregate/spending.expense</implements>
+                public sealed class Expense : AggregateRoot<object>
+                {
+                    /// <implements>use-case/spending.submit-expense</implements>
+                    /// <implements>use-case/spending.submit-expense</implements>
+                    public void {|LS5003:Submit|}()
+                    {
+                        RaiseDomainEvent(new ExpenseSubmittedEvent());
+                    }
+                }
+                """)],
+            [ProjectFile(), Aggregate(), UseCase(), Event()],
+            assemblyName: "Shop.Domain");
+
+    [Fact(DisplayName = "LS5002 reports a proves mark on a handler")]
+    public Task ReportsAProvesMarkOnAHandler() =>
+        Verify.AnalyzerWithRecordsAsync<MarkLinkAnalyzer>(
+            [("Source.cs", """
+                using System;
+
+                namespace Claimwick.Spending;
+
+                public interface ICommandHandler<TCommand, TResult>;
+
+                public sealed class SubmitExpenseCommand;
+
+                public sealed class SubmitExpenseCommandResult;
+
+                /// <proves>{|LS5002:use-case/spending.submit-expense|}</proves>
+                internal sealed class SubmitExpenseCommandHandler : ICommandHandler<SubmitExpenseCommand, SubmitExpenseCommandResult>
+                {
+                }
+                """)],
+            [ProjectFile(), UseCase()],
+            assemblyName: "Shop.Application");
+
+    [Fact(DisplayName = "LS5002 reports an implements mark on a test")]
+    public Task ReportsAnImplementsMarkOnATest() =>
+        Verify.AnalyzerWithRecordsAsync<MarkLinkAnalyzer>(
+            [("Source.cs", """
+                using System;
+
+                namespace Claimwick.Spending.Tests;
+
+                public sealed class FactAttribute : Attribute;
+
+                public sealed class ExpenseTests
+                {
+                    /// <implements>{|LS5002:scenario/submit-expense.submitting-with-a-receipt-succeeds|}</implements>
+                    [Fact]
+                    public void Submitting_with_a_receipt_succeeds()
+                    {
+                    }
+                }
+                """)],
+            [ProjectFile(), Scenario()],
+            assemblyName: "Shop.Domain.Tests");
+
+    [Fact(DisplayName = "LS5002 accepts a proves mark on a test")]
+    public Task AcceptsAProvesMarkOnATest() =>
+        Verify.AnalyzerWithRecordsAsync<MarkLinkAnalyzer>(
+            [("Source.cs", """
+                using System;
+
+                namespace Claimwick.Spending.Tests;
+
+                public sealed class FactAttribute : Attribute;
+
+                public sealed class ExpenseTests
+                {
+                    /// <proves>scenario/submit-expense.submitting-with-a-receipt-succeeds</proves>
+                    [Fact]
+                    public void Submitting_with_a_receipt_succeeds()
+                    {
+                    }
+                }
+                """)],
+            [ProjectFile(), Scenario()],
+            assemblyName: "Shop.Domain.Tests");
+
+    [Fact(DisplayName = "LS5002 on a draft record reports a warning")]
+    public Task DraftSubjectReportsWarning() =>
+        Verify.AnalyzerWithRecordsAsync<MarkLinkAnalyzer>(
+            [("Source.cs", """
+                using System;
+
+                namespace Claimwick.Spending;
+
+                public interface ICommandHandler<TCommand, TResult>;
+
+                public sealed class SubmitExpenseCommand;
+
+                public sealed class SubmitExpenseCommandResult;
+
+                /// <implements>{|LS5002:Warning:rule/spending.receipt-required|}</implements>
+                internal sealed class SubmitExpenseCommandHandler : ICommandHandler<SubmitExpenseCommand, SubmitExpenseCommandResult>
+                {
+                }
+                """)],
+            [ProjectFile(), UseCase(), Rule(status: "draft")],
+            assemblyName: "Shop.Application");
+
     [Fact(DisplayName = "LS5004 reports an attribute mark when the project declares xml")]
     public Task ReportsAnAttributeMarkUnderXml() =>
         Verify.AnalyzerWithRecordsAsync<MarkLinkAnalyzer>(

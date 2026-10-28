@@ -294,4 +294,34 @@ public sealed class MarkPresenceTests
                 """)],
             [],
             assemblyName: "Shop.Application");
+
+    [Fact(DisplayName = "LS5001 accepts a qualified attribute mark")]
+    public Task AcceptsAQualifiedAttributeMark() =>
+        Verify.AnalyzerWithRecordsAsync<MarkPresenceAnalyzer>(
+            [("Source.cs", """
+                using System;
+
+                namespace Claimwick.Spending;
+
+                public interface ICommandHandler<TCommand, TResult>;
+
+                public sealed class SubmitExpenseCommand;
+
+                public sealed class SubmitExpenseCommandResult;
+
+                [LiteSpec.Implements("use-case/spending.submit-expense")]
+                internal sealed class SubmitExpenseCommandHandler : ICommandHandler<SubmitExpenseCommand, SubmitExpenseCommandResult>
+                {
+                }
+                """),
+             ("Attributes.cs", """
+                namespace LiteSpec;
+
+                internal sealed class ImplementsAttribute : System.Attribute
+                {
+                    public ImplementsAttribute(string id) { }
+                }
+                """)],
+            [ProjectFile(marks: "attribute"), UseCase()],
+            assemblyName: "Shop.Application");
 }

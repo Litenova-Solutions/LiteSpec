@@ -28,8 +28,6 @@ public static class KindReader
 
     private const string RulePrefix = "rule/";
 
-    private const string RaiseMethodName = "RaiseDomainEvent";
-
     private static readonly HashSet<string> TestAttributeNames = new HashSet<string>(StringComparer.Ordinal)
     {
         "Fact",
@@ -115,7 +113,7 @@ public static class KindReader
             return CodeKind.DomainService;
         }
 
-        return null;
+        return TransitiveKindOf(type, context);
     }
 
     /// <summary>Recognizes the kind of a method declaration from syntax.</summary>
@@ -613,83 +611,65 @@ public static class KindReader
         return false;
     }
 
-    private static bool RaisesEvent(MethodDeclarationSyntax method, TypeDeclarationSyntax parent)
+    private static bool RaisesEvent(MethodDeclarationSyntax method, TypeDeclarationSyntax parent) =>
+        RaisedEvents.Of(method, parent).Count != 0;
+
+    /// <summary>
+    ///     The kind a type carries through a base declared in another file: a handler, event
+    ///     handler, job or domain event whose contract the host's cross-file closure names.
+    ///     Null when the type carries no such contract or fails the kind's shape.
+    /// </summary>
+    private static CodeKind? TransitiveKindOf(TypeDeclarationSyntax type, KindContext context)
     {
-        if (CallsRaiseEvent(method))
+        var name = type.Identifier.ValueText;
+
+        if (type is not InterfaceDeclarationSyntax
+            && (context.DomainEvents.Contains(name) || BaseCarries(type, context.DomainEvents)))
         {
-            return true;
+            return CodeKind.DomainEvent;
         }
 
-        foreach (var invocation in method.DescendantNodes().OfType<InvocationExpressionSyntax>())
+        if (IsClassLike(type)
+            && (context.CommandHandlers.Contains(name)
+                || context.QueryHandlers.Contains(name)
+                || BaseCarries(type, context.CommandHandlers)
+                || BaseCarries(type, context.QueryHandlers)))
         {
-            var name = InvocationName(invocation);
-            if (name is not null
-                && FindPrivateMethod(parent, name) is MethodDeclarationSyntax helper
-                && CallsRaiseEvent(helper))
-            {
-                return true;
-            }
+            return CodeKind.Handler;
         }
 
-        return false;
-    }
-
-    private static bool CallsRaiseEvent(MethodDeclarationSyntax method)
-    {
-        foreach (var invocation in method.DescendantNodes().OfType<InvocationExpressionSyntax>())
+        if (IsClassLike(type)
+            && (context.EventHandlers.Contains(name) || BaseCarries(type, context.EventHandlers)))
         {
-            if (InvocationName(invocation) == RaiseMethodName)
-            {
-                return true;
-            }
+            return CodeKind.EventHandler;
         }
 
-        return false;
-    }
-
-    private static MethodDeclarationSyntax? FindPrivateMethod(TypeDeclarationSyntax parent, string name)
-    {
-        foreach (var candidate in parent.Members.OfType<MethodDeclarationSyntax>())
+        if (IsClassLike(type)
+            && HasJobName(name)
+            && (context.JobHosts.Contains(name) || BaseCarries(type, context.JobHosts)))
         {
-            if (candidate.Identifier.ValueText == name && IsPrivate(candidate))
-            {
-                return candidate;
-            }
+            return CodeKind.Job;
         }
 
         return null;
     }
 
-    private static bool IsPrivate(MethodDeclarationSyntax method)
+    private static bool BaseCarries(TypeDeclarationSyntax type, IReadOnlyCollection<string> known)
     {
-        foreach (var modifier in method.Modifiers)
+        if (type.BaseList is null || known.Count == 0)
         {
-            if (modifier.IsKind(SyntaxKind.PublicKeyword)
-                || modifier.IsKind(SyntaxKind.InternalKeyword)
-                || modifier.IsKind(SyntaxKind.ProtectedKeyword))
+            return false;
+        }
+
+        foreach (var baseType in type.BaseList.Types)
+        {
+            if (known.Contains(SyntaxNames.SimpleName(baseType.Type)))
             {
-                return false;
+                return true;
             }
         }
 
-        return true;
-    }
-
-    private static string? InvocationName(InvocationExpressionSyntax invocation)
-    {
-        switch (invocation.Expression)
-        {
-            case IdentifierNameSyntax plain:
-                return plain.Identifier.ValueText;
-            case GenericNameSyntax generic:
-                return generic.Identifier.ValueText;
-            case MemberAccessExpressionSyntax member:
-                return member.Name.Identifier.ValueText;
-            case MemberBindingExpressionSyntax binding:
-                return binding.Name.Identifier.ValueText;
-            default:
-                return null;
-        }
+        return false;
     }
 
     private static bool IsClassLike(TypeDeclarationSyntax type)
