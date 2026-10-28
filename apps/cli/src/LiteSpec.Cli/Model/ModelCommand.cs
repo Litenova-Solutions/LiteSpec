@@ -108,6 +108,11 @@ static class ModelCommand
             Console.Error.WriteLine($"litespec.project.json is not valid JSON: {exception.Message}");
             return 2;
         }
+        catch (InvalidOperationException exception)
+        {
+            Console.Error.WriteLine(exception.Message);
+            return 2;
+        }
 
         try
         {
@@ -130,7 +135,6 @@ static class ModelCommand
                     var model = ModelBuilder.Build(config);
                     var (findings, known) = Checker.Check(model);
                     var json = parsed.Json;
-                    var qualified = StackQualified(config);
                     StagedScope.Scope? staged = null;
 
                     if (parsed.Has("--staged"))
@@ -148,21 +152,31 @@ static class ModelCommand
                         known = known.Where(gap => StagedScope.InScope(scope, gap)).ToList();
                     }
 
+                    var phase = config.Phase.ToProjectValue();
+                    var qualified = Finding.ReaderQualified(config.Stacks);
+                    var shown = findings
+                        .Select(finding => (Finding: finding, Severity: Decide(model, config, finding, phase, qualified)))
+                        .Where(entry => entry.Severity.Outcome != Outcome.Silent)
+                        .ToList();
+                    var shownKnown = known
+                        .Where(gap => Decide(model, config, gap, phase, qualified).Outcome != Outcome.Silent)
+                        .ToList();
+
                     if (json)
                     {
                         object payload = staged is null
                             ? new
                             {
-                                findings = findings.Select(AsJson(config)).ToList(),
-                                known = known.Select(AsJson(config)).ToList(),
+                                findings = shown.Select(entry => AsJson(config, entry.Finding, entry.Severity)).ToList(),
+                                known = shownKnown.Select(gap => AsKnownJson(config, gap)).ToList(),
                             }
                             : new
                             {
                                 scope = "staged",
                                 stagedFiles = staged.StagedFiles,
                                 stagedRecords = staged.RecordIds.Count,
-                                findings = findings.Select(AsJson(config)).ToList(),
-                                known = known.Select(AsJson(config)).ToList(),
+                                findings = shown.Select(entry => AsJson(config, entry.Finding, entry.Severity)).ToList(),
+                                known = shownKnown.Select(gap => AsKnownJson(config, gap)).ToList(),
                             };
 
                         Console.WriteLine(JsonSerializer.Serialize(payload, CliJson.Options));
@@ -174,20 +188,20 @@ static class ModelCommand
                             Console.WriteLine($"Staged scope: {staged.StagedFiles} files, {staged.RecordIds.Count} records.");
                         }
 
-                        foreach (var finding in findings)
+                        foreach (var entry in shown)
                         {
-                            Console.WriteLine($"{config.Relative(finding.Path)}:{finding.Line} [{TierOf(finding)}] [{finding.Code}] {finding.Message}");
+                            Console.WriteLine($"{config.Relative(entry.Finding.Path)}:{entry.Finding.Line} [{TierLabel(entry.Finding, entry.Severity)}] [{entry.Finding.Code}] {entry.Finding.Message}");
                         }
 
-                        foreach (var gap in known)
+                        foreach (var gap in shownKnown)
                         {
-                            Console.WriteLine($"{config.Relative(gap.Path)}:{gap.Line} [known {TierOf(gap)}] [{gap.Code}] {gap.Message}");
+                            Console.WriteLine($"{config.Relative(gap.Path)}:{gap.Line} [known {gap.Tier}] [{gap.Code}] {gap.Message}");
                         }
 
-                        Console.WriteLine($"{findings.Count} findings, {known.Count} known.");
+                        Console.WriteLine($"{shown.Count} findings, {shownKnown.Count} known.");
                     }
 
-                    return findings.Any(finding => Blocks(finding, qualified)) ? 1 : 0;
+                    return shown.Any(entry => entry.Severity.Outcome == Outcome.Blocking) ? 1 : 0;
                 }
 
                 case "render":
@@ -385,53 +399,52 @@ static class ModelCommand
             ? null
             : $"Unknown format '{format}'; use text, markdown or json.";
 
-    static Func<Finding, object> AsJson(ConsumerConfig config) => finding => new
+    /// <summary>Decides one finding's severity from its subject, its path, the phase and the reader.</summary>
+    static Severity Decide(ProjectModel model, ConsumerConfig config, Finding finding, string phase, bool qualified) =>
+        Severity.Of(
+            finding,
+            finding.Subject is not null && model.EffectiveStatus.TryGetValue(finding.Subject, out var status) ? status : null,
+            UnderTestRoot(config, finding.Path),
+            phase,
+            qualified);
+
+    /// <summary>Whether the path lies under a test root.</summary>
+    static bool UnderTestRoot(ConsumerConfig config, string path)
+    {
+        var comparison = Path.DirectorySeparatorChar == '\\'
+            ? StringComparison.OrdinalIgnoreCase
+            : StringComparison.Ordinal;
+
+        return config.TestRoots.Any(root =>
+            string.Equals(path, root, comparison)
+            || path.StartsWith(root + Path.DirectorySeparatorChar, comparison));
+    }
+
+    /// <summary>The printed tier: the tier plus the reason a reported S finding does not block.</summary>
+    static string TierLabel(Finding finding, Severity severity) =>
+        severity.Reason is null ? finding.Tier : finding.Tier + " " + severity.Reason;
+
+    static object AsJson(ConsumerConfig config, Finding finding, Severity severity) => new
     {
         code = finding.Code,
-        tier = TierOf(finding),
+        tier = finding.Tier,
+        outcome = severity.Outcome == Outcome.Blocking ? "blocking" : "reported",
+        reason = severity.Reason,
         message = finding.Message,
         path = config.Relative(finding.Path),
         line = finding.Line,
         subject = finding.Subject,
     };
 
-    /// <summary>Whether the finding blocks: G always, S only where the stack reader is qualified.</summary>
-    static bool Blocks(Finding finding, bool qualified) => TierOf(finding) switch
+    static object AsKnownJson(ConsumerConfig config, Finding finding) => new
     {
-        "G" => true,
-        "S" => qualified,
-        _ => false,
-    };
-
-    /// <summary>Whether the stack reader is qualified: the project names a .NET stack.</summary>
-    static bool StackQualified(ConsumerConfig config) =>
-        config.Stacks.Contains("dotnet", StringComparer.Ordinal)
-        || config.Stacks.Contains("blazor", StringComparer.Ordinal)
-        || config.Stacks.Contains("android", StringComparer.Ordinal);
-
-    /// <summary>
-    ///     The finding's tier. The checks worker carries the tier on the finding;
-    ///     until it lands, the tier falls back to the code table below.
-    /// </summary>
-    static string TierOf(Finding finding)
-    {
-        var tier = typeof(Finding).GetProperty("Tier")?.GetValue(finding)?.ToString();
-
-        if (tier is "G" or "S" or "A")
-        {
-            return tier;
-        }
-
-        return TierByCode(finding.Code);
-    }
-
-    /// <summary>The tier each check code carries, for findings that carry no tier yet.</summary>
-    static string TierByCode(string code) => code switch
-    {
-        "behavior-unrecorded" or "use-case-unimplemented"
-            or "refusal-not-thrown" or "proves-unconfirmed" or "use-case-without-scenario"
-            or "write-undeclared" or "result-undeclared" or "effect-undeclared" => "S",
-        "prose-missing" or "many-aggregates" or "question-aged" => "A",
-        _ => "G",
+        code = finding.Code,
+        tier = finding.Tier,
+        outcome = "known",
+        reason = (string?)null,
+        message = finding.Message,
+        path = config.Relative(finding.Path),
+        line = finding.Line,
+        subject = finding.Subject,
     };
 }

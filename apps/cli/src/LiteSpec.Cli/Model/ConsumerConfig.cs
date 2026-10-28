@@ -120,6 +120,12 @@ sealed class ConsumerConfig
     /// <summary>The stacks the project names in <c>litespec.project.json</c>.</summary>
     public IReadOnlyList<string> Stacks { get; private set; } = [];
 
+    /// <summary>The mark style the project declares.</summary>
+    public MarkStyle Marks { get; private set; } = MarkStyle.Xml;
+
+    /// <summary>The check phase the project declares.</summary>
+    public ProjectPhase Phase { get; private set; } = ProjectPhase.Working;
+
     /// <summary>The closed owner list.</summary>
     public IReadOnlyList<string> Owners { get; private set; } = [];
 
@@ -146,10 +152,17 @@ sealed class ConsumerConfig
     {
         var config = new ConsumerConfig(Path.GetFullPath(root));
         var file = Path.Combine(config.Root, "litespec.project.json");
+        var text = File.Exists(file) ? File.ReadAllText(file) : "{}";
 
-        using var document = File.Exists(file)
-            ? JsonDocument.Parse(File.ReadAllBytes(file))
-            : JsonDocument.Parse("{}");
+        using var document = JsonDocument.Parse(text);
+
+        if (!ProjectSettings.TryParse(text, out var settings, out var error))
+        {
+            throw new InvalidOperationException(error!);
+        }
+
+        config.Marks = settings.Marks;
+        config.Phase = settings.Phase;
 
         var paths = document.RootElement.TryGetProperty("paths", out var found)
             && found.ValueKind == JsonValueKind.Object
