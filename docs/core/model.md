@@ -217,7 +217,7 @@ Containment needs no link field: it follows the identifier. An aggregate belongs
 
 ### Marks
 
-A mark is the one written link from a code element to the record it serves. It holds the record identifier, and every tool reads it the same way: the model builder, the analyzers, and the editor. A folder path stays the map a reader follows through the code, and it is never the link.
+A mark is the one written link from a code element to the record it serves. It holds the record identifier, and every tool reads it the same way: the model builder and the analyzers. A folder path stays the map a reader follows through the code, and it is never the link.
 
 | Record layer the code serves | Code element | Mark names |
 |:--|:--|:--|
@@ -758,18 +758,6 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 **Example:** A project that lowers LS5001 to a suggestion in its root `.editorconfig` records a deviation citing `litespec/core/system#point-code-and-tests-up-to-records`.
 
 **Reviewed for:** Which project-wide severity lowerings in `.editorconfig` lack a deviation record? Look at every `.editorconfig` in the repository beside the deviation records.
-
-### Serve Editors from the Model
-
-**ID:** `litespec/core/model#serve-editors-from-the-model`
-
-**Statement:** Editor navigation over record identifiers MUST read the same model `litespec model check` builds.
-
-**Rationale:** Navigation that builds its own index answers a different question than the check: a reference the editor finds and the check refuses, or the reverse, teaches people to trust neither. Reading the one model keeps go to definition, find references, hover and rename in agreement with the findings.
-
-**Example:** Find references on `use-case/spending.submit-expense` lists its handler, its endpoint, the aggregate method marked with it, its screen module, and the tests proving its scenarios, the same links the model output holds.
-
-**Reviewed for:** Which editor feature reads record identifiers from somewhere other than the model? Look at the language server the project runs.
 
 ## Conventions
 

@@ -1,6 +1,6 @@
 # Traceability: Tool Design
 
-The tool contract every worker builds to. The provisions in `docs/` are the authority; this page fixes the names, codes and types the tools share so the CLI, the analyzer, the source generator and the language server agree.
+The tool contract every worker builds to. The provisions in `docs/` are the authority; this page fixes the names, codes and types the tools share so the CLI, the analyzer and the source generator agree.
 
 ## Marks
 
@@ -120,8 +120,6 @@ The CLI prints `draft` or `frozen` beside a reported S finding so a reader sees 
 | `apps/cli` | net10.0 | Reads records and code into the whole model; reads marks through `MarkReader`; runs every finding |
 | `apps/analyzers/src/LiteSpec.Analyzers` | netstandard2.0 | LS5001 to LS5008 per compilation, reading records as `AdditionalFiles`; the source generator |
 | `apps/analyzers/src/LiteSpec.Analyzers.CodeFixes` | netstandard2.0 | Code fixes: add the missing mark, one action per candidate record titled with the record title (candidates: records of the expected type whose name the folder and type name derive, for handlers, endpoints, event handlers and tests; no Fix All); correct a mistyped id, offering the three nearest records of the expected type by edit distance, one action each, no Fix All; convert a mark to the declared style (Fix All allowed); add `partial` (Fix All allowed); delete a hand-written value equal to the record (Fix All allowed) |
-| `apps/cli` `litespec lsp` (phase 2b) | net10.0 | A language server over stdio that builds the model in process with `ModelBuilder` and rebuilds on file change; definition, references, hover, code lens, completion and rename over record ids in Markdown, C# marks in both styles, and TypeScript `litespec` constants. A command page `docs/tools/lsp.md`. |
-| `apps/vscode` (phase 2b) | TypeScript | A thin VS Code extension that starts `litespec lsp` |
 
 The analyzer package props find the project file with `$([MSBuild]::GetPathOfFileAbove(litespec.project.json, $(MSBuildProjectDirectory)))`, add it as an `AdditionalFile`, and add every `*.md` under its folder except `node_modules`, `bin` and `obj` (`LiteSpecRecords` overrides the glob). The analyzer reads `paths.docs` and `paths.behaviorDocs` from the project file and indexes only the Markdown files under them. With no project file in reach, or a docs root it cannot resolve, every LS5xxx rule and the generator stay silent; the CLI owns that configuration error. The index is cached per compilation, keyed by the content checksums of the files.
 

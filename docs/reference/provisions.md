@@ -6,7 +6,7 @@ Use this generated page to resolve a provision ID to its heading, owning page, a
 
 Run `litespec provisions` after any provision change. The repository validator fails when this page and the active standards disagree.
 
-The active release states 1673 provisions across 6 areas.
+The active release states 1672 provisions across 6 areas.
 
 ## backend
 
@@ -589,7 +589,6 @@ The active release states 1673 provisions across 6 areas.
 | litespec/core/model#resolve-every-page-link | [Resolve Every Page Link](../core/model.md#resolve-every-page-link) | rule | checkable | `litespec model check` reports `link-unresolved` for a page link naming no file. |
 | litespec/core/model#resolve-ties-by-the-later-decision | [Resolve Ties by the Later Decision](../core/model.md#resolve-ties-by-the-later-decision) | rule | guidance | Each tie-breaking decision carries a later approval date than the peer records it settles. |
 | litespec/core/model#retire-records-with-replaces | [Retire Records with Replaces](../core/model.md#retire-records-with-replaces) | rule | checkable | `litespec model check` reports `invalid-field` for `replaces` outside a decision and `reference-unresolved` for an unknown target. |
-| litespec/core/model#serve-editors-from-the-model | [Serve Editors from the Model](../core/model.md#serve-editors-from-the-model) | rule | guidance | Which editor feature reads record identifiers from somewhere other than the model? Look at the language server the project runs. |
 | litespec/core/model#serve-every-journey-step | [Serve Every Journey Step](../core/model.md#serve-every-journey-step) | rule | checkable | `litespec model check` reports `step-unserved` for a journey step with no serving use case. |
 | litespec/core/model#state-the-common-fields-on-every-record | [State the Common Fields on Every Record](../core/model.md#state-the-common-fields-on-every-record) | rule | checkable | `litespec model check` reports `record-shape` for a record missing a common field. |
 | litespec/core/model#use-the-layer-status-vocabulary | [Use the Layer Status Vocabulary](../core/model.md#use-the-layer-status-vocabulary) | rule | checkable | `litespec model check` reports `invalid-field` for a status outside the record layer vocabulary. |
