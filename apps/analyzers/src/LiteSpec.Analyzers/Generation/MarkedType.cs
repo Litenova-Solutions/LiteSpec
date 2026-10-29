@@ -27,6 +27,8 @@ internal sealed class MarkedType : IEquatable<MarkedType>
     /// <param name="keyword">The declaration keyword: class, record, record struct, struct or interface.</param>
     /// <param name="kind">The code kind, or null when the type is of no known kind.</param>
     /// <param name="markIds">The record identifiers in source order, without duplicates.</param>
+    /// <param name="useCaseMarkCount">The use-case marks in source order, counting duplicates.</param>
+    /// <param name="messageFullName">The fully qualified first type argument of the handler interface, or empty.</param>
     /// <param name="isPartial">Whether the type and every enclosing type carry partial in every declaration.</param>
     /// <param name="hasClassification">Whether a Classification member is declared in source.</param>
     /// <param name="hasCode">Whether a Code member is declared in source.</param>
@@ -40,6 +42,8 @@ internal sealed class MarkedType : IEquatable<MarkedType>
         string keyword,
         CodeKind? kind,
         ImmutableArray<string> markIds,
+        int useCaseMarkCount,
+        string messageFullName,
         bool isPartial,
         bool hasClassification,
         bool hasCode,
@@ -53,6 +57,8 @@ internal sealed class MarkedType : IEquatable<MarkedType>
         Keyword = keyword;
         Kind = kind;
         MarkIds = markIds;
+        UseCaseMarkCount = useCaseMarkCount;
+        MessageFullName = messageFullName;
         IsPartial = isPartial;
         HasClassification = hasClassification;
         HasCode = hasCode;
@@ -82,6 +88,12 @@ internal sealed class MarkedType : IEquatable<MarkedType>
 
     /// <summary>The record identifiers in source order, without duplicates.</summary>
     public ImmutableArray<string> MarkIds { get; }
+
+    /// <summary>The use-case marks in source order, counting duplicates.</summary>
+    public int UseCaseMarkCount { get; }
+
+    /// <summary>The fully qualified first type argument of the handler interface, or empty.</summary>
+    public string MessageFullName { get; }
 
     /// <summary>Whether the type and every enclosing type carry partial in every declaration.</summary>
     public bool IsPartial { get; }
@@ -149,11 +161,17 @@ internal sealed class MarkedType : IEquatable<MarkedType>
 
         var seen = new HashSet<string>(StringComparer.Ordinal);
         var ids = new List<string>();
+        var useCaseMarks = 0;
 
         foreach (var part in parts)
         {
             foreach (var mark in MarkReader.Read(part))
             {
+                if (mark.RecordId.StartsWith("use-case/", StringComparison.Ordinal))
+                {
+                    useCaseMarks++;
+                }
+
                 if (mark.RecordId.Length > 0 && seen.Add(mark.RecordId))
                 {
                     ids.Add(mark.RecordId);
@@ -186,6 +204,8 @@ internal sealed class MarkedType : IEquatable<MarkedType>
             KeywordOf(symbol),
             KindReader.KindOf(symbol, KindContext.Empty, symbol.ContainingAssembly.Name),
             ImmutableArray.CreateRange(ids),
+            useCaseMarks,
+            MessageFullNameOf(symbol),
             isPartial,
             symbol.GetMembers("Classification").Length > 0,
             symbol.GetMembers("Code").Length > 0,
@@ -203,6 +223,8 @@ internal sealed class MarkedType : IEquatable<MarkedType>
         && string.Equals(Keyword, other.Keyword, StringComparison.Ordinal)
         && Kind == other.Kind
         && MarkIds.SequenceEqual(other.MarkIds)
+        && UseCaseMarkCount == other.UseCaseMarkCount
+        && string.Equals(MessageFullName, other.MessageFullName, StringComparison.Ordinal)
         && IsPartial == other.IsPartial
         && HasClassification == other.HasClassification
         && HasCode == other.HasCode
@@ -235,6 +257,8 @@ internal sealed class MarkedType : IEquatable<MarkedType>
                 hash = hash * 31 + StringComparer.Ordinal.GetHashCode(id);
             }
 
+            hash = hash * 31 + UseCaseMarkCount.GetHashCode();
+            hash = hash * 31 + StringComparer.Ordinal.GetHashCode(MessageFullName);
             hash = hash * 31 + IsPartial.GetHashCode();
             hash = hash * 31 + HasClassification.GetHashCode();
             hash = hash * 31 + HasCode.GetHashCode();
@@ -374,6 +398,75 @@ internal sealed class MarkedType : IEquatable<MarkedType>
         }
 
         return "class";
+    }
+
+    /// <summary>
+    /// The message a handler serves: the first type argument of its command or query handler
+    /// interface, read by interface name and arity in any namespace. A class implementing several
+    /// handler interfaces takes the first message in ordinal order, so the choice is stable.
+    /// Empty when the type is no class, implements no handler interface, or the message names a
+    /// type parameter or an unresolvable type, which generated code cannot name.
+    /// </summary>
+    /// <param name="symbol">The type symbol.</param>
+    /// <returns>The fully qualified message name, or empty.</returns>
+    private static string MessageFullNameOf(INamedTypeSymbol symbol)
+    {
+        if (symbol.TypeKind != TypeKind.Class)
+        {
+            return string.Empty;
+        }
+
+        string? found = null;
+
+        foreach (var contract in symbol.AllInterfaces)
+        {
+            if ((contract.Name != "ICommandHandler" && contract.Name != "IQueryHandler")
+                || contract.TypeArguments.Length == 0)
+            {
+                continue;
+            }
+
+            var message = contract.TypeArguments[0];
+
+            if (message.TypeKind == TypeKind.Error || ContainsTypeParameter(message))
+            {
+                continue;
+            }
+
+            var display = message.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+
+            if (found is null || string.Compare(display, found, StringComparison.Ordinal) < 0)
+            {
+                found = display;
+            }
+        }
+
+        return found ?? string.Empty;
+    }
+
+    private static bool ContainsTypeParameter(ITypeSymbol type)
+    {
+        switch (type)
+        {
+            case ITypeParameterSymbol:
+                return true;
+            case IArrayTypeSymbol array:
+                return ContainsTypeParameter(array.ElementType);
+            case IPointerTypeSymbol pointer:
+                return ContainsTypeParameter(pointer.PointedAtType);
+            case INamedTypeSymbol named:
+                foreach (var argument in named.TypeArguments)
+                {
+                    if (ContainsTypeParameter(argument))
+                    {
+                        return true;
+                    }
+                }
+
+                return named.ContainingType is not null && ContainsTypeParameter(named.ContainingType);
+            default:
+                return false;
+        }
     }
 
     private static bool BaseDeclaresVirtualCode(INamedTypeSymbol symbol)

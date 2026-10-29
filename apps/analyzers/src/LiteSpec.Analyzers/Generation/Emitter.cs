@@ -84,7 +84,7 @@ internal static class Emitter
             }
         }
 
-        context.AddSource("LiteSpecRegistry.g.cs", RegistryText(ordered, grants));
+        EmitRegistry(context, ordered, grants);
 
         if (host.Layer == Layer.Application
             || host.Layer == Layer.Infrastructure
@@ -183,6 +183,117 @@ internal static class Emitter
 
     private static string HintName(string kind, MarkedType type) =>
         kind + "." + type.FullName.Replace('`', '_') + ".g.cs";
+
+    private static void EmitRegistry(
+        SourceProductionContext context, List<MarkedType> types, Dictionary<string, string> grants)
+    {
+        var messages = MessageUseCasesOf(context, types);
+        context.AddSource("LiteSpecRegistry.g.cs", RegistryText(types, grants, messages));
+    }
+
+    /// <summary>
+    /// Maps each message one marked handler serves to that handler's use case: a class with
+    /// exactly one use-case mark whose handler interface names a message. A message two marked
+    /// handlers serve with different use cases reports LS5011 naming both handlers and takes no
+    /// entry; two handlers sharing one use case take one entry.
+    /// </summary>
+    /// <param name="context">The source production context.</param>
+    /// <param name="types">The marked types in full-name order.</param>
+    /// <returns>The message entries in message order.</returns>
+    private static List<MessageUseCase> MessageUseCasesOf(SourceProductionContext context, List<MarkedType> types)
+    {
+        var grouped = new Dictionary<string, List<MessageClaim>>(StringComparer.Ordinal);
+
+        foreach (var type in types)
+        {
+            if (type.MessageFullName.Length == 0
+                || type.UseCaseMarkCount != 1
+                || FirstWithPrefix(type.MarkIds, "use-case/") is not string useCase)
+            {
+                continue;
+            }
+
+            if (!grouped.TryGetValue(type.MessageFullName, out var group))
+            {
+                group = new List<MessageClaim>();
+                grouped[type.MessageFullName] = group;
+            }
+
+            group.Add(new MessageClaim(type.FullName, useCase));
+        }
+
+        var messages = new List<MessageUseCase>();
+
+        foreach (var pair in grouped)
+        {
+            var first = pair.Value[0];
+            MessageClaim? second = null;
+
+            foreach (var candidate in pair.Value)
+            {
+                if (!string.Equals(candidate.UseCase, first.UseCase, StringComparison.Ordinal))
+                {
+                    second = candidate;
+                    break;
+                }
+            }
+
+            if (second is null)
+            {
+                messages.Add(new MessageUseCase(pair.Key, first.UseCase));
+                continue;
+            }
+
+            context.ReportDiagnostic(Diagnostic.Create(
+                Descriptors.LS5011,
+                Location.None,
+                pair.Key,
+                first.Handler,
+                second.Handler));
+        }
+
+        messages.Sort(static (left, right) => string.Compare(left.Message, right.Message, StringComparison.Ordinal));
+
+        return messages;
+    }
+
+    /// <summary>One handler claiming a message for its use case.</summary>
+    private sealed class MessageClaim
+    {
+        /// <summary>Creates a message claim.</summary>
+        /// <param name="handler">The handler's full name.</param>
+        /// <param name="useCase">The handler's use case.</param>
+        public MessageClaim(string handler, string useCase)
+        {
+            Handler = handler;
+            UseCase = useCase;
+        }
+
+        /// <summary>The handler's full name.</summary>
+        public string Handler { get; }
+
+        /// <summary>The handler's use case.</summary>
+        public string UseCase { get; }
+    }
+
+    /// <summary>One message type with the use case its marked handler serves.</summary>
+    private sealed class MessageUseCase
+    {
+        /// <summary>Creates a message entry.</summary>
+        /// <param name="message">The fully qualified message name.</param>
+        /// <param name="useCase">The handler's use case.</param>
+        public MessageUseCase(string message, string useCase)
+        {
+            Message = message;
+            UseCase = useCase;
+        }
+
+        /// <summary>The fully qualified message name.</summary>
+        public string Message { get; }
+
+        /// <summary>The handler's use case.</summary>
+        public string UseCase { get; }
+    }
 
     private static void EmitPermissions(SourceProductionContext context, RecordModel records)
     {
@@ -440,7 +551,7 @@ internal static class Emitter
         return text.ToString();
     }
 
-    private static string RegistryText(List<MarkedType> types, Dictionary<string, string> grants)
+    private static string RegistryText(List<MarkedType> types, Dictionary<string, string> grants, List<MessageUseCase> messages)
     {
         var text = new StringBuilder();
         text.AppendLine("// <auto-generated/>");
@@ -516,6 +627,31 @@ internal static class Emitter
             text.AppendLine("        };");
         }
 
+        text.AppendLine();
+
+        if (messages.Count == 0)
+        {
+            text.AppendLine("        private static readonly System.Collections.Generic.IReadOnlyDictionary<System.Type, string> MessageUseCases = new System.Collections.Generic.Dictionary<System.Type, string>();");
+        }
+        else
+        {
+            text.AppendLine("        private static readonly System.Collections.Generic.IReadOnlyDictionary<System.Type, string> MessageUseCases = new System.Collections.Generic.Dictionary<System.Type, string>");
+            text.AppendLine("        {");
+
+            foreach (var message in messages)
+            {
+                text.AppendLine("            [typeof(" + message.Message + ")] = \"" + Escape(message.UseCase) + "\",");
+            }
+
+            text.AppendLine("        };");
+        }
+
+        text.AppendLine();
+        text.AppendLine("        public static string? UseCaseOf(System.Type messageType) =>");
+        text.AppendLine("            MessageUseCases.TryGetValue(messageType, out var useCase) ? useCase : null;");
+        text.AppendLine();
+        text.AppendLine("        public static string? GrantOf(System.Type messageType) =>");
+        text.AppendLine("            UseCaseOf(messageType) is string useCase && UseCaseGrants.TryGetValue(useCase, out var grant) ? grant : null;");
         text.AppendLine("    }");
         text.AppendLine("}");
 

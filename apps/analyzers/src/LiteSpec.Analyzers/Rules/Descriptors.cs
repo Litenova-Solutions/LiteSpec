@@ -263,6 +263,11 @@ internal static class Descriptors
         "Permission '{0}' starts with '{1}', which the use-case vocabulary does not declare",
         "A permission opens with a verb from the use-case vocabulary, so whether it only reads follows from the verb's kind; a project verb is declared in the vocabulary of litespec.project.json.");
 
+    public static readonly DiagnosticDescriptor LS5011 = Create("LS5011", TraceabilityCategory, PointToRecords,
+        "Message maps to two use cases",
+        "Message '{0}' is handled by both '{1}' and '{2}' with different use cases",
+        "One message maps to one use case, so the pipeline reads the permission and the audit identity from the message; a message two handlers serve with different use cases maps to neither.");
+
     private static DiagnosticDescriptor Create(
         string id, string category, Provision provision, string title, string message, string description, bool compilationEnd = false) =>
         new(
