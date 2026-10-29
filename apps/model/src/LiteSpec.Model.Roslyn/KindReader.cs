@@ -307,13 +307,10 @@ public static class KindReader
         }
     }
 
+    // A symbol sees its whole base chain across every partial part, so it is known by its bases
+    // only; its own name would mistake a nested type sharing a root's simple name for the root.
     private static bool IsAggregateRoot(INamedTypeSymbol type, KindContext context)
     {
-        if (context.AggregateRoots.Contains(type.Name))
-        {
-            return true;
-        }
-
         for (var current = type.BaseType; current is not null; current = current.BaseType)
         {
             var definition = current.OriginalDefinition;
@@ -366,11 +363,6 @@ public static class KindReader
         if (type.TypeKind != TypeKind.Class || type.IsAbstract)
         {
             return false;
-        }
-
-        if (context.DomainExceptions.Contains(type.Name))
-        {
-            return true;
         }
 
         for (var current = type.BaseType; current is not null; current = current.BaseType)

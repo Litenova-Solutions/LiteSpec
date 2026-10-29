@@ -224,6 +224,50 @@ public sealed class KindReaderSymbolTests
         Assert.Equal(CodeKind.AggregateRoot, KindReader.KindOf(node, context));
     }
 
+    [Fact(DisplayName = "A nested symbol sharing a root's or an exception's name takes no kind")]
+    public void NestedSymbolSharingANameTakesNoKind()
+    {
+        const string code = """
+            using System;
+
+            public abstract class AggregateRoot<TState>;
+
+            public class DomainException : Exception;
+
+            public sealed class OrderState;
+
+            public sealed class Order : AggregateRoot<OrderState>;
+
+            public sealed class OrderRefusedException : DomainException;
+
+            public abstract record FieldSubject
+            {
+                public sealed record Order : FieldSubject;
+
+                public sealed record OrderRefusedException : FieldSubject;
+            }
+            """;
+        var compilation = TestTrees.Compile(code);
+        var tree = compilation.SyntaxTrees[0];
+        var model = compilation.GetSemanticModel(tree);
+        var nested = tree.GetRoot().DescendantNodes().OfType<RecordDeclarationSyntax>()
+            .Where(type => type.Parent is TypeDeclarationSyntax)
+            .ToList();
+        var context = new KindContext(new[] { "Order" }, new[] { "OrderRefusedException" }, new string[0]);
+
+        Assert.Equal(2, nested.Count);
+        foreach (var node in nested)
+        {
+            var symbol = model.GetDeclaredSymbol(node);
+            Assert.NotNull(symbol);
+            Assert.Null(KindReader.KindOf(symbol, context));
+        }
+
+        var root = tree.GetRoot().DescendantNodes().OfType<ClassDeclarationSyntax>()
+            .First(type => type.Identifier.ValueText == "Order");
+        Assert.Equal(CodeKind.AggregateRoot, KindReader.KindOf(model.GetDeclaredSymbol(root)!, context));
+    }
+
     [Fact(DisplayName = "A symbol port reads its mark from source")]
     public void SymbolPortReadsItsMark()
     {
