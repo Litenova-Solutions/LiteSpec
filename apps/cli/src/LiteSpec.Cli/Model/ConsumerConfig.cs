@@ -106,6 +106,24 @@ sealed class ConsumerConfig
     /// <summary>Where tests live.</summary>
     public IReadOnlyList<string> TestRoots { get; private set; } = [];
 
+    /// <summary>The alert rule files or folders, from <c>paths.alerts</c>.</summary>
+    public IReadOnlyList<string> Alerts { get; private set; } = [];
+
+    /// <summary>The deployment, proxy, host and CI workflow files or folders, from <c>paths.operations</c>.</summary>
+    public IReadOnlyList<string> Operations { get; private set; } = [];
+
+    /// <summary>Where drill and harness check results live, from <c>paths.checkResults</c>.</summary>
+    public string CheckResultsDir { get; private set; } = "";
+
+    /// <summary>The bill of materials files or folders, from <c>paths.sbom</c>.</summary>
+    public IReadOnlyList<string> Sboms { get; private set; } = [];
+
+    /// <summary>The template store file, from <c>stackConfig.dotnet.templateStore</c>, or empty.</summary>
+    public string TemplateStore { get; private set; } = "";
+
+    /// <summary>The licences the project accepts, as SPDX identifiers, from <c>dependencies.licences</c>.</summary>
+    public IReadOnlySet<string> AcceptedLicences { get; private set; } = new HashSet<string>(StringComparer.Ordinal);
+
     /// <summary>The declared frontends.</summary>
     public IReadOnlyList<FrontendConfig> Frontends { get; private set; } = [];
 
@@ -114,6 +132,9 @@ sealed class ConsumerConfig
 
     /// <summary>Where test result files live.</summary>
     public string TestResultsDir { get; private set; } = "";
+
+    /// <summary>The committed OpenAPI document, or null when the project names none.</summary>
+    public string? ContractPath { get; private set; }
 
     /// <summary>The project size: small or large.</summary>
     public string Size { get; private set; } = "large";
@@ -199,11 +220,36 @@ sealed class ConsumerConfig
         {
             config.SharedKernel = Resolve(config.Root, kernelPath);
         }
+
+        if (dotnet is not null
+            && dotnet.Value.TryGetProperty("templateStore", out var store)
+            && store.ValueKind == JsonValueKind.String
+            && store.GetString() is { Length: > 0 } storePath)
+        {
+            config.TemplateStore = Combine(config.Root, storePath);
+        }
+
+        config.Alerts = ReadRoots(config.Root, paths, "alerts", []);
+        config.Operations = ReadRoots(config.Root, paths, "operations", []);
+        config.CheckResultsDir = Combine(config.Root, ReadString(paths, "checkResults", "docs/proof/checks"));
+        config.Sboms = ReadRoots(config.Root, paths, "sbom", []);
+
+        if (document.RootElement.TryGetProperty("dependencies", out var dependencies)
+            && dependencies.ValueKind == JsonValueKind.Object
+            && dependencies.TryGetProperty("licences", out var licences)
+            && licences.ValueKind == JsonValueKind.Array)
+        {
+            config.AcceptedLicences = licences.EnumerateArray()
+                .Where(entry => entry.ValueKind == JsonValueKind.String)
+                .Select(entry => entry.GetString()!)
+                .ToHashSet(StringComparer.Ordinal);
+        }
         config.TestRoots = ReadRoots(config.Root, paths, "testRoots", []);
         config.Frontends = ReadFrontends(config.Root, paths);
         config.ApiClientSrc = Path.Combine(
             Combine(config.Root, ReadString(paths, "apiClient", "packages/api")), "src");
         config.TestResultsDir = Combine(config.Root, ReadString(paths, "testResults", "TestResults"));
+        config.ContractPath = ReadString(paths, "contract", "") is { Length: > 0 } contract ? Combine(config.Root, contract) : null;
 
         if (document.RootElement.TryGetProperty("size", out var size)
             && size.ValueKind == JsonValueKind.String

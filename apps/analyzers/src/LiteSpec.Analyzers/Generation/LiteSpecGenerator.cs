@@ -5,12 +5,13 @@ namespace LiteSpec.Analyzers.Generation;
 /// <summary>
 /// Writes the runtime values the records state into the consumer's code: the mark attributes
 /// for the attribute style, an event's Classification, a rule exception's Code, the assembly
-/// registry, and one constant per permission. The project file and the record pages arrive as
-/// additional files; with no project file, or settings that fail to parse, the generator stays
-/// silent. Every pipeline model holds strings and equatable arrays only, so an edit to an
-/// unrelated file reruns nothing the edit cannot change.
+/// registry, one constant per permission, and one entry per role. The project file and the
+/// record pages arrive as additional files; with no project file, or settings that fail to
+/// parse, the generator stays silent. Every pipeline model holds strings and equatable arrays
+/// only, so an edit to an unrelated file reruns nothing the edit cannot change.
 /// </summary>
 /// <follows>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</follows>
+/// <follows>litespec/backend/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records</follows>
 /// <follows>litespec/core/access#state-the-scope-of-every-permission</follows>
 /// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
 [Generator]

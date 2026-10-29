@@ -1,0 +1,16 @@
+apiVersion: 1
+groups:
+  - orgId: 1
+    name: spending
+    folder: Claimwick
+    interval: 1m
+    rules:
+      - title: submission-acknowledgement-slow
+        expr: sum(rate(submission_ack_seconds_bucket{le="2"}[5m])) / sum(rate(submission_ack_seconds_count[5m])) < 0.99
+        for: 2m
+        labels:
+          requirement: requirement/spending.month-end-submissions
+          runbook: runbook/slow-submissions
+          severity: page
+        annotations:
+          summary: Month-end submissions acknowledge too slowly.

@@ -66,6 +66,14 @@ sealed record ReactionInfo(
 sealed record DomainEventInfo(string Class, string File, int Line, string? EventId);
 
 /// <summary>
+///     One top-level type declared in the Domain project: its simple name, its namespace,
+///     its file and line, and whether it carries a placing mark. A <c>follows</c> mark
+///     never places a type, so a type carrying only <c>follows</c> marks reads as unmarked.
+/// </summary>
+/// <follows>litespec/backend/domain#place-every-constituent-type-in-its-aggregates-folder</follows>
+sealed record DomainType(string Name, string Namespace, string File, int Line, bool HasMark);
+
+/// <summary>
 ///     One refusal code literal in code. <paramref name="Declares" /> is true when the literal
 ///     sits where code declares a refusal code, so an unrecorded code is reported only there;
 ///     any literal still counts as evidence that a recorded code is thrown.
@@ -139,4 +147,7 @@ sealed class CodeModel
     public List<EndpointOperation> Endpoints { get; } = [];
     public List<AggregateMethod> AggregateMethods { get; } = [];
     public List<CodeAuditAction> AuditActions { get; } = [];
+
+    /// <summary>Every top-level type declared in the Domain project, merged across partial parts.</summary>
+    public List<DomainType> DomainTypes { get; } = [];
 }

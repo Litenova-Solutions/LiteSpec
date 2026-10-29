@@ -25,6 +25,7 @@ LS5008 | LiteSpec.Traceability | Error | Descriptors
 LS5009 | LiteSpec.Traceability | Error | GeneratorDiagnostics
 LS5010 | LiteSpec.Traceability | Error | Descriptors
 LS5011 | LiteSpec.Traceability | Error | Descriptors
+LS5012 | LiteSpec.Traceability | Error | GeneratorDiagnostics
 
 ### Removed Rules
 

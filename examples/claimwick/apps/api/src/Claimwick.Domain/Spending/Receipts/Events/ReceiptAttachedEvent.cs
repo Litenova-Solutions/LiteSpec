@@ -1,3 +1,5 @@
+using Claimwick.Domain.Shared;
+
 namespace Claimwick.Domain.Spending.Receipts.Events;
 
 /// <summary>A receipt was attached.</summary>

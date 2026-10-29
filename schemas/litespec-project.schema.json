@@ -87,6 +87,10 @@
             "sharedKernel": {
               "description": "The one folder holding the domain shared kernel, where reasonless names are allowed. Defaults to none.",
               "$ref": "#/$defs/projectPath"
+            },
+            "templateStore": {
+              "description": "The one C# file holding the notification template store: its top-level dictionary keys are the template keys, and its texts write parameters as {{PascalCaseName}}. Defaults to none, which leaves the template checks silent.",
+              "$ref": "#/$defs/projectPath"
             }
           }
         }
@@ -126,6 +130,19 @@
           "description": "working: proof findings block as their tier states. frozen: the project holds its tests still, so proof findings report without blocking. Defaults to working.",
           "enum": ["working", "frozen"],
           "default": "working"
+        }
+      }
+    },
+    "dependencies": {
+      "description": "The dependency gate: the licences every shipped package may carry without an admitting decision.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "licences": {
+          "description": "SPDX licence identifiers the project accepts, such as MIT and Apache-2.0.",
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1 }
         }
       }
     },
@@ -338,6 +355,32 @@
           "description": "Where the latest test run results live, so passing and failing proof is read from them. Defaults to the test result files under the test roots.",
           "$ref": "#/$defs/projectPath"
         },
+        "alerts": {
+          "description": "The alert rule files or folders: YAML in the shape Prometheus rule files and Grafana alert provisioning share, groups[].rules[] with labels.",
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/projectPath" }
+        },
+        "operations": {
+          "description": "The deployment, proxy, host and CI workflow files or folders that carry follows marks in their # comments.",
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/projectPath" }
+        },
+        "checkResults": {
+          "description": "Where drill and harness check results live as JSON files. Defaults to docs/proof/checks.",
+          "$ref": "#/$defs/projectPath"
+        },
+        "sbom": {
+          "description": "The bill of materials files or folders: SPDX or CycloneDX JSON the CI generates.",
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/projectPath" }
+        },
+        "contract": {
+          "description": "The committed OpenAPI document, so the model check compares each operation's x-litespec-use-case with its endpoint's mark.",
+          "$ref": "#/$defs/projectPath"
+        },
         "apiClient": {
           "description": "The generated API client the frontends import, so route calls resolve to the use cases they reach.",
           "$ref": "#/$defs/projectPath"
@@ -379,6 +422,18 @@
                 "description": "The frontend stack. Required on every entry, so a frontend outside the controlled UI contract declares that position instead of omitting the field.",
                 "type": "string",
                 "enum": ["react", "svelte", "blazor", "android"]
+              },
+              "refusalDictionary": {
+                "description": "The refusal dictionary for this frontend: the file or folder holding one sentence per refusal code, which result-unshown reads.",
+                "$ref": "#/$defs/projectPath"
+              },
+              "routeSuite": {
+                "description": "The route suite for this frontend: the file or folder the route-suite check reads.",
+                "$ref": "#/$defs/projectPath"
+              },
+              "visualGoldens": {
+                "description": "The visual golden folder for this frontend: the folder holding the visual goldens the route-suite check reads.",
+                "$ref": "#/$defs/projectPath"
               },
               "ui": { "$ref": "#/$defs/ui" }
             },

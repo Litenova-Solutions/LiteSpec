@@ -1,3 +1,5 @@
+using Claimwick.Domain.Shared;
+
 namespace Claimwick.Domain.Spending.Expenses.Exceptions;
 
 /// <summary>The approver submitted the expense.</summary>

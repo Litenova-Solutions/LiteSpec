@@ -289,6 +289,18 @@ When a typed consumer reads the API, the pinned generator reads the source artif
 
 **Reviewed for:** Operations in the generated contract declare operationId, authorization, request, success, failure, and summary entries.
 
+### Name the Use Case on Every Published Operation
+
+**ID:** `litespec/backend/api#name-the-use-case-on-every-published-operation`
+
+**Statement:** Every operation in the generated contract MUST carry `x-litespec-use-case` naming the use case its endpoint implements.
+
+**Rationale:** The `operationId` names an operation for client code and keeps its casing for method names, so it is not the record identifier. Carrying the identifier itself in an extension, which the OpenAPI specification reserves for this kind of metadata, lets an integrator, a gateway log, or a support person go from an operation straight to its specification page. The value comes from the generated map of operation names to use cases, so it is written once, in the endpoint's mark.
+
+**Example:** The Claimwick operation `SubmitExpense` carries `"x-litespec-use-case": "use-case/spending.submit-expense"`.
+
+**Checked by:** `litespec model check` reports `operation-use-case-mismatch` (tier S) for an operation in the committed contract whose `x-litespec-use-case` is missing or differs from the use case its endpoint's mark names.
+
 ### Commit the Generated Contract Its Consumers Read
 
 **ID:** `litespec/backend/api#commit-the-generated-contract-its-consumers-read`

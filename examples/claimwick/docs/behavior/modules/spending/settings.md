@@ -23,6 +23,26 @@
       "approvedBy": "claimwick-team",
       "approvedOn": "2026-10-01",
       "approvedHash": "806421bb"
+    },
+    {
+      "type": "setting",
+      "id": "setting/spending.approval-reminder-delay",
+      "title": "Approval Reminder Delay",
+      "owner": "claimwick-team",
+      "status": "reviewed",
+      "valueType": "duration",
+      "default": "48 hours",
+      "range": "1-120 hours",
+      "unit": "hours",
+      "setBy": "operator",
+      "key": "Spending:ApprovalReminderDelay",
+      "atBound": "refuse",
+      "fulfills": [
+        "requirement/approval.decided-within-five-days"
+      ],
+      "approvedBy": "claimwick-team",
+      "approvedOn": "2026-10-01",
+      "approvedHash": "14ab7fbc"
     }
   ]
 }

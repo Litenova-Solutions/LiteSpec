@@ -4,6 +4,12 @@
 
 The Android stack is the technology binding for a product that ships a native Android application built with .NET for Android in C# against plain Android views. A team chooses it with either shape, `client-only` or `server`, declared in [Supported Scope](../../../core/scope.md). This page states what the stack itself requires, beside the shared rules in [Mobile overview](../README.md); exact .NET and Android API versions live only in `litespec.manifest.json`.
 
+## Concepts
+
+### Route Entry Bindings
+
+A route entry is a destination: an `Activity` or fragment class that is a navigation destination. Its screen mark sits on that destination class in the .NET mark style the project declares in `litespec.project.json`, read by the .NET reader. A host activity that only hosts destinations, layout files, and classes that are not destinations are not route entries and carry no screen mark.
+
 ## Standards
 
 ### Build with .NET for Android
@@ -20,11 +26,11 @@ The Android stack is the technology binding for a product that ships a native An
 
 **ID:** `litespec/frontend/mobile/android/stack#keep-android-outside-the-ui-contract`
 
-**Statement:** A consumer selecting this stack MUST NOT apply the controlled UI contract.
+**Statement:** A consumer selecting this stack MUST NOT apply the floorplan, token, and route-suite contract of the controlled UI pages.
 
-**Rationale:** The controlled UI contract's route checks read TypeScript sources, so they cannot read an Android view written in C#. Applying them to this stack would fail every check for lack of readable input, as `litespec/frontend/blazor/stack#keep-blazor-outside-the-ui-contract` states for blazor. The mobile and Android pages state the styling, accessibility, and state rules that apply instead, so nothing is left ungoverned.
+**Rationale:** That contract's floorplan, token, and route-suite checks read TypeScript sources, so they cannot read an Android view written in C#. Applying them to this stack would fail every check for lack of readable input, as `litespec/frontend/blazor/stack#keep-blazor-outside-the-ui-contract` states for Blazor. The mobile and Android pages state the styling, accessibility, and state rules that apply instead, so nothing is left ungoverned. Screen records and route marks still apply on this stack: the .NET reader reads the destination class marks, and the screen, `calls`, and `result-unshown` checks run from those marks.
 
-**Reviewed for:** The consumer's stack selection and CI jobs apply no UI contract page or route check.
+**Reviewed for:** The consumer's stack selection and CI jobs apply no floorplan, token, or route-suite check, while its destination classes carry screen marks the .NET reader reads.
 
 ### Record the Minimum Android Version
 

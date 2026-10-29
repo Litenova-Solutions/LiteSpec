@@ -462,25 +462,36 @@ static partial class Renderer
     {
         var lines = new List<string>
         {
-            "| Limit | Bound | Value | Runbook |",
-            "|:---|:---|:---|:---|",
+            "| Requirement | Alert | Runbook | Severity | File |",
+            "|:---|:---|:---|:---|:---|",
         };
 
-        foreach (var limit in model.Records
-                     .Where(record => record.Type == "limit")
-                     .OrderBy(record => record.Id, StringComparer.Ordinal))
+        foreach (var rule in Readers.Operations.AlertRuleReader.Read(model.Config)
+                     .OrderBy(rule => RuleLabel(rule, "requirement"), StringComparer.Ordinal)
+                     .ThenBy(rule => rule.Name, StringComparer.Ordinal))
         {
-            var runbook = limit.Ids("runbook")
-                .Select(id => model.ById.TryGetValue(id, out var record) && record.Type == "runbook"
-                    ? $"[{Path.GetFileNameWithoutExtension(record.File)}]({RelativeLink(file, record.File)})"
-                    : $"`{id}`")
-                .ToList();
+            var requirement = RecordCell(model, file, RuleLabel(rule, "requirement"), "requirement");
+            var runbook = RecordCell(model, file, RuleLabel(rule, "runbook"), "runbook");
+            var severity = Cell(RuleLabel(rule, "severity"));
+            var source = Cell(model.Config.Relative(rule.File));
 
-            lines.Add($"| `{limit.Id}` | {Cell(limit.Field("bound") ?? "")} | {Cell(limit.Field("value") ?? "")} | {string.Join(", ", runbook)} |");
+            lines.Add($"| {requirement} | {Cell(rule.Name)} | {runbook} | {severity} | {source} |");
         }
 
         return string.Join('\n', lines);
     }
+
+    /// <summary>One rule label, or empty when the rule carries no value for the key.</summary>
+    private static string RuleLabel(Readers.Operations.AlertRule rule, string key) =>
+        rule.Labels.TryGetValue(key, out var value) ? value : "";
+
+    /// <summary>One inventory record cell: a link when the id resolves, a code span when not, empty when missing.</summary>
+    private static string RecordCell(ProjectModel model, string file, string id, string type) =>
+        id.Length == 0
+            ? ""
+            : model.ById.TryGetValue(id, out var record) && record.Type == type
+                ? $"[`{id}`]({RelativeLink(file, record.File)})"
+                : $"`{id}`";
 
     private static System.Text.Json.JsonElement Holds(Record actor) =>
         actor.Raw.ValueKind == System.Text.Json.JsonValueKind.Object

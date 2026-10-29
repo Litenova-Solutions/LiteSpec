@@ -598,6 +598,14 @@ Source: BDD and Gherkin.
 
 Rejected: acceptance criterion, which names the review use instead of the example.
 
+### Screen
+
+One page a person sees through a browser or device entry point, which serves a journey step only through a use case it offers.
+
+Layer: Behavior.
+
+Source: LiteSpec.
+
 ### Setting
 
 One named bound or default the product runs within, with its setter and its behavior at the bound.

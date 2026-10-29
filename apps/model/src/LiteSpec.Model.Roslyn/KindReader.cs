@@ -34,6 +34,8 @@ public static class KindReader
 
     private const string RulePrefix = "rule/";
 
+    private const string SettingPrefix = "setting/";
+
     private const string JobPrefix = "job/";
 
     private static readonly HashSet<string> TestAttributeNames = new HashSet<string>(StringComparer.Ordinal)
@@ -587,7 +589,9 @@ public static class KindReader
             return false;
         }
 
+        // An options class binds a keyed setting with properties alone, so its setting mark makes it technical.
         return DeclaresOrdinaryMethod(type)
+            || HasMark(type, SettingPrefix)
             || (IsOtherPart(type) && context.TechnicalClasses.Contains(type.Identifier.ValueText));
     }
 
@@ -632,6 +636,11 @@ public static class KindReader
             {
                 return false;
             }
+        }
+
+        if (HasMark(type, SettingPrefix))
+        {
+            return true;
         }
 
         foreach (var member in type.GetMembers())

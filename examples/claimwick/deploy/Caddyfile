@@ -1,0 +1,6 @@
+# <follows>decision/0004-serve-receipts-behind-one-proxy</follows>
+# Claimwick serves receipts behind one proxy.
+
+receipts.claimwick.example {
+	reverse_proxy localhost:8080
+}

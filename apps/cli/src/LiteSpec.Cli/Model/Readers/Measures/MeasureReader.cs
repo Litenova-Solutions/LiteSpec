@@ -1,17 +1,19 @@
 using System.Text.Json;
+using LiteSpec.Model.Readers.Operations;
 
 namespace LiteSpec.Model.Readers.Measures;
 
 /// <summary>
 ///     Reads measured-check results the way the test-run reader reads test runs:
 ///     every result file under the test results folder, dispatched by shape to the
-///     k6, Lighthouse, or ZAP reader. A measured requirement shows verified when
-///     its check names one of these results and that result passes.
+///     k6, Lighthouse, or ZAP reader, and every check result the drills and
+///     harnesses write under the check results folder. A measured requirement
+///     shows verified when its check names one of these results and that result passes.
 /// </summary>
 /// <follows>litespec/core/intent#state-the-measure-on-a-counted-requirement</follows>
 static class MeasureReader
 {
-    /// <summary>Reads every measure result file under the test results folder.</summary>
+    /// <summary>Reads every measure result file under the test results and check results folders.</summary>
     public static List<MeasureResult> Read(ConsumerConfig config)
     {
         var measures = new List<MeasureResult>();
@@ -50,6 +52,28 @@ static class MeasureReader
                 else if (root.TryGetProperty("metrics", out var metrics) && metrics.ValueKind == JsonValueKind.Object)
                 {
                     measures.AddRange(K6ResultReader.Parse(root, file));
+                }
+            }
+        }
+
+        foreach (var file in SourceTree.Files(config.CheckResultsDir, ".json"))
+        {
+            JsonDocument document;
+
+            try
+            {
+                document = JsonDocument.Parse(File.ReadAllBytes(file));
+            }
+            catch (Exception exception) when (exception is JsonException or IOException or UnauthorizedAccessException)
+            {
+                continue;
+            }
+
+            using (document)
+            {
+                if (CheckResultReader.Parse(document.RootElement, file) is { } result)
+                {
+                    measures.Add(new MeasureResult("check", result.Check, result.Passed, result.Value, file));
                 }
             }
         }

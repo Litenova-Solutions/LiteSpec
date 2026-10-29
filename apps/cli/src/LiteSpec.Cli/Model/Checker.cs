@@ -22,7 +22,7 @@ static partial class Checker
         "size-type-missing", "product-not-singleton",
         "journey-reach",
         "use-case-without-scenario", "requirement-unfulfilled",
-        "aggregate-name-clash", "decision-decides-nothing", "decision-unfollowed", "decision-without-basis", "link-unresolved",
+        "aggregate-name-clash", "decision-decides-nothing", "decision-unfollowed", "decision-without-basis", "link-unresolved", "operation-use-case-mismatch", "constituent-orphaned", "alert-unlinked", "alert-threshold-drift", "quality-unalerted", "setting-key-missing", "setting-unimplemented", "setting-key-drift", "template-unimplemented", "template-unrecorded", "template-param-drift", "dependency-unadmitted", "dependency-version-drift", "dependency-licence-unapproved", "admission-incomplete", "screen-unimplemented", "screen-calls-mismatch", "screen-serves-mismatch", "step-unscreened", "result-unshown", "reader-unavailable", "proves-duplicated",
         "behavior-unrecorded", "mark-missing", "mark-unresolved", "mark-count", "mark-style-mixed",
         "runtime-value-drift", "act-event-undeclared", "act-event-unraised", "use-case-act-uncalled",
         "aggregate-unimplemented", "reaction-unimplemented", "job-unimplemented",
@@ -86,6 +86,10 @@ static partial class Checker
         Time("behavior", () => CheckBehaviorUnrecorded(model, findings));
         Time("marks", () => CheckMarks(model, findings));
         Time("code", () => CheckCode(model, findings));
+        Time("constituents", () => CheckConstituents(model, findings));
+        Time("operations", () => CheckOperations(model, findings));
+        Time("setting-keys", () => CheckSettings(model, findings));
+        Time("dependencies", () => CheckDependencies(model, findings));
         Time("lifecycle", () => CheckLifecycle(model, findings));
         Time("erasure", () => CheckErasure(model, findings));
         Time("retention", () => CheckRetention(model, findings));

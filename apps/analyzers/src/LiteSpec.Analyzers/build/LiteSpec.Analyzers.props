@@ -16,7 +16,7 @@
         traceability rules stay out of that promotion; their errors still fail the build.
     -->
     <PropertyGroup>
-        <WarningsNotAsErrors>$(WarningsNotAsErrors);LS5001;LS5002;LS5003;LS5004;LS5005;LS5006;LS5007;LS5008;LS5009;LS5010;LS5011</WarningsNotAsErrors>
+        <WarningsNotAsErrors>$(WarningsNotAsErrors);LS5001;LS5002;LS5003;LS5004;LS5005;LS5006;LS5007;LS5008;LS5009;LS5010;LS5011;LS5012</WarningsNotAsErrors>
     </PropertyGroup>
 
     <!--

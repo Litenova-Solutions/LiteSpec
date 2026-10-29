@@ -327,6 +327,7 @@ sealed class DotnetBackendReader : IBackendReader
                     merged.Endpoints.AddRange(local.Endpoints);
                     merged.AggregateMethods.AddRange(local.AggregateMethods);
                     merged.AuditActions.AddRange(local.AuditActions);
+                    merged.DomainTypes.AddRange(local.DomainTypes);
                 }
             });
 
@@ -372,6 +373,11 @@ sealed class DotnetBackendReader : IBackendReader
             .OrderBy(action => action.File, StringComparer.Ordinal)
             .ThenBy(action => action.Line)
             .ThenBy(action => action.Operation, StringComparer.Ordinal));
+        model.DomainTypes.AddRange(MergeDomainPartials(merged.DomainTypes
+            .OrderBy(type => type.File, StringComparer.Ordinal)
+            .ThenBy(type => type.Line)
+            .ThenBy(type => type.Name, StringComparer.Ordinal)
+            .ToList()));
 
         return model;
     }
@@ -432,6 +438,7 @@ sealed class DotnetBackendReader : IBackendReader
         ReadElements(file, tree, elements, types, methods, model, helpers, aggregateRoots, holders, context);
         ReadAggregateMethods(file, tree, elements, types, model);
         ReadAuditActions(file, tree, classes, model);
+        ReadDomainTypes(config, file, tree, model);
 
         foreach (var token in root.DescendantTokens())
         {
@@ -527,6 +534,97 @@ sealed class DotnetBackendReader : IBackendReader
             .ThenBy(element => element.Line)
             .ThenBy(element => element.Class, StringComparer.Ordinal)
             .ThenBy(element => element.Member ?? "", StringComparer.Ordinal)
+            .ToList();
+    }
+
+    /// <summary>
+    ///     Reads every top-level Domain type of one file into the model: its name, namespace,
+    ///     file, line, and whether it carries a placing mark. Only files under the Domain root
+    ///     are read. Nested types, generated types, enumerations and delegates are left out:
+    ///     enumerations and delegates are not type declarations, so the type walk skips them.
+    /// </summary>
+    /// <follows>litespec/backend/domain#place-every-constituent-type-in-its-aggregates-folder</follows>
+    private static void ReadDomainTypes(ConsumerConfig config, string file, SyntaxTree tree, CodeModel model)
+    {
+        if (!IsUnder(config.DomainRoot, file))
+        {
+            return;
+        }
+
+        foreach (var declared in tree.GetRoot().DescendantNodes().OfType<TypeDeclarationSyntax>())
+        {
+            if (declared.Parent is TypeDeclarationSyntax)
+            {
+                continue;
+            }
+
+            if (IsGeneratedFileName(file) || HasGeneratedCode(declared))
+            {
+                continue;
+            }
+
+            var placed = MarkReader.Read(declared).Any(mark => mark.Verb != MarkVerb.Follows);
+
+            model.DomainTypes.Add(new DomainType(
+                declared.Identifier.ValueText,
+                NamespaceOf(declared),
+                file,
+                tree.GetLineSpan(declared.Identifier.Span).StartLinePosition.Line + 1,
+                placed));
+        }
+    }
+
+    /// <summary>The namespace holding the declaration, or empty in the global namespace.</summary>
+    private static string NamespaceOf(TypeDeclarationSyntax declared)
+    {
+        for (var node = declared.Parent; node is not null; node = node.Parent)
+        {
+            if (node is BaseNamespaceDeclarationSyntax space)
+            {
+                return space.Name.ToString();
+            }
+        }
+
+        return "";
+    }
+
+    /// <summary>
+    ///     Merges the partial parts of one Domain type into one entry: parts count as one type
+    ///     and a mark on any part counts. The merged entry keeps the first file in ordinal path
+    ///     order. Parts group by namespace and type name.
+    /// </summary>
+    private static List<DomainType> MergeDomainPartials(List<DomainType> types)
+    {
+        var merged = new List<DomainType>();
+        var parts = new Dictionary<string, List<DomainType>>(StringComparer.Ordinal);
+
+        foreach (var type in types)
+        {
+            var key = type.Namespace + "\0" + type.Name;
+
+            if (!parts.TryGetValue(key, out var group))
+            {
+                group = [];
+                parts[key] = group;
+            }
+
+            group.Add(type);
+        }
+
+        foreach (var group in parts.Values)
+        {
+            var first = group
+                .OrderBy(part => part.File, StringComparer.Ordinal)
+                .ThenBy(part => part.Line)
+                .First();
+
+            merged.Add(first with { HasMark = group.Any(part => part.HasMark) });
+        }
+
+        return merged
+            .OrderBy(type => type.File, StringComparer.Ordinal)
+            .ThenBy(type => type.Line)
+            .ThenBy(type => type.Name, StringComparer.Ordinal)
             .ToList();
     }
 

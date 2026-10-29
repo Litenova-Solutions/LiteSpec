@@ -1,4 +1,4 @@
-namespace Claimwick.Domain;
+namespace Claimwick.Domain.Shared;
 
 /// <summary>The base of every business rejection in Claimwick.</summary>
 public abstract class DomainException(string message) : Exception(message)

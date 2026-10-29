@@ -38,7 +38,7 @@ tests/
 
 **Statement:** Each scenario of a use case MUST be proved by an automated test whose steps call the use case and assert the result.
 
-**Rationale:** A test that calls the use case and asserts the result proves the specification still holds after every change. The link between scenario and test is computed from the test, so it cannot claim coverage it lacks. A scenario no test proves becomes a known gap with an owner and an end date, which keeps the gap visible and assigned instead of forgotten. This realizes `litespec/frontend/testing#prove-a-scenario-by-calling-its-use-case`.
+**Rationale:** A test that calls the use case and asserts the result proves the specification still holds after every change. The link between scenario and test is computed from the test, so it cannot claim coverage it lacks. A scenario no test proves becomes a known gap with an owner and an end date, which keeps the gap visible and assigned instead of forgotten. This realizes `litespec/frontend/testing#mark-the-scenario-a-browser-test-proves`, `litespec/frontend/testing#reach-a-screen-that-offers-the-scenarios-use-case`, and `litespec/frontend/testing#assert-the-result-a-scenario-ends-in`.
 
 **Reviewed for:** Each scenario has a test whose steps call the use case and assert the result.
 

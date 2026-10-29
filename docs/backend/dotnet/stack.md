@@ -22,7 +22,7 @@ A backend built on .NET declares the `dotnet` stack in `litespec.project.json`. 
 
 **Statement:** The .NET stack reader MUST read marks in both styles, injected repositories, returned codes, dispatch calls, aggregate method calls, raised events, and test results.
 
-**Rationale:** Each S check reads one of those shapes. The mark links a code element to its record, so a handler, an event handler, an endpoint, an aggregate root and its methods, a domain event, a refusal type, and a test each name what they serve. The reader reads a mark in either style and reports the style the project did not declare. Injected repositories prove `changes`, returned codes prove declared results and refusals, and dispatch calls prove declared effects, so the reader reports `behavior-unrecorded`, `use-case-unimplemented`, `write-undeclared`, `result-undeclared`, `effect-undeclared`, and `refusal-not-thrown` from code. Test marks with the latest test run prove each scenario, so the reader reports `proves-unconfirmed` and `use-case-without-scenario` from tests. S checks block where this reader is qualified and report elsewhere.
+**Rationale:** Each S check reads one of those shapes. The mark links a code element to its record, so a handler, an event handler, an endpoint, an aggregate root and its methods, a domain event, a refusal type, and a test each name what they serve. The reader reads a mark in either style and reports the style the project did not declare. Injected repositories prove `changes`, returned codes prove declared results and refusals, and dispatch calls prove declared effects, so the reader reports `behavior-unrecorded`, `use-case-unimplemented`, `write-undeclared`, `result-undeclared`, `effect-undeclared`, and `refusal-not-thrown` from code. Test marks with the latest test run prove each scenario, so the reader reports `proves-unconfirmed` and `use-case-without-scenario` from tests. The reader also reads the options classes that bind keyed settings, through each class's `SectionName` constant and properties, and the template store `stackConfig.dotnet.templateStore` names: one C# file whose top-level dictionary initializer keys are the template keys and whose texts write each parameter as `{{PascalCaseName}}`. S checks block where this reader is qualified and report elsewhere.
 
 **Example:** The reimburse-expense handler carries `/// <implements>use-case/spending.reimburse-expense</implements>`, and the reaction class carries `/// <implements>reaction/spending.send-approver-reminders-on-expense-submitted</implements>`.
 
@@ -61,7 +61,7 @@ internal sealed class ReimburseExpenseCommandHandler(IExpenseRepository expenseR
 
 **Statement:** A domain event `Classification` and a domain exception `Code` MUST equal the values their records state.
 
-**Rationale:** The record states each identifier and refusal code once, so a second hand-written copy in code is a second source that drifts. With the analyzer package installed, its source generator writes the value into the `partial` type from the mark and the record: the event `Classification` is the event identifier, and the exception `Code` is the `code` of the refusal result its rule names. The same generator writes one constant per `permission/` record and a registry from each marked type to its record. Without the analyzer package, the value stays hand-written and the check compares it with the record.
+**Rationale:** The record states each identifier and refusal code once, so a second hand-written copy in code is a second source that drifts. With the analyzer package installed, its source generator writes the value into the `partial` type from the mark and the record: the event `Classification` is the event identifier, and the exception `Code` is the `code` of the refusal result its rule names. Without the analyzer package, the value stays hand-written and the check compares it with the record.
 
 **Example:** The event carries its mark and the generator writes its classification:
 
@@ -73,6 +73,18 @@ public sealed partial record ExpenseSubmittedEvent(ExpenseId ExpenseId, Money Am
 The generated part holds `public const string Classification = "event/expense.submitted";`.
 
 **Checked by:** `litespec model check` reports `runtime-value-drift` (tier S) for a hand-written value that differs from its record, and `dotnet build` reports `LS5005` for the same value.
+
+### Generate the Registry, Permissions, and Roles from the Records
+
+**ID:** `litespec/backend/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records`
+
+**Statement:** Code MUST read a use case's identity, its grant, a permission's facts, and a role's permission set from the classes the analyzer package generates from the marks and the records, never from a hand-written copy.
+
+**Rationale:** Each of these facts is written once, on a record or in a mark, and a hand-written table of them is a second source that drifts the first time a record changes. The generator writes them per project: `LiteSpecRegistry` answers a message type's use case (`UseCaseOf`), a marked type's use case (`UseCaseOfType`), a message type's grant (`GrantOf`), and in an API project an operation name's use case (`UseCaseOfOperation`); `LiteSpecPermissions` holds one constant and one entry per `permission/` record; and `LiteSpecRoles` holds each role's scope and the permissions its record allows. A role that names a permission no record declares, and two records that generate one name, stop at build time.
+
+**Example:** When Claimwick's `role/finance` record gains a permission, `LiteSpecRoles.Of("role/finance").Allows` carries it at the next build, and `LiteSpecRegistry.GrantOf(typeof(ReimburseExpenseCommand))` answers the reimbursement grant, with no hand-written table to update.
+
+**Checked by:** `dotnet build` reports `LS5009` for two records generating one constant name, `LS5010` for a permission whose first word is no known verb, `LS5011` for a message two marked handlers serve with different use cases, and `LS5012` for a role allowing a permission no record declares.
 
 ### Declare Marked Events and Exceptions as Partial Types
 

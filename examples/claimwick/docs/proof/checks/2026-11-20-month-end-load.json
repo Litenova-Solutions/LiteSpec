@@ -1,0 +1,6 @@
+{
+  "check": "month-end-load",
+  "passed": true,
+  "value": "99.4 percent acknowledged within two seconds",
+  "ranOn": "2026-11-20"
+}

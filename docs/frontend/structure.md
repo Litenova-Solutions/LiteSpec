@@ -43,7 +43,7 @@ Imports point one way: routes import modules, modules import the frame, and the 
 
 **ID:** `litespec/frontend/structure#mirror-the-backend-use-case-path-in-kebab-case`
 
-**Statement:** A use-case folder MUST sit under the modules root at `{module}/{aggregate}/{use-case}/` in kebab case, resolving to the backend folder of the same three names.
+**Statement:** A use-case folder MUST sit under the modules root at `{module}/{aggregate}/{use-case}/` in kebab case, or at `{module}/reads/{use-case}/` for a query describing no one aggregate, resolving to the backend folder of the same names.
 
 **Rationale:** A reader holding a specification page finds the frontend code by translating three names to lowercase folders. No second map, index, or naming register stands between the specification and the code, so an agent given a use case id resolves its frontend folder by rule. The frontend structure test holds the mirror on every build under `litespec/frontend/testing#prove-the-module-mirror-in-a-structure-test`.
 
@@ -62,6 +62,8 @@ For example, the Claimwick product submits an expense through `use-case/spending
 ```
 
 The three backend names become three lowercase folder names, so a reader holding the use case finds the frontend code by translating Spending, Expenses, and SubmitExpense.
+
+A query that describes no one aggregate has its record home under `reads/` beside its module, so its folder mirrors that home with two names instead of three: `use-case/spending.read-spending-summary` lives at `<frontend>/modules/spending/reads/read-spending-summary/` and `<backend>/Spending/Reads/ReadSpendingSummary/`.
 
 The diagram shows the backend path beside its frontend mirror, with one arrow per translated segment.
 
@@ -114,6 +116,18 @@ The diagram shows the backend path beside its frontend mirror, with one arrow pe
 **Example:** An expense list route validates its search, prefetches its read, and composes one screen from module components.
 
 **Reviewed for:** Route entries hold input, load, and component, with reusable logic in modules and no route-to-route reference. Look in the route entries.
+
+### Mark Each Route with Its Screen
+
+**ID:** `litespec/frontend/structure#mark-each-route-with-its-screen`
+
+**Statement:** A route entry MUST carry one mark naming the screen it renders, in the form its stack page states.
+
+**Rationale:** The route is where a screen record becomes code, and its folder or file name only resembles the screen. One mark makes the link written and checkable: a web route exports the same typed `litespec` constant a use-case module exports, so a wrong identifier fails the type check, and a Blazor component or an Android destination carries the .NET mark the .NET reader already reads. Each stack page states its route entry, the file or class that carries the mark, and that layouts, error pages, and route groups are not route entries: the [Svelte Stack](web/svelte/stack.md), [React Stack](web/react/stack.md), [Blazor Stack](blazor/stack.md), and [Android Stack](mobile/android/stack.md) pages state theirs. The use cases a screen offers are not marked on the route; the builder computes them from its calls.
+
+**Example:** The Claimwick expense list route exports `export const litespec = { implements: "screen/claimwick-app.expense-list" } as const satisfies LiteSpecMark;`.
+
+**Checked by:** `litespec model check` reports `mark-missing` (tier S) for a route entry with no mark, `mark-count` (tier S) for one with more than one, and `mark-unresolved` (tier S) for a mark naming no screen of the route's entry point.
 
 ### Order Imports from Routes to Shared Packages
 

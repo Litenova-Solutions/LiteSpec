@@ -28,6 +28,7 @@
     { "$ref": "#/$defs/requirementPage" },
     { "$ref": "#/$defs/permissionListPage" },
     { "$ref": "#/$defs/entryPointListPage" },
+    { "$ref": "#/$defs/screenPage" },
     { "$ref": "#/$defs/settingPage" },
     { "$ref": "#/$defs/settingSetPage" },
     { "$ref": "#/$defs/ruleSetPage" },
@@ -129,6 +130,10 @@
     "entryPointId": {
       "type": "string",
       "pattern": "^entry-point/[a-z0-9][a-z0-9-]*$"
+    },
+    "screenId": {
+      "type": "string",
+      "pattern": "^screen/[a-z0-9][a-z0-9-]*\\.[a-z0-9][a-z0-9-]*$"
     },
     "externalSystemId": {
       "type": "string",
@@ -282,6 +287,16 @@
           { "$ref": "#/$defs/goalId" }
         ]
       }
+    },
+    "useCaseIdArray": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/useCaseId" }
+    },
+    "journeyStepIdArray": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/journeyStepId" }
     },
     "riskArray": {
       "type": "array",
@@ -1322,6 +1337,26 @@
         }
       ]
     },
+    "configurationKey": {
+      "description": "A configuration path in the host's spelling: sections and the key joined by colons.",
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9]*(:[A-Za-z][A-Za-z0-9]*)+$"
+    },
+    "admission": {
+      "description": "One package a technical decision admits, with the facts a dependency gate asks.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["package"],
+      "properties": {
+        "package": { "type": "string", "pattern": "^(nuget|npm):.+$" },
+        "layer": { "$ref": "#/$defs/nonEmptyString" },
+        "licence": { "$ref": "#/$defs/nonEmptyString" },
+        "location": { "$ref": "#/$defs/nonEmptyString" },
+        "accountOwner": { "$ref": "#/$defs/nonEmptyString" },
+        "failureBehavior": { "$ref": "#/$defs/nonEmptyString" },
+        "operatingCost": { "$ref": "#/$defs/nonEmptyString" }
+      }
+    },
     "settingEntry": {
       "type": "object",
       "additionalProperties": false,
@@ -1344,6 +1379,8 @@
         "range": { "$ref": "#/$defs/nonEmptyString" },
         "unit": { "$ref": "#/$defs/nonEmptyString" },
         "setBy": { "enum": ["founder", "operator", "tenant"] },
+        "key": { "$ref": "#/$defs/configurationKey" },
+        "meaning": { "$ref": "#/$defs/nonEmptyString" },
         "atBound": { "enum": ["refuse", "truncate", "degrade"] },
         "secret": { "type": "boolean" },
         "fulfills": { "$ref": "#/$defs/requirementIdArray" },
@@ -1560,6 +1597,7 @@
         "chosen": { "$ref": "#/$defs/nonEmptyString" },
         "changeWhen": { "$ref": "#/$defs/nonEmptyString" },
         "decides": { "$ref": "#/$defs/decidesArray" },
+        "admits": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/admission" } },
         "basedOn": { "$ref": "#/$defs/decisionBasedOnArray" }
       },
       "allOf": [
@@ -2567,6 +2605,59 @@
         "records": { "$ref": "#/$defs/recordsArray" }
       }
     },
+    "screenPage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "id", "title", "owner", "status", "entryPoint"],
+      "properties": {
+        "type": { "const": "screen" },
+        "id": { "$ref": "#/$defs/screenId" },
+        "title": { "$ref": "#/$defs/nonEmptyString" },
+        "owner": { "$ref": "#/$defs/ownerName" },
+        "status": { "$ref": "#/$defs/behaviorStatus" },
+        "decider": { "$ref": "#/$defs/ownerName" },
+        "decideBy": { "$ref": "#/$defs/isoDate" },
+        "approvedBy": { "$ref": "#/$defs/ownerName" },
+        "approvedOn": { "$ref": "#/$defs/isoDate" },
+        "approvedHash": { "$ref": "#/$defs/nonEmptyString" },
+        "terms": { "$ref": "#/$defs/termIdArray" },
+        "questions": { "$ref": "#/$defs/questionsArray" },
+        "entryPoint": { "$ref": "#/$defs/entryPointId" },
+        "address": { "$ref": "#/$defs/nonEmptyString" },
+        "host": { "$ref": "#/$defs/screenId" },
+        "offers": { "$ref": "#/$defs/useCaseIdArray" },
+        "serves": { "$ref": "#/$defs/journeyStepIdArray" },
+        "floorplan": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$" },
+        "risk": { "$ref": "#/$defs/riskArray" },
+        "source": { "$ref": "#/$defs/transcribedSource" }
+      },
+      "oneOf": [
+        {
+          "required": ["address"],
+          "not": { "required": ["host"] }
+        },
+        {
+          "required": ["host"],
+          "not": { "required": ["address"] }
+        }
+      ],
+      "allOf": [
+        {
+          "if": {
+            "required": ["status"],
+            "properties": { "status": { "const": "draft" } }
+          },
+          "then": { "required": ["decider", "decideBy"] }
+        },
+        {
+          "if": {
+            "required": ["status"],
+            "properties": { "status": { "const": "reviewed" } }
+          },
+          "then": { "required": ["approvedBy", "approvedOn", "approvedHash"] }
+        }
+      ]
+    },
     "settingPage": {
       "type": "object",
       "additionalProperties": false,
@@ -2590,6 +2681,8 @@
         "range": { "$ref": "#/$defs/nonEmptyString" },
         "unit": { "$ref": "#/$defs/nonEmptyString" },
         "setBy": { "enum": ["founder", "operator", "tenant"] },
+        "key": { "$ref": "#/$defs/configurationKey" },
+        "meaning": { "$ref": "#/$defs/nonEmptyString" },
         "atBound": { "enum": ["refuse", "truncate", "degrade"] },
         "secret": { "type": "boolean" },
         "fulfills": { "$ref": "#/$defs/requirementIdArray" },

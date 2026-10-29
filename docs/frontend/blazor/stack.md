@@ -4,17 +4,23 @@
 
 The Blazor stack is the technology binding for a product that has no server of its own: a .NET domain model, browser-local persistence, and a Blazor WebAssembly application compiled to static files. A team chooses it when the product runs entirely on the user's device, under the `client-only` shape, the deployment boundary with no server, declared in [Supported Scope](../../core/scope.md). This page states what the stack itself requires; exact framework and package versions live only in `litespec.manifest.json`.
 
+## Concepts
+
+### Route Entry Bindings
+
+A route entry is a component that declares an `@page` template. Its screen mark sits on that component in the .NET mark style the project declares in `litespec.project.json`, read by the .NET reader. Layout components, components with no `@page` template, and error-handling components are not route entries and carry no screen mark.
+
 ## Standards
 
 ### Keep Blazor Outside the UI Contract
 
 **ID:** `litespec/frontend/blazor/stack#keep-blazor-outside-the-ui-contract`
 
-**Statement:** A consumer selecting this stack MUST NOT apply the controlled UI contract.
+**Statement:** A consumer selecting this stack MUST NOT apply the floorplan, token, and route-suite contract of the controlled UI pages.
 
-**Rationale:** The controlled UI contract's route checks read TypeScript sources, so they cannot read a `.razor` component. Applying them to this stack would fail every check for lack of readable input. The Blazor pages state the styling, accessibility, and state rules that apply instead, so nothing is left ungoverned.
+**Rationale:** That contract's floorplan, token, and route-suite checks read TypeScript sources, so they cannot read a `.razor` component. Applying them to this stack would fail every check for lack of readable input. The Blazor pages state the styling, accessibility, and state rules that apply instead, so nothing is left ungoverned. Screen records and route marks still apply on this stack: the .NET reader reads the `@page` component marks, and the screen, `calls`, and `result-unshown` checks run from those marks.
 
-**Reviewed for:** The consumer's stack selection and CI jobs apply no UI contract page or route check.
+**Reviewed for:** The consumer's stack selection and CI jobs apply no floorplan, token, or route-suite check, while its `@page` components carry screen marks the .NET reader reads.
 
 ### Publish Static WebAssembly Output
 

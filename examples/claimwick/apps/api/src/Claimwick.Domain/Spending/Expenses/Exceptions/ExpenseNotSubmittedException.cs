@@ -1,3 +1,5 @@
+using Claimwick.Domain.Shared;
+
 namespace Claimwick.Domain.Spending.Expenses.Exceptions;
 
 /// <summary>The expense is already decided.</summary>

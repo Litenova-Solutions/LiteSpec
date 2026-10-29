@@ -1,3 +1,4 @@
+using Claimwick.Domain.Shared;
 using Claimwick.Domain.Spending.Policies.Exceptions;
 
 namespace Claimwick.Domain.Spending.Policies;

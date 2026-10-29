@@ -1,3 +1,4 @@
+using Claimwick.Domain.Shared;
 using Claimwick.Domain.Spending.Expenses.Events;
 using Claimwick.Domain.Spending.Expenses.Exceptions;
 using Claimwick.Domain.Spending.Receipts.Events;

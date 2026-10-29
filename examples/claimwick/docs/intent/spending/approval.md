@@ -93,6 +93,23 @@
       "approvedBy": "claimwick-team",
       "approvedOn": "2026-10-01",
       "approvedHash": "d94fb08d"
+    },
+    {
+      "type": "requirement",
+      "id": "requirement/spending.month-end-submissions",
+      "title": "Month-end submissions",
+      "status": "draft",
+      "decider": "claimwick-team",
+      "decideBy": "2027-02-01",
+      "kind": "quality",
+      "statement": "Each month-end submission is acknowledged within two seconds.",
+      "rationale": "Month-end is the peak load the pilot must survive.",
+      "stimulus": "Five hundred employees submit expenses in the last hour of the month",
+      "environment": "Normal operation, one application instance down",
+      "response": "Each submission is stored and acknowledged",
+      "measure": "Share of submissions acknowledged within two seconds: at least 99 percent",
+      "by": "Pilot launch",
+      "check": "month-end-load"
     }
   ]
 }

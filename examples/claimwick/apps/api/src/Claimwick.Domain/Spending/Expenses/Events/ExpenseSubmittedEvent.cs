@@ -1,3 +1,5 @@
+using Claimwick.Domain.Shared;
+
 namespace Claimwick.Domain.Spending.Expenses.Events;
 
 /// <summary>An expense was submitted.</summary>

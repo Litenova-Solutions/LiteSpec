@@ -264,6 +264,18 @@ The Infrastructure implementation owns that refusal. The command pipeline owns t
 
 **Reviewed for:** Each domain repository serves one aggregate root with aggregate and Domain types only, and no composable query, session, or generic CRUD surface.
 
+### Place Every Constituent Type in Its Aggregate's Folder
+
+**ID:** `litespec/backend/domain#place-every-constituent-type-in-its-aggregates-folder`
+
+**Statement:** A Domain constituent type, meaning an identifier, a state type, a closed set, a child entity, a value object, or a repository interface, MUST sit in the folder of the aggregate it belongs to, or in the shared kernel.
+
+**Rationale:** A constituent serves no record of its own: it is part of its aggregate, whose record already states the states, transitions, and data the constituent holds. A mark on each would write that fact a second time, and the two copies would drift. The folder already says which aggregate a constituent belongs to, so the builder derives the link from it, and a type in a folder that holds no aggregate root and is not the shared kernel is the one place the derivation fails. A domain service that holds one rule calculation is not a constituent: it carries its `rule/` mark.
+
+**Example:** Claimwick's `ExpenseState` and `IExpenseRepository` sit beside the `Expense` root in `Spending/Expenses/` and carry no mark; the builder lists them as constituents of `aggregate/spending.expense`. `Money` sits in the shared kernel folder `Shared/` and belongs to no aggregate.
+
+**Checked by:** `litespec model check` reports `constituent-orphaned` (tier A) for an unmarked Domain type whose folder holds no aggregate root and is not the shared kernel, and the model output lists each constituent under its aggregate.
+
 ### Declare Cross-Record Keys on the Aggregate
 
 **ID:** `litespec/backend/domain#declare-cross-record-keys-on-the-aggregate`

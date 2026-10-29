@@ -245,6 +245,7 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 | `valueType` | `integer`, `duration`, `money`, `boolean`, `text`, or `choice`. |
 | `default`, `range`, `unit` | The value, the min-max or choices, and the unit. |
 | `setBy` | `founder`, `operator`, or `tenant`. |
+| `key` | The configuration path an operator setting binds from, such as `Spending:ApprovalReminderDelay`; required when `setBy` is `operator`. |
 | `atBound` | `refuse`, `truncate`, or `degrade`. |
 | `secret` | Whether the value is secret. |
 | `fulfills` | The requirements carried. |
@@ -260,6 +261,14 @@ An entry point is one way callers reach the product. Each entry point declares i
 | `reaction`, `job` | Behavior an event causes and background work without a request. |
 
 The optional `protocol` block belongs to the `devices` extension. The [access page](access.md) states actors, roles, and permissions.
+
+### Screens
+
+A screen is one page a person sees through a `browser` or `device` entry point. Its record lives at `docs/behavior/screens/<entry-point>.<name>.md` with the identifier `screen/<entry-point>.<name>`, such as `screen/claimwick-app.expense-list`. It names its `entryPoint`, its `address` (the route template its stack uses: a web path, a Blazor `@page` template, or an Android destination), the use cases it `offers`, the journey steps it `serves`, and optionally the `floorplan` it is composed from. An overlay with no address of its own names the screen it opens on in `host` instead; a screen carries exactly one of `address` and `host`. A navigation screen offers no use case and says so in its summary.
+
+A screen states what a person can do there; what they see follows from it. The results a screen shows come from the use cases it offers, its outgoing links come from its route, and the sentence shown for a refusal is joined by the refusal's `code`, so none of those are written on the screen. Intent never names a screen: a journey step says what a person achieves, and the book adds the screen that carries the step as context outside the approval hash.
+
+The route entry that renders a screen carries its mark, in the form its stack page states, naming `screen/...`. The builder computes `calls` from the route entry: it follows imports only within the route's own folder and the use-case module folders the route imports directly, through their `litespec.ts` marks, collecting generated-client operation calls, and maps each operation through the endpoint's mark to its use case. It follows neither the frame nor shared packages, so a call a shared component makes is not the screen's offer. An operation that resolves to two use cases is a reader diagnostic rather than a silent pick. The builder compares the computed `calls` with `offers`. A journey step is exercised when a passing test proved a scenario of a use case that serves the step.
 
 ### External Systems
 
@@ -1089,6 +1098,30 @@ The specification names only what carries business meaning. Child entities and v
 
 **Checked by:** `litespec model check` reports `notification-without-sender` for a notification no use case or reaction sends; `litespec consumer` fails a notification without its declared fields.
 
+### Keep Notification Templates and the Template Store One Set
+
+**ID:** `litespec/core/behavior#keep-notification-templates-and-the-template-store-one-set`
+
+**Statement:** The `template` keys the notification records declare and the keys the project's template store holds MUST be the same set.
+
+**Rationale:** The template key is the one join between a notification's promise and the text a person receives. A declared key the store lacks fails at send time, and a stored template no notification declares is text nobody reviewed. The store is the stack's own file, so the check reads it where it is instead of copying the keys into a record. A notification whose body the sender composes at send time declares `template: none` and is left out.
+
+**Example:** Claimwick's `notification/spending.approval-reminder` declares `template: approval-reminder-manager`, and the template store holds `approval-reminder-manager`.
+
+**Checked by:** `litespec model check` reports `template-unimplemented` (tier S) for a declared key the store the stack page names lacks, and `template-unrecorded` (tier S) for a stored key no notification declares, in a project whose stack configuration names a template store.
+
+### Use Every Declared Template Parameter
+
+**ID:** `litespec/core/behavior#use-every-declared-template-parameter`
+
+**Statement:** Every parameter a notification declares in `params` MUST appear as a placeholder in at least one of its template's texts.
+
+**Rationale:** A declared parameter is part of the message's promise: the order number in a confirmation, the name in a reminder. A parameter the template never uses is a promise the message does not keep, and it usually means the template was rewritten without the record.
+
+**Example:** `notification/spending.approval-reminder` declares the parameter `submitterName`, and the `approval-reminder-manager` template uses `{{SubmitterName}}`.
+
+**Checked by:** `litespec model check` reports `template-param-drift` (tier S) for a declared parameter whose placeholder, in the case the stack page states, appears in none of its template's texts.
+
 ### Name Each Template for Its Subject, Event and Audience
 
 **ID:** `litespec/core/behavior#name-each-template-for-its-subject-event-and-audience`
@@ -1123,6 +1156,30 @@ The specification names only what carries business meaning. Child entities and v
 
 **Checked by:** `litespec model check` reports `setting-default-without-requirement` for a commercial, legal, or varying default with no cited requirement.
 
+### Name the Configuration Key of Every Operator Setting
+
+**ID:** `litespec/core/behavior#name-the-configuration-key-of-every-operator-setting`
+
+**Statement:** A setting the operator sets MUST name its configuration path in `key`.
+
+**Rationale:** An operator setting reaches the product through configuration, so the record and the configuration meet at one path: the record states the default and the bounds, and the configuration names the value. Without the key, a renamed section silently falls back to a default nobody chose, and no reader can tell which configuration value a promise rests on. A setting a tenant or the founder sets is held as data by an aggregate instead, and names no key.
+
+**Example:** Claimwick's `setting/spending.approval-reminder-delay` is set by the operator and carries `key` `Spending:ApprovalReminderDelay`.
+
+**Checked by:** `litespec model check` reports `setting-key-missing` (tier G) for a setting with `setBy: operator` and no `key`.
+
+### Bind Every Keyed Setting in One Marked Options Class
+
+**ID:** `litespec/core/behavior#bind-every-keyed-setting-in-one-marked-options-class`
+
+**Statement:** A setting with a `key` MUST be bound by an options class that carries an `implements` mark naming the setting and whose section and property spell the key.
+
+**Rationale:** The options class is where configuration becomes a typed value the code reads, so it is the code element that implements the setting. Marking it names the promise the class holds, and comparing its section name and property with the record's key finds the renamed section or the typo before the product starts with a default.
+
+**Example:** Claimwick's `SpendingOptions` declares `SectionName = "Spending"`, an `ApprovalReminderDelay` property, and `/// <implements>setting/spending.approval-reminder-delay</implements>`.
+
+**Checked by:** `litespec model check` reports `setting-unimplemented` (tier S) for a keyed setting no options class marks, and `setting-key-drift` (tier S) for a marked options class whose `SectionName` constant and property do not spell the setting's `key`.
+
 ### State the Unit of Every Quantity Setting
 
 **ID:** `litespec/core/behavior#state-the-unit-of-every-quantity-setting`
@@ -1154,6 +1211,66 @@ The specification names only what carries business meaning. Child entities and v
 **Rationale:** A door with no kind is entered any way: a webhook is called as a page, a device as a browser. Declaring the kind of `browser`, `api`, `webhook`, `device`, `cli`, `mcp`, `served-content`, `reaction`, or `job` with its auth states how callers arrive and prove themselves.
 
 **Checked by:** `litespec consumer` fails an entry point without `kind` or `auth`.
+
+### Give Every Page Its Screen Record
+
+**ID:** `litespec/core/behavior#give-every-page-its-screen-record`
+
+**Statement:** Every route a browser or device entry point serves MUST be the implementation of exactly one screen record.
+
+**Rationale:** A page is where a person meets the product, and an unrecorded page offers use cases nobody reviewed as a page: what it lets someone start, which journey step it carries, which refusal it shows. One record per page, with one mark on the route, makes the page a reviewable promise and lets every other link (calls, results, journey coverage) be computed from it.
+
+**Example:** Claimwick's web route `/expenses` carries `implements: "screen/claimwick-app.expense-list"`, and `docs/behavior/screens/claimwick-app.expense-list.md` offers `use-case/spending.list-expenses`.
+
+**Checked by:** `litespec model check` reports `screen-unimplemented` (tier S) for a screen no route marks, and `behavior-unrecorded` (tier S) for a route with no mark or a mark naming no screen.
+
+### Match a Screen's Offers to Its Calls
+
+**ID:** `litespec/core/behavior#match-a-screens-offers-to-its-calls`
+
+**Statement:** A screen's `offers` MUST equal the use cases its route reaches through the generated client.
+
+**Rationale:** `offers` is the reviewed promise of what a person can start on the page, and the calls are what the page really does. When the two differ, either the page grew a capability nobody approved or the record promises one the page dropped. Comparing them on every run keeps the record honest without anyone re-reading the page.
+
+**Example:** The expense list offers `use-case/spending.list-expenses`, and its route calls `ListExpenses` through the generated client.
+
+**Checked by:** `litespec model check` reports `screen-calls-mismatch` (tier S) for a screen whose `offers` and computed calls differ, naming each use case on one side only.
+
+### Serve Only the Steps a Screen's Use Cases Serve
+
+**ID:** `litespec/core/behavior#serve-only-the-steps-a-screens-use-cases-serve`
+
+**Statement:** A screen's `serves` MUST name only journey steps that a use case it offers serves through a browser or device entry point.
+
+**Rationale:** A journey step is achieved through use cases, and a person reaches those use cases on a screen. Naming the step on the screen lets the book say where each step happens, and checking it against the offered use cases finds a screen claiming a step its use cases do not carry.
+
+**Example:** The expense form serves `journey/submit-and-reimburse#s1` because it offers `use-case/spending.submit-expense`, which serves that step.
+
+**Checked by:** `litespec model check` reports `screen-serves-mismatch` (tier G) for a served step no offered use case serves.
+
+### Give Every Browser Step a Screen
+
+**ID:** `litespec/core/behavior#give-every-browser-step-a-screen`
+
+**Statement:** Every journey step a use case serves through a browser or device entry point MUST be served by at least one screen.
+
+**Rationale:** A step a person achieves in a browser happens on some page. A step no screen serves is either carried by a page nobody recorded or not reachable at all, and the book cannot tell the reader where it happens. The pair sits side by side: `step-unserved` names a step no use case serves, and `step-unscreened` names a step a browser or device use case serves that no screen serves.
+
+**Example:** `journey/submit-and-reimburse#s1` is served by the expense form.
+
+**Checked by:** `litespec model check` reports `step-unscreened` (tier G) for a step a browser or device use case serves that no screen serves.
+
+### Show Every Refusal a Screen Can Reach
+
+**ID:** `litespec/core/behavior#show-every-refusal-a-screen-can-reach`
+
+**Statement:** Every refusal a use case a screen offers can return MUST have a sentence in the refusal dictionary its frontend names in `refusalDictionary` or a browser test that asserts its code.
+
+**Rationale:** A refusal a person can trigger on a page is part of what the page says to them. Without a sentence, the person sees a code or a generic error; without a test, nobody knows what they see. Requiring one of the two only where a screen can reach the refusal avoids demanding sentences for refusals no person meets. Each frontend names its dictionary in its `paths.frontends[]` entry, so the check reads that frontend's words rather than a convention.
+
+**Example:** The expense form offers `use-case/spending.submit-expense`, whose `spending.receipt-missing` refusal has a sentence in the dictionary the Claimwick web frontend names in `refusalDictionary`.
+
+**Checked by:** `litespec model check` reports `result-unshown` (tier A) for a refusal a screen can reach with neither a sentence in its frontend's `refusalDictionary` nor a browser test asserting its code.
 
 ### Serve Static Content Through Served Content
 

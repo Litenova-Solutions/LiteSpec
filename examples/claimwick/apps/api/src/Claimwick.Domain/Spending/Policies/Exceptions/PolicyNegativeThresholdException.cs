@@ -1,3 +1,5 @@
+using Claimwick.Domain.Shared;
+
 namespace Claimwick.Domain.Spending.Policies.Exceptions;
 
 /// <summary>The threshold is negative.</summary>

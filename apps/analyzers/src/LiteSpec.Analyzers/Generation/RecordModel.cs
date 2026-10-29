@@ -11,11 +11,12 @@ namespace LiteSpec.Analyzers.Generation;
 /// <summary>
 /// The record facts the generator reads from the project file and the record pages: the declared
 /// mark style, the event identifiers, each rule's refusal code, each permission with its scope,
-/// group and risks, each use case's access grant, and the project's vocabulary additions.
-/// Statuses never gate generation: a mark to a record of any status still resolves, and the
-/// checks own the reporting.
+/// group and risks, each role with its scope and allowed permissions, each use case's access
+/// grant, and the project's vocabulary additions. Statuses never gate generation: a mark to a
+/// record of any status still resolves, and the checks own the reporting.
 /// </summary>
 /// <follows>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</follows>
+/// <follows>litespec/backend/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records</follows>
 /// <follows>litespec/core/access#state-the-scope-of-every-permission</follows>
 /// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
 internal sealed class RecordModel : IEquatable<RecordModel>
@@ -27,6 +28,7 @@ internal sealed class RecordModel : IEquatable<RecordModel>
         ImmutableArray<string>.Empty,
         ImmutableArray<RuleCode>.Empty,
         ImmutableArray<PermissionFacts>.Empty,
+        ImmutableArray<RoleFacts>.Empty,
         ImmutableArray<UseCaseGrant>.Empty,
         ImmutableArray<string>.Empty,
         ImmutableArray<string>.Empty,
@@ -38,6 +40,7 @@ internal sealed class RecordModel : IEquatable<RecordModel>
     /// <param name="eventIds">The event identifiers, sorted.</param>
     /// <param name="ruleCodes">Each rule with a refusal code, sorted by rule.</param>
     /// <param name="permissions">Each permission with its scope, group and risks, sorted by id.</param>
+    /// <param name="roles">Each role with its scope and allowed permissions, sorted by id.</param>
     /// <param name="grants">Each use case with an access grant, sorted by use case.</param>
     /// <param name="verbs">The domain verbs the project adds to the baseline.</param>
     /// <param name="queryVerbs">The project verbs that name a query.</param>
@@ -48,6 +51,7 @@ internal sealed class RecordModel : IEquatable<RecordModel>
         ImmutableArray<string> eventIds,
         ImmutableArray<RuleCode> ruleCodes,
         ImmutableArray<PermissionFacts> permissions,
+        ImmutableArray<RoleFacts> roles,
         ImmutableArray<UseCaseGrant> grants,
         ImmutableArray<string> verbs,
         ImmutableArray<string> queryVerbs,
@@ -58,6 +62,7 @@ internal sealed class RecordModel : IEquatable<RecordModel>
         EventIds = eventIds;
         RuleCodes = ruleCodes;
         Permissions = permissions;
+        Roles = roles;
         Grants = grants;
         Verbs = verbs;
         QueryVerbs = queryVerbs;
@@ -78,6 +83,9 @@ internal sealed class RecordModel : IEquatable<RecordModel>
 
     /// <summary>Each permission with its scope, group and risks, sorted by id.</summary>
     public ImmutableArray<PermissionFacts> Permissions { get; }
+
+    /// <summary>Each role with its scope and allowed permissions, sorted by id.</summary>
+    public ImmutableArray<RoleFacts> Roles { get; }
 
     /// <summary>Each use case with an access grant, sorted by use case.</summary>
     public ImmutableArray<UseCaseGrant> Grants { get; }
@@ -169,6 +177,7 @@ internal sealed class RecordModel : IEquatable<RecordModel>
             IdsOf(index, "event"),
             RuleCodesOf(index),
             PermissionsOf(index),
+            RolesOf(index),
             GrantsOf(index, grants),
             ImmutableArray.CreateRange(settings.Verbs),
             ImmutableArray.CreateRange(settings.QueryVerbs),
@@ -183,6 +192,7 @@ internal sealed class RecordModel : IEquatable<RecordModel>
         && EventIds.SequenceEqual(other.EventIds)
         && RuleCodes.SequenceEqual(other.RuleCodes)
         && Permissions.SequenceEqual(other.Permissions)
+        && Roles.SequenceEqual(other.Roles)
         && Grants.SequenceEqual(other.Grants)
         && Verbs.SequenceEqual(other.Verbs)
         && QueryVerbs.SequenceEqual(other.QueryVerbs)
@@ -213,6 +223,11 @@ internal sealed class RecordModel : IEquatable<RecordModel>
             foreach (var permission in Permissions)
             {
                 hash = hash * 31 + permission.GetHashCode();
+            }
+
+            foreach (var role in Roles)
+            {
+                hash = hash * 31 + role.GetHashCode();
             }
 
             foreach (var grant in Grants)
@@ -464,6 +479,29 @@ internal sealed class RecordModel : IEquatable<RecordModel>
         return ImmutableArray.CreateRange(found);
     }
 
+    private static ImmutableArray<RoleFacts> RolesOf(RecordIndex index)
+    {
+        var seen = new HashSet<string>(StringComparer.Ordinal);
+        var found = new List<RoleFacts>();
+
+        foreach (var record in index.ByType("role"))
+        {
+            if (record.Id.Length == 0 || !seen.Add(record.Id))
+            {
+                continue;
+            }
+
+            found.Add(new RoleFacts(
+                record.Id,
+                record.Field("scope") ?? string.Empty,
+                ImmutableArray.CreateRange(record.Ids("allows"))));
+        }
+
+        found.Sort(static (left, right) => string.Compare(left.Id, right.Id, StringComparison.Ordinal));
+
+        return ImmutableArray.CreateRange(found);
+    }
+
     private static ImmutableArray<UseCaseGrant> GrantsOf(
         RecordIndex index, Dictionary<string, string> grants)
     {
@@ -589,6 +627,59 @@ internal sealed class PermissionFacts : IEquatable<PermissionFacts>
             foreach (var risk in Risks)
             {
                 hash = hash * 31 + StringComparer.Ordinal.GetHashCode(risk);
+            }
+
+            return hash;
+        }
+    }
+}
+
+/// <summary>One role with the facts the generated entry carries.</summary>
+/// <follows>litespec/backend/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records</follows>
+internal sealed class RoleFacts : IEquatable<RoleFacts>
+{
+    /// <summary>Creates role facts.</summary>
+    /// <param name="id">The role identifier.</param>
+    /// <param name="scope">The reach of the grant, or empty when the record states none.</param>
+    /// <param name="allows">The permission identifiers the record allows, in record order.</param>
+    public RoleFacts(string id, string scope, ImmutableArray<string> allows)
+    {
+        Id = id;
+        Scope = scope;
+        Allows = allows;
+    }
+
+    /// <summary>The role identifier.</summary>
+    public string Id { get; }
+
+    /// <summary>The reach of the grant, or empty when the record states none.</summary>
+    public string Scope { get; }
+
+    /// <summary>The permission identifiers the record allows, in record order.</summary>
+    public ImmutableArray<string> Allows { get; }
+
+    /// <inheritdoc />
+    public bool Equals(RoleFacts? other) =>
+        other is not null
+        && string.Equals(Id, other.Id, StringComparison.Ordinal)
+        && string.Equals(Scope, other.Scope, StringComparison.Ordinal)
+        && Allows.SequenceEqual(other.Allows);
+
+    /// <inheritdoc />
+    public override bool Equals(object? obj) => obj is RoleFacts other && Equals(other);
+
+    /// <inheritdoc />
+    public override int GetHashCode()
+    {
+        unchecked
+        {
+            var hash = 17;
+            hash = hash * 31 + StringComparer.Ordinal.GetHashCode(Id);
+            hash = hash * 31 + StringComparer.Ordinal.GetHashCode(Scope);
+
+            foreach (var allowed in Allows)
+            {
+                hash = hash * 31 + StringComparer.Ordinal.GetHashCode(allowed);
             }
 
             return hash;

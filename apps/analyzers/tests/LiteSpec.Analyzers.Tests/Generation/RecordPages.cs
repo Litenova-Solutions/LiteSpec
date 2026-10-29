@@ -153,5 +153,27 @@ internal static class RecordPages
     public static string PermissionFactsPage(params string[] entries) =>
         Page("{\"type\": \"permission-list\", \"owner\": \"team\", \"status\": \"reviewed\", \"records\": [" + string.Join(", ", entries) + "]}");
 
+    /// <summary>Builds a role page with the scope and allows the record states.</summary>
+    /// <param name="id">The role identifier.</param>
+    /// <param name="scope">The reach, or null for no scope field.</param>
+    /// <param name="allows">The allowed permissions, or null for no allows field.</param>
+    /// <returns>The page text.</returns>
+    public static string RolePage(string id, string? scope = null, string[]? allows = null)
+    {
+        var page = "{\"type\": \"role\", \"id\": \"" + id + "\", \"title\": \"A role\", \"owner\": \"team\", \"status\": \"reviewed\"";
+
+        if (scope is not null)
+        {
+            page += ", \"scope\": \"" + scope + "\"";
+        }
+
+        if (allows is not null)
+        {
+            page += ", \"allows\": [" + string.Join(", ", allows.Select(allow => "\"" + allow + "\"")) + "]";
+        }
+
+        return Page(page + "}");
+    }
+
     private static string Page(string json) => "---\n" + json + "\n---\n\n# Record\n";
 }

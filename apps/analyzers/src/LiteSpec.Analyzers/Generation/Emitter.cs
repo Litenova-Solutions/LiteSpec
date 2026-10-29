@@ -11,11 +11,12 @@ namespace LiteSpec.Analyzers.Generation;
 
 /// <summary>
 /// Writes the generator's sources from the records, the marked types and the host: the mark
-/// attributes, the event and exception value parts, the assembly registry and the permission
-/// constants. Every value is written only where no member of that name is declared in source,
-/// and only where its record is known.
+/// attributes, the event and exception value parts, the assembly registry, the permission
+/// constants and the role entries. Every value is written only where no member of that name is
+/// declared in source, and only where its record is known.
 /// </summary>
 /// <follows>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</follows>
+/// <follows>litespec/backend/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records</follows>
 /// <follows>litespec/core/access#state-the-scope-of-every-permission</follows>
 /// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
 internal static class Emitter
@@ -39,6 +40,7 @@ internal static class Emitter
         if (records.EventIds.IsEmpty
             && records.RuleCodes.IsEmpty
             && records.Permissions.IsEmpty
+            && records.Roles.IsEmpty
             && records.Grants.IsEmpty
             && types.IsEmpty)
         {
@@ -87,13 +89,15 @@ internal static class Emitter
             }
         }
 
-        EmitRegistry(context, ordered, grants);
+        EmitRegistry(context, ordered, grants, host.Layer);
 
-        if (host.Layer == Layer.Application
+        if (host.Layer == Layer.Domain
+            || host.Layer == Layer.Application
             || host.Layer == Layer.Infrastructure
             || host.Layer == Layer.WebApi)
         {
             EmitPermissions(context, records);
+            EmitRoles(context, records);
         }
     }
 
@@ -114,6 +118,58 @@ internal static class Emitter
             return null;
         }
 
+        return PascalName(name);
+    }
+
+    /// <summary>
+    /// Names the role constant from the role name, as <see cref="ConstantName"/> names a
+    /// permission. An identifier that carries no role name yields null and the role is skipped;
+    /// the checks own the malformed record.
+    /// </summary>
+    /// <param name="id">The role identifier.</param>
+    /// <returns>The constant name, or null when the identifier carries none.</returns>
+    internal static string? RoleConstantName(string id)
+    {
+        if (!Identifiers.TrySplit(id, out var prefix, out var home, out var name)
+            || prefix != "role"
+            || home is not null
+            || name.Length == 0)
+        {
+            return null;
+        }
+
+        return PascalName(name);
+    }
+
+    /// <summary>
+    /// Names the endpoint operation from the use-case name: the part after the module dot, with
+    /// each kebab word capitalized. An identifier that carries no use-case name yields null and
+    /// the endpoint takes no operation entry; the checks own the malformed mark.
+    /// </summary>
+    /// <param name="id">The use-case identifier.</param>
+    /// <returns>The operation name, or null when the identifier carries none.</returns>
+    internal static string? OperationName(string id)
+    {
+        if (!Identifiers.TrySplit(id, out var prefix, out var home, out var name)
+            || prefix != "use-case"
+            || home is null
+            || name.Length == 0)
+        {
+            return null;
+        }
+
+        return PascalName(name);
+    }
+
+    /// <summary>
+    /// Capitalizes each kebab word of the name, keeping letters and digits only. A name that
+    /// stays empty yields null, and one opening with a digit takes a leading underscore, so the
+    /// result always carries an identifier.
+    /// </summary>
+    /// <param name="name">The kebab-case name.</param>
+    /// <returns>The PascalCase name, or null when the name carries none.</returns>
+    private static string? PascalName(string name)
+    {
         var built = new StringBuilder();
         var words = name.Split(new char[] { '-' }, StringSplitOptions.RemoveEmptyEntries);
 
@@ -188,10 +244,14 @@ internal static class Emitter
         kind + "." + type.FullName.Replace('`', '_') + ".g.cs";
 
     private static void EmitRegistry(
-        SourceProductionContext context, List<MarkedType> types, Dictionary<string, string> grants)
+        SourceProductionContext context,
+        List<MarkedType> types,
+        Dictionary<string, string> grants,
+        Layer layer)
     {
         var messages = MessageUseCasesOf(context, types);
-        context.AddSource("LiteSpecRegistry.g.cs", RegistryText(types, grants, messages));
+        var operations = OperationUseCasesOf(types);
+        context.AddSource("LiteSpecRegistry.g.cs", RegistryText(types, grants, messages, operations, layer == Layer.WebApi));
     }
 
     /// <summary>
@@ -295,6 +355,64 @@ internal static class Emitter
         public string Message { get; }
 
         /// <summary>The handler's use case.</summary>
+        public string UseCase { get; }
+    }
+
+    /// <summary>
+    /// Maps each operation name to its use case: the PascalCase use-case name of every use case
+    /// an endpoint in this assembly carries in an implements mark. Use-case names are unique
+    /// project-wide, so each operation name maps to one use case; the first endpoint in
+    /// full-name order wins when two marks produce one name.
+    /// </summary>
+    /// <param name="types">The marked types in full-name order.</param>
+    /// <returns>The operation entries in operation order.</returns>
+    private static List<OperationUseCase> OperationUseCasesOf(List<MarkedType> types)
+    {
+        var entries = new Dictionary<string, string>(StringComparer.Ordinal);
+
+        foreach (var type in types)
+        {
+            if (type.Kind != CodeKind.Endpoint
+                || FirstWithPrefix(type.MarkIds, "use-case/") is not string useCase
+                || OperationName(useCase) is not string operation)
+            {
+                continue;
+            }
+
+            if (!entries.ContainsKey(operation))
+            {
+                entries.Add(operation, useCase);
+            }
+        }
+
+        var operations = new List<OperationUseCase>();
+
+        foreach (var pair in entries)
+        {
+            operations.Add(new OperationUseCase(pair.Key, pair.Value));
+        }
+
+        operations.Sort(static (left, right) => string.Compare(left.Operation, right.Operation, StringComparison.Ordinal));
+
+        return operations;
+    }
+
+    /// <summary>One operation name with the use case its marked endpoint serves.</summary>
+    private sealed class OperationUseCase
+    {
+        /// <summary>Creates an operation entry.</summary>
+        /// <param name="operation">The PascalCase use-case name.</param>
+        /// <param name="useCase">The endpoint's use case.</param>
+        public OperationUseCase(string operation, string useCase)
+        {
+            Operation = operation;
+            UseCase = useCase;
+        }
+
+        /// <summary>The PascalCase use-case name.</summary>
+        public string Operation { get; }
+
+        /// <summary>The endpoint's use case.</summary>
         public string UseCase { get; }
     }
 
@@ -423,6 +541,101 @@ internal static class Emitter
 
         /// <summary>Whether the permission only reads.</summary>
         public bool Reads { get; }
+    }
+
+    private static void EmitRoles(SourceProductionContext context, RecordModel records)
+    {
+        var named = new List<NamedRole>();
+
+        foreach (var role in records.Roles)
+        {
+            var name = RoleConstantName(role.Id);
+
+            if (name is not null)
+            {
+                named.Add(new NamedRole(name, role));
+            }
+        }
+
+        named.Sort(static (left, right) =>
+        {
+            var names = string.Compare(left.Name, right.Name, StringComparison.Ordinal);
+
+            return names != 0
+                ? names
+                : string.Compare(left.Facts.Id, right.Facts.Id, StringComparison.Ordinal);
+        });
+
+        var collisions = 0;
+
+        for (var index = 1; index < named.Count; index++)
+        {
+            if (named[index].Name != named[index - 1].Name
+                || named[index].Facts.Id == named[index - 1].Facts.Id)
+            {
+                continue;
+            }
+
+            collisions++;
+
+            if (index == 1 || named[index - 1].Name != named[index - 2].Name)
+            {
+                context.ReportDiagnostic(Diagnostic.Create(
+                    GeneratorDiagnostics.RoleCollision,
+                    Location.None,
+                    named[index].Name,
+                    named[index - 1].Facts.Id,
+                    named[index].Facts.Id));
+            }
+        }
+
+        if (collisions > 0)
+        {
+            return;
+        }
+
+        var declared = new HashSet<string>(StringComparer.Ordinal);
+
+        foreach (var permission in records.Permissions)
+        {
+            declared.Add(permission.Id);
+        }
+
+        foreach (var role in named)
+        {
+            foreach (var allowed in role.Facts.Allows)
+            {
+                if (!declared.Contains(allowed))
+                {
+                    context.ReportDiagnostic(Diagnostic.Create(
+                        GeneratorDiagnostics.RoleAllowsUndeclaredPermission,
+                        Location.None,
+                        role.Facts.Id,
+                        allowed));
+                }
+            }
+        }
+
+        context.AddSource("LiteSpecRoles.g.cs", RolesText(named));
+    }
+
+    /// <summary>One role with its constant name.</summary>
+    private sealed class NamedRole
+    {
+        /// <summary>Creates a named role.</summary>
+        /// <param name="name">The constant name.</param>
+        /// <param name="facts">The facts the generated entry carries.</param>
+        public NamedRole(string name, RoleFacts facts)
+        {
+            Name = name;
+            Facts = facts;
+        }
+
+        /// <summary>The constant name.</summary>
+        public string Name { get; }
+
+        /// <summary>The facts the generated entry carries.</summary>
+        public RoleFacts Facts { get; }
     }
 
     private static string AttributesText(bool xunit)
@@ -569,7 +782,12 @@ internal static class Emitter
         return text.ToString();
     }
 
-    private static string RegistryText(List<MarkedType> types, Dictionary<string, string> grants, List<MessageUseCase> messages)
+    private static string RegistryText(
+        List<MarkedType> types,
+        Dictionary<string, string> grants,
+        List<MessageUseCase> messages,
+        List<OperationUseCase> operations,
+        bool webApi)
     {
         var text = new StringBuilder();
         text.AppendLine("// <auto-generated/>");
@@ -671,6 +889,51 @@ internal static class Emitter
         text.AppendLine();
         text.AppendLine("        public static string? GrantOf(System.Type messageType) =>");
         text.AppendLine("            UseCaseOf(messageType) is string useCase && UseCaseGrants.TryGetValue(useCase, out var grant) ? grant : null;");
+        text.AppendLine();
+        text.AppendLine("        public static string? UseCaseOfType(System.Type type)");
+        text.AppendLine("        {");
+        text.AppendLine("            string? name = type.FullName?.Replace('+', '.');");
+        text.AppendLine();
+        text.AppendLine("            if (name is not null && MarkedTypes.TryGetValue(name, out var ids))");
+        text.AppendLine("            {");
+        text.AppendLine("                foreach (string id in ids)");
+        text.AppendLine("                {");
+        text.AppendLine("                    if (id.StartsWith(\"use-case/\", System.StringComparison.Ordinal))");
+        text.AppendLine("                    {");
+        text.AppendLine("                        return id;");
+        text.AppendLine("                    }");
+        text.AppendLine("                }");
+        text.AppendLine("            }");
+        text.AppendLine();
+        text.AppendLine("            return null;");
+        text.AppendLine("        }");
+
+        if (webApi)
+        {
+            text.AppendLine();
+
+            if (operations.Count == 0)
+            {
+                text.AppendLine("        private static readonly System.Collections.Generic.IReadOnlyDictionary<string, string> OperationUseCases = new System.Collections.Generic.Dictionary<string, string>();");
+            }
+            else
+            {
+                text.AppendLine("        private static readonly System.Collections.Generic.IReadOnlyDictionary<string, string> OperationUseCases = new System.Collections.Generic.Dictionary<string, string>");
+                text.AppendLine("        {");
+
+                foreach (var operation in operations)
+                {
+                    text.AppendLine("            [\"" + Escape(operation.Operation) + "\"] = \"" + Escape(operation.UseCase) + "\",");
+                }
+
+                text.AppendLine("        };");
+            }
+
+            text.AppendLine();
+            text.AppendLine("        public static string? UseCaseOfOperation(string operationName) =>");
+            text.AppendLine("            OperationUseCases.TryGetValue(operationName, out var useCase) ? useCase : null;");
+        }
+
         text.AppendLine("    }");
         text.AppendLine("}");
 
@@ -749,6 +1012,78 @@ internal static class Emitter
             + (permission.Facts.Group is string group ? "\"" + Escape(group) + "\"" : "null") + ", "
             + (permission.Reads ? "true" : "false") + ", new string[] { "
             + (risks.Length > 0 ? risks.ToString() + " " : string.Empty) + "})";
+    }
+
+    private static string RolesText(List<NamedRole> named)
+    {
+        var text = new StringBuilder();
+        text.AppendLine("// <auto-generated/>");
+        text.AppendLine("#nullable enable");
+        text.AppendLine("// The role constants the analyzer package generates from the role records.");
+        text.AppendLine();
+        text.AppendLine("namespace LiteSpec");
+        text.AppendLine("{");
+        text.AppendLine("    internal static class LiteSpecRoles");
+        text.AppendLine("    {");
+
+        foreach (var role in named)
+        {
+            text.AppendLine("        public const string " + role.Name + " = \"" + Escape(role.Facts.Id) + "\";");
+        }
+
+        if (named.Count > 0)
+        {
+            text.AppendLine();
+        }
+
+        text.AppendLine("        internal sealed record LiteSpecRole(string Id, string Scope, System.Collections.Generic.IReadOnlyList<string> Allows);");
+        text.AppendLine();
+        text.AppendLine("        public static System.Collections.Generic.IReadOnlyList<LiteSpecRole> All { get; } = new LiteSpecRole[]");
+        text.AppendLine("        {");
+
+        foreach (var role in named)
+        {
+            text.AppendLine("            " + RoleEntryText(role) + ",");
+        }
+
+        text.AppendLine("        };");
+        text.AppendLine();
+        text.AppendLine("        public static LiteSpecRole Of(string id)");
+        text.AppendLine("        {");
+        text.AppendLine("            foreach (LiteSpecRole role in All)");
+        text.AppendLine("            {");
+        text.AppendLine("                if (role.Id == id)");
+        text.AppendLine("                {");
+        text.AppendLine("                    return role;");
+        text.AppendLine("                }");
+        text.AppendLine("            }");
+        text.AppendLine();
+        text.AppendLine("            throw new System.ArgumentException(\"Unknown role '\" + id + \"'.\", \"id\");");
+        text.AppendLine("        }");
+        text.AppendLine("    }");
+        text.AppendLine("}");
+
+        return text.ToString();
+    }
+
+    private static string RoleEntryText(NamedRole role)
+    {
+        var allows = new StringBuilder();
+
+        foreach (var allowed in role.Facts.Allows)
+        {
+            if (allows.Length > 0)
+            {
+                allows.Append(", ");
+            }
+
+            allows.Append("\"" + Escape(allowed) + "\"");
+        }
+
+        return "new LiteSpecRole(\""
+            + Escape(role.Facts.Id) + "\", \""
+            + Escape(role.Facts.Scope) + "\", new string[] { "
+            + (allows.Length > 0 ? allows.ToString() + " " : string.Empty) + "})";
     }
 
     private static string Escape(string value) =>

@@ -89,6 +89,9 @@ sealed class ProjectModel
     /// <summary>Per aggregate, by id: the states some transition leads into, or that start its lifecycle.</summary>
     public Dictionary<string, IReadOnlySet<string>> ReachableStates { get; } = new(StringComparer.Ordinal);
 
+    /// <summary>Per aggregate, by id, plus <c>kernel</c>: the unmarked Domain types its folder holds, as <c>path:name</c>.</summary>
+    public Dictionary<string, List<string>> Constituents { get; } = new(StringComparer.Ordinal);
+
     /// <summary>Code no scenario test reaches; empty when no scenario-only coverage file was read.</summary>
     public List<CoverageGap> UnreachedCode { get; } = [];
 
@@ -572,6 +575,22 @@ sealed class ProjectModel
                 foreach (var state in entry.Value.OrderBy(left => left, StringComparer.Ordinal))
                 {
                     writer.WriteStringValue(state);
+                }
+
+                writer.WriteEndArray();
+            }
+
+            writer.WriteEndObject();
+
+            writer.WriteStartObject("constituents");
+
+            foreach (var entry in Constituents.OrderBy(left => left.Key, StringComparer.Ordinal))
+            {
+                writer.WriteStartArray(entry.Key);
+
+                foreach (var constituent in entry.Value.OrderBy(left => left, StringComparer.Ordinal))
+                {
+                    writer.WriteStringValue(constituent);
                 }
 
                 writer.WriteEndArray();

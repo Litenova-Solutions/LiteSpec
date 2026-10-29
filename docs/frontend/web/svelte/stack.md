@@ -20,6 +20,10 @@ In Svelte terms: a page is a route file, a load is a loader, and a query creator
 
 A class or style binding spells `class`, `class:`, `style`, or `style:`. A file holding a drawing no composite makes ends with `*.visual.svelte`. Raw HTML reaches the page only through `{@html}`. The route error surface is the route error page, which draws the shared problem state. Component authoring follows [Svelte Components](components.md). The page-code lint applies the same restrictions through the Svelte ESLint processor, with visual files allowlisted.
 
+### Route Entry Bindings
+
+A route entry is the folder under `src/routes` that holds a `+page.svelte`. Its screen mark sits in a `+page.ts` beside that `+page.svelte` as the same typed constant a use-case module exports; a route with no `+page.ts` gains one, and a `<script module>` export in the `+page.svelte` is the fallback where no `+page.ts` can sit. Layout files (`+layout.svelte`, `+layout.ts`), error pages (`+error.svelte`), and route groups (parenthesized folders) are not route entries and carry no screen mark.
+
 ### Data Bindings
 
 The frame root, holding client configuration and cross-route values, is `src/lib/app`. The client generator adds the `@tanstack/svelte-query` plugin. The component's own state is a rune. The dictionary library is `svelte-i18n`, or machinery meeting the same contract. The shared package's form entry point is its form creator.

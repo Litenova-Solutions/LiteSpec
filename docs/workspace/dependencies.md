@@ -22,7 +22,9 @@ Every version resolves in one owned place: `litespec.manifest.json` pins the bas
 
 ### Approving a New Package
 
-A package outside the manifest lands only with a written decision: the use case it serves, the alternatives weighed, the layer that owns it, what it costs to operate, and the condition that removes it. Writing the removal condition while the alternatives are still fresh keeps each package traceable to the requirement that admitted it.
+A package outside the manifest lands only with a technical decision under `docs/implementation/decisions/`: the use case it serves, the alternatives weighed, and the condition that removes it, with an `admits` entry per package naming its owning layer, licence, processing location, account owner, failure behavior, and operating cost. Writing the removal condition while the alternatives are still fresh keeps each package traceable to the requirement that admitted it.
+
+The bill of materials the project generates in CI, an SPDX or CycloneDX JSON document `paths.sbom` names, is checked against the manifest pins and the admissions. A direct package is one the document root depends on in one step: an SPDX `DEPENDS_ON` relationship from the root package, or a CycloneDX `dependencies` entry of `metadata.component`. Its ecosystem comes from its package URL: `pkg:nuget/` maps to the manifest's NuGet pins and to `nuget:` admission ids, and `pkg:npm/` to its npm pins and `npm:` ids.
 
 ## Standards
 
@@ -82,11 +84,37 @@ A package outside the manifest lands only with a written decision: the use case 
 
 **ID:** `litespec/workspace/dependencies#approve-new-packages-explicitly`
 
-**Statement:** A package absent from the manifest MUST have a decision naming its use case, alternatives, owning layer, operating cost, and removal condition.
+**Statement:** A package absent from the manifest MUST be admitted by a technical decision whose `admits` entry names the package with its owning layer, licence, processing location, account owner, failure behavior, and operating cost.
 
-**Rationale:** A package arrives with a cost nobody revisits: updates, advisories, license review, and migration work. The decision names the use case, the alternatives, the owning layer, the operating cost, and the removal condition while the alternatives are still fresh. A baseline package lands in the manifest in the same change as its decision. A consumer-owned package lands in the consumer's central file instead, because the manifest belongs to the LiteSpec release rather than to the consumer.
+**Rationale:** A package arrives with a cost nobody revisits: updates, advisories, licence review, and migration work, and a hosted one adds a place personal data may travel and an account someone must own. The decision answers those while the alternatives are still fresh: its options and chosen option give the use case and the alternatives, its `changeWhen` gives the removal condition, and its `admits` entry gives the facts a dependency gate asks per package. A baseline package lands in the manifest in the same change as its decision. A consumer-owned package lands in the consumer's central file instead, because the manifest belongs to the LiteSpec release rather than to the consumer.
 
-**Reviewed for:** Each package outside the manifest traces to a decision under `docs/intent/decisions/` naming its use case, alternatives, owning layer, operating cost, and removal condition.
+**Example:** Claimwick's `decision/0005-render-receipts-as-pdf` chooses a PDF library over an HTML-to-PDF browser and admits `nuget:PdfSharp` with layer `Infrastructure`, licence `MIT`, location `in-process`, account owner `none`, failure behavior "the receipt download fails and the expense stays readable", and operating cost `none`.
+
+**Checked by:** `litespec model check` reports `dependency-unadmitted` (tier S) for a direct package in the bill of materials that the manifest does not pin and no decision admits, and `admission-incomplete` (tier G) for an `admits` entry missing any of its six facts.
+
+### Match Every Shipped Package to Its Pin
+
+**ID:** `litespec/workspace/dependencies#match-every-shipped-package-to-its-pin`
+
+**Statement:** Every direct package in the project's generated bill of materials that the manifest pins MUST ship at the pinned version.
+
+**Rationale:** The bill of materials (SBOM) is the computed list of what ships, so it is the one place a pin can be checked against instead of trusted. A version that drifted from its pin carries advisories and behavior the release never reviewed. The bill is generated, so the fact stays written once, and a record per package would rewrite hundreds of facts on every update.
+
+**Example:** Claimwick's bill of materials sits at `docs/proof/sbom/api.spdx.json`, the project file names that folder in `paths.sbom`, and a direct `pkg:nuget/Marten` at a version other than the manifest pin is reported.
+
+**Checked by:** `litespec model check` reports `dependency-version-drift` (tier S) for a direct package whose version differs from its manifest pin.
+
+### Accept Every Shipped Package Licence Explicitly
+
+**ID:** `litespec/workspace/dependencies#accept-every-shipped-package-licence-explicitly`
+
+**Statement:** Every direct package in the project's generated bill of materials MUST carry a licence the project accepts in `dependencies.licences`, or one its `admits` entry names.
+
+**Rationale:** A copyleft or commercial licence binds the product the day the package ships, and a licence nobody accepted is found at an audit rather than at the change that brought it. Listing the accepted licences once, and naming any other on the admitting decision, keeps the licence choice a decision with a person's name on it.
+
+**Example:** Claimwick accepts `MIT`, `Apache-2.0`, and `BSD-3-Clause` in `dependencies.licences`, so a direct package under `AGPL-3.0-only` that no decision admits is reported.
+
+**Checked by:** `litespec model check` reports `dependency-licence-unapproved` (tier S) for a direct package whose licence the project does not accept and no `admits` entry names.
 
 ### Keep Frontend Applications Isolated
 

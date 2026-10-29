@@ -78,7 +78,7 @@ Each page owns its tables and rules, and this page cites them without copying. A
 
 **ID:** `litespec/core/system#point-code-and-tests-up-to-records`
 
-**Statement:** Every code element the marks table on the [model page](model.md) names MUST carry a mark naming the record it serves, with each handler marking exactly one record.
+**Statement:** Every code element the marks table on the [model page](model.md) assigns a mark MUST carry one naming the record it serves, with each handler marking exactly one record.
 
 **Rationale:** The mark is the one link from Implementation to Behavior and from Proof to the scenario it proves. A folder or a type name only resembles the record, and a resemblance drifts with the next rename; a mark holds the identifier, so the checks, the analyzers and the editor follow the same link without guessing. One record per handler keeps each file answerable to one use case. Nothing above Implementation is computed from code, so the link points up and the records stay the authority.
 

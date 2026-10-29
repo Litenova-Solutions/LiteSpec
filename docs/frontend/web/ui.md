@@ -158,27 +158,33 @@ Svelte:
 
 **Statement:** Every route MUST pass each route suite check in a browser, with axe reporting zero WCAG 2.2 AA violations.
 
-**Rationale:** The Concepts section names the checks: floorplan, registry reference, axe WCAG 2.2 AA, heading, landmark, reflow, text spacing, keyboard use, target size, and status announcements. One suite visits every route the tree discovers, so a new route is checked without anyone writing a specification for it. A route outside the suite can ship any defect on the list with no error. This realizes litespec/frontend/ui#check-every-route.
+**Rationale:** The Concepts section names the checks: floorplan, registry reference, axe WCAG 2.2 AA, heading, landmark, reflow, text spacing, keyboard use, target size, and status announcements. One suite visits every route the tree discovers, so a new route is checked without anyone writing a specification for it. A route outside the suite can ship any defect on the list with no error. Each frontend names that suite in `routeSuite` in its `paths.frontends[]` entry. This realizes litespec/frontend/ui#check-every-route.
 
 **Checked by:** `tests/routes/every-route.spec.ts` runs axe and the Concepts checks on each discovered route, and `litespec ui` reports each route missing its suite.
+
+### Mark the Route Suite and Goldens with What They Prove
+
+**ID:** `litespec/frontend/web/ui#mark-the-route-suite-and-goldens-with-what-they-prove`
+
+**Statement:** The route suite and every visual golden MUST carry a `proves` annotation for each UI provision, pattern provision, or quality requirement they enforce.
+
+**Rationale:** The route suite is the one place accessibility is enforced for every page, and a visual golden is the one place a pattern's look is held, yet neither proves anything a tool can read while it names nothing. Marking them turns the suite into the evidence for the UI provisions it checks, and each golden into the evidence for the pattern it protects, so a passing run marks those records tested. Neither proves a scenario: a route suite asserts every page, not one use case. Each frontend names its route suite in `routeSuite` and its goldens in `visualGoldens` in its `paths.frontends[]` entry, so the check has a named subject instead of a convention.
+
+**Example:** Claimwick's route suite, named in its web frontend's `routeSuite`, carries `proves("litespec/frontend/web/ui#check-every-route-in-a-browser")`.
+
+**Checked by:** `litespec model check` reports `mark-missing` (tier S) for a test in a frontend's `routeSuite` or `visualGoldens` with no `proves` annotation, and `mark-unresolved` (tier S) for one naming a scenario.
 
 ### Prove Every Result a Route Calls
 
 **ID:** `litespec/frontend/web/ui#prove-every-result-a-route-calls`
 
-**Statement:** Every result a called use case returns MUST be proved by a passing test or a known-gap record with owner and end date.
+**Statement:** Every refusal a web screen can reach through its computed `calls` MUST be shown as `litespec/core/behavior#show-every-refusal-a-screen-can-reach` states.
 
-**Rationale:** A refusal the reader can reach and no test provokes is a refusal nobody has seen render. The calls come from the route code, so the obligation follows the code: every result a called use case returns is proved by a passing test or named by a known-gap record with owner and end date. This realizes litespec/frontend/ui#prove-every-result-a-route-calls.
+**Rationale:** That Behavior provision is the one result obligation for a screen, on the web stacks as on every stack: a sentence in the frontend's refusal dictionary or a browser test asserting the code. The screen's computed `calls` name the refusals in scope, so no route-level restatement adds a second scope or verification. This realizes litespec/frontend/ui#prove-every-result-a-route-calls by pointing at the same obligation.
 
-**Example:** A browser test calls the use case and asserts one refusal result.
+**Example:** A browser test on the expense form asserts the `spending.receipt-missing` refusal by its code.
 
-```typescript
-test('shows the changed total before payout', async ({ page }) => {
-  // Steps call submit-expense and assert the expected-total-mismatch refusal.
-});
-```
-
-**Reviewed for:** Each result a route calls is proved by a passing test or named by a known-gap record with owner and end date.
+**Reviewed for:** Which refusals a web screen reaches through its computed `calls` lack a dictionary sentence and a browser test asserting the code? Look at the `result-unshown` findings for the frontend.
 
 ### Restrict CSS Decisions
 

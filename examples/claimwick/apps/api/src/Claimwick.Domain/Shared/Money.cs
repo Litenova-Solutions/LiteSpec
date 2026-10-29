@@ -1,4 +1,4 @@
-namespace Claimwick.Domain;
+namespace Claimwick.Domain.Shared;
 
 /// <summary>One exact amount with its ISO 4217 currency code.</summary>
 public sealed record Money

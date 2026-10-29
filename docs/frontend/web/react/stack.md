@@ -18,6 +18,10 @@ React routes are files using the router's file convention, and the router builds
 
 A class or style binding spells `className` or `style`. A file holding a drawing no composite makes ends with `*.visual.tsx`. Raw HTML reaches the page only through `dangerouslySetInnerHTML`. The route error surface is the route error component, which draws the shared problem state. Component authoring follows [React Components](components.md). The page-code lint applies import restrictions and JSX element restrictions in route and module folders, with visual files allowlisted.
 
+### Route Entry Bindings
+
+A route entry is one file under `src/routes` that declares a route for an address. Its screen mark sits in that route file itself as the same typed constant a use-case module exports. Pathless layout routes (files whose name starts with an underscore), error components, and route groups are not route entries and carry no screen mark.
+
 ### Data Bindings
 
 The frame root, holding client configuration and cross-route values, is `src/app`. The client generator adds the `@tanstack/react-query` plugin. The component's own state is local component state. The dictionary library meets the locale-dictionary contract the localization rule states. The shared package's form entry point is its form hook.

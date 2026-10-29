@@ -21,6 +21,10 @@ Each kind runs against a frontend and answers one question. A scenario is one wo
 
 A browser suite needs a deployment, and nothing in the suite starts one, so the same suite runs unchanged against a developer's stack and against a review deployment.
 
+### Reaching a Screen
+
+A browser test reaches a screen when a `page.goto` literal or template in the test matches that screen's `address` template. A test confirms a scenario when, in the same test, an assertion holds the refusal `code` or the success result's declared text or code, and the reached screen offers the scenario's use case. Click-through navigation inference is out of scope: a journey test uses one `page.goto` per screen it proves on.
+
 ### Related Rules
 
 Three related rules live on other pages:
@@ -41,17 +45,41 @@ Three related rules live on other pages:
 
 **Reviewed for:** Pure logic takes logic tests, navigation and integration take browser specifications, and every address takes the route contract. Look in the test files beside the modules and under the tests roots.
 
-### Prove a Scenario by Calling Its Use Case
+### Mark the Scenario a Browser Test Proves
 
-**ID:** `litespec/frontend/testing#prove-a-scenario-by-calling-its-use-case`
+**ID:** `litespec/frontend/testing#mark-the-scenario-a-browser-test-proves`
 
-**Statement:** A test MUST prove a scenario by calling its use case and asserting its result, submitting a money-moving use case rather than only reading it.
+**Statement:** A browser test that proves a scenario MUST carry a `proves` annotation naming that scenario.
 
-**Rationale:** A test proves a scenario when its steps call the use case and assert its result, so proof follows exercised behavior rather than a claim. The model builder computes that proof for each stack whose scenario reader it ships; a frontend stack without one records its unproven scenarios as known gaps until the reader exists. A title tag claims proof without exercising anything. A money-moving use case that a test only reads leaves completion unshown, so the test submits it.
+**Rationale:** The annotation, built by the `proves` helper the generated records file exports, names the lowest record the test verifies exactly as a backend test mark does, and a wrong identifier fails the type check. A title tag claims proof without anything reading it, so the written annotation is the link the builder counts.
 
-**Example:** An evidence specification for submitting an expense submits the expense and asserts the confirmation the success result promises.
+**Example:** The evidence specification for submitting an expense carries `proves("scenario/submit-expense.submitting-with-a-receipt-succeeds")`.
 
-**Reviewed for:** Test steps call the use case and assert its result, submitting money-moving use cases. Look in the evidence specifications.
+**Checked by:** `litespec model check` reports `mark-unresolved` (tier S) for a `proves` annotation naming no record a test may prove, or naming a journey.
+
+### Reach a Screen That Offers the Scenario's Use Case
+
+**ID:** `litespec/frontend/testing#reach-a-screen-that-offers-the-scenarios-use-case`
+
+**Statement:** A browser test that proves a scenario MUST reach a screen that offers the scenario's use case by a `page.goto` literal or template matching that screen's `address`.
+
+**Rationale:** A test proves a scenario when it drives the use case through the page a person uses, so proof follows exercised behavior rather than a claim. Matching the `page.goto` target against the screen `address` templates is the deterministic reach the reader computes; a test that only clicks through navigation names no screen it proved on.
+
+**Example:** The evidence specification opens `/expenses`, the address of `screen/claimwick-app.expense-list`, which offers `use-case/spending.list-expenses`.
+
+**Checked by:** `litespec model check` reports `proves-unconfirmed` (tier S) for a browser test whose `page.goto` targets match no screen offering the claimed scenario's use case.
+
+### Assert the Result a Scenario Ends In
+
+**ID:** `litespec/frontend/testing#assert-the-result-a-scenario-ends-in`
+
+**Statement:** A browser test that proves a scenario MUST assert the result the scenario ends in by its refusal code or by the success result's declared text or code.
+
+**Rationale:** Reaching the screen shows the page opened; the assertion shows the ending the result promises. Holding the refusal code or the success text in the same test ties the proof to the named result, and a money-moving use case that a test only reads leaves completion unshown, so the test submits it.
+
+**Example:** The evidence specification for `scenario/submit-expense.submitting-with-a-receipt-succeeds` submits the expense on the expense form and asserts the confirmation the success result promises.
+
+**Checked by:** `litespec model check` reports `proves-unconfirmed` (tier S) for a browser test reaching the screen whose assertions in the same test hold neither the refusal code nor the success result's declared text or code.
 
 ### Assert Each Declared Refusal by Its Code
 
@@ -64,6 +92,30 @@ Three related rules live on other pages:
 **Example:** The refusal alert carries the code, so the assertion names it.
 
 **Reviewed for:** Evidence specifications reach each declared refusal and assert it by its result code. Look in the evidence specifications.
+
+### Prove Each Scenario at One Boundary
+
+**ID:** `litespec/frontend/testing#prove-each-scenario-at-one-boundary`
+
+**Statement:** A scenario MUST carry one `proves` mark, on the test at the cheapest boundary that represents its risk.
+
+**Rationale:** An API test proves a business outcome faster and more steadily than a browser test, and a browser test is the only proof that a page offers the use case and renders its result. When both assert one scenario, marking both makes the slower test a second witness nobody needs and doubles the work when the scenario changes. The scenario whose risk is the outcome is proved at the API, and the one whose risk is what a person sees is proved in the browser.
+
+**Example:** `scenario/submit-expense.submitting-with-a-receipt-succeeds` is proved by the API test, while a refusal scenario for the same use case is proved by the browser evidence specification that asserts the refusal on the expense form.
+
+**Checked by:** `litespec model check` reports `proves-duplicated` (tier A) for a scenario with `proves` marks on more than one test.
+
+### Name the Journey a Journey Test Walks
+
+**ID:** `litespec/frontend/testing#name-the-journey-a-journey-test-walks`
+
+**Statement:** A browser test that walks several screens MUST carry a `journey` annotation naming the journey and a `proves` mark for each scenario it drives and asserts.
+
+**Rationale:** A journey is not a proof target: it is achieved through use cases, so a journey test proves the scenarios it drives, and journey coverage is computed from them. The `journey` annotation tells a reader which walk the test rehearses without claiming that the walk itself is proven.
+
+**Example:** The submit-and-reimburse walk carries `journey: journey/submit-and-reimburse` and proves the scenarios it drives and asserts on each screen it reaches.
+
+**Reviewed for:** Which browser tests that walk several screens carry a `journey` annotation naming the journey and a `proves` mark for each scenario they drive and assert? Look in the browser tests and their annotations.
 
 ### Test Observable States
 

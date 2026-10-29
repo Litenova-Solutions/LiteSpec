@@ -47,16 +47,17 @@ public sealed class PermissionTests
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
     }
 
-    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
-    [Fact(DisplayName = "Domain generates no permission constants")]
-    public void DomainGeneratesNoPermissionConstants()
+    /// <proves>litespec/backend/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records</proves>
+    [Fact(DisplayName = "Domain generates permission constants for its role types")]
+    public void DomainGeneratesPermissionConstants()
     {
         var run = GeneratorVerify.Run(
             RecordPages.Sources("namespace Shop.Spending; internal sealed class Placeholder;"),
             RecordPages.Files("xml", ("permissions.md", RecordPages.PermissionPage("permission/cancel-order"))),
             assemblyName: "Shop.Domain");
 
-        Assert.False(run.Sources.ContainsKey("LiteSpecPermissions.g.cs"), "The permissions source must not be generated.");
+        Assert.True(run.Sources.TryGetValue("LiteSpecPermissions.g.cs", out var permissions), "The permissions source is missing.");
+        Assert.Contains("public const string CancelOrder = \"permission/cancel-order\";", permissions, StringComparison.Ordinal);
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
     }
 

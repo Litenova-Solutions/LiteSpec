@@ -16,7 +16,7 @@ The operations log is append-only: one file per month under `docs/behavior/opera
 
 ### Alert Inventory
 
-The alert inventory lists the baseline alerts and the runbook each one names. A runbook is the procedure that answers an alert. The model builder renders the inventory from the limit entries, each naming one bound the product runs within and the runbook that answers it, beside the severity routing on the limits page at `docs/behavior/operations/limits.md`. The severity routing states where each severity level goes and how fast it is answered. Nobody edits the inventory by hand.
+The alert inventory lists the baseline alerts and the runbook each one names. A runbook is the procedure that answers an alert. The model builder renders the inventory from the alert rules the project lists in `paths.alerts`, each with the quality requirement it measures, the runbook that answers it, and its severity, beside the severity routing on the limits page at `docs/behavior/operations/limits.md`. The files hold alert rules in the YAML shape Prometheus rule files and Grafana alert provisioning share: `groups[].rules[]`, each rule named by `alert` or `title` and carrying `labels`. The severity routing states where each severity level goes and how fast it is answered. Nobody edits the inventory by hand.
 
 ### Secret Inventory
 
@@ -56,6 +56,78 @@ The sub-processor list names every provider that processes personal data for the
 **Rationale:** Each running service is a host, and one request often crosses several. Logs and traces carry timestamp, level, service, environment, trace identifier, and span identifier, and metrics carry service and environment labels. The correlation identifiers let one request be followed across every host it touched, which is the only trail a cross-host failure leaves. Stable event names keep dashboards working across releases instead of breaking each time a message is reworded.
 
 **Reviewed for:** Logs and traces carry correlation identifiers, and metrics carry service labels.
+
+### Point Every Runtime Record at Its Use Case
+
+**ID:** `litespec/quality/operations#point-every-runtime-record-at-its-use-case`
+
+**Statement:** A host MUST carry the use-case identity of every mediated message, resolved from the generated registry, as `litespec.use_case` on its span, its log scope, and its error report.
+
+**Rationale:** A trace identifier joins the runtime records of one request to each other, but not to the specification: a person holding a slow span, a log line, or an error report still has to guess which use case it was. The identity is already a generated value, so a pipeline stage reads it from the registry once per message and stamps it on every surface under one name, and reactions, jobs, and outbox consumers carry it as well as requests. A metric carries it only as a label on an instrument whose series stay bounded: a duration histogram labeled by every use case multiplies its series by hundreds, so request instruments label by module instead.
+
+**Example:** A Claimwick request to submit an expense opens a span and a log scope carrying `litespec.use_case = use-case/spending.submit-expense`, and an unhandled failure inside it reaches the error tracker with the same tag.
+
+**Reviewed for:** Which pipeline stage reads the registry and stamps `litespec.use_case` on the span, the log scope, and the error report of each mediated message? Look at the mediator pipeline and one error report per host.
+
+### Name the Requirement and Runbook on Every Alert
+
+**ID:** `litespec/quality/operations#name-the-requirement-and-runbook-on-every-alert`
+
+**Statement:** Every alert rule MUST carry a `requirement` label naming the quality requirement it measures and a `runbook` label naming the runbook that answers it, both as record identifiers.
+
+**Rationale:** An alert is the runtime half of a quality requirement: it fires when the measure the requirement promises is breached, and the runbook says what a person does next. Written as a file path or left out, the link is a string no tool follows, so an alert can outlive its requirement, a requirement can lose its last alert, and a renamed runbook breaks silently. Record identifiers in the alert's own labels keep the link in the file the alert lives in, in the syntax its tool already reads, and let the model check both ends. A baseline alert also carries its owner, window, and severity, as `litespec/quality/operations#define-actionable-baseline-alerts` states.
+
+**Example:** Claimwick's alert rule `submission-acknowledgement-slow` carries `requirement: requirement/spending.month-end-submissions` and `runbook: runbook/slow-submissions` in its labels.
+
+**Checked by:** `litespec model check` reports `alert-unlinked` (tier S) for an alert rule in the files `paths.alerts` names whose `requirement` label is missing or names no quality requirement, or whose `runbook` label is missing or names no runbook.
+
+### Keep Each Alert Threshold to Its Requirement's Measure
+
+**ID:** `litespec/quality/operations#keep-each-alert-threshold-to-its-requirements-measure`
+
+**Statement:** An alert rule MUST state every number its requirement's `measure` names in its own expression or threshold.
+
+**Rationale:** The requirement's measure is the approved target, and the alert is the one place it is enforced at runtime. A measure that says two seconds and an alert that fires at five drift apart silently, because nobody re-reads the alert when the requirement changes. Comparing the numbers is a coarse check, since a measure is prose, so it advises rather than blocks.
+
+**Example:** `requirement/spending.month-end-submissions` measures "at least 99 percent within two seconds", and its alert's expression compares the 0.99 quantile against 2.
+
+**Checked by:** `litespec model check` reports `alert-threshold-drift` (tier A) for an alert rule whose own text carries none of the decimal numbers its requirement's `measure` names.
+
+### Cover Every Quality Requirement with an Alert or a Check
+
+**ID:** `litespec/quality/operations#cover-every-quality-requirement-with-an-alert-or-a-check`
+
+**Statement:** Every quality requirement that is not retired MUST be named by at least one alert rule or check result, or covered by an open known gap.
+
+**Rationale:** A quality requirement nobody watches is a promise checked only when a customer notices it broken. An alert names it to watch production, and a check result, from a measured check or a drill, names it through its `check` to show it was measured before release; a requirement that cannot be watched yet says so as a known gap with an owner and an end date, instead of passing silently.
+
+**Example:** `requirement/spending.month-end-submissions` is named by the alert `submission-acknowledgement-slow` and by the k6 result its `check` names.
+
+**Checked by:** `litespec model check` reports `quality-unalerted` (tier G) for a quality requirement that no alert rule names in its `requirement` label, whose `check` matches no measured-check or check result the model read, and that no open known gap with `check: quality-unalerted` lists in its `subject`.
+
+### Record Each Drill Run as a Check Result
+
+**ID:** `litespec/quality/operations#record-each-drill-run-as-a-check-result`
+
+**Statement:** A drill or measuring harness that checks a quality requirement MUST write each run as a check result naming the requirement's `check`, kept under the project's `paths.checkResults`.
+
+**Rationale:** A drill rehearses a procedure against a running deployment, and a harness measures from outside: neither is a test, and neither runs in the test job, so their outcome lives only in a terminal or a pasted note that no tool reads. Writing each run as a small result file in Proof gives the quality requirement the same evidence a measured check gives it, under the same `check` name, with the date it ran and the value it saw.
+
+**Example:** Claimwick's month-end load harness writes `docs/proof/checks/2026-11-20-month-end-load.json` holding `"check": "month-end-load"`, `"passed": true`, `"value": "99.4 percent acknowledged within two seconds"`, and `"ranOn": "2026-11-20"`, and `requirement/spending.month-end-submissions` names `month-end-load` in its `check`.
+
+**Checked by:** `litespec model check` reads every check result under `paths.checkResults` beside the measured-check results under the test results folder and counts a passing one toward its requirement's measure.
+
+### Point Each Operations File at Its Decision
+
+**ID:** `litespec/quality/operations#point-each-operations-file-at-its-decision`
+
+**Statement:** Every deployment, proxy, host, and CI workflow file the project lists in `paths.operations` MUST carry a `follows` mark naming the technical decision, deviation, or provision it carries out.
+
+**Rationale:** Operations files hold choices as load-bearing as code: the proxy's security headers, the backup schedule, the gates a pull request passes. Their reason usually lives in a comment that no tool reads, so a retired decision leaves its configuration behind unnoticed. A `follows` mark in the file's own comment syntax is the same link a technical class carries, so `decision-unfollowed` and `mark-unresolved` cover these files too.
+
+**Example:** Claimwick's `deploy/Caddyfile` opens with `# <follows>decision/0004-serve-receipts-behind-one-proxy</follows>`.
+
+**Checked by:** `litespec model check` reports `mark-missing` (tier S) for a file in `paths.operations` with no `follows` mark and `mark-unresolved` (tier S) for a mark naming no decision, deviation, or provision, and counts the file toward `decision-unfollowed`.
 
 ### Pass Trace Context in the W3C Format
 
@@ -197,16 +269,6 @@ Declaring all five before production makes each alert answerable the first time 
 **Rationale:** Five failures end a release when nobody observes them: readiness that never recovers, HTTP errors the code did not expect, a slowing release flow, a lost database, and a deployment that failed partway. Naming them as the minimum coverage keeps a team from declaring alerts only for the failure it just survived.
 
 **Reviewed for:** The baseline alerts cover readiness failures, unexpected HTTP errors, release-flow latency, PostgreSQL outages, and failed deployments.
-
-### Name a Runbook on Every Alert
-
-**ID:** `litespec/quality/operations#name-a-runbook-on-every-alert`
-
-**Statement:** Every alert MUST name the runbook that answers it.
-
-**Rationale:** An alert fires at the worst time to design a procedure. Without a named runbook, whoever receives it invents the response under pressure, and two receivers invent two different ones. The named runbook gives the first response a tested starting point.
-
-**Reviewed for:** Each alert names the runbook that answers it.
 
 ### Route Each Severity to a Declared Destination
 

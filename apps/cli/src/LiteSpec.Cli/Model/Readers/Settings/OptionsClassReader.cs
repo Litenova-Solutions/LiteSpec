@@ -1,0 +1,128 @@
+using LiteSpec.Model.Roslyn;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+
+namespace LiteSpec.Model.Readers.Settings;
+
+/// <summary>One options class binding keyed settings: its section, properties and marked settings.</summary>
+/// <param name="Class">The class name.</param>
+/// <param name="File">The absolute path.</param>
+/// <param name="Line">The 1-based line of the class name.</param>
+/// <param name="SectionName">The <c>SectionName</c> constant value, or null when the class declares none.</param>
+/// <param name="Properties">The instance property names.</param>
+/// <param name="Settings">The <c>setting/</c> record ids its <c>implements</c> marks name.</param>
+sealed record OptionsClass(
+    string Class,
+    string File,
+    int Line,
+    string? SectionName,
+    IReadOnlyList<string> Properties,
+    IReadOnlyList<string> Settings);
+
+/// <summary>
+///     Reads the options classes that bind keyed settings: every class carrying an
+///     <c>implements</c> mark naming a <c>setting/</c> record, with its
+///     <c>SectionName</c> constant value and its property names.
+/// </summary>
+/// <follows>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</follows>
+static class OptionsClassReader
+{
+    /// <summary>Reads every marked options class under the .NET source roots.</summary>
+    public static IReadOnlyList<OptionsClass> Read(ConsumerConfig config)
+    {
+        var files = new List<string>();
+
+        foreach (var root in new[] { config.ApplicationRoot, config.ApplicationRoot + ".Abstractions", config.DomainRoot, config.WebApiRoot, config.InfrastructureRoot })
+        {
+            files.AddRange(SourceTree.Files(root, ".cs"));
+        }
+
+        var found = new List<OptionsClass>();
+
+        foreach (var file in files)
+        {
+            ReadFile(file, found);
+        }
+
+        found.Sort((left, right) =>
+        {
+            var path = string.Compare(left.File, right.File, StringComparison.Ordinal);
+
+            return path != 0 ? path : left.Line.CompareTo(right.Line);
+        });
+
+        return found;
+    }
+
+    private static void ReadFile(string file, List<OptionsClass> found)
+    {
+        SyntaxTree tree;
+
+        try
+        {
+            tree = CSharpSyntaxTree.ParseText(File.ReadAllText(file), new CSharpParseOptions(LanguageVersion.Preview), file);
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+        {
+            return;
+        }
+
+        foreach (var type in tree.GetRoot().DescendantNodes().OfType<TypeDeclarationSyntax>())
+        {
+            var settings = MarkReader.Read(type)
+                .Where(mark => mark.Verb == MarkVerb.Implements
+                    && mark.RecordId.StartsWith("setting/", StringComparison.Ordinal)
+                    && mark.RecordId.Length > "setting/".Length)
+                .Select(mark => mark.RecordId)
+                .Distinct(StringComparer.Ordinal)
+                .Order(StringComparer.Ordinal)
+                .ToList();
+
+            if (settings.Count == 0)
+            {
+                continue;
+            }
+
+            found.Add(new OptionsClass(
+                type.Identifier.ValueText,
+                file,
+                tree.GetLineSpan(type.Identifier.Span).StartLinePosition.Line + 1,
+                SectionNameOf(type),
+                PropertiesOf(type),
+                settings));
+        }
+    }
+
+    /// <summary>The <c>SectionName</c> constant value, or null when the class declares none.</summary>
+    private static string? SectionNameOf(TypeDeclarationSyntax type)
+    {
+        foreach (var field in type.Members.OfType<FieldDeclarationSyntax>())
+        {
+            if (!field.Modifiers.Any(modifier => modifier.IsKind(SyntaxKind.ConstKeyword)))
+            {
+                continue;
+            }
+
+            foreach (var variable in field.Declaration.Variables)
+            {
+                if (variable.Identifier.ValueText == "SectionName"
+                    && variable.Initializer?.Value is LiteralExpressionSyntax literal
+                    && literal.Token.Value is string value)
+                {
+                    return value;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /// <summary>The instance property names, in document order.</summary>
+    private static IReadOnlyList<string> PropertiesOf(TypeDeclarationSyntax type) =>
+        type.Members
+            .OfType<PropertyDeclarationSyntax>()
+            .Where(property => !property.Modifiers.Any(modifier => modifier.IsKind(SyntaxKind.StaticKeyword)))
+            .Select(property => property.Identifier.ValueText)
+            .ToList();
+}

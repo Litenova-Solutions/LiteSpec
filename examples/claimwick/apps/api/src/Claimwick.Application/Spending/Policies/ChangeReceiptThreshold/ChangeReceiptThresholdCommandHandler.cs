@@ -1,4 +1,4 @@
-using Claimwick.Domain;
+using Claimwick.Domain.Shared;
 using Claimwick.Domain.Spending.Policies;
 using LiteBus.Commands.Abstractions;
 

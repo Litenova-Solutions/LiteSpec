@@ -79,7 +79,7 @@ The suite discovers its routes from the application route definition rather than
 
 ### Result Proof
 
-A route calls use cases, and each use case declares its results. A test proves each result as [Frontend Testing](testing.md) states; proof follows the route code, so the calls a route makes name the results that need proof. Every result a route calls is therefore proved by a passing test, or named by a known-gap record with an owner and an end date.
+A screen's computed `calls` name the use cases it reaches, and each use case declares its results. The one result obligation for a screen is `litespec/core/behavior#show-every-refusal-a-screen-can-reach`: every refusal a screen can reach through its computed `calls` has a dictionary sentence or a browser test asserting its code. Success results are proved through their scenarios as [Frontend Testing](testing.md) states.
 
 ## Standards
 
@@ -264,13 +264,13 @@ A route calls use cases, and each use case declares its results. A test proves e
 
 **ID:** `litespec/frontend/ui#prove-every-result-a-route-calls`
 
-**Statement:** Every result a called use case returns MUST be proved by a passing test or a known-gap record with owner and end date.
+**Statement:** Every refusal a screen can reach through its computed `calls` MUST be shown as `litespec/core/behavior#show-every-refusal-a-screen-can-reach` states.
 
-**Rationale:** A refusal a reader can reach and no test provokes is a refusal nobody sees render: it ships unshown and breaks unnoticed. Proving every result a called use case returns, by a passing test or a known-gap record with owner and end date, ties each reachable outcome to evidence or to named missing work. The calls come from the route code, so the obligation follows the code rather than a declaration.
+**Rationale:** That Behavior provision is the one result obligation for a screen: a sentence in the frontend's refusal dictionary or a browser test asserting the code, checked by `result-unshown`. Stating it again for routes would give one obligation two scopes and two verifications. The screen's computed `calls`, not a route's declared calls, name the refusals in scope, and success results stay proved through their scenarios.
 
-**Example:** A test calls the use case and asserts one refusal result.
+**Example:** The expense form's screen reaches `spending.receipt-missing` through its computed `calls`, and that refusal has a sentence in the Claimwick web dictionary.
 
-**Reviewed for:** Results called from route code are proved by passing tests or named by known-gap records with owner and end date. Look in the route call sites, the test runs, and the known-gap records.
+**Checked by:** `litespec model check` reports `result-unshown` (tier A) for a refusal reachable through a screen's computed `calls` with neither a dictionary sentence nor a browser test asserting its code.
 
 ### Restrict Styling to Semantic Tokens
 

@@ -68,6 +68,7 @@ A consumer page is a record or one of these styles. Each one opens with the spec
 | external-system | `templates/consumer/external-system.md` | Summary |
 | permission-list | `templates/consumer/permission-list.md` | Entries only |
 | entry-point-list | `templates/consumer/entry-point-list.md` | Entries only |
+| screen | `templates/consumer/screen.md` | Summary |
 | setting-set | `templates/consumer/setting-set.md` | Entries only |
 | reaction | `templates/consumer/reaction.md` | Goal, optional Example, optional Notes |
 | job | `templates/consumer/job.md` | Goal, optional Example, optional Notes |

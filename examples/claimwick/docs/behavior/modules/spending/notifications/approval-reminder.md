@@ -14,12 +14,15 @@
   ],
   "consent": "Managers accept reminders with the approver role.",
   "frequency": "once",
+  "params": [
+    "submitterName"
+  ],
   "fulfills": [
     "requirement/approval.decided-within-five-days"
   ],
   "approvedBy": "claimwick-team",
   "approvedOn": "2026-10-01",
-  "approvedHash": "72bf1db3"
+  "approvedHash": "a4618487"
 }
 ---
 

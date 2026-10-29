@@ -60,18 +60,41 @@ The generated route artifacts, build output, and dependency folders stay untrack
 
 **Statement:** A frontend use-case folder MUST export one `litespec` constant whose `implements` names its use case, typed against the generated union of use-case identifiers.
 
-**Rationale:** The folder path mirrors the backend use case, which tells a reader where to look but tells a tool only a resemblance. A typed constant is the frontend mark in both mark styles: a mistyped identifier fails the type check, and the route files import the module instead of restating the identifier. The calls a screen makes through the generated client remain the computed `calls` link; the mark adds the written link from the screen to the use case it serves.
+**Rationale:** The folder path mirrors the backend use case, which tells a reader where to look but tells a tool only a resemblance. A typed constant is the frontend mark in both mark styles: a mistyped identifier fails the type check, and the route files import the module instead of restating the identifier. The calls a screen makes through the generated client remain the computed `calls` link; the mark adds the written link from the screen to the use case it serves. A query folder at `{module}/reads/{use-case}/` mirrors a use case with no one aggregate, so its expected mark still names `use-case/<module>.<use-case>`, from the module and use-case segments alone.
 
 **Example:** The submit-expense module in the Claimwick web frontend exports its mark.
 
+Svelte:
+
 ```ts
-// modules/spending/expenses/submit-expense/litespec.ts
-import type { LiteSpecMark } from "$lib/litespec-records";
+// src/lib/modules/spending/expenses/submit-expense/litespec.ts
+import type { LiteSpecMark } from "$lib/app/litespec-records";
 
 export const litespec = { implements: "use-case/spending.submit-expense" } as const satisfies LiteSpecMark;
 ```
 
-**Checked by:** `litespec model check` reports `mark-missing` (tier S) for a use-case folder exporting no `litespec` constant, and `mark-unresolved` (tier S) for one naming a use case its path does not mirror.
+React:
+
+```ts
+// src/modules/spending/expenses/submit-expense/litespec.ts
+import type { LiteSpecMark } from "src/app/litespec-records";
+
+export const litespec = { implements: "use-case/spending.submit-expense" } as const satisfies LiteSpecMark;
+```
+
+**Checked by:** `litespec model check` reports `mark-missing` (tier S) for a use-case folder exporting no `litespec` constant, and `mark-unresolved` (tier S) for one naming a use case its path does not mirror; for a folder at `{module}/reads/{use-case}/` the mirrored use case is the one its module and use-case segments name, with no aggregate segment.
+
+### Generate the Records File into the Frame
+
+**ID:** `litespec/frontend/web/structure#generate-the-records-file-into-the-frame`
+
+**Statement:** A frontend's generated `litespec-records.ts` MUST sit in its frame folder and hold only the use cases and screens of that frontend's own entry points.
+
+**Rationale:** The records file is a cross-route value every module and route imports, which is what the frame holds on both stacks: `src/app/` on React and `src/lib/app/` on Svelte, so no stack-specific folder is needed. A union holding every browser use case of the project would let one frontend mark a use case only another frontend reaches, and the type check would pass; a union per frontend makes that mistake a type error. The file exports the `UseCaseId` and `ScreenId` unions, the `LiteSpecMark` type, and the `proves` helper browser tests annotate with.
+
+**Example:** `litespec model build` writes `apps/web/src/lib/app/litespec-records.ts` for the Claimwick web frontend, whose `UseCaseId` holds the use cases its entry point reaches and nothing else.
+
+**Checked by:** `litespec model build` writes each frontend's file into its frame from its own entry points, and `litespec model check` reports `mark-unresolved` (tier S) for a mark naming a use case or screen outside its frontend's entry points.
 
 ### Refuse Stack-Specific Folder Names
 

@@ -1,3 +1,5 @@
+using Claimwick.Domain.Shared;
+
 namespace Claimwick.Domain.Spending.Expenses.Exceptions;
 
 /// <summary>An expense above the receipt threshold carries no receipt.</summary>

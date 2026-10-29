@@ -55,13 +55,24 @@
         "@claimwick/ui/expenses"
       ]
     },
-    "records": {}
+    "records": {},
+    "alerts": [
+      "deploy/alerts"
+    ],
+    "operations": [
+      "deploy/Caddyfile"
+    ],
+    "sbom": [
+      "docs/proof/sbom"
+    ]
   },
   "stackConfig": {
     "dotnet": {
       "application": "apps/api/src/Claimwick.Application",
       "domain": "apps/api/src/Claimwick.Domain",
-      "webapi": "apps/api/src/Claimwick.WebApi"
+      "webapi": "apps/api/src/Claimwick.WebApi",
+      "sharedKernel": "apps/api/src/Claimwick.Domain/Shared",
+      "templateStore": "apps/api/src/Claimwick.Application/Spending/MessageTemplates.cs"
     }
   },
   "selectedExtensions": [],
@@ -71,6 +82,13 @@
       "erase",
       "reimburse",
       "submit"
+    ]
+  },
+  "dependencies": {
+    "licences": [
+      "MIT",
+      "Apache-2.0",
+      "BSD-3-Clause"
     ]
   }
 }

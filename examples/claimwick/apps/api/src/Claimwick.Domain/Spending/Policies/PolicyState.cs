@@ -1,3 +1,5 @@
+using Claimwick.Domain.Shared;
+
 namespace Claimwick.Domain.Spending.Policies;
 
 /// <summary>One lifecycle state of the spending policy.</summary>

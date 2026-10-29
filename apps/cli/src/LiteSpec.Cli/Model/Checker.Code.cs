@@ -30,6 +30,7 @@ static class CodeChecks
         CheckEventTenseMismatch(model, findings);
         CheckNameDriftAcrossLayers(model, findings);
         CheckOperationIdDuplicate(model, findings);
+        CheckOperationUseCaseMismatch(model, findings);
         CheckRouteShape(model, findings);
         CheckReasonlessName(model, findings);
         CheckCollaboratorHoldsRepository(model, findings);
@@ -845,6 +846,138 @@ static class CodeChecks
                     endpoint.File,
                     endpoint.Line,
                     endpoint.UseCaseId));
+            }
+        }
+    }
+
+    /// <summary>The HTTP method keys a path item holds; other keys carry parameters, not operations.</summary>
+    private static readonly HashSet<string> ContractMethods = new(StringComparer.Ordinal)
+    {
+        "get", "put", "post", "delete", "options", "head", "patch", "trace",
+    };
+
+    /// <summary>Reports a published operation whose use-case extension is missing or names another use case.</summary>
+    private static void CheckOperationUseCaseMismatch(ProjectModel model, List<Finding> findings)
+    {
+        var contract = model.Config.ContractPath;
+
+        if (string.IsNullOrEmpty(contract))
+        {
+            return;
+        }
+
+        var uses = new Dictionary<string, SortedSet<string>>(StringComparer.Ordinal);
+
+        foreach (var endpoint in model.Code.Endpoints)
+        {
+            if (endpoint.Operation.Length == 0 || endpoint.UseCaseId.Length == 0)
+            {
+                continue;
+            }
+
+            if (!uses.TryGetValue(endpoint.Operation, out var set))
+            {
+                set = new SortedSet<string>(StringComparer.Ordinal);
+                uses[endpoint.Operation] = set;
+            }
+
+            set.Add(endpoint.UseCaseId);
+        }
+
+        JsonDocument document;
+
+        try
+        {
+            document = JsonDocument.Parse(File.ReadAllBytes(contract));
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or JsonException)
+        {
+            var detail = exception.Message.Trim().TrimEnd('.');
+
+            findings.Add(CodeFinding(
+                "operation-use-case-mismatch",
+                $"Contract '{model.Config.Relative(contract)}' could not be read: {(detail.Length > 0 ? detail : "an unknown error")}.",
+                contract,
+                1,
+                null));
+            return;
+        }
+
+        using (document)
+        {
+            if (document.RootElement.ValueKind != JsonValueKind.Object)
+            {
+                findings.Add(CodeFinding(
+                    "operation-use-case-mismatch",
+                    $"Contract '{model.Config.Relative(contract)}' could not be read: the document is not an object.",
+                    contract,
+                    1,
+                    null));
+                return;
+            }
+
+            if (!document.RootElement.TryGetProperty("paths", out var paths))
+            {
+                return;
+            }
+
+            if (paths.ValueKind != JsonValueKind.Object)
+            {
+                findings.Add(CodeFinding(
+                    "operation-use-case-mismatch",
+                    $"Contract '{model.Config.Relative(contract)}' could not be read: the 'paths' value is not an object.",
+                    contract,
+                    1,
+                    null));
+                return;
+            }
+
+            foreach (var pathItem in paths.EnumerateObject())
+            {
+                if (pathItem.Value.ValueKind != JsonValueKind.Object)
+                {
+                    continue;
+                }
+
+                foreach (var method in pathItem.Value.EnumerateObject())
+                {
+                    if (!ContractMethods.Contains(method.Name)
+                        || method.Value.ValueKind != JsonValueKind.Object
+                        || !method.Value.TryGetProperty("operationId", out var named)
+                        || named.ValueKind != JsonValueKind.String
+                        || named.GetString() is not { Length: > 0 } operationId
+                        || !uses.TryGetValue(operationId, out var useCases))
+                    {
+                        continue;
+                    }
+
+                    var extension = method.Value.TryGetProperty("x-litespec-use-case", out var carried)
+                        && carried.ValueKind == JsonValueKind.String
+                            ? carried.GetString()
+                            : null;
+
+                    foreach (var useCase in useCases)
+                    {
+                        if (extension is null)
+                        {
+                            findings.Add(CodeFinding(
+                                "operation-use-case-mismatch",
+                                $"Operation '{operationId}' carries no x-litespec-use-case; its endpoint implements '{useCase}'.",
+                                contract,
+                                1,
+                                useCase));
+                        }
+                        else if (!string.Equals(extension, useCase, StringComparison.Ordinal))
+                        {
+                            findings.Add(CodeFinding(
+                                "operation-use-case-mismatch",
+                                $"Operation '{operationId}' names '{extension}' in x-litespec-use-case, but its endpoint implements '{useCase}'.",
+                                contract,
+                                1,
+                                useCase));
+                        }
+                    }
+                }
             }
         }
     }

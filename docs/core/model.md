@@ -52,6 +52,7 @@ Each type answers one question.
 | `role` | behavior | Which permission sets exist? |
 | `permission` | behavior | Which single actions are allowed? |
 | `entry-point` | behavior | How do people reach the product? |
+| `screen` | behavior | Which page does a person see through an entry point, and what does it offer? |
 | `external-system` | behavior | Which outside system exchanges what? |
 | `runbook` | behavior | How is it run or recovered? |
 | `deviation` | any | Where does it depart, and until when? |
@@ -69,7 +70,7 @@ A consumer keeps its documentation in one folder per record layer, so the folder
 | Folder | Record layer | Holds |
 |:---|:---|:---|
 | `docs/intent/` | Intent | The brief, goals, problems, features, requirement pages by area, constraints, decisions, journeys, actors, research, and the product documents the business publishes, such as legal texts and the writing voice |
-| `docs/behavior/` | Behavior | Modules with their aggregates, use cases, reactions, jobs, notifications and settings; rule pages; access (roles, permissions, entry points); external systems; integration events; the retention schedule; runbooks and operating procedures |
+| `docs/behavior/` | Behavior | Modules with their aggregates, use cases, reactions, jobs, notifications and settings; rule pages; access (roles, permissions, entry points); screens, one page per screen under `screens/`; external systems; integration events; the retention schedule; runbooks and operating procedures |
 | `docs/implementation/` | Implementation | The technical decisions under `decisions/`, and guides for people working in the code: frontend architecture, the command reference, the published API guide, and setup guides. The guides describe code and hold no records |
 | `docs/proof/` | Proof | Evidence the tools compute or a run leaves behind: generated registers, gate files, and operating logs. No person writes a fact here that a tool can compute |
 | `docs/governance/` | Governance | Deviations and known gaps, which can attach to any record layer |
@@ -107,6 +108,7 @@ A page record is a Markdown file whose opening block names a record type. An ent
 | `role` | page | `docs/behavior/access/roles/<name>.md` |
 | `permission` | entry | `docs/behavior/access/permissions.md` |
 | `entry-point` | entry | `docs/behavior/access/entry-points.md` |
+| `screen` | page | `docs/behavior/screens/<entry-point>.<name>.md` |
 | `external-system` | page | `docs/behavior/external-systems/<name>.md` |
 | `runbook` | page | `docs/behavior/runbooks/<name>.md` |
 | `deviation` | page | `docs/governance/deviations/<name>.md` |
@@ -144,13 +146,14 @@ An identifier names its record type first, then the record name, with the owning
 | `role` | `role/<name>` | `role/approver` |
 | `permission` | `permission/<name>` | `permission/approve-expense` |
 | `entry-point` | `entry-point/<name>` | `entry-point/claimwick-app` |
+| `screen` | `screen/<entry-point>.<name>` | `screen/claimwick-app.expense-list` |
 | `external-system` | `external-system/<name>` | `external-system/payout-bank` |
 | `runbook` | `runbook/<name>` | `runbook/clear-stuck-reimbursements` |
 | `deviation` | `deviation/<name>` | `deviation/export-review-bypass` |
 | `known-gap` | `known-gap/<name>` | `known-gap/export-expenses-unimplemented` |
 | `term` | `term/<name>` | `term/expense` |
 
-A rule home is an aggregate name or a module name. A use case name is unique across the project, so a result cites only that name. An aggregate name is unique across the project, so a rule cites only that name. A reaction, job, notification, or setting is filed with its module, and an integration event belongs to the published set. A rule name keeps the negation its statement makes. Every identifier citation resolves to a written record.
+A screen's `<name>` follows the same one-to-six-word rule as every other name; its `<entry-point>` is the name of the entry point it belongs to. A rule home is an aggregate name or a module name. A use case name is unique across the project, so a result cites only that name. An aggregate name is unique across the project, so a rule cites only that name. A reaction, job, notification, or setting is filed with its module, and an integration event belongs to the published set. A rule name keeps the negation its statement makes. Every identifier citation resolves to a written record.
 
 A journey step id is `journey/<name>#<step-id>`, with step ids `s1`, `s2`, and so on. A derived generic result is `result/<module>.<use-case>.forbidden` or `result/<module>.<use-case>.invalid-input`. Scenarios can point at derived results. Derived results are never written as records.
 
@@ -197,6 +200,12 @@ Each written link lives as a field on the record it starts from: a decision carr
 | `raises` | use case | Events |
 | `access.grant` | use case | A permission, a self scope, anonymous, or system |
 | `reachedThrough` | use case | Entry points |
+| `entryPoint` | screen | The one browser or device entry point it belongs to |
+| `address` | screen | The route template it serves; a screen carries `address` or `host`, never both |
+| `host` | screen | The screen an overlay with no address of its own opens on; a screen carries `address` or `host`, never both |
+| `offers` | screen | The use cases a person can start from it |
+| `serves` | screen | The journey steps it carries a person through |
+| `floorplan` | screen | The floorplan it composes |
 | `changes` | use case | Aggregates |
 | `reads` | use case, reaction, job | Aggregates |
 | `effects` | use case, reaction, job | Use cases, notifications, integration events, external system operations |
@@ -217,7 +226,7 @@ Containment needs no link field: it follows the identifier. An aggregate belongs
 
 ### Marks
 
-A mark is the one written link from a code element to the record it serves. It holds the record identifier, and every tool reads it the same way: the model builder and the analyzers. A folder path stays the map a reader follows through the code, and it is never the link.
+A mark is the one written link from a code element to the record it serves. It holds the record identifier, and every tool reads it the same way: the model builder and the analyzers. A folder path stays the map a reader follows through the code, and it is never the link, except for a Domain constituent type, which takes no mark and belongs to the aggregate whose folder holds it (`litespec/backend/domain#place-every-constituent-type-in-its-aggregates-folder`).
 
 | Record layer the code serves | Code element | Mark names |
 |:--|:--|:--|
@@ -226,6 +235,7 @@ A mark is the one written link from a code element to the record it serves. It h
 | Domain | Domain event | `event/<aggregate>.<fact>` |
 | Domain | Refusal type for one rejected rule | `rule/<home>.<name>` |
 | Domain | Domain service holding one rule calculation | `rule/<home>.<name>` |
+| Domain | Constituent type: identifier, state type, closed set, child entity, value object, repository interface | No mark: the builder derives its aggregate from its folder |
 | Application | Command or query handler | `use-case/<module>.<name>`, exactly one |
 | Application | Event handler | `reaction/<module>.<name>` |
 | Application or Infrastructure | Job host | `job/<module>.<name>` |
@@ -233,8 +243,11 @@ A mark is the one written link from a code element to the record it serves. It h
 | Infrastructure | Adapter implementing that port | `external-system/<name>` |
 | API | Endpoint | `use-case/<module>.<name>` |
 | Frontend | Use-case module | `use-case/<module>.<name>` |
+| Frontend | Route entry: a web route file, a Blazor `@page` component, or an Android destination activity or fragment class | `screen/<entry-point>.<name>`, exactly one |
+| Operations | Deployment, proxy, host, or CI workflow file listed in `paths.operations` | One or more `follows` marks in the file's `#` comments, such as `# <follows>decision/<number>-<name></follows>` |
+| Operations | Alert rule in a file listed in `paths.alerts` | A `requirement` label naming a quality requirement and a `runbook` label naming a runbook |
 | Tests | Test | The lowest record it verifies: `scenario/<use-case>.<name>` or `rule/<home>.<name>` for behavior; `requirement/<topic>.<name>` of kind quality; `decision/<number>-<name>` for a technical choice; `external-system/<name>` or `integration-event/<name>` for an outside agreement; `litespec/<page>#<slug>` for a provision the code must keep |
-| Application, Infrastructure or API | Technical class: a class that declares a method and takes no other mark | One or more: a Behavior record it serves in an `implements` mark, or `litespec/<page>#<slug>`, `decision/<number>-<name>` or `deviation/<name>` in a `follows` mark |
+| Application, Infrastructure or API | Technical class: a class that declares a method, or an options class that binds a setting, and takes no other mark | One or more: a Behavior record it serves in an `implements` mark, or `litespec/<page>#<slug>`, `decision/<number>-<name>` or `deviation/<name>` in a `follows` mark |
 
 A code element serving a record names it in an `implements` mark. A technical class names the record it serves in an `implements` mark, as an input validator names its use case and a repository its aggregate. Where it serves no record, it names the reason it is built the way it is in a `follows` mark: the LiteSpec provision that requires its shape, the technical decision that chose it, or the deviation that allows it. Any other code element may carry a `follows` mark as well.
 
@@ -242,7 +255,7 @@ The tools recognize most code elements from the code itself and then expect thei
 
 Six provisions divide the marks between them: `litespec/core/system#point-code-and-tests-up-to-records` requires the mark, `litespec/core/system#point-every-technical-class-up-to-its-record-or-choice` covers technical classes, `litespec/core/model#declare-one-mark-style` fixes the style, `litespec/core/model#implement-each-mapped-behavior-record-behind-a-mark` checks each mapped record from the top, `litespec/core/model#name-the-lowest-record-each-test-proves` sets what a test names, and `litespec/backend/testing#mark-the-test-that-proves-each-scenario` places the test mark.
 
-A project writes its marks in one mark style, declared as `marks` in `litespec.project.json`. Each stack page states the forms the style takes: the .NET stack writes an `xml` mark as a documentation tag and an `attribute` mark as a generated attribute, and a frontend writes a typed constant in either style. A runtime value a record already states, such as an event classification or a refusal code, is generated from the mark and the record where the stack generates code, and checked against the record where a person writes it.
+A project writes its marks in one mark style, declared as `marks` in `litespec.project.json`. Each stack page states the forms the style takes: the .NET stack writes an `xml` mark as a documentation tag and an `attribute` mark as a generated attribute, and a frontend writes a typed constant in either style. A browser test carries its `proves` mark as a test annotation built by the `proves` helper the generated records file exports. A runtime value a record already states, such as an event classification or a refusal code, is generated from the mark and the record where the stack generates code, and checked against the record where a person writes it.
 
 ### Authority
 
@@ -278,6 +291,7 @@ Implemented, verified, stale, and reachable are computed, never handwritten. The
 | verified | requirement | everything fulfilling it is verified, and a measured requirement measure has a passing check |
 | stale | scenario proof | the scenario semantic hash differs from the hash the builder recorded when it first read a passing run of the proof |
 | reachable | aggregate state | a transition leads into it |
+| exercised | journey step | a passing test proved a scenario of a use case that serves the step |
 
 The builder also writes each record effective status: draft when the record, a decision deciding it, or a requirement it fulfills is a draft. A result or a scenario takes its use case effective status.
 
@@ -318,8 +332,10 @@ Every check has a tier.
 | Tier | Meaning |
 |:--|:--|
 | G | Reads records only. Always blocks. |
-| S | Reads code through a stack reader. Blocks where the stack reader is qualified (.NET today), and reports otherwise. |
+| S | Reads code through a stack reader. Blocks where the reader that produced the finding is qualified, and reports otherwise. |
 | A | Advisory. Reports and never blocks. |
+
+Qualification is per reader, never global: a finding takes the qualification of the reader that produced its facts. The TypeScript reader qualifies once its golden corpus passes and its handshake matches; the .NET (Roslyn) reader, including the Blazor and Android screens it reads, stays qualified. An S finding from an unqualified reader reports without blocking even when another reader in the same project is qualified.
 
 `litespec model check` prints the tier beside each finding.
 
@@ -436,9 +452,9 @@ Field tables render as tables. Scenarios group under their result. Field names n
 
 **Statement:** Every journey step MUST have a serving use case.
 
-**Rationale:** A step no use case serves promises a moment the product never builds. Use cases point up with serves, so each step id collects the behaviors that carry the walker through it. `step-unserved` fails a step with no serving use case.
+**Rationale:** A step no use case serves promises a moment the product never builds. Use cases point up with serves, so each step id collects the behaviors that carry the walker through it. `step-unserved` fails a step with no serving use case. The pair sits side by side: `step-unserved` names a step no use case serves, and `step-unscreened` names a step a browser or device use case serves that no screen serves.
 
-**Checked by:** `litespec model check` reports `step-unserved` for a journey step with no serving use case.
+**Checked by:** `litespec model check` reports `step-unserved` for a journey step with no serving use case, beside `step-unscreened` for a step a browser or device use case serves that no screen serves.
 
 ### Follow the Authority Order
 

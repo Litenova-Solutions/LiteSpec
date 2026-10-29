@@ -117,6 +117,14 @@ What each field means and what reads it:
 - `securityReviewer` is the owner name holding the security reviewer role. The behavior diff lists the security queue for this reviewer: changes widening access tenant scope to cross, new `calls` effects, and new personal or sensitive data classes. `litespec model check` reports a name the owners list does not hold.
 - `sampleShare` is the share of a tier 3 batch that `litespec model approve --batch` samples, drawn from the records with the lowest semantic hashes and at least one record. The batch manifest records the sample.
 
+### The `dependencies` Object
+
+| Field | Type | Required | Default |
+|:---|:---|:---|:---|
+| `licences` | array of strings | no | none |
+
+- `licences` lists the SPDX licence identifiers the project accepts, such as `MIT` and `Apache-2.0`. A shipped package under any other licence needs an admitting decision that names it.
+
 ### The `check` Object
 
 | Field | Type | Required | Default |
@@ -190,6 +198,11 @@ What each field means and what reads it:
 | `records` | object | no | none |
 | `testRoots` | array of string | no | none |
 | `testResults` | string | no | `TestResults` |
+| `contract` | string | no | none |
+| `alerts` | array of strings | no | none |
+| `operations` | array of strings | no | none |
+| `checkResults` | string | no | `docs/proof/checks` |
+| `sbom` | array of strings | no | none |
 | `apiClient` | string | no | `packages/api` |
 | `surfaces` | array of object | no | none |
 | `uiDocs` | string | yes | none |
@@ -208,6 +221,11 @@ What each field means and what reads it:
 - `records` maps a record type to its home folder where it differs from the default the model states. Keys come from the closed list `product`, `goal`, `constraint`, `research`, `decision`, `requirement`, `problem`, `feature`, `actor`, `role`, `permission`, `journey`, `module`, `aggregate`, `rule`, `use-case`, `result`, `scenario`, `event`, `entry-point`, `external-system`, `reaction`, `job`, `notification`, `setting`, `integration-event`, `runbook`, `deviation`, `known-gap`, and `term`.
 - `testRoots` lists the directories that hold automated test source. The model builder reads scenarios from these roots.
 - `testResults` names where the latest test run results live, so passing and failing proof is read from them.
+- `contract` names the committed OpenAPI document, so `litespec model check` compares each operation's `x-litespec-use-case` with its endpoint's mark.
+- `alerts` names the alert rule files or folders, in the YAML shape Prometheus rule files and Grafana alert provisioning share, so each rule's `requirement` and `runbook` labels are checked and the alert inventory is rendered from them.
+- `operations` names the deployment, proxy, host, and CI workflow files or folders that carry `follows` marks in their `#` comments; below a named folder every file counts except Markdown documentation.
+- `checkResults` names where drill and harness check results live, read beside the measured-check results under `testResults`.
+- `sbom` names the bill of materials files or folders, SPDX or CycloneDX JSON, checked against the manifest pins, the admissions, and `dependencies.licences`.
 - `apiClient` names the generated API client the frontends import, so route calls resolve to the use cases they reach. The model builder appends `src` to the configured path.
 - `surfaces` names the surfaces outside `paths.frontends` that invoke a use case: a command-line tool, a distributed server, a background host, or an event reaction. Each entry holds `name`, `description`, and an optional `path`.
 - `uiPackage` declares the one shared UI package of the workspace. A workspace with no controlled web frontend omits it. See the `uiPackage` object below.
@@ -225,12 +243,14 @@ What each field means and what reads it:
 | `webapi` | string | no | `apps/api/src/*.WebApi` |
 | `apiSolution` | string | no | none |
 | `sharedKernel` | string | no | none |
+| `templateStore` | string | no | none |
 
 What each field means and what reads it:
 
 - `application`, `domain`, `infrastructure`, and `webapi` name the backend projects the model builder reads. A `*` in one segment expands to the first matching folder.
 - `apiSolution` names the API solution the model builder reads. A consumer with no backend omits `apiSolution` and records the decision that it has none.
 - `sharedKernel` names the one folder holding the domain shared kernel, where reasonless names are allowed. When omitted, no folder is exempt and `litespec model check` reports `reasonless-name` for every reasonless folder or type.
+- `templateStore` names the one C# file holding the notification template store: its top-level dictionary keys are the template keys, and its texts write parameters as `{{PascalCaseName}}`. When omitted, the template checks stay silent.
 
 ### The `uiPackage` Object
 
@@ -259,6 +279,9 @@ What each field means and what reads it:
 | `name` | string | yes | none |
 | `path` | string | yes | none |
 | `platform` | string | yes | none |
+| `refusalDictionary` | string | no | none |
+| `routeSuite` | string | no | none |
+| `visualGoldens` | string | no | none |
 | `ui` | object | no | none |
 
 What each field means and what reads it:
@@ -266,6 +289,9 @@ What each field means and what reads it:
 - `name` is the frontend name, such as `"web"`. It matches `^[a-z][a-z0-9-]*$`.
 - `path` is the frontend directory, such as `"apps/web"`. `litespec consumer` reports a frontend whose directory does not exist.
 - `platform` is `react`, `svelte`, `blazor`, or `android`. Every entry declares it, so a frontend outside the controlled UI contract still declares that position instead of omitting the field. A `react` or `svelte` frontend is controlled and requires a `ui` block and the shared package. A `blazor` or `android` frontend is skipped by the controlled UI check.
+- `refusalDictionary` names the file or folder holding that frontend's refusal dictionary: one sentence per refusal code, keyed by the refusal `code`. The model builder reads it for `result-unshown`, so a refusal a screen can reach is shown from that frontend's own words.
+- `routeSuite` names the file or folder holding that frontend's route suite. The model builder reads it for the route-suite `proves` check, so the suite has a named subject instead of a convention.
+- `visualGoldens` names the folder holding that frontend's visual goldens. The model builder reads it for the same check, so a golden outside the named folder proves nothing.
 - `ui` holds `profile`, which is required, and `globalCss`, which is optional. The profile is one of `public-light`, `application-balanced`, or `admin-dense`. The `globalCss` value is the one stylesheet the frontend declares, and it imports the shared package tokens. `litespec ui` checks the profile value and the stylesheet path.
 
 ### A `sites` Entry

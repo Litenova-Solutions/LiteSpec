@@ -1,0 +1,102 @@
+{
+  "spdxVersion": "SPDX-2.3",
+  "dataLicense": "CC0-1.0",
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "name": "claimwick-api",
+  "documentNamespace": "https://claimwick.example/sbom/api-2026-10-29",
+  "creationInfo": {
+    "created": "2026-10-29T00:00:00Z",
+    "creators": [
+      "Tool: claimwick-ci"
+    ]
+  },
+  "packages": [
+    {
+      "SPDXID": "SPDXRef-Package-Claimwick-WebApi",
+      "name": "Claimwick.WebApi",
+      "versionInfo": "1.0.0",
+      "supplier": "Organization: Claimwick",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "SPDXID": "SPDXRef-Package-Marten",
+      "name": "Marten",
+      "versionInfo": "9.50.1",
+      "supplier": "Organization: Marten",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "MIT",
+      "copyrightText": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:nuget/Marten@9.50.1"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-Logging-Abstractions",
+      "name": "Microsoft.Extensions.Logging.Abstractions",
+      "versionInfo": "10.0.13",
+      "supplier": "Organization: Microsoft",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "MIT",
+      "copyrightText": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:nuget/Microsoft.Extensions.Logging.Abstractions@10.0.13"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-PdfSharp",
+      "name": "PdfSharp",
+      "versionInfo": "6.2.0",
+      "supplier": "Organization: PdfSharp",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "MIT",
+      "copyrightText": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:nuget/PdfSharp@6.2.0"
+        }
+      ]
+    }
+  ],
+  "relationships": [
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-Package-Claimwick-WebApi"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-Claimwick-WebApi",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-Marten"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-Claimwick-WebApi",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-Logging-Abstractions"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-Claimwick-WebApi",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-PdfSharp"
+    }
+  ]
+}

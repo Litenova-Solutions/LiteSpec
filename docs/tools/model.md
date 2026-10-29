@@ -21,7 +21,7 @@ litespec model diff <base> [--root <consumer>] [--format text|markdown|json] [--
 
 ## Description
 
-The model builder reads the written records, the code marks, the routes, the tests, and the latest test run. It writes `model.json` with every record and its resolved links. The file names the code, screens, tests, and test runs it read. It adds the computed `implements`, `calls`, and `proves` links, the computed `implemented`, `verified`, `stale`, and `reachable` state of each record, and the effective status of each record. Computed states are never written on a record; they appear in the book and the model output only.
+The model builder reads the written records, the code marks, the routes, the tests, and the latest test run. It writes `model.json` with every record and its resolved links. The file names the code, screens, tests, and test runs it read. It adds the computed `implements`, `calls`, and `proves` links, the computed `implemented`, `verified`, `stale`, and `reachable` state of each record, and the effective status of each record. Computed states are never written on a record; they appear in the book and the model output only. The output also lists each unmarked Domain constituent type under the aggregate whose folder holds it, or under `kernel`, in `constituents`.
 
 A proof goes stale when its scenario changes after the proof passed. The first time the builder reads a passing run of a scenario's proof, it records the scenario semantic hash and the run's date in `.model/proofs.json`, beside `model.json`. On every later build against the same run, a scenario whose semantic hash differs from the recorded one has a stale proof, and a stale proof verifies nothing until a newer passing run is read. Run the model check after the test run, in the same job, so the hash is recorded before a record changes.
 
@@ -31,7 +31,7 @@ A proof goes stale when its scenario changes after the proof passed. The first t
 
 `approve --batch` approves one batch. It promotes each draft in the batch, Intent and governance records to `approved` and Behavior records to `reviewed`, writes `approvedBy` from `--by`, `approvedOn`, and `approvedHash`, re-stamps each reopened record, and leaves a record already approved with an unchanged hash as it is. A `decision/` batch promotes the decision first, then the records it decides in authority order. It refuses the whole batch, writes nothing, and exits 1 when a guard fails: no `--by` naming an owner, a tier 1 record and no `--second-reviewer` other than the approver, a record with an open question, or a record whose effective status would stay draft. Each refusal names the record and the guard. On success it writes the manifest `docs/proof/approvals/<YYYY-MM-DD>-<selector>.json`, the selector with every `/`, `.`, and `:` replaced by `-`, and `-2`, `-3` and so on appended when a manifest of that name exists. The manifest holds `selector`, `approvedBy`, `secondReviewer`, `reviewReport`, `approvedOn`, `sampleShare`, `sample` (the sampled ids, tier 3 only), and `records`, each with `id`, `type`, `tier`, `action` (`promoted`, `re-stamped`, or `held`), `hash`, `scenarios`, and `findings`, the same fields `review` writes. With `--dry-run` it prints the plan, the guard failures, and the sample, and writes nothing.
 
-`backfill` drafts Behavior records from code during adoption: for each use case, reaction, and job a mark places, it reads the repositories, dispatches, and refusal codes the code model already holds and drafts the missing frontmatter. A use case gains `changes` or `reads`, `effects` entries, and refusal results; a reaction gains `reads` and its edges; a job gains `reads` and its edges. Every touched record is marked transcribed. Existing entries are never removed or rewritten; only missing entries are appended. With a module name it covers that module only; without one it covers every module. With `--dry-run` it prints the plan and writes nothing. It prints a per-module completeness table first, then one line per planned record, then the count of files updated and records backfilled.
+`backfill` drafts Behavior records from code during adoption: for each use case, reaction, and job a mark places, it reads the repositories, dispatches, and refusal codes the code model already holds and drafts the missing frontmatter. A use case gains `changes` or `reads`, `effects` entries, and refusal results; a reaction gains `reads` and its edges; a job gains `reads` and its edges. Every touched record is marked transcribed. Existing entries are never removed or rewritten; only missing entries are appended. For screens, backfill is scoped per frontend and entry point, not per module: for each browser or device frontend it drafts one `screen` record per route of that frontend's entry points that carries no screen mark, with its entry point, its address, the use cases its route calls as `offers`, and the steps those use cases serve as `serves`, as a transcribed draft, and the `<module>` argument does not narrow that screen pass. With a module name it covers that module only for use cases, reactions, and jobs; without one it covers every module. The per-module completeness table covers use cases, reactions, and jobs only; screens appear in the plan lines per frontend and entry point. With `--dry-run` it prints the plan and writes nothing. It prints a per-module completeness table first, then one line per planned record, then the count of files updated and records backfilled.
 
 The .NET stack reader links each code element to its record through its mark, in the style `marks` declares: a handler, an event handler, a job, a port, an adapter, an endpoint, an aggregate root and its state-changing methods, a domain event, a refusal type, and a test. A folder or a type name is never the link. A marked refusal type declares the `code` of the refusal result its rule names.
 
@@ -72,7 +72,7 @@ Every reason except `refusal-path-added` fires only on approved or reviewed reco
 
 A finding that an open known gap covers is reported as known and exits zero. The gap covers the finding when its `check` equals the finding code, its `subject` lists the finding's subject, the gap is not retired, and its end date has not passed. A gap on a use case also covers the findings about the scenarios and results it holds. An expired known gap fails the check.
 
-Every check has a tier. G reads records only and always blocks. S reads code through a stack reader: it blocks where the stack reader is qualified (.NET today), and reports otherwise. A is advisory: it reports and never blocks. An S finding about a draft record reports without blocking and prints `draft`, and while `check.phase` is `frozen` a proof finding reports without blocking and prints `frozen`. The finding codes are:
+Every check has a tier. G reads records only and always blocks. S reads code through a stack reader: it blocks where the reader that produced the finding is qualified, and reports otherwise. Qualification is per reader: the TypeScript reader qualifies once its golden corpus passes, and the .NET (Roslyn) reader, including Blazor and Android screens, stays qualified. A is advisory: it reports and never blocks. An S finding about a draft record reports without blocking and prints `draft`, and while `check.phase` is `frozen` a proof finding reports without blocking and prints `frozen`. The finding codes are:
 
 | Code | Tier | Meaning |
 |:---|:---|:---|
@@ -115,7 +115,7 @@ Every check has a tier. G reads records only and always blocks. S reads code thr
 | `reaction-trigger-unresolved` | G | A reaction names a trigger no domain event or integration event carries. |
 | `erasure-undeclared` | G | A personal or sensitive field stands outside a declared erasure position. |
 | `record-orphaned` | G | A Behavior record names neither `serves` nor `fulfills`. |
-| `step-unserved` | G | A journey step is served by no use case or reaction. |
+| `step-unserved` | G | A journey step is served by no use case or reaction. Its pair `step-unscreened` names a step a browser or device use case serves that no screen serves. |
 | `effect-loop` | G | The effect graph cycles outside a domain event with a stated end condition. |
 | `consistency-unexplained` | G | An atomic use case changing more than one aggregate names no `because` rule. |
 | `query-output-missing` | G | A query declares no `output`. |
@@ -133,11 +133,12 @@ Every check has a tier. G reads records only and always blocks. S reads code thr
 | `transcribed-after-adoption` | G | A transcribed record remains after the adoption decision is approved. |
 | `operator-job-without-guard` | G | An operator job states no `guard`. |
 | `schedule-unstructured` | G | A job schedule is neither an `every` duration nor a `cron` expression. |
-| `behavior-unrecorded` | S | A refusal code in a declaring position, a screen call to no endpoint, or an engine step that maps to no use case is named by no record. The remedy reads: delete the code, or write its parent record from a requirement, drafting the requirement if none exists. |
+| `behavior-unrecorded` | S | A refusal code in a declaring position, a screen call to no endpoint, an engine step that maps to no use case, or (the frontend case) a route with no screen mark or a mark naming no screen is named by no record. The remedy reads: delete the code, or write its parent record from a requirement, drafting the requirement if none exists. |
 | `mark-missing` | S | A code element the marks table names carries no mark. |
 | `mark-unresolved` | S | A mark names no record, or a record of a type its code element does not take, or sits on an element that takes no mark; or a `follows` mark names no provision of the carried release, no decision or deviation, a retired record, or a provision on a page the project's stacks do not apply. |
 | `decision-unfollowed` | S | A technical decision under `docs/implementation/decisions/` is followed by no code element. |
 | `decision-without-basis` | A | A technical decision names no constraint or requirement in `basedOn`. |
+| `constituent-orphaned` | A | An unmarked Domain type sits in a folder that holds no aggregate root, under no aggregate folder, and outside the shared kernel. |
 | `mark-count` | S | A code element carries more or fewer marks than its kind takes in the marks table, or names one record twice. |
 | `mark-style-mixed` | S | A mark is written in the style the project did not declare. |
 | `runtime-value-drift` | S | A hand-written event `Classification` or exception `Code` differs from what its record states. |
@@ -150,10 +151,17 @@ Every check has a tier. G reads records only and always blocks. S reads code thr
 | `external-system-unimplemented` | S | No port carries the external system mark. |
 | `use-case-unexposed` | S | A use case reached through a `browser` or `api` entry point has no endpoint carrying its mark. |
 | `effect-unimplemented` | A | A declared effect edge is taken by no code. |
-| `use-case-unreached` | A | A use case reached through a browser entry point has no screen calling it. |
+| `use-case-unreached` | A | A use case reached through a browser or device entry point is offered by no screen of that entry point. |
+| `screen-unimplemented` | S | No route carries the screen's mark. |
+| `screen-calls-mismatch` | S | A screen's `offers` differs from the use cases its route reaches through the generated client. |
+| `screen-serves-mismatch` | G | A screen serves a journey step no use case it offers serves. |
+| `step-unscreened` | G | A journey step a browser or device use case serves is served by no screen. Its pair `step-unserved` names a step no use case serves. |
+| `result-unshown` | A | A refusal a screen can reach has neither a dictionary sentence nor a browser test asserting its code. |
+| `reader-unavailable` | S | A frontend reader could not run: Node is absent, its handshake names another protocol, or it failed; the finding names the cause, and that frontend's S findings report instead of blocking. |
 | `use-case-unimplemented` | S | No code implements the use case and no known gap covers it. |
 | `refusal-not-thrown` | S | A refusal result names a code the code never throws, or a code matching a `refusals.composed` template whose key no code declares. |
-| `proves-unconfirmed` | S | No proving step of a claimed scenario reaches its use case, no assertion matches its refusal by code, client alias, or HTTP status, and no integration fact drives its use case or rule. A step reaches a use case when it belongs to the use case's steps class, calls its generated-client operation, requests its endpoint route through its own helpers, or looks its argument up in a probe table of routes in its steps class. A scenario proves the use case a when step reaches; the use case a given step reaches, when a later when step and then step observe it; or a use case a when step sets off through a declared producer, whose effects issue it or whose event a reaction issuing it reacts to, with an effect asserted. Codes and statuses asserted inside a then step's method count as the scenario's own. |
+| `proves-duplicated` | A | A scenario carries `proves` marks on more than one test. |
+| `proves-unconfirmed` | S | No proving step of a claimed scenario reaches its use case, no assertion matches its refusal by code, client alias, or HTTP status, and no integration fact drives its use case or rule. The frontend case: a browser test reaches no screen offering the claimed scenario's use case by a `page.goto` literal or template matching the screen's `address`, or no assertion in the same test holds the refusal code or the success result's declared text or code. A step reaches a use case when it belongs to the use case's steps class, calls its generated-client operation, requests its endpoint route through its own helpers, or looks its argument up in a probe table of routes in its steps class. A scenario proves the use case a when step reaches; the use case a given step reaches, when a later when step and then step observe it; or a use case a when step sets off through a declared producer, whose effects issue it or whose event a reaction issuing it reacts to, with an effect asserted. Codes and statuses asserted inside a then step's method count as the scenario's own. |
 | `use-case-without-scenario` | S | A use case has no scenario. It runs at large size only. |
 | `write-undeclared` | S | The code writes an aggregate outside `changes`. |
 | `result-undeclared` | S | The code returns an outcome no result declares. |
@@ -165,6 +173,20 @@ Every check has a tier. G reads records only and always blocks. S reads code thr
 | `event-tense-mismatch` | A | An aggregate method raises an event not ending with the past tense of its verb. |
 | `name-drift-across-layers` | A | A message type, operation id or audit action differs from the use-case name. |
 | `operation-id-duplicate` | S | Two endpoints declare one operation id, which the API document and every generated client refuse. |
+| `operation-use-case-mismatch` | S | An operation in the committed contract `paths.contract` names carries no `x-litespec-use-case`, or names another use case than its endpoint's mark; an unreadable contract reports once. |
+| `alert-unlinked` | S | An alert rule in `paths.alerts` has no `requirement` label naming a quality requirement or no `runbook` label naming a runbook. |
+| `alert-threshold-drift` | A | An alert rule's own text carries none of the decimal numbers its requirement's `measure` names. |
+| `quality-unalerted` | G | A quality requirement no alert names, whose `check` matches no measured-check or check result, and no open known gap covers. |
+| `setting-key-missing` | G | A setting with `setBy: operator` names no `key`. |
+| `setting-unimplemented` | S | A setting with a `key` is marked by no options class. |
+| `setting-key-drift` | S | A marked options class's `SectionName` and property do not spell the setting's `key`. |
+| `template-unimplemented` | S | A notification declares a `template` key the template store lacks. |
+| `template-unrecorded` | S | The template store holds a key no notification declares. |
+| `template-param-drift` | S | A notification declares a parameter none of its template's texts uses as a placeholder. |
+| `dependency-unadmitted` | S | A direct package in the bill of materials is pinned by no manifest entry and admitted by no decision. |
+| `dependency-version-drift` | S | A direct package ships at a version other than its manifest pin. |
+| `dependency-licence-unapproved` | S | A direct package's licence is not in `dependencies.licences` and no `admits` entry names it. |
+| `admission-incomplete` | G | An `admits` entry misses its layer, licence, location, account owner, failure behavior, or operating cost. |
 | `route-shape` | A | A command route ends outside its verb, or a route carries no aggregate plural. |
 | `reasonless-name` | S | A folder or type is named `Shared`, `Common`, `Helper`, `Manager` or the like outside the declared shared kernel. |
 | `collaborator-holds-repository` | A | A class built with `new` takes a repository in its own constructor. |
@@ -181,7 +203,7 @@ The `render` subcommand writes these generated regions, each fenced by `<!-- gen
 |:---|:---|:---|
 | `<id>` | for `query` | Prints the record with this identifier and its links both ways. |
 | `<base>` | for `diff` | The consumer folder or git revision to compare against. |
-| `<module>` | for `backfill` | Backfills this module only; without it, every module. |
+| `<module>` | for `backfill` | Backfills this module only for use cases, reactions, and jobs; without it, every module. Screen backfill runs per frontend and entry point either way. |
 
 ## Options
 
@@ -299,5 +321,7 @@ litespec model diff main --root ../consumer --format markdown --breaking-only --
 ```
 
 ## Underneath
+
+A web frontend is read by a TypeScript reader that ships with the tool as one bundled script: the tool runs it with Node once per build or check, sends one versioned JSON request on standard input, and reads one versioned JSON facts document back, so a consumer installs nothing beyond Node itself. The reader opens with a handshake naming the protocol version, the reader, and the TypeScript and Svelte versions; a version mismatch, an absent Node, or a reader failure produces the single `reader-unavailable` finding for that frontend instead of passing silently. A finding records the reader that produced its facts, and its tier takes that reader's qualification: the TypeScript reader qualifies once its golden corpus passes, and the .NET (Roslyn) reader, which reads Blazor and Android frontends, stays qualified.
 
 The builder reads `paths`, `shape`, and `stacks` from the consumer's `litespec.project.json`. It reads shared provisions from the release the tool carries, the record owners from the CODEOWNERS file at `.github/CODEOWNERS`, `CODEOWNERS`, or `docs/CODEOWNERS`, and the test run from TRX or JUnit XML files under `paths.testResults`. A git diff base is read through an archive into a temporary folder, which is removed after the diff. Nothing beneath it is separately runnable.

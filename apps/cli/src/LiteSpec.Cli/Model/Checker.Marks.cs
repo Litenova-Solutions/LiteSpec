@@ -240,6 +240,14 @@ static partial class Checker
             }
         }
 
+        foreach (var mark in Readers.Operations.OperationsMarkReader.Read(model.Config))
+        {
+            if (mark.Id.Length > 0)
+            {
+                followed.Add(mark.Id);
+            }
+        }
+
         foreach (var record in model.Records)
         {
             if (record.Type != "decision" || record.Status == "retired" || !UnderImplementationDecisions(model.Config, record.File))
