@@ -56,9 +56,13 @@ internal static class GeneratorVerify
 
         var errors = new List<Diagnostic>();
 
+        // A consumer may treat warnings as errors, so a warning inside generated code counts too.
         foreach (var diagnostic in compilation.AddSyntaxTrees(result.GeneratedTrees).GetDiagnostics())
         {
-            if (diagnostic.Severity == DiagnosticSeverity.Error)
+            var inGenerated = result.GeneratedTrees.Contains(diagnostic.Location.SourceTree);
+
+            if (diagnostic.Severity == DiagnosticSeverity.Error
+                || (diagnostic.Severity == DiagnosticSeverity.Warning && inGenerated))
             {
                 errors.Add(diagnostic);
             }
