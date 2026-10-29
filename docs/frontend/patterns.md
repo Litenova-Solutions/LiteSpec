@@ -52,7 +52,7 @@ Each option is a `####` heading of the form ``#### `option-id`: Option name``. I
 
 ### The Wireframe Language
 
-A wireframe states the structure of one option: which parts sit where, in what order, which action is primary, and the copy they show. It states no color, font, spacing, or component library. An agent builds the option from the text in its own stack and design system. `litespec patterns preview` draws the text for a person to choose from.
+A wireframe states the structure of one option: which parts sit where, in what order, which action is primary, and the copy they show. It states no color, font, spacing, or component library. An agent builds the option from the text in its own stack and design system. The pattern's page on the LiteSpec site draws the text for a person to choose from.
 
 ```wireframe
 page
@@ -119,7 +119,7 @@ On a phone the drawing reflows unless a `wireframe compact` block says otherwise
 
 A catalog entry may set `library` to one pattern ID, such as `litespec/frontend/patterns/record-detail#record-header`, to start from that pattern. The entry keeps the pattern's option IDs and names, so a choice stays comparable across products, and it may add options of its own.
 
-The owner chooses among the combined options with the drawings from `litespec patterns preview`, and records the source. The entry states the compact behavior and the implementation status per platform, and the platform team implements the chosen option in its own components. A choice that differs from the pattern's default records its reason in the entry.
+The owner chooses among the combined options with the drawings on the pattern's page on the LiteSpec site, and records the source. The entry states the compact behavior and the implementation status per platform, and the platform team implements the chosen option in its own components. A choice that differs from the pattern's default records its reason in the entry.
 
 The diagram shows the flow from a LiteSpec pattern through the catalog entry that cites it to the built screen.
 
@@ -290,13 +290,13 @@ The entry names the pattern's default option and records `owner` as the source, 
 
 **ID:** `litespec/frontend/patterns#keep-a-visual-registry`
 
-**Default:** Review LiteSpec options with `litespec patterns preview`, and draw only product-specific options in a product registry at compact and full widths.
+**Default:** Review LiteSpec options on the pattern's page on the LiteSpec site, and draw only product-specific options in a product registry at compact and full widths.
 
 **Replacement:** A consumer can replace this default with an explicit local convention.
 
-**Rationale:** An option seen beside its rivals is judged on appearance rather than on its description, which is how owners actually choose. The `litespec patterns preview` command already draws every LiteSpec option, so a product registry only needs to draw the patterns and options the product added, at compact and full widths. The catalog `registry` field names the command or path that renders them.
+**Rationale:** An option seen beside its rivals is judged on appearance rather than on its description, which is how owners actually choose. The pattern's page on the LiteSpec site already draws every LiteSpec option at desktop and phone widths, so a product registry only needs to draw the patterns and options the product added, at compact and full widths. The catalog `registry` field names the command or path that renders them.
 
-**Reviewed for:** Product-added options render in the registry at compact and full widths, and LiteSpec options render through `litespec patterns preview`. Look at the registry command or path the catalog names.
+**Reviewed for:** Product-added options render in the registry at compact and full widths, and LiteSpec options render on the pattern's page on the LiteSpec site. Look at the registry command or path the catalog names.
 
 ### Report Pattern Feedback After the Work
 

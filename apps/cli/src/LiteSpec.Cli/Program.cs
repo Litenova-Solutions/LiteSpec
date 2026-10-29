@@ -4,7 +4,6 @@ using LiteSpec.Book;
 using LiteSpec.Consumer;
 using LiteSpec.Init;
 using LiteSpec.Model;
-using LiteSpec.Patterns;
 using LiteSpec.Ui;
 
 // Messages quote page text verbatim, so the console must write UTF-8 rather
@@ -22,9 +21,6 @@ const string usage = """
       ui            Validate the controlled web UI contract.
       model         Build, check, render or query the project model.
       book          Generate the project book from model.json.
-
-    Commands anywhere:
-      patterns      Draw, print or check the UI pattern wireframes.
 
     Run 'litespec <command> --help' for a command's options.
     'litespec --version' prints the LiteSpec release this tool ships in.
@@ -49,7 +45,6 @@ return args[0] switch
     "ui" => UiValidator.Run(rest),
     "model" => ModelCommand.Run(rest),
     "book" => BookCommand.Run(rest),
-    "patterns" => PatternsCommand.Run(rest),
     _ => Unknown(args[0]),
 };
 

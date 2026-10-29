@@ -8,7 +8,7 @@ namespace LiteSpec.Authoring;
 static partial class StandardsValidator
 {
     static readonly HashSet<string> LiteSpecCommands = new(
-        ["consumer", "ui", "model", "book", "patterns", "init", "new", "rename"],
+        ["consumer", "ui", "model", "book", "init", "new", "rename"],
         StringComparer.Ordinal);
 
     static readonly HashSet<string> MaintainCommands = new(

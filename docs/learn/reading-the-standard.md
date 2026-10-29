@@ -113,7 +113,7 @@ Read it as one departure: it names the provision it replaces, the reason, and th
 
 ## UI Patterns
 
-The pages in `frontend/patterns/` work differently. Each one covers a group of recurring interface questions, such as how a record's page header is laid out or how a list filters. Every pattern offers several options, each drawn as a wireframe, and names a default. Your project keeps a catalog of the option it chose for each pattern. The site draws every option, and `litespec patterns preview` draws them locally, so you can choose by looking.
+The pages in `frontend/patterns/` work differently. Each one covers a group of recurring interface questions, such as how a record's page header is laid out or how a list filters. Every pattern offers several options, each drawn as a wireframe, and names a default. Your project keeps a catalog of the option it chose for each pattern. The site draws every option on the pattern's page, so you can choose by looking.
 
 ## Next
 

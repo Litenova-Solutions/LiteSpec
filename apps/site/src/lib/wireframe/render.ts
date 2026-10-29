@@ -1,8 +1,7 @@
-// Port of apps/cli/src/LiteSpec.Cli/Patterns/WireframeRenderer.cs: draws one
-// wireframe as an SVG sketch at a desktop or phone width. The sketch shows
+// Draws one wireframe as an SVG sketch at a desktop or phone width. The sketch shows
 // structure and copy in one neutral style; tones are its only colors. Text
 // width is estimated from the character count, so nothing needs a font.
-// Names below match the C# originals in camelCase. This module uses no Node
+// This module is the one wireframe renderer. It uses no Node
 // API so it runs at build time and in the browser.
 import { WireframeNode, tones, fieldKinds, overlays } from "./parse.ts";
 

@@ -69,7 +69,7 @@ An agent makes the decisions the standard has already made: where a type goes, h
 
 During adoption, an agent may write Behavior records from existing code. Each one carries `source: transcribed` and stays in draft until its Intent parent is approved, so transcription never passes review on its own.
 
-UI design works the same way. For each recurring interface question, LiteSpec offers drawn options and a default. An agent shows the options with `dotnet litespec patterns preview`, recommends one, and builds the one you choose with your own components and style. If it sees a better option while working, it finishes on your choice and proposes the idea in its report, instead of changing your decision.
+UI design works the same way. For each recurring interface question, LiteSpec offers drawn options and a default. An agent shows the options on the pattern's page on the LiteSpec site, recommends one, and builds the one you choose with your own components and style. If it sees a better option while working, it finishes on your choice and proposes the idea in its report, instead of changing your decision.
 
 ## Next Steps
 

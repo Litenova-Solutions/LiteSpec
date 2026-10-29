@@ -1,6 +1,6 @@
-// Port of apps/cli/src/LiteSpec.Cli/Patterns/Wireframe.cs: the wireframe
-// language parser, part catalog and rules. The language is defined in
-// docs/frontend/patterns.md. Names below match the C# originals in camelCase.
+// The wireframe language parser, part catalog and rules, defined in
+// docs/frontend/patterns.md. The checks in apps/model/src/LiteSpec.Shared/Patterns/Wireframe.cs
+// read the same language; names below match it in camelCase.
 // This module uses no Node API so it runs at build time and in the browser.
 
 // One part of a wireframe: its name, modifiers, visible copy and children.

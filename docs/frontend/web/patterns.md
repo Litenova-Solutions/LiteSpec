@@ -24,10 +24,10 @@ A product records its UI pattern choices in one catalog, and each chosen pattern
 
 **ID:** `litespec/frontend/web/patterns#keep-a-visual-registry`
 
-**Default:** Review LiteSpec options in `litespec patterns preview` at 390 and 1200 CSS pixels, and draw only product-specific options in a product registry at 390 and 1280.
+**Default:** Review LiteSpec options at 390 and 1200 CSS pixels on the pattern's page on the LiteSpec site, and draw only product-specific options in a product registry at 390 and 1280.
 
 **Replacement:** A consumer can replace this default with an explicit local convention.
 
-**Rationale:** An option judged beside its rivals is judged on appearance rather than description, so review happens in `litespec patterns preview` at 390 and 1200 CSS pixels. The preview already draws every LiteSpec option, so a product registry draws only the patterns and options the product added, at 390 and 1280. The catalog `registry` field holds the product registry command or path. This realizes litespec/frontend/patterns#keep-a-visual-registry.
+**Rationale:** An option judged beside its rivals is judged on appearance rather than description, so review happens on the pattern's page on the LiteSpec site at 390 and 1200 CSS pixels. The site page already draws every LiteSpec option, so a product registry draws only the patterns and options the product added, at 390 and 1280. The catalog `registry` field holds the product registry command or path. This realizes litespec/frontend/patterns#keep-a-visual-registry.
 
-**Reviewed for:** The product registry renders every product-added option at 390 and 1280 pixels, and `litespec patterns preview` draws every LiteSpec option at 390 and 1200.
+**Reviewed for:** The product registry renders every product-added option at 390 and 1280 pixels, and the pattern's page on the LiteSpec site draws every LiteSpec option at 390 and 1200.

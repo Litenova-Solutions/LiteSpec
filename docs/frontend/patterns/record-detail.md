@@ -24,7 +24,7 @@ The drawings on this page use expense EXP-1042 for Ava: paid, EUR 125.00, part o
 
 **Rationale:** One primary action names the step readers take most often next on the record, such as Message spender on expense EXP-1042. Without that single answer, two equal buttons force the reader to compare labels on every visit, and the hurried click lands on the wrong command.
 
-**Checked by:** `litespec patterns check` refuses a wireframe header holding two primary actions.
+**Checked by:** `litespec-maintain validate` emits `PATTERN_INVALID` for a wireframe header holding two primary actions.
 
 ### Hold Built Record Headers to One Primary Action
 

@@ -43,6 +43,11 @@ public sealed partial class StandardsValidatorTests
         root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "`litespec-maintain validate` confirms the topic stays inside its declared boundary.", "A reviewer confirms the topic stays inside its declared boundary.")),
         ["VERIFY_COMMAND"]);
 
+    [Fact(DisplayName = "checkable evidence naming a removed command")]
+    public void CheckableEvidenceRemovedCommand() => Check(
+        root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "`litespec-maintain validate` confirms the topic stays inside its declared boundary.", "`litespec patterns check` confirms the topic stays inside its declared boundary.")),
+        ["VERIFY_COMMAND"]);
+
     [Fact(DisplayName = "checkable evidence naming the consumer-side tool path")]
     public void CheckableEvidenceConsumerToolPath() => Check(
         root =>

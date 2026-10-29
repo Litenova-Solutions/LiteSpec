@@ -28,7 +28,7 @@ LiteSpec serves many projects. Never name a consumer project in it.
 
 | Repository | You change | You run |
 |:---|:---|:---|
-| LiteSpec | The standard (`docs/`, `schemas/`, `templates/`, the manifest), the CLI in `apps/cli/`, the shared rule library in `apps/model/`, the analyzers in `apps/analyzers/`, and the site in `apps/site/` | `litespec-maintain validate`, `litespec-maintain provisions`, `litespec patterns check`, the tests |
+| LiteSpec | The standard (`docs/`, `schemas/`, `templates/`, the manifest), the CLI in `apps/cli/`, the shared rule library in `apps/model/`, the analyzers in `apps/analyzers/`, and the site in `apps/site/` | `litespec-maintain validate`, `litespec-maintain provisions`, the tests |
 | A consumer | Its records, code, tests and contracts, against the LiteSpec release its local `litespec` tool carries | `dotnet litespec consumer`, `dotnet litespec ui`, `dotnet litespec model`, and the gates its CI selects |
 
 In this repository, run the CLI with `dotnet run --project apps/cli/src/LiteSpec.Cli -- <command>`. The [command index](docs/tools/README.md) shows how to run it from a consumer. Run the maintainer tool with `dotnet run --project apps/maintain/src/LiteSpec.Maintain -- <command>`; its commands are `validate` and `provisions`.
@@ -121,7 +121,7 @@ Read the full provision before you apply any of these:
 
 A consumer keeps one pattern catalog. Each entry starts from a LiteSpec pattern in `docs/frontend/patterns/`, cites it by ID, and records the chosen option and who chose it.
 
-To help an owner choose, show the options with `litespec patterns preview <group>` and recommend one. Then build the chosen option from its wireframe text with the project's own components, style and design system.
+To help an owner choose, show the options on the pattern's page on the LiteSpec site and recommend one. Then build the chosen option from its wireframe text with the project's own components, style and design system.
 
 If you see how a pattern could be better, finish the task on the chosen option and put the proposal in your completion report. Leave the decision unchanged, and ask nothing mid-task. A proposal that isn't specific to one product goes to the LiteSpec pattern page once the owner accepts it.
 

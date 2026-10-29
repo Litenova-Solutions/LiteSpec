@@ -2,7 +2,7 @@
 
 ## Intent
 
-The Tools section documents the LiteSpec command line: one command for each consumer check, generator, and lookup, from project validation to generated files and pattern drawing. A developer or coding assistant opens this index to find the command that produces the check or file the task needs. On a command page, Name and Synopsis give the quick form, and Description and Examples give the detail. The commands that maintain the standard itself live in the [Maintain overview](../maintain/README.md).
+The Tools section documents the LiteSpec command line: one command for each consumer check, generator, and lookup, from project validation to generated files. A developer or coding assistant opens this index to find the command that produces the check or file the task needs. On a command page, Name and Synopsis give the quick form, and Description and Examples give the detail. The commands that maintain the standard itself live in the [Maintain overview](../maintain/README.md).
 
 ## Run the CLI
 
@@ -21,7 +21,3 @@ Every command accepts `--help`, and every validator accepts `--format json` for 
 - [Validate Controlled UI](ui.md): checks the shared UI package and each controlled web frontend.
 - [Model Builder](model.md): builds, checks, and diffs the project model, renders generated regions, answers record queries, and prints the names inventory.
 - [Book](book.md): generates a static site from `model.json` for reviewers.
-
-## Anywhere
-
-- [Draw Patterns](patterns.md): draws, prints, and checks the UI pattern wireframes.

@@ -86,7 +86,7 @@ function styleOf(rel: string): PageStyle {
   if (rel === "docs/reference/glossary.md") return "glossary";
   if (rel.includes("/ext/")) return "extension";
   if (rel.startsWith("docs/frontend/patterns/")) return "pattern";
-  if (segments[1] === "tools") return "command";
+  if (segments[1] === "tools" || segments[1] === "maintain") return "command";
   if (segments[1] === "reference") return "reference";
   if (segments[1] === "tutorial") return "tutorial";
   if (segments[1] === "guide") return "how-to";

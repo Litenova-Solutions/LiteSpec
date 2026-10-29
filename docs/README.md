@@ -213,7 +213,6 @@ Tutorials take a reader to a first working result; how-to guides solve one state
 - [Validate Controlled UI](tools/ui.md): checks the shared UI package and each controlled web frontend.
 - [Model Builder](tools/model.md): builds, checks, and diffs the project model, renders generated regions, and answers record queries.
 - [Book](tools/book.md): builds the project book from `model.json`: journey chapters, record pages, and the ballots inbox.
-- [Draw Patterns](tools/patterns.md): draws, prints, and checks the UI pattern wireframes.
 
 ## Maintain
 
