@@ -69,6 +69,12 @@ internal static class RecordPages
         + (code is null ? string.Empty : ", \"code\": \"" + code + "\"")
         + ", \"meaning\": \"No receipt was attached.\"}";
 
+    /// <summary>Builds a decision page.</summary>
+    /// <param name="id">The decision identifier.</param>
+    /// <returns>The page text.</returns>
+    public static string DecisionPage(string id) =>
+        Page("{\"type\": \"decision\", \"id\": \"" + id + "\", \"title\": \"Store expenses as documents\", \"owner\": \"team\", \"status\": \"approved\"}");
+
     /// <summary>Builds a use-case page.</summary>
     /// <param name="id">The use-case identifier.</param>
     /// <param name="grant">The access grant, or null for no access object.</param>

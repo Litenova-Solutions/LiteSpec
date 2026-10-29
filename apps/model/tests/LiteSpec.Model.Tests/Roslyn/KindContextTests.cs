@@ -21,6 +21,7 @@ public sealed class KindContextTests
         Assert.Empty(KindContext.Empty.EventHandlers);
         Assert.Empty(KindContext.Empty.JobHosts);
         Assert.Empty(KindContext.Empty.DomainEvents);
+        Assert.Empty(KindContext.Empty.TechnicalClasses);
     }
 
     [Fact(DisplayName = "The three-argument constructor leaves the contract sets empty")]
@@ -34,6 +35,7 @@ public sealed class KindContextTests
         Assert.Empty(context.EventHandlers);
         Assert.Empty(context.JobHosts);
         Assert.Empty(context.DomainEvents);
+        Assert.Empty(context.TechnicalClasses);
     }
 
     [Fact(DisplayName = "The constructor stores every set")]
@@ -47,7 +49,8 @@ public sealed class KindContextTests
             new[] { "ListLoansHandlerBase" },
             new[] { "LoanBorrowedReactionBase" },
             new[] { "ScanServiceBase" },
-            new[] { "ILoanEvent" });
+            new[] { "ILoanEvent" },
+            new[] { "CommitStep" });
 
         Assert.Contains("Expense", context.AggregateRoots);
         Assert.Contains("ReceiptMissingException", context.DomainExceptions);
@@ -57,6 +60,7 @@ public sealed class KindContextTests
         Assert.Contains("LoanBorrowedReactionBase", context.EventHandlers);
         Assert.Contains("ScanServiceBase", context.JobHosts);
         Assert.Contains("ILoanEvent", context.DomainEvents);
+        Assert.Contains("CommitStep", context.TechnicalClasses);
     }
 
     [Fact(DisplayName = "A null required collection throws")]
@@ -78,6 +82,7 @@ public sealed class KindContextTests
             null,
             null,
             null,
+            null,
             null);
 
         Assert.Empty(context.CommandHandlers);
@@ -85,6 +90,7 @@ public sealed class KindContextTests
         Assert.Empty(context.EventHandlers);
         Assert.Empty(context.JobHosts);
         Assert.Empty(context.DomainEvents);
+        Assert.Empty(context.TechnicalClasses);
     }
 
     [Fact(DisplayName = "Names compare with ordinal case sensitivity")]

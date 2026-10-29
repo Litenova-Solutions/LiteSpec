@@ -537,4 +537,146 @@ public sealed class MarkLinkTests
                 """)],
             [ProjectFile(marks: "attribute"), UseCase()],
             assemblyName: "Shop.Application");
+
+    [Fact(DisplayName = "LS5002 reports a follows naming an unknown decision")]
+    public Task ReportsAFollowsNamingAnUnknownDecision() =>
+        Verify.AnalyzerWithRecordsAsync<MarkLinkAnalyzer>(
+            [("Source.cs", """
+                namespace Shop.Spending;
+
+                /// <follows>{|LS5002:decision/0099-no-such-decision|}</follows>
+                internal sealed class CommitStep
+                {
+                    public void Commit()
+                    {
+                    }
+                }
+                """)],
+            [ProjectFile(), Decision()],
+            assemblyName: "Shop.Application");
+
+    [Fact(DisplayName = "LS5002 reports a follows naming a retired decision")]
+    public Task ReportsAFollowsNamingARetiredDecision() =>
+        Verify.AnalyzerWithRecordsAsync<MarkLinkAnalyzer>(
+            [("Source.cs", """
+                namespace Shop.Spending;
+
+                /// <follows>{|LS5002:decision/0002-store-expenses-as-documents|}</follows>
+                internal sealed class CommitStep
+                {
+                    public void Commit()
+                    {
+                    }
+                }
+                """)],
+            [ProjectFile(), Decision(status: "retired")],
+            assemblyName: "Shop.Application");
+
+    [Fact(DisplayName = "LS5002 reports a follows naming an unknown provision")]
+    public Task ReportsAFollowsNamingAnUnknownProvision() =>
+        Verify.AnalyzerWithRecordsAsync<MarkLinkAnalyzer>(
+            [("Source.cs", """
+                namespace Shop.Spending;
+
+                /// <follows>{|LS5002:litespec/backend/no-such-page#no-such-provision|}</follows>
+                internal sealed class CommitStep
+                {
+                    public void Commit()
+                    {
+                    }
+                }
+                """)],
+            [ProjectFile(), Decision()],
+            assemblyName: "Shop.Application");
+
+    [Fact(DisplayName = "LS5002 accepts a follows naming a provision of the carried release")]
+    public Task AcceptsAFollowsNamingAProvision() =>
+        Verify.AnalyzerWithRecordsAsync<MarkLinkAnalyzer>(
+            [("Source.cs", """
+                namespace Shop.Spending;
+
+                /// <follows>litespec/backend/persistence#commit-each-command-pipeline-once</follows>
+                internal sealed class CommitStep
+                {
+                    public void Commit()
+                    {
+                    }
+                }
+                """)],
+            [ProjectFile(), Decision()],
+            assemblyName: "Shop.Application");
+
+    [Fact(DisplayName = "LS5002 accepts a follows naming a decision or deviation")]
+    public Task AcceptsAFollowsNamingADecisionOrDeviation() =>
+        Verify.AnalyzerWithRecordsAsync<MarkLinkAnalyzer>(
+            [("Source.cs", """
+                namespace Shop.Spending;
+
+                /// <follows>decision/0002-store-expenses-as-documents</follows>
+                /// <follows>deviation/marks-deferred</follows>
+                internal sealed class CommitStep
+                {
+                    public void Commit()
+                    {
+                    }
+                }
+                """)],
+            [ProjectFile(), Decision(), Deviation(["mark-missing"])],
+            assemblyName: "Shop.Application");
+
+    [Fact(DisplayName = "LS5002 accepts a follows on a handler beside its implements")]
+    public Task AcceptsAFollowsOnAHandler() =>
+        Verify.AnalyzerWithRecordsAsync<MarkLinkAnalyzer>(
+            [("Source.cs", """
+                namespace Shop.Spending;
+
+                public interface ICommandHandler<TCommand, TResult>;
+
+                public sealed class SubmitExpenseCommand;
+
+                public sealed class SubmitExpenseCommandResult;
+
+                /// <implements>use-case/spending.submit-expense</implements>
+                /// <follows>decision/0002-store-expenses-as-documents</follows>
+                internal sealed class SubmitExpenseCommandHandler : ICommandHandler<SubmitExpenseCommand, SubmitExpenseCommandResult>
+                {
+                }
+                """)],
+            [ProjectFile(), UseCase(), Decision()],
+            assemblyName: "Shop.Application");
+
+    [Fact(DisplayName = "LS5002 reports an implements mark on a technical class")]
+    public Task ReportsAnImplementsOnATechnicalClass() =>
+        Verify.AnalyzerWithRecordsAsync<MarkLinkAnalyzer>(
+            [("Source.cs", """
+                namespace Shop.Spending;
+
+                /// <implements>{|LS5002:decision/0002-store-expenses-as-documents|}</implements>
+                internal sealed class CommitStep
+                {
+                    public void Commit()
+                    {
+                    }
+                }
+                """)],
+            [ProjectFile(), Decision()],
+            assemblyName: "Shop.Application");
+
+    [Fact(DisplayName = "LS5003 reports a technical class naming one decision twice")]
+    public Task ReportsADuplicateFollows() =>
+        Verify.AnalyzerWithRecordsAsync<MarkLinkAnalyzer>(
+            [("Source.cs", """
+                namespace Shop.Spending;
+
+                /// <follows>decision/0002-store-expenses-as-documents</follows>
+                /// <follows>decision/0002-store-expenses-as-documents</follows>
+                internal sealed class {|LS5003:CommitStep|}
+                {
+                    public void Commit()
+                    {
+                    }
+                }
+                """)],
+            [ProjectFile(), Decision()],
+            assemblyName: "Shop.Application");
 }

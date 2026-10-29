@@ -32,7 +32,7 @@ A backend built on .NET declares the `dotnet` stack in `litespec.project.json`. 
 
 **ID:** `litespec/backend/dotnet/stack#write-each-mark-in-the-declared-style`
 
-**Statement:** A .NET mark MUST be an `implements` or `proves` documentation tag when `marks` is `xml`, and an `Implements` or `Proves` attribute when `marks` is `attribute`.
+**Statement:** A .NET mark MUST be an `implements`, `proves`, or `follows` documentation tag when `marks` is `xml`, and an `Implements`, `Proves`, or `Follows` attribute when `marks` is `attribute`.
 
 **Rationale:** The `xml` style keeps business code free of attributes that are not of the business: the mark is a documentation tag, read by the stack reader and by the analyzers, which need the documentation file every LiteSpec project already generates. The `attribute` style carries the mark into metadata, so it survives compilation and reflection can read it. Its attribute types are generated into each project as internal types by the analyzer package, so no runtime package is referenced, and Domain stays free of outer-layer dependencies. A code element takes one mark per record; a code fix converts a mark between the styles. This provision states the .NET form of `litespec/core/model#declare-one-mark-style`.
 
@@ -41,6 +41,7 @@ A backend built on .NET declares the `dotnet` stack in `litespec.project.json`. 
 ```csharp
 /// <summary>Reimburses an approved expense.</summary>
 /// <implements>use-case/spending.reimburse-expense</implements>
+/// <follows>litespec/backend/application#keep-command-handlers-to-load-call-and-stage</follows>
 internal sealed class ReimburseExpenseCommandHandler(IExpenseRepository expenseRepository)
 ```
 
@@ -48,6 +49,7 @@ In the `attribute` style:
 
 ```csharp
 [Implements("use-case/spending.reimburse-expense")]
+[Follows("litespec/backend/application#keep-command-handlers-to-load-call-and-stage")]
 internal sealed class ReimburseExpenseCommandHandler(IExpenseRepository expenseRepository)
 ```
 

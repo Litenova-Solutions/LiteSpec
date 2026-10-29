@@ -242,4 +242,141 @@ public sealed class KindReaderSymbolTests
         Assert.Equal(CodeKind.Port, KindReader.KindOf(symbol, KindContext.Empty, "Shop.Application"));
         Assert.Null(KindReader.KindOf(symbol, KindContext.Empty, "Shop.WebApi"));
     }
+
+    [Fact(DisplayName = "A symbol class with a method in an outer layer is technical")]
+    public void SymbolClassWithMethodIsTechnical()
+    {
+        const string code = """
+            public sealed class CommitStep
+            {
+                public void Commit()
+                {
+                }
+            }
+            """;
+        var symbol = SymbolOf(code, "CommitStep");
+
+        Assert.Equal(CodeKind.Technical, KindReader.KindOf(symbol, KindContext.Empty, "Shop.Application"));
+        Assert.Equal(CodeKind.Technical, KindReader.KindOf(symbol, KindContext.Empty, "Shop.Infrastructure"));
+        Assert.Null(KindReader.KindOf(symbol, KindContext.Empty, "Shop.Domain"));
+        Assert.Null(KindReader.KindOf(symbol, KindContext.Empty));
+    }
+
+    [Fact(DisplayName = "A symbol record, nested class, or constructor-only class is not technical")]
+    public void SymbolNonClassShapesAreNotTechnical()
+    {
+        const string code = """
+            public sealed record ExpenseSummary
+            {
+                public int Open() => 0;
+            }
+
+            public sealed class CommitPipeline
+            {
+                public sealed class CommitStep
+                {
+                    public void Commit()
+                    {
+                    }
+                }
+            }
+
+            public sealed class ExpenseSettings
+            {
+                public ExpenseSettings(int threshold)
+                {
+                }
+            }
+            """;
+        var compilation = TestTrees.Compile(code);
+        var tree = compilation.SyntaxTrees[0];
+        var model = compilation.GetSemanticModel(tree);
+
+        foreach (var name in new[] { "ExpenseSummary", "CommitStep", "ExpenseSettings" })
+        {
+            var node = tree.GetRoot().DescendantNodes().OfType<TypeDeclarationSyntax>()
+                .First(type => type.Identifier.ValueText == name);
+            var symbol = model.GetDeclaredSymbol(node);
+            Assert.NotNull(symbol);
+
+            Assert.Null(KindReader.KindOf(symbol, KindContext.Empty, "Shop.Application"));
+        }
+    }
+
+    [Fact(DisplayName = "A symbol migration or generated class is not technical")]
+    public void SymbolMigrationAndGeneratedAreNotTechnical()
+    {
+        const string code = """
+            using System;
+
+            public class Migration;
+
+            public class ShopMigration : Migration;
+
+            public sealed class GeneratedCodeAttribute : Attribute
+            {
+                public GeneratedCodeAttribute(string tool, string version)
+                {
+                }
+            }
+
+            public sealed class AddExpenses : ShopMigration
+            {
+                public void Up()
+                {
+                }
+            }
+
+            [GeneratedCode("tool", "1.0")]
+            public sealed class CommitStep
+            {
+                public void Commit()
+                {
+                }
+            }
+            """;
+
+        Assert.Null(KindReader.KindOf(SymbolOf(code, "AddExpenses"), KindContext.Empty, "Shop.Infrastructure"));
+        Assert.Null(KindReader.KindOf(SymbolOf(code, "CommitStep"), KindContext.Empty, "Shop.Application"));
+    }
+
+    [Fact(DisplayName = "A symbol partial class merges methods across parts")]
+    public void SymbolPartialMergesMethodsAcrossParts()
+    {
+        var compilation = TestTrees.Compile(
+            """
+            public sealed partial class CommitStep
+            {
+            }
+            """,
+            """
+            public sealed partial class CommitStep
+            {
+                public void Commit()
+                {
+                }
+            }
+            """);
+        var tree = compilation.SyntaxTrees[0];
+        var model = compilation.GetSemanticModel(tree);
+        var node = tree.GetRoot().DescendantNodes().OfType<TypeDeclarationSyntax>()
+            .First(type => type.Identifier.ValueText == "CommitStep");
+        var symbol = model.GetDeclaredSymbol(node);
+        Assert.NotNull(symbol);
+
+        Assert.Equal(CodeKind.Technical, KindReader.KindOf(symbol, KindContext.Empty, "Shop.Application"));
+    }
+
+    private static INamedTypeSymbol SymbolOf(string code, string name)
+    {
+        var compilation = TestTrees.Compile(code);
+        var tree = compilation.SyntaxTrees[0];
+        var model = compilation.GetSemanticModel(tree);
+        var node = tree.GetRoot().DescendantNodes().OfType<TypeDeclarationSyntax>()
+            .First(type => type.Identifier.ValueText == name);
+        var symbol = model.GetDeclaredSymbol(node);
+        Assert.NotNull(symbol);
+
+        return symbol;
+    }
 }

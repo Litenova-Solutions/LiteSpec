@@ -40,7 +40,7 @@ public sealed class MarkPresenceAnalyzer : TraceabilityAnalyzer
             return;
         }
 
-        if (MarksOf(type).Count > 0)
+        if (HasKindMark(type, kind.Value))
         {
             return;
         }
@@ -72,7 +72,7 @@ public sealed class MarkPresenceAnalyzer : TraceabilityAnalyzer
             return;
         }
 
-        if (MarksOf(method).Count > 0)
+        if (HasKindMark(method, kind.Value))
         {
             return;
         }
@@ -91,10 +91,11 @@ public sealed class MarkPresenceAnalyzer : TraceabilityAnalyzer
     /// <summary>
     ///     Whether the layer checks the kind: Domain checks aggregate roots,
     ///     state-changing methods, domain events and rule exceptions; Application
-    ///     checks handlers, event handlers and jobs; Infrastructure checks adapters
-    ///     and jobs; WebApi checks endpoints; test projects check tests. Ports and
-    ///     domain services are recognized only by their mark, so no layer checks
-    ///     their absence.
+    ///     checks handlers, event handlers, jobs, and technical classes;
+    ///     Infrastructure checks adapters, jobs, and technical classes; WebApi
+    ///     checks endpoints and technical classes; test projects check tests.
+    ///     Ports and domain services are recognized only by their mark, so no
+    ///     layer checks their absence.
     /// </summary>
     private static bool CheckedIn(CodeKind kind, Layer layer)
     {
@@ -107,16 +108,36 @@ public sealed class MarkPresenceAnalyzer : TraceabilityAnalyzer
                     or CodeKind.RuleException;
             case Layer.Application:
             case Layer.ApplicationAbstractions:
-                return kind is CodeKind.Handler or CodeKind.EventHandler or CodeKind.Job;
+                return kind is CodeKind.Handler or CodeKind.EventHandler or CodeKind.Job or CodeKind.Technical;
             case Layer.Infrastructure:
-                return kind is CodeKind.Adapter or CodeKind.Job;
+                return kind is CodeKind.Adapter or CodeKind.Job or CodeKind.Technical;
             case Layer.WebApi:
-                return kind == CodeKind.Endpoint;
+                return kind is CodeKind.Endpoint or CodeKind.Technical;
             case Layer.Test:
                 return kind == CodeKind.Test;
             default:
                 return false;
         }
+    }
+
+    /// <summary>
+    ///     Whether the symbol carries a mark in its kind's verb: a <c>follows</c>
+    ///     mark never stands in for the <c>implements</c> or <c>proves</c> mark
+    ///     the kind takes, and only a <c>follows</c> mark satisfies a technical class.
+    /// </summary>
+    private static bool HasKindMark(ISymbol symbol, CodeKind kind)
+    {
+        var verb = MarkRules.Verb(kind);
+
+        foreach (var mark in MarksOf(symbol))
+        {
+            if (mark.Verb == verb)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private static string ExpectedTypes(CodeKind kind) =>

@@ -81,7 +81,7 @@ Every check has a tier. G reads records only and always blocks. S reads code thr
 | `size-type-missing` | G | The size requires a type the project lacks. |
 | `requirement-unfulfilled` | G | A requirement is fulfilled by no rule, use case or journey. |
 | `requirement-unmeasured` | G | A measured requirement names no check, or its check has no passing run. |
-| `decision-decides-nothing` | G | A decision names nothing it decides. |
+| `decision-decides-nothing` | G | A product decision names nothing it decides. |
 | `journey-reach` | G | A public use case sits in no journey and names no background caller. It runs at large size only. |
 | `state-unreachable` | G | A state is reached by no transition. |
 | `transition-unresolved` | G | A transition names a missing state or use case. |
@@ -127,7 +127,8 @@ Every check has a tier. G reads records only and always blocks. S reads code thr
 | `schedule-unstructured` | G | A job schedule is neither an `every` duration nor a `cron` expression. |
 | `behavior-unrecorded` | S | A refusal code in a declaring position, a screen call to no endpoint, or an engine step that maps to no use case is named by no record. The remedy reads: delete the code, or write its parent record from a requirement, drafting the requirement if none exists. |
 | `mark-missing` | S | A code element the marks table names carries no mark. |
-| `mark-unresolved` | S | A mark names no record, or a record of a type its code element does not take, or sits on an element that takes no mark. |
+| `mark-unresolved` | S | A mark names no record, or a record of a type its code element does not take, or sits on an element that takes no mark; or a `follows` mark names no provision of the carried release, no decision or deviation, a retired record, or a provision on a page the project's stacks do not apply. |
+| `decision-unfollowed` | S | A technical decision under `docs/implementation/decisions/` is followed by no code element. |
 | `mark-count` | S | A code element carries more or fewer marks than its kind takes in the marks table, or names one record twice. |
 | `mark-style-mixed` | S | A mark is written in the style the project did not declare. |
 | `runtime-value-drift` | S | A hand-written event `Classification` or exception `Code` differs from what its record states. |

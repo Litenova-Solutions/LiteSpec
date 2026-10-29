@@ -209,6 +209,101 @@ public sealed class MarkCodeFixTests
             [ProjectFile(marks: "attribute"), UseCase()],
             "Shop.Application");
 
+    [Fact(DisplayName = "Convert mark turns a follows tag into an attribute")]
+    public Task ConvertMarkTurnsAFollowsTagIntoAnAttribute() =>
+        Verify.CodeFixAsync<MarkLinkAnalyzer, ConvertMarkStyleCodeFixProvider>(
+            """
+            using System.Threading;
+            using System.Threading.Tasks;
+
+            namespace Shop.Spending;
+
+            /// <follows>decision/0002-store-expenses-as-documents</follows>
+            internal sealed class CommitStep
+            {
+                public Task CommitAsync(CancellationToken cancellationToken) => Task.CompletedTask;
+            }
+            """,
+            """
+            using System.Threading;
+            using System.Threading.Tasks;
+
+            namespace Shop.Spending;
+
+            [LiteSpec.Follows("decision/0002-store-expenses-as-documents")]
+            internal sealed class CommitStep
+            {
+                public Task CommitAsync(CancellationToken cancellationToken) => Task.CompletedTask;
+            }
+            """,
+            "Convert mark to attribute",
+            [ProjectFile(marks: "attribute"), Decision()],
+            "Shop.Application");
+
+    [Fact(DisplayName = "Convert mark turns a follows attribute into a documentation tag")]
+    public Task ConvertMarkTurnsAFollowsAttributeIntoATag() =>
+        Verify.CodeFixAsync<MarkLinkAnalyzer, ConvertMarkStyleCodeFixProvider>(
+            """
+            using System;
+
+            namespace Shop.Spending;
+
+            internal sealed class FollowsAttribute : Attribute
+            {
+                public FollowsAttribute(string id) { }
+            }
+
+            [Follows("decision/0002-store-expenses-as-documents")]
+            internal sealed class CommitStep
+            {
+                public void Commit()
+                {
+                }
+            }
+            """,
+            """
+            using System;
+
+            namespace Shop.Spending;
+
+            internal sealed class FollowsAttribute : Attribute
+            {
+                public FollowsAttribute(string id) { }
+            }
+
+            /// <follows>decision/0002-store-expenses-as-documents</follows>
+            internal sealed class CommitStep
+            {
+                public void Commit()
+                {
+                }
+            }
+            """,
+            "Convert mark to documentation tag",
+            [ProjectFile(), Decision()],
+            "Shop.Application");
+
+    [Fact(DisplayName = "Add mark offers no action for a technical class")]
+    public async Task AddMarkOffersNoActionForATechnicalClass()
+    {
+        var titles = await Verify.CodeFixActionTitlesAsync<MarkPresenceAnalyzer, AddMarkCodeFixProvider>(
+            [("Source.cs", """
+                using System.Threading;
+                using System.Threading.Tasks;
+
+                namespace Shop.Spending;
+
+                internal sealed class CommitStep
+                {
+                    public Task CommitAsync(CancellationToken cancellationToken) => Task.CompletedTask;
+                }
+                """)],
+            [ProjectFile(), Decision()],
+            "Shop.Application");
+
+        Assert.Empty(titles);
+    }
+
     [Fact(DisplayName = "Convert mark turns an attribute into a documentation tag")]
     public Task ConvertMarkTurnsAnAttributeIntoATag() =>
         Verify.CodeFixAsync<MarkLinkAnalyzer, ConvertMarkStyleCodeFixProvider>(

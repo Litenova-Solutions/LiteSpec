@@ -1,5 +1,7 @@
+using System.Linq;
 using LiteSpec.Model;
 using LiteSpec.Model.Roslyn;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace LiteSpec.Model.Tests.Roslyn;
@@ -438,5 +440,222 @@ public sealed class KindReaderTests
             """);
 
         Assert.Equal(CodeKind.Handler, KindReader.KindOf(type, KindContext.Empty));
+    }
+
+    [Theory(DisplayName = "A top-level class with a method in an outer layer is technical")]
+    [InlineData("Application")]
+    [InlineData("Application.Abstractions")]
+    [InlineData("Infrastructure")]
+    [InlineData("WebApi")]
+    [InlineData("Shop.Application")]
+    [InlineData("Shop.WebApi")]
+    public void ClassWithMethodInOuterLayerIsTechnical(string project)
+    {
+        var type = TestTrees.First<ClassDeclarationSyntax>("""
+            internal sealed class CommitStep
+            {
+                public Task CommitAsync(CancellationToken cancellationToken) => Task.CompletedTask;
+            }
+            """);
+
+        Assert.Equal(CodeKind.Technical, KindReader.KindOf(type, KindContext.Empty, project));
+    }
+
+    [Theory(DisplayName = "A class outside the outer layers is not technical")]
+    [InlineData("Domain")]
+    [InlineData("Shop.Domain")]
+    [InlineData("Shop.Application.Tests")]
+    public void ClassOutsideOuterLayersIsNotTechnical(string project)
+    {
+        var type = TestTrees.First<ClassDeclarationSyntax>("""
+            internal sealed class CommitStep
+            {
+                public Task CommitAsync(CancellationToken cancellationToken) => Task.CompletedTask;
+            }
+            """);
+
+        Assert.Null(KindReader.KindOf(type, KindContext.Empty, project));
+    }
+
+    [Fact(DisplayName = "A class with no known project is not technical")]
+    public void ClassWithNoProjectIsNotTechnical()
+    {
+        var type = TestTrees.First<ClassDeclarationSyntax>("""
+            internal sealed class CommitStep
+            {
+                public Task CommitAsync(CancellationToken cancellationToken) => Task.CompletedTask;
+            }
+            """);
+
+        Assert.Null(KindReader.KindOf(type, KindContext.Empty));
+    }
+
+    [Fact(DisplayName = "A class with only properties, fields, or a constructor is not technical")]
+    public void ClassWithoutOrdinaryMethodIsNotTechnical()
+    {
+        foreach (var code in new[]
+        {
+            """
+            internal sealed class ExpenseSettings
+            {
+                public int ReceiptThreshold { get; set; }
+            }
+            """,
+            """
+            internal sealed class ExpenseSettings
+            {
+                private readonly int threshold;
+
+                public ExpenseSettings(int threshold)
+                {
+                    this.threshold = threshold;
+                }
+            }
+            """,
+            """
+            internal sealed class ExpenseSettings;
+            """,
+        })
+        {
+            var type = TestTrees.First<ClassDeclarationSyntax>(code);
+
+            Assert.Null(KindReader.KindOf(type, KindContext.Empty, "Shop.Application"));
+        }
+    }
+
+    [Fact(DisplayName = "A record, struct, interface, or enum is not technical")]
+    public void NonClassIsNotTechnical()
+    {
+        var record = TestTrees.Parse("""
+            public sealed record ExpenseSummary(Guid ExpenseId);
+            """).GetRoot().DescendantNodes().OfType<TypeDeclarationSyntax>().First();
+        var structure = TestTrees.Parse("""
+            public struct Money
+            {
+                public decimal Amount() => 0m;
+            }
+            """).GetRoot().DescendantNodes().OfType<TypeDeclarationSyntax>().First();
+        var face = TestTrees.First<InterfaceDeclarationSyntax>("""
+            public interface IClock
+            {
+                DateTimeOffset UtcNow();
+            }
+            """);
+
+        Assert.Null(KindReader.KindOf(record, KindContext.Empty, "Shop.Application"));
+        Assert.Null(KindReader.KindOf(structure, KindContext.Empty, "Shop.Application"));
+        Assert.Null(KindReader.KindOf(face, KindContext.Empty, "Shop.Application"));
+    }
+
+    [Fact(DisplayName = "A nested class is not technical")]
+    public void NestedClassIsNotTechnical()
+    {
+        var nested = TestTrees.Parse("""
+            public sealed class CommitPipeline
+            {
+                public sealed class CommitStep
+                {
+                    public void Commit() { }
+                }
+            }
+            """).GetRoot().DescendantNodes().OfType<ClassDeclarationSyntax>()
+            .First(type => type.Identifier.ValueText == "CommitStep");
+
+        Assert.Null(KindReader.KindOf(nested, KindContext.Empty, "Shop.Application"));
+    }
+
+    [Fact(DisplayName = "A generated class is not technical")]
+    public void GeneratedClassIsNotTechnical()
+    {
+        var generatedFile = CSharpSyntaxTree.ParseText(
+            """
+            internal sealed class CommitStep
+            {
+                public void Commit() { }
+            }
+            """,
+            path: "CommitStep.g.cs").GetRoot().DescendantNodes().OfType<ClassDeclarationSyntax>().First();
+        var markedFile = CSharpSyntaxTree.ParseText(
+            """
+            // <auto-generated/>
+            internal sealed class CommitStep
+            {
+                public void Commit() { }
+            }
+            """,
+            path: "CommitStep.cs").GetRoot().DescendantNodes().OfType<ClassDeclarationSyntax>().First();
+        var attribute = TestTrees.First<ClassDeclarationSyntax>("""
+            [System.CodeDom.Compiler.GeneratedCode("tool", "1.0")]
+            internal sealed class CommitStep
+            {
+                public void Commit() { }
+            }
+            """);
+
+        Assert.Null(KindReader.KindOf(generatedFile, KindContext.Empty, "Shop.Application"));
+        Assert.Null(KindReader.KindOf(markedFile, KindContext.Empty, "Shop.Application"));
+        Assert.Null(KindReader.KindOf(attribute, KindContext.Empty, "Shop.Application"));
+    }
+
+    [Fact(DisplayName = "A migration or model snapshot is not technical")]
+    public void MigrationIsNotTechnical()
+    {
+        var migration = TestTrees.First<ClassDeclarationSyntax>("""
+            internal sealed class AddExpenses : Migration
+            {
+                public void Up() { }
+            }
+            """);
+        var snapshot = TestTrees.First<ClassDeclarationSyntax>("""
+            internal sealed class ShopModelSnapshot : ModelSnapshot
+            {
+                public void Build() { }
+            }
+            """);
+
+        Assert.Null(KindReader.KindOf(migration, KindContext.Empty, "Shop.Infrastructure"));
+        Assert.Null(KindReader.KindOf(snapshot, KindContext.Empty, "Shop.Infrastructure"));
+    }
+
+    [Fact(DisplayName = "A class taking another kind keeps it")]
+    public void OtherKindWinsOverTechnical()
+    {
+        var handler = TestTrees.First<ClassDeclarationSyntax>("""
+            internal sealed class SubmitExpenseCommandHandler : ICommandHandler<SubmitExpenseCommand>
+            {
+                public void Handle() { }
+            }
+            """);
+        var endpoint = TestTrees.First<ClassDeclarationSyntax>("""
+            internal sealed class SubmitExpenseEndpoint
+            {
+                public void Map() { }
+            }
+            """);
+        var adapter = TestTrees.First<ClassDeclarationSyntax>("""
+            internal sealed class PayoutBankAdapter : IPayoutPort
+            {
+                public void Send() { }
+            }
+            """);
+        var context = new KindContext(new string[0], new string[0], new[] { "IPayoutPort" });
+
+        Assert.Equal(CodeKind.Handler, KindReader.KindOf(handler, KindContext.Empty, "Shop.Application"));
+        Assert.Equal(CodeKind.Endpoint, KindReader.KindOf(endpoint, KindContext.Empty, "Shop.WebApi"));
+        Assert.Equal(CodeKind.Adapter, KindReader.KindOf(adapter, context, "Shop.Infrastructure"));
+    }
+
+    [Fact(DisplayName = "A partial part without a method reads through the context names")]
+    public void PartialPartReadsThroughContext()
+    {
+        var part = TestTrees.First<ClassDeclarationSyntax>("""
+            public sealed partial class CommitStep
+            {
+            }
+            """);
+        var context = new KindContext(new string[0], new string[0], new string[0], technicalClasses: new[] { "CommitStep" });
+
+        Assert.Equal(CodeKind.Technical, KindReader.KindOf(part, context, "Shop.Application"));
+        Assert.Null(KindReader.KindOf(part, KindContext.Empty, "Shop.Application"));
     }
 }

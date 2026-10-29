@@ -238,8 +238,8 @@ static partial class RenameCommand
 
         if (extension.Equals(".cs", StringComparison.OrdinalIgnoreCase))
         {
-            text = ReplacePattern(text, $"<(implements|proves)>\\s*{escaped}\\s*</\\1>", oldId, newId, ref count);
-            text = ReplacePattern(text, $"\\b(Implements|Proves)(Attribute)?\\(\\s*\"{escaped}\"", oldId, newId, ref count);
+            text = ReplacePattern(text, $"<(implements|proves|follows)>\\s*{escaped}\\s*</\\1>", oldId, newId, ref count);
+            text = ReplacePattern(text, $"\\b(Implements|Proves|Follows)(Attribute)?\\(\\s*\"{escaped}\"", oldId, newId, ref count);
         }
         else
         {

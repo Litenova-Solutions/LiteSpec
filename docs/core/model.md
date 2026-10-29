@@ -33,7 +33,7 @@ Each type answers one question.
 | `feature` | intent | What is offered against a problem? |
 | `constraint` | intent | Which outside rules hold? |
 | `research` | intent | Which outside facts inform a choice? |
-| `decision` | intent | Which choice holds, and what changes it? |
+| `decision` | intent, implementation | Which choice holds, and what changes it? |
 | `requirement` | intent | What does the product do or guarantee? |
 | `journey` | intent | Which ordered steps reach one goal? |
 | `actor` | intent | Who or what touches the product? |
@@ -70,7 +70,7 @@ A consumer keeps its documentation in one folder per record layer, so the folder
 |:---|:---|:---|
 | `docs/intent/` | Intent | The brief, goals, problems, features, requirement pages by area, constraints, decisions, journeys, actors, research, and the product documents the business publishes, such as legal texts and the writing voice |
 | `docs/behavior/` | Behavior | Modules with their aggregates, use cases, reactions, jobs, notifications and settings; rule pages; access (roles, permissions, entry points); external systems; integration events; the retention schedule; runbooks and operating procedures |
-| `docs/implementation/` | Implementation | Guides for people working in the code: frontend architecture, the command reference, the published API guide, and setup guides. These pages describe code and hold no records |
+| `docs/implementation/` | Implementation | The technical decisions under `decisions/`, and guides for people working in the code: frontend architecture, the command reference, the published API guide, and setup guides. The guides describe code and hold no records |
 | `docs/proof/` | Proof | Evidence the tools compute or a run leaves behind: generated registers, gate files, and operating logs. No person writes a fact here that a tool can compute |
 | `docs/governance/` | Governance | Deviations and known gaps, which can attach to any record layer |
 
@@ -213,7 +213,7 @@ Each written link lives as a field on the record it starts from: a decision carr
 
 Behavior records point up: `serves` points to a goal or a journey step, and `fulfills` points to a requirement. Records never point down: a journey names no use case, and a requirement names no rule.
 
-Containment needs no link field: it follows the identifier. An aggregate belongs to the module its identifier names, a reaction, job, notification, or setting belongs to the module its identifier names, and a result or a scenario belongs to the use case its identifier names. An integration event belongs to the published set. The builder computes the remaining links from code, routes, and tests: `implements` from a code mark to the record it names, `calls` from a screen to a use case, and `proves` from a test mark to a scenario or rule. Code and tests point up to the record they serve through their marks, with each handler implementing exactly one record.
+Containment needs no link field: it follows the identifier. An aggregate belongs to the module its identifier names, a reaction, job, notification, or setting belongs to the module its identifier names, and a result or a scenario belongs to the use case its identifier names. An integration event belongs to the published set. The builder computes the remaining links from code, routes, and tests: `implements` from a code mark to the record it names, `follows` from a code mark to the provision, decision, or deviation that shapes the code, `calls` from a screen to a use case, and `proves` from a test mark to a scenario or rule. Code and tests point up to the record they serve through their marks, with each handler implementing exactly one record.
 
 ### Marks
 
@@ -234,6 +234,9 @@ A mark is the one written link from a code element to the record it serves. It h
 | API | Endpoint | `use-case/<module>.<name>` |
 | Frontend | Use-case module | `use-case/<module>.<name>` |
 | Tests | Test | `scenario/<use-case>.<name>`, or `rule/<home>.<name>` for a rule test |
+| Application, Infrastructure or API | Technical class: a class that declares a method and takes no other mark | `litespec/<page>#<slug>`, `decision/<number>-<name>` or `deviation/<name>`, one or more, in a `follows` mark |
+
+A code element serving a record names it in an `implements` mark. A technical class serves no record, so it names the reason it is built the way it is in a `follows` mark: the LiteSpec provision that requires its shape, the technical decision that chose it, or the deviation that allows it. Any other code element may carry a `follows` mark as well.
 
 The tools recognize most code elements from the code itself and then expect their mark. A port and a domain service are recognized by their mark, and an aggregate root method by the event it raises or by its mark, so an unmarked port is found only from the top, through its external system, and an unmarked method that changes state without raising an event is not recognized at all.
 
@@ -548,11 +551,23 @@ A deviation that governs code no record describes names those files in `code`, a
 
 **ID:** `litespec/core/model#name-what-every-decision-decides`
 
-**Statement:** Every decision that is not retired MUST name at least one record it settles in `decides`.
+**Statement:** Every product decision that is not retired MUST name at least one record it settles in `decides`.
 
-**Rationale:** The draft gate and the computed effective status both follow `decides`. A decision that names nothing holds back nothing, so its approval state constrains no record and its draft gate checks nothing. Naming at least one settled record gives the decision something to govern.
+**Rationale:** The draft gate and the computed effective status both follow `decides`. A decision that names nothing holds back nothing, so its approval state constrains no record and its draft gate checks nothing. Naming at least one settled record gives the decision something to govern. A technical decision governs the code that follows it instead.
 
-**Checked by:** `litespec model check` reports `decision-decides-nothing` for a decision with an empty `decides` field.
+**Checked by:** `litespec model check` reports `decision-decides-nothing` for a product decision with an empty `decides` field.
+
+### Record Each Technical Choice as a Decision
+
+**ID:** `litespec/core/model#record-each-technical-choice-as-a-decision`
+
+**Statement:** A technical choice that code follows and no LiteSpec provision makes MUST be a decision under `docs/implementation/decisions/` that at least one code element follows.
+
+**Rationale:** Why a pattern, a library, or a configuration value was chosen is the first question a maintainer asks before changing it. Written in a comment, the answer drifts and no tool finds it. Written as a decision, it carries its options, what speaks for and against each, and what would reopen it, and every code element shaped by it names it in a `follows` mark. A choice a LiteSpec provision already makes needs no decision, because the provision is the record. Technical decisions sit under Implementation because they name technologies and code, which Intent never holds, and they share the numbered sequence of product decisions, so all decisions share one identifier space.
+
+**Example:** Claimwick stores each expense as one document. `decision/0002-store-expenses-as-documents` weighs a document store against relational tables, chooses documents, and names what reopens the choice: a report that must join expenses across employees. The expense repository carries `/// <follows>decision/0002-store-expenses-as-documents</follows>`.
+
+**Checked by:** `litespec model check` reports `decision-unfollowed` (tier S) for a technical decision that no code element follows.
 
 ### Resolve Every Page Link
 

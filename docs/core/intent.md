@@ -78,11 +78,11 @@ Intent never contains Behavior field names, code identifiers, or mechanism: no s
 
 **ID:** `litespec/core/intent#keep-intent-in-its-homes`
 
-**Statement:** A consumer MUST keep its brief, requirement pages, goals, problems, features, constraints, decisions, and journeys under `docs/intent/`, and its research under `docs/intent/research/`.
+**Statement:** A consumer MUST keep its brief, requirement pages, goals, problems, features, constraints, product decisions, and journeys under `docs/intent/`, and its research under `docs/intent/research/`.
 
-**Rationale:** Intent split across notes and books gives no single answer to the question an agent asks before building. One home per kind, with the brief, requirement pages, goals, problems, features, constraints, decisions, and journeys under `docs/intent/` and research under `docs/intent/research/`, gives every reader one place to look. A second home for any kind starts a second truth about the business.
+**Rationale:** Intent split across notes and books gives no single answer to the question an agent asks before building. One home per kind, with the brief, requirement pages, goals, problems, features, constraints, product decisions, and journeys under `docs/intent/` and research under `docs/intent/research/`, gives every reader one place to look. A second home for any kind starts a second truth about the business.
 
-**Reviewed for:** Each brief, requirement page, goal, problem, feature, constraint, decision, and journey under `docs/intent/`, and each research record under `docs/intent/research/`.
+**Reviewed for:** Each brief, requirement page, goal, problem, feature, constraint, product decision, and journey under `docs/intent/`, and each research record under `docs/intent/research/`.
 
 ### State One Product
 

@@ -14,12 +14,18 @@ public enum MarkVerb
     ///     The element proves the record: the verb of every test mark.
     /// </summary>
     Proves = 1,
+
+    /// <summary>
+    ///     The element follows the choice: the verb of a mark naming the
+    ///     provision, decision, or deviation that shapes the code.
+    /// </summary>
+    Follows = 2,
 }
 
 /// <summary>The written names of each <see cref="MarkVerb" /> in both mark styles.</summary>
 public static class MarkVerbNames
 {
-    /// <summary>Returns the documentation tag name: <c>implements</c> or <c>proves</c>.</summary>
+    /// <summary>Returns the documentation tag name: <c>implements</c>, <c>proves</c>, or <c>follows</c>.</summary>
     /// <param name="verb">The verb to write.</param>
     /// <returns>The lowercase tag name.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The verb is not a known value.</exception>
@@ -31,12 +37,14 @@ public static class MarkVerbNames
                 return "implements";
             case MarkVerb.Proves:
                 return "proves";
+            case MarkVerb.Follows:
+                return "follows";
             default:
                 throw new ArgumentOutOfRangeException(nameof(verb), verb, "Unknown mark verb.");
         }
     }
 
-    /// <summary>Returns the attribute name: <c>Implements</c> or <c>Proves</c>.</summary>
+    /// <summary>Returns the attribute name: <c>Implements</c>, <c>Proves</c>, or <c>Follows</c>.</summary>
     /// <param name="verb">The verb to write.</param>
     /// <returns>The attribute name without the <c>Attribute</c> suffix.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The verb is not a known value.</exception>
@@ -48,6 +56,8 @@ public static class MarkVerbNames
                 return "Implements";
             case MarkVerb.Proves:
                 return "Proves";
+            case MarkVerb.Follows:
+                return "Follows";
             default:
                 throw new ArgumentOutOfRangeException(nameof(verb), verb, "Unknown mark verb.");
         }
@@ -55,7 +65,7 @@ public static class MarkVerbNames
 
     /// <summary>
     ///     Reads a documentation tag name. Matching is exact and case sensitive:
-    ///     only <c>implements</c> and <c>proves</c> are marks.
+    ///     only <c>implements</c>, <c>proves</c>, and <c>follows</c> are marks.
     /// </summary>
     /// <param name="name">The element name, or null.</param>
     /// <param name="verb">The parsed verb, or <see cref="MarkVerb.Implements" /> when parsing fails.</param>
@@ -71,6 +81,12 @@ public static class MarkVerbNames
         if (string.Equals(name, "proves", StringComparison.Ordinal))
         {
             verb = MarkVerb.Proves;
+            return true;
+        }
+
+        if (string.Equals(name, "follows", StringComparison.Ordinal))
+        {
+            verb = MarkVerb.Follows;
             return true;
         }
 
@@ -104,6 +120,12 @@ public static class MarkVerbNames
             if (string.Equals(text, "Proves", StringComparison.Ordinal))
             {
                 verb = MarkVerb.Proves;
+                return true;
+            }
+
+            if (string.Equals(text, "Follows", StringComparison.Ordinal))
+            {
+                verb = MarkVerb.Follows;
                 return true;
             }
         }

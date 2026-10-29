@@ -23,7 +23,7 @@ A page record carries its type, identifier, title, owner, and status in JSON fro
 | `goal.md` | `docs/intent/goals/<name>.md` | States one measurable outcome the product serves. |
 | `constraint.md` | `docs/intent/constraints/<name>.md` | Records one outside rule and whether it applies. |
 | `research.md` | `docs/intent/research/<name>.md` | Records one outside fact that informs a choice. |
-| `decision.md` | `docs/intent/decisions/<number>-<name>.md` | Records one dated choice with its options and evidence. |
+| `decision.md` | `docs/intent/decisions/<number>-<name>.md` | Records one dated choice with its options and evidence. A technical decision lives under `docs/implementation/decisions/` instead. |
 | `problem.md` | `docs/intent/problems/<name>.md` | Records one pain someone has today. |
 | `feature.md` | `docs/intent/features/<name>.md` | Records what is offered against a problem. |
 | `actor.md` | `docs/behavior/actors/<name>.md` | Records one person, organization, or system. |

@@ -86,6 +86,18 @@ Each page owns its tables and rules, and this page cites them without copying. A
 
 **Checked by:** `litespec model check` reports `mark-missing`, `mark-unresolved` and `mark-count` (tier S) for a code element with no mark, a mark naming no record of the type its element takes, or a handler marking other than one record.
 
+### Point Technical Code up to the Choice Behind It
+
+**ID:** `litespec/core/system#point-technical-code-up-to-the-choice-behind-it`
+
+**Statement:** Every technical class the marks table on the [model page](model.md) names MUST carry at least one `follows` mark naming the LiteSpec provision, decision, or deviation that shapes it.
+
+**Rationale:** Code that serves no Behavior record still exists for a reason: a provision requires it, a technical decision chose it, or a deviation allows it. A `follows` mark names that reason by identifier, so a reader asking why the command pipeline commits once, or why the repository stores documents, follows the link instead of guessing, and a check finds the code that still follows a retired decision. Code that serves a record names it in `implements` and code built for a technical reason names that reason in `follows`, so every class in the outer layers answers what it serves or why it is built as it is.
+
+**Example:** The Claimwick command pipeline's commit step carries `/// <follows>litespec/backend/persistence#commit-each-command-pipeline-once</follows>`, and the expense repository carries `/// <follows>decision/0002-store-expenses-as-documents</follows>`.
+
+**Checked by:** `litespec model check` reports `mark-missing` and `mark-unresolved` (tier S), and `dotnet build` reports `LS5001` and `LS5002`, for a technical class with no `follows` mark, or a `follows` mark naming no provision of the carried release, no decision or deviation, a retired record, or a provision on a page the project's stacks do not apply.
+
 ### Declare Every Edge Between Records
 
 **ID:** `litespec/core/system#declare-every-edge-between-records`
@@ -184,6 +196,9 @@ docs/
         expenses/
           README.md
           submit-expense.md
+  implementation/
+    decisions/
+      0002-store-expenses-as-documents.md
   research/
     approval-time-benchmarks.md
   operations/

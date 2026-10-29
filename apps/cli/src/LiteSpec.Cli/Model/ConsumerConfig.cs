@@ -120,6 +120,9 @@ sealed class ConsumerConfig
     /// <summary>The stacks the project names in <c>litespec.project.json</c>.</summary>
     public IReadOnlyList<string> Stacks { get; private set; } = [];
 
+    /// <summary>The extension ids the project selects in <c>selectedExtensions</c>.</summary>
+    public IReadOnlyList<string> Extensions { get; private set; } = [];
+
     /// <summary>The mark style the project declares.</summary>
     public MarkStyle Marks { get; private set; } = MarkStyle.Xml;
 
@@ -253,6 +256,29 @@ sealed class ConsumerConfig
 
             config.Owners = names;
             config.OwnerCodeowners = mapped;
+        }
+
+        if (document.RootElement.TryGetProperty("selectedExtensions", out var extensions)
+            && extensions.ValueKind == JsonValueKind.Array)
+        {
+            var ids = new List<string>();
+
+            foreach (var entry in extensions.EnumerateArray())
+            {
+                if (entry.ValueKind == JsonValueKind.String && entry.GetString() is { Length: > 0 } id)
+                {
+                    ids.Add(id);
+                }
+                else if (entry.ValueKind == JsonValueKind.Object
+                    && entry.TryGetProperty("id", out var named)
+                    && named.ValueKind == JsonValueKind.String
+                    && named.GetString() is { Length: > 0 } objectId)
+                {
+                    ids.Add(objectId);
+                }
+            }
+
+            config.Extensions = ids;
         }
 
         if (document.RootElement.TryGetProperty("optionalTypes", out var optional)

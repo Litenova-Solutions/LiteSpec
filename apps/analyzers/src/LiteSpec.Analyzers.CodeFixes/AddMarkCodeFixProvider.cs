@@ -12,7 +12,8 @@ namespace LiteSpec.Analyzers.CodeFixes;
 /// <summary>
 ///     Adds the missing mark LS5001 reports: one action per candidate record,
 ///     titled with the record title, written in the project's style. No Fix All:
-///     each element answers to its own record.
+///     each element answers to its own record. A technical class offers no action:
+///     no candidate names the choice behind it.
 /// </summary>
 [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(AddMarkCodeFixProvider))]
 [Shared]
@@ -33,6 +34,11 @@ public sealed class AddMarkCodeFixProvider : CodeFixProvider
             context.Document, diagnostic.Location.SourceSpan, context.CancellationToken).ConfigureAwait(false);
 
         if (fix?.Kind is not CodeKind kind || fix.Symbol is null)
+        {
+            return;
+        }
+
+        if (kind == CodeKind.Technical)
         {
             return;
         }

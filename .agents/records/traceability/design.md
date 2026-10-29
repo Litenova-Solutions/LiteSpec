@@ -143,3 +143,33 @@ The generator in the analyzer package writes, per project, into namespace `LiteS
 ## Frontend Marks (phase 3)
 
 `litespec model build` writes `litespec-records.ts` per frontend at `<frontend root>/src/lib/litespec-records.ts`, holding the union of use-case ids and the `LiteSpecMark` type. The TypeScript reader reads each module's `litespec` constant; an unmarked use-case folder is `mark-missing`.
+
+## Technical Marks
+
+A technical class serves no Behavior record, so it names why it is built as it is in a `follows` mark (`litespec/core/system#point-technical-code-up-to-the-choice-behind-it`, `litespec/core/model#record-each-technical-choice-as-a-decision`).
+
+| Style | Form |
+|:---|:---|
+| `xml` | `/// <follows>litespec/backend/persistence#commit-each-command-pipeline-once</follows>` |
+| `attribute` | `[Follows("decision/0002-store-expenses-as-documents")]` |
+
+| Layer | Code element | Kind | Mark names | Count |
+|:---|:---|:---|:---|:---|
+| Application, Application.Abstractions, Infrastructure, WebApi | Technical class | `Technical` | `litespec/` provision, `decision/`, `deviation/` | one or more, `follows` only |
+
+A technical class is a top-level class (not a record, struct, interface, enum or delegate) in a project whose layer is Application, Application.Abstractions, Infrastructure or WebApi, that takes no other kind and declares at least one ordinary method (not only constructors, properties, fields or operators). Excluded: generated code (a file the compiler treats as generated, or a class carrying `[GeneratedCode]`), classes deriving from a type named `Migration` or `ModelSnapshot`, test projects, nested types. Partial parts count as one class; a mark on any part counts.
+
+`follows` is a third mark verb beside `implements` and `proves`. Any type or method of any kind may carry `follows` marks; only `Technical` requires one, and a `follows` mark is never stray. `implements` on a technical class is stray as before. A `follows` mark never counts toward `mark-count` of another kind.
+
+A `follows` target resolves when it is:
+
+- a `litespec/<page>#<slug>` provision in the release the tool carries, on a page the project's stacks and extensions apply (CLI); the analyzer checks existence only, from the provision ids the package embeds at pack time;
+- a `decision/` or `deviation/` record that is not retired.
+
+Otherwise the mark reports `mark-unresolved` (LS5002), subject the element.
+
+| Code | Tier | Rule | Meaning |
+|:---|:---|:---|:---|
+| `decision-unfollowed` | S | | A decision under `docs/implementation/decisions/` that no code element follows. CLI only. |
+
+`decision-decides-nothing` covers product decisions only (decisions outside `docs/implementation/decisions/`). The generator writes `FollowsAttribute` (`AttributeTargets.Class | Interface | Struct | Method`, `AllowMultiple = true`) in the attribute style. `LiteSpecRegistry` does not list `follows` targets. `litespec rename` rewrites `follows` ids as it rewrites `implements` ids.

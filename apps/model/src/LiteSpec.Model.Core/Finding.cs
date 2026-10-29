@@ -117,6 +117,7 @@ public sealed record Finding(string Code, string Message, string Path, int Line,
             ["use-case-unexposed"] = "S",
             ["effect-unimplemented"] = "A",
             ["use-case-unreached"] = "A",
+            ["decision-unfollowed"] = "S",
         };
 
     /// <summary>The finding tier: G blocks, S blocks where qualified, A reports.</summary>

@@ -11,9 +11,10 @@ namespace LiteSpec.Analyzers.Rules.Traceability;
 /// <summary>
 ///     LS5002: a mark names no record, a record of a type its element does not
 ///     take, uses the verb its kind does not take, or sits on a type or method
-///     that takes no mark. LS5003: an element carries more marks than its kind
-///     takes, or names one record twice. LS5004: a mark is written in the style
-///     the project did not declare.
+///     that takes no mark; or a <c>follows</c> mark names no decision, deviation,
+///     or provision of the carried release. LS5003: an element carries more marks
+///     than its kind takes, or names one record twice. LS5004: a mark is written
+///     in the style the project did not declare.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class MarkLinkAnalyzer : TraceabilityAnalyzer
@@ -59,18 +60,23 @@ public sealed class MarkLinkAnalyzer : TraceabilityAnalyzer
         SymbolAnalysisContext context, TraceabilityContext state, ISymbol symbol, CodeKind? kind)
     {
         var members = Declarations(symbol);
-        var ids = new List<string>();
+        var counted = new List<string>();
 
         foreach (var member in members)
         {
             foreach (var mark in MarkReader.Read(member))
             {
-                ids.Add(mark.RecordId);
+                if (kind is null
+                    || (kind == CodeKind.Technical ? mark.Verb == MarkVerb.Follows : mark.Verb != MarkVerb.Follows))
+                {
+                    counted.Add(mark.RecordId);
+                }
+
                 AnalyzeMark(context, state, symbol, kind, member, mark);
             }
         }
 
-        if (kind is not null && MarkRules.CheckCount(kind.Value, ids).Violated)
+        if (kind is not null && MarkRules.CheckCount(kind.Value, counted).Violated)
         {
             TraceabilityReporter.Report(
                 state,
@@ -80,7 +86,7 @@ public sealed class MarkLinkAnalyzer : TraceabilityAnalyzer
                 subject: null,
                 symbol.Locations[0],
                 symbol.Name,
-                ids.Count);
+                counted.Count);
         }
     }
 
@@ -106,6 +112,13 @@ public sealed class MarkLinkAnalyzer : TraceabilityAnalyzer
                 symbol.Name,
                 string.Empty,
                 "carries no record identifier");
+            AnalyzeStyle(context, state, symbol, mark, location);
+            return;
+        }
+
+        if (mark.Verb == MarkVerb.Follows)
+        {
+            AnalyzeFollowsMark(context, state, symbol, mark, location);
             AnalyzeStyle(context, state, symbol, mark, location);
             return;
         }
@@ -172,6 +185,86 @@ public sealed class MarkLinkAnalyzer : TraceabilityAnalyzer
         }
 
         AnalyzeStyle(context, state, symbol, mark, location);
+    }
+
+    /// <summary>
+    ///     Checks one <c>follows</c> mark on a symbol of any kind or none: it names
+    ///     a provision of the carried release, or a decision or deviation that is
+    ///     not retired. A <c>follows</c> mark is never stray.
+    /// </summary>
+    private static void AnalyzeFollowsMark(
+        SymbolAnalysisContext context,
+        TraceabilityContext state,
+        ISymbol symbol,
+        Mark mark,
+        Location location)
+    {
+        var id = mark.RecordId;
+
+        if (id.StartsWith("litespec/", System.StringComparison.Ordinal))
+        {
+            if (!ProvisionIds.Contains(id))
+            {
+                TraceabilityReporter.Report(
+                    state,
+                    context.ReportDiagnostic,
+                    Descriptors.LS5002,
+                    "mark-unresolved",
+                    id,
+                    location,
+                    symbol.Name,
+                    id,
+                    "matches no provision of the carried release");
+            }
+
+            return;
+        }
+
+        if (id.StartsWith("decision/", System.StringComparison.Ordinal)
+            || id.StartsWith("deviation/", System.StringComparison.Ordinal))
+        {
+            var record = state.Store.Index.ById(id);
+
+            if (record is null || (record.Type != "decision" && record.Type != "deviation"))
+            {
+                TraceabilityReporter.Report(
+                    state,
+                    context.ReportDiagnostic,
+                    Descriptors.LS5002,
+                    "mark-unresolved",
+                    id,
+                    location,
+                    symbol.Name,
+                    id,
+                    "matches no decision or deviation");
+            }
+            else if (record.Status == "retired")
+            {
+                TraceabilityReporter.Report(
+                    state,
+                    context.ReportDiagnostic,
+                    Descriptors.LS5002,
+                    "mark-unresolved",
+                    subject: null,
+                    location,
+                    symbol.Name,
+                    id,
+                    "is retired");
+            }
+
+            return;
+        }
+
+        TraceabilityReporter.Report(
+            state,
+            context.ReportDiagnostic,
+            Descriptors.LS5002,
+            "mark-unresolved",
+            id,
+            location,
+            symbol.Name,
+            id,
+            "matches no provision, decision, or deviation");
     }
 
     private static void AnalyzeStyle(

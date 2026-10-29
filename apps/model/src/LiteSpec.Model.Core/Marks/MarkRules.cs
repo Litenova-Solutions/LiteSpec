@@ -19,6 +19,7 @@ public static class MarkRules
     private static readonly string[] JobTypes = { "job" };
     private static readonly string[] ExternalSystemTypes = { "external-system" };
     private static readonly string[] TestTypes = { "scenario", "rule" };
+    private static readonly string[] FollowsTypes = { "litespec", "decision", "deviation" };
 
     private static readonly string[] Codes =
     {
@@ -50,6 +51,7 @@ public static class MarkRules
 
     /// <summary>
     ///     The verb of marks on the kind: <see cref="MarkVerb.Proves" /> for tests,
+    ///     <see cref="MarkVerb.Follows" /> for technical classes,
     ///     <see cref="MarkVerb.Implements" /> otherwise.
     /// </summary>
     /// <param name="kind">The code kind.</param>
@@ -217,6 +219,8 @@ public static class MarkRules
                 return new KindRule(RuleTypes, true, MarkVerb.Implements);
             case CodeKind.Test:
                 return new KindRule(TestTypes, false, MarkVerb.Proves);
+            case CodeKind.Technical:
+                return new KindRule(FollowsTypes, false, MarkVerb.Follows);
             default:
                 throw new ArgumentOutOfRangeException(nameof(kind), kind, "Unknown code kind.");
         }

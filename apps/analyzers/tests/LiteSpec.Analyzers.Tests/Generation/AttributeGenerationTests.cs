@@ -6,6 +6,21 @@ namespace LiteSpec.Analyzers.Tests.Generation;
 /// <summary>Tests for the generated mark attributes.</summary>
 public sealed class AttributeGenerationTests
 {
+    [Fact(DisplayName = "The attribute style generates the Follows attribute")]
+    public void AttributeStyleGeneratesFollows()
+    {
+        var run = GeneratorVerify.Run(
+            RecordPages.Sources("namespace Shop.Spending; internal sealed class Placeholder;"),
+            RecordPages.Files("attribute", ("events.md", RecordPages.EventPage("event/expense.submitted"))));
+
+        Assert.True(run.Sources.TryGetValue("LiteSpecAttributes.g.cs", out var attributes), "The attributes source is missing.");
+        Assert.Contains(
+            "internal sealed class FollowsAttribute",
+            attributes,
+            StringComparison.Ordinal);
+        Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
+    }
+
     [Fact(DisplayName = "The attribute style generates the Implements and Proves attributes")]
     public void AttributeStyleGeneratesTheAttributes()
     {

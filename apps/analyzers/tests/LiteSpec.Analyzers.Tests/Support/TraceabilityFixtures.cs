@@ -166,18 +166,32 @@ internal static class TraceabilityFixtures
 
     /// <summary>An approved deviation covering the files and subjects until 2099.</summary>
     public static (string Path, string Source) Deviation(
-        string[] code, string[]? subjects = null, string reviewBy = "2099-01-01") =>
+        string[] code, string[]? subjects = null, string reviewBy = "2099-01-01", string status = "approved") =>
         Page("deviation.md", $$"""
             {
               "type": "deviation",
               "id": "deviation/marks-deferred",
               "title": "Marks deferred",
-              "status": "approved",
+              "status": "{{status}}",
               "reviewBy": "{{reviewBy}}",
               "code": [{{string.Join(", ", code.Select(Quote))}}],
               "subject": [{{string.Join(", ", (subjects ?? []).Select(Quote))}}]
             }
             """, "Marks deferred");
+
+    /// <summary>A decision page with its status.</summary>
+    public static (string Path, string Source) Decision(
+        string id = "decision/0002-store-expenses-as-documents",
+        string title = "Store expenses as documents",
+        string status = "approved") =>
+        Page(FileOf(id), $$"""
+            {
+              "type": "decision",
+              "id": "{{id}}",
+              "title": "{{title}}",
+              "status": "{{status}}"
+            }
+            """, title);
 
     /// <summary>An open known gap covering the check on the subjects until 2099.</summary>
     public static (string Path, string Source) KnownGap(string check, string[] subjects, string endsBy = "2099-01-01") =>

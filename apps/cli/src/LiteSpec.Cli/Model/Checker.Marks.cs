@@ -14,6 +14,7 @@ static partial class Checker
         CheckMarkPresence(model, findings);
         CheckMarkLinks(model, findings);
         CheckStrayMarks(model, findings);
+        CheckDecisionsFollowed(model, findings);
         CheckRuntimeValueDrift(model, findings);
         CheckUseCaseActCalled(model, findings);
         CheckActEvents(model, findings);
@@ -27,9 +28,11 @@ static partial class Checker
     {
         foreach (var element in model.Code.Elements)
         {
-            if (element.Marks.Count == 0)
+            if (!element.Marks.Any(mark => mark.Verb == MarkRules.Verb(element.Kind)))
             {
-                findings.Add(new Finding("mark-missing", $"{KindName(element.Kind)} '{DisplayName(element)}' carries no mark.", element.File, element.Line, null));
+                var what = element.Kind == CodeKind.Technical ? "follows mark" : "mark";
+
+                findings.Add(new Finding("mark-missing", $"{KindName(element.Kind)} '{DisplayName(element)}' carries no {what}.", element.File, element.Line, null));
             }
         }
     }
@@ -40,48 +43,124 @@ static partial class Checker
         {
             foreach (var mark in element.Marks)
             {
-                var subject = mark.RecordId.Length > 0 ? mark.RecordId : null;
-
-                if (!model.ById.TryGetValue(mark.RecordId, out var record))
+                if (mark.Verb == MarkVerb.Follows)
                 {
-                    findings.Add(new Finding("mark-unresolved", $"{KindName(element.Kind)} '{DisplayName(element)}' marks '{mark.RecordId}', which matches no record.", mark.File, mark.Line, subject));
+                    CheckFollowsMark(model, element, mark, findings);
                 }
-                else if (!MarkRules.Accepts(element.Kind, mark.RecordId))
+                else
                 {
-                    findings.Add(new Finding("mark-unresolved", $"{KindName(element.Kind)} '{DisplayName(element)}' marks '{mark.RecordId}', which is a {record.Type} record, not a {ExpectedTypes(element.Kind)} record.", mark.File, mark.Line, subject));
-                }
-
-                if (Readers.TypeScript.FrontendMarks.PathMismatch(model, element, mark) is { } expected)
-                {
-                    findings.Add(new Finding("mark-unresolved", $"{KindName(element.Kind)} '{DisplayName(element)}' marks '{mark.RecordId}', but its folder mirrors '{expected}'.", mark.File, mark.Line, subject));
-                }
-
-                if (subject is not null && mark.Verb != MarkRules.Verb(element.Kind))
-                {
-                    findings.Add(new Finding("mark-unresolved", $"{KindName(element.Kind)} '{DisplayName(element)}' marks '{mark.RecordId}' with the {mark.Verb.ToTagName()} verb, but its kind takes {MarkRules.Verb(element.Kind).ToTagName()}.", mark.File, mark.Line, subject));
+                    CheckServesMark(model, element, mark, findings);
                 }
 
                 if (mark.Style != model.Config.Marks)
                 {
+                    var subject = mark.RecordId.Length > 0 ? mark.RecordId : null;
+
                     findings.Add(new Finding("mark-style-mixed", $"{KindName(element.Kind)} '{DisplayName(element)}' writes its mark '{mark.RecordId}' in the {mark.Style.ToProjectValue()} style, but the project declares {model.Config.Marks.ToProjectValue()}.", mark.File, mark.Line, subject));
                 }
             }
 
-            var count = MarkRules.CheckCount(element.Kind, element.Marks.Select(mark => mark.RecordId).ToList());
+            var counted = element.Marks
+                .Where(mark => element.Kind == CodeKind.Technical
+                    ? mark.Verb == MarkVerb.Follows
+                    : mark.Verb != MarkVerb.Follows)
+                .Select(mark => mark.RecordId)
+                .ToList();
+            var count = MarkRules.CheckCount(element.Kind, counted);
 
             if (count.Violated)
             {
                 findings.Add(count.Duplicate is not null
                     ? new Finding("mark-count", $"{KindName(element.Kind)} '{DisplayName(element)}' names '{count.Duplicate}' twice.", element.File, element.Line, null)
-                    : new Finding("mark-count", $"{KindName(element.Kind)} '{DisplayName(element)}' carries {element.Marks.Count} marks, but its kind takes one.", element.File, element.Line, null));
+                    : new Finding("mark-count", $"{KindName(element.Kind)} '{DisplayName(element)}' carries {counted.Count} marks, but its kind takes one.", element.File, element.Line, null));
             }
+        }
+    }
+
+    /// <summary>
+    ///     Checks one <c>implements</c> or <c>proves</c> mark: it names a record of
+    ///     the type its kind takes, in the verb its kind takes.
+    /// </summary>
+    private static void CheckServesMark(ProjectModel model, MarkedElement element, CodeMark mark, List<Finding> findings)
+    {
+        var subject = mark.RecordId.Length > 0 ? mark.RecordId : null;
+
+        if (!model.ById.TryGetValue(mark.RecordId, out var record))
+        {
+            findings.Add(new Finding("mark-unresolved", $"{KindName(element.Kind)} '{DisplayName(element)}' marks '{mark.RecordId}', which matches no record.", mark.File, mark.Line, subject));
+        }
+        else if (!MarkRules.Accepts(element.Kind, mark.RecordId))
+        {
+            findings.Add(new Finding("mark-unresolved", $"{KindName(element.Kind)} '{DisplayName(element)}' marks '{mark.RecordId}', which is a {record.Type} record, not a {ExpectedTypes(element.Kind)} record.", mark.File, mark.Line, subject));
+        }
+
+        if (Readers.TypeScript.FrontendMarks.PathMismatch(model, element, mark) is { } expected)
+        {
+            findings.Add(new Finding("mark-unresolved", $"{KindName(element.Kind)} '{DisplayName(element)}' marks '{mark.RecordId}', but its folder mirrors '{expected}'.", mark.File, mark.Line, subject));
+        }
+
+        if (subject is not null && mark.Verb != MarkRules.Verb(element.Kind))
+        {
+            findings.Add(new Finding("mark-unresolved", $"{KindName(element.Kind)} '{DisplayName(element)}' marks '{mark.RecordId}' with the {mark.Verb.ToTagName()} verb, but its kind takes {MarkRules.Verb(element.Kind).ToTagName()}.", mark.File, mark.Line, subject));
+        }
+    }
+
+    /// <summary>
+    ///     Checks one <c>follows</c> mark on an element of any kind: it names a
+    ///     provision of the carried release on an applied page, or a decision or
+    ///     deviation that is not retired.
+    /// </summary>
+    private static void CheckFollowsMark(ProjectModel model, MarkedElement element, CodeMark mark, List<Finding> findings)
+    {
+        var name = $"{KindName(element.Kind)} '{DisplayName(element)}'";
+        var id = mark.RecordId;
+
+        if (id.StartsWith("litespec/", StringComparison.Ordinal))
+        {
+            if (!Authoring.Provisions.IsProvisionId(id) || (model.Provisions.Count > 0 && !model.Provisions.Contains(id)))
+            {
+                findings.Add(new Finding("mark-unresolved", $"{name} follows '{id}', which matches no provision of the carried release.", mark.File, mark.Line, id));
+            }
+            else if (model.AppliedPages.Count > 0
+                && Authoring.Provisions.Parse(id) is { } parsed
+                && !model.AppliedPages.Contains("docs/" + parsed.Page + ".md"))
+            {
+                findings.Add(new Finding("mark-unresolved", $"{name} follows '{id}', which sits on a page the project's stacks and extensions do not apply.", mark.File, mark.Line, id));
+            }
+
+            return;
+        }
+
+        if (id.StartsWith("decision/", StringComparison.Ordinal) || id.StartsWith("deviation/", StringComparison.Ordinal))
+        {
+            if (!model.ById.TryGetValue(id, out var record) || (record.Type != "decision" && record.Type != "deviation"))
+            {
+                findings.Add(new Finding("mark-unresolved", $"{name} follows '{id}', which matches no decision or deviation.", mark.File, mark.Line, id));
+            }
+            else if (record.Status == "retired")
+            {
+                findings.Add(new Finding("mark-unresolved", $"{name} follows '{id}', which is retired.", mark.File, mark.Line, null));
+            }
+
+            return;
+        }
+
+        var subject = id.Length > 0 ? id : null;
+
+        if (!model.ById.TryGetValue(id, out var other))
+        {
+            findings.Add(new Finding("mark-unresolved", $"{name} follows '{id}', which matches no provision, decision, or deviation.", mark.File, mark.Line, subject));
+        }
+        else
+        {
+            findings.Add(new Finding("mark-unresolved", $"{name} follows '{id}', which is a {other.Type} record, not a provision, decision, or deviation.", mark.File, mark.Line, subject));
         }
     }
 
     /// <summary>
     ///     Reports every mark on an element that takes no mark: a reading method, a
     ///     private helper, or an unrecognized class carrying a mark, or a proves mark
-    ///     on a method with no test attribute.
+    ///     on a method with no test attribute. A <c>follows</c> mark is never stray.
     /// </summary>
     private static void CheckStrayMarks(ProjectModel model, List<Finding> findings)
     {
@@ -89,11 +168,81 @@ static partial class Checker
         {
             foreach (var mark in stray.Marks)
             {
+                if (mark.Verb == MarkVerb.Follows)
+                {
+                    continue;
+                }
+
                 var subject = mark.RecordId.Length > 0 ? mark.RecordId : null;
 
                 findings.Add(new Finding("mark-unresolved", $"{StrayName(stray)} takes no mark, but marks '{mark.RecordId}'.", mark.File, mark.Line, subject));
             }
         }
+    }
+
+    /// <summary>
+    ///     Reports every technical decision no code element follows: a decision under
+    ///     the project's implementation decisions folder that no <c>follows</c> mark
+    ///     names. Retired decisions need no follower.
+    /// </summary>
+    private static void CheckDecisionsFollowed(ProjectModel model, List<Finding> findings)
+    {
+        var followed = new HashSet<string>(StringComparer.Ordinal);
+
+        foreach (var element in model.Code.Elements)
+        {
+            foreach (var mark in element.Marks)
+            {
+                if (mark.Verb == MarkVerb.Follows && mark.RecordId.Length > 0)
+                {
+                    followed.Add(mark.RecordId);
+                }
+            }
+        }
+
+        foreach (var stray in model.Code.StrayMarks)
+        {
+            foreach (var mark in stray.Marks)
+            {
+                if (mark.Verb == MarkVerb.Follows && mark.RecordId.Length > 0)
+                {
+                    followed.Add(mark.RecordId);
+                }
+            }
+        }
+
+        foreach (var record in model.Records)
+        {
+            if (record.Type != "decision" || record.Status == "retired" || !UnderImplementationDecisions(model.Config, record.File))
+            {
+                continue;
+            }
+
+            if (!followed.Contains(record.Id))
+            {
+                findings.Add(new Finding("decision-unfollowed", $"Decision '{record.Id}' is followed by no code element.", record.File, record.Line, SubjectOf(record)));
+            }
+        }
+    }
+
+    /// <summary>Whether the file sits under the project's implementation decisions folder.</summary>
+    private static bool UnderImplementationDecisions(ConsumerConfig config, string file)
+    {
+        var comparison = Path.DirectorySeparatorChar == '\\'
+            ? StringComparison.OrdinalIgnoreCase
+            : StringComparison.Ordinal;
+
+        foreach (var root in config.RecordRoots)
+        {
+            var folder = Path.Combine(root, "implementation", "decisions") + Path.DirectorySeparatorChar;
+
+            if (file.StartsWith(folder, comparison))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private static void CheckRuntimeValueDrift(ProjectModel model, List<Finding> findings)
@@ -291,7 +440,7 @@ static partial class Checker
                 _ => "port",
             };
 
-            if (!model.Code.Elements.Any(candidate => candidate.Kind == kind && candidate.Marks.Any(mark => mark.RecordId == record.Id)))
+            if (!model.Code.Elements.Any(candidate => candidate.Kind == kind && candidate.Marks.Any(mark => mark.Verb != MarkVerb.Follows && mark.RecordId == record.Id)))
             {
                 findings.Add(new Finding(code, $"{label} '{record.Id}' has no {element} carrying its mark.", record.File, record.Line, SubjectOf(record)));
             }
@@ -313,7 +462,7 @@ static partial class Checker
                 && point.Field("kind") is "browser" or "api");
 
             if (entry is null
-                || model.Code.Elements.Any(element => element.Kind == CodeKind.Endpoint && element.Marks.Any(mark => mark.RecordId == useCase.Id)))
+                || model.Code.Elements.Any(element => element.Kind == CodeKind.Endpoint && element.Marks.Any(mark => mark.Verb != MarkVerb.Follows && mark.RecordId == useCase.Id)))
             {
                 continue;
             }
@@ -415,6 +564,8 @@ static partial class Checker
         CodeKind.FrontendModule => "Frontend module",
         CodeKind.Test => "Test",
         CodeKind.DomainService => "Domain service",
+        CodeKind.Technical => "Technical class",
+        _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "Unknown code kind."),
     };
 
     /// <summary>The element a mark finding names: its type, or its type and member.</summary>

@@ -21,7 +21,7 @@ static partial class Checker
         "size-type-missing", "product-not-singleton",
         "journey-reach",
         "use-case-without-scenario", "requirement-unfulfilled",
-        "aggregate-name-clash", "decision-decides-nothing", "link-unresolved",
+        "aggregate-name-clash", "decision-decides-nothing", "decision-unfollowed", "link-unresolved",
         "behavior-unrecorded", "mark-missing", "mark-unresolved", "mark-count", "mark-style-mixed",
         "runtime-value-drift", "act-event-undeclared", "act-event-unraised", "use-case-act-uncalled",
         "aggregate-unimplemented", "reaction-unimplemented", "job-unimplemented",
@@ -981,7 +981,8 @@ static partial class Checker
             }
         }
 
-        foreach (var decision in model.Records.Where(record => record.Type == "decision" && record.Status != "retired"))
+        foreach (var decision in model.Records.Where(candidate =>
+            candidate.Type == "decision" && candidate.Status != "retired" && !UnderImplementationDecisions(model.Config, candidate.File)))
         {
             if (!decision.Ids("decides").Any())
             {

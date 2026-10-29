@@ -37,6 +37,24 @@ public sealed class RenameMarksTests
         Assert.Contains($"public const string BorrowCopy = \"{Old}\";", File.ReadAllText(Unrelated(temp.Path)));
     }
 
+    [Fact]
+    public void Rename_Rewrites_A_Decision_Id_Inside_Follows_Marks_In_Both_Styles()
+    {
+        const string oldDecision = "decision/0002-store-loans-as-documents";
+        const string newDecision = "decision/0002-store-loans-as-files";
+
+        using var temp = Cli.Temp("rename-marks");
+        WriteConsumer(temp.Path);
+
+        var result = Cli.Run("rename", oldDecision, newDecision, "--root", temp.Path);
+
+        Assert.Equal(0, result.Status);
+        Assert.Contains($"<follows>{newDecision}</follows>", File.ReadAllText(FollowsTag(temp.Path)));
+        Assert.DoesNotContain(oldDecision, File.ReadAllText(FollowsTag(temp.Path)));
+        Assert.Contains($"[Follows(\"{newDecision}\")]", File.ReadAllText(FollowsAttribute(temp.Path)));
+        Assert.DoesNotContain(oldDecision, File.ReadAllText(FollowsAttribute(temp.Path)));
+    }
+
     static string DocTag(string root) => Path.Combine(
         root, "apps", "api", "src", "Library.Application", "BorrowCopyCommandHandler.cs");
 
@@ -48,6 +66,12 @@ public sealed class RenameMarksTests
 
     static string Unrelated(string root) => Path.Combine(
         root, "apps", "api", "src", "Library.Application", "Labels.cs");
+
+    static string FollowsTag(string root) => Path.Combine(
+        root, "apps", "api", "src", "Library.Application", "CommitStep.cs");
+
+    static string FollowsAttribute(string root) => Path.Combine(
+        root, "apps", "api", "src", "Library.Infrastructure", "LoanDocumentStore.cs");
 
     static void WriteConsumer(string root)
     {
@@ -100,6 +124,31 @@ public sealed class RenameMarksTests
 
             A reader borrows an available copy.
             """);
+        Write(Path.Combine(root, "docs", "intent", "decisions", "0002-store-loans-as-documents.md"), """
+            ---
+            {
+              "type": "decision",
+              "id": "decision/0002-store-loans-as-documents",
+              "title": "Store loans as documents",
+              "owner": "lending-team",
+              "status": "approved",
+              "decided": "2026-10-01",
+              "chosen": "Documents",
+              "options": [
+                {
+                  "name": "Documents",
+                  "for": "Loans read as one document",
+                  "against": "Cross-loan queries need an index"
+                }
+              ],
+              "changeWhen": "Cross-loan queries pass one hundred a day"
+            }
+            ---
+
+            # Store loans as documents
+
+            Store each loan as one document.
+            """);
         Write(DocTag(root), """
             namespace Library.Application;
 
@@ -122,6 +171,18 @@ public sealed class RenameMarksTests
             {
                 public const string BorrowCopy = "use-case/lending.borrow-copy";
             }
+            """);
+        Write(FollowsTag(root), """
+            namespace Library.Application;
+
+            /// <follows>decision/0002-store-loans-as-documents</follows>
+            internal sealed class CommitStep;
+            """);
+        Write(FollowsAttribute(root), """
+            namespace Library.Infrastructure;
+
+            [Follows("decision/0002-store-loans-as-documents")]
+            internal sealed class LoanDocumentStore;
             """);
     }
 

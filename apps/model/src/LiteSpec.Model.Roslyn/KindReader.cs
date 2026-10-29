@@ -21,8 +21,11 @@ namespace LiteSpec.Model.Roslyn;
 ///     exceptions, and marked ports resolve from syntax only through the
 ///     <see cref="KindContext" /> names the host collected. When several kinds
 ///     match one declaration, the first in the design table order wins; a test
-///     attribute wins over an aggregate method body. FrontendModule is a frontend kind
-///     and is never recognized from C#.
+///     attribute wins over an aggregate method body. A technical class is last:
+///     a top-level class in an outer-layer project that takes no other kind and
+///     declares an ordinary method, excluding generated code, migrations, and
+///     nested types. FrontendModule is a frontend kind and is never recognized
+///     from C#.
 /// </summary>
 public static class KindReader
 {
@@ -115,7 +118,12 @@ public static class KindReader
             return CodeKind.DomainService;
         }
 
-        return TransitiveKindOf(type, context);
+        if (TransitiveKindOf(type, context) is CodeKind transitive)
+        {
+            return transitive;
+        }
+
+        return IsTechnical(type, context, containingProject) ? CodeKind.Technical : (CodeKind?)null;
     }
 
     /// <summary>Recognizes the kind of a method declaration from syntax.</summary>
@@ -221,7 +229,7 @@ public static class KindReader
             return CodeKind.DomainService;
         }
 
-        return null;
+        return IsTechnical(type, containingProject) ? CodeKind.Technical : (CodeKind?)null;
     }
 
     /// <summary>Recognizes the kind of a method symbol.</summary>
@@ -552,6 +560,171 @@ public static class KindReader
         && (Implements(type, "IEndpoint")
             || (type.Name.EndsWith("Endpoint", StringComparison.Ordinal)
                 && ProjectMatches(containingProject, "WebApi")));
+
+    /// <summary>
+    ///     Whether the type declaration is a technical class: a top-level class in an
+    ///     outer-layer project that declares an ordinary method, excluding generated
+    ///     code, migrations, and model snapshots. A null project leaves the class
+    ///     unrecognized: without a project name no layer can be confirmed. A partial
+    ///     part reads through the context names the host collected, so partial parts
+    ///     count as one class.
+    /// </summary>
+    private static bool IsTechnical(TypeDeclarationSyntax type, KindContext context, string? containingProject)
+    {
+        if (type is not ClassDeclarationSyntax
+            || type.Parent is TypeDeclarationSyntax
+            || containingProject is null
+            || !ProjectMatches(containingProject, "Application", "Application.Abstractions", "Infrastructure", "WebApi"))
+        {
+            return false;
+        }
+
+        if (IsGeneratedFile(type.SyntaxTree) || HasGeneratedCodeAttribute(type) || IsMigration(type))
+        {
+            return false;
+        }
+
+        return DeclaresOrdinaryMethod(type)
+            || (IsOtherPart(type) && context.TechnicalClasses.Contains(type.Identifier.ValueText));
+    }
+
+    /// <summary>
+    ///     Whether the type symbol is a technical class: a top-level non-record class
+    ///     in an outer-layer project that declares an ordinary method, excluding
+    ///     generated code, migrations, and model snapshots. Partial parts merge in
+    ///     the symbol, so no context names are needed.
+    /// </summary>
+    private static bool IsTechnical(INamedTypeSymbol type, string? containingProject)
+    {
+        if (type.TypeKind != TypeKind.Class
+            || type.IsRecord
+            || type.ContainingType is not null
+            || containingProject is null
+            || !ProjectMatches(containingProject, "Application", "Application.Abstractions", "Infrastructure", "WebApi"))
+        {
+            return false;
+        }
+
+        foreach (var attribute in type.GetAttributes())
+        {
+            var name = attribute.AttributeClass?.Name;
+
+            if (name is not null && SyntaxNames.StripAttributeSuffix(name) == "GeneratedCode")
+            {
+                return false;
+            }
+        }
+
+        for (var current = type.BaseType; current is not null; current = current.BaseType)
+        {
+            if (current.Name is "Migration" or "ModelSnapshot")
+            {
+                return false;
+            }
+        }
+
+        foreach (var reference in type.DeclaringSyntaxReferences)
+        {
+            if (IsGeneratedFile(reference.SyntaxTree))
+            {
+                return false;
+            }
+        }
+
+        foreach (var member in type.GetMembers())
+        {
+            if (member is IMethodSymbol method
+                && method.MethodKind == MethodKind.Ordinary
+                && !method.IsImplicitlyDeclared)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>Whether the declaration holds an ordinary method directly: any method declaration.</summary>
+    private static bool DeclaresOrdinaryMethod(TypeDeclarationSyntax type)
+    {
+        foreach (var member in type.Members)
+        {
+            if (member is MethodDeclarationSyntax)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>Whether the declaration carries a <c>GeneratedCode</c> attribute.</summary>
+    private static bool HasGeneratedCodeAttribute(TypeDeclarationSyntax type)
+    {
+        foreach (var list in type.AttributeLists)
+        {
+            foreach (var attribute in list.Attributes)
+            {
+                var simple = SyntaxNames.SimpleName(attribute.Name);
+
+                if (simple is not null && SyntaxNames.StripAttributeSuffix(simple) == "GeneratedCode")
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>Whether the declaration derives from a type named <c>Migration</c> or <c>ModelSnapshot</c>.</summary>
+    private static bool IsMigration(TypeDeclarationSyntax type)
+    {
+        foreach (var baseType in BaseTypes(type))
+        {
+            if (SyntaxNames.SimpleName(baseType) is "Migration" or "ModelSnapshot")
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    ///     Whether the compiler treats the file as generated: a generated file name
+    ///     or an <c>auto-generated</c> marker on one of the first two lines.
+    /// </summary>
+    private static bool IsGeneratedFile(SyntaxTree tree)
+    {
+        var path = tree.FilePath.Replace('\\', '/');
+        var slash = path.LastIndexOf('/');
+        var file = slash < 0 ? path : path.Substring(slash + 1);
+
+        if (file.StartsWith("TemporaryGeneratedFile_", StringComparison.OrdinalIgnoreCase)
+            || file.EndsWith(".g.cs", StringComparison.OrdinalIgnoreCase)
+            || file.EndsWith(".g.i.cs", StringComparison.OrdinalIgnoreCase)
+            || file.EndsWith(".designer.cs", StringComparison.OrdinalIgnoreCase)
+            || file.EndsWith(".generated.cs", StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        var text = tree.GetText();
+
+        if (text.Lines.Count == 0)
+        {
+            return false;
+        }
+
+        if (text.Lines[0].ToString().Contains("<auto-generated", StringComparison.Ordinal))
+        {
+            return true;
+        }
+
+        return text.Lines.Count > 1
+            && text.Lines[1].ToString().Contains("<auto-generated", StringComparison.Ordinal);
+    }
 
     private static bool IsTestMethod(MethodDeclarationSyntax method)
     {

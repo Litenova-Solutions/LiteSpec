@@ -41,6 +41,13 @@ sealed class ProjectModel
     public List<Record> Records { get; } = [];
     public List<PageBody> Bodies { get; } = [];
     public IReadOnlySet<string> Provisions { get; set; } = new HashSet<string>(StringComparer.Ordinal);
+
+    /// <summary>
+    ///     The standard pages the project's stacks and extensions apply, as
+    ///     <c>docs/...</c> relative paths. Empty when the carried release cannot
+    ///     be read, so a provision check falls back to existence only.
+    /// </summary>
+    public IReadOnlySet<string> AppliedPages { get; set; } = new HashSet<string>(StringComparer.Ordinal);
     public CodeModel Code { get; set; } = new();
     public List<ScreenInfo> Screens { get; } = [];
     public List<ScenarioInfo> Tests { get; } = [];

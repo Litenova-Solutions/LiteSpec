@@ -327,4 +327,83 @@ public sealed class MarkReaderTests
         Assert.Equal(1, mark.Line);
         Assert.Equal("use-case/spending.submit-expense", tree.GetText().ToString(mark.Span));
     }
+
+    [Fact(DisplayName = "Follows marks read the choice in both styles")]
+    public void FollowsMarksReadTheChoice()
+    {
+        var xml = TestTrees.First<ClassDeclarationSyntax>("""
+            /// <follows>litespec/backend/persistence#commit-each-command-pipeline-once</follows>
+            internal sealed class CommitStep;
+            """);
+        var attribute = TestTrees.First<ClassDeclarationSyntax>("""
+            [Follows("decision/0002-store-expenses-as-documents")]
+            internal sealed class ExpenseRepository;
+            """);
+        var suffixed = TestTrees.First<ClassDeclarationSyntax>("""
+            [global::LiteSpec.FollowsAttribute("deviation/export-review-bypass")]
+            internal sealed class ExpenseExporter;
+            """);
+
+        var fromXml = Assert.Single(MarkReader.Read(xml));
+        var fromAttribute = Assert.Single(MarkReader.Read(attribute));
+        var fromSuffixed = Assert.Single(MarkReader.Read(suffixed));
+
+        Assert.Equal("litespec/backend/persistence#commit-each-command-pipeline-once", fromXml.RecordId);
+        Assert.Equal(MarkStyle.Xml, fromXml.Style);
+        Assert.Equal(MarkVerb.Follows, fromXml.Verb);
+        Assert.Equal("decision/0002-store-expenses-as-documents", fromAttribute.RecordId);
+        Assert.Equal(MarkStyle.Attribute, fromAttribute.Style);
+        Assert.Equal(MarkVerb.Follows, fromAttribute.Verb);
+        Assert.Equal("deviation/export-review-bypass", fromSuffixed.RecordId);
+        Assert.Equal(MarkVerb.Follows, fromSuffixed.Verb);
+    }
+
+    [Fact(DisplayName = "Follows marks read from comment text without documentation mode")]
+    public void FollowsMarksReadWithoutDocumentationMode()
+    {
+        var tree = TestTrees.ParseWithoutDocumentation("""
+            /// <follows>decision/0002-store-expenses-as-documents</follows>
+            internal sealed class ExpenseRepository;
+            """);
+        var member = TestTrees.First<ClassDeclarationSyntax>(tree);
+
+        var mark = Assert.Single(MarkReader.Read(member));
+
+        Assert.Equal("decision/0002-store-expenses-as-documents", mark.RecordId);
+        Assert.Equal(MarkVerb.Follows, mark.Verb);
+        Assert.Equal(MarkStyle.Xml, mark.Style);
+    }
+
+    [Fact(DisplayName = "Follows marks read beside implements marks in order")]
+    public void FollowsMarksReadBesideImplements()
+    {
+        var member = TestTrees.First<ClassDeclarationSyntax>("""
+            /// <implements>use-case/spending.submit-expense</implements>
+            /// <follows>litespec/backend/persistence#commit-each-command-pipeline-once</follows>
+            internal sealed class SubmitExpenseCommandHandler;
+            """);
+
+        var marks = MarkReader.Read(member);
+
+        Assert.Equal(2, marks.Count);
+        Assert.Equal(MarkVerb.Implements, marks[0].Verb);
+        Assert.Equal("use-case/spending.submit-expense", marks[0].RecordId);
+        Assert.Equal(MarkVerb.Follows, marks[1].Verb);
+        Assert.Equal("litespec/backend/persistence#commit-each-command-pipeline-once", marks[1].RecordId);
+    }
+
+    [Fact(DisplayName = "An empty follows tag reads as a mark with an empty id")]
+    public void EmptyFollowsTagReadsAsEmptyMark()
+    {
+        var member = TestTrees.First<ClassDeclarationSyntax>("""
+            /// <follows></follows>
+            internal sealed class CommitStep;
+            """);
+
+        var mark = Assert.Single(MarkReader.Read(member));
+
+        Assert.Equal(string.Empty, mark.RecordId);
+        Assert.False(mark.HasRecordId);
+        Assert.Equal(MarkVerb.Follows, mark.Verb);
+    }
 }

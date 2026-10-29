@@ -25,6 +25,7 @@ static partial class ModelBuilder
         model.Records.AddRange(read.Records);
         model.Bodies.AddRange(read.Bodies);
         model.Provisions = read.Provisions;
+        model.AppliedPages = AppliedPagesOf(config);
         var stacks = StackReaders.For(config);
         model.Code = Timed("code", () => stacks.Backend.Read(config));
 
@@ -76,6 +77,44 @@ static partial class ModelBuilder
 
     private static void Timed(string name, Action run) =>
         Timed(name, () => { run(); return 0; });
+
+    /// <summary>
+    ///     The standard pages the project's stacks and extensions apply, through the
+    ///     shared stack layout. Empty when the carried release or its manifest cannot
+    ///     be read, so a provision check falls back to existence only.
+    /// </summary>
+    private static IReadOnlySet<string> AppliedPagesOf(ConsumerConfig config)
+    {
+        var home = LiteSpecHome.Root;
+
+        if (home is null)
+        {
+            return new HashSet<string>(StringComparer.Ordinal);
+        }
+
+        var manifestFile = Path.Combine(home, LiteSpecHome.ManifestFile);
+
+        if (!File.Exists(manifestFile))
+        {
+            return new HashSet<string>(StringComparer.Ordinal);
+        }
+
+        try
+        {
+            if (System.Text.Json.Nodes.JsonNode.Parse(File.ReadAllText(manifestFile)) is not System.Text.Json.Nodes.JsonObject manifest)
+            {
+                return new HashSet<string>(StringComparer.Ordinal);
+            }
+
+            return new HashSet<string>(
+                Authoring.Layout.AppliedPages(home, manifest, config.Shape, config.Stacks, config.Extensions),
+                StringComparer.Ordinal);
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or System.Text.Json.JsonException)
+        {
+            return new HashSet<string>(StringComparer.Ordinal);
+        }
+    }
 
     /// <summary>
     ///     Reads every frontend's routes through its own reader. Screens keep the

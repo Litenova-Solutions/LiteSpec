@@ -167,6 +167,11 @@ internal sealed class MarkedType : IEquatable<MarkedType>
         {
             foreach (var mark in MarkReader.Read(part))
             {
+                if (mark.Verb == MarkVerb.Follows)
+                {
+                    continue;
+                }
+
                 if (mark.RecordId.StartsWith("use-case/", StringComparison.Ordinal))
                 {
                     useCaseMarks++;

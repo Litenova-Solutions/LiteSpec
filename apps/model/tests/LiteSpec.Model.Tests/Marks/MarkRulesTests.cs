@@ -19,6 +19,7 @@ public sealed class MarkRulesTests
     [InlineData(CodeKind.Endpoint, "use-case")]
     [InlineData(CodeKind.FrontendModule, "use-case")]
     [InlineData(CodeKind.Test, "scenario,rule")]
+    [InlineData(CodeKind.Technical, "litespec,decision,deviation")]
     public void RecordTypesNamesExpectedTypes(CodeKind kind, string expected)
     {
         var types = MarkRules.RecordTypes(kind);
@@ -39,10 +40,11 @@ public sealed class MarkRulesTests
     [InlineData(CodeKind.Endpoint, true)]
     [InlineData(CodeKind.FrontendModule, true)]
     [InlineData(CodeKind.Test, false)]
+    [InlineData(CodeKind.Technical, false)]
     public void TakesExactlyOneMatchesExpectedCount(CodeKind kind, bool expected) =>
         Assert.Equal(expected, MarkRules.TakesExactlyOne(kind));
 
-    [Theory(DisplayName = "Verb is Proves for tests and Implements otherwise")]
+    [Theory(DisplayName = "Verb is Proves for tests, Follows for technical classes, and Implements otherwise")]
     [InlineData(CodeKind.AggregateRoot, MarkVerb.Implements)]
     [InlineData(CodeKind.AggregateMethod, MarkVerb.Implements)]
     [InlineData(CodeKind.DomainEvent, MarkVerb.Implements)]
@@ -55,6 +57,7 @@ public sealed class MarkRulesTests
     [InlineData(CodeKind.Endpoint, MarkVerb.Implements)]
     [InlineData(CodeKind.FrontendModule, MarkVerb.Implements)]
     [InlineData(CodeKind.Test, MarkVerb.Proves)]
+    [InlineData(CodeKind.Technical, MarkVerb.Follows)]
     public void VerbMatchesExpectedVerb(CodeKind kind, MarkVerb expected) =>
         Assert.Equal(expected, MarkRules.Verb(kind));
 
@@ -68,6 +71,10 @@ public sealed class MarkRulesTests
         Assert.True(MarkRules.Accepts(CodeKind.Handler, "use-case/spending.submit-expense"));
         Assert.True(MarkRules.Accepts(CodeKind.Test, "scenario/submit-expense.succeeds"));
         Assert.True(MarkRules.Accepts(CodeKind.Test, "rule/expense.approver-is-not-submitter"));
+        Assert.True(MarkRules.Accepts(CodeKind.Technical, "litespec/backend/persistence#commit-each-command-pipeline-once"));
+        Assert.True(MarkRules.Accepts(CodeKind.Technical, "decision/0002-store-expenses-as-documents"));
+        Assert.True(MarkRules.Accepts(CodeKind.Technical, "deviation/export-review-bypass"));
+        Assert.False(MarkRules.Accepts(CodeKind.Technical, "use-case/spending.submit-expense"));
     }
 
     [Fact(DisplayName = "Accepts rejects another type, an empty name, and a prefix without a slash")]

@@ -96,6 +96,41 @@ public sealed class RegistryTests
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
     }
 
+    [Fact(DisplayName = "The registry lists no follows targets")]
+    public void RegistryListsNoFollowsTargets()
+    {
+        var run = GeneratorVerify.Run(
+            RecordPages.Sources("""
+                namespace Shop.Spending;
+
+                public interface ICommandHandler<TCommand, TResult>;
+
+                /// <implements>use-case/spending.submit-expense</implements>
+                /// <follows>decision/0002-store-expenses-as-documents</follows>
+                internal sealed class SubmitExpenseCommandHandler : ICommandHandler<object, object>
+                {
+                }
+
+                /// <follows>decision/0002-store-expenses-as-documents</follows>
+                internal sealed class CommitStep
+                {
+                    public void Commit()
+                    {
+                    }
+                }
+                """),
+            RecordPages.Files(
+                "xml",
+                ("submit-expense.md", RecordPages.UseCasePage("use-case/spending.submit-expense", null)),
+                ("0002-store-expenses-as-documents.md", RecordPages.DecisionPage("decision/0002-store-expenses-as-documents"))));
+
+        Assert.True(run.Sources.TryGetValue("LiteSpecRegistry.g.cs", out var registry), "The registry source is missing.");
+        Assert.Contains("[\"Shop.Spending.SubmitExpenseCommandHandler\"] = new string[] { \"use-case/spending.submit-expense\" },", registry, StringComparison.Ordinal);
+        Assert.DoesNotContain("decision/0002-store-expenses-as-documents", registry, StringComparison.Ordinal);
+        Assert.DoesNotContain("CommitStep", registry, StringComparison.Ordinal);
+        Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
+    }
+
     [Fact(DisplayName = "A project file with no record pages writes no registry")]
     public void NoRecordPagesWritesNoRegistry()
     {

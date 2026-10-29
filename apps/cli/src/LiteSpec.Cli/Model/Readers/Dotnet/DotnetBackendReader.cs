@@ -23,12 +23,14 @@ sealed class DotnetBackendReader : IBackendReader
 
     /// <summary>
     ///     Collects the cross-file names kind recognition needs: the aggregate roots,
-    ///     the domain exceptions, the marked ports, and the handler, event handler,
-    ///     job and domain event contracts. Roots, exceptions and contracts seed from
-    ///     their direct bases and close over inheritance: any type whose declared
-    ///     base list names a type already known to carry the contract carries it
-    ///     too. Ports are the interfaces carrying an external-system mark.
-    ///     Collected once per read, from the parsed file cache.
+    ///     the domain exceptions, the marked ports, the technical classes, and the
+    ///     handler, event handler, job and domain event contracts. Roots, exceptions
+    ///     and contracts seed from their direct bases and close over inheritance:
+    ///     any type whose declared base list names a type already known to carry
+    ///     the contract carries it too. Ports are the interfaces carrying an
+    ///     external-system mark. Technical classes are the top-level classes outside
+    ///     Domain that declare a method, so a partial part without a method reads
+    ///     through its name. Collected once per read, from the parsed file cache.
     /// </summary>
     private static KindContext KindsOf(ConsumerConfig config, IReadOnlyDictionary<string, SyntaxTree> trees)
     {
@@ -42,12 +44,14 @@ sealed class DotnetBackendReader : IBackendReader
         };
         var bases = new Dictionary<string, List<string>>(StringComparer.Ordinal);
         var ports = new HashSet<string>(StringComparer.Ordinal);
+        var technical = new HashSet<string>(StringComparer.Ordinal);
 
         foreach (var root in backends)
         {
             var portRoot = root == config.ApplicationRoot
                 || root == config.ApplicationRoot + ".Abstractions"
                 || root == config.InfrastructureRoot;
+            var technicalRoot = root != config.DomainRoot;
 
             foreach (var file in SourceTree.Files(root, ".cs"))
             {
@@ -86,6 +90,11 @@ sealed class DotnetBackendReader : IBackendReader
                     {
                         ports.Add(name);
                     }
+
+                    if (technicalRoot && IsTechnicalCandidate(file, declared))
+                    {
+                        technical.Add(name);
+                    }
                 }
             }
         }
@@ -99,7 +108,92 @@ sealed class DotnetBackendReader : IBackendReader
             Fixpoint(bases, parents => parents.Contains("IQueryHandler")),
             Fixpoint(bases, parents => parents.Contains("IEventHandler") || parents.Contains("IDomainEventReaction")),
             Fixpoint(bases, parents => parents.Contains("BackgroundService") || parents.Contains("IHostedService")),
-            Fixpoint(bases, parents => parents.Contains("IDomainEvent")));
+            Fixpoint(bases, parents => parents.Contains("IDomainEvent")),
+            technical);
+    }
+
+    /// <summary>
+    ///     Whether the declaration names a technical class for the kind context: a
+    ///     top-level class declaring an ordinary method, outside generated files,
+    ///     generated-code attributes, migrations, and model snapshots.
+    /// </summary>
+    private static bool IsTechnicalCandidate(string file, TypeDeclarationSyntax declared)
+    {
+        if (declared is not ClassDeclarationSyntax
+            || declared.Parent is TypeDeclarationSyntax
+            || !declared.Members.OfType<MethodDeclarationSyntax>().Any())
+        {
+            return false;
+        }
+
+        return !IsGeneratedFileName(file) && !HasGeneratedCode(declared) && !IsMigrationBase(declared);
+    }
+
+    /// <summary>Whether the file name is one the compiler treats as generated.</summary>
+    private static bool IsGeneratedFileName(string file)
+    {
+        var name = file.Replace('\\', '/');
+        var slash = name.LastIndexOf('/');
+        var shortName = slash < 0 ? name : name.Substring(slash + 1);
+
+        return shortName.StartsWith("TemporaryGeneratedFile_", StringComparison.OrdinalIgnoreCase)
+            || shortName.EndsWith(".g.cs", StringComparison.OrdinalIgnoreCase)
+            || shortName.EndsWith(".g.i.cs", StringComparison.OrdinalIgnoreCase)
+            || shortName.EndsWith(".designer.cs", StringComparison.OrdinalIgnoreCase)
+            || shortName.EndsWith(".generated.cs", StringComparison.OrdinalIgnoreCase);
+    }
+
+    /// <summary>Whether the declaration carries a <c>GeneratedCode</c> attribute.</summary>
+    private static bool HasGeneratedCode(TypeDeclarationSyntax declared)
+    {
+        foreach (var list in declared.AttributeLists)
+        {
+            foreach (var attribute in list.Attributes)
+            {
+                if (AttributeName(attribute.Name) == "GeneratedCode")
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>The simple attribute name without qualification or the <c>Attribute</c> suffix.</summary>
+    private static string AttributeName(NameSyntax name)
+    {
+        var simple = name switch
+        {
+            IdentifierNameSyntax plain => plain.Identifier.ValueText,
+            QualifiedNameSyntax qualified => qualified.Right.Identifier.ValueText,
+            _ => name.ToString(),
+        };
+
+        const string suffix = "Attribute";
+
+        return simple.Length > suffix.Length && simple.EndsWith(suffix, StringComparison.Ordinal)
+            ? simple[..^suffix.Length]
+            : simple;
+    }
+
+    /// <summary>Whether the declaration derives from a type named <c>Migration</c> or <c>ModelSnapshot</c>.</summary>
+    private static bool IsMigrationBase(TypeDeclarationSyntax declared)
+    {
+        if (declared.BaseList is null)
+        {
+            return false;
+        }
+
+        foreach (var baseType in declared.BaseList.Types)
+        {
+            if (SimpleName(KindOf(BaseName(baseType.Type))) is "Migration" or "ModelSnapshot")
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /// <summary>Closes the seeded names over direct inheritance: a type deriving a known name is known.</summary>
@@ -237,11 +331,12 @@ sealed class DotnetBackendReader : IBackendReader
 
         model.Handlers.AddRange(merged.Handlers
             .OrderBy(handler => handler.UseCaseId, StringComparer.Ordinal));
-        model.Elements.AddRange(merged.Elements
+        model.Elements.AddRange(MergeTechnicalPartials(merged.Elements
             .OrderBy(element => element.File, StringComparer.Ordinal)
             .ThenBy(element => element.Line)
             .ThenBy(element => element.Class, StringComparer.Ordinal)
-            .ThenBy(element => element.Member ?? "", StringComparer.Ordinal));
+            .ThenBy(element => element.Member ?? "", StringComparer.Ordinal)
+            .ToList()));
         model.StrayMarks.AddRange(merged.StrayMarks
             .OrderBy(stray => stray.File, StringComparer.Ordinal)
             .ThenBy(stray => stray.Line)
@@ -377,6 +472,61 @@ sealed class DotnetBackendReader : IBackendReader
             }
         }
 
+    }
+
+    /// <summary>
+    ///     Merges the partial parts of one technical class into one element: parts
+    ///     count as one class and a mark on any part counts. The merged element
+    ///     keeps the earliest part's file and line and carries every part's marks.
+    /// </summary>
+    private static List<MarkedElement> MergeTechnicalPartials(List<MarkedElement> elements)
+    {
+        if (elements.All(element => element.Kind != CodeKind.Technical))
+        {
+            return elements;
+        }
+
+        var merged = new List<MarkedElement>();
+        var parts = new Dictionary<string, List<MarkedElement>>(StringComparer.Ordinal);
+
+        foreach (var element in elements)
+        {
+            if (element.Kind != CodeKind.Technical)
+            {
+                merged.Add(element);
+                continue;
+            }
+
+            if (!parts.TryGetValue(element.Class, out var group))
+            {
+                group = [];
+                parts[element.Class] = group;
+            }
+
+            group.Add(element);
+        }
+
+        foreach (var group in parts.Values)
+        {
+            var first = group
+                .OrderBy(part => part.File, StringComparer.Ordinal)
+                .ThenBy(part => part.Line)
+                .First();
+            var marks = group
+                .SelectMany(part => part.Marks)
+                .OrderBy(mark => mark.File, StringComparer.Ordinal)
+                .ThenBy(mark => mark.Line)
+                .ToList();
+
+            merged.Add(first with { Marks = marks });
+        }
+
+        return merged
+            .OrderBy(element => element.File, StringComparer.Ordinal)
+            .ThenBy(element => element.Line)
+            .ThenBy(element => element.Class, StringComparer.Ordinal)
+            .ThenBy(element => element.Member ?? "", StringComparer.Ordinal)
+            .ToList();
     }
 
     /// <summary>

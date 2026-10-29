@@ -451,6 +451,18 @@ internal static class Emitter
         text.AppendLine("        public string RecordId { get; }");
         text.AppendLine("    }");
         text.AppendLine();
+        text.AppendLine("    [System.AttributeUsage(System.AttributeTargets.Class | System.AttributeTargets.Interface | System.AttributeTargets.Struct | System.AttributeTargets.Method, AllowMultiple = true)]");
+        text.AppendLine("    [Microsoft.CodeAnalysis.EmbeddedAttribute]");
+        text.AppendLine("    internal sealed class FollowsAttribute : System.Attribute");
+        text.AppendLine("    {");
+        text.AppendLine("        public FollowsAttribute(string recordId)");
+        text.AppendLine("        {");
+        text.AppendLine("            RecordId = recordId;");
+        text.AppendLine("        }");
+        text.AppendLine();
+        text.AppendLine("        public string RecordId { get; }");
+        text.AppendLine("    }");
+        text.AppendLine();
         text.AppendLine("    [System.AttributeUsage(System.AttributeTargets.Method, AllowMultiple = true)]");
         text.AppendLine("    [Microsoft.CodeAnalysis.EmbeddedAttribute]");
 

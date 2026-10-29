@@ -324,4 +324,163 @@ public sealed class MarkPresenceTests
                 """)],
             [ProjectFile(marks: "attribute"), UseCase()],
             assemblyName: "Shop.Application");
+
+    [Fact(DisplayName = "LS5001 reports a technical class without a follows mark")]
+    public Task ReportsATechnicalClassWithoutFollows() =>
+        Verify.AnalyzerWithRecordsAsync<MarkPresenceAnalyzer>(
+            [("Source.cs", """
+                using System.Threading;
+                using System.Threading.Tasks;
+
+                namespace Shop.Spending;
+
+                internal sealed class {|LS5001:CommitStep|}
+                {
+                    public Task CommitAsync(CancellationToken cancellationToken) => Task.CompletedTask;
+                }
+                """)],
+            [ProjectFile(), Decision()],
+            assemblyName: "Shop.Application");
+
+    [Fact(DisplayName = "LS5001 accepts a technical class with a follows mark")]
+    public Task AcceptsATechnicalClassWithFollows() =>
+        Verify.AnalyzerWithRecordsAsync<MarkPresenceAnalyzer>(
+            [("Source.cs", """
+                using System.Threading;
+                using System.Threading.Tasks;
+
+                namespace Shop.Spending;
+
+                /// <follows>decision/0002-store-expenses-as-documents</follows>
+                internal sealed class CommitStep
+                {
+                    public Task CommitAsync(CancellationToken cancellationToken) => Task.CompletedTask;
+                }
+                """)],
+            [ProjectFile(), Decision()],
+            assemblyName: "Shop.Application");
+
+    [Fact(DisplayName = "LS5001 accepts a technical class with a follows attribute")]
+    public Task AcceptsATechnicalClassWithFollowsAttribute() =>
+        Verify.AnalyzerWithRecordsAsync<MarkPresenceAnalyzer>(
+            [("Source.cs", """
+                using System;
+
+                namespace Shop.Spending;
+
+                internal sealed class FollowsAttribute : Attribute
+                {
+                    public FollowsAttribute(string id) { }
+                }
+
+                [Follows("decision/0002-store-expenses-as-documents")]
+                internal sealed class CommitStep
+                {
+                    public void Commit()
+                    {
+                    }
+                }
+                """)],
+            [ProjectFile(marks: "attribute"), Decision()],
+            assemblyName: "Shop.Application");
+
+    [Fact(DisplayName = "LS5001 reports a technical class carrying only an implements mark")]
+    public Task ReportsATechnicalClassWithOnlyImplements() =>
+        Verify.AnalyzerWithRecordsAsync<MarkPresenceAnalyzer>(
+            [("Source.cs", """
+                using System.Threading;
+                using System.Threading.Tasks;
+
+                namespace Shop.Spending;
+
+                /// <implements>use-case/spending.submit-expense</implements>
+                internal sealed class {|LS5001:CommitStep|}
+                {
+                    public Task CommitAsync(CancellationToken cancellationToken) => Task.CompletedTask;
+                }
+                """)],
+            [ProjectFile(), UseCase()],
+            assemblyName: "Shop.Application");
+
+    [Fact(DisplayName = "LS5001 reports a handler carrying only a follows mark")]
+    public Task ReportsAHandlerWithOnlyFollows() =>
+        Verify.AnalyzerWithRecordsAsync<MarkPresenceAnalyzer>(
+            [("Source.cs", """
+                namespace Shop.Spending;
+
+                public interface ICommandHandler<TCommand, TResult>;
+
+                public sealed class SubmitExpenseCommand;
+
+                public sealed class SubmitExpenseCommandResult;
+
+                /// <follows>decision/0002-store-expenses-as-documents</follows>
+                internal sealed class {|LS5001:SubmitExpenseCommandHandler|} : ICommandHandler<SubmitExpenseCommand, SubmitExpenseCommandResult>
+                {
+                }
+                """)],
+            [ProjectFile(), Decision()],
+            assemblyName: "Shop.Application");
+
+    [Fact(DisplayName = "LS5001 ignores a record, a migration, and a methodless class")]
+    public Task IgnoresNonTechnicalShapes() =>
+        Verify.AnalyzerWithRecordsAsync<MarkPresenceAnalyzer>(
+            [("Source.cs", """
+                namespace Shop.Spending;
+
+                public class Migration;
+
+                public sealed record LoanSummary(string LoanId)
+                {
+                    public bool IsOpen() => true;
+                }
+
+                internal sealed class AddLoans : Migration
+                {
+                    public void Up()
+                    {
+                    }
+                }
+
+                internal sealed class LoanSettings
+                {
+                    public int CacheMinutes { get; set; }
+                }
+                """)],
+            [ProjectFile(), Decision()],
+            assemblyName: "Shop.Application");
+
+    [Fact(DisplayName = "LS5001 ignores an interface, a generated class, and a nested class")]
+    public Task IgnoresInterfaceGeneratedAndNestedShapes() =>
+        Verify.AnalyzerWithRecordsAsync<MarkPresenceAnalyzer>(
+            [("Source.cs", """
+                using System;
+
+                namespace Shop.Spending;
+
+                public interface ILoanClock
+                {
+                    DateTimeOffset UtcNow();
+                }
+
+                internal sealed class LoanReports
+                {
+                    internal sealed class Builder
+                    {
+                        public string Build() => "";
+                    }
+                }
+                """),
+             ("LoanGeneratedClient.g.cs", """
+                namespace Shop.Spending;
+
+                internal sealed class LoanGeneratedClient
+                {
+                    public void Fetch()
+                    {
+                    }
+                }
+                """)],
+            [ProjectFile(), Decision()],
+            assemblyName: "Shop.Application");
 }

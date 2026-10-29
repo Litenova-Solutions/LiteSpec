@@ -61,4 +61,10 @@ public enum CodeKind
 
     /// <summary>A domain service holding one rule calculation, recognized by its <c>rule/</c> mark.</summary>
     DomainService = 12,
+
+    /// <summary>
+    ///     A technical class: a top-level class in an outer layer that takes no other kind
+    ///     and declares a method, marked with one or more <c>follows</c> choices.
+    /// </summary>
+    Technical = 13,
 }

@@ -48,6 +48,13 @@
     </ItemGroup>
 
     <ItemGroup>
+        <!-- The provision ids LS5002 reads for follows marks, embedded at build time. -->
+        <EmbeddedResource Include="..\..\..\..\docs\reference\provisions.md">
+            <LogicalName>LiteSpec.Provisions.md</LogicalName>
+        </EmbeddedResource>
+    </ItemGroup>
+
+    <ItemGroup>
         <InternalsVisibleTo Include="LiteSpec.Analyzers.Tests" />
     </ItemGroup>
 

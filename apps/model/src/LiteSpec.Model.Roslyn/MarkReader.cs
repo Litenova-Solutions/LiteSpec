@@ -12,12 +12,12 @@ namespace LiteSpec.Model.Roslyn;
 /// <summary>
 ///     Reads every mark on one type or method declaration, in source order:
 ///     documentation marks first, then attribute marks. Documentation marks come
-///     from the <c>implements</c> and <c>proves</c> tags in the leading trivia,
+///     from the <c>implements</c>, <c>proves</c>, and <c>follows</c> tags in the leading trivia,
 ///     parsed from the trivia structure when the tree was parsed with
 ///     documentation, and scanned from the comment text when it was not.
-///     Attribute marks come from the <c>Implements</c> and <c>Proves</c>
-///     attributes, with or without a namespace qualifier or the <c>Attribute</c>
-///     suffix. Whitespace inside a mark is trimmed. A malformed mark is returned
+///     Attribute marks come from the <c>Implements</c>, <c>Proves</c>, and
+///     <c>Follows</c> attributes, with or without a namespace qualifier or the
+///     <c>Attribute</c> suffix. Whitespace inside a mark is trimmed. A malformed mark is returned
 ///     with an empty record identifier so hosts report it as unresolved rather
 ///     than ignoring it.
 /// </summary>
@@ -217,7 +217,7 @@ public static class MarkReader
                 return null;
             }
 
-            foreach (var verb in new[] { MarkVerb.Implements, MarkVerb.Proves })
+            foreach (var verb in new[] { MarkVerb.Implements, MarkVerb.Proves, MarkVerb.Follows })
             {
                 var name = verb.ToTagName();
                 if (StartsAt(text, next + 1, name) && IsTagBoundary(text, next + 1 + name.Length))
