@@ -133,6 +133,53 @@ static class Approver
         return (stamped, missing);
     }
 
+    /// <summary>One batch stamp: the record with the status and approval it takes.</summary>
+    /// <param name="Record">The record to stamp.</param>
+    /// <param name="Status">The status to write: approved or reviewed.</param>
+    /// <param name="By">The approver to write.</param>
+    /// <param name="On">The approval date to write.</param>
+    public sealed record BatchStamp(Record Record, string Status, string By, string On);
+
+    /// <summary>
+    ///     Stamps each record of a batch approval: the target status, the approver, the
+    ///     date, and the semantic hash, always. Returns the records stamped.
+    /// </summary>
+    public static IReadOnlyList<Record> StampBatch(IReadOnlyList<BatchStamp> stamps)
+    {
+        var stamped = new List<Record>();
+
+        foreach (var group in stamps.GroupBy(stamp => stamp.Record.File, StringComparer.OrdinalIgnoreCase))
+        {
+            var text = File.ReadAllText(group.Key);
+            var json = group.Key.EndsWith(".json", StringComparison.OrdinalIgnoreCase);
+            var (head, node, tail) = json ? ("", JsonNode.Parse(text), "") : SplitFrontmatter(text);
+
+            if (node is null)
+            {
+                continue;
+            }
+
+            foreach (var stamp in group)
+            {
+                if (Find(node, stamp.Record.Id) is not JsonObject target)
+                {
+                    continue;
+                }
+
+                target["status"] = stamp.Status;
+                target["approvedBy"] = stamp.By;
+                target["approvedOn"] = stamp.On;
+                target["approvedHash"] = SemanticHash(stamp.Record);
+                stamped.Add(stamp.Record);
+            }
+
+            var serialized = node.ToJsonString(Write);
+            File.WriteAllText(group.Key, json ? serialized + "\n" : head + serialized + tail);
+        }
+
+        return stamped;
+    }
+
     /// <summary>The object carrying the id: the page itself, an entry, or a nested entry.</summary>
     static JsonNode? Find(JsonNode node, string id)
     {

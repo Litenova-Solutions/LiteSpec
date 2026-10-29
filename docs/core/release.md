@@ -26,6 +26,14 @@ The security reviewer is the role named in `securityReviewer` in the project fil
 
 A project with one operator runs the same flow with the veto window doing the waiting. Tier 3 questions auto-approve after `decideBy` plus `vetoWindowDays`, recorded as auto, while tier 1 questions wait for explicit approval. Drafts past their date that cannot auto-approve are reported as known gaps with owners, so nothing silently blocks.
 
+### Batch Review
+
+A project with thousands of drafts is reviewed in batches, never record by record. `litespec model review` computes the review queue from the model: every draft and every reopened record, with its decider, tier, `decideBy`, effective status, the drafts awaiting it, and its evidence (scenario proofs and open findings), grouped into batches. A result or a scenario takes the tier of its use case. A batch is one use case with its results and scenarios, one decision with the records it decides, or the tier 3 drafts of one module and one record type. A reopened record carrying a `risk` value, an `access` grant, or requirement `values` is marked `fullReRead`, because the hash says only that its promise moved, not which part.
+
+`litespec model approve --batch` approves one batch in one operation: it promotes each draft, Intent and governance records to approved and Behavior records to reviewed, stamps its approval data, re-stamps each reopened record in the batch, and writes a batch manifest under `docs/proof/approvals/`. A record already approved with an unchanged hash is listed in the manifest and left as it is. The manifest is generated evidence, never a record. A batch is refused whole when one guard fails. Approving a batch is not shipping it: the release gate still asks for passing tier 1 scenarios and a cleared security queue. No record auto-approves: the veto window decides tier 3 questions only, because a question carries a recommendation awaiting a veto, while a record is a promise that carries a person's name.
+
+The second review of a tier 1 batch is a reading recorded beside the approval, never the approval itself. In a project with one person, an independent agent review whose report the manifest cites stands as that reading, while the approval stays the person's.
+
 ### The Release Gate
 
 The gate admits a release when its G checks are green, its tier 1 drafts are answered, its scenarios are verified, and its S checks are green where the reader is qualified. G checks read records only and block always, S checks read code through a stack reader and block where that reader is qualified, and A checks report without blocking. The [model page](model.md) states the check tiers, and the boundary table below states which checks each changed boundary selects.
@@ -124,9 +132,9 @@ A consumer adopts one LiteSpec release by installing the `LiteSpec.Cli` tool pac
 
 **Rationale:** A reviewer who wrote the change reads what they meant rather than what the records say, which is where tier 1 risk hides. A second reviewer beside the author keeps one pair of eyes from being the whole gate.
 
-**Example:** An author who drafts a money rule waits for another developer read before the change leaves the gate.
+**Example:** An author who drafts a money rule waits for another developer read before the change leaves the gate. In a project with one person, an independent agent review whose report the batch manifest cites stands as that read.
 
-**Reviewed for:** Which tier 1 Behavior changes show only the author as reviewer? Look at the reviewers recorded beside each tier 1 change.
+**Checked by:** `litespec model approve --batch` refuses a batch holding a tier 1 record when `--second-reviewer` is missing or names the approver, or names `agent` with no `--review-report`, and records the second review in the batch manifest.
 
 ### Sample Tier 3 Behavior Reviews
 
@@ -139,6 +147,90 @@ A consumer adopts one LiteSpec release by installing the `LiteSpec.Cli` tool pac
 **Example:** A wording fix and a setting default move through the gate after the sampled read passes.
 
 **Reviewed for:** Which tier 3 samples lack a recorded developer read? Look at the sampled Behavior diffs beside the gate.
+
+### Compute the Review Queue from the Model
+
+**ID:** `litespec/core/release#compute-the-review-queue-from-the-model`
+
+**Statement:** The review queue MUST be computed from the model, listing each draft and each reopened record with its decider, tier, decideBy, effective status, the drafts awaiting it, and its evidence, grouped into batches.
+
+**Rationale:** A queue kept by hand drifts from the records the moment one is added, and a flat list sorted by date says nothing when thousands of drafts share one date. Computing the queue from the model keeps it true on every run, and ordering it by what waits on each batch puts the decisions others need first.
+
+**Example:** When Claimwick drafts `use-case/spending.split-expense` with money risk, `litespec model review --tier 1` lists its batch with its results and scenarios, its scenario proofs, and the drafts awaiting it.
+
+**Checked by:** `litespec model review --format json` writes each batch and each record with the fields the [model command page](../tools/model.md) lists, in the order it states.
+
+### Approve Drafts in Bounded Batches
+
+**ID:** `litespec/core/release#approve-drafts-in-bounded-batches`
+
+**Statement:** A batch approval MUST cover one use case with its results and scenarios, one decision with the records it decides, or the tier 3 drafts of one module and one record type.
+
+**Rationale:** One signature over hundreds of unread records is a rubber stamp. Bounding a batch to what one person can read in one sitting keeps each approval a decision: a tier 1 use case is read with the results and scenarios that state its promise, a decision with what it settles, and tier 3 drafts in sets small enough to sample.
+
+**Example:** `litespec model approve --batch use-case/spending.split-expense --by Cara --second-reviewer Ben` reviews the split-expense use case with its results and scenarios in one act.
+
+**Checked by:** `litespec model approve --batch` accepts only a `use-case/`, `decision/`, or `<module>/<type>` selector, and leaves tier 1 drafts out of a module and type batch.
+
+### Refuse a Batch Without a Named Approver
+
+**ID:** `litespec/core/release#refuse-a-batch-without-a-named-approver`
+
+**Statement:** A batch approval MUST refuse the whole batch unless `--by` names a person from the project's owners.
+
+**Rationale:** A record is a promise, so every approval carries the name of the person who made it, and `litespec/core/model#approve-tier-1-records-by-a-person` requires it outright for tier 1. A batch that falls back to a decider, an unknown, or the veto window would let a signature nobody gave cover the records it promotes.
+
+**Example:** Approving the split-expense batch with no `--by` is refused, and nothing is written.
+
+**Checked by:** `litespec model approve --batch` exits 1, writes nothing, and names each record it would change when `--by` is missing, automatic, or no owner.
+
+### Refuse a Batch Holding an Open Question
+
+**ID:** `litespec/core/release#refuse-a-batch-holding-an-open-question`
+
+**Statement:** A batch approval MUST refuse the whole batch when any record in it carries an open question.
+
+**Rationale:** `litespec/core/model#hold-approval-behind-open-questions` holds a record back while a question on it waits for its decider. A batch must not approve around that rule, or a signature would settle the question nobody answered.
+
+**Example:** A split-expense batch whose use case still asks who approves a split across cost centers is refused until the question is answered.
+
+**Checked by:** `litespec model approve --batch` exits 1, writes nothing, and names each record with an open question.
+
+### Refuse a Record Whose Effective Status Stays Draft
+
+**ID:** `litespec/core/release#refuse-a-record-whose-effective-status-stays-draft`
+
+**Statement:** A batch approval MUST refuse the whole batch when a record in it would keep the effective status draft, because a decision deciding it, a requirement it fulfills, or, for a transcribed record, a journey it serves stays draft and is not earlier in the same batch.
+
+**Rationale:** Effective status already says a record cannot hold while what it rests on is undecided, and a transcribed record waits for its Intent. Approving it in a batch anyway would stamp a promise that still reads draft everywhere the model shows it. Allowing the parent earlier in the same batch lets one decision and what it settles be approved together, in authority order.
+
+**Example:** A batch holding a transcribed `use-case/spending.split-expense` that fulfills a draft requirement is refused until the requirement is approved or a decision batch approves both, the requirement first.
+
+**Checked by:** `litespec model approve --batch` exits 1, writes nothing, and names each record with the draft record it rests on.
+
+### Write a Manifest for Every Batch Approval
+
+**ID:** `litespec/core/release#write-a-manifest-for-every-batch-approval`
+
+**Statement:** Every batch approval MUST write a generated manifest under `docs/proof/approvals/` naming its records, approver, second reviewer, date, semantic hashes, sample, scenario proof state, and open findings.
+
+**Rationale:** Approval data on each record says who approved it, but not what else was approved in the same act or what the evidence showed then. The manifest keeps that evidence beside the records as Proof, so a later reader can tell reviewed from verified and see which records a signature covered, without a review record type that would duplicate the approval data.
+
+**Example:** Reviewing the split-expense batch on 2026-11-20 writes `docs/proof/approvals/2026-11-20-use-case-spending-split-expense.json`, which records that its scenarios were confirmed but not yet run.
+
+**Checked by:** `litespec model approve --batch` writes the manifest named and shaped as the [model command page](../tools/model.md) states, in the same operation that promotes the records, and refuses the batch when it cannot.
+
+### Draw Each Tier 3 Sample from the Semantic Hash
+
+**ID:** `litespec/core/release#draw-each-tier-3-sample-from-the-semantic-hash`
+
+**Statement:** The sample of a tier 3 batch MUST be drawn from each record's semantic hash at the project's `review.sampleShare`, and recorded in the batch manifest.
+
+**Rationale:** A sample chosen by the reviewer drifts toward the records that look easy. Drawing it from the semantic hash makes it deterministic: anyone can derive the same sample later from the same records, and a changed record moves in or out of the sample by its content, not by choice.
+
+**Example:** With `review.sampleShare` at 0.1, a tier 3 batch of forty Claimwick rules samples the four rules with the lowest semantic hashes.
+
+**Checked by:** `litespec model approve --batch --dry-run` prints the sample, and the batch manifest records it.
 
 ### Name the Security Reviewer in the Project File
 
@@ -296,7 +388,7 @@ A consumer adopts one LiteSpec release by installing the `LiteSpec.Cli` tool pac
 
 **Statement:** An agent MUST advise without gating a release.
 
-**Rationale:** Agents draft, check, and review at speed, but no agent carries the product or security accountability a release carries. Advice recorded beside the decision helps the named reviewer judge, while a gate held by an agent would let a release ship on no human approval.
+**Rationale:** Agents draft, check, and review at speed, but no agent carries the product or security accountability a release carries. Advice recorded beside the decision helps the named reviewer judge, while a gate held by an agent would let a release ship on no human approval. An independent agent review recorded as the second reading of a tier 1 batch in a one-person project is still advice: the person approves, and the agent only reads.
 
 **Example:** An agent review of a tier 1 grant is recorded as advice, and the developer review beside it gates the change.
 

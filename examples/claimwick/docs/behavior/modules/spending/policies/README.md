@@ -40,7 +40,7 @@
   ],
   "approvedBy": "claimwick-team",
   "approvedOn": "2026-10-01",
-  "approvedHash": "9b897e2e"
+  "approvedHash": "93bc3586"
 }
 ---
 

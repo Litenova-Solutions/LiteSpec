@@ -49,7 +49,7 @@
   ],
   "approvedBy": "lending-team",
   "approvedOn": "2026-10-01",
-  "approvedHash": "57c2b9d9"
+  "approvedHash": "fa5ceb0c"
 }
 ---
 

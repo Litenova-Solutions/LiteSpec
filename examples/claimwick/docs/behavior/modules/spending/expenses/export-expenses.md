@@ -84,7 +84,7 @@
   ],
   "approvedBy": "claimwick-team",
   "approvedOn": "2026-10-01",
-  "approvedHash": "374aafa8"
+  "approvedHash": "73d66fa8"
 }
 ---
 # Export Expenses

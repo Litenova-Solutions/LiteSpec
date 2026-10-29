@@ -17,10 +17,10 @@ public sealed class ModelApproveDryRunTests
 
         var path = BorrowCopy(fixture.Path);
         var broken = File.ReadAllText(path)
-            .Replace(",\r\n  \"approvedHash\": \"0cd75a65\"", "", StringComparison.Ordinal)
-            .Replace(",\n  \"approvedHash\": \"0cd75a65\"", "", StringComparison.Ordinal);
+            .Replace(",\r\n  \"approvedHash\": \"ca90d35b\"", "", StringComparison.Ordinal)
+            .Replace(",\n  \"approvedHash\": \"ca90d35b\"", "", StringComparison.Ordinal);
 
-        Assert.DoesNotContain("0cd75a65", broken);
+        Assert.DoesNotContain("ca90d35b", broken);
         File.WriteAllText(path, broken);
 
         var result = Cli.Run("model", "approve", "--root", fixture.Path, "--all", "--dry-run");

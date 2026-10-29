@@ -139,6 +139,13 @@
           "type": "integer",
           "default": 7
         },
+        "sampleShare": {
+          "description": "The share of a tier-3 batch that batch approval samples, drawn from the records with the lowest semantic hashes and at least one record. Defaults to 0.1.",
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 1,
+          "default": 0.1
+        },
         "securityReviewer": {
           "description": "The owner who reviews access widenings, new outside calls and new personal-data flows.",
           "type": "string",

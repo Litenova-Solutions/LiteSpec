@@ -17,7 +17,7 @@ Read [Project Model](../core/model.md) before this guide: it states the approval
 
 ### Know Which Fields Stay Outside
 
-The hash covers every written frontmatter field except identity, workflow, and approval data. These fields stay outside on every record type: `type`, `id`, `title`, `owner`, `status`, `decider`, `decideBy`, `approvedBy`, `approvedOn`, `approvedHash`, and `source`. A term's `labels` stay outside too, so adding a language leaves the approved meaning alone. Page prose bodies and rendered consequences summaries never feed the hash, so rewording prose reopens no approval. The builder canonicalizes the remaining fields and hashes them to eight hex characters. This satisfies `litespec/core/model#record-approval-as-data`.
+The hash covers every written frontmatter field except identity, workflow, and approval data. These fields stay outside on every record type: `type`, `id`, `title`, `owner`, `status`, `decider`, `decideBy`, `approvedBy`, `approvedOn`, `approvedHash`, and `source`. A term's `labels` stay outside too, so adding a language leaves the approved meaning alone. The entries a page nests under `records` carry their own hash and stay outside their page's, so promoting a result or a scenario leaves its use case's approval alone. Page prose bodies and rendered consequences summaries never feed the hash, so rewording prose reopens no approval. The builder canonicalizes the remaining fields and hashes them to eight hex characters. This satisfies `litespec/core/model#record-approval-as-data`.
 
 ### Know Which Fields Feed the Hash
 

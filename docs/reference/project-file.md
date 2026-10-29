@@ -109,11 +109,13 @@ This object is included once the project states which outside constraints apply 
 |:---|:---|:---|:---|
 | `vetoWindowDays` | integer | no | `7` |
 | `securityReviewer` | string | no | none |
+| `sampleShare` | number greater than 0 and at most 1 | no | `0.1` |
 
 What each field means and what reads it:
 
 - `vetoWindowDays` is the days after `decideBy` in which a tier-3 draft question carrying `recommended` auto-approves unless vetoed, recorded as `approvedBy: auto (veto window)`. The model builder reads it when it reports aged questions, and the book reads it for the auto-approval date on the ballots page.
 - `securityReviewer` is the owner name holding the security reviewer role. The behavior diff lists the security queue for this reviewer: changes widening access tenant scope to cross, new `calls` effects, and new personal or sensitive data classes. `litespec model check` reports a name the owners list does not hold.
+- `sampleShare` is the share of a tier 3 batch that `litespec model approve --batch` samples, drawn from the records with the lowest semantic hashes and at least one record. The batch manifest records the sample.
 
 ### The `check` Object
 

@@ -16,12 +16,14 @@ static class ModelCommand
           litespec model render --root <consumer>
           litespec model query --root <consumer> <id>
           litespec model names [--root <consumer>] [--format text|json]
+          litespec model review --root <consumer> [--decider <owner>] [--tier 1|3] [--module <module>] [--type <type>] [--format json]
           litespec model approve --root <consumer> (<id>... | --all) [--by <owner>] [--on <YYYY-MM-DD>] [--dry-run]
+          litespec model approve --root <consumer> --batch <selector> --by <owner> [--second-reviewer <owner>|agent] [--review-report <file>] [--on <YYYY-MM-DD>] [--dry-run]
           litespec model backfill --root <consumer> [<module>] [--dry-run]
           litespec model diff <base> --root <consumer> [--format text|markdown|json] [--intent|--behavior] [--fail-on breaking] [--breaking-only]
           litespec model --help
 
-        Exit codes: 0 no open blocking finding, 1 an open blocking finding, no record with the id, or a breaking intent change with --fail-on breaking, 2 usage error.
+        Exit codes: 0 no open blocking finding, 1 an open blocking finding, no record with the id, a refused batch, or a breaking intent change with --fail-on breaking, 2 usage error.
         """;
 
     public static int Run(string[] args)
@@ -46,8 +48,9 @@ static class ModelCommand
             command switch
             {
                 "diff" => ["--root", "--out", "--format", "--fail-on"],
-                "approve" => ["--root", "--by", "--on"],
+                "approve" => ["--root", "--by", "--on", "--batch", "--second-reviewer", "--review-report"],
                 "backfill" => ["--root"],
+                "review" => ["--root", "--out", "--format", "--decider", "--tier", "--module", "--type"],
                 _ => ["--root", "--out", "--format"],
             },
             maxPositionals: command switch
@@ -227,11 +230,51 @@ static class ModelCommand
                     return 0;
                 }
 
+                case "review":
+                {
+                    int? tier = null;
+
+                    if (parsed.Value("--tier") is { } tierText)
+                    {
+                        if (tierText is not ("1" or "3"))
+                        {
+                            Console.Error.WriteLine($"Unknown tier '{tierText}'; use 1 or 3.");
+                            return 2;
+                        }
+
+                        tier = tierText == "1" ? 1 : 3;
+                    }
+
+                    var model = ModelBuilder.Build(config);
+                    var batches = ReviewQueue.Filter(
+                        ReviewQueue.Compute(model),
+                        parsed.Value("--decider"),
+                        tier,
+                        parsed.Value("--module"),
+                        parsed.Value("--type"));
+
+                    model.Ledger.Save(root);
+                    Console.WriteLine(parsed.Json ? ReviewQueue.Json(batches) : ReviewQueue.Human(batches));
+                    return 0;
+                }
+
                 case "approve":
                 {
                     var model = ModelBuilder.Build(config);
                     var all = parsed.Has("--all");
                     var ids = parsed.Positionals;
+
+                    if (parsed.Value("--batch") is { } selector)
+                    {
+                        return ApproveBatch(config, model, parsed, selector, all, ids, root);
+                    }
+
+                    if (parsed.Value("--second-reviewer") is not null
+                        || parsed.Value("--review-report") is not null)
+                    {
+                        Console.Error.WriteLine("Only approve --batch reads --second-reviewer and --review-report.");
+                        return 2;
+                    }
 
                     if (!all && ids.Count == 0)
                     {
@@ -396,6 +439,83 @@ static class ModelCommand
             Console.Error.WriteLine($"Failed: {exception.Message}");
             return 1;
         }
+    }
+
+    /// <summary>Approves one review batch: its drafts, re-stamps, manifest, and guards.</summary>
+    static int ApproveBatch(
+        ConsumerConfig config, ProjectModel model, CliArgs parsed, string selector, bool all, List<string> ids, string root)
+    {
+        if (all || ids.Count > 0)
+        {
+            Console.Error.WriteLine("Approve --batch takes a selector and no record ids.");
+            return 2;
+        }
+
+        var batch = BatchApprover.Find(ReviewQueue.Compute(model), selector);
+
+        if (batch is null)
+        {
+            Console.Error.WriteLine($"No batch '{selector}'.");
+            return 1;
+        }
+
+        var by = parsed.Value("--by");
+        var secondReviewer = parsed.Value("--second-reviewer");
+        var reviewReport = parsed.Value("--review-report") is { Length: > 0 } report && !Path.IsPathRooted(report)
+            ? Path.Combine(root, report)
+            : parsed.Value("--review-report");
+        var on = parsed.Value("--on") ?? DateTime.UtcNow.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
+        var plan = BatchApprover.Plan(model, batch, by, secondReviewer, reviewReport);
+
+        if (parsed.Has("--dry-run"))
+        {
+            Console.WriteLine(BatchApprover.DryRun(plan, model.Config.SampleShare));
+            return plan.Failures.Count > 0 ? 1 : 0;
+        }
+
+        foreach (var record in plan.LeftOut.OrderBy(entry => entry.Id, StringComparer.Ordinal))
+        {
+            Console.WriteLine($"{record.Id}: left out (tier 1)");
+        }
+
+        if (plan.Failures.Count > 0)
+        {
+            foreach (var (id, guard) in plan.Failures)
+            {
+                Console.WriteLine($"{id}: {guard}");
+            }
+
+            Console.WriteLine($"Refused: {plan.Failures.Count} guard failures.");
+            return 1;
+        }
+
+        var stamps = plan.Ordered
+            .Where(action => action.Action is "promoted" or "re-stamped")
+            .Select(action => new Approver.BatchStamp(
+                action.Record,
+                action.TargetStatus,
+                by ?? action.Record.Decider ?? action.Record.Owner ?? "unknown",
+                on))
+            .ToList();
+        var stamped = Approver.StampBatch(stamps);
+        var manifest = BatchApprover.WriteManifest(
+            model, plan, by ?? "", secondReviewer, parsed.Value("--review-report"), on);
+
+        foreach (var action in plan.Ordered.Where(entry => entry.Action is "promoted" or "re-stamped"))
+        {
+            Console.WriteLine(action.Action == "promoted"
+                ? $"{config.Relative(action.Record.File)}: {action.Record.Id} promoted to {action.TargetStatus} {action.Hash}"
+                : $"{config.Relative(action.Record.File)}: {action.Record.Id} re-stamped {action.Hash}");
+        }
+
+        var held = plan.Ordered.Count - stamped.Count;
+
+        Console.WriteLine($"{Relative(root, manifest)}: manifest ({plan.Ordered.Count} records, sample {plan.Sample.Count}).");
+        Console.WriteLine($"{Counted(stamped.Count, "record")} approved, {held} held"
+            + (plan.LeftOut.Count > 0 ? $", {plan.LeftOut.Count} left out" : "")
+            + ".");
+        model.Ledger.Save(root);
+        return 0;
     }
 
     static string Relative(string root, string path) =>

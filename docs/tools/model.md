@@ -12,7 +12,9 @@ litespec model check [--root <consumer>] [--format json] [--staged]
 litespec model render [--root <consumer>]
 litespec model query [--root <consumer>] <id>
 litespec model names [--root <consumer>] [--format text|json]
+litespec model review [--root <consumer>] [--decider <owner>] [--tier 1|3] [--module <module>] [--type <type>] [--format json]
 litespec model approve [--root <consumer>] (<id>... | --all) [--by <owner>] [--on <YYYY-MM-DD>] [--dry-run]
+litespec model approve [--root <consumer>] --batch <selector> --by <owner> [--second-reviewer <owner>|agent] [--review-report <file>] [--on <YYYY-MM-DD>] [--dry-run]
 litespec model backfill [--root <consumer>] [<module>] [--dry-run]
 litespec model diff <base> [--root <consumer>] [--format text|markdown|json] [--intent|--behavior] [--fail-on breaking] [--breaking-only]
 ```
@@ -24,6 +26,10 @@ The model builder reads the written records, the code marks, the routes, the tes
 A proof goes stale when its scenario changes after the proof passed. The first time the builder reads a passing run of a scenario's proof, it records the scenario semantic hash and the run's date in `.model/proofs.json`, beside `model.json`. On every later build against the same run, a scenario whose semantic hash differs from the recorded one has a stale proof, and a stale proof verifies nothing until a newer passing run is read. Run the model check after the test run, in the same job, so the hash is recorded before a record changes.
 
 `approve` writes approval data onto the named records, or with `--all` onto every approved or reviewed record that carries no `approvedHash`. It sets `approvedBy` (from `--by`, else the record decider, else its owner) and `approvedOn` (from `--on`, else today) when they are missing, and always writes `approvedHash`, the builder hash over the record semantic fields. A person runs it when they approve or review a record; agents run it only with `--by "auto (veto window)"` for a tier-3 question past its veto window. With `--dry-run` it writes nothing and prints what it would do: each record that would be stamped for carrying no `approvedHash`, and each record that would be reopened for a semantic hash that differs from it. [The approval hash guide](../guide/approval-hash.md) lists which fields feed the hash per record type.
+
+`review` prints the review queue the [release page](../core/release.md) describes under Batch Review. It lists every draft and every reopened record, grouped into batches: a use case with its results and scenarios, a decision with the records it decides, and the remaining tier 3 drafts of one module and one record type. Batches come in one order: batches holding a `fullReRead` record, then batches holding another reopened record, then by the count of drafts awaiting the batch, most first, then in authority order (Intent before Behavior), then by the earliest `decideBy`, then by selector. With `--format json` it writes one object with a `batches` array; each batch carries `selector`, `kind` (`use-case`, `decision`, or `module-type`), `tier`, `deciders`, `decideBy`, `awaiting`, and `records`, and each record carries `id`, `type`, `layer`, `tier`, `decider`, `decideBy`, `status`, `effectiveStatus`, `reopened`, `fullReRead`, `awaiting` (the drafts whose effective status is draft because of it, through `decides`, `fulfills`, or `serves`), `openQuestions`, `scenarios` (`total`, `confirmed`, `passing`, `stale`), and `findings` (the count of open findings whose subject is the record).
+
+`approve --batch` approves one batch. It promotes each draft in the batch, Intent and governance records to `approved` and Behavior records to `reviewed`, writes `approvedBy` from `--by`, `approvedOn`, and `approvedHash`, re-stamps each reopened record, and leaves a record already approved with an unchanged hash as it is. A `decision/` batch promotes the decision first, then the records it decides in authority order. It refuses the whole batch, writes nothing, and exits 1 when a guard fails: no `--by` naming an owner, a tier 1 record and no `--second-reviewer` other than the approver, a record with an open question, or a record whose effective status would stay draft. Each refusal names the record and the guard. On success it writes the manifest `docs/proof/approvals/<YYYY-MM-DD>-<selector>.json`, the selector with every `/`, `.`, and `:` replaced by `-`, and `-2`, `-3` and so on appended when a manifest of that name exists. The manifest holds `selector`, `approvedBy`, `secondReviewer`, `reviewReport`, `approvedOn`, `sampleShare`, `sample` (the sampled ids, tier 3 only), and `records`, each with `id`, `type`, `tier`, `action` (`promoted`, `re-stamped`, or `held`), `hash`, `scenarios`, and `findings`, the same fields `review` writes. With `--dry-run` it prints the plan, the guard failures, and the sample, and writes nothing.
 
 `backfill` drafts Behavior records from code during adoption: for each use case, reaction, and job a mark places, it reads the repositories, dispatches, and refusal codes the code model already holds and drafts the missing frontmatter. A use case gains `changes` or `reads`, `effects` entries, and refusal results; a reaction gains `reads` and its edges; a job gains `reads` and its edges. Every touched record is marked transcribed. Existing entries are never removed or rewritten; only missing entries are appended. With a module name it covers that module only; without one it covers every module. With `--dry-run` it prints the plan and writes nothing. It prints a per-module completeness table first, then one line per planned record, then the count of files updated and records backfilled.
 
@@ -191,6 +197,10 @@ The `render` subcommand writes these generated regions, each fenced by `<!-- gen
 | `--by <owner>` | the record decider, else its owner | Only `approve` reads it, and never with `--dry-run`. Sets `approvedBy` where it is missing. |
 | `--on <YYYY-MM-DD>` | today | Only `approve` reads it, and never with `--dry-run`. Sets `approvedOn` where it is missing. |
 | `--dry-run` | off | Only `approve` and `backfill` read it. Prints the plan and writes nothing. |
+| `--decider <owner>`, `--tier 1\|3`, `--module <module>`, `--type <type>` | none | Only `review` reads them. Keeps the batches holding a record that matches every given filter. |
+| `--batch <selector>` | none | Only `approve` reads it. Approves one batch: `use-case/<module>.<name>`, `decision/<id>`, or `<module>/<type>`. |
+| `--second-reviewer <owner>\|agent` | none | Only `approve --batch` reads it. Names the second reading of a tier 1 batch: another owner, or `agent` with `--review-report`. |
+| `--review-report <file>` | none | Only `approve --batch` reads it, with `--second-reviewer agent`. The agent review report the manifest cites; the file must exist. |
 | `--staged` | off | Only `check` reads it. Reports the staged scope only: staged records, their direct links, and the records staged code implements. |
 | `--help` | off | Prints the usage text and exits 0. |
 
@@ -199,7 +209,7 @@ The `render` subcommand writes these generated regions, each fenced by `<!-- gen
 | Code | Meaning |
 |:---|:---|
 | `0` | The command finished with no open blocking finding. |
-| `1` | `check` found an open blocking finding or an expired known gap, `query` found no record with the `id`, `approve` named an unknown record id, `backfill` named a module with no use-case, reaction, or job records, `diff` with `--fail-on breaking` found a breaking change, or the run failed. |
+| `1` | `check` found an open blocking finding or an expired known gap, `query` found no record with the `id`, `approve` named an unknown record id, `approve --batch` refused its batch, `backfill` named a module with no use-case, reaction, or job records, `diff` with `--fail-on breaking` found a breaking change, or the run failed. |
 | `2` | The arguments are wrong, the root holds no project record, the diff base is neither a consumer folder nor a git revision, or `check --staged` runs outside git. |
 
 ## Examples

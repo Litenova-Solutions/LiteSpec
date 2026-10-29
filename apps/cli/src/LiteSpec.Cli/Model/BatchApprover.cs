@@ -1,0 +1,509 @@
+using System.Globalization;
+
+namespace LiteSpec.Model;
+
+/// <summary>One record's approval in a batch: what changes and what it carries.</summary>
+/// <param name="Record">The batch record.</param>
+/// <param name="Action">The action: promoted, re-stamped, or held.</param>
+/// <param name="TargetStatus">The status the record holds after the batch.</param>
+/// <param name="Hash">The semantic hash at approval time.</param>
+/// <param name="Tier">The approval tier.</param>
+/// <param name="Scenarios">The scenario evidence.</param>
+/// <param name="Findings">The count of open findings about the record.</param>
+sealed record BatchAction(
+    Record Record,
+    string Action,
+    string TargetStatus,
+    string Hash,
+    int Tier,
+    ReviewScenarios Scenarios,
+    int Findings);
+
+/// <summary>One batch plan: the ordered approvals, the left-out records, the guard failures, and the sample.</summary>
+/// <param name="Batch">The queued batch.</param>
+/// <param name="Ordered">Every batch record in approval order, held records included.</param>
+/// <param name="LeftOut">The tier 1 records a module and type batch leaves out.</param>
+/// <param name="Failures">The guard failures, each naming its record and guard.</param>
+/// <param name="Sample">The sampled tier 3 ids.</param>
+sealed record BatchPlan(
+    ReviewBatch Batch,
+    IReadOnlyList<BatchAction> Ordered,
+    IReadOnlyList<Record> LeftOut,
+    IReadOnlyList<(string Id, string Guard)> Failures,
+    IReadOnlyList<string> Sample);
+
+/// <summary>
+///     Batch approval: promotes each draft in one batch, re-stamps each reopened record,
+///     refuses the whole batch when one guard fails, and writes the batch manifest.
+/// </summary>
+/// <follows>litespec/core/release#approve-drafts-in-bounded-batches</follows>
+static class BatchApprover
+{
+    /// <summary>Finds the batch the selector names, or null.</summary>
+    public static ReviewBatch? Find(IReadOnlyList<ReviewBatch> batches, string selector) =>
+        batches.FirstOrDefault(batch =>
+            string.Equals(batch.Selector, selector, StringComparison.Ordinal));
+
+    /// <summary>
+    ///     Plans the batch: the approvals in order, the records a module and type batch
+    ///     leaves out, the guard failures, and the tier 3 sample.
+    /// </summary>
+    public static BatchPlan Plan(
+        ProjectModel model,
+        ReviewBatch batch,
+        string? by,
+        string? secondReviewer,
+        string? reviewReport)
+    {
+        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        var findings = ReviewQueue.FindingsBySubject(model);
+        var members = MembersOf(model, batch);
+        var anchor = batch.Kind switch
+        {
+            "use-case" => batch.Selector,
+            "decision" => batch.Selector["decision/".Length..],
+            _ => (string?)null,
+        };
+
+        members.Sort((left, right) => ReviewQueue.CompareRecords(anchor, left, right));
+
+        var leftOut = batch.Kind == "module-type"
+            ? members.Where(record => ReviewQueue.TierOf(model, record) == 1).ToList()
+            : new List<Record>();
+        var approvals = members.Except(leftOut).ToList();
+        var ordered = approvals.Select(record => Describe(model, record, findings)).ToList();
+        var changed = ordered
+            .Where(action => action.Action is "promoted" or "re-stamped")
+            .ToList();
+        var failures = Guards(model, changed, by, secondReviewer, reviewReport, approvals, today);
+        var sample = Sample(
+            model,
+            changed.Where(action => action.Tier == 3).Select(action => action.Record).ToList(),
+            model.Config.SampleShare);
+
+        return new BatchPlan(batch, ordered, leftOut, failures, sample);
+    }
+
+    /// <summary>Every record the batch approval covers, held records included.</summary>
+    static List<Record> MembersOf(ProjectModel model, ReviewBatch batch)
+    {
+        if (batch.Kind == "use-case"
+            && model.ById.TryGetValue(batch.Selector, out var useCase)
+            && useCase.Type == "use-case")
+        {
+            var members = new List<Record> { useCase };
+
+            if (Identifiers.TrySplit(useCase.Id, out _, out _, out var name))
+            {
+                members.AddRange(model.Records.Where(record => !record.Derived
+                    && record.Type is "result" or "scenario"
+                    && Identifiers.TrySplit(record.Id, out _, out var home, out _)
+                    && home == name
+                    && ModelBuilder.UseCaseOf(model, home) is { } holder
+                    && holder.Id == useCase.Id));
+            }
+
+            return members;
+        }
+
+        if (batch.Kind == "decision"
+            && model.ById.TryGetValue(batch.Selector["decision/".Length..], out var decision)
+            && decision.Type == "decision")
+        {
+            var members = new List<Record> { decision };
+        var added = new HashSet<string>(StringComparer.Ordinal) { decision.Id };
+
+        foreach (var id in decision.Ids("decides").OrderBy(id => id, StringComparer.Ordinal))
+        {
+            // Use cases anchor their own batches with their results and scenarios,
+            // and decisions anchor their own, so a decision batch holds neither.
+            if (!added.Add(id)
+                || !model.ById.TryGetValue(id, out var decided)
+                || decided.Derived
+                || decided.Type is "use-case" or "decision"
+                || ClaimedByUseCase(model, decided))
+            {
+                continue;
+            }
+
+            members.Add(decided);
+        }
+
+        return members;
+        }
+
+        return batch.Records.Select(entry => entry.Record).ToList();
+    }
+
+    /// <summary>Whether a use case batch claims the record: its result or scenario.</summary>
+    static bool ClaimedByUseCase(ProjectModel model, Record record) =>
+        record.Type is "result" or "scenario"
+        && Identifiers.TrySplit(record.Id, out _, out var home, out _)
+        && home is not null
+        && ModelBuilder.UseCaseOf(model, home) is not null;
+
+    /// <summary>Describes one member's approval: its action, target status, and evidence.</summary>
+    static BatchAction Describe(ProjectModel model, Record record, IReadOnlyDictionary<string, int> findings)
+    {
+        var action = record.Status == "draft"
+            ? "promoted"
+            : ReviewQueue.IsReopened(record) ? "re-stamped" : "held";
+        var target = action == "promoted"
+            ? ReviewQueue.LayerOf(record) == "behavior" ? "reviewed" : "approved"
+            : record.Status ?? "approved";
+
+        return new BatchAction(
+            record,
+            action,
+            target,
+            Checker.SemanticHash(record),
+            ReviewQueue.TierOf(model, record),
+            ReviewQueue.ScenariosOf(model, record),
+            findings.TryGetValue(record.Id, out var count) ? count : 0);
+    }
+
+    /// <summary>
+    ///     Checks every guard before anything is written. Guards gate what the batch
+    ///     changes, so held records carry none: they were approved in an earlier act.
+    /// </summary>
+    static IReadOnlyList<(string Id, string Guard)> Guards(
+        ProjectModel model,
+        IReadOnlyList<BatchAction> changed,
+        string? by,
+        string? secondReviewer,
+        string? reviewReport,
+        IReadOnlyList<Record> approvals,
+        DateOnly today)
+    {
+        var failures = new List<(string, string)>();
+        var tier1 = changed.Where(action => action.Tier == 1).ToList();
+
+        // Every record a batch changes carries a person's name, so the approver guard covers every tier.
+        foreach (var action in changed.OrderBy(entry => entry.Record.Id, StringComparer.Ordinal))
+        {
+            if (ApproverGuard(model, by) is { } approver)
+            {
+                failures.Add((action.Record.Id, approver));
+            }
+        }
+
+        foreach (var action in tier1.OrderBy(entry => entry.Record.Id, StringComparer.Ordinal))
+        {
+            if (ReviewerGuard(by, secondReviewer, reviewReport) is { } reviewer)
+            {
+                failures.Add((action.Record.Id, reviewer));
+            }
+        }
+
+        foreach (var action in changed.OrderBy(entry => entry.Record.Id, StringComparer.Ordinal))
+        {
+            if (ReviewQueue.OpenQuestionCount(action.Record, model.Config, today) > 0)
+            {
+                failures.Add((action.Record.Id, "has open questions"));
+            }
+        }
+
+        var simulated = SimulatedStatus(model, approvals);
+
+        foreach (var action in changed.OrderBy(entry => entry.Record.Id, StringComparer.Ordinal))
+        {
+            if (simulated.TryGetValue(action.Record.Id, out var status) && status == "draft"
+                && RestedOn(model, simulated, action.Record) is { } parent)
+            {
+                failures.Add((action.Record.Id, $"stays draft behind draft {parent}"));
+            }
+        }
+
+        return failures;
+    }
+
+    /// <summary>The named-approver guard: every batch needs a person from the owners list.</summary>
+    static string? ApproverGuard(ProjectModel model, string? by)
+    {
+        if (by is not { Length: > 0 })
+        {
+            return "needs --by naming a project owner (missing)";
+        }
+
+        if (by == "auto (veto window)")
+        {
+            return "needs --by naming a project owner (auto (veto window) is not a person)";
+        }
+
+        return model.Config.Owners.Contains(by, StringComparer.Ordinal)
+            ? null
+            : $"needs --by naming a project owner ('{by}' is not a project owner)";
+    }
+
+    /// <summary>The second-reviewer guard: tier 1 needs another reading beside the approver.</summary>
+    static string? ReviewerGuard(string? by, string? secondReviewer, string? reviewReport)
+    {
+        if (secondReviewer is not { Length: > 0 })
+        {
+            return "tier 1 needs --second-reviewer other than the approver (missing)";
+        }
+
+        if (secondReviewer == by)
+        {
+            return "tier 1 needs --second-reviewer other than the approver (names the approver)";
+        }
+
+        if (secondReviewer == "agent"
+            && (reviewReport is not { Length: > 0 } || !File.Exists(reviewReport)))
+        {
+            return "tier 1 needs --second-reviewer other than the approver (agent needs an existing --review-report file)";
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    ///     Each record's effective status after the batch: the approvals hold their target
+    ///     status, and every other record keeps its own.
+    /// </summary>
+    static IReadOnlyDictionary<string, string> SimulatedStatus(
+        ProjectModel model, IReadOnlyList<Record> approvals)
+    {
+        var targets = new Dictionary<string, string>(StringComparer.Ordinal);
+
+        foreach (var record in approvals)
+        {
+            targets[record.Id] = record.Status == "draft"
+                ? ReviewQueue.LayerOf(record) == "behavior" ? "reviewed" : "approved"
+                : record.Status ?? "approved";
+        }
+
+        var overlaid = model.Records
+            .Select(record => (IRecordFacts)new StatusOverlay(
+                record, targets.TryGetValue(record.Id, out var target) ? target : record.Status))
+            .ToList();
+        var byId = new Dictionary<string, IRecordFacts>(StringComparer.Ordinal);
+
+        foreach (var record in overlaid)
+        {
+            byId.TryAdd(record.Id, record);
+        }
+
+        return Authority.EffectiveStatus(overlaid, record => UseCaseHolder(model, byId, record));
+    }
+
+    /// <summary>The use case holding a result or scenario in the overlaid records.</summary>
+    static IRecordFacts? UseCaseHolder(
+        ProjectModel model, IReadOnlyDictionary<string, IRecordFacts> byId, IRecordFacts record)
+    {
+        if (!model.ById.TryGetValue(record.Id, out var original))
+        {
+            return null;
+        }
+
+        if (original.Derived
+            && original.PageId is not null
+            && byId.TryGetValue(original.PageId, out var page)
+            && page.Type == "use-case")
+        {
+            return page;
+        }
+
+        return Identifiers.TrySplit(record.Id, out _, out var home, out _)
+            && home is not null
+            && ModelBuilder.UseCaseOf(model, home) is { } holder
+            && byId.TryGetValue(holder.Id, out var overlaid)
+                ? overlaid
+                : null;
+    }
+
+    /// <summary>One record with its status replaced, for the simulated effective status.</summary>
+    sealed class StatusOverlay(IRecordFacts inner, string? status) : IRecordFacts
+    {
+        public string Type => inner.Type;
+        public string Id => inner.Id;
+        public string Title => inner.Title;
+        public string? Status => status;
+        public string File => inner.File;
+        public int Line => inner.Line;
+        public string? Field(string name) => inner.Field(name);
+        public IReadOnlyList<string> Ids(string name) => inner.Ids(name);
+    }
+
+    /// <summary>
+    ///     One draft record the record rests on: a deciding decision, a fulfilled
+    ///     requirement, a served journey for a transcribed record, or the holding use case.
+    /// </summary>
+    static string? RestedOn(ProjectModel model, IReadOnlyDictionary<string, string> simulated, Record record)
+    {
+        string? DraftParent(IEnumerable<string> ids) => ids
+            .Where(id => simulated.TryGetValue(id, out var status) && status == "draft")
+            .OrderBy(id => id, StringComparer.Ordinal)
+            .FirstOrDefault();
+
+        var decisions = model.Records
+            .Where(decision => decision.Type == "decision"
+                && decision.Ids("decides").Contains(record.Id, StringComparer.Ordinal))
+            .Select(decision => decision.Id);
+
+        if (DraftParent(decisions) is { } decision)
+        {
+            return decision;
+        }
+
+        if (DraftParent(record.Ids("fulfills")) is { } requirement)
+        {
+            return requirement;
+        }
+
+        if (record.Field("source") == "transcribed")
+        {
+            var journeys = record.Ids("serves")
+                .Select(Identifiers.BaseId)
+                .Where(id => model.ById.TryGetValue(id, out var target) && target.Type == "journey");
+
+            if (DraftParent(journeys) is { } journey)
+            {
+                return journey;
+            }
+        }
+
+        if (record.Type is "result" or "scenario"
+            && Identifiers.TrySplit(record.Id, out _, out var home, out _)
+            && home is not null
+            && ModelBuilder.UseCaseOf(model, home) is { } holder
+            && simulated.TryGetValue(holder.Id, out var status) && status == "draft")
+        {
+            return holder.Id;
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    ///     Draws the tier 3 sample: the records with the lowest semantic hashes read as
+    ///     hexadecimal numbers, the project's share rounded up, at least one.
+    /// </summary>
+    public static IReadOnlyList<string> Sample(
+        ProjectModel model, IReadOnlyList<Record> tier3, double share) =>
+        tier3
+            .Select(record => (record.Id, Hash: Checker.SemanticHash(record)))
+            .OrderBy(pair => HashValue(pair.Hash))
+            .ThenBy(pair => pair.Id, StringComparer.Ordinal)
+            .Take(Math.Max(1, (int)Math.Ceiling(tier3.Count * share)))
+            .Select(pair => pair.Id)
+            .OrderBy(id => id, StringComparer.Ordinal)
+            .ToList();
+
+    /// <summary>Reads a semantic hash as a hexadecimal number.</summary>
+    static ulong HashValue(string hash) =>
+        ulong.TryParse(hash, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var value)
+            ? value
+            : ulong.MaxValue;
+
+    /// <summary>
+    ///     Writes the batch manifest under the docs proof folder, appending -2, -3 and so
+    ///     on while a manifest of that name exists. Returns the manifest path.
+    /// </summary>
+    public static string WriteManifest(
+        ProjectModel model, BatchPlan plan, string by, string? secondReviewer, string? reviewReport, string on)
+    {
+        var docs = model.Config.RecordRoots.FirstOrDefault() ?? Path.Combine(model.Config.Root, "docs");
+        var folder = Path.Combine(docs, "proof", "approvals");
+
+        Directory.CreateDirectory(folder);
+
+        var stem = $"{on}-{plan.Batch.Selector.Replace("/", "-", StringComparison.Ordinal)
+            .Replace(".", "-", StringComparison.Ordinal)
+            .Replace(":", "-", StringComparison.Ordinal)}";
+        var path = Path.Combine(folder, stem + ".json");
+        var attempt = 2;
+
+        while (File.Exists(path))
+        {
+            path = Path.Combine(folder, $"{stem}-{attempt}.json");
+            attempt++;
+        }
+
+        var manifest = CliJson.Serialize(new
+        {
+            selector = plan.Batch.Selector,
+            approvedBy = by,
+            secondReviewer,
+            reviewReport,
+            approvedOn = on,
+            sampleShare = model.Config.SampleShare,
+            sample = plan.Sample,
+            records = plan.Ordered
+                .OrderBy(action => action.Record.Id, StringComparer.Ordinal)
+                .Select(action => new
+                {
+                    id = action.Record.Id,
+                    type = action.Record.Type,
+                    tier = action.Tier,
+                    action = action.Action,
+                    hash = action.Hash,
+                    scenarios = new
+                    {
+                        total = action.Scenarios.Total,
+                        confirmed = action.Scenarios.Confirmed,
+                        passing = action.Scenarios.Passing,
+                        stale = action.Scenarios.Stale,
+                    },
+                    findings = action.Findings,
+                }).ToList(),
+        });
+
+        File.WriteAllText(path, manifest + "\n");
+
+        return path;
+    }
+
+    /// <summary>Prints the dry run: the plan, the left-out records, the failures, and the sample.</summary>
+    public static string DryRun(BatchPlan plan, double share)
+    {
+        var lines = new List<string>();
+        var changed = plan.Ordered.Count(action => action.Action is "promoted" or "re-stamped");
+        var held = plan.Ordered.Count - changed;
+
+        lines.Add($"Batch {plan.Batch.Selector} ({plan.Batch.Kind}, tier {plan.Batch.Tier}): "
+            + $"{changed} to approve, {held} held"
+            + (plan.LeftOut.Count > 0 ? $", {plan.LeftOut.Count} left out" : "")
+            + " (dry run)");
+
+        foreach (var action in plan.Ordered)
+        {
+            lines.Add(action.Action switch
+            {
+                "promoted" => $"  {action.Record.Id} would be promoted to {action.TargetStatus}",
+                "re-stamped" => $"  {action.Record.Id} would be re-stamped",
+                _ => $"  {action.Record.Id} would be held",
+            });
+        }
+
+        foreach (var record in plan.LeftOut.OrderBy(entry => entry.Id, StringComparer.Ordinal))
+        {
+            lines.Add($"  {record.Id}: left out (tier 1)");
+        }
+
+        foreach (var (id, guard) in plan.Failures)
+        {
+            lines.Add($"  {id}: {guard}");
+        }
+
+        lines.Add(SampleLine(plan, share));
+
+        if (plan.Failures.Count > 0)
+        {
+            lines.Add($"Refused: {plan.Failures.Count} guard failures.");
+        }
+
+        return string.Join('\n', lines);
+    }
+
+    /// <summary>Prints the sample: its size against the tier 3 approvals, and its ids.</summary>
+    static string SampleLine(BatchPlan plan, double share)
+    {
+        var tier3 = plan.Ordered.Count(action =>
+            action.Action is "promoted" or "re-stamped" && action.Tier == 3);
+
+        return plan.Sample.Count == 0
+            ? $"Sample (0 of {tier3} at {share}): none."
+            : $"Sample ({plan.Sample.Count} of {tier3} at {share}): {string.Join(", ", plan.Sample)}.";
+    }
+}

@@ -13,6 +13,7 @@ sealed record FrontendConfig(string Name, string Path, string Platform);
 /// <summary>
 ///     What the model builder reads from the consumer's declaration.
 /// </summary>
+/// <follows>litespec/core/model#declare-size-stacks-and-optional-types</follows>
 sealed class ConsumerConfig
 {
     private ConsumerConfig(string root) => Root = root;
@@ -31,6 +32,9 @@ sealed class ConsumerConfig
 
     /// <summary>Days before a tier-3 draft question auto-approves.</summary>
     public int VetoWindowDays { get; private set; } = 7;
+
+    /// <summary>The share of a tier-3 batch that batch approval samples, from the lowest semantic hashes.</summary>
+    public double SampleShare { get; private set; } = 0.1;
 
     /// <summary>The owner reviewing access, outside calls and personal-data flows.</summary>
     public string? SecurityReviewer { get; private set; }
@@ -308,6 +312,14 @@ sealed class ConsumerConfig
                 && days > 0)
             {
                 config.VetoWindowDays = days;
+            }
+
+            if (review.TryGetProperty("sampleShare", out var share)
+                && share.ValueKind == JsonValueKind.Number
+                && share.TryGetDouble(out var sampled)
+                && sampled is > 0 and <= 1)
+            {
+                config.SampleShare = sampled;
             }
 
             if (review.TryGetProperty("securityReviewer", out var reviewer)

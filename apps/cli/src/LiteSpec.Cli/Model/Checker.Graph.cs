@@ -17,6 +17,9 @@ static partial class Checker
         "type", "id", "title", "owner", "status", "decider", "decideBy",
         "approvedBy", "approvedOn", "approvedHash", "source",
 
+        // A nested entry carries its own hash, so its workflow and approval data never reopen its page.
+        "records",
+
         // A term's labels translate its name; adding a language leaves the approved meaning alone.
         "labels",
     };
