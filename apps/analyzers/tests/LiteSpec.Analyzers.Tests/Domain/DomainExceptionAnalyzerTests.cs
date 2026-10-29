@@ -218,4 +218,108 @@ public sealed class DomainExceptionAnalyzerTests
                 public OrderRuleFailure() : base("Broken.") { }
             }
             """);
+
+    [Fact(DisplayName = "LS1005 accepts a conditional of two DomainExceptions")]
+    public Task AcceptsConditionalOfTwoDomainExceptions() =>
+        Verify.AnalyzerAsync<DomainExceptionAnalyzer>("""
+            using System;
+
+            namespace Shop.Access;
+
+            public abstract class DomainException(string message) : Exception(message);
+
+            public sealed class AccessCodeRetiredException() : DomainException("The access code is retired.");
+
+            public sealed class AccessCodeExhaustedException() : DomainException("The access code is exhausted.");
+
+            public sealed class AccessCode
+            {
+                public void Reject(bool retired)
+                {
+                    throw retired ? new AccessCodeRetiredException() : new AccessCodeExhaustedException();
+                }
+            }
+            """);
+
+    [Fact(DisplayName = "LS1005 reports the non-Domain branch of a conditional throw")]
+    public Task ReportsNonDomainBranchOfConditionalThrow() =>
+        Verify.AnalyzerAsync<DomainExceptionAnalyzer>("""
+            using System;
+
+            namespace Shop.Access;
+
+            public abstract class DomainException(string message) : Exception(message);
+
+            public sealed class AccessCodeRetiredException() : DomainException("The access code is retired.");
+
+            public sealed class AccessCode
+            {
+                public void Reject(bool retired)
+                {
+                    throw retired ? new AccessCodeRetiredException() : {|LS1005:new InvalidOperationException()|};
+                }
+            }
+            """);
+
+    [Fact(DisplayName = "LS1005 accepts a switch expression of DomainExceptions")]
+    public Task AcceptsSwitchExpressionOfDomainExceptions() =>
+        Verify.AnalyzerAsync<DomainExceptionAnalyzer>("""
+            using System;
+
+            namespace Shop.Access;
+
+            public abstract class DomainException(string message) : Exception(message);
+
+            public sealed class AccessCodeRetiredException() : DomainException("The access code is retired.");
+
+            public sealed class AccessCodeExhaustedException() : DomainException("The access code is exhausted.");
+
+            public sealed class AccessCode
+            {
+                public void Reject(int kind)
+                {
+                    throw kind switch
+                    {
+                        0 => new AccessCodeRetiredException(),
+                        _ => new AccessCodeExhaustedException(),
+                    };
+                }
+            }
+            """);
+
+    [Fact(DisplayName = "LS1005 accepts a coalescing throw of a DomainException")]
+    public Task AcceptsCoalescingThrowOfDomainException() =>
+        Verify.AnalyzerAsync<DomainExceptionAnalyzer>("""
+            using System;
+
+            namespace Shop.Access;
+
+            public abstract class DomainException(string message) : Exception(message);
+
+            public sealed class AccessCodeExhaustedException() : DomainException("The access code is exhausted.");
+
+            public sealed class AccessCode
+            {
+                public void Reject(Exception? cause)
+                {
+                    throw cause ?? new AccessCodeExhaustedException();
+                }
+            }
+            """);
+
+    [Fact(DisplayName = "LS1005 reports the non-Domain branch of a coalescing throw")]
+    public Task ReportsNonDomainBranchOfCoalescingThrow() =>
+        Verify.AnalyzerAsync<DomainExceptionAnalyzer>("""
+            using System;
+
+            namespace Shop.Access;
+
+            public sealed class AccessCode
+            {
+                public void Reject(Exception? cause)
+                {
+                    throw cause ?? {|LS1005:new InvalidOperationException()|};
+                }
+            }
+            """);
 }

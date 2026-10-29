@@ -286,9 +286,10 @@ public sealed class RepositoryContractAnalyzer : LayerAnalyzer
             }
         }
 
-        if (named.Name.EndsWith("Session", StringComparison.Ordinal)
+        if ((named.Name.EndsWith("Session", StringComparison.Ordinal)
             || named.Name.EndsWith("DbContext", StringComparison.Ordinal)
             || named.Name.EndsWith("DbSet", StringComparison.Ordinal))
+            && !IsAggregate(named))
         {
             return true;
         }
@@ -301,5 +302,24 @@ public sealed class RepositoryContractAnalyzer : LayerAnalyzer
             && target.TypeKind == TypeKind.Delegate
             && target.Name == "Func"
             && target.ContainingNamespace is { Name: "System", ContainingNamespace.IsGlobalNamespace: true };
+    }
+
+    private static bool IsAggregate(INamedTypeSymbol type)
+    {
+        if (type.DeclaringSyntaxReferences.Length == 0 || type.TypeKind != TypeKind.Class)
+        {
+            return false;
+        }
+
+        for (var current = type.BaseType; current is not null; current = current.BaseType)
+        {
+            var definition = current.OriginalDefinition;
+            if (definition.TypeKind == TypeKind.Class && definition.Arity == 1 && definition.Name == "AggregateRoot")
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

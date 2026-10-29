@@ -189,4 +189,37 @@ public sealed class RepositoryContractAnalyzerTests
                 {|LS1010:IQueryable<Order>|} Query();
             }
             """, assemblyName: "Shop.Core", layer: "Domain");
+
+    [Fact(DisplayName = "LS1010 accepts a repository over an aggregate named Session")]
+    public Task AcceptsRepositoryOverAggregateNamedSession() =>
+        Verify.AnalyzerAsync<RepositoryContractAnalyzer>("""
+            using System.Collections.Generic;
+            using System.Threading;
+            using System.Threading.Tasks;
+
+            namespace Shop.Sessions;
+
+            public abstract class AggregateRoot<TId>
+            {
+            }
+
+            public readonly record struct SupportSessionId
+            {
+            }
+
+            public sealed class SupportSession : AggregateRoot<SupportSessionId>
+            {
+            }
+
+            public interface ISupportSessionRepository
+            {
+                Task<SupportSession> GetByIdAsync(SupportSessionId id, CancellationToken cancellationToken);
+
+                Task<IReadOnlyList<SupportSession>> ListAsync(CancellationToken cancellationToken);
+
+                Task<SupportSession?> FindAsync(SupportSessionId id, CancellationToken cancellationToken);
+
+                void Store(SupportSession session);
+            }
+            """);
 }

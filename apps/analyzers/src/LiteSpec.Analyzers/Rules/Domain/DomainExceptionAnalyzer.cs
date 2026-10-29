@@ -63,9 +63,48 @@ public sealed class DomainExceptionAnalyzer : LayerAnalyzer
             return;
         }
 
+        CheckThrown(thrown, context, exceptionType, argumentExceptionType, unreachableExceptionType);
+    }
+
+    private static void CheckThrown(
+        IOperation thrown,
+        OperationAnalysisContext context,
+        INamedTypeSymbol? exceptionType,
+        INamedTypeSymbol? argumentExceptionType,
+        INamedTypeSymbol? unreachableExceptionType)
+    {
         while (thrown is IConversionOperation conversion)
         {
             thrown = conversion.Operand;
+        }
+
+        if (thrown is IConditionalOperation conditional)
+        {
+            CheckThrown(conditional.WhenTrue, context, exceptionType, argumentExceptionType, unreachableExceptionType);
+
+            if (conditional.WhenFalse is { } whenFalse)
+            {
+                CheckThrown(whenFalse, context, exceptionType, argumentExceptionType, unreachableExceptionType);
+            }
+
+            return;
+        }
+
+        if (thrown is ICoalesceOperation coalesce)
+        {
+            CheckThrown(coalesce.Value, context, exceptionType, argumentExceptionType, unreachableExceptionType);
+            CheckThrown(coalesce.WhenNull, context, exceptionType, argumentExceptionType, unreachableExceptionType);
+            return;
+        }
+
+        if (thrown is ISwitchExpressionOperation switchExpression)
+        {
+            foreach (var arm in switchExpression.Arms)
+            {
+                CheckThrown(arm.Value, context, exceptionType, argumentExceptionType, unreachableExceptionType);
+            }
+
+            return;
         }
 
         if (thrown is ILocalReferenceOperation || thrown is IParameterReferenceOperation)
