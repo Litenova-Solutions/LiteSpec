@@ -7,6 +7,7 @@ namespace LiteSpec.Tests.Model.Tables;
 public sealed class ExampleTableTests
 {
     /// <summary>A scenario page table writes examples rows under its headers.</summary>
+    /// <proves>litespec/core/behavior#tabulate-every-calculation-with-examples</proves>
     [Fact]
     public void Scenario_Page_Table_Writes_Examples()
     {
@@ -27,6 +28,7 @@ public sealed class ExampleTableTests
     }
 
     /// <summary>A scenario page table covers the calculation its use case governs.</summary>
+    /// <proves>litespec/core/behavior#tabulate-every-calculation-with-examples</proves>
     [Fact]
     public void Scenario_Page_Table_Covers_A_Calculation()
     {
@@ -38,6 +40,7 @@ public sealed class ExampleTableTests
     }
 
     /// <summary>Front-matter examples win over the table.</summary>
+    /// <proves>litespec/core/behavior#tabulate-every-calculation-with-examples</proves>
     [Fact]
     public void Front_Matter_Examples_Win_Over_The_Table()
     {
@@ -53,6 +56,7 @@ public sealed class ExampleTableTests
     }
 
     /// <summary>On a use-case page with one scenario, the first plain table is its examples.</summary>
+    /// <proves>litespec/core/behavior#tabulate-every-calculation-with-examples</proves>
     [Fact]
     public void Use_Case_Page_Table_Covers_Its_Single_Scenario_Entry()
     {
@@ -70,6 +74,7 @@ public sealed class ExampleTableTests
     }
 
     /// <summary>With several scenarios, each table belongs to the scenario its heading names.</summary>
+    /// <proves>litespec/core/behavior#tabulate-every-calculation-with-examples</proves>
     [Fact]
     public void Headings_Match_Tables_To_Scenarios()
     {

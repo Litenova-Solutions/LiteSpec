@@ -4,6 +4,7 @@ namespace LiteSpec.Tests.Consumer;
 
 public sealed partial class ConsumerValidatorTests
 {
+    /// <proves>litespec/frontend/ui#select-one-visual-authority</proves>
     [Fact(DisplayName = "controlled frontend without its shared package")]
     public void ControlledFrontendWithoutItsSharedPackage()
     {
@@ -17,6 +18,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "no 'paths.uiPackage'");
     }
 
+    /// <proves>litespec/frontend/ui#select-one-visual-authority</proves>
     [Fact(DisplayName = "frontend outside the controlled contract stays quiet")]
     public void FrontendOutsideTheControlledContractStaysQuiet()
     {
@@ -30,6 +32,7 @@ public sealed partial class ConsumerValidatorTests
         AssertAbsent(RunConsumer(folder.Path), "controlled UI");
     }
 
+    /// <proves>litespec/frontend/ui#select-one-visual-authority</proves>
     [Fact(DisplayName = "child validator findings merge with their prefix")]
     public void ChildValidatorFindingsMergeWithTheirPrefix()
     {
@@ -68,6 +71,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "controlled UI:");
     }
 
+    /// <proves>litespec/core/scope#select-a-size-a-shape-and-stacks</proves>
     [Fact(DisplayName = "malformed project file keeps the machine-readable contract")]
     public void MalformedProjectFileKeepsTheMachineReadableContract()
     {
@@ -80,6 +84,7 @@ public sealed partial class ConsumerValidatorTests
         Assert.Contains("not valid JSON", parsed["problems"]?.ToJsonString() ?? string.Empty, StringComparison.Ordinal);
     }
 
+    /// <proves>litespec/core/intent#record-each-choice-as-a-decision</proves>
     [Fact(DisplayName = "failing run writes its problems as an array")]
     public void FailingRunWritesItsProblemsAsAnArray()
     {
@@ -97,6 +102,7 @@ public sealed partial class ConsumerValidatorTests
         Assert.Contains(problems, problem => problem.Contains("requires an H2 'Decision'", StringComparison.Ordinal));
     }
 
+    /// <proves>litespec/core/authoring#declare-structured-specification-metadata</proves>
     [Fact(DisplayName = "page with a leading byte-order mark")]
     public void PageWithALeadingByteOrderMark()
     {
@@ -123,6 +129,7 @@ public sealed partial class ConsumerValidatorTests
         AssertClean(RunConsumer(folder.Path));
     }
 
+    /// <proves>litespec/core/scope#select-a-size-a-shape-and-stacks</proves>
     [Fact(DisplayName = "project file with a leading byte-order mark")]
     public void ProjectFileWithALeadingByteOrderMark()
     {

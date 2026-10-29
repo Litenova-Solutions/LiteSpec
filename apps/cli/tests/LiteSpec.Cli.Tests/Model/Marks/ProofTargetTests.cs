@@ -55,6 +55,7 @@ public sealed class ProofTargetTests
         }
     }
 
+    /// <proves>litespec/core/model#name-the-lowest-record-each-test-proves</proves>
     [Theory(DisplayName = "A test proving each of the seven kinds reports no mark finding")]
     [MemberData(nameof(PassingFiles))]
     public void ProofOfEachKindPasses(string file)
@@ -71,6 +72,7 @@ public sealed class ProofTargetTests
         }
     }
 
+    /// <proves>litespec/core/model#name-the-lowest-record-each-test-proves</proves>
     [Theory(DisplayName = "A proof beyond scenario and rule never reports proves-unconfirmed")]
     [MemberData(nameof(StandingProofFiles))]
     public void StandingProofNeverReportsProvesUnconfirmed(string file)
@@ -82,6 +84,7 @@ public sealed class ProofTargetTests
         Assert.DoesNotContain(unconfirmed, finding => FileName(finding) == file);
     }
 
+    /// <proves>litespec/core/model#name-the-lowest-record-each-test-proves</proves>
     [Fact(DisplayName = "A test proving a functional requirement reports mark-unresolved")]
     public void FunctionalRequirementProofReportsMarkUnresolved()
     {
@@ -95,6 +98,7 @@ public sealed class ProofTargetTests
         Assert.Equal("requirement/borrowing.borrow-form", finding.Subject);
     }
 
+    /// <proves>litespec/core/model#name-the-lowest-record-each-test-proves</proves>
     [Fact(DisplayName = "A test proving a product decision reports mark-unresolved")]
     public void ProductDecisionProofReportsMarkUnresolved()
     {
@@ -108,6 +112,7 @@ public sealed class ProofTargetTests
         Assert.Equal("decision/0001-loan-threshold", finding.Subject);
     }
 
+    /// <proves>litespec/core/model#name-the-lowest-record-each-test-proves</proves>
     [Fact(DisplayName = "A test proving an aggregate reports mark-unresolved")]
     public void AggregateProofReportsMarkUnresolved()
     {
@@ -122,6 +127,7 @@ public sealed class ProofTargetTests
         Assert.Equal("aggregate/lending.loan", finding.Subject);
     }
 
+    /// <proves>litespec/core/model#name-the-lowest-record-each-test-proves</proves>
     [Fact(DisplayName = "A test proving an unknown provision reports mark-unresolved")]
     public void UnknownProvisionProofReportsMarkUnresolved()
     {
@@ -135,6 +141,7 @@ public sealed class ProofTargetTests
         Assert.Equal("litespec/backend/no-such-page#no-such-provision", finding.Subject);
     }
 
+    /// <proves>litespec/core/model#name-the-lowest-record-each-test-proves</proves>
     [Fact(DisplayName = "A test proving a provision on an unapplied page reports mark-unresolved")]
     public void UnappliedProvisionProofReportsMarkUnresolved()
     {
@@ -148,6 +155,7 @@ public sealed class ProofTargetTests
         Assert.Equal("litespec/frontend/blazor/browser#bound-what-is-stored", finding.Subject);
     }
 
+    /// <proves>litespec/core/model#name-the-lowest-record-each-test-proves</proves>
     [Fact(DisplayName = "No other mark-unresolved fires in the proof-targets fixture")]
     public void NoOtherMarkUnresolvedFires()
     {
@@ -158,6 +166,7 @@ public sealed class ProofTargetTests
         Assert.Equal(5, unresolved.Count);
     }
 
+    /// <proves>litespec/core/model#name-the-lowest-record-each-test-proves</proves>
     [Fact(DisplayName = "A scenario proof still verifies its use case")]
     public void ScenarioProofStillVerifies()
     {
@@ -167,6 +176,7 @@ public sealed class ProofTargetTests
         Assert.True(model.Status["use-case/lending.borrow-copy"].Verified);
     }
 
+    /// <proves>litespec/core/model#name-the-lowest-record-each-test-proves</proves>
     [Fact(DisplayName = "A quality-requirement proof does not verify a use case")]
     public void QualityProofDoesNotVerify()
     {
@@ -176,6 +186,7 @@ public sealed class ProofTargetTests
         Assert.False(model.Status["use-case/lending.extend-loan"].Verified);
     }
 
+    /// <proves>litespec/core/model#name-the-lowest-record-each-test-proves</proves>
     [Fact(DisplayName = "Tested appears for proof targets with a passing proving test")]
     public void TestedAppearsForProofTargets()
     {

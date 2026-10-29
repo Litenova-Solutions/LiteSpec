@@ -9,6 +9,7 @@ namespace LiteSpec.Tests.Model.Marks;
 /// </summary>
 public sealed class OneActTests
 {
+    /// <proves>litespec/backend/domain#give-each-use-case-its-own-act</proves>
     [Fact]
     public void Two_Marks_On_A_Root_Method_Report_Mark_Count()
     {
@@ -20,6 +21,7 @@ public sealed class OneActTests
         Assert.Contains("takes one", finding.Message);
     }
 
+    /// <proves>litespec/backend/domain#give-each-use-case-its-own-act</proves>
     [Fact]
     public void Single_Mark_On_A_Root_Method_Reports_No_Mark_Count()
     {
@@ -29,6 +31,7 @@ public sealed class OneActTests
         Assert.Empty(counts);
     }
 
+    /// <proves>litespec/backend/domain#give-each-use-case-its-own-act</proves>
     [Fact]
     public void Marked_Reading_Method_Reports_Mark_Unresolved()
     {
@@ -40,6 +43,7 @@ public sealed class OneActTests
         Assert.Equal("use-case/lending.borrow-copy", finding.Subject);
     }
 
+    /// <proves>litespec/backend/domain#give-each-use-case-its-own-act</proves>
     [Fact]
     public void Unmarked_Reading_Method_Reports_No_Mark_Unresolved()
     {
@@ -50,6 +54,7 @@ public sealed class OneActTests
         Assert.DoesNotContain(unresolved, finding => finding.Message.Contains("Loan.Borrow"));
     }
 
+    /// <proves>litespec/backend/domain#give-each-use-case-its-own-act</proves>
     [Fact]
     public void Marked_Private_Method_Reports_Mark_Unresolved()
     {
@@ -61,6 +66,7 @@ public sealed class OneActTests
         Assert.Equal("use-case/lending.borrow-copy", finding.Subject);
     }
 
+    /// <proves>litespec/backend/domain#give-each-use-case-its-own-act</proves>
     [Fact]
     public void Unmarked_Private_Helper_Reports_No_Mark_Unresolved()
     {
@@ -70,6 +76,7 @@ public sealed class OneActTests
         Assert.DoesNotContain(unresolved, finding => finding.Message.Contains("ApplyBorrow"));
     }
 
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact]
     public void Proves_Without_Test_Attribute_Reports_Mark_Unresolved()
     {
@@ -82,6 +89,7 @@ public sealed class OneActTests
         Assert.Equal(3, unresolved.Count);
     }
 
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact]
     public void Proves_With_Test_Attribute_Reports_No_Mark_Unresolved()
     {

@@ -6,6 +6,7 @@ namespace LiteSpec.Tests.Model.Checks;
 /// <summary>Proves the write-undeclared, result-undeclared and effect-undeclared checks against hand-built models.</summary>
 public sealed class CodeCheckTests
 {
+    /// <proves>litespec/core/behavior#name-every-aggregate-a-use-case-changes-or-reads</proves>
     [Fact]
     public void Handler_Taking_An_Undeclared_Repository_Reports()
     {
@@ -21,6 +22,7 @@ public sealed class CodeCheckTests
         Assert.Contains("write-undeclared", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/core/behavior#name-every-aggregate-a-use-case-changes-or-reads</proves>
     [Fact]
     public void Handler_Taking_A_Declared_Repository_Passes()
     {
@@ -37,6 +39,7 @@ public sealed class CodeCheckTests
         Assert.DoesNotContain("write-undeclared", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/core/layers#implement-only-declared-behavior</proves>
     [Fact]
     public void Handler_Producing_An_Undeclared_Literal_Reports()
     {
@@ -52,6 +55,7 @@ public sealed class CodeCheckTests
         Assert.Contains("result-undeclared", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/core/layers#implement-only-declared-behavior</proves>
     [Fact]
     public void Handler_Throwing_An_Undeclared_Type_Reports()
     {
@@ -69,6 +73,7 @@ public sealed class CodeCheckTests
         Assert.Contains("result-undeclared", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/core/layers#implement-only-declared-behavior</proves>
     [Fact]
     public void Handler_Producing_A_Declared_Code_Passes()
     {
@@ -91,6 +96,7 @@ public sealed class CodeCheckTests
         Assert.DoesNotContain("result-undeclared", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/core/layers#implement-only-declared-behavior</proves>
     [Fact]
     public void Permission_Grant_Allows_The_Forbidden_Code()
     {
@@ -106,6 +112,7 @@ public sealed class CodeCheckTests
         Assert.DoesNotContain("result-undeclared", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/core/layers#implement-only-declared-behavior</proves>
     [Fact]
     public void Custom_Refusals_Codes_Are_Allowed()
     {
@@ -124,6 +131,7 @@ public sealed class CodeCheckTests
         Assert.DoesNotContain("result-undeclared", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/core/layers#implement-only-declared-behavior</proves>
     [Fact]
     public void Handler_Dispatching_An_Undeclared_Command_Reports()
     {
@@ -139,6 +147,7 @@ public sealed class CodeCheckTests
         Assert.Contains("effect-undeclared", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/core/layers#implement-only-declared-behavior</proves>
     [Fact]
     public void Handler_Dispatching_A_Declared_Command_Passes()
     {
@@ -155,6 +164,7 @@ public sealed class CodeCheckTests
         Assert.DoesNotContain("effect-undeclared", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/core/layers#implement-only-declared-behavior</proves>
     [Fact]
     public void Reaction_Dispatching_Against_Issues_Passes()
     {
@@ -171,6 +181,7 @@ public sealed class CodeCheckTests
         Assert.DoesNotContain("effect-undeclared", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/core/layers#implement-only-declared-behavior</proves>
     [Fact]
     public void Reaction_Dispatching_Against_An_Effects_Entry_Passes()
     {
@@ -187,6 +198,7 @@ public sealed class CodeCheckTests
         Assert.DoesNotContain("effect-undeclared", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/core/layers#implement-only-declared-behavior</proves>
     [Fact]
     public void Untagged_Reaction_In_A_Use_Case_Folder_Answers_To_The_Use_Case_Effects()
     {
@@ -206,6 +218,7 @@ public sealed class CodeCheckTests
         Assert.Contains("PurgeLoansCommand", undeclared[0].Message);
     }
 
+    /// <proves>litespec/core/layers#implement-only-declared-behavior</proves>
     [Fact]
     public void Reaction_Calling_A_Declared_Operation_Passes()
     {
@@ -221,6 +234,7 @@ public sealed class CodeCheckTests
         Assert.DoesNotContain("effect-undeclared", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/core/layers#implement-only-declared-behavior</proves>
     [Fact]
     public void Handler_Dispatching_Through_A_Helper_Names_The_Helper()
     {
@@ -240,6 +254,7 @@ public sealed class CodeCheckTests
         Assert.Contains("via 'LoanFanout.RetryAsync'", finding.Message);
     }
 
+    /// <proves>litespec/core/layers#implement-only-declared-behavior</proves>
     [Fact]
     public void Handler_Dispatching_Directly_Names_No_Helper()
     {

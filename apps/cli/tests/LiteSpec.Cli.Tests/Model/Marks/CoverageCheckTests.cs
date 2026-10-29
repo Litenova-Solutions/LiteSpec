@@ -3,6 +3,7 @@ namespace LiteSpec.Tests.Model.Marks;
 /// <summary>Proves the record-side traceability findings against the marks fixtures.</summary>
 public sealed class CoverageCheckTests
 {
+    /// <proves>litespec/core/model#implement-each-mapped-behavior-record-behind-a-mark</proves>
     [Fact]
     public void Aggregate_Without_A_Marked_Root_Reports_Aggregate_Unimplemented()
     {
@@ -13,6 +14,7 @@ public sealed class CoverageCheckTests
         Assert.Equal("aggregate/lending.loan", finding.Subject);
     }
 
+    /// <proves>litespec/core/model#implement-each-mapped-behavior-record-behind-a-mark</proves>
     [Fact]
     public void Reaction_Without_A_Marked_Handler_Reports_Reaction_Unimplemented()
     {
@@ -23,6 +25,7 @@ public sealed class CoverageCheckTests
         Assert.Equal("reaction/lending.send-due-notice-on-loan-borrowed", finding.Subject);
     }
 
+    /// <proves>litespec/core/model#implement-each-mapped-behavior-record-behind-a-mark</proves>
     [Fact]
     public void Job_Without_A_Marked_Host_Reports_Job_Unimplemented()
     {
@@ -33,6 +36,7 @@ public sealed class CoverageCheckTests
         Assert.Equal("job/lending.nightly-due-scan", finding.Subject);
     }
 
+    /// <proves>litespec/core/model#implement-each-mapped-behavior-record-behind-a-mark</proves>
     [Fact]
     public void System_Without_A_Marked_Port_Reports_External_System_Unimplemented()
     {
@@ -43,6 +47,7 @@ public sealed class CoverageCheckTests
         Assert.Equal("external-system/text-gateway", finding.Subject);
     }
 
+    /// <proves>litespec/core/model#implement-each-mapped-behavior-record-behind-a-mark</proves>
     [Fact]
     public void Browser_Use_Case_Without_An_Endpoint_Reports_Use_Case_Unexposed()
     {
@@ -54,6 +59,7 @@ public sealed class CoverageCheckTests
         Assert.Contains("entry-point/library-app", finding.Message);
     }
 
+    /// <proves>litespec/core/model#implement-each-mapped-behavior-record-behind-a-mark</proves>
     [Fact]
     public void Browser_Use_Case_Without_A_Screen_Reports_Use_Case_Unreached()
     {
@@ -65,6 +71,7 @@ public sealed class CoverageCheckTests
         Assert.Contains("entry-point/library-app", finding.Message);
     }
 
+    /// <proves>litespec/core/system#declare-every-edge-between-records</proves>
     [Fact]
     public void Declared_Edge_No_Code_Takes_Reports_Effect_Unimplemented()
     {

@@ -70,6 +70,7 @@ public sealed class ModelStagedTests
     }
 
     /// <summary>A staged check outside git explains itself and exits 2.</summary>
+    /// <proves>litespec/core/release#run-consistency-checks</proves>
     [Fact]
     public void Check_Staged_Outside_Git_Exits_2()
     {
@@ -81,6 +82,7 @@ public sealed class ModelStagedTests
     }
 
     /// <summary>A staged check reports the staged record and skips the unstaged break.</summary>
+    /// <proves>litespec/core/release#run-consistency-checks</proves>
     [Fact]
     public void Check_Staged_Reports_Only_Staged_Records()
     {
@@ -114,6 +116,7 @@ public sealed class ModelStagedTests
     }
 
     /// <summary>A staged check with nothing staged reports nothing and exits 0.</summary>
+    /// <proves>litespec/core/release#run-consistency-checks</proves>
     [Fact]
     public void Check_Staged_With_Nothing_Staged_Exits_0()
     {

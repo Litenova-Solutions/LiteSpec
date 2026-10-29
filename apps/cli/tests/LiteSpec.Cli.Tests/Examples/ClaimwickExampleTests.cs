@@ -11,12 +11,15 @@ public sealed class ClaimwickExampleTests
 {
     static readonly string Root = Path.Combine(Cli.Repository, "examples", "claimwick");
 
+    /// <proves>litespec/core/authoring#declare-structured-specification-metadata</proves>
     [Fact(DisplayName = "the Claimwick example passes the consumer check")]
     public void PassesConsumer() => AssertPasses(Cli.Run("consumer", "--root", Root));
 
+    /// <proves>litespec/frontend/ui#select-one-visual-authority</proves>
     [Fact(DisplayName = "the Claimwick example passes the UI check")]
     public void PassesUi() => AssertPasses(Cli.Run("ui", "--root", Root));
 
+    /// <proves>litespec/core/release#run-consistency-checks</proves>
     [Fact(DisplayName = "the Claimwick example passes the model check with its two known gaps")]
     public void PassesModelCheck()
     {

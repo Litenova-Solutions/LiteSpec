@@ -6,6 +6,7 @@ namespace LiteSpec.Tests.Model.Frontend;
 /// <summary>Proves <c>litespec model build</c> writes the record union each web frontend imports.</summary>
 public sealed class FrontendRecordsTests
 {
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact]
     public void Build_Writes_The_Browser_Union_For_Each_Web_Frontend()
     {
@@ -22,6 +23,7 @@ public sealed class FrontendRecordsTests
         Assert.Contains("apps/console/src/lib/litespec-records.ts", result.Stdout);
     }
 
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact]
     public void Build_Leaves_Out_Use_Cases_With_No_Browser_Entry_Point()
     {
@@ -34,6 +36,7 @@ public sealed class FrontendRecordsTests
         Assert.DoesNotContain("use-case/lending.register-copy", File.ReadAllText(web));
     }
 
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact]
     public void Check_Writes_No_Union_File()
     {
@@ -44,6 +47,7 @@ public sealed class FrontendRecordsTests
         Assert.False(File.Exists(Path.Combine(fixture.Path, "apps", "console", "src", "lib", "litespec-records.ts")));
     }
 
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact]
     public void Render_Writes_Never_For_No_Use_Cases()
     {
@@ -54,6 +58,7 @@ public sealed class FrontendRecordsTests
         Assert.EndsWith("\n", text);
     }
 
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact]
     public void Render_Breaks_A_Long_Union_One_Id_Per_Line()
     {

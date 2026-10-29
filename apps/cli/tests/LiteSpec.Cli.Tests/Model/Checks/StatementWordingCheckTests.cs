@@ -6,6 +6,7 @@ namespace LiteSpec.Tests.Model.Checks;
 /// <summary>Proves the statement wording check: each vague word reported, and code in backticks skipped.</summary>
 public sealed class StatementWordingCheckTests
 {
+    /// <proves>litespec/core/authoring#state-what-happens-in-every-behavior-statement</proves>
     [Theory]
     [InlineData("handle", "The clerk will handle the request by hand.")]
     [InlineData("handles", "The clerk handles the request by hand.")]
@@ -38,6 +39,7 @@ public sealed class StatementWordingCheckTests
         Assert.Contains(findings, finding => finding.Message.Contains($"'{word}'", StringComparison.Ordinal));
     }
 
+    /// <proves>litespec/core/authoring#state-what-happens-in-every-behavior-statement</proves>
     [Fact]
     public void Vague_Word_Inside_Backticks_Skipped()
     {
@@ -54,6 +56,7 @@ public sealed class StatementWordingCheckTests
         Assert.DoesNotContain("statement-vague-word", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/core/authoring#state-what-happens-in-every-behavior-statement</proves>
     [Fact]
     public void Vague_Word_Inside_A_Hyphenated_Identifier_Skipped()
     {
@@ -70,6 +73,7 @@ public sealed class StatementWordingCheckTests
         Assert.DoesNotContain("statement-vague-word", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/core/authoring#state-what-happens-in-every-behavior-statement</proves>
     [Fact]
     public void Scenario_Steps_And_Result_Meaning_Reported()
     {

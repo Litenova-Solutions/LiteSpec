@@ -8,6 +8,7 @@ namespace LiteSpec.Tests.Model.Marks;
 /// </summary>
 public sealed class ActCheckTests
 {
+    /// <proves>litespec/backend/domain#call-the-marked-act-from-each-command-handler</proves>
     [Fact]
     public void Handler_Calling_No_Marked_Method_Reports_Use_Case_Act_Uncalled()
     {
@@ -19,6 +20,7 @@ public sealed class ActCheckTests
         Assert.Contains("use-case/lending.renew-loan", finding.Message);
     }
 
+    /// <proves>litespec/backend/domain#call-the-marked-act-from-each-command-handler</proves>
     [Fact]
     public void Handler_Calling_The_Shared_Method_Passes()
     {
@@ -28,6 +30,7 @@ public sealed class ActCheckTests
         Assert.DoesNotContain(uncalled, finding => finding.Subject == "use-case/lending.borrow-copy");
     }
 
+    /// <proves>litespec/backend/domain#raise-the-declared-events-from-the-marked-act</proves>
     [Fact]
     public void Shared_Method_Raising_An_Unlisted_Event_Reports_Act_Event_Undeclared()
     {
@@ -40,6 +43,7 @@ public sealed class ActCheckTests
         Assert.Contains("event/loan.loan-borrowed", finding.Message);
     }
 
+    /// <proves>litespec/backend/domain#raise-the-declared-events-from-the-marked-act</proves>
     [Fact]
     public void Use_Case_Sharing_The_Method_Reports_No_Undeclared_For_Its_Listed_Event()
     {
@@ -49,6 +53,7 @@ public sealed class ActCheckTests
         Assert.DoesNotContain(undeclared, finding => finding.Subject == "use-case/lending.borrow-copy");
     }
 
+    /// <proves>litespec/backend/domain#raise-the-declared-events-from-the-marked-act</proves>
     [Fact]
     public void Listed_Event_The_Shared_Method_Never_Raises_Reports_Act_Event_Unraised()
     {
@@ -60,6 +65,7 @@ public sealed class ActCheckTests
         Assert.Contains("event/loan.loan-renewed", finding.Message);
     }
 
+    /// <proves>litespec/backend/domain#raise-the-declared-events-from-the-marked-act</proves>
     [Fact]
     public void Use_Case_Whose_Shared_Method_Raises_Its_Event_Reports_No_Unraised()
     {
@@ -69,6 +75,7 @@ public sealed class ActCheckTests
         Assert.DoesNotContain(unraised, finding => finding.Subject == "use-case/lending.borrow-copy");
     }
 
+    /// <proves>litespec/backend/domain#raise-the-declared-events-from-the-marked-act</proves>
     [Fact]
     public void Use_Case_With_No_Marked_Method_Reports_No_Act_Event_Unraised()
     {
@@ -78,6 +85,7 @@ public sealed class ActCheckTests
         Assert.DoesNotContain(unraised, finding => finding.Subject == "use-case/lending.borrow-copy");
     }
 
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact]
     public void Unmarked_Raising_Method_Reports_Mark_Missing()
     {

@@ -6,6 +6,7 @@ namespace LiteSpec.Tests.Model.Checks;
 /// <summary>Proves a technical decision points up to what it serves, and a product decision does not.</summary>
 public sealed class DecisionBasisCheckTests
 {
+    /// <proves>litespec/core/model#keep-rules-and-targets-out-of-technical-decisions</proves>
     [Fact]
     public void Technical_Decision_Naming_Requirement_Passes_Links()
     {
@@ -19,6 +20,7 @@ public sealed class DecisionBasisCheckTests
         Assert.DoesNotContain("invalid-field", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/core/model#keep-rules-and-targets-out-of-technical-decisions</proves>
     [Fact]
     public void Product_Decision_Naming_Requirement_Reports_Invalid_Field()
     {
@@ -32,6 +34,7 @@ public sealed class DecisionBasisCheckTests
         Assert.True(Reports(model, "invalid-field", "links basedOn to 'requirement/checkout.receipt-on-request', which is a requirement"));
     }
 
+    /// <proves>litespec/core/model#keep-rules-and-targets-out-of-technical-decisions</proves>
     [Fact]
     public void Requirement_Naming_Requirement_Reports_Invalid_Field()
     {
@@ -44,6 +47,7 @@ public sealed class DecisionBasisCheckTests
         Assert.True(Reports(model, "invalid-field", "links basedOn to 'requirement/checkout.two-second-answer', which is a requirement"));
     }
 
+    /// <proves>litespec/core/model#keep-rules-and-targets-out-of-technical-decisions</proves>
     [Fact]
     public void Technical_Decision_With_Empty_Or_Missing_BasedOn_Reports_Without_Basis()
     {
@@ -60,6 +64,7 @@ public sealed class DecisionBasisCheckTests
         Assert.All(basis, finding => Assert.Contains("names no constraint or requirement in basedOn", finding.Message, StringComparison.Ordinal));
     }
 
+    /// <proves>litespec/core/model#keep-rules-and-targets-out-of-technical-decisions</proves>
     [Fact]
     public void Technical_Decision_Naming_Constraint_Passes_Basis()
     {
@@ -73,6 +78,7 @@ public sealed class DecisionBasisCheckTests
         Assert.DoesNotContain("decision-without-basis", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/core/model#keep-rules-and-targets-out-of-technical-decisions</proves>
     [Fact]
     public void Product_Decision_With_Empty_BasedOn_Passes_Basis()
     {
@@ -86,6 +92,7 @@ public sealed class DecisionBasisCheckTests
         Assert.DoesNotContain("decision-without-basis", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/core/model#keep-rules-and-targets-out-of-technical-decisions</proves>
     [Fact]
     public void Technical_Decision_Naming_Missing_Requirement_Reports_Unresolved()
     {

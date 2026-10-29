@@ -8,6 +8,7 @@ namespace LiteSpec.Tests.Support;
 /// </summary>
 public sealed class InputErrorTests
 {
+    /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
     public void Model_Reports_A_Malformed_Project_File_As_A_Usage_Error()
     {
@@ -20,6 +21,7 @@ public sealed class InputErrorTests
         Assert.Contains("litespec.project.json is not valid JSON", result.Stderr, StringComparison.Ordinal);
     }
 
+    /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
     public void Model_Refuses_A_Root_Without_A_Project_File()
     {
@@ -31,6 +33,7 @@ public sealed class InputErrorTests
         Assert.Contains("holds no litespec.project.json", result.Stderr, StringComparison.Ordinal);
     }
 
+    /// <proves>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</proves>
     [Fact]
     public void Book_Accepts_An_Option_Written_With_An_Equals_Sign()
     {

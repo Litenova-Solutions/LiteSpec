@@ -8,6 +8,7 @@ namespace LiteSpec.Tests.Model.Marks;
 /// </summary>
 public sealed class RefusalCodeCheckTests
 {
+    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact]
     public void Bare_Refusal_With_A_Wrong_Code_Reports_Runtime_Value_Drift()
     {
@@ -20,6 +21,7 @@ public sealed class RefusalCodeCheckTests
         Assert.Contains("lending.receipt-missing", finding.Message);
     }
 
+    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact]
     public void Bare_Refusal_With_The_Equal_Code_Reports_No_Drift()
     {
@@ -29,6 +31,7 @@ public sealed class RefusalCodeCheckTests
         Assert.DoesNotContain(drifts, finding => finding.Message.Contains("EqualCodeException"));
     }
 
+    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact]
     public void Refusal_To_A_Success_Result_Reports_No_Drift()
     {

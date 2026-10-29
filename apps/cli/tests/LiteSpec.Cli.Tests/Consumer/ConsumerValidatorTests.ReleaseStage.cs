@@ -22,6 +22,8 @@ public sealed partial class ConsumerValidatorTests
         ["until"] = "2999-01-01",
     };
 
+    /// <proves>litespec/ext/stage#declare-the-release-stage</proves>
+    /// <proves>litespec/ext/stage#defer-named-provisions-until-promotion</proves>
     [Fact(DisplayName = "stage selection with its release stage and a live deferral")]
     public void StageSelectionWithItsReleaseStageAndALiveDeferral()
     {
@@ -37,6 +39,7 @@ public sealed partial class ConsumerValidatorTests
         AssertClean(RunConsumer(folder.Path));
     }
 
+    /// <proves>litespec/ext/stage#declare-the-release-stage</proves>
     [Fact(DisplayName = "stage selection without a release stage")]
     public void StageSelectionWithoutAReleaseStage()
     {
@@ -48,6 +51,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "releaseStage");
     }
 
+    /// <proves>litespec/ext/stage#declare-the-release-stage</proves>
     [Fact(DisplayName = "stage selection with an unknown release stage")]
     public void StageSelectionWithAnUnknownReleaseStage()
     {
@@ -62,6 +66,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "/releaseStage");
     }
 
+    /// <proves>litespec/ext/stage#declare-the-release-stage</proves>
     [Fact(DisplayName = "release stage on another extension")]
     public void ReleaseStageOnAnotherExtension()
     {
@@ -80,6 +85,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "/id");
     }
 
+    /// <proves>litespec/ext/stage#defer-named-provisions-until-promotion</proves>
     [Fact(DisplayName = "production stage that still defers")]
     public void ProductionStageThatStillDefers()
     {
@@ -95,6 +101,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "declares production and still defers");
     }
 
+    /// <proves>litespec/ext/stage#defer-named-provisions-until-promotion</proves>
     [Fact(DisplayName = "deferral of a provision the standards do not hold")]
     public void DeferralOfAProvisionTheStandardsDoNotHold()
     {
@@ -115,6 +122,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "is not a provision in the pinned LiteSpec release");
     }
 
+    /// <proves>litespec/ext/stage#defer-named-provisions-until-promotion</proves>
     [Fact(DisplayName = "deferral past its end date")]
     public void DeferralPastItsEndDate()
     {

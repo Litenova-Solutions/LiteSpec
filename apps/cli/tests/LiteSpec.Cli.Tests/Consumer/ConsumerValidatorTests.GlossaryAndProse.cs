@@ -7,6 +7,7 @@ public sealed partial class ConsumerValidatorTests
     const string ModuleReadme = "docs/behavior/modules/orders/README.md";
     const string GlossaryFile = "docs/glossary.json";
 
+    /// <proves>litespec/core/authoring#record-the-project-vocabulary-as-data</proves>
     [Fact(DisplayName = "glossary without its version")]
     public void GlossaryFileWithoutItsVersion()
     {
@@ -15,6 +16,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "schemaVersion");
     }
 
+    /// <proves>litespec/core/authoring#record-the-project-vocabulary-as-data</proves>
     [Fact(DisplayName = "glossary with the old version")]
     public void GlossaryFileWithTheOldVersion()
     {
@@ -23,6 +25,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "/schemaVersion");
     }
 
+    /// <proves>litespec/core/authoring#record-the-project-vocabulary-as-data</proves>
     [Fact(DisplayName = "term scope that is not a regular expression")]
     public void TermScopeThatIsNotARegularExpression()
     {
@@ -39,6 +42,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "is not a regular expression");
     }
 
+    /// <proves>litespec/core/authoring#reject-a-recorded-synonym-inside-its-scope</proves>
     [Fact(DisplayName = "rejected synonym in page prose")]
     public void RejectedSynonymInPageProse()
     {
@@ -47,6 +51,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "GLOSSARY_REJECTED_SYNONYM");
     }
 
+    /// <proves>litespec/core/authoring#state-mannered-terms-literally</proves>
     [Fact(DisplayName = "mannered term in page prose")]
     public void ManneredTermInPageProse()
     {
@@ -55,6 +60,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "GLOSSARY_MANNERED_TERM");
     }
 
+    /// <proves>litespec/core/authoring#exclude-generated-regions-from-prose-checks</proves>
     [Fact(DisplayName = "generated region skips language and prose")]
     public void GeneratedRegionSkipsLanguageAndProse()
     {
@@ -66,6 +72,7 @@ public sealed partial class ConsumerValidatorTests
         AssertClean(RunConsumer(folder.Path));
     }
 
+    /// <proves>litespec/core/authoring#check-the-vocabulary-on-every-surface-a-reader-meets</proves>
     [Fact(DisplayName = "glossary scan pattern that matches nothing")]
     public void GlossaryScanPatternThatMatchesNothing()
     {
@@ -76,6 +83,8 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "matches no file");
     }
 
+    /// <proves>litespec/core/authoring#check-the-vocabulary-on-every-surface-a-reader-meets</proves>
+    /// <proves>litespec/core/authoring#reject-a-recorded-synonym-inside-its-scope</proves>
     [Fact(DisplayName = "rejected synonym in a scanned surface")]
     public void RejectedSynonymInAScannedSurface()
     {

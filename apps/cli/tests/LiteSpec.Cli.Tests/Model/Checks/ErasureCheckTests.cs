@@ -7,6 +7,7 @@ namespace LiteSpec.Tests.Model.Checks;
 /// <summary>Proves the erasure, retention, acceptance and exemption checks against hand-built models.</summary>
 public sealed class ErasureCheckTests
 {
+    /// <proves>litespec/core/behavior#declare-every-data-class-with-its-erasure-position</proves>
     [Fact]
     public void Personal_Class_Without_Erasure_Reports()
     {
@@ -21,6 +22,7 @@ public sealed class ErasureCheckTests
         Assert.Contains("erasure-undeclared", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/core/behavior#declare-every-data-class-with-its-erasure-position</proves>
     [Fact]
     public void Personal_Field_Without_Cover_Reports()
     {
@@ -30,6 +32,7 @@ public sealed class ErasureCheckTests
         Assert.Contains("erasure-undeclared", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/core/behavior#declare-every-data-class-with-its-erasure-position</proves>
     [Fact]
     public void Sensitive_Field_Reports_As_Personal()
     {
@@ -39,6 +42,7 @@ public sealed class ErasureCheckTests
         Assert.Contains("erasure-undeclared", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/core/behavior#declare-every-data-class-with-its-erasure-position</proves>
     [Fact]
     public void Public_And_Internal_Fields_Pass()
     {
@@ -56,6 +60,8 @@ public sealed class ErasureCheckTests
         Assert.DoesNotContain("erasure-undeclared", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/core/behavior#declare-every-data-class-with-its-erasure-position</proves>
+    /// <proves>litespec/core/behavior#schedule-every-data-class-for-retention</proves>
     [Fact]
     public void Erasure_Position_With_Enforcement_Covers_The_Data()
     {
@@ -74,6 +80,7 @@ public sealed class ErasureCheckTests
         Assert.DoesNotContain("retention-without-enforcement", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/core/behavior#declare-every-data-class-with-its-erasure-position</proves>
     [Fact]
     public void Per_Field_Exception_Covers_The_Field()
     {
@@ -92,6 +99,7 @@ public sealed class ErasureCheckTests
         Assert.DoesNotContain(Checker.Check(model).Findings, finding => finding.Code == "erasure-undeclared");
     }
 
+    /// <proves>litespec/core/behavior#schedule-every-data-class-for-retention</proves>
     [Fact]
     public void Retention_Without_Enforcement_Reports()
     {
@@ -108,6 +116,7 @@ public sealed class ErasureCheckTests
         Assert.Contains("retention-without-enforcement", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/core/behavior#accept-every-retained-personal-data-class-in-intent</proves>
     [Fact]
     public void Retain_Without_Acceptance_Reports()
     {
@@ -117,6 +126,7 @@ public sealed class ErasureCheckTests
         Assert.Contains("risk-without-acceptance", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/core/behavior#accept-every-retained-personal-data-class-in-intent</proves>
     [Fact]
     public void Retain_With_An_Intent_Decision_Passes()
     {
@@ -126,6 +136,7 @@ public sealed class ErasureCheckTests
         Assert.DoesNotContain("risk-without-acceptance", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/core/behavior#review-every-erasure-exemption-before-its-date</proves>
     [Fact]
     public void Exempt_Without_Review_Date_Reports()
     {
@@ -135,6 +146,7 @@ public sealed class ErasureCheckTests
         Assert.Contains("exemption-expired", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/core/behavior#review-every-erasure-exemption-before-its-date</proves>
     [Fact]
     public void Exempt_Past_Review_Reports()
     {
@@ -144,6 +156,7 @@ public sealed class ErasureCheckTests
         Assert.Contains("exemption-expired", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/core/behavior#review-every-erasure-exemption-before-its-date</proves>
     [Fact]
     public void Exempt_Before_Review_Passes()
     {

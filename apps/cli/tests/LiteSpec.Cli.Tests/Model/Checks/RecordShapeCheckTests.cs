@@ -6,6 +6,7 @@ namespace LiteSpec.Tests.Model.Checks;
 /// <summary>Proves the unified edge grammar, the idempotency grammar and the structured failure policy.</summary>
 public sealed class RecordShapeCheckTests
 {
+    /// <proves>litespec/core/behavior#keep-the-effect-graph-free-of-cycles</proves>
     [Fact]
     public void Reaction_Effects_Issues_Edge_Feeds_Effect_Loop()
     {
@@ -19,6 +20,7 @@ public sealed class RecordShapeCheckTests
         Assert.Contains("effect-loop", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/core/behavior#describe-every-notification-with-audience-channel-and-consent</proves>
     [Fact]
     public void Reaction_Effects_Sends_Edge_Satisfies_Notification_Sender()
     {
@@ -31,6 +33,7 @@ public sealed class RecordShapeCheckTests
         Assert.DoesNotContain("notification-without-sender", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/core/behavior#describe-every-notification-with-audience-channel-and-consent</proves>
     [Fact]
     public void Job_Effects_Sends_Edge_Satisfies_Notification_Sender()
     {
@@ -43,6 +46,7 @@ public sealed class RecordShapeCheckTests
         Assert.DoesNotContain("notification-without-sender", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/core/behavior#declare-every-effect-with-one-verb-and-its-timing</proves>
     [Fact]
     public void Reaction_With_Top_Level_Issues_Reports_Record_Shape()
     {
@@ -54,6 +58,7 @@ public sealed class RecordShapeCheckTests
         Assert.True(Reports(model, "record-shape", "top-level issues"));
     }
 
+    /// <proves>litespec/core/behavior#declare-every-effect-with-one-verb-and-its-timing</proves>
     [Fact]
     public void Reaction_With_Top_Level_Sends_Reports_Record_Shape()
     {
@@ -65,6 +70,7 @@ public sealed class RecordShapeCheckTests
         Assert.True(Reports(model, "record-shape", "top-level sends"));
     }
 
+    /// <proves>litespec/core/behavior#declare-every-effect-with-one-verb-and-its-timing</proves>
     [Fact]
     public void Job_With_Top_Level_Issues_Reports_Record_Shape()
     {
@@ -76,6 +82,7 @@ public sealed class RecordShapeCheckTests
         Assert.True(Reports(model, "record-shape", "top-level issues"));
     }
 
+    /// <proves>litespec/core/behavior#declare-every-effect-with-one-verb-and-its-timing</proves>
     [Fact]
     public void Reaction_Without_Effects_Reports_Record_Shape()
     {
@@ -87,6 +94,7 @@ public sealed class RecordShapeCheckTests
         Assert.True(Reports(model, "record-shape", "has no effects"));
     }
 
+    /// <proves>litespec/core/behavior#declare-every-effect-with-one-verb-and-its-timing</proves>
     [Fact]
     public void Reaction_Effects_Without_Timing_Pass_Shape()
     {
@@ -99,6 +107,7 @@ public sealed class RecordShapeCheckTests
         Assert.DoesNotContain("record-shape", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/core/behavior#name-the-idempotency-of-every-use-case</proves>
     [Fact]
     public void Key_Placeholder_Naming_No_Input_Field_Reports()
     {
@@ -111,6 +120,7 @@ public sealed class RecordShapeCheckTests
         Assert.True(Reports(model, "record-shape", "input fields in scope: copyId"));
     }
 
+    /// <proves>litespec/core/behavior#name-the-idempotency-of-every-use-case</proves>
     [Fact]
     public void Key_Without_Placeholder_Reports()
     {
@@ -123,6 +133,7 @@ public sealed class RecordShapeCheckTests
         Assert.True(Reports(model, "record-shape", "input fields in scope: copyId"));
     }
 
+    /// <proves>litespec/core/behavior#name-the-idempotency-of-every-use-case</proves>
     [Fact]
     public void Unknown_Scope_Reports()
     {
@@ -134,6 +145,7 @@ public sealed class RecordShapeCheckTests
         Assert.True(Reports(model, "record-shape", "tenant, account, login, global"));
     }
 
+    /// <proves>litespec/core/behavior#name-the-idempotency-of-every-use-case</proves>
     [Fact]
     public void Valid_Key_And_Scope_Pass_Shape()
     {
@@ -145,6 +157,7 @@ public sealed class RecordShapeCheckTests
         Assert.DoesNotContain("record-shape", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/core/behavior#name-the-idempotency-of-every-use-case</proves>
     [Fact]
     public void Reaction_Key_Names_Event_Fields_Unchecked()
     {
@@ -156,6 +169,7 @@ public sealed class RecordShapeCheckTests
         Assert.False(Reports(model, "record-shape", "idempotency key"));
     }
 
+    /// <proves>litespec/core/behavior#state-the-failure-handling-of-every-reaction</proves>
     [Fact]
     public void Reaction_Prose_OnFailure_Reports()
     {
@@ -167,6 +181,7 @@ public sealed class RecordShapeCheckTests
         Assert.True(Reports(model, "record-shape", "as prose"));
     }
 
+    /// <proves>litespec/core/behavior#state-the-failure-handling-of-every-reaction</proves>
     [Fact]
     public void Job_Prose_OnFailure_Reports()
     {
@@ -178,6 +193,7 @@ public sealed class RecordShapeCheckTests
         Assert.True(Reports(model, "record-shape", "as prose"));
     }
 
+    /// <proves>litespec/core/behavior#state-the-failure-handling-of-every-reaction</proves>
     [Fact]
     public void Malformed_Retry_Delay_Reports()
     {
@@ -189,6 +205,7 @@ public sealed class RecordShapeCheckTests
         Assert.True(Reports(model, "record-shape", "initialDelay '5 seconds', which is not an ISO 8601 duration"));
     }
 
+    /// <proves>litespec/core/behavior#state-the-failure-handling-of-every-reaction</proves>
     [Fact]
     public void Malformed_DeadLetter_After_Reports()
     {
@@ -200,6 +217,7 @@ public sealed class RecordShapeCheckTests
         Assert.True(Reports(model, "record-shape", "after '7 days', which is not an ISO 8601 duration"));
     }
 
+    /// <proves>litespec/core/behavior#state-the-failure-handling-of-every-reaction</proves>
     [Fact]
     public void Unknown_Backoff_Reports()
     {
@@ -211,6 +229,7 @@ public sealed class RecordShapeCheckTests
         Assert.True(Reports(model, "record-shape", "exponential, fixed"));
     }
 
+    /// <proves>litespec/core/behavior#state-the-failure-handling-of-every-reaction</proves>
     [Fact]
     public void Missing_MaxAttempts_Reports()
     {
@@ -222,6 +241,7 @@ public sealed class RecordShapeCheckTests
         Assert.True(Reports(model, "record-shape", "no positive maxAttempts"));
     }
 
+    /// <proves>litespec/core/behavior#state-the-failure-handling-of-every-reaction</proves>
     [Fact]
     public void Missing_Retry_Reports()
     {
@@ -233,6 +253,7 @@ public sealed class RecordShapeCheckTests
         Assert.True(Reports(model, "record-shape", "onFailure with no retry"));
     }
 
+    /// <proves>litespec/core/behavior#state-the-failure-handling-of-every-reaction</proves>
     [Fact]
     public void Structured_OnFailure_Passes_Shape()
     {
@@ -246,6 +267,7 @@ public sealed class RecordShapeCheckTests
         Assert.DoesNotContain("record-shape", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/core/behavior#state-the-failure-handling-of-every-reaction</proves>
     [Fact]
     public void Retry_None_Passes_Shape()
     {

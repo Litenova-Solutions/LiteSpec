@@ -8,6 +8,7 @@ namespace LiteSpec.Tests.Model.Builder;
 public sealed class ProofIdentityTests
 {
     /// <summary>A passing run for another class's same-named method leaves the scenario awaiting its run.</summary>
+    /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
     public void Same_Method_Name_In_Another_Class_Does_Not_Verify()
     {
@@ -28,6 +29,7 @@ public sealed class ProofIdentityTests
     }
 
     /// <summary>A data-row suffix on the run's test name still matches the scenario's test.</summary>
+    /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
     public void Data_Row_Arguments_Are_Ignored_In_Proof_Identity()
     {

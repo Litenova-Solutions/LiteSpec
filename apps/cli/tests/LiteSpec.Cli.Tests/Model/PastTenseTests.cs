@@ -7,6 +7,7 @@ public sealed class PastTenseTests
 {
     static readonly IReadOnlyDictionary<string, string> Empty = new Dictionary<string, string>();
 
+    /// <proves>litespec/backend/dotnet/domain#raise-the-past-tense-of-a-methods-own-verb</proves>
     [Theory]
     [InlineData("override", "overridden")]
     [InlineData("withhold", "withheld")]
@@ -22,6 +23,7 @@ public sealed class PastTenseTests
         Assert.Equal(expected, UseCaseVocabulary.PastTenseOf(verb, Empty));
     }
 
+    /// <proves>litespec/backend/dotnet/domain#raise-the-past-tense-of-a-methods-own-verb</proves>
     [Theory]
     [InlineData("untag", "untagged")]
     [InlineData("cover", "covered")]
@@ -35,6 +37,7 @@ public sealed class PastTenseTests
         Assert.Equal(expected, UseCaseVocabulary.PastTenseOf(verb, Empty));
     }
 
+    /// <proves>litespec/backend/dotnet/domain#raise-the-past-tense-of-a-methods-own-verb</proves>
     [Theory]
     [InlineData("shred", "shredded")]
     [InlineData("tag", "tagged")]
@@ -45,6 +48,7 @@ public sealed class PastTenseTests
         Assert.Equal(expected, UseCaseVocabulary.PastTenseOf(verb, Empty));
     }
 
+    /// <proves>litespec/backend/dotnet/domain#raise-the-past-tense-of-a-methods-own-verb</proves>
     [Theory]
     [InlineData("offer", "offered")]
     [InlineData("visit", "visited")]

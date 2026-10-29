@@ -7,6 +7,7 @@ public sealed partial class UiValidatorTests
 {
     // Baseline.
 
+    /// <proves>litespec/frontend/web/ui#track-source-changes</proves>
     [Fact]
     public void Tracked_Templates_Validate_As_Shipped()
     {
@@ -16,6 +17,7 @@ public sealed partial class UiValidatorTests
 
     // Allowed construction (litespec/frontend/web/ui#restrict-css-decisions).
 
+    /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
     [Fact]
     public void Approved_Layout_Utilities()
     {
@@ -24,6 +26,7 @@ public sealed partial class UiValidatorTests
             "export const C = () => <div className=\"grid gap-6 lg:grid-cols-2\" />;"));
     }
 
+    /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
     [Fact]
     public void Semantic_Token_Classes()
     {
@@ -32,6 +35,7 @@ public sealed partial class UiValidatorTests
             "export const C = () => <div className=\"bg-background text-foreground border-border\" />;"));
     }
 
+    /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
     [Fact]
     public void State_And_Container_Variants()
     {
@@ -40,6 +44,7 @@ public sealed partial class UiValidatorTests
             "export const C = () => <div className=\"data-[state=open]:rotate-180 has-[input:checked]:bg-accent min-[420px]:flex\" />;"));
     }
 
+    /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
     [Fact]
     public void Class_Merge_Helper()
     {
@@ -48,6 +53,7 @@ public sealed partial class UiValidatorTests
             "import { cn } from \"cn\";\nexport const C = ({ x }: { x?: string }) => <div className={cn(\"flex gap-2\", x && \"justify-between\")} />;"));
     }
 
+    /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
     [Fact]
     public void Pinned_Icon_Family()
     {
@@ -56,6 +62,7 @@ public sealed partial class UiValidatorTests
             "import { Check } from \"lucide-react\";\nexport const C = () => <Check className=\"size-4\" />;"));
     }
 
+    /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
     [Fact]
     public void The_Primitive_Library_Named_By_The_Package_That_Owns_It()
     {
@@ -64,6 +71,7 @@ public sealed partial class UiValidatorTests
             "import { Dialog } from \"@base-ui/react/dialog\";\nexport const C = () => <Dialog />;"));
     }
 
+    /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
     [Fact]
     public void Javascript_Negation_Is_Not_An_Important_Modifier()
     {
@@ -72,6 +80,7 @@ public sealed partial class UiValidatorTests
             "export const C = ({ o }: { o: boolean }) => {\n  const v = !o;\n  return v ? null : <div className=\"p-4\" />;\n};"));
     }
 
+    /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
     [Fact]
     public void A_Class_Name_Inside_A_Comment_Is_Prose()
     {
@@ -80,6 +89,7 @@ public sealed partial class UiValidatorTests
             "export const C = () => {\n  // never use bg-blue-500 or w-[37rem]\n  return <div className=\"p-4\" />;\n};"));
     }
 
+    /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
     [Fact]
     public void Composed_Functional_Variants()
     {
@@ -88,6 +98,7 @@ public sealed partial class UiValidatorTests
             "export const C = () => <div className=\"group-data-[state=open]:rotate-180 not-has-[input]:opacity-50 peer-aria-[expanded=true]:block\" />;"));
     }
 
+    /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
     [Fact]
     public void A_File_Under_Tests_Is_Outside_The_Controlled_Surface()
     {
@@ -97,6 +108,7 @@ public sealed partial class UiValidatorTests
             "export const C = () => <div className=\"bg-red-500\" />;\n"));
     }
 
+    /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
     [Fact]
     public void A_File_Under_The_Copied_Primitive_Boundary_Is_Unedited_Source()
     {
@@ -106,6 +118,7 @@ public sealed partial class UiValidatorTests
             "export const C = () => <div className=\"bg-red-500\" />;\n"));
     }
 
+    /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
     [Fact]
     public void A_Visual_File_Keeps_Its_Own_Layout()
     {
@@ -115,6 +128,7 @@ public sealed partial class UiValidatorTests
             "export const C = () => <div className=\"grid\" style={{ width: 120 }} />;\n"));
     }
 
+    /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
     [Fact]
     public void A_Visual_File_Is_Still_Held_To_The_Token_Rule()
     {
@@ -126,6 +140,7 @@ public sealed partial class UiValidatorTests
             "raw Tailwind palette value requires a semantic token 'bg-red-500'");
     }
 
+    /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
     [Fact]
     public void Generated_Web_Asset_Is_Ignored()
     {
@@ -135,6 +150,7 @@ public sealed partial class UiValidatorTests
             ".generated { color: red; }\n"));
     }
 
+    /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
     [Fact]
     public void A_Route_Composing_One_Floorplan()
     {
@@ -145,6 +161,7 @@ public sealed partial class UiValidatorTests
 
     // Restricted Tailwind use (litespec/frontend/web/ui#restrict-css-decisions).
 
+    /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
     [Fact]
     public void Arbitrary_Length()
     {
@@ -154,6 +171,7 @@ public sealed partial class UiValidatorTests
             "arbitrary Tailwind value requires a semantic token or declared variant 'w-[37rem]'");
     }
 
+    /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
     [Fact]
     public void Arbitrary_Color()
     {
@@ -163,6 +181,7 @@ public sealed partial class UiValidatorTests
             "'bg-[#19324a]'");
     }
 
+    /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
     [Fact]
     public void Raw_Palette_Value()
     {
@@ -172,6 +191,7 @@ public sealed partial class UiValidatorTests
             "raw Tailwind palette value requires a semantic token 'text-red-500'");
     }
 
+    /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
     [Fact]
     public void Raw_Palette_Value_With_Opacity()
     {
@@ -181,6 +201,7 @@ public sealed partial class UiValidatorTests
             "'bg-slate-800/40'");
     }
 
+    /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
     [Fact]
     public void Important_Modifier_Prefix()
     {
@@ -190,6 +211,7 @@ public sealed partial class UiValidatorTests
             "important modifier requires a declared variant '!mt-0'");
     }
 
+    /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
     [Fact]
     public void An_Escaped_Quote_Keeps_The_Following_Literal_Readable()
     {
@@ -199,6 +221,7 @@ public sealed partial class UiValidatorTests
             "'text-red-500'");
     }
 
+    /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
     [Fact]
     public void An_Arbitrary_Selector_Variant_In_A_Drawing()
     {
@@ -210,6 +233,7 @@ public sealed partial class UiValidatorTests
             "arbitrary selector variant requires a declared variant '[&>svg]:size-4'");
     }
 
+    /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
     [Fact]
     public void A_Runtime_Measurement_In_A_Composite()
     {
@@ -219,6 +243,7 @@ public sealed partial class UiValidatorTests
             "export const C = () => <div style={{ width: 12 }} />;\n"));
     }
 
+    /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
     [Fact]
     public void Feature_Selector_In_The_Token_Entry()
     {
@@ -228,6 +253,7 @@ public sealed partial class UiValidatorTests
             "selector '.promo-card' is a feature style");
     }
 
+    /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
     [Fact]
     public void A_Comma_Inside_A_Quoted_Attribute_Value_Is_Not_A_Selector_List()
     {
@@ -235,6 +261,7 @@ public sealed partial class UiValidatorTests
         UiFixture.AssertClean(fixture.CssCase(UiFixture.CleanCss + "[data-token=\",.promo\"]{color:red}\n"));
     }
 
+    /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
     [Fact]
     public void A_Brace_Inside_A_Quoted_Attribute_Value_Is_Not_A_Block()
     {
@@ -242,6 +269,7 @@ public sealed partial class UiValidatorTests
         UiFixture.AssertClean(fixture.CssCase(UiFixture.CleanCss + "[data-token=\"{\"]{color:red}\n"));
     }
 
+    /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
     [Fact]
     public void An_Unterminated_String_Is_Reported_Once()
     {
@@ -251,6 +279,7 @@ public sealed partial class UiValidatorTests
             "global CSS has an unterminated string");
     }
 
+    /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
     [Fact]
     public void Apply_Directive_Outside_The_Generated_Base_Layer()
     {
@@ -260,6 +289,7 @@ public sealed partial class UiValidatorTests
             "'@apply' outside the generated '@layer base' block");
     }
 
+    /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
     [Fact]
     public void Unapproved_Global_Import()
     {

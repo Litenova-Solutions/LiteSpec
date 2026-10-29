@@ -9,6 +9,7 @@ public sealed partial class UiValidatorTests
 {
     // Source boundary (litespec/frontend/ui#select-one-visual-authority).
 
+    /// <proves>litespec/frontend/ui#select-one-visual-authority</proves>
     [Fact]
     public void Second_Visual_System_In_The_Workspace_Root()
     {
@@ -19,6 +20,7 @@ public sealed partial class UiValidatorTests
             "second general-purpose visual dependency '@mui/material' requires a deviation");
     }
 
+    /// <proves>litespec/frontend/ui#select-one-visual-authority</proves>
     [Fact]
     public void Second_Visual_System_In_OptionalDependencies()
     {
@@ -29,6 +31,7 @@ public sealed partial class UiValidatorTests
             "second general-purpose visual dependency 'bootstrap' requires a deviation");
     }
 
+    /// <proves>litespec/frontend/ui#select-one-visual-authority</proves>
     [Fact]
     public void Second_Visual_System_Pinned_Through_Pnpm_Overrides()
     {
@@ -42,6 +45,7 @@ public sealed partial class UiValidatorTests
             "second general-purpose visual dependency '@mantine/core' requires a deviation");
     }
 
+    /// <proves>litespec/frontend/ui#select-one-visual-authority</proves>
     [Fact]
     public void Second_Visual_System_Pinned_Through_Resolutions()
     {
@@ -52,6 +56,7 @@ public sealed partial class UiValidatorTests
             "second general-purpose visual dependency 'antd' requires a deviation");
     }
 
+    /// <proves>litespec/frontend/ui#select-one-visual-authority</proves>
     [Fact]
     public void UI_Deviation_With_An_Expired_Review_Date()
     {
@@ -62,6 +67,7 @@ public sealed partial class UiValidatorTests
             "[litespec/frontend/ui#select-one-visual-authority] docs/deviations/ui-authority.md: review date 2020-01-01 has passed; renew the decision");
     }
 
+    /// <proves>litespec/frontend/ui#select-one-visual-authority</proves>
     [Fact]
     public void UI_Deviation_With_A_Live_Review_Date()
     {
@@ -70,6 +76,7 @@ public sealed partial class UiValidatorTests
         UiFixture.AssertClean(fixture.Run());
     }
 
+    /// <proves>litespec/frontend/ui#select-one-visual-authority</proves>
     [Fact]
     public void Deviation_Against_Another_Area_Stays_Unread_By_The_UI_Validator()
     {
@@ -78,6 +85,7 @@ public sealed partial class UiValidatorTests
         UiFixture.AssertClean(fixture.Run());
     }
 
+    /// <proves>litespec/frontend/ui#select-one-visual-authority</proves>
     [Fact]
     public void Deviations_Folder_Set_Through_Paths_Records_Deviation()
     {
@@ -97,6 +105,7 @@ public sealed partial class UiValidatorTests
 
     // Shared package (litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package).
 
+    /// <proves>litespec/frontend/ui#select-one-visual-authority</proves>
     [Fact]
     public void A_Controlled_Frontend_With_No_Shared_Package()
     {
@@ -105,6 +114,7 @@ public sealed partial class UiValidatorTests
         UiFixture.AssertProblem(fixture.Run(), "and no paths.uiPackage");
     }
 
+    /// <proves>litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package</proves>
     [Fact]
     public void A_Shared_Package_With_No_Public_Export()
     {
@@ -116,6 +126,7 @@ public sealed partial class UiValidatorTests
         UiFixture.AssertProblem(fixture.Run(), "publicExports must contain at least one entry point");
     }
 
+    /// <proves>litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package</proves>
     [Fact]
     public void A_Shared_Package_Declaring_The_Same_Export_Twice()
     {
@@ -128,6 +139,7 @@ public sealed partial class UiValidatorTests
         UiFixture.AssertProblem(fixture.Run(), "duplicate '@fixture/ui/floorplans'");
     }
 
+    /// <proves>litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package</proves>
     [Fact]
     public void A_Source_Lock_Outside_The_Package_Root()
     {
@@ -139,6 +151,7 @@ public sealed partial class UiValidatorTests
         UiFixture.AssertProblem(fixture.Run(), "sourceLock must live inside the shared package root");
     }
 
+    /// <proves>litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package</proves>
     [Fact]
     public void Components_Json_Naming_An_Icon_Library_The_Baseline_Does_Not_Pin()
     {
@@ -149,6 +162,7 @@ public sealed partial class UiValidatorTests
         UiFixture.AssertProblem(fixture.Run(), "iconLibrary must be \"lucide\"");
     }
 
+    /// <proves>litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package</proves>
     [Fact]
     public void Source_Lock_Describing_A_Preset_The_Manifest_Does_Not_Pin()
     {
@@ -159,6 +173,7 @@ public sealed partial class UiValidatorTests
 
     // Additional registries (litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package).
 
+    /// <proves>litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package</proves>
     [Fact]
     public void An_Additional_Registry_With_The_Deviation_Passes_Both_Gates()
     {
@@ -168,6 +183,7 @@ public sealed partial class UiValidatorTests
         UiFixture.AssertClean(fixture.Run());
     }
 
+    /// <proves>litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package</proves>
     [Fact]
     public void The_Configuration_Gate_Refuses_Without_The_Deviation()
     {
@@ -178,6 +194,7 @@ public sealed partial class UiValidatorTests
             "[litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package] packages/ui/components.json: an additional registry requires a deviation");
     }
 
+    /// <proves>litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package</proves>
     [Fact]
     public void The_Source_Lock_Gate_Refuses_Without_The_Deviation()
     {
@@ -190,6 +207,7 @@ public sealed partial class UiValidatorTests
 
     // Source lock (litespec/frontend/web/ui#track-source-changes).
 
+    /// <proves>litespec/frontend/web/ui#track-source-changes</proves>
     [Fact]
     public void Changed_Copied_Source_Without_A_Fork_Record()
     {
@@ -198,6 +216,7 @@ public sealed partial class UiValidatorTests
         UiFixture.AssertProblem(fixture.Run(), "no longer matches the recorded digest");
     }
 
+    /// <proves>litespec/frontend/web/ui#track-source-changes</proves>
     [Fact]
     public void A_Dependency_The_Manifest_Does_Not_Pin()
     {
@@ -212,6 +231,7 @@ public sealed partial class UiValidatorTests
             "dependency 'not-a-pinned-package' is not pinned in the LiteSpec manifest");
     }
 
+    /// <proves>litespec/frontend/web/ui#track-source-changes</proves>
     [Fact]
     public void A_Path_Escaping_The_Package_Root()
     {

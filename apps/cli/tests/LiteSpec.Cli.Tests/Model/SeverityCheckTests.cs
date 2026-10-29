@@ -8,6 +8,7 @@ namespace LiteSpec.Tests.Model;
 public sealed class SeverityCheckTests
 {
     /// <summary>An S finding on a draft use case reports with draft and exits 0.</summary>
+    /// <proves>litespec/core/model#follow-effective-status-in-code-findings</proves>
     [Fact]
     public void Draft_Use_Case_Reports_Without_Blocking()
     {
@@ -29,6 +30,7 @@ public sealed class SeverityCheckTests
     }
 
     /// <summary>The same S finding on a reviewed use case blocks and exits 1.</summary>
+    /// <proves>litespec/core/model#follow-effective-status-in-code-findings</proves>
     [Fact]
     public void Reviewed_Use_Case_Blocks()
     {
@@ -54,6 +56,7 @@ public sealed class SeverityCheckTests
     ///     A frozen phase reports a proof finding with frozen instead of blocking. The overlay also
     ///     leaves a G finding that blocks in every phase, so the outcome is asserted, not the exit code.
     /// </summary>
+    /// <proves>litespec/core/model#hold-proof-findings-while-tests-are-frozen</proves>
     [Fact]
     public void Frozen_Phase_Reports_Proof_Finding_Without_Blocking()
     {
@@ -73,6 +76,7 @@ public sealed class SeverityCheckTests
     }
 
     /// <summary>A working phase blocks a proof finding and exits 1.</summary>
+    /// <proves>litespec/core/model#hold-proof-findings-while-tests-are-frozen</proves>
     [Fact]
     public void Working_Phase_Blocks_Proof_Finding()
     {
@@ -91,6 +95,7 @@ public sealed class SeverityCheckTests
     }
 
     /// <summary>An unknown marks or phase value exits 2 with the file error.</summary>
+    /// <proves>litespec/core/model#hold-proof-findings-while-tests-are-frozen</proves>
     [Theory]
     [InlineData("marks", "yaml", "unknown marks \"yaml\"")]
     [InlineData("phase", "paused", "unknown check.phase \"paused\"")]

@@ -43,6 +43,7 @@ public sealed class PermissionScopeTests
     static JsonObject FirstPermission(JsonObject meta) =>
         (JsonObject)((JsonArray)meta["records"]!)[0]!;
 
+    /// <proves>litespec/core/access#state-the-scope-of-every-permission</proves>
     [Fact(DisplayName = "permission entry with its scope")]
     public void PermissionEntryWithItsScope()
     {
@@ -54,6 +55,7 @@ public sealed class PermissionScopeTests
         AssertClean(RunConsumer(folder.Path));
     }
 
+    /// <proves>litespec/core/access#state-the-scope-of-every-permission</proves>
     [Fact(DisplayName = "permission entry with its scope and group")]
     public void PermissionEntryWithItsScopeAndGroup()
     {
@@ -69,6 +71,7 @@ public sealed class PermissionScopeTests
         AssertClean(RunConsumer(folder.Path));
     }
 
+    /// <proves>litespec/core/access#state-the-scope-of-every-permission</proves>
     [Fact(DisplayName = "permission entry without its scope")]
     public void PermissionEntryWithoutItsScope()
     {
@@ -80,6 +83,7 @@ public sealed class PermissionScopeTests
         AssertProblem(RunConsumer(folder.Path), "missing required property 'scope'");
     }
 
+    /// <proves>litespec/core/access#state-the-scope-of-every-permission</proves>
     [Fact(DisplayName = "permission entry with an unknown property")]
     public void PermissionEntryWithAnUnknownProperty()
     {

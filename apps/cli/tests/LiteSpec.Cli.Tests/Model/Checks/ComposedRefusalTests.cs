@@ -6,6 +6,7 @@ namespace LiteSpec.Tests.Model.Checks;
 /// <summary>Proves the refusal-not-thrown check reads a code the project composes from a key at run time.</summary>
 public sealed class ComposedRefusalTests
 {
+    /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
     public void Composed_Code_Whose_Key_Is_In_Code_Passes()
     {
@@ -16,6 +17,7 @@ public sealed class ComposedRefusalTests
         Assert.DoesNotContain("refusal-not-thrown", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
     public void Composed_Code_Whose_Key_No_Code_Holds_Reports()
     {
@@ -27,6 +29,7 @@ public sealed class ComposedRefusalTests
         Assert.Contains("uniqueness.copy-barcode-taken", message, StringComparison.Ordinal);
     }
 
+    /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
     public void Code_Outside_Every_Template_Still_Reports()
     {
@@ -37,6 +40,7 @@ public sealed class ComposedRefusalTests
         Assert.Contains("refusal-not-thrown", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Theory]
     [InlineData("uniqueness.{key}-taken", true)]
     [InlineData("{key}-taken", false)]

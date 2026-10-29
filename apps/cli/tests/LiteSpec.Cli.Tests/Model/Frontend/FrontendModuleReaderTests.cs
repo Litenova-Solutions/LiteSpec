@@ -5,6 +5,7 @@ namespace LiteSpec.Tests.Model.Frontend;
 /// <summary>Proves the TypeScript reader records each use-case module's <c>litespec</c> constant.</summary>
 public sealed class FrontendModuleReaderTests
 {
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact]
     public void Reader_Records_The_Litespec_Constant_As_A_Frontend_Mark()
     {
@@ -27,6 +28,7 @@ public sealed class FrontendModuleReaderTests
         Assert.Equal(3, borrow.Line);
     }
 
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact]
     public void Reader_Reads_React_Modules_Beside_Svelte_Modules()
     {
@@ -43,6 +45,7 @@ public sealed class FrontendModuleReaderTests
             && element.File.Contains(Path.Combine("apps", "web")));
     }
 
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact]
     public void Reader_Records_An_Unmarked_Module_With_No_Marks()
     {

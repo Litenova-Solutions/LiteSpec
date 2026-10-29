@@ -83,6 +83,7 @@ public sealed class ModelCheckTests
     }
 
     /// <summary>Clean small fixture exits 0.</summary>
+    /// <proves>litespec/core/release#run-consistency-checks</proves>
     [Fact]
     public void Clean_Small_Fixture_Exits_0()
     {
@@ -92,6 +93,7 @@ public sealed class ModelCheckTests
     }
 
     /// <summary>Clean large fixture exits 0.</summary>
+    /// <proves>litespec/core/release#run-consistency-checks</proves>
     [Fact]
     public void Clean_Large_Fixture_Exits_0()
     {
@@ -101,6 +103,7 @@ public sealed class ModelCheckTests
     }
 
     /// <summary>Broken overlay '&lt;code&gt;' exits 1 with its finding code in the output.</summary>
+    /// <proves>litespec/core/release#run-consistency-checks</proves>
     [Theory]
     [MemberData(nameof(FindingCodeData))]
     public void Broken_Overlay_Exits_1(string code)
@@ -112,6 +115,7 @@ public sealed class ModelCheckTests
     }
 
     /// <summary>The theory's code list matches the overlay folders, so a new overlay without a case fails.</summary>
+    /// <proves>litespec/core/release#run-consistency-checks</proves>
     [Fact]
     public void Finding_Codes_Match_Broken_Overlay_Folders()
     {
@@ -125,6 +129,7 @@ public sealed class ModelCheckTests
     }
 
     /// <summary>Open known gaps turn their findings into exit 0.</summary>
+    /// <proves>litespec/core/model#record-accepted-gaps-as-known-gaps</proves>
     [Fact]
     public void Open_Known_Gap_Turns_Its_Finding_Into_Exit_0()
     {
@@ -136,6 +141,7 @@ public sealed class ModelCheckTests
     }
 
     /// <summary>Expired known gap exits 1.</summary>
+    /// <proves>litespec/core/model#record-accepted-gaps-as-known-gaps</proves>
     [Fact]
     public void Expired_Known_Gap_Exits_1()
     {

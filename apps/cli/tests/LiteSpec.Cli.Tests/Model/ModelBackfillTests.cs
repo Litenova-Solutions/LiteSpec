@@ -15,6 +15,7 @@ public sealed class ModelBackfillTests
         "BorrowCopy", "BorrowCopyCommandHandler.cs");
 
     /// <summary>Backfill drafts the missing changes and marks the record transcribed.</summary>
+    /// <proves>litespec/core/agent#mark-transcribed-records-during-adoption</proves>
     [Fact]
     public void Backfill_Adds_Missing_Changes_And_Marks_Transcribed()
     {
@@ -37,6 +38,7 @@ public sealed class ModelBackfillTests
     }
 
     /// <summary>A dry run prints the planned writes and leaves every file alone.</summary>
+    /// <proves>litespec/core/agent#mark-transcribed-records-during-adoption</proves>
     [Fact]
     public void Backfill_Dry_Run_Writes_Nothing()
     {
@@ -51,6 +53,7 @@ public sealed class ModelBackfillTests
     }
 
     /// <summary>Backfill drafts a refusal result for a code no result declares.</summary>
+    /// <proves>litespec/core/agent#mark-transcribed-records-during-adoption</proves>
     [Fact]
     public void Backfill_Adds_Missing_Refusal_Results()
     {
@@ -69,6 +72,7 @@ public sealed class ModelBackfillTests
     }
 
     /// <summary>Human entries keep their place and are never duplicated or rewritten.</summary>
+    /// <proves>litespec/core/agent#mark-transcribed-records-during-adoption</proves>
     [Fact]
     public void Backfill_Preserves_Human_Entries()
     {
@@ -94,6 +98,7 @@ public sealed class ModelBackfillTests
     }
 
     /// <summary>Backfill drafts an effects entry for a dispatch that resolves to a use case.</summary>
+    /// <proves>litespec/core/agent#mark-transcribed-records-during-adoption</proves>
     [Fact]
     public void Backfill_Adds_Effects_From_Dispatch()
     {
@@ -128,6 +133,7 @@ public sealed class ModelBackfillTests
     }
 
     /// <summary>A dispatch with no matching record is skipped rather than invented.</summary>
+    /// <proves>litespec/core/agent#mark-transcribed-records-during-adoption</proves>
     [Fact]
     public void Backfill_Skips_Unresolvable_Effect_Targets()
     {
@@ -140,6 +146,7 @@ public sealed class ModelBackfillTests
     }
 
     /// <summary>Backfill drafts a reaction's reads from its constructor repositories.</summary>
+    /// <proves>litespec/core/agent#mark-transcribed-records-during-adoption</proves>
     [Fact]
     public void Backfill_Backfills_Reaction_Reads()
     {
@@ -176,6 +183,7 @@ public sealed class ModelBackfillTests
     }
 
     /// <summary>Backfill drafts a job's issues from its dispatched commands.</summary>
+    /// <proves>litespec/core/agent#mark-transcribed-records-during-adoption</proves>
     [Fact]
     public void Backfill_Backfills_Job_Issues()
     {
@@ -212,6 +220,7 @@ public sealed class ModelBackfillTests
     }
 
     /// <summary>Backfill on a clean fixture writes nothing and still prints the table.</summary>
+    /// <proves>litespec/core/agent#mark-transcribed-records-during-adoption</proves>
     [Fact]
     public void Backfill_On_Clean_Fixture_Writes_Nothing()
     {
@@ -224,6 +233,7 @@ public sealed class ModelBackfillTests
     }
 
     /// <summary>Backfill limits itself to the named module.</summary>
+    /// <proves>litespec/core/agent#mark-transcribed-records-during-adoption</proves>
     [Fact]
     public void Backfill_Filters_By_Module()
     {
@@ -235,6 +245,7 @@ public sealed class ModelBackfillTests
     }
 
     /// <summary>Backfill names the module when it holds no backfillable records.</summary>
+    /// <proves>litespec/core/agent#mark-transcribed-records-during-adoption</proves>
     [Fact]
     public void Backfill_Unknown_Module_Exits_1()
     {

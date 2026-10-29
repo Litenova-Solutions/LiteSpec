@@ -3,6 +3,7 @@ namespace LiteSpec.Tests.Model.Marks;
 /// <summary>Proves a plain class carrying a job mark hosts its job: it clears job-unimplemented and takes exactly one mark.</summary>
 public sealed class JobMarkTests
 {
+    /// <proves>litespec/core/model#implement-each-mapped-behavior-record-behind-a-mark</proves>
     [Fact]
     public void Marked_Plain_Class_Clears_Job_Unimplemented()
     {
@@ -28,6 +29,7 @@ public sealed class JobMarkTests
         Assert.Empty(MarksFixture.WithCode(findings, "mark-count"));
     }
 
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact]
     public void Marked_Plain_Class_With_Two_Marks_Reports_Mark_Count()
     {
@@ -54,6 +56,8 @@ public sealed class JobMarkTests
         Assert.DoesNotContain(MarksFixture.WithCode(findings, "job-unimplemented"), unimplemented => unimplemented.Subject == "job/billing.charge-dues");
     }
 
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
+    /// <proves>litespec/core/model#implement-each-mapped-behavior-record-behind-a-mark</proves>
     [Fact]
     public void Unmarked_Plain_Class_Is_Technical_And_Job_Stays_Unimplemented()
     {
@@ -79,6 +83,8 @@ public sealed class JobMarkTests
         Assert.Contains(MarksFixture.WithCode(findings, "job-unimplemented"), unimplemented => unimplemented.Subject == "job/billing.charge-dues");
     }
 
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
+    /// <proves>litespec/core/model#implement-each-mapped-behavior-record-behind-a-mark</proves>
     [Fact]
     public void Marked_Class_In_Domain_Is_Not_A_Job()
     {

@@ -7,6 +7,7 @@ namespace LiteSpec.Tests.Model.Checks;
 /// <summary>Proves the state-unreachable and transition-unresolved checks against hand-built models.</summary>
 public sealed class LifecycleCheckTests
 {
+    /// <proves>litespec/core/behavior#connect-every-state-through-transitions</proves>
     [Fact]
     public void State_No_Transition_Reaches_Reports_State_Unreachable()
     {
@@ -22,6 +23,7 @@ public sealed class LifecycleCheckTests
         Assert.Contains("Overdue", messages[0]);
     }
 
+    /// <proves>litespec/core/behavior#connect-every-state-through-transitions</proves>
     [Fact]
     public void Aggregate_Without_Transitions_Passes()
     {
@@ -32,6 +34,7 @@ public sealed class LifecycleCheckTests
         Assert.DoesNotContain("transition-unresolved", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/core/behavior#connect-every-state-through-transitions</proves>
     [Fact]
     public void Full_Chain_Of_Transitions_Passes()
     {
@@ -44,6 +47,7 @@ public sealed class LifecycleCheckTests
         Assert.DoesNotContain("transition-unresolved", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/core/behavior#connect-every-state-through-transitions</proves>
     [Fact]
     public void A_State_Entered_Only_At_Creation_Is_Reached()
     {
@@ -56,6 +60,7 @@ public sealed class LifecycleCheckTests
         Assert.DoesNotContain("transition-unresolved", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/core/behavior#connect-every-state-through-transitions</proves>
     [Fact]
     public void Transition_To_A_Missing_State_Reports_Transition_Unresolved()
     {
@@ -65,6 +70,7 @@ public sealed class LifecycleCheckTests
         Assert.Contains("transition-unresolved", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/core/behavior#connect-every-state-through-transitions</proves>
     [Fact]
     public void Transition_From_A_Missing_State_Reports_Transition_Unresolved()
     {
@@ -74,6 +80,7 @@ public sealed class LifecycleCheckTests
         Assert.Contains("transition-unresolved", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/core/behavior#connect-every-state-through-transitions</proves>
     [Fact]
     public void Transition_By_A_Missing_Use_Case_Reports_Transition_Unresolved()
     {
@@ -85,6 +92,7 @@ public sealed class LifecycleCheckTests
         Assert.Contains("transition-unresolved", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/core/behavior#connect-every-state-through-transitions</proves>
     [Fact]
     public void Transition_By_A_Record_That_Is_No_Use_Case_Reports_Transition_Unresolved()
     {
@@ -96,6 +104,7 @@ public sealed class LifecycleCheckTests
         Assert.Contains("transition-unresolved", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/core/behavior#connect-every-state-through-transitions</proves>
     [Fact]
     public void Transition_By_A_Use_Case_Passes()
     {

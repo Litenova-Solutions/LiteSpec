@@ -7,6 +7,7 @@ namespace LiteSpec.Tests.Model;
 /// <summary>Proves the backend reader collects refusal codes from Code members only.</summary>
 public sealed class DotnetBackendReaderTests
 {
+    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void Code_Property_Literal_Is_Collected()
     {
@@ -25,6 +26,7 @@ public sealed class DotnetBackendReaderTests
         Assert.Contains("lending.copy-not-available", Literals(temp.Path));
     }
 
+    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void Const_Code_Field_Is_Collected()
     {
@@ -42,6 +44,7 @@ public sealed class DotnetBackendReaderTests
         Assert.Contains("request.bot-check-failed", Literals(temp.Path));
     }
 
+    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void Dotted_Literals_Outside_Code_Members_Are_Ignored()
     {
@@ -71,6 +74,7 @@ public sealed class DotnetBackendReaderTests
         Assert.Empty(Literals(temp.Path));
     }
 
+    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void Exception_Arguments_And_Named_Codes_Declare()
     {
@@ -99,6 +103,7 @@ public sealed class DotnetBackendReaderTests
         Assert.DoesNotContain("lending.not-borrower", literals);
     }
 
+    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void Every_Dotted_Literal_Counts_As_Thrown()
     {
@@ -118,6 +123,7 @@ public sealed class DotnetBackendReaderTests
         Assert.Contains(all, literal => literal.Value == "authorization.forbidden" && !literal.Declares);
     }
 
+    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void Plain_Label_Code_Value_Is_Ignored()
     {
@@ -148,6 +154,7 @@ public sealed class DotnetBackendReaderTests
               "webapi": "src/WebApi", "infrastructure": "src/Infra"}}}
             """);
 
+    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void A_Code_Inside_A_Message_Declares_Nothing()
     {
@@ -166,6 +173,7 @@ public sealed class DotnetBackendReaderTests
         Assert.Empty(Literals(temp.Path));
     }
 
+    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void An_Event_States_Its_Record_Id()
     {
@@ -185,6 +193,7 @@ public sealed class DotnetBackendReaderTests
         Assert.Equal("event/loan.extended", domainEvent.EventId);
     }
 
+    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void On_Handler_With_A_Tag_Links_To_Its_Reaction()
     {
@@ -206,6 +215,7 @@ public sealed class DotnetBackendReaderTests
         Assert.Equal("reaction/lending.notify-reader-on-borrow", reaction.RecordId);
     }
 
+    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void On_Handler_Without_A_Tag_Is_Discovered_Without_A_Record()
     {
@@ -225,6 +235,7 @@ public sealed class DotnetBackendReaderTests
         Assert.Null(reaction.RecordId);
     }
 
+    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void Reaction_With_The_Handler_Shape_Is_Discovered_Without_The_Suffix()
     {
@@ -251,6 +262,7 @@ public sealed class DotnetBackendReaderTests
         Assert.Equal("reaction", reaction.Kind);
     }
 
+    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void On_Handler_Outside_Its_Fact_Folder_Links_Through_Its_Mark()
     {
@@ -271,6 +283,7 @@ public sealed class DotnetBackendReaderTests
         Assert.Equal("reaction/lending.notify-reader-on-borrow", reaction.RecordId);
     }
 
+    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void On_Handler_Without_The_Interface_Is_Not_Discovered()
     {
@@ -288,6 +301,7 @@ public sealed class DotnetBackendReaderTests
         Assert.Empty(new DotnetBackendReader().Read(ConsumerConfig.Load(temp.Path)).Reactions);
     }
 
+    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void On_Handler_Is_Not_Read_As_A_Use_Case_Handler()
     {

@@ -6,6 +6,7 @@ namespace LiteSpec.Tests.Model.Checks;
 /// <summary>Proves a quality requirement states its scenario, and a technical decision fulfills it.</summary>
 public sealed class QualityScenarioCheckTests
 {
+    /// <proves>litespec/core/intent#state-each-quality-requirement-as-a-scenario</proves>
     [Theory]
     [InlineData("stimulus")]
     [InlineData("environment")]
@@ -22,6 +23,7 @@ public sealed class QualityScenarioCheckTests
         Assert.True(Reports(model, "record-shape", $"has no {field}"));
     }
 
+    /// <proves>litespec/core/intent#state-each-quality-requirement-as-a-scenario</proves>
     [Fact]
     public void Quality_Requirement_With_Scenario_Passes_Shape()
     {
@@ -33,6 +35,7 @@ public sealed class QualityScenarioCheckTests
         Assert.DoesNotContain("record-shape", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/core/intent#state-each-quality-requirement-as-a-scenario</proves>
     [Fact]
     public void Functional_Requirement_Without_Scenario_Passes_Shape()
     {
@@ -44,6 +47,7 @@ public sealed class QualityScenarioCheckTests
         Assert.DoesNotContain("record-shape", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/core/model#keep-rules-and-targets-out-of-technical-decisions</proves>
     [Fact]
     public void Quality_Requirement_Served_Only_By_Technical_Decision_Is_Fulfilled()
     {
@@ -57,6 +61,7 @@ public sealed class QualityScenarioCheckTests
         Assert.DoesNotContain("requirement-unfulfilled", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/core/layers#add-behavior-detail-when-specifying-intent</proves>
     [Fact]
     public void Quality_Requirement_With_No_Serving_Decision_Reports_Unfulfilled()
     {
@@ -68,6 +73,7 @@ public sealed class QualityScenarioCheckTests
         Assert.Contains("requirement-unfulfilled", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/core/model#keep-rules-and-targets-out-of-technical-decisions</proves>
     [Fact]
     public void Quality_Requirement_Named_Only_By_Product_Decision_Stays_Unfulfilled()
     {

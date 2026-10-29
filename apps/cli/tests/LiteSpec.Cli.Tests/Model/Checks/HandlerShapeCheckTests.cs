@@ -6,6 +6,7 @@ namespace LiteSpec.Tests.Model.Checks;
 /// <summary>Proves the handler shape checks: the use-case verb against the aggregate method, event tense, names across layers, route shape, reasonless names, collaborators, loop reads, memory filters, dependency counts and inline effects.</summary>
 public sealed class HandlerShapeCheckTests
 {
+    /// <proves>litespec/core/behavior#name-a-use-case-for-the-act-its-aggregate-performs</proves>
     [Fact]
     public void Handler_Calling_Its_Verb_Passes()
     {
@@ -19,6 +20,7 @@ public sealed class HandlerShapeCheckTests
         Assert.DoesNotContain("use-case-verb-method", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/core/behavior#name-a-use-case-for-the-act-its-aggregate-performs</proves>
     [Fact]
     public void Handler_Recording_A_Request_Passes()
     {
@@ -33,6 +35,7 @@ public sealed class HandlerShapeCheckTests
         Assert.DoesNotContain("use-case-verb-method", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/core/behavior#name-a-use-case-for-the-act-its-aggregate-performs</proves>
     [Fact]
     public void Handler_Calling_Another_Verb_Reports()
     {
@@ -50,6 +53,7 @@ public sealed class HandlerShapeCheckTests
         Assert.Contains("Abandon", finding.Message, StringComparison.Ordinal);
     }
 
+    /// <proves>litespec/core/behavior#name-a-use-case-for-the-act-its-aggregate-performs</proves>
     [Fact]
     public void Handler_Calling_Only_A_Reading_Method_Is_Not_Reported()
     {
@@ -64,6 +68,7 @@ public sealed class HandlerShapeCheckTests
         Assert.DoesNotContain("use-case-verb-method", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/core/behavior#name-a-use-case-for-the-act-its-aggregate-performs</proves>
     [Fact]
     public void Handler_Calling_No_Aggregate_Method_Is_Not_Reported()
     {
@@ -76,6 +81,7 @@ public sealed class HandlerShapeCheckTests
         Assert.DoesNotContain("use-case-verb-method", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/backend/dotnet/domain#raise-the-past-tense-of-a-methods-own-verb</proves>
     [Fact]
     public void Method_Raising_Its_Past_Tense_Passes()
     {
@@ -87,6 +93,7 @@ public sealed class HandlerShapeCheckTests
         Assert.DoesNotContain("event-tense-mismatch", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/backend/dotnet/domain#raise-the-past-tense-of-a-methods-own-verb</proves>
     [Fact]
     public void Method_Raising_Another_Verb_Reports()
     {
@@ -100,6 +107,7 @@ public sealed class HandlerShapeCheckTests
         Assert.Contains("abandoned", finding.Message, StringComparison.Ordinal);
     }
 
+    /// <proves>litespec/backend/dotnet/domain#raise-the-past-tense-of-a-methods-own-verb</proves>
     [Fact]
     public void Project_Past_Tense_Map_Tenses_A_Domain_Verb()
     {
@@ -114,6 +122,7 @@ public sealed class HandlerShapeCheckTests
         Assert.DoesNotContain("event-tense-mismatch", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/backend/dotnet/domain#raise-the-past-tense-of-a-methods-own-verb</proves>
     [Fact]
     public void Domain_Verb_Without_A_Map_Entry_Tenses_Regularly()
     {
@@ -125,6 +134,7 @@ public sealed class HandlerShapeCheckTests
         Assert.Contains("event-tense-mismatch", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/backend/dotnet/domain#raise-the-past-tense-of-a-methods-own-verb</proves>
     [Fact]
     public void Common_Verb_Doubling_Its_Consonant_Passes()
     {
@@ -136,6 +146,7 @@ public sealed class HandlerShapeCheckTests
         Assert.DoesNotContain("event-tense-mismatch", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/backend/dotnet/domain#raise-the-past-tense-of-a-methods-own-verb</proves>
     [Fact]
     public void Irregular_Past_Tense_Passes()
     {
@@ -149,6 +160,7 @@ public sealed class HandlerShapeCheckTests
         Assert.DoesNotContain("event-tense-mismatch", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/backend/dotnet/domain#raise-the-past-tense-of-a-methods-own-verb</proves>
     [Fact]
     public void Doubled_Final_Consonant_Passes()
     {
@@ -162,6 +174,7 @@ public sealed class HandlerShapeCheckTests
         Assert.DoesNotContain("event-tense-mismatch", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/backend/dotnet/domain#raise-the-past-tense-of-a-methods-own-verb</proves>
     [Fact]
     public void Prefixed_Verb_Tensing_Its_Base_Passes()
     {
@@ -175,6 +188,7 @@ public sealed class HandlerShapeCheckTests
         Assert.DoesNotContain("event-tense-mismatch", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/backend/dotnet/domain#raise-the-past-tense-of-a-methods-own-verb</proves>
     [Fact]
     public void Event_With_Prepositional_Complement_Passes()
     {
@@ -190,6 +204,7 @@ public sealed class HandlerShapeCheckTests
         Assert.DoesNotContain("event-tense-mismatch", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/backend/dotnet/domain#raise-the-past-tense-of-a-methods-own-verb</proves>
     [Fact]
     public void Event_With_Particle_Complement_Passes()
     {
@@ -205,6 +220,7 @@ public sealed class HandlerShapeCheckTests
         Assert.DoesNotContain("event-tense-mismatch", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/backend/dotnet/domain#raise-the-past-tense-of-a-methods-own-verb</proves>
     [Fact]
     public void Mark_Method_Naming_Its_State_Passes()
     {
@@ -220,6 +236,7 @@ public sealed class HandlerShapeCheckTests
         Assert.DoesNotContain("event-tense-mismatch", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/backend/dotnet/domain#raise-the-past-tense-of-a-methods-own-verb</proves>
     [Fact]
     public void Method_Raising_Its_Own_Fact_And_A_Consequence_Passes()
     {
@@ -231,6 +248,7 @@ public sealed class HandlerShapeCheckTests
         Assert.DoesNotContain("event-tense-mismatch", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/backend/dotnet/domain#raise-the-past-tense-of-a-methods-own-verb</proves>
     [Fact]
     public void Method_Raising_Only_Other_Facts_Reports_Each()
     {
@@ -242,6 +260,7 @@ public sealed class HandlerShapeCheckTests
         Assert.Equal(2, Checker.Check(model).Findings.Count(finding => finding.Code == "event-tense-mismatch"));
     }
 
+    /// <proves>litespec/backend/dotnet/domain#raise-the-past-tense-of-a-methods-own-verb</proves>
     [Fact]
     public void Mark_Method_Naming_Another_State_Reports()
     {
@@ -255,6 +274,7 @@ public sealed class HandlerShapeCheckTests
         Assert.Contains("overdue", finding.Message, StringComparison.Ordinal);
     }
 
+    /// <proves>litespec/backend/dotnet/domain#raise-the-past-tense-of-a-methods-own-verb</proves>
     [Fact]
     public void Define_Raising_Another_Verb_Reports()
     {
@@ -268,6 +288,7 @@ public sealed class HandlerShapeCheckTests
         Assert.Contains("defined", finding.Message, StringComparison.Ordinal);
     }
 
+    /// <proves>litespec/backend/dotnet/domain#raise-the-past-tense-of-a-methods-own-verb</proves>
     [Fact]
     public void Request_Raising_Another_Verb_Reports()
     {
@@ -281,6 +302,7 @@ public sealed class HandlerShapeCheckTests
         Assert.Contains("requested", finding.Message, StringComparison.Ordinal);
     }
 
+    /// <proves>litespec/backend/dotnet/domain#raise-the-past-tense-of-a-methods-own-verb</proves>
     [Fact]
     public void Cancel_With_American_Spelling_Reports()
     {
@@ -294,6 +316,7 @@ public sealed class HandlerShapeCheckTests
         Assert.Contains("cancelled", finding.Message, StringComparison.Ordinal);
     }
 
+    /// <proves>litespec/backend/api#keep-one-name-for-a-use-case-across-layers</proves>
     [Fact]
     public void Second_Route_With_Its_Own_Operation_Id_Passes()
     {
@@ -304,6 +327,7 @@ public sealed class HandlerShapeCheckTests
         Assert.DoesNotContain("name-drift-across-layers", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/backend/api#keep-one-name-for-a-use-case-across-layers</proves>
     [Fact]
     public void Routes_Each_Opening_With_The_Use_Case_Name_Pass()
     {
@@ -314,6 +338,7 @@ public sealed class HandlerShapeCheckTests
         Assert.DoesNotContain("name-drift-across-layers", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/backend/api#declare-stable-operation-metadata-in-the-contract</proves>
     [Fact]
     public void Two_Endpoints_With_One_Operation_Id_Report()
     {
@@ -324,6 +349,7 @@ public sealed class HandlerShapeCheckTests
         Assert.Contains("operation-id-duplicate", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/backend/api#keep-one-name-for-a-use-case-across-layers</proves>
     [Fact]
     public void Matching_Layers_Pass()
     {
@@ -333,6 +359,7 @@ public sealed class HandlerShapeCheckTests
         Assert.DoesNotContain("name-drift-across-layers", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/backend/api#keep-one-name-for-a-use-case-across-layers</proves>
     [Fact]
     public void Drifted_Message_Reports()
     {
@@ -344,6 +371,7 @@ public sealed class HandlerShapeCheckTests
         Assert.Contains("CancelOrderCommand", finding.Message, StringComparison.Ordinal);
     }
 
+    /// <proves>litespec/backend/api#keep-one-name-for-a-use-case-across-layers</proves>
     [Fact]
     public void Drifted_Operation_Reports()
     {
@@ -355,6 +383,7 @@ public sealed class HandlerShapeCheckTests
         Assert.Contains("CancelOrder", finding.Message, StringComparison.Ordinal);
     }
 
+    /// <proves>litespec/backend/api#keep-one-name-for-a-use-case-across-layers</proves>
     [Fact]
     public void Drifted_Audit_Action_Reports()
     {
@@ -366,6 +395,7 @@ public sealed class HandlerShapeCheckTests
         Assert.Contains("cancel-order", finding.Message, StringComparison.Ordinal);
     }
 
+    /// <proves>litespec/backend/api#shape-command-routes-from-the-aggregate-and-the-verb</proves>
     [Fact]
     public void Shaped_Command_Route_Passes()
     {
@@ -375,6 +405,7 @@ public sealed class HandlerShapeCheckTests
         Assert.DoesNotContain("route-shape", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/backend/api#shape-command-routes-from-the-aggregate-and-the-verb</proves>
     [Fact]
     public void Command_Post_To_The_Collection_Passes()
     {
@@ -384,6 +415,7 @@ public sealed class HandlerShapeCheckTests
         Assert.DoesNotContain("route-shape", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/backend/api#shape-command-routes-from-the-aggregate-and-the-verb</proves>
     [Fact]
     public void Command_Put_On_One_Resource_Passes()
     {
@@ -393,6 +425,7 @@ public sealed class HandlerShapeCheckTests
         Assert.DoesNotContain("route-shape", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/backend/api#shape-command-routes-from-the-aggregate-and-the-verb</proves>
     [Fact]
     public void Command_Route_Ending_Outside_Its_Verb_Reports()
     {
@@ -402,6 +435,7 @@ public sealed class HandlerShapeCheckTests
         Assert.Contains("route-shape", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/backend/api#shape-command-routes-from-the-aggregate-and-the-verb</proves>
     [Fact]
     public void Command_Route_Without_Its_Aggregate_Plural_Reports()
     {
@@ -411,6 +445,7 @@ public sealed class HandlerShapeCheckTests
         Assert.Contains("route-shape", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/backend/api#shape-command-routes-from-the-aggregate-and-the-verb</proves>
     [Fact]
     public void Query_Route_Skips_The_Verb_Last_Segment()
     {
@@ -420,6 +455,7 @@ public sealed class HandlerShapeCheckTests
         Assert.DoesNotContain("route-shape", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/backend/api#shape-command-routes-from-the-aggregate-and-the-verb</proves>
     [Fact]
     public void Query_Route_Without_Its_Aggregate_Plural_Reports()
     {
@@ -429,6 +465,7 @@ public sealed class HandlerShapeCheckTests
         Assert.Contains("route-shape", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/backend/dotnet/naming#name-no-folder-or-type-for-the-absence-of-a-reason</proves>
     [Fact]
     public void Reasoned_Names_Pass()
     {
@@ -442,6 +479,7 @@ public sealed class HandlerShapeCheckTests
         Assert.DoesNotContain("reasonless-name", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/backend/dotnet/naming#name-no-folder-or-type-for-the-absence-of-a-reason</proves>
     [Fact]
     public void Reasonless_Folder_Reports()
     {
@@ -455,6 +493,7 @@ public sealed class HandlerShapeCheckTests
         Assert.Contains("reasonless-name", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/backend/dotnet/naming#name-no-folder-or-type-for-the-absence-of-a-reason</proves>
     [Fact]
     public void Reasonless_Type_Reports()
     {
@@ -470,6 +509,7 @@ public sealed class HandlerShapeCheckTests
         Assert.Contains("OrderManager", finding.Message, StringComparison.Ordinal);
     }
 
+    /// <proves>litespec/backend/dotnet/naming#name-no-folder-or-type-for-the-absence-of-a-reason</proves>
     [Fact]
     public void Shared_Kernel_Folder_Is_Exempt()
     {
@@ -486,6 +526,7 @@ public sealed class HandlerShapeCheckTests
         Assert.DoesNotContain("reasonless-name", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/backend/application#build-collaborators-through-the-container</proves>
     [Fact]
     public void Injected_Collaborators_Pass()
     {
@@ -498,6 +539,7 @@ public sealed class HandlerShapeCheckTests
         Assert.DoesNotContain("collaborator-holds-repository", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/backend/application#build-collaborators-through-the-container</proves>
     [Fact]
     public void Collaborator_Holding_A_Repository_Reports()
     {
@@ -513,6 +555,7 @@ public sealed class HandlerShapeCheckTests
         Assert.Contains("OrderEraser", finding.Message, StringComparison.Ordinal);
     }
 
+    /// <proves>litespec/backend/application#build-collaborators-through-the-container</proves>
     [Fact]
     public void Reaction_Collaborator_Holding_A_Repository_Reports()
     {
@@ -526,6 +569,7 @@ public sealed class HandlerShapeCheckTests
         Assert.Contains("collaborator-holds-repository", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/backend/application#read-no-repository-inside-a-loop</proves>
     [Fact]
     public void Reads_Outside_Loops_Pass()
     {
@@ -538,6 +582,7 @@ public sealed class HandlerShapeCheckTests
         Assert.DoesNotContain("repository-read-in-loop", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/backend/application#read-no-repository-inside-a-loop</proves>
     [Fact]
     public void Repository_Read_In_A_Loop_Reports()
     {
@@ -551,6 +596,7 @@ public sealed class HandlerShapeCheckTests
         Assert.Contains("repository-read-in-loop", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/backend/persistence#read-collection-queries-in-the-store-with-paging-and-filters</proves>
     [Fact]
     public void Store_Filtered_Query_Passes()
     {
@@ -563,6 +609,7 @@ public sealed class HandlerShapeCheckTests
         Assert.DoesNotContain("query-filters-in-memory", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/backend/persistence#read-collection-queries-in-the-store-with-paging-and-filters</proves>
     [Fact]
     public void Query_Filter_In_Memory_Reports()
     {
@@ -576,6 +623,7 @@ public sealed class HandlerShapeCheckTests
         Assert.Contains("query-filters-in-memory", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/backend/application#keep-command-handlers-to-load-call-and-stage</proves>
     [Fact]
     public void Ten_Dependencies_Pass()
     {
@@ -589,6 +637,7 @@ public sealed class HandlerShapeCheckTests
         Assert.DoesNotContain("dependency-count", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/backend/application#keep-command-handlers-to-load-call-and-stage</proves>
     [Fact]
     public void Eleven_Dependencies_Report()
     {
@@ -602,6 +651,7 @@ public sealed class HandlerShapeCheckTests
         Assert.Contains("dependency-count", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/backend/application#keep-command-handlers-to-load-call-and-stage</proves>
     [Fact]
     public void Reaction_With_Eleven_Dependencies_Reports()
     {
@@ -614,6 +664,7 @@ public sealed class HandlerShapeCheckTests
         Assert.Contains("dependency-count", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/backend/application#send-messages-after-commit</proves>
     [Fact]
     public void Effects_After_Commit_Pass()
     {
@@ -625,6 +676,7 @@ public sealed class HandlerShapeCheckTests
         Assert.DoesNotContain("effect-before-commit", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/backend/application#send-messages-after-commit</proves>
     [Fact]
     public void Inline_Send_Reports()
     {
@@ -640,6 +692,8 @@ public sealed class HandlerShapeCheckTests
         Assert.Contains("after the commit from an event handler or a job", finding.Message, StringComparison.Ordinal);
     }
 
+    /// <proves>litespec/backend/application#send-messages-after-commit</proves>
+    /// <proves>litespec/core/model#apply-guidance-precedence</proves>
     [Fact]
     public void Approved_Deviation_Holds_An_Inline_Call_On_Its_Subject()
     {
@@ -655,6 +709,8 @@ public sealed class HandlerShapeCheckTests
         Assert.Contains(known, finding => finding.Code == "effect-before-commit");
     }
 
+    /// <proves>litespec/backend/application#send-messages-after-commit</proves>
+    /// <proves>litespec/core/model#apply-guidance-precedence</proves>
     [Fact]
     public void Draft_Deviation_Holds_Nothing()
     {
@@ -667,6 +723,7 @@ public sealed class HandlerShapeCheckTests
         Assert.Contains("effect-before-commit", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/backend/application#send-messages-after-commit</proves>
     [Fact]
     public void Inline_Call_Reports()
     {
@@ -682,6 +739,7 @@ public sealed class HandlerShapeCheckTests
         Assert.Contains("after the commit from an event handler or a job", finding.Message, StringComparison.Ordinal);
     }
 
+    /// <proves>litespec/backend/application#send-messages-after-commit</proves>
     [Fact]
     public void Query_Inline_Send_Is_Not_Reported()
     {
@@ -693,6 +751,7 @@ public sealed class HandlerShapeCheckTests
         Assert.DoesNotContain("effect-before-commit", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
     public void Model_Json_Serializes_The_Handler_Shape()
     {

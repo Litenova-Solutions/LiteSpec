@@ -5,6 +5,7 @@ namespace LiteSpec.Tests.Model.Checks;
 /// <summary>Proves the book names page renders one row per module with its names and the lookalike terms.</summary>
 public sealed class NamesPageTests
 {
+    /// <proves>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</proves>
     [Fact]
     public void Names_Page_Renders_A_Row_Per_Module()
     {

@@ -6,6 +6,7 @@ namespace LiteSpec.Tests.Authoring;
 /// <summary>Tests for <c>litespec rename</c>.</summary>
 public sealed class RenameCommandTests
 {
+    /// <proves>litespec/core/authoring#rewrite-every-link-on-a-rename</proves>
     [Fact(DisplayName = "rename rewrites the identifier in source and test files as well as pages")]
     public void Rename_Rewrites_Code_Citations()
     {
@@ -21,6 +22,7 @@ public sealed class RenameCommandTests
         Assert.DoesNotContain("use-case/lending.borrow-copy", File.ReadAllText(source));
     }
 
+    /// <proves>litespec/core/authoring#rewrite-every-link-on-a-rename</proves>
     [Fact(DisplayName = "rename points links to the moved page at its new path")]
     public void Rename_Rewrites_Links_To_The_Moved_Page()
     {

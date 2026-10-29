@@ -6,6 +6,7 @@ namespace LiteSpec.Tests.Model.Checks;
 /// <summary>Proves the term-lookalike check: joined and hyphenated pairs, spelling pairs, and the ignore list.</summary>
 public sealed class TermLookalikeCheckTests
 {
+    /// <proves>litespec/core/authoring#review-each-term-for-its-lookalikes</proves>
     [Fact]
     public void Joined_And_Hyphenated_Pair_Reported_When_Both_Occur()
     {
@@ -25,6 +26,7 @@ public sealed class TermLookalikeCheckTests
         Assert.Contains("reaction/test.send-sold-out-notice-on-sale-ended", finding.Message, StringComparison.Ordinal);
     }
 
+    /// <proves>litespec/core/authoring#review-each-term-for-its-lookalikes</proves>
     [Fact]
     public void One_Form_Alone_Not_Reported()
     {
@@ -37,6 +39,7 @@ public sealed class TermLookalikeCheckTests
         Assert.DoesNotContain("term-lookalike", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/core/authoring#review-each-term-for-its-lookalikes</proves>
     [Fact]
     public void Ignore_List_Honoured()
     {
@@ -50,6 +53,7 @@ public sealed class TermLookalikeCheckTests
         Assert.DoesNotContain("term-lookalike", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/core/authoring#review-each-term-for-its-lookalikes</proves>
     [Fact]
     public void British_And_American_Pair_Reported()
     {
@@ -69,6 +73,7 @@ public sealed class TermLookalikeCheckTests
         Assert.Contains("rule/test.color-check", finding.Message, StringComparison.Ordinal);
     }
 
+    /// <proves>litespec/core/authoring#review-each-term-for-its-lookalikes</proves>
     [Fact]
     public void Singular_And_Plural_Names_In_One_Home_Reported()
     {
@@ -88,6 +93,7 @@ public sealed class TermLookalikeCheckTests
         Assert.Contains("aggregate/test.copies", finding.Message, StringComparison.Ordinal);
     }
 
+    /// <proves>litespec/core/authoring#review-each-term-for-its-lookalikes</proves>
     [Theory]
     [InlineData("as-signed", "assigned")]
     [InlineData("on-line", "online")]
@@ -106,6 +112,7 @@ public sealed class TermLookalikeCheckTests
         Assert.DoesNotContain("term-lookalike", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/core/authoring#review-each-term-for-its-lookalikes</proves>
     [Theory]
     [InlineData("claw-back", "clawback")]
     [InlineData("sign-up", "signup")]
@@ -127,6 +134,7 @@ public sealed class TermLookalikeCheckTests
         Assert.Contains(split, finding.Message, StringComparison.Ordinal);
     }
 
+    /// <proves>litespec/core/authoring#review-each-term-for-its-lookalikes</proves>
     [Fact]
     public void Behaviour_And_Behavior_Still_Reported()
     {

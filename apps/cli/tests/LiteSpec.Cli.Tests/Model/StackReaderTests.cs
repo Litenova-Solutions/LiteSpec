@@ -8,6 +8,7 @@ namespace LiteSpec.Tests.Model;
 public sealed class StackReaderTests
 {
     /// <summary><c>model build</c> on the fixture prints the counts its contents hold.</summary>
+    /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Theory]
     [InlineData("small", 72, 7, 0, 0)]
     [InlineData("large", 92, 7, 1, 9)]
@@ -22,6 +23,7 @@ public sealed class StackReaderTests
     }
 
     /// <summary>A project naming neither dotnet nor blazor reads no .NET backend or scenarios.</summary>
+    /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
     public void Build_Without_Dotnet_Or_Blazor_Reads_No_Backend()
     {
@@ -39,6 +41,7 @@ public sealed class StackReaderTests
     }
 
     /// <summary>Clean fixtures write no test run: neither holds a result file.</summary>
+    /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Theory]
     [InlineData("small")]
     [InlineData("large")]
@@ -55,6 +58,7 @@ public sealed class StackReaderTests
     }
 
     /// <summary>A JUnit file verifies the passing scenario's use case and leaves the failing one unverified.</summary>
+    /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
     public void JUnit_Results_Verify_The_Passing_Scenario_Only()
     {
@@ -95,6 +99,7 @@ public sealed class StackReaderTests
     }
 
     /// <summary>A TRX file verifies the passing scenario's use case and leaves the failing one unverified.</summary>
+    /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
     public void Trx_Results_Verify_The_Passing_Scenario_Only()
     {

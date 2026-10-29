@@ -7,6 +7,7 @@ namespace LiteSpec.Tests.Model.Tables;
 public sealed class BodyTests
 {
     /// <summary>Pages write their body without the title; entries write no body.</summary>
+    /// <proves>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</proves>
     [Fact]
     public void Pages_Write_Bodies_And_Entries_Write_None()
     {

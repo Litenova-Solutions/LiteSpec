@@ -25,6 +25,7 @@ public sealed partial class ConsumerValidatorTests
             svelte["pairsWith"] = pairs;
         });
 
+    /// <proves>litespec/core/scope#select-a-size-a-shape-and-stacks</proves>
     [Fact(DisplayName = "server project with a backend and a frontend")]
     public void ServerProjectWithABackendAndAFrontend()
     {
@@ -33,6 +34,7 @@ public sealed partial class ConsumerValidatorTests
         AssertClean(RunConsumer(folder.Path));
     }
 
+    /// <proves>litespec/core/scope#declare-a-consumer-that-has-no-backend</proves>
     [Fact(DisplayName = "client-only project with blazor and no backend")]
     public void ClientOnlyProjectWithBlazorAndNoBackend()
     {
@@ -45,6 +47,7 @@ public sealed partial class ConsumerValidatorTests
         AssertClean(RunConsumer(folder.Path));
     }
 
+    /// <proves>litespec/core/scope#declare-a-consumer-that-has-no-backend</proves>
     [Fact(DisplayName = "client-only project naming a backend")]
     public void ClientOnlyProjectNamingABackend()
     {
@@ -57,6 +60,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "shape 'client-only' names backend stack 'dotnet'");
     }
 
+    /// <proves>litespec/core/scope#select-a-size-a-shape-and-stacks</proves>
     [Fact(DisplayName = "frontend platform the project does not name")]
     public void FrontendPlatformTheProjectDoesNotName()
     {
@@ -69,6 +73,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "platform 'react' is not a stack the project names in stacks");
     }
 
+    /// <proves>litespec/core/scope#select-a-size-a-shape-and-stacks</proves>
     [Fact(DisplayName = "frontend platform the project names")]
     public void FrontendPlatformTheProjectNames()
     {
@@ -83,6 +88,7 @@ public sealed partial class ConsumerValidatorTests
         AssertClean(RunConsumer(folder.Path));
     }
 
+    /// <proves>litespec/core/scope#select-a-size-a-shape-and-stacks</proves>
     [Fact(DisplayName = "stack whose requires the project does not name")]
     public void StackWhoseRequiresTheProjectDoesNotName()
     {
@@ -92,6 +98,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path, home), "stack 'svelte' requires 'react'");
     }
 
+    /// <proves>litespec/core/scope#select-a-size-a-shape-and-stacks</proves>
     [Fact(DisplayName = "stack whose requires the project names")]
     public void StackWhoseRequiresTheProjectNames()
     {
@@ -101,6 +108,7 @@ public sealed partial class ConsumerValidatorTests
         AssertAbsent(RunConsumer(folder.Path, home), "requires 'react'");
     }
 
+    /// <proves>litespec/core/scope#select-a-size-a-shape-and-stacks</proves>
     [Fact(DisplayName = "frontend stack whose pairsWith excludes the backend")]
     public void FrontendStackWhosePairsWithExcludesTheBackend()
     {
@@ -110,6 +118,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path, home), "pairs only with cobol, not with backend stack 'dotnet'");
     }
 
+    /// <proves>litespec/core/scope#select-a-size-a-shape-and-stacks</proves>
     [Fact(DisplayName = "frontend stack whose pairsWith includes the backend")]
     public void FrontendStackWhosePairsWithIncludesTheBackend()
     {

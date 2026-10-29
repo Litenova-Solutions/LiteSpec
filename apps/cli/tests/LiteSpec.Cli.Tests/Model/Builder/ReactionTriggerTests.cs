@@ -8,6 +8,7 @@ namespace LiteSpec.Tests.Model.Builder;
 public sealed class ReactionTriggerTests
 {
     /// <summary>An unmarked reaction links nothing, whatever its trigger names.</summary>
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact]
     public void Reaction_Without_A_Mark_Links_Nothing_And_Reports_Mark_Missing()
     {
@@ -33,6 +34,7 @@ public sealed class ReactionTriggerTests
     }
 
     /// <summary>An unmarked job links nothing, whatever its name names.</summary>
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact]
     public void Job_Without_A_Mark_Links_Nothing_And_Reports_Mark_Missing()
     {

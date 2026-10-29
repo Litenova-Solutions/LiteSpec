@@ -7,6 +7,7 @@ namespace LiteSpec.Tests.Model.Readers;
 /// <summary>Proves the backend reader recognizes handlers, jobs and events through a base class or an intermediate interface.</summary>
 public sealed class DotnetTransitiveKindTests
 {
+    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void Handler_Through_Base_Class_Links_Its_Use_Case()
     {
@@ -45,6 +46,7 @@ public sealed class DotnetTransitiveKindTests
         Assert.Single(element.Marks);
     }
 
+    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void Query_Handler_Through_Base_Class_Reads_Query_Kind()
     {
@@ -75,6 +77,7 @@ public sealed class DotnetTransitiveKindTests
         Assert.Equal("ListLoansQuery", handler.MessageType);
     }
 
+    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void Event_Handler_Through_Base_Class_Links_Its_Reaction()
     {
@@ -104,6 +107,7 @@ public sealed class DotnetTransitiveKindTests
         Assert.Null(reaction.UseCaseId);
     }
 
+    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void Job_Through_BackgroundService_Base_Links_Its_Job()
     {
@@ -133,6 +137,7 @@ public sealed class DotnetTransitiveKindTests
         Assert.Equal("job/lending.nightly-scan", job.RecordId);
     }
 
+    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void Event_Through_Intermediate_Interface_Links_Its_Event()
     {

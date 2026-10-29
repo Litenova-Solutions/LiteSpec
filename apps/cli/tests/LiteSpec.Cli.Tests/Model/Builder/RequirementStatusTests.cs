@@ -8,6 +8,7 @@ namespace LiteSpec.Tests.Model.Builder;
 public sealed class RequirementStatusTests
 {
     /// <summary>A measured requirement verifies on a verified fulfiller and a passing check.</summary>
+    /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
     public void Measured_Requirement_With_A_Passing_Check_Verifies()
     {

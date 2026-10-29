@@ -7,6 +7,7 @@ namespace LiteSpec.Tests.Model.Checks;
 /// <summary>Proves the naming checks: the baseline and project verbs, one kind per verb, and the reaction and job name forms.</summary>
 public sealed class UseCaseVerbCheckTests
 {
+    /// <proves>litespec/core/behavior#start-every-use-case-with-a-declared-verb</proves>
     [Fact]
     public void Declared_Verb_Passes()
     {
@@ -19,6 +20,7 @@ public sealed class UseCaseVerbCheckTests
         Assert.DoesNotContain("use-case-verb-unknown", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/core/behavior#start-every-use-case-with-a-declared-verb</proves>
     [Fact]
     public void Single_Word_Name_Equal_To_Verb_Passes()
     {
@@ -31,6 +33,7 @@ public sealed class UseCaseVerbCheckTests
         Assert.DoesNotContain("use-case-verb-unknown", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/core/behavior#start-every-use-case-with-a-declared-verb</proves>
     [Fact]
     public void Declared_Phrasal_Verb_Passes()
     {
@@ -43,6 +46,7 @@ public sealed class UseCaseVerbCheckTests
         Assert.DoesNotContain("use-case-verb-unknown", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/core/behavior#start-every-use-case-with-a-declared-verb</proves>
     [Fact]
     public void Unknown_Verb_Reports_Use_Case_Verb_Unknown()
     {
@@ -56,6 +60,7 @@ public sealed class UseCaseVerbCheckTests
         Assert.Contains("starts with 'fetch'", message, StringComparison.Ordinal);
     }
 
+    /// <proves>litespec/core/behavior#start-every-use-case-with-a-declared-verb</proves>
     [Fact]
     public void Verb_Prefix_Without_Dash_Reports()
     {
@@ -68,6 +73,7 @@ public sealed class UseCaseVerbCheckTests
         Assert.Contains("use-case-verb-unknown", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/core/behavior#start-every-use-case-with-a-declared-verb</proves>
     [Fact]
     public void Retired_Synonym_Names_Its_Replacement()
     {
@@ -81,6 +87,7 @@ public sealed class UseCaseVerbCheckTests
         Assert.Contains("starts with 'update'; use 'change'", message, StringComparison.Ordinal);
     }
 
+    /// <proves>litespec/core/behavior#start-every-use-case-with-a-declared-verb</proves>
     [Fact]
     public void Missing_Vocabulary_Checks_The_Baseline()
     {
@@ -97,6 +104,7 @@ public sealed class UseCaseVerbCheckTests
         Assert.Contains("use 'read'", unknown[0].Message);
     }
 
+    /// <proves>litespec/core/behavior#keep-one-kind-per-verb</proves>
     [Fact]
     public void Query_Opening_With_A_Changing_Verb_Reports_The_Kind()
     {
@@ -110,6 +118,7 @@ public sealed class UseCaseVerbCheckTests
         Assert.Equal(2, TestModel.Codes(model).Count(code => code == "use-case-verb-kind"));
     }
 
+    /// <proves>litespec/core/behavior#keep-one-kind-per-verb</proves>
     [Fact]
     public void Project_Query_Verb_Opens_Only_A_Query()
     {
@@ -122,6 +131,7 @@ public sealed class UseCaseVerbCheckTests
         Assert.Contains("use-case-verb-kind", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/core/behavior#name-each-reaction-for-its-act-and-its-trigger</proves>
     [Fact]
     public void Reaction_Named_For_Its_Act_And_Trigger_Passes()
     {
@@ -138,6 +148,7 @@ public sealed class UseCaseVerbCheckTests
         Assert.Contains("notify-borrower", form[0].Message);
     }
 
+    /// <proves>litespec/core/behavior#name-each-job-for-the-command-it-issues</proves>
     [Fact]
     public void Job_Carries_The_Verb_Of_The_Command_It_Issues()
     {

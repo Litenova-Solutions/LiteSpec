@@ -8,6 +8,7 @@ namespace LiteSpec.Tests.Model.Builder;
 public sealed class IntegrationFactProofTests
 {
     /// <summary>A fact resolving a service and sending a governed message confirms its rule claim.</summary>
+    /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
     public void Rule_Fact_Sending_A_Governed_Message_Confirms()
     {
@@ -20,6 +21,7 @@ public sealed class IntegrationFactProofTests
     }
 
     /// <summary>A fact working the governed aggregate's store confirms its rule claim.</summary>
+    /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
     public void Rule_Fact_Working_The_Governed_Store_Confirms()
     {
@@ -32,6 +34,7 @@ public sealed class IntegrationFactProofTests
     }
 
     /// <summary>A fact calling the governed aggregate confirms its rule claim.</summary>
+    /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
     public void Rule_Fact_Calling_The_Governed_Aggregate_Confirms()
     {
@@ -44,6 +47,7 @@ public sealed class IntegrationFactProofTests
     }
 
     /// <summary>A fact that acts without asserting confirms no rule claim.</summary>
+    /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
     public void Rule_Fact_Without_An_Assertion_Does_Not_Confirm()
     {
@@ -56,6 +60,7 @@ public sealed class IntegrationFactProofTests
     }
 
     /// <summary>A fact pinning the message type with typeof confirms its scenario claim.</summary>
+    /// <proves>litespec/backend/testing#mark-the-test-that-proves-each-scenario</proves>
     [Fact]
     public void Scenario_Fact_Pinning_The_Message_Type_Confirms()
     {
@@ -69,6 +74,7 @@ public sealed class IntegrationFactProofTests
     }
 
     /// <summary>A nested value sharing an aggregate's name does not read as constructing it.</summary>
+    /// <proves>litespec/backend/testing#mark-the-test-that-proves-each-scenario</proves>
     [Fact]
     public void Scenario_Fact_Building_A_Nested_Value_Confirms()
     {

@@ -6,6 +6,7 @@ namespace LiteSpec.Tests.Book;
 public sealed class BookCommandTests
 {
     /// <summary>The book writes <c>index.html</c>, the two assets, and one page per record.</summary>
+    /// <proves>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</proves>
     [Fact]
     public void Book_Writes_The_Project_Book()
     {
@@ -26,6 +27,7 @@ public sealed class BookCommandTests
     }
 
     /// <summary>A missing --model exits 2 and names the missing option, the usage error for bad arguments.</summary>
+    /// <proves>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</proves>
     [Fact]
     public void Book_Without_Model_Exits_2()
     {

@@ -8,6 +8,7 @@ namespace LiteSpec.Tests.Model.Tables;
 public sealed class TransitionTableTests
 {
     /// <summary>A transitions table writes fields, marks entered states reachable, and checks clean.</summary>
+    /// <proves>litespec/core/behavior#connect-every-state-through-transitions</proves>
     [Fact]
     public void Transitions_Table_Writes_Fields_And_Marks_States_Reachable()
     {
@@ -41,6 +42,7 @@ public sealed class TransitionTableTests
     }
 
     /// <summary>A table row naming a missing use case reports transition-unresolved; By aliases Triggered By.</summary>
+    /// <proves>litespec/core/behavior#connect-every-state-through-transitions</proves>
     [Fact]
     public void Transition_By_A_Missing_Use_Case_Reports_Transition_Unresolved()
     {
@@ -54,6 +56,7 @@ public sealed class TransitionTableTests
     }
 
     /// <summary>Front-matter transitions win over the table.</summary>
+    /// <proves>litespec/core/behavior#connect-every-state-through-transitions</proves>
     [Fact]
     public void Front_Matter_Transitions_Win_Over_The_Table()
     {

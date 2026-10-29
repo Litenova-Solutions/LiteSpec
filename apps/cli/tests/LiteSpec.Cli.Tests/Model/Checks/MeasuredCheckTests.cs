@@ -7,6 +7,7 @@ namespace LiteSpec.Tests.Model.Checks;
 /// <summary>Proves the requirement-unmeasured check against hand-built models.</summary>
 public sealed class MeasuredCheckTests
 {
+    /// <proves>litespec/quality/ci#run-measured-checks-on-every-pull-request</proves>
     [Fact]
     public void Measured_Without_A_Check_Reports()
     {
@@ -22,6 +23,7 @@ public sealed class MeasuredCheckTests
         Assert.Contains("requirement-unmeasured", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/quality/ci#run-measured-checks-on-every-pull-request</proves>
     [Fact]
     public void Unmeasured_Requirement_Passes()
     {
@@ -37,6 +39,7 @@ public sealed class MeasuredCheckTests
         Assert.DoesNotContain("requirement-unmeasured", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/quality/ci#run-measured-checks-on-every-pull-request</proves>
     [Fact]
     public void Measured_With_A_Check_But_No_Run_Reports()
     {
@@ -46,6 +49,7 @@ public sealed class MeasuredCheckTests
         Assert.Contains("requirement-unmeasured", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/quality/ci#run-measured-checks-on-every-pull-request</proves>
     [Fact]
     public void Failing_Run_Reports()
     {
@@ -56,6 +60,7 @@ public sealed class MeasuredCheckTests
         Assert.Contains("requirement-unmeasured", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/quality/ci#run-measured-checks-on-every-pull-request</proves>
     [Fact]
     public void Passing_Run_Passes()
     {
@@ -66,6 +71,7 @@ public sealed class MeasuredCheckTests
         Assert.DoesNotContain("requirement-unmeasured", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/quality/ci#run-measured-checks-on-every-pull-request</proves>
     [Fact]
     public void Passing_Run_Matches_Tool_And_Check_Form()
     {

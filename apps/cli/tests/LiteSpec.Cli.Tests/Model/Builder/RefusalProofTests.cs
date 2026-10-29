@@ -8,6 +8,7 @@ namespace LiteSpec.Tests.Model.Builder;
 public sealed class RefusalProofTests
 {
     /// <summary>A refusal scenario asserting the mapped status alone confirms.</summary>
+    /// <proves>litespec/backend/testing#mark-the-test-that-proves-each-scenario</proves>
     [Fact]
     public void Refusal_Status_Alone_Confirms_When_The_Table_Maps_It()
     {
@@ -22,6 +23,7 @@ public sealed class RefusalProofTests
     }
 
     /// <summary>A refusal scenario asserting a client code the map translates confirms.</summary>
+    /// <proves>litespec/backend/testing#mark-the-test-that-proves-each-scenario</proves>
     [Fact]
     public void Refusal_Client_Code_Confirms_When_The_Map_Translates_It()
     {
@@ -36,6 +38,7 @@ public sealed class RefusalProofTests
     }
 
     /// <summary>A refusal scenario asserting a status the table maps elsewhere does not confirm.</summary>
+    /// <proves>litespec/backend/testing#mark-the-test-that-proves-each-scenario</proves>
     [Fact]
     public void Refusal_Wrong_Status_Does_Not_Confirm()
     {
@@ -50,6 +53,7 @@ public sealed class RefusalProofTests
     }
 
     /// <summary>A refusal scenario asserting a client code the map does not translate does not confirm.</summary>
+    /// <proves>litespec/backend/testing#mark-the-test-that-proves-each-scenario</proves>
     [Fact]
     public void Refusal_Unmapped_Client_Code_Does_Not_Confirm()
     {
@@ -64,6 +68,7 @@ public sealed class RefusalProofTests
     }
 
     /// <summary>An integration fact asserting the mapped status member confirms.</summary>
+    /// <proves>litespec/backend/testing#mark-the-test-that-proves-each-scenario</proves>
     [Fact]
     public void Refusal_Status_Member_Confirms_An_Integration_Fact()
     {

@@ -8,6 +8,7 @@ public sealed class InitCommandTests
 {
     const string FixtureVersion = "9.9.9-test";
 
+    /// <proves>litespec/core/scope#select-a-size-a-shape-and-stacks</proves>
     [Theory(DisplayName = "init keeps the shared UI package only for a controlled web frontend")]
     [InlineData("dotnet-react", true)]
     [InlineData("dotnet-svelte", true)]
@@ -25,6 +26,7 @@ public sealed class InitCommandTests
         Assert.Equal(expected, paths.ContainsKey("uiPatterns"));
     }
 
+    /// <proves>litespec/core/scope#select-a-size-a-shape-and-stacks</proves>
     [Fact(DisplayName = "init fills the project name and lists the placeholders left to fill")]
     public void InitFillsTheProjectNameAndListsPlaceholders()
     {
@@ -41,6 +43,7 @@ public sealed class InitCommandTests
         Assert.DoesNotContain("fixture", text, StringComparison.Ordinal);
     }
 
+    /// <proves>litespec/core/scope#select-a-size-a-shape-and-stacks</proves>
     [Fact(DisplayName = "init writes a capitalized project name as a lowercase package scope")]
     public void InitLowercasesThePackageScope()
     {
@@ -54,6 +57,7 @@ public sealed class InitCommandTests
         Assert.Contains("\"apps/api/Team Expenses.slnx\"", text, StringComparison.Ordinal);
     }
 
+    /// <proves>litespec/core/scope#select-a-size-a-shape-and-stacks</proves>
     [Fact(DisplayName = "init copies the agent context, glossary, and example cast beside the project file")]
     public void CopiesScaffoldFilesBesideTheProjectFile()
     {
@@ -74,6 +78,7 @@ public sealed class InitCommandTests
         Assert.Contains("Fill every <placeholder> in the copied files before validating.", result.Stdout, StringComparison.Ordinal);
     }
 
+    /// <proves>litespec/core/authoring#record-the-reviewed-litespec-release</proves>
     [Fact(DisplayName = "init writes the tool manifest pinning the tool at the release")]
     public void WritesToolManifestAtTheRelease()
     {
@@ -93,6 +98,7 @@ public sealed class InitCommandTests
         Assert.Equal("litespec", manifest["tools"]!["LiteSpec.Cli"]!["commands"]![0]!.GetValue<string>());
     }
 
+    /// <proves>litespec/core/authoring#record-the-reviewed-litespec-release</proves>
     [Fact(DisplayName = "init leaves an existing tool manifest alone and still exits zero")]
     public void LeavesExistingToolManifestAlone()
     {
@@ -113,6 +119,8 @@ public sealed class InitCommandTests
         Assert.Contains($"'{tools}' already exists; left alone.", result.Stdout, StringComparison.Ordinal);
     }
 
+    /// <proves>litespec/core/scope#select-a-size-a-shape-and-stacks</proves>
+    /// <proves>litespec/core/authoring#record-the-reviewed-litespec-release</proves>
     [Fact(DisplayName = "init fills the LiteSpec block of a fresh agent context")]
     public void FillsTheLiteSpecBlock()
     {
@@ -139,6 +147,7 @@ public sealed class InitCommandTests
         Assert.DoesNotContain("__SELECTION_KEY__", agents, StringComparison.Ordinal);
     }
 
+    /// <proves>litespec/core/scope#select-a-size-a-shape-and-stacks</proves>
     [Fact(DisplayName = "init leaves existing scaffold files alone and still exits zero")]
     public void LeavesExistingScaffoldFilesAlone()
     {
@@ -159,6 +168,7 @@ public sealed class InitCommandTests
         Assert.True(File.Exists(Path.Combine(consumer.Path, "docs", "glossary.json")));
     }
 
+    /// <proves>litespec/core/scope#select-a-size-a-shape-and-stacks</proves>
     [Fact(DisplayName = "init with a missing scaffold template names the checkout file and writes nothing")]
     public void MissingScaffoldTemplateNamesTheCheckoutFile()
     {
@@ -175,6 +185,8 @@ public sealed class InitCommandTests
         Assert.False(File.Exists(Path.Combine(consumer.Path, "litespec.project.json")));
     }
 
+    /// <proves>litespec/core/scope#select-a-size-a-shape-and-stacks</proves>
+    /// <proves>litespec/core/authoring#record-the-reviewed-litespec-release</proves>
     [Theory(DisplayName = "init writes a project file from each preset")]
     [InlineData("dotnet-react", "small", "server", "dotnet,react", "web", "apps/web", "react")]
     [InlineData("dotnet-react", "large", "server", "dotnet,react", "web", "apps/web", "react")]
@@ -216,6 +228,7 @@ public sealed class InitCommandTests
         Assert.Equal("docs", project["paths"]!["docs"]!.GetValue<string>());
     }
 
+    /// <proves>litespec/core/scope#select-a-size-a-shape-and-stacks</proves>
     [Fact(DisplayName = "init defaults the project name to the root folder's name")]
     public void DefaultsNameToRootFolder()
     {
@@ -232,6 +245,7 @@ public sealed class InitCommandTests
         Assert.Equal(new DirectoryInfo(consumer.Path).Name, project["project"]!["name"]!.GetValue<string>());
     }
 
+    /// <proves>litespec/core/scope#select-a-size-a-shape-and-stacks</proves>
     [Fact(DisplayName = "init never overwrites an existing project file")]
     public void NeverOverwritesExistingFile()
     {
@@ -252,6 +266,7 @@ public sealed class InitCommandTests
         Assert.False(File.Exists(Path.Combine(consumer.Path, "AGENTS.md")));
     }
 
+    /// <proves>litespec/core/scope#select-a-size-a-shape-and-stacks</proves>
     [Fact(DisplayName = "init with an unknown preset lists the known ones")]
     public void UnknownPresetListsKnownOnes()
     {
@@ -269,6 +284,7 @@ public sealed class InitCommandTests
         Assert.False(File.Exists(Path.Combine(consumer.Path, "litespec.project.json")));
     }
 
+    /// <proves>litespec/core/scope#select-a-size-a-shape-and-stacks</proves>
     [Fact(DisplayName = "init with a bad size names the accepted sizes")]
     public void BadSizeNamesAcceptedSizes()
     {
@@ -285,6 +301,7 @@ public sealed class InitCommandTests
         Assert.False(File.Exists(Path.Combine(consumer.Path, "litespec.project.json")));
     }
 
+    /// <proves>litespec/core/scope#select-a-size-a-shape-and-stacks</proves>
     [Fact(DisplayName = "init without a size is a usage error")]
     public void MissingSizeIsUsageError()
     {
@@ -300,6 +317,7 @@ public sealed class InitCommandTests
         Assert.Contains("Missing --size; use small or large.", result.Stderr);
     }
 
+    /// <proves>litespec/core/scope#select-a-size-a-shape-and-stacks</proves>
     [Fact(DisplayName = "init without a preset is a usage error")]
     public void MissingPresetIsUsageError()
     {
@@ -315,6 +333,7 @@ public sealed class InitCommandTests
         Assert.Contains("Missing --preset.", result.Stderr);
     }
 
+    /// <proves>litespec/core/scope#select-a-size-a-shape-and-stacks</proves>
     [Fact(DisplayName = "init --help prints the usage")]
     public void HelpPrintsUsage()
     {

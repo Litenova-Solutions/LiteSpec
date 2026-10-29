@@ -3,6 +3,7 @@ namespace LiteSpec.Tests.Model.Marks;
 /// <summary>Proves the mark presence, link, style and drift findings against the marks fixtures.</summary>
 public sealed class MarkFindingTests
 {
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact]
     public void Handler_Without_A_Mark_Reports_Mark_Missing()
     {
@@ -15,6 +16,7 @@ public sealed class MarkFindingTests
         Assert.Null(finding.Subject);
     }
 
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact]
     public void Mark_Naming_No_Record_Reports_Mark_Unresolved()
     {
@@ -26,6 +28,7 @@ public sealed class MarkFindingTests
         Assert.Equal("use-case/lending.ghost", finding.Subject);
     }
 
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact]
     public void Mark_Naming_A_Record_Of_Another_Type_Reports_Mark_Unresolved()
     {
@@ -38,6 +41,7 @@ public sealed class MarkFindingTests
         Assert.Equal("rule/loan.copy-available", finding.Subject);
     }
 
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact]
     public void Handler_With_Two_Marks_Reports_Mark_Count()
     {
@@ -48,6 +52,7 @@ public sealed class MarkFindingTests
         Assert.Contains("BorrowCopyCommandHandler", finding.Message);
     }
 
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact]
     public void Port_Naming_One_System_Twice_Reports_Mark_Count()
     {
@@ -58,6 +63,7 @@ public sealed class MarkFindingTests
         Assert.Contains("external-system/text-gateway", finding.Message);
     }
 
+    /// <proves>litespec/backend/dotnet/stack#write-each-mark-in-the-declared-style</proves>
     [Fact]
     public void Mark_In_The_Undeclared_Style_Reports_Mark_Style_Mixed()
     {
@@ -71,6 +77,7 @@ public sealed class MarkFindingTests
         Assert.Equal("use-case/lending.borrow-copy", finding.Subject);
     }
 
+    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact]
     public void Event_Classification_Drifting_From_Its_Record_Reports_Runtime_Value_Drift()
     {
@@ -82,6 +89,7 @@ public sealed class MarkFindingTests
         Assert.Contains("event/loan.placed", finding.Message);
     }
 
+    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact]
     public void Exception_Code_Drifting_From_Its_Result_Reports_Runtime_Value_Drift()
     {

@@ -7,6 +7,7 @@ namespace LiteSpec.Tests.Model;
 public sealed class RecordIndexParityTests
 {
     /// <summary>Every non-derived record from a Markdown page appears in the index unchanged.</summary>
+    /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
     public void Index_Matches_Cli_Reader_On_Every_Consumer_Fixture()
     {

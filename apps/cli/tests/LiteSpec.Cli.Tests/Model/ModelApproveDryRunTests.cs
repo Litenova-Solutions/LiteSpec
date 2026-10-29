@@ -9,6 +9,7 @@ public sealed class ModelApproveDryRunTests
         root, "docs", "behavior", "modules", "lending", "loans", "borrow-copy.md");
 
     /// <summary>A dry run lists the record missing its hash and writes nothing.</summary>
+    /// <proves>litespec/core/model#record-approval-as-data</proves>
     [Fact]
     public void Approve_Dry_Run_Lists_Missing_Hash_And_Writes_Nothing()
     {
@@ -32,6 +33,7 @@ public sealed class ModelApproveDryRunTests
     }
 
     /// <summary>A dry run lists the record whose fields no longer match its hash.</summary>
+    /// <proves>litespec/core/model#record-approval-as-data</proves>
     [Fact]
     public void Approve_Dry_Run_Lists_Differing_Hash()
     {
@@ -49,6 +51,7 @@ public sealed class ModelApproveDryRunTests
     }
 
     /// <summary>A dry run on a clean fixture lists nothing.</summary>
+    /// <proves>litespec/core/model#record-approval-as-data</proves>
     [Fact]
     public void Approve_Dry_Run_Omits_Clean_Records()
     {
@@ -60,6 +63,7 @@ public sealed class ModelApproveDryRunTests
     }
 
     /// <summary>A dry run still reports unknown ids.</summary>
+    /// <proves>litespec/core/model#record-approval-as-data</proves>
     [Fact]
     public void Approve_Dry_Run_Reports_Unknown_Ids()
     {

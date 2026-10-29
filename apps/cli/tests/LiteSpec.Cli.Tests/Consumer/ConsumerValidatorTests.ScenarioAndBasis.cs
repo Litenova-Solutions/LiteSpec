@@ -4,6 +4,7 @@ namespace LiteSpec.Tests.Consumer;
 
 public sealed partial class ConsumerValidatorTests
 {
+    /// <proves>litespec/core/intent#state-each-quality-requirement-as-a-scenario</proves>
     [Fact(DisplayName = "quality requirement carrying its scenario")]
     public void QualityRequirementCarryingItsScenario()
     {
@@ -12,6 +13,7 @@ public sealed partial class ConsumerValidatorTests
         AssertClean(RunConsumer(folder.Path));
     }
 
+    /// <proves>litespec/core/intent#state-each-quality-requirement-as-a-scenario</proves>
     [Theory(DisplayName = "quality requirement missing a scenario field")]
     [InlineData("stimulus")]
     [InlineData("environment")]
@@ -25,6 +27,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), $"missing required property '{field}'");
     }
 
+    /// <proves>litespec/core/intent#state-each-quality-requirement-as-a-scenario</proves>
     [Fact(DisplayName = "functional requirement without scenario fields")]
     public void FunctionalRequirementWithoutScenarioFields()
     {
@@ -38,6 +41,7 @@ public sealed partial class ConsumerValidatorTests
         AssertClean(RunConsumer(folder.Path));
     }
 
+    /// <proves>litespec/core/model#keep-rules-and-targets-out-of-technical-decisions</proves>
     [Fact(DisplayName = "technical decision naming a requirement in basedOn")]
     public void TechnicalDecisionNamingRequirement()
     {

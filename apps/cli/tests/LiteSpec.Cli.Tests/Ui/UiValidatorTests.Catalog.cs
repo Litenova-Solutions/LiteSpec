@@ -10,6 +10,7 @@ public sealed partial class UiValidatorTests
     // Design contract (litespec/frontend/ui#publish-a-design-contract,
     // litespec/frontend/ui#declare-a-closed-floorplan-set).
 
+    /// <proves>litespec/frontend/ui#publish-a-design-contract</proves>
     [Fact]
     public void Shared_Package_With_No_Design_Contract()
     {
@@ -18,6 +19,7 @@ public sealed partial class UiValidatorTests
         UiFixture.AssertProblem(fixture.Run(), "no design contract at");
     }
 
+    /// <proves>litespec/frontend/ui#publish-a-design-contract</proves>
     [Fact]
     public void Design_Contract_Missing_A_Required_Section()
     {
@@ -27,6 +29,7 @@ public sealed partial class UiValidatorTests
         UiFixture.AssertProblem(fixture.Run(), "missing required section 'Motion'");
     }
 
+    /// <proves>litespec/frontend/ui#publish-a-design-contract</proves>
     [Fact]
     public void Design_Contract_Naming_Another_Package()
     {
@@ -36,6 +39,7 @@ public sealed partial class UiValidatorTests
         UiFixture.AssertProblem(fixture.Run(), "package must be '@fixture/ui'");
     }
 
+    /// <proves>litespec/frontend/ui#declare-a-closed-floorplan-set</proves>
     [Fact]
     public void Design_Contract_Naming_No_Floorplan()
     {
@@ -45,6 +49,7 @@ public sealed partial class UiValidatorTests
         UiFixture.AssertProblem(fixture.Run(), "array has fewer than 1 items");
     }
 
+    /// <proves>litespec/frontend/ui#publish-a-design-contract</proves>
     [Fact]
     public void The_Shipped_Design_Contract_Is_Accepted()
     {
@@ -58,6 +63,7 @@ public sealed partial class UiValidatorTests
     // litespec/frontend/web/patterns#implement-a-chosen-pattern-once,
     // litespec/frontend/patterns#state-the-implementation-status).
 
+    /// <proves>litespec/frontend/patterns#keep-one-pattern-catalog</proves>
     [Fact]
     public void The_Shipped_Pattern_Catalog_Is_Accepted()
     {
@@ -65,6 +71,7 @@ public sealed partial class UiValidatorTests
         UiFixture.AssertClean(fixture.Run());
     }
 
+    /// <proves>litespec/frontend/patterns#keep-one-pattern-catalog</proves>
     [Fact]
     public void A_Workspace_With_No_Pattern_Catalog()
     {
@@ -73,6 +80,7 @@ public sealed partial class UiValidatorTests
         UiFixture.AssertClean(fixture.Run());
     }
 
+    /// <proves>litespec/frontend/patterns#keep-one-pattern-catalog</proves>
     [Fact]
     public void A_Declared_Pattern_Catalog_That_Is_Missing()
     {
@@ -81,6 +89,7 @@ public sealed partial class UiValidatorTests
         UiFixture.AssertProblem(fixture.Run(), "no catalog at 'docs/ui/pattern-catalog.json'");
     }
 
+    /// <proves>litespec/frontend/patterns#keep-one-pattern-catalog</proves>
     [Fact]
     public void A_Catalog_That_Breaks_The_Schema()
     {
@@ -93,6 +102,7 @@ public sealed partial class UiValidatorTests
         UiFixture.AssertProblem(fixture.Run(), "array has fewer than 2 items");
     }
 
+    /// <proves>litespec/frontend/patterns#record-every-option-considered</proves>
     [Fact]
     public void A_Decision_Naming_No_Recorded_Option()
     {
@@ -107,6 +117,7 @@ public sealed partial class UiValidatorTests
             "pattern 'orders-list-page': decision.option 'no-such-option' is not one of its options");
     }
 
+    /// <proves>litespec/frontend/patterns#declare-the-compact-behavior</proves>
     [Fact]
     public void A_Compact_Variant_Naming_No_Recorded_Option()
     {
@@ -121,6 +132,7 @@ public sealed partial class UiValidatorTests
             "pattern 'table-sorting': compact.option 'no-such-option' is not one of its options");
     }
 
+    /// <proves>litespec/frontend/patterns#record-every-option-considered</proves>
     [Fact]
     public void An_Extension_Naming_No_Recorded_Option()
     {
@@ -135,6 +147,7 @@ public sealed partial class UiValidatorTests
             "pattern 'orders-list-page': extensions[0].option 'no-such-option' is not one of its options");
     }
 
+    /// <proves>litespec/frontend/patterns#declare-the-compact-behavior</proves>
     [Fact]
     public void A_Compact_Variant_Naming_No_Breakpoint()
     {
@@ -149,6 +162,7 @@ public sealed partial class UiValidatorTests
             "pattern 'orders-list-page': compact.breakpoint 'no-such-breakpoint' is not a key of breakpoints");
     }
 
+    /// <proves>litespec/frontend/patterns#keep-one-pattern-catalog</proves>
     [Fact]
     public void A_Pattern_Naming_No_Catalog_Group()
     {
@@ -163,6 +177,7 @@ public sealed partial class UiValidatorTests
             "pattern 'orders-list-page': group 'no-such-group' is not one of the catalog groups");
     }
 
+    /// <proves>litespec/frontend/web/patterns#implement-a-chosen-pattern-once</proves>
     [Fact]
     public void A_Component_Path_That_Does_Not_Exist()
     {
@@ -179,6 +194,7 @@ public sealed partial class UiValidatorTests
             "pattern 'orders-list-page': implementations.react.components[0] does not exist 'packages/ui/src/floorplans/no-such.tsx'");
     }
 
+    /// <proves>litespec/frontend/web/patterns#implement-a-chosen-pattern-once</proves>
     [Fact]
     public void An_Adopted_Status_With_No_Components()
     {
@@ -194,6 +210,7 @@ public sealed partial class UiValidatorTests
             "pattern 'orders-list-page': implementations.react has status 'adopted' with no components");
     }
 
+    /// <proves>litespec/frontend/patterns#state-the-implementation-status</proves>
     [Fact]
     public void A_Partial_Status_With_No_Gap()
     {
@@ -209,6 +226,7 @@ public sealed partial class UiValidatorTests
             "pattern 'orders-list-page': implementations.react has status 'partial' with no gap");
     }
 
+    /// <proves>litespec/frontend/patterns#state-the-implementation-status</proves>
     [Fact]
     public void A_Pending_Status_With_No_Gap()
     {
@@ -224,6 +242,7 @@ public sealed partial class UiValidatorTests
             "pattern 'orders-list-page': implementations.react has status 'pending' with no gap");
     }
 
+    /// <proves>litespec/frontend/patterns#keep-one-pattern-catalog</proves>
     [Fact]
     public void Two_Patterns_Sharing_One_Id()
     {
@@ -236,6 +255,7 @@ public sealed partial class UiValidatorTests
         UiFixture.AssertProblem(fixture.Run(), "duplicate pattern id 'orders-list-page'");
     }
 
+    /// <proves>litespec/frontend/patterns#keep-one-pattern-catalog</proves>
     [Fact]
     public void Two_Options_Sharing_One_Id()
     {
@@ -253,6 +273,7 @@ public sealed partial class UiValidatorTests
 
     // Pattern library citations (litespec/frontend/patterns#keep-one-pattern-catalog).
 
+    /// <proves>litespec/frontend/patterns#keep-one-pattern-catalog</proves>
     [Fact]
     public void The_Fixture_Validator_Accepts_The_Shipped_Catalog()
     {
@@ -260,6 +281,7 @@ public sealed partial class UiValidatorTests
         UiFixture.AssertClean(fixture.RunWithFixtureHome());
     }
 
+    /// <proves>litespec/frontend/patterns#keep-one-pattern-catalog</proves>
     [Fact]
     public void A_Pattern_Citing_The_LiteSpec_Pattern_It_Matches()
     {
@@ -280,6 +302,7 @@ public sealed partial class UiValidatorTests
         UiFixture.AssertClean(fixture.RunWithFixtureHome());
     }
 
+    /// <proves>litespec/frontend/patterns#keep-one-pattern-catalog</proves>
     [Fact]
     public void A_Pattern_Citing_A_Pattern_No_Page_Holds()
     {
@@ -294,6 +317,7 @@ public sealed partial class UiValidatorTests
             "pattern 'orders-list-page': library 'litespec/frontend/patterns/page-frames#no-such-pattern' is not a pattern on a LiteSpec pattern page");
     }
 
+    /// <proves>litespec/frontend/patterns#keep-one-pattern-catalog</proves>
     [Fact]
     public void A_Pattern_Renaming_A_LiteSpec_Option()
     {

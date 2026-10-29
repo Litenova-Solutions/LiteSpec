@@ -7,6 +7,7 @@ namespace LiteSpec.Tests.Model.Checks;
 /// <summary>Proves the owner-team check: each record's owner belongs to the team owning its path.</summary>
 public sealed class OwnerTeamCheckTests
 {
+    /// <proves>litespec/quality/ci#map-record-areas-to-owners</proves>
     [Fact]
     public void Owner_On_The_Path_Team_Passes()
     {
@@ -20,6 +21,7 @@ public sealed class OwnerTeamCheckTests
         Assert.DoesNotContain("owner-unknown", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/quality/ci#map-record-areas-to-owners</proves>
     [Fact]
     public void Owner_Outside_The_Path_Team_Reports_Owner_Unknown()
     {
@@ -34,6 +36,7 @@ public sealed class OwnerTeamCheckTests
         Assert.Contains("no team", message, StringComparison.Ordinal);
     }
 
+    /// <proves>litespec/quality/ci#map-record-areas-to-owners</proves>
     [Fact]
     public void Missing_Codeowners_File_Skips_The_Team_Check()
     {
@@ -46,6 +49,7 @@ public sealed class OwnerTeamCheckTests
         Assert.DoesNotContain("owner-unknown", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/quality/ci#map-record-areas-to-owners</proves>
     [Fact]
     public void Unmatched_Path_Skips_The_Team_Check()
     {
@@ -59,6 +63,7 @@ public sealed class OwnerTeamCheckTests
         Assert.DoesNotContain("owner-unknown", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/quality/ci#map-record-areas-to-owners</proves>
     [Fact]
     public void Last_Matching_Pattern_Wins()
     {
@@ -72,6 +77,7 @@ public sealed class OwnerTeamCheckTests
         Assert.Contains("owner-unknown", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/core/model#keep-one-owner-and-status-on-every-record</proves>
     [Fact]
     public void Owner_Outside_The_Owner_List_Still_Reports_The_List_Message()
     {
@@ -86,6 +92,7 @@ public sealed class OwnerTeamCheckTests
         Assert.Contains("owner list", message, StringComparison.Ordinal);
     }
 
+    /// <proves>litespec/quality/ci#map-record-areas-to-owners</proves>
     [Fact]
     public void Owner_Object_Mapping_A_Handle_Passes()
     {
@@ -99,6 +106,7 @@ public sealed class OwnerTeamCheckTests
         Assert.DoesNotContain("owner-unknown", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/quality/ci#map-record-areas-to-owners</proves>
     [Fact]
     public void Plain_Owner_Matching_No_Handle_Reports_Owner_Unknown()
     {
@@ -113,6 +121,7 @@ public sealed class OwnerTeamCheckTests
         Assert.Contains("no team", message, StringComparison.Ordinal);
     }
 
+    /// <proves>litespec/quality/ci#map-record-areas-to-owners</proves>
     [Fact]
     public void Owner_Object_Mapping_Another_Team_Reports_Owner_Unknown()
     {

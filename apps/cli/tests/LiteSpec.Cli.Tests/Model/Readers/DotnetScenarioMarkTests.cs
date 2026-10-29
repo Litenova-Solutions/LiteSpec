@@ -7,6 +7,7 @@ namespace LiteSpec.Tests.Model.Readers;
 /// <summary>Proves the scenario reader takes each test's claims from its proves marks, in either style.</summary>
 public sealed class DotnetScenarioMarkTests
 {
+    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void Test_Claim_Xml_Links_Its_Scenario()
     {
@@ -27,6 +28,7 @@ public sealed class DotnetScenarioMarkTests
         Assert.Equal("scenario/borrow-copy.borrowing-succeeds", Assert.Single(scenario.Claims));
     }
 
+    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void Test_Claim_Attribute_Links_Its_Scenario()
     {
@@ -47,6 +49,7 @@ public sealed class DotnetScenarioMarkTests
         Assert.Equal("scenario/borrow-copy.borrowing-succeeds", Assert.Single(scenario.Claims));
     }
 
+    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void Test_Claim_Names_A_Rule()
     {
@@ -67,6 +70,7 @@ public sealed class DotnetScenarioMarkTests
         Assert.Equal("rule/lending.copy-barcode-unique", Assert.Single(scenario.Claims));
     }
 
+    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Theory]
     [InlineData("requirement/borrowing.borrow-latency")]
     [InlineData("decision/0002-store-loans-as-documents")]
@@ -92,6 +96,7 @@ public sealed class DotnetScenarioMarkTests
         Assert.Equal(claim, Assert.Single(scenario.Claims));
     }
 
+    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void Test_Without_Claims_Has_No_Scenario()
     {
@@ -109,6 +114,7 @@ public sealed class DotnetScenarioMarkTests
         Assert.Empty(Read(temp.Path).Scenarios);
     }
 
+    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void Test_Method_Is_Read_As_A_Test_Element()
     {
@@ -136,6 +142,7 @@ public sealed class DotnetScenarioMarkTests
         Assert.Equal("scenario/borrow-copy.borrowing-succeeds", Assert.Single(Assert.Single(read.Scenarios).Claims));
     }
 
+    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void Proves_Without_Test_Attribute_Lands_In_Stray_Marks()
     {

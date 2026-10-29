@@ -6,6 +6,7 @@ namespace LiteSpec.Tests.Book;
 public sealed class BookViewsTests
 {
     /// <summary>A record page renders its prose body as text: headings, spans, lists, tables, code and quotes.</summary>
+    /// <proves>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</proves>
     [Fact]
     public void Record_Page_Renders_Its_Body_As_Text()
     {
@@ -31,6 +32,7 @@ public sealed class BookViewsTests
     }
 
     /// <summary>A body can never inject markup: angle brackets escape inside code spans.</summary>
+    /// <proves>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</proves>
     [Fact]
     public void Record_Body_Escapes_Markup()
     {
@@ -43,6 +45,7 @@ public sealed class BookViewsTests
     }
 
     /// <summary>No page falls back to raw JSON: every field has a typed renderer.</summary>
+    /// <proves>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</proves>
     [Fact]
     public void Book_Has_No_Raw_Json_Fallback()
     {
@@ -58,6 +61,7 @@ public sealed class BookViewsTests
     }
 
     /// <summary>An aggregate page shows its lifecycle: a Mermaid diagram, transitions, states and data.</summary>
+    /// <proves>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</proves>
     [Fact]
     public void Aggregate_Page_Shows_Lifecycle_Diagram_And_Tables()
     {
@@ -76,6 +80,7 @@ public sealed class BookViewsTests
     }
 
     /// <summary>A scenario page shows Given, When and Then sentences with examples and proof words.</summary>
+    /// <proves>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</proves>
     [Fact]
     public void Scenario_Page_Shows_Sentences_Examples_And_Proof()
     {
@@ -97,6 +102,7 @@ public sealed class BookViewsTests
     }
 
     /// <summary>A scenario page links its why-chain up to the goal.</summary>
+    /// <proves>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</proves>
     [Fact]
     public void Scenario_Page_Shows_Its_Why_Chain()
     {
@@ -115,6 +121,7 @@ public sealed class BookViewsTests
     }
 
     /// <summary>Reviewer pages hide identifiers, codes, file paths and check names behind the developer view.</summary>
+    /// <proves>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</proves>
     [Fact]
     public void Reviewer_View_Hides_Identifiers_Codes_Paths_And_Checks()
     {
@@ -140,6 +147,7 @@ public sealed class BookViewsTests
     }
 
     /// <summary>A goal lens walks from the goal through features and requirements to the verified state.</summary>
+    /// <proves>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</proves>
     [Fact]
     public void Goal_Lens_Shows_Goal_To_Verified()
     {
@@ -162,6 +170,7 @@ public sealed class BookViewsTests
     }
 
     /// <summary>The review page lists gaps, drafts, open questions and findings.</summary>
+    /// <proves>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</proves>
     [Fact]
     public void Review_Page_Lists_Gaps_Drafts_Questions_And_Findings()
     {
@@ -180,6 +189,7 @@ public sealed class BookViewsTests
     }
 
     /// <summary>A rule page states its kind in words, what breaks, and a worked example for calculations.</summary>
+    /// <proves>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</proves>
     [Fact]
     public void Rule_Page_Names_Break_Meaning_And_Worked_Example()
     {
@@ -198,6 +208,7 @@ public sealed class BookViewsTests
     }
 
     /// <summary>A requirement page states its fit criterion and its proof in words.</summary>
+    /// <proves>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</proves>
     [Fact]
     public void Requirement_Page_Shows_Fit_Criterion_And_Proof()
     {
@@ -214,6 +225,7 @@ public sealed class BookViewsTests
     }
 
     /// <summary>A reaction page renders its trigger events and what it sends.</summary>
+    /// <proves>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</proves>
     [Fact]
     public void Reaction_Page_Renders_On_And_Sends()
     {
@@ -230,6 +242,7 @@ public sealed class BookViewsTests
     }
 
     /// <summary>A journey page renders its chapter: steps, serving, promises, outcomes, consequences and questions.</summary>
+    /// <proves>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</proves>
     [Fact]
     public void Journey_Page_Renders_Its_Chapter()
     {
@@ -255,6 +268,7 @@ public sealed class BookViewsTests
     }
 
     /// <summary>The ballots page groups open questions by ballot, tier 1 first, with auto-approval dates.</summary>
+    /// <proves>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</proves>
     [Fact]
     public void Ballots_Page_Groups_Questions_Tier_First_With_Auto_Approval()
     {
@@ -273,6 +287,7 @@ public sealed class BookViewsTests
     }
 
     /// <summary>A setting page renders its meaning and default.</summary>
+    /// <proves>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</proves>
     [Fact]
     public void Setting_Page_Renders_Meaning_And_Default()
     {
@@ -285,6 +300,7 @@ public sealed class BookViewsTests
     }
 
     /// <summary>A use-case page renders its access grant and tenant scope, and what it serves.</summary>
+    /// <proves>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</proves>
     [Fact]
     public void Use_Case_Page_Renders_Access_And_Serves()
     {
@@ -299,6 +315,7 @@ public sealed class BookViewsTests
     }
 
     /// <summary>The search index covers statements, meanings and scenario text.</summary>
+    /// <proves>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</proves>
     [Fact]
     public void Search_Covers_Statements_Meanings_And_Scenario_Text()
     {
@@ -313,6 +330,7 @@ public sealed class BookViewsTests
     }
 
     /// <summary>The book vendors the pinned Mermaid script and loads it only where diagrams live.</summary>
+    /// <proves>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</proves>
     [Fact]
     public void Book_Vendors_Mermaid_For_Diagrams_Only()
     {

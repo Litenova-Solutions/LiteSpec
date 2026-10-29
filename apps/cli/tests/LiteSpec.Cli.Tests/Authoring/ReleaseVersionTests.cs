@@ -18,18 +18,22 @@ public sealed class ReleaseVersionTests
     static string PackageVersion(params string[] project) =>
         Regex.Match(Read(project), "<Version>(?<v>[^<]+)</Version>").Groups["v"].Value;
 
+    /// <proves>litespec/core/maintaining#publish-a-litespec-release-from-a-tag</proves>
     [Fact]
     public void The_Tool_Package_Names_The_Manifest_Release() =>
         Assert.Equal(Manifest(), PackageVersion("apps", "cli", "src", "LiteSpec.Cli", "LiteSpec.Cli.csproj"));
 
+    /// <proves>litespec/core/maintaining#publish-a-litespec-release-from-a-tag</proves>
     [Fact]
     public void The_Analyzer_Package_Names_The_Manifest_Release() =>
         Assert.Equal(Manifest(), PackageVersion("apps", "analyzers", "src", "LiteSpec.Analyzers", "LiteSpec.Analyzers.csproj"));
 
+    /// <proves>litespec/core/maintaining#publish-a-litespec-release-from-a-tag</proves>
     [Fact]
     public void The_Changelog_Opens_With_The_Manifest_Release() =>
         Assert.Equal($"## v{Manifest()}", Read("CHANGELOG.md").Split('\n').Select(line => line.TrimEnd('\r')).First(line => line.StartsWith("## ", StringComparison.Ordinal)));
 
+    /// <proves>litespec/core/maintaining#publish-a-litespec-release-from-a-tag</proves>
     [Fact]
     public void The_Consumer_Template_Reviews_The_Manifest_Release() =>
         Assert.Equal(

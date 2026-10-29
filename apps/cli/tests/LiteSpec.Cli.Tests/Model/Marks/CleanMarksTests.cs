@@ -36,6 +36,7 @@ public sealed class CleanMarksTests
         }
     }
 
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Theory]
     [MemberData(nameof(TraceabilityCodes))]
     public void Clean_Fixture_Reports_No(string code)
@@ -46,6 +47,7 @@ public sealed class CleanMarksTests
         Assert.DoesNotContain(code, findings.Select(finding => finding.Code));
     }
 
+    /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
     public void Marked_Rule_Exception_Proves_Its_Refusal_Code()
     {

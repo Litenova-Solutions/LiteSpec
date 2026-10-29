@@ -7,6 +7,7 @@ namespace LiteSpec.Tests.Model;
 /// <summary>Proves a receiver passed to a helper attributes the helper's dispatches one hop deep.</summary>
 public sealed class DotnetOneHopDispatchTests
 {
+    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void Helper_Taking_The_Mediator_Attributes_Its_Dispatch_To_The_Handler()
     {
@@ -26,6 +27,7 @@ public sealed class DotnetOneHopDispatchTests
         Assert.EndsWith("BorrowCopyCommandHandler.cs", dispatch.File);
     }
 
+    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void Helper_Taking_A_Publisher_Attributes_Only_The_Passed_Receiver()
     {
@@ -44,6 +46,7 @@ public sealed class DotnetOneHopDispatchTests
         Assert.Equal("LoanEventRelay.RelayAsync", dispatch.Via);
     }
 
+    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void Helper_Called_Without_A_Receiver_Attributes_Nothing()
     {
@@ -59,6 +62,7 @@ public sealed class DotnetOneHopDispatchTests
         Assert.Empty(handler.Dispatches!);
     }
 
+    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void Helper_Dispatch_Through_An_Unpassed_Receiver_Is_Not_Attributed()
     {
@@ -76,6 +80,7 @@ public sealed class DotnetOneHopDispatchTests
         Assert.Equal("PurgeLoansCommand", dispatch.Target);
     }
 
+    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void Attribution_Stops_After_One_Hop()
     {
@@ -94,6 +99,7 @@ public sealed class DotnetOneHopDispatchTests
         Assert.Equal("FirstHop.RunAsync", dispatch.Via);
     }
 
+    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void Instance_Helper_Through_A_Held_Interface_Attributes_Its_Send()
     {
@@ -112,6 +118,7 @@ public sealed class DotnetOneHopDispatchTests
         Assert.Equal("LoanFanout.NotifyAsync", dispatch.Via);
     }
 
+    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void Send_Of_A_Message_Built_From_A_Rendered_Template_Names_The_Template()
     {

@@ -8,6 +8,7 @@ namespace LiteSpec.Tests.Model.Marks;
 /// </summary>
 public sealed class MarkVerbTests
 {
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact]
     public void Proves_On_A_Handler_Reports_Mark_Unresolved()
     {
@@ -20,6 +21,7 @@ public sealed class MarkVerbTests
         Assert.Contains("takes implements", finding.Message);
     }
 
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact]
     public void Implements_On_A_Test_Reports_Mark_Unresolved()
     {
@@ -32,6 +34,7 @@ public sealed class MarkVerbTests
         Assert.Contains("takes proves", finding.Message);
     }
 
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact]
     public void Matching_Verbs_Report_No_Mark_Unresolved()
     {

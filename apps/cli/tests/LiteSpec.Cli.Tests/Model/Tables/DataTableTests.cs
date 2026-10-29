@@ -7,6 +7,7 @@ namespace LiteSpec.Tests.Model.Tables;
 public sealed class DataTableTests
 {
     /// <summary>A data table writes fields, lowercasing classifications.</summary>
+    /// <proves>litespec/core/behavior#classify-every-aggregate-data-field</proves>
     [Fact]
     public void Data_Table_Writes_Fields()
     {
@@ -27,6 +28,7 @@ public sealed class DataTableTests
     }
 
     /// <summary>A personal row from the table reports erasure-undeclared.</summary>
+    /// <proves>litespec/core/behavior#declare-every-data-class-with-its-erasure-position</proves>
     [Fact]
     public void Personal_Data_Table_Reports_Erasure_Undeclared()
     {
@@ -39,6 +41,7 @@ public sealed class DataTableTests
     }
 
     /// <summary>Front-matter data wins over the table.</summary>
+    /// <proves>litespec/core/behavior#classify-every-aggregate-data-field</proves>
     [Fact]
     public void Front_Matter_Data_Wins_Over_The_Table()
     {

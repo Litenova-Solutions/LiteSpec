@@ -26,6 +26,7 @@ public sealed partial class ConsumerValidatorTests
         return ReplaceFirst(raw, $"## {name}", "## Notes");
     }
 
+    /// <proves>litespec/core/intent#state-one-product</proves>
     [Fact(DisplayName = "product brief that omits its summary")]
     public void ProductBriefThatOmitsItsSummary()
     {
@@ -34,6 +35,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "requires an H2 'Summary'");
     }
 
+    /// <proves>litespec/core/intent#shape-each-requirement-page</proves>
     [Fact(DisplayName = "requirement page that omits its example")]
     public void RequirementPageThatOmitsItsExample()
     {
@@ -42,6 +44,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "requires an H2 'Example'");
     }
 
+    /// <proves>litespec/core/intent#shape-each-requirement-page</proves>
     [Fact(DisplayName = "requirement page that omits its position")]
     public void RequirementPageThatOmitsItsPosition()
     {
@@ -50,6 +53,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "requires an H2 'Position'");
     }
 
+    /// <proves>litespec/core/intent#record-each-choice-as-a-decision</proves>
     [Fact(DisplayName = "decision that omits its decision")]
     public void DecisionThatOmitsItsDecision()
     {
@@ -58,6 +62,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "requires an H2 'Decision'");
     }
 
+    /// <proves>litespec/core/intent#record-each-choice-as-a-decision</proves>
     [Fact(DisplayName = "decision that omits its consequences")]
     public void DecisionThatOmitsItsConsequences()
     {
@@ -66,6 +71,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "requires an H2 'Consequences'");
     }
 
+    /// <proves>litespec/core/intent#record-each-choice-as-a-decision</proves>
     [Fact(DisplayName = "decision without an options section")]
     public void DecisionWithoutAnOptionsSection()
     {
@@ -73,6 +79,7 @@ public sealed partial class ConsumerValidatorTests
         AssertAbsent(RunConsumer(folder.Path), "requires an H2 'Options'");
     }
 
+    /// <proves>litespec/core/access#write-a-summary-on-every-actor-and-role-page</proves>
     [Fact(DisplayName = "actor that omits its summary")]
     public void ActorThatOmitsItsSummary()
     {
@@ -81,6 +88,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "requires an H2 'Summary'");
     }
 
+    /// <proves>litespec/core/behavior#connect-every-state-through-transitions</proves>
     [Fact(DisplayName = "aggregate that omits its transitions table")]
     public void AggregateThatOmitsItsTransitionsTable()
     {
@@ -89,6 +97,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "requires an H2 'Transitions'");
     }
 
+    /// <proves>litespec/core/behavior#classify-every-aggregate-data-field</proves>
     [Fact(DisplayName = "aggregate that omits its data table")]
     public void AggregateThatOmitsItsDataTable()
     {
@@ -97,6 +106,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "requires an H2 'Data'");
     }
 
+    /// <proves>litespec/core/authoring#use-the-declared-page-contract</proves>
     [Fact(DisplayName = "use case that omits its goal")]
     public void UseCaseThatOmitsItsGoal()
     {
@@ -105,6 +115,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "requires an H2 'Goal'");
     }
 
+    /// <proves>litespec/core/authoring#use-the-declared-page-contract</proves>
     [Fact(DisplayName = "command that omits what happens")]
     public void CommandThatOmitsWhatHappens()
     {
@@ -113,6 +124,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "requires an H2 'What Happens'");
     }
 
+    /// <proves>litespec/core/authoring#use-the-declared-page-contract</proves>
     [Fact(DisplayName = "query without what happens")]
     public void QueryWithoutWhatHappens()
     {
@@ -129,6 +141,7 @@ public sealed partial class ConsumerValidatorTests
         AssertClean(RunConsumer(folder.Path));
     }
 
+    /// <proves>litespec/core/intent#state-each-goal-with-its-measure</proves>
     [Fact(DisplayName = "goal that omits why it matters")]
     public void GoalThatOmitsWhyItMatters()
     {
@@ -142,6 +155,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "requires an H2 'Why It Matters'");
     }
 
+    /// <proves>litespec/core/intent#state-each-problem-with-its-evidence</proves>
     [Fact(DisplayName = "problem that omits its evidence")]
     public void ProblemThatOmitsItsEvidence()
     {
@@ -155,6 +169,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "requires an H2 'Evidence'");
     }
 
+    /// <proves>litespec/core/intent#state-each-feature-with-its-state</proves>
     [Fact(DisplayName = "feature that omits its offering")]
     public void FeatureThatOmitsItsOffering()
     {
@@ -168,6 +183,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "requires an H2 'Offering'");
     }
 
+    /// <proves>litespec/core/intent#answer-every-constraint</proves>
     [Fact(DisplayName = "constraint that omits what it requires")]
     public void ConstraintThatOmitsWhatItRequires()
     {
@@ -181,6 +197,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "requires an H2 'What It Requires'");
     }
 
+    /// <proves>litespec/core/intent#record-research-with-read-sources</proves>
     [Fact(DisplayName = "research that omits its answer")]
     public void ResearchThatOmitsItsAnswer()
     {
@@ -194,6 +211,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "requires an H2 'Answer'");
     }
 
+    /// <proves>litespec/core/authoring#use-the-declared-page-contract</proves>
     [Fact(DisplayName = "journey that omits its example")]
     public void JourneyThatOmitsItsExample()
     {
@@ -207,6 +225,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "requires an H2 'Example'");
     }
 
+    /// <proves>litespec/core/authoring#use-the-declared-page-contract</proves>
     [Fact(DisplayName = "journey that omits between the steps")]
     public void JourneyThatOmitsBetweenTheSteps()
     {
@@ -220,6 +239,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "requires an H2 'Between the Steps'");
     }
 
+    /// <proves>litespec/core/authoring#use-the-declared-page-contract</proves>
     [Fact(DisplayName = "rule set that omits its summary")]
     public void RuleSetThatOmitsItsSummary()
     {
@@ -233,6 +253,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "requires an H2 'Summary'");
     }
 
+    /// <proves>litespec/core/access#write-a-summary-on-every-external-system-page</proves>
     [Fact(DisplayName = "external system that omits its summary")]
     public void ExternalSystemThatOmitsItsSummary()
     {
@@ -246,6 +267,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "requires an H2 'Summary'");
     }
 
+    /// <proves>litespec/core/authoring#use-the-declared-page-contract</proves>
     [Fact(DisplayName = "runbook that omits its escalation")]
     public void RunbookThatOmitsItsEscalation()
     {
@@ -259,6 +281,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "requires an H2 'Escalation'");
     }
 
+    /// <proves>litespec/core/authoring#use-the-declared-page-contract</proves>
     [Fact(DisplayName = "deviation that omits its consequences")]
     public void DeviationThatOmitsItsConsequences()
     {
@@ -272,6 +295,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "requires an H2 'Consequences'");
     }
 
+    /// <proves>litespec/core/authoring#use-the-declared-page-contract</proves>
     [Fact(DisplayName = "known gap that omits its exit")]
     public void KnownGapThatOmitsItsExit()
     {
@@ -285,6 +309,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "requires an H2 'Exit'");
     }
 
+    /// <proves>litespec/core/authoring#use-the-declared-page-contract</proves>
     [Fact(DisplayName = "example cast that omits its people")]
     public void ExampleCastThatOmitsItsPeople()
     {
@@ -298,6 +323,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "requires an H2 'The People'");
     }
 
+    /// <proves>litespec/core/authoring#use-the-declared-page-contract</proves>
     [Fact(DisplayName = "tutorial that omits what the reader built")]
     public void TutorialThatOmitsWhatTheReaderBuilt()
     {
@@ -306,6 +332,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "requires an H2 'What You Built'");
     }
 
+    /// <proves>litespec/core/authoring#use-the-declared-page-contract</proves>
     [Fact(DisplayName = "how-to with no check")]
     public void HowToWithNoCheck()
     {
@@ -314,6 +341,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "requires an H2 'Check'");
     }
 
+    /// <proves>litespec/core/authoring#use-the-declared-page-contract</proves>
     [Fact(DisplayName = "command page hiding its mechanism")]
     public void CommandPageHidingItsMechanism()
     {
@@ -325,6 +353,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "requires an H2 'Underneath'");
     }
 
+    /// <proves>litespec/core/authoring#use-the-declared-page-contract</proves>
     [Fact(DisplayName = "reference page with no reference section")]
     public void ReferencePageWithNoReferenceSection()
     {
@@ -333,6 +362,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "requires an H2 'Reference'");
     }
 
+    /// <proves>litespec/core/authoring#use-the-declared-page-contract</proves>
     [Fact(DisplayName = "configuration page with no precedence")]
     public void ConfigurationPageWithNoPrecedence()
     {
@@ -341,6 +371,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "requires an H2 'Precedence'");
     }
 
+    /// <proves>litespec/core/authoring#use-the-declared-page-contract</proves>
     [Fact(DisplayName = "module page keeps free body prose")]
     public void ModulePageKeepsFreeBodyProse()
     {
@@ -349,6 +380,7 @@ public sealed partial class ConsumerValidatorTests
         AssertClean(RunConsumer(folder.Path));
     }
 
+    /// <proves>litespec/core/authoring#use-controlled-capitalization</proves>
     [Fact(DisplayName = "page title outside Title Case")]
     public void PageTitleOutsideTitleCase()
     {
@@ -357,6 +389,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "H1 'customer' must use Title Case");
     }
 
+    /// <proves>litespec/core/authoring#use-controlled-capitalization</proves>
     [Fact(DisplayName = "section heading outside Title Case")]
     public void SectionHeadingOutsideTitleCase()
     {
@@ -365,6 +398,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "H2 'known limits' must use Title Case");
     }
 
+    /// <proves>litespec/core/authoring#use-controlled-capitalization</proves>
     [Fact(DisplayName = "small word capitalized in the middle")]
     public void SmallWordCapitalizedInTheMiddle()
     {
@@ -373,6 +407,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "must use Title Case");
     }
 
+    /// <proves>litespec/core/intent#shape-each-requirement-page</proves>
     [Fact(DisplayName = "example longer than the bound")]
     public void ExampleLongerThanTheBound()
     {
@@ -385,6 +420,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "over the 120 word bound");
     }
 
+    /// <proves>litespec/core/intent#shape-each-requirement-page</proves>
     [Fact(DisplayName = "example bound below forty")]
     public void ExampleBoundBelowForty()
     {
@@ -393,6 +429,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "exampleWordLimit '20' is below 40");
     }
 
+    /// <proves>litespec/core/intent#shape-each-requirement-page</proves>
     [Fact(DisplayName = "example bound the project raises")]
     public void ExampleBoundTheProjectRaises()
     {

@@ -6,6 +6,7 @@ namespace LiteSpec.Tests.Model.Checks;
 /// <summary>Proves the advisory checks and the open-questions shape rule against hand-built models.</summary>
 public sealed class AdvisoryCheckTests
 {
+    /// <proves>litespec/core/behavior#write-prose-on-significant-use-cases</proves>
     [Fact]
     public void Significant_Use_Case_Without_Goal_Reports()
     {
@@ -17,6 +18,7 @@ public sealed class AdvisoryCheckTests
         Assert.Contains("prose-missing", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/core/behavior#write-prose-on-significant-use-cases</proves>
     [Fact]
     public void Trivial_Use_Case_Passes()
     {
@@ -28,6 +30,7 @@ public sealed class AdvisoryCheckTests
         Assert.DoesNotContain("prose-missing", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/core/behavior#state-the-consistency-of-every-use-case</proves>
     [Fact]
     public void Atomic_With_Two_Because_Rules_Reports()
     {
@@ -39,6 +42,7 @@ public sealed class AdvisoryCheckTests
         Assert.Contains("many-aggregates", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/core/behavior#state-the-consistency-of-every-use-case</proves>
     [Fact]
     public void Atomic_With_One_Because_Rule_Passes()
     {
@@ -50,6 +54,7 @@ public sealed class AdvisoryCheckTests
         Assert.DoesNotContain("many-aggregates", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/core/release#approve-tier-3-questions-automatically-after-the-veto-window</proves>
     [Fact]
     public void Tier3_Question_Without_Recommendation_Past_DecideBy_Reports()
     {
@@ -61,6 +66,7 @@ public sealed class AdvisoryCheckTests
         Assert.Contains("question-aged", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/core/release#approve-tier-3-questions-automatically-after-the-veto-window</proves>
     [Fact]
     public void Tier3_Question_With_Recommendation_Passes()
     {
@@ -72,6 +78,7 @@ public sealed class AdvisoryCheckTests
         Assert.DoesNotContain("question-aged", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/core/release#approve-tier-3-questions-automatically-after-the-veto-window</proves>
     [Fact]
     public void Tier1_Question_Blocks_Instead_Of_Aging()
     {
@@ -83,6 +90,7 @@ public sealed class AdvisoryCheckTests
         Assert.DoesNotContain("question-aged", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/core/model#hold-approval-behind-open-questions</proves>
     [Fact]
     public void Approved_With_Open_Questions_Reports_Record_Shape()
     {
@@ -96,6 +104,7 @@ public sealed class AdvisoryCheckTests
             finding => finding.Code == "record-shape" && finding.Message.Contains("open questions", StringComparison.Ordinal));
     }
 
+    /// <proves>litespec/core/model#hold-approval-behind-open-questions</proves>
     [Fact]
     public void Approved_With_Auto_Approved_Questions_Passes()
     {

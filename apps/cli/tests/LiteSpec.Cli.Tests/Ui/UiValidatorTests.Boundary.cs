@@ -7,6 +7,7 @@ public sealed partial class UiValidatorTests
 {
     // Application boundary (litespec/frontend/components#compose-composites-in-page-code).
 
+    /// <proves>litespec/frontend/components#compose-composites-in-page-code</proves>
     [Fact]
     public void An_Application_Importing_The_Primitive_Library()
     {
@@ -16,6 +17,7 @@ public sealed partial class UiValidatorTests
             "imports the primitive library directly");
     }
 
+    /// <proves>litespec/frontend/components#compose-composites-in-page-code</proves>
     [Fact]
     public void An_Application_Importing_A_Table_Library()
     {
@@ -25,6 +27,7 @@ public sealed partial class UiValidatorTests
             "imports the table library directly");
     }
 
+    /// <proves>litespec/frontend/components#compose-composites-in-page-code</proves>
     [Fact]
     public void A_Library_Name_Inside_A_Doc_Comment_Is_Prose()
     {
@@ -35,6 +38,7 @@ public sealed partial class UiValidatorTests
 
     // Application stylesheet (litespec/frontend/web/ui#keep-tokens-in-one-stylesheet).
 
+    /// <proves>litespec/frontend/web/ui#keep-tokens-in-one-stylesheet</proves>
     [Fact]
     public void An_Application_Stylesheet_Importing_The_Package_Tokens()
     {
@@ -42,6 +46,7 @@ public sealed partial class UiValidatorTests
         UiFixture.AssertClean(fixture.AppStylesCase(UiFixture.CleanAppStyles));
     }
 
+    /// <proves>litespec/frontend/web/ui#keep-tokens-in-one-stylesheet</proves>
     [Fact]
     public void An_Application_Stylesheet_Writing_A_Value_From_A_Token()
     {
@@ -50,6 +55,7 @@ public sealed partial class UiValidatorTests
             UiFixture.CleanAppStyles + "\n:where(button) {\n  --ring-width: 2px;\n}\n"));
     }
 
+    /// <proves>litespec/frontend/web/ui#keep-tokens-in-one-stylesheet</proves>
     [Fact]
     public void An_Application_Stylesheet_Declaring_A_Literal_Value()
     {
@@ -59,6 +65,7 @@ public sealed partial class UiValidatorTests
             "declares 'background'");
     }
 
+    /// <proves>litespec/frontend/web/ui#keep-tokens-in-one-stylesheet</proves>
     [Fact]
     public void An_Application_Stylesheet_Importing_Nothing()
     {
@@ -68,6 +75,7 @@ public sealed partial class UiValidatorTests
             "imports no stylesheet");
     }
 
+    /// <proves>litespec/frontend/web/ui#keep-tokens-in-one-stylesheet</proves>
     [Fact]
     public void An_Application_Stylesheet_Importing_A_Third_Party_Sheet()
     {
@@ -79,6 +87,7 @@ public sealed partial class UiValidatorTests
 
     // Shared stylesheets (litespec/frontend/web/ui#keep-tokens-in-one-stylesheet).
 
+    /// <proves>litespec/frontend/web/ui#keep-tokens-in-one-stylesheet</proves>
     [Fact]
     public void A_Shared_Stylesheet_Written_From_Tokens()
     {
@@ -88,6 +97,7 @@ public sealed partial class UiValidatorTests
             "@utility shade {\n  background: radial-gradient(farthest-side, var(--scroll-shade), transparent);\n}\n"));
     }
 
+    /// <proves>litespec/frontend/web/ui#keep-tokens-in-one-stylesheet</proves>
     [Fact]
     public void A_Shared_Stylesheet_Carrying_A_Literal_Colour()
     {
@@ -99,6 +109,7 @@ public sealed partial class UiValidatorTests
             "literal color 'oklch(' belongs in the token stylesheet");
     }
 
+    /// <proves>litespec/frontend/web/ui#keep-tokens-in-one-stylesheet</proves>
     [Fact]
     public void A_Shared_Stylesheet_Carrying_A_Hex_Colour()
     {

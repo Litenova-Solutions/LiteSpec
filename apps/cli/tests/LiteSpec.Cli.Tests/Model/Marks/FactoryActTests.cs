@@ -8,6 +8,7 @@ namespace LiteSpec.Tests.Model.Marks;
 /// </summary>
 public sealed class FactoryActTests
 {
+    /// <proves>litespec/backend/domain#call-the-marked-act-from-each-command-handler</proves>
     [Fact]
     public void Static_Factory_Marked_With_The_Use_Case_Satisfies_The_Act_Check()
     {
@@ -17,6 +18,7 @@ public sealed class FactoryActTests
         Assert.DoesNotContain(uncalled, finding => finding.Subject == "use-case/lending.submit-order");
     }
 
+    /// <proves>litespec/backend/domain#call-the-marked-act-from-each-command-handler</proves>
     [Fact]
     public void Static_Factory_Without_The_Mark_Reports_Use_Case_Act_Uncalled()
     {

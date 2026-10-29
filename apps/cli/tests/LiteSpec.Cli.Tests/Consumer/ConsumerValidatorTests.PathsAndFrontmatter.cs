@@ -4,6 +4,7 @@ namespace LiteSpec.Tests.Consumer;
 
 public sealed partial class ConsumerValidatorTests
 {
+    /// <proves>litespec/core/authoring#classify-every-specification-file</proves>
     [Fact(DisplayName = "documentation root that is on disk")]
     public void DocumentationRootThatIsOnDisk()
     {
@@ -12,6 +13,7 @@ public sealed partial class ConsumerValidatorTests
         AssertClean(RunConsumer(folder.Path));
     }
 
+    /// <proves>litespec/core/authoring#classify-every-specification-file</proves>
     [Fact(DisplayName = "documentation root that is not on disk")]
     public void DocumentationRootThatIsNotOnDisk()
     {
@@ -20,6 +22,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "paths.docs 'documentation' does not exist");
     }
 
+    /// <proves>litespec/core/authoring#classify-every-specification-file</proves>
     [Fact(DisplayName = "documentation root that holds no Markdown")]
     public void DocumentationRootThatHoldsNoMarkdown()
     {
@@ -29,6 +32,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "Scanned no Markdown files");
     }
 
+    /// <proves>litespec/core/scope#select-a-size-a-shape-and-stacks</proves>
     [Fact(DisplayName = "project naming no backend stack")]
     public void ProjectNamingNoBackendStack()
     {
@@ -37,6 +41,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "stacks name 0 backend stacks; name exactly one of dotnet");
     }
 
+    /// <proves>litespec/core/scope#select-a-size-a-shape-and-stacks</proves>
     [Fact(DisplayName = "project naming a stack the release does not ship")]
     public void ProjectNamingUnknownStack()
     {
@@ -45,6 +50,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "stack 'cobol' is not a stack the pinned LiteSpec release ships");
     }
 
+    /// <proves>litespec/core/scope#record-selected-extensions</proves>
     [Fact(DisplayName = "stack-scoped extension without its stack")]
     public void StackScopedExtensionWithoutItsStack()
     {
@@ -57,6 +63,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "extensions 'efcore' supports only the dotnet stack, which the project does not name in stacks");
     }
 
+    /// <proves>litespec/core/scope#record-selected-extensions</proves>
     [Fact(DisplayName = "stack-scoped extension with its stack")]
     public void StackScopedExtensionWithItsStack()
     {
@@ -66,6 +73,7 @@ public sealed partial class ConsumerValidatorTests
         AssertAbsent(RunConsumer(folder.Path), "supports only the dotnet stack");
     }
 
+    /// <proves>litespec/core/scope#select-a-size-a-shape-and-stacks</proves>
     [Fact(DisplayName = "frontend declaring the backend stack as its platform")]
     public void FrontendDeclaringBackendStackAsPlatform()
     {
@@ -74,6 +82,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "frontend 'web' has unknown platform 'dotnet'");
     }
 
+    /// <proves>litespec/core/authoring#record-the-project-vocabulary-as-data</proves>
     [Fact(DisplayName = "glossary path that is not on disk")]
     public void GlossaryPathThatIsNotOnDisk()
     {
@@ -82,6 +91,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "paths.glossary 'docs/missing.json' does not exist");
     }
 
+    /// <proves>litespec/core/scope#select-a-size-a-shape-and-stacks</proves>
     [Fact(DisplayName = "frontend path that is not on disk")]
     public void FrontendPathThatIsNotOnDisk()
     {
@@ -94,6 +104,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "frontend 'web' path 'apps/missing' does not exist");
     }
 
+    /// <proves>litespec/core/authoring#declare-structured-specification-metadata</proves>
     [Fact(DisplayName = "page under the documentation root is scanned")]
     public void PageUnderTheDocumentationRootIsScanned()
     {
@@ -107,6 +118,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "matches 0 of");
     }
 
+    /// <proves>litespec/core/authoring#declare-structured-specification-metadata</proves>
     [Fact(DisplayName = "missing required title")]
     public void MissingRequiredTitle()
     {
@@ -118,6 +130,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "missing required property 'title'");
     }
 
+    /// <proves>litespec/core/principles#separate-authority-from-implementation</proves>
     [Fact(DisplayName = "removed hand-written status field")]
     public void RemovedHandWrittenStatusField()
     {
@@ -129,6 +142,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "unknown property 'implementationStatus'");
     }
 
+    /// <proves>litespec/core/principles#classify-record-authority</proves>
     [Fact(DisplayName = "status outside the lifecycle")]
     public void StatusOutsideTheLifecycle()
     {
@@ -140,6 +154,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "/status");
     }
 
+    /// <proves>litespec/core/behavior#give-each-use-case-a-command-or-query-kind</proves>
     [Fact(DisplayName = "use-case kind outside command and query")]
     public void UseCaseKindOutsideCommandAndQuery()
     {
@@ -151,6 +166,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "/kind");
     }
 
+    /// <proves>litespec/core/authoring#declare-structured-specification-metadata</proves>
     [Fact(DisplayName = "result entry without its outcome")]
     public void ResultEntryWithoutItsOutcome()
     {
@@ -162,6 +178,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "/records/0");
     }
 
+    /// <proves>litespec/core/authoring#declare-structured-specification-metadata</proves>
     [Fact(DisplayName = "retired page type from the old model")]
     public void RetiredPageTypeFromTheOldModel()
     {
@@ -173,6 +190,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "matches 0 of");
     }
 
+    /// <proves>litespec/core/authoring#declare-structured-specification-metadata</proves>
     [Fact(DisplayName = "page with no frontmatter block")]
     public void PageWithNoFrontmatterBlock()
     {
@@ -184,6 +202,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "no frontmatter block");
     }
 
+    /// <proves>litespec/core/authoring#declare-structured-specification-metadata</proves>
     [Fact(DisplayName = "page with a broken frontmatter block")]
     public void PageWithABrokenFrontmatterBlock()
     {

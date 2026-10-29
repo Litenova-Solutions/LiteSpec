@@ -7,6 +7,7 @@ namespace LiteSpec.Tests.Model.Readers;
 /// <summary>Proves the backend reader links code to records through marks only, in either style.</summary>
 public sealed class DotnetMarkLinkTests
 {
+    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void Handler_Marked_Xml_Links_Its_Use_Case()
     {
@@ -32,6 +33,7 @@ public sealed class DotnetMarkLinkTests
         Assert.Equal("BorrowCopyCommand", handler.MessageType);
     }
 
+    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void Handler_Marked_Attribute_Links_Its_Use_Case()
     {
@@ -56,6 +58,7 @@ public sealed class DotnetMarkLinkTests
         Assert.Equal("query", handler.Kind);
     }
 
+    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void Handler_Without_Mark_Has_Empty_Use_Case_Id_And_An_Unmarked_Element()
     {
@@ -82,6 +85,7 @@ public sealed class DotnetMarkLinkTests
         Assert.Empty(element.Marks);
     }
 
+    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void Handler_With_Two_Use_Case_Marks_Has_Empty_Use_Case_Id()
     {
@@ -108,6 +112,7 @@ public sealed class DotnetMarkLinkTests
         Assert.Equal(2, element.Marks.Count);
     }
 
+    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void Event_Id_Comes_From_Its_Mark_Not_Its_Class_Name()
     {
@@ -125,6 +130,7 @@ public sealed class DotnetMarkLinkTests
         Assert.Equal("event/loan.loan-borrowed", domainEvent.EventId);
     }
 
+    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void Event_Without_Mark_Has_Null_Event_Id()
     {
@@ -141,6 +147,7 @@ public sealed class DotnetMarkLinkTests
         Assert.Null(domainEvent.EventId);
     }
 
+    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void Aggregate_Method_Carries_Its_Use_Cases()
     {
@@ -168,6 +175,7 @@ public sealed class DotnetMarkLinkTests
         Assert.Equal("use-case/lending.borrow-copy", Assert.Single(method.UseCases));
     }
 
+    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void Aggregate_Method_Without_Marks_Has_No_Use_Cases()
     {
@@ -191,6 +199,7 @@ public sealed class DotnetMarkLinkTests
         Assert.Empty(method.UseCases);
     }
 
+    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void Marked_Method_Of_No_Kind_Lands_In_Stray_Marks()
     {
@@ -216,6 +225,7 @@ public sealed class DotnetMarkLinkTests
         Assert.Equal("use-case/lending.borrow-copy", Assert.Single(stray.Marks).RecordId);
     }
 
+    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void Marked_Plain_Class_Lands_In_Stray_Marks()
     {
@@ -238,6 +248,7 @@ public sealed class DotnetMarkLinkTests
         Assert.Equal("use-case/lending.borrow-copy", Assert.Single(stray.Marks).RecordId);
     }
 
+    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void Classification_Lands_In_Runtime_Value()
     {
@@ -259,6 +270,7 @@ public sealed class DotnetMarkLinkTests
         Assert.Equal("event/loan.loan-borrowed", element.RuntimeValue);
     }
 
+    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void Event_Without_Classification_Has_Null_Runtime_Value()
     {
@@ -276,6 +288,7 @@ public sealed class DotnetMarkLinkTests
         Assert.Null(element.RuntimeValue);
     }
 
+    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void Endpoint_Links_Its_Use_Case_From_Its_Mark()
     {
@@ -306,6 +319,7 @@ public sealed class DotnetMarkLinkTests
         Assert.Contains(endpoints, endpoint => endpoint is { Operation: "", Method: "POST", Route: "/api/borrow" });
     }
 
+    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void Endpoint_Without_Mark_Has_Empty_Use_Case_Id()
     {
@@ -333,6 +347,7 @@ public sealed class DotnetMarkLinkTests
         Assert.All(endpoints, endpoint => Assert.Equal("", endpoint.UseCaseId));
     }
 
+    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void Reaction_Links_Its_Record_From_Its_Mark()
     {
@@ -355,6 +370,7 @@ public sealed class DotnetMarkLinkTests
         Assert.Null(reaction.UseCaseId);
     }
 
+    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void Reaction_Without_Mark_Has_Null_Record_Id()
     {
@@ -375,6 +391,7 @@ public sealed class DotnetMarkLinkTests
         Assert.Null(reaction.RecordId);
     }
 
+    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void Job_Links_Its_Record_From_Its_Mark()
     {

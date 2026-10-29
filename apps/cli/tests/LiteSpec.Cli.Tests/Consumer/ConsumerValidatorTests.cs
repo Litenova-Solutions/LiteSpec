@@ -57,6 +57,7 @@ public sealed partial class ConsumerValidatorTests
 
     static JsonObject PathsOf(JsonObject project) => (JsonObject)project["paths"]!;
 
+    /// <proves>litespec/core/authoring#declare-structured-specification-metadata</proves>
     [Fact(DisplayName = "fixture validates as written")]
     public void FixtureValidatesAsWritten()
     {
@@ -64,6 +65,7 @@ public sealed partial class ConsumerValidatorTests
         AssertClean(RunConsumer(folder.Path));
     }
 
+    /// <proves>litespec/core/scope#select-a-size-a-shape-and-stacks</proves>
     [Fact(DisplayName = "a template placeholder left in the project file")]
     public void TemplatePlaceholderLeftInTheProjectFile()
     {
@@ -72,6 +74,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "template placeholder '__OWNER__' is not filled");
     }
 
+    /// <proves>litespec/core/scope#select-a-size-a-shape-and-stacks</proves>
     [Fact(DisplayName = "size outside the allowed sizes")]
     public void SizeOutsideTheAllowedSizes()
     {
@@ -80,6 +83,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "/size");
     }
 
+    /// <proves>litespec/core/authoring#record-the-reviewed-litespec-release</proves>
     [Fact(DisplayName = "reviewed version outside its form")]
     public void ReviewedVersionOutsideItsForm()
     {
@@ -88,6 +92,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "/reviewedLiteSpecVersion");
     }
 
+    /// <proves>litespec/core/scope#record-selected-extensions</proves>
     [Fact(DisplayName = "selected extensions outside its array form")]
     public void SelectedExtensionsOutsideItsArrayForm()
     {
@@ -96,6 +101,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "/selectedExtensions");
     }
 
+    /// <proves>litespec/core/scope#select-a-size-a-shape-and-stacks</proves>
     [Fact(DisplayName = "frontend platform outside the stacks")]
     public void FrontendPlatformOutsideTheStacks()
     {
@@ -108,6 +114,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "/paths/frontends/0/platform");
     }
 
+    /// <proves>litespec/core/authoring#record-the-reviewed-litespec-release</proves>
     [Fact(DisplayName = "reviewed version behind the installed release")]
     public void ReviewedVersionBehindTheInstalledRelease()
     {
@@ -118,6 +125,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(result, "dotnet tool update LiteSpec.Cli --version 0.0.0");
     }
 
+    /// <proves>litespec/core/scope#record-selected-extensions</proves>
     [Fact(DisplayName = "extension the manifest does not ship")]
     public void ExtensionTheManifestDoesNotShip()
     {
@@ -135,6 +143,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "is not an extension in the pinned LiteSpec release");
     }
 
+    /// <proves>litespec/core/scope#record-selected-extensions</proves>
     [Fact(DisplayName = "extension whose review date passed")]
     public void ExtensionWhoseReviewDatePassed()
     {
@@ -152,6 +161,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "was due for review on 2020-01-01");
     }
 
+    /// <proves>litespec/core/scope#record-selected-extensions</proves>
     [Fact(DisplayName = "known extension with a live review date")]
     public void KnownExtensionWithALiveReviewDate()
     {

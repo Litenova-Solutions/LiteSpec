@@ -6,6 +6,7 @@ namespace LiteSpec.Tests.Model.Checks;
 /// <summary>Proves the reaction-trigger-unresolved check against hand-built models.</summary>
 public sealed class ReactionTriggerCheckTests
 {
+    /// <proves>litespec/core/behavior#trigger-every-reaction-from-a-declared-event</proves>
     [Fact]
     public void Reaction_Without_A_Trigger_Reports()
     {
@@ -17,6 +18,7 @@ public sealed class ReactionTriggerCheckTests
         Assert.Contains("reaction-trigger-unresolved", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/core/behavior#trigger-every-reaction-from-a-declared-event</proves>
     [Fact]
     public void Reaction_With_An_Unresolved_Trigger_Reports()
     {
@@ -28,6 +30,7 @@ public sealed class ReactionTriggerCheckTests
         Assert.Contains("reaction-trigger-unresolved", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/core/behavior#trigger-every-reaction-from-a-declared-event</proves>
     [Fact]
     public void Reaction_With_A_Non_Event_Trigger_Reports()
     {
@@ -40,6 +43,7 @@ public sealed class ReactionTriggerCheckTests
         Assert.Contains("reaction-trigger-unresolved", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/core/behavior#trigger-every-reaction-from-a-declared-event</proves>
     [Fact]
     public void Reaction_With_An_Event_Trigger_Passes()
     {
@@ -52,6 +56,7 @@ public sealed class ReactionTriggerCheckTests
         Assert.DoesNotContain("reaction-trigger-unresolved", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/core/behavior#trigger-every-reaction-from-a-declared-event</proves>
     [Fact]
     public void Reaction_With_An_Integration_Event_Trigger_Passes()
     {
@@ -64,6 +69,7 @@ public sealed class ReactionTriggerCheckTests
         Assert.DoesNotContain("reaction-trigger-unresolved", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/core/behavior#trigger-every-reaction-from-a-declared-event</proves>
     [Fact]
     public void Command_Without_A_Trigger_Passes()
     {
