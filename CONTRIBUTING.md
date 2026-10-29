@@ -60,7 +60,7 @@ A consumer that pinned the earlier release keeps that release and its own except
 
 1. Open the group page in [docs/frontend/patterns/](docs/frontend/patterns/) that owns the recurring question.
 2. Add the option under its pattern as a `####` heading with its `wireframe` block, its rationale, and its cost. An option ID stays stable once published, so the catalogs that cite it keep resolving.
-3. Run `litespec patterns check` and fix every broken wireframe before review.
+3. Run `litespec-maintain validate` and fix every broken wireframe before review.
 
 ### Add an Extension
 
