@@ -25,15 +25,16 @@ sealed class DotnetScenarioReader : IScenarioReader
         var scenarios = new List<ScenarioInfo>();
         var comments = new List<CodeComment>();
         var elements = new List<MarkedElement>();
+        var strays = new List<StrayMark>();
         var gate = new object();
         var stepCalls = new System.Collections.Concurrent.ConcurrentDictionary<string, IReadOnlySet<string>>(StringComparer.Ordinal);
 
         System.Threading.Tasks.Parallel.ForEach(
             files,
-            () => (Scenarios: new List<ScenarioInfo>(), Comments: new List<CodeComment>(), Elements: new List<MarkedElement>()),
+            () => (Scenarios: new List<ScenarioInfo>(), Comments: new List<CodeComment>(), Elements: new List<MarkedElement>(), Strays: new List<StrayMark>()),
             (file, _, local) =>
             {
-                ReadFile(file, local.Scenarios, local.Comments, local.Elements, stepCalls);
+                ReadFile(file, local.Scenarios, local.Comments, local.Elements, local.Strays, stepCalls);
 
                 return local;
             },
@@ -44,6 +45,7 @@ sealed class DotnetScenarioReader : IScenarioReader
                     scenarios.AddRange(local.Scenarios);
                     comments.AddRange(local.Comments);
                     elements.AddRange(local.Elements);
+                    strays.AddRange(local.Strays);
                 }
             });
 
@@ -61,6 +63,11 @@ sealed class DotnetScenarioReader : IScenarioReader
                 .ThenBy(element => element.Line)
                 .ThenBy(element => element.Class, StringComparer.Ordinal)
                 .ThenBy(element => element.Member ?? "", StringComparer.Ordinal)],
+            StrayMarks = [.. strays
+                .OrderBy(stray => stray.File, StringComparer.Ordinal)
+                .ThenBy(stray => stray.Line)
+                .ThenBy(stray => stray.Class, StringComparer.Ordinal)
+                .ThenBy(stray => stray.Member ?? "", StringComparer.Ordinal)],
         };
     }
 
@@ -69,6 +76,7 @@ sealed class DotnetScenarioReader : IScenarioReader
         List<ScenarioInfo> scenarios,
         List<CodeComment> comments,
         List<MarkedElement> elements,
+        List<StrayMark> strays,
         System.Collections.Concurrent.ConcurrentDictionary<string, IReadOnlySet<string>> stepCalls)
     {
         SyntaxTree tree;
@@ -157,6 +165,8 @@ sealed class DotnetScenarioReader : IScenarioReader
 
         foreach (var method in root.DescendantNodes().OfType<MethodDeclarationSyntax>())
         {
+            var read = MarkReader.Read(method);
+
             if (KindReader.KindOf(method, KindContext.Empty) == CodeKind.Test)
             {
                 var containingType = method.Ancestors().OfType<TypeDeclarationSyntax>().FirstOrDefault();
@@ -167,13 +177,26 @@ sealed class DotnetScenarioReader : IScenarioReader
                     method.Identifier.ValueText,
                     file,
                     tree.GetLineSpan(method.Identifier.Span).StartLinePosition.Line + 1,
-                    MarkReader.Read(method)
+                    read
                         .Select(mark => new CodeMark(mark.RecordId, mark.Style, mark.Verb, file, mark.Line))
                         .ToList(),
                     true));
             }
+            else if (read.Count > 0)
+            {
+                var holder = method.Ancestors().OfType<TypeDeclarationSyntax>().FirstOrDefault();
 
-            var claims = MarkReader.Read(method)
+                strays.Add(new StrayMark(
+                    holder?.Identifier.ValueText ?? "",
+                    method.Identifier.ValueText,
+                    file,
+                    tree.GetLineSpan(method.Identifier.Span).StartLinePosition.Line + 1,
+                    read
+                        .Select(mark => new CodeMark(mark.RecordId, mark.Style, mark.Verb, file, mark.Line))
+                        .ToList()));
+            }
+
+            var claims = read
                 .Where(mark => mark.Verb == MarkVerb.Proves
                     && (mark.RecordId.StartsWith("scenario/", StringComparison.Ordinal)
                         || mark.RecordId.StartsWith("rule/", StringComparison.Ordinal)))

@@ -111,6 +111,32 @@ public sealed class DotnetScenarioMarkTests
         Assert.Equal("scenario/borrow-copy.borrowing-succeeds", Assert.Single(Assert.Single(read.Scenarios).Claims));
     }
 
+    [Fact]
+    public void Proves_Without_Test_Attribute_Lands_In_Stray_Marks()
+    {
+        using var temp = Cli.Temp("reader-marks");
+        WriteProject(temp.Path);
+        WriteSource(temp.Path, "BorrowCopyScenarios.cs", """
+            namespace Library.Acceptance.Tests;
+
+            public sealed class BorrowCopyScenarios
+            {
+                /// <proves>scenario/borrow-copy.borrowing-succeeds</proves>
+                public Task Borrowing_succeeds() => Task.CompletedTask;
+            }
+            """);
+
+        var read = Read(temp.Path);
+
+        Assert.Empty(read.Elements);
+        var stray = Assert.Single(read.StrayMarks);
+
+        Assert.Equal("BorrowCopyScenarios", stray.Class);
+        Assert.Equal("Borrowing_succeeds", stray.Member);
+        Assert.Equal("scenario/borrow-copy.borrowing-succeeds", Assert.Single(stray.Marks).RecordId);
+        Assert.Equal("scenario/borrow-copy.borrowing-succeeds", Assert.Single(Assert.Single(read.Scenarios).Claims));
+    }
+
     static TestRead Read(string root) => new DotnetScenarioReader().Read(ConsumerConfig.Load(root));
 
     static void WriteProject(string root) =>

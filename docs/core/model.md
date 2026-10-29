@@ -222,7 +222,7 @@ A mark is the one written link from a code element to the record it serves. It h
 | Record layer the code serves | Code element | Mark names |
 |:--|:--|:--|
 | Domain | Aggregate root | `aggregate/<module>.<name>` |
-| Domain | Aggregate root method that changes state | `use-case/<module>.<name>` for each use case whose act it performs |
+| Domain | Aggregate root method that changes state | `use-case/<module>.<name>`, exactly one: the use case whose act it performs |
 | Domain | Domain event | `event/<aggregate>.<fact>` |
 | Domain | Refusal type for one rejected rule | `rule/<home>.<name>` |
 | Domain | Domain service holding one rule calculation | `rule/<home>.<name>` |
@@ -235,7 +235,7 @@ A mark is the one written link from a code element to the record it serves. It h
 | Frontend | Use-case module | `use-case/<module>.<name>` |
 | Tests | Test | `scenario/<use-case>.<name>`, or `rule/<home>.<name>` for a rule test |
 
-The tools recognize most code elements from the code itself and then expect their mark. A port and a domain service are recognized by their mark, and an aggregate root method by the event it raises, so an unmarked port is found only from the top, through its external system, and a method that changes state without raising an event is not recognized at all.
+The tools recognize most code elements from the code itself and then expect their mark. A port and a domain service are recognized by their mark, and an aggregate root method by the event it raises or by its mark, so an unmarked port is found only from the top, through its external system, and an unmarked method that changes state without raising an event is not recognized at all.
 
 A project writes its marks in one mark style, declared as `marks` in `litespec.project.json`. Each stack page states the forms the style takes: the .NET stack writes an `xml` mark as a documentation tag and an `attribute` mark as a generated attribute, and a frontend writes a typed constant in either style. A runtime value a record already states, such as an event classification or a refusal code, is generated from the mark and the record where the stack generates code, and checked against the record where a person writes it.
 

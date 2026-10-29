@@ -13,6 +13,14 @@ sealed record MarkedElement(
     CodeKind Kind, string Class, string? Member, string File, int Line,
     IReadOnlyList<CodeMark> Marks, bool InTests, string? RuntimeValue = null);
 
+/// <summary>
+///     One marked type or method of no known kind: a reading method, a private
+///     helper, or an unrecognized class carrying a mark, or a proves mark on a
+///     method with no test attribute. Its marks are reported, never linked.
+/// </summary>
+sealed record StrayMark(
+    string Class, string? Member, string File, int Line, IReadOnlyList<CodeMark> Marks);
+
 /// <summary>One use-case handler, linked to its use case through its mark.</summary>
 sealed record HandlerInfo(
     string UseCaseId,
@@ -121,6 +129,9 @@ sealed class CodeModel
 
     /// <summary>Every recognized element of the backend projects, sorted by file then line.</summary>
     public List<MarkedElement> Elements { get; } = [];
+
+    /// <summary>Every marked element of no known kind, sorted by file then line.</summary>
+    public List<StrayMark> StrayMarks { get; } = [];
 
     /// <summary>Every kebab-case string literal in the code, the keys a composed refusal code is built from.</summary>
     public HashSet<string> KeyLiterals { get; } = new(StringComparer.Ordinal);

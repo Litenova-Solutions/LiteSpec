@@ -13,6 +13,7 @@ static partial class Checker
     {
         CheckMarkPresence(model, findings);
         CheckMarkLinks(model, findings);
+        CheckStrayMarks(model, findings);
         CheckRuntimeValueDrift(model, findings);
         CheckUseCaseActCalled(model, findings);
         CheckActEvents(model, findings);
@@ -73,6 +74,24 @@ static partial class Checker
                 findings.Add(count.Duplicate is not null
                     ? new Finding("mark-count", $"{KindName(element.Kind)} '{DisplayName(element)}' names '{count.Duplicate}' twice.", element.File, element.Line, null)
                     : new Finding("mark-count", $"{KindName(element.Kind)} '{DisplayName(element)}' carries {element.Marks.Count} marks, but its kind takes one.", element.File, element.Line, null));
+            }
+        }
+    }
+
+    /// <summary>
+    ///     Reports every mark on an element that takes no mark: a reading method, a
+    ///     private helper, or an unrecognized class carrying a mark, or a proves mark
+    ///     on a method with no test attribute.
+    /// </summary>
+    private static void CheckStrayMarks(ProjectModel model, List<Finding> findings)
+    {
+        foreach (var stray in model.Code.StrayMarks)
+        {
+            foreach (var mark in stray.Marks)
+            {
+                var subject = mark.RecordId.Length > 0 ? mark.RecordId : null;
+
+                findings.Add(new Finding("mark-unresolved", $"{StrayName(stray)} takes no mark, but marks '{mark.RecordId}'.", mark.File, mark.Line, subject));
             }
         }
     }
@@ -401,6 +420,10 @@ static partial class Checker
     /// <summary>The element a mark finding names: its type, or its type and member.</summary>
     private static string DisplayName(MarkedElement element) =>
         element.Member is { Length: > 0 } member ? $"{element.Class}.{member}" : element.Class;
+
+    /// <summary>The stray element a mark finding names: its method, or its type.</summary>
+    private static string StrayName(StrayMark stray) =>
+        stray.Member is { Length: > 0 } member ? $"Method '{stray.Class}.{member}'" : $"Type '{stray.Class}'";
 
     /// <summary>The record types a mark on the kind may name, in plain words.</summary>
     private static string ExpectedTypes(CodeKind kind) =>

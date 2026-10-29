@@ -10,8 +10,8 @@ public enum CodeKind
     AggregateRoot = 0,
 
     /// <summary>
-    ///     A public aggregate root method that changes state, marked with one or
-    ///     more <c>use-case/</c> records.
+    ///     A public aggregate root method that changes state, marked with one
+    ///     <c>use-case/</c> record: the use case whose act it performs.
     /// </summary>
     AggregateMethod = 1,
 

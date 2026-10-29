@@ -37,6 +37,7 @@ static partial class ModelBuilder
 
         model.Tests.AddRange(tests.Scenarios);
         model.Code.Elements.AddRange(tests.Elements);
+        model.Code.StrayMarks.AddRange(tests.StrayMarks);
         model.StepCalls = tests.StepCalls;
         model.TestComments.AddRange(tests.Comments);
         model.TestRun = Timed("testrun", () => stacks.TestRuns.Read(config));

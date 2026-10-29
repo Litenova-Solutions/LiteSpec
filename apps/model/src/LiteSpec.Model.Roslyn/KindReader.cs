@@ -10,10 +10,12 @@ namespace LiteSpec.Model.Roslyn;
 
 /// <summary>
 ///     Recognizes the LiteSpec code kind of a type or method from the code,
-///     never from the mark, except for ports, which are recognized by their own
-///     mark, and adapters, which are recognized through the marked port they
-///     implement. The syntax overloads read one declaration; the symbol overloads
-///     walk base types and interfaces semantically. Both agree on the same code
+///     never from the mark, except for ports and domain services, which are
+///     recognized by their own mark, adapters, which are recognized through the
+///     marked port they implement, and aggregate methods that raise nothing,
+///     which are recognized once they carry a mark. The syntax overloads read
+///     one declaration; the symbol overloads walk base types and interfaces
+///     semantically. Both agree on the same code
 ///     except where syntax cannot see across files: transitive handler and job
 ///     bases resolve only from symbols, and transitive aggregate roots, domain
 ///     exceptions, and marked ports resolve from syntax only through the
@@ -594,7 +596,9 @@ public static class KindReader
             return false;
         }
 
-        return RaisesEvent(method, parent);
+        // A state-changing method that raises nothing carries no event to recognize
+        // it by, so the mark is what makes it an act.
+        return RaisesEvent(method, parent) || MarkReader.Read(method).Count > 0;
     }
 
     private static bool IsAggregateMethod(IMethodSymbol method, KindContext context)
@@ -613,7 +617,7 @@ public static class KindReader
         {
             if (reference.GetSyntax() is MethodDeclarationSyntax declaration
                 && declaration.Parent is TypeDeclarationSyntax parent
-                && RaisesEvent(declaration, parent))
+                && (RaisesEvent(declaration, parent) || MarkReader.Read(declaration).Count > 0))
             {
                 return true;
             }

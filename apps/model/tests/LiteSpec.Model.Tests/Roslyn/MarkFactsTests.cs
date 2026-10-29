@@ -78,6 +78,25 @@ public sealed class MarkFactsTests
         Assert.Single(elements[2].Marks);
     }
 
+    [Fact(DisplayName = "One pass collects a marked method of no known kind")]
+    public void OnePassCollectsMarkedMethodOfNoKnownKind()
+    {
+        var tree = TestTrees.Parse("""
+            public sealed class ExpenseFormatter
+            {
+                /// <implements>use-case/spending.submit-expense</implements>
+                public string Format() => "";
+            }
+            """);
+
+        var element = Assert.Single(MarkFacts.Read(tree, KindContext.Empty));
+
+        Assert.Equal("Format", element.Name);
+        Assert.False(element.IsType);
+        Assert.Null(element.Kind);
+        Assert.Equal("use-case/spending.submit-expense", Assert.Single(element.Marks).RecordId);
+    }
+
     [Fact(DisplayName = "A tree without declarations reads no elements")]
     public void EmptyTreeReadsNone()
     {

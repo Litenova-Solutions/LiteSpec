@@ -10,9 +10,10 @@ namespace LiteSpec.Analyzers.Rules.Traceability;
 
 /// <summary>
 ///     LS5002: a mark names no record, a record of a type its element does not
-///     take, or uses the verb its kind does not take. LS5003: an element carries
-///     more marks than its kind takes, or names one record twice. LS5004: a mark
-///     is written in the style the project did not declare.
+///     take, uses the verb its kind does not take, or sits on a type or method
+///     that takes no mark. LS5003: an element carries more marks than its kind
+///     takes, or names one record twice. LS5004: a mark is written in the style
+///     the project did not declare.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class MarkLinkAnalyzer : TraceabilityAnalyzer
@@ -109,6 +110,24 @@ public sealed class MarkLinkAnalyzer : TraceabilityAnalyzer
             return;
         }
 
+        if (kind is null)
+        {
+            TraceabilityReporter.Report(
+                state,
+                context.ReportDiagnostic,
+                Descriptors.LS5002,
+                "mark-unresolved",
+                mark.RecordId,
+                location,
+                symbol.Name,
+                mark.RecordId,
+                symbol is INamedTypeSymbol
+                    ? "sits on a type that takes no mark"
+                    : "sits on a method that takes no mark");
+            AnalyzeStyle(context, state, symbol, mark, location);
+            return;
+        }
+
         var record = state.Store.Index.ById(mark.RecordId);
 
         if (record is null)
@@ -124,7 +143,7 @@ public sealed class MarkLinkAnalyzer : TraceabilityAnalyzer
                 mark.RecordId,
                 "matches no record");
         }
-        else if (kind is not null && !MarkRules.Accepts(kind.Value, mark.RecordId))
+        else if (!MarkRules.Accepts(kind.Value, mark.RecordId))
         {
             TraceabilityReporter.Report(
                 state,
@@ -138,7 +157,7 @@ public sealed class MarkLinkAnalyzer : TraceabilityAnalyzer
                 "is a " + record.Type + " record, not a " + Expected(kind.Value) + " record");
         }
 
-        if (kind is not null && mark.Verb != MarkRules.Verb(kind.Value))
+        if (mark.Verb != MarkRules.Verb(kind.Value))
         {
             TraceabilityReporter.Report(
                 state,

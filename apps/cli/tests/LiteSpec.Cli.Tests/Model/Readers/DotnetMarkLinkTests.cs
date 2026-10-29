@@ -192,6 +192,53 @@ public sealed class DotnetMarkLinkTests
     }
 
     [Fact]
+    public void Marked_Method_Of_No_Kind_Lands_In_Stray_Marks()
+    {
+        using var temp = Cli.Temp("reader-marks");
+        WriteProject(temp.Path);
+        WriteSource(temp.Path, "Domain", "LoanReader.cs", """
+            namespace Library.Domain.Lending.Loans;
+
+            public sealed class LoanReader
+            {
+                /// <implements>use-case/lending.borrow-copy</implements>
+                public int TotalBorrowed() => 0;
+            }
+            """);
+
+        var code = Read(temp.Path);
+
+        Assert.Empty(code.Elements);
+        var stray = Assert.Single(code.StrayMarks);
+
+        Assert.Equal("LoanReader", stray.Class);
+        Assert.Equal("TotalBorrowed", stray.Member);
+        Assert.Equal("use-case/lending.borrow-copy", Assert.Single(stray.Marks).RecordId);
+    }
+
+    [Fact]
+    public void Marked_Plain_Class_Lands_In_Stray_Marks()
+    {
+        using var temp = Cli.Temp("reader-marks");
+        WriteProject(temp.Path);
+        WriteSource(temp.Path, "Domain", "Money.cs", """
+            namespace Library.Domain.Lending.Loans;
+
+            /// <implements>use-case/lending.borrow-copy</implements>
+            public sealed class Money;
+            """);
+
+        var code = Read(temp.Path);
+
+        Assert.Empty(code.Elements);
+        var stray = Assert.Single(code.StrayMarks);
+
+        Assert.Equal("Money", stray.Class);
+        Assert.Null(stray.Member);
+        Assert.Equal("use-case/lending.borrow-copy", Assert.Single(stray.Marks).RecordId);
+    }
+
+    [Fact]
     public void Classification_Lands_In_Runtime_Value()
     {
         using var temp = Cli.Temp("reader-marks");

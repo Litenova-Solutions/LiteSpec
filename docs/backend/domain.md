@@ -126,11 +126,23 @@ An unapproved expense keeps its state, and the refusal carries the stable code `
 
 **Statement:** A command handler MUST change its aggregate by calling a root method marked with the handler's use case.
 
-**Rationale:** The use case names an act, and the aggregate performs it: the mark on the root method says which act the method is. A handler that changes its aggregate only through methods marked for other use cases performs an act its record never named, and a reader cannot tell from the use case which method to open. Several use cases may share one act, so a method may carry several marks. The use-case verb, the method name, and the raised event's tense agree under `litespec/backend/dotnet/domain#raise-the-past-tense-of-a-methods-own-verb`. This provision states the marked form of `litespec/backend/application#keep-command-handlers-to-load-call-and-stage`.
+**Rationale:** The use case names an act, and the aggregate performs it: the mark on the root method says which act the method is. A handler that changes its aggregate only through methods marked for other use cases performs an act its record never named, and a reader cannot tell from the use case which method to open. The use-case verb, the method name, and the raised event's tense agree under `litespec/backend/dotnet/domain#raise-the-past-tense-of-a-methods-own-verb`. This provision states the marked form of `litespec/backend/application#keep-command-handlers-to-load-call-and-stage`.
 
 **Example:** The reimburse-expense handler calls `Reimburse` on the expense root, and `Reimburse` carries the mark `use-case/spending.reimburse-expense`.
 
 **Checked by:** `litespec model check` reports `use-case-act-uncalled` (tier S) for a command handler that calls no root method marked with its use case.
+
+### Give Each Use Case Its Own Act
+
+**ID:** `litespec/backend/domain#give-each-use-case-its-own-act`
+
+**Statement:** Each aggregate root method that changes state MUST perform the act of exactly one use case.
+
+**Rationale:** Each use case is its own path: its own caller, setup, refusals, events and scenarios. A method two use cases share couples them, so a change made for one silently changes the other, and neither scenario set describes the method. One method per act keeps each path readable on its own; logic the acts share moves into a private method of the root that each act calls. A method that only reads or computes performs no act and carries no mark.
+
+**Example:** In the Claimwick product, a manager approving an expense and a delegate approving it for an absent manager both record an approval. The expense root offers `Approve` marked `use-case/spending.approve-expense` and `ApproveOnBehalf` marked `use-case/spending.approve-expense-on-behalf`, each raising its own event, and both call a private `RecordApproval`.
+
+**Checked by:** `litespec model check` reports `mark-count` (tier S), and `dotnet build` reports `LS5003`, for a root method carrying more than one use-case mark; `mark-unresolved` and `LS5002` report a mark on a method that changes no state.
 
 ### Raise the Declared Events from the Marked Act
 

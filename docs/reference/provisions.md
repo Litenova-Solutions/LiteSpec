@@ -6,7 +6,7 @@ Use this generated page to resolve a provision ID to its heading, owning page, a
 
 Run `litespec provisions` after any provision change. The repository validator fails when this page and the active standards disagree.
 
-The active release states 1673 provisions across 6 areas.
+The active release states 1674 provisions across 6 areas.
 
 ## backend
 
@@ -116,6 +116,7 @@ The active release states 1673 provisions across 6 areas.
 | litespec/backend/domain#describe-every-public-domain-contract-in-documentation | [Describe Every Public Domain Contract in Documentation](../backend/domain.md#describe-every-public-domain-contract-in-documentation) | rule | guidance | Each public Domain type and member documents the business constraint, result, or refusal it represents. |
 | litespec/backend/domain#expose-repositories-for-one-aggregate-only | [Expose Repositories for One Aggregate Only](../backend/domain.md#expose-repositories-for-one-aggregate-only) | rule | guidance | Each domain repository serves one aggregate root with aggregate and Domain types only, and no composable query, session, or generic CRUD surface. |
 | litespec/backend/domain#express-transitions-through-business-methods | [Express Transitions Through Business Methods](../backend/domain.md#express-transitions-through-business-methods) | rule | guidance | Each public mutation checks state and protects its invariants, and each lifecycle move also replaces state and records its transition event. |
+| litespec/backend/domain#give-each-use-case-its-own-act | [Give Each Use Case Its Own Act](../backend/domain.md#give-each-use-case-its-own-act) | rule | checkable | `litespec model check` reports `mark-count` (tier S), and `dotnet build` reports `LS5003`, for a root method carrying more than one use-case mark; `mark-unresolved` and `LS5002` report a mark on a method that changes no state. |
 | litespec/backend/domain#identify-aggregates-with-strongly-typed-version-7-values | [Identify Aggregates with Strongly Typed Version 7 Values](../backend/domain.md#identify-aggregates-with-strongly-typed-version-7-values) | rule | guidance | Each aggregate identity is a dedicated type over one version 7 UUID, with no conversion, alias, or creation path around its validation. |
 | litespec/backend/domain#keep-binary-floating-point-out-of-exact-quantities | [Keep Binary Floating Point Out of Exact Quantities](../backend/domain.md#keep-binary-floating-point-out-of-exact-quantities) | rule | checkable | `dotnet build` reports `LS1008` for a `double` or `float` type in Domain. |
 | litespec/backend/domain#keep-child-entities-inside-the-aggregate-boundary | [Keep Child Entities Inside the Aggregate Boundary](../backend/domain.md#keep-child-entities-inside-the-aggregate-boundary) | rule | guidance | Child entities expose no mutable state outside their root, with collections as read-only views. |

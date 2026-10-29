@@ -164,6 +164,39 @@ public sealed class KindReaderSymbolTests
         Assert.Equal(CodeKind.Test, KindReader.KindOf((IMethodSymbol)provesSymbol, context));
     }
 
+    [Fact(DisplayName = "A marked method raising nothing is recognized from its symbol")]
+    public void MarkedMethodRaisingNothingIsRecognizedFromSymbol()
+    {
+        const string code = """
+            public abstract class AggregateRoot<TState>
+            {
+                protected void RaiseDomainEvent(object fact)
+                {
+                }
+            }
+
+            public sealed class ExpenseState;
+
+            public sealed class Expense : AggregateRoot<ExpenseState>
+            {
+                /// <implements>use-case/spending.erase-personal-data</implements>
+                public void Erase()
+                {
+                }
+            }
+            """;
+        var compilation = TestTrees.Compile(code);
+        var tree = compilation.SyntaxTrees[0];
+        var model = compilation.GetSemanticModel(tree);
+        var node = tree.GetRoot().DescendantNodes().OfType<MethodDeclarationSyntax>()
+            .First(method => method.Identifier.ValueText == "Erase");
+        var symbol = model.GetDeclaredSymbol(node);
+        Assert.NotNull(symbol);
+
+        Assert.Equal(CodeKind.AggregateMethod, KindReader.KindOf(node, KindContext.Empty));
+        Assert.Equal(CodeKind.AggregateMethod, KindReader.KindOf((IMethodSymbol)symbol, KindContext.Empty));
+    }
+
     [Fact(DisplayName = "Symbols resolve a transitive aggregate root that syntax needs context for")]
     public void SymbolsResolveTransitiveAggregateRoot()
     {

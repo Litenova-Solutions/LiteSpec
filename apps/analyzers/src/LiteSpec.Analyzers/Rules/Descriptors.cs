@@ -231,7 +231,7 @@ internal static class Descriptors
     public static readonly DiagnosticDescriptor LS5003 = Create("LS5003", TraceabilityCategory, PointToRecords,
         "Code element carries the wrong number of marks",
         "'{0}' carries {1} marks but takes exactly one",
-        "A code element carries exactly the marks its kind takes: one mark for most kinds, one or more for aggregate methods, ports, adapters and tests.");
+        "A code element carries exactly the marks its kind takes: one mark for most kinds, one or more for ports, adapters and tests.");
 
     public static readonly DiagnosticDescriptor LS5004 = Create("LS5004", TraceabilityCategory, DeclaredStyle,
         "Mark uses the undeclared style",

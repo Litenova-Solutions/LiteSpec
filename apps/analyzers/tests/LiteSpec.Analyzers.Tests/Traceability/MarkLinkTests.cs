@@ -168,8 +168,8 @@ public sealed class MarkLinkTests
             [ProjectFile(), UseCase()],
             assemblyName: "Shop.Application");
 
-    [Fact(DisplayName = "LS5003 accepts a method carrying two use-case marks")]
-    public Task AcceptsAMethodCarryingTwoMarks() =>
+    [Fact(DisplayName = "LS5003 reports a root method carrying two use-case marks")]
+    public Task ReportsARootMethodCarryingTwoMarks() =>
         Verify.AnalyzerWithRecordsAsync<MarkLinkAnalyzer>(
             [("Source.cs", """
                 namespace Claimwick.Spending;
@@ -189,7 +189,7 @@ public sealed class MarkLinkTests
                 {
                     /// <implements>use-case/spending.submit-expense</implements>
                     /// <implements>use-case/spending.approve-expense</implements>
-                    public void Submit()
+                    public void {|LS5003:Submit|}()
                     {
                         RaiseDomainEvent(new ExpenseSubmittedEvent());
                     }
@@ -197,6 +197,130 @@ public sealed class MarkLinkTests
                 """)],
             [ProjectFile(), Aggregate(), UseCase(), UseCase("use-case/spending.approve-expense", "Approve expense"), Event()],
             assemblyName: "Shop.Domain");
+
+    [Fact(DisplayName = "LS5003 accepts a root method carrying one mark")]
+    public Task AcceptsARootMethodCarryingOneMark() =>
+        Verify.AnalyzerWithRecordsAsync<MarkLinkAnalyzer>(
+            [("Source.cs", """
+                namespace Claimwick.Spending;
+
+                public abstract class AggregateRoot<TState>
+                {
+                    protected void RaiseDomainEvent(IDomainEvent e) { }
+                }
+
+                public interface IDomainEvent;
+
+                /// <implements>event/expense.submitted</implements>
+                public sealed record ExpenseSubmittedEvent : IDomainEvent;
+
+                /// <implements>aggregate/spending.expense</implements>
+                public sealed class Expense : AggregateRoot<object>
+                {
+                    /// <implements>use-case/spending.submit-expense</implements>
+                    public void Submit()
+                    {
+                        RaiseDomainEvent(new ExpenseSubmittedEvent());
+                    }
+                }
+                """)],
+            [ProjectFile(), Aggregate(), UseCase(), Event()],
+            assemblyName: "Shop.Domain");
+
+    [Fact(DisplayName = "LS5002 reports a mark on a reading method")]
+    public Task ReportsAMarkOnAReadingMethod() =>
+        Verify.AnalyzerWithRecordsAsync<MarkLinkAnalyzer>(
+            [("Source.cs", """
+                namespace Claimwick.Spending;
+
+                public sealed class ExpenseCalculator
+                {
+                    /// <implements>{|LS5002:use-case/spending.submit-expense|}</implements>
+                    public int ApprovedCount() => 0;
+                }
+                """)],
+            [ProjectFile(), UseCase()],
+            assemblyName: "Shop.Domain");
+
+    [Fact(DisplayName = "LS5002 accepts a reading method with no mark")]
+    public Task AcceptsAReadingMethodWithNoMark() =>
+        Verify.AnalyzerWithRecordsAsync<MarkLinkAnalyzer>(
+            [("Source.cs", """
+                namespace Claimwick.Spending;
+
+                public sealed class ExpenseCalculator
+                {
+                    public int ApprovedCount() => 0;
+                }
+                """)],
+            [ProjectFile(), UseCase()],
+            assemblyName: "Shop.Domain");
+
+    [Fact(DisplayName = "LS5002 reports a mark on a private method")]
+    public Task ReportsAMarkOnAPrivateMethod() =>
+        Verify.AnalyzerWithRecordsAsync<MarkLinkAnalyzer>(
+            [("Source.cs", """
+                namespace Claimwick.Spending;
+
+                public abstract class AggregateRoot<TState>
+                {
+                    protected void RaiseDomainEvent(IDomainEvent e) { }
+                }
+
+                public interface IDomainEvent;
+
+                /// <implements>aggregate/spending.expense</implements>
+                public sealed class Expense : AggregateRoot<object>
+                {
+                    /// <implements>{|LS5002:use-case/spending.submit-expense|}</implements>
+                    private void RecordSubmission()
+                    {
+                    }
+                }
+                """)],
+            [ProjectFile(), Aggregate(), UseCase()],
+            assemblyName: "Shop.Domain");
+
+    [Fact(DisplayName = "LS5002 accepts a private method with no mark")]
+    public Task AcceptsAPrivateMethodWithNoMark() =>
+        Verify.AnalyzerWithRecordsAsync<MarkLinkAnalyzer>(
+            [("Source.cs", """
+                namespace Claimwick.Spending;
+
+                public abstract class AggregateRoot<TState>
+                {
+                    protected void RaiseDomainEvent(IDomainEvent e) { }
+                }
+
+                public interface IDomainEvent;
+
+                /// <implements>aggregate/spending.expense</implements>
+                public sealed class Expense : AggregateRoot<object>
+                {
+                    private void RecordSubmission()
+                    {
+                    }
+                }
+                """)],
+            [ProjectFile(), Aggregate(), UseCase()],
+            assemblyName: "Shop.Domain");
+
+    [Fact(DisplayName = "LS5002 reports a proves mark on a method with no test attribute")]
+    public Task ReportsAProvesMarkWithNoTestAttribute() =>
+        Verify.AnalyzerWithRecordsAsync<MarkLinkAnalyzer>(
+            [("Source.cs", """
+                namespace Claimwick.Spending.Tests;
+
+                public sealed class ExpenseTests
+                {
+                    /// <proves>{|LS5002:scenario/submit-expense.submitting-with-a-receipt-succeeds|}</proves>
+                    public void Submitting_with_a_receipt_succeeds()
+                    {
+                    }
+                }
+                """)],
+            [ProjectFile(), Scenario()],
+            assemblyName: "Shop.Domain.Tests");
 
     [Fact(DisplayName = "LS5003 reports one record named twice on a multi-mark kind")]
     public Task ReportsOneRecordNamedTwiceOnAMultiMarkKind() =>

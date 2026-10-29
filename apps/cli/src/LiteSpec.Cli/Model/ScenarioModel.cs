@@ -29,4 +29,7 @@ sealed record TestRead(
 {
     /// <summary>Every test method the test roots declare, in file and line order.</summary>
     public IReadOnlyList<MarkedElement> Elements { get; init; } = [];
+
+    /// <summary>Every marked method of no known kind the test roots declare, in file and line order.</summary>
+    public IReadOnlyList<StrayMark> StrayMarks { get; init; } = [];
 }

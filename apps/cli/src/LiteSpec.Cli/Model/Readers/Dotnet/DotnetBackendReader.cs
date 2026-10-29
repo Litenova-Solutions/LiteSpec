@@ -225,6 +225,7 @@ sealed class DotnetBackendReader : IBackendReader
                     merged.Reactions.AddRange(local.Reactions);
                     merged.Events.AddRange(local.Events);
                     merged.Elements.AddRange(local.Elements);
+                    merged.StrayMarks.AddRange(local.StrayMarks);
                     merged.Literals.AddRange(local.Literals);
                     merged.KeyLiterals.UnionWith(local.KeyLiterals);
                     merged.Comments.AddRange(local.Comments);
@@ -241,6 +242,11 @@ sealed class DotnetBackendReader : IBackendReader
             .ThenBy(element => element.Line)
             .ThenBy(element => element.Class, StringComparer.Ordinal)
             .ThenBy(element => element.Member ?? "", StringComparer.Ordinal));
+        model.StrayMarks.AddRange(merged.StrayMarks
+            .OrderBy(stray => stray.File, StringComparer.Ordinal)
+            .ThenBy(stray => stray.Line)
+            .ThenBy(stray => stray.Class, StringComparer.Ordinal)
+            .ThenBy(stray => stray.Member ?? "", StringComparer.Ordinal));
         model.Reactions.AddRange(merged.Reactions
             .OrderBy(reaction => reaction.File, StringComparer.Ordinal)
             .ThenBy(reaction => reaction.Line)
@@ -392,7 +398,13 @@ sealed class DotnetBackendReader : IBackendReader
     {
         foreach (var element in elements)
         {
-            if (element.Kind is not CodeKind kind || kind is CodeKind.Test or CodeKind.FrontendModule)
+            if (element.Kind is not CodeKind kind)
+            {
+                ReadStrayMark(file, element, methods, model);
+                continue;
+            }
+
+            if (kind is CodeKind.Test or CodeKind.FrontendModule)
             {
                 continue;
             }
@@ -449,6 +461,36 @@ sealed class DotnetBackendReader : IBackendReader
         }
     }
 
+    /// <summary>
+    ///     Reads a marked element of no known kind into the stray marks: a reading
+    ///     method, a private helper, or an unrecognized class carrying a mark.
+    /// </summary>
+    private static void ReadStrayMark(
+        string file,
+        MarkableElement element,
+        IReadOnlyDictionary<TextSpan, MethodDeclarationSyntax> methods,
+        CodeModel model)
+    {
+        var marks = element.Marks
+            .Select(mark => new CodeMark(mark.RecordId, mark.Style, mark.Verb, file, mark.Line))
+            .ToList();
+
+        if (element.IsType)
+        {
+            model.StrayMarks.Add(new StrayMark(element.Name, null, file, element.Line, marks));
+            return;
+        }
+
+        if (!methods.TryGetValue(element.Span, out var method))
+        {
+            return;
+        }
+
+        var containing = method.Ancestors().OfType<TypeDeclarationSyntax>().FirstOrDefault();
+
+        model.StrayMarks.Add(new StrayMark(
+            containing?.Identifier.ValueText ?? "", element.Name, file, element.Line, marks));
+    }
 
     /// <summary>Whether the type is class-like, as the shared kind reader decides: a class or a non-struct record.</summary>
     private static bool IsClassLike(TypeDeclarationSyntax type) =>

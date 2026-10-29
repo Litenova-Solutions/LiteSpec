@@ -15,22 +15,26 @@ public sealed class MarkCountTests
         Assert.Null(verdict.Duplicate);
     }
 
-    [Fact(DisplayName = "An exactly-one kind with two marks is violated without a duplicate")]
-    public void ExactlyOneKindWithTwoMarksIsViolated()
+    [Theory(DisplayName = "An exactly-one kind with two marks is violated without a duplicate")]
+    [InlineData(CodeKind.Handler)]
+    [InlineData(CodeKind.AggregateMethod)]
+    public void ExactlyOneKindWithTwoMarksIsViolated(CodeKind kind)
     {
         var verdict = MarkRules.CheckCount(
-            CodeKind.Handler,
+            kind,
             new[] { "use-case/spending.submit-expense", "use-case/spending.approve-expense" });
 
         Assert.True(verdict.Violated);
         Assert.Null(verdict.Duplicate);
     }
 
-    [Fact(DisplayName = "An exactly-one kind naming one id twice reports the duplicate")]
-    public void ExactlyOneKindNamingOneIdTwiceReportsDuplicate()
+    [Theory(DisplayName = "An exactly-one kind naming one id twice reports the duplicate")]
+    [InlineData(CodeKind.Handler)]
+    [InlineData(CodeKind.AggregateMethod)]
+    public void ExactlyOneKindNamingOneIdTwiceReportsDuplicate(CodeKind kind)
     {
         var verdict = MarkRules.CheckCount(
-            CodeKind.Handler,
+            kind,
             new[] { "use-case/spending.submit-expense", "use-case/spending.submit-expense" });
 
         Assert.True(verdict.Violated);
@@ -38,7 +42,6 @@ public sealed class MarkCountTests
     }
 
     [Theory(DisplayName = "A multi-mark kind with two different marks is no violation")]
-    [InlineData(CodeKind.AggregateMethod)]
     [InlineData(CodeKind.Port)]
     [InlineData(CodeKind.Adapter)]
     [InlineData(CodeKind.Test)]
@@ -51,7 +54,6 @@ public sealed class MarkCountTests
     }
 
     [Theory(DisplayName = "A multi-mark kind naming one id twice is violated")]
-    [InlineData(CodeKind.AggregateMethod)]
     [InlineData(CodeKind.Port)]
     [InlineData(CodeKind.Adapter)]
     [InlineData(CodeKind.Test)]

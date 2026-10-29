@@ -194,7 +194,7 @@ public static class MarkRules
             case CodeKind.AggregateRoot:
                 return new KindRule(AggregateTypes, true, MarkVerb.Implements);
             case CodeKind.AggregateMethod:
-                return new KindRule(UseCaseTypes, false, MarkVerb.Implements);
+                return new KindRule(UseCaseTypes, true, MarkVerb.Implements);
             case CodeKind.DomainEvent:
                 return new KindRule(EventTypes, true, MarkVerb.Implements);
             case CodeKind.RuleException:

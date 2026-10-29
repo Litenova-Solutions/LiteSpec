@@ -127,7 +127,7 @@ Every check has a tier. G reads records only and always blocks. S reads code thr
 | `schedule-unstructured` | G | A job schedule is neither an `every` duration nor a `cron` expression. |
 | `behavior-unrecorded` | S | A refusal code in a declaring position, a screen call to no endpoint, or an engine step that maps to no use case is named by no record. The remedy reads: delete the code, or write its parent record from a requirement, drafting the requirement if none exists. |
 | `mark-missing` | S | A code element the marks table names carries no mark. |
-| `mark-unresolved` | S | A mark names no record, or a record of a type its code element does not take. |
+| `mark-unresolved` | S | A mark names no record, or a record of a type its code element does not take, or sits on an element that takes no mark. |
 | `mark-count` | S | A code element carries more or fewer marks than its kind takes in the marks table, or names one record twice. |
 | `mark-style-mixed` | S | A mark is written in the style the project did not declare. |
 | `runtime-value-drift` | S | A hand-written event `Classification` or exception `Code` differs from what its record states. |

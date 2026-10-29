@@ -28,7 +28,7 @@ public sealed class MarkRulesTests
 
     [Theory(DisplayName = "TakesExactlyOne matches the expected count for every kind")]
     [InlineData(CodeKind.AggregateRoot, true)]
-    [InlineData(CodeKind.AggregateMethod, false)]
+    [InlineData(CodeKind.AggregateMethod, true)]
     [InlineData(CodeKind.DomainEvent, true)]
     [InlineData(CodeKind.RuleException, true)]
     [InlineData(CodeKind.Handler, true)]

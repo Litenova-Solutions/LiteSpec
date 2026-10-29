@@ -82,13 +82,46 @@ public sealed class KindReaderTests
         Assert.Equal(CodeKind.AggregateMethod, KindReader.KindOf(method, KindContext.Empty));
     }
 
-    [Fact(DisplayName = "A public aggregate method raising nothing is not an aggregate method")]
-    public void AggregateMethodRaisingNothingIsNotRecognized()
+    [Fact(DisplayName = "An unmarked public aggregate method raising nothing is not an aggregate method")]
+    public void UnmarkedAggregateMethodRaisingNothingIsNotRecognized()
     {
         var method = TestTrees.First<MethodDeclarationSyntax>("""
             public sealed class Expense : AggregateRoot<ExpenseState>
             {
                 public Money Total() => Money.Zero;
+            }
+            """);
+
+        Assert.Null(KindReader.KindOf(method, KindContext.Empty));
+    }
+
+    [Fact(DisplayName = "A marked public aggregate method raising nothing is recognized")]
+    public void MarkedAggregateMethodRaisingNothingIsRecognized()
+    {
+        var method = TestTrees.First<MethodDeclarationSyntax>("""
+            public sealed class Expense : AggregateRoot<ExpenseState>
+            {
+                /// <implements>use-case/spending.erase-personal-data</implements>
+                public void Erase()
+                {
+                }
+            }
+            """);
+
+        Assert.Equal(CodeKind.AggregateMethod, KindReader.KindOf(method, KindContext.Empty));
+    }
+
+    [Fact(DisplayName = "A marked private aggregate method is not an aggregate method")]
+    public void MarkedPrivateAggregateMethodIsNotRecognized()
+    {
+        var method = TestTrees.First<MethodDeclarationSyntax>("""
+            public sealed class Expense : AggregateRoot<ExpenseState>
+            {
+                /// <implements>use-case/spending.submit-expense</implements>
+                private void RecordSubmission()
+                {
+                    RaiseDomainEvent(new ExpenseSubmittedEvent());
+                }
             }
             """);
 

@@ -22,7 +22,7 @@ A frontend use-case module carries the same typed constant in both styles: `expo
 | Layer | Code element | Kind | Mark names | Count |
 |:---|:---|:---|:---|:---|
 | Domain | Aggregate root class | `AggregateRoot` | `aggregate/` | one |
-| Domain | Public aggregate root method that changes state | `AggregateMethod` | `use-case/` | one or more |
+| Domain | Public aggregate root method that changes state | `AggregateMethod` | `use-case/` | one |
 | Domain | Domain event | `DomainEvent` | `event/` | one |
 | Domain | Domain exception for one rejected rule | `RuleException` | `rule/` | one |
 | Domain | Domain service holding one rule calculation | `DomainService` | `rule/` | one |
@@ -48,7 +48,7 @@ Every finding has one code, one tier, and at most one analyzer rule id. The core
 | Code | Tier | Rule | Meaning |
 |:---|:---|:---|:---|
 | `mark-missing` | S | LS5001 | A code element the marks table names carries no mark. |
-| `mark-unresolved` | S | LS5002 | A mark names no record, or a record of a type its code element does not take. |
+| `mark-unresolved` | S | LS5002 | A mark names no record, or a record of a type its code element does not take, or sits on a type or method that takes no mark. |
 | `mark-count` | S | LS5003 | A code element carries more or fewer marks than its kind takes. |
 | `mark-style-mixed` | S | LS5004 | A mark is written in the style the project did not declare. |
 | `runtime-value-drift` | S | LS5005 | A hand-written event `Classification` or exception `Code` differs from what its record states. |
