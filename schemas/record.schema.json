@@ -303,6 +303,17 @@
         ]
       }
     },
+    "decisionBasedOnArray": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "anyOf": [
+          { "$ref": "#/$defs/constraintId" },
+          { "$ref": "#/$defs/researchId" },
+          { "$ref": "#/$defs/requirementId" }
+        ]
+      }
+    },
     "decidesArray": {
       "type": "array",
       "uniqueItems": true,
@@ -962,6 +973,9 @@
           "uniqueItems": true,
           "items": { "$ref": "#/$defs/businessValue" }
         },
+        "stimulus": { "$ref": "#/$defs/nonEmptyString" },
+        "environment": { "$ref": "#/$defs/nonEmptyString" },
+        "response": { "$ref": "#/$defs/nonEmptyString" },
         "measure": { "$ref": "#/$defs/nonEmptyString" },
         "by": { "$ref": "#/$defs/nonEmptyString" },
         "target": { "$ref": "#/$defs/nonEmptyString" },
@@ -987,6 +1001,13 @@
             "properties": { "kind": { "const": "business" } }
           },
           "then": { "required": ["values"] }
+        },
+        {
+          "if": {
+            "required": ["kind"],
+            "properties": { "kind": { "const": "quality" } }
+          },
+          "then": { "required": ["stimulus", "environment", "response", "measure", "by"] }
         },
         {
           "if": { "required": ["measure"] },
@@ -1539,7 +1560,7 @@
         "chosen": { "$ref": "#/$defs/nonEmptyString" },
         "changeWhen": { "$ref": "#/$defs/nonEmptyString" },
         "decides": { "$ref": "#/$defs/decidesArray" },
-        "basedOn": { "$ref": "#/$defs/basedOnArray" }
+        "basedOn": { "$ref": "#/$defs/decisionBasedOnArray" }
       },
       "allOf": [
         {

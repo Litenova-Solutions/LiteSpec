@@ -6,7 +6,7 @@ Use this generated page to resolve a provision ID to its heading, owning page, a
 
 Run `litespec provisions` after any provision change. The repository validator fails when this page and the active standards disagree.
 
-The active release states 1676 provisions across 6 areas.
+The active release states 1678 provisions across 6 areas.
 
 ## backend
 
@@ -542,6 +542,7 @@ The active release states 1676 provisions across 6 areas.
 | litespec/core/intent#state-each-feature-with-its-state | [State Each Feature with Its State](../core/intent.md#state-each-feature-with-its-state) | rule | checkable | `litespec consumer` fails a feature page missing its state, Offering, refused reason, or planned date. |
 | litespec/core/intent#state-each-goal-with-its-measure | [State Each Goal with Its Measure](../core/intent.md#state-each-goal-with-its-measure) | rule | checkable | `litespec consumer` fails a goal page missing a required field or its Why It Matters section. |
 | litespec/core/intent#state-each-problem-with-its-evidence | [State Each Problem with Its Evidence](../core/intent.md#state-each-problem-with-its-evidence) | rule | checkable | `litespec consumer` fails a problem page missing its statement, Situation, or Evidence. |
+| litespec/core/intent#state-each-quality-requirement-as-a-scenario | [State Each Quality Requirement as a Scenario](../core/intent.md#state-each-quality-requirement-as-a-scenario) | rule | checkable | `litespec consumer` fails a quality requirement missing `stimulus`, `environment`, `response`, `measure`, or `by`. |
 | litespec/core/intent#state-one-product | [State One Product](../core/intent.md#state-one-product) | rule | checkable | `litespec model check` reports no `product-not-singleton` finding, and `litespec consumer` validates the brief fields against the record schema. |
 | litespec/core/intent#state-the-measure-on-a-counted-requirement | [State the Measure on a Counted Requirement](../core/intent.md#state-the-measure-on-a-counted-requirement) | rule | checkable | `litespec model check` reports no `requirement-unmeasured` finding on requirements whose statements name numbers. |
 | litespec/core/intent#state-when-each-journey-finishes | [State When Each Journey Finishes](../core/intent.md#state-when-each-journey-finishes) | rule | checkable | `litespec consumer` fails a journey missing `finishedWhen`. |
@@ -581,6 +582,7 @@ The active release states 1676 provisions across 6 areas.
 | litespec/core/model#hold-transcribed-records-in-draft | [Hold Transcribed Records in Draft](../core/model.md#hold-transcribed-records-in-draft) | rule | checkable | `litespec model check` reports `transcribed-reviewed` for a transcribed record standing reviewed. |
 | litespec/core/model#implement-each-mapped-behavior-record-behind-a-mark | [Implement Each Mapped Behavior Record Behind a Mark](../core/model.md#implement-each-mapped-behavior-record-behind-a-mark) | rule | checkable | `litespec model check` reports `aggregate-unimplemented`, `reaction-unimplemented`, `job-unimplemented`, `external-system-unimplemented`, and `use-case-unexposed` (tier S) for a record no mark names, and `use-case-unreached` (tier A) for a browser use case no screen calls. |
 | litespec/core/model#keep-one-owner-and-status-on-every-record | [Keep One Owner and Status on Every Record](../core/model.md#keep-one-owner-and-status-on-every-record) | rule | checkable | `litespec model check` reports `owner-unknown` and `draft-without-decider` for a page missing its owner or draft decider. |
+| litespec/core/model#keep-rules-and-targets-out-of-technical-decisions | [Keep Rules and Targets Out of Technical Decisions](../core/model.md#keep-rules-and-targets-out-of-technical-decisions) | rule | checkable | `litespec model check` reports `decision-without-basis` (tier A) for a technical decision whose `basedOn` names nothing, and counts a quality requirement as fulfilled when a technical decision names it in `basedOn`. |
 | litespec/core/model#mark-every-check-with-its-tier | [Mark Every Check with Its Tier](../core/model.md#mark-every-check-with-its-tier) | rule | guidance | Which findings lack a tier letter, or block outside their tier? Look at the output of `litespec model check`. |
 | litespec/core/model#name-what-every-decision-decides | [Name What Every Decision Decides](../core/model.md#name-what-every-decision-decides) | rule | checkable | `litespec model check` reports `decision-decides-nothing` for a product decision with an empty `decides` field. |
 | litespec/core/model#raise-modeling-questions-with-a-decider-and-a-date | [Raise Modeling Questions with a Decider and a Date](../core/model.md#raise-modeling-questions-with-a-decider-and-a-date) | rule | guidance | Open modeling questions appear as draft questions carrying a decider and a date. |

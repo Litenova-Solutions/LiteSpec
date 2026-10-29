@@ -18,7 +18,7 @@
   "chosen": "<The selected option name, set on approval>",
   "changeWhen": "<The measurable condition that reopens this decision>",
   "decides": ["<requirement, feature, rule, or constraint-applicability id>"],
-  "basedOn": ["<constraint or research id, or remove this line>"],
+  "basedOn": ["<constraint or research id; a technical decision also names the requirements it serves>"],
   "replaces": "<decision id, or remove this line>",
   "terms": ["term/<term-name>"],
   "questions": [

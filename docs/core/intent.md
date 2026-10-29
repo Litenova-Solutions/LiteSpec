@@ -214,6 +214,18 @@ Intent never contains Behavior field names, code identifiers, or mechanism: no s
 
 **Checked by:** `litespec model check` reports no `requirement-unmeasured` finding on requirements whose statements name numbers.
 
+### State Each Quality Requirement as a Scenario
+
+**ID:** `litespec/core/intent#state-each-quality-requirement-as-a-scenario`
+
+**Statement:** A quality requirement MUST state the moment it holds for in `stimulus` and `environment`, what the product does in `response`, and how that is measured in `measure` and `by`.
+
+**Rationale:** "Fast", "secure", or "always available" cannot be built to or checked. A quality requirement holds only for a moment that can happen: something arrives, under some condition, and the product answers within a measure. Written that way, it tells the builder what to design for and tells a test or a probe what to look for, and a later change in the moment (a bigger on-sale, a new attack) visibly reopens the target. The four fields follow the quality attribute scenario the architecture literature uses, so a reviewer can compare one target with another.
+
+**Example:** `requirement/spending.month-end-submissions` has `kind: quality`, `stimulus` "Five hundred employees submit expenses in the last hour of the month", `environment` "Normal operation, one application instance down", `response` "Each submission is stored and acknowledged", `measure` "Share of submissions acknowledged within two seconds: at least 99 percent", and `by` "Pilot launch".
+
+**Checked by:** `litespec consumer` fails a quality requirement missing `stimulus`, `environment`, `response`, `measure`, or `by`.
+
 ### Order Each Journey Toward One Goal
 
 **ID:** `litespec/core/intent#order-each-journey-toward-one-goal`

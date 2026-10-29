@@ -183,7 +183,7 @@ Each written link lives as a field on the record it starts from: a decision carr
 | Field | Written on | Points at |
 |:---|:---|:---|
 | `decides` | decision | Requirements, features, rules, constraints, and the permissions, roles, actors, deviations, entry points, settings, or decisions an engineering choice settles |
-| `basedOn` | decision, requirement, rule | Constraints, research |
+| `basedOn` | decision, requirement, rule | Constraints, research, and on a technical decision the requirements it serves |
 | `replaces` | decision | The replaced decision |
 | `audience` | product | Actors |
 | `affects` | problem | Actors |
@@ -568,6 +568,18 @@ A deviation that governs code no record describes names those files in `code`, a
 **Example:** Claimwick stores each expense as one document. `decision/0002-store-expenses-as-documents` weighs a document store against relational tables, chooses documents, and names what reopens the choice: a report that must join expenses across employees. The expense repository carries `/// <follows>decision/0002-store-expenses-as-documents</follows>`.
 
 **Checked by:** `litespec model check` reports `decision-unfollowed` (tier S) for a technical decision that no code element follows.
+
+### Keep Rules and Targets Out of Technical Decisions
+
+**ID:** `litespec/core/model#keep-rules-and-targets-out-of-technical-decisions`
+
+**Statement:** A technical decision MUST leave each rule the product obeys whatever its design to a constraint and each measurable target to a quality requirement, and name the ones it serves in `basedOn`.
+
+**Rationale:** A technical decision chooses one way among alternatives, and a better alternative may replace it tomorrow. A rule such as keeping personal data in the European Union, or a target such as answering checkout within two seconds, does not change when the library does: overriding it needs a business, legal, or organizational change. Written inside a decision, the rule disappears the day the decision is replaced, and nobody approves it as the business promise it is. Kept in Intent, the rule and the target are approved by the person who owns them, the decision points up to them, and the chain runs unbroken from code through the decision to the constraint or requirement and the goal above it.
+
+**Example:** Claimwick stores receipts in a European region because `constraint/receipts-stay-in-the-eu` requires it, and answers submissions quickly because `requirement/spending.month-end-submissions` sets the target. `decision/0002-store-expenses-as-documents` names both in `basedOn`; neither the region nor the two seconds is written in the decision.
+
+**Checked by:** `litespec model check` reports `decision-without-basis` (tier A) for a technical decision whose `basedOn` names nothing, and counts a quality requirement as fulfilled when a technical decision names it in `basedOn`.
 
 ### Resolve Every Page Link
 

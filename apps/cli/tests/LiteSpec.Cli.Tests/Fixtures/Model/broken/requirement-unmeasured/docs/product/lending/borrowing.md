@@ -66,12 +66,15 @@
       "status": "approved",
       "kind": "quality",
       "statement": "Listing loans answers quickly.",
+      "stimulus": "Two hundred readers list their loans in the first hour of the term.",
+      "environment": "Normal operation, the search index warm.",
+      "response": "Each listing answers from the index.",
       "measure": "p95 latency",
       "by": "under 200 ms",
       "basedOn": [],
       "approvedBy": "lending-team",
       "approvedOn": "2026-10-01",
-      "approvedHash": "fcb7bef8"
+      "approvedHash": "1e2899b5"
     }
   ]
 }

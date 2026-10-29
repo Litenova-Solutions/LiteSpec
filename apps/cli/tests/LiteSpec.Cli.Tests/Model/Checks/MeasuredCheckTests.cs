@@ -17,7 +17,7 @@ public sealed class MeasuredCheckTests
                 "requirement",
                 "requirement/borrowing.list-loans-latency",
                 Path.Combine(temp.Path, "borrowing.md"),
-                """{"kind": "quality", "statement": "Listing loans answers within 300 milliseconds at p95.", "measure": "p95 latency of listing loans", "by": "2027-01-01"}"""));
+                """{"kind": "quality", "statement": "Listing loans answers within 300 milliseconds at p95.", "stimulus": "Two hundred readers list their loans in the first hour of the term.", "environment": "Normal operation, the search index warm.", "response": "Each listing answers from the index.", "measure": "p95 latency of listing loans", "by": "2027-01-01"}"""));
 
         Assert.Contains("requirement-unmeasured", TestModel.Codes(model));
     }
@@ -81,5 +81,5 @@ public sealed class MeasuredCheckTests
             "requirement",
             "requirement/borrowing.list-loans-latency",
             Path.Combine(root, "borrowing.md"),
-            "{\"kind\": \"quality\", \"statement\": \"Listing loans answers within 300 milliseconds at p95.\", \"measure\": \"p95 latency of listing loans\", \"by\": \"2027-01-01\", \"check\": \"" + check + "\"}");
+            "{\"kind\": \"quality\", \"statement\": \"Listing loans answers within 300 milliseconds at p95.\", \"stimulus\": \"Two hundred readers list their loans in the first hour of the term.\", \"environment\": \"Normal operation, the search index warm.\", \"response\": \"Each listing answers from the index.\", \"measure\": \"p95 latency of listing loans\", \"by\": \"2027-01-01\", \"check\": \"" + check + "\"}");
 }

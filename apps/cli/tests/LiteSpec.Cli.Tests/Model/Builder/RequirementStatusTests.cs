@@ -126,6 +126,9 @@ public sealed class RequirementStatusTests
               "status": "approved",
               "kind": "quality",
               "statement": "Borrowing answers fast.",
+              "stimulus": "One hundred readers borrow in the first hour of the term.",
+              "environment": "Normal operation, the catalog index warm.",
+              "response": "Each borrow is recorded and confirmed.",
               "measure": "p95 latency of borrowing",
               "by": "2026-12-01",
               "check": "k6 http_req_duration p(95)<200"
@@ -138,6 +141,9 @@ public sealed class RequirementStatusTests
               "status": "approved",
               "kind": "quality",
               "statement": "Borrowing rarely fails.",
+              "stimulus": "One hundred readers borrow in the first hour of the term.",
+              "environment": "Normal operation, the catalog index warm.",
+              "response": "Each borrow either completes or reports its refusal.",
               "measure": "failed borrows",
               "by": "2026-12-01",
               "check": "k6 http_req_failed rate<0.05"

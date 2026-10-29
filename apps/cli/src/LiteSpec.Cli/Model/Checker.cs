@@ -21,7 +21,7 @@ static partial class Checker
         "size-type-missing", "product-not-singleton",
         "journey-reach",
         "use-case-without-scenario", "requirement-unfulfilled",
-        "aggregate-name-clash", "decision-decides-nothing", "decision-unfollowed", "link-unresolved",
+        "aggregate-name-clash", "decision-decides-nothing", "decision-unfollowed", "decision-without-basis", "link-unresolved",
         "behavior-unrecorded", "mark-missing", "mark-unresolved", "mark-count", "mark-style-mixed",
         "runtime-value-drift", "act-event-undeclared", "act-event-unraised", "use-case-act-uncalled",
         "aggregate-unimplemented", "reaction-unimplemented", "job-unimplemented",
@@ -325,6 +325,15 @@ static partial class Checker
                     RequireArray(record, "values", 1, findings);
                 }
 
+                if (record.Field("kind") == "quality")
+                {
+                    RequireString(record, "stimulus", findings);
+                    RequireString(record, "environment", findings);
+                    RequireString(record, "response", findings);
+                    RequireString(record, "measure", findings);
+                    RequireString(record, "by", findings);
+                }
+
                 if (record.Has("measure"))
                 {
                     RequireString(record, "by", findings);
@@ -532,7 +541,14 @@ static partial class Checker
                     continue;
                 }
 
-                if (allowed.Count > 0 && !allowed.Contains(resolved.Type))
+                // A technical decision serves the requirements it names in basedOn; every
+                // other basedOn names only constraints and research.
+                var servesRequirement = property.Name == "basedOn"
+                    && resolved.Type == "requirement"
+                    && record.Type == "decision"
+                    && UnderImplementationDecisions(model.Config, record.File);
+
+                if (allowed.Count > 0 && !allowed.Contains(resolved.Type) && !servesRequirement)
                 {
                     findings.Add(new Finding("invalid-field", $"Record '{record.Id}' links {property.Name} to '{target}', which is a {resolved.Type}.", record.File, record.Line, SubjectOf(record)));
                 }
@@ -990,6 +1006,15 @@ static partial class Checker
             }
         }
 
+        foreach (var decision in model.Records.Where(candidate =>
+            candidate.Type == "decision" && candidate.Status != "retired" && UnderImplementationDecisions(model.Config, candidate.File)))
+        {
+            if (!decision.Ids("basedOn").Any())
+            {
+                findings.Add(new Finding("decision-without-basis", $"Decision '{decision.Id}' names no constraint or requirement in basedOn.", decision.File, decision.Line, SubjectOf(decision)));
+            }
+        }
+
         foreach (var gap in model.Records.Where(record => record.Type == "known-gap"))
         {
             if (gap.Field("endsBy") is { } endsBy
@@ -1037,6 +1062,11 @@ static partial class Checker
             .SelectMany(record => record.Ids("fulfills"))
             .ToHashSet(StringComparer.Ordinal);
 
+        var served = model.Records
+            .Where(record => record.Type == "decision" && UnderImplementationDecisions(model.Config, record.File))
+            .SelectMany(record => record.Ids("basedOn"))
+            .ToHashSet(StringComparer.Ordinal);
+
         foreach (var requirement in model.Records.Where(record => record.Type == "requirement" && record.Status != "retired"))
         {
             if (!FulfilledKinds.Contains(requirement.Field("kind") ?? ""))
@@ -1048,7 +1078,11 @@ static partial class Checker
                 model.ById.TryGetValue(id, out var feature)
                 && UndeliveredStates.Contains(feature.Field("state") ?? ""));
 
-            if (!fulfilled.Contains(requirement.Id) && !undelivered)
+            // A quality requirement is also fulfilled when a technical decision serves
+            // it: the decision names it in basedOn instead of a rule or use case.
+            var decided = requirement.Field("kind") == "quality" && served.Contains(requirement.Id);
+
+            if (!fulfilled.Contains(requirement.Id) && !undelivered && !decided)
             {
                 findings.Add(new Finding("requirement-unfulfilled", $"Requirement '{requirement.Id}' is fulfilled by no rule, use case or journey.", requirement.File, requirement.Line, SubjectOf(requirement)));
             }
