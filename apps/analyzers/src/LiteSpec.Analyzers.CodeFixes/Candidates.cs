@@ -14,8 +14,8 @@ internal static class Candidates
     /// <summary>
     ///     The candidate records for a missing mark: records of the kind's
     ///     expected types whose identifier the folders and the type or member
-    ///     name derive. An exact home-and-name match comes first, then
-    ///     name-part matches, each in identifier order.
+    ///     name derive, or scenarios only for a test. An exact home-and-name
+    ///     match comes first, then name-part matches, each in identifier order.
     /// </summary>
     /// <param name="kind">The kind of the unmarked element.</param>
     /// <param name="folders">The nearest folder names, containing first.</param>
@@ -47,7 +47,13 @@ internal static class Candidates
         var exactMatches = new List<IRecordFacts>();
         var nameMatches = new List<IRecordFacts>();
 
-        foreach (var type in MarkRules.RecordTypes(kind))
+        // A test proves the lowest record it verifies, from any of its kinds, but
+        // the fix offers scenarios: the other proof targets are named by hand.
+        var types = kind == CodeKind.Test
+            ? new string[] { "scenario" }
+            : MarkRules.RecordTypes(kind);
+
+        foreach (var type in types)
         {
             foreach (var record in index.ByType(type))
             {

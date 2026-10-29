@@ -125,6 +125,47 @@ public sealed class MarkCodeFixTests
             [ProjectFile(), Scenario()],
             "Shop.Domain.Tests");
 
+    [Fact(DisplayName = "Add mark offers a test its scenarios only")]
+    public Task AddMarkOffersATestItsScenariosOnly() =>
+        Verify.CodeFixFilesAsync<MarkPresenceAnalyzer, AddMarkCodeFixProvider>(
+            [("SubmitExpense/ExpenseTests.cs", """
+                using System;
+
+                namespace Claimwick.Spending.Tests;
+
+                public sealed class FactAttribute : Attribute;
+
+                public sealed class ExpenseTests
+                {
+                    [Fact]
+                    public void Submitting_with_a_receipt_succeeds()
+                    {
+                    }
+                }
+                """)],
+            [("SubmitExpense/ExpenseTests.cs", """
+                using System;
+
+                namespace Claimwick.Spending.Tests;
+
+                public sealed class FactAttribute : Attribute;
+
+                public sealed class ExpenseTests
+                {
+                    /// <proves>scenario/submit-expense.submitting-with-a-receipt-succeeds</proves>
+                    [Fact]
+                    public void Submitting_with_a_receipt_succeeds()
+                    {
+                    }
+                }
+                """)],
+            "Submitting with a receipt succeeds",
+            [ProjectFile(), Scenario(), Rule("rule/submitexpense.submitting-with-a-receipt-succeeds", "Submitting receipt rule"), Requirement()],
+            "Shop.Domain.Tests",
+            null,
+            true,
+            1);
+
     [Fact(DisplayName = "Correct mark offers the three nearest records of the expected type")]
     public Task CorrectMarkOffersTheThreeNearestRecords() =>
         Verify.CodeFixAsync<MarkLinkAnalyzer, CorrectMarkCodeFixProvider>(

@@ -18,7 +18,11 @@ public static class MarkRules
     private static readonly string[] ReactionTypes = { "reaction" };
     private static readonly string[] JobTypes = { "job" };
     private static readonly string[] ExternalSystemTypes = { "external-system" };
-    private static readonly string[] TestTypes = { "scenario", "rule" };
+    private static readonly string[] TestTypes =
+    {
+        "scenario", "rule", "requirement", "decision",
+        "external-system", "integration-event", "litespec",
+    };
     private static readonly string[] TechnicalImplementsTypes =
     {
         "aggregate", "use-case", "reaction", "job", "external-system",

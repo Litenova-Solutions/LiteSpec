@@ -714,4 +714,270 @@ public sealed class MarkLinkTests
                 """)],
             [ProjectFile(), Decision()],
             assemblyName: "Shop.Application");
+
+    [Fact(DisplayName = "LS5002 accepts a proves mark naming a rule on a test")]
+    public Task AcceptsAProvesMarkNamingARuleOnATest() =>
+        Verify.AnalyzerWithRecordsAsync<MarkLinkAnalyzer>(
+            [("Source.cs", """
+                using System;
+
+                namespace Claimwick.Spending.Tests;
+
+                public sealed class FactAttribute : Attribute;
+
+                public sealed class ExpenseTests
+                {
+                    /// <proves>rule/spending.receipt-required</proves>
+                    [Fact]
+                    public void Receipt_is_required()
+                    {
+                    }
+                }
+                """)],
+            [ProjectFile(), Rule()],
+            assemblyName: "Shop.Domain.Tests");
+
+    [Fact(DisplayName = "LS5002 accepts a proves mark naming a quality requirement on a test")]
+    public Task AcceptsAProvesMarkNamingAQualityRequirementOnATest() =>
+        Verify.AnalyzerWithRecordsAsync<MarkLinkAnalyzer>(
+            [("Source.cs", """
+                using System;
+
+                namespace Claimwick.Spending.Tests;
+
+                public sealed class FactAttribute : Attribute;
+
+                public sealed class ExpenseTests
+                {
+                    /// <proves>requirement/borrowing.borrow-latency</proves>
+                    [Fact]
+                    public void Borrowing_stays_fast()
+                    {
+                    }
+                }
+                """)],
+            [ProjectFile(), Requirement()],
+            assemblyName: "Shop.Domain.Tests");
+
+    [Fact(DisplayName = "LS5002 accepts a proves mark naming a technical decision on a test")]
+    public Task AcceptsAProvesMarkNamingATechnicalDecisionOnATest() =>
+        Verify.AnalyzerWithRecordsAsync<MarkLinkAnalyzer>(
+            [("Source.cs", """
+                using System;
+
+                namespace Claimwick.Spending.Tests;
+
+                public sealed class FactAttribute : Attribute;
+
+                public sealed class ExpenseTests
+                {
+                    /// <proves>decision/0002-store-expenses-as-documents</proves>
+                    [Fact]
+                    public void Expenses_round_trip_as_documents()
+                    {
+                    }
+                }
+                """)],
+            [ProjectFile(), TechnicalDecision()],
+            assemblyName: "Shop.Domain.Tests");
+
+    [Fact(DisplayName = "LS5002 accepts a proves mark naming an external system on a test")]
+    public Task AcceptsAProvesMarkNamingAnExternalSystemOnATest() =>
+        Verify.AnalyzerWithRecordsAsync<MarkLinkAnalyzer>(
+            [("Source.cs", """
+                using System;
+
+                namespace Claimwick.Spending.Tests;
+
+                public sealed class FactAttribute : Attribute;
+
+                public sealed class ExpenseTests
+                {
+                    /// <proves>external-system/payments</proves>
+                    [Fact]
+                    public void Payments_settle()
+                    {
+                    }
+                }
+                """)],
+            [ProjectFile(), ExternalSystem()],
+            assemblyName: "Shop.Domain.Tests");
+
+    [Fact(DisplayName = "LS5002 accepts a proves mark naming an integration event on a test")]
+    public Task AcceptsAProvesMarkNamingAnIntegrationEventOnATest() =>
+        Verify.AnalyzerWithRecordsAsync<MarkLinkAnalyzer>(
+            [("Source.cs", """
+                using System;
+
+                namespace Claimwick.Spending.Tests;
+
+                public sealed class FactAttribute : Attribute;
+
+                public sealed class ExpenseTests
+                {
+                    /// <proves>integration-event/expense-submitted</proves>
+                    [Fact]
+                    public void Expense_submitted_publishes()
+                    {
+                    }
+                }
+                """)],
+            [ProjectFile(), IntegrationEvent()],
+            assemblyName: "Shop.Domain.Tests");
+
+    [Fact(DisplayName = "LS5002 accepts a proves mark naming a provision on a test")]
+    public Task AcceptsAProvesMarkNamingAProvisionOnATest() =>
+        Verify.AnalyzerWithRecordsAsync<MarkLinkAnalyzer>(
+            [("Source.cs", """
+                using System;
+
+                namespace Claimwick.Spending.Tests;
+
+                public sealed class FactAttribute : Attribute;
+
+                public sealed class ExpenseTests
+                {
+                    /// <proves>litespec/backend/persistence#commit-each-command-pipeline-once</proves>
+                    [Fact]
+                    public void Commits_once()
+                    {
+                    }
+                }
+                """)],
+            [ProjectFile(), Scenario()],
+            assemblyName: "Shop.Domain.Tests");
+
+    [Fact(DisplayName = "LS5002 accepts a test proving two kinds")]
+    public Task AcceptsATestProvingTwoKinds() =>
+        Verify.AnalyzerWithRecordsAsync<MarkLinkAnalyzer>(
+            [("Source.cs", """
+                using System;
+
+                namespace Claimwick.Spending.Tests;
+
+                public sealed class FactAttribute : Attribute;
+
+                public sealed class ExpenseTests
+                {
+                    /// <proves>scenario/submit-expense.submitting-with-a-receipt-succeeds</proves>
+                    /// <proves>requirement/borrowing.borrow-latency</proves>
+                    [Fact]
+                    public void Submitting_with_a_receipt_succeeds()
+                    {
+                    }
+                }
+                """)],
+            [ProjectFile(), Scenario(), Requirement()],
+            assemblyName: "Shop.Domain.Tests");
+
+    [Fact(DisplayName = "LS5002 reports a proves mark naming a functional requirement")]
+    public Task ReportsAProvesMarkNamingAFunctionalRequirement() =>
+        Verify.AnalyzerWithRecordsAsync<MarkLinkAnalyzer>(
+            [("Source.cs", """
+                using System;
+
+                namespace Claimwick.Spending.Tests;
+
+                public sealed class FactAttribute : Attribute;
+
+                public sealed class ExpenseTests
+                {
+                    /// <proves>{|LS5002:requirement/borrowing.borrow-latency|}</proves>
+                    [Fact]
+                    public void Borrowing_stays_fast()
+                    {
+                    }
+                }
+                """)],
+            [ProjectFile(), Requirement(kind: "functional")],
+            assemblyName: "Shop.Domain.Tests");
+
+    [Fact(DisplayName = "LS5002 reports a proves mark naming a product decision")]
+    public Task ReportsAProvesMarkNamingAProductDecision() =>
+        Verify.AnalyzerWithRecordsAsync<MarkLinkAnalyzer>(
+            [("Source.cs", """
+                using System;
+
+                namespace Claimwick.Spending.Tests;
+
+                public sealed class FactAttribute : Attribute;
+
+                public sealed class ExpenseTests
+                {
+                    /// <proves>{|LS5002:decision/0002-store-expenses-as-documents|}</proves>
+                    [Fact]
+                    public void Expenses_round_trip_as_documents()
+                    {
+                    }
+                }
+                """)],
+            [ProjectFile(), Decision()],
+            assemblyName: "Shop.Domain.Tests");
+
+    [Fact(DisplayName = "LS5002 reports a proves mark naming an aggregate")]
+    public Task ReportsAProvesMarkNamingAnAggregate() =>
+        Verify.AnalyzerWithRecordsAsync<MarkLinkAnalyzer>(
+            [("Source.cs", """
+                using System;
+
+                namespace Claimwick.Spending.Tests;
+
+                public sealed class FactAttribute : Attribute;
+
+                public sealed class ExpenseTests
+                {
+                    /// <proves>{|LS5002:aggregate/spending.expense|}</proves>
+                    [Fact]
+                    public void Expense_holds()
+                    {
+                    }
+                }
+                """)],
+            [ProjectFile(), Aggregate()],
+            assemblyName: "Shop.Domain.Tests");
+
+    [Fact(DisplayName = "LS5002 reports a proves mark naming an unknown provision")]
+    public Task ReportsAProvesMarkNamingAnUnknownProvision() =>
+        Verify.AnalyzerWithRecordsAsync<MarkLinkAnalyzer>(
+            [("Source.cs", """
+                using System;
+
+                namespace Claimwick.Spending.Tests;
+
+                public sealed class FactAttribute : Attribute;
+
+                public sealed class ExpenseTests
+                {
+                    /// <proves>{|LS5002:litespec/backend/no-such-page#no-such-provision|}</proves>
+                    [Fact]
+                    public void Keeps_structure()
+                    {
+                    }
+                }
+                """)],
+            [ProjectFile(), Scenario()],
+            assemblyName: "Shop.Domain.Tests");
+
+    [Fact(DisplayName = "LS5003 reports one proof named twice on a test")]
+    public Task ReportsOneProofNamedTwiceOnATest() =>
+        Verify.AnalyzerWithRecordsAsync<MarkLinkAnalyzer>(
+            [("Source.cs", """
+                using System;
+
+                namespace Claimwick.Spending.Tests;
+
+                public sealed class FactAttribute : Attribute;
+
+                public sealed class ExpenseTests
+                {
+                    /// <proves>requirement/borrowing.borrow-latency</proves>
+                    /// <proves>requirement/borrowing.borrow-latency</proves>
+                    [Fact]
+                    public void {|LS5003:Borrowing_stays_fast|}()
+                    {
+                    }
+                }
+                """)],
+            [ProjectFile(), Requirement()],
+            assemblyName: "Shop.Domain.Tests");
 }

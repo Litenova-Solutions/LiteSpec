@@ -1167,6 +1167,15 @@ static partial class Checker
         {
             foreach (var claim in test.Claims)
             {
+                // Only scenario and rule proofs confirm through the test's steps,
+                // messages and effects; a quality requirement, a technical decision,
+                // an external system, an integration event, or a provision stands
+                // proven by its passing run instead.
+                if (!IsBehaviorClaim(claim))
+                {
+                    continue;
+                }
+
                 if (provesByClaim.TryGetValue((test.Name, claim), out var link) && !link.Confirmed)
                 {
                     findings.Add(new Finding("proves-unconfirmed", $"Scenario '{test.Name}' claims '{claim}' but carries no step, message or effect that proves it.", test.File, test.Line, claim));
@@ -1174,6 +1183,11 @@ static partial class Checker
             }
         }
     }
+
+    /// <summary>Whether the claim confirms through the test body: a scenario or a rule.</summary>
+    private static bool IsBehaviorClaim(string claim) =>
+        claim.StartsWith("scenario/", StringComparison.Ordinal)
+        || claim.StartsWith("rule/", StringComparison.Ordinal);
 
     /// <summary>
     ///     Whether the scenario ends where it may: a reaction scenario in a result of

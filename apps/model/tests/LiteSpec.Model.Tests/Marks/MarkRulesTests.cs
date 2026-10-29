@@ -18,7 +18,7 @@ public sealed class MarkRulesTests
     [InlineData(CodeKind.Adapter, "external-system")]
     [InlineData(CodeKind.Endpoint, "use-case")]
     [InlineData(CodeKind.FrontendModule, "use-case")]
-    [InlineData(CodeKind.Test, "scenario,rule")]
+    [InlineData(CodeKind.Test, "scenario,rule,requirement,decision,external-system,integration-event,litespec")]
     [InlineData(CodeKind.Technical, "aggregate,use-case,reaction,job,external-system,event,rule,notification,setting,integration-event")]
     public void RecordTypesNamesExpectedTypes(CodeKind kind, string expected)
     {
@@ -71,6 +71,13 @@ public sealed class MarkRulesTests
         Assert.True(MarkRules.Accepts(CodeKind.Handler, "use-case/spending.submit-expense"));
         Assert.True(MarkRules.Accepts(CodeKind.Test, "scenario/submit-expense.succeeds"));
         Assert.True(MarkRules.Accepts(CodeKind.Test, "rule/expense.approver-is-not-submitter"));
+        Assert.True(MarkRules.Accepts(CodeKind.Test, "requirement/spending.month-end-submissions"));
+        Assert.True(MarkRules.Accepts(CodeKind.Test, "decision/0002-store-expenses-as-documents"));
+        Assert.True(MarkRules.Accepts(CodeKind.Test, "external-system/payout-bank"));
+        Assert.True(MarkRules.Accepts(CodeKind.Test, "integration-event/expense-submitted"));
+        Assert.True(MarkRules.Accepts(CodeKind.Test, "litespec/backend/architecture#point-dependencies-inward"));
+        Assert.False(MarkRules.Accepts(CodeKind.Test, "aggregate/spending.expense"));
+        Assert.False(MarkRules.Accepts(CodeKind.Test, "use-case/spending.submit-expense"));
         Assert.True(MarkRules.Accepts(CodeKind.Technical, "aggregate/spending.expense"));
         Assert.True(MarkRules.Accepts(CodeKind.Technical, "use-case/spending.submit-expense"));
         Assert.True(MarkRules.Accepts(CodeKind.Technical, "reaction/spending.remind-approver"));

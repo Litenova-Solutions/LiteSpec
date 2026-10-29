@@ -62,6 +62,17 @@ static class Querier
                     .ToList(),
             };
         }
+        else if (model.Tested.TryGetValue(id, out var tested))
+        {
+            status = new
+            {
+                tested,
+                proves = model.Proves
+                    .Where(link => link.Claim == id)
+                    .Select(link => new { scenario = link.Scenario, claim = link.Claim, confirmed = link.Confirmed, passing = link.Passing })
+                    .ToList(),
+            };
+        }
 
         return JsonSerializer.Serialize(
             new

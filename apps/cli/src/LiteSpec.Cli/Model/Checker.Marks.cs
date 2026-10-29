@@ -77,19 +77,37 @@ static partial class Checker
 
     /// <summary>
     ///     Checks one <c>implements</c> or <c>proves</c> mark: it names a record of
-    ///     the type its kind takes, in the verb its kind takes.
+    ///     the type its kind takes, in the verb its kind takes. A test proves the
+    ///     lowest record it verifies: a scenario, a rule, a quality requirement, a
+    ///     technical decision, an external system, an integration event, or a
+    ///     provision of the carried release.
     /// </summary>
     private static void CheckServesMark(ProjectModel model, MarkedElement element, CodeMark mark, List<Finding> findings)
     {
         var subject = mark.RecordId.Length > 0 ? mark.RecordId : null;
 
-        if (!model.ById.TryGetValue(mark.RecordId, out var record))
+        if (element.Kind == CodeKind.Test && mark.RecordId.StartsWith("litespec/", StringComparison.Ordinal))
+        {
+            CheckProvisionMark(model, element, mark, "marks", findings);
+        }
+        else if (!model.ById.TryGetValue(mark.RecordId, out var record))
         {
             findings.Add(new Finding("mark-unresolved", $"{KindName(element.Kind)} '{DisplayName(element)}' marks '{mark.RecordId}', which matches no record.", mark.File, mark.Line, subject));
         }
         else if (!MarkRules.Accepts(element.Kind, mark.RecordId))
         {
             findings.Add(new Finding("mark-unresolved", $"{KindName(element.Kind)} '{DisplayName(element)}' marks '{mark.RecordId}', which is a {record.Type} record, not a {ExpectedTypes(element.Kind)} record.", mark.File, mark.Line, subject));
+        }
+        else if (element.Kind == CodeKind.Test && record.Type == "requirement" && record.Field("kind") != "quality")
+        {
+            var kind = record.Field("kind");
+            var what = kind is { Length: > 0 } ? $"a {kind} requirement" : "a requirement with no kind";
+
+            findings.Add(new Finding("mark-unresolved", $"{KindName(element.Kind)} '{DisplayName(element)}' marks '{mark.RecordId}', which is {what}, not a quality requirement.", mark.File, mark.Line, subject));
+        }
+        else if (element.Kind == CodeKind.Test && record.Type == "decision" && !UnderImplementationDecisions(model.Config, record.File))
+        {
+            findings.Add(new Finding("mark-unresolved", $"{KindName(element.Kind)} '{DisplayName(element)}' marks '{mark.RecordId}', which is a product decision, not a technical decision.", mark.File, mark.Line, subject));
         }
 
         if (Readers.TypeScript.FrontendMarks.PathMismatch(model, element, mark) is { } expected)
@@ -115,16 +133,7 @@ static partial class Checker
 
         if (id.StartsWith("litespec/", StringComparison.Ordinal))
         {
-            if (!Authoring.Provisions.IsProvisionId(id) || (model.Provisions.Count > 0 && !model.Provisions.Contains(id)))
-            {
-                findings.Add(new Finding("mark-unresolved", $"{name} follows '{id}', which matches no provision of the carried release.", mark.File, mark.Line, id));
-            }
-            else if (model.AppliedPages.Count > 0
-                && Authoring.Provisions.Parse(id) is { } parsed
-                && !model.AppliedPages.Contains("docs/" + parsed.Page + ".md"))
-            {
-                findings.Add(new Finding("mark-unresolved", $"{name} follows '{id}', which sits on a page the project's stacks and extensions do not apply.", mark.File, mark.Line, id));
-            }
+            CheckProvisionMark(model, element, mark, "follows", findings);
 
             return;
         }
@@ -152,6 +161,28 @@ static partial class Checker
         else
         {
             findings.Add(new Finding("mark-unresolved", $"{name} follows '{id}', which is a {other.Type} record, not a provision, decision, or deviation.", mark.File, mark.Line, subject));
+        }
+    }
+
+    /// <summary>
+    ///     Checks one mark naming a provision: a <c>follows</c> mark on an element
+    ///     of any kind, or a <c>proves</c> mark on a test. It names a provision of
+    ///     the carried release, on a page the project's stacks and extensions apply.
+    /// </summary>
+    private static void CheckProvisionMark(ProjectModel model, MarkedElement element, CodeMark mark, string verb, List<Finding> findings)
+    {
+        var name = $"{KindName(element.Kind)} '{DisplayName(element)}'";
+        var id = mark.RecordId;
+
+        if (!Authoring.Provisions.IsProvisionId(id) || (model.Provisions.Count > 0 && !model.Provisions.Contains(id)))
+        {
+            findings.Add(new Finding("mark-unresolved", $"{name} {verb} '{id}', which matches no provision of the carried release.", mark.File, mark.Line, id));
+        }
+        else if (model.AppliedPages.Count > 0
+            && Authoring.Provisions.Parse(id) is { } parsed
+            && !model.AppliedPages.Contains("docs/" + parsed.Page + ".md"))
+        {
+            findings.Add(new Finding("mark-unresolved", $"{name} {verb} '{id}', which sits on a page the project's stacks and extensions do not apply.", mark.File, mark.Line, id));
         }
     }
 
@@ -224,7 +255,7 @@ static partial class Checker
     }
 
     /// <summary>Whether the file sits under the project's implementation decisions folder.</summary>
-    private static bool UnderImplementationDecisions(ConsumerConfig config, string file)
+    internal static bool UnderImplementationDecisions(ConsumerConfig config, string file)
     {
         var comparison = Path.DirectorySeparatorChar == '\\'
             ? StringComparison.OrdinalIgnoreCase

@@ -196,10 +196,11 @@ sealed class DotnetScenarioReader : IScenarioReader
                         .ToList()));
             }
 
+            // A test proves the lowest record it verifies, from any of the kinds
+            // the marks table lists for a test, so every proves target becomes a
+            // claim: only scenario and rule claims confirm toward verified status.
             var claims = read
-                .Where(mark => mark.Verb == MarkVerb.Proves
-                    && (mark.RecordId.StartsWith("scenario/", StringComparison.Ordinal)
-                        || mark.RecordId.StartsWith("rule/", StringComparison.Ordinal)))
+                .Where(mark => mark.Verb == MarkVerb.Proves && mark.HasRecordId)
                 .Select(mark => mark.RecordId)
                 .Distinct(StringComparer.Ordinal)
                 .ToList();

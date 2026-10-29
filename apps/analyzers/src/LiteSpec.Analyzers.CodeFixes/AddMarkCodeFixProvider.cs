@@ -16,9 +16,10 @@ namespace LiteSpec.Analyzers.CodeFixes;
 /// <summary>
 ///     Adds the missing mark LS5001 reports: one action per candidate record,
 ///     titled with the record title, written in the project's style. No Fix All:
-///     each element answers to its own record. For a technical class it offers the
-///     use-case records that handlers in the same folder mark, so a validator
-///     beside its handler takes the handler's use case in one action.
+///     each element answers to its own record. For a test it offers scenarios
+///     only. For a technical class it offers the use-case records that handlers
+///     in the same folder mark, so a validator beside its handler takes the
+///     handler's use case in one action.
 /// </summary>
 [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(AddMarkCodeFixProvider))]
 [Shared]

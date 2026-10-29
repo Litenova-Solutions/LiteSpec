@@ -44,13 +44,15 @@ public sealed class RecordStore
         new Dictionary<string, RecordStore?>(StringComparer.Ordinal);
 
     private readonly Dictionary<string, string> useCaseByHome;
+    private readonly List<string> docsRoots;
 
-    private RecordStore(ProjectSettings settings, RecordIndex index, string root, string projectFile)
+    private RecordStore(ProjectSettings settings, RecordIndex index, string root, string projectFile, List<string> docsRoots)
     {
         Settings = settings;
         Index = index;
         Root = root;
         ProjectFile = projectFile;
+        this.docsRoots = docsRoots;
         useCaseByHome = new Dictionary<string, string>(StringComparer.Ordinal);
 
         foreach (var record in index.Records)
@@ -170,6 +172,26 @@ public sealed class RecordStore
     public string? UseCaseOfHome(string home) =>
         useCaseByHome.TryGetValue(home, out var id) ? id : null;
 
+    /// <summary>Whether the file sits under the project's implementation decisions folder.</summary>
+    /// <param name="file">The record file path, as the host reported it.</param>
+    /// <returns>True when the file is a technical decision page.</returns>
+    public bool UnderImplementationDecisions(string file)
+    {
+        var candidate = file.Replace('\\', '/');
+
+        foreach (var docs in docsRoots)
+        {
+            var prefix = docs.TrimEnd('/') + "/implementation/decisions/";
+
+            if (candidate.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private static RecordStore? LoadUncached(IReadOnlyList<RecordFile> files)
     {
         var project = ProjectFileOf(files);
@@ -196,7 +218,7 @@ public sealed class RecordStore
         }
 
         var directory = DirectoryOf(project.Path);
-        var roots = DocsRoots(root, directory);
+        var roots = DocsRoots(root, directory, out var docsRoots);
 
         if (roots is null || roots.Count == 0)
         {
@@ -218,7 +240,7 @@ public sealed class RecordStore
             return null;
         }
 
-        return new RecordStore(settings, new RecordIndex(records), directory, project.Path);
+        return new RecordStore(settings, new RecordIndex(records), directory, project.Path, docsRoots);
     }
 
     private static RecordFile? ProjectFileOf(IReadOnlyList<RecordFile> files)
@@ -257,9 +279,10 @@ public sealed class RecordStore
     ///     (defaulting to <c>docs/behavior</c>), resolved against the project
     ///     directory. Returns null when the paths do not resolve.
     /// </summary>
-    private static List<string>? DocsRoots(JsonText root, string directory)
+    private static List<string>? DocsRoots(JsonText root, string directory, out List<string> docsOnly)
     {
         var roots = new List<string>();
+        docsOnly = new List<string>();
         JsonText? paths = null;
 
         if (root.TryGetProperty("paths", out var found))
@@ -280,17 +303,17 @@ public sealed class RecordStore
 
         if (paths is null || !paths.TryGetProperty("docs", out var docs) || docs.Kind == JsonKind.Null)
         {
-            roots.Add(Combine(directory, "docs"));
+            AddDocsRoot(roots, docsOnly, Combine(directory, "docs"));
         }
         else if (docs.Kind == JsonKind.String && docs.GetString() is string single)
         {
             if (single.Length == 0)
             {
-                roots.Add(Combine(directory, "docs"));
+                AddDocsRoot(roots, docsOnly, Combine(directory, "docs"));
             }
             else
             {
-                roots.Add(Combine(directory, single));
+                AddDocsRoot(roots, docsOnly, Combine(directory, single));
             }
         }
         else if (docs.Kind == JsonKind.Array)
@@ -299,7 +322,7 @@ public sealed class RecordStore
             {
                 if (entry.Kind == JsonKind.String && entry.GetString() is string folder && folder.Length > 0)
                 {
-                    roots.Add(Combine(directory, folder));
+                    AddDocsRoot(roots, docsOnly, Combine(directory, folder));
                 }
             }
         }
@@ -325,6 +348,13 @@ public sealed class RecordStore
         }
 
         return roots;
+    }
+
+    /// <summary>Adds a <c>paths.docs</c> folder to both the index roots and the docs-only roots.</summary>
+    private static void AddDocsRoot(List<string> roots, List<string> docsOnly, string folder)
+    {
+        roots.Add(folder);
+        docsOnly.Add(folder);
     }
 
     private static string Combine(string directory, string folder)

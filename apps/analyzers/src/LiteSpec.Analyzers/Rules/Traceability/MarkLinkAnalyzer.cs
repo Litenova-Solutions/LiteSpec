@@ -147,16 +147,38 @@ public sealed class MarkLinkAnalyzer : TraceabilityAnalyzer
 
         if (record is null)
         {
-            TraceabilityReporter.Report(
-                state,
-                context.ReportDiagnostic,
-                Descriptors.LS5002,
-                "mark-unresolved",
-                mark.RecordId,
-                location,
-                symbol.Name,
-                mark.RecordId,
-                "matches no record");
+            // A test proves the lowest record it verifies, so a proves mark may
+            // name a provision of the carried release, checked for existence as a
+            // follows mark is; every other kind still matches no record.
+            if (kind == CodeKind.Test && mark.RecordId.StartsWith("litespec/", System.StringComparison.Ordinal))
+            {
+                if (!ProvisionIds.Contains(mark.RecordId))
+                {
+                    TraceabilityReporter.Report(
+                        state,
+                        context.ReportDiagnostic,
+                        Descriptors.LS5002,
+                        "mark-unresolved",
+                        mark.RecordId,
+                        location,
+                        symbol.Name,
+                        mark.RecordId,
+                        "matches no provision of the carried release");
+                }
+            }
+            else
+            {
+                TraceabilityReporter.Report(
+                    state,
+                    context.ReportDiagnostic,
+                    Descriptors.LS5002,
+                    "mark-unresolved",
+                    mark.RecordId,
+                    location,
+                    symbol.Name,
+                    mark.RecordId,
+                    "matches no record");
+            }
         }
         else if (!MarkRules.Accepts(kind.Value, mark.RecordId))
         {
@@ -170,6 +192,37 @@ public sealed class MarkLinkAnalyzer : TraceabilityAnalyzer
                 symbol.Name,
                 mark.RecordId,
                 "is a " + record.Type + " record, not a " + Expected(kind.Value) + " record");
+        }
+        else if (kind == CodeKind.Test && record.Type == "requirement" && record.Field("kind") != "quality")
+        {
+            var field = record.Field("kind");
+            var what = field is string held && held.Length > 0
+                ? "a " + held + " requirement"
+                : "a requirement with no kind";
+
+            TraceabilityReporter.Report(
+                state,
+                context.ReportDiagnostic,
+                Descriptors.LS5002,
+                "mark-unresolved",
+                mark.RecordId,
+                location,
+                symbol.Name,
+                mark.RecordId,
+                "is " + what + ", not a quality requirement");
+        }
+        else if (kind == CodeKind.Test && record.Type == "decision" && !state.Store.UnderImplementationDecisions(record.File))
+        {
+            TraceabilityReporter.Report(
+                state,
+                context.ReportDiagnostic,
+                Descriptors.LS5002,
+                "mark-unresolved",
+                mark.RecordId,
+                location,
+                symbol.Name,
+                mark.RecordId,
+                "is a product decision, not a technical decision");
         }
 
         if (mark.Verb != MarkRules.Verb(kind.Value))

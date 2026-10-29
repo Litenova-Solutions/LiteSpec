@@ -67,6 +67,31 @@ public sealed class DotnetScenarioMarkTests
         Assert.Equal("rule/lending.copy-barcode-unique", Assert.Single(scenario.Claims));
     }
 
+    [Theory]
+    [InlineData("requirement/borrowing.borrow-latency")]
+    [InlineData("decision/0002-store-loans-as-documents")]
+    [InlineData("external-system/text-gateway")]
+    [InlineData("integration-event/loan-borrowed")]
+    [InlineData("litespec/backend/persistence#commit-each-command-pipeline-once")]
+    public void Test_Claim_Names_A_Proof_Target(string claim)
+    {
+        using var temp = Cli.Temp("reader-marks");
+        WriteProject(temp.Path);
+        WriteSource(temp.Path, "LatencyTests.cs", $$"""
+            namespace Library.Acceptance.Tests;
+
+            public sealed class LatencyTests
+            {
+                /// <proves>{{claim}}</proves>
+                public Task Borrowing_stays_fast() => Task.CompletedTask;
+            }
+            """);
+
+        var scenario = Assert.Single(Read(temp.Path).Scenarios);
+
+        Assert.Equal(claim, Assert.Single(scenario.Claims));
+    }
+
     [Fact]
     public void Test_Without_Claims_Has_No_Scenario()
     {

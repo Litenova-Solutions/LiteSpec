@@ -69,6 +69,8 @@ sealed class ProjectModel
 
     /// <summary>Per requirement, by id: verified from what fulfills it and from its measure.</summary>
     public Dictionary<string, RequirementStatus> RequirementStatus { get; } = new(StringComparer.Ordinal);
+    /// <summary>Per proof target, by id: whether a passing test run proves it. Only quality requirements, technical decisions, external systems, and integration events carry a tested state.</summary>
+    public Dictionary<string, bool> Tested { get; } = new(StringComparer.Ordinal);
 
     /// <summary>Per aggregate, by id: the states some transition leads into, or that start its lifecycle.</summary>
     public Dictionary<string, IReadOnlySet<string>> ReachableStates { get; } = new(StringComparer.Ordinal);
@@ -525,6 +527,15 @@ sealed class ProjectModel
                 }
 
                 writer.WriteEndObject();
+            }
+
+            writer.WriteEndObject();
+
+            writer.WriteStartObject("tested");
+
+            foreach (var entry in Tested.OrderBy(left => left.Key, StringComparer.Ordinal))
+            {
+                writer.WriteBoolean(entry.Key, entry.Value);
             }
 
             writer.WriteEndObject();

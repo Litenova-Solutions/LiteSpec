@@ -6,7 +6,7 @@ Use this generated page to resolve a provision ID to its heading, owning page, a
 
 Run `litespec provisions` after any provision change. The repository validator fails when this page and the active standards disagree.
 
-The active release states 1678 provisions across 6 areas.
+The active release states 1679 provisions across 6 areas.
 
 ## backend
 
@@ -584,6 +584,7 @@ The active release states 1678 provisions across 6 areas.
 | litespec/core/model#keep-one-owner-and-status-on-every-record | [Keep One Owner and Status on Every Record](../core/model.md#keep-one-owner-and-status-on-every-record) | rule | checkable | `litespec model check` reports `owner-unknown` and `draft-without-decider` for a page missing its owner or draft decider. |
 | litespec/core/model#keep-rules-and-targets-out-of-technical-decisions | [Keep Rules and Targets Out of Technical Decisions](../core/model.md#keep-rules-and-targets-out-of-technical-decisions) | rule | checkable | `litespec model check` reports `decision-without-basis` (tier A) for a technical decision whose `basedOn` names nothing, and counts a quality requirement as fulfilled when a technical decision names it in `basedOn`. |
 | litespec/core/model#mark-every-check-with-its-tier | [Mark Every Check with Its Tier](../core/model.md#mark-every-check-with-its-tier) | rule | guidance | Which findings lack a tier letter, or block outside their tier? Look at the output of `litespec model check`. |
+| litespec/core/model#name-the-lowest-record-each-test-proves | [Name the Lowest Record Each Test Proves](../core/model.md#name-the-lowest-record-each-test-proves) | rule | checkable | `litespec model check` reports `mark-missing` and `mark-unresolved` (tier S) for a test that names no record or a record of a kind a test does not take. |
 | litespec/core/model#name-what-every-decision-decides | [Name What Every Decision Decides](../core/model.md#name-what-every-decision-decides) | rule | checkable | `litespec model check` reports `decision-decides-nothing` for a product decision with an empty `decides` field. |
 | litespec/core/model#raise-modeling-questions-with-a-decider-and-a-date | [Raise Modeling Questions with a Decider and a Date](../core/model.md#raise-modeling-questions-with-a-decider-and-a-date) | rule | guidance | Open modeling questions appear as draft questions carrying a decider and a date. |
 | litespec/core/model#record-a-project-wide-lowering-as-a-deviation | [Record a Project-Wide Lowering as a Deviation](../core/model.md#record-a-project-wide-lowering-as-a-deviation) | rule | guidance | Which project-wide severity lowerings in `.editorconfig` lack a deviation record? Look at every `.editorconfig` in the repository beside the deviation records. |

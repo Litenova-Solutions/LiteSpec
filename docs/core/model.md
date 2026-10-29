@@ -88,7 +88,7 @@ A page record is a Markdown file whose opening block names a record type. An ent
 | `feature` | page | `docs/intent/features/<name>.md` |
 | `constraint` | page | `docs/intent/constraints/<name>.md` |
 | `research` | page | `docs/intent/research/<name>.md` |
-| `decision` | page | `docs/intent/decisions/<number>-<name>.md` |
+| `decision` | page | `docs/intent/decisions/<number>-<name>.md`; a technical decision `docs/implementation/decisions/<number>-<name>.md` |
 | `requirement` | entry | `docs/intent/<area>/<topic>.md` |
 | `journey` | page | `docs/intent/journeys/<name>.md` |
 | `actor` | page | `docs/intent/actors/<name>.md` |
@@ -233,7 +233,7 @@ A mark is the one written link from a code element to the record it serves. It h
 | Infrastructure | Adapter implementing that port | `external-system/<name>` |
 | API | Endpoint | `use-case/<module>.<name>` |
 | Frontend | Use-case module | `use-case/<module>.<name>` |
-| Tests | Test | `scenario/<use-case>.<name>`, or `rule/<home>.<name>` for a rule test |
+| Tests | Test | The lowest record it verifies: `scenario/<use-case>.<name>` or `rule/<home>.<name>` for behavior; `requirement/<topic>.<name>` of kind quality; `decision/<number>-<name>` for a technical choice; `external-system/<name>` or `integration-event/<name>` for an outside agreement; `litespec/<page>#<slug>` for a provision the code must keep |
 | Application, Infrastructure or API | Technical class: a class that declares a method and takes no other mark | One or more: a Behavior record it serves in an `implements` mark, or `litespec/<page>#<slug>`, `decision/<number>-<name>` or `deviation/<name>` in a `follows` mark |
 
 A code element serving a record names it in an `implements` mark. A technical class names the record it serves in an `implements` mark, as an input validator names its use case and a repository its aggregate. Where it serves no record, it names the reason it is built the way it is in a `follows` mark: the LiteSpec provision that requires its shape, the technical decision that chose it, or the deviation that allows it. Any other code element may carry a `follows` mark as well.
@@ -272,6 +272,7 @@ Implemented, verified, stale, and reachable are computed, never handwritten. The
 |:--|:--|:--|
 | implemented | use case, rule, event, aggregate state | the stack builder finds code for it |
 | verified | use case | every scenario has a passing test through the public boundary |
+| tested | quality requirement, technical decision, external system, integration event | a test proving it passes; tested never makes a use case verified |
 | verified | requirement | everything fulfilling it is verified, and a measured requirement measure has a passing check |
 | stale | scenario proof | the scenario semantic hash changed after its test last passed |
 | reachable | aggregate state | a transition leads into it |
@@ -761,6 +762,18 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 **Example:** With `"check": { "phase": "frozen" }`, `proves-unconfirmed` and `use-case-without-scenario` print with the frozen marker and the check exits zero.
 
 **Checked by:** `litespec model check` prints `frozen` beside `proves-unconfirmed`, `use-case-without-scenario`, and every mark finding on a test while `check.phase` is `frozen`, and none of them blocks; `dotnet build` reports `LS4001` and every LS5xxx rule on a test as a warning in the same phase.
+
+### Name the Lowest Record Each Test Proves
+
+**ID:** `litespec/core/model#name-the-lowest-record-each-test-proves`
+
+**Statement:** Every test MUST name in a `proves` mark the lowest record it verifies, from the kinds the marks table on this page lists for a test.
+
+**Rationale:** A test outside the record tree is either proof of something the specification forgot to state or a test that verifies nothing anyone promised. Naming the lowest record it verifies places each test: a scenario or rule for behavior, a quality requirement for how well the product behaves, a technical decision for a technical choice, an external system or integration event for an agreement with the outside, and a provision for a structural rule the code must keep. A test that verifies a choice no record states shows a missing record, which is written at the level where the choice lives, as safety-critical standards resolve derived requirements; a test that verifies nothing a record should state is deleted. Proof stays layered: only scenario and rule proofs verify a use case, and a passing test of a requirement, decision, external system or provision marks that record tested, so "the adapter is right" never reads as "the promise is kept".
+
+**Example:** In Claimwick, the submit-expense acceptance test proves `scenario/submit-expense.submitting-with-a-receipt-succeeds`; a load test of month-end submissions proves `requirement/spending.month-end-submissions`; a round-trip test of the expense document proves `decision/0002-store-expenses-as-documents`; and the layering test that Domain references no persistence package proves `litespec/backend/architecture#point-dependencies-inward`.
+
+**Checked by:** `litespec model check` reports `mark-missing` and `mark-unresolved` (tier S) for a test that names no record or a record of a kind a test does not take.
 
 ### Implement Each Mapped Behavior Record Behind a Mark
 

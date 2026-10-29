@@ -193,6 +193,51 @@ internal static class TraceabilityFixtures
             }
             """, title);
 
+    /// <summary>A technical decision page under the implementation decisions folder.</summary>
+    public static (string Path, string Source) TechnicalDecision(
+        string id = "decision/0002-store-expenses-as-documents",
+        string title = "Store expenses as documents",
+        string status = "approved") =>
+        Page("implementation/decisions/0002-store-expenses-as-documents.md", $$"""
+            {
+              "type": "decision",
+              "id": "{{id}}",
+              "title": "{{title}}",
+              "status": "{{status}}"
+            }
+            """, title);
+
+    /// <summary>A requirement page with its kind and status.</summary>
+    public static (string Path, string Source) Requirement(
+        string id = "requirement/borrowing.borrow-latency",
+        string title = "Borrow latency",
+        string status = "approved",
+        string kind = "quality") =>
+        Page(FileOf(id), $$"""
+            {
+              "type": "requirement",
+              "id": "{{id}}",
+              "title": "{{title}}",
+              "status": "{{status}}",
+              "kind": "{{kind}}",
+              "statement": "Borrowing answers fast."
+            }
+            """, title);
+
+    /// <summary>An integration-event page with its status.</summary>
+    public static (string Path, string Source) IntegrationEvent(
+        string id = "integration-event/expense-submitted",
+        string title = "Expense submitted",
+        string status = "approved") =>
+        Page(FileOf(id), $$"""
+            {
+              "type": "integration-event",
+              "id": "{{id}}",
+              "title": "{{title}}",
+              "status": "{{status}}"
+            }
+            """, title);
+
     /// <summary>An open known gap covering the check on the subjects until 2099.</summary>
     public static (string Path, string Source) KnownGap(string check, string[] subjects, string endsBy = "2099-01-01") =>
         Page("gap.md", $$"""

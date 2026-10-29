@@ -77,6 +77,7 @@ static class RecordPages
             "job" => Path.Combine(behavior, "modules", home!, "jobs", $"{name}.md"),
             "notification" => Path.Combine(behavior, "modules", home!, "notifications", $"{name}.md"),
             "role" => Path.Combine(behavior, "access", "roles", $"{name}.md"),
+            "integration-event" => Path.Combine(behavior, "integration-events", $"{name}.md"),
             "external-system" => Path.Combine(behavior, "external-systems", $"{name}.md"),
             "runbook" => Path.Combine(behavior, "runbooks", $"{name}.md"),
             "deviation" => Path.Combine(docs, "governance", "deviations", $"{name}.md"),
@@ -95,6 +96,12 @@ static class RecordPages
         ConsumerConfig config, string type, string? oldHome, string? newHome, string newName, string oldFile)
     {
         var placed = PagePath(config, type, newHome, newName);
+
+        // A technical decision lives under Implementation and stays there when renamed.
+        if (type == "decision" && IsTechnicalDecision(config, oldFile))
+        {
+            placed = Path.Combine(DocsRoot(config), "implementation", "decisions", Path.GetFileName(placed));
+        }
 
         if (string.Equals(placed, oldFile, StringComparison.Ordinal))
         {
@@ -115,6 +122,10 @@ static class RecordPages
 
         return string.Equals(stayed, oldFile, StringComparison.Ordinal) ? null : stayed;
     }
+
+    /// <summary>Whether a decision page sits under the implementation decisions folder.</summary>
+    static bool IsTechnicalDecision(ConsumerConfig config, string file) =>
+        file.StartsWith(Path.Combine(DocsRoot(config), "implementation", "decisions") + Path.DirectorySeparatorChar, StringComparison.Ordinal);
 
     /// <summary>
     ///     The folder a renamed module or aggregate page moves to. The folder moves

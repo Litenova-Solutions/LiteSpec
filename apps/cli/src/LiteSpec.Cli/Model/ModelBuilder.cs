@@ -600,9 +600,19 @@ static partial class ModelBuilder
     ///     repository directly. A rule claim confirms through a scenario the same test
     ///     proves, or through an integration fact that resolves a service from the host
     ///     and calls the message type of a governed use case or the governed aggregate.
+    ///     A requirement, decision, external-system, or integration-event claim
+    ///     confirms on its own once it resolves: no step, message, or effect analysis
+    ///     applies, and its passing run marks it tested. A provision claim confirms
+    ///     when the carried release holds it.
     /// </summary>
     public static bool Confirm(ProjectModel model, ScenarioInfo test, string claim)
     {
+        if (claim.StartsWith("litespec/", StringComparison.Ordinal))
+        {
+            return Authoring.Provisions.IsProvisionId(claim)
+                && (model.Provisions.Count == 0 || model.Provisions.Contains(claim));
+        }
+
         if (!model.ById.TryGetValue(claim, out var claimed))
         {
             return false;
@@ -611,6 +621,11 @@ static partial class ModelBuilder
         if (claimed.Type == "rule")
         {
             return ConfirmRule(model, test, claimed);
+        }
+
+        if (claimed.Type is "requirement" or "decision" or "external-system" or "integration-event")
+        {
+            return true;
         }
 
         if (claimed.Type != "scenario")
@@ -1053,8 +1068,37 @@ static partial class ModelBuilder
         }
 
         ComputeRequirementStatus(model);
+        ComputeTested(model);
         ComputeReachableStates(model);
     }
+
+    /// <summary>
+    ///     Computes each proof target's tested state: a quality requirement, a
+    ///     technical decision, an external system, or an integration event is tested
+    ///     when a test run proving it passes. Tested never verifies a use case.
+    /// </summary>
+    private static void ComputeTested(ProjectModel model)
+    {
+        foreach (var record in model.Records)
+        {
+            if (!IsTestedTarget(model, record))
+            {
+                continue;
+            }
+
+            model.Tested[record.Id] = model.Proves.Any(link => link.Claim == record.Id && link.Passing == true);
+        }
+    }
+
+    /// <summary>Whether the record carries a tested state: a proof target outside verified status.</summary>
+    private static bool IsTestedTarget(ProjectModel model, Record record) => record.Type switch
+    {
+        "requirement" => record.Field("kind") == "quality",
+        "decision" => Checker.UnderImplementationDecisions(model.Config, record.File),
+        "external-system" => true,
+        "integration-event" => true,
+        _ => false,
+    };
 
     /// <summary>
     ///     Computes each requirement's status: verified when everything fulfilling it is

@@ -55,6 +55,80 @@ public sealed class RenameMarksTests
         Assert.DoesNotContain(oldDecision, File.ReadAllText(FollowsAttribute(temp.Path)));
     }
 
+    [Fact]
+    public void Rename_Keeps_A_Technical_Decision_Under_Implementation()
+    {
+        const string oldDecision = "decision/0002-store-loans-as-documents";
+        const string newDecision = "decision/0002-store-loans-as-files";
+
+        using var temp = Cli.Temp("rename-marks");
+        WriteConsumer(temp.Path);
+        var intentPage = Path.Combine(temp.Path, "docs", "intent", "decisions", "0002-store-loans-as-documents.md");
+        var technicalFolder = Path.Combine(temp.Path, "docs", "implementation", "decisions");
+        Directory.CreateDirectory(technicalFolder);
+        File.Move(intentPage, Path.Combine(technicalFolder, "0002-store-loans-as-documents.md"));
+
+        var result = Cli.Run("rename", oldDecision, newDecision, "--root", temp.Path);
+
+        Assert.True(result.Status == 0, result.Output);
+        Assert.True(File.Exists(Path.Combine(technicalFolder, "0002-store-loans-as-files.md")), result.Output);
+        Assert.False(File.Exists(Path.Combine(temp.Path, "docs", "intent", "decisions", "0002-store-loans-as-files.md")));
+    }
+
+    [Fact]
+    public void Rename_Rewrites_A_Requirement_Id_Inside_Proves_Marks_In_Both_Styles()
+    {
+        const string oldRequirement = "requirement/borrowing.borrow-latency";
+        const string newRequirement = "requirement/borrowing.borrow-speed";
+
+        using var temp = Cli.Temp("rename-marks");
+        WriteConsumer(temp.Path);
+
+        var result = Cli.Run("rename", oldRequirement, newRequirement, "--root", temp.Path);
+
+        Assert.Equal(0, result.Status);
+        Assert.Contains($"<proves>{newRequirement}</proves>", File.ReadAllText(ProvesTag(temp.Path)));
+        Assert.DoesNotContain(oldRequirement, File.ReadAllText(ProvesTag(temp.Path)));
+        Assert.Contains($"[Proves(\"{newRequirement}\")]", File.ReadAllText(ProvesAttribute(temp.Path)));
+        Assert.DoesNotContain(oldRequirement, File.ReadAllText(ProvesAttribute(temp.Path)));
+    }
+
+    [Fact]
+    public void Rename_Rewrites_An_External_System_Id_Inside_Proves_Marks_In_Both_Styles()
+    {
+        const string oldSystem = "external-system/text-gateway";
+        const string newSystem = "external-system/sms-gateway";
+
+        using var temp = Cli.Temp("rename-marks");
+        WriteConsumer(temp.Path);
+
+        var result = Cli.Run("rename", oldSystem, newSystem, "--root", temp.Path);
+
+        Assert.Equal(0, result.Status);
+        Assert.Contains($"<proves>{newSystem}</proves>", File.ReadAllText(ProvesTag(temp.Path)));
+        Assert.DoesNotContain(oldSystem, File.ReadAllText(ProvesTag(temp.Path)));
+        Assert.Contains($"[Proves(\"{newSystem}\")]", File.ReadAllText(ProvesAttribute(temp.Path)));
+        Assert.DoesNotContain(oldSystem, File.ReadAllText(ProvesAttribute(temp.Path)));
+    }
+
+    [Fact]
+    public void Rename_Rewrites_An_Integration_Event_Id_Inside_Proves_Marks_In_Both_Styles()
+    {
+        const string oldEvent = "integration-event/loan-borrowed";
+        const string newEvent = "integration-event/loan-extended";
+
+        using var temp = Cli.Temp("rename-marks");
+        WriteConsumer(temp.Path);
+
+        var result = Cli.Run("rename", oldEvent, newEvent, "--root", temp.Path);
+
+        Assert.Equal(0, result.Status);
+        Assert.Contains($"<proves>{newEvent}</proves>", File.ReadAllText(ProvesTag(temp.Path)));
+        Assert.DoesNotContain(oldEvent, File.ReadAllText(ProvesTag(temp.Path)));
+        Assert.Contains($"[Proves(\"{newEvent}\")]", File.ReadAllText(ProvesAttribute(temp.Path)));
+        Assert.DoesNotContain(oldEvent, File.ReadAllText(ProvesAttribute(temp.Path)));
+    }
+
     static string DocTag(string root) => Path.Combine(
         root, "apps", "api", "src", "Library.Application", "BorrowCopyCommandHandler.cs");
 
@@ -72,6 +146,12 @@ public sealed class RenameMarksTests
 
     static string FollowsAttribute(string root) => Path.Combine(
         root, "apps", "api", "src", "Library.Infrastructure", "LoanDocumentStore.cs");
+
+    static string ProvesTag(string root) => Path.Combine(
+        root, "apps", "api", "tests", "Library.Acceptance.Tests", "Proof", "ProvesTag.cs");
+
+    static string ProvesAttribute(string root) => Path.Combine(
+        root, "apps", "api", "tests", "Library.Acceptance.Tests", "Proof", "ProvesAttribute.cs");
 
     static void WriteConsumer(string root)
     {
@@ -183,6 +263,87 @@ public sealed class RenameMarksTests
 
             [Follows("decision/0002-store-loans-as-documents")]
             internal sealed class LoanDocumentStore;
+            """);
+        Write(Path.Combine(root, "docs", "intent", "borrowing", "performance.md"), """
+            ---
+            {
+              "type": "requirement-page",
+              "title": "Borrowing performance",
+              "owner": "lending-team",
+              "status": "approved",
+              "records": [
+                {
+                  "type": "requirement",
+                  "id": "requirement/borrowing.borrow-latency",
+                  "title": "Borrow latency",
+                  "kind": "quality",
+                  "statement": "Borrowing completes within two hundred milliseconds at p95."
+                }
+              ]
+            }
+            ---
+
+            # Borrowing performance
+
+            Borrowing stays fast.
+            """);
+        Write(Path.Combine(root, "docs", "behavior", "external-systems", "text-gateway.md"), """
+            ---
+            {
+              "type": "external-system",
+              "id": "external-system/text-gateway",
+              "title": "Text gateway",
+              "owner": "lending-team",
+              "status": "reviewed"
+            }
+            ---
+
+            # Text gateway
+
+            The text gateway sends overdue notices to readers.
+            """);
+        Write(Path.Combine(root, "docs", "behavior", "integration-events", "loan-borrowed.md"), """
+            ---
+            {
+              "type": "integration-event",
+              "id": "integration-event/loan-borrowed",
+              "title": "Loan borrowed",
+              "owner": "lending-team",
+              "status": "reviewed"
+            }
+            ---
+
+            # Loan borrowed
+
+            A loan opened on the shelf.
+            """);
+        Write(ProvesTag(root), """
+            namespace Library.Acceptance.Tests;
+
+            public sealed class LatencyTests
+            {
+                /// <proves>requirement/borrowing.borrow-latency</proves>
+                /// <proves>external-system/text-gateway</proves>
+                /// <proves>integration-event/loan-borrowed</proves>
+                [Fact]
+                public void Borrowing_stays_fast()
+                {
+                }
+            }
+            """);
+        Write(ProvesAttribute(root), """
+            namespace Library.Acceptance.Tests;
+
+            public sealed class LatencyAttributeTests
+            {
+                [Proves("requirement/borrowing.borrow-latency")]
+                [Proves("external-system/text-gateway")]
+                [Proves("integration-event/loan-borrowed")]
+                [Fact]
+                public void Borrowing_stays_fast()
+                {
+                }
+            }
             """);
     }
 
