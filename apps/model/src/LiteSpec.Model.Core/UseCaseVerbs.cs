@@ -85,6 +85,16 @@ public static class UseCaseVerbs
             ["verify"] = VerbKind.Command,
         };
 
+    /// <summary>
+    ///     The words only a permission name opens with, each with the kind it grants. A permission groups the
+    ///     use cases it allows, so `manage` names one that allows every changing use case on what it names.
+    /// </summary>
+    public static readonly IReadOnlyDictionary<string, VerbKind> PermissionOnly =
+        new Dictionary<string, VerbKind>(StringComparer.Ordinal)
+        {
+            ["manage"] = VerbKind.Command,
+        };
+
     /// <summary>The synonyms the baseline retires, each with the verb that replaces it.</summary>
     public static readonly IReadOnlyDictionary<string, string> Retired =
         new Dictionary<string, string>(StringComparer.Ordinal)
@@ -174,6 +184,26 @@ public static class UseCaseVerbs
         || Contains(verbs, verb)
         || Contains(queryVerbs, verb)
         || Contains(phrasal, verb);
+
+    /// <summary>Whether a permission name may open with the word: a declared verb or a permission-only word.</summary>
+    /// <param name="verb">The opening word.</param>
+    /// <param name="verbs">The domain verbs the project adds to the baseline.</param>
+    /// <param name="queryVerbs">The project verbs that name a query.</param>
+    /// <param name="phrasal">The multi-word verbs counted as one opening.</param>
+    /// <returns>Whether the word is declared for a permission.</returns>
+    public static bool IsPermissionDeclared(
+        string verb,
+        IReadOnlyList<string> verbs,
+        IReadOnlyList<string> queryVerbs,
+        IReadOnlyList<string> phrasal) =>
+        PermissionOnly.ContainsKey(verb) || IsDeclared(verb, verbs, queryVerbs, phrasal);
+
+    /// <summary>The kind a permission's opening word grants: its permission-only kind, or its verb kind.</summary>
+    /// <param name="verb">The opening word.</param>
+    /// <param name="queryVerbs">The project verbs that name a query.</param>
+    /// <returns>The word's kind.</returns>
+    public static VerbKind PermissionKindOf(string verb, IReadOnlyList<string> queryVerbs) =>
+        PermissionOnly.TryGetValue(verb, out var kind) ? kind : KindOf(verb, queryVerbs);
 
     private static bool Contains(IReadOnlyList<string> values, string verb)
     {

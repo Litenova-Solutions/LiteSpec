@@ -349,7 +349,7 @@ internal static class Emitter
         foreach (var permission in named)
         {
             if (VerbOf(permission.Facts.Id, records) is string verb
-                && !UseCaseVerbs.IsDeclared(verb, records.Verbs, records.QueryVerbs, records.PhrasalVerbs))
+                && !UseCaseVerbs.IsPermissionDeclared(verb, records.Verbs, records.QueryVerbs, records.PhrasalVerbs))
             {
                 context.ReportDiagnostic(Diagnostic.Create(
                     Descriptors.LS5010,
@@ -373,12 +373,12 @@ internal static class Emitter
     private static bool Reads(string id, RecordModel records)
     {
         if (VerbOf(id, records) is not string verb
-            || !UseCaseVerbs.IsDeclared(verb, records.Verbs, records.QueryVerbs, records.PhrasalVerbs))
+            || !UseCaseVerbs.IsPermissionDeclared(verb, records.Verbs, records.QueryVerbs, records.PhrasalVerbs))
         {
             return false;
         }
 
-        return UseCaseVerbs.KindOf(verb, records.QueryVerbs) == UseCaseVerbs.VerbKind.Query;
+        return UseCaseVerbs.PermissionKindOf(verb, records.QueryVerbs) == UseCaseVerbs.VerbKind.Query;
     }
 
     /// <summary>The opening verb of the permission name, or null when the identifier carries none.</summary>

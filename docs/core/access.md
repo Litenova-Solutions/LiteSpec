@@ -20,7 +20,7 @@ A role is one named set of permissions granted together. Its scope is a kebab-ca
 
 A permission is one allowed action. The project keeps every permission in one shared list, and each permission states in `meaning` what it allows in one sentence. Roles allow permissions from that list, and use cases cite them in their grants, so the list is the one vocabulary both sides share.
 
-Each permission names in `scope` the reach at which a role grants it, using the same levels a role scope uses, such as `platform`, `tenant`, or `self`, or levels the project names itself. An optional `group` orders the permission beside its peers in role editors. The `risk` field marks a sensitive permission, and whether a permission only reads follows from the kind of its leading verb in the use-case verb table on the [behavior page](behavior.md).
+Each permission names in `scope` the reach at which a role grants it, using the same levels a role scope uses, such as `platform`, `tenant`, or `self`, or levels the project names itself. An optional `group` orders the permission beside its peers in role editors. The `risk` field marks a sensitive permission, and whether a permission only reads follows from the kind of its leading verb in the use-case verb table on the [behavior page](behavior.md). A permission name may also open with `manage`, which allows every changing use case on what it names, so it never only reads.
 
 ### The Access Field
 

@@ -74,6 +74,21 @@ public sealed class PermissionMetadataTests
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
     }
 
+    [Fact(DisplayName = "A manage permission changes and stays silent")]
+    public void ManagePermissionChangesAndStaysSilent()
+    {
+        var run = GeneratorVerify.Run(
+            RecordPages.Sources("namespace Shop.Spending; internal sealed class Placeholder;"),
+            RecordPages.Files("xml", ("permissions.md", RecordPages.PermissionFactsPage(
+                RecordPages.PermissionEntry("permission/manage-copies", "tenant")))),
+            assemblyName: "Shop.Application");
+
+        Assert.Empty(run.ReportedDiagnostics);
+        Assert.True(run.Sources.TryGetValue("LiteSpecPermissions.g.cs", out var permissions), "The permissions source is missing.");
+        Assert.Contains("new LiteSpecPermission(\"permission/manage-copies\", \"tenant\", null, false, new string[] { })", permissions, StringComparison.Ordinal);
+        Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
+    }
+
     [Fact(DisplayName = "A declared project verb reads false and stays silent")]
     public void DeclaredProjectVerbStaysSilent()
     {
