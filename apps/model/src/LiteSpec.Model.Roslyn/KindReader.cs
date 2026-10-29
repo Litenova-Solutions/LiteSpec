@@ -252,9 +252,20 @@ public static class KindReader
         return null;
     }
 
+    /// <summary>
+    ///     Whether a declaration is another part of a partial type declared elsewhere: a top-level
+    ///     partial declaration with no base list. Only such a part takes its kind from its name;
+    ///     any other type is known by its bases, so a nested type sharing a root's simple name is
+    ///     never mistaken for the root.
+    /// </summary>
+    private static bool IsOtherPart(TypeDeclarationSyntax type) =>
+        type.BaseList is null
+        && type.Parent is not TypeDeclarationSyntax
+        && type.Modifiers.Any(modifier => modifier.IsKind(SyntaxKind.PartialKeyword));
+
     private static bool IsAggregateRoot(TypeDeclarationSyntax type, KindContext context)
     {
-        if (context.AggregateRoots.Contains(type.Identifier.ValueText))
+        if (IsOtherPart(type) && context.AggregateRoots.Contains(type.Identifier.ValueText))
         {
             return true;
         }
@@ -323,7 +334,7 @@ public static class KindReader
             return false;
         }
 
-        if (context.DomainExceptions.Contains(type.Identifier.ValueText))
+        if (IsOtherPart(type) && context.DomainExceptions.Contains(type.Identifier.ValueText))
         {
             return true;
         }
@@ -624,14 +635,13 @@ public static class KindReader
         var name = type.Identifier.ValueText;
 
         if (type is not InterfaceDeclarationSyntax
-            && (context.DomainEvents.Contains(name) || BaseCarries(type, context.DomainEvents)))
+            && ((IsOtherPart(type) && context.DomainEvents.Contains(name)) || BaseCarries(type, context.DomainEvents)))
         {
             return CodeKind.DomainEvent;
         }
 
         if (IsClassLike(type)
-            && (context.CommandHandlers.Contains(name)
-                || context.QueryHandlers.Contains(name)
+            && ((IsOtherPart(type) && (context.CommandHandlers.Contains(name) || context.QueryHandlers.Contains(name)))
                 || BaseCarries(type, context.CommandHandlers)
                 || BaseCarries(type, context.QueryHandlers)))
         {
@@ -639,14 +649,14 @@ public static class KindReader
         }
 
         if (IsClassLike(type)
-            && (context.EventHandlers.Contains(name) || BaseCarries(type, context.EventHandlers)))
+            && ((IsOtherPart(type) && context.EventHandlers.Contains(name)) || BaseCarries(type, context.EventHandlers)))
         {
             return CodeKind.EventHandler;
         }
 
         if (IsClassLike(type)
             && HasJobName(name)
-            && (context.JobHosts.Contains(name) || BaseCarries(type, context.JobHosts)))
+            && ((IsOtherPart(type) && context.JobHosts.Contains(name)) || BaseCarries(type, context.JobHosts)))
         {
             return CodeKind.Job;
         }

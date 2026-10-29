@@ -17,13 +17,13 @@ public sealed class KindReaderTests
         Assert.Equal(CodeKind.AggregateRoot, KindReader.KindOf(type, KindContext.Empty));
     }
 
-    [Fact(DisplayName = "A class named in the context is an aggregate root")]
+    [Fact(DisplayName = "A class whose base the context names is an aggregate root")]
     public void AggregateRootFromContextIsRecognized()
     {
         var type = TestTrees.First<ClassDeclarationSyntax>("""
             public sealed class Expense : SpendingRoot;
             """);
-        var context = new KindContext(new[] { "Expense" }, new string[0], new string[0]);
+        var context = new KindContext(new[] { "SpendingRoot" }, new string[0], new string[0]);
 
         Assert.Equal(CodeKind.AggregateRoot, KindReader.KindOf(type, context));
     }
@@ -266,6 +266,26 @@ public sealed class KindReaderTests
             """);
 
         Assert.Null(KindReader.KindOf(type, KindContext.Empty, "Shop.WebApi"));
+    }
+
+    [Fact(DisplayName = "A nested type sharing a root's name is not a root, and a partial part of the root is")]
+    public void OnlyAPartialPartTakesItsKindFromItsName()
+    {
+        var context = new KindContext(new[] { "OrganizerInvitation" }, new string[0], new string[0]);
+        var nestedRecord = TestTrees.Parse("""
+            public abstract record OutboundMessagePurpose
+            {
+                public sealed record OrganizerInvitation(string Code) : OutboundMessagePurpose;
+            }
+            """).GetRoot().DescendantNodes().OfType<RecordDeclarationSyntax>().Single(record => record.Identifier.ValueText == "OrganizerInvitation");
+        var part = TestTrees.First<ClassDeclarationSyntax>("""
+            public sealed partial class OrganizerInvitation
+            {
+            }
+            """);
+
+        Assert.Null(KindReader.KindOf(nestedRecord, context));
+        Assert.Equal(CodeKind.AggregateRoot, KindReader.KindOf(part, context));
     }
 
     [Fact(DisplayName = "A Domain class marked with its rule is a domain service")]
