@@ -1,8 +1,10 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Composition;
 using System.Threading.Tasks;
 using LiteSpec.Model;
+using LiteSpec.Model.Roslyn;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
@@ -51,7 +53,22 @@ public sealed class CorrectMarkCodeFixProvider : CodeFixProvider
             return;
         }
 
-        var candidates = ExpectedRecords(fix);
+        IReadOnlyList<IRecordFacts> candidates;
+
+        if (VerbAt(fix, diagnostic.Location.SourceSpan) == MarkVerb.Follows)
+        {
+            if (typed.StartsWith("litespec/", StringComparison.Ordinal))
+            {
+                return;
+            }
+
+            candidates = FollowsRecords(fix);
+        }
+        else
+        {
+            candidates = ExpectedRecords(fix);
+        }
+
         var nearest = Candidates.NearestThree(typed, candidates);
 
         foreach (var candidate in nearest)
@@ -99,6 +116,31 @@ public sealed class CorrectMarkCodeFixProvider : CodeFixProvider
         }
 
         return records;
+    }
+
+    /// <summary>The decision and deviation records a <c>follows</c> mark may name.</summary>
+    private static IReadOnlyList<IRecordFacts> FollowsRecords(TraceabilityFix fix)
+    {
+        var records = new List<IRecordFacts>();
+
+        records.AddRange(fix.Store.Index.ByType("decision"));
+        records.AddRange(fix.Store.Index.ByType("deviation"));
+
+        return records;
+    }
+
+    /// <summary>The verb of the mark holding the span, or null when none holds it.</summary>
+    private static MarkVerb? VerbAt(TraceabilityFix fix, Microsoft.CodeAnalysis.Text.TextSpan span)
+    {
+        foreach (var mark in MarkReader.Read(fix.Member))
+        {
+            if (mark.Span.Start <= span.Start && mark.Span.End >= span.End)
+            {
+                return mark.Verb;
+            }
+        }
+
+        return null;
     }
 
     /// <summary>Whether the span text is an identifier a mark could carry: no tag or quote characters.</summary>

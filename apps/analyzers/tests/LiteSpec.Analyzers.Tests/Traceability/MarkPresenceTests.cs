@@ -325,8 +325,8 @@ public sealed class MarkPresenceTests
             [ProjectFile(marks: "attribute"), UseCase()],
             assemblyName: "Shop.Application");
 
-    [Fact(DisplayName = "LS5001 reports a technical class without a follows mark")]
-    public Task ReportsATechnicalClassWithoutFollows() =>
+    [Fact(DisplayName = "LS5001 reports a technical class without a mark")]
+    public Task ReportsATechnicalClassWithoutAMark() =>
         Verify.AnalyzerWithRecordsAsync<MarkPresenceAnalyzer>(
             [("Source.cs", """
                 using System.Threading;
@@ -384,8 +384,8 @@ public sealed class MarkPresenceTests
             [ProjectFile(marks: "attribute"), Decision()],
             assemblyName: "Shop.Application");
 
-    [Fact(DisplayName = "LS5001 reports a technical class carrying only an implements mark")]
-    public Task ReportsATechnicalClassWithOnlyImplements() =>
+    [Fact(DisplayName = "LS5001 accepts a technical class carrying only an implements mark")]
+    public Task AcceptsATechnicalClassWithOnlyImplements() =>
         Verify.AnalyzerWithRecordsAsync<MarkPresenceAnalyzer>(
             [("Source.cs", """
                 using System.Threading;
@@ -394,12 +394,31 @@ public sealed class MarkPresenceTests
                 namespace Shop.Spending;
 
                 /// <implements>use-case/spending.submit-expense</implements>
-                internal sealed class {|LS5001:CommitStep|}
+                internal sealed class SubmitExpenseValidator
                 {
-                    public Task CommitAsync(CancellationToken cancellationToken) => Task.CompletedTask;
+                    public Task ValidateAsync(CancellationToken cancellationToken) => Task.CompletedTask;
                 }
                 """)],
             [ProjectFile(), UseCase()],
+            assemblyName: "Shop.Application");
+
+    [Fact(DisplayName = "LS5001 accepts a technical class with both verbs")]
+    public Task AcceptsATechnicalClassWithBothVerbs() =>
+        Verify.AnalyzerWithRecordsAsync<MarkPresenceAnalyzer>(
+            [("Source.cs", """
+                using System.Threading;
+                using System.Threading.Tasks;
+
+                namespace Shop.Spending;
+
+                /// <implements>aggregate/spending.expense</implements>
+                /// <follows>decision/0002-store-expenses-as-documents</follows>
+                internal sealed class ExpenseRepository
+                {
+                    public Task StoreAsync(CancellationToken cancellationToken) => Task.CompletedTask;
+                }
+                """)],
+            [ProjectFile(), Aggregate(), Decision()],
             assemblyName: "Shop.Application");
 
     [Fact(DisplayName = "LS5001 reports a handler carrying only a follows mark")]

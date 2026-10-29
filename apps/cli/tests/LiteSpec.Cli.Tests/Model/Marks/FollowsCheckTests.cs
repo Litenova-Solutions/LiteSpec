@@ -29,16 +29,68 @@ public sealed class FollowsCheckTests
         }
     }
 
-    [Fact(DisplayName = "A technical class without follows reports mark-missing")]
-    public void TechnicalClassWithoutFollowsReportsMarkMissing()
+    [Fact(DisplayName = "A technical class without a mark reports mark-missing")]
+    public void TechnicalClassWithoutAMarkReportsMarkMissing()
     {
         using var temp = MarksFixture.Prepare("follows");
 
         var missing = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "mark-missing");
 
         var finding = Assert.Single(missing);
-        Assert.Equal("Technical class 'LoanCache' carries no follows mark.", finding.Message);
+        Assert.Equal("Technical class 'LoanCache' carries no mark.", finding.Message);
         Assert.Equal("LoanCache.cs", FileName(finding));
+    }
+
+    [Fact(DisplayName = "A technical class with only implements use-case reports nothing")]
+    public void TechnicalClassWithOnlyImplementsReportsNothing()
+    {
+        using var temp = MarksFixture.Prepare("follows");
+
+        var findings = MarksFixture.Check(temp.Path);
+
+        Assert.DoesNotContain(findings, finding => FileName(finding) == "BorrowCopyValidator.cs");
+    }
+
+    [Fact(DisplayName = "A technical class with both verbs reports nothing")]
+    public void TechnicalClassWithBothVerbsReportsNothing()
+    {
+        using var temp = MarksFixture.Prepare("follows");
+
+        var findings = MarksFixture.Check(temp.Path);
+
+        Assert.DoesNotContain(findings, finding => FileName(finding) == "BorrowCopyStore.cs");
+    }
+
+    [Fact(DisplayName = "A technical class with only implements decision reports mark-unresolved")]
+    public void TechnicalClassWithImplementsDecisionReportsMarkUnresolved()
+    {
+        using var temp = MarksFixture.Prepare("follows");
+
+        var finding = Assert.Single(
+            MarksFixture.WithCode(MarksFixture.Check(temp.Path), "mark-unresolved"),
+            finding => FileName(finding) == "LoanDecisionClaim.cs");
+
+        Assert.Contains("which is a decision record", finding.Message);
+    }
+
+    [Fact(DisplayName = "An implements aggregate on a technical class does not silence aggregate-unimplemented")]
+    public void TechnicalImplementsAggregateDoesNotSilenceUnimplemented()
+    {
+        using var temp = MarksFixture.Prepare("follows");
+
+        var findings = MarksFixture.Check(temp.Path);
+
+        Assert.DoesNotContain(
+            MarksFixture.WithCode(findings, "mark-missing"),
+            finding => FileName(finding) == "LoanAggregateStore.cs");
+        Assert.DoesNotContain(
+            MarksFixture.WithCode(findings, "mark-unresolved"),
+            finding => FileName(finding) == "LoanAggregateStore.cs");
+
+        var unimplemented = Assert.Single(
+            MarksFixture.WithCode(findings, "aggregate-unimplemented"),
+            finding => finding.Subject == "aggregate/lending.loan");
+        Assert.Contains("has no aggregate root carrying its mark", unimplemented.Message);
     }
 
     [Fact(DisplayName = "A follows naming an unknown provision reports mark-unresolved")]
@@ -96,7 +148,7 @@ public sealed class FollowsCheckTests
 
         var unresolved = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "mark-unresolved");
 
-        Assert.Equal(4, unresolved.Count);
+        Assert.Equal(5, unresolved.Count);
     }
 
     [Fact(DisplayName = "A technical class naming one decision twice reports mark-count")]

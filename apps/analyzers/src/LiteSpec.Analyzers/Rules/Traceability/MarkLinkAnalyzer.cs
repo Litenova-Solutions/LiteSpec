@@ -67,7 +67,9 @@ public sealed class MarkLinkAnalyzer : TraceabilityAnalyzer
             foreach (var mark in MarkReader.Read(member))
             {
                 if (kind is null
-                    || (kind == CodeKind.Technical ? mark.Verb == MarkVerb.Follows : mark.Verb != MarkVerb.Follows))
+                    || (kind == CodeKind.Technical
+                        ? mark.Verb == MarkVerb.Implements || mark.Verb == MarkVerb.Follows
+                        : mark.Verb != MarkVerb.Follows))
                 {
                     counted.Add(mark.RecordId);
                 }

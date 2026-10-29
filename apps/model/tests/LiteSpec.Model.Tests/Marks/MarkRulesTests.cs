@@ -19,7 +19,7 @@ public sealed class MarkRulesTests
     [InlineData(CodeKind.Endpoint, "use-case")]
     [InlineData(CodeKind.FrontendModule, "use-case")]
     [InlineData(CodeKind.Test, "scenario,rule")]
-    [InlineData(CodeKind.Technical, "litespec,decision,deviation")]
+    [InlineData(CodeKind.Technical, "aggregate,use-case,reaction,job,external-system,event,rule,notification,setting,integration-event")]
     public void RecordTypesNamesExpectedTypes(CodeKind kind, string expected)
     {
         var types = MarkRules.RecordTypes(kind);
@@ -44,7 +44,7 @@ public sealed class MarkRulesTests
     public void TakesExactlyOneMatchesExpectedCount(CodeKind kind, bool expected) =>
         Assert.Equal(expected, MarkRules.TakesExactlyOne(kind));
 
-    [Theory(DisplayName = "Verb is Proves for tests, Follows for technical classes, and Implements otherwise")]
+    [Theory(DisplayName = "Verb is Proves for tests and Implements otherwise, including technical classes")]
     [InlineData(CodeKind.AggregateRoot, MarkVerb.Implements)]
     [InlineData(CodeKind.AggregateMethod, MarkVerb.Implements)]
     [InlineData(CodeKind.DomainEvent, MarkVerb.Implements)]
@@ -57,7 +57,7 @@ public sealed class MarkRulesTests
     [InlineData(CodeKind.Endpoint, MarkVerb.Implements)]
     [InlineData(CodeKind.FrontendModule, MarkVerb.Implements)]
     [InlineData(CodeKind.Test, MarkVerb.Proves)]
-    [InlineData(CodeKind.Technical, MarkVerb.Follows)]
+    [InlineData(CodeKind.Technical, MarkVerb.Implements)]
     public void VerbMatchesExpectedVerb(CodeKind kind, MarkVerb expected) =>
         Assert.Equal(expected, MarkRules.Verb(kind));
 
@@ -71,10 +71,46 @@ public sealed class MarkRulesTests
         Assert.True(MarkRules.Accepts(CodeKind.Handler, "use-case/spending.submit-expense"));
         Assert.True(MarkRules.Accepts(CodeKind.Test, "scenario/submit-expense.succeeds"));
         Assert.True(MarkRules.Accepts(CodeKind.Test, "rule/expense.approver-is-not-submitter"));
-        Assert.True(MarkRules.Accepts(CodeKind.Technical, "litespec/backend/persistence#commit-each-command-pipeline-once"));
-        Assert.True(MarkRules.Accepts(CodeKind.Technical, "decision/0002-store-expenses-as-documents"));
-        Assert.True(MarkRules.Accepts(CodeKind.Technical, "deviation/export-review-bypass"));
-        Assert.False(MarkRules.Accepts(CodeKind.Technical, "use-case/spending.submit-expense"));
+        Assert.True(MarkRules.Accepts(CodeKind.Technical, "aggregate/spending.expense"));
+        Assert.True(MarkRules.Accepts(CodeKind.Technical, "use-case/spending.submit-expense"));
+        Assert.True(MarkRules.Accepts(CodeKind.Technical, "reaction/spending.remind-approver"));
+        Assert.True(MarkRules.Accepts(CodeKind.Technical, "job/spending.remind-approvers"));
+        Assert.True(MarkRules.Accepts(CodeKind.Technical, "external-system/payments"));
+        Assert.True(MarkRules.Accepts(CodeKind.Technical, "event/expense.submitted"));
+        Assert.True(MarkRules.Accepts(CodeKind.Technical, "rule/spending.receipt-required"));
+        Assert.True(MarkRules.Accepts(CodeKind.Technical, "notification/spending.approval-reminder"));
+        Assert.True(MarkRules.Accepts(CodeKind.Technical, "setting/spending.max-open-expenses"));
+        Assert.True(MarkRules.Accepts(CodeKind.Technical, "integration-event/expense-submitted"));
+        Assert.False(MarkRules.Accepts(CodeKind.Technical, "decision/0002-store-expenses-as-documents"));
+        Assert.False(MarkRules.Accepts(CodeKind.Technical, "deviation/export-review-bypass"));
+        Assert.False(MarkRules.Accepts(CodeKind.Technical, "litespec/backend/persistence#commit-each-command-pipeline-once"));
+    }
+
+    [Fact(DisplayName = "FollowsRecordTypes names the provision namespace, decision and deviation")]
+    public void FollowsRecordTypesNamesExpectedTypes() =>
+        Assert.Equal(new[] { "litespec", "decision", "deviation" }, MarkRules.FollowsRecordTypes);
+
+    [Fact(DisplayName = "AcceptsFollows takes a provision, decision or deviation and rejects a Behavior record")]
+    public void AcceptsFollowsTakesChoices()
+    {
+        Assert.True(MarkRules.AcceptsFollows("litespec/backend/persistence#commit-each-command-pipeline-once"));
+        Assert.True(MarkRules.AcceptsFollows("decision/0002-store-expenses-as-documents"));
+        Assert.True(MarkRules.AcceptsFollows("deviation/export-review-bypass"));
+        Assert.False(MarkRules.AcceptsFollows("use-case/spending.submit-expense"));
+        Assert.False(MarkRules.AcceptsFollows("decision/"));
+        Assert.False(MarkRules.AcceptsFollows("decision"));
+    }
+
+    [Fact(DisplayName = "TakesVerb takes implements or follows for technical classes and one verb otherwise")]
+    public void TakesVerbTakesEitherVerbForTechnical()
+    {
+        Assert.True(MarkRules.TakesVerb(CodeKind.Technical, MarkVerb.Implements));
+        Assert.True(MarkRules.TakesVerb(CodeKind.Technical, MarkVerb.Follows));
+        Assert.False(MarkRules.TakesVerb(CodeKind.Technical, MarkVerb.Proves));
+        Assert.True(MarkRules.TakesVerb(CodeKind.Handler, MarkVerb.Implements));
+        Assert.False(MarkRules.TakesVerb(CodeKind.Handler, MarkVerb.Follows));
+        Assert.True(MarkRules.TakesVerb(CodeKind.Test, MarkVerb.Proves));
+        Assert.False(MarkRules.TakesVerb(CodeKind.Test, MarkVerb.Implements));
     }
 
     [Fact(DisplayName = "Accepts rejects another type, an empty name, and a prefix without a slash")]

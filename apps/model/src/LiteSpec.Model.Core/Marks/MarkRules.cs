@@ -19,6 +19,11 @@ public static class MarkRules
     private static readonly string[] JobTypes = { "job" };
     private static readonly string[] ExternalSystemTypes = { "external-system" };
     private static readonly string[] TestTypes = { "scenario", "rule" };
+    private static readonly string[] TechnicalImplementsTypes =
+    {
+        "aggregate", "use-case", "reaction", "job", "external-system",
+        "event", "rule", "notification", "setting", "integration-event",
+    };
     private static readonly string[] FollowsTypes = { "litespec", "decision", "deviation" };
 
     private static readonly string[] Codes =
@@ -34,14 +39,23 @@ public static class MarkRules
     };
 
     /// <summary>
-    ///     The record types a mark on the kind may name, as bare type names
-    ///     without the trailing slash: a mark matches when its identifier starts
-    ///     with one of these types followed by <c>/</c>.
+    ///     The record types an <c>implements</c> or <c>proves</c> mark on the kind
+    ///     may name, as bare type names without the trailing slash: a mark matches
+    ///     when its identifier starts with one of these types followed by <c>/</c>.
+    ///     For a technical class these are the Behavior record types its
+    ///     <c>implements</c> marks take; its <c>follows</c> marks take
+    ///     <see cref="FollowsRecordTypes" /> instead.
     /// </summary>
     /// <param name="kind">The code kind.</param>
     /// <returns>The accepted record types.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The kind is not a known value.</exception>
     public static IReadOnlyList<string> RecordTypes(CodeKind kind) => RuleOf(kind).RecordTypes;
+
+    /// <summary>
+    ///     The record types a <c>follows</c> mark may name, as bare type names:
+    ///     the provision namespace and the decision and deviation records.
+    /// </summary>
+    public static IReadOnlyList<string> FollowsRecordTypes => FollowsTypes;
 
     /// <summary>Whether the kind takes exactly one mark rather than one or more.</summary>
     /// <param name="kind">The code kind.</param>
@@ -50,9 +64,11 @@ public static class MarkRules
     public static bool TakesExactlyOne(CodeKind kind) => RuleOf(kind).TakesExactlyOne;
 
     /// <summary>
-    ///     The verb of marks on the kind: <see cref="MarkVerb.Proves" /> for tests,
-    ///     <see cref="MarkVerb.Follows" /> for technical classes,
-    ///     <see cref="MarkVerb.Implements" /> otherwise.
+    ///     The verb of <c>implements</c> and <c>proves</c> marks on the kind:
+    ///     <see cref="MarkVerb.Proves" /> for tests,
+    ///     <see cref="MarkVerb.Implements" /> otherwise, including technical
+    ///     classes. A technical class also takes <see cref="MarkVerb.Follows" />;
+    ///     use <see cref="TakesVerb" /> to test either verb.
     /// </summary>
     /// <param name="kind">The code kind.</param>
     /// <returns>The expected verb.</returns>
@@ -60,9 +76,29 @@ public static class MarkRules
     public static MarkVerb Verb(CodeKind kind) => RuleOf(kind).Verb;
 
     /// <summary>
-    ///     Whether a record identifier is of a type the kind takes: the identifier
-    ///     starts with one of the kind's record types followed by <c>/</c> and a
-    ///     non-empty name.
+    ///     Whether a mark with the verb satisfies the kind's presence: a technical
+    ///     class takes <c>implements</c> or <c>follows</c>, every other kind takes
+    ///     only <see cref="Verb" />.
+    /// </summary>
+    /// <param name="kind">The code kind.</param>
+    /// <param name="verb">The mark verb.</param>
+    /// <returns>True when the verb counts as the kind's mark.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The kind is not a known value.</exception>
+    public static bool TakesVerb(CodeKind kind, MarkVerb verb)
+    {
+        var rule = RuleOf(kind);
+
+        return kind == CodeKind.Technical
+            ? verb == MarkVerb.Implements || verb == MarkVerb.Follows
+            : verb == rule.Verb;
+    }
+
+    /// <summary>
+    ///     Whether a record identifier is of a type the kind's <c>implements</c> or
+    ///     <c>proves</c> marks take: the identifier starts with one of the kind's
+    ///     record types followed by <c>/</c> and a non-empty name. For a technical
+    ///     class this tests the Behavior types its <c>implements</c> marks take;
+    ///     use <see cref="AcceptsFollows" /> for its <c>follows</c> marks.
     /// </summary>
     /// <param name="kind">The code kind.</param>
     /// <param name="recordId">The full record identifier from the mark.</param>
@@ -77,6 +113,33 @@ public static class MarkRules
         }
 
         foreach (var type in RecordTypes(kind))
+        {
+            var prefix = type + "/";
+            if (recordId.StartsWith(prefix, StringComparison.Ordinal) && recordId.Length > prefix.Length)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    ///     Whether a record identifier is of a type a <c>follows</c> mark takes:
+    ///     the identifier starts with one of <see cref="FollowsRecordTypes" />
+    ///     followed by <c>/</c> and a non-empty name.
+    /// </summary>
+    /// <param name="recordId">The full record identifier from the mark.</param>
+    /// <returns>True when a <c>follows</c> mark takes that record type.</returns>
+    /// <exception cref="ArgumentNullException">The record identifier is null.</exception>
+    public static bool AcceptsFollows(string recordId)
+    {
+        if (recordId is null)
+        {
+            throw new ArgumentNullException(nameof(recordId));
+        }
+
+        foreach (var type in FollowsTypes)
         {
             var prefix = type + "/";
             if (recordId.StartsWith(prefix, StringComparison.Ordinal) && recordId.Length > prefix.Length)
@@ -220,7 +283,7 @@ public static class MarkRules
             case CodeKind.Test:
                 return new KindRule(TestTypes, false, MarkVerb.Proves);
             case CodeKind.Technical:
-                return new KindRule(FollowsTypes, false, MarkVerb.Follows);
+                return new KindRule(TechnicalImplementsTypes, false, MarkVerb.Implements);
             default:
                 throw new ArgumentOutOfRangeException(nameof(kind), kind, "Unknown code kind.");
         }

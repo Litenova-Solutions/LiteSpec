@@ -64,7 +64,8 @@ public enum CodeKind
 
     /// <summary>
     ///     A technical class: a top-level class in an outer layer that takes no other kind
-    ///     and declares a method, marked with one or more <c>follows</c> choices.
+    ///     and declares a method, marked with one or more Behavior records in
+    ///     <c>implements</c> or choices in <c>follows</c>.
     /// </summary>
     Technical = 13,
 }

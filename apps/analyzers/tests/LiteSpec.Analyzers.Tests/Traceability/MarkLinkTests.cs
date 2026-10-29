@@ -645,8 +645,8 @@ public sealed class MarkLinkTests
             [ProjectFile(), UseCase(), Decision()],
             assemblyName: "Shop.Application");
 
-    [Fact(DisplayName = "LS5002 reports an implements mark on a technical class")]
-    public Task ReportsAnImplementsOnATechnicalClass() =>
+    [Fact(DisplayName = "LS5002 reports an implements mark naming a non-Behavior record on a technical class")]
+    public Task ReportsAnImplementsNamingNonBehaviorOnATechnicalClass() =>
         Verify.AnalyzerWithRecordsAsync<MarkLinkAnalyzer>(
             [("Source.cs", """
                 namespace Shop.Spending;
@@ -660,6 +660,41 @@ public sealed class MarkLinkTests
                 }
                 """)],
             [ProjectFile(), Decision()],
+            assemblyName: "Shop.Application");
+
+    [Fact(DisplayName = "LS5002 accepts an implements mark naming a use case on a technical class")]
+    public Task AcceptsAnImplementsNamingAUseCaseOnATechnicalClass() =>
+        Verify.AnalyzerWithRecordsAsync<MarkLinkAnalyzer>(
+            [("Source.cs", """
+                namespace Shop.Spending;
+
+                /// <implements>use-case/spending.submit-expense</implements>
+                internal sealed class SubmitExpenseValidator
+                {
+                    public void Validate()
+                    {
+                    }
+                }
+                """)],
+            [ProjectFile(), UseCase()],
+            assemblyName: "Shop.Application");
+
+    [Fact(DisplayName = "LS5002 accepts a technical class with both verbs")]
+    public Task AcceptsATechnicalClassWithBothVerbs() =>
+        Verify.AnalyzerWithRecordsAsync<MarkLinkAnalyzer>(
+            [("Source.cs", """
+                namespace Shop.Spending;
+
+                /// <implements>aggregate/spending.expense</implements>
+                /// <follows>decision/0002-store-expenses-as-documents</follows>
+                internal sealed class ExpenseRepository
+                {
+                    public void Store()
+                    {
+                    }
+                }
+                """)],
+            [ProjectFile(), Aggregate(), Decision()],
             assemblyName: "Shop.Application");
 
     [Fact(DisplayName = "LS5003 reports a technical class naming one decision twice")]

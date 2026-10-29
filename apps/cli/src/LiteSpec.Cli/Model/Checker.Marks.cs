@@ -28,11 +28,9 @@ static partial class Checker
     {
         foreach (var element in model.Code.Elements)
         {
-            if (!element.Marks.Any(mark => mark.Verb == MarkRules.Verb(element.Kind)))
+            if (!element.Marks.Any(mark => MarkRules.TakesVerb(element.Kind, mark.Verb)))
             {
-                var what = element.Kind == CodeKind.Technical ? "follows mark" : "mark";
-
-                findings.Add(new Finding("mark-missing", $"{KindName(element.Kind)} '{DisplayName(element)}' carries no {what}.", element.File, element.Line, null));
+                findings.Add(new Finding("mark-missing", $"{KindName(element.Kind)} '{DisplayName(element)}' carries no mark.", element.File, element.Line, null));
             }
         }
     }
@@ -62,7 +60,7 @@ static partial class Checker
 
             var counted = element.Marks
                 .Where(mark => element.Kind == CodeKind.Technical
-                    ? mark.Verb == MarkVerb.Follows
+                    ? mark.Verb == MarkVerb.Implements || mark.Verb == MarkVerb.Follows
                     : mark.Verb != MarkVerb.Follows)
                 .Select(mark => mark.RecordId)
                 .ToList();

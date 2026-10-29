@@ -146,7 +146,7 @@ The generator in the analyzer package writes, per project, into namespace `LiteS
 
 ## Technical Marks
 
-A technical class serves no Behavior record, so it names why it is built as it is in a `follows` mark (`litespec/core/system#point-technical-code-up-to-the-choice-behind-it`, `litespec/core/model#record-each-technical-choice-as-a-decision`).
+A technical class names the Behavior record it serves in an `implements` mark, or why it is built as it is in a `follows` mark (`litespec/core/system#point-every-technical-class-up-to-its-record-or-choice`, `litespec/core/model#record-each-technical-choice-as-a-decision`).
 
 | Style | Form |
 |:---|:---|
@@ -155,11 +155,11 @@ A technical class serves no Behavior record, so it names why it is built as it i
 
 | Layer | Code element | Kind | Mark names | Count |
 |:---|:---|:---|:---|:---|
-| Application, Application.Abstractions, Infrastructure, WebApi | Technical class | `Technical` | `litespec/` provision, `decision/`, `deviation/` | one or more, `follows` only |
+| Application, Application.Abstractions, Infrastructure, WebApi | Technical class | `Technical` | `implements`: any Behavior record type (`aggregate/`, `use-case/`, `reaction/`, `job/`, `external-system/`, `event/`, `rule/`, `notification/`, `setting/`, `integration-event/`); `follows`: `litespec/` provision, `decision/`, `deviation/` | one or more marks in total, of either verb |
 
 A technical class is a top-level class (not a record, struct, interface, enum or delegate) in a project whose layer is Application, Application.Abstractions, Infrastructure or WebApi, that takes no other kind and declares at least one ordinary method (not only constructors, properties, fields or operators). Excluded: generated code (a file the compiler treats as generated, or a class carrying `[GeneratedCode]`), classes deriving from a type named `Migration` or `ModelSnapshot`, test projects, nested types. Partial parts count as one class; a mark on any part counts.
 
-`follows` is a third mark verb beside `implements` and `proves`. Any type or method of any kind may carry `follows` marks; only `Technical` requires one, and a `follows` mark is never stray. `implements` on a technical class is stray as before. A `follows` mark never counts toward `mark-count` of another kind.
+`follows` is a third mark verb beside `implements` and `proves`. Any type or method of any kind may carry `follows` marks, and a `follows` mark is never stray. A technical class needs at least one mark of either verb; its `implements` marks may name any Behavior record type. A `follows` mark never counts toward `mark-count` of another kind.
 
 A `follows` target resolves when it is:
 

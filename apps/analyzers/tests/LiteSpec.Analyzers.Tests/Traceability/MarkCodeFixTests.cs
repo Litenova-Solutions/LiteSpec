@@ -283,8 +283,8 @@ public sealed class MarkCodeFixTests
             [ProjectFile(), Decision()],
             "Shop.Application");
 
-    [Fact(DisplayName = "Add mark offers no action for a technical class")]
-    public async Task AddMarkOffersNoActionForATechnicalClass()
+    [Fact(DisplayName = "Add mark offers no action for a technical class with no sibling handler")]
+    public async Task AddMarkOffersNoActionForATechnicalClassWithNoSibling()
     {
         var titles = await Verify.CodeFixActionTitlesAsync<MarkPresenceAnalyzer, AddMarkCodeFixProvider>(
             [("Source.cs", """
@@ -303,6 +303,64 @@ public sealed class MarkCodeFixTests
 
         Assert.Empty(titles);
     }
+
+    [Fact(DisplayName = "Add mark offers the sibling handler's use case for a technical class")]
+    public Task AddMarkOffersTheSiblingHandlersUseCase() =>
+        Verify.CodeFixFilesAsync<MarkPresenceAnalyzer, AddMarkCodeFixProvider>(
+            [("Spending/SubmitExpenseCommandHandler.cs", """
+                namespace Shop.Spending;
+
+                public interface ICommandHandler<TCommand, TResult>;
+
+                public sealed class SubmitExpenseCommand;
+
+                public sealed class SubmitExpenseCommandResult;
+
+                /// <implements>use-case/spending.submit-expense</implements>
+                internal sealed class SubmitExpenseCommandHandler : ICommandHandler<SubmitExpenseCommand, SubmitExpenseCommandResult>
+                {
+                }
+                """),
+             ("Spending/SubmitExpenseValidator.cs", """
+                using System.Threading;
+                using System.Threading.Tasks;
+
+                namespace Shop.Spending;
+
+                internal sealed class SubmitExpenseValidator
+                {
+                    public Task ValidateAsync(CancellationToken cancellationToken) => Task.CompletedTask;
+                }
+                """)],
+            [("Spending/SubmitExpenseCommandHandler.cs", """
+                namespace Shop.Spending;
+
+                public interface ICommandHandler<TCommand, TResult>;
+
+                public sealed class SubmitExpenseCommand;
+
+                public sealed class SubmitExpenseCommandResult;
+
+                /// <implements>use-case/spending.submit-expense</implements>
+                internal sealed class SubmitExpenseCommandHandler : ICommandHandler<SubmitExpenseCommand, SubmitExpenseCommandResult>
+                {
+                }
+                """),
+             ("Spending/SubmitExpenseValidator.cs", """
+                using System.Threading;
+                using System.Threading.Tasks;
+
+                namespace Shop.Spending;
+
+                /// <implements>use-case/spending.submit-expense</implements>
+                internal sealed class SubmitExpenseValidator
+                {
+                    public Task ValidateAsync(CancellationToken cancellationToken) => Task.CompletedTask;
+                }
+                """)],
+            "Submit expense",
+            [ProjectFile(), UseCase()],
+            "Shop.Application");
 
     [Fact(DisplayName = "Convert mark turns an attribute into a documentation tag")]
     public Task ConvertMarkTurnsAnAttributeIntoATag() =>

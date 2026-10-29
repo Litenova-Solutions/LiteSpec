@@ -234,9 +234,9 @@ A mark is the one written link from a code element to the record it serves. It h
 | API | Endpoint | `use-case/<module>.<name>` |
 | Frontend | Use-case module | `use-case/<module>.<name>` |
 | Tests | Test | `scenario/<use-case>.<name>`, or `rule/<home>.<name>` for a rule test |
-| Application, Infrastructure or API | Technical class: a class that declares a method and takes no other mark | `litespec/<page>#<slug>`, `decision/<number>-<name>` or `deviation/<name>`, one or more, in a `follows` mark |
+| Application, Infrastructure or API | Technical class: a class that declares a method and takes no other mark | One or more: a Behavior record it serves in an `implements` mark, or `litespec/<page>#<slug>`, `decision/<number>-<name>` or `deviation/<name>` in a `follows` mark |
 
-A code element serving a record names it in an `implements` mark. A technical class serves no record, so it names the reason it is built the way it is in a `follows` mark: the LiteSpec provision that requires its shape, the technical decision that chose it, or the deviation that allows it. Any other code element may carry a `follows` mark as well.
+A code element serving a record names it in an `implements` mark. A technical class names the record it serves in an `implements` mark, as an input validator names its use case and a repository its aggregate. Where it serves no record, it names the reason it is built the way it is in a `follows` mark: the LiteSpec provision that requires its shape, the technical decision that chose it, or the deviation that allows it. Any other code element may carry a `follows` mark as well.
 
 The tools recognize most code elements from the code itself and then expect their mark. A port and a domain service are recognized by their mark, and an aggregate root method by the event it raises or by its mark, so an unmarked port is found only from the top, through its external system, and an unmarked method that changes state without raising an event is not recognized at all.
 

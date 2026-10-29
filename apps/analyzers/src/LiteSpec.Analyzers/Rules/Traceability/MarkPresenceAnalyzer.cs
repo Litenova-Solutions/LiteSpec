@@ -121,17 +121,16 @@ public sealed class MarkPresenceAnalyzer : TraceabilityAnalyzer
     }
 
     /// <summary>
-    ///     Whether the symbol carries a mark in its kind's verb: a <c>follows</c>
-    ///     mark never stands in for the <c>implements</c> or <c>proves</c> mark
-    ///     the kind takes, and only a <c>follows</c> mark satisfies a technical class.
+    ///     Whether the symbol carries a mark in a verb its kind takes: a
+    ///     <c>follows</c> mark never stands in for the <c>implements</c> or
+    ///     <c>proves</c> mark the kind takes, except on a technical class, which
+    ///     takes <c>implements</c> or <c>follows</c>.
     /// </summary>
     private static bool HasKindMark(ISymbol symbol, CodeKind kind)
     {
-        var verb = MarkRules.Verb(kind);
-
         foreach (var mark in MarksOf(symbol))
         {
-            if (mark.Verb == verb)
+            if (MarkRules.TakesVerb(kind, mark.Verb))
             {
                 return true;
             }
@@ -140,6 +139,16 @@ public sealed class MarkPresenceAnalyzer : TraceabilityAnalyzer
         return false;
     }
 
-    private static string ExpectedTypes(CodeKind kind) =>
-        string.Join(" or ", MarkRules.RecordTypes(kind));
+    private static string ExpectedTypes(CodeKind kind)
+    {
+        if (kind != CodeKind.Technical)
+        {
+            return string.Join(" or ", MarkRules.RecordTypes(kind));
+        }
+
+        var types = new System.Collections.Generic.List<string>(MarkRules.RecordTypes(kind));
+        types.AddRange(MarkRules.FollowsRecordTypes);
+
+        return string.Join(" or ", types);
+    }
 }

@@ -45,6 +45,7 @@ public sealed class MarkCountTests
     [InlineData(CodeKind.Port)]
     [InlineData(CodeKind.Adapter)]
     [InlineData(CodeKind.Test)]
+    [InlineData(CodeKind.Technical)]
     public void MultiMarkKindWithTwoMarksIsOk(CodeKind kind)
     {
         var verdict = MarkRules.CheckCount(kind, new[] { "a/1", "a/2" });
@@ -57,6 +58,7 @@ public sealed class MarkCountTests
     [InlineData(CodeKind.Port)]
     [InlineData(CodeKind.Adapter)]
     [InlineData(CodeKind.Test)]
+    [InlineData(CodeKind.Technical)]
     public void MultiMarkKindNamingOneIdTwiceIsViolated(CodeKind kind)
     {
         var verdict = MarkRules.CheckCount(kind, new[] { "a/1", "a/1" });
