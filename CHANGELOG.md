@@ -62,6 +62,7 @@ LiteSpec 3.0.0 is a top-down specification standard for one bounded-context busi
 - `litespec model backfill` drafts missing Behavior frontmatter from code during adoption and marks touched records transcribed; `--dry-run` prints the plan.
 - `litespec model check --staged` reports only staged records, their direct links, and the records staged code implements.
 - `litespec model approve --dry-run` prints which records would be stamped and which would be reopened, without writing.
+- The `litespec-maintain` tool checks the standard's own pages, schemas, manifest, and provision index from `apps/maintain/` with `validate` and `provisions`; the `litespec` tool serves consumers only.
 - Extensions added: privacy, devices, automation, workflow-engine, pipeline, queues and ai. LS2002 is retired.
 
 ## v2.0.0

@@ -804,7 +804,7 @@ Source: LiteSpec.
 
 ### Diagnostic
 
-One issue litespec validate reports about standards material.
+One issue litespec-maintain validate reports about standards material.
 
 Source: LiteSpec.
 

@@ -54,7 +54,7 @@ One product worked end to end, from its first record to a passing check.
 - [Behavior Records](core/behavior.md): how the system behaves to keep the promises: modules, aggregates, rules, events, use cases, reactions, jobs, notifications, and settings.
 - [Access](core/access.md): the actors, roles, permissions, access each use case declares, entry points, and external systems.
 - [Agent Operating Protocol](core/agent.md): how agents select context, write below decided Intent, raise questions, and report completion.
-- [Authoring Standard](core/authoring.md): page styles, provision contracts, identifiers, and prose style; what `litespec validate` checks.
+- [Authoring Standard](core/authoring.md): page styles, provision contracts, identifiers, and prose style; what `litespec-maintain validate` checks.
 - [Maintaining the Standards](core/maintaining.md): the maintainer manual for provision lifecycle, renames, citations, and releases.
 - [Product Release](core/release.md): who reviews each diff, how tiers and the veto window work, which checks each boundary runs, and what the release record lists.
 
@@ -209,13 +209,17 @@ Tutorials take a reader to a first working result; how-to guides solve one state
 
 - [CLI overview](tools/README.md): every shipped command with its arguments, options, and exit codes.
 - [Initialize Consumer](tools/init.md): writes `litespec.project.json` for a new consumer from a preset.
-- [Validate Standards](tools/validate.md): checks the standards pages, templates, and identifiers against the authoring contract.
-- [Generate Provisions](tools/provisions.md): rebuilds the provision index from the active standards.
 - [Validate Consumer](tools/consumer.md): checks a consumer's pages, project record, and vocabulary.
 - [Validate Controlled UI](tools/ui.md): checks the shared UI package and each controlled web frontend.
 - [Model Builder](tools/model.md): builds, checks, and diffs the project model, renders generated regions, and answers record queries.
 - [Book](tools/book.md): builds the project book from `model.json`: journey chapters, record pages, and the ballots inbox.
 - [Draw Patterns](tools/patterns.md): draws, prints, and checks the UI pattern wireframes.
+
+## Maintain
+
+- [Maintain overview](maintain/README.md): the two commands that keep the standard itself consistent.
+- [Validate Standards](maintain/validate.md): checks the standards pages, templates, and identifiers against the authoring contract.
+- [Generate Provisions](maintain/provisions.md): rebuilds the provision index from the active standards.
 
 ## Analyzers
 

@@ -2,7 +2,7 @@
 
 ## Intent
 
-The Tools section documents the LiteSpec command line: one command for each repository check, generator, and lookup, from standards validation to generated files and pattern drawing. A developer or coding assistant opens this index to find the command that produces the check or file the task needs. On a command page, Name and Synopsis give the quick form, and Description and Examples give the detail.
+The Tools section documents the LiteSpec command line: one command for each consumer check, generator, and lookup, from project validation to generated files and pattern drawing. A developer or coding assistant opens this index to find the command that produces the check or file the task needs. On a command page, Name and Synopsis give the quick form, and Description and Examples give the detail. The commands that maintain the standard itself live in the [Maintain overview](../maintain/README.md).
 
 ## Run the CLI
 
@@ -11,11 +11,6 @@ In the LiteSpec repository, run `dotnet run --project apps/cli/src/LiteSpec.Cli 
 The CLI needs the .NET 10 SDK and nothing else: no Node runtime. It carries its release beside its own binary; set `LITESPEC_HOME` to point it at another copy. Set `LITESPEC_TIMING` to print the phase timings of `litespec model` on standard error.
 
 Every command accepts `--help`, and every validator accepts `--format json` for a caller that reads the result rather than the text.
-
-## LiteSpec Repository
-
-- [Validate Standards](validate.md): checks the standards pages, templates, and identifiers against the authoring contract.
-- [Generate Provisions](provisions.md): rebuilds the provision index from the active standards.
 
 ## Consumer Repository
 

@@ -13,7 +13,7 @@ You maintain the LiteSpec repository and change a JSON contract, or you build a 
 Check every schema and its consumers from the repository root:
 
 ```bash
-dotnet run --project apps/cli/src/LiteSpec.Cli -- validate
+dotnet run --project apps/maintain/src/LiteSpec.Maintain -- validate
 ```
 
 The command checks each `$id` against the manifest version, validates the manifest and the shipped project template against their schemas, and reports every schema, template, and keyword problem with its diagnostic code.
@@ -22,7 +22,7 @@ The command checks each `$id` against the manifest version, validates the manife
 
 | Schema | Validates | Read by |
 |:---|:---|:---|
-| `litespec-manifest.schema.json` | `litespec.manifest.json` | `litespec validate` |
+| `litespec-manifest.schema.json` | `litespec.manifest.json` | `litespec-maintain validate` |
 | `litespec-project.schema.json` | `litespec.project.json` | `litespec consumer`, `litespec init` |
 | `record.schema.json` | Frontmatter of every consumer record page | `litespec consumer` |
 | `glossary.schema.json` | `docs/glossary.json` | `litespec consumer` |
@@ -30,15 +30,15 @@ The command checks each `$id` against the manifest version, validates the manife
 | `ui-pattern-catalog.schema.json` | `docs/ui/pattern-catalog.json` | `litespec ui` |
 | `ui-source-lock.schema.json` | `packages/ui/ui-source-lock.json` | `litespec ui` |
 
-The shared evaluator lives in `apps/cli/src/LiteSpec.Cli/Schemas/JsonSchema.cs`. Every reader above calls it, so one keyword gate and one validation path serve all seven schemas.
+The shared evaluator lives in `apps/model/src/LiteSpec.Shared/Schemas/JsonSchema.cs`. Every reader above calls it, so one keyword gate and one validation path serve all seven schemas.
 
 ### Litespec Manifest Schema
 
-`litespec-manifest.schema.json` (`schemaVersion` 5) owns the shape of [litespec.manifest.json](../litespec.manifest.json): the version, the stacks with their folders and pairing rules, the shapes, the extensions with their paths and activation scopes, and the toolchain, package, and UI baseline pins. `litespec validate` reads the manifest through it, and the `$id` check ties every schema file to the manifest version.
+`litespec-manifest.schema.json` (`schemaVersion` 5) owns the shape of [litespec.manifest.json](../litespec.manifest.json): the version, the stacks with their folders and pairing rules, the shapes, the extensions with their paths and activation scopes, and the toolchain, package, and UI baseline pins. `litespec-maintain validate` reads the manifest through it, and the `$id` check ties every schema file to the manifest version.
 
 ### Litespec Project Schema
 
-`litespec-project.schema.json` owns the shape of the consumer project file: the project name, the size, the stacks, the reviewed LiteSpec release, the documentation and code paths, the owners, the review and adoption settings, and the selected extensions. `litespec consumer` validates the consumer file through it, `litespec init` writes that file from a preset, and `litespec validate` proves the shipped template in [templates/consumer/litespec.project.json](../templates/consumer/litespec.project.json) meets it.
+`litespec-project.schema.json` owns the shape of the consumer project file: the project name, the size, the stacks, the reviewed LiteSpec release, the documentation and code paths, the owners, the review and adoption settings, and the selected extensions. `litespec consumer` validates the consumer file through it, `litespec init` writes that file from a preset, and `litespec-maintain validate` proves the shipped template in [templates/consumer/litespec.project.json](../templates/consumer/litespec.project.json) meets it.
 
 ### Record Schema
 
@@ -66,16 +66,16 @@ Each reader loads its schema file and passes values to the shared evaluator. The
 
 ## How to Change One Safely
 
-- Read the readers first: the validator files named in the table and their tests under `apps/cli/tests/LiteSpec.Cli.Tests/` (`Authoring/StandardsValidatorTests.Schemas.cs`, `Consumer/`, `Ui/`), with fixtures under `Fixtures/`.
-- Keep to implemented keywords. When the shape needs a keyword the evaluator lacks, extend `Schemas/JsonSchema.cs` first, with passing and failing cases.
+- Read the readers first: the validator files named in the table and their tests under `apps/cli/tests/LiteSpec.Cli.Tests/` (`Consumer/`, `Ui/`) and `apps/maintain/tests/LiteSpec.Maintain.Tests/` (`Authoring/StandardsValidatorTests.Schemas.cs`), with fixtures under `Fixtures/`.
+- Keep to implemented keywords. When the shape needs a keyword the evaluator lacks, extend `apps/model/src/LiteSpec.Shared/Schemas/JsonSchema.cs` first, with passing and failing cases.
 - Update every consumer of the shape in the same change: the shipped template in [templates/](../templates/README.md), the CLI reader, and the fixtures that cover it.
 - Keep the `$id` on the published home with the manifest version. Change the `schemaVersion` const only together with the template, reader, and fixture updates the new shape needs.
 - Run the verification steps in [CONTRIBUTING.md](../CONTRIBUTING.md).
 
 ## How to Test It
 
-- `litespec validate` covers the manifest, the shipped project template, the schema IDs, and the template index.
-- `dotnet test --solution LiteSpec.slnx` runs the Authoring, Consumer, Ui, Model, and Init suites with their fixtures.
+- `litespec-maintain validate` covers the manifest, the shipped project template, the schema IDs, and the template index.
+- `dotnet test --solution LiteSpec.slnx` runs the Consumer, Ui, Model, and Init suites with their fixtures, and the Maintain suite for the authoring checks.
 - Add one passing case and one failing case for a new rule, in both directions like the existing schema tests.
 
 ## Limits

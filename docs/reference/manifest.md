@@ -6,7 +6,7 @@
 
 ## Reference
 
-A consumer selects from this manifest: the [supported scope](../core/scope.md) page states how a selection is made, and the [stacks](../core/stacks.md) page states what a selection applies. The [project file](project-file.md) page states what a consumer records, the [init](../tools/init.md) page states how a new project starts from a preset, the [consumer](../tools/consumer.md) page states how a selection is validated, and the [validate](../tools/validate.md) page states how the manifest itself is checked.
+A consumer selects from this manifest: the [supported scope](../core/scope.md) page states how a selection is made, and the [stacks](../core/stacks.md) page states what a selection applies. The [project file](project-file.md) page states what a consumer records, the [init](../tools/init.md) page states how a new project starts from a preset, the [consumer](../tools/consumer.md) page states how a selection is validated, and the [validate](../maintain/validate.md) page states how the manifest itself is checked.
 
 ### File Location and Schema
 
@@ -181,7 +181,7 @@ A stack is added in three steps:
 
 1. Add the stack folder under `docs/backend/` or `docs/frontend/` with a `stack.md` page that states what the stack adds: its rules, its version pins, and its checks.
 2. Add the manifest entry with the stack id and its `folder`, plus `requires` when a project also selects another stack with this one and `pairsWith` when a frontend stack works beside only some backend stacks.
-3. Run `litespec validate` and fix what it reports: a folder outside the two areas, a missing folder, a missing `stack.md`, an unknown `requires` or `pairsWith` name, and any backend or frontend page no selection reaches.
+3. Run `litespec-maintain validate` and fix what it reports: a folder outside the two areas, a missing folder, a missing `stack.md`, an unknown `requires` or `pairsWith` name, and any backend or frontend page no selection reaches.
 
 ### How to Add an Extension
 
@@ -189,8 +189,8 @@ An extension is added in three steps:
 
 1. Write the extension page at `docs/ext/<id>.md`, or at `<stack folder>/ext/<id>.md` when it supports one stack only. The page uses the extension style with `Activation`, `Baseline relationship`, and `Dependencies` sections, and the Activation states the scope and the criterion.
 2. Add the manifest entry with the extension id and its `path`, `activationScope`, `applicableKinds` where the extension applies to specific record kinds, `replaces` where it replaces baseline provisions, and `switchesOn` where selecting it requires record types.
-3. Run `litespec validate` and fix what it reports: a path that does not exist, a path outside the two allowed shapes, a scope the page does not state, kinds the page does not match, a missing criterion, and a replacement id that names no active provision.
+3. Run `litespec-maintain validate` and fix what it reports: a path that does not exist, a path outside the two allowed shapes, a scope the page does not state, kinds the page does not match, a missing criterion, and a replacement id that names no active provision.
 
 ## Notes
 
-The field lists follow `schemas/litespec-manifest.schema.json` and the values follow `litespec.manifest.json` at version `2.0.0`. The selection behavior follows `apps/cli/src/LiteSpec.Cli/Authoring/Layout.cs`. The manifest checks follow `apps/cli/src/LiteSpec.Cli/Authoring/StandardsValidator.Manifest.cs`. The consumer checks follow `apps/cli/src/LiteSpec.Cli/Consumer/ConsumerValidator.Project.cs`. The baseline checks follow `apps/cli/src/LiteSpec.Cli/Ui/UiValidator.cs`. The [cache extension](../ext/cache.md) and the [site extension](../ext/site.md) show the two extension paths: a shared page under `docs/ext/` and the index that explains each selection.
+The field lists follow `schemas/litespec-manifest.schema.json` and the values follow `litespec.manifest.json` at version `2.0.0`. The selection behavior follows `apps/model/src/LiteSpec.Shared/Authoring/Layout.cs`. The manifest checks follow `apps/maintain/src/LiteSpec.Maintain/Authoring/StandardsValidator.Manifest.cs`. The consumer checks follow `apps/cli/src/LiteSpec.Cli/Consumer/ConsumerValidator.Project.cs`. The baseline checks follow `apps/cli/src/LiteSpec.Cli/Ui/UiValidator.cs`. The [cache extension](../ext/cache.md) and the [site extension](../ext/site.md) show the two extension paths: a shared page under `docs/ext/` and the index that explains each selection.

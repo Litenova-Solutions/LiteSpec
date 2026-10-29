@@ -6,7 +6,7 @@ Every JSON file a LiteSpec tool reads has one schema (a contract stating its exa
 
 ## Reference
 
-Every schema lives in `schemas/` at the repository root and uses JSON Schema draft 2020-12. Each schema carries an `$id` that equals its published URL, so the copy at `https://litespec.dev/3.0.0/schemas/<file>` and the file in `schemas/` state the same contract. The [validate](../tools/validate.md), [consumer](../tools/consumer.md), and [ui](../tools/ui.md) pages state the commands that check each file. The release ships seven schemas, one per section below.
+Every schema lives in `schemas/` at the repository root and uses JSON Schema draft 2020-12. Each schema carries an `$id` that equals its published URL, so the copy at `https://litespec.dev/3.0.0/schemas/<file>` and the file in `schemas/` state the same contract. The [validate](../maintain/validate.md), [consumer](../tools/consumer.md), and [ui](../tools/ui.md) pages state the commands that check each file. The release ships seven schemas, one per section below.
 
 ### Manifest Schema
 
@@ -14,7 +14,7 @@ Every schema lives in `schemas/` at the repository root and uses JSON Schema dra
 |:---|:---|
 | File | `schemas/litespec-manifest.schema.json` |
 | Validates | `litespec.manifest.json` in the LiteSpec repository |
-| Checked by | `litespec validate` |
+| Checked by | `litespec-maintain validate` |
 | Published URL | `https://litespec.dev/3.0.0/schemas/litespec-manifest.schema.json` |
 
 The top-level properties name the release and what it ships. `schemaVersion` is the constant `5`. `version` is the release, such as `3.0.0`. `name` and `agentsEntry` name the standard and its agent entry point. `stacks`, `shapes`, and `extensions` list what a consumer project selects from. `stack` and `packages` pin the tool versions. `uiBaseline` and `uiBaselineSvelte` pin the controlled UI presets.
@@ -37,7 +37,7 @@ The release manifest opens with these fields:
 |:---|:---|
 | File | `schemas/litespec-project.schema.json` |
 | Validates | `litespec.project.json` in a consumer repository |
-| Checked by | `litespec consumer`, and `litespec validate` for the template copy |
+| Checked by | `litespec consumer`, and `litespec-maintain validate` for the template copy |
 | Published URL | `https://litespec.dev/3.0.0/schemas/litespec-project.schema.json` |
 
 The top-level properties describe the project. `project` holds the project name. `size` is `small` or `large`. `shape` is `server` or `client-only`. `stacks` lists the selected stacks. `reviewedLiteSpecVersion` records the LiteSpec release the project last reviewed. `paths` locates the specification tree, the glossary, the UI package, and the frontends. `stackConfig` holds per-stack configuration, such as the .NET backend paths. `selectedExtensions` lists the active extensions with their criterion and review date. `review` holds the veto window and the security reviewer. `adoption` names the decision that ends transcription mode. `refusals` names the codes the derived generic results carry. `optionalTypes`, `proof`, `constraints`, `owners`, `exampleWordLimit`, and `prohibitedKinds` carry further project choices. The [project file](project-file.md) states every field.

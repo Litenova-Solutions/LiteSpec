@@ -28,7 +28,7 @@ This extension replaces `{litespec/page#state-one-action}`, or states that it re
 
 **Example:** Show one compliant extension artifact or behavior.
 
-**Checked by:** `litespec validate` reports this provision satisfied on the page that carries it.
+**Checked by:** `litespec-maintain validate` reports this provision satisfied on the page that carries it.
 
 ## Conventions
 

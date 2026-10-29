@@ -17,7 +17,8 @@ Follow the [authoring standard](docs/core/authoring.md) for every standards page
 | The standard | [docs/README.md](docs/README.md) | Every page a project applies, plus lookup and how-to pages |
 | JSON contracts | [schemas/README.md](schemas/README.md) | The schemas that validate the manifest, the project file, the records, and the UI files |
 | Seed files | [templates/README.md](templates/README.md) | The consumer templates, the init presets, and the seeds for LiteSpec pages |
-| Command line | [apps/cli/README.md](apps/cli/README.md) | The `litespec` tool: validation, scaffolding, model, book, and pattern commands |
+| Command line | [apps/cli/README.md](apps/cli/README.md) | The `litespec` tool: consumer validation, scaffolding, model, book, and pattern commands |
+| Maintainer tool | [apps/maintain/README.md](apps/maintain/README.md) | The `litespec-maintain` tool: authoring checks and the provision index |
 | Analyzers | [apps/analyzers/README.md](apps/analyzers/README.md) | The Roslyn rules that check .NET applications against the standard |
 | Site | [apps/site/README.md](apps/site/README.md) | `litespec.dev`, the static site that publishes the standard |
 | Release pins | [litespec.manifest.json](litespec.manifest.json) | Version, stacks, shapes, extensions, and toolchain and package pins |
@@ -41,9 +42,9 @@ Change the records, code, tests, contracts, and operations that belong together 
 1. Decide whether the assertion changes. A reword that obliges the same action keeps its ID. A requirement that obliges a different action, a wider scope, or a different actor takes a new ID.
 2. Write the new provision under a new heading on its page. Never reuse the retired heading.
 3. Delete the retired provision with its ID line and verification line. Leave no alias, replacement map, or note that the identifier moved.
-4. Update each page that cited the retired ID. [docs/reference/provisions.md](docs/reference/provisions.md) resolves every citation to its page, and `litespec validate` reports a citation with no owner.
+4. Update each page that cited the retired ID. [docs/reference/provisions.md](docs/reference/provisions.md) resolves every citation to its page, and `litespec-maintain validate` reports a citation with no owner.
 5. Update the validator case that covers the rule, in both directions: one passing case and one failing case. A rule with only one side stays unverified.
-6. Run `litespec provisions` and commit the regenerated index.
+6. Run `litespec-maintain provisions` and commit the regenerated index.
 7. Record the change in [CHANGELOG.md](CHANGELOG.md) as the current contract, without a transition path.
 
 A consumer that pinned the earlier release keeps that release and its own exceptions. Adopting the new release means re-reading the amended provision and every exception that named the retired ID.
@@ -52,7 +53,7 @@ A consumer that pinned the earlier release keeps that release and its own except
 
 1. Place the page where it applies: a principle in its area folder, a realization in its stack folder such as [docs/backend/dotnet/](docs/backend/dotnet/). The path states the provision scope, and two pages never share one.
 2. Use the sections of its page style from the [authoring standard](docs/core/authoring.md). A Standard states one testable obligation under one heading, laid out as the [provision layout](docs/core/authoring.md#provision-layout) shows: heading, ID line, Statement, Rationale, Example, and one verification line.
-3. Write no ID in the heading. The ID follows the page path and the heading; the ID line under the heading repeats it, and `litespec validate` refuses one that disagrees.
+3. Write no ID in the heading. The ID follows the page path and the heading; the ID line under the heading repeats it, and `litespec-maintain validate` refuses one that disagrees.
 4. Regenerate the provision index and update the changelog.
 
 ### Add a UI Pattern Option
@@ -76,10 +77,10 @@ A consumer that pinned the earlier release keeps that release and its own except
 
 ### Add a CLI Check
 
-1. Put the validator beside its command under [apps/cli/src/LiteSpec.Cli/](apps/cli/src/LiteSpec.Cli/): `Authoring/`, `Consumer/`, `Ui/`, `Model/`, `Book/`, `Patterns/`, `Init/`, or `Schemas/`. Read [apps/cli/README.md](apps/cli/README.md) for the file each folder owns.
+1. Put the validator beside its command: a consumer check under [apps/cli/src/LiteSpec.Cli/](apps/cli/src/LiteSpec.Cli/) in `Consumer/`, `Ui/`, `Model/`, `Book/`, `Patterns/`, or `Init/`, and an authoring check under [apps/maintain/src/LiteSpec.Maintain/](apps/maintain/src/LiteSpec.Maintain/) in `Authoring/`. Read [apps/cli/README.md](apps/cli/README.md) and [apps/maintain/README.md](apps/maintain/README.md) for the file each folder owns.
 2. Add the diagnostic code to the stable list when the rule is final. Every authoring rule is an error. `WarningDiagnosticCodes` stays empty and holds a rule only while a newly added check burns down against existing content.
-3. Cover the rule with one passing case and one failing case in [apps/cli/tests/LiteSpec.Cli.Tests/](apps/cli/tests/LiteSpec.Cli.Tests/), with fixtures under `Fixtures/` where the command reads files.
-4. Run the solution build and tests, then `litespec validate`.
+3. Cover the rule with one passing case and one failing case in [apps/cli/tests/LiteSpec.Cli.Tests/](apps/cli/tests/LiteSpec.Cli.Tests/) for a consumer rule or [apps/maintain/tests/LiteSpec.Maintain.Tests/](apps/maintain/tests/LiteSpec.Maintain.Tests/) for an authoring rule, with fixtures under `Fixtures/` where the command reads files.
+4. Run the solution build and tests, then `litespec-maintain validate`.
 
 ### Add an Analyzer Rule
 
@@ -101,18 +102,18 @@ Run these from the repository root before a change is done:
 ```bash
 dotnet build LiteSpec.slnx
 dotnet test --solution LiteSpec.slnx
-dotnet run --project apps/cli/src/LiteSpec.Cli -- provisions
-dotnet run --project apps/cli/src/LiteSpec.Cli -- validate
+dotnet run --project apps/maintain/src/LiteSpec.Maintain -- provisions
+dotnet run --project apps/maintain/src/LiteSpec.Maintain -- validate
 git diff --check
 ```
 
-`litespec validate` checks schemas, manifest references, provision IDs, page contracts, pattern pages and their wireframes, links, and verification marks. `litespec provisions` rewrites the provision index.
+`litespec-maintain validate` checks schemas, manifest references, provision IDs, page contracts, pattern pages and their wireframes, links, and verification marks. `litespec-maintain provisions` rewrites the provision index.
 
 Run the further checks your area selects, as [.github/workflows/litespec.yml](.github/workflows/litespec.yml) runs them:
 
 ```bash
 dotnet pack apps/analyzers/src/LiteSpec.Analyzers --output artifacts
-dotnet run --project apps/cli/src/LiteSpec.Cli --no-build -- provisions --check
+dotnet run --project apps/maintain/src/LiteSpec.Maintain --no-build -- provisions --check
 ```
 
 For a site change, from the repository root:

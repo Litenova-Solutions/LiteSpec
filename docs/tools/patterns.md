@@ -20,7 +20,7 @@ A pattern page under `docs/frontend/patterns/` answers one recurring interface q
 
 `svg` prints one option's sketch on standard output, for a site or document that embeds it. With `--phone` it draws the phone width, using the option's own phone block when one exists.
 
-`check` parses every pattern page, or the target's page, and reports each broken wireframe and each page-contract gap with its page line. `litespec validate` runs the same check.
+`check` parses every pattern page, or the target's page, and reports each broken wireframe and each page-contract gap with its page line. `litespec-maintain validate` runs the same check.
 
 ## Arguments
 

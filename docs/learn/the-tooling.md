@@ -2,15 +2,16 @@
 
 ## Intent
 
-LiteSpec ships 3 tools: a command line that checks written records and code, a set of .NET analyzers that flag rule breaks while code is written and built, and a published site that shows which rules apply. This page explains what each tool checks, the order a team runs them in when a consumer project (an application repository built against one pinned LiteSpec release) changes, and which repository each command belongs to. Developers and agents read it when they set up a project or join one, so every check runs in the right place and nothing goes unchecked.
+LiteSpec ships 4 tools: a command line that checks a consumer project, a maintainer command line that checks the standard itself, a set of .NET analyzers that flag rule breaks while code is written and built, and a published site that shows which rules apply. This page explains what each tool checks, the order a team runs them in when a consumer project (an application repository built against one pinned LiteSpec release) changes, and which repository each command belongs to. Developers and agents read it when they set up a project or join one, so every check runs in the right place and nothing goes unchecked.
 
 ## The Three Tools
 
-LiteSpec ships one command line, one set of .NET analyzers, and one published site. Each one serves a different reader. The pages call your project a consumer: the application repository that pins one LiteSpec release and builds against it.
+LiteSpec ships two command lines, one set of .NET analyzers, and one published site. Each one serves a different reader. The pages call your project a consumer: the application repository that pins one LiteSpec release and builds against it.
 
 | Tool | Form | Question |
 |:---|:---|:---|
-| `litespec` CLI | A .NET command you run in a repository | Is everything consistent, and what is missing |
+| `litespec` CLI | A .NET command you run in a consumer repository | Is everything consistent, and what is missing |
+| `litespec-maintain` | A .NET command you run in the LiteSpec repository | Is the standard itself consistent |
 | `LiteSpec.Analyzers` | Roslyn diagnostics inside your .NET projects | Does this code follow the .NET rules |
 | litespec.dev | HTML pages for people, plain text for agents | Which rules apply to my selection |
 
@@ -18,7 +19,9 @@ LiteSpec ships one command line, one set of .NET analyzers, and one published si
 
 The `litespec` command line reads records, code, and configuration, and reports what it finds. The [command index](../tools/README.md) lists every command with its arguments, options, and exit codes.
 
-You run repository commands with `dotnet run --project apps/cli/src/LiteSpec.Cli -- <command>` from the LiteSpec checkout. In a consumer, you install the `litespec` command line as a local .NET tool at the adopted release, restore once with `dotnet tool restore`, then run `dotnet litespec <command>` (or `dotnet tool run litespec <command>`) from the consumer root. The command pages write the consumer form as `litespec <command>`.
+You run consumer commands from the LiteSpec checkout with `dotnet run --project apps/cli/src/LiteSpec.Cli -- <command>`. In a consumer, you install the `litespec` command line as a local .NET tool at the adopted release, restore once with `dotnet tool restore`, then run `dotnet litespec <command>` (or `dotnet tool run litespec <command>`) from the consumer root. The command pages write the consumer form as `litespec <command>`.
+
+The `litespec-maintain` command line serves the LiteSpec repository itself: `validate` checks the standard's pages, templates, manifest, and links, and `provisions` rebuilds the provision index. You run it with `dotnet run --project apps/maintain/src/LiteSpec.Maintain -- <command>` from the LiteSpec checkout. It is never packed for consumers. The [maintainer index](../maintain/README.md) lists both commands with their arguments, options, and exit codes.
 
 The CLI carries its release beside its own binary. You point it at another copy with `LITESPEC_HOME`, and you print its release with `dotnet litespec --version`.
 
@@ -76,12 +79,12 @@ Every page also exists as raw Markdown at `/<version>/<page>.md`, such as `https
 
 ## Command Locations
 
-Some commands belong to the LiteSpec repository, most belong to a consumer, and one runs anywhere.
+Two commands belong to the LiteSpec repository, most belong to a consumer, and one runs anywhere.
 
 | Command | Repository | Reads | Writes |
 |:---|:---|:---|:---|
-| `litespec validate` | LiteSpec | Pages, templates, manifest, links | Diagnostics only |
-| `litespec provisions` | LiteSpec | Active standards | `docs/reference/provisions.md` |
+| `litespec-maintain validate` | LiteSpec | Pages, templates, manifest, links | Diagnostics only |
+| `litespec-maintain provisions` | LiteSpec | Active standards | `docs/reference/provisions.md` |
 | `litespec init` | Consumer | Release template and preset | `litespec.project.json` |
 | `litespec consumer` | Consumer | Project file, pages, glossary | Diagnostics only |
 | `litespec ui` | Consumer | Shared UI package, frontends | Diagnostics only |
@@ -89,7 +92,7 @@ Some commands belong to the LiteSpec repository, most belong to a consumer, and 
 | `litespec book` | Consumer | `model.json`, optional findings | A static site folder with chapters and ballots |
 | `litespec patterns` | Anywhere | Pattern pages and wireframes | An HTML preview, SVG, or diagnostics |
 
-`litespec validate` and `litespec provisions --check` guard the standard itself: the LiteSpec workflow runs them on every change with `git diff --check` and a site build. `dotnet litespec consumer`, `dotnet litespec model check`, and the analyzers guard your project: your CI runs them on every pull request.
+`litespec-maintain validate` and `litespec-maintain provisions --check` guard the standard itself: the LiteSpec workflow runs them on every change with `git diff --check` and a site build. `dotnet litespec consumer`, `dotnet litespec model check`, and the analyzers guard your project: your CI runs them on every pull request.
 
 ## Questions Each Tool Answers
 
@@ -106,7 +109,7 @@ Each question below names the tool that answers it and the command you run.
 | What changed in product words | The CLI | `dotnet litespec model diff <base> --intent` |
 | What Behavior changed, and what needs security review | The CLI | `dotnet litespec model diff <base> --behavior` |
 | Which questions await a decision | The CLI | `dotnet litespec book` (the ballots page) |
-| Is the standard itself consistent | The CLI | `dotnet litespec validate` |
+| Is the standard itself consistent | The maintainer tool | `litespec-maintain validate` |
 | How do I read my project as a site | The CLI | `dotnet litespec book` |
 | What does an interface option look like | The CLI | `dotnet litespec patterns preview` |
 

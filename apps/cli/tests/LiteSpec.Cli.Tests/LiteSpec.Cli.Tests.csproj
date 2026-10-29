@@ -12,6 +12,7 @@
 
     <ItemGroup>
         <ProjectReference Include="../../src/LiteSpec.Cli/LiteSpec.Cli.csproj" />
+        <ProjectReference Include="../../../model/src/LiteSpec.Shared/LiteSpec.Shared.csproj" />
     </ItemGroup>
 
     <ItemGroup>

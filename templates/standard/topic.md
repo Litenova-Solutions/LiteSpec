@@ -16,7 +16,7 @@ State the page scope and the boundary it owns.
 
 **Example:** Show one compliant artifact or behavior when the provision requires an example.
 
-**Checked by:** `litespec validate` reports this provision satisfied on the page that carries it.
+**Checked by:** `litespec-maintain validate` reports this provision satisfied on the page that carries it.
 
 ## Conventions
 

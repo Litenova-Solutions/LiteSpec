@@ -46,10 +46,10 @@ jobs:
         run: .github/scripts/smoke-tool.sh artifacts
 
       - name: Check the generated provision index
-        run: dotnet run --project apps/cli/src/LiteSpec.Cli --no-build -- provisions --check
+        run: dotnet run --project apps/maintain/src/LiteSpec.Maintain --no-build -- provisions --check
 
       - name: Validate the LiteSpec repository
-        run: dotnet run --project apps/cli/src/LiteSpec.Cli --no-build -- validate
+        run: dotnet run --project apps/maintain/src/LiteSpec.Maintain --no-build -- validate
 
       - name: Check whitespace errors
         run: git diff --check

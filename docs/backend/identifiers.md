@@ -117,7 +117,7 @@ Shared provisions keep their published `litespec/<page>#<slug>` form, as stated 
 
 **Rationale:** A shared provision is cited across projects, so its identifier looks the same everywhere. The published `litespec/<page>#<slug>` form stays fixed, while project records use the type forms above.
 
-**Checked by:** `litespec validate` emits no `ID_UNKNOWN_REFERENCE` diagnostic.
+**Checked by:** `litespec-maintain validate` emits no `ID_UNKNOWN_REFERENCE` diagnostic.
 
 ## Conventions
 

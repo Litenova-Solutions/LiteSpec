@@ -14,7 +14,7 @@ The Core pages state what every LiteSpec project shares: the principles, the rec
 - [Access](access.md): the actors, roles, permissions, entry points, and external systems that govern who may do what and how it is reached.
 - [System](system.md): what LiteSpec coordinates and the parts it combines.
 - [Release](release.md): what a release ships and what its evidence shows.
-- [Authoring](authoring.md): page styles, provision contracts, identifiers, and prose style; what `litespec validate` checks.
+- [Authoring](authoring.md): page styles, provision contracts, identifiers, and prose style; what `litespec-maintain validate` checks.
 - [Agent](agent.md): how agents select context, resolve standards, and report completion.
 - [Scope](scope.md): the one size, one shape, and stacks each project selects.
 - [Stacks](stacks.md): what selecting a stack applies, and what each stack folder holds.

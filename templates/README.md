@@ -43,16 +43,16 @@ Record authors copy templates by hand into the paths [consumer/README.md](consum
 ## How to Change One Safely
 
 - For a record template, keep the frontmatter valid against [record.schema.json](../schemas/record.schema.json) and the body sections matching the page style the [authoring standard](../docs/core/authoring.md) defines. Copy the changed file into a scratch consumer and run `litespec consumer --root <folder>` there.
-- For `litespec.project.json` or a preset, keep both valid against the project schema. `litespec validate` checks the shipped template. Keep [consumer/README.md](consumer/README.md) rows in sync: every row names a file that exists, and every shipped file appears in a row.
-- For a standard seed, keep it passing its virtual page contract. `litespec validate` parses each one.
+- For `litespec.project.json` or a preset, keep both valid against the project schema. `litespec-maintain validate` checks the shipped template. Keep [consumer/README.md](consumer/README.md) rows in sync: every row names a file that exists, and every shipped file appears in a row.
+- For a standard seed, keep it passing its virtual page contract. `litespec-maintain validate` parses each one.
 - Update the CLI reader and its tests when the shape changes, with one passing case and one failing case.
 - Run the verification steps in [CONTRIBUTING.md](../CONTRIBUTING.md).
 
 ## How to Test It
 
-- `litespec validate` covers the shipped project template, the template index in both directions, and the standard seeds as virtual pages.
+- `litespec-maintain validate` covers the shipped project template, the template index in both directions, and the standard seeds as virtual pages.
 - `litespec consumer --root <folder>` proves a changed record template validates in place.
-- `dotnet test --solution LiteSpec.slnx` runs the Init, Consumer, and Authoring suites with their fixtures.
+- `dotnet test --solution LiteSpec.slnx` runs the Init, Consumer, and Maintain suites with their fixtures.
 
 ## Limits
 

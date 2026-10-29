@@ -24,7 +24,7 @@ Every provision ID is `litespec/<page>#<slug>`, computed from the page path and 
 
 ### Citations
 
-A citation names the cited provision by its current identifier, whether the citation sits on the same page or another one. Because no alias exists, a citation that names a retired identifier resolves nowhere, and `litespec validate` reports it.
+A citation names the cited provision by its current identifier, whether the citation sits on the same page or another one. Because no alias exists, a citation that names a retired identifier resolves nowhere, and `litespec-maintain validate` reports it.
 
 ### The LiteSpec Release
 
@@ -63,7 +63,7 @@ These checks report a manifest or schema the release cannot ship, so they are li
 
 **Example:** Renaming a provision changes its heading, its ID line, and every citation together.
 
-**Checked by:** `litespec validate` emits no `ID_UNKNOWN_REFERENCE` diagnostic.
+**Checked by:** `litespec-maintain validate` emits no `ID_UNKNOWN_REFERENCE` diagnostic.
 
 ### Publish a LiteSpec Release from a Tag
 
@@ -85,7 +85,7 @@ These checks report a manifest or schema the release cannot ship, so they are li
 
 **Example:** The Behavior extensions `privacy`, `devices`, `automation`, `workflow-engine`, `pipeline`, `queues`, and `ai` each appear with their page path and activation scope.
 
-**Checked by:** `litespec validate` fails when a stack, shape, extension, or pin the release carries is missing from the manifest.
+**Checked by:** `litespec-maintain validate` fails when a stack, shape, extension, or pin the release carries is missing from the manifest.
 
 ## Conventions
 

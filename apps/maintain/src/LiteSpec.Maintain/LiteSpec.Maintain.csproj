@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <RootNamespace>LiteSpec</RootNamespace>
+        <AssemblyName>litespec-maintain</AssemblyName>
+        <IsPackable>false</IsPackable>
+        <Description>The LiteSpec maintainer tool: the authoring checks and the provision index. It runs in the LiteSpec repository and is never packed for consumers.</Description>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="../../../model/src/LiteSpec.Shared/LiteSpec.Shared.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <InternalsVisibleTo Include="LiteSpec.Maintain.Tests" />
+    </ItemGroup>
+
+</Project>

@@ -14,10 +14,6 @@ Console.OutputEncoding = new System.Text.UTF8Encoding(encoderShouldEmitUTF8Ident
 const string usage = """
     Usage: litespec <command> [options]
 
-    Commands in the LiteSpec repository:
-      validate      Check the authoring contract of the LiteSpec repository.
-      provisions    Write or check docs/reference/provisions.md.
-
     Commands in a consumer repository:
       init          Write litespec.project.json from a preset.
       new           Scaffold a record page and reserve its identifier.
@@ -46,8 +42,6 @@ return args[0] switch
 {
     "--help" or "-h" or "help" => Help(),
     "--version" => Version(),
-    "validate" => StandardsValidator.Run(rest),
-    "provisions" => ProvisionsCommand.Run(rest),
     "init" => InitCommand.Run(rest),
     "new" => NewCommand.Run(rest),
     "rename" => RenameCommand.Run(rest),

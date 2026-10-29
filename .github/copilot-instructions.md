@@ -15,8 +15,8 @@ Run the test suite and the repository validator before proposing a change:
 ```bash
 dotnet build LiteSpec.slnx
 dotnet test --solution LiteSpec.slnx
-dotnet run --project apps/cli/src/LiteSpec.Cli -- provisions
-dotnet run --project apps/cli/src/LiteSpec.Cli -- validate
+dotnet run --project apps/maintain/src/LiteSpec.Maintain -- provisions
+dotnet run --project apps/maintain/src/LiteSpec.Maintain -- validate
 git diff --check
 ```
 

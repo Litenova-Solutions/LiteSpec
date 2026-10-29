@@ -39,7 +39,7 @@ Every LiteSpec page uses exactly one style, decided by where the page lives.
 | Extension | An `ext/` folder | `templates/standard/extension.md` | Intent, Activation, Baseline Relationship, Standards, Conventions, Dependencies |
 | Pattern | `docs/frontend/patterns/` | [UI patterns](../frontend/patterns.md) | Intent, optional Concepts, optional Standards, optional Conventions, Patterns |
 | Reference | `docs/reference/` except the generated provision index, and one page per rule in `docs/analyzers/rules/` | `templates/standard/reference.md` | Intent, Reference, optional Notes |
-| Command | `docs/tools/` | `templates/standard/command.md` | Name, Synopsis, Description, Arguments, Options, Exit Codes, Examples, Underneath |
+| Command | `docs/tools/` and `docs/maintain/` | `templates/standard/command.md` | Name, Synopsis, Description, Arguments, Options, Exit Codes, Examples, Underneath |
 | How-to | `docs/guide/`, and the other pages of `docs/analyzers/` | `templates/standard/how-to.md` | Purpose, optional Prerequisites, Procedure, Check |
 | Tutorial | `docs/tutorial/` | `templates/standard/tutorial.md` | Purpose, Prerequisites, Lesson, What You Built |
 | Explanation | `docs/learn/` and `docs/example/` | None | Intent, then sections of its own |
@@ -189,7 +189,7 @@ Every provision has the same parts in the same order:
 4. `Rationale` and `Example` follow.
 5. The verification line comes last among the fields. `Checked by` marks a provision a tool checks (`checkable`) and starts with the checking command in backticks, then the code the tool reports where the tool emits one, then the scope. `Reviewed for` marks a provision a person judges (`guidance`) and asks the one question a reviewer answers, naming the observable evidence and where to look. Evidence like "verify compliance" says nothing and is refused.
 
-A pattern's options follow its verification line. `litespec provisions` writes the [provision index](../reference/provisions.md) from these lines; nothing else repeats them.
+A pattern's options follow its verification line. `litespec-maintain provisions` writes the [provision index](../reference/provisions.md) from these lines; nothing else repeats them.
 
 ### Validator Diagnostics
 
@@ -231,7 +231,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Example:** Write a hyphen or a comma where a typographic dash would go.
 
-**Checked by:** `litespec validate` emits no `PROSE_NON_ASCII` diagnostic.
+**Checked by:** `litespec-maintain validate` emits no `PROSE_NON_ASCII` diagnostic.
 
 ### Exclude Declared Content Paths from the ASCII Check
 
@@ -251,7 +251,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Rationale:** Strength words work only when each one means exactly one thing. The provision contract defines the approved modals with their RFC meaning, so a reader knows whether a word obliges or suggests, and no second capitalized term sneaks in a different shade of obligation.
 
-**Checked by:** `litespec validate` emits no `STANDARD_MODAL_COUNT` or `STANDARD_MODAL_VOCABULARY` diagnostic.
+**Checked by:** `litespec-maintain validate` emits no `STANDARD_MODAL_COUNT` or `STANDARD_MODAL_VOCABULARY` diagnostic.
 
 ### Restrict Normative Language to Standards and Conventions
 
@@ -261,7 +261,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Rationale:** Obligation hides when it sits in Concepts, Rationale, or an example: a project replaces a default it saw nowhere in the labeled assertions. One location for every modal lets readers and tools find each obligation in the same place. A prohibition written as `cannot` and a rule written as `never` belong in the same labels.
 
-**Checked by:** `litespec validate` emits no `PROSE_NORMATIVE_LOCATION` or `STANDARD_INFORMATIVE_NORMATIVE` diagnostic.
+**Checked by:** `litespec-maintain validate` emits no `PROSE_NORMATIVE_LOCATION` or `STANDARD_INFORMATIVE_NORMATIVE` diagnostic.
 
 ### Use One Term for One Concept
 
@@ -365,7 +365,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Rationale:** Titles and headings read as names in indexes, tabs, and search results. Title Case capitalizes every word except articles (`a`, `an`, `the`), coordinating conjunctions (`and`, `but`, `for`, `nor`, `or`, `so`, `yet`), and prepositions of four letters or fewer (`as`, `at`, `by`, `for`, `from`, `in`, `into`, `of`, `off`, `on`, `onto`, `over`, `per`, `to`, `up`, `upon`, `via`, `with`); the first and last words stay capitalized, and code, identifiers, and file names keep their own case.
 
-**Checked by:** `litespec validate` emits no `PAGE_TITLE_CASE` or `PAGE_HEADING_CASE` diagnostic.
+**Checked by:** `litespec-maintain validate` emits no `PAGE_TITLE_CASE` or `PAGE_HEADING_CASE` diagnostic.
 
 ### Use the Declared Page Contract
 
@@ -375,7 +375,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Rationale:** A fixed shape puts the authority, the context, the defaults, and the evidence in the same place on every page. Readers learn the shape once, and tools find each section without guessing. A page that invents its own order sends both searching.
 
-**Checked by:** `litespec validate` emits no `PAGE_MISSING_SECTION`, `PAGE_SECTION_ORDER` or `PAGE_UNKNOWN_SECTION` diagnostic.
+**Checked by:** `litespec-maintain validate` emits no `PAGE_MISSING_SECTION`, `PAGE_SECTION_ORDER` or `PAGE_UNKNOWN_SECTION` diagnostic.
 
 ### Limit Each Intent to Three Sentences
 
@@ -395,7 +395,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Rationale:** One fixed marker reads the same on every page and gives the validator one shape to accept.
 
-**Checked by:** `litespec validate` emits no `PAGE_EMPTY_SECTION` or `PAGE_EMPTY_SECTION_TEXT` diagnostic.
+**Checked by:** `litespec-maintain validate` emits no `PAGE_EMPTY_SECTION` or `PAGE_EMPTY_SECTION_TEXT` diagnostic.
 
 ### Route the Reader Before Listing Pages
 
@@ -407,7 +407,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Example:** A `Which Page Do You Want` section names each style in the reader's terms, one sentence each.
 
-**Checked by:** `litespec validate` emits no `INDEX_MISSING_ROUTING` diagnostic.
+**Checked by:** `litespec-maintain validate` emits no `INDEX_MISSING_ROUTING` diagnostic.
 
 ### Name the Tool Rather Than the Mechanism
 
@@ -441,7 +441,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Example:** A command with nothing separately runnable writes `Nothing beneath this command is separately runnable.` under `Underneath`.
 
-**Checked by:** `litespec validate` emits no `PAGE_MISSING_SECTION` diagnostic for a command page.
+**Checked by:** `litespec-maintain validate` emits no `PAGE_MISSING_SECTION` diagnostic for a command page.
 
 ### Record a Setting as Reference
 
@@ -513,7 +513,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Example:** The code, product, and standard term groups open the glossary in that order, each with one sentence saying what its terms name.
 
-**Checked by:** `litespec validate` emits no `GLOSSARY_ORDER` or `GLOSSARY_DEFINITION` diagnostic.
+**Checked by:** `litespec-maintain validate` emits no `GLOSSARY_ORDER` or `GLOSSARY_DEFINITION` diagnostic.
 
 ### Write Atomic Standards Provisions
 
@@ -525,7 +525,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Example:** `### Keep Business Invariants in Domain` owns one obligation about where invariants are enforced.
 
-**Checked by:** `litespec validate` emits no `STANDARD_LABEL_INVALID`, `STANDARD_LABEL_ORDER`, `STANDARD_LABEL_DUPLICATE`, `STANDARD_SENTENCE_COUNT`, `STANDARD_MODAL_COUNT`, `STANDARD_MODAL_VOCABULARY`, `STANDARD_MISSING_DEVIATION`, `STANDARD_UNEXPECTED_DEVIATION`, `STANDARD_DEVIATION_NORMATIVE`, `STANDARD_DEVIATION_SENTENCE`, `STANDARD_MISSING_REQUIREMENT`, `STANDARD_REQUIREMENT_COUNT`, `STANDARD_UNLABELED_CONTENT`, or `PROVISION_RESTATES_HEADING` diagnostic.
+**Checked by:** `litespec-maintain validate` emits no `STANDARD_LABEL_INVALID`, `STANDARD_LABEL_ORDER`, `STANDARD_LABEL_DUPLICATE`, `STANDARD_SENTENCE_COUNT`, `STANDARD_MODAL_COUNT`, `STANDARD_MODAL_VOCABULARY`, `STANDARD_MISSING_DEVIATION`, `STANDARD_UNEXPECTED_DEVIATION`, `STANDARD_DEVIATION_NORMATIVE`, `STANDARD_DEVIATION_SENTENCE`, `STANDARD_MISSING_REQUIREMENT`, `STANDARD_REQUIREMENT_COUNT`, `STANDARD_UNLABELED_CONTENT`, or `PROVISION_RESTATES_HEADING` diagnostic.
 
 ### Identify Actionable Conventions
 
@@ -535,7 +535,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Rationale:** A Convention heading under `## Conventions` makes each replaceable default traceable: a project cites exactly the default it replaces. Without the contract, defaults hide in prose and replacements cite paragraphs instead of identifiers.
 
-**Checked by:** `litespec validate` emits no `CONVENTION_MISSING_DEFAULT`, `CONVENTION_MISSING_REPLACEMENT`, `CONVENTION_DEFAULT_SENTENCE`, `CONVENTION_REPLACEMENT_SENTENCE`, `CONVENTION_REPLACEMENT_DEVIATION`, or `PROVISION_RESTATES_HEADING` diagnostic.
+**Checked by:** `litespec-maintain validate` emits no `CONVENTION_MISSING_DEFAULT`, `CONVENTION_MISSING_REPLACEMENT`, `CONVENTION_DEFAULT_SENTENCE`, `CONVENTION_REPLACEMENT_SENTENCE`, `CONVENTION_REPLACEMENT_DEVIATION`, or `PROVISION_RESTATES_HEADING` diagnostic.
 
 ### Attach Examples to Their Provisions
 
@@ -545,7 +545,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Rationale:** An example floating free of its provision reads as a second rule: readers obey the illustration instead of the obligation. Belonging to its provision, or to a Reference Example that names every provision it demonstrates, marks it as illustration.
 
-**Checked by:** `litespec validate` emits no `STANDARD_EXAMPLE_LABEL`, `PAGE_UNKNOWN_SECTION`, or `REFERENCE_EXAMPLE_DECLARATION` diagnostic.
+**Checked by:** `litespec-maintain validate` emits no `STANDARD_EXAMPLE_LABEL`, `PAGE_UNKNOWN_SECTION`, or `REFERENCE_EXAMPLE_DECLARATION` diagnostic.
 
 ### Use the Declared Identifier Grammar
 
@@ -557,7 +557,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Example:** `litespec/frontend/components#compose-composites-in-page-code` is a heading on the frontend components page.
 
-**Checked by:** `litespec validate` emits no `ID_UNKNOWN_REFERENCE` diagnostic.
+**Checked by:** `litespec-maintain validate` emits no `ID_UNKNOWN_REFERENCE` diagnostic.
 
 ### Name the Owning Page in the Identifier
 
@@ -569,7 +569,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Example:** `litespec/frontend/structure#mirror-the-backend-use-case-path-in-kebab-case` and `litespec/frontend/blazor/structure#organize-features-by-module-and-use-case` are on two different pages.
 
-**Checked by:** `litespec validate` emits no `ID_PAGE_FILENAME` or `ID_DUPLICATE` diagnostic.
+**Checked by:** `litespec-maintain validate` emits no `ID_PAGE_FILENAME` or `ID_DUPLICATE` diagnostic.
 
 ### Keep Identifiers Out of Provision Headings
 
@@ -579,7 +579,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Rationale:** The page path and the heading already state the identifier. An identifier written into the heading repeats it at best and contradicts it at worst, after a rename touches one and misses the other.
 
-**Checked by:** `litespec validate` emits no `ID_IN_HEADING` diagnostic.
+**Checked by:** `litespec-maintain validate` emits no `ID_IN_HEADING` diagnostic.
 
 ### Exclude a Sequence Number from the Identifier
 
@@ -613,7 +613,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Example:** `### Keep Shared UI in One Package` on `docs/frontend/components.md` is followed by the ID line `litespec/frontend/components#keep-shared-ui-in-one-package`.
 
-**Checked by:** `litespec validate` emits no `ID_LINE_MISSING` or `ID_LINE_MISMATCH` diagnostic.
+**Checked by:** `litespec-maintain validate` emits no `ID_LINE_MISSING` or `ID_LINE_MISMATCH` diagnostic.
 
 ### Map Provisions to Evidence
 
@@ -623,7 +623,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Rationale:** A provision with no verification line is a rule nobody checks: people assume a tool covers it while no tool was told. One line per provision, beside the rule it checks, makes each rule reviewable by a person or a tool.
 
-**Checked by:** `litespec validate` emits no `VERIFY_MISSING_ID`, `VERIFY_DUPLICATE_ID`, `VERIFY_ORDER`, or `VERIFY_HEADER` diagnostic.
+**Checked by:** `litespec-maintain validate` emits no `VERIFY_MISSING_ID`, `VERIFY_DUPLICATE_ID`, `VERIFY_ORDER`, or `VERIFY_HEADER` diagnostic.
 
 ### Mark Every Provision Checkable or Guidance
 
@@ -633,7 +633,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Rationale:** The label tells a reader who judges the provision: a tool (`checkable`) or a person (`guidance`). Without it, a team automates a judgment call or hand-reviews what a command already proves.
 
-**Checked by:** `litespec validate` reports `VERIFY_MISSING_ID` for a provision whose verification line opens with any other label.
+**Checked by:** `litespec-maintain validate` reports `VERIFY_MISSING_ID` for a provision whose verification line opens with any other label.
 
 ### Name Observable Evidence in Verification Lines
 
@@ -643,7 +643,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Rationale:** A line that restates its Statement sends the reviewer in a circle: the evidence confirms that the rule says what it says. Naming the artifact and its location turns the line into an instruction the reviewer follows.
 
-**Checked by:** `litespec validate` emits no `VERIFY_GENERIC_EVIDENCE`, `VERIFY_TEMPLATED_EVIDENCE`, `VERIFY_DUPLICATE_EVIDENCE`, or `VERIFY_COMMAND` diagnostic.
+**Checked by:** `litespec-maintain validate` emits no `VERIFY_GENERIC_EVIDENCE`, `VERIFY_TEMPLATED_EVIDENCE`, `VERIFY_DUPLICATE_EVIDENCE`, or `VERIFY_COMMAND` diagnostic.
 
 ### Give One Observable Fact One Mark Across Pages
 
@@ -659,11 +659,11 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **ID:** `litespec/core/authoring#regenerate-the-provision-index`
 
-**Statement:** A standards change MUST leave `docs/reference/provisions.md` equal to the output of `litespec provisions`.
+**Statement:** A standards change MUST leave `docs/reference/provisions.md` equal to the output of `litespec-maintain provisions`.
 
-**Rationale:** One generated page resolves every identifier to its heading and page, so a reader follows a citation in one step. Regenerating it with `litespec provisions` on every standards change keeps the index and the pages from disagreeing.
+**Rationale:** One generated page resolves every identifier to its heading and page, so a reader follows a citation in one step. Regenerating it with `litespec-maintain provisions` on every standards change keeps the index and the pages from disagreeing.
 
-**Checked by:** `litespec provisions --check` exits zero.
+**Checked by:** `litespec-maintain provisions --check` exits zero.
 
 ### Declare Structured Specification Metadata
 
@@ -759,7 +759,7 @@ The figures below render from the retention schedule at build time.
 
 **Example:** `litespec rename use-case/spending.close-run use-case/spending.complete-run` updates the page and every citation together.
 
-**Checked by:** `litespec rename` leaves no citation of the old identifier, and `litespec validate` emits no `ID_UNKNOWN_REFERENCE` diagnostic.
+**Checked by:** `litespec rename` leaves no citation of the old identifier, and `litespec-maintain validate` emits no `ID_UNKNOWN_REFERENCE` diagnostic.
 
 ### Validate a Single Page Before Committing
 
@@ -779,9 +779,9 @@ The figures below render from the retention schedule at build time.
 
 **Statement:** A standards change MUST pass the repository validator, the test suite, and `git diff --check`.
 
-**Rationale:** The repository validator, the test suite, and `git diff --check` each catch what the others miss: structure, behavior, and whitespace. Passing all three on every standards change keeps the standard checkable by anyone who runs the same commands. The change report lists every skipped check with its reason. The [command index](../tools/README.md) names each check and its command.
+**Rationale:** The repository validator, the test suite, and `git diff --check` each catch what the others miss: structure, behavior, and whitespace. Passing all three on every standards change keeps the standard checkable by anyone who runs the same commands. The change report lists every skipped check with its reason. The [command index](../tools/README.md) and the [maintainer index](../maintain/README.md) name each check and its command.
 
-**Checked by:** `litespec validate`, `dotnet test --solution LiteSpec.slnx` and `git diff --check` exit zero.
+**Checked by:** `litespec-maintain validate`, `dotnet test --solution LiteSpec.slnx` and `git diff --check` exit zero.
 
 ### Validate Current Standards Material
 
@@ -811,7 +811,7 @@ The figures below render from the retention schedule at build time.
 
 **Rationale:** A consumer pins one snapshot and reads it as the whole obligation. Depending on another release would force the consumer to pin and read two contracts to know either. Stating every active provision in each release keeps one snapshot sufficient.
 
-**Checked by:** `litespec validate` checks every page of the release in one run, and the manifest names one version for the whole contract.
+**Checked by:** `litespec-maintain validate` checks every page of the release in one run, and the manifest names one version for the whole contract.
 
 ### Exclude Cross-Release Compatibility Work
 
@@ -879,4 +879,4 @@ The figures below render from the retention schedule at build time.
 
 **Replacement:** Use a noun heading only for a pattern, an informative definition, or an index entry.
 
-**Checked by:** `litespec validate` emits no `HEADING_ACTION` diagnostic.
+**Checked by:** `litespec-maintain validate` emits no `HEADING_ACTION` diagnostic.
