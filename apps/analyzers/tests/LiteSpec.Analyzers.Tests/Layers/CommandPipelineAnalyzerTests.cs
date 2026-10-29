@@ -6,6 +6,7 @@ namespace LiteSpec.Analyzers.Tests.Layers;
 /// <summary>Tests for LS2004, the repository write rule.</summary>
 public sealed class CommandPipelineAnalyzerTests
 {
+    /// <proves>litespec/backend/dotnet/persistence#stage-aggregate-writes-through-repositories</proves>
     [Fact(DisplayName = "LS2004 accepts a handler calling a repository")]
     public Task AcceptsAHandlerCallingARepository() =>
         Verify.AnalyzerAsync<CommandPipelineAnalyzer>("""
@@ -24,6 +25,7 @@ public sealed class CommandPipelineAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <proves>litespec/backend/dotnet/persistence#stage-aggregate-writes-through-repositories</proves>
     [Fact(DisplayName = "No rule reports a command handler dispatching through the mediator")]
     public Task AcceptsADispatchThroughTheMediator() =>
         Verify.AnalyzerAsync<CommandPipelineAnalyzer>("""
@@ -46,6 +48,7 @@ public sealed class CommandPipelineAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <proves>litespec/backend/dotnet/persistence#stage-aggregate-writes-through-repositories</proves>
     [Fact(DisplayName = "LS2004 reports an IDocumentSession field")]
     public Task ReportsASessionField() =>
         Verify.AnalyzerAsync<CommandPipelineAnalyzer>("""
@@ -65,6 +68,7 @@ public sealed class CommandPipelineAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <proves>litespec/backend/dotnet/persistence#stage-aggregate-writes-through-repositories</proves>
     [Fact(DisplayName = "LS2004 reports a DbContext subclass parameter")]
     public Task ReportsADbContextSubclassParameter() =>
         Verify.AnalyzerAsync<CommandPipelineAnalyzer>("""
@@ -84,6 +88,7 @@ public sealed class CommandPipelineAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <proves>litespec/backend/dotnet/persistence#stage-aggregate-writes-through-repositories</proves>
     [Fact(DisplayName = "LS2004 reports a session property")]
     public Task ReportsASessionProperty() =>
         Verify.AnalyzerAsync<CommandPipelineAnalyzer>("""
@@ -103,6 +108,7 @@ public sealed class CommandPipelineAnalyzerTests
             }
             """, assemblyName: "Shop.Infrastructure");
 
+    /// <proves>litespec/backend/dotnet/persistence#stage-aggregate-writes-through-repositories</proves>
     [Fact(DisplayName = "LS2004 reports a session local")]
     public Task ReportsASessionLocal() =>
         Verify.AnalyzerAsync<CommandPipelineAnalyzer>("""
@@ -127,6 +133,7 @@ public sealed class CommandPipelineAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <proves>litespec/backend/dotnet/persistence#stage-aggregate-writes-through-repositories</proves>
     [Fact(DisplayName = "LS2004 reports an invocation through a session receiver")]
     public Task ReportsASessionReceiverInvocation() =>
         Verify.AnalyzerAsync<CommandPipelineAnalyzer>("""
@@ -153,6 +160,7 @@ public sealed class CommandPipelineAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <proves>litespec/backend/dotnet/persistence#stage-aggregate-writes-through-repositories</proves>
     [Fact(DisplayName = "LS2004 accepts a query handler using IDocumentSession")]
     public Task AcceptsAQueryHandlerUsingTheSession() =>
         Verify.AnalyzerAsync<CommandPipelineAnalyzer>("""
@@ -172,6 +180,7 @@ public sealed class CommandPipelineAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <proves>litespec/backend/dotnet/persistence#stage-aggregate-writes-through-repositories</proves>
     [Fact(DisplayName = "LS2004 stays silent in WebApi")]
     public Task StaysSilentInWebApi() =>
         Verify.AnalyzerAsync<CommandPipelineAnalyzer>("""
@@ -191,6 +200,7 @@ public sealed class CommandPipelineAnalyzerTests
             }
             """, assemblyName: "Shop.WebApi");
 
+    /// <proves>litespec/backend/dotnet/persistence#stage-aggregate-writes-through-repositories</proves>
     [Fact(DisplayName = "LS2004 stays silent in Domain")]
     public Task StaysSilentInDomain() =>
         Verify.AnalyzerAsync<CommandPipelineAnalyzer>("""
@@ -210,6 +220,7 @@ public sealed class CommandPipelineAnalyzerTests
             }
             """);
 
+    /// <proves>litespec/backend/dotnet/persistence#stage-aggregate-writes-through-repositories</proves>
     [Fact(DisplayName = "LS2004 follows the LiteSpecLayer property over the assembly name")]
     public Task FollowsTheDeclaredLayer() =>
         Verify.AnalyzerAsync<CommandPipelineAnalyzer>("""

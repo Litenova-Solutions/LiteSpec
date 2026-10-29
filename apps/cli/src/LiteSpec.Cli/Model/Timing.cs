@@ -5,6 +5,7 @@ namespace LiteSpec.Model;
 ///     standard error only when <c>LITESPEC_TIMING</c> is set, so a normal run
 ///     writes nothing beside its findings.
 /// </summary>
+/// <follows>litespec/core/model#compute-proof-statuses-in-the-builder</follows>
 static class Timing
 {
     static readonly bool enabled = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("LITESPEC_TIMING"));

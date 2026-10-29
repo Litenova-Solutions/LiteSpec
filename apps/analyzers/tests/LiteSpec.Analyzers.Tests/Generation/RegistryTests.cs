@@ -5,6 +5,7 @@ namespace LiteSpec.Analyzers.Tests.Generation;
 /// <summary>Tests for the generated assembly registry.</summary>
 public sealed class RegistryTests
 {
+    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "The registry maps marked types to records and use cases to grants")]
     public void RegistryMapsTypesAndGrants()
     {
@@ -36,6 +37,7 @@ public sealed class RegistryTests
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
     }
 
+    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "The registry leaves unmarked types out")]
     public void RegistryLeavesUnmarkedTypesOut()
     {
@@ -59,6 +61,7 @@ public sealed class RegistryTests
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
     }
 
+    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "A use case with no known record takes no grant entry")]
     public void UnknownUseCaseTakesNoGrant()
     {
@@ -83,6 +86,7 @@ public sealed class RegistryTests
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
     }
 
+    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "The registry is empty with no marked types")]
     public void RegistryIsEmptyWithNoMarkedTypes()
     {
@@ -96,6 +100,7 @@ public sealed class RegistryTests
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
     }
 
+    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "The registry lists no follows targets")]
     public void RegistryListsNoFollowsTargets()
     {
@@ -131,6 +136,7 @@ public sealed class RegistryTests
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
     }
 
+    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "A project file with no record pages writes no registry")]
     public void NoRecordPagesWritesNoRegistry()
     {

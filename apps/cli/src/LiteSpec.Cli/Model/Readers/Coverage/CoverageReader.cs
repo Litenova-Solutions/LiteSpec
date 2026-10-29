@@ -13,6 +13,7 @@ sealed record CoverageRead(IReadOnlyList<CoverageGap> Gaps, bool Read);
 ///     The collection stays scenario-only because the CI job runs only the scenario
 ///     tests under coverage; the reader reports whatever the files hold.
 /// </summary>
+/// <follows>litespec/core/model#compute-proof-statuses-in-the-builder</follows>
 static class CoverageReader
 {
     /// <summary>Reads every coverage file under the test results folder.</summary>

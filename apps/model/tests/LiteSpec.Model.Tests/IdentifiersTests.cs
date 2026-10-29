@@ -7,6 +7,8 @@ namespace LiteSpec.Model.Tests;
 public sealed class IdentifiersTests
 {
     /// <summary>The named pattern matches the sample exactly when expected.</summary>
+    /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Theory]
     [InlineData("citation", "see use-case/lending.borrow-copy.", true)]
     [InlineData("citation", "no records here", false)]

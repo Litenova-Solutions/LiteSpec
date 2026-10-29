@@ -6,6 +6,7 @@ namespace LiteSpec.Book;
 ///     Page renderers for the book generator. Every count is computed from model.json.
 ///     The record-field, record-page and index renderers live in the sibling <c>BookPages.*.cs</c> files.
 /// </summary>
+/// <follows>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</follows>
 static partial class BookPages
 {
     /// <summary>Renders the home page: the product boundary, record counts and layers.</summary>

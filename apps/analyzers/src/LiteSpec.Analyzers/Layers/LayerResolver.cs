@@ -8,6 +8,7 @@ namespace LiteSpec.Analyzers.Layers;
 ///     Finds the layer of a compilation: the <c>LiteSpecLayer</c> MSBuild property when the
 ///     project sets it, otherwise the assembly name suffix (<c>Shop.Domain</c> is Domain).
 /// </summary>
+/// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
 internal static class LayerResolver
 {
     /// <summary>The analyzer config key the package's build props make visible.</summary>

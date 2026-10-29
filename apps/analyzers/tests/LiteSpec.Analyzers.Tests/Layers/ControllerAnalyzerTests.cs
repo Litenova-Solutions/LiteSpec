@@ -6,6 +6,7 @@ namespace LiteSpec.Analyzers.Tests.Layers;
 /// <summary>Tests for LS2003, no MVC controllers in WebApi.</summary>
 public sealed class ControllerAnalyzerTests
 {
+    /// <proves>litespec/backend/dotnet/api#exclude-mvc-controllers-from-the-stack</proves>
     [Fact(DisplayName = "LS2003 reports a class deriving from ControllerBase")]
     public Task ReportsAControllerBaseSubclass() =>
         Verify.AnalyzerAsync<ControllerAnalyzer>("""
@@ -22,6 +23,7 @@ public sealed class ControllerAnalyzerTests
             }
             """, assemblyName: "Shop.WebApi");
 
+    /// <proves>litespec/backend/dotnet/api#exclude-mvc-controllers-from-the-stack</proves>
     [Fact(DisplayName = "LS2003 reports an indirect subclass and its abstract base")]
     public Task ReportsAnIndirectSubclassAndItsBase() =>
         Verify.AnalyzerAsync<ControllerAnalyzer>("""
@@ -40,6 +42,7 @@ public sealed class ControllerAnalyzerTests
             }
             """, assemblyName: "Shop.WebApi");
 
+    /// <proves>litespec/backend/dotnet/api#exclude-mvc-controllers-from-the-stack</proves>
     [Fact(DisplayName = "LS2003 reports a class deriving from Controller")]
     public Task ReportsAControllerSubclass() =>
         Verify.AnalyzerAsync<ControllerAnalyzer>("""
@@ -58,6 +61,7 @@ public sealed class ControllerAnalyzerTests
             }
             """, assemblyName: "Shop.WebApi");
 
+    /// <proves>litespec/backend/dotnet/api#exclude-mvc-controllers-from-the-stack</proves>
     [Fact(DisplayName = "LS2003 reports ApiController alone")]
     public Task ReportsApiControllerAlone() =>
         Verify.AnalyzerAsync<ControllerAnalyzer>("""
@@ -77,6 +81,7 @@ public sealed class ControllerAnalyzerTests
             }
             """, assemblyName: "Shop.WebApi");
 
+    /// <proves>litespec/backend/dotnet/api#exclude-mvc-controllers-from-the-stack</proves>
     [Fact(DisplayName = "LS2003 reports a controller with ApiController once")]
     public Task ReportsABaseAndAttributeBreachOnce() =>
         Verify.AnalyzerAsync<ControllerAnalyzer>("""
@@ -98,6 +103,7 @@ public sealed class ControllerAnalyzerTests
             }
             """, assemblyName: "Shop.WebApi");
 
+    /// <proves>litespec/backend/dotnet/api#exclude-mvc-controllers-from-the-stack</proves>
     [Fact(DisplayName = "LS2003 accepts a minimal API endpoint class")]
     public Task AcceptsAMinimalApiEndpoint() =>
         Verify.AnalyzerAsync<ControllerAnalyzer>("""
@@ -114,6 +120,7 @@ public sealed class ControllerAnalyzerTests
             }
             """, assemblyName: "Shop.WebApi");
 
+    /// <proves>litespec/backend/dotnet/api#exclude-mvc-controllers-from-the-stack</proves>
     [Fact(DisplayName = "LS2003 ignores a controller in Application")]
     public Task IgnoresAControllerInApplication() =>
         Verify.AnalyzerAsync<ControllerAnalyzer>("""
@@ -130,6 +137,7 @@ public sealed class ControllerAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <proves>litespec/backend/dotnet/api#exclude-mvc-controllers-from-the-stack</proves>
     [Fact(DisplayName = "LS2003 follows the LiteSpecLayer property over the assembly name")]
     public Task FollowsTheDeclaredLayer() =>
         Verify.AnalyzerAsync<ControllerAnalyzer>("""

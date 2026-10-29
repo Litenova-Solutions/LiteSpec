@@ -130,7 +130,7 @@ An unapproved expense keeps its state, and the refusal carries the stable code `
 
 **Example:** The reimburse-expense handler calls `Reimburse` on the expense root, and `Reimburse` carries the mark `use-case/spending.reimburse-expense`.
 
-**Checked by:** `litespec model check` reports `use-case-act-uncalled` (tier S) for a command handler that calls no root method marked with its use case.
+**Checked by:** `litespec model check` reports `use-case-act-uncalled` (tier S) for a command handler that calls no root method marked with its use case. The check runs in the CLI only, with no analyzer rule: the handler and the root method sit in different projects, and one compilation sees one project.
 
 ### Give Each Use Case Its Own Act
 

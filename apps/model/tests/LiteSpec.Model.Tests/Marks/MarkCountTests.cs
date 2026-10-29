@@ -6,6 +6,7 @@ namespace LiteSpec.Model.Tests.Marks;
 /// <summary>Tests for the shared mark-count rule both hosts call.</summary>
 public sealed class MarkCountTests
 {
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "An exactly-one kind with one mark is no violation")]
     public void ExactlyOneKindWithOneMarkIsOk()
     {
@@ -15,6 +16,7 @@ public sealed class MarkCountTests
         Assert.Null(verdict.Duplicate);
     }
 
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Theory(DisplayName = "An exactly-one kind with two marks is violated without a duplicate")]
     [InlineData(CodeKind.Handler)]
     [InlineData(CodeKind.AggregateMethod)]
@@ -28,6 +30,7 @@ public sealed class MarkCountTests
         Assert.Null(verdict.Duplicate);
     }
 
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Theory(DisplayName = "An exactly-one kind naming one id twice reports the duplicate")]
     [InlineData(CodeKind.Handler)]
     [InlineData(CodeKind.AggregateMethod)]
@@ -41,6 +44,7 @@ public sealed class MarkCountTests
         Assert.Equal("use-case/spending.submit-expense", verdict.Duplicate);
     }
 
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Theory(DisplayName = "A multi-mark kind with two different marks is no violation")]
     [InlineData(CodeKind.Port)]
     [InlineData(CodeKind.Adapter)]
@@ -54,6 +58,7 @@ public sealed class MarkCountTests
         Assert.Null(verdict.Duplicate);
     }
 
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Theory(DisplayName = "A multi-mark kind naming one id twice is violated")]
     [InlineData(CodeKind.Port)]
     [InlineData(CodeKind.Adapter)]
@@ -67,6 +72,7 @@ public sealed class MarkCountTests
         Assert.Equal("a/1", verdict.Duplicate);
     }
 
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "No marks is no violation: the missing mark is mark-missing")]
     public void EmptyMarksAreOk()
     {
@@ -76,11 +82,13 @@ public sealed class MarkCountTests
         Assert.Null(verdict.Duplicate);
     }
 
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "CheckCount rejects an unknown kind")]
     public void CheckCountRejectsUnknownKind() =>
         Assert.Throws<ArgumentOutOfRangeException>(
             () => MarkRules.CheckCount((CodeKind)99, new[] { "use-case/spending.submit-expense" }));
 
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "CheckCount rejects null record ids")]
     public void CheckCountRejectsNullIds() =>
         Assert.Throws<ArgumentNullException>(() => MarkRules.CheckCount(CodeKind.Handler, null!));

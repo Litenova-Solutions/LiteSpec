@@ -40,29 +40,35 @@ public sealed partial class StandardsValidatorTests
 
     static void Check(Action<string>? mutate, string[] expected) => Check(mutate, expected, []);
 
+    /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
     [Fact(DisplayName = "all page classes pass")]
     public void AllPageClassesPass() => Check(null, []);
 
+    /// <proves>litespec/frontend/patterns/record-detail#show-one-primary-action-in-a-record-header</proves>
     [Fact(DisplayName = "pattern page with a broken wireframe")]
     public void PatternPageWithBrokenWireframe() => Check(
         root => StandardsFixture.Write(root, "docs/frontend/patterns/sample.md", StandardsFixture.ReplaceFirst(StandardsFixture.PatternPage, "action \"Refund\"", "button \"Refund\"")),
         ["PATTERN_INVALID"]);
 
+    /// <proves>litespec/core/authoring#prefer-direct-action-headings</proves>
     [Fact(DisplayName = "pattern page whose heading names the pattern rather than an action")]
     public void PatternHeadingNamesThePattern() => Check(
         root => StandardsFixture.Write(root, "docs/frontend/patterns/sample.md", StandardsFixture.ReplaceFirst(StandardsFixture.PatternPage, "## Patterns\n\n### Record Header", "## Standards\n\n### Header layout")),
         ["HEADING_ACTION"]);
 
+    /// <proves>litespec/core/authoring#use-the-declared-page-contract</proves>
     [Fact(DisplayName = "tutorial that omits what the reader built")]
     public void TutorialOmitsWhatReaderBuilt() => Check(
         root => StandardsFixture.Write(root, "docs/tutorial/sample.md", StandardsFixture.ReplaceFirst(StandardsFixture.TutorialPage, "## What You Built", "## Verification")),
         ["PAGE_MISSING_SECTION", "PAGE_UNKNOWN_SECTION"]);
 
+    /// <proves>litespec/core/authoring#use-the-declared-page-contract</proves>
     [Fact(DisplayName = "how-to that ends in verification")]
     public void HowToEndingInVerification() => Check(
         root => StandardsFixture.Write(root, "docs/guide/sample.md", StandardsFixture.ReplaceFirst(StandardsFixture.GuidePage, "## Check", "## Verification")),
         ["PAGE_MISSING_SECTION", "PAGE_UNKNOWN_SECTION"]);
 
+    /// <proves>litespec/core/authoring#use-the-declared-page-contract</proves>
     [Fact(DisplayName = "analyzer rule page and analyzer procedure pass")]
     public void AnalyzerPagesPass() => Check(
         root =>
@@ -72,21 +78,25 @@ public sealed partial class StandardsValidatorTests
         },
         []);
 
+    /// <proves>litespec/core/authoring#use-the-declared-page-contract</proves>
     [Fact(DisplayName = "analyzer rule page written as a procedure")]
     public void AnalyzerRuleAsProcedure() => Check(
         root => StandardsFixture.Write(root, "docs/analyzers/rules/sample.md", StandardsFixture.GuidePage),
         ["PAGE_MISSING_SECTION"]);
 
+    /// <proves>litespec/core/authoring#use-the-declared-page-contract</proves>
     [Fact(DisplayName = "example page without an Intent")]
     public void ExamplePageWithoutIntent() => Check(
         root => StandardsFixture.Write(root, "docs/example/sample.md", "# Sample Example\n\n## The product\n\nA library lends copies.\n"),
         ["PAGE_MISSING_SECTION"]);
 
+    /// <proves>litespec/core/authoring#use-the-declared-page-contract</proves>
     [Fact(DisplayName = "reference page carrying an unknown section")]
     public void ReferenceWithUnknownSection() => Check(
         root => StandardsFixture.Write(root, "docs/reference/sample.md", StandardsFixture.ReplaceFirst(StandardsFixture.ReferencePage, "## Notes", "## Procedure")),
         ["PAGE_UNKNOWN_SECTION"]);
 
+    /// <proves>litespec/core/authoring#use-the-declared-page-contract</proves>
     [Fact(DisplayName = "reference page out of order")]
     public void ReferenceOutOfOrder() => Check(
         root =>
@@ -97,16 +107,20 @@ public sealed partial class StandardsValidatorTests
         },
         ["PAGE_SECTION_ORDER"]);
 
+    /// <proves>litespec/core/authoring#name-the-escape-from-every-abstraction</proves>
     [Fact(DisplayName = "command page hiding its mechanism")]
     public void CommandHidingMechanism() => Check(
         root => StandardsFixture.Write(root, "docs/tools/sample.md", StandardsFixture.ReplaceFirst(StandardsFixture.CommandPage, "## Underneath\n\nNone.\n", "")),
         ["PAGE_MISSING_SECTION"]);
 
+    /// <proves>litespec/core/authoring#name-the-escape-from-every-abstraction</proves>
+    /// <proves>litespec/core/authoring#use-the-declared-page-contract</proves>
     [Fact(DisplayName = "command page without exit codes")]
     public void CommandWithoutExitCodes() => Check(
         root => StandardsFixture.Write(root, "docs/tools/sample.md", StandardsFixture.ReplaceFirst(StandardsFixture.CommandPage, "## Exit Codes", "## Results")),
         ["PAGE_MISSING_SECTION", "PAGE_UNKNOWN_SECTION"]);
 
+    /// <proves>litespec/core/authoring#use-the-declared-page-contract</proves>
     [Fact(DisplayName = "frontend topic with per-stack sections rejected")]
     public void FrontendWithPerStackSections() => Check(
         root =>
@@ -118,21 +132,25 @@ public sealed partial class StandardsValidatorTests
         },
         ["PAGE_UNKNOWN_SECTION", "PAGE_SECTION_ORDER"]);
 
+    /// <proves>litespec/core/authoring#use-the-declared-page-contract</proves>
     [Fact(DisplayName = "per-stack section outside frontend pages")]
     public void PerStackOutsideFrontend() => Check(
         root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "## Standards", "## React\n\n- React names the binding the rule below forbids.\n\n## Standards")),
         ["PAGE_UNKNOWN_SECTION"]);
 
+    /// <proves>litespec/core/authoring#use-the-declared-page-contract</proves>
     [Fact(DisplayName = "stack page carrying a composition section")]
     public void StackWithCompositionSection() => Check(
         root => StandardsFixture.Write(root, "docs/backend/sample/stack.md", StandardsFixture.ReplaceFirst(StandardsFixture.StackPage, "## Conventions", "## Composition\n\n- [Topic standard](../../core/topic.md)\n\n## Conventions")),
         ["PAGE_UNKNOWN_SECTION"]);
 
+    /// <proves>litespec/core/authoring#use-the-declared-page-contract</proves>
     [Fact(DisplayName = "per-stack section after standards")]
     public void PerStackAfterStandards() => Check(
         root => StandardsFixture.Write(root, "docs/frontend/web/sample.md", StandardsFixture.TopicPage.Replace("core/topic", "frontend/web/sample") + "\n## React\n\n- React names the binding the rule above forbids.\n"),
         ["PAGE_UNKNOWN_SECTION", "PAGE_SECTION_ORDER"]);
 
+    /// <proves>litespec/core/authoring#use-the-declared-page-contract</proves>
     [Fact(DisplayName = "stack page with a concepts section")]
     public void StackWithConceptsSection() => Check(
         root => StandardsFixture.Write(root, "docs/backend/sample/stack.md", StandardsFixture.ReplaceFirst(StandardsFixture.StackPage, "## Standards", "## Concepts\n\nThis stack defines one composition term.\n\n## Standards")),
@@ -153,79 +171,101 @@ public sealed partial class StandardsValidatorTests
             []);
     }
 
+    /// <proves>litespec/core/authoring#prefer-direct-action-headings</proves>
     [Fact(DisplayName = "action heading starting with 'answer'")]
     public void ActionHeadingAnswer() => CheckActionHeading("Answer");
 
+    /// <proves>litespec/core/authoring#prefer-direct-action-headings</proves>
     [Fact(DisplayName = "action heading starting with 'ask'")]
     public void ActionHeadingAsk() => CheckActionHeading("Ask");
 
+    /// <proves>litespec/core/authoring#prefer-direct-action-headings</proves>
     [Fact(DisplayName = "action heading starting with 'compute'")]
     public void ActionHeadingCompute() => CheckActionHeading("Compute");
 
+    /// <proves>litespec/core/authoring#prefer-direct-action-headings</proves>
     [Fact(DisplayName = "action heading starting with 'confirm'")]
     public void ActionHeadingConfirm() => CheckActionHeading("Confirm");
 
+    /// <proves>litespec/core/authoring#prefer-direct-action-headings</proves>
     [Fact(DisplayName = "action heading starting with 'grant'")]
     public void ActionHeadingGrant() => CheckActionHeading("Grant");
 
+    /// <proves>litespec/core/authoring#prefer-direct-action-headings</proves>
     [Fact(DisplayName = "action heading starting with 'reach'")]
     public void ActionHeadingReach() => CheckActionHeading("Reach");
 
+    /// <proves>litespec/core/authoring#prefer-direct-action-headings</proves>
     [Fact(DisplayName = "action heading starting with 'refuse'")]
     public void ActionHeadingRefuse() => CheckActionHeading("Refuse");
 
+    /// <proves>litespec/core/authoring#prefer-direct-action-headings</proves>
     [Fact(DisplayName = "action heading starting with 'show'")]
     public void ActionHeadingShow() => CheckActionHeading("Show");
 
+    /// <proves>litespec/core/authoring#prefer-direct-action-headings</proves>
     [Fact(DisplayName = "action heading starting with 'author'")]
     public void ActionHeadingAuthor() => CheckActionHeading("Author");
 
+    /// <proves>litespec/core/authoring#prefer-direct-action-headings</proves>
     [Fact(DisplayName = "action heading starting with 'claim'")]
     public void ActionHeadingClaim() => CheckActionHeading("Claim");
 
+    /// <proves>litespec/core/authoring#prefer-direct-action-headings</proves>
     [Fact(DisplayName = "action heading starting with 'end'")]
     public void ActionHeadingEnd() => CheckActionHeading("End");
 
+    /// <proves>litespec/core/authoring#prefer-direct-action-headings</proves>
     [Fact(DisplayName = "action heading starting with 'explain'")]
     public void ActionHeadingExplain() => CheckActionHeading("Explain");
 
+    /// <proves>litespec/core/authoring#prefer-direct-action-headings</proves>
     [Fact(DisplayName = "action heading starting with 'illustrate'")]
     public void ActionHeadingIllustrate() => CheckActionHeading("Illustrate");
 
+    /// <proves>litespec/core/authoring#prefer-direct-action-headings</proves>
     [Fact(DisplayName = "action heading starting with 'shape'")]
     public void ActionHeadingShape() => CheckActionHeading("Shape");
 
+    /// <proves>litespec/core/authoring#prefer-direct-action-headings</proves>
     [Fact(DisplayName = "action heading starting with 'tabulate'")]
     public void ActionHeadingTabulate() => CheckActionHeading("Tabulate");
 
+    /// <proves>litespec/core/authoring#prefer-direct-action-headings</proves>
     [Fact(DisplayName = "action heading starting with 'trigger'")]
     public void ActionHeadingTrigger() => CheckActionHeading("Trigger");
 
+    /// <proves>litespec/core/authoring#route-the-reader-before-listing-pages</proves>
     [Fact(DisplayName = "index without a routing block")]
     public void IndexWithoutRouting() => Check(
         root => StandardsFixture.Write(root, "docs/README.md", "# Documentation\n\n## Intent\n\nUse this page to find repository documentation.\n"),
         ["INDEX_MISSING_ROUTING"]);
 
+    /// <proves>litespec/core/authoring#route-the-reader-before-listing-pages</proves>
     [Fact(DisplayName = "routing block after the first navigation group")]
     public void RoutingAfterNavigation() => Check(
         root => StandardsFixture.Write(root, "docs/README.md", "# Documentation\n\n## Intent\n\nUse this page to find repository documentation.\n\n## Core\n\n- [Topic](core/topic.md)\n\n" + StandardsFixture.IndexRouting),
         ["INDEX_MISSING_ROUTING"]);
 
+    /// <proves>litespec/core/authoring#regenerate-the-provision-index</proves>
     [Fact(DisplayName = "stale provision index")]
     public void StaleProvisionIndex() => Check(
         root => StandardsFixture.Write(root, Provisions.IndexPath, "# Provision Index\n\n## Intent\n\nThis page is out of date.\n"),
         ["PROVISIONS_STALE"]);
 
+    /// <proves>litespec/core/authoring#regenerate-the-provision-index</proves>
     [Fact(DisplayName = "missing provision index")]
     public void MissingProvisionIndex() => Check(
         root => StandardsFixture.Delete(root, Provisions.IndexPath),
         ["PROVISIONS_STALE"]);
 
+    /// <proves>litespec/core/authoring#keep-authored-prose-ascii-safe</proves>
     [Fact(DisplayName = "declared prose exclusions pass")]
     public void DeclaredProseExclusionsPass() => Check(
         root => StandardsFixture.Write(root, "templates/consumer/exclusions.md", "# Exclusion Fixture\n\n```json\n{\"metadata\":\"This obvious and/or non-ASCII value - \u2014 - is excluded because metadata and fenced code are not prose.\"}\n```\n\nRead the [source](https://example.com/an-obvious/and/or/very/long/link/destination).\n\nThe identifier `one.extremely-long.dotted-path-like-token/with-many-segments` counts as one word.\n"),
         []);
 
+    /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
     [Fact(DisplayName = "validate with two positionals is a usage error")]
     public void ValidateUsageExits2()
     {
@@ -233,6 +273,7 @@ public sealed partial class StandardsValidatorTests
         Assert.Equal(2, result.Status);
     }
 
+    /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
     [Fact(DisplayName = "every stable diagnostic code has a failing case")]
     public void StableCodesAreCovered()
     {
@@ -276,6 +317,8 @@ public sealed partial class StandardsValidatorTests
             "MANIFEST_DUPLICATE_PATH",
             "MANIFEST_JSON",
             "MANIFEST_PATH",
+            "MARK_MISSING",
+            "MARK_UNRESOLVED",
             "PAGE_EMPTY_SECTION",
             "PAGE_EMPTY_SECTION_TEXT",
             "PAGE_HEADING_CASE",

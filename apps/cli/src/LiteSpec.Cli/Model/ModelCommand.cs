@@ -6,6 +6,7 @@ namespace LiteSpec.Model;
 /// <summary>
 ///     The <c>litespec model</c> command: build, check, render and query a consumer's project model.
 /// </summary>
+/// <follows>litespec/core/model#mark-every-check-with-its-tier</follows>
 static class ModelCommand
 {
     public const string Usage = """
@@ -125,6 +126,7 @@ static class ModelCommand
 
                     Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(output))!);
                     File.WriteAllText(output, model.ToJson() + "\n");
+                    model.Ledger.Save(root);
 
                     foreach (var file in FrontendRecords.Write(model))
                     {
@@ -139,6 +141,8 @@ static class ModelCommand
                 {
                     var model = ModelBuilder.Build(config);
                     var (findings, known) = Checker.Check(model);
+
+                    model.Ledger.Save(root);
                     var json = parsed.Json;
                     StagedScope.Scope? staged = null;
 

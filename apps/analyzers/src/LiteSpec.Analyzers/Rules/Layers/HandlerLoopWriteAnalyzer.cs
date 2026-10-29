@@ -10,6 +10,7 @@ using Microsoft.CodeAnalysis.Operations;
 namespace LiteSpec.Analyzers.Rules.Layers;
 
 /// <summary>LS2015: a command handler never changes records in a loop.</summary>
+/// <follows>litespec/backend/application#issue-per-record-work-from-a-job</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class HandlerLoopWriteAnalyzer : LayerAnalyzer
 {

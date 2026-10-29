@@ -6,6 +6,7 @@ namespace LiteSpec.Analyzers.Tests.Layers;
 /// <summary>Tests for LS2013, the handler audit value rule.</summary>
 public sealed class HandlerAuditValueAnalyzerTests
 {
+    /// <proves>litespec/backend/application#declare-audit-values-beside-the-message</proves>
     [Fact(DisplayName = "LS2013 reports a target read from the message")]
     public Task ReportsATargetReadFromTheMessage() =>
         Verify.AnalyzerAsync<HandlerAuditValueAnalyzer>("""
@@ -28,6 +29,7 @@ public sealed class HandlerAuditValueAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <proves>litespec/backend/application#declare-audit-values-beside-the-message</proves>
     [Fact(DisplayName = "LS2013 reports a reason formatted from the message")]
     public Task ReportsAReasonFormattedFromTheMessage() =>
         Verify.AnalyzerAsync<HandlerAuditValueAnalyzer>("""
@@ -50,6 +52,7 @@ public sealed class HandlerAuditValueAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <proves>litespec/backend/application#declare-audit-values-beside-the-message</proves>
     [Fact(DisplayName = "LS2013 accepts a target read from a loaded aggregate")]
     public Task AcceptsATargetReadFromALoadedAggregate() =>
         Verify.AnalyzerAsync<HandlerAuditValueAnalyzer>("""
@@ -85,6 +88,7 @@ public sealed class HandlerAuditValueAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <proves>litespec/backend/application#declare-audit-values-beside-the-message</proves>
     [Fact(DisplayName = "LS2013 accepts a target read from a generated value")]
     public Task AcceptsATargetReadFromAGeneratedValue() =>
         Verify.AnalyzerAsync<HandlerAuditValueAnalyzer>("""
@@ -110,6 +114,7 @@ public sealed class HandlerAuditValueAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <proves>litespec/backend/application#declare-audit-values-beside-the-message</proves>
     [Fact(DisplayName = "LS2013 accepts a constant audit value")]
     public Task AcceptsAConstantAuditValue() =>
         Verify.AnalyzerAsync<HandlerAuditValueAnalyzer>("""
@@ -132,6 +137,7 @@ public sealed class HandlerAuditValueAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <proves>litespec/backend/application#declare-audit-values-beside-the-message</proves>
     [Fact(DisplayName = "LS2013 accepts a message value in a query handler")]
     public Task AcceptsAMessageValueInAQueryHandler() =>
         Verify.AnalyzerAsync<HandlerAuditValueAnalyzer>("""
@@ -154,6 +160,7 @@ public sealed class HandlerAuditValueAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <proves>litespec/backend/application#declare-audit-values-beside-the-message</proves>
     [Fact(DisplayName = "LS2013 accepts a target call on another receiver type")]
     public Task AcceptsATargetCallOnAnotherReceiverType() =>
         Verify.AnalyzerAsync<HandlerAuditValueAnalyzer>("""
@@ -175,6 +182,7 @@ public sealed class HandlerAuditValueAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <proves>litespec/backend/application#declare-audit-values-beside-the-message</proves>
     [Fact(DisplayName = "LS2013 stays silent outside Application and Infrastructure")]
     public Task StaysSilentOutsideItsLayers() =>
         Verify.AnalyzerAsync<HandlerAuditValueAnalyzer>("""

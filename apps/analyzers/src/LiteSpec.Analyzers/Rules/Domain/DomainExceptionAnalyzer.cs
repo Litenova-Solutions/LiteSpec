@@ -8,6 +8,7 @@ using Microsoft.CodeAnalysis.Operations;
 namespace LiteSpec.Analyzers.Rules.Domain;
 
 /// <summary>LS1005 and LS1006: Domain rejects business violations with sealed DomainException subclasses.</summary>
+/// <follows>litespec/backend/dotnet/domain#reject-business-violations-with-domain-exceptions</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class DomainExceptionAnalyzer : LayerAnalyzer
 {

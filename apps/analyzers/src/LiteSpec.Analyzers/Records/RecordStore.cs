@@ -37,6 +37,7 @@ public sealed class RecordFile
 ///     configuration errors. Results are cached by the files' content checksums,
 ///     so a keystroke in C# does not reparse Markdown.
 /// </summary>
+/// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
 public sealed class RecordStore
 {
     private static readonly object CacheLock = new object();

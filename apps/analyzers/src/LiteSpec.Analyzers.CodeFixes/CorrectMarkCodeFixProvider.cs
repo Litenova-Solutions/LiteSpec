@@ -16,6 +16,8 @@ namespace LiteSpec.Analyzers.CodeFixes;
 ///     expected type by edit distance, one action each, titled with the record
 ///     id. No Fix All: each mistyped id is its own mistake.
 /// </summary>
+/// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
+/// <follows>litespec/core/system#point-every-technical-class-up-to-its-record-or-choice</follows>
 [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(CorrectMarkCodeFixProvider))]
 [Shared]
 public sealed class CorrectMarkCodeFixProvider : CodeFixProvider

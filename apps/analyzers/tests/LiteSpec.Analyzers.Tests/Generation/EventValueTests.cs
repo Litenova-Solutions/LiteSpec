@@ -5,6 +5,7 @@ namespace LiteSpec.Analyzers.Tests.Generation;
 /// <summary>Tests for the generated event Classification.</summary>
 public sealed class EventValueTests
 {
+    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "A partial event with an event mark takes its classification from the record")]
     public void PartialEventTakesItsClassification()
     {
@@ -25,6 +26,7 @@ public sealed class EventValueTests
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
     }
 
+    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "A non-partial event takes no generated classification")]
     public void NonPartialEventTakesNothing()
     {
@@ -43,6 +45,7 @@ public sealed class EventValueTests
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
     }
 
+    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "A hand-written classification takes no generated value")]
     public void HandWrittenClassificationTakesNothing()
     {
@@ -64,6 +67,7 @@ public sealed class EventValueTests
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
     }
 
+    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "A mark to an unknown event takes no generated value")]
     public void UnknownEventTakesNothing()
     {
@@ -82,6 +86,7 @@ public sealed class EventValueTests
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
     }
 
+    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "No project file generates no event value")]
     public void NoProjectFileGeneratesNoEventValue()
     {
@@ -99,6 +104,7 @@ public sealed class EventValueTests
         Assert.Empty(run.Sources);
     }
 
+    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "A partial event nested in a non-partial type takes no generated value")]
     public void NestedInNonPartialTakesNothing()
     {
@@ -120,6 +126,7 @@ public sealed class EventValueTests
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
     }
 
+    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "A partial event nested in a partial type takes its classification")]
     public void NestedInPartialTakesItsClassification()
     {

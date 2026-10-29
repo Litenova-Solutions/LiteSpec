@@ -7,6 +7,7 @@ namespace LiteSpec.Model;
 /// <summary>
 ///     Each record's effective status, shared by every check host.
 /// </summary>
+/// <follows>litespec/core/model#compute-proof-statuses-in-the-builder</follows>
 public static class Authority
 {
     /// <summary>

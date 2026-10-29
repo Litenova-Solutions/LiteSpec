@@ -49,6 +49,7 @@ sealed record StackSet(
 ///     reader per declared frontend from its platform, and a test-run reader across every
 ///     supported result format.
 /// </summary>
+/// <follows>litespec/core/model#compute-proof-statuses-in-the-builder</follows>
 static class StackReaders
 {
     /// <summary>Picks the readers for the consumer.</summary>

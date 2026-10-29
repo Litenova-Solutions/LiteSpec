@@ -6,6 +6,7 @@ namespace LiteSpec.Model;
 /// <summary>
 ///     The records a host reads from page files, with lookup by id and by type.
 /// </summary>
+/// <follows>litespec/core/model#compute-proof-statuses-in-the-builder</follows>
 public sealed class RecordIndex
 {
     private readonly IReadOnlyList<IRecordFacts> records;

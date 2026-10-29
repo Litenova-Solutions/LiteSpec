@@ -28,6 +28,7 @@ public enum JsonKind
 /// <summary>
 ///     One JSON value with the 1-based line where it starts.
 /// </summary>
+/// <follows>litespec/core/model#compute-proof-statuses-in-the-builder</follows>
 public sealed class JsonText
 {
     private readonly List<KeyValuePair<string, JsonText>> properties;

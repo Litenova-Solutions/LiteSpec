@@ -10,6 +10,7 @@ using Microsoft.CodeAnalysis.Operations;
 namespace LiteSpec.Analyzers.Rules.Style;
 
 /// <summary>LS3001 and LS3002: an asynchronous method ends in Async and takes the token last.</summary>
+/// <follows>litespec/backend/dotnet/naming#name-asynchronous-methods-completely</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class AsyncMethodAnalyzer : LayerAnalyzer
 {

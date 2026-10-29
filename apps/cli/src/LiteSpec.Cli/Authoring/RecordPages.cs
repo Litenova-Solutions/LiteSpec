@@ -7,6 +7,8 @@ namespace LiteSpec.Authoring;
 ///     type, the entry types that live inside another page, and the shared
 ///     identifier checks of <c>litespec new</c> and <c>litespec rename</c>.
 /// </summary>
+/// <follows>litespec/core/authoring#scaffold-pages-and-reserve-identifiers</follows>
+/// <follows>litespec/core/authoring#rewrite-every-link-on-a-rename</follows>
 static class RecordPages
 {
     /// <summary>Record types that own a page <c>litespec new</c> can scaffold.</summary>

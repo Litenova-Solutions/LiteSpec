@@ -9,6 +9,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace LiteSpec.Analyzers.Rules.Layers;
 
 /// <summary>LS2016: a command or query handler takes no pipeline-owned collaborator.</summary>
+/// <follows>litespec/backend/persistence#keep-uniqueness-out-of-handlers</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class PipelineOwnedDependencyAnalyzer : LayerAnalyzer
 {

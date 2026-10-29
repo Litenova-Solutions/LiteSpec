@@ -5,6 +5,7 @@ namespace LiteSpec.Analyzers.Tests.Generation;
 /// <summary>Tests for the generated permission constants.</summary>
 public sealed class PermissionTests
 {
+    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "Application generates one constant per permission")]
     public void ApplicationGeneratesPermissionConstants()
     {
@@ -19,6 +20,7 @@ public sealed class PermissionTests
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
     }
 
+    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "Infrastructure generates permission constants from its assembly name")]
     public void InfrastructureGeneratesPermissionConstants()
     {
@@ -31,6 +33,7 @@ public sealed class PermissionTests
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
     }
 
+    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "WebApi generates permission constants from the declared layer")]
     public void WebApiGeneratesPermissionConstantsFromTheDeclaredLayer()
     {
@@ -44,6 +47,7 @@ public sealed class PermissionTests
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
     }
 
+    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "Domain generates no permission constants")]
     public void DomainGeneratesNoPermissionConstants()
     {
@@ -56,6 +60,7 @@ public sealed class PermissionTests
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
     }
 
+    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "An unknown layer generates no permission constants")]
     public void UnknownLayerGeneratesNoPermissionConstants()
     {
@@ -68,6 +73,7 @@ public sealed class PermissionTests
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
     }
 
+    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "A name starting with a digit takes a leading underscore")]
     public void DigitStartTakesALeadingUnderscore()
     {
@@ -81,6 +87,7 @@ public sealed class PermissionTests
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
     }
 
+    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "Two permissions producing one name report a diagnostic and emit nothing")]
     public void CollisionReportsAndEmitsNothing()
     {

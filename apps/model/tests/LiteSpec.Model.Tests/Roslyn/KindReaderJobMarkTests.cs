@@ -10,6 +10,7 @@ namespace LiteSpec.Model.Tests.Roslyn;
 /// <summary>Tests that a plain class carrying a job mark is a job host, from syntax and from symbols.</summary>
 public sealed class KindReaderJobMarkTests
 {
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A marked plain class in Application or Infrastructure is a job")]
     public void MarkedPlainClassIsAJob()
     {
@@ -27,6 +28,7 @@ public sealed class KindReaderJobMarkTests
         Assert.Equal(CodeKind.Job, KindReader.KindOf(type, KindContext.Empty, "Shop.Infrastructure"));
     }
 
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A marked class without a job name is a job")]
     public void MarkedClassWithoutJobNameIsAJob()
     {
@@ -43,6 +45,7 @@ public sealed class KindReaderJobMarkTests
         Assert.Equal(CodeKind.Job, KindReader.KindOf(type, KindContext.Empty, "Shop.Infrastructure"));
     }
 
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "The same class unmarked is technical")]
     public void UnmarkedPlainClassIsTechnical()
     {
@@ -58,6 +61,7 @@ public sealed class KindReaderJobMarkTests
         Assert.Equal(CodeKind.Technical, KindReader.KindOf(type, KindContext.Empty, "Shop.Infrastructure"));
     }
 
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A marked class in Domain is not a job")]
     public void MarkedClassInDomainIsNotAJob()
     {
@@ -74,6 +78,7 @@ public sealed class KindReaderJobMarkTests
         Assert.Null(KindReader.KindOf(type, KindContext.Empty, "Shop.Domain"));
     }
 
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A marked plain class in Application or Infrastructure is a job from its symbol")]
     public void MarkedPlainClassIsAJobFromSymbol()
     {
@@ -92,6 +97,7 @@ public sealed class KindReaderJobMarkTests
         Assert.Equal(CodeKind.Job, KindReader.KindOf(symbol, KindContext.Empty, "Shop.Infrastructure"));
     }
 
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "The same class unmarked is technical from its symbol")]
     public void UnmarkedPlainClassIsTechnicalFromSymbol()
     {
@@ -108,6 +114,7 @@ public sealed class KindReaderJobMarkTests
         Assert.Equal(CodeKind.Technical, KindReader.KindOf(symbol, KindContext.Empty, "Shop.Infrastructure"));
     }
 
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A marked class in Domain is not a job from its symbol")]
     public void MarkedClassInDomainIsNotAJobFromSymbol()
     {
@@ -125,6 +132,7 @@ public sealed class KindReaderJobMarkTests
         Assert.Null(KindReader.KindOf(symbol, KindContext.Empty, "Shop.Domain"));
     }
 
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "Syntax and symbol overloads agree on a marked job host")]
     public void SyntaxAndSymbolAgreeOnMarkedJob()
     {

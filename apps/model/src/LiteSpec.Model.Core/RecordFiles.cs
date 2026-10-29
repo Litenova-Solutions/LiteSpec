@@ -6,6 +6,7 @@ namespace LiteSpec.Model;
 /// <summary>
 ///     Reads the records one Markdown page yields, for hosts with no CLI.
 /// </summary>
+/// <follows>litespec/core/model#compute-proof-statuses-in-the-builder</follows>
 public static class RecordFiles
 {
     /// <summary>

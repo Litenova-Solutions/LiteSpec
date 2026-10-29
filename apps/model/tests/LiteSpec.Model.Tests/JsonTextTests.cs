@@ -6,6 +6,7 @@ namespace LiteSpec.Model.Tests;
 public sealed class JsonTextTests
 {
     /// <summary>A nested object reads through objects, arrays and every scalar.</summary>
+    /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
     public void Parses_Nested_Values()
     {
@@ -32,6 +33,7 @@ public sealed class JsonTextTests
     }
 
     /// <summary>Every escape reads as its character, including unicode and a surrogate pair.</summary>
+    /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
     public void Unescapes_Strings()
     {
@@ -42,6 +44,7 @@ public sealed class JsonTextTests
     }
 
     /// <summary>Every value carries the 1-based line where it starts.</summary>
+    /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
     public void Reports_Value_Lines()
     {
@@ -58,6 +61,7 @@ public sealed class JsonTextTests
     }
 
     /// <summary>An unexpected token throws with its line, in the message and on the error.</summary>
+    /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
     public void Rejects_Unexpected_Token_Naming_Its_Line()
     {
@@ -68,6 +72,7 @@ public sealed class JsonTextTests
     }
 
     /// <summary>An unterminated value, trailing content and an empty text throw on line 1.</summary>
+    /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
     public void Rejects_Truncated_And_Trailing_Text()
     {

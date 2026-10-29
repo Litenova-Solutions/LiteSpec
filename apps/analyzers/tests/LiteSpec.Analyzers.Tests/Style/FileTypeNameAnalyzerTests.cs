@@ -6,6 +6,7 @@ namespace LiteSpec.Analyzers.Tests.Style;
 /// <summary>Tests for LS3003, one primary top-level type per file.</summary>
 public sealed class FileTypeNameAnalyzerTests
 {
+    /// <proves>litespec/backend/dotnet/naming#match-c-files-and-primary-types</proves>
     [Fact(DisplayName = "LS3003 accepts a file named after its type")]
     public Task AcceptsAFileNamedAfterItsType() =>
         Verify.AnalyzerAsync<FileTypeNameAnalyzer>(
@@ -17,6 +18,7 @@ public sealed class FileTypeNameAnalyzerTests
                 public readonly record struct OrderId(Guid Value);
                 """)]);
 
+    /// <proves>litespec/backend/dotnet/naming#match-c-files-and-primary-types</proves>
     [Fact(DisplayName = "LS3003 reports a type that differs from its file")]
     public Task ReportsATypeThatDiffersFromItsFile() =>
         Verify.AnalyzerAsync<FileTypeNameAnalyzer>(
@@ -26,6 +28,7 @@ public sealed class FileTypeNameAnalyzerTests
                 public sealed class {|LS3003:Customer|} { }
                 """)]);
 
+    /// <proves>litespec/backend/dotnet/naming#match-c-files-and-primary-types</proves>
     [Fact(DisplayName = "LS3003 reports the second and later types")]
     public Task ReportsTheSecondAndLaterTypes() =>
         Verify.AnalyzerAsync<FileTypeNameAnalyzer>(
@@ -40,6 +43,7 @@ public sealed class FileTypeNameAnalyzerTests
                 }
                 """)]);
 
+    /// <proves>litespec/backend/dotnet/naming#match-c-files-and-primary-types</proves>
     [Fact(DisplayName = "LS3003 accepts a partial class in a dotted file")]
     public Task AcceptsAPartialClassInADottedFile() =>
         Verify.AnalyzerAsync<FileTypeNameAnalyzer>(
@@ -52,6 +56,7 @@ public sealed class FileTypeNameAnalyzerTests
                 }
                 """)]);
 
+    /// <proves>litespec/backend/dotnet/naming#match-c-files-and-primary-types</proves>
     [Fact(DisplayName = "LS3003 ignores nested types")]
     public Task IgnoresNestedTypes() =>
         Verify.AnalyzerAsync<FileTypeNameAnalyzer>(
@@ -64,6 +69,7 @@ public sealed class FileTypeNameAnalyzerTests
                 }
                 """)]);
 
+    /// <proves>litespec/backend/dotnet/naming#match-c-files-and-primary-types</proves>
     [Fact(DisplayName = "LS3003 ignores a file with no types")]
     public Task IgnoresAFileWithNoTypes() =>
         Verify.AnalyzerAsync<FileTypeNameAnalyzer>(
@@ -72,6 +78,7 @@ public sealed class FileTypeNameAnalyzerTests
                 global using System.Threading.Tasks;
                 """)]);
 
+    /// <proves>litespec/backend/dotnet/naming#match-c-files-and-primary-types</proves>
     [Fact(DisplayName = "LS3003 ignores generic arity in the type name")]
     public Task IgnoresGenericArityInTheTypeName() =>
         Verify.AnalyzerAsync<FileTypeNameAnalyzer>(
@@ -81,6 +88,7 @@ public sealed class FileTypeNameAnalyzerTests
                 public sealed class Cache<T> { }
                 """)]);
 
+    /// <proves>litespec/backend/dotnet/naming#match-c-files-and-primary-types</proves>
     [Fact(DisplayName = "LS3003 accepts one matching type per file")]
     public Task AcceptsOneMatchingTypePerFile() =>
         Verify.AnalyzerAsync<FileTypeNameAnalyzer>(
@@ -97,6 +105,7 @@ public sealed class FileTypeNameAnalyzerTests
                     """),
             ]);
 
+    /// <proves>litespec/backend/dotnet/naming#match-c-files-and-primary-types</proves>
     [Fact(DisplayName = "LS3003 ignores a breach outside the five projects")]
     public Task IgnoresABreachOutsideTheFiveProjects() =>
         Verify.AnalyzerAsync<FileTypeNameAnalyzer>(
@@ -106,6 +115,7 @@ public sealed class FileTypeNameAnalyzerTests
                 public sealed class Customer { }
                 """)], assemblyName: "Shop.Unknown");
 
+    /// <proves>litespec/backend/dotnet/naming#match-c-files-and-primary-types</proves>
     [Fact(DisplayName = "LS3003 follows the LiteSpecLayer property over the assembly name")]
     public Task FollowsTheDeclaredLayer() =>
         Verify.AnalyzerAsync<FileTypeNameAnalyzer>(

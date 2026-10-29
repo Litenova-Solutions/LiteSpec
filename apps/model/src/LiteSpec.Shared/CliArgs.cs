@@ -5,6 +5,7 @@ namespace LiteSpec;
 ///     <c>--name value</c> or <c>--name=value</c>; a flag stands alone. Anything
 ///     the command does not declare is a usage error.
 /// </summary>
+/// <follows>litespec/core/authoring#run-repeatable-authoring-checks</follows>
 public sealed class CliArgs
 {
     readonly Dictionary<string, string> values = new(StringComparer.Ordinal);

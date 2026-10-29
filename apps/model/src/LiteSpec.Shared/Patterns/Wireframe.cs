@@ -6,6 +6,7 @@ namespace LiteSpec.Patterns;
 ///     One part of a wireframe: its name, modifiers, visible copy and children.
 ///     The language is defined in <c>docs/frontend/patterns.md</c>.
 /// </summary>
+/// <follows>litespec/core/authoring#run-repeatable-authoring-checks</follows>
 public sealed class WireframeNode
 {
     /// <summary>The part name, such as <c>header</c> or <c>action</c>.</summary>
@@ -63,6 +64,7 @@ public sealed record WireframeError(int Line, string Message);
 public sealed record Wireframe(WireframeNode? Page, IReadOnlyList<WireframeError> Errors);
 
 /// <summary>The closed set of wireframe parts and what each one accepts.</summary>
+/// <follows>litespec/core/authoring#run-repeatable-authoring-checks</follows>
 public static class WireframeParts
 {
     /// <summary>What a part accepts: its modifiers, quoted strings, number and children.</summary>
@@ -123,6 +125,7 @@ public static class WireframeParts
 }
 
 /// <summary>Parses the text of one <c>wireframe</c> block.</summary>
+/// <follows>litespec/core/authoring#run-repeatable-authoring-checks</follows>
 public static class WireframeParser
 {
     const string InlineSeparator = " · ";

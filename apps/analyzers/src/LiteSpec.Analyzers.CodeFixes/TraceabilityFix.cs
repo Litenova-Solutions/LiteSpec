@@ -14,6 +14,7 @@ namespace LiteSpec.Analyzers.CodeFixes;
 ///     What a traceability fix needs for one diagnostic: the consumer's records,
 ///     the marked member, its symbol and its kind.
 /// </summary>
+/// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
 internal sealed class TraceabilityFix
 {
     private TraceabilityFix(

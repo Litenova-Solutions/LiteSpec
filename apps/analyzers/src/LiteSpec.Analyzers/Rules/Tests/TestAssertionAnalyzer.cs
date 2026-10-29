@@ -9,6 +9,7 @@ using Microsoft.CodeAnalysis.Operations;
 namespace LiteSpec.Analyzers.Rules.Tests;
 
 /// <summary>LS4001: a test method contains at least one assertion, directly or in a step it calls.</summary>
+/// <follows>litespec/backend/dotnet/testing#prove-each-scenario-with-a-test-that-calls-its-use-case</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class TestAssertionAnalyzer : LayerAnalyzer
 {

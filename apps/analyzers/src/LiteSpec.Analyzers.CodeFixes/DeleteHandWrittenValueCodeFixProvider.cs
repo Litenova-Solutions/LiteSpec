@@ -17,6 +17,8 @@ namespace LiteSpec.Analyzers.CodeFixes;
 ///     the generator writes the value from the record. Fix All deletes every
 ///     reported value in scope.
 /// </summary>
+/// <follows>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</follows>
+/// <follows>litespec/backend/dotnet/stack#declare-marked-events-and-exceptions-as-partial-types</follows>
 [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(DeleteHandWrittenValueCodeFixProvider))]
 [Shared]
 public sealed class DeleteHandWrittenValueCodeFixProvider : CodeFixProvider

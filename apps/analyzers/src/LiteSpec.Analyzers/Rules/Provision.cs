@@ -1,6 +1,7 @@
 namespace LiteSpec.Analyzers.Rules;
 
 /// <summary>A LiteSpec provision a diagnostic enforces, and its published address.</summary>
+/// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
 internal sealed class Provision
 {
     /// <summary>The release the help links point at.</summary>

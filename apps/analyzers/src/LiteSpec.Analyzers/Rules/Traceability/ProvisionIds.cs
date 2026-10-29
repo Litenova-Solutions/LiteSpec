@@ -11,6 +11,7 @@ namespace LiteSpec.Analyzers.Rules.Traceability;
 ///     network or file outside the package. The analyzer checks existence only;
 ///     the CLI owns whether the page applies to the project.
 /// </summary>
+/// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
 internal static class ProvisionIds
 {
     private static readonly Lazy<HashSet<string>> Ids = new Lazy<HashSet<string>>(Load);

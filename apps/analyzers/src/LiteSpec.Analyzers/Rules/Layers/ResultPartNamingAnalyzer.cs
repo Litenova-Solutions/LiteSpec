@@ -13,6 +13,7 @@ namespace LiteSpec.Analyzers.Rules.Layers;
 ///     reaches through its properties, directly or through another part, declared beside it; a helper the handler
 ///     uses is not a part.
 /// </summary>
+/// <follows>litespec/workspace/naming#name-result-parts-after-their-result</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class ResultPartNamingAnalyzer : LayerAnalyzer
 {

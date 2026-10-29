@@ -4,6 +4,7 @@ using System.Text.Json.Nodes;
 namespace LiteSpec.Book;
 
 /// <summary>Builds the Mermaid lifecycle diagrams the book renders from aggregate records.</summary>
+/// <follows>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</follows>
 static class BookDiagrams
 {
     /// <summary>Builds the <c>stateDiagram-v2</c> source for one aggregate, or "" without states.</summary>

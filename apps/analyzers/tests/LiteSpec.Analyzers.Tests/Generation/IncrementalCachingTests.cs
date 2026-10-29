@@ -8,6 +8,7 @@ namespace LiteSpec.Analyzers.Tests.Generation;
 /// <summary>Tests for the generator's incremental caching.</summary>
 public sealed class IncrementalCachingTests
 {
+    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "An edit to an unrelated file does not rerun the record-reading step")]
     public void UnrelatedEditDoesNotRerunRecordReading()
     {

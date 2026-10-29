@@ -9,6 +9,7 @@ using Microsoft.CodeAnalysis.Operations;
 namespace LiteSpec.Analyzers.Rules.Layers;
 
 /// <summary>LS2010: a repository variable is named after its interface.</summary>
+/// <follows>litespec/workspace/naming#name-repository-variables-after-their-interface</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class RepositoryVariableNamingAnalyzer : LayerAnalyzer
 {

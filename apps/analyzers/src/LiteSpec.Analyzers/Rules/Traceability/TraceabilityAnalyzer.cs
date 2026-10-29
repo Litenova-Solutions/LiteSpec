@@ -12,6 +12,7 @@ namespace LiteSpec.Analyzers.Rules.Traceability;
 ///     The base of every traceability rule: loads the consumer's records once per
 ///     compilation, stays silent without them, and hands the rule its context.
 /// </summary>
+/// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
 public abstract class TraceabilityAnalyzer : LayerAnalyzer
 {
     private protected sealed override void Register(CompilationStartAnalysisContext context)

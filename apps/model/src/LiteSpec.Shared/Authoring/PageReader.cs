@@ -14,6 +14,7 @@ namespace LiteSpec.Authoring;
 /// Structure comes from the Markdig document. Regular expressions match only words or tokens inside plain text this reader
 /// extracted, such as modal words, ASCII checks, bare URLs, anchor suffixes, and the identifier grammar.
 /// </remarks>
+/// <follows>litespec/core/authoring#run-repeatable-authoring-checks</follows>
 public sealed class PageReader
 {
     static readonly MarkdownPipeline Pipeline = new MarkdownPipelineBuilder().UsePipeTables().UsePreciseSourceLocation().Build();

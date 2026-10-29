@@ -8,6 +8,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace LiteSpec.Analyzers.Rules.Layers;
 
 /// <summary>LS2011: a query handler projects through the read session, not a repository.</summary>
+/// <follows>litespec/backend/application#project-queries-directly</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class QueryRepositoryAnalyzer : LayerAnalyzer
 {

@@ -10,6 +10,9 @@ namespace LiteSpec.Consumer;
 ///     every page's frontmatter and required sections, the glossary with
 ///     the rejected words, and the controlled UI through the UI validator.
 /// </summary>
+/// <follows>litespec/core/authoring#declare-structured-specification-metadata</follows>
+/// <follows>litespec/core/authoring#record-the-reviewed-litespec-release</follows>
+/// <follows>litespec/core/authoring#reject-a-recorded-synonym-inside-its-scope</follows>
 static partial class ConsumerValidator
 {
     /// <summary>

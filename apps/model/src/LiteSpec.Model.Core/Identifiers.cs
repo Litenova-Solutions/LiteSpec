@@ -7,6 +7,9 @@ namespace LiteSpec.Model;
 /// <summary>
 ///     Identifier shapes and citation matching.
 /// </summary>
+/// <follows>litespec/backend/identifiers#follow-the-identifier-form-of-each-record-type</follows>
+/// <follows>litespec/backend/identifiers#name-records-with-one-to-six-words</follows>
+/// <follows>litespec/backend/identifiers#resolve-every-identifier-citation</follows>
 public static class Identifiers
 {
     /// <summary>A citation of a project record.</summary>

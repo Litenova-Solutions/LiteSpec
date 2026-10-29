@@ -3,6 +3,7 @@ namespace LiteSpec.Model.Readers.TypeScript;
 /// <summary>
 ///     What each generated call name stands for, read from the client every frontend imports.
 /// </summary>
+/// <follows>litespec/core/model#implement-each-mapped-behavior-record-behind-a-mark</follows>
 sealed partial class GeneratedClient
 {
     private static readonly string[] Suffixes = ["Options", "QueryKey", "Mutation"];

@@ -6,6 +6,7 @@ namespace LiteSpec.Analyzers.Tests.Layers;
 /// <summary>Tests for LS2007, event handler and job names.</summary>
 public sealed class ReactionNamingAnalyzerTests
 {
+    /// <proves>litespec/workspace/naming#use-architectural-suffixes</proves>
     [Fact(DisplayName = "LS2007 reports an event handler without an event handler name")]
     public Task ReportsAnEventHandlerWithoutAnEventHandlerName() =>
         Verify.AnalyzerAsync<ReactionNamingAnalyzer>("""
@@ -20,6 +21,7 @@ public sealed class ReactionNamingAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <proves>litespec/workspace/naming#use-architectural-suffixes</proves>
     [Fact(DisplayName = "LS2007 accepts the On fact handler shape")]
     public Task AcceptsTheOnFactHandlerShape() =>
         Verify.AnalyzerAsync<ReactionNamingAnalyzer>("""
@@ -34,6 +36,7 @@ public sealed class ReactionNamingAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <proves>litespec/workspace/naming#use-architectural-suffixes</proves>
     [Fact(DisplayName = "LS2007 reports a Reaction suffix")]
     public Task ReportsAReactionSuffix() =>
         Verify.AnalyzerAsync<ReactionNamingAnalyzer>("""
@@ -46,6 +49,7 @@ public sealed class ReactionNamingAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <proves>litespec/workspace/naming#use-architectural-suffixes</proves>
     [Fact(DisplayName = "LS2007 accepts the On fact handler shape on either contract")]
     public Task AcceptsTheOnFactHandlerShapeOnEitherContract() =>
         Verify.AnalyzerAsync<ReactionNamingAnalyzer>("""
@@ -58,6 +62,7 @@ public sealed class ReactionNamingAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <proves>litespec/workspace/naming#use-architectural-suffixes</proves>
     [Fact(DisplayName = "LS2007 reports a job without a job name")]
     public Task ReportsAJobWithoutAJobName() =>
         Verify.AnalyzerAsync<ReactionNamingAnalyzer>("""
@@ -70,6 +75,7 @@ public sealed class ReactionNamingAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <proves>litespec/workspace/naming#use-architectural-suffixes</proves>
     [Fact(DisplayName = "LS2007 ignores a bare hosted service without a job name")]
     public Task IgnoresABareHostedServiceWithoutAJobName() =>
         Verify.AnalyzerAsync<ReactionNamingAnalyzer>("""
@@ -82,6 +88,7 @@ public sealed class ReactionNamingAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <proves>litespec/workspace/naming#use-architectural-suffixes</proves>
     [Fact(DisplayName = "LS2007 ignores a one-shot startup hook")]
     public Task IgnoresAOneShotStartupHook() =>
         Verify.AnalyzerAsync<ReactionNamingAnalyzer>("""
@@ -104,6 +111,7 @@ public sealed class ReactionNamingAnalyzerTests
             }
             """, assemblyName: "Shop.Infrastructure");
 
+    /// <proves>litespec/workspace/naming#use-architectural-suffixes</proves>
     [Fact(DisplayName = "LS2007 accepts Job, Worker, and Recurring names")]
     public Task AcceptsJobWorkerAndRecurringNames() =>
         Verify.AnalyzerAsync<ReactionNamingAnalyzer>("""
@@ -124,6 +132,7 @@ public sealed class ReactionNamingAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <proves>litespec/workspace/naming#use-architectural-suffixes</proves>
     [Fact(DisplayName = "LS2007 ignores a class that is neither event handler nor job")]
     public Task IgnoresAnOrdinaryClass() =>
         Verify.AnalyzerAsync<ReactionNamingAnalyzer>("""
@@ -134,6 +143,7 @@ public sealed class ReactionNamingAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <proves>litespec/workspace/naming#use-architectural-suffixes</proves>
     [Fact(DisplayName = "LS2007 ignores an event handler outside Application and Infrastructure")]
     public Task IgnoresEventHandlerOutsideItsLayers() =>
         Verify.AnalyzerAsync<ReactionNamingAnalyzer>("""
@@ -148,6 +158,7 @@ public sealed class ReactionNamingAnalyzerTests
             }
             """, assemblyName: "Shop.Domain");
 
+    /// <proves>litespec/workspace/naming#use-architectural-suffixes</proves>
     [Fact(DisplayName = "LS2007 follows the LiteSpecLayer property over the assembly name")]
     public Task FollowsTheDeclaredLayer() =>
         Verify.AnalyzerAsync<ReactionNamingAnalyzer>("""

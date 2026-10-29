@@ -7,6 +7,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace LiteSpec.Analyzers.Rules.Layers;
 
 /// <summary>LS2001: Application, Infrastructure and WebApi keep implementation types internal sealed.</summary>
+/// <follows>litespec/backend/dotnet/architecture#keep-implementation-types-internal</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class ImplementationVisibilityAnalyzer : LayerAnalyzer
 {

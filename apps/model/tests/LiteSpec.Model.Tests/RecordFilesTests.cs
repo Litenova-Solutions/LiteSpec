@@ -6,6 +6,7 @@ namespace LiteSpec.Model.Tests;
 public sealed class RecordFilesTests
 {
     /// <summary>A page with two entries yields three records with their lines.</summary>
+    /// <proves>litespec/core/model#state-the-common-fields-on-every-record</proves>
     [Fact]
     public void Reads_Page_With_Two_Entries()
     {
@@ -42,6 +43,7 @@ public sealed class RecordFilesTests
     }
 
     /// <summary>An entry without its own owner or status takes the page's.</summary>
+    /// <proves>litespec/core/model#keep-one-owner-and-status-on-every-record</proves>
     [Fact]
     public void Inherits_Status_From_Page()
     {
@@ -54,6 +56,7 @@ public sealed class RecordFilesTests
     }
 
     /// <summary>A page with no frontmatter yields nothing.</summary>
+    /// <proves>litespec/core/model#state-the-common-fields-on-every-record</proves>
     [Fact]
     public void Page_Without_Frontmatter_Yields_Nothing()
     {
@@ -61,6 +64,7 @@ public sealed class RecordFilesTests
     }
 
     /// <summary>An unclosed fence, malformed JSON and a typeless object yield nothing.</summary>
+    /// <proves>litespec/core/model#state-the-common-fields-on-every-record</proves>
     [Fact]
     public void Malformed_Frontmatter_Yields_Nothing()
     {

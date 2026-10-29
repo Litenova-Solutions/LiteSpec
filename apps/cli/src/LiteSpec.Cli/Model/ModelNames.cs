@@ -31,6 +31,7 @@ sealed record ModuleNames(
 /// <summary>
 ///     The per-module names inventory behind <c>litespec model names</c>.
 /// </summary>
+/// <follows>litespec/core/behavior#start-every-use-case-with-a-declared-verb</follows>
 static class ModelNames
 {
     /// <summary>Builds the inventory: one entry per module, modules sorted by name.</summary>

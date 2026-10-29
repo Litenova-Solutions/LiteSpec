@@ -3,6 +3,7 @@ namespace LiteSpec.Model.Readers;
 /// <summary>
 ///     Reads one run across several result formats. Absent when no reader finds a result file.
 /// </summary>
+/// <follows>litespec/core/model#compute-proof-statuses-in-the-builder</follows>
 sealed class CombinedTestRunReader(params ITestRunReader[] readers) : ITestRunReader
 {
     /// <summary>Reads and merges every reader's run, in order.</summary>

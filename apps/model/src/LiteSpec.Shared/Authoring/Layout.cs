@@ -7,6 +7,7 @@ namespace LiteSpec.Authoring;
 ///     selection applies. Pure computation over the manifest and the docs tree, so the
 ///     consumer validator and the model builder can call it without console output.
 /// </summary>
+/// <follows>litespec/core/stacks#apply-the-complete-stack</follows>
 public static class Layout
 {
     /// <summary>One shipped stack: its id, folder, kind, and pairing rules.</summary>

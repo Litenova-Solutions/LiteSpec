@@ -8,6 +8,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace LiteSpec.Analyzers.Rules.Domain;
 
 /// <summary>LS1013: a domain event is declared in a file under its aggregate's Events folder.</summary>
+/// <follows>litespec/backend/domain#organize-a-module-by-aggregate-and-concept</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class DomainEventLocationAnalyzer : LayerAnalyzer
 {

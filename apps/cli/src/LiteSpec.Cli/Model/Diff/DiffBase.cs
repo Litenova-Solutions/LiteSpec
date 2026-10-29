@@ -7,6 +7,8 @@ namespace LiteSpec.Model.Diff;
 ///     One loaded diff base: its model and its label. Disposing removes the
 ///     temporary folder of a git base; a folder base needs no cleanup.
 /// </summary>
+/// <follows>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</follows>
+/// <follows>litespec/core/release#review-behavior-changes-through-the-behavior-diff</follows>
 sealed class DiffBase : IDisposable
 {
     DiffBase(ProjectModel model, string label, string? temp)

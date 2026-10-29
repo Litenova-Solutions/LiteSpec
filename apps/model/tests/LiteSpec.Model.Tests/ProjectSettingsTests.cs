@@ -6,6 +6,8 @@ namespace LiteSpec.Model.Tests;
 public sealed class ProjectSettingsTests
 {
     /// <summary>A file naming neither setting reads the xml style and the working phase.</summary>
+    /// <proves>litespec/core/model#declare-one-mark-style</proves>
+    /// <proves>litespec/core/model#hold-proof-findings-while-tests-are-frozen</proves>
     [Fact]
     public void Missing_Settings_Read_Defaults()
     {
@@ -17,6 +19,8 @@ public sealed class ProjectSettingsTests
     }
 
     /// <summary>Both mark styles and both phases read.</summary>
+    /// <proves>litespec/core/model#declare-one-mark-style</proves>
+    /// <proves>litespec/core/model#hold-proof-findings-while-tests-are-frozen</proves>
     [Theory]
     [InlineData("xml", "working", MarkStyle.Xml, ProjectPhase.Working)]
     [InlineData("attribute", "frozen", MarkStyle.Attribute, ProjectPhase.Frozen)]
@@ -32,6 +36,7 @@ public sealed class ProjectSettingsTests
     }
 
     /// <summary>An unknown mark style is an error naming the value, never a silent default.</summary>
+    /// <proves>litespec/core/model#declare-one-mark-style</proves>
     [Fact]
     public void Unknown_Marks_Value_Errors()
     {
@@ -43,6 +48,7 @@ public sealed class ProjectSettingsTests
     }
 
     /// <summary>An unknown phase is an error naming the value, never a silent default.</summary>
+    /// <proves>litespec/core/model#hold-proof-findings-while-tests-are-frozen</proves>
     [Fact]
     public void Unknown_Phase_Value_Errors()
     {
@@ -54,6 +60,8 @@ public sealed class ProjectSettingsTests
     }
 
     /// <summary>A wrong shape is an error naming the field, never a silent default.</summary>
+    /// <proves>litespec/core/model#declare-one-mark-style</proves>
+    /// <proves>litespec/core/model#hold-proof-findings-while-tests-are-frozen</proves>
     [Theory]
     [InlineData("{\"marks\": 5}", "litespec.project.json: marks must be \"xml\" or \"attribute\".")]
     [InlineData("{\"check\": \"frozen\"}", "litespec.project.json: check must be an object with phase \"working\" or \"frozen\".")]
@@ -66,6 +74,8 @@ public sealed class ProjectSettingsTests
     }
 
     /// <summary>Text that is no JSON and JSON that is no object are errors naming the file.</summary>
+    /// <proves>litespec/core/model#declare-one-mark-style</proves>
+    /// <proves>litespec/core/model#hold-proof-findings-while-tests-are-frozen</proves>
     [Theory]
     [InlineData("{\"marks\": ", "litespec.project.json: invalid JSON on line 1: expected a value.")]
     [InlineData("[\"xml\"]", "litespec.project.json: expected an object.")]

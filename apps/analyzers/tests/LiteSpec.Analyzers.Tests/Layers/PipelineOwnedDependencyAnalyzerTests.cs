@@ -6,6 +6,7 @@ namespace LiteSpec.Analyzers.Tests.Layers;
 /// <summary>Tests for LS2016, the pipeline-owned collaborator rule.</summary>
 public sealed class PipelineOwnedDependencyAnalyzerTests
 {
+    /// <proves>litespec/backend/persistence#keep-uniqueness-out-of-handlers</proves>
     [Fact(DisplayName = "LS2016 reports a command handler taking the unit of work")]
     public Task ReportsACommandHandlerTakingTheUnitOfWork() =>
         Verify.AnalyzerAsync<PipelineOwnedDependencyAnalyzer>("""
@@ -24,6 +25,7 @@ public sealed class PipelineOwnedDependencyAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <proves>litespec/backend/persistence#keep-uniqueness-out-of-handlers</proves>
     [Fact(DisplayName = "LS2016 reports a query handler taking the outbox")]
     public Task ReportsAQueryHandlerTakingTheOutbox() =>
         Verify.AnalyzerAsync<PipelineOwnedDependencyAnalyzer>("""
@@ -42,6 +44,7 @@ public sealed class PipelineOwnedDependencyAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <proves>litespec/backend/persistence#keep-uniqueness-out-of-handlers</proves>
     [Fact(DisplayName = "LS2016 reports a handler detected through its contract")]
     public Task ReportsAHandlerDetectedThroughItsContract() =>
         Verify.AnalyzerAsync<PipelineOwnedDependencyAnalyzer>("""
@@ -65,6 +68,7 @@ public sealed class PipelineOwnedDependencyAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <proves>litespec/backend/persistence#keep-uniqueness-out-of-handlers</proves>
     [Fact(DisplayName = "LS2016 accepts a handler taking a repository")]
     public Task AcceptsAHandlerTakingARepository() =>
         Verify.AnalyzerAsync<PipelineOwnedDependencyAnalyzer>("""
@@ -80,6 +84,7 @@ public sealed class PipelineOwnedDependencyAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <proves>litespec/backend/persistence#keep-uniqueness-out-of-handlers</proves>
     [Fact(DisplayName = "LS2016 accepts a handler taking an unlisted collaborator")]
     public Task AcceptsAHandlerTakingAnUnlistedCollaborator() =>
         Verify.AnalyzerAsync<PipelineOwnedDependencyAnalyzer>("""
@@ -95,6 +100,7 @@ public sealed class PipelineOwnedDependencyAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <proves>litespec/backend/persistence#keep-uniqueness-out-of-handlers</proves>
     [Fact(DisplayName = "LS2016 stays silent outside Application and Infrastructure")]
     public Task StaysSilentOutsideItsLayers() =>
         Verify.AnalyzerAsync<PipelineOwnedDependencyAnalyzer>("""

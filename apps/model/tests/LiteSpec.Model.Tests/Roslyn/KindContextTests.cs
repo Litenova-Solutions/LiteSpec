@@ -10,6 +10,7 @@ namespace LiteSpec.Model.Tests.Roslyn;
 /// <summary>Tests the cross-file name sets, including the transitive handler, job and event contracts.</summary>
 public sealed class KindContextTests
 {
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "The empty context holds no names")]
     public void EmptyHoldsNoNames()
     {
@@ -24,6 +25,7 @@ public sealed class KindContextTests
         Assert.Empty(KindContext.Empty.TechnicalClasses);
     }
 
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "The three-argument constructor leaves the contract sets empty")]
     public void ThreeArgumentsLeaveContractSetsEmpty()
     {
@@ -38,6 +40,7 @@ public sealed class KindContextTests
         Assert.Empty(context.TechnicalClasses);
     }
 
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "The constructor stores every set")]
     public void ConstructorStoresEverySet()
     {
@@ -63,6 +66,7 @@ public sealed class KindContextTests
         Assert.Contains("CommitStep", context.TechnicalClasses);
     }
 
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A null required collection throws")]
     public void NullRequiredCollectionThrows()
     {
@@ -71,6 +75,7 @@ public sealed class KindContextTests
         Assert.Throws<ArgumentNullException>(() => new KindContext(new string[0], new string[0], null!));
     }
 
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A null contract collection means none are known")]
     public void NullContractCollectionMeansNone()
     {
@@ -93,6 +98,7 @@ public sealed class KindContextTests
         Assert.Empty(context.TechnicalClasses);
     }
 
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "Names compare with ordinal case sensitivity")]
     public void NamesCompareOrdinal()
     {
@@ -106,6 +112,7 @@ public sealed class KindContextTests
         Assert.DoesNotContain("borrowcopyhandlerbase", context.CommandHandlers);
     }
 
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "The symbol overload recognizes a handler through its base class")]
     public void SymbolsRecognizeHandlerThroughBaseClass()
     {
@@ -131,6 +138,7 @@ public sealed class KindContextTests
         Assert.Equal(CodeKind.Handler, KindReader.KindOf(symbol, KindContext.Empty));
     }
 
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "The symbol overload recognizes an event through an intermediate interface")]
     public void SymbolsRecognizeEventThroughIntermediateInterface()
     {

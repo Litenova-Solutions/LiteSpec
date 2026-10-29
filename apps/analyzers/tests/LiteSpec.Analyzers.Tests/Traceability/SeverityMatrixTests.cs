@@ -33,6 +33,7 @@ public sealed class SeverityMatrixTests
         }
         """;
 
+    /// <proves>litespec/core/model#follow-effective-status-in-code-findings</proves>
     [Fact(DisplayName = "An approved subject reports an error")]
     public Task ApprovedSubjectReportsError() =>
         Verify.AnalyzerWithRecordsAsync<MarkLinkAnalyzer>(
@@ -40,6 +41,7 @@ public sealed class SeverityMatrixTests
             [ProjectFile(), UseCase()],
             assemblyName: "Shop.Application");
 
+    /// <proves>litespec/core/model#record-a-project-wide-lowering-as-a-deviation</proves>
     [Fact(DisplayName = "An editorconfig lowering turns an approved subject into a warning")]
     public Task EditorconfigLoweringReportsWarning() =>
         Verify.AnalyzerWithRecordsAsync<MarkLinkAnalyzer>(
@@ -48,6 +50,7 @@ public sealed class SeverityMatrixTests
             assemblyName: "Shop.Application",
             editorconfig: "dotnet_diagnostic.LS5004.severity = warning");
 
+    /// <proves>litespec/core/model#follow-effective-status-in-code-findings</proves>
     [Fact(DisplayName = "A draft subject reports a warning")]
     public Task DraftSubjectReportsWarning() =>
         Verify.AnalyzerWithRecordsAsync<MarkLinkAnalyzer>(
@@ -55,6 +58,7 @@ public sealed class SeverityMatrixTests
             [ProjectFile(), UseCase(status: "draft")],
             assemblyName: "Shop.Application");
 
+    /// <proves>litespec/core/model#record-a-project-wide-lowering-as-a-deviation</proves>
     [Fact(DisplayName = "An editorconfig entry overrides a draft warning back to an error")]
     public Task EditorconfigOverridesDraftWarning() =>
         Verify.AnalyzerWithRecordsAsync<MarkLinkAnalyzer>(
@@ -63,6 +67,7 @@ public sealed class SeverityMatrixTests
             assemblyName: "Shop.Application",
             editorconfig: "dotnet_diagnostic.LS5004.severity = error");
 
+    /// <proves>litespec/core/model#follow-effective-status-in-code-findings</proves>
     [Fact(DisplayName = "A retired subject stays silent")]
     public Task RetiredSubjectStaysSilent() =>
         Verify.AnalyzerWithRecordsAsync<MarkLinkAnalyzer>(
@@ -90,6 +95,7 @@ public sealed class SeverityMatrixTests
             [ProjectFile(), UseCase(status: "retired")],
             assemblyName: "Shop.Application");
 
+    /// <proves>litespec/core/model#hold-proof-findings-while-tests-are-frozen</proves>
     [Fact(DisplayName = "A frozen phase turns a missing test mark into a warning")]
     public Task FrozenPhaseOnTestReportsWarning() =>
         Verify.AnalyzerWithRecordsAsync<MarkPresenceAnalyzer>(
@@ -111,6 +117,7 @@ public sealed class SeverityMatrixTests
             [ProjectFile(phase: "frozen"), Scenario()],
             assemblyName: "Shop.Domain.Tests");
 
+    /// <proves>litespec/core/model#hold-proof-findings-while-tests-are-frozen</proves>
     [Fact(DisplayName = "A working phase keeps a missing test mark an error")]
     public Task WorkingPhaseOnTestReportsError() =>
         Verify.AnalyzerWithRecordsAsync<MarkPresenceAnalyzer>(
@@ -132,6 +139,7 @@ public sealed class SeverityMatrixTests
             [ProjectFile(), Scenario()],
             assemblyName: "Shop.Domain.Tests");
 
+    /// <proves>litespec/core/model#apply-guidance-precedence</proves>
     [Fact(DisplayName = "A deviation covering the file stays silent")]
     public Task DeviationCoveringFileStaysSilent() =>
         Verify.AnalyzerWithRecordsAsync<MarkPresenceAnalyzer>(
@@ -153,6 +161,7 @@ public sealed class SeverityMatrixTests
             [ProjectFile(), UseCase(), Deviation(["Source.cs"])],
             assemblyName: "Shop.Application");
 
+    /// <proves>litespec/core/model#apply-guidance-precedence</proves>
     [Fact(DisplayName = "A deviation covering the subject stays silent")]
     public Task DeviationCoveringSubjectStaysSilent() =>
         Verify.AnalyzerWithRecordsAsync<MarkLinkAnalyzer>(
@@ -180,6 +189,7 @@ public sealed class SeverityMatrixTests
             [ProjectFile(), UseCase(), Deviation([], ["use-case/spending.submit-expense"])],
             assemblyName: "Shop.Application");
 
+    /// <proves>litespec/core/model#record-accepted-gaps-as-known-gaps</proves>
     [Fact(DisplayName = "An open known gap covering the finding stays silent")]
     public Task KnownGapCoveringFindingStaysSilent() =>
         Verify.AnalyzerWithRecordsAsync<MarkLinkAnalyzer>(
@@ -207,6 +217,7 @@ public sealed class SeverityMatrixTests
             [ProjectFile(), UseCase(), KnownGap("mark-style-mixed", ["use-case/spending.submit-expense"])],
             assemblyName: "Shop.Application");
 
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "The traceability context is shared per compilation")]
     public void ContextIsSharedPerCompilation()
     {
@@ -221,6 +232,7 @@ public sealed class SeverityMatrixTests
         Assert.Same(first, cached);
     }
 
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "The hoisted known sets match the store")]
     public void HoistedKnownSetsMatchStore()
     {

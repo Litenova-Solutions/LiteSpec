@@ -7,6 +7,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace LiteSpec.Analyzers.Rules.Layers;
 
 /// <summary>LS2005: a command handler ends in CommandHandler and a query handler in QueryHandler.</summary>
+/// <follows>litespec/workspace/naming#use-architectural-suffixes</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class HandlerNamingAnalyzer : LayerAnalyzer
 {

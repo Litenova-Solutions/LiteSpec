@@ -5,6 +5,8 @@ namespace LiteSpec.Model.Diff;
 /// <summary>
 ///     Compares two project models record by record, matched by identifier.
 /// </summary>
+/// <follows>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</follows>
+/// <follows>litespec/core/release#review-behavior-changes-through-the-behavior-diff</follows>
 static class Differ
 {
     /// <summary>

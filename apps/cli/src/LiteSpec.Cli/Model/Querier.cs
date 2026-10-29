@@ -5,6 +5,7 @@ namespace LiteSpec.Model;
 /// <summary>
 ///     Prints one record with its links in both directions.
 /// </summary>
+/// <follows>litespec/core/agent#select-task-context</follows>
 static class Querier
 {
     /// <summary>Queries one id, or null when no record holds it.</summary>

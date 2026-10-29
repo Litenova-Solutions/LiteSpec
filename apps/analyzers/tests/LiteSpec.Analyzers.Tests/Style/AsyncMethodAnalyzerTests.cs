@@ -7,6 +7,7 @@ namespace LiteSpec.Analyzers.Tests.Style;
 /// <summary>Tests for LS3001 and LS3002, asynchronous method names and the token last.</summary>
 public sealed class AsyncMethodAnalyzerTests
 {
+    /// <proves>litespec/backend/dotnet/naming#name-asynchronous-methods-completely</proves>
     [Fact(DisplayName = "LS3001 reports Task and ValueTask methods without Async")]
     public Task ReportsTaskMethodsWithoutAsync() =>
         Verify.AnalyzerAsync<AsyncMethodAnalyzer>("""
@@ -22,6 +23,7 @@ public sealed class AsyncMethodAnalyzerTests
             }
             """);
 
+    /// <proves>litespec/backend/dotnet/naming#name-asynchronous-methods-completely</proves>
     [Fact(DisplayName = "LS3001 reports the same breach in WebApi")]
     public Task ReportsTheSameBreachInWebApi() =>
         Verify.AnalyzerAsync<AsyncMethodAnalyzer>("""
@@ -35,6 +37,7 @@ public sealed class AsyncMethodAnalyzerTests
             }
             """, assemblyName: "Shop.WebApi");
 
+    /// <proves>litespec/backend/dotnet/naming#name-asynchronous-methods-completely</proves>
     [Fact(DisplayName = "LS3001 and LS3002 accept a complete asynchronous signature")]
     public Task AcceptsACompleteSignature() =>
         Verify.AnalyzerAsync<AsyncMethodAnalyzer>("""
@@ -51,6 +54,7 @@ public sealed class AsyncMethodAnalyzerTests
             }
             """);
 
+    /// <proves>litespec/backend/dotnet/naming#name-asynchronous-methods-completely</proves>
     [Fact(DisplayName = "LS3001 ignores an override and reports its base")]
     public Task IgnoresAnOverrideAndReportsItsBase() =>
         Verify.AnalyzerAsync<AsyncMethodAnalyzer>("""
@@ -69,6 +73,7 @@ public sealed class AsyncMethodAnalyzerTests
             }
             """);
 
+    /// <proves>litespec/backend/dotnet/naming#name-asynchronous-methods-completely</proves>
     [Fact(DisplayName = "LS3001 ignores the Main entry point")]
     public Task IgnoresTheMainEntryPoint() =>
         Verify.AnalyzerAsync<AsyncMethodAnalyzer>("""
@@ -82,6 +87,7 @@ public sealed class AsyncMethodAnalyzerTests
             }
             """);
 
+    /// <proves>litespec/backend/dotnet/naming#name-asynchronous-methods-completely</proves>
     [Fact(DisplayName = "LS3001 reports a local function but not a lambda")]
     public Task ReportsALocalFunctionButNotALambda() =>
         Verify.AnalyzerAsync<AsyncMethodAnalyzer>("""
@@ -110,6 +116,7 @@ public sealed class AsyncMethodAnalyzerTests
             }
             """);
 
+    /// <proves>litespec/backend/dotnet/naming#name-asynchronous-methods-completely</proves>
     [Fact(DisplayName = "LS3001 ignores a framework contract implementation")]
     public Task IgnoresAFrameworkContractImplementation() =>
         Verify.AnalyzerAsync<AsyncMethodAnalyzer>("""
@@ -124,6 +131,7 @@ public sealed class AsyncMethodAnalyzerTests
             }
             """);
 
+    /// <proves>litespec/backend/dotnet/naming#name-asynchronous-methods-completely</proves>
     [Fact(DisplayName = "LS3001 reports a controller action")]
     public Task ReportsAControllerAction() =>
         Verify.AnalyzerAsync<AsyncMethodAnalyzer>("""
@@ -144,6 +152,7 @@ public sealed class AsyncMethodAnalyzerTests
             }
             """);
 
+    /// <proves>litespec/backend/dotnet/naming#name-asynchronous-methods-completely</proves>
     [Fact(DisplayName = "LS3002 reports a misnamed token and a token in the middle")]
     public Task ReportsAMisnamedTokenAndATokenInTheMiddle() =>
         Verify.AnalyzerAsync<AsyncMethodAnalyzer>("""
@@ -160,6 +169,7 @@ public sealed class AsyncMethodAnalyzerTests
             }
             """);
 
+    /// <proves>litespec/backend/dotnet/naming#name-asynchronous-methods-completely</proves>
     [Fact(DisplayName = "LS3002 accepts the token last with a trailing params array")]
     public Task AcceptsTheTokenLastWithATrailingParamsArray() =>
         Verify.AnalyzerAsync<AsyncMethodAnalyzer>("""
@@ -176,6 +186,7 @@ public sealed class AsyncMethodAnalyzerTests
             }
             """);
 
+    /// <proves>litespec/backend/dotnet/naming#name-asynchronous-methods-completely</proves>
     [Fact(DisplayName = "LS3002 ignores an override and reports its base")]
     public Task IgnoresATokenOverrideAndReportsItsBase() =>
         Verify.AnalyzerAsync<AsyncMethodAnalyzer>("""
@@ -194,6 +205,7 @@ public sealed class AsyncMethodAnalyzerTests
             }
             """);
 
+    /// <proves>litespec/backend/dotnet/naming#name-asynchronous-methods-completely</proves>
     [Fact(DisplayName = "LS3001 ignores a breach outside the five projects")]
     public Task IgnoresABreachOutsideTheFiveProjects() =>
         Verify.AnalyzerAsync<AsyncMethodAnalyzer>("""
@@ -207,6 +219,7 @@ public sealed class AsyncMethodAnalyzerTests
             }
             """, assemblyName: "Shop.Unknown");
 
+    /// <proves>litespec/backend/dotnet/naming#name-asynchronous-methods-completely</proves>
     [Fact(DisplayName = "LS3001 follows the LiteSpecLayer property over the assembly name")]
     public Task FollowsTheDeclaredLayer() =>
         Verify.AnalyzerAsync<AsyncMethodAnalyzer>("""
@@ -220,6 +233,7 @@ public sealed class AsyncMethodAnalyzerTests
             }
             """, assemblyName: "Shop.Core", layer: "Domain");
 
+    /// <proves>litespec/backend/dotnet/naming#name-asynchronous-methods-completely</proves>
     [Fact(DisplayName = "LS3001 ignores the top-level statements entry point")]
     public Task IgnoresTopLevelStatementsEntryPoint() =>
         Verify.AnalyzerAsync<AsyncMethodAnalyzer>("""
@@ -229,6 +243,7 @@ public sealed class AsyncMethodAnalyzerTests
             return 0;
             """, assemblyName: "Shop.WebApi", outputKind: OutputKind.ConsoleApplication);
 
+    /// <proves>litespec/backend/dotnet/naming#name-asynchronous-methods-completely</proves>
     [Fact(DisplayName = "LS3001 reports a synchronous Task.FromResult factory")]
     public Task ReportsASynchronousTaskFactory() =>
         Verify.AnalyzerAsync<AsyncMethodAnalyzer>("""
@@ -242,6 +257,7 @@ public sealed class AsyncMethodAnalyzerTests
             }
             """);
 
+    /// <proves>litespec/backend/dotnet/naming#name-asynchronous-methods-completely</proves>
     [Fact(DisplayName = "LS3002 ignores token position in an endpoint handler")]
     public Task IgnoresTokenPositionInAnEndpointHandler() =>
         Verify.AnalyzerAsync<AsyncMethodAnalyzer>("""
@@ -260,6 +276,7 @@ public sealed class AsyncMethodAnalyzerTests
             }
             """, assemblyName: "Shop.WebApi");
 
+    /// <proves>litespec/backend/dotnet/naming#name-asynchronous-methods-completely</proves>
     [Fact(DisplayName = "LS3002 reports the same position in an ordinary class")]
     public Task ReportsTheSamePositionInAnOrdinaryClass() =>
         Verify.AnalyzerAsync<AsyncMethodAnalyzer>("""
@@ -276,6 +293,7 @@ public sealed class AsyncMethodAnalyzerTests
             }
             """);
 
+    /// <proves>litespec/backend/dotnet/naming#name-asynchronous-methods-completely</proves>
     [Fact(DisplayName = "LS3002 reports a misnamed token in an endpoint handler")]
     public Task ReportsAMisnamedTokenInAnEndpointHandler() =>
         Verify.AnalyzerAsync<AsyncMethodAnalyzer>("""
@@ -294,6 +312,7 @@ public sealed class AsyncMethodAnalyzerTests
             }
             """, assemblyName: "Shop.WebApi");
 
+    /// <proves>litespec/backend/dotnet/naming#name-asynchronous-methods-completely</proves>
     [Fact(DisplayName = "LS3002 accepts stoppingToken in a hosted service")]
     public Task AcceptsStoppingTokenInAHostedService() =>
         Verify.AnalyzerAsync<AsyncMethodAnalyzer>("""
@@ -310,6 +329,7 @@ public sealed class AsyncMethodAnalyzerTests
             }
             """, assemblyName: "Shop.Infrastructure");
 
+    /// <proves>litespec/backend/dotnet/naming#name-asynchronous-methods-completely</proves>
     [Fact(DisplayName = "LS3002 reports stoppingToken outside a hosted service")]
     public Task ReportsStoppingTokenOutsideAHostedService() =>
         Verify.AnalyzerAsync<AsyncMethodAnalyzer>("""
@@ -324,6 +344,7 @@ public sealed class AsyncMethodAnalyzerTests
             }
             """);
 
+    /// <proves>litespec/backend/dotnet/naming#name-asynchronous-methods-completely</proves>
     [Fact(DisplayName = "LS3002 ignores an ExecuteAsync override")]
     public Task IgnoresAnExecuteAsyncOverride() =>
         Verify.AnalyzerAsync<AsyncMethodAnalyzer>("""

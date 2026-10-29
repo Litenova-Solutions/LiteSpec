@@ -15,6 +15,9 @@ namespace LiteSpec.Analyzers.Generation;
 /// constants. Every value is written only where no member of that name is declared in source,
 /// and only where its record is known.
 /// </summary>
+/// <follows>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</follows>
+/// <follows>litespec/core/access#state-the-scope-of-every-permission</follows>
+/// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
 internal static class Emitter
 {
     /// <summary>Writes every source the inputs call for, or nothing without a usable project file or with no records and no marks.</summary>

@@ -6,6 +6,7 @@ namespace LiteSpec.Model.Readers.TypeScript;
 /// <summary>
 ///     What a TypeScript file says in code, with what it says in comments left out.
 /// </summary>
+/// <follows>litespec/core/model#implement-each-mapped-behavior-record-behind-a-mark</follows>
 static partial class TypeScriptSource
 {
     /// <summary>One comment span.</summary>

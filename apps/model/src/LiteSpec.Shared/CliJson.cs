@@ -9,6 +9,7 @@ namespace LiteSpec;
 ///     escaping of quotes, apostrophes or angle brackets, so messages read the
 ///     same in JSON as in the human output.
 /// </summary>
+/// <follows>litespec/core/authoring#run-repeatable-authoring-checks</follows>
 public static class CliJson
 {
     public static readonly JsonSerializerOptions Options = new()

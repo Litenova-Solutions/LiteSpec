@@ -17,6 +17,7 @@ namespace LiteSpec.Analyzers.Rules.Traceability;
 ///     event type marked in source, and the known-gap and deviation sets built
 ///     once so reporting a diagnostic never rescans every record.
 /// </summary>
+/// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
 internal sealed class TraceabilityContext
 {
     private static readonly ConditionalWeakTable<Compilation, TraceabilityContext> Cache = new();

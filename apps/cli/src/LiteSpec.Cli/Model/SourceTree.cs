@@ -3,6 +3,7 @@ namespace LiteSpec.Model;
 /// <summary>
 ///     Every file under a directory, with build output and installed packages left out.
 /// </summary>
+/// <follows>litespec/core/model#compute-proof-statuses-in-the-builder</follows>
 static class SourceTree
 {
     /// <summary>

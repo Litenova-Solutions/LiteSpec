@@ -5,6 +5,7 @@ namespace LiteSpec.Model;
 /// <summary>
 ///     The casing conversions between code names and record identifiers.
 /// </summary>
+/// <follows>litespec/core/model#compute-proof-statuses-in-the-builder</follows>
 static class Naming
 {
     /// <summary>

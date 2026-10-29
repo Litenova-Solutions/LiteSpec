@@ -15,6 +15,7 @@ public sealed partial class StandardsValidatorTests
         "\"properties\":{\"id\":{\"type\":\"string\"},\"criterion\":{\"type\":\"string\"},\"reviewBy\":{\"type\":\"string\"}}}" +
         "]}}}}";
 
+    /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
     [Fact(DisplayName = "schema id naming another home or release")]
     public void SchemaIdNamingAnotherRelease() => Check(
         root =>
@@ -24,6 +25,7 @@ public sealed partial class StandardsValidatorTests
         },
         ["SCHEMA_ID"]);
 
+    /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
     [Fact(DisplayName = "schema id naming the published home and release")]
     public void SchemaIdNamingThePublishedRelease()
     {
@@ -37,6 +39,7 @@ public sealed partial class StandardsValidatorTests
         Assert.DoesNotContain(result.Diagnostics, diagnostic => diagnostic.Code == "SCHEMA_ID");
     }
 
+    /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
     [Fact(DisplayName = "invalid schema consumer")]
     public void InvalidSchemaConsumer() => Check(
         root =>
@@ -46,6 +49,7 @@ public sealed partial class StandardsValidatorTests
         },
         ["SCHEMA_INVALID"]);
 
+    /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
     [Fact(DisplayName = "unsupported schema keyword")]
     public void UnsupportedSchemaKeyword() => Check(
         root =>
@@ -55,6 +59,7 @@ public sealed partial class StandardsValidatorTests
         },
         ["SCHEMA_UNSUPPORTED_KEYWORD"]);
 
+    /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
     [Fact(DisplayName = "unsupported schema keyword inside a branch")]
     public void UnsupportedSchemaKeywordInBranch() => Check(
         root =>
@@ -64,6 +69,7 @@ public sealed partial class StandardsValidatorTests
         },
         ["SCHEMA_UNSUPPORTED_KEYWORD"]);
 
+    /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
     [Fact(DisplayName = "unsupported schema keyword inside propertyNames")]
     public void UnsupportedSchemaKeywordInPropertyNames() => Check(
         root =>
@@ -73,6 +79,7 @@ public sealed partial class StandardsValidatorTests
         },
         ["SCHEMA_UNSUPPORTED_KEYWORD"]);
 
+    /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
     [Fact(DisplayName = "schema upper bound")]
     public void SchemaUpperBound() => Check(
         root =>
@@ -82,6 +89,7 @@ public sealed partial class StandardsValidatorTests
         },
         ["SCHEMA_INVALID"]);
 
+    /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
     [Fact(DisplayName = "schema anyOf branch")]
     public void SchemaAnyOfBranch() => Check(
         root =>
@@ -91,6 +99,7 @@ public sealed partial class StandardsValidatorTests
         },
         ["SCHEMA_INVALID"]);
 
+    /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
     [Fact(DisplayName = "schema dependent property")]
     public void SchemaDependentProperty() => Check(
         root =>
@@ -100,6 +109,7 @@ public sealed partial class StandardsValidatorTests
         },
         ["SCHEMA_INVALID"]);
 
+    /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
     [Fact(DisplayName = "schema property name shape")]
     public void SchemaPropertyNameShape() => Check(
         root =>
@@ -109,6 +119,7 @@ public sealed partial class StandardsValidatorTests
         },
         ["SCHEMA_INVALID"]);
 
+    /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
     [Fact(DisplayName = "schema pattern properties")]
     public void SchemaPatternProperties() => Check(
         root =>
@@ -118,6 +129,7 @@ public sealed partial class StandardsValidatorTests
         },
         ["SCHEMA_INVALID"]);
 
+    /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
     [Fact(DisplayName = "schema array bounds")]
     public void SchemaArrayBounds() => Check(
         root =>
@@ -127,6 +139,7 @@ public sealed partial class StandardsValidatorTests
         },
         ["SCHEMA_INVALID"]);
 
+    /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
     [Fact(DisplayName = "schema JSON")]
     public void SchemaJson() => Check(
         root =>
@@ -136,6 +149,7 @@ public sealed partial class StandardsValidatorTests
         },
         ["SCHEMA_JSON"]);
 
+    /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
     [Fact(DisplayName = "project template carrying a removed overrides entry")]
     public void ProjectTemplateWithRemovedOverrides() => Check(
         root =>
@@ -145,6 +159,7 @@ public sealed partial class StandardsValidatorTests
         },
         ["SCHEMA_INVALID"]);
 
+    /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
     [Fact(DisplayName = "value matches no oneOf branch")]
     public void ValueMatchesNoOneOfBranch() => Check(
         root =>
@@ -154,6 +169,7 @@ public sealed partial class StandardsValidatorTests
         },
         ["SCHEMA_INVALID"]);
 
+    /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
     [Fact(DisplayName = "value matches exactly one oneOf branch")]
     public void ValueMatchesOneOneOfBranch() => Check(
         root =>
@@ -163,6 +179,7 @@ public sealed partial class StandardsValidatorTests
         },
         [], ["SCHEMA_INVALID"]);
 
+    /// <proves>litespec/core/principles#keep-one-authored-source</proves>
     [Fact(DisplayName = "template index names a missing file")]
     public void TemplateIndexNamesMissingFile() => Check(
         root =>
@@ -172,6 +189,7 @@ public sealed partial class StandardsValidatorTests
         },
         ["TEMPLATE_INDEX_PATH"]);
 
+    /// <proves>litespec/core/principles#keep-one-authored-source</proves>
     [Fact(DisplayName = "template index omits a tracked template")]
     public void TemplateIndexOmitsTemplate() => Check(
         root =>
@@ -182,6 +200,7 @@ public sealed partial class StandardsValidatorTests
         },
         ["TEMPLATE_INDEX_PATH"]);
 
+    /// <proves>litespec/core/principles#keep-one-authored-source</proves>
     [Fact(DisplayName = "template index resolves every row")]
     public void TemplateIndexResolvesEveryRow() => Check(
         root =>

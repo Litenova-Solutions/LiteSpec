@@ -5,6 +5,8 @@ namespace LiteSpec.Authoring;
 /// <summary>
 ///     The visible-text helpers both validators share.
 /// </summary>
+/// <follows>litespec/core/authoring#reject-a-recorded-synonym-inside-its-scope</follows>
+/// <follows>litespec/core/authoring#state-mannered-terms-literally</follows>
 public static partial class Prose
 {
     /// <summary>

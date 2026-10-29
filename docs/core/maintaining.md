@@ -87,6 +87,18 @@ These checks report a manifest or schema the release cannot ship, so they are li
 
 **Checked by:** `litespec-maintain validate` fails when a stack, shape, extension, or pin the release carries is missing from the manifest.
 
+### Mark the Tools with the Provisions They Follow
+
+**ID:** `litespec/core/maintaining#mark-the-tools-with-the-provisions-they-follow`
+
+**Statement:** Every top-level class that declares a method in a .NET source project under `apps/`, and every test that verifies a provision, MUST name its provision in a mark: a `follows` mark on the class and a `proves` mark on the test.
+
+**Rationale:** LiteSpec's own tools are technical classes: they serve no product record, and each exists because a provision requires a check, a reader, or a generator of its shape. A `follows` mark is the reverse index from that code to the provision, so a retired or renamed provision finds every class still built for it, and a `proves` mark finds the tests that keep its check honest. LiteSpec holds no Intent or Behavior records of its own, because its provisions already are its specification: the marks point at them directly. The site under `apps/site` is TypeScript with no mark form in the maintainer tool, so it carries no marks.
+
+**Example:** The .NET scenario reader carries `/// <follows>litespec/core/model#name-the-lowest-record-each-test-proves</follows>`, and the test that confirms a scenario driven through a shared probe step carries `/// <proves>litespec/core/model#name-the-lowest-record-each-test-proves</proves>`.
+
+**Checked by:** `litespec-maintain validate` emits `MARK_MISSING` for a class with a method and no `follows` mark in a source project under `apps/`, and `MARK_UNRESOLVED` for a `follows` or `proves` mark in a .NET project under `apps/`, outside its `Fixtures` folders, that names no provision in `docs/reference/provisions.md`.
+
 ## Conventions
 
 None.

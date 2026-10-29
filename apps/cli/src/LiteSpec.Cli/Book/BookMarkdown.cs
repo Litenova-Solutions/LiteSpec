@@ -8,6 +8,7 @@ namespace LiteSpec.Book;
 ///     tables, code blocks, quotes and inline spans. It escapes everything it does
 ///     not generate, so a body can never inject markup.
 /// </summary>
+/// <follows>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</follows>
 static class BookMarkdown
 {
     static readonly Regex CodeSpan = new("`([^`\n]+)`", RegexOptions.Compiled);

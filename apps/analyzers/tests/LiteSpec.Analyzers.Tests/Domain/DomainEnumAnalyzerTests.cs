@@ -6,6 +6,7 @@ namespace LiteSpec.Analyzers.Tests.Domain;
 /// <summary>Tests for LS1002, enums in Domain.</summary>
 public sealed class DomainEnumAnalyzerTests
 {
+    /// <proves>litespec/backend/dotnet/domain#model-every-closed-set-of-domain-values-without-enums</proves>
     [Fact(DisplayName = "LS1002 reports an enum declared in Domain")]
     public Task ReportsAnEnumInDomain() =>
         Verify.AnalyzerAsync<DomainEnumAnalyzer>("""
@@ -14,6 +15,7 @@ public sealed class DomainEnumAnalyzerTests
             public enum {|LS1002:OrderStatus|} { Draft, Placed }
             """);
 
+    /// <proves>litespec/backend/dotnet/domain#model-every-closed-set-of-domain-values-without-enums</proves>
     [Fact(DisplayName = "LS1002 accepts a closed record hierarchy")]
     public Task AcceptsARecordHierarchy() =>
         Verify.AnalyzerAsync<DomainEnumAnalyzer>("""
@@ -24,6 +26,7 @@ public sealed class DomainEnumAnalyzerTests
             public sealed record Draft() : OrderStatus("draft");
             """);
 
+    /// <proves>litespec/backend/dotnet/domain#model-every-closed-set-of-domain-values-without-enums</proves>
     [Fact(DisplayName = "LS1002 ignores an enum outside Domain")]
     public Task IgnoresAnEnumOutsideDomain() =>
         Verify.AnalyzerAsync<DomainEnumAnalyzer>("""
@@ -32,6 +35,7 @@ public sealed class DomainEnumAnalyzerTests
             public enum ResponseShape { Full, Summary }
             """, assemblyName: "Shop.WebApi");
 
+    /// <proves>litespec/backend/dotnet/domain#model-every-closed-set-of-domain-values-without-enums</proves>
     [Fact(DisplayName = "LS1002 follows the LiteSpecLayer property over the assembly name")]
     public Task FollowsTheDeclaredLayer() =>
         Verify.AnalyzerAsync<DomainEnumAnalyzer>("""

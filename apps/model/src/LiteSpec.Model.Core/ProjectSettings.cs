@@ -16,6 +16,7 @@ public enum ProjectPhase
 }
 
 /// <summary>Writes a <see cref="ProjectPhase" /> back to its project file value.</summary>
+/// <follows>litespec/core/model#hold-proof-findings-while-tests-are-frozen</follows>
 public static class ProjectPhaseExtensions
 {
     /// <summary>Returns <c>working</c> or <c>frozen</c> for the phase.</summary>

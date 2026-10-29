@@ -17,6 +17,7 @@ static partial class Checker
 /// <summary>
 ///     The code-reading checks, kept in one class so the partial checker holds only the entry point.
 /// </summary>
+/// <follows>litespec/core/model#mark-every-check-with-its-tier</follows>
 static class CodeChecks
 {
     /// <summary>Runs write-undeclared, result-undeclared, effect-undeclared and the handler shape checks.</summary>

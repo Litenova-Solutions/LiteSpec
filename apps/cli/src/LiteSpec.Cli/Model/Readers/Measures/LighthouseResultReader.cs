@@ -7,6 +7,7 @@ namespace LiteSpec.Model.Readers.Measures;
 ///     measured value. A result records evidence, so it passes when the run holds
 ///     the score; the Lighthouse CI assert step stays the gate that judges it.
 /// </summary>
+/// <follows>litespec/core/intent#state-the-measure-on-a-counted-requirement</follows>
 static class LighthouseResultReader
 {
     /// <summary>Reads the categories and measured audits of a Lighthouse report.</summary>

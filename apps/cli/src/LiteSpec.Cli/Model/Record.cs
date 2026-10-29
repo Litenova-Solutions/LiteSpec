@@ -5,6 +5,7 @@ namespace LiteSpec.Model;
 /// <summary>
 ///     One record: a page, an entry on a page, a term, or a derived generic result.
 /// </summary>
+/// <follows>litespec/core/model#compute-proof-statuses-in-the-builder</follows>
 sealed class Record : IRecordFacts
 {
     /// <summary>The record type, kebab-case.</summary>

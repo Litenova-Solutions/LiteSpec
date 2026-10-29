@@ -9,6 +9,8 @@ namespace LiteSpec.Model;
 /// <summary>
 ///     Partitions findings from known gaps and deviations, shared by every check host.
 /// </summary>
+/// <follows>litespec/core/model#apply-guidance-precedence</follows>
+/// <follows>litespec/core/model#record-accepted-gaps-as-known-gaps</follows>
 public static class Suppression
 {
     /// <summary>

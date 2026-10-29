@@ -10,6 +10,7 @@ namespace LiteSpec.Authoring;
 ///     one entry goes onto a use-case page's frontmatter records, in house order,
 ///     while every other byte of the page stays untouched.
 /// </summary>
+/// <follows>litespec/core/authoring#scaffold-pages-and-reserve-identifiers</follows>
 static partial class AppendEntry
 {
     /// <summary>Where the new entry lands among the page's entries.</summary>

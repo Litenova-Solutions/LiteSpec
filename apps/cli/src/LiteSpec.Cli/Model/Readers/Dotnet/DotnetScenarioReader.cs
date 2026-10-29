@@ -10,6 +10,7 @@ namespace LiteSpec.Model.Readers.Dotnet;
 ///     the failure codes it asserts, whether it asserts anything at all, and every
 ///     test method as a marked element.
 /// </summary>
+/// <follows>litespec/core/model#name-the-lowest-record-each-test-proves</follows>
 sealed class DotnetScenarioReader : IScenarioReader
 {
     /// <summary>Reads every scenario, test method and comment under the test roots.</summary>
@@ -28,13 +29,15 @@ sealed class DotnetScenarioReader : IScenarioReader
         var strays = new List<StrayMark>();
         var gate = new object();
         var stepCalls = new System.Collections.Concurrent.ConcurrentDictionary<string, IReadOnlySet<string>>(StringComparer.Ordinal);
+        var probes = new System.Collections.Concurrent.ConcurrentDictionary<string, IReadOnlyDictionary<string, string>>(StringComparer.Ordinal);
+        var stepFacts = new System.Collections.Concurrent.ConcurrentDictionary<string, StepFacts>(StringComparer.Ordinal);
 
         System.Threading.Tasks.Parallel.ForEach(
             files,
             () => (Scenarios: new List<ScenarioInfo>(), Comments: new List<CodeComment>(), Elements: new List<MarkedElement>(), Strays: new List<StrayMark>()),
             (file, _, local) =>
             {
-                ReadFile(file, local.Scenarios, local.Comments, local.Elements, local.Strays, stepCalls);
+                ReadFile(file, local.Scenarios, local.Comments, local.Elements, local.Strays, stepCalls, probes, stepFacts);
 
                 return local;
             },
@@ -68,6 +71,8 @@ sealed class DotnetScenarioReader : IScenarioReader
                 .ThenBy(stray => stray.Line)
                 .ThenBy(stray => stray.Class, StringComparer.Ordinal)
                 .ThenBy(stray => stray.Member ?? "", StringComparer.Ordinal)],
+            ProbeRoutes = probes,
+            StepFacts = stepFacts,
         };
     }
 
@@ -77,7 +82,9 @@ sealed class DotnetScenarioReader : IScenarioReader
         List<CodeComment> comments,
         List<MarkedElement> elements,
         List<StrayMark> strays,
-        System.Collections.Concurrent.ConcurrentDictionary<string, IReadOnlySet<string>> stepCalls)
+        System.Collections.Concurrent.ConcurrentDictionary<string, IReadOnlySet<string>> stepCalls,
+        System.Collections.Concurrent.ConcurrentDictionary<string, IReadOnlyDictionary<string, string>> probes,
+        System.Collections.Concurrent.ConcurrentDictionary<string, StepFacts> stepFacts)
     {
         SyntaxTree tree;
 
@@ -97,6 +104,11 @@ sealed class DotnetScenarioReader : IScenarioReader
         foreach (var type in root.DescendantNodes().OfType<ClassDeclarationSyntax>()
                      .Where(type => type.Identifier.Text.EndsWith("Steps", StringComparison.Ordinal)))
         {
+            if (ProbeTable(type) is { Count: > 0 } table)
+            {
+                probes[type.Identifier.Text] = table;
+            }
+
             var methods = type.Members.OfType<MethodDeclarationSyntax>().ToList();
             var direct = methods.ToDictionary(
                 method => method,
@@ -143,6 +155,26 @@ sealed class DotnetScenarioReader : IScenarioReader
                     $"{type.Identifier.Text}.{method.Identifier.Text}",
                     called,
                     (_, known) => known.Concat(called).ToHashSet(StringComparer.Ordinal));
+
+                // What the step requests and asserts through its own helpers counts for every scenario that
+                // runs it: a webhook step posts to a route no generated client names, and a shared then step
+                // such as nothing_is_found asserts a status its caller never writes.
+                var bodies = seen
+                    .Select(reachedMethod => (SyntaxNode?)reachedMethod.Body ?? reachedMethod.ExpressionBody)
+                    .OfType<SyntaxNode>()
+                    .ToList();
+                var facts = new StepFacts(
+                    RoutesIn(bodies, null).ToHashSet(StringComparer.Ordinal),
+                    AssertedStatuses([], [], bodies).ToHashSet(),
+                    AssertedCodes([], bodies).ToHashSet(StringComparer.Ordinal));
+
+                stepFacts.AddOrUpdate(
+                    $"{type.Identifier.Text}.{method.Identifier.Text}",
+                    facts,
+                    (_, known) => new StepFacts(
+                        known.Routes.Concat(facts.Routes).ToHashSet(StringComparer.Ordinal),
+                        known.Statuses.Concat(facts.Statuses).ToHashSet(),
+                        known.Codes.Concat(facts.Codes).ToHashSet(StringComparer.Ordinal)));
             }
         }
 
@@ -293,7 +325,7 @@ sealed class DotnetScenarioReader : IScenarioReader
                 [.. codes],
                 AssertedStatuses(statuses, thenBodies, reached),
                 identifiers,
-                RoutesIn(scope, containing),
+                RoutesIn(reached, containing),
                 AssertedCodes(thenBodies, reached),
                 HasAssertion(reached),
                 created,
@@ -699,6 +731,19 @@ sealed class DotnetScenarioReader : IScenarioReader
     private static ScenarioStep ReadStep(
         string phase,
         InvocationExpressionSyntax invocation,
+        IReadOnlyDictionary<string, string> types) =>
+        StepOf(phase, invocation, types) with
+        {
+            Arguments = [.. invocation.ArgumentList.Arguments
+                .Select(argument => argument.Expression)
+                .OfType<LiteralExpressionSyntax>()
+                .Where(literal => literal.IsKind(SyntaxKind.StringLiteralExpression))
+                .Select(literal => literal.Token.ValueText)],
+        };
+
+    private static ScenarioStep StepOf(
+        string phase,
+        InvocationExpressionSyntax invocation,
         IReadOnlyDictionary<string, string> types)
     {
         if (invocation.Expression is MemberAccessExpressionSyntax member)
@@ -709,6 +754,17 @@ sealed class DotnetScenarioReader : IScenarioReader
                     phase,
                     receiver.Identifier.ValueText,
                     types.GetValueOrDefault(receiver.Identifier.ValueText),
+                    member.Name.Identifier.ValueText);
+            }
+
+            // A scenario may fetch its steps inline, as Steps<ListLoansSteps>().ListTheLoans(), so the type
+            // argument names the steps class.
+            if (member.Expression is InvocationExpressionSyntax { Expression: GenericNameSyntax { TypeArgumentList.Arguments: [var stepsType] } })
+            {
+                return new ScenarioStep(
+                    phase,
+                    "",
+                    stepsType.ToString(),
                     member.Name.Identifier.ValueText);
             }
 
@@ -726,13 +782,14 @@ sealed class DotnetScenarioReader : IScenarioReader
     }
 
     /// <summary>
-    ///     The request paths a test names: string literals beginning with a slash, in the method or in its
-    ///     class's constants, with each interpolation hole read as one path parameter.
+    ///     The request paths a test names: string literals beginning with a slash, in the method, in a helper
+    ///     of the same file it calls, or in its class's constants, with each interpolation hole read as one
+    ///     path parameter.
     /// </summary>
-    private static List<string> RoutesIn(SyntaxNode scope, TypeDeclarationSyntax? containing)
+    private static List<string> RoutesIn(IReadOnlyList<SyntaxNode> reached, TypeDeclarationSyntax? containing)
     {
         var routes = new SortedSet<string>(StringComparer.Ordinal);
-        var nodes = scope.DescendantNodesAndSelf().ToList();
+        var nodes = reached.SelectMany(node => node.DescendantNodesAndSelf()).ToList();
 
         if (containing is not null)
         {
@@ -756,6 +813,60 @@ sealed class DotnetScenarioReader : IScenarioReader
         }
 
         return [.. routes];
+    }
+
+    /// <summary>
+    ///     The probe table of a steps class: a static dictionary field whose entries map a string key to a
+    ///     value naming a request route, such as <c>["product"] = new Request(HttpMethod.Get, "/api/products/{}")</c>.
+    ///     A probe step looks its argument up in the table and requests that route, so the key a scenario
+    ///     passes names the endpoint it reaches.
+    /// </summary>
+    private static Dictionary<string, string> ProbeTable(ClassDeclarationSyntax type)
+    {
+        var table = new Dictionary<string, string>(StringComparer.Ordinal);
+
+        foreach (var field in type.Members.OfType<FieldDeclarationSyntax>())
+        {
+            if (!field.Modifiers.Any(SyntaxKind.StaticKeyword))
+            {
+                continue;
+            }
+
+            foreach (var initializer in field.DescendantNodes().OfType<InitializerExpressionSyntax>())
+            {
+                foreach (var entry in initializer.Expressions)
+                {
+                    var (key, value) = entry switch
+                    {
+                        AssignmentExpressionSyntax
+                        {
+                            Left: ImplicitElementAccessSyntax { ArgumentList.Arguments: [{ Expression: LiteralExpressionSyntax literal }] },
+                        } assignment when literal.IsKind(SyntaxKind.StringLiteralExpression) => (literal.Token.ValueText, (SyntaxNode)assignment.Right),
+                        InitializerExpressionSyntax { Expressions: [LiteralExpressionSyntax literal, var rest, ..] }
+                            when literal.IsKind(SyntaxKind.StringLiteralExpression) => (literal.Token.ValueText, rest),
+                        _ => ((string?)null, (SyntaxNode?)null),
+                    };
+
+                    if (key is null || value is null)
+                    {
+                        continue;
+                    }
+
+                    var route = value.DescendantNodesAndSelf()
+                        .OfType<LiteralExpressionSyntax>()
+                        .Where(literal => literal.IsKind(SyntaxKind.StringLiteralExpression))
+                        .Select(literal => literal.Token.ValueText)
+                        .FirstOrDefault(text => text.StartsWith('/') && text.Length > 1 && !text.Contains(' '));
+
+                    if (route is not null)
+                    {
+                        table.TryAdd(key, route.Split('?')[0]);
+                    }
+                }
+            }
+        }
+
+        return table;
     }
 
     private static Dictionary<string, string> MemberTypes(TypeDeclarationSyntax containing)

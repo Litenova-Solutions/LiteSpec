@@ -7,6 +7,7 @@ namespace LiteSpec.Model.Readers.Measures;
 ///     at informational or low risk and fails at medium or high; the summary passes
 ///     when no alert reaches medium or high.
 /// </summary>
+/// <follows>litespec/core/intent#state-the-measure-on-a-counted-requirement</follows>
 static class ZapResultReader
 {
     /// <summary>Reads the alerts of a ZAP report object.</summary>

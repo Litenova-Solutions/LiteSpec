@@ -7,6 +7,7 @@ namespace LiteSpec.Model.Tests.Roslyn;
 /// <summary>Tests for reading one syntax tree in a single pass.</summary>
 public sealed class MarkFactsTests
 {
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "One pass collects every marked or markable type")]
     public void OnePassCollectsMarkedAndMarkableTypes()
     {
@@ -44,6 +45,7 @@ public sealed class MarkFactsTests
             Assert.Equal(element.Name, tree.GetText().ToString(element.Span)));
     }
 
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "One pass collects marked and markable methods")]
     public void OnePassCollectsMethods()
     {
@@ -78,6 +80,7 @@ public sealed class MarkFactsTests
         Assert.Single(elements[2].Marks);
     }
 
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "One pass collects a marked method of no known kind")]
     public void OnePassCollectsMarkedMethodOfNoKnownKind()
     {
@@ -97,6 +100,7 @@ public sealed class MarkFactsTests
         Assert.Equal("use-case/spending.submit-expense", Assert.Single(element.Marks).RecordId);
     }
 
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A tree without declarations reads no elements")]
     public void EmptyTreeReadsNone()
     {

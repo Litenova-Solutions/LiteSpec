@@ -4,6 +4,7 @@ namespace LiteSpec.Authoring;
 ///     The <c>litespec-maintain provisions</c> command: writes <c>docs/reference/provisions.md</c>
 ///     from the active standards, with each provision's inline verification mark and evidence.
 /// </summary>
+/// <follows>litespec/core/authoring#regenerate-the-provision-index</follows>
 static class ProvisionsCommand
 {
     /// <summary>The command's usage text.</summary>

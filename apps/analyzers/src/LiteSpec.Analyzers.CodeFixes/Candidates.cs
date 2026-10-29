@@ -9,6 +9,7 @@ namespace LiteSpec.Analyzers.CodeFixes;
 ///     the folder and the type or member name, and the nearest records for a
 ///     mistyped id by edit distance.
 /// </summary>
+/// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
 internal static class Candidates
 {
     /// <summary>

@@ -7,6 +7,7 @@ namespace LiteSpec.Model;
 ///     <c>refusal</c> names, or the bare code its <c>refusal</c> carries. The
 ///     CLI, the analyzer and the generator read it here, so all three agree.
 /// </summary>
+/// <follows>litespec/core/model#compute-proof-statuses-in-the-builder</follows>
 public static class RefusalCode
 {
     /// <summary>

@@ -16,6 +16,7 @@ namespace LiteSpec.Analyzers.Generation;
 /// generated part at all. Kinds come from the Roslyn kind reader and marks from the Roslyn mark
 /// reader; no symbol or syntax node crosses the pipeline.
 /// </summary>
+/// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
 internal sealed class MarkedType : IEquatable<MarkedType>
 {
     /// <summary>Creates a marked type.</summary>

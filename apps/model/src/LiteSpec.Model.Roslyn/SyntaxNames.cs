@@ -4,6 +4,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 namespace LiteSpec.Model.Roslyn;
 
 /// <summary>Reads simple type and attribute names from syntax, without qualification.</summary>
+/// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
 internal static class SyntaxNames
 {
     /// <summary>

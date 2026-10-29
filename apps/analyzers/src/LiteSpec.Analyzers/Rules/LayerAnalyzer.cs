@@ -7,6 +7,7 @@ namespace LiteSpec.Analyzers.Rules;
 ///     The base of every LiteSpec analyzer: resolves the compilation's layer once, skips
 ///     generated code, and registers the rule only in the layers it applies to.
 /// </summary>
+/// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
 public abstract class LayerAnalyzer : DiagnosticAnalyzer
 {
     /// <inheritdoc />

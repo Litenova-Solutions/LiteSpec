@@ -9,6 +9,7 @@ namespace LiteSpec.Model;
 ///     before the first dot is a refusal prefix, and a code matching the template is raised where its key is a
 ///     literal in the code.
 /// </remarks>
+/// <follows>litespec/core/model#compute-proof-statuses-in-the-builder</follows>
 internal static class RefusalTemplate
 {
     /// <summary>The placeholder a template carries exactly once.</summary>

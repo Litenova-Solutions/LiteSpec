@@ -16,6 +16,9 @@ namespace LiteSpec.Analyzers.Rules.Traceability;
 ///     than its kind takes, or names one record twice. LS5004: a mark is written
 ///     in the style the project did not declare.
 /// </summary>
+/// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
+/// <follows>litespec/core/system#point-every-technical-class-up-to-its-record-or-choice</follows>
+/// <follows>litespec/backend/dotnet/stack#write-each-mark-in-the-declared-style</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class MarkLinkAnalyzer : TraceabilityAnalyzer
 {

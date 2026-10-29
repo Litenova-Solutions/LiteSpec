@@ -6,6 +6,7 @@ namespace LiteSpec.Model.Readers.Dotnet;
 /// <summary>
 ///     Reads test outcomes from TRX files. Absent when the folder holds none.
 /// </summary>
+/// <follows>litespec/core/model#compute-proof-statuses-in-the-builder</follows>
 sealed class TrxTestRunReader : ITestRunReader
 {
     /// <summary>Reads the run, or null when no result file exists.</summary>

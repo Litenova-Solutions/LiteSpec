@@ -8,6 +8,7 @@ namespace LiteSpec;
 ///     ships that release beside its own binary, so the tool locates it from its
 ///     own binary rather than from the consumer.
 /// </summary>
+/// <follows>litespec/core/authoring#run-repeatable-authoring-checks</follows>
 public static class LiteSpecHome
 {
     public const string ManifestFile = "litespec.manifest.json";

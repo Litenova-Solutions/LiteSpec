@@ -5,6 +5,7 @@ namespace LiteSpec.Model;
 /// <summary>
 ///     Rewrites the fenced generated regions, leaving all other text untouched.
 /// </summary>
+/// <follows>litespec/core/model#render-generated-regions-from-the-model</follows>
 static partial class Renderer
 {
     /// <summary>Renders every known region, returning the changed files.</summary>

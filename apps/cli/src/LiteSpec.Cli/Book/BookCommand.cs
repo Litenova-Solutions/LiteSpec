@@ -18,6 +18,7 @@ sealed record BookPage(string Url, string Title, string Main, string Active, boo
 ///     The <c>litespec book</c> command: generate the project book, a static site
 ///     from a consumer's model.json.
 /// </summary>
+/// <follows>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</follows>
 static class BookCommand
 {
     /// <summary>The command's usage text.</summary>

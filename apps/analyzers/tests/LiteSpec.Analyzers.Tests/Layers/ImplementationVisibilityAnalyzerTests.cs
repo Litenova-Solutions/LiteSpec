@@ -6,6 +6,7 @@ namespace LiteSpec.Analyzers.Tests.Layers;
 /// <summary>Tests for LS2001, internal sealed implementation types.</summary>
 public sealed class ImplementationVisibilityAnalyzerTests
 {
+    /// <proves>litespec/backend/dotnet/architecture#keep-implementation-types-internal</proves>
     [Fact(DisplayName = "LS2001 reports a public handler")]
     public Task ReportsAPublicHandler() =>
         Verify.AnalyzerAsync<ImplementationVisibilityAnalyzer>("""
@@ -14,6 +15,7 @@ public sealed class ImplementationVisibilityAnalyzerTests
             public sealed class {|LS2001:PlaceOrderCommandHandler|} { }
             """, assemblyName: "Shop.Application");
 
+    /// <proves>litespec/backend/dotnet/architecture#keep-implementation-types-internal</proves>
     [Fact(DisplayName = "LS2001 reports an internal unsealed validator")]
     public Task ReportsAnInternalUnsealedValidator() =>
         Verify.AnalyzerAsync<ImplementationVisibilityAnalyzer>("""
@@ -22,6 +24,7 @@ public sealed class ImplementationVisibilityAnalyzerTests
             internal class {|LS2001:PlaceOrderValidator|} { }
             """, assemblyName: "Shop.Application");
 
+    /// <proves>litespec/backend/dotnet/architecture#keep-implementation-types-internal</proves>
     [Fact(DisplayName = "LS2001 reports a public unsealed repository once")]
     public Task ReportsAPublicUnsealedRepositoryOnce() =>
         Verify.AnalyzerAsync<ImplementationVisibilityAnalyzer>("""
@@ -30,6 +33,7 @@ public sealed class ImplementationVisibilityAnalyzerTests
             public class {|LS2001:OrderRepository|} { }
             """, assemblyName: "Shop.Infrastructure");
 
+    /// <proves>litespec/backend/dotnet/architecture#keep-implementation-types-internal</proves>
     [Fact(DisplayName = "LS2001 accepts an internal sealed handler")]
     public Task AcceptsAnInternalSealedHandler() =>
         Verify.AnalyzerAsync<ImplementationVisibilityAnalyzer>("""
@@ -38,6 +42,7 @@ public sealed class ImplementationVisibilityAnalyzerTests
             internal sealed class PlaceOrderCommandHandler { }
             """, assemblyName: "Shop.Application");
 
+    /// <proves>litespec/backend/dotnet/architecture#keep-implementation-types-internal</proves>
     [Fact(DisplayName = "LS2001 accepts an internal static projection")]
     public Task AcceptsAnInternalStaticProjection() =>
         Verify.AnalyzerAsync<ImplementationVisibilityAnalyzer>("""
@@ -46,6 +51,7 @@ public sealed class ImplementationVisibilityAnalyzerTests
             internal static class OrderSummaryProjection { }
             """, assemblyName: "Shop.Application");
 
+    /// <proves>litespec/backend/dotnet/architecture#keep-implementation-types-internal</proves>
     [Fact(DisplayName = "LS2001 reports a public static projection")]
     public Task ReportsAPublicStaticProjection() =>
         Verify.AnalyzerAsync<ImplementationVisibilityAnalyzer>("""
@@ -54,6 +60,7 @@ public sealed class ImplementationVisibilityAnalyzerTests
             public static class {|LS2001:OrderSummaryProjection|} { }
             """, assemblyName: "Shop.Application");
 
+    /// <proves>litespec/backend/dotnet/architecture#keep-implementation-types-internal</proves>
     [Fact(DisplayName = "LS2001 accepts a class without an implementation name")]
     public Task AcceptsAClassWithoutAnImplementationName() =>
         Verify.AnalyzerAsync<ImplementationVisibilityAnalyzer>("""
@@ -62,6 +69,7 @@ public sealed class ImplementationVisibilityAnalyzerTests
             public sealed class OrderService { }
             """, assemblyName: "Shop.Application");
 
+    /// <proves>litespec/backend/dotnet/architecture#keep-implementation-types-internal</proves>
     [Fact(DisplayName = "LS2001 reports a nested public endpoint")]
     public Task ReportsANestedPublicEndpoint() =>
         Verify.AnalyzerAsync<ImplementationVisibilityAnalyzer>("""
@@ -73,6 +81,7 @@ public sealed class ImplementationVisibilityAnalyzerTests
             }
             """, assemblyName: "Shop.WebApi");
 
+    /// <proves>litespec/backend/dotnet/architecture#keep-implementation-types-internal</proves>
     [Fact(DisplayName = "LS2001 accepts a nested private endpoint")]
     public Task AcceptsANestedPrivateEndpoint() =>
         Verify.AnalyzerAsync<ImplementationVisibilityAnalyzer>("""
@@ -84,6 +93,7 @@ public sealed class ImplementationVisibilityAnalyzerTests
             }
             """, assemblyName: "Shop.WebApi");
 
+    /// <proves>litespec/backend/dotnet/architecture#keep-implementation-types-internal</proves>
     [Fact(DisplayName = "LS2001 reports a class implementing IEndpoint without the suffix")]
     public Task ReportsAClassImplementingIEndpoint() =>
         Verify.AnalyzerAsync<ImplementationVisibilityAnalyzer>("""
@@ -94,6 +104,7 @@ public sealed class ImplementationVisibilityAnalyzerTests
             public sealed class {|LS2001:OrderRoutes|} : IEndpoint { }
             """, assemblyName: "Shop.WebApi");
 
+    /// <proves>litespec/backend/dotnet/architecture#keep-implementation-types-internal</proves>
     [Fact(DisplayName = "LS2001 ignores an abstract base handler")]
     public Task IgnoresAnAbstractBaseHandler() =>
         Verify.AnalyzerAsync<ImplementationVisibilityAnalyzer>("""
@@ -102,6 +113,7 @@ public sealed class ImplementationVisibilityAnalyzerTests
             public abstract class OrderHandler { }
             """, assemblyName: "Shop.Application");
 
+    /// <proves>litespec/backend/dotnet/architecture#keep-implementation-types-internal</proves>
     [Fact(DisplayName = "LS2001 ignores an implementation type in Domain")]
     public Task IgnoresAnImplementationTypeInDomain() =>
         Verify.AnalyzerAsync<ImplementationVisibilityAnalyzer>("""
@@ -110,6 +122,7 @@ public sealed class ImplementationVisibilityAnalyzerTests
             public sealed class PlaceOrderCommandHandler { }
             """);
 
+    /// <proves>litespec/backend/dotnet/architecture#keep-implementation-types-internal</proves>
     [Fact(DisplayName = "LS2001 ignores an implementation type in Application.Abstractions")]
     public Task IgnoresAnImplementationTypeInApplicationAbstractions() =>
         Verify.AnalyzerAsync<ImplementationVisibilityAnalyzer>("""
@@ -118,6 +131,7 @@ public sealed class ImplementationVisibilityAnalyzerTests
             public sealed class PlaceOrderCommandHandler { }
             """, assemblyName: "Shop.Application.Abstractions");
 
+    /// <proves>litespec/backend/dotnet/architecture#keep-implementation-types-internal</proves>
     [Fact(DisplayName = "LS2001 follows the LiteSpecLayer property over the assembly name")]
     public Task FollowsTheDeclaredLayer() =>
         Verify.AnalyzerAsync<ImplementationVisibilityAnalyzer>("""

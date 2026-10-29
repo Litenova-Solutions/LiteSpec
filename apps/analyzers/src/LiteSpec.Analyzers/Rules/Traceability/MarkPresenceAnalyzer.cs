@@ -8,6 +8,8 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace LiteSpec.Analyzers.Rules.Traceability;
 
 /// <summary>LS5001: a code element of a recognized kind carries no mark naming the record it serves.</summary>
+/// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
+/// <follows>litespec/core/system#point-every-technical-class-up-to-its-record-or-choice</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class MarkPresenceAnalyzer : TraceabilityAnalyzer
 {

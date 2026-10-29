@@ -7,6 +7,8 @@ namespace LiteSpec.Init;
 ///     from one of the ready-made presets in <c>templates/presets/</c>, and copies the
 ///     starting agent context, glossary, and example cast from <c>templates/consumer/</c>.
 /// </summary>
+/// <follows>litespec/core/scope#select-a-size-a-shape-and-stacks</follows>
+/// <follows>litespec/core/authoring#record-the-reviewed-litespec-release</follows>
 static class InitCommand
 {
     /// <summary>The preset names <c>litespec init</c> accepts, in list order.</summary>

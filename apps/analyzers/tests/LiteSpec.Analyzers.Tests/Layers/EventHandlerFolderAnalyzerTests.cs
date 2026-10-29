@@ -6,6 +6,7 @@ namespace LiteSpec.Analyzers.Tests.Layers;
 /// <summary>Tests for LS2008, event handler fact folders.</summary>
 public sealed class EventHandlerFolderAnalyzerTests
 {
+    /// <proves>litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle</proves>
     [Fact(DisplayName = "LS2008 accepts a handler in its fact folder")]
     public Task AcceptsAHandlerInItsFactFolder() =>
         Verify.AnalyzerAsync<EventHandlerFolderAnalyzer>("""
@@ -20,6 +21,7 @@ public sealed class EventHandlerFolderAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <proves>litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle</proves>
     [Fact(DisplayName = "LS2008 reports a handler outside its fact folder")]
     public Task ReportsAHandlerOutsideItsFactFolder() =>
         Verify.AnalyzerAsync<EventHandlerFolderAnalyzer>("""
@@ -34,6 +36,7 @@ public sealed class EventHandlerFolderAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <proves>litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle</proves>
     [Fact(DisplayName = "LS2008 reports a handler in another fact folder")]
     public Task ReportsAHandlerInAnotherFactFolder() =>
         Verify.AnalyzerAsync<EventHandlerFolderAnalyzer>("""
@@ -48,6 +51,7 @@ public sealed class EventHandlerFolderAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <proves>litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle</proves>
     [Fact(DisplayName = "LS2008 ignores a handler of two facts")]
     public Task IgnoresAHandlerOfTwoFacts() =>
         Verify.AnalyzerAsync<EventHandlerFolderAnalyzer>("""
@@ -65,6 +69,7 @@ public sealed class EventHandlerFolderAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <proves>litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle</proves>
     [Fact(DisplayName = "LS2008 ignores a handler of an interface fact")]
     public Task IgnoresAHandlerOfAnInterfaceFact() =>
         Verify.AnalyzerAsync<EventHandlerFolderAnalyzer>("""
@@ -79,6 +84,7 @@ public sealed class EventHandlerFolderAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <proves>litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle</proves>
     [Fact(DisplayName = "LS2008 ignores an interface-fact handler in a sensibly named folder")]
     public Task IgnoresAnInterfaceFactHandlerInASensiblyNamedFolder() =>
         Verify.AnalyzerAsync<EventHandlerFolderAnalyzer>("""
@@ -93,6 +99,7 @@ public sealed class EventHandlerFolderAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <proves>litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle</proves>
     [Fact(DisplayName = "LS2008 ignores a class that handles no event")]
     public Task IgnoresAClassThatHandlesNoEvent() =>
         Verify.AnalyzerAsync<EventHandlerFolderAnalyzer>("""
@@ -103,6 +110,7 @@ public sealed class EventHandlerFolderAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <proves>litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle</proves>
     [Fact(DisplayName = "LS2008 ignores a handler outside Application and Infrastructure")]
     public Task IgnoresAHandlerOutsideItsLayers() =>
         Verify.AnalyzerAsync<EventHandlerFolderAnalyzer>("""
@@ -117,6 +125,7 @@ public sealed class EventHandlerFolderAnalyzerTests
             }
             """, assemblyName: "Shop.Domain");
 
+    /// <proves>litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle</proves>
     [Fact(DisplayName = "LS2008 follows the LiteSpecLayer property over the assembly name")]
     public Task FollowsTheDeclaredLayer() =>
         Verify.AnalyzerAsync<EventHandlerFolderAnalyzer>("""

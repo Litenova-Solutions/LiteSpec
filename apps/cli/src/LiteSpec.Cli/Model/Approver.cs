@@ -8,6 +8,7 @@ namespace LiteSpec.Model;
 ///     Writes approval data onto records: who approved or reviewed each one, when, and the
 ///     semantic hash of what they approved, so a later change inside it reopens the approval.
 /// </summary>
+/// <follows>litespec/core/model#record-approval-as-data</follows>
 static class Approver
 {
     static readonly JsonSerializerOptions Write = new()

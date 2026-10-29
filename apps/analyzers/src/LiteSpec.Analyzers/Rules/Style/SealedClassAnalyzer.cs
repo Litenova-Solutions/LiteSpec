@@ -7,6 +7,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace LiteSpec.Analyzers.Rules.Style;
 
 /// <summary>LS3004: production C# seals every concrete class that nothing derives from.</summary>
+/// <follows>litespec/backend/dotnet/naming#keep-implementation-style-consistent</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class SealedClassAnalyzer : LayerAnalyzer
 {

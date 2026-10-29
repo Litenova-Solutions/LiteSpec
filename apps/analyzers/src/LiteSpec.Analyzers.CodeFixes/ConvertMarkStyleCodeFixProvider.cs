@@ -15,6 +15,7 @@ namespace LiteSpec.Analyzers.CodeFixes;
 ///     tag becomes an attribute, and an attribute becomes a documentation tag
 ///     inside the existing trivia block. Fix All converts every mark in scope.
 /// </summary>
+/// <follows>litespec/backend/dotnet/stack#write-each-mark-in-the-declared-style</follows>
 [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(ConvertMarkStyleCodeFixProvider))]
 [Shared]
 public sealed class ConvertMarkStyleCodeFixProvider : CodeFixProvider

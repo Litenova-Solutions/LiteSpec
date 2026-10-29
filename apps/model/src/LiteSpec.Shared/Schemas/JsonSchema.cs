@@ -15,6 +15,7 @@ namespace LiteSpec.Schemas;
 ///     evaluator safe: a keyword with no implementation fails the schema instead
 ///     of passing unread.
 /// </summary>
+/// <follows>litespec/core/authoring#run-repeatable-authoring-checks</follows>
 public static class JsonSchema
 {
     /// <summary>The schema keywords that assert nothing (SCHEMA_ANNOTATIONS).</summary>

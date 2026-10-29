@@ -7,6 +7,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace LiteSpec.Analyzers.Rules.Layers;
 
 /// <summary>LS2008: an event handler lives in the On{Fact} folder of the fact it handles.</summary>
+/// <follows>litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class EventHandlerFolderAnalyzer : LayerAnalyzer
 {

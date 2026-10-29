@@ -33,6 +33,7 @@ public sealed record Pattern(string Name, string Slug, int Line)
 }
 
 /// <summary>A pattern page: <c>docs/frontend/patterns/&lt;group&gt;.md</c>.</summary>
+/// <follows>litespec/core/authoring#run-repeatable-authoring-checks</follows>
 public sealed partial class PatternPage
 {
     /// <summary>The folder under the LiteSpec root that holds the pattern pages.</summary>

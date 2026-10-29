@@ -6,6 +6,7 @@ namespace LiteSpec.Analyzers.Tests.Layers;
 /// <summary>Tests for LS2006, the endpoint suffix.</summary>
 public sealed class EndpointNamingAnalyzerTests
 {
+    /// <proves>litespec/workspace/naming#use-architectural-suffixes</proves>
     [Fact(DisplayName = "LS2006 reports an endpoint without its suffix")]
     public Task ReportsAnEndpointWithoutItsSuffix() =>
         Verify.AnalyzerAsync<EndpointNamingAnalyzer>("""
@@ -18,6 +19,7 @@ public sealed class EndpointNamingAnalyzerTests
             }
             """, assemblyName: "Shop.WebApi");
 
+    /// <proves>litespec/workspace/naming#use-architectural-suffixes</proves>
     [Fact(DisplayName = "LS2006 accepts an endpoint with its suffix")]
     public Task AcceptsAnEndpointWithItsSuffix() =>
         Verify.AnalyzerAsync<EndpointNamingAnalyzer>("""
@@ -30,6 +32,7 @@ public sealed class EndpointNamingAnalyzerTests
             }
             """, assemblyName: "Shop.WebApi");
 
+    /// <proves>litespec/workspace/naming#use-architectural-suffixes</proves>
     [Fact(DisplayName = "LS2006 ignores a class that implements no endpoint contract")]
     public Task IgnoresANonEndpoint() =>
         Verify.AnalyzerAsync<EndpointNamingAnalyzer>("""
@@ -40,6 +43,7 @@ public sealed class EndpointNamingAnalyzerTests
             }
             """, assemblyName: "Shop.WebApi");
 
+    /// <proves>litespec/workspace/naming#use-architectural-suffixes</proves>
     [Fact(DisplayName = "LS2006 ignores an endpoint outside WebApi")]
     public Task IgnoresEndpointOutsideWebApi() =>
         Verify.AnalyzerAsync<EndpointNamingAnalyzer>("""
@@ -52,6 +56,7 @@ public sealed class EndpointNamingAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <proves>litespec/workspace/naming#use-architectural-suffixes</proves>
     [Fact(DisplayName = "LS2006 follows the LiteSpecLayer property over the assembly name")]
     public Task FollowsTheDeclaredLayer() =>
         Verify.AnalyzerAsync<EndpointNamingAnalyzer>("""

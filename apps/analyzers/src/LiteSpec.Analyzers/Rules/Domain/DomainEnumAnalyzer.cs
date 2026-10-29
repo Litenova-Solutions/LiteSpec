@@ -6,6 +6,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace LiteSpec.Analyzers.Rules.Domain;
 
 /// <summary>LS1002: Domain models a closed set as a record hierarchy, never an enum.</summary>
+/// <follows>litespec/backend/dotnet/domain#model-every-closed-set-of-domain-values-without-enums</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class DomainEnumAnalyzer : LayerAnalyzer
 {

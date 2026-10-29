@@ -6,6 +6,7 @@ namespace LiteSpec.Analyzers.Tests.Domain;
 /// <summary>Tests for LS1009, nondeterministic reads in Domain.</summary>
 public sealed class NondeterministicReadAnalyzerTests
 {
+    /// <proves>litespec/backend/domain#pass-nondeterministic-values-into-domain</proves>
     [Fact(DisplayName = "LS1009 reports a clock read in a method body")]
     public Task ReportsAClockReadInAMethodBody() =>
         Verify.AnalyzerAsync<NondeterministicReadAnalyzer>("""
@@ -22,6 +23,7 @@ public sealed class NondeterministicReadAnalyzerTests
             }
             """);
 
+    /// <proves>litespec/backend/domain#pass-nondeterministic-values-into-domain</proves>
     [Fact(DisplayName = "LS1009 reports Guid.NewGuid and Random construction")]
     public Task ReportsNewGuidAndRandomConstruction() =>
         Verify.AnalyzerAsync<NondeterministicReadAnalyzer>("""
@@ -43,6 +45,7 @@ public sealed class NondeterministicReadAnalyzerTests
             }
             """);
 
+    /// <proves>litespec/backend/domain#pass-nondeterministic-values-into-domain</proves>
     [Fact(DisplayName = "LS1009 reports reads in initializers, expression bodies and lambdas")]
     public Task ReportsReadsInInitializersExpressionBodiesAndLambdas() =>
         Verify.AnalyzerAsync<NondeterministicReadAnalyzer>("""
@@ -63,6 +66,7 @@ public sealed class NondeterministicReadAnalyzerTests
             }
             """);
 
+    /// <proves>litespec/backend/domain#pass-nondeterministic-values-into-domain</proves>
     [Fact(DisplayName = "LS1009 reports TimeProvider.System, Random.Shared and RandomNumberGenerator")]
     public Task ReportsSystemSharedAndRandomNumberGenerator() =>
         Verify.AnalyzerAsync<NondeterministicReadAnalyzer>("""
@@ -94,6 +98,7 @@ public sealed class NondeterministicReadAnalyzerTests
             }
             """);
 
+    /// <proves>litespec/backend/domain#pass-nondeterministic-values-into-domain</proves>
     [Fact(DisplayName = "LS1009 accepts injected values and deterministic members")]
     public Task AcceptsInjectedValuesAndDeterministicMembers() =>
         Verify.AnalyzerAsync<NondeterministicReadAnalyzer>("""
@@ -120,6 +125,7 @@ public sealed class NondeterministicReadAnalyzerTests
             }
             """);
 
+    /// <proves>litespec/backend/domain#pass-nondeterministic-values-into-domain</proves>
     [Fact(DisplayName = "LS1009 ignores nameof")]
     public Task IgnoresNameof() =>
         Verify.AnalyzerAsync<NondeterministicReadAnalyzer>("""
@@ -136,6 +142,7 @@ public sealed class NondeterministicReadAnalyzerTests
             }
             """);
 
+    /// <proves>litespec/backend/domain#pass-nondeterministic-values-into-domain</proves>
     [Fact(DisplayName = "LS1009 ignores nondeterministic reads outside Domain")]
     public Task IgnoresNondeterministicReadsOutsideDomain() =>
         Verify.AnalyzerAsync<NondeterministicReadAnalyzer>("""
@@ -152,6 +159,7 @@ public sealed class NondeterministicReadAnalyzerTests
             }
             """, assemblyName: "Shop.WebApi");
 
+    /// <proves>litespec/backend/domain#pass-nondeterministic-values-into-domain</proves>
     [Fact(DisplayName = "LS1009 follows the LiteSpecLayer property over the assembly name")]
     public Task FollowsTheDeclaredLayer() =>
         Verify.AnalyzerAsync<NondeterministicReadAnalyzer>("""
@@ -168,6 +176,7 @@ public sealed class NondeterministicReadAnalyzerTests
             }
             """, assemblyName: "Shop.Core", layer: "Domain");
 
+    /// <proves>litespec/backend/domain#pass-nondeterministic-values-into-domain</proves>
     [Fact(DisplayName = "LS1009 reports the remaining clock and randomness members")]
     public Task ReportsTheRemainingClockAndRandomnessMembers() =>
         Verify.AnalyzerAsync<NondeterministicReadAnalyzer>("""

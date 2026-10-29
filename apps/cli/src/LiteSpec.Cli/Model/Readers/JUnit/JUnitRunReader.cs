@@ -6,6 +6,7 @@ namespace LiteSpec.Model.Readers.JUnit;
 /// <summary>
 ///     Reads test outcomes from JUnit XML files. Absent when the folder holds none.
 /// </summary>
+/// <follows>litespec/core/model#compute-proof-statuses-in-the-builder</follows>
 sealed class JUnitRunReader : ITestRunReader
 {
     /// <summary>Reads the run, or null when no JUnit file exists.</summary>

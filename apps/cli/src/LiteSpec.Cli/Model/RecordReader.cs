@@ -29,6 +29,7 @@ sealed record RecordRead(
 /// <summary>
 ///     Finds every written record: page records, entries and terms.
 /// </summary>
+/// <follows>litespec/core/model#compute-proof-statuses-in-the-builder</follows>
 static class RecordReader
 {
     /// <summary>Reads every record under the configured roots.</summary>

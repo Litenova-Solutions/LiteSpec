@@ -16,6 +16,7 @@ namespace LiteSpec.Analyzers.Rules.Traceability;
 ///     case does not list in <c>raises</c>. LS5008: a use case lists an event in
 ///     <c>raises</c> that no method marked with it raises.
 /// </summary>
+/// <follows>litespec/backend/domain#raise-the-declared-events-from-the-marked-act</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class ActEventAnalyzer : TraceabilityAnalyzer
 {

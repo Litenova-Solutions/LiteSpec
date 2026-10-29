@@ -179,6 +179,7 @@ sealed class BookIndex
 /// <summary>
 ///     The index over model.json for the book generator. Pure data shaping, no HTML.
 /// </summary>
+/// <follows>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</follows>
 static class BookModel
 {
     /// <summary>The navigation layers, in display order.</summary>

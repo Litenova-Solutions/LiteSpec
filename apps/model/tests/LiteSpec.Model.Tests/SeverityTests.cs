@@ -6,6 +6,7 @@ namespace LiteSpec.Model.Tests;
 public sealed class SeverityTests
 {
     /// <summary>A finding about a retired record stays silent, whatever its tier.</summary>
+    /// <proves>litespec/core/model#follow-effective-status-in-code-findings</proves>
     [Theory]
     [InlineData("record-shape")]
     [InlineData("use-case-unimplemented")]
@@ -19,6 +20,7 @@ public sealed class SeverityTests
     }
 
     /// <summary>An advisory finding reports, even about a live record under a qualified reader.</summary>
+    /// <proves>litespec/core/model#mark-every-check-with-its-tier</proves>
     [Fact]
     public void Advisory_Finding_Reports_And_Never_Blocks()
     {
@@ -29,6 +31,7 @@ public sealed class SeverityTests
     }
 
     /// <summary>An S finding about a draft record reports with the draft reason.</summary>
+    /// <proves>litespec/core/model#follow-effective-status-in-code-findings</proves>
     [Fact]
     public void Draft_Subject_Reports_With_Draft_Reason()
     {
@@ -39,6 +42,7 @@ public sealed class SeverityTests
     }
 
     /// <summary>A G finding about a draft record still blocks.</summary>
+    /// <proves>litespec/core/model#mark-every-check-with-its-tier</proves>
     [Fact]
     public void Draft_Subject_Keeps_General_Finding_Blocking()
     {
@@ -49,6 +53,7 @@ public sealed class SeverityTests
     }
 
     /// <summary>A proof finding reports with the frozen reason while the phase is frozen.</summary>
+    /// <proves>litespec/core/model#hold-proof-findings-while-tests-are-frozen</proves>
     [Theory]
     [InlineData("proves-unconfirmed")]
     [InlineData("use-case-without-scenario")]
@@ -61,6 +66,7 @@ public sealed class SeverityTests
     }
 
     /// <summary>A non-proof S finding still blocks while the phase is frozen, on a test path or off one.</summary>
+    /// <proves>litespec/core/model#hold-proof-findings-while-tests-are-frozen</proves>
     [Theory]
     [InlineData(true)]
     [InlineData(false)]
@@ -73,6 +79,7 @@ public sealed class SeverityTests
     }
 
     /// <summary>An S finding reports under an unqualified reader, and blocks under a qualified one.</summary>
+    /// <proves>litespec/core/model#mark-every-check-with-its-tier</proves>
     [Theory]
     [InlineData(true, Outcome.Blocking)]
     [InlineData(false, Outcome.Reported)]
@@ -85,6 +92,7 @@ public sealed class SeverityTests
     }
 
     /// <summary>An S finding with no subject follows its tier: it blocks under a qualified reader.</summary>
+    /// <proves>litespec/core/model#follow-effective-status-in-code-findings</proves>
     [Theory]
     [InlineData(true, Outcome.Blocking)]
     [InlineData(false, Outcome.Reported)]
@@ -97,6 +105,7 @@ public sealed class SeverityTests
     }
 
     /// <summary>A draft reason wins over the frozen phase, in the numbered rule order.</summary>
+    /// <proves>litespec/core/model#follow-effective-status-in-code-findings</proves>
     [Fact]
     public void Draft_Wins_Over_Frozen()
     {
@@ -107,6 +116,7 @@ public sealed class SeverityTests
     }
 
     /// <summary>A live G finding blocks under any reader.</summary>
+    /// <proves>litespec/core/model#mark-every-check-with-its-tier</proves>
     [Theory]
     [InlineData(true)]
     [InlineData(false)]

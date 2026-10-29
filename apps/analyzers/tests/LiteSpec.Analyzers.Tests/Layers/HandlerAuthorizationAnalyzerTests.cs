@@ -6,6 +6,7 @@ namespace LiteSpec.Analyzers.Tests.Layers;
 /// <summary>Tests for LS2012, the handler authorization rule.</summary>
 public sealed class HandlerAuthorizationAnalyzerTests
 {
+    /// <proves>litespec/backend/application#enforce-target-authorization-in-the-pipeline</proves>
     [Fact(DisplayName = "LS2012 reports a command handler throwing a forbidden exception")]
     public Task ReportsACommandHandlerThrowingForbidden() =>
         Verify.AnalyzerAsync<HandlerAuthorizationAnalyzer>("""
@@ -26,6 +27,7 @@ public sealed class HandlerAuthorizationAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <proves>litespec/backend/application#enforce-target-authorization-in-the-pipeline</proves>
     [Fact(DisplayName = "LS2012 reports a query handler throwing an unauthorized exception")]
     public Task ReportsAQueryHandlerThrowingUnauthorized() =>
         Verify.AnalyzerAsync<HandlerAuthorizationAnalyzer>("""
@@ -51,6 +53,7 @@ public sealed class HandlerAuthorizationAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <proves>litespec/backend/application#enforce-target-authorization-in-the-pipeline</proves>
     [Fact(DisplayName = "LS2012 reports a handler throwing an access denied exception")]
     public Task ReportsAHandlerThrowingAccessDenied() =>
         Verify.AnalyzerAsync<HandlerAuthorizationAnalyzer>("""
@@ -71,6 +74,7 @@ public sealed class HandlerAuthorizationAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <proves>litespec/backend/application#enforce-target-authorization-in-the-pipeline</proves>
     [Fact(DisplayName = "LS2012 reports a forbidden exception thrown through a local")]
     public Task ReportsAForbiddenExceptionThrownThroughALocal() =>
         Verify.AnalyzerAsync<HandlerAuthorizationAnalyzer>("""
@@ -92,6 +96,7 @@ public sealed class HandlerAuthorizationAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <proves>litespec/backend/application#enforce-target-authorization-in-the-pipeline</proves>
     [Fact(DisplayName = "LS2012 accepts a handler throwing a domain refusal")]
     public Task AcceptsAHandlerThrowingADomainRefusal() =>
         Verify.AnalyzerAsync<HandlerAuthorizationAnalyzer>("""
@@ -112,6 +117,7 @@ public sealed class HandlerAuthorizationAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <proves>litespec/backend/application#enforce-target-authorization-in-the-pipeline</proves>
     [Fact(DisplayName = "LS2012 accepts a throw in an event handler")]
     public Task AcceptsAThrowInAnEventHandler() =>
         Verify.AnalyzerAsync<HandlerAuthorizationAnalyzer>("""
@@ -134,6 +140,7 @@ public sealed class HandlerAuthorizationAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <proves>litespec/backend/application#enforce-target-authorization-in-the-pipeline</proves>
     [Fact(DisplayName = "LS2012 accepts a rethrow")]
     public Task AcceptsARethrow() =>
         Verify.AnalyzerAsync<HandlerAuthorizationAnalyzer>("""
@@ -159,6 +166,7 @@ public sealed class HandlerAuthorizationAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <proves>litespec/backend/application#enforce-target-authorization-in-the-pipeline</proves>
     [Fact(DisplayName = "LS2012 stays silent outside Application and Infrastructure")]
     public Task StaysSilentOutsideItsLayers() =>
         Verify.AnalyzerAsync<HandlerAuthorizationAnalyzer>("""

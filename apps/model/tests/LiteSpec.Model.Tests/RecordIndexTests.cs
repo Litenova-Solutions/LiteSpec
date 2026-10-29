@@ -7,6 +7,7 @@ namespace LiteSpec.Model.Tests;
 public sealed class RecordIndexTests
 {
     /// <summary>A result held by a draft use case is effectively a draft.</summary>
+    /// <proves>litespec/core/model#hold-approval-behind-draft-decisions</proves>
     [Fact]
     public void Result_Of_Draft_Use_Case_Is_Draft()
     {
@@ -22,6 +23,7 @@ public sealed class RecordIndexTests
     }
 
     /// <summary>A result with no holding use case keeps its own status.</summary>
+    /// <proves>litespec/core/model#hold-approval-behind-draft-decisions</proves>
     [Fact]
     public void Result_Without_Holder_Keeps_Own_Status()
     {

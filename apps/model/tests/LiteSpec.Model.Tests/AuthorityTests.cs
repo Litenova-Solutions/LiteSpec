@@ -7,6 +7,7 @@ namespace LiteSpec.Model.Tests;
 public sealed class AuthorityTests
 {
     /// <summary>A requirement drafted by a draft decision makes its use case draft.</summary>
+    /// <proves>litespec/core/model#hold-approval-behind-draft-decisions</proves>
     [Fact]
     public void Draft_Decision_Makes_Use_Case_Draft()
     {
@@ -41,6 +42,7 @@ public sealed class AuthorityTests
     }
 
     /// <summary>An approved decision leaves the requirement and its use case live.</summary>
+    /// <proves>litespec/core/model#hold-approval-behind-draft-decisions</proves>
     [Fact]
     public void Approved_Decision_Leaves_Use_Case_Live()
     {

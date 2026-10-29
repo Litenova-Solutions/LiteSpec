@@ -7,6 +7,7 @@ namespace LiteSpec.Analyzers.Tests.Traceability;
 /// <summary>Tests for LS5007 and LS5008, the declared events of the marked act.</summary>
 public sealed class ActEventTests
 {
+    /// <proves>litespec/backend/domain#raise-the-declared-events-from-the-marked-act</proves>
     [Fact(DisplayName = "LS5007 reports a marked method raising an undeclared event")]
     public Task ReportsARaisedButUndeclaredEvent() =>
         Verify.AnalyzerWithRecordsAsync<ActEventAnalyzer>(
@@ -40,6 +41,7 @@ public sealed class ActEventTests
             [ProjectFile(), Aggregate(), UseCase(), Event(), Event("event/expense.approved", "Expense approved")],
             assemblyName: "Shop.Domain");
 
+    /// <proves>litespec/backend/domain#raise-the-declared-events-from-the-marked-act</proves>
     [Fact(DisplayName = "LS5007 accepts a marked method raising only declared events")]
     public Task AcceptsAMethodRaisingOnlyDeclaredEvents() =>
         Verify.AnalyzerWithRecordsAsync<ActEventAnalyzer>(
@@ -69,6 +71,7 @@ public sealed class ActEventTests
             [ProjectFile(), Aggregate(), UseCase(), Event()],
             assemblyName: "Shop.Domain");
 
+    /// <proves>litespec/backend/domain#raise-the-declared-events-from-the-marked-act</proves>
     [Fact(DisplayName = "LS5008 reports a declared event no marked method raises")]
     public Task ReportsADeclaredButUnraisedEvent() =>
         Verify.AnalyzerWithRecordsAsync<ActEventAnalyzer>(
@@ -97,6 +100,7 @@ public sealed class ActEventTests
             [ProjectFile(), Aggregate(), UseCase(), Event()],
             assemblyName: "Shop.Domain");
 
+    /// <proves>litespec/backend/domain#raise-the-declared-events-from-the-marked-act</proves>
     [Fact(DisplayName = "LS5008 reports once on the first marked method when none raises the event")]
     public Task ReportsOnceOnTheFirstMarkedMethod() =>
         Verify.AnalyzerWithRecordsAsync<ActEventAnalyzer>(
@@ -130,6 +134,7 @@ public sealed class ActEventTests
             [ProjectFile(), Aggregate(), UseCase(), Event()],
             assemblyName: "Shop.Domain");
 
+    /// <proves>litespec/backend/domain#raise-the-declared-events-from-the-marked-act</proves>
     [Fact(DisplayName = "LS5008 accepts a declared event raised through a private helper")]
     public Task AcceptsAnEventRaisedThroughAPrivateHelper() =>
         Verify.AnalyzerWithRecordsAsync<ActEventAnalyzer>(
@@ -161,6 +166,7 @@ public sealed class ActEventTests
             [ProjectFile(), Aggregate(), UseCase(), Event()],
             assemblyName: "Shop.Domain");
 
+    /// <proves>litespec/backend/domain#raise-the-declared-events-from-the-marked-act</proves>
     [Fact(DisplayName = "LS5008 accepts a declared event another marked method raises")]
     public Task AcceptsAnEventAnotherMarkedMethodRaises() =>
         Verify.AnalyzerWithRecordsAsync<ActEventAnalyzer>(
@@ -195,6 +201,7 @@ public sealed class ActEventTests
             [ProjectFile(), Aggregate(), UseCase(), Event()],
             assemblyName: "Shop.Domain");
 
+    /// <proves>litespec/backend/domain#raise-the-declared-events-from-the-marked-act</proves>
     [Fact(DisplayName = "LS5008 reports the unraised event when one method serves two use cases")]
     public Task ReportsTheUnraisedEventForOneOfTwoUseCases() =>
         Verify.AnalyzerWithRecordsAsync<ActEventAnalyzer>(
@@ -235,6 +242,7 @@ public sealed class ActEventTests
             ],
             assemblyName: "Shop.Domain");
 
+    /// <proves>litespec/backend/domain#raise-the-declared-events-from-the-marked-act</proves>
     [Fact(DisplayName = "LS5007 ignores a method with no use-case mark")]
     public Task IgnoresAMethodWithNoUseCaseMark() =>
         Verify.AnalyzerWithRecordsAsync<ActEventAnalyzer>(

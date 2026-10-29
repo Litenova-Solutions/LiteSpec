@@ -8,6 +8,7 @@ namespace LiteSpec.Model;
 /// <summary>
 ///     Every model check: schema, identifiers, citations, gates, proof, reach, graph and tiers.
 /// </summary>
+/// <follows>litespec/core/model#mark-every-check-with-its-tier</follows>
 static partial class Checker
 {
     /// <summary>Every finding code a known gap may name.</summary>

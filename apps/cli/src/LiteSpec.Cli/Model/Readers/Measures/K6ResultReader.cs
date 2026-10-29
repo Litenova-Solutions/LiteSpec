@@ -7,6 +7,7 @@ namespace LiteSpec.Model.Readers.Measures;
 ///     threshold, passing when k6 marked it <c>ok</c>. A metric without thresholds
 ///     carries no assertion and yields no result.
 /// </summary>
+/// <follows>litespec/core/intent#state-the-measure-on-a-counted-requirement</follows>
 static class K6ResultReader
 {
     /// <summary>Reads the thresholds of a k6 summary object.</summary>

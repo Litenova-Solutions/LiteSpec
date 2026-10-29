@@ -34,6 +34,7 @@ sealed record UnmatchedCall(string Screen, string Operation, string File);
 ///     The project model: written records, read code, screens, tests, the test run,
 ///     computed links and per use case status.
 /// </summary>
+/// <follows>litespec/core/model#compute-proof-statuses-in-the-builder</follows>
 sealed class ProjectModel
 {
     public ConsumerConfig Config { get; init; } = null!;
@@ -55,6 +56,13 @@ sealed class ProjectModel
     /// <summary>The generated-client operations each steps method calls, keyed by class and method.</summary>
     public IReadOnlyDictionary<string, IReadOnlySet<string>> StepCalls { get; set; } =
         new Dictionary<string, IReadOnlySet<string>>(StringComparer.Ordinal);
+    /// <summary>What each steps method requests and asserts, keyed by class and method.</summary>
+    public IReadOnlyDictionary<string, StepFacts> StepFacts { get; set; } =
+        new Dictionary<string, StepFacts>(StringComparer.Ordinal);
+
+    /// <summary>The probe tables of steps classes: per class, each argument key mapped to the route it requests.</summary>
+    public IReadOnlyDictionary<string, IReadOnlyDictionary<string, string>> ProbeRoutes { get; set; } =
+        new Dictionary<string, IReadOnlyDictionary<string, string>>(StringComparer.Ordinal);
     public List<CodeComment> TestComments { get; } = [];
     public List<CodeComment> ScreenComments { get; } = [];
     public TestRun? TestRun { get; set; }
@@ -71,6 +79,12 @@ sealed class ProjectModel
     public Dictionary<string, RequirementStatus> RequirementStatus { get; } = new(StringComparer.Ordinal);
     /// <summary>Per proof target, by id: whether a passing test run proves it. Only quality requirements, technical decisions, external systems, and integration events carry a tested state.</summary>
     public Dictionary<string, bool> Tested { get; } = new(StringComparer.Ordinal);
+
+    /// <summary>The scenarios whose passing proof is stale: the scenario changed after the run first passed it.</summary>
+    public SortedSet<string> Stale { get; } = new(StringComparer.Ordinal);
+
+    /// <summary>The semantic hash each scenario had when a run first passed its proof.</summary>
+    public ProofLedger Ledger { get; set; } = ProofLedger.Empty();
 
     /// <summary>Per aggregate, by id: the states some transition leads into, or that start its lifecycle.</summary>
     public Dictionary<string, IReadOnlySet<string>> ReachableStates { get; } = new(StringComparer.Ordinal);
@@ -530,6 +544,15 @@ sealed class ProjectModel
             }
 
             writer.WriteEndObject();
+
+            writer.WriteStartArray("stale");
+
+            foreach (var scenario in Stale)
+            {
+                writer.WriteStringValue(scenario);
+            }
+
+            writer.WriteEndArray();
 
             writer.WriteStartObject("tested");
 

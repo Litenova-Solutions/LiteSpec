@@ -7,6 +7,7 @@ namespace LiteSpec.Model;
 ///     the git index, plus their direct links in both directions and the records staged
 ///     code implements. A finding is in scope when its path is staged or its subject is.
 /// </summary>
+/// <follows>litespec/core/model#mark-every-check-with-its-tier</follows>
 static class StagedScope
 {
     /// <summary>One computed scope: its record ids, its staged paths and its file count.</summary>

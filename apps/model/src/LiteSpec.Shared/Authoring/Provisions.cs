@@ -8,6 +8,7 @@ namespace LiteSpec.Authoring;
 ///     generator both call <see cref="BuildIndex"/>, so the checked-in page and its
 ///     freshness gate cannot disagree.
 /// </summary>
+/// <follows>litespec/core/authoring#regenerate-the-provision-index</follows>
 public static class Provisions
 {
     /// <summary>The generated provision index, relative to the repository root.</summary>

@@ -7,6 +7,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace LiteSpec.Analyzers.Rules.Layers;
 
 /// <summary>LS2006: an endpoint implementation ends in Endpoint.</summary>
+/// <follows>litespec/workspace/naming#use-architectural-suffixes</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class EndpointNamingAnalyzer : LayerAnalyzer
 {

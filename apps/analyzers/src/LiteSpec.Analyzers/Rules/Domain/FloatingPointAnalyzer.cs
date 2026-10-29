@@ -8,6 +8,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace LiteSpec.Analyzers.Rules.Domain;
 
 /// <summary>LS1008: Domain keeps double and float out of exact quantities.</summary>
+/// <follows>litespec/backend/domain#keep-binary-floating-point-out-of-exact-quantities</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class FloatingPointAnalyzer : LayerAnalyzer
 {

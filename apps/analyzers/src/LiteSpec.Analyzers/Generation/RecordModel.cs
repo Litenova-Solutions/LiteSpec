@@ -15,6 +15,9 @@ namespace LiteSpec.Analyzers.Generation;
 /// Statuses never gate generation: a mark to a record of any status still resolves, and the
 /// checks own the reporting.
 /// </summary>
+/// <follows>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</follows>
+/// <follows>litespec/core/access#state-the-scope-of-every-permission</follows>
+/// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
 internal sealed class RecordModel : IEquatable<RecordModel>
 {
     /// <summary>The model when no project file is in reach or its settings fail to parse.</summary>
@@ -487,6 +490,7 @@ internal sealed class RecordModel : IEquatable<RecordModel>
 }
 
 /// <summary>One rule with the refusal code its exception carries.</summary>
+/// <follows>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</follows>
 internal sealed class RuleCode : IEquatable<RuleCode>
 {
     /// <summary>Creates a rule code.</summary>
@@ -528,6 +532,8 @@ internal sealed class RuleCode : IEquatable<RuleCode>
 }
 
 /// <summary>One permission with the facts the generated entry carries.</summary>
+/// <follows>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</follows>
+/// <follows>litespec/core/access#state-the-scope-of-every-permission</follows>
 internal sealed class PermissionFacts : IEquatable<PermissionFacts>
 {
     /// <summary>Creates permission facts.</summary>
@@ -591,6 +597,7 @@ internal sealed class PermissionFacts : IEquatable<PermissionFacts>
 }
 
 /// <summary>One use case with its access grant.</summary>
+/// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
 internal sealed class UseCaseGrant : IEquatable<UseCaseGrant>
 {
     /// <summary>Creates a use-case grant.</summary>

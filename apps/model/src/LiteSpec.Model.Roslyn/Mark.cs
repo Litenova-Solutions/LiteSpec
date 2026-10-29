@@ -11,6 +11,7 @@ namespace LiteSpec.Model.Roslyn;
 ///     navigation. A malformed mark carries an empty record identifier so hosts
 ///     report it as unresolved rather than ignoring it.
 /// </summary>
+/// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
 public sealed class Mark : IEquatable<Mark>
 {
     /// <summary>Creates a mark.</summary>

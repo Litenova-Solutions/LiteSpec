@@ -7,6 +7,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace LiteSpec.Analyzers.Rules.Layers;
 
 /// <summary>LS2007: an event handler names its triggering fact and a job names its schedule.</summary>
+/// <follows>litespec/workspace/naming#use-architectural-suffixes</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class ReactionNamingAnalyzer : LayerAnalyzer
 {

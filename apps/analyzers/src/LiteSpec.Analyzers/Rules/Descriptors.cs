@@ -7,6 +7,7 @@ namespace LiteSpec.Analyzers.Rules;
 ///     LS3xxx code style in the five production projects, LS4xxx test projects. Each one
 ///     names the provision it enforces, and its help link opens that provision.
 /// </summary>
+/// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
 internal static class Descriptors
 {
     private const string DomainCategory = "LiteSpec.Domain";

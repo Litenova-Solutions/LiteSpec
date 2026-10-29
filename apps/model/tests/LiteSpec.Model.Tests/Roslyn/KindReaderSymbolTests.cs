@@ -77,6 +77,7 @@ public sealed class KindReaderSymbolTests
         public sealed class PayoutBankAdapter : IPayoutPort;
         """;
 
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "Syntax and symbol overloads agree on every type")]
     public void SyntaxAndSymbolsAgreeOnTypes()
     {
@@ -97,6 +98,7 @@ public sealed class KindReaderSymbolTests
         }
     }
 
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "Syntax and symbol overloads agree on every method")]
     public void SyntaxAndSymbolsAgreeOnMethods()
     {
@@ -117,6 +119,7 @@ public sealed class KindReaderSymbolTests
         }
     }
 
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "Both overloads recognize the expected kinds")]
     public void BothOverloadsRecognizeExpectedKinds()
     {
@@ -164,6 +167,7 @@ public sealed class KindReaderSymbolTests
         Assert.Equal(CodeKind.Test, KindReader.KindOf((IMethodSymbol)provesSymbol, context));
     }
 
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A marked method raising nothing is recognized from its symbol")]
     public void MarkedMethodRaisingNothingIsRecognizedFromSymbol()
     {
@@ -197,6 +201,7 @@ public sealed class KindReaderSymbolTests
         Assert.Equal(CodeKind.AggregateMethod, KindReader.KindOf((IMethodSymbol)symbol, KindContext.Empty));
     }
 
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "Symbols resolve a transitive aggregate root that syntax needs context for")]
     public void SymbolsResolveTransitiveAggregateRoot()
     {
@@ -224,6 +229,7 @@ public sealed class KindReaderSymbolTests
         Assert.Equal(CodeKind.AggregateRoot, KindReader.KindOf(node, context));
     }
 
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A nested symbol sharing a root's or an exception's name takes no kind")]
     public void NestedSymbolSharingANameTakesNoKind()
     {
@@ -268,6 +274,7 @@ public sealed class KindReaderSymbolTests
         Assert.Equal(CodeKind.AggregateRoot, KindReader.KindOf(model.GetDeclaredSymbol(root)!, context));
     }
 
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A symbol port reads its mark from source")]
     public void SymbolPortReadsItsMark()
     {
@@ -287,6 +294,7 @@ public sealed class KindReaderSymbolTests
         Assert.Null(KindReader.KindOf(symbol, KindContext.Empty, "Shop.WebApi"));
     }
 
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A symbol class with a method in an outer layer is technical")]
     public void SymbolClassWithMethodIsTechnical()
     {
@@ -306,6 +314,7 @@ public sealed class KindReaderSymbolTests
         Assert.Null(KindReader.KindOf(symbol, KindContext.Empty));
     }
 
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A symbol record, nested class, or constructor-only class is not technical")]
     public void SymbolNonClassShapesAreNotTechnical()
     {
@@ -347,6 +356,7 @@ public sealed class KindReaderSymbolTests
         }
     }
 
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A symbol migration or generated class is not technical")]
     public void SymbolMigrationAndGeneratedAreNotTechnical()
     {
@@ -384,6 +394,7 @@ public sealed class KindReaderSymbolTests
         Assert.Null(KindReader.KindOf(SymbolOf(code, "CommitStep"), KindContext.Empty, "Shop.Application"));
     }
 
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "A symbol partial class merges methods across parts")]
     public void SymbolPartialMergesMethodsAcrossParts()
     {

@@ -4,6 +4,7 @@ namespace LiteSpec.Model;
 ///     The past tense of use-case verbs: the baseline table, the common irregulars, and the
 ///     derivation for project domain verbs. The verbs themselves live in <see cref="UseCaseVerbs" />.
 /// </summary>
+/// <follows>litespec/backend/dotnet/domain#raise-the-past-tense-of-a-methods-own-verb</follows>
 static class UseCaseVocabulary
 {
     /// <summary>The past tense of every baseline verb, with the irregulars spelled out.</summary>

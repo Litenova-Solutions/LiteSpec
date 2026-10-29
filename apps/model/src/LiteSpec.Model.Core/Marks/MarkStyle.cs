@@ -18,6 +18,7 @@ public enum MarkStyle
 }
 
 /// <summary>Parses the <c>marks</c> value of <c>litespec.project.json</c>.</summary>
+/// <follows>litespec/core/model#declare-one-mark-style</follows>
 public static class MarkStyleParser
 {
     /// <summary>
@@ -78,6 +79,7 @@ public static class MarkStyleParser
 }
 
 /// <summary>Writes a <see cref="MarkStyle" /> back to its project file value.</summary>
+/// <follows>litespec/core/model#declare-one-mark-style</follows>
 public static class MarkStyleExtensions
 {
     /// <summary>Returns <c>xml</c> or <c>attribute</c> for the style.</summary>

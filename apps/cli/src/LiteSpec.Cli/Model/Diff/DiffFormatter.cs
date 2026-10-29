@@ -5,6 +5,8 @@ namespace LiteSpec.Model.Diff;
 /// <summary>
 ///     Renders an intent diff for people, for a pull request comment, or for machines.
 /// </summary>
+/// <follows>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</follows>
+/// <follows>litespec/core/release#review-behavior-changes-through-the-behavior-diff</follows>
 static class DiffFormatter
 {
     static readonly ChangeKind[] Sections = [ChangeKind.Removed, ChangeKind.Modified, ChangeKind.Added];

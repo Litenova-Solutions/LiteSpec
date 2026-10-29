@@ -10,6 +10,7 @@ namespace LiteSpec.Analyzers.Tests.Generation;
 /// <summary>Tests for the generated permission entries with their scope, group, reads and risks.</summary>
 public sealed class PermissionMetadataTests
 {
+    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "The entry carries scope, group, reads and risks from the record")]
     public void EntryCarriesFactsFromTheRecord()
     {
@@ -26,6 +27,7 @@ public sealed class PermissionMetadataTests
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
     }
 
+    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "An entry without scope, group and risks reads empty, null and empty")]
     public void EntryWithoutFactsReadsDefaults()
     {
@@ -41,6 +43,7 @@ public sealed class PermissionMetadataTests
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
     }
 
+    /// <proves>litespec/core/access#state-the-scope-of-every-permission</proves>
     [Fact(DisplayName = "A changing verb reads false and stays silent")]
     public void ChangingVerbReadsFalse()
     {
@@ -56,6 +59,7 @@ public sealed class PermissionMetadataTests
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
     }
 
+    /// <proves>litespec/core/access#state-the-scope-of-every-permission</proves>
     [Fact(DisplayName = "An unknown first word reads false and reports LS5010")]
     public void UnknownFirstWordReportsLS5010()
     {
@@ -74,6 +78,7 @@ public sealed class PermissionMetadataTests
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
     }
 
+    /// <proves>litespec/core/access#state-the-scope-of-every-permission</proves>
     [Fact(DisplayName = "A manage permission changes and stays silent")]
     public void ManagePermissionChangesAndStaysSilent()
     {
@@ -89,6 +94,7 @@ public sealed class PermissionMetadataTests
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
     }
 
+    /// <proves>litespec/core/access#state-the-scope-of-every-permission</proves>
     [Fact(DisplayName = "A declared project verb reads false and stays silent")]
     public void DeclaredProjectVerbStaysSilent()
     {
@@ -106,6 +112,7 @@ public sealed class PermissionMetadataTests
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
     }
 
+    /// <proves>litespec/core/access#state-the-scope-of-every-permission</proves>
     [Fact(DisplayName = "A project query verb reads true and stays silent")]
     public void ProjectQueryVerbReadsTrue()
     {
@@ -123,6 +130,7 @@ public sealed class PermissionMetadataTests
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
     }
 
+    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "Of returns the entry for a known id and throws for an unknown id")]
     public void OfReturnsKnownAndThrowsForUnknown()
     {

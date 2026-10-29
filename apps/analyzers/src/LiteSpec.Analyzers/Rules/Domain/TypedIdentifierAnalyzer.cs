@@ -9,6 +9,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace LiteSpec.Analyzers.Rules.Domain;
 
 /// <summary>LS1012: an aggregate identity is a readonly record struct wrapping one Guid with no implicit conversion.</summary>
+/// <follows>litespec/backend/dotnet/domain#use-strongly-typed-version-7-identifiers</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class TypedIdentifierAnalyzer : LayerAnalyzer
 {

@@ -7,6 +7,7 @@ namespace LiteSpec.Analyzers.Tests.Traceability;
 /// <summary>Tests that a plain class carrying a job mark is a job host: marked it is silent, unmarked it needs a mark, and two marks count.</summary>
 public sealed class JobMarkTests
 {
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "LS5001 accepts a plain class carrying its job mark")]
     public Task AcceptsAMarkedPlainClass() =>
         Verify.AnalyzerWithRecordsAsync<MarkPresenceAnalyzer>(
@@ -24,6 +25,7 @@ public sealed class JobMarkTests
             [ProjectFile(), Job("job/billing.charge-dues", "Charge dues")],
             assemblyName: "Shop.Infrastructure");
 
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "LS5001 reports the same class unmarked as a technical class")]
     public Task ReportsAnUnmarkedPlainClass() =>
         Verify.AnalyzerWithRecordsAsync<MarkPresenceAnalyzer>(
@@ -40,6 +42,7 @@ public sealed class JobMarkTests
             [ProjectFile(), Job("job/billing.charge-dues", "Charge dues")],
             assemblyName: "Shop.Infrastructure");
 
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "LS5001 ignores a marked class in Domain, which is no job")]
     public Task IgnoresAMarkedClassInDomain() =>
         Verify.AnalyzerWithRecordsAsync<MarkPresenceAnalyzer>(
@@ -57,6 +60,7 @@ public sealed class JobMarkTests
             [ProjectFile(), Job("job/billing.charge-dues", "Charge dues")],
             assemblyName: "Shop.Domain");
 
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "LS5002 accepts one job mark on a plain class")]
     public Task AcceptsOneJobMark() =>
         Verify.AnalyzerWithRecordsAsync<MarkLinkAnalyzer>(
@@ -74,6 +78,7 @@ public sealed class JobMarkTests
             [ProjectFile(), Job("job/billing.charge-dues", "Charge dues")],
             assemblyName: "Shop.Infrastructure");
 
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "LS5003 reports a plain class carrying two job marks")]
     public Task ReportsTwoJobMarks() =>
         Verify.AnalyzerWithRecordsAsync<MarkLinkAnalyzer>(
@@ -92,6 +97,7 @@ public sealed class JobMarkTests
             [ProjectFile(), Job("job/billing.charge-dues", "Charge dues")],
             assemblyName: "Shop.Infrastructure");
 
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "LS5002 reports a job mark on a class in Domain, which takes no mark")]
     public Task ReportsAJobMarkInDomain() =>
         Verify.AnalyzerWithRecordsAsync<MarkLinkAnalyzer>(

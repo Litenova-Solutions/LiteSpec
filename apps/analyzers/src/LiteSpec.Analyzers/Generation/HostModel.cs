@@ -9,6 +9,7 @@ namespace LiteSpec.Analyzers.Generation;
 /// and whether xUnit v3 is referenced. The layer follows the same rule the layer resolver uses:
 /// the declared LiteSpecLayer property first, then the assembly name suffix.
 /// </summary>
+/// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
 internal sealed class HostModel : IEquatable<HostModel>
 {
     /// <summary>Creates a host model.</summary>

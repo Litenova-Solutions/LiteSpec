@@ -21,6 +21,7 @@ namespace LiteSpec.Model.Roslyn;
 ///     with an empty record identifier so hosts report it as unresolved rather
 ///     than ignoring it.
 /// </summary>
+/// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
 public static class MarkReader
 {
     /// <summary>Reads every mark on one type or method declaration, in source order.</summary>

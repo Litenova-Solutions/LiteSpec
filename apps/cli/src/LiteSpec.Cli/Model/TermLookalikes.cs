@@ -24,6 +24,7 @@ sealed record LookalikePair(string Kind, LookalikeHit First, LookalikeHit Second
 ///     The lookalike-term vocabulary: the spelling table and the token logic behind the
 ///     term-lookalike check, the names report, and the names page.
 /// </summary>
+/// <follows>litespec/core/authoring#review-each-term-for-its-lookalikes</follows>
 static class TermLookalikes
 {
     /// <summary>The British and American spellings that name one word, British first.</summary>

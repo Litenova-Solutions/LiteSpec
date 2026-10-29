@@ -8,6 +8,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace LiteSpec.Analyzers.Rules.Domain;
 
 /// <summary>LS1003 and LS1004: an aggregate exposes one State property over an abstract state record with sealed cases.</summary>
+/// <follows>litespec/backend/dotnet/domain#model-every-aggregate-lifecycle-with-state-records</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class AggregateStateAnalyzer : LayerAnalyzer
 {

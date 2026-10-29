@@ -21,6 +21,8 @@ namespace LiteSpec.Analyzers.CodeFixes;
 ///     in the same folder mark, so a validator beside its handler takes the
 ///     handler's use case in one action.
 /// </summary>
+/// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
+/// <follows>litespec/core/system#point-every-technical-class-up-to-its-record-or-choice</follows>
 [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(AddMarkCodeFixProvider))]
 [Shared]
 public sealed class AddMarkCodeFixProvider : CodeFixProvider

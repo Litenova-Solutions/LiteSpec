@@ -17,6 +17,7 @@ sealed record StandardsResult(IReadOnlyList<StandardsDiagnostic> Diagnostics, st
 /// <summary>
 ///     The <c>litespec-maintain validate</c> command: the authoring checks over the LiteSpec repository.
 /// </summary>
+/// <follows>litespec/core/authoring#run-repeatable-authoring-checks</follows>
 static partial class StandardsValidator
 {
     /// <summary>The command's usage text.</summary>
@@ -73,6 +74,8 @@ static partial class StandardsValidator
         "MANIFEST_DUPLICATE_PATH",
         "MANIFEST_JSON",
         "MANIFEST_PATH",
+        "MARK_MISSING",
+        "MARK_UNRESOLVED",
         "PAGE_EMPTY_SECTION",
         "PAGE_EMPTY_SECTION_TEXT",
         "PAGE_HEADING_CASE",
@@ -205,6 +208,7 @@ static partial class StandardsValidator
 
         var activeIds = new HashSet<string>(globalIds.Keys, StringComparer.Ordinal);
         CheckCitations(parsedPages, activeIds, Add);
+        CheckMarks(resolved, activeIds, Add);
 
         CheckAuthoringTemplates(resolved, globalIds, Add);
         CheckLinks(resolved, current, Add);

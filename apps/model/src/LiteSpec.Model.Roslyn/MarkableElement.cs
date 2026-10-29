@@ -12,6 +12,7 @@ namespace LiteSpec.Model.Roslyn;
 ///     name. The kind is null when the element carries marks but is of no known
 ///     kind.
 /// </summary>
+/// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
 public sealed class MarkableElement : IEquatable<MarkableElement>
 {
     /// <summary>Creates a marked or markable element.</summary>

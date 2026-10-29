@@ -8,6 +8,7 @@ namespace LiteSpec.Authoring;
 ///     The <c>litespec new</c> command: scaffolds one record page from the
 ///     template for its type, with the identifier filled in and reserved.
 /// </summary>
+/// <follows>litespec/core/authoring#scaffold-pages-and-reserve-identifiers</follows>
 static partial class NewCommand
 {
     /// <summary>The command's usage text.</summary>

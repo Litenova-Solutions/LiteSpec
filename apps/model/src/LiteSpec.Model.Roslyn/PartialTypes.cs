@@ -9,6 +9,7 @@ namespace LiteSpec.Model.Roslyn;
 ///     declaration carries the partial modifier. The analyzer and the generator call
 ///     this, so a type the analyzer accepts always takes a generated part.
 /// </summary>
+/// <follows>litespec/backend/dotnet/stack#declare-marked-events-and-exceptions-as-partial-types</follows>
 public static class PartialTypes
 {
     /// <summary>Whether every declaration of the type carries the partial modifier.</summary>

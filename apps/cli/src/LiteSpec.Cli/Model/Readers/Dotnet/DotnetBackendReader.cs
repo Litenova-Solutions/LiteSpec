@@ -11,6 +11,7 @@ namespace LiteSpec.Model.Readers.Dotnet;
 ///     readers, each record link from the mark the code carries, failure codes from Code
 ///     members, and comments as text.
 /// </summary>
+/// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
 sealed class DotnetBackendReader : IBackendReader
 {
     /// <summary>The interfaces whose mark names an external system: the only ports a call counts on.</summary>

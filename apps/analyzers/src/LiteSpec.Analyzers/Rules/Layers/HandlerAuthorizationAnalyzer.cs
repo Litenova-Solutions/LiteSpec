@@ -9,6 +9,7 @@ using Microsoft.CodeAnalysis.Operations;
 namespace LiteSpec.Analyzers.Rules.Layers;
 
 /// <summary>LS2012: a command or query handler never authorizes itself by throwing an access refusal.</summary>
+/// <follows>litespec/backend/application#enforce-target-authorization-in-the-pipeline</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class HandlerAuthorizationAnalyzer : LayerAnalyzer
 {

@@ -13,3 +13,6 @@ mcps/
 
 # Working plans stay local.
 .agents/plans/
+
+# The model builder writes its output and proof ledger here.
+.model/

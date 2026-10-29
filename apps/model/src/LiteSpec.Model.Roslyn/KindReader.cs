@@ -27,6 +27,7 @@ namespace LiteSpec.Model.Roslyn;
 ///     nested types. FrontendModule is a frontend kind and is never recognized
 ///     from C#.
 /// </summary>
+/// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
 public static class KindReader
 {
     private const string ExternalSystemPrefix = "external-system/";

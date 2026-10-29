@@ -7,6 +7,7 @@ namespace LiteSpec.Model.Readers.TypeScript;
 ///     A Svelte route is a folder holding <c>+page.svelte</c>; a React route is a file under <c>src/routes</c>
 ///     that declares its address in <c>createFileRoute</c>, the router's file convention.
 /// </summary>
+/// <follows>litespec/core/model#implement-each-mapped-behavior-record-behind-a-mark</follows>
 sealed partial class TypeScriptFrontendReader(FrontendConfig frontend) : IFrontendReader
 {
     private const string RouteFolder = "routes";

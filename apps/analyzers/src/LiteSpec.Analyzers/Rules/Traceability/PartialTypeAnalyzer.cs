@@ -11,6 +11,7 @@ namespace LiteSpec.Analyzers.Rules.Traceability;
 ///     LS5006: a marked domain event or rule exception is not a partial type, or is
 ///     nested in a type that is not partial, so the generator cannot write its runtime value.
 /// </summary>
+/// <follows>litespec/backend/dotnet/stack#declare-marked-events-and-exceptions-as-partial-types</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class PartialTypeAnalyzer : TraceabilityAnalyzer
 {

@@ -9,6 +9,7 @@ namespace LiteSpec.Model;
 ///     It also holds the finding codes, analyzer rule ids, and tiers of the mark
 ///     findings, so every host prints the same codes.
 /// </summary>
+/// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
 public static class MarkRules
 {
     private static readonly string[] AggregateTypes = { "aggregate" };

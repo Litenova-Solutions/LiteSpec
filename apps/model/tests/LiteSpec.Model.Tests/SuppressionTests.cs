@@ -8,6 +8,7 @@ namespace LiteSpec.Model.Tests;
 public sealed class SuppressionTests
 {
     /// <summary>An open gap moves its finding to known.</summary>
+    /// <proves>litespec/core/model#record-accepted-gaps-as-known-gaps</proves>
     [Fact]
     public void Open_Gap_Covers_Its_Finding()
     {
@@ -42,6 +43,7 @@ public sealed class SuppressionTests
     }
 
     /// <summary>An expired gap keeps its finding reported.</summary>
+    /// <proves>litespec/core/model#record-accepted-gaps-as-known-gaps</proves>
     [Fact]
     public void Expired_Gap_Keeps_Its_Finding()
     {

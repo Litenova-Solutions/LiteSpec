@@ -8,6 +8,7 @@ using Microsoft.CodeAnalysis.Operations;
 namespace LiteSpec.Analyzers.Rules.Domain;
 
 /// <summary>LS1009: Domain receives time, randomness and new identifiers as arguments and reads no clock.</summary>
+/// <follows>litespec/backend/domain#pass-nondeterministic-values-into-domain</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class NondeterministicReadAnalyzer : LayerAnalyzer
 {

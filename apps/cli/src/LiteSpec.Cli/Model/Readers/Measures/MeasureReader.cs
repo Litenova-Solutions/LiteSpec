@@ -8,6 +8,7 @@ namespace LiteSpec.Model.Readers.Measures;
 ///     k6, Lighthouse, or ZAP reader. A measured requirement shows verified when
 ///     its check names one of these results and that result passes.
 /// </summary>
+/// <follows>litespec/core/intent#state-the-measure-on-a-counted-requirement</follows>
 static class MeasureReader
 {
     /// <summary>Reads every measure result file under the test results folder.</summary>

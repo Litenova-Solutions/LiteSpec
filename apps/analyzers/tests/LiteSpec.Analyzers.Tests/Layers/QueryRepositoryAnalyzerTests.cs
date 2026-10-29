@@ -6,6 +6,7 @@ namespace LiteSpec.Analyzers.Tests.Layers;
 /// <summary>Tests for LS2011, the query handler repository rule.</summary>
 public sealed class QueryRepositoryAnalyzerTests
 {
+    /// <proves>litespec/backend/application#project-queries-directly</proves>
     [Fact(DisplayName = "LS2011 reports a query handler constructor parameter typed as a repository")]
     public Task ReportsARepositoryConstructorParameter() =>
         Verify.AnalyzerAsync<QueryRepositoryAnalyzer>("""
@@ -21,6 +22,7 @@ public sealed class QueryRepositoryAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <proves>litespec/backend/application#project-queries-directly</proves>
     [Fact(DisplayName = "LS2011 reports a query handler detected through IQueryHandler")]
     public Task ReportsAnInterfaceDetectedQueryHandler() =>
         Verify.AnalyzerAsync<QueryRepositoryAnalyzer>("""
@@ -41,6 +43,7 @@ public sealed class QueryRepositoryAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <proves>litespec/backend/application#project-queries-directly</proves>
     [Fact(DisplayName = "LS2011 reports a nullable repository parameter")]
     public Task ReportsANullableRepositoryParameter() =>
         Verify.AnalyzerAsync<QueryRepositoryAnalyzer>("""
@@ -56,6 +59,7 @@ public sealed class QueryRepositoryAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <proves>litespec/backend/application#project-queries-directly</proves>
     [Fact(DisplayName = "LS2011 accepts a command handler taking a repository")]
     public Task AcceptsACommandHandlerTakingARepository() =>
         Verify.AnalyzerAsync<QueryRepositoryAnalyzer>("""
@@ -71,6 +75,7 @@ public sealed class QueryRepositoryAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <proves>litespec/backend/application#project-queries-directly</proves>
     [Fact(DisplayName = "LS2011 accepts a query handler projecting through the read session")]
     public Task AcceptsAQueryHandlerProjectingThroughTheReadSession() =>
         Verify.AnalyzerAsync<QueryRepositoryAnalyzer>("""
@@ -86,6 +91,7 @@ public sealed class QueryRepositoryAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <proves>litespec/backend/application#project-queries-directly</proves>
     [Fact(DisplayName = "LS2011 accepts a concrete repository class parameter")]
     public Task AcceptsAConcreteRepositoryClass() =>
         Verify.AnalyzerAsync<QueryRepositoryAnalyzer>("""
@@ -100,6 +106,7 @@ public sealed class QueryRepositoryAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <proves>litespec/backend/application#project-queries-directly</proves>
     [Fact(DisplayName = "LS2011 stays silent outside Application and Infrastructure")]
     public Task StaysSilentOutsideItsLayers() =>
         Verify.AnalyzerAsync<QueryRepositoryAnalyzer>("""

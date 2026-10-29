@@ -9,6 +9,11 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" VersionOverride="4.14.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="../../../model/src/LiteSpec.Model.Roslyn/LiteSpec.Model.Roslyn.csproj" />
         <ProjectReference Include="../../../model/src/LiteSpec.Shared/LiteSpec.Shared.csproj" />
     </ItemGroup>
 

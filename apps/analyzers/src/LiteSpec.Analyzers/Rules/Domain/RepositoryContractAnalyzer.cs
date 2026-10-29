@@ -9,6 +9,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace LiteSpec.Analyzers.Rules.Domain;
 
 /// <summary>LS1010: a Domain repository exposes only aggregate and Domain types.</summary>
+/// <follows>litespec/backend/dotnet/domain#keep-repository-interfaces-in-domain</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class RepositoryContractAnalyzer : LayerAnalyzer
 {

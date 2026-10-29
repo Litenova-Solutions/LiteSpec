@@ -65,6 +65,7 @@ public sealed class ActEventFinding
 /// <summary>
 ///     The act-event check both hosts run over one use case's marked methods.
 /// </summary>
+/// <follows>litespec/backend/domain#raise-the-declared-events-from-the-marked-act</follows>
 public static class ActEvents
 {
     /// <summary>

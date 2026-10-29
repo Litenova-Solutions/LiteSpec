@@ -12,6 +12,7 @@ namespace LiteSpec.Model.Roslyn;
 ///     or is of a markable kind, with its kind, its marks, and its location.
 ///     Unmarked declarations of no known kind are left out.
 /// </summary>
+/// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
 public static class MarkFacts
 {
     /// <summary>Reads every marked or markable element of one syntax tree, in document order.</summary>

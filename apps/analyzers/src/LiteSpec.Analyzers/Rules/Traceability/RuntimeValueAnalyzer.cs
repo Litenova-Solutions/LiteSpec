@@ -13,6 +13,7 @@ namespace LiteSpec.Analyzers.Rules.Traceability;
 ///     LS5005: a hand-written event <c>Classification</c> or exception <c>Code</c>
 ///     differs from what its record states.
 /// </summary>
+/// <follows>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class RuntimeValueAnalyzer : TraceabilityAnalyzer
 {

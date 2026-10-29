@@ -11,6 +11,7 @@ namespace LiteSpec.Analyzers.CodeFixes;
 ///     project's style, converting one mark between the styles, adding the
 ///     partial modifier, and deleting a hand-written member.
 /// </summary>
+/// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
 internal static class MarkEdits
 {
     /// <summary>

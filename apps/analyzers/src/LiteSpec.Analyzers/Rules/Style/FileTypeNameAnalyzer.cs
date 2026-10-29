@@ -10,6 +10,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace LiteSpec.Analyzers.Rules.Style;
 
 /// <summary>LS3003: a C# file holds one primary top-level type and takes its name.</summary>
+/// <follows>litespec/backend/dotnet/naming#match-c-files-and-primary-types</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class FileTypeNameAnalyzer : LayerAnalyzer
 {

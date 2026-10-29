@@ -12,6 +12,7 @@ namespace LiteSpec.Model.Roslyn;
 ///     reader, the kind reader and the act-event analyzer share this, so all
 ///     three agree on what a method raises.
 /// </summary>
+/// <follows>litespec/backend/domain#raise-the-declared-events-from-the-marked-act</follows>
 public static class RaisedEvents
 {
     private const string RaiseMethodName = "RaiseDomainEvent";

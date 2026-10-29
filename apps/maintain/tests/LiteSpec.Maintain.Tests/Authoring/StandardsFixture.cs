@@ -293,6 +293,17 @@ static class StandardsFixture
         }
     }
 
+    /// <summary>The minimal project file a mark case writes beside its sources.</summary>
+    public static readonly string ProjectFile = "<Project Sdk=\"Microsoft.NET.Sdk\" />\n";
+
+    /// <summary>Writes a C# file into a .NET project, creating the project file beside it.</summary>
+    public static void WriteSource(string root, string project, string file, string contents)
+    {
+        var name = project.Split('/')[^1];
+        Write(root, $"{project}/{name}.csproj", ProjectFile);
+        Write(root, $"{project}/{file}", contents);
+    }
+
     /// <summary>Regenerates the provision index from the current standards.</summary>
     public static void RebuildIndex(string root)
     {

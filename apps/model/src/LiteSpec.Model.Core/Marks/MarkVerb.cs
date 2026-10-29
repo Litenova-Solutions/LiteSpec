@@ -23,6 +23,7 @@ public enum MarkVerb
 }
 
 /// <summary>The written names of each <see cref="MarkVerb" /> in both mark styles.</summary>
+/// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
 public static class MarkVerbNames
 {
     /// <summary>Returns the documentation tag name: <c>implements</c>, <c>proves</c>, or <c>follows</c>.</summary>

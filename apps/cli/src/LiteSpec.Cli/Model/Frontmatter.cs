@@ -5,6 +5,7 @@ namespace LiteSpec.Model;
 /// <summary>
 ///     The JSON frontmatter a record page carries between two fence lines.
 /// </summary>
+/// <follows>litespec/core/model#compute-proof-statuses-in-the-builder</follows>
 static class Frontmatter
 {
     /// <summary>

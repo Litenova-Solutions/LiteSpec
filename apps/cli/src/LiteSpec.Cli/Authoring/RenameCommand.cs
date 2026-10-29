@@ -7,6 +7,7 @@ namespace LiteSpec.Authoring;
 ///     The <c>litespec rename</c> command: renames one record identifier across
 ///     the consumer repository, moving its page and rewriting every link.
 /// </summary>
+/// <follows>litespec/core/authoring#rewrite-every-link-on-a-rename</follows>
 static partial class RenameCommand
 {
     /// <summary>The command's usage text.</summary>

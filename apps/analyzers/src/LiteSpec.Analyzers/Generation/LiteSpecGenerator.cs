@@ -10,6 +10,9 @@ namespace LiteSpec.Analyzers.Generation;
 /// silent. Every pipeline model holds strings and equatable arrays only, so an edit to an
 /// unrelated file reruns nothing the edit cannot change.
 /// </summary>
+/// <follows>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</follows>
+/// <follows>litespec/core/access#state-the-scope-of-every-permission</follows>
+/// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
 [Generator]
 public sealed class LiteSpecGenerator : IIncrementalGenerator
 {

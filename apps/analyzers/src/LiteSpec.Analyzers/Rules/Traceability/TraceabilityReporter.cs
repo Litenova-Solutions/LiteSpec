@@ -9,6 +9,7 @@ namespace LiteSpec.Analyzers.Rules.Traceability;
 ///     deviation stays silent, then <see cref="Severity.Of" /> maps the outcome
 ///     to an error, a warning, or silence.
 /// </summary>
+/// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
 internal static class TraceabilityReporter
 {
     /// <summary>

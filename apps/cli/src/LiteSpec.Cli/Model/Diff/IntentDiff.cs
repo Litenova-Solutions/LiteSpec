@@ -57,6 +57,8 @@ sealed record IntentChange(
 sealed record SecurityQueueEntry(string Id, string Title, string Type, string Detail);
 
 /// <summary>The intent diff between two models: every change in review order.</summary>
+/// <follows>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</follows>
+/// <follows>litespec/core/release#review-behavior-changes-through-the-behavior-diff</follows>
 sealed class IntentDiff
 {
     public IntentDiff(

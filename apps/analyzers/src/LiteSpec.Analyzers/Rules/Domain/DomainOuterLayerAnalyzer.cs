@@ -9,6 +9,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace LiteSpec.Analyzers.Rules.Domain;
 
 /// <summary>LS1001: Domain references no outer-layer namespace, only the base class library and Domain types.</summary>
+/// <follows>litespec/backend/dotnet/domain#keep-domain-free-of-outer-layer-concerns</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class DomainOuterLayerAnalyzer : LayerAnalyzer
 {

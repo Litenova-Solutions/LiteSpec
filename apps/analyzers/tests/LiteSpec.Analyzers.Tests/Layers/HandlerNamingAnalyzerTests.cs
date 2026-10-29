@@ -6,6 +6,7 @@ namespace LiteSpec.Analyzers.Tests.Layers;
 /// <summary>Tests for LS2005, handler command and query suffixes.</summary>
 public sealed class HandlerNamingAnalyzerTests
 {
+    /// <proves>litespec/workspace/naming#use-architectural-suffixes</proves>
     [Fact(DisplayName = "LS2005 reports a command handler without its suffix")]
     public Task ReportsACommandHandlerWithoutItsSuffix() =>
         Verify.AnalyzerAsync<HandlerNamingAnalyzer>("""
@@ -20,6 +21,7 @@ public sealed class HandlerNamingAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <proves>litespec/workspace/naming#use-architectural-suffixes</proves>
     [Fact(DisplayName = "LS2005 reports a query handler without its suffix")]
     public Task ReportsAQueryHandlerWithoutItsSuffix() =>
         Verify.AnalyzerAsync<HandlerNamingAnalyzer>("""
@@ -34,6 +36,7 @@ public sealed class HandlerNamingAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <proves>litespec/workspace/naming#use-architectural-suffixes</proves>
     [Fact(DisplayName = "LS2005 accepts handlers with their full suffixes")]
     public Task AcceptsHandlersWithFullSuffixes() =>
         Verify.AnalyzerAsync<HandlerNamingAnalyzer>("""
@@ -56,6 +59,7 @@ public sealed class HandlerNamingAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <proves>litespec/workspace/naming#use-architectural-suffixes</proves>
     [Fact(DisplayName = "LS2005 ignores a Handler name that implements neither contract")]
     public Task IgnoresABareHandlerName() =>
         Verify.AnalyzerAsync<HandlerNamingAnalyzer>("""
@@ -66,6 +70,7 @@ public sealed class HandlerNamingAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <proves>litespec/workspace/naming#use-architectural-suffixes</proves>
     [Fact(DisplayName = "LS2005 ignores an interface extending a handler contract")]
     public Task IgnoresAnInterface() =>
         Verify.AnalyzerAsync<HandlerNamingAnalyzer>("""
@@ -78,6 +83,7 @@ public sealed class HandlerNamingAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    /// <proves>litespec/workspace/naming#use-architectural-suffixes</proves>
     [Fact(DisplayName = "LS2005 ignores a handler outside Application and Infrastructure")]
     public Task IgnoresHandlerOutsideItsLayers() =>
         Verify.AnalyzerAsync<HandlerNamingAnalyzer>("""
@@ -92,6 +98,7 @@ public sealed class HandlerNamingAnalyzerTests
             }
             """, assemblyName: "Shop.Domain");
 
+    /// <proves>litespec/workspace/naming#use-architectural-suffixes</proves>
     [Fact(DisplayName = "LS2005 follows the LiteSpecLayer property over the assembly name")]
     public Task FollowsTheDeclaredLayer() =>
         Verify.AnalyzerAsync<HandlerNamingAnalyzer>("""

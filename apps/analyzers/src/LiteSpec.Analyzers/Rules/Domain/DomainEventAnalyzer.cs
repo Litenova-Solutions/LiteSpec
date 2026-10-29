@@ -7,6 +7,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace LiteSpec.Analyzers.Rules.Domain;
 
 /// <summary>LS1007: Domain raises each fact as an immutable record named {Aggregate}{PastFact}Event.</summary>
+/// <follows>litespec/backend/dotnet/domain#raise-immutable-domain-facts</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class DomainEventAnalyzer : LayerAnalyzer
 {

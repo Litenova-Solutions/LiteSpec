@@ -11,6 +11,7 @@ namespace LiteSpec.Model;
 ///     scenario coverage and measured-check results, then computes the implements,
 ///     calls and proves links and the status.
 /// </summary>
+/// <follows>litespec/core/model#compute-proof-statuses-in-the-builder</follows>
 static partial class ModelBuilder
 {
     /// <summary>Builds the model for the consumer.</summary>
@@ -40,8 +41,11 @@ static partial class ModelBuilder
         model.Code.Elements.AddRange(tests.Elements);
         model.Code.StrayMarks.AddRange(tests.StrayMarks);
         model.StepCalls = tests.StepCalls;
+        model.StepFacts = tests.StepFacts;
+        model.ProbeRoutes = tests.ProbeRoutes;
         model.TestComments.AddRange(tests.Comments);
         model.TestRun = Timed("testrun", () => stacks.TestRuns.Read(config));
+        model.Ledger = ProofLedger.Load(config.Root);
 
         var coverage = Timed("coverage", () => CoverageReader.Read(config));
 
@@ -659,7 +663,13 @@ static partial class ModelBuilder
                 return setOff && asserted;
             }
 
-            if (!Belongs(test, home) && !Calls(model, test, home))
+            // The use case runs in a when step; or it runs in a given step and a later when step observes what it
+            // changed; or a when step drives a use case whose fact or effect issues it. Each needs a then step.
+            var driven = test.Steps.Any(step => step.Phase == "when" && Reaches(model, step, home, useCase));
+            var observed = !driven && ObservedLater(model, test, home, useCase);
+            var downstream = !driven && !observed && Triggers(model, test, useCase) && AssertsEffect(model, test);
+
+            if (!driven && !observed && !downstream)
             {
                 return false;
             }
@@ -750,18 +760,32 @@ static partial class ModelBuilder
 
         for (var index = 0; index < route.Length; index++)
         {
-            var wanted = route[index];
-            var given = requested[offset + index];
-            var parameter = wanted.StartsWith('{') && wanted.EndsWith('}');
-
-            if (parameter ? given.Length == 0 : !string.Equals(wanted, given, StringComparison.OrdinalIgnoreCase))
+            if (!SegmentMatches(route[index], requested[offset + index]))
             {
                 return false;
             }
         }
 
         // A route of parameters alone says nothing about which endpoint was asked.
-        return route.Any(segment => !segment.StartsWith('{'));
+        return route.Any(segment => !(segment.StartsWith('{') && segment.EndsWith('}')));
+    }
+
+    /// <summary>
+    ///     Whether a requested segment fills a template segment: a parameter matches any non-empty text, also
+    ///     inside a segment, so <c>{gateId}:close</c> matches <c>{}:close</c> and <c>8f3a:close</c>.
+    /// </summary>
+    private static bool SegmentMatches(string wanted, string given)
+    {
+        if (!wanted.Contains('{', StringComparison.Ordinal))
+        {
+            return string.Equals(wanted, given, StringComparison.OrdinalIgnoreCase);
+        }
+
+        var pattern = "^" + string.Concat(Regex.Split(wanted, @"(\{[^}]*\})")
+            .Where(part => part.Length > 0)
+            .Select(part => part.StartsWith('{') && part.EndsWith('}') ? ".+?" : Regex.Escape(part))) + "$";
+
+        return given.Length > 0 && Regex.IsMatch(given, pattern, RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
     }
 
     /// <summary>
@@ -902,21 +926,83 @@ static partial class ModelBuilder
                 : null;
     }
 
-    private static bool Calls(ProjectModel model, ScenarioInfo test, string home)
+    /// <summary>
+    ///     Whether one step reaches the use case: it belongs to the use case's steps class, it calls the use
+    ///     case's generated-client operation, it requests the use case's endpoint route itself, or it looks its
+    ///     argument up in its class's probe table and requests the route found there.
+    /// </summary>
+    private static bool Reaches(ProjectModel model, ScenarioStep step, string home, Record useCase)
     {
-        var operation = Naming.Pascal(home);
+        var pascal = Naming.Pascal(home);
+        var stepsClass = StepsClassOf(step);
 
-        return test.Steps.Any(step =>
-            step.Phase == "when"
-            && step.ReceiverType is { } type
-            && model.StepCalls.TryGetValue($"{type}.{step.Method}", out var called)
-            && called.Contains(operation));
+        if (stepsClass == pascal + "Steps")
+        {
+            return true;
+        }
+
+        if (model.StepCalls.TryGetValue($"{stepsClass}.{step.Method}", out var called) && called.Contains(pascal))
+        {
+            return true;
+        }
+
+        var routes = new List<string>();
+
+        if (model.StepFacts.TryGetValue($"{stepsClass}.{step.Method}", out var facts))
+        {
+            routes.AddRange(facts.Routes);
+        }
+
+        if (model.ProbeRoutes.TryGetValue(stepsClass, out var table))
+        {
+            routes.AddRange(step.Arguments.Select(argument => table.GetValueOrDefault(argument)).OfType<string>());
+        }
+
+        return routes.Count > 0
+            && model.Code.Endpoints
+                .Where(endpoint => endpoint.UseCaseId == useCase.Id && endpoint.Route.Length > 0)
+                .Any(endpoint => routes.Any(route => RouteMatches(endpoint.Route, route)));
     }
 
     /// <summary>
-    ///     Whether a when step sets a background use case off: it drives a use case that raises
-    ///     an event the reaction reacts to, or it is a step of a declared job trigger.
+    ///     The steps class a step runs on: the declared type of its receiver, else the receiver's name with the
+    ///     Steps suffix, since a scenario base class may declare the property instead of the scenario class.
     /// </summary>
+    private static string StepsClassOf(ScenarioStep step) =>
+        step.ReceiverType is { Length: > 0 } type ? type : step.Receiver.Length > 0 ? char.ToUpperInvariant(step.Receiver[0]) + step.Receiver[1..] + "Steps" : "";
+
+    /// <summary>
+    ///     Whether a given step runs the use case and a later when step, followed by a then step, observes what
+    ///     it changed: a listing window is changed in a given, and a refused order shows the window holds.
+    /// </summary>
+    private static bool ObservedLater(ProjectModel model, ScenarioInfo test, string home, Record useCase)
+    {
+        var cause = -1;
+
+        for (var index = 0; index < test.Steps.Count; index++)
+        {
+            var step = test.Steps[index];
+
+            if (cause < 0)
+            {
+                if (step.Phase == "given" && Reaches(model, step, home, useCase))
+                {
+                    cause = index;
+                }
+
+                continue;
+            }
+
+            if (step.Phase == "when")
+            {
+                return test.Steps.Skip(index + 1).Any(later => later.Phase == "then");
+            }
+        }
+
+        return false;
+    }
+
+
     /// <summary>The events that set a background use case off: the on of each reaction issuing it.</summary>
     private static HashSet<string> TriggerEvents(ProjectModel model, Record useCase)
     {
@@ -942,18 +1028,26 @@ static partial class ModelBuilder
         return trigger;
     }
 
+    /// <summary>
+    ///     Whether a when step sets the use case off from upstream: it drives a declared producer, a use case
+    ///     that raises an event a reaction issuing the use case reacts to or whose own effects issue it, or it
+    ///     is a step of a declared job trigger.
+    /// </summary>
     private static bool Triggers(ProjectModel model, ScenarioInfo test, Record useCase)
     {
         var trigger = TriggerEvents(model, useCase);
+        var producers = model.Records
+            .Where(record => record.Type == "use-case"
+                && record.Id != useCase.Id
+                && (record.Ids("raises").Any(trigger.Contains)
+                    || record.EdgeIds("issues").Contains(useCase.Id, StringComparer.Ordinal)))
+            .ToList();
 
-        if (trigger.Count > 0)
+        foreach (var producer in producers)
         {
-            var producers = model.Records
-                .Where(record => record.Type == "use-case" && record.Ids("raises").Any(trigger.Contains))
-                .Select(record => Identifiers.TrySplit(record.Id, out _, out _, out var name) ? name : null)
-                .OfType<string>();
-
-            if (producers.Any(producer => Belongs(test, producer) || Calls(model, test, producer)))
+            if (Identifiers.TrySplit(producer.Id, out _, out _, out var name)
+                && name is not null
+                && test.Steps.Any(step => step.Phase == "when" && Reaches(model, step, name, producer)))
             {
                 return true;
             }
@@ -981,20 +1075,11 @@ static partial class ModelBuilder
                 string.Equals(step.ReceiverType, only, StringComparison.Ordinal)
                 || string.Equals(step.Receiver, only.EndsWith("Steps", StringComparison.Ordinal) ? only[..^"Steps".Length] : only, StringComparison.OrdinalIgnoreCase)));
 
-    private static bool Belongs(ScenarioInfo test, string home)
-    {
-        var stepsClass = Naming.Pascal(home) + "Steps";
-
-        return test.Steps.Any(step =>
-            step.Phase == "when"
-            && (string.Equals(step.ReceiverType, stepsClass, StringComparison.Ordinal)
-                || string.Equals(step.Receiver, stepsClass[..^"Steps".Length], StringComparison.OrdinalIgnoreCase)));
-    }
-
     /// <summary>
     ///     Whether the test asserts the refusal: the exact code, a client code the
     ///     project's refusal map translates to it, or the HTTP status the project's
-    ///     refusal table maps to it.
+    ///     refusal table maps to it, written in the test or asserted inside a then step
+    ///     it runs.
     /// </summary>
     private static bool Asserts(ProjectModel model, ScenarioInfo test, Record refusal)
     {
@@ -1003,12 +1088,20 @@ static partial class ModelBuilder
             return false;
         }
 
-        if (test.AssertedCodes.Contains(code))
+        var thenFacts = test.Steps
+            .Where(step => step.Phase == "then")
+            .Select(step => model.StepFacts.GetValueOrDefault($"{StepsClassOf(step)}.{step.Method}"))
+            .OfType<StepFacts>()
+            .ToList();
+        var codes = test.AssertedCodes.Concat(thenFacts.SelectMany(facts => facts.Codes)).ToHashSet(StringComparer.Ordinal);
+        var statuses = test.Statuses.Concat(thenFacts.SelectMany(facts => facts.Statuses)).ToHashSet();
+
+        if (codes.Contains(code))
         {
             return true;
         }
 
-        if (test.AssertedCodes.Any(asserted =>
+        if (codes.Any(asserted =>
             model.Config.RefusalAliases.TryGetValue(asserted, out var declared)
             && declared == code))
         {
@@ -1016,7 +1109,7 @@ static partial class ModelBuilder
         }
 
         return model.Config.RefusalStatuses.TryGetValue(code, out var status)
-            && test.Statuses.Contains(status);
+            && statuses.Contains(status);
     }
 
     private static void ComputeStatus(ProjectModel model)
@@ -1040,6 +1133,8 @@ static partial class ModelBuilder
 
         var scenarios = model.Records.Where(record => record.Type == "scenario").ToList();
 
+        ComputeStale(model, scenarios);
+
         foreach (var useCase in model.Records.Where(record => record.Type == "use-case"))
         {
             if (!Identifiers.TrySplit(useCase.Id, out _, out _, out var name))
@@ -1056,7 +1151,9 @@ static partial class ModelBuilder
             {
                 var links = model.Proves.Where(link => link.Claim == scenario.Id).ToList();
 
-                if (links.Count == 0 || links.Any(link => !link.Confirmed || link.Passing != true))
+                if (links.Count == 0
+                    || links.Any(link => !link.Confirmed || link.Passing != true)
+                    || model.Stale.Contains(scenario.Id))
                 {
                     verified = false;
                     break;
@@ -1070,6 +1167,33 @@ static partial class ModelBuilder
         ComputeRequirementStatus(model);
         ComputeTested(model);
         ComputeReachableStates(model);
+    }
+
+    /// <summary>
+    ///     Computes the stale proofs: a scenario whose confirmed proof passes in the read run is
+    ///     stale when its semantic hash differs from the hash the ledger recorded for that run.
+    ///     A run passing the proof for the first time records the current hash instead.
+    /// </summary>
+    private static void ComputeStale(ProjectModel model, IReadOnlyList<Record> scenarios)
+    {
+        if (model.TestRun is null)
+        {
+            return;
+        }
+
+        var run = ProofLedger.RunOf(model.Config, model.TestRun);
+        var passing = model.Proves
+            .Where(link => link.Confirmed && link.Passing == true)
+            .Select(link => link.Claim)
+            .ToHashSet(StringComparer.Ordinal);
+
+        foreach (var scenario in scenarios.Where(scenario => passing.Contains(scenario.Id)))
+        {
+            if (model.Ledger.Stale(scenario.Id, Checker.SemanticHash(scenario), run))
+            {
+                model.Stale.Add(scenario.Id);
+            }
+        }
     }
 
     /// <summary>

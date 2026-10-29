@@ -9,6 +9,7 @@ namespace LiteSpec.Analyzers.Generation;
 /// string fields only, so this reader walks the page's frontmatter with the core JSON reader for
 /// the one nested field generation needs, and nothing else.
 /// </summary>
+/// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
 internal static class GrantReader
 {
     /// <summary>

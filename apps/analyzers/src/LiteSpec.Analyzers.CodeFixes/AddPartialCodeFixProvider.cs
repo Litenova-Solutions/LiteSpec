@@ -15,6 +15,7 @@ namespace LiteSpec.Analyzers.CodeFixes;
 ///     generator can add the runtime value as a second part. Fix All declares
 ///     every reported type in scope.
 /// </summary>
+/// <follows>litespec/backend/dotnet/stack#declare-marked-events-and-exceptions-as-partial-types</follows>
 [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(AddPartialCodeFixProvider))]
 [Shared]
 public sealed class AddPartialCodeFixProvider : CodeFixProvider

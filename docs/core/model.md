@@ -240,6 +240,8 @@ A code element serving a record names it in an `implements` mark. A technical cl
 
 The tools recognize most code elements from the code itself and then expect their mark. A port and a domain service are recognized by their mark, a job host by its hosted-service shape or by its mark, and an aggregate root method by the event it raises or by its mark, so an unmarked port is found only from the top, through its external system, and an unmarked method that changes state without raising an event is not recognized at all.
 
+Six provisions divide the marks between them: `litespec/core/system#point-code-and-tests-up-to-records` requires the mark, `litespec/core/system#point-every-technical-class-up-to-its-record-or-choice` covers technical classes, `litespec/core/model#declare-one-mark-style` fixes the style, `litespec/core/model#implement-each-mapped-behavior-record-behind-a-mark` checks each mapped record from the top, `litespec/core/model#name-the-lowest-record-each-test-proves` sets what a test names, and `litespec/backend/testing#mark-the-test-that-proves-each-scenario` places the test mark.
+
 A project writes its marks in one mark style, declared as `marks` in `litespec.project.json`. Each stack page states the forms the style takes: the .NET stack writes an `xml` mark as a documentation tag and an `attribute` mark as a generated attribute, and a frontend writes a typed constant in either style. A runtime value a record already states, such as an event classification or a refusal code, is generated from the mark and the record where the stack generates code, and checked against the record where a person writes it.
 
 ### Authority
@@ -271,10 +273,10 @@ Implemented, verified, stale, and reachable are computed, never handwritten. The
 | State | Of | When |
 |:--|:--|:--|
 | implemented | use case, rule, event, aggregate state | the stack builder finds code for it |
-| verified | use case | every scenario has a passing test through the public boundary |
+| verified | use case | every scenario has a confirmed, passing proof through the public boundary that is not stale |
 | tested | quality requirement, technical decision, external system, integration event | a test proving it passes; tested never makes a use case verified |
 | verified | requirement | everything fulfilling it is verified, and a measured requirement measure has a passing check |
-| stale | scenario proof | the scenario semantic hash changed after its test last passed |
+| stale | scenario proof | the scenario semantic hash differs from the hash the builder recorded when it first read a passing run of the proof |
 | reachable | aggregate state | a transition leads into it |
 
 The builder also writes each record effective status: draft when the record, a decision deciding it, or a requirement it fulfills is a draft. A result or a scenario takes its use case effective status.
@@ -568,7 +570,7 @@ A deviation that governs code no record describes names those files in `code`, a
 
 **Example:** Claimwick stores each expense as one document. `decision/0002-store-expenses-as-documents` weighs a document store against relational tables, chooses documents, and names what reopens the choice: a report that must join expenses across employees. The expense repository carries `/// <follows>decision/0002-store-expenses-as-documents</follows>`.
 
-**Checked by:** `litespec model check` reports `decision-unfollowed` (tier S) for a technical decision that no code element follows.
+**Checked by:** `litespec model check` reports `decision-unfollowed` (tier S) for a technical decision that no code element follows. The check runs in the CLI only, with no analyzer rule: whether any code follows a decision is known only across every project, and one compilation sees one project.
 
 ### Keep Rules and Targets Out of Technical Decisions
 
@@ -576,7 +578,7 @@ A deviation that governs code no record describes names those files in `code`, a
 
 **Statement:** A technical decision MUST leave each rule the product obeys whatever its design to a constraint and each measurable target to a quality requirement, and name the ones it serves in `basedOn`.
 
-**Rationale:** A technical decision chooses one way among alternatives, and a better alternative may replace it tomorrow. A rule such as keeping personal data in the European Union, or a target such as answering checkout within two seconds, does not change when the library does: overriding it needs a business, legal, or organizational change. Written inside a decision, the rule disappears the day the decision is replaced, and nobody approves it as the business promise it is. Kept in Intent, the rule and the target are approved by the person who owns them, the decision points up to them, and the chain runs unbroken from code through the decision to the constraint or requirement and the goal above it.
+**Rationale:** A technical decision chooses one way among alternatives, and a better alternative may replace it tomorrow. A rule such as keeping personal data in the European Union, or a target such as answering checkout within two seconds, does not change when the library does: overriding it needs a business, legal, or organizational change. Written inside a decision, the rule disappears the day the decision is replaced, and nobody approves it as the business promise it is. Kept in Intent, the rule and the target are approved by the person who owns them, the decision points up to them, and the chain runs unbroken from code through the decision to the constraint or requirement and the goal above it. A decision with no basis is advice, tier A, while a product decision that decides nothing blocks at tier G: a technical choice among equal options may serve no rule or target yet and still govern the code that follows it, but a product decision that settles no record governs nothing.
 
 **Example:** Claimwick stores receipts in a European region because `constraint/receipts-stay-in-the-eu` requires it, and answers submissions quickly because `requirement/spending.month-end-submissions` sets the target. `decision/0002-store-expenses-as-documents` names both in `basedOn`; neither the region nor the two seconds is written in the decision.
 

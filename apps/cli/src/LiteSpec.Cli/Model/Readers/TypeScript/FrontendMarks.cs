@@ -6,6 +6,7 @@ namespace LiteSpec.Model.Readers.TypeScript;
 ///     The frontend mark: one <c>litespec</c> constant per use-case module folder,
 ///     read from TypeScript and checked against the folder path it mirrors.
 /// </summary>
+/// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
 static partial class FrontendMarks
 {
     /// <summary>The modules root: <c>src/modules</c> on React, <c>src/lib/modules</c> on Svelte.</summary>

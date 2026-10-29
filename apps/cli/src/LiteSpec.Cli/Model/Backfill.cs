@@ -13,6 +13,7 @@ namespace LiteSpec.Model;
 ///     touched record is marked transcribed. Existing entries are never removed or
 ///     rewritten; only missing entries are appended.
 /// </summary>
+/// <follows>litespec/core/agent#mark-transcribed-records-during-adoption</follows>
 static class Backfill
 {
     static readonly JsonSerializerOptions Write = new()

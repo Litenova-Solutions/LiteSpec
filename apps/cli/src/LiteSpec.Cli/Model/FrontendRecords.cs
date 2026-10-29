@@ -4,6 +4,7 @@ namespace LiteSpec.Model;
 ///     The generated record union each web frontend imports: the use-case ids its
 ///     modules may mark, so a mistyped mark fails the type check.
 /// </summary>
+/// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
 static class FrontendRecords
 {
     /// <summary>How long a single-line union may run before each id takes its own line.</summary>

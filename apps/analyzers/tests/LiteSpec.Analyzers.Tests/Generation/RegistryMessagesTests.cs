@@ -10,6 +10,7 @@ namespace LiteSpec.Analyzers.Tests.Generation;
 /// <summary>Tests for the registry's message-to-use-case answers.</summary>
 public sealed class RegistryMessagesTests
 {
+    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "A command handler maps its message to its use case")]
     public void CommandHandlerMapsItsMessage()
     {
@@ -38,6 +39,7 @@ public sealed class RegistryMessagesTests
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
     }
 
+    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "A query handler maps its message to its use case")]
     public void QueryHandlerMapsItsMessage()
     {
@@ -64,6 +66,7 @@ public sealed class RegistryMessagesTests
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
     }
 
+    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "An unmarked handler adds no message entry")]
     public void UnmarkedHandlerAddsNothing()
     {
@@ -90,6 +93,7 @@ public sealed class RegistryMessagesTests
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
     }
 
+    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "A handler with two use-case marks adds no message entry")]
     public void HandlerWithTwoUseCaseMarksAddsNothing()
     {
@@ -118,6 +122,7 @@ public sealed class RegistryMessagesTests
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
     }
 
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact(DisplayName = "Two handlers of one message with different use cases report LS5011 and take no entry")]
     public void TwoHandlersOfOneMessageReportLS5011()
     {
@@ -154,6 +159,7 @@ public sealed class RegistryMessagesTests
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
     }
 
+    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "UseCaseOf and GrantOf answer the use case and its grant from the message")]
     public void MessageLookupsAnswerTheUseCaseAndItsGrant()
     {
