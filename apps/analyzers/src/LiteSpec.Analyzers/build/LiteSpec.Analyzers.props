@@ -10,6 +10,16 @@
     </ItemGroup>
 
     <!--
+        A traceability rule reports a finding about a draft record as a warning and a finding
+        that blocks as an error, so severity follows record status. A project that treats
+        warnings as errors would turn every draft finding into a failed build, so the
+        traceability rules stay out of that promotion; their errors still fail the build.
+    -->
+    <PropertyGroup>
+        <WarningsNotAsErrors>$(WarningsNotAsErrors);LS5001;LS5002;LS5003;LS5004;LS5005;LS5006;LS5007;LS5008;LS5009;LS5010;LS5011</WarningsNotAsErrors>
+    </PropertyGroup>
+
+    <!--
         Hands the traceability rules and the source generator the consumer's records:
         the project file found above the project directory, and every Markdown page
         under its folder. A project overrides the page glob with its own items:

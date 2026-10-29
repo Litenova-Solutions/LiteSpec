@@ -39,7 +39,7 @@ Severity follows the record the finding is about: a blocking finding is an error
 
 ## Severity and Compiler Support
 
-Every rule reports an error and is enabled by default, so a finding fails the build. A traceability rule reports a warning instead where the record is a draft or the phase holds proof findings without blocking, as How a Rule Reads Records states. A project lowers the severity per rule in `.editorconfig`:
+Every rule reports an error and is enabled by default, so a finding fails the build. A traceability rule reports a warning instead where the record is a draft or the phase holds proof findings without blocking, as How a Rule Reads Records states. The package keeps the traceability rules out of a project's warnings-as-errors promotion, so a draft finding stays a warning while a blocking one fails the build. A project lowers the severity per rule in `.editorconfig`:
 
 ```ini
 [*.cs]
