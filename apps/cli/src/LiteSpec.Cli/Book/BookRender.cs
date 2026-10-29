@@ -175,7 +175,7 @@ static class BookRender
     public static string RenderNav(BookIndex index, ReviewBundle review, string active, string rel)
     {
         var parts = new List<string>();
-        var reviewCount = review.Gaps.Count + review.WithDecider.Count + review.WithoutDecider.Count + review.Questions.Count + review.Findings.Count;
+        var reviewCount = review.Gaps.Count + review.Batches.Sum(batch => batch.Records.Count) + review.Questions.Count + review.Findings.Count;
         parts.Add("<h2>Book</h2>");
         parts.Add($"<a class=\"navitem{(active == "home" ? " on" : "")}\" href=\"{rel}index.html\">Home</a>");
         parts.Add($"<a class=\"navitem{(active == "search" ? " on" : "")}\" href=\"{rel}search.html\">Search</a>");

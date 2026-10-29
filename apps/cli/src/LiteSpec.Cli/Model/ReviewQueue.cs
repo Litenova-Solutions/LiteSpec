@@ -84,12 +84,38 @@ static class ReviewQueue
     public static IReadOnlyList<ReviewBatch> Compute(ProjectModel model)
     {
         var today = DateOnly.FromDateTime(DateTime.UtcNow);
-        var findings = FindingsBySubject(model);
-        var queued = model.Records
+        return ComputeBatches(
+            model.Records,
+            model.EffectiveStatus,
+            model.Proves,
+            model.Stale,
+            FindingsBySubject(model),
+            model.Config,
+            today);
+    }
+
+    /// <summary>
+    ///     Computes the review batches from the queue inputs, in review order: every
+    ///     draft and every reopened record, grouped into the bounded batches one
+    ///     approval covers. The model command passes the checker's open-finding counts;
+    ///     the book passes the counts from its findings file.
+    /// </summary>
+    internal static IReadOnlyList<ReviewBatch> ComputeBatches(
+        IReadOnlyList<Record> records,
+        IReadOnlyDictionary<string, string> effectiveStatus,
+        IReadOnlyList<ProvesLink> proves,
+        IReadOnlySet<string> stale,
+        IReadOnlyDictionary<string, int> findings,
+        ConsumerConfig config,
+        DateOnly today)
+    {
+        var queued = records
             .Where(record => !record.Derived && (record.Status == "draft" || IsReopened(record)))
             .ToList();
-        var groups = Assign(model, queued);
-        var batches = groups.Select(group => Describe(model, group, findings, today)).ToList();
+        var groups = Assign(records, queued, config.BehaviorDocs);
+        var batches = groups
+            .Select(group => Describe(records, effectiveStatus, proves, stale, group, findings, config, today))
+            .ToList();
 
         batches.Sort(CompareBatches);
 
@@ -110,19 +136,31 @@ static class ReviewQueue
     /// <summary>Describes one record with its queue evidence.</summary>
     public static ReviewEntry Describe(
         ProjectModel model, Record record, IReadOnlyDictionary<string, int> findings, DateOnly today) =>
+        Describe(model.Records, model.EffectiveStatus, model.Proves, model.Stale, record, findings, model.Config, today);
+
+    /// <summary>Describes one record with its queue evidence, from the queue inputs.</summary>
+    static ReviewEntry Describe(
+        IReadOnlyList<Record> records,
+        IReadOnlyDictionary<string, string> effectiveStatus,
+        IReadOnlyList<ProvesLink> proves,
+        IReadOnlySet<string> stale,
+        Record record,
+        IReadOnlyDictionary<string, int> findings,
+        ConsumerConfig config,
+        DateOnly today) =>
         new(
             record,
             LayerOf(record),
-            ModuleOf(model, record),
-            TierOf(model, record),
-            model.EffectiveStatus.TryGetValue(record.Id, out var effective)
+            ModuleOf(config.BehaviorDocs, record),
+            TierOf(records, record),
+            effectiveStatus.TryGetValue(record.Id, out var effective)
                 ? effective
                 : record.Status ?? "draft",
             IsReopened(record),
             IsFullReRead(record),
-            AwaitingOf(model, record),
-            OpenQuestionCount(record, model.Config, today),
-            ScenariosOf(model, record),
+            AwaitingOf(records, record),
+            OpenQuestionCount(record, config, today),
+            ScenariosOf(records, proves, stale, record),
             findings.TryGetValue(record.Id, out var count) ? count : 0);
 
     /// <summary>Counts the open findings by subject record id.</summary>
@@ -163,9 +201,13 @@ static class ReviewQueue
     ///     The batch module: the behavior module holding the record's page, governance
     ///     for governance records, and intent for everything else.
     /// </summary>
-    public static string ModuleOf(ProjectModel model, Record record)
+    public static string ModuleOf(ProjectModel model, Record record) =>
+        ModuleOf(model.Config.BehaviorDocs, record);
+
+    /// <summary>The batch module, from the behavior docs root.</summary>
+    static string ModuleOf(string behaviorDocs, Record record)
     {
-        var modules = model.Config.BehaviorDocs + Path.DirectorySeparatorChar
+        var modules = behaviorDocs + Path.DirectorySeparatorChar
             + "modules" + Path.DirectorySeparatorChar;
         var comparison = Path.DirectorySeparatorChar == '\\'
             ? StringComparison.OrdinalIgnoreCase
@@ -189,17 +231,48 @@ static class ReviewQueue
     ///     The approval tier: 1 when the record carries any risk value, else 3.
     ///     A result or a scenario takes its use case's tier.
     /// </summary>
-    public static int TierOf(ProjectModel model, Record record)
+    public static int TierOf(ProjectModel model, Record record) =>
+        TierOf(model.Records, record);
+
+    /// <summary>
+    ///     The approval tier from the records: 1 when the record carries any risk
+    ///     value, else 3. A result or a scenario takes its use case's tier.
+    /// </summary>
+    static int TierOf(IReadOnlyList<Record> records, Record record)
     {
         if (record.Type is "result" or "scenario"
             && Identifiers.TrySplit(record.Id, out _, out var home, out _)
             && home is not null
-            && ModelBuilder.UseCaseOf(model, home) is { } holder)
+            && UseCaseOf(records, home) is { } holder)
         {
             return HasRisk(holder) ? 1 : 3;
         }
 
         return HasRisk(record) ? 1 : 3;
+    }
+
+    /// <summary>The use case a result or scenario home names, when one holds it.</summary>
+    static Record? UseCaseOf(IReadOnlyList<Record> records, string home)
+    {
+        // ProjectModel.ById keeps the first record per id; the scan below keeps the same one.
+        var seen = new HashSet<string>(StringComparer.Ordinal);
+
+        foreach (var record in records)
+        {
+            if (record.Id.Length == 0 || !seen.Add(record.Id))
+            {
+                continue;
+            }
+
+            if (record.Type == "use-case"
+                && Identifiers.TrySplit(record.Id, out _, out _, out var name)
+                && name == home)
+            {
+                return record;
+            }
+        }
+
+        return null;
     }
 
     /// <summary>Whether the record carries any risk value, which makes it tier 1.</summary>
@@ -263,7 +336,15 @@ static class ReviewQueue
     ///     a draft decision decides, a draft requirement they fulfill, or a draft journey
     ///     a transcribed record serves.
     /// </summary>
-    public static IReadOnlyList<string> AwaitingOf(ProjectModel model, Record record)
+    public static IReadOnlyList<string> AwaitingOf(ProjectModel model, Record record) =>
+        AwaitingOf(model.Records, record);
+
+    /// <summary>
+    ///     The drafts waiting on the record, from the records: the drafts a draft
+    ///     decision decides, a draft requirement they fulfill, or a draft journey a
+    ///     transcribed record serves.
+    /// </summary>
+    static IReadOnlyList<string> AwaitingOf(IReadOnlyList<Record> records, Record record)
     {
         if (record.Status != "draft")
         {
@@ -272,7 +353,7 @@ static class ReviewQueue
 
         var waiting = new List<string>();
 
-        foreach (var draft in model.Records)
+        foreach (var draft in records)
         {
             if (draft.Derived || draft.Status != "draft" || draft.Id == record.Id || draft.Id.Length == 0)
             {
@@ -393,11 +474,22 @@ static class ReviewQueue
     ///     The scenario evidence: a use case counts its scenarios, a scenario counts
     ///     itself, and every other record counts none.
     /// </summary>
-    public static ReviewScenarios ScenariosOf(ProjectModel model, Record record)
+    public static ReviewScenarios ScenariosOf(ProjectModel model, Record record) =>
+        ScenariosOf(model.Records, model.Proves, model.Stale, record);
+
+    /// <summary>
+    ///     The scenario evidence from the queue inputs: a use case counts its
+    ///     scenarios, a scenario counts itself, and every other record counts none.
+    /// </summary>
+    static ReviewScenarios ScenariosOf(
+        IReadOnlyList<Record> records,
+        IReadOnlyList<ProvesLink> proves,
+        IReadOnlySet<string> staleIds,
+        Record record)
     {
         IReadOnlyList<Record> own = record.Type switch
         {
-            "use-case" => OwnedScenarios(model, record),
+            "use-case" => OwnedScenarios(records, record),
             "scenario" => [record],
             _ => [],
         };
@@ -408,14 +500,14 @@ static class ReviewQueue
 
         foreach (var scenario in own)
         {
-            var links = model.Proves.Where(link => link.Claim == scenario.Id).ToList();
+            var links = proves.Where(link => link.Claim == scenario.Id).ToList();
 
             if (links.Any(link => link.Confirmed))
             {
                 confirmed++;
             }
 
-            if (model.Stale.Contains(scenario.Id))
+            if (staleIds.Contains(scenario.Id))
             {
                 stale++;
             }
@@ -429,14 +521,14 @@ static class ReviewQueue
     }
 
     /// <summary>The written scenarios whose home names the use case.</summary>
-    static IReadOnlyList<Record> OwnedScenarios(ProjectModel model, Record useCase)
+    static IReadOnlyList<Record> OwnedScenarios(IReadOnlyList<Record> records, Record useCase)
     {
         if (!Identifiers.TrySplit(useCase.Id, out _, out _, out var name))
         {
             return [];
         }
 
-        return model.Records
+        return records
             .Where(scenario => !scenario.Derived
                 && scenario.Type == "scenario"
                 && Identifiers.TrySplit(scenario.Id, out _, out var home, out _)
@@ -453,7 +545,8 @@ static class ReviewQueue
     ///     it with the records it decides, and every other record falls into the batch of
     ///     its module and type.
     /// </summary>
-    static IReadOnlyList<Group> Assign(ProjectModel model, IReadOnlyList<Record> queued)
+    static IReadOnlyList<Group> Assign(
+        IReadOnlyList<Record> records, IReadOnlyList<Record> queued, string behaviorDocs)
     {
         var groups = new Dictionary<string, Group>(StringComparer.Ordinal);
 
@@ -477,7 +570,7 @@ static class ReviewQueue
             else if (record.Type is "result" or "scenario"
                 && Identifiers.TrySplit(record.Id, out _, out var home, out _)
                 && home is not null
-                && ModelBuilder.UseCaseOf(model, home) is { } holder)
+                && UseCaseOf(records, home) is { } holder)
             {
                 For("use-case/" + holder.Id, holder.Id, "use-case").Members.Add(record);
             }
@@ -485,13 +578,13 @@ static class ReviewQueue
             {
                 For("decision/" + record.Id, "decision/" + record.Id, "decision").Members.Add(record);
             }
-            else if (Deciding(model, queued, record) is { } decider)
+            else if (Deciding(records, queued, record) is { } decider)
             {
                 For("decision/" + decider.Id, "decision/" + decider.Id, "decision").Members.Add(record);
             }
             else
             {
-                var module = ModuleOf(model, record);
+                var module = ModuleOf(behaviorDocs, record);
 
                 For("module-type/" + module + "/" + record.Type, module + "/" + record.Type, "module-type")
                     .Members.Add(record);
@@ -505,11 +598,11 @@ static class ReviewQueue
     ///     The decision whose batch holds the record: a queued decision deciding it when
     ///     one exists, else the deciding decision with the lowest id.
     /// </summary>
-    static Record? Deciding(ProjectModel model, IReadOnlyList<Record> queued, Record record)
+    static Record? Deciding(IReadOnlyList<Record> records, IReadOnlyList<Record> queued, Record record)
     {
         var queuedIds = queued.Select(entry => entry.Id).ToHashSet(StringComparer.Ordinal);
 
-        return model.Records
+        return records
             .Where(decision => !decision.Derived
                 && decision.Type == "decision"
                 && decision.Ids("decides").Contains(record.Id, StringComparer.Ordinal))
@@ -520,10 +613,17 @@ static class ReviewQueue
 
     /// <summary>Describes one group as a batch, with its records in approval order.</summary>
     static ReviewBatch Describe(
-        ProjectModel model, Group group, IReadOnlyDictionary<string, int> findings, DateOnly today)
+        IReadOnlyList<Record> records,
+        IReadOnlyDictionary<string, string> effectiveStatus,
+        IReadOnlyList<ProvesLink> proves,
+        IReadOnlySet<string> stale,
+        Group group,
+        IReadOnlyDictionary<string, int> findings,
+        ConsumerConfig config,
+        DateOnly today)
     {
         var entries = group.Members
-            .Select(record => Describe(model, record, findings, today))
+            .Select(record => Describe(records, effectiveStatus, proves, stale, record, findings, config, today))
             .ToList();
 
         entries.Sort((left, right) => CompareRecords(group, left, right));

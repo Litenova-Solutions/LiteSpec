@@ -1,4 +1,5 @@
 using System.Text.Json.Nodes;
+using LiteSpec.Model;
 
 namespace LiteSpec.Book;
 
@@ -103,17 +104,15 @@ sealed record ActorLens(
 /// <param name="Expired">Whether the gap's end date has passed.</param>
 sealed record GapEntry(JsonObject Record, bool Expired);
 
-/// <summary>Everything the review page shows: gaps, drafts, questions and check findings.</summary>
+/// <summary>Everything the review page shows: gaps, batches, questions and check findings.</summary>
 /// <param name="Gaps">The known gaps, expired first.</param>
-/// <param name="WithDecider">The drafts with a decide-by date.</param>
-/// <param name="WithoutDecider">The drafts without one.</param>
+/// <param name="Batches">The review batches, in review order.</param>
 /// <param name="Questions">The open questions on any record.</param>
 /// <param name="Findings">The check findings.</param>
 /// <param name="Known">The findings covered by a known gap.</param>
 sealed record ReviewBundle(
     IReadOnlyList<GapEntry> Gaps,
-    IReadOnlyList<JsonObject> WithDecider,
-    IReadOnlyList<JsonObject> WithoutDecider,
+    IReadOnlyList<ReviewBatch> Batches,
     IReadOnlyList<OpenQuestion> Questions,
     IReadOnlyList<JsonObject?> Findings,
     IReadOnlyList<JsonObject?> Known);
@@ -168,6 +167,9 @@ sealed class BookIndex
 
     /// <summary>The reachable states by aggregate id, or empty when the model holds none.</summary>
     public Dictionary<string, HashSet<string>> ReachableStates { get; init; } = new(StringComparer.Ordinal);
+
+    /// <summary>The scenarios whose passing proof went stale, or empty when the model holds none.</summary>
+    public HashSet<string> StaleIds { get; init; } = new(StringComparer.Ordinal);
 
     /// <summary>The latest test run, or null when the model holds none.</summary>
     public JsonNode? TestRun { get; set; }
@@ -602,6 +604,14 @@ static class BookModel
             }
 
             index.ReachableStates[pair.Key] = names;
+        }
+
+        foreach (var stale in model["stale"] as JsonArray ?? [])
+        {
+            if (stale is JsonValue scalar && scalar.TryGetValue<string>(out var id) && id is not null)
+            {
+                index.StaleIds.Add(id);
+            }
         }
 
         index.TestRun = model["testRun"] is { } run && BookRender.IsTruthy(run) && run is JsonObject or JsonArray ? run : null;
@@ -1101,8 +1111,8 @@ static class BookModel
         return grantText.StartsWith("permission/", StringComparison.Ordinal) && permissionIds.Contains(grantText);
     }
 
-    /// <summary>Collects the gaps, drafts and findings the review page shows.</summary>
-    public static ReviewBundle ReviewData(BookIndex index, JsonNode? findingsFile, string generatedDate)
+    /// <summary>Collects the gaps, batches and findings the review page shows.</summary>
+    public static ReviewBundle ReviewData(BookIndex index, JsonNode? findingsFile, string generatedDate, string root)
     {
         var today = generatedDate.Length >= 10 ? generatedDate[..10] : generatedDate;
         var gaps = new List<GapEntry>();
@@ -1116,15 +1126,7 @@ static class BookModel
             .OrderByDescending(gap => gap.Expired)
             .ThenBy(gap => BookRender.OrStr(BookRender.Fields(gap.Record)?["endsBy"], ""), BookRender.LocaleComparer)
             .ToList();
-        var drafts = index.Records.OfType<JsonObject>().Where(record => BookRender.StrProp(record, "status") == "draft").ToList();
-        var withDecider = drafts
-            .Where(record => BookRender.IsTruthy(record["fields"]) && BookRender.IsTruthy(BookRender.Fields(record)?["decideBy"]))
-            .OrderBy(record => BookRender.Str(BookRender.Fields(record)?["decideBy"]), BookRender.LocaleComparer)
-            .ToList();
-        var withoutDecider = drafts
-            .Where(record => !(BookRender.IsTruthy(record["fields"]) && BookRender.IsTruthy(BookRender.Fields(record)?["decideBy"])))
-            .OrderBy(record => BookRender.PropText(record, "id"), BookRender.LocaleComparer)
-            .ToList();
+        var batches = BookReviewQueue.Compute(index, root, findingsFile, DateOnly.FromDateTime(DateTime.UtcNow));
         var questions = CollectQuestions(index);
         questions = questions
             .OrderBy(question => question.DecideBy ?? "", BookRender.LocaleComparer)
@@ -1133,8 +1135,7 @@ static class BookModel
         var file = findingsFile as JsonObject;
         return new ReviewBundle(
             gaps,
-            withDecider,
-            withoutDecider,
+            batches,
             questions,
             (file?["findings"] as JsonArray ?? []).Select(entry => entry as JsonObject).ToList(),
             (file?["known"] as JsonArray ?? []).Select(entry => entry as JsonObject).ToList());

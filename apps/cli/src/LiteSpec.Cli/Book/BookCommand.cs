@@ -88,7 +88,7 @@ static class BookCommand
 
         var index = BookModel.BuildIndex(store);
         var generatedDate = DateTimeOffset.UtcNow.ToString("yyyy-MM-dd'T'HH:mm:ss.fff'Z'", CultureInfo.InvariantCulture);
-        var review = BookModel.ReviewData(index, findingsFile, generatedDate);
+        var review = BookModel.ReviewData(index, findingsFile, generatedDate, ModelDirectory(parsed.Model!));
 
         var pages = new List<BookPage>();
         var searchEntries = BookPages.SearchIndexPayload(index);
@@ -207,6 +207,10 @@ static class BookCommand
 
         return new Parsed(false, null, model, output, parsed.Value("--findings"));
     }
+
+    /// <summary>The model file's folder, which supplies the review defaults.</summary>
+    static string ModelDirectory(string model) =>
+        Path.GetDirectoryName(Path.GetFullPath(model)) ?? ".";
 
     static JsonNode? ReadJson(string path) => JsonNode.Parse(File.ReadAllText(path));
 

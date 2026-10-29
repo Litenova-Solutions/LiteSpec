@@ -1,4 +1,5 @@
 using System.Text.Json.Nodes;
+using LiteSpec.Model;
 
 namespace LiteSpec.Book;
 
@@ -132,7 +133,7 @@ static partial class BookPages
             $"Known gaps, drafts awaiting a decision, open questions, and check findings, as of {(generatedDate.Length >= 10 ? generatedDate[..10] : generatedDate)}.",
             [
                 ("Known gaps", $"<b>{review.Gaps.Count}</b>"),
-                ("Drafts", $"<b>{review.WithDecider.Count + review.WithoutDecider.Count}</b>"),
+                ("Drafts", $"<b>{review.Batches.Sum(batch => batch.Records.Count)}</b>"),
                 ("Open questions", $"<b>{review.Questions.Count}</b>"),
                 ("Findings", $"<b>{review.Findings.Count}</b>"),
             ]));
@@ -161,23 +162,16 @@ static partial class BookPages
         }
 
         parts.Add("<h2 id=\"drafts\">Drafts Awaiting a Decision</h2>");
-        var drafts = review.WithDecider.Concat(review.WithoutDecider).ToList();
-        if (drafts.Count > 0)
+        if (review.Batches.Count == 0)
         {
-            var rows = string.Concat(drafts.Select(record =>
-            {
-                var fields = BookRender.Fields(record);
-                return $"<tr><td><a href=\"{rel}{BookModel.RecordUrl(BookRender.StrProp(record, "id") ?? "")}\">{BookRender.Esc(record["title"])}</a>"
-                    + $"<div class=\"mono dim dev-only\">{BookRender.Esc(record["id"])}</div></td>"
-                    + $"<td>{BookRender.Esc(BookModel.TypeLabel(BookRender.StrProp(record, "type")))}</td>"
-                    + $"<td>{BookRender.EscOr(fields?["decider"], "no decider")}</td>"
-                    + $"<td>{BookRender.EscOr(fields?["decideBy"], "no date")}</td></tr>";
-            }));
-            parts.Add($"<div class=\"tablewrap\"><table class=\"tbl\"><thead><tr><th>Record</th><th>Type</th><th>Decider</th><th>Decide By</th></tr></thead><tbody>{rows}</tbody></table></div>");
+            parts.Add("<p>No draft awaits a decision.</p>");
         }
         else
         {
-            parts.Add("<p>No draft awaits a decision.</p>");
+            foreach (var batch in review.Batches)
+            {
+                parts.Add(RenderBatch(index, rel, batch));
+            }
         }
 
         parts.Add("<h2 id=\"questions\">Open Questions</h2>");
@@ -231,6 +225,86 @@ static partial class BookPages
         }
 
         return string.Join("\n", parts);
+    }
+
+    /// <summary>Renders one review batch: its facts, its approve command, and its records.</summary>
+    static string RenderBatch(BookIndex index, string rel, ReviewBatch batch)
+    {
+        var parts = new List<string>();
+        var records = batch.Records.Count == 1 ? "1 record" : $"{batch.Records.Count} records";
+        parts.Add($"<h3 id=\"batch-{BallotSlug(batch.Selector)}\">{BookRender.Esc(batch.Selector)} <span class=\"dim\">tier {batch.Tier}, {records}</span></h3>");
+        var deciders = batch.Deciders.Count > 0
+            ? string.Join(", ", batch.Deciders.Select(decider => BookRender.Esc(decider)))
+            : "no decider";
+        var waiting = batch.Records
+            .SelectMany(entry => entry.Awaiting)
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(id => id, StringComparer.Ordinal)
+            .ToList();
+        var awaiting = $"<b>{batch.Awaiting}</b>"
+            + (waiting.Count > 0 ? " " + string.Join(", ", waiting.Select(id => BookRender.RecordLink(index, rel, id))) : "");
+        parts.Add("<dl class=\"facts\">"
+            + $"<div><dt>Deciders</dt><dd>{deciders}</dd></div>"
+            + $"<div><dt>Decide by</dt><dd>{(batch.DecideBy is { Length: > 0 } decideBy ? BookRender.Esc(decideBy) : "no date")}</dd></div>"
+            + $"<div><dt>Awaiting</dt><dd>{awaiting}</dd></div></dl>");
+        parts.Add($"<p><code>litespec model approve --batch {BookRender.Esc(batch.Selector)} --by {BookRender.Esc(ApproveOwner(batch))}</code></p>");
+        var rows = string.Concat(batch.Records.Select(entry =>
+        {
+            var id = entry.Record.Id;
+            var title = index.ById.TryGetValue(id, out var found) ? BookRender.Esc(found["title"]) : BookRender.Esc(id);
+            return $"<tr><td><a href=\"{rel}{BookModel.RecordUrl(id)}\">{title}</a>"
+                + $"<div class=\"mono dim dev-only\">{BookRender.Esc(id)}</div></td>"
+                + $"<td>{BookRender.Esc(BookModel.TypeLabel(entry.Record.Type))}</td>"
+                + $"<td>{BookRender.StatusChip(entry.Record.Status)}</td>"
+                + $"<td>{BookRender.Esc(FlagWords(entry))}</td>"
+                + $"<td>{BookRender.Esc(ScenarioWords(entry.Scenarios))}</td></tr>";
+        }));
+        parts.Add("<div class=\"tablewrap\"><table class=\"tbl\">"
+            + "<thead><tr><th>Record</th><th>Type</th><th>Status</th><th>Flags</th><th>Scenarios</th></tr></thead>"
+            + $"<tbody>{rows}</tbody></table></div>");
+        return string.Join("\n", parts);
+    }
+
+    /// <summary>The owner the batch approve command names: its first decider, else its first record owner, else the owner placeholder.</summary>
+    static string ApproveOwner(ReviewBatch batch) =>
+        batch.Deciders.FirstOrDefault()
+        ?? batch.Records.Select(entry => entry.Record.Owner).FirstOrDefault(owner => owner is { Length: > 0 })
+        ?? "<owner>";
+
+    /// <summary>One queued record's flags: reopened, full re-read, and open questions.</summary>
+    static string FlagWords(ReviewEntry entry)
+    {
+        var flags = new List<string>();
+        if (entry.Reopened)
+        {
+            flags.Add("reopened");
+        }
+
+        if (entry.FullReRead)
+        {
+            flags.Add("full re-read");
+        }
+
+        if (entry.OpenQuestions > 0)
+        {
+            flags.Add(entry.OpenQuestions == 1 ? "1 open question" : $"{entry.OpenQuestions} open questions");
+        }
+
+        return flags.Count > 0 ? string.Join(", ", flags) : "none";
+    }
+
+    /// <summary>One queued record's scenario proof state in words.</summary>
+    static string ScenarioWords(ReviewScenarios scenarios)
+    {
+        if (scenarios.Total == 0)
+        {
+            return "No scenarios";
+        }
+
+        var words = scenarios.Total == 1
+            ? $"1 scenario, {scenarios.Confirmed} confirmed, {scenarios.Passing} passing"
+            : $"{scenarios.Total} scenarios, {scenarios.Confirmed} confirmed, {scenarios.Passing} passing";
+        return scenarios.Stale > 0 ? $"{words}, {scenarios.Stale} stale" : words;
     }
 
     /// <summary>Renders the ballots page: every open question grouped by ballot, tier 1 first.</summary>
@@ -293,7 +367,7 @@ static partial class BookPages
             {
                 built.Append(ch);
             }
-            else if (ch is ' ' or '-' or '_' or '/')
+            else if (ch is ' ' or '-' or '_' or '/' or '.')
             {
                 built.Append('-');
             }
