@@ -10,10 +10,10 @@ namespace LiteSpec.Model.Roslyn;
 
 /// <summary>
 ///     Recognizes the LiteSpec code kind of a type or method from the code,
-///     never from the mark, except for ports and domain services, which are
-///     recognized by their own mark, adapters, which are recognized through the
-///     marked port they implement, and aggregate methods that raise nothing,
-///     which are recognized once they carry a mark. The syntax overloads read
+///     never from the mark, except for ports, domain services, and job hosts,
+///     which are recognized by their own mark, for adapters, recognized
+///     through the marked port they implement, and for aggregate methods
+///     that raise nothing, recognized once they carry a mark. The syntax overloads read
 ///     one declaration; the symbol overloads walk base types and interfaces
 ///     semantically. Both agree on the same code
 ///     except where syntax cannot see across files: transitive handler and job
@@ -33,6 +33,8 @@ public static class KindReader
 
     private const string RulePrefix = "rule/";
 
+    private const string JobPrefix = "job/";
+
     private static readonly HashSet<string> TestAttributeNames = new HashSet<string>(StringComparer.Ordinal)
     {
         "Fact",
@@ -51,8 +53,8 @@ public static class KindReader
     /// <param name="containingProject">
     ///     The short project name holding the type, such as <c>Application</c> or
     ///     <c>Shop.WebApi</c>, or null when unknown. A null project skips the
-    ///     project check, so a marked interface reads as a port and a type named
-    ///     <c>*Endpoint</c> reads as an endpoint.
+    ///     project check, so a marked interface reads as a port, a marked class reads
+    ///     as a job, and a type named <c>*Endpoint</c> reads as an endpoint.
     /// </param>
     /// <returns>The kind, or null when the type is of no markable kind.</returns>
     /// <exception cref="ArgumentNullException">The type or context is null.</exception>
@@ -93,7 +95,7 @@ public static class KindReader
             return CodeKind.EventHandler;
         }
 
-        if (IsJob(type))
+        if (IsJob(type, containingProject))
         {
             return CodeKind.Job;
         }
@@ -162,8 +164,8 @@ public static class KindReader
     /// <param name="containingProject">
     ///     The short project name holding the type, such as <c>Application</c> or
     ///     <c>Shop.WebApi</c>, or null when unknown. A null project skips the
-    ///     project check, so a marked interface reads as a port and a type named
-    ///     <c>*Endpoint</c> reads as an endpoint.
+    ///     project check, so a marked interface reads as a port, a marked class reads
+    ///     as a job, and a type named <c>*Endpoint</c> reads as an endpoint.
     /// </param>
     /// <returns>The kind, or null when the type is of no markable kind.</returns>
     /// <exception cref="ArgumentNullException">The type or context is null.</exception>
@@ -204,7 +206,7 @@ public static class KindReader
             return CodeKind.EventHandler;
         }
 
-        if (IsJob(type))
+        if (IsJob(type, containingProject))
         {
             return CodeKind.Job;
         }
@@ -390,27 +392,35 @@ public static class KindReader
         type.TypeKind == TypeKind.Class
         && (Implements(type, "IEventHandler") || Implements(type, "IDomainEventReaction"));
 
-    private static bool IsJob(TypeDeclarationSyntax type) =>
-        IsClassLike(type)
-        && (HasBaseName(type, "BackgroundService") || HasBaseName(type, "IHostedService"))
-        && HasJobName(type.Identifier.ValueText);
+    private static bool IsJob(TypeDeclarationSyntax type, string? containingProject) =>
+        IsClassLike(type) && (
+            ((HasBaseName(type, "BackgroundService") || HasBaseName(type, "IHostedService"))
+                && HasJobName(type.Identifier.ValueText))
+            || (ProjectMatches(containingProject, "Application", "Application.Abstractions", "Infrastructure")
+                && HasMark(type, JobPrefix)));
 
-    private static bool IsJob(INamedTypeSymbol type)
+    private static bool IsJob(INamedTypeSymbol type, string? containingProject)
     {
-        if (type.TypeKind != TypeKind.Class || !HasJobName(type.Name))
+        if (type.TypeKind != TypeKind.Class)
         {
             return false;
         }
 
         for (var current = type.BaseType; current is not null; current = current.BaseType)
         {
-            if (current.Name == "BackgroundService")
+            if (HasJobName(type.Name) && current.Name == "BackgroundService")
             {
                 return true;
             }
         }
 
-        return Implements(type, "IHostedService");
+        if (HasJobName(type.Name) && Implements(type, "IHostedService"))
+        {
+            return true;
+        }
+
+        return ProjectMatches(containingProject, "Application", "Application.Abstractions", "Infrastructure")
+            && HasMark(type, JobPrefix);
     }
 
     private static bool HasJobName(string name) =>
