@@ -67,11 +67,18 @@ public sealed class SealedClassAnalyzer : LayerAnalyzer
     private static bool IsSealableLeaf(INamedTypeSymbol type)
     {
         if (type.DeclaringSyntaxReferences.Length == 0
+            || type.IsImplicitlyDeclared
             || type.TypeKind != TypeKind.Class
             || type.IsRecord
             || type.IsAbstract
             || type.IsStatic
             || type.IsSealed)
+        {
+            return false;
+        }
+
+        // The WebApi composition marker carries no behavior to extend.
+        if (type.Name == "Program")
         {
             return false;
         }

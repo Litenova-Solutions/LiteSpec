@@ -65,6 +65,34 @@ public sealed class EventHandlerFolderAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    [Fact(DisplayName = "LS2008 ignores a handler of an interface fact")]
+    public Task IgnoresAHandlerOfAnInterfaceFact() =>
+        Verify.AnalyzerAsync<EventHandlerFolderAnalyzer>("""
+            namespace Shop.Loans;
+
+            public interface IEventHandler<TEvent> { }
+
+            public interface IIntegrationEvent { }
+
+            internal sealed class PublishToTransportOnIntegrationEvent : IEventHandler<IIntegrationEvent>
+            {
+            }
+            """, assemblyName: "Shop.Application");
+
+    [Fact(DisplayName = "LS2008 ignores an interface-fact handler in a sensibly named folder")]
+    public Task IgnoresAnInterfaceFactHandlerInASensiblyNamedFolder() =>
+        Verify.AnalyzerAsync<EventHandlerFolderAnalyzer>("""
+            namespace Shop.Webhooks.OnIntegrationEvent;
+
+            public interface IEventHandler<TEvent> { }
+
+            public interface IIntegrationEvent { }
+
+            internal sealed class FanOutWebhooksOnIntegrationEventHandler : IEventHandler<IIntegrationEvent>
+            {
+            }
+            """, assemblyName: "Shop.Application");
+
     [Fact(DisplayName = "LS2008 ignores a class that handles no event")]
     public Task IgnoresAClassThatHandlesNoEvent() =>
         Verify.AnalyzerAsync<EventHandlerFolderAnalyzer>("""

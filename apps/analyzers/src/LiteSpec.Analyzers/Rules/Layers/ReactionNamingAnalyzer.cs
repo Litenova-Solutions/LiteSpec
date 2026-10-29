@@ -56,17 +56,11 @@ public sealed class ReactionNamingAnalyzer : LayerAnalyzer
 
     private static bool IsJob(INamedTypeSymbol type)
     {
+        // A one-shot startup hook implementing bare IHostedService is host-lifecycle
+        // wiring, not a job; only a BackgroundService carries scheduled work.
         for (var current = type.BaseType; current != null; current = current.BaseType)
         {
             if (current.Name == "BackgroundService")
-            {
-                return true;
-            }
-        }
-
-        foreach (var contract in type.AllInterfaces)
-        {
-            if (contract.Name == "IHostedService")
             {
                 return true;
             }

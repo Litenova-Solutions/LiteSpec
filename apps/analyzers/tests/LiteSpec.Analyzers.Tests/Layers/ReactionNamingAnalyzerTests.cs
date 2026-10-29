@@ -70,17 +70,39 @@ public sealed class ReactionNamingAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
-    [Fact(DisplayName = "LS2007 reports a hosted service without a job name")]
-    public Task ReportsAHostedServiceWithoutAJobName() =>
+    [Fact(DisplayName = "LS2007 ignores a bare hosted service without a job name")]
+    public Task IgnoresABareHostedServiceWithoutAJobName() =>
         Verify.AnalyzerAsync<ReactionNamingAnalyzer>("""
             namespace Shop.Orders;
 
             public interface IHostedService { }
 
-            internal sealed class {|LS2007:ReminderLoop|} : IHostedService
+            internal sealed class ReminderLoop : IHostedService
             {
             }
             """, assemblyName: "Shop.Application");
+
+    [Fact(DisplayName = "LS2007 ignores a one-shot startup hook")]
+    public Task IgnoresAOneShotStartupHook() =>
+        Verify.AnalyzerAsync<ReactionNamingAnalyzer>("""
+            using System.Threading;
+            using System.Threading.Tasks;
+
+            namespace Shop.Orders;
+
+            public interface IHostedService
+            {
+                Task StartAsync(CancellationToken cancellationToken);
+                Task StopAsync(CancellationToken cancellationToken);
+            }
+
+            internal sealed class DemoTopology : IHostedService
+            {
+                public Task StartAsync(CancellationToken cancellationToken) => Task.CompletedTask;
+
+                public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
+            }
+            """, assemblyName: "Shop.Infrastructure");
 
     [Fact(DisplayName = "LS2007 accepts Job, Worker, and Recurring names")]
     public Task AcceptsJobWorkerAndRecurringNames() =>
@@ -88,8 +110,6 @@ public sealed class ReactionNamingAnalyzerTests
             namespace Shop.Orders;
 
             public abstract class BackgroundService { }
-
-            public interface IHostedService { }
 
             internal sealed class ReminderJob : BackgroundService
             {
@@ -99,7 +119,7 @@ public sealed class ReactionNamingAnalyzerTests
             {
             }
 
-            internal sealed class RecurringReminderSender : IHostedService
+            internal sealed class RecurringReminderSender : BackgroundService
             {
             }
             """, assemblyName: "Shop.Application");

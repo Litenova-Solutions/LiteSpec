@@ -259,6 +259,77 @@ public sealed class HandlerLoopWriteAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    [Fact(DisplayName = "LS2015 accepts a write then return search loop")]
+    public Task AcceptsAWriteThenReturnSearchLoop() =>
+        Verify.AnalyzerAsync<HandlerLoopWriteAnalyzer>("""
+            using System.Collections.Generic;
+
+            namespace Shop.Loans;
+
+            public sealed class Loan
+            {
+                public bool HasWork { get; }
+            }
+
+            public interface ILoanRepository
+            {
+                void Store(Loan loan);
+            }
+
+            public sealed record AdvanceCancellationCommand(int Count);
+
+            internal sealed class AdvanceCancellationCommandHandler(ILoanRepository loanRepository)
+            {
+                public bool Handle(AdvanceCancellationCommand command, List<Loan> loans)
+                {
+                    foreach (var loan in loans)
+                    {
+                        if (loan.HasWork)
+                        {
+                            loanRepository.Store(loan);
+                            return true;
+                        }
+                    }
+
+                    return false;
+                }
+            }
+            """, assemblyName: "Shop.Application");
+
+    [Fact(DisplayName = "LS2015 reports a write followed by a conditional return")]
+    public Task ReportsAWriteFollowedByAConditionalReturn() =>
+        Verify.AnalyzerAsync<HandlerLoopWriteAnalyzer>("""
+            using System.Collections.Generic;
+
+            namespace Shop.Loans;
+
+            public sealed class Loan
+            {
+            }
+
+            public interface ILoanRepository
+            {
+                void Store(Loan loan);
+            }
+
+            public sealed record ExpireLoansCommand(bool Done);
+
+            internal sealed class ExpireLoansCommandHandler(ILoanRepository loanRepository)
+            {
+                public void Handle(ExpireLoansCommand command, List<Loan> loans)
+                {
+                    foreach (var loan in loans)
+                    {
+                        loanRepository.{|LS2015:Store|}(loan);
+                        if (command.Done)
+                        {
+                            return;
+                        }
+                    }
+                }
+            }
+            """, assemblyName: "Shop.Application");
+
     [Fact(DisplayName = "LS2015 stays silent outside Application and Infrastructure")]
     public Task StaysSilentOutsideItsLayers() =>
         Verify.AnalyzerAsync<HandlerLoopWriteAnalyzer>("""

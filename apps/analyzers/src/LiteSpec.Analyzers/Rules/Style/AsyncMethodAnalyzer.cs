@@ -107,6 +107,11 @@ public sealed class AsyncMethodAnalyzer : LayerAnalyzer
                 return;
             }
 
+            // A route-handler delegate in an endpoint is bound by the framework by type,
+            // not by position, so only its token name is checked. A host-lifetime token
+            // threaded from ExecuteAsync keeps the base name stoppingToken.
+            var endpoint = ImplementsEndpoint(method.ContainingType);
+            var hosted = IsHostedServiceContext(method.ContainingType);
             var parameters = method.Parameters;
             var last = parameters.Length - 1;
             for (var i = 0; i < parameters.Length; i++)
@@ -116,8 +121,10 @@ public sealed class AsyncMethodAnalyzer : LayerAnalyzer
                     continue;
                 }
 
-                var positioned = i == last || (i == last - 1 && parameters[last].IsParams);
-                if (!positioned || parameters[i].Name != "cancellationToken")
+                var positioned = endpoint || i == last || (i == last - 1 && parameters[last].IsParams);
+                var named = parameters[i].Name == "cancellationToken"
+                    || (hosted && parameters[i].Name == "stoppingToken");
+                if (!positioned || !named)
                 {
                     report(Diagnostic.Create(Descriptors.LS3002, parameters[i].Locations[0], method.Name));
                 }
@@ -144,12 +151,57 @@ public sealed class AsyncMethodAnalyzer : LayerAnalyzer
                 return true;
             }
 
-            if (method.MethodKind == MethodKind.Ordinary && method.Name == "Main" && method.IsStatic)
+            if (method.MethodKind == MethodKind.Ordinary && method.IsStatic
+                && method.Name is "Main" or "<Main>$")
             {
                 return true;
             }
 
             return ImplementsOutsideInterfaceMember(method);
+        }
+
+        private static bool ImplementsEndpoint(INamedTypeSymbol? containing)
+        {
+            if (containing is null)
+            {
+                return false;
+            }
+
+            foreach (var contract in containing.AllInterfaces)
+            {
+                if (contract.Name == "IEndpoint")
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static bool IsHostedServiceContext(INamedTypeSymbol? containing)
+        {
+            if (containing is null)
+            {
+                return false;
+            }
+
+            for (var current = containing.BaseType; current != null; current = current.BaseType)
+            {
+                if (current.Name == "BackgroundService")
+                {
+                    return true;
+                }
+            }
+
+            foreach (var contract in containing.AllInterfaces)
+            {
+                if (contract.Name == "IHostedService")
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private static bool ImplementsOutsideInterfaceMember(IMethodSymbol method)

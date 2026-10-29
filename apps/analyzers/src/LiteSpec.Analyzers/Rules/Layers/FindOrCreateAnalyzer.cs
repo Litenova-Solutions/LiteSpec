@@ -97,6 +97,13 @@ public sealed class FindOrCreateAnalyzer : LayerAnalyzer
     // fallback of a coalesce.
     private static bool OnAbsentPath(IOperation creation, ITypeSymbol created, Dictionary<ILocalSymbol, ITypeSymbol> found)
     {
+        // A creation gated by an independent policy switch runs only in one policy arm,
+        // not whenever the find came back empty, so it is not get-or-create.
+        if (InsideUnrelatedSwitch(creation, created, found))
+        {
+            return false;
+        }
+
         var child = creation;
         for (var parent = creation.Parent; parent != null; child = parent, parent = parent.Parent)
         {
@@ -142,6 +149,22 @@ public sealed class FindOrCreateAnalyzer : LayerAnalyzer
                     }
 
                     break;
+            }
+        }
+
+        return false;
+    }
+
+    private static bool InsideUnrelatedSwitch(IOperation creation, ITypeSymbol created, Dictionary<ILocalSymbol, ITypeSymbol> found)
+    {
+        for (var parent = creation.Parent; parent != null; parent = parent.Parent)
+        {
+            switch (parent)
+            {
+                case ISwitchOperation statement when !RefersToFound(statement.Value, created, found):
+                    return true;
+                case ISwitchExpressionOperation expression when !RefersToFound(expression.Value, created, found):
+                    return true;
             }
         }
 

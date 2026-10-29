@@ -22,9 +22,13 @@ internal static partial class Verify
 
     /// <summary>Asserts the analyzer reports exactly the marked spans in one file.</summary>
     public static Task AnalyzerAsync<TAnalyzer>(
-        string source, string assemblyName = "Shop.Domain", string? layer = null, bool documentationFile = true)
+        string source,
+        string assemblyName = "Shop.Domain",
+        string? layer = null,
+        bool documentationFile = true,
+        OutputKind outputKind = OutputKind.DynamicallyLinkedLibrary)
         where TAnalyzer : DiagnosticAnalyzer, new() =>
-        AnalyzerAsync<TAnalyzer>([("Source.cs", source)], assemblyName, layer, documentationFile);
+        AnalyzerAsync<TAnalyzer>([("Source.cs", source)], assemblyName, layer, documentationFile, outputKind);
 
     /// <summary>
     ///     Asserts the analyzer reports exactly the marked spans across several files.
@@ -35,9 +39,10 @@ internal static partial class Verify
         IReadOnlyList<(string Path, string Source)> files,
         string assemblyName = "Shop.Domain",
         string? layer = null,
-        bool documentationFile = true)
+        bool documentationFile = true,
+        OutputKind outputKind = OutputKind.DynamicallyLinkedLibrary)
         where TAnalyzer : DiagnosticAnalyzer, new() =>
-        AnalyzerWithRecordsAsync<TAnalyzer>(files, [], assemblyName, layer, documentationFile);
+        AnalyzerWithRecordsAsync<TAnalyzer>(files, [], assemblyName, layer, documentationFile, null, outputKind);
 
     /// <summary>
     ///     Asserts the analyzer reports exactly the marked spans with the additional files
@@ -50,7 +55,8 @@ internal static partial class Verify
         string assemblyName = "Shop.Domain",
         string? layer = null,
         bool documentationFile = true,
-        string? editorconfig = null)
+        string? editorconfig = null,
+        OutputKind outputKind = OutputKind.DynamicallyLinkedLibrary)
         where TAnalyzer : DiagnosticAnalyzer, new()
     {
         var expected = new List<string>();
@@ -70,7 +76,7 @@ internal static partial class Verify
             assemblyName,
             trees,
             References,
-            new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, nullableContextOptions: NullableContextOptions.Enable)
+            new CSharpCompilationOptions(outputKind, nullableContextOptions: NullableContextOptions.Enable)
                 .WithSpecificDiagnosticOptions(CompilerSeverities(editorconfig)));
 
         var errors = compilation.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error).ToList();

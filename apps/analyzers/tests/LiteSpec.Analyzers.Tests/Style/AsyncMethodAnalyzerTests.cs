@@ -1,5 +1,6 @@
 using LiteSpec.Analyzers.Rules.Style;
 using LiteSpec.Analyzers.Tests.Support;
+using Microsoft.CodeAnalysis;
 
 namespace LiteSpec.Analyzers.Tests.Style;
 
@@ -218,4 +219,127 @@ public sealed class AsyncMethodAnalyzerTests
                 public Task {|LS3001:Place|}() => Task.CompletedTask;
             }
             """, assemblyName: "Shop.Core", layer: "Domain");
+
+    [Fact(DisplayName = "LS3001 ignores the top-level statements entry point")]
+    public Task IgnoresTopLevelStatementsEntryPoint() =>
+        Verify.AnalyzerAsync<AsyncMethodAnalyzer>("""
+            using System.Threading.Tasks;
+
+            await Task.Delay(1);
+            return 0;
+            """, assemblyName: "Shop.WebApi", outputKind: OutputKind.ConsoleApplication);
+
+    [Fact(DisplayName = "LS3001 reports a synchronous Task.FromResult factory")]
+    public Task ReportsASynchronousTaskFactory() =>
+        Verify.AnalyzerAsync<AsyncMethodAnalyzer>("""
+            using System.Threading.Tasks;
+
+            namespace Shop.Orders;
+
+            public sealed class Worker
+            {
+                public Task<string> {|LS3001:Refused|}(string reason) => Task.FromResult(reason);
+            }
+            """);
+
+    [Fact(DisplayName = "LS3002 ignores token position in an endpoint handler")]
+    public Task IgnoresTokenPositionInAnEndpointHandler() =>
+        Verify.AnalyzerAsync<AsyncMethodAnalyzer>("""
+            using System;
+            using System.Threading;
+            using System.Threading.Tasks;
+
+            namespace Shop.Api;
+
+            public interface IEndpoint { }
+
+            public sealed class ReadGuestListEndpoint : IEndpoint
+            {
+                private static Task HandleAsync(Guid listId, CancellationToken cancellationToken, string? state = null) =>
+                    Task.CompletedTask;
+            }
+            """, assemblyName: "Shop.WebApi");
+
+    [Fact(DisplayName = "LS3002 reports the same position in an ordinary class")]
+    public Task ReportsTheSamePositionInAnOrdinaryClass() =>
+        Verify.AnalyzerAsync<AsyncMethodAnalyzer>("""
+            using System;
+            using System.Threading;
+            using System.Threading.Tasks;
+
+            namespace Shop.Orders;
+
+            public sealed class Worker
+            {
+                public Task HandleAsync(Guid listId, CancellationToken {|LS3002:cancellationToken|}, string? state = null) =>
+                    Task.CompletedTask;
+            }
+            """);
+
+    [Fact(DisplayName = "LS3002 reports a misnamed token in an endpoint handler")]
+    public Task ReportsAMisnamedTokenInAnEndpointHandler() =>
+        Verify.AnalyzerAsync<AsyncMethodAnalyzer>("""
+            using System;
+            using System.Threading;
+            using System.Threading.Tasks;
+
+            namespace Shop.Api;
+
+            public interface IEndpoint { }
+
+            public sealed class ReadGuestListEndpoint : IEndpoint
+            {
+                private static Task HandleAsync(Guid listId, CancellationToken {|LS3002:ct|}, string? state = null) =>
+                    Task.CompletedTask;
+            }
+            """, assemblyName: "Shop.WebApi");
+
+    [Fact(DisplayName = "LS3002 accepts stoppingToken in a hosted service")]
+    public Task AcceptsStoppingTokenInAHostedService() =>
+        Verify.AnalyzerAsync<AsyncMethodAnalyzer>("""
+            using System.Threading;
+            using System.Threading.Tasks;
+
+            namespace Shop.Orders;
+
+            public abstract class BackgroundService { }
+
+            public sealed class PlanPriceListWorker : BackgroundService
+            {
+                private Task WaitForDatabaseAsync(CancellationToken stoppingToken) => Task.CompletedTask;
+            }
+            """, assemblyName: "Shop.Infrastructure");
+
+    [Fact(DisplayName = "LS3002 reports stoppingToken outside a hosted service")]
+    public Task ReportsStoppingTokenOutsideAHostedService() =>
+        Verify.AnalyzerAsync<AsyncMethodAnalyzer>("""
+            using System.Threading;
+            using System.Threading.Tasks;
+
+            namespace Shop.Orders;
+
+            public sealed class Worker
+            {
+                public Task SaveAsync(CancellationToken {|LS3002:stoppingToken|}) => Task.CompletedTask;
+            }
+            """);
+
+    [Fact(DisplayName = "LS3002 ignores an ExecuteAsync override")]
+    public Task IgnoresAnExecuteAsyncOverride() =>
+        Verify.AnalyzerAsync<AsyncMethodAnalyzer>("""
+            using System.Threading;
+            using System.Threading.Tasks;
+
+            namespace Shop.Orders;
+
+            public abstract class BackgroundService
+            {
+                protected virtual Task ExecuteAsync(CancellationToken cancellationToken) => Task.CompletedTask;
+            }
+
+            public sealed class PlanPriceListWorker : BackgroundService
+            {
+                protected override Task ExecuteAsync(CancellationToken stoppingToken) => Task.CompletedTask;
+            }
+            """, assemblyName: "Shop.Infrastructure");
 }

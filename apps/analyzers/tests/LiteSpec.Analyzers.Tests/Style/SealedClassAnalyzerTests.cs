@@ -112,6 +112,14 @@ public sealed class SealedClassAnalyzerTests
                     """),
             ]);
 
+    [Fact(DisplayName = "LS3004 ignores the Program composition marker")]
+    public Task IgnoresTheProgramCompositionMarker() =>
+        Verify.AnalyzerAsync<SealedClassAnalyzer>("""
+            namespace Shop.Api;
+
+            public class Program { }
+            """, assemblyName: "Shop.WebApi");
+
     [Fact(DisplayName = "LS3004 ignores a breach outside the five projects")]
     public Task IgnoresABreachOutsideTheFiveProjects() =>
         Verify.AnalyzerAsync<SealedClassAnalyzer>("""

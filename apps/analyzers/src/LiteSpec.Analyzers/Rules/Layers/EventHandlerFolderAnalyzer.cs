@@ -75,6 +75,13 @@ public sealed class EventHandlerFolderAnalyzer : LayerAnalyzer
             return false;
         }
 
+        // A handler of a base interface fact handles every fact, which is stronger
+        // than the two-fact exemption, so it takes no On{Fact} folder demand.
+        if (single.TypeKind == TypeKind.Interface)
+        {
+            return false;
+        }
+
         handled = single;
         fact = single.Name.EndsWith("Event", StringComparison.Ordinal)
             ? single.Name.Substring(0, single.Name.Length - "Event".Length)

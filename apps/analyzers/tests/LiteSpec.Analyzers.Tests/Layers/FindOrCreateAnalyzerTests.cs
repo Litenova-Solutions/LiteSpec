@@ -360,6 +360,83 @@ public sealed class FindOrCreateAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
+    [Fact(DisplayName = "LS2014 accepts a policy-switch creation after an idempotent replay")]
+    public Task AcceptsAPolicySwitchCreationAfterAnIdempotentReplay() =>
+        Verify.AnalyzerAsync<FindOrCreateAnalyzer>("""
+            using System;
+
+            namespace Shop.Loans;
+
+            public sealed class Remedy
+            {
+                public static Remedy DecideForRefundRun(Guid orderId) => new Remedy();
+            }
+
+            public interface IRemedyRepository
+            {
+                Remedy? FindForOrder(Guid orderId);
+            }
+
+            public sealed record PayRefundsCommand(Guid OrderId, string Policy);
+
+            internal sealed class PayRefundsCommandHandler(IRemedyRepository remedyRepository)
+            {
+                public string Handle(PayRefundsCommand command)
+                {
+                    var existing = remedyRepository.FindForOrder(command.OrderId);
+                    if (existing is not null)
+                    {
+                        return "already";
+                    }
+
+                    switch (command.Policy)
+                    {
+                        case "record":
+                            var remedy = Remedy.DecideForRefundRun(command.OrderId);
+                            return "recorded";
+                        default:
+                            return "staged";
+                    }
+                }
+            }
+            """, assemblyName: "Shop.Application");
+
+    [Fact(DisplayName = "LS2014 reports a constructor after a leaving found branch")]
+    public Task ReportsAConstructorAfterALeavingFoundBranch() =>
+        Verify.AnalyzerAsync<FindOrCreateAnalyzer>("""
+            using System;
+
+            namespace Shop.Loans;
+
+            public sealed class Reader
+            {
+                public Reader(Guid cardId) { }
+
+                public Guid Id { get; } = Guid.NewGuid();
+            }
+
+            public interface IReaderRepository
+            {
+                Reader? FindByCard(Guid cardId);
+            }
+
+            public sealed record RegisterReaderCommand(Guid CardId);
+
+            internal sealed class RegisterReaderCommandHandler(IReaderRepository readerRepository)
+            {
+                public Guid Handle(RegisterReaderCommand command)
+                {
+                    var existing = readerRepository.FindByCard(command.CardId);
+                    if (existing is not null)
+                    {
+                        return existing.Id;
+                    }
+
+                    return new {|LS2014:Reader|}(command.CardId).Id;
+                }
+            }
+            """, assemblyName: "Shop.Application");
+
     [Fact(DisplayName = "LS2014 stays silent outside Application and Infrastructure")]
     public Task StaysSilentOutsideItsLayers() =>
         Verify.AnalyzerAsync<FindOrCreateAnalyzer>("""

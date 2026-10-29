@@ -41,10 +41,47 @@ public sealed class HandlerLoopWriteAnalyzer : LayerAnalyzer
         CollectWrites(loop.Body, writes);
         foreach (var write in writes)
         {
+            if (IsFollowedByLeave(write, loop))
+            {
+                continue;
+            }
+
             context.ReportDiagnostic(Diagnostic.Create(
                 Descriptors.LS2015, MemberLocation(write), handler.Name, write.TargetMethod.Name));
         }
     }
+
+    // Whether the write runs at most once per invocation: a search loop that acts on
+    // the first item with work and then leaves, so no batch rolls back together.
+    private static bool IsFollowedByLeave(IInvocationOperation write, ILoopOperation loop)
+    {
+        var child = (IOperation)write;
+        for (var parent = write.Parent; parent != null && parent != loop; child = parent, parent = parent.Parent)
+        {
+            if (parent is IBlockOperation block)
+            {
+                var operations = block.Operations;
+                for (var i = 0; i < operations.Length - 1; i++)
+                {
+                    if (operations[i] == child && Leaves(operations[i + 1]))
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private static bool Leaves(IOperation operation) =>
+        operation switch
+        {
+            IReturnOperation or IThrowOperation => true,
+            IExpressionStatementOperation { Operation: IThrowOperation } => true,
+            IBlockOperation block => block.Operations.Length > 0 && Leaves(block.Operations[block.Operations.Length - 1]),
+            _ => false,
+        };
 
     private static void CollectWrites(IOperation? operation, List<IInvocationOperation> writes)
     {
