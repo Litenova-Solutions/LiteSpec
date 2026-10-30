@@ -97,13 +97,13 @@ public sealed class BatchManyApproveTests
 
         var result = Cli.Run(
             "model", "approve", "--root", fixture.Path,
-            "--batch", "intent/requirement",
+            "--batch", "borrowing/requirement",
             "--batch", "use-case/lending.borrow-copy",
             "--by", "lending-team", "--on", "2026-11-20");
 
         Assert.Equal(0, result.Status);
         Assert.Contains("2 batches approved, 0 refused.", result.Output);
-        Assert.True(File.Exists(Manifest(fixture.Path, "2026-11-20-intent-requirement.json")));
+        Assert.True(File.Exists(Manifest(fixture.Path, "2026-11-20-borrowing-requirement.json")));
         Assert.True(File.Exists(Manifest(fixture.Path, "2026-11-20-use-case-lending-borrow-copy.json")));
 
         var (front, _) = ReviewPages.Read(BorrowCopy(fixture.Path));

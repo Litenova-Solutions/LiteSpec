@@ -101,7 +101,7 @@ public sealed class BookReviewBatchesTests
         Assert.Contains("1 open question", html, StringComparison.Ordinal);
         Assert.Contains("1 scenario, 1 confirmed, 0 passing, 1 stale", html, StringComparison.Ordinal);
         Assert.True(
-            html.IndexOf("batch-intent-requirement", StringComparison.Ordinal)
+            html.IndexOf("batch-borrowing-requirement", StringComparison.Ordinal)
                 < html.IndexOf("batch-use-case-lending-borrow-copy", StringComparison.Ordinal),
             "The batch holding the full re-read sorts first.");
     }

@@ -199,7 +199,7 @@ static class ReviewQueue
 
     /// <summary>
     ///     The batch module: the behavior module holding the record's page, governance
-    ///     for governance records, and intent for everything else.
+    ///     for governance records, and an Intent record's identifier home (intent when it has none).
     /// </summary>
     public static string ModuleOf(ProjectModel model, Record record) =>
         ModuleOf(model.Config.BehaviorDocs, record);
@@ -224,7 +224,16 @@ static class ReviewQueue
             }
         }
 
-        return GovernanceTypes.Contains(record.Type) ? "governance" : "intent";
+        if (GovernanceTypes.Contains(record.Type))
+        {
+            return "governance";
+        }
+
+        // An Intent record batches with the records of its own home, so one open question
+        // holds back only the records it can change.
+        return Identifiers.TrySplit(record.Id, out _, out var home, out _) && home is { Length: > 0 }
+            ? home
+            : "intent";
     }
 
     /// <summary>

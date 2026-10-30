@@ -61,13 +61,13 @@ public sealed class ReviewQueueTests
 
         var fullReRead = result.Output.IndexOf("use-case/lending.extend-loan", StringComparison.Ordinal);
         var reopened = result.Output.IndexOf("use-case/lending.return-copy", StringComparison.Ordinal);
-        var awaited = result.Output.IndexOf("intent/requirement", StringComparison.Ordinal);
+        var awaited = result.Output.IndexOf("borrowing/requirement", StringComparison.Ordinal);
         var plain = result.Output.IndexOf("use-case/lending.borrow-copy", StringComparison.Ordinal);
 
         Assert.True(0 <= fullReRead && fullReRead < reopened, result.Output);
         Assert.True(reopened < awaited, result.Output);
         Assert.True(awaited < plain, result.Output);
-        Assert.Contains("intent/requirement  tier 3  1 record  awaiting 1", result.Output);
+        Assert.Contains("borrowing/requirement  tier 3  1 record  awaiting 1", result.Output);
         Assert.Contains("  result/return-copy.returned  reviewed  reopened", result.Output);
         Assert.Contains("fullReRead", result.Output);
     }
