@@ -111,7 +111,7 @@ public sealed class BatchApproveTests
         Assert.Equal("lending-team", requirement["approvedBy"]!.GetValue<string>());
     }
 
-    /// <summary>A module and type batch approves tier 3 and leaves tier 1 out.</summary>
+    /// <summary>A module and type batch approves its tier 3 drafts; a tier 1 rule waits in a batch of its own.</summary>
     /// <proves>litespec/core/release#approve-drafts-in-bounded-batches</proves>
     [Fact]
     public void Approve_Module_Type_Batch_Leaves_Tier1_Out()
@@ -127,8 +127,11 @@ public sealed class BatchApproveTests
             "--batch", "lending/rule", "--by", "lending-team", "--on", "2026-11-20");
 
         Assert.Equal(0, result.Status);
-        Assert.Contains("rule/loan.extended-before-due: left out (tier 1)", result.Output);
-        Assert.Contains("1 record approved, 0 held, 1 left out.", result.Output);
+        Assert.Contains("1 record approved, 0 held.", result.Output);
+
+        // The tier 1 rule is no member of the module batch: it waits in a batch of its own.
+        var queue = Cli.Run("model", "review", "--root", fixture.Path);
+        Assert.Contains("rule/loan.extended-before-due  tier 1  1 record", queue.Output);
 
         var (front, _) = ReviewPages.Read(LoanAggregate(fixture.Path));
         var entries = front["records"]!.AsArray().OfType<JsonObject>().ToList();

@@ -53,15 +53,17 @@ static class BatchApprover
         ReviewBatch batch,
         string? by,
         string? secondReviewer,
-        string? reviewReport)
+        string? reviewReport,
+        IReadOnlyDictionary<string, int>? findings = null)
     {
         var today = DateOnly.FromDateTime(DateTime.UtcNow);
-        var findings = ReviewQueue.FindingsBySubject(model);
+        findings ??= ReviewQueue.FindingsBySubject(model);
         var members = MembersOf(model, batch);
         var anchor = batch.Kind switch
         {
             "use-case" => batch.Selector,
             "decision" => batch.Selector["decision/".Length..],
+            "record" => batch.Selector,
             _ => (string?)null,
         };
 

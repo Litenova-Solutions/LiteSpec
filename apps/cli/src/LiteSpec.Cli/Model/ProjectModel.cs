@@ -122,6 +122,32 @@ sealed class ProjectModel
 
     private IReadOnlyDictionary<string, Record>? _byId;
 
+    /// <summary>Use-case records by the name their identifier ends in, the first one when names repeat.</summary>
+    public IReadOnlyDictionary<string, Record> UseCasesByName
+    {
+        get
+        {
+            if (_useCasesByName is null)
+            {
+                var index = new Dictionary<string, Record>(StringComparer.Ordinal);
+
+                foreach (var record in ById.Values)
+                {
+                    if (record.Type == "use-case" && Identifiers.TrySplit(record.Id, out _, out _, out var name))
+                    {
+                        index.TryAdd(name, record);
+                    }
+                }
+
+                _useCasesByName = index;
+            }
+
+            return _useCasesByName;
+        }
+    }
+
+    private IReadOnlyDictionary<string, Record>? _useCasesByName;
+
     /// <summary>Writes the model as JSON.</summary>
     public string ToJson()
     {

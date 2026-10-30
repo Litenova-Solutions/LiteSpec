@@ -37,7 +37,7 @@ sealed record ReviewEntry(
 
 /// <summary>One review batch: a use case, a decision, or one module and type.</summary>
 /// <param name="Selector">The batch selector.</param>
-/// <param name="Kind">The batch kind: use-case, decision, or module-type.</param>
+/// <param name="Kind">The batch kind: use-case, decision, record (one tier 1 record on its own), or module-type.</param>
 /// <param name="Tier">The batch tier: 1 when any record is tier 1, else 3.</param>
 /// <param name="Deciders">The distinct deciders, sorted.</param>
 /// <param name="DecideBy">The earliest decide-by date, or null.</param>
@@ -81,7 +81,14 @@ static class ReviewQueue
     ];
 
     /// <summary>Computes the review queue from the model, in review order.</summary>
-    public static IReadOnlyList<ReviewBatch> Compute(ProjectModel model)
+    public static IReadOnlyList<ReviewBatch> Compute(ProjectModel model) =>
+        Compute(model, FindingsBySubject(model));
+
+    /// <summary>
+    ///     Computes the review queue with open-finding counts already taken, so a run
+    ///     approving many batches checks the model once rather than once per batch.
+    /// </summary>
+    public static IReadOnlyList<ReviewBatch> Compute(ProjectModel model, IReadOnlyDictionary<string, int> findings)
     {
         var today = DateOnly.FromDateTime(DateTime.UtcNow);
         return ComputeBatches(
@@ -89,7 +96,7 @@ static class ReviewQueue
             model.EffectiveStatus,
             model.Proves,
             model.Stale,
-            FindingsBySubject(model),
+            findings,
             model.Config,
             today);
     }
@@ -590,6 +597,12 @@ static class ReviewQueue
             else if (Deciding(records, queued, record) is { } decider)
             {
                 For("decision/" + decider.Id, "decision/" + decider.Id, "decision").Members.Add(record);
+            }
+            else if (TierOf(records, record) == 1)
+            {
+                // A tier 1 record no use case or decision holds is read on its own: a module
+                // batch is sampled, and a tier 1 record is never left to a sample.
+                For("record/" + record.Id, record.Id, "record").Members.Add(record);
             }
             else
             {

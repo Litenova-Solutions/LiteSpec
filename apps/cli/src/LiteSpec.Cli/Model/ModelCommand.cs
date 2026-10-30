@@ -577,13 +577,21 @@ static class ModelCommand
         var approved = 0;
         var refused = 0;
 
+        // The open-finding counts are taken once for the run: the manifests record the
+        // findings open when the run began, and every batch is planned against them.
+        var findings = ReviewQueue.FindingsBySubject(model);
+
+        // Batch membership follows the selector, not the statuses an approval changes, so the
+        // queue is computed once too; each plan reads its records from the updated model.
+        var queue = ReviewQueue.Compute(model, findings);
+
         foreach (var request in requests)
         {
             var rawReport = request.ReviewReport ?? defaultReport;
             var reviewReport = rawReport is { Length: > 0 } report && !Path.IsPathRooted(report)
                 ? Path.Combine(root, report)
                 : rawReport;
-            var batch = BatchApprover.Find(ReviewQueue.Compute(model), request.Selector);
+            var batch = BatchApprover.Find(queue, request.Selector);
 
             if (batch is null)
             {
@@ -592,7 +600,7 @@ static class ModelCommand
                 continue;
             }
 
-            var plan = BatchApprover.Plan(model, batch, by, secondReviewer, reviewReport);
+            var plan = BatchApprover.Plan(model, batch, by, secondReviewer, reviewReport, findings);
 
             if (dryRun)
             {

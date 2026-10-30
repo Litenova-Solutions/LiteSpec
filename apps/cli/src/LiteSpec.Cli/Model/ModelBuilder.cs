@@ -535,10 +535,7 @@ static partial class ModelBuilder
 
     /// <summary>The use case a result or scenario home names, when one holds it.</summary>
     public static Record? UseCaseOf(ProjectModel model, string home) =>
-        model.ById.Values.FirstOrDefault(record =>
-            record.Type == "use-case"
-            && Identifiers.TrySplit(record.Id, out _, out _, out var name)
-            && name == home);
+        model.UseCasesByName.TryGetValue(home, out var useCase) ? useCase : null;
 
     /// <summary>
     ///     The use case holding a result or scenario: the carrying page for a derived

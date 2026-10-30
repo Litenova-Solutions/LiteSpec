@@ -164,7 +164,7 @@ A consumer adopts one LiteSpec release by installing the `LiteSpec.Cli` tool pac
 
 **ID:** `litespec/core/release#approve-drafts-in-bounded-batches`
 
-**Statement:** A batch approval MUST cover one use case with its results and scenarios, one decision with the records it decides, or the tier 3 drafts of one module and one record type, where an Intent record's module is its identifier home, so an open question holds back only the records of its own home.
+**Statement:** A batch approval MUST cover one use case with its results and scenarios, one decision with the records it decides, one tier 1 record no use case or decision holds, on its own, or the tier 3 drafts of one module and one record type, where an Intent record's module is its identifier home, so an open question holds back only the records of its own home.
 
 **Rationale:** One signature over hundreds of unread records is a rubber stamp. Bounding a batch to what one person can read in one sitting keeps each approval a decision: a tier 1 use case is read with the results and scenarios that state its promise, a decision with what it settles, and tier 3 drafts in sets small enough to sample.
 
