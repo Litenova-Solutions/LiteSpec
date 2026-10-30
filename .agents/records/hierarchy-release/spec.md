@@ -20,7 +20,7 @@ This specification is the source the ledger slices point at. Part 0 is binding a
 10. **The Links table** carries a "reads as" phrase in both directions for every link, and the book takes its connection labels from it.
 11. **The book generator** (`litespec book`) is rebuilt to the approved mockup (`.agents/mockups/book-v6.html` and `.agents/mockups/book-v6/`), generated from the model.
 12. **LiteSpec's own research and decisions** become records in the LiteSpec tree (Part A), and the research record gains a required `conclusion`.
-13. No LiteSpec release is tagged or published by this work. No history, migration or compatibility material is kept in LiteSpec. NightHall migrates in the same plan.
+13. No LiteSpec release is tagged or published by this work. No history, migration or compatibility material is kept in LiteSpec. NightHall migrates in the same plan. **14. Agents decide and approve NightHall's gaps.** For waves 7 to 9 the agents research each gap themselves (NightHall's own records, code and research, and web search with dated sources), write the missing parents and records, and approve them at their own discretion once LiteSpec's approval tool is fixed (Part G); every judgement is recorded with its reason in NightHall's decision log. The owner granted this on 2026-10-30.
 
 ### Corrections the Judge Made to the Sections
 
@@ -31,7 +31,7 @@ This specification is the source the ledger slices point at. Part 0 is binding a
 - **C5. `result-without-scenario`** is tier G for success results and tier A for refusals (Part D).
 - **C6. No `rule-fulfills-nothing`** in this release; a rule's parent is its identifier home.
 - **C7. The book** is one offline shell with sharded data and no Mermaid (Part E).
-- **C8. Execution order.** LiteSpec contract and research records first (Parts A, B), then checks and builder (Parts C, D), then the book (Part E), then NightHall (Part F). NightHall's founder decisions (journey goals, feature goals, requirement origins) are written as drafts with the founder as decider and listed for the founder, never decided by an agent.
+- **C8. Execution order.** LiteSpec contract and research records first (Parts A, B), then checks and builder (Parts C, D), then the book (Part E), then the approval tool fixes (Part G1), then NightHall (Part F), whose judgement items (journey goals, feature goals, requirement origins, new records) are researched and decided by the agents and approved in wave 9 (Part G2 and G3), per decision 14. Where Part F says "founder draft" or "for the founder", read "researched and decided by the agent, recorded in the decision log".
 
 
 ## Part A: LiteSpec's Own Research and Decisions
@@ -1081,3 +1081,33 @@ One origin per requirement, written as in N6. "Feature" means the carrying featu
 | Not NightHall's to decide | The parent rule for root types if a written link is demanded; `rule.reads` and `notification.serves`; the `result.kind` duplication | LiteSpec, in p-contract, before N4's gate |
 
 **Order.** N1 baseline, then the tool pin and N2, N3, N4 in one commit series with no model check claimed between the pin move and N3 (the new schema would correctly refuse every old identifier, which is an artefact of sequencing, not a finding), then a first full check. That check must show the baseline 2,711 open and 328 known, unchanged by code, plus only the intended new findings: requirement origin 719, journey goal 112, feature goal 28, refused-feature parent 71, deviation scope 5 — and no other new code. N5, N6 and N7 then burn those counts down in founder-approved passes, each pass followed by the same check, and each pass must leave every other finding count untouched; a change in any unrelated code is a defect in the script, not progress. N8 closes. Because the missing-parent check is tier G for all records including drafts, there is no intermediate state in which the check is green while founder rows are still open — by design, and stated here so nobody manufactures green: either the founder has decided a pass, or its count stands reported, named by record, with no known gap covering a founder choice the founder has not made.
+## Part G: Correct Approval Stamps, and Approving NightHall
+
+### G1. Fix the Approval Tool in LiteSpec
+
+The last NightHall approval run stamped records that LiteSpec's own checks then refused (NightHall decision J39 in `D:/Personal-Projects/Nighthall/.agents/records/traceability/judge-decisions.md`). Fix each defect in `apps/cli/src/LiteSpec.Cli/Model/` (`BatchApprover.cs`, `Approver.cs`, `ReviewQueue.cs`, and the checker file that owns `transcribed-reviewed`), with a test per defect in the existing approval tests under `apps/cli/tests/LiteSpec.Cli.Tests/Model/`:
+
+1. **Screens are Behavior.** The review queue counted `screen` as an Intent type, so screens were stamped `approved`; a screen is promoted to `reviewed`, like every Behavior record. Read the layer of each type from one table in `apps/model/src/LiteSpec.Model.Core/RecordTypes.cs`, not a list in the queue.
+2. **Scenarios on reaction and job pages carry their own stamp.** A reaction or job batch holds the scenarios on its page the way a use case batch does, and each is stamped with `approvedBy`, `approvedOn` and `approvedHash`.
+3. **An approved decision records its date.** Approving a decision writes `decidedOn` (the field renamed from `decided` in Part B) together with `chosen` where the decision names one.
+4. **`transcribed-reviewed` follows its provision.** It reports a reviewed transcribed record only while the Intent parent it rests on is unapproved, as `litespec/core/model#hold-transcribed-records-in-draft` states, not every reviewed transcribed record.
+
+Proof: the four tests, then the full verify ladder. Approving the Claimwick example end to end with `litespec model approve --batches` produces no finding from `litespec model check --root examples/claimwick`.
+
+### G2. How the Agents Close NightHall's Gaps (Waves 7 and 8)
+
+For every gap Part F lists (a journey's goal, a feature's goal, a requirement's origin, any record a parent needs that does not exist yet):
+
+1. **Research.** Read the record, its page, the records around it, NightHall's research and decision records, the code that implements it, and the founder's own words in `docs/intent/` (brief, goals, roadmap). Search the web where the gap is a market, legal or product fact, and cite each source with its read date.
+2. **Decide.** Pick the parent that the evidence supports. Where no record fits, write the missing record (a feature, a constraint, a research record with its `conclusion`) in NightHall's house style, citing its sources.
+3. **Record.** Add one entry per judgement group to `.agents/records/traceability/judge-decisions.md` in NightHall: what was decided, the options weighed, the evidence, and the confidence. Group small judgements (for example all requirements on one page) into one entry.
+4. **Leave nothing unparented.** At the end of wave 8, `record-without-parent` reports zero in NightHall.
+
+### G3. Approving NightHall (Wave 9)
+
+After G1 is green and waves 6 to 8 are committed:
+
+1. Build NightHall's model with this LiteSpec and print the review queue (`litespec model review --root D:/Personal-Projects/Nighthall --format json`).
+2. Review each batch as an agent reviewer: a Muse worker reads the batch against its parents, its code and its scenarios, and writes a review report under NightHall's `docs/proof/reviews/` in the shape `docs/core/release.md` sets. A batch the reviewer finds wrong is fixed first, or held with its reason in the decision log.
+3. Approve with `litespec model approve --root D:/Personal-Projects/Nighthall --batches <file> --by "NightHall founder" --second-reviewer agent`, each batch line naming its review report; tier 1 batches carry the agent second review the tool requires.
+4. Verify: `litespec model check --root D:/Personal-Projects/Nighthall` reports no finding the approvals introduced, and every approved record has its stamp (`approvedBy`, `approvedOn`, `approvedHash`). Record the counts approved, held and why in the decision log, and update J39 to say the stamps are written.

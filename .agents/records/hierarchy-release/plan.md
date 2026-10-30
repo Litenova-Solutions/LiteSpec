@@ -3,7 +3,7 @@
 **Created:** 2026-10-30
 **Status:** ready-to-run
 **Source:** `.agents/records/hierarchy-release/spec.md`. Part 0 (lines 7 to 35) holds the owner's binding decisions and the judge's corrections and wins over Parts A to F. The evidence behind it is in `.agents/delegate/hier/done/` (seven investigation reports) and `.agents/delegate/plan/done/` (the six planning sections the specification was assembled from).
-**Branch:** LiteSpec `v3` for waves 1 to 5; NightHall `v1` (`D:/Personal-Projects/Nighthall`) for waves 6 to 8. Both already exist and are pushed; commit and push each green wave to its repository's branch only.
+**Branch:** LiteSpec `v3` for waves 1 to 5; NightHall `v1` (`D:/Personal-Projects/Nighthall`) for waves 6 to 9. Both already exist and are pushed; commit and push each green wave to its repository's branch only.
 
 ## Goal
 
@@ -15,7 +15,8 @@ Make every LiteSpec record sit in one complete structure and make the book show 
 - The Links table reads both ways, and the book takes its labels from it.
 - `litespec book` is rebuilt to the approved mockup (`.agents/mockups/book-v6.html`).
 - LiteSpec's own research and decisions live in its tree as records; research records state a conclusion.
-- NightHall is migrated, with every founder judgement written as a draft for the founder.
+- LiteSpec's approval tool writes correct stamps (the four defects in NightHall decision J39 fixed).
+- NightHall is migrated: the agents research and decide every gap, record each judgement, and approve NightHall with the fixed tool (owner's decision 14, 2026-10-30).
 
 ## Rules Every Slice Follows
 
@@ -28,7 +29,7 @@ The writer brief header (`brief-write.md`) carries these to every worker:
 - Never name a consumer project in LiteSpec.
 - Links are written on the record that points; inverses are computed (`litespec/core/model#write-links-on-the-record-that-points`).
 - The book shows only LiteSpec terms, LiteSpec's own explanations and computed facts (the six book standards in `docs/core/model.md`).
-- NightHall founder items are drafts for the founder; NightHall tests change only by mechanical call-site replacement.
+- NightHall judgement items are researched and decided by the agent, each with its evidence recorded; NightHall tests change only by mechanical call-site replacement.
 
 ## Verify Ladder
 
@@ -42,7 +43,7 @@ The writer brief header (`brief-write.md`) carries these to every worker:
 | tests | `dotnet test --solution LiteSpec.slnx` | all |
 | whitespace | `git diff --check` | all |
 | book-smoke | `litespec book` renders the fixture model | 3 to 8 (the old book until wave 4, the new one after) |
-| nh-build, nh-check, nh-consumer, nh-book | NightHall's model builds and checks against this LiteSpec, and its book renders; run with `NIGHTHALL=1` | 6 to 8 |
+| nh-build, nh-check, nh-consumer, nh-book | NightHall's model builds and checks against this LiteSpec, and its book renders; run with `NIGHTHALL=1` | 6 to 9 |
 
 NightHall's own tests are not run by this plan.
 
@@ -54,24 +55,23 @@ NightHall's own tests are not run by this plan.
 | 2 | Check foundations; LiteSpec's own records | 2 | `checks.foundations` | The builder extracts the new links, derives the new result form, exports `follows`; this release's research and decisions are records |
 | 3 | New checks; book data core | 6 | none | `record-without-parent`, `feature-without-goal`, `result-without-scenario` report on fixtures; the book's lexicon, outline and enrichment are tested |
 | 4 | Book shell and client; renames in existing checks | 3 | `checks.renames` | The new book renders from shards with the mockup's design; existing checks read the renamed fields; the finding table lists the new codes |
-| 5 | Retire the old book; scale; docs | 3 | `book.retire-old` | The old pipeline is gone, a 21,500-record model renders within the shard caps, and `docs/tools/book.md` describes the new command |
+| 5 | Retire the old book; scale; docs; approval tool fixes | 4 | `book.retire-old` | The old pipeline is gone, a 21,500-record model renders within the shard caps, `docs/tools/book.md` describes the new command, and the approval tool stamps screens, reaction scenarios and decisions correctly |
 | 6 | NightHall mechanical migration | 1 | `nighthall.baseline-and-renames` | NightHall uses the new field names and the derived result form; its model builds with the new LiteSpec |
-| 7 | NightHall founder drafts; link fields | 6 | none | Every journey, feature and requirement names its parent as a draft for the founder; `readBy` adopted, `sentBy` and `writes` gone |
-| 8 | NightHall close-out | 1 | `nighthall.close-out` | `record-without-parent` reports zero in NightHall; every new draft is listed under For the Founder |
+| 7 | NightHall gaps, researched and decided; link fields | 6 | none | Every journey, feature and requirement names its parent, chosen from evidence and recorded; `readBy` adopted, `sentBy` and `writes` gone |
+| 8 | NightHall close-out | 1 | `nighthall.close-out` | `record-without-parent` reports zero in NightHall; every judgement group has a decision-log entry |
+| 9 | Approving NightHall | 1 | `nighthall.approval-waves` | Agent-reviewed batches are approved with the fixed tool; the model check shows no finding the approvals introduced; J39 is closed |
 
-Totals: 23 slices; 6 `judge`, 17 `muse`, 0 `free`. Waves are small because nearly every change in this release edits shared contract files; the ledger keeps the slices of a wave on separate paths.
+Totals: 25 slices; 7 `judge`, 18 `muse`, 0 `free`. Waves are small because nearly every change in this release edits shared contract files; the ledger keeps the slices of a wave on separate paths.
 
 ## Scope
 
 ### Out
 
-- **The founder's approvals.** Approving the journey goals, feature goals and requirement origins that waves 7 and 8 write as drafts belongs to the NightHall founder, through `litespec model approve`.
 - **Tagging or publishing a LiteSpec release.** Not part of this plan (owner's decision 13).
-- **The NightHall approval waves held in J39** (`D:/Personal-Projects/Nighthall/.agents/records/traceability/judge-decisions.md`). A separate piece of work.
 
 ### Irreversible
 
-None. Every change is a commit on `v3` or `v1`; nothing is published, tagged, deployed or sent outside the two repositories.
+None. Every change, the NightHall approval stamps included, is a commit on `v3` or `v1` that a later commit can revert; nothing is published, tagged, deployed or sent outside the two repositories.
 
 ## Open Questions
 

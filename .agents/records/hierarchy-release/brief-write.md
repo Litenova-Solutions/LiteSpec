@@ -32,7 +32,7 @@ Open {{example}} first, then the files beside it in every layer. Copy its shape,
 - **Write links on the record that points; never a down-pointing link field;** inverses are computed (`litespec/core/model#write-links-on-the-record-that-points`).
 - **The book shows only LiteSpec terms, LiteSpec's own explanations, and computed facts** (the six book standards at the end of the Standards section of docs/core/model.md).
 - **New C# follows the file beside it:** one `Check*` method per finding family appending findings with path, line, message and subject; a test per finding in the nearest test file's style.
-- **NightHall founder items are drafts:** status draft, decider "NightHall founder", a decideBy date, and an entry in the For the Founder section; an agent never approves them. NightHall tests change only by mechanical call-site replacement.
+- **NightHall judgement items are yours to decide** (decision 14, Part G2): research each gap in NightHall's records, code and research and on the web, cite every source with its read date, pick what the evidence supports, write it, and record each judgement with its evidence under Decisions in your done file. Approval happens in wave 9, not in your slice. NightHall tests change only by mechanical call-site replacement.
 
 ## Do not
 
