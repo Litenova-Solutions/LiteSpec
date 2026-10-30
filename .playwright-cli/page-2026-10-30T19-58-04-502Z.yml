@@ -1,0 +1,394 @@
+- generic [active] [ref=f2e1]:
+  - banner [ref=f2e2]:
+    - generic [ref=f2e3]:
+      - generic [ref=f2e11]: Riverside Library
+      - generic [ref=f2e12]: /
+      - generic [ref=f2e13]: Book
+    - generic [ref=f2e14]:
+      - searchbox "Filter the navigation" [ref=f2e18]
+      - generic [aria-hidden] [ref=f2e19]: /
+    - 'button "Test run 20 Oct 2026: 1 passed" [ref=f2e25129]':
+      - text: "Test run 20 Oct 2026:"
+      - generic [ref=f2e25132]: "1"
+      - text: passed
+    - button "37 of 39 settled" [ref=f2e25133]
+    - button "Intent tree" [ref=f2e30] [cursor=pointer]
+    - button "Recent" [ref=f2e32] [cursor=pointer]
+    - button "Download review" [ref=f2e33] [cursor=pointer]
+    - button "Keyboard shortcuts" [ref=f2e36] [cursor=pointer]: "?"
+    - button "Switch to dark theme" [ref=f2e37] [cursor=pointer]
+  - generic [ref=f2e40]:
+    - complementary "Navigation" [ref=f2e41]:
+      - generic [ref=f2e42]:
+        - tablist "View" [ref=f2e43]:
+          - tab "Outline" [selected] [ref=f2e25137] [cursor=pointer]
+          - tab "Review queue" [ref=f2e25142] [cursor=pointer]
+          - tab "Security 0" [ref=f2e25145] [cursor=pointer]:
+            - text: Security
+            - generic [ref=f2e25149]: "0"
+          - tab "Ballots 2" [ref=f2e25150] [cursor=pointer]:
+            - text: Ballots
+            - generic [ref=f2e25154]: "2"
+        - generic [ref=f2e62]:
+          - button "Filter" [ref=f2e25155] [cursor=pointer]
+          - generic [ref=f2e25158]: Sort
+          - combobox "Sort" [ref=f2e25159]:
+            - 'option "Sort: outline" [selected]'
+            - option "Title"
+            - option "Decide by, soonest"
+            - option "Risk tier first"
+            - option "Most open questions"
+            - option "Proof, failing first"
+            - option "Review status"
+          - button "Expand all" [ref=f2e25160] [cursor=pointer]
+          - button "Collapse all" [ref=f2e25164] [cursor=pointer]
+          - button "Show the selected record" [ref=f2e25168] [cursor=pointer]
+        - generic [ref=f2e80]:
+          - text: 39 records in this book.
+          - generic [ref=f2e25172]:
+            - generic [ref=f2e25173]: Draft
+            - generic [ref=f2e25178]: Approved or reviewed
+            - generic [ref=f2e25183]: Held by a draft
+            - generic [ref=f2e25188]: No code or no test
+      - generic [ref=f2e101]:
+        - generic [ref=f2e25192]:
+          - button "Intent 13" [expanded] [ref=f2e25193] [cursor=pointer]:
+            - generic [ref=f2e25198]: Intent
+            - generic "12 of 13 approved or reviewed" [ref=f2e25199]: "13"
+          - paragraph [ref=f2e25202]:
+            - text: Written by agents draft, the founder decides; reviewed by the founder and product people.
+            - button "Open" [ref=f2e25203] [cursor=pointer]
+          - tree "Intent outline" [ref=f2e25205]:
+            - button "Products 1" [expanded] [ref=f2e25206] [cursor=pointer]:
+              - generic [ref=f2e25209]: Products
+              - generic [ref=f2e25210]: "1"
+            - treeitem "Product, Riverside Library, approved" [level=1] [ref=f2e25211] [cursor=pointer]:
+              - button [aria-hidden] [ref=f2e25212]
+              - generic "Riverside Library" [ref=f2e25219]
+              - generic [ref=f2e25220]: "7"
+              - generic "approved" [ref=f2e25221]
+            - button "Journeys 1" [expanded] [ref=f2e25225] [cursor=pointer]:
+              - generic [ref=f2e25228]: Journeys
+              - generic [ref=f2e25229]: "1"
+            - treeitem "Journey, Borrowing, approved" [level=1] [ref=f2e25230] [cursor=pointer]:
+              - generic "Borrowing" [ref=f2e25236]
+              - generic "approved" [ref=f2e25237]
+        - generic [ref=f2e25241]:
+          - button "Behavior 23" [expanded] [ref=f2e25242] [cursor=pointer]:
+            - generic [ref=f2e25245]: Behavior
+            - generic "22 of 23 approved or reviewed" [ref=f2e25246]: "23"
+          - paragraph [ref=f2e25249]:
+            - text: Written by agents; reviewed by developers; the security reviewer for access, outside calls and personal-data flows.
+            - button "Open" [ref=f2e25250] [cursor=pointer]
+          - tree "Behavior outline" [ref=f2e25252]:
+            - button "Modules 1" [expanded] [ref=f2e25253] [cursor=pointer]:
+              - generic [ref=f2e25256]: Modules
+              - generic [ref=f2e25257]: "1"
+            - treeitem "Module, Lending, reviewed" [expanded] [level=1] [ref=f2e25258] [cursor=pointer]:
+              - button [aria-hidden] [ref=f2e25259]
+              - generic "Lending" [ref=f2e25265]
+              - generic "reviewed" [ref=f2e25266]
+            - group [ref=f2e25270]:
+              - button "Aggregates 1" [expanded] [ref=f2e25271] [cursor=pointer]:
+                - generic [ref=f2e25274]: Aggregates
+                - generic [ref=f2e25275]: "1"
+              - treeitem "Aggregate, Loan, reviewed" [expanded] [level=2] [ref=f2e25276] [cursor=pointer]:
+                - button [aria-hidden] [ref=f2e25277]
+                - generic "Loan" [ref=f2e25283]
+                - generic "No code" [ref=f2e25284]
+                - generic "reviewed" [ref=f2e25287]
+              - group [ref=f2e25291]:
+                - button "Rules 2" [expanded] [ref=f2e25292] [cursor=pointer]:
+                  - generic [ref=f2e25295]: Rules
+                  - generic [ref=f2e25296]: "2"
+                - treeitem "Rule, Late Fee, reviewed" [level=3] [ref=f2e25297] [cursor=pointer]:
+                  - generic "Late Fee" [ref=f2e25301]
+                  - generic "No test" [ref=f2e25302]
+                  - generic "reviewed" [ref=f2e25305]
+                - treeitem "Rule, One Loan Per Copy, reviewed" [level=3] [ref=f2e25309] [cursor=pointer]:
+                  - generic "One Loan Per Copy" [ref=f2e25313]
+                  - generic "No test" [ref=f2e25314]
+                  - generic "reviewed" [ref=f2e25317]
+                - button "Use cases 2" [expanded] [ref=f2e25321] [cursor=pointer]:
+                  - generic [ref=f2e25324]: Use cases
+                  - generic [ref=f2e25325]: "2"
+                - treeitem "Use case, Borrow Copy, reviewed, linked" [expanded] [level=3] [ref=f2e25326] [cursor=pointer]:
+                  - button [aria-hidden] [ref=f2e25327]
+                  - generic "Borrow Copy" [ref=f2e25333]
+                  - generic "Scenarios without a test" [ref=f2e25334]
+                  - generic "Linked to the selected record" [ref=f2e25337]
+                  - generic "reviewed" [ref=f2e25341]
+                - group [ref=f2e25345]:
+                  - button "Results 2" [expanded] [ref=f2e25346] [cursor=pointer]:
+                    - generic [ref=f2e25349]: Results
+                    - generic [ref=f2e25350]: "2"
+                  - treeitem "Result, Borrowed, reviewed, linked" [expanded] [level=4] [ref=f2e25351] [cursor=pointer]:
+                    - button [aria-hidden] [ref=f2e25352]
+                    - generic "Borrowed" [ref=f2e25359]
+                    - generic "Linked to the selected record" [ref=f2e25360]
+                    - generic "reviewed" [ref=f2e25364]
+                  - group [ref=f2e25368]:
+                    - button "Scenarios 1" [expanded] [ref=f2e25369] [cursor=pointer]:
+                      - generic [ref=f2e25372]: Scenarios
+                      - generic [ref=f2e25373]: "1"
+                    - treeitem "Scenario, Borrowing An Available Copy Succeeds, reviewed" [level=5] [selected] [ref=f2e25374] [cursor=pointer]:
+                      - generic "Borrowing An Available Copy Succeeds" [ref=f2e25380]
+                      - generic "reviewed" [ref=f2e25381]
+                  - treeitem "Result, Copy Unavailable, reviewed" [level=4] [ref=f2e25385] [cursor=pointer]:
+                    - button [aria-hidden] [ref=f2e25386]
+                    - generic "Copy Unavailable" [ref=f2e25393]
+                    - generic [ref=f2e25394]: "1"
+                    - generic "reviewed" [ref=f2e25395]
+                - treeitem "Use case, Return Copy, reviewed" [level=3] [ref=f2e25399] [cursor=pointer]:
+                  - generic "Return Copy" [ref=f2e25403]
+                  - generic "Scenarios without a test" [ref=f2e25404]
+                  - generic "reviewed" [ref=f2e25407]
+                - button "Events 2" [expanded] [ref=f2e25411] [cursor=pointer]:
+                  - generic [ref=f2e25414]: Events
+                  - generic [ref=f2e25415]: "2"
+                - treeitem "Event, Loan Borrowed, reviewed" [level=3] [ref=f2e25416] [cursor=pointer]:
+                  - generic "Loan Borrowed" [ref=f2e25420]
+                  - generic "reviewed" [ref=f2e25421]
+                - treeitem "Event, Loan Due, reviewed" [level=3] [ref=f2e25425] [cursor=pointer]:
+                  - generic "Loan Due" [ref=f2e25429]
+                  - generic "reviewed" [ref=f2e25430]
+              - button "Reactions 1" [expanded] [ref=f2e25434] [cursor=pointer]:
+                - generic [ref=f2e25437]: Reactions
+                - generic [ref=f2e25438]: "1"
+              - treeitem "Reaction, Send Due Reminder, reviewed" [level=2] [ref=f2e25439] [cursor=pointer]:
+                - generic "Send Due Reminder" [ref=f2e25444]
+                - generic "No code" [ref=f2e25445]
+                - generic "reviewed" [ref=f2e25448]
+              - button "Jobs 1" [expanded] [ref=f2e25452] [cursor=pointer]:
+                - generic [ref=f2e25455]: Jobs
+                - generic [ref=f2e25456]: "1"
+              - treeitem "Job, Send Overdue Notices, reviewed" [level=2] [ref=f2e25457] [cursor=pointer]:
+                - generic "Send Overdue Notices" [ref=f2e25463]
+                - generic "No code" [ref=f2e25464]
+                - generic "reviewed" [ref=f2e25467]
+              - button "Notifications 1" [expanded] [ref=f2e25471] [cursor=pointer]:
+                - generic [ref=f2e25474]: Notifications
+                - generic [ref=f2e25475]: "1"
+              - treeitem "Notification, Due Reminder, reviewed" [level=2] [ref=f2e25476] [cursor=pointer]:
+                - generic "Due Reminder" [ref=f2e25481]
+                - generic "reviewed" [ref=f2e25482]
+              - button "Settings 1" [expanded] [ref=f2e25486] [cursor=pointer]:
+                - generic [ref=f2e25489]: Settings
+                - generic [ref=f2e25490]: "1"
+              - treeitem "Setting, Max Active Loans, approved" [level=2] [ref=f2e25491] [cursor=pointer]:
+                - generic "Max Active Loans" [ref=f2e25497]
+                - generic "approved" [ref=f2e25498]
+            - button "Roles 1" [expanded] [ref=f2e25502] [cursor=pointer]:
+              - generic [ref=f2e25505]: Roles
+              - generic [ref=f2e25506]: "1"
+            - treeitem "Role, Member, reviewed" [level=1] [ref=f2e25507] [cursor=pointer]:
+              - generic "Member" [ref=f2e25512]
+              - generic "reviewed" [ref=f2e25513]
+            - button "Permissions 1" [expanded] [ref=f2e25517] [cursor=pointer]:
+              - generic [ref=f2e25520]: Permissions
+              - generic [ref=f2e25521]: "1"
+            - treeitem "Permission, Borrow Copy, reviewed" [level=1] [ref=f2e25522] [cursor=pointer]:
+              - generic "Borrow Copy" [ref=f2e25528]
+              - generic "reviewed" [ref=f2e25529]
+            - button "Entry points 1" [expanded] [ref=f2e25533] [cursor=pointer]:
+              - generic [ref=f2e25536]: Entry points
+              - generic [ref=f2e25537]: "1"
+            - treeitem "Entry point, Library App, reviewed" [level=1] [ref=f2e25538] [cursor=pointer]:
+              - button [aria-hidden] [ref=f2e25539]
+              - generic "Library App" [ref=f2e25546]
+              - generic [ref=f2e25547]: "1"
+              - generic "reviewed" [ref=f2e25548]
+            - button "External systems 1" [expanded] [ref=f2e25552] [cursor=pointer]:
+              - generic [ref=f2e25555]: External systems
+              - generic [ref=f2e25556]: "1"
+            - treeitem "External system, Fine Payments, reviewed" [level=1] [ref=f2e25557] [cursor=pointer]:
+              - generic "Fine Payments" [ref=f2e25563]
+              - generic "No code" [ref=f2e25564]
+              - generic "reviewed" [ref=f2e25567]
+            - button "Runbooks 1" [expanded] [ref=f2e25571] [cursor=pointer]:
+              - generic [ref=f2e25574]: Runbooks
+              - generic [ref=f2e25575]: "1"
+            - treeitem "Runbook, Overdue Notice, reviewed" [level=1] [ref=f2e25576] [cursor=pointer]:
+              - generic "Overdue Notice" [ref=f2e25580]
+              - generic "reviewed" [ref=f2e25581]
+            - button "Integration events 1" [expanded] [ref=f2e25585] [cursor=pointer]:
+              - generic [ref=f2e25588]: Integration events
+              - generic [ref=f2e25589]: "1"
+            - treeitem "Integration event, Loan Borrowed, reviewed" [level=1] [ref=f2e25590] [cursor=pointer]:
+              - generic "Loan Borrowed" [ref=f2e25594]
+              - generic "reviewed" [ref=f2e25595]
+        - button "Implementation 0" [ref=f2e25600] [cursor=pointer]:
+          - generic [ref=f2e25604]: Implementation
+          - generic "0 of 0 approved or reviewed" [ref=f2e25605]: "0"
+        - button "Proof 0" [ref=f2e25609] [cursor=pointer]:
+          - generic [ref=f2e25612]: Proof
+          - generic "0 of 0 approved or reviewed" [ref=f2e25613]: "0"
+        - generic [ref=f2e25616]:
+          - button "Governance 2" [expanded] [ref=f2e25617] [cursor=pointer]:
+            - generic [ref=f2e25622]: Governance
+            - generic "2 of 2 approved or reviewed" [ref=f2e25623]: "2"
+          - paragraph [ref=f2e25626]:
+            - button "Open" [ref=f2e25627] [cursor=pointer]
+          - tree "Governance outline" [ref=f2e25629]:
+            - button "Deviations 1" [expanded] [ref=f2e25630] [cursor=pointer]:
+              - generic [ref=f2e25633]: Deviations
+              - generic [ref=f2e25634]: "1"
+            - treeitem "Deviation, Kiosk Cache, approved" [level=1] [ref=f2e25635] [cursor=pointer]:
+              - generic "Kiosk Cache" [ref=f2e25641]
+              - generic "approved" [ref=f2e25642]
+            - button "Known gaps 1" [expanded] [ref=f2e25646] [cursor=pointer]:
+              - generic [ref=f2e25649]: Known gaps
+              - generic [ref=f2e25650]: "1"
+            - treeitem "Known gap, Offline Kiosk, approved" [level=1] [ref=f2e25651] [cursor=pointer]:
+              - generic "Offline Kiosk" [ref=f2e25655]
+              - generic "approved" [ref=f2e25656]
+        - generic [ref=f2e25660]:
+          - button "Glossary 1" [expanded] [ref=f2e25661] [cursor=pointer]:
+            - generic [ref=f2e25664]: Glossary
+            - generic "1 of 1 approved or reviewed" [ref=f2e25665]: "1"
+          - paragraph [ref=f2e25668]:
+            - button "Open" [ref=f2e25669] [cursor=pointer]
+          - tree "Glossary outline" [ref=f2e25671]:
+            - treeitem "Term, Loan, approved" [level=1] [ref=f2e25672] [cursor=pointer]:
+              - generic "Loan" [ref=f2e25676]
+              - generic "approved" [ref=f2e25677]
+    - main [ref=f2e304]:
+      - article [ref=f2e305]:
+        - navigation "Location" [ref=f2e25681]:
+          - button "Behavior" [ref=f2e25682] [cursor=pointer]
+          - generic [ref=f2e25683]: /
+          - button "Lending" [ref=f2e25684] [cursor=pointer]
+          - generic [ref=f2e25685]: /
+          - button "Loan" [ref=f2e25686] [cursor=pointer]
+          - generic [ref=f2e25687]: /
+          - button "Borrow Copy" [ref=f2e25688] [cursor=pointer]
+          - generic [ref=f2e25689]: /
+          - button "Borrowed" [ref=f2e25690] [cursor=pointer]
+          - generic [ref=f2e25691]: /
+          - generic [ref=f2e25692]: Scenarios
+          - generic [ref=f2e25693]: /
+          - generic [ref=f2e25694]: Borrowing An Available Copy Succeeds
+        - heading "Borrowing An Available Copy Succeeds" [level=1] [ref=f2e25695]
+        - group [ref=f2e25696]:
+          - generic "What is a scenario?" [ref=f2e25697] [cursor=pointer]
+        - link "docs/behavior/modules/lending/loans/borrow-copy.md:28" [ref=f2e25701] [cursor=pointer]:
+          - /url: vscode://file/D:\Personal-Projects\LiteSpec/docs/behavior/modules/lending/loans/borrow-copy.md:28
+        - generic [ref=f2e25707]:
+          - button "Up" [ref=f2e25708] [cursor=pointer]
+          - button "Previous sibling" [disabled] [ref=f2e25711] [cursor=pointer]
+          - generic [ref=f2e25714]: 1 of 1 scenarios in Borrowed
+          - button "Next sibling" [disabled] [ref=f2e25715] [cursor=pointer]
+        - generic [ref=f2e25718]:
+          - generic [ref=f2e25719]:
+            - term [ref=f2e25720]: Status
+            - definition [ref=f2e25721]: reviewed
+          - generic [ref=f2e25722]:
+            - term [ref=f2e25723]: Status reason
+            - definition [ref=f2e25724]: Settled
+          - generic [ref=f2e25725]:
+            - term [ref=f2e25726]: Owner
+            - definition [ref=f2e25727]: lending-team
+          - generic [ref=f2e25728]:
+            - term [ref=f2e25729]: Risk tier
+            - definition [ref=f2e25730]: Tier 3
+          - generic [ref=f2e25731]:
+            - term [ref=f2e25732]: Proof
+            - definition [ref=f2e25733]: Passing
+        - generic [ref=f2e25734]:
+          - heading "given, when, then" [level=2] [ref=f2e25735]
+          - generic [ref=f2e25737]:
+            - term [ref=f2e25738]: Given
+            - definition [ref=f2e25739]: A copy sits available on its shelf.
+            - term [ref=f2e25740]: When
+            - definition [ref=f2e25741]: The member borrows the copy.
+            - term [ref=f2e25742]: Then
+            - definition [ref=f2e25743]: The loan is active.
+        - generic [ref=f2e25744]:
+          - heading "result" [level=2] [ref=f2e25745]
+          - generic [ref=f2e25747]:
+            - generic [ref=f2e25748]: Borrowed
+            - paragraph [ref=f2e25753]: The copy is lent.
+        - generic [ref=f2e25754]:
+          - heading "Examples" [level=2] [ref=f2e25755]
+          - table [ref=f2e25756]:
+            - rowgroup [ref=f2e25757]:
+              - row [ref=f2e25758]:
+                - columnheader "copy" [ref=f2e25759]
+                - columnheader "member" [ref=f2e25760]
+                - columnheader "due" [ref=f2e25761]
+            - rowgroup [ref=f2e25762]:
+              - row [ref=f2e25763]:
+                - cell "copy-1" [ref=f2e25764]
+                - cell "member-9" [ref=f2e25765]
+                - cell "2026-11-12" [ref=f2e25766]
+              - row [ref=f2e25767]:
+                - cell "copy-2" [ref=f2e25768]
+                - cell "member-3" [ref=f2e25769]
+                - cell "2026-11-13" [ref=f2e25770]
+      - generic [ref=f2e25771]:
+        - generic [ref=f2e25772]: Reviewed
+        - button "Request changes" [ref=f2e25776] [cursor=pointer]
+        - button "Next draft" [ref=f2e25777] [cursor=pointer]
+    - complementary "Connections" [ref=f2e376]:
+      - generic [ref=f2e25780]:
+        - heading "From goal to behavior" [level=3] [ref=f2e25781]
+        - generic [ref=f2e25786]:
+          - generic [ref=f2e25787]: Intent
+          - generic [ref=f2e25789]:
+            - button "Faster Borrowing" [ref=f2e25790] [cursor=pointer]
+            - generic [ref=f2e25796]: goal
+            - generic "approved" [ref=f2e25797]
+          - generic [ref=f2e25802]:
+            - button "Self Checkout" [ref=f2e25803] [cursor=pointer]
+            - generic [ref=f2e25809]: feature
+            - generic "draft" [ref=f2e25810]
+          - generic [ref=f2e25815]:
+            - button "Max Wait" [ref=f2e25816] [cursor=pointer]
+            - generic [ref=f2e25822]: requirement
+            - generic "approved" [ref=f2e25823]
+        - generic [ref=f2e25827]:
+          - generic [ref=f2e25828]: Behavior
+          - generic [ref=f2e25830]:
+            - button "Borrow Copy" [ref=f2e25831] [cursor=pointer]
+            - generic [ref=f2e25835]: use case
+            - generic "reviewed" [ref=f2e25836]
+          - generic [ref=f2e25841]:
+            - button "Borrowed" [ref=f2e25842] [cursor=pointer]
+            - generic [ref=f2e25847]: result
+            - generic "reviewed" [ref=f2e25848]
+          - generic [ref=f2e25853]:
+            - button "Borrowing An Available Copy Succeeds" [ref=f2e25854] [cursor=pointer]
+            - generic [ref=f2e25860]: scenario
+            - generic "reviewed" [ref=f2e25861]
+      - generic [ref=f2e25865]:
+        - heading "Proof 1" [level=3] [ref=f2e25866]:
+          - generic [ref=f2e25869]: Proof
+          - generic [ref=f2e25870]: "1"
+        - generic [ref=f2e25871]:
+          - generic [ref=f2e25872]: Test
+          - link "Borrowing An Available Copy Succeeds tests:41" [ref=f2e25873] [cursor=pointer]:
+            - /url: vscode://file/D:\Personal-Projects\LiteSpec/tests/BorrowTests.cs:41
+            - generic [ref=f2e25874]: Borrowing An Available Copy Succeeds
+            - generic [ref=f2e25875]: tests:41
+      - heading "Connections 1" [level=2] [ref=f2e25876]:
+        - text: Connections
+        - generic [ref=f2e25877]: "1"
+      - generic [ref=f2e25878]:
+        - heading "Behavior 2" [level=3] [ref=f2e25879]:
+          - text: Behavior
+          - generic [ref=f2e25882]: "2"
+        - generic [ref=f2e25883]: This scenario proves · 2
+        - generic [ref=f2e25884]:
+          - generic [ref=f2e25887]: test/Library.Tests.BorrowTests.Borrowing_An_Available_Copy_Succeeds
+          - generic [ref=f2e25888]: test
+        - generic [ref=f2e25889]:
+          - generic [ref=f2e25892]: test/Library.Tests.BorrowTests.Borrowing_An_Available_Copy_Succeeds
+          - generic [ref=f2e25893]: test
+      - generic [ref=f2e25894]:
+        - heading "Behavior 1" [level=3] [ref=f2e25895]:
+          - text: Behavior
+          - generic [ref=f2e25898]: "1"
+        - generic [ref=f2e25899]: This scenario proves
+        - generic [ref=f2e25900]:
+          - generic [ref=f2e25903]: test/Library.Tests.BorrowTests.Borrowing_An_Available_Copy_Succeeds
+          - generic [ref=f2e25904]: test

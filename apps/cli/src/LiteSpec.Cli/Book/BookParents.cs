@@ -174,7 +174,7 @@ static class BookParents
             "aggregate" => ModuleParent(index, id),
             "use-case" => UseCaseParent(index, record, id),
             "result" => UseCaseNameParent(index, id),
-            "scenario" => ScenarioParent(index, record, id),
+            "scenario" => ScenarioParent(index, record),
             "rule" => RuleParent(index, id),
             "event" => AggregateNameParent(index, id),
             "reaction" or "job" or "notification" or "setting" => ModuleParent(index, id),
@@ -192,7 +192,7 @@ static class BookParents
     static string? RequirementParent(ParentIndex index, JsonObject record, string id)
     {
         // Precedence: the carrying features, then the basedOn ground, then the deciding decision.
-        if (FirstLink(record, "features", "feature") is { } feature && index.ById.ContainsKey(feature))
+        if (FirstLink(record, "features") is { } feature && index.ById.ContainsKey(feature))
         {
             return feature;
         }
@@ -237,15 +237,15 @@ static class BookParents
         return index.UseCasesByName.TryGetValue(home, out var useCase) ? useCase : null;
     }
 
-    static string? ScenarioParent(ParentIndex index, JsonObject record, string id)
+    static string? ScenarioParent(ParentIndex index, JsonObject record)
     {
-        // The shown result wins; the identifier home is the use-case fallback.
+        // The shown result is the only parent; a missing one is reported, never defaulted.
         if (FirstLink(record, "result") is { } result && index.ById.ContainsKey(result))
         {
             return result;
         }
 
-        return UseCaseNameParent(index, id);
+        return null;
     }
 
     static string? RuleParent(ParentIndex index, string id)

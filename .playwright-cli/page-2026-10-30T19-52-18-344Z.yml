@@ -1,0 +1,215 @@
+- generic [active] [ref=f2e1]:
+  - banner [ref=f2e2]:
+    - generic [ref=f2e3]:
+      - generic [ref=f2e11]: Riverside Library
+      - generic [ref=f2e12]: /
+      - generic [ref=f2e13]: Book
+    - generic [ref=f2e14]:
+      - searchbox "Filter the navigation" [ref=f2e18]
+      - generic [aria-hidden] [ref=f2e19]: /
+    - 'button "Test run 20 Oct 2026: 1 passed" [ref=f2e4629]':
+      - text: "Test run 20 Oct 2026:"
+      - generic [ref=f2e4632]: "1"
+      - text: passed
+    - button "37 of 39 settled" [ref=f2e4633]
+    - button "Intent tree" [ref=f2e30] [cursor=pointer]
+    - button "Recent" [ref=f2e32] [cursor=pointer]
+    - button "Download review" [ref=f2e33] [cursor=pointer]
+    - button "Keyboard shortcuts" [ref=f2e36] [cursor=pointer]: "?"
+    - button "Switch to dark theme" [ref=f2e37] [cursor=pointer]
+  - generic [ref=f2e40]:
+    - complementary "Navigation" [ref=f2e41]:
+      - generic [ref=f2e42]:
+        - tablist "View" [ref=f2e43]:
+          - tab "Outline" [selected] [ref=f2e4637] [cursor=pointer]
+          - tab "Review queue" [ref=f2e4642] [cursor=pointer]
+          - tab "Security 0" [ref=f2e4645] [cursor=pointer]:
+            - text: Security
+            - generic [ref=f2e4649]: "0"
+          - tab "Ballots 2" [ref=f2e4650] [cursor=pointer]:
+            - text: Ballots
+            - generic [ref=f2e4654]: "2"
+        - generic [ref=f2e62]:
+          - button "Filter" [ref=f2e4655] [cursor=pointer]
+          - generic [ref=f2e4658]: Sort
+          - combobox "Sort" [ref=f2e4659]:
+            - 'option "Sort: outline" [selected]'
+            - option "Title"
+            - option "Decide by, soonest"
+            - option "Risk tier first"
+            - option "Most open questions"
+            - option "Proof, failing first"
+            - option "Review status"
+          - button "Expand all" [ref=f2e4660] [cursor=pointer]
+          - button "Collapse all" [ref=f2e4664] [cursor=pointer]
+          - button "Show the selected record" [ref=f2e4668] [cursor=pointer]
+        - generic [ref=f2e80]:
+          - text: 39 records in this book.
+          - generic [ref=f2e4672]:
+            - generic [ref=f2e4673]: Draft
+            - generic [ref=f2e4678]: Approved or reviewed
+            - generic [ref=f2e4683]: Held by a draft
+            - generic [ref=f2e4688]: No code or no test
+      - generic [ref=f2e101]:
+        - generic [ref=f2e4692]:
+          - button "Intent 13" [expanded] [ref=f2e4693] [cursor=pointer]:
+            - generic [ref=f2e4698]: Intent
+            - generic "12 of 13 approved or reviewed" [ref=f2e4699]: "13"
+          - paragraph [ref=f2e4702]:
+            - text: Written by agents draft, the founder decides; reviewed by the founder and product people.
+            - button "Open" [ref=f2e4703] [cursor=pointer]
+          - tree "Intent outline" [ref=f2e4705]:
+            - button "Products 1" [expanded] [ref=f2e4706] [cursor=pointer]:
+              - generic [ref=f2e4709]: Products
+              - generic [ref=f2e4710]: "1"
+            - treeitem "Product, Riverside Library, approved" [level=1] [ref=f2e4711] [cursor=pointer]:
+              - button [aria-hidden] [ref=f2e4712]
+              - generic "Riverside Library" [ref=f2e4719]
+              - generic [ref=f2e4720]: "7"
+              - generic "approved" [ref=f2e4721]
+            - button "Journeys 1" [expanded] [ref=f2e4725] [cursor=pointer]:
+              - generic [ref=f2e4728]: Journeys
+              - generic [ref=f2e4729]: "1"
+            - treeitem "Journey, Borrowing, approved" [level=1] [selected] [ref=f2e4730] [cursor=pointer]:
+              - generic "Borrowing" [ref=f2e4736]
+              - generic "approved" [ref=f2e4737]
+        - button "Behavior 23" [ref=f2e4742] [cursor=pointer]:
+          - generic [ref=f2e4745]: Behavior
+          - generic "22 of 23 approved or reviewed" [ref=f2e4746]: "23"
+        - button "Implementation 0" [ref=f2e4750] [cursor=pointer]:
+          - generic [ref=f2e4754]: Implementation
+          - generic "0 of 0 approved or reviewed" [ref=f2e4755]: "0"
+        - button "Proof 0" [ref=f2e4759] [cursor=pointer]:
+          - generic [ref=f2e4762]: Proof
+          - generic "0 of 0 approved or reviewed" [ref=f2e4763]: "0"
+        - button "Governance 2" [ref=f2e4767] [cursor=pointer]:
+          - generic [ref=f2e4772]: Governance
+          - generic "2 of 2 approved or reviewed" [ref=f2e4773]: "2"
+        - button "Glossary 1" [ref=f2e4777] [cursor=pointer]:
+          - generic [ref=f2e4780]: Glossary
+          - generic "1 of 1 approved or reviewed" [ref=f2e4781]: "1"
+    - main [ref=f2e304]:
+      - article [ref=f2e305]:
+        - navigation "Location" [ref=f2e4784]:
+          - button "Intent" [ref=f2e4785] [cursor=pointer]
+          - generic [ref=f2e4786]: /
+          - generic [ref=f2e4787]: Journeys
+          - generic [ref=f2e4788]: /
+          - generic [ref=f2e4789]: Borrowing
+        - heading "Borrowing" [level=1] [ref=f2e4790]
+        - group [ref=f2e4791]:
+          - generic "What is a journey?" [ref=f2e4792] [cursor=pointer]
+        - link "docs/product/journeys/borrowing.md:3" [ref=f2e4796] [cursor=pointer]:
+          - /url: vscode://file/D:\Personal-Projects\LiteSpec/docs/product/journeys/borrowing.md:3
+        - generic [ref=f2e4802]:
+          - button "Up" [disabled] [ref=f2e4803] [cursor=pointer]
+          - button "Previous sibling" [disabled] [ref=f2e4806] [cursor=pointer]
+          - generic [ref=f2e4809]: 1 of 1 journeys
+          - button "Next sibling" [disabled] [ref=f2e4810] [cursor=pointer]
+        - generic [ref=f2e4813]:
+          - generic [ref=f2e4814]:
+            - term [ref=f2e4815]: Status
+            - definition [ref=f2e4816]: approved
+          - generic [ref=f2e4817]:
+            - term [ref=f2e4818]: Status reason
+            - definition [ref=f2e4819]: Settled
+          - generic [ref=f2e4820]:
+            - term [ref=f2e4821]: Owner
+            - definition [ref=f2e4822]: lending-team
+          - generic [ref=f2e4823]:
+            - term [ref=f2e4824]: Risk tier
+            - definition [ref=f2e4825]: Tier 3
+          - generic [ref=f2e4826]:
+            - term [ref=f2e4827]: Steps served
+            - definition [ref=f2e4828]: 1 of 2
+        - paragraph [ref=f2e4829]: Borrow before closing
+        - generic [ref=f2e4830]: Finished when The member leaves the desk with the copy before closing.
+        - generic [ref=f2e4835]:
+          - heading "Steps 2" [level=2] [ref=f2e4836]:
+            - text: Steps
+            - generic [ref=f2e4837]: "2"
+          - generic [ref=f2e4838]:
+            - generic [ref=f2e4839]: "1"
+            - generic [ref=f2e4840]:
+              - generic [ref=f2e4841]: The member borrows a copy before closing.
+              - generic [ref=f2e4842]:
+                - generic [ref=f2e4843]: M
+                - button "Member" [ref=f2e4844] [cursor=pointer]
+              - generic [ref=f2e4845]:
+                - generic [ref=f2e4846]:
+                  - generic [ref=f2e4847]:
+                    - button "Borrow Copy use case" [ref=f2e4848] [cursor=pointer]:
+                      - generic [ref=f2e4851]: Borrow Copy
+                      - generic [ref=f2e4852]: use case
+                      - generic "reviewed" [ref=f2e4853]
+                    - link "Open the source" [ref=f2e4857] [cursor=pointer]:
+                      - /url: vscode://file/D:\Personal-Projects\LiteSpec/docs/behavior/modules/lending/loans/borrow-copy.md:3
+                  - generic [ref=f2e4862]:
+                    - generic [ref=f2e4863]: implemented
+                    - generic [ref=f2e4864]: 1 of 2 scenarios confirmed
+                - generic [ref=f2e4865]: No screen carries this step
+          - generic [ref=f2e4869]:
+            - generic [ref=f2e4870]: "2"
+            - generic [ref=f2e4871]:
+              - generic [ref=f2e4872]: The member returns the copy.
+              - generic [ref=f2e4873]:
+                - generic [ref=f2e4874]: M
+                - button "Member" [ref=f2e4875] [cursor=pointer]
+              - generic [ref=f2e4876]: If it goes wrong The desk renews the loan.
+              - generic [ref=f2e4880]: Nothing serves this step yet
+      - generic [ref=f2e4884]:
+        - generic [ref=f2e4885]: Approved
+        - button "Request changes" [ref=f2e4889] [cursor=pointer]
+        - button "Next draft" [ref=f2e4890] [cursor=pointer]
+    - complementary "Connections" [ref=f2e376]:
+      - generic [ref=f2e4893]:
+        - heading "From goal to behavior" [level=3] [ref=f2e4894]
+        - generic [ref=f2e4899]:
+          - generic [ref=f2e4900]: Intent
+          - generic [ref=f2e4902]:
+            - button "Faster Borrowing" [ref=f2e4903] [cursor=pointer]
+            - generic [ref=f2e4909]: goal
+            - generic "approved" [ref=f2e4910]
+          - generic [ref=f2e4915]:
+            - button "Self Checkout" [ref=f2e4916] [cursor=pointer]
+            - generic [ref=f2e4922]: feature
+            - generic "draft" [ref=f2e4923]
+          - generic [ref=f2e4928]:
+            - button "Max Wait" [ref=f2e4929] [cursor=pointer]
+            - generic [ref=f2e4935]: requirement
+            - generic "approved" [ref=f2e4936]
+          - generic [ref=f2e4941]:
+            - button "Borrowing" [ref=f2e4942] [cursor=pointer]
+            - generic [ref=f2e4948]: journey
+            - generic "approved" [ref=f2e4949]
+        - generic [ref=f2e4953]:
+          - generic [ref=f2e4954]: Behavior
+          - generic [ref=f2e4955]:
+            - generic [ref=f2e4956]: serves a step
+            - generic [ref=f2e4957]:
+              - button "Borrow Copy" [ref=f2e4958] [cursor=pointer]
+              - generic [ref=f2e4962]: use case
+              - generic "reviewed" [ref=f2e4963]
+          - generic [ref=f2e4967]:
+            - generic [ref=f2e4968]: offers it
+            - generic [ref=f2e4969]:
+              - button "Search" [ref=f2e4970] [cursor=pointer]
+              - generic [ref=f2e4974]: screen
+              - generic "reviewed" [ref=f2e4975]
+      - heading "Connections 2" [level=2] [ref=f2e4979]:
+        - text: Connections
+        - generic [ref=f2e4980]: "2"
+      - generic [ref=f2e4981]:
+        - heading "Intent 2" [level=3] [ref=f2e4982]:
+          - text: Intent
+          - generic [ref=f2e4987]: "2"
+        - generic [ref=f2e4988]: This journey is walked by
+        - button "Member actor" [ref=f2e4989] [cursor=pointer]:
+          - generic [ref=f2e4993]: Member
+          - generic [ref=f2e4994]: actor
+          - generic "approved" [ref=f2e4995]
+        - generic [ref=f2e4999]: This journey journey.steps.actor
+        - button "Member actor" [ref=f2e5000] [cursor=pointer]:
+          - generic [ref=f2e5004]: Member
+          - generic [ref=f2e5005]: actor
+          - generic "approved" [ref=f2e5006]

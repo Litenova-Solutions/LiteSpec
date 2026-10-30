@@ -144,6 +144,28 @@ public sealed class BookHygieneTests
         Assert.DoesNotContain("Outside this sample", script, StringComparison.Ordinal);
     }
 
+    /// <summary>Generated content holds no data-go target: the client renders those buttons itself, only for records and outline nodes it holds, and ignores empty ones.</summary>
+    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    [Fact]
+    public void Data_Go_Buttons_Render_Only_For_Known_Records()
+    {
+        using var temp = Cli.Temp("book-hygiene");
+        var result = Cli.Run("book", "--model", Cli.Fixture("Book/review.json"), "--out", Out(temp));
+        Assert.Equal(0, result.Status);
+
+        var data = Path.Combine(Out(temp), "data");
+        foreach (var file in Directory.GetFiles(data, "*.js"))
+        {
+            Assert.DoesNotContain("data-go", File.ReadAllText(file), StringComparison.Ordinal);
+        }
+
+        var script = File.ReadAllText(Path.Combine(Out(temp), "assets", "book.js"));
+        Assert.Contains("known = !!(REC[b] || NODE[b])", script, StringComparison.Ordinal);
+        Assert.Contains("(REC[b] || NODE[b]) ?", script, StringComparison.Ordinal);
+        Assert.Contains("NODE[i] ?", script, StringComparison.Ordinal);
+        Assert.Contains("if (t.getAttribute(\"data-go\")) select(t.getAttribute(\"data-go\"))", script, StringComparison.Ordinal);
+    }
+
     /// <summary>Record sources carry a path and line, and the client builds each link from the manifest template.</summary>
     /// <proves>litespec/core/model#point-every-book-entry-to-its-source</proves>
     [Fact]

@@ -410,11 +410,11 @@ sealed class BookLexicon
         return char.ToUpperInvariant(words[0]) + words[1..];
     }
 
-    /// <summary>The display plural of a record type: research stays whole, a consonant before y turns to ies, the rest take s.</summary>
+    /// <summary>The display plural of a record type: the single product and research stay whole, a consonant before y turns to ies, the rest take s.</summary>
     static string TypePlural(string type)
     {
         var label = TypeLabel(type);
-        if (type == "research")
+        if (type is "product" or "research")
         {
             return label;
         }

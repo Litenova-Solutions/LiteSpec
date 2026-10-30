@@ -465,6 +465,13 @@ static partial class StandardsValidator
 
             if (Directory.Exists(entry))
             {
+                // A folder holding its own .git is another checkout (a nested worktree or
+                // repository), never this repository's pages.
+                if (Path.Exists(Path.Combine(entry, ".git")))
+                {
+                    continue;
+                }
+
                 result.AddRange(Walk(entry, predicate));
             }
             else if (predicate(entry))

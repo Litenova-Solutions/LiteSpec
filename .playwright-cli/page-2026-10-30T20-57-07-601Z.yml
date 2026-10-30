@@ -1,0 +1,1123 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e11]: NightHall
+      - generic [ref=e12]: /
+      - generic [ref=e13]: Book
+    - generic [ref=e14]:
+      - searchbox "Filter the navigation" [ref=e18]
+      - generic [aria-hidden] [ref=e19]: /
+    - button "No test run in the model" [ref=e52962]
+    - button "99 of 20,932 settled" [ref=e52965]
+    - button "Intent tree" [ref=e29] [cursor=pointer]
+    - button "Recent" [ref=e31] [cursor=pointer]
+    - button "Download review" [ref=e32] [cursor=pointer]
+    - button "Keyboard shortcuts" [ref=e35] [cursor=pointer]: "?"
+    - button "Switch to dark theme" [ref=e36] [cursor=pointer]
+  - generic [ref=e39]:
+    - complementary "Navigation" [ref=e40]:
+      - generic [ref=e41]:
+        - tablist "View" [ref=e42]:
+          - tab "Outline" [ref=e52969] [cursor=pointer]
+          - tab "Review queue" [selected] [ref=e52974] [cursor=pointer]
+          - tab "Security 320" [ref=e52977] [cursor=pointer]:
+            - text: Security
+            - generic [ref=e52981]: "320"
+          - tab "Ballots 3" [ref=e52982] [cursor=pointer]:
+            - text: Ballots
+            - generic [ref=e52986]: "3"
+        - generic [ref=e61]:
+          - button "Filter" [ref=e52987] [cursor=pointer]
+          - button "Show the selected record" [ref=e52990] [cursor=pointer]
+        - generic [ref=e79]: "The review queue: every draft and reopened record, in approval batches"
+      - generic [ref=e100]:
+        - paragraph [ref=e52994]:
+          - text: Batches in the order
+          - generic [ref=e52995]: litespec model review
+          - text: prints them.
+          - button "What is a batch?" [ref=e52996]
+        - treeitem "Term, term/permitted-action, approved" [level=1] [ref=e52997] [cursor=pointer]:
+          - generic [ref=e53002]:
+            - text: All draft terms
+            - generic [ref=e53003]: 1 record
+        - treeitem "Decision, Permission Records Are the One Access List, approved" [level=1] [ref=e53004] [cursor=pointer]:
+          - generic [ref=e53011]:
+            - text: Decision "Permission Records Are the One Access List" with what it decides
+            - generic [ref=e53012]: 66 records, tier 1, decide by 28 Oct 2026
+          - generic [ref=e53013]: T1
+        - treeitem "Research, Referrals, Offers, Demos and Work Programmes, draft" [level=1] [ref=e53014] [cursor=pointer]:
+          - generic [ref=e53019]:
+            - text: All draft research
+            - generic [ref=e53020]: 22 records, decide by 27 Nov 2026
+        - treeitem "Deviation, Bot Check Challenge Without Use Case, approved" [level=1] [ref=e53021] [cursor=pointer]:
+          - generic [ref=e53026]:
+            - text: All draft deviations
+            - generic [ref=e53027]: 17 records, decide by 27 Nov 2026
+        - treeitem "Known gap, known-gap/approved-records-behind-draft-decisions, approved" [level=1] [ref=e53028] [cursor=pointer]:
+          - generic [ref=e53033]:
+            - text: All draft known gaps
+            - generic [ref=e53034]: 11 records, decide by 27 Nov 2026
+        - treeitem "Setting, Checkout:HoldMinutes, reviewed" [level=1] [ref=e53035] [cursor=pointer]:
+          - generic [ref=e53040]:
+            - text: All draft settings in operations
+            - generic [ref=e53041]: 22 records, decide by 29 Jan 2027
+        - treeitem "Journey, Admit with Intermittent Connectivity, draft" [level=1] [ref=e53042] [cursor=pointer]:
+          - generic [ref=e53047]:
+            - text: All draft journeys
+            - generic [ref=e53048]: 112 records, decide by 1 Nov 2026
+        - treeitem "Requirement, AI never decides, draft" [level=1] [ref=e53049] [cursor=pointer]:
+          - generic [ref=e53054]:
+            - text: All draft requirements in platform control
+            - generic [ref=e53055]: 31 records, decide by 27 Nov 2026
+        - treeitem "Requirement, AI off by default, draft" [level=1] [ref=e53056] [cursor=pointer]:
+          - generic [ref=e53061]:
+            - text: All draft requirements in compliance
+            - generic [ref=e53062]: 34 records, decide by 27 Nov 2026
+        - treeitem "Requirement, Act paper PDF cap, draft" [level=1] [ref=e53063] [cursor=pointer]:
+          - generic [ref=e53068]:
+            - text: All draft requirements in capabilities
+            - generic [ref=e53069]: 60 records, decide by 27 Nov 2026
+        - treeitem "Requirement, Affiliate id to order, draft" [level=1] [ref=e53070] [cursor=pointer]:
+          - generic [ref=e53075]:
+            - text: All draft requirements in marketing
+            - generic [ref=e53076]: 62 records, decide by 27 Nov 2026
+        - treeitem "Requirement, Amounts held as data, draft" [level=1] [ref=e53077] [cursor=pointer]:
+          - generic [ref=e53082]:
+            - text: All draft requirements in model
+            - generic [ref=e53083]: 18 records, decide by 27 Nov 2026
+        - treeitem "Requirement, Code Changes Keep the Secret, draft" [level=1] [ref=e53084] [cursor=pointer]:
+          - generic [ref=e53089]:
+            - text: All draft requirements in buyers
+            - generic [ref=e53090]: 39 records, decide by 27 Nov 2026
+        - treeitem "Requirement, Audited, draft" [level=1] [ref=e53091] [cursor=pointer]:
+          - generic [ref=e53096]:
+            - text: All draft requirements in billing control
+            - generic [ref=e53097]: 24 records, decide by 27 Nov 2026
+        - treeitem "Requirement, Cancellation refunds fee, draft" [level=1] [ref=e53098] [cursor=pointer]:
+          - generic [ref=e53103]:
+            - text: All draft requirements in pricing
+            - generic [ref=e53104]: 17 records, decide by 27 Nov 2026
+        - treeitem "Requirement, Budget approved once, draft" [level=1] [ref=e53105] [cursor=pointer]:
+          - generic [ref=e53110]:
+            - text: All draft requirements in organizers
+            - generic [ref=e53111]: 26 records, decide by 27 Nov 2026
+        - treeitem "Requirement, Assistant allowance, draft" [level=1] [ref=e53112] [cursor=pointer]:
+          - generic [ref=e53117]:
+            - text: All draft requirements in support
+            - generic [ref=e53118]: 25 records, decide by 27 Nov 2026
+        - treeitem "Requirement, Accessible shop, draft" [level=1] [ref=e53119] [cursor=pointer]:
+          - generic [ref=e53124]:
+            - text: All draft requirements in webshop
+            - generic [ref=e53125]: 22 records, decide by 27 Nov 2026
+        - treeitem "Requirement, Calculator shows workings, draft" [level=1] [ref=e53126] [cursor=pointer]:
+          - generic [ref=e53131]:
+            - text: All draft requirements in sales
+            - generic [ref=e53132]: 24 records, decide by 27 Nov 2026
+        - treeitem "Requirement, Adoption threshold, draft" [level=1] [ref=e53133] [cursor=pointer]:
+          - generic [ref=e53138]:
+            - text: All draft requirements in economics
+            - generic [ref=e53139]: 10 records, decide by 27 Nov 2026
+        - treeitem "Requirement, Active group cap, draft" [level=1] [ref=e53140] [cursor=pointer]:
+          - generic [ref=e53145]:
+            - text: All draft requirements in crowd
+            - generic [ref=e53146]: 17 records, decide by 27 Nov 2026
+        - treeitem "Requirement, Per Organizer Balances, draft, tier 1" [level=1] [ref=e53147] [cursor=pointer]:
+          - generic [ref=e53152]:
+            - text: Per Organizer Balances
+            - generic [ref=e53153]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53154]: T1
+        - treeitem "Requirement, Config only keep, draft" [level=1] [ref=e53155] [cursor=pointer]:
+          - generic [ref=e53160]:
+            - text: All draft requirements in demo
+            - generic [ref=e53161]: 12 records, decide by 27 Nov 2026
+        - treeitem "Requirement, Belgium launch gate, draft" [level=1] [ref=e53162] [cursor=pointer]:
+          - generic [ref=e53167]:
+            - text: All draft requirements in markets
+            - generic [ref=e53168]: 19 records, decide by 27 Nov 2026
+        - treeitem "Requirement, Commercial figures as data, draft" [level=1] [ref=e53169] [cursor=pointer]:
+          - generic [ref=e53174]:
+            - text: All draft requirements in legal and tax
+            - generic [ref=e53175]: 17 records, decide by 27 Nov 2026
+        - treeitem "Requirement, Money explained, draft, tier 1" [level=1] [ref=e53176] [cursor=pointer]:
+          - generic [ref=e53181]:
+            - text: Money explained
+            - generic [ref=e53182]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53183]: T1
+        - treeitem "Requirement, Commercial figures as data, draft" [level=1] [ref=e53184] [cursor=pointer]:
+          - generic [ref=e53189]:
+            - text: All draft requirements in operations
+            - generic [ref=e53190]: 25 records, decide by 27 Nov 2026
+        - treeitem "Requirement, Journal posted from domain events, draft" [level=1] [ref=e53191] [cursor=pointer]:
+          - generic [ref=e53196]:
+            - text: Journal posted from domain events
+            - generic [ref=e53197]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53198]: T1
+        - treeitem "Requirement, Organizer notice, draft, tier 1" [level=1] [ref=e53199] [cursor=pointer]:
+          - generic [ref=e53204]:
+            - text: Organizer notice
+            - generic [ref=e53205]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53206]: T1
+        - treeitem "Requirement, Organizer own Stripe account, draft, tier 1" [level=1] [ref=e53207] [cursor=pointer]:
+          - generic [ref=e53212]:
+            - text: Organizer own Stripe account
+            - generic [ref=e53213]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53214]: T1
+        - treeitem "Requirement, Approved hours export, draft" [level=1] [ref=e53215] [cursor=pointer]:
+          - generic [ref=e53220]:
+            - text: All draft requirements in positioning
+            - generic [ref=e53221]: 15 records, decide by 27 Nov 2026
+        - treeitem "Requirement, Refund against own charge, draft, tier 1" [level=1] [ref=e53222] [cursor=pointer]:
+          - generic [ref=e53227]:
+            - text: Refund against own charge
+            - generic [ref=e53228]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53229]: T1
+        - treeitem "Requirement, Cut line after trust, draft" [level=1] [ref=e53230] [cursor=pointer]:
+          - generic [ref=e53235]:
+            - text: All draft requirements in v1
+            - generic [ref=e53236]: 9 records, decide by 27 Nov 2026
+        - treeitem "Requirement, Money returns to own charge, draft" [level=1] [ref=e53237] [cursor=pointer]:
+          - generic [ref=e53242]:
+            - text: Money returns to own charge
+            - generic [ref=e53243]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53244]: T1
+        - treeitem "Requirement, Bancontact first, draft" [level=1] [ref=e53245] [cursor=pointer]:
+          - generic [ref=e53250]:
+            - text: All draft requirements in belgium luxembourg
+            - generic [ref=e53251]: 10 records, decide by 27 Nov 2026
+        - treeitem "Requirement, One book of record, draft" [level=1] [ref=e53252] [cursor=pointer]:
+          - generic [ref=e53257]:
+            - text: One book of record
+            - generic [ref=e53258]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53259]: T1
+        - treeitem "Requirement, Evidence closes milestones, draft" [level=1] [ref=e53260] [cursor=pointer]:
+          - generic [ref=e53265]:
+            - text: All draft requirements in milestones
+            - generic [ref=e53266]: 11 records, decide by 27 Nov 2026
+        - treeitem "Requirement, Admission rate, draft" [level=1] [ref=e53267] [cursor=pointer]:
+          - generic [ref=e53272]:
+            - text: All draft requirements in netherlands
+            - generic [ref=e53273]: 8 records, decide by 27 Nov 2026
+        - treeitem "Requirement, Buyer invoice issued document, draft" [level=1] [ref=e53274] [cursor=pointer]:
+          - generic [ref=e53279]:
+            - text: Buyer invoice issued document
+            - generic [ref=e53280]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53281]: T1
+        - treeitem "Requirement, Journal records processor accounts, draft" [level=1] [ref=e53282] [cursor=pointer]:
+          - generic [ref=e53287]:
+            - text: Journal records processor accounts
+            - generic [ref=e53288]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53289]: T1
+        - treeitem "Requirement, Per organizer balances, draft, tier 1" [level=1] [ref=e53290] [cursor=pointer]:
+          - generic [ref=e53295]:
+            - text: Per organizer balances
+            - generic [ref=e53296]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53297]: T1
+        - treeitem "Requirement, Refund on own charge, draft, tier 1" [level=1] [ref=e53298] [cursor=pointer]:
+          - generic [ref=e53303]:
+            - text: Refund on own charge
+            - generic [ref=e53304]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53305]: T1
+        - treeitem "Requirement, Return Refund On Own Charge, draft, tier 1" [level=1] [ref=e53306] [cursor=pointer]:
+          - generic [ref=e53311]:
+            - text: Return Refund On Own Charge
+            - generic [ref=e53312]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53313]: T1
+        - treeitem "Requirement, Erasure covers linked answers, draft, tier 1" [level=1] [ref=e53314] [cursor=pointer]:
+          - generic [ref=e53319]:
+            - text: Erasure covers linked answers
+            - generic [ref=e53320]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53321]: T1
+        - treeitem "Requirement, Offline door, draft, tier 1" [level=1] [ref=e53322] [cursor=pointer]:
+          - generic [ref=e53327]:
+            - text: Offline door
+            - generic [ref=e53328]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53329]: T1
+        - treeitem "Requirement, AI provider in Europe without training, draft" [level=1] [ref=e53330] [cursor=pointer]:
+          - generic [ref=e53335]:
+            - text: All draft requirements in data retention
+            - generic [ref=e53336]: 12 records, decide by 27 Nov 2026
+        - treeitem "Requirement, All-In First Price, draft" [level=1] [ref=e53337] [cursor=pointer]:
+          - generic [ref=e53342]:
+            - text: All-In First Price
+            - generic [ref=e53343]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53344]: T1
+        - treeitem "Requirement, Guest Checkout, draft" [level=1] [ref=e53345] [cursor=pointer]:
+          - generic [ref=e53350]:
+            - text: Guest Checkout
+            - generic [ref=e53351]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53352]: T1
+        - treeitem "Requirement, Proof of work bot check, draft, tier 1" [level=1] [ref=e53353] [cursor=pointer]:
+          - generic [ref=e53358]:
+            - text: Proof of work bot check
+            - generic [ref=e53359]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53360]: T1
+        - treeitem "Requirement, No shared balances, draft" [level=1] [ref=e53361] [cursor=pointer]:
+          - generic [ref=e53366]:
+            - text: No shared balances
+            - generic [ref=e53367]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53368]: T1
+        - treeitem "Requirement, Organizer receivable and collection, draft" [level=1] [ref=e53369] [cursor=pointer]:
+          - generic [ref=e53374]:
+            - text: Organizer receivable and collection
+            - generic [ref=e53375]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53376]: T1
+        - treeitem "Requirement, Reconciliation by balance transaction, draft" [level=1] [ref=e53377] [cursor=pointer]:
+          - generic [ref=e53382]:
+            - text: Reconciliation by balance transaction
+            - generic [ref=e53383]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53384]: T1
+        - treeitem "Requirement, Credit note corrects, draft" [level=1] [ref=e53385] [cursor=pointer]:
+          - generic [ref=e53390]:
+            - text: Credit note corrects
+            - generic [ref=e53391]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53392]: T1
+        - treeitem "Requirement, Failed payment recovery, draft" [level=1] [ref=e53393] [cursor=pointer]:
+          - generic [ref=e53398]:
+            - text: Failed payment recovery
+            - generic [ref=e53399]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53400]: T1
+        - treeitem "Requirement, Claim By Proof, draft" [level=1] [ref=e53401] [cursor=pointer]:
+          - generic [ref=e53406]:
+            - text: Claim By Proof
+            - generic [ref=e53407]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53408]: T1
+        - treeitem "Requirement, Buyer invoice carries organizer rate, draft" [level=1] [ref=e53409] [cursor=pointer]:
+          - generic [ref=e53414]:
+            - text: Buyer invoice carries organizer rate
+            - generic [ref=e53415]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53416]: T1
+        - treeitem "Requirement, The Buyer Invoice Matches the Organizer Reprint, draft" [level=1] [ref=e53417] [cursor=pointer]:
+          - generic [ref=e53422]:
+            - text: The Buyer Invoice Matches the Organizer Reprint
+            - generic [ref=e53423]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53424]: T1
+        - treeitem "Requirement, Privacy answer within a month, draft, tier 1" [level=1] [ref=e53425] [cursor=pointer]:
+          - generic [ref=e53430]:
+            - text: Privacy answer within a month
+            - generic [ref=e53431]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53432]: T1
+        - treeitem "Requirement, Consent rechecked at send, draft" [level=1] [ref=e53433] [cursor=pointer]:
+          - generic [ref=e53438]:
+            - text: Consent rechecked at send
+            - generic [ref=e53439]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53440]: T1
+        - treeitem "Requirement, Keys honor grants, draft, tier 1" [level=1] [ref=e53441] [cursor=pointer]:
+          - generic [ref=e53446]:
+            - text: Keys honor grants
+            - generic [ref=e53447]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53448]: T1
+        - treeitem "Requirement, Invitation expiry, draft, tier 1" [level=1] [ref=e53449] [cursor=pointer]:
+          - generic [ref=e53454]:
+            - text: Invitation expiry
+            - generic [ref=e53455]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53456]: T1
+        - treeitem "Requirement, Support session timeboxed, draft, tier 1" [level=1] [ref=e53457] [cursor=pointer]:
+          - generic [ref=e53462]:
+            - text: Support session timeboxed
+            - generic [ref=e53463]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53464]: T1
+        - treeitem "Requirement, Balances derived periods locked, draft" [level=1] [ref=e53465] [cursor=pointer]:
+          - generic [ref=e53470]:
+            - text: Balances derived periods locked
+            - generic [ref=e53471]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53472]: T1
+        - treeitem "Requirement, No Consumer Payout, draft" [level=1] [ref=e53473] [cursor=pointer]:
+          - generic [ref=e53478]:
+            - text: No Consumer Payout
+            - generic [ref=e53479]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53480]: T1
+        - treeitem "Requirement, A Repeated Payment Charges Once, draft, tier 1" [level=1] [ref=e53481] [cursor=pointer]:
+          - generic [ref=e53486]:
+            - text: A Repeated Payment Charges Once
+            - generic [ref=e53487]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53488]: T1
+        - treeitem "Requirement, Review consent, draft" [level=1] [ref=e53489] [cursor=pointer]:
+          - generic [ref=e53494]:
+            - text: Review consent
+            - generic [ref=e53495]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53496]: T1
+        - treeitem "Requirement, Survey lifecycle, draft" [level=1] [ref=e53497] [cursor=pointer]:
+          - generic [ref=e53502]:
+            - text: Survey lifecycle
+            - generic [ref=e53503]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53504]: T1
+        - treeitem "Requirement, Invitation link single use, draft, tier 1" [level=1] [ref=e53505] [cursor=pointer]:
+          - generic [ref=e53510]:
+            - text: Invitation link single use
+            - generic [ref=e53511]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53512]: T1
+        - treeitem "Requirement, Viewing starts on acceptance, draft, tier 1" [level=1] [ref=e53513] [cursor=pointer]:
+          - generic [ref=e53518]:
+            - text: Viewing starts on acceptance
+            - generic [ref=e53519]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53520]: T1
+        - treeitem "Requirement, Money is the default, draft" [level=1] [ref=e53521] [cursor=pointer]:
+          - generic [ref=e53526]:
+            - text: Money is the default
+            - generic [ref=e53527]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53528]: T1
+        - treeitem "Requirement, Accessible buyer surfaces, draft" [level=1] [ref=e53529] [cursor=pointer]:
+          - generic [ref=e53534]:
+            - text: All draft requirements in germany
+            - generic [ref=e53535]: 14 records, decide by 27 Nov 2026
+        - treeitem "Requirement, Belgian buyer invoice Peppol, draft" [level=1] [ref=e53536] [cursor=pointer]:
+          - generic [ref=e53541]:
+            - text: Belgian buyer invoice Peppol
+            - generic [ref=e53542]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53543]: T1
+        - treeitem "Requirement, SEPA collection, draft" [level=1] [ref=e53544] [cursor=pointer]:
+          - generic [ref=e53549]:
+            - text: SEPA collection
+            - generic [ref=e53550]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53551]: T1
+        - treeitem "Requirement, No App Required, draft" [level=1] [ref=e53552] [cursor=pointer]:
+          - generic [ref=e53557]:
+            - text: No App Required
+            - generic [ref=e53558]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53559]: T1
+        - treeitem "Requirement, The Organizer Sets the Points and Credit Ceilings, draft, tier 1" [level=1] [ref=e53560] [cursor=pointer]:
+          - generic [ref=e53565]:
+            - text: The Organizer Sets the Points and Credit Ceilings
+            - generic [ref=e53566]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53567]: T1
+        - treeitem "Requirement, Moving Address Takes Two Steps, draft, tier 1" [level=1] [ref=e53568] [cursor=pointer]:
+          - generic [ref=e53573]:
+            - text: Moving Address Takes Two Steps
+            - generic [ref=e53574]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53575]: T1
+        - treeitem "Requirement, Daily payout reconciliation, draft, tier 1" [level=1] [ref=e53576] [cursor=pointer]:
+          - generic [ref=e53581]:
+            - text: Daily payout reconciliation
+            - generic [ref=e53582]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53583]: T1
+        - treeitem "Requirement, Face value default, draft, tier 1" [level=1] [ref=e53584] [cursor=pointer]:
+          - generic [ref=e53589]:
+            - text: Face value default
+            - generic [ref=e53590]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53591]: T1
+        - treeitem "Requirement, No app required, draft, tier 1" [level=1] [ref=e53592] [cursor=pointer]:
+          - generic [ref=e53597]:
+            - text: No app required
+            - generic [ref=e53598]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53599]: T1
+        - treeitem "Requirement, Contact tags and note, draft, tier 1" [level=1] [ref=e53600] [cursor=pointer]:
+          - generic [ref=e53605]:
+            - text: Contact tags and note
+            - generic [ref=e53606]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53607]: T1
+        - treeitem "Requirement, Guest list allowance deadline, draft, tier 1" [level=1] [ref=e53608] [cursor=pointer]:
+          - generic [ref=e53613]:
+            - text: Guest list allowance deadline
+            - generic [ref=e53614]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53615]: T1
+        - treeitem "Requirement, Invitation answers no account, draft, tier 1" [level=1] [ref=e53616] [cursor=pointer]:
+          - generic [ref=e53621]:
+            - text: Invitation answers no account
+            - generic [ref=e53622]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53623]: T1
+        - treeitem "Requirement, Erasure positions with tax clocks, draft" [level=1] [ref=e53624] [cursor=pointer]:
+          - generic [ref=e53629]:
+            - text: Erasure positions with tax clocks
+            - generic [ref=e53630]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53631]: T1
+        - treeitem "Requirement, Registration rechecked, draft" [level=1] [ref=e53632] [cursor=pointer]:
+          - generic [ref=e53637]:
+            - text: Registration rechecked
+            - generic [ref=e53638]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53639]: T1
+        - treeitem "Requirement, Dispute window warning, draft" [level=1] [ref=e53640] [cursor=pointer]:
+          - generic [ref=e53645]:
+            - text: Dispute window warning
+            - generic [ref=e53646]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53647]: T1
+        - treeitem "Requirement, Every order answered, draft, tier 1" [level=1] [ref=e53648] [cursor=pointer]:
+          - generic [ref=e53653]:
+            - text: Every order answered
+            - generic [ref=e53654]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53655]: T1
+        - treeitem "Requirement, Oversell recorded, draft, tier 1" [level=1] [ref=e53656] [cursor=pointer]:
+          - generic [ref=e53661]:
+            - text: Oversell recorded
+            - generic [ref=e53662]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53663]: T1
+        - treeitem "Requirement, Refused account blocks sale, draft, tier 1" [level=1] [ref=e53664] [cursor=pointer]:
+          - generic [ref=e53669]:
+            - text: Refused account blocks sale
+            - generic [ref=e53670]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53671]: T1
+        - treeitem "Requirement, Custom roles named grants, draft, tier 1" [level=1] [ref=e53672] [cursor=pointer]:
+          - generic [ref=e53677]:
+            - text: Custom roles named grants
+            - generic [ref=e53678]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53679]: T1
+        - treeitem "Requirement, Teams grant role and scope, draft, tier 1" [level=1] [ref=e53680] [cursor=pointer]:
+          - generic [ref=e53685]:
+            - text: Teams grant role and scope
+            - generic [ref=e53686]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53687]: T1
+        - treeitem "Requirement, Masked by default, draft, tier 1" [level=1] [ref=e53688] [cursor=pointer]:
+          - generic [ref=e53693]:
+            - text: Masked by default
+            - generic [ref=e53694]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53695]: T1
+        - treeitem "Requirement, No self dealing, draft, tier 1" [level=1] [ref=e53696] [cursor=pointer]:
+          - generic [ref=e53701]:
+            - text: No self dealing
+            - generic [ref=e53702]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53703]: T1
+        - treeitem "Requirement, Restriction spares guest buying, draft, tier 1" [level=1] [ref=e53704] [cursor=pointer]:
+          - generic [ref=e53709]:
+            - text: Restriction spares guest buying
+            - generic [ref=e53710]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53711]: T1
+        - treeitem "Requirement, Take-down needs open review, draft, tier 1" [level=1] [ref=e53712] [cursor=pointer]:
+          - generic [ref=e53717]:
+            - text: Take-down needs open review
+            - generic [ref=e53718]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53719]: T1
+        - treeitem "Requirement, Every ticket works without app, draft" [level=1] [ref=e53720] [cursor=pointer]:
+          - generic [ref=e53725]:
+            - text: Every ticket works without app
+            - generic [ref=e53726]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53727]: T1
+        - treeitem "Requirement, Framing allowed origins, draft" [level=1] [ref=e53728] [cursor=pointer]:
+          - generic [ref=e53733]:
+            - text: Framing allowed origins
+            - generic [ref=e53734]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53735]: T1
+        - treeitem "Requirement, Growth pages from now, draft" [level=1] [ref=e53736] [cursor=pointer]:
+          - generic [ref=e53741]:
+            - text: All draft requirements in launch
+            - generic [ref=e53742]: 10 records, decide by 27 Nov 2026
+        - treeitem "Requirement, Ledger accounts are records, draft" [level=1] [ref=e53743] [cursor=pointer]:
+          - generic [ref=e53748]:
+            - text: Ledger accounts are records
+            - generic [ref=e53749]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53750]: T1
+        - treeitem "Requirement, A Wrong Claim Gets the Same Answer, draft" [level=1] [ref=e53751] [cursor=pointer]:
+          - generic [ref=e53756]:
+            - text: A Wrong Claim Gets the Same Answer
+            - generic [ref=e53757]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53758]: T1
+        - treeitem "Requirement, The Hold Keeps the Places, draft" [level=1] [ref=e53759] [cursor=pointer]:
+          - generic [ref=e53764]:
+            - text: The Hold Keeps the Places
+            - generic [ref=e53765]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53766]: T1
+        - treeitem "Requirement, A Transfer Admits the Recipient, draft, tier 1" [level=1] [ref=e53767] [cursor=pointer]:
+          - generic [ref=e53772]:
+            - text: A Transfer Admits the Recipient
+            - generic [ref=e53773]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53774]: T1
+        - treeitem "Requirement, Redelivery counts once, draft, tier 1" [level=1] [ref=e53775] [cursor=pointer]:
+          - generic [ref=e53780]:
+            - text: Redelivery counts once
+            - generic [ref=e53781]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53782]: T1
+        - treeitem "Requirement, Erasure decided once, draft, tier 1" [level=1] [ref=e53783] [cursor=pointer]:
+          - generic [ref=e53788]:
+            - text: Erasure decided once
+            - generic [ref=e53789]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53790]: T1
+        - treeitem "Requirement, Packed archive expires in seven days, draft, tier 1" [level=1] [ref=e53791] [cursor=pointer]:
+          - generic [ref=e53796]:
+            - text: Packed archive expires in seven days
+            - generic [ref=e53797]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53798]: T1
+        - treeitem "Requirement, Groups store definitions, draft, tier 1" [level=1] [ref=e53799] [cursor=pointer]:
+          - generic [ref=e53804]:
+            - text: Groups store definitions
+            - generic [ref=e53805]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53806]: T1
+        - treeitem "Requirement, Untrusted scanner records nothing, draft" [level=1] [ref=e53807] [cursor=pointer]:
+          - generic [ref=e53812]:
+            - text: Untrusted scanner records nothing
+            - generic [ref=e53813]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53814]: T1
+        - treeitem "Requirement, Link single use, draft" [level=1] [ref=e53815] [cursor=pointer]:
+          - generic [ref=e53820]:
+            - text: Link single use
+            - generic [ref=e53821]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53822]: T1
+        - treeitem "Requirement, Artist tax recorded, draft" [level=1] [ref=e53823] [cursor=pointer]:
+          - generic [ref=e53828]:
+            - text: Artist tax recorded
+            - generic [ref=e53829]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53830]: T1
+        - treeitem "Requirement, Cancellation run stops on declines, draft" [level=1] [ref=e53831] [cursor=pointer]:
+          - generic [ref=e53836]:
+            - text: Cancellation run stops on declines
+            - generic [ref=e53837]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53838]: T1
+        - treeitem "Requirement, Crew access lapses, draft, tier 1" [level=1] [ref=e53839] [cursor=pointer]:
+          - generic [ref=e53844]:
+            - text: Crew access lapses
+            - generic [ref=e53845]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53846]: T1
+        - treeitem "Requirement, Break glass, draft, tier 1" [level=1] [ref=e53847] [cursor=pointer]:
+          - generic [ref=e53852]:
+            - text: Break glass
+            - generic [ref=e53853]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53854]: T1
+        - treeitem "Requirement, Cross-organizer order search, draft, tier 1" [level=1] [ref=e53855] [cursor=pointer]:
+          - generic [ref=e53860]:
+            - text: Cross-organizer order search
+            - generic [ref=e53861]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53862]: T1
+        - treeitem "Requirement, One emergency session, draft, tier 1" [level=1] [ref=e53863] [cursor=pointer]:
+          - generic [ref=e53868]:
+            - text: One emergency session
+            - generic [ref=e53869]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53870]: T1
+        - treeitem "Requirement, One staff role per account, draft, tier 1" [level=1] [ref=e53871] [cursor=pointer]:
+          - generic [ref=e53876]:
+            - text: One staff role per account
+            - generic [ref=e53877]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53878]: T1
+        - treeitem "Requirement, Platform-wide pause, draft, tier 1" [level=1] [ref=e53879] [cursor=pointer]:
+          - generic [ref=e53884]:
+            - text: Platform-wide pause
+            - generic [ref=e53885]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53886]: T1
+        - treeitem "Requirement, Rate limited, draft, tier 1" [level=1] [ref=e53887] [cursor=pointer]:
+          - generic [ref=e53892]:
+            - text: Rate limited
+            - generic [ref=e53893]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53894]: T1
+        - treeitem "Requirement, Restriction notice and review, draft, tier 1" [level=1] [ref=e53895] [cursor=pointer]:
+          - generic [ref=e53900]:
+            - text: Restriction notice and review
+            - generic [ref=e53901]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53902]: T1
+        - treeitem "Requirement, Support session consent, draft, tier 1" [level=1] [ref=e53903] [cursor=pointer]:
+          - generic [ref=e53908]:
+            - text: Support session consent
+            - generic [ref=e53909]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53910]: T1
+        - treeitem "Requirement, Door failure freeze, draft" [level=1] [ref=e53911] [cursor=pointer]:
+          - generic [ref=e53916]:
+            - text: Door failure freeze
+            - generic [ref=e53917]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53918]: T1
+        - treeitem "Decision, Buyer Message Locale Falls Back to the Address Market, draft" [level=1] [ref=e53919] [cursor=pointer]:
+          - generic [ref=e53926]:
+            - text: Decision "Buyer Message Locale Falls Back to the Address Market" with what it decides
+            - generic [ref=e53927]: 1 record, decide by 27 Nov 2026
+        - treeitem "Requirement, Every posting balances, draft" [level=1] [ref=e53928] [cursor=pointer]:
+          - generic [ref=e53933]:
+            - text: Every posting balances
+            - generic [ref=e53934]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53935]: T1
+        - treeitem "Requirement, Authenticated Checkout With a Clean Refusal, draft" [level=1] [ref=e53936] [cursor=pointer]:
+          - generic [ref=e53941]:
+            - text: Authenticated Checkout With a Clean Refusal
+            - generic [ref=e53942]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53943]: T1
+        - treeitem "Requirement, Confirmations Go to the Order Address, draft" [level=1] [ref=e53944] [cursor=pointer]:
+          - generic [ref=e53949]:
+            - text: Confirmations Go to the Order Address
+            - generic [ref=e53950]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53951]: T1
+        - treeitem "Requirement, Order Access From the Confirmation Link, draft" [level=1] [ref=e53952] [cursor=pointer]:
+          - generic [ref=e53957]:
+            - text: Order Access From the Confirmation Link
+            - generic [ref=e53958]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53959]: T1
+        - treeitem "Requirement, Save the Ticket, Open It Offline, draft, tier 1" [level=1] [ref=e53960] [cursor=pointer]:
+          - generic [ref=e53965]:
+            - text: Save the Ticket, Open It Offline
+            - generic [ref=e53966]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53967]: T1
+        - treeitem "Requirement, Confirmation links live seven days, draft, tier 1" [level=1] [ref=e53968] [cursor=pointer]:
+          - generic [ref=e53973]:
+            - text: Confirmation links live seven days
+            - generic [ref=e53974]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53975]: T1
+        - treeitem "Requirement, Consent withdraws in one step, draft, tier 1" [level=1] [ref=e53976] [cursor=pointer]:
+          - generic [ref=e53981]:
+            - text: Consent withdraws in one step
+            - generic [ref=e53982]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53983]: T1
+        - treeitem "Requirement, Erasure record names remainder, draft, tier 1" [level=1] [ref=e53984] [cursor=pointer]:
+          - generic [ref=e53989]:
+            - text: Erasure record names remainder
+            - generic [ref=e53990]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53991]: T1
+        - treeitem "Requirement, Failed mail retries with limits, draft, tier 1" [level=1] [ref=e53992] [cursor=pointer]:
+          - generic [ref=e53997]:
+            - text: Failed mail retries with limits
+            - generic [ref=e53998]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e53999]: T1
+        - treeitem "Requirement, Integration sees own organizer only, draft, tier 1" [level=1] [ref=e54000] [cursor=pointer]:
+          - generic [ref=e54005]:
+            - text: Integration sees own organizer only
+            - generic [ref=e54006]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e54007]: T1
+        - treeitem "Requirement, Sale terms before first sale, draft, tier 1" [level=1] [ref=e54008] [cursor=pointer]:
+          - generic [ref=e54013]:
+            - text: Sale terms before first sale
+            - generic [ref=e54014]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e54015]: T1
+        - treeitem "Requirement, Special answers need explicit consent, draft, tier 1" [level=1] [ref=e54016] [cursor=pointer]:
+          - generic [ref=e54021]:
+            - text: Special answers need explicit consent
+            - generic [ref=e54022]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e54023]: T1
+        - treeitem "Requirement, Admitted ticket keeps holder, draft, tier 1" [level=1] [ref=e54024] [cursor=pointer]:
+          - generic [ref=e54029]:
+            - text: Admitted ticket keeps holder
+            - generic [ref=e54030]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e54031]: T1
+        - treeitem "Requirement, Audience export bounded, draft, tier 1" [level=1] [ref=e54032] [cursor=pointer]:
+          - generic [ref=e54037]:
+            - text: Audience export bounded
+            - generic [ref=e54038]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e54039]: T1
+        - treeitem "Requirement, Door rules before sale, draft, tier 1" [level=1] [ref=e54040] [cursor=pointer]:
+          - generic [ref=e54045]:
+            - text: Door rules before sale
+            - generic [ref=e54046]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e54047]: T1
+        - treeitem "Requirement, Guest list shared fill, draft, tier 1" [level=1] [ref=e54048] [cursor=pointer]:
+          - generic [ref=e54053]:
+            - text: Guest list shared fill
+            - generic [ref=e54054]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e54055]: T1
+        - treeitem "Requirement, Pass names holder zones, draft, tier 1" [level=1] [ref=e54056] [cursor=pointer]:
+          - generic [ref=e54061]:
+            - text: Pass names holder zones
+            - generic [ref=e54062]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e54063]: T1
+        - treeitem "Requirement, Approval before money, draft" [level=1] [ref=e54064] [cursor=pointer]:
+          - generic [ref=e54069]:
+            - text: Approval before money
+            - generic [ref=e54070]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e54071]: T1
+        - treeitem "Requirement, Charge only mode, draft" [level=1] [ref=e54072] [cursor=pointer]:
+          - generic [ref=e54077]:
+            - text: Charge only mode
+            - generic [ref=e54078]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e54079]: T1
+        - treeitem "Requirement, Closed month stable, draft" [level=1] [ref=e54080] [cursor=pointer]:
+          - generic [ref=e54085]:
+            - text: Closed month stable
+            - generic [ref=e54086]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e54087]: T1
+        - treeitem "Requirement, Disputes arrive from processor, draft" [level=1] [ref=e54088] [cursor=pointer]:
+          - generic [ref=e54093]:
+            - text: Disputes arrive from processor
+            - generic [ref=e54094]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e54095]: T1
+        - treeitem "Requirement, Failed refund retries, draft, tier 1" [level=1] [ref=e54096] [cursor=pointer]:
+          - generic [ref=e54101]:
+            - text: Failed refund retries
+            - generic [ref=e54102]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e54103]: T1
+        - treeitem "Requirement, No sale before account ready, draft, tier 1" [level=1] [ref=e54104] [cursor=pointer]:
+          - generic [ref=e54109]:
+            - text: No sale before account ready
+            - generic [ref=e54110]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e54111]: T1
+        - treeitem "Requirement, Organizer funded fallback, draft, tier 1" [level=1] [ref=e54112] [cursor=pointer]:
+          - generic [ref=e54117]:
+            - text: Organizer funded fallback
+            - generic [ref=e54118]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e54119]: T1
+        - treeitem "Requirement, Payouts within days, draft, tier 1" [level=1] [ref=e54120] [cursor=pointer]:
+          - generic [ref=e54125]:
+            - text: Payouts within days
+            - generic [ref=e54126]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e54127]: T1
+        - treeitem "Requirement, Signing secret shown once, draft, tier 1" [level=1] [ref=e54128] [cursor=pointer]:
+          - generic [ref=e54133]:
+            - text: Signing secret shown once
+            - generic [ref=e54134]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e54135]: T1
+        - treeitem "Requirement, Suspension and removal, draft, tier 1" [level=1] [ref=e54136] [cursor=pointer]:
+          - generic [ref=e54141]:
+            - text: Suspension and removal
+            - generic [ref=e54142]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e54143]: T1
+        - treeitem "Requirement, Legal hold protects records, draft, tier 1" [level=1] [ref=e54144] [cursor=pointer]:
+          - generic [ref=e54149]:
+            - text: Legal hold protects records
+            - generic [ref=e54150]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e54151]: T1
+        - treeitem "Requirement, Revoked grants stay readable, draft, tier 1" [level=1] [ref=e54152] [cursor=pointer]:
+          - generic [ref=e54157]:
+            - text: Revoked grants stay readable
+            - generic [ref=e54158]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e54159]: T1
+        - treeitem "Requirement, Issued invoice frozen, draft, tier 1" [level=1] [ref=e54160] [cursor=pointer]:
+          - generic [ref=e54165]:
+            - text: Issued invoice frozen
+            - generic [ref=e54166]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e54167]: T1
+        - treeitem "Requirement, No AI answering buyers, draft" [level=1] [ref=e54168] [cursor=pointer]:
+          - generic [ref=e54173]:
+            - text: All draft requirements in refused
+            - generic [ref=e54174]: 4 records, decide by 27 Nov 2026
+        - treeitem "Requirement, Every entry traces to cause, draft" [level=1] [ref=e54175] [cursor=pointer]:
+          - generic [ref=e54180]:
+            - text: Every entry traces to cause
+            - generic [ref=e54181]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e54182]: T1
+        - treeitem "Requirement, NightHall chart of accounts, draft" [level=1] [ref=e54183] [cursor=pointer]:
+          - generic [ref=e54188]:
+            - text: NightHall chart of accounts
+            - generic [ref=e54189]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e54190]: T1
+        - treeitem "Requirement, Organizer chart of accounts, draft" [level=1] [ref=e54191] [cursor=pointer]:
+          - generic [ref=e54196]:
+            - text: Organizer chart of accounts
+            - generic [ref=e54197]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e54198]: T1
+        - treeitem "Requirement, Posting unique by source fact, draft" [level=1] [ref=e54199] [cursor=pointer]:
+          - generic [ref=e54204]:
+            - text: Posting unique by source fact
+            - generic [ref=e54205]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e54206]: T1
+        - treeitem "Requirement, Postings immutable corrected by reversal, draft" [level=1] [ref=e54207] [cursor=pointer]:
+          - generic [ref=e54212]:
+            - text: Postings immutable corrected by reversal
+            - generic [ref=e54213]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e54214]: T1
+        - treeitem "Requirement, Single currency, draft" [level=1] [ref=e54215] [cursor=pointer]:
+          - generic [ref=e54220]:
+            - text: Single currency
+            - generic [ref=e54221]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e54222]: T1
+        - treeitem "Requirement, Tamper evident hash chain, draft" [level=1] [ref=e54223] [cursor=pointer]:
+          - generic [ref=e54228]:
+            - text: Tamper evident hash chain
+            - generic [ref=e54229]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e54230]: T1
+        - treeitem "Requirement, An Admitted Ticket Cannot Come Back, draft" [level=1] [ref=e54231] [cursor=pointer]:
+          - generic [ref=e54236]:
+            - text: An Admitted Ticket Cannot Come Back
+            - generic [ref=e54237]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e54238]: T1
+        - treeitem "Requirement, A Declared Change Always Offers a Refund, draft" [level=1] [ref=e54239] [cursor=pointer]:
+          - generic [ref=e54244]:
+            - text: A Declared Change Always Offers a Refund
+            - generic [ref=e54245]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e54246]: T1
+        - treeitem "Requirement, A Gift Card Stays Valid Thirty-Six Months, draft" [level=1] [ref=e54247] [cursor=pointer]:
+          - generic [ref=e54252]:
+            - text: A Gift Card Stays Valid Thirty-Six Months
+            - generic [ref=e54253]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e54254]: T1
+        - treeitem "Requirement, Each Listing Takes a Return Position, draft" [level=1] [ref=e54255] [cursor=pointer]:
+          - generic [ref=e54260]:
+            - text: Each Listing Takes a Return Position
+            - generic [ref=e54261]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e54262]: T1
+        - treeitem "Requirement, No Buyer Charge, draft" [level=1] [ref=e54263] [cursor=pointer]:
+          - generic [ref=e54268]:
+            - text: No Buyer Charge
+            - generic [ref=e54269]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e54270]: T1
+        - treeitem "Requirement, A Past-Window Reversal Offers Credit, draft, tier 1" [level=1] [ref=e54271] [cursor=pointer]:
+          - generic [ref=e54276]:
+            - text: A Past-Window Reversal Offers Credit
+            - generic [ref=e54277]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e54278]: T1
+        - treeitem "Requirement, The Payment Page Matches the Order, draft, tier 1" [level=1] [ref=e54279] [cursor=pointer]:
+          - generic [ref=e54284]:
+            - text: The Payment Page Matches the Order
+            - generic [ref=e54285]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e54286]: T1
+        - treeitem "Requirement, Each Refund States Its Own Deadline, draft, tier 1" [level=1] [ref=e54287] [cursor=pointer]:
+          - generic [ref=e54292]:
+            - text: Each Refund States Its Own Deadline
+            - generic [ref=e54293]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e54294]: T1
+        - treeitem "Requirement, Renewal Needs Separate Consent, draft, tier 1" [level=1] [ref=e54295] [cursor=pointer]:
+          - generic [ref=e54300]:
+            - text: Renewal Needs Separate Consent
+            - generic [ref=e54301]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e54302]: T1
+        - treeitem "Requirement, A Returned Code Stops Admitting at Once, draft, tier 1" [level=1] [ref=e54303] [cursor=pointer]:
+          - generic [ref=e54308]:
+            - text: A Returned Code Stops Admitting at Once
+            - generic [ref=e54309]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e54310]: T1
+        - treeitem "Requirement, Payout disagreement opens case, draft, tier 1" [level=1] [ref=e54311] [cursor=pointer]:
+          - generic [ref=e54316]:
+            - text: Payout disagreement opens case
+            - generic [ref=e54317]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e54318]: T1
+        - treeitem "Requirement, Retired key verifies old, draft, tier 1" [level=1] [ref=e54319] [cursor=pointer]:
+          - generic [ref=e54324]:
+            - text: Retired key verifies old
+            - generic [ref=e54325]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e54326]: T1
+        - treeitem "Requirement, Run sheet link no sign in, draft, tier 1" [level=1] [ref=e54327] [cursor=pointer]:
+          - generic [ref=e54332]:
+            - text: Run sheet link no sign in
+            - generic [ref=e54333]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e54334]: T1
+        - treeitem "Requirement, Block lift is human decision, draft, tier 1" [level=1] [ref=e54335] [cursor=pointer]:
+          - generic [ref=e54340]:
+            - text: Block lift is human decision
+            - generic [ref=e54341]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e54342]: T1
+        - treeitem "Requirement, Erasure completion told, draft, tier 1" [level=1] [ref=e54343] [cursor=pointer]:
+          - generic [ref=e54348]:
+            - text: Erasure completion told
+            - generic [ref=e54349]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e54350]: T1
+        - treeitem "Requirement, Erasure resumes after interruption, draft, tier 1" [level=1] [ref=e54351] [cursor=pointer]:
+          - generic [ref=e54356]:
+            - text: Erasure resumes after interruption
+            - generic [ref=e54357]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e54358]: T1
+        - treeitem "Requirement, Export link downloads once, draft, tier 1" [level=1] [ref=e54359] [cursor=pointer]:
+          - generic [ref=e54364]:
+            - text: Export link downloads once
+            - generic [ref=e54365]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e54366]: T1
+        - treeitem "Requirement, Foreign token opens nothing, draft, tier 1" [level=1] [ref=e54367] [cursor=pointer]:
+          - generic [ref=e54372]:
+            - text: Foreign token opens nothing
+            - generic [ref=e54373]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e54374]: T1
+        - treeitem "Requirement, Forms ask only what the night needs, draft, tier 1" [level=1] [ref=e54375] [cursor=pointer]:
+          - generic [ref=e54380]:
+            - text: Forms ask only what the night needs
+            - generic [ref=e54381]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e54382]: T1
+        - treeitem "Requirement, Preference centre reads choices back, draft, tier 1" [level=1] [ref=e54383] [cursor=pointer]:
+          - generic [ref=e54388]:
+            - text: Preference centre reads choices back
+            - generic [ref=e54389]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e54390]: T1
+        - treeitem "Requirement, Special answers need grant, draft, tier 1" [level=1] [ref=e54391] [cursor=pointer]:
+          - generic [ref=e54396]:
+            - text: Special answers need grant
+            - generic [ref=e54397]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e54398]: T1
+        - treeitem "Requirement, Capacity within room, draft, tier 1" [level=1] [ref=e54399] [cursor=pointer]:
+          - generic [ref=e54404]:
+            - text: Capacity within room
+            - generic [ref=e54405]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e54406]: T1
+        - treeitem "Requirement, Code replacement cap, draft, tier 1" [level=1] [ref=e54407] [cursor=pointer]:
+          - generic [ref=e54412]:
+            - text: Code replacement cap
+            - generic [ref=e54413]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e54414]: T1
+        - treeitem "Requirement, Guest list share cap, draft, tier 1" [level=1] [ref=e54415] [cursor=pointer]:
+          - generic [ref=e54420]:
+            - text: Guest list share cap
+            - generic [ref=e54421]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e54422]: T1
+        - treeitem "Requirement, Offline double scan conflict, draft, tier 1" [level=1] [ref=e54423] [cursor=pointer]:
+          - generic [ref=e54428]:
+            - text: Offline double scan conflict
+            - generic [ref=e54429]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e54430]: T1
+        - treeitem "Requirement, Reassigned ticket fresh code, draft, tier 1" [level=1] [ref=e54431] [cursor=pointer]:
+          - generic [ref=e54436]:
+            - text: Reassigned ticket fresh code
+            - generic [ref=e54437]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e54438]: T1
+        - treeitem "Requirement, Refused pass names nothing, draft" [level=1] [ref=e54439] [cursor=pointer]:
+          - generic [ref=e54444]:
+            - text: Refused pass names nothing
+            - generic [ref=e54445]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e54446]: T1
+        - treeitem "Requirement, Revoked scanner admits nobody, draft" [level=1] [ref=e54447] [cursor=pointer]:
+          - generic [ref=e54452]:
+            - text: Revoked scanner admits nobody
+            - generic [ref=e54453]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e54454]: T1
+        - treeitem "Requirement, Scan out states re-entry, draft" [level=1] [ref=e54455] [cursor=pointer]:
+          - generic [ref=e54460]:
+            - text: Scan out states re-entry
+            - generic [ref=e54461]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e54462]: T1
+        - treeitem "Requirement, Voided ticket no overrule, draft" [level=1] [ref=e54463] [cursor=pointer]:
+          - generic [ref=e54468]:
+            - text: Voided ticket no overrule
+            - generic [ref=e54469]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e54470]: T1
+        - treeitem "Requirement, Invoiced period keeps figures, draft" [level=1] [ref=e54471] [cursor=pointer]:
+          - generic [ref=e54476]:
+            - text: Invoiced period keeps figures
+            - generic [ref=e54477]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e54478]: T1
+        - treeitem "Requirement, Unsubscribe stops issues, draft" [level=1] [ref=e54479] [cursor=pointer]:
+          - generic [ref=e54484]:
+            - text: Unsubscribe stops issues
+            - generic [ref=e54485]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e54486]: T1
+        - treeitem "Requirement, Listing rate permitted, draft" [level=1] [ref=e54487] [cursor=pointer]:
+          - generic [ref=e54492]:
+            - text: Listing rate permitted
+            - generic [ref=e54493]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e54494]: T1
+        - treeitem "Requirement, Channel payments outside, draft" [level=1] [ref=e54495] [cursor=pointer]:
+          - generic [ref=e54500]:
+            - text: Channel payments outside
+            - generic [ref=e54501]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e54502]: T1
+        - treeitem "Requirement, Dispute outcome recorded, draft" [level=1] [ref=e54503] [cursor=pointer]:
+          - generic [ref=e54508]:
+            - text: Dispute outcome recorded
+            - generic [ref=e54509]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e54510]: T1
+        - treeitem "Requirement, Hospitality imports cost only, draft, tier 1" [level=1] [ref=e54511] [cursor=pointer]:
+          - generic [ref=e54516]:
+            - text: Hospitality imports cost only
+            - generic [ref=e54517]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e54518]: T1
+        - treeitem "Requirement, Refund asked on order page, draft, tier 1" [level=1] [ref=e54519] [cursor=pointer]:
+          - generic [ref=e54524]:
+            - text: Refund asked on order page
+            - generic [ref=e54525]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e54526]: T1
+        - treeitem "Requirement, Refund never exceeds collected, draft, tier 1" [level=1] [ref=e54527] [cursor=pointer]:
+          - generic [ref=e54532]:
+            - text: Refund never exceeds collected
+            - generic [ref=e54533]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e54534]: T1
+        - treeitem "Requirement, Refund told after acceptance, draft, tier 1" [level=1] [ref=e54535] [cursor=pointer]:
+          - generic [ref=e54540]:
+            - text: Refund told after acceptance
+            - generic [ref=e54541]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e54542]: T1
+        - treeitem "Requirement, Anonymous health output, draft, tier 1" [level=1] [ref=e54543] [cursor=pointer]:
+          - generic [ref=e54548]:
+            - text: Anonymous health output
+            - generic [ref=e54549]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e54550]: T1
+        - treeitem "Requirement, Drills before pilot, draft, tier 1" [level=1] [ref=e54551] [cursor=pointer]:
+          - generic [ref=e54556]:
+            - text: Drills before pilot
+            - generic [ref=e54557]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e54558]: T1
+        - treeitem "Requirement, Acceptance closes and creates, draft, tier 1" [level=1] [ref=e54559] [cursor=pointer]:
+          - generic [ref=e54564]:
+            - text: Acceptance closes and creates
+            - generic [ref=e54565]: 1 record, tier 1, decide by 27 Nov 2026
+          - generic [ref=e54566]: T1
+        - paragraph [ref=e54567]: and 1993 more batches
+    - main [ref=e11586]:
+      - article [ref=e11587]:
+        - navigation "Location" [ref=e54568]:
+          - button "Behavior" [ref=e54569] [cursor=pointer]
+          - generic [ref=e54570]: /
+          - button "Event Operations" [ref=e54571] [cursor=pointer]
+          - generic [ref=e54572]: /
+          - button "Checklist Template" [ref=e54573] [cursor=pointer]
+          - generic [ref=e54574]: /
+          - button "Apply Checklist Template" [ref=e54575] [cursor=pointer]
+          - generic [ref=e54576]: /
+          - button "Tasks created" [ref=e54577] [cursor=pointer]
+          - generic [ref=e54578]: /
+          - generic [ref=e54579]: Scenarios
+          - generic [ref=e54580]: /
+          - generic [ref=e54581]: Applying twice creates second set
+        - heading "Applying twice creates second set" [level=1] [ref=e54582]
+        - group [ref=e54583]:
+          - generic "What is a scenario?" [ref=e54584] [cursor=pointer]
+        - link "docs/behavior/modules/event-operations/checklist-templates/apply-checklist-template.md:150" [ref=e54588] [cursor=pointer]:
+          - /url: vscode://file/D:\Personal-Projects\Nighthall/docs/behavior/modules/event-operations/checklist-templates/apply-checklist-template.md:150
+        - generic [ref=e54594]:
+          - button "Up" [ref=e54595] [cursor=pointer]
+          - button "Previous sibling" [disabled] [ref=e54598] [cursor=pointer]
+          - generic [ref=e54601]: 1 of 4 scenarios in Tasks created
+          - button "Next sibling" [ref=e54602] [cursor=pointer]
+        - generic [ref=e54605]:
+          - generic [ref=e54606]:
+            - term [ref=e54607]: Status
+            - definition [ref=e54608]: draft
+          - generic [ref=e54609]:
+            - term [ref=e54610]: Status reason
+            - definition [ref=e54611]: Waiting for NightHall engineering to decide by 22 Jan 2027
+          - generic [ref=e54612]:
+            - term [ref=e54613]: Owner
+            - definition [ref=e54614]: NightHall engineering
+          - generic [ref=e54615]:
+            - term [ref=e54616]: Risk tier
+            - definition [ref=e54617]: Tier 3
+          - generic [ref=e54618]:
+            - term [ref=e54619]: Approval batch
+            - definition [ref=e54620]: This use case with its results and scenarios (16 records)
+        - generic [ref=e54621]:
+          - heading "given, when, then" [level=2] [ref=e54622]
+          - generic [ref=e54624]:
+            - term [ref=e54625]: Given
+            - definition [ref=e54626]: The template already became tasks on the event.
+            - term [ref=e54627]: When
+            - definition [ref=e54628]: The organizer applies it again.
+            - term [ref=e54629]: Then
+            - definition [ref=e54630]: A second set of tasks stands beside the first.
+        - generic [ref=e54631]:
+          - heading "result" [level=2] [ref=e54632]
+          - generic [ref=e54634]:
+            - generic [ref=e54635]: Tasks created
+            - paragraph [ref=e54640]: One task per item stands on the event, with their identities.
+      - generic [ref=e54641]:
+        - button "Review" [ref=e54642] [cursor=pointer]
+        - button "Request changes" [ref=e54646] [cursor=pointer]
+        - button "Ask a question" [ref=e54647] [cursor=pointer]
+        - generic [ref=e54648]: "Approves the whole batch: 16 records"
+        - button "Next draft" [ref=e54649] [cursor=pointer]
+    - complementary "Connections" [ref=e11851]:
+      - generic [ref=e54653]:
+        - heading "From goal to behavior" [level=3] [ref=e54654]
+        - generic [ref=e54659]:
+          - generic [ref=e54660]: Intent
+          - generic [ref=e54662]:
+            - button "Checklist counts back from doors" [ref=e54663] [cursor=pointer]
+            - generic [ref=e54669]: requirement
+            - generic "draft" [ref=e54670]
+        - generic [ref=e54674]:
+          - generic [ref=e54675]: Behavior
+          - generic [ref=e54677]:
+            - button "Apply Checklist Template" [ref=e54678] [cursor=pointer]
+            - generic [ref=e54682]: use case
+            - generic "draft" [ref=e54683]
+          - generic [ref=e54688]:
+            - button "Tasks created" [ref=e54689] [cursor=pointer]
+            - generic [ref=e54694]: result
+            - generic "draft" [ref=e54695]
+          - generic [ref=e54700]:
+            - button "Applying twice creates second set" [ref=e54701] [cursor=pointer]
+            - generic [ref=e54707]: scenario
+            - generic "draft" [ref=e54708]
+      - generic [ref=e54712]:
+        - heading "Proof 1" [level=3] [ref=e54713]:
+          - generic [ref=e54716]: Proof
+          - generic [ref=e54717]: "1"
+        - generic [ref=e54718]:
+          - generic [ref=e54719]: Test
+          - link "Applying twice starts a second set apps/api/tests/NightHall.Acceptance.Tests/EventOperations/ChecklistTemplates/ApplyChecklistTemplate:84" [ref=e54720] [cursor=pointer]:
+            - /url: vscode://file/D:\Personal-Projects\Nighthall/apps/api/tests/NightHall.Acceptance.Tests/EventOperations/ChecklistTemplates/ApplyChecklistTemplate/ApplyChecklistTemplateUseCaseScenarios.cs:84
+            - generic [ref=e54721]: Applying twice starts a second set
+            - generic [ref=e54722]: apps/api/tests/NightHall.Acceptance.Tests/EventOperations/ChecklistTemplates/ApplyChecklistTemplate:84
+        - paragraph [ref=e54723]: No test run is in the model.
+      - heading "Connections 1" [level=2] [ref=e54724]:
+        - text: Connections
+        - generic [ref=e54725]: "1"
+      - generic [ref=e54726]:
+        - heading "Behavior 2" [level=3] [ref=e54727]:
+          - text: Behavior
+          - generic [ref=e54730]: "2"
+        - generic [ref=e54731]: This scenario proves · 2
+        - generic [ref=e54732]:
+          - generic [ref=e54735]: test/NightHall.Acceptance.Tests.EventOperations.ChecklistTemplates.ApplyChecklistTemplate.ApplyChecklistTemplateUseCaseScenarios.Applying_twice_starts_a_second_set
+          - generic [ref=e54736]: test
+        - generic [ref=e54737]:
+          - generic [ref=e54740]: test/NightHall.Acceptance.Tests.EventOperations.ChecklistTemplates.ApplyChecklistTemplate.ApplyChecklistTemplateUseCaseScenarios.Applying_twice_starts_a_second_set
+          - generic [ref=e54741]: test
+      - generic [ref=e54742]:
+        - heading "Behavior 1" [level=3] [ref=e54743]:
+          - text: Behavior
+          - generic [ref=e54746]: "1"
+        - generic [ref=e54747]: This scenario proves
+        - generic [ref=e54748]:
+          - generic [ref=e54751]: test/NightHall.Acceptance.Tests.EventOperations.ChecklistTemplates.ApplyChecklistTemplate.ApplyChecklistTemplateUseCaseScenarios.Applying_twice_starts_a_second_set
+          - generic [ref=e54752]: test

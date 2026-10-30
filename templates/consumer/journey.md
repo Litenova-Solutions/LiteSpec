@@ -17,7 +17,6 @@
       "id": "<s1>",
       "says": "<A product sentence>",
       "actor": "actor/<name>",
-  "serves": ["goal/<name>"],
       "ifItGoesWrong": "<What the person experiences in one sentence, or remove this line>"
     }
   ],

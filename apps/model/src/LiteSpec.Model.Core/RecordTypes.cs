@@ -44,7 +44,7 @@ public static class RecordTypes
         "requirement-page", "permission-list", "entry-point-list", "setting-set",
         "retention-schedule",
         "rule-set", "index", "tutorial", "how-to", "reference", "command",
-        "configuration", "glossary", "example-cast",
+        "configuration", "glossary", "example-cast", "review-report",
     };
 
     /// <summary>Types whose identifier carries a home: type/home.name.</summary>

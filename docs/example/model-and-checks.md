@@ -134,7 +134,7 @@ The run scanned 44 pages under `docs` and passed: no mannered term, no rejected 
 
 ## The Journey Detail
 
-`litespec book` shows each journey as record detail for product readers: the goal, the observable end, the steps as sentences, the requirements with their exceptions and fallbacks inline, one line of serving use case goal per step, the Then clauses as context, a consequences box as context, and the open questions. Field names never render literally. The submit-and-reimburse detail reads:
+`litespec book` shows each journey as record detail for product readers: the aim, the observable end, the steps as sentences with server badges for the serving use cases and screens, the requirements with their exceptions and fallbacks inline, and the open questions. Field names render literally. The submit-and-reimburse detail reads:
 
 ```text
 Submit and Reimburse

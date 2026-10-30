@@ -1,0 +1,227 @@
+- generic [active] [ref=f1e1]:
+  - banner [ref=f1e2]:
+    - generic [ref=f1e3]:
+      - generic [ref=f1e11]: Riverside Library
+      - generic [ref=f1e12]: /
+      - generic [ref=f1e13]: Book
+    - generic [ref=f1e14]:
+      - searchbox "Filter the navigation" [ref=f1e18]
+      - generic [aria-hidden] [ref=f1e19]: /
+    - 'button "Test run 20 Oct 2026: 1 passed" [ref=f1e51070]':
+      - text: "Test run 20 Oct 2026:"
+      - generic [ref=f1e51073]: "1"
+      - text: passed
+    - button "37 of 39 settled" [ref=f1e51074]
+    - button "Intent tree" [ref=f1e30] [cursor=pointer]
+    - button "Recent" [ref=f1e32] [cursor=pointer]
+    - button "Download review" [ref=f1e33] [cursor=pointer]
+    - button "Keyboard shortcuts" [ref=f1e36] [cursor=pointer]: "?"
+    - button "Switch to dark theme" [ref=f1e37] [cursor=pointer]
+  - generic [ref=f1e40]:
+    - complementary "Navigation" [ref=f1e41]:
+      - generic [ref=f1e42]:
+        - tablist "View" [ref=f1e43]:
+          - tab "Outline" [selected] [ref=f1e51078] [cursor=pointer]
+          - tab "Review queue" [ref=f1e51083] [cursor=pointer]
+          - tab "Security 0" [ref=f1e51086] [cursor=pointer]:
+            - text: Security
+            - generic [ref=f1e51090]: "0"
+          - tab "Ballots 2" [ref=f1e51091] [cursor=pointer]:
+            - text: Ballots
+            - generic [ref=f1e51095]: "2"
+        - generic [ref=f1e62]:
+          - button "Filter" [ref=f1e51096] [cursor=pointer]
+          - generic [ref=f1e51099]: Sort
+          - combobox "Sort" [ref=f1e51100]:
+            - 'option "Sort: outline" [selected]'
+            - option "Title"
+            - option "Decide by, soonest"
+            - option "Risk tier first"
+            - option "Most open questions"
+            - option "Proof, failing first"
+            - option "Review status"
+          - button "Expand all" [ref=f1e51101] [cursor=pointer]
+          - button "Collapse all" [ref=f1e51105] [cursor=pointer]
+          - button "Show the selected record" [ref=f1e51109] [cursor=pointer]
+        - generic [ref=f1e80]:
+          - text: 39 records in this book.
+          - generic [ref=f1e51113]:
+            - generic [ref=f1e51114]: Draft
+            - generic [ref=f1e51119]: Approved or reviewed
+            - generic [ref=f1e51124]: Held by a draft
+            - generic [ref=f1e51129]: No code or no test
+      - generic [ref=f1e101]:
+        - generic [ref=f1e51133]:
+          - button "Intent 13" [expanded] [ref=f1e51134] [cursor=pointer]:
+            - generic [ref=f1e51139]: Intent
+            - generic "12 of 13 approved or reviewed" [ref=f1e51140]: "13"
+          - paragraph [ref=f1e51143]:
+            - text: Written by agents draft, the founder decides; reviewed by the founder and product people.
+            - button "Open" [ref=f1e51144] [cursor=pointer]
+          - tree "Intent outline" [ref=f1e51146]:
+            - button "Products 1" [expanded] [ref=f1e51147] [cursor=pointer]:
+              - generic [ref=f1e51150]: Products
+              - generic [ref=f1e51151]: "1"
+            - treeitem "Product, Riverside Library, approved" [level=1] [ref=f1e51152] [cursor=pointer]:
+              - button [aria-hidden] [ref=f1e51153]
+              - generic "Riverside Library" [ref=f1e51160]
+              - generic [ref=f1e51161]: "7"
+              - generic "approved" [ref=f1e51162]
+            - button "Journeys 1" [expanded] [ref=f1e51166] [cursor=pointer]:
+              - generic [ref=f1e51169]: Journeys
+              - generic [ref=f1e51170]: "1"
+            - treeitem "Journey, Borrowing, approved" [level=1] [ref=f1e51171] [cursor=pointer]:
+              - generic "Borrowing" [ref=f1e51177]
+              - generic "approved" [ref=f1e51178]
+        - generic [ref=f1e51182]:
+          - button "Behavior 23" [expanded] [ref=f1e51183] [cursor=pointer]:
+            - generic [ref=f1e51186]: Behavior
+            - generic "22 of 23 approved or reviewed" [ref=f1e51187]: "23"
+          - paragraph [ref=f1e51190]:
+            - text: Written by agents; reviewed by developers; the security reviewer for access, outside calls and personal-data flows.
+            - button "Open" [ref=f1e51191] [cursor=pointer]
+          - tree "Behavior outline" [ref=f1e51193]:
+            - button "Modules 1" [expanded] [ref=f1e51194] [cursor=pointer]:
+              - generic [ref=f1e51197]: Modules
+              - generic [ref=f1e51198]: "1"
+            - treeitem "Module, Lending, reviewed" [level=1] [ref=f1e51199] [cursor=pointer]:
+              - button [aria-hidden] [ref=f1e51200]
+              - generic "Lending" [ref=f1e51206]
+              - generic [ref=f1e51207]: "5"
+              - generic "reviewed" [ref=f1e51208]
+            - button "Roles 1" [expanded] [ref=f1e51212] [cursor=pointer]:
+              - generic [ref=f1e51215]: Roles
+              - generic [ref=f1e51216]: "1"
+            - treeitem "Role, Member, reviewed" [level=1] [ref=f1e51217] [cursor=pointer]:
+              - generic "Member" [ref=f1e51222]
+              - generic "reviewed" [ref=f1e51223]
+            - button "Permissions 1" [expanded] [ref=f1e51227] [cursor=pointer]:
+              - generic [ref=f1e51230]: Permissions
+              - generic [ref=f1e51231]: "1"
+            - treeitem "Permission, Borrow Copy, reviewed" [level=1] [ref=f1e51232] [cursor=pointer]:
+              - generic "Borrow Copy" [ref=f1e51238]
+              - generic "reviewed" [ref=f1e51239]
+            - button "Entry points 1" [expanded] [ref=f1e51243] [cursor=pointer]:
+              - generic [ref=f1e51246]: Entry points
+              - generic [ref=f1e51247]: "1"
+            - treeitem "Entry point, Library App, reviewed" [level=1] [ref=f1e51248] [cursor=pointer]:
+              - button [aria-hidden] [ref=f1e51249]
+              - generic "Library App" [ref=f1e51256]
+              - generic [ref=f1e51257]: "1"
+              - generic "reviewed" [ref=f1e51258]
+            - button "External systems 1" [expanded] [ref=f1e51262] [cursor=pointer]:
+              - generic [ref=f1e51265]: External systems
+              - generic [ref=f1e51266]: "1"
+            - treeitem "External system, Fine Payments, reviewed" [level=1] [ref=f1e51267] [cursor=pointer]:
+              - generic "Fine Payments" [ref=f1e51273]
+              - generic "No code" [ref=f1e51274]
+              - generic "reviewed" [ref=f1e51277]
+            - button "Runbooks 1" [expanded] [ref=f1e51281] [cursor=pointer]:
+              - generic [ref=f1e51284]: Runbooks
+              - generic [ref=f1e51285]: "1"
+            - treeitem "Runbook, Overdue Notice, reviewed" [level=1] [selected] [ref=f1e51286] [cursor=pointer]:
+              - generic "Overdue Notice" [ref=f1e51290]
+              - generic "reviewed" [ref=f1e51291]
+            - button "Integration events 1" [expanded] [ref=f1e51295] [cursor=pointer]:
+              - generic [ref=f1e51298]: Integration events
+              - generic [ref=f1e51299]: "1"
+            - treeitem "Integration event, Loan Borrowed, reviewed" [level=1] [ref=f1e51300] [cursor=pointer]:
+              - generic "Loan Borrowed" [ref=f1e51304]
+              - generic "reviewed" [ref=f1e51305]
+        - button "Implementation 0" [ref=f1e51310] [cursor=pointer]:
+          - generic [ref=f1e51314]: Implementation
+          - generic "0 of 0 approved or reviewed" [ref=f1e51315]: "0"
+        - button "Proof 0" [ref=f1e51319] [cursor=pointer]:
+          - generic [ref=f1e51322]: Proof
+          - generic "0 of 0 approved or reviewed" [ref=f1e51323]: "0"
+        - generic [ref=f1e51326]:
+          - button "Governance 2" [expanded] [ref=f1e51327] [cursor=pointer]:
+            - generic [ref=f1e51332]: Governance
+            - generic "2 of 2 approved or reviewed" [ref=f1e51333]: "2"
+          - paragraph [ref=f1e51336]:
+            - button "Open" [ref=f1e51337] [cursor=pointer]
+          - tree "Governance outline" [ref=f1e51339]:
+            - button "Deviations 1" [expanded] [ref=f1e51340] [cursor=pointer]:
+              - generic [ref=f1e51343]: Deviations
+              - generic [ref=f1e51344]: "1"
+            - treeitem "Deviation, Kiosk Cache, approved" [level=1] [ref=f1e51345] [cursor=pointer]:
+              - generic "Kiosk Cache" [ref=f1e51351]
+              - generic "approved" [ref=f1e51352]
+            - button "Known gaps 1" [expanded] [ref=f1e51356] [cursor=pointer]:
+              - generic [ref=f1e51359]: Known gaps
+              - generic [ref=f1e51360]: "1"
+            - treeitem "Known gap, Offline Kiosk, approved" [level=1] [ref=f1e51361] [cursor=pointer]:
+              - generic "Offline Kiosk" [ref=f1e51365]
+              - generic "approved" [ref=f1e51366]
+        - generic [ref=f1e51370]:
+          - button "Glossary 1" [expanded] [ref=f1e51371] [cursor=pointer]:
+            - generic [ref=f1e51374]: Glossary
+            - generic "1 of 1 approved or reviewed" [ref=f1e51375]: "1"
+          - paragraph [ref=f1e51378]:
+            - button "Open" [ref=f1e51379] [cursor=pointer]
+          - tree "Glossary outline" [ref=f1e51381]:
+            - treeitem "Term, Loan, approved" [level=1] [ref=f1e51382] [cursor=pointer]:
+              - generic "Loan" [ref=f1e51386]
+              - generic "approved" [ref=f1e51387]
+    - main [ref=f1e544]:
+      - article [ref=f1e545]:
+        - navigation "Location" [ref=f1e51391]:
+          - button "Behavior" [ref=f1e51392] [cursor=pointer]
+          - generic [ref=f1e51393]: /
+          - generic [ref=f1e51394]: Runbooks
+          - generic [ref=f1e51395]: /
+          - generic [ref=f1e51396]: Overdue Notice
+        - heading "Overdue Notice" [level=1] [ref=f1e51397]
+        - group [ref=f1e51398]:
+          - generic "What is a runbook?" [ref=f1e51399] [cursor=pointer]
+        - link "docs/runbooks/overdue-notice.md:3" [ref=f1e51403] [cursor=pointer]:
+          - /url: vscode://file/D:\Personal-Projects\LiteSpec/docs/runbooks/overdue-notice.md:3
+        - generic [ref=f1e51409]:
+          - button "Up" [disabled] [ref=f1e51410] [cursor=pointer]
+          - button "Previous sibling" [disabled] [ref=f1e51413] [cursor=pointer]
+          - generic [ref=f1e51416]: 1 of 1 runbooks
+          - button "Next sibling" [disabled] [ref=f1e51417] [cursor=pointer]
+        - generic [ref=f1e51420]:
+          - generic [ref=f1e51421]:
+            - term [ref=f1e51422]: Status
+            - definition [ref=f1e51423]: reviewed
+          - generic [ref=f1e51424]:
+            - term [ref=f1e51425]: Status reason
+            - definition [ref=f1e51426]: Settled
+          - generic [ref=f1e51427]:
+            - term [ref=f1e51428]: Owner
+            - definition [ref=f1e51429]: lending-team
+          - generic [ref=f1e51430]:
+            - term [ref=f1e51431]: Risk tier
+            - definition [ref=f1e51432]: Tier 3
+        - generic [ref=f1e51433]: Trigger. A loan passes its due date.
+        - generic [ref=f1e51437]:
+          - heading "Impact" [level=2] [ref=f1e51438]
+          - paragraph [ref=f1e51441]: Members keep borrowing while notices wait.
+        - generic [ref=f1e51442]:
+          - heading "Procedure" [level=2] [ref=f1e51443]
+          - generic [ref=f1e51444]:
+            - list [ref=f1e51445]:
+              - listitem [ref=f1e51446]: List overdue loans.
+              - listitem [ref=f1e51447]: Send reminders.
+            - paragraph [ref=f1e51448]:
+              - text: Labels print as
+              - code [ref=f1e51449]: <code>LOAN-1</code>
+              - text: from the template.
+      - generic [ref=f1e51450]:
+        - generic [ref=f1e51451]: Reviewed
+        - button "Request changes" [ref=f1e51455] [cursor=pointer]
+        - button "Next draft" [ref=f1e51456] [cursor=pointer]
+    - complementary "Connections" [ref=f1e721]:
+      - heading "Connections 1" [level=2] [ref=f1e51459]:
+        - text: Connections
+        - generic [ref=f1e51460]: "1"
+      - generic [ref=f1e51461]:
+        - heading "Behavior 1" [level=3] [ref=f1e51462]:
+          - text: Behavior
+          - generic [ref=f1e51465]: "1"
+        - generic [ref=f1e51466]: This runbook answers
+        - button "Send Overdue Notices job" [ref=f1e51467] [cursor=pointer]:
+          - generic [ref=f1e51472]: Send Overdue Notices
+          - generic [ref=f1e51473]: job
+          - generic "reviewed" [ref=f1e51474]

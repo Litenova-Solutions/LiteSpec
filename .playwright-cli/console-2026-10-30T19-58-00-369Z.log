@@ -1,0 +1,8 @@
+[     102ms] TypeError: list.map is not a function
+    at bullets (http://127.0.0.1:8932/out-fixture-default/assets/book.js:741:69)
+    at http://127.0.0.1:8932/out-fixture-default/assets/book.js:1023:378
+    at Array.map (<anonymous>)
+    at use-case (http://127.0.0.1:8932/out-fixture-default/assets/book.js:1023:88)
+    at detailHtml (http://127.0.0.1:8932/out-fixture-default/assets/book.js:1149:45)
+    at render (http://127.0.0.1:8932/out-fixture-default/assets/book.js:1385:48)
+    at http://127.0.0.1:8932/out-fixture-default/assets/book.js:1437:5

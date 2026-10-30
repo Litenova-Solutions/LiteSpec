@@ -188,7 +188,8 @@ body.wide .itree-wrap { display: block; padding: 28px 40px 80px; }
 :root[data-theme="dark"] { --accent: #fbbf24; --accent-text: #fcd34d; --accent-soft: #451a03; --accent-subtle: #1c1405; --l-intent: #fcd34d; --l-behavior: #93c5fd; --l-gov: #c4b5fd; }
 a, .iref { color: inherit; }
 /* outline: one grid for chevron, icon and title at every level */
-.vtabs { grid-template-columns: repeat(3, 1fr); }
+/* Four tabs in two rows: the port wires Ballots beside Outline, Review queue and Security. */
+.vtabs { grid-template-columns: repeat(2, 1fr); }
 .navbody { padding: 6px 8px 0; }
 .sec { margin-bottom: 4px; }
 .sec-h { padding: 6px 8px; }

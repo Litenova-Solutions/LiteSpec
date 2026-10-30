@@ -215,9 +215,14 @@ function resolveField(field) {
   while (true) {
     if (links.some(function (l) { return l.field === candidate; })) return candidate;
     var nested = candidate.lastIndexOf(".");
-    if (nested < 0) return null;
+    if (nested < 0) break;
     candidate = candidate.slice(0, nested);
   }
+  // A leaf link field reads from its own row: journey steps name their actor,
+  // and the Links table carries that row as actor.
+  var leaf = field.slice(field.lastIndexOf(".") + 1);
+  if (leaf !== candidate && links.some(function (l) { return l.field === leaf; })) return leaf;
+  return null;
 }
 function linkRow(field, carrierType) {
   var links = LEX.links || [];
@@ -243,11 +248,13 @@ function phraseFor(field, carrierType, dir) {
   }
   return text;
 }
+// A field reads per carrier when its rows carry different inverse phrases.
 function linkVaries(field) {
   var candidate = resolveField(field);
   if (candidate === null) return false;
-  var links = LEX.links || [];
-  return links.some(function (l) { return l.field === candidate && ((l.forward || "").indexOf(" / ") >= 0 || (l.inverse || "").indexOf(" / ") >= 0); });
+  var rows = (LEX.links || []).filter(function (l) { return l.field === candidate; });
+  if (rows.some(function (l) { return (l.forward || "").indexOf(" / ") >= 0 || (l.inverse || "").indexOf(" / ") >= 0; })) return true;
+  return uniq(rows.map(function (l) { return l.inverse || ""; })).length > 1;
 }
 function buildLexiconCaches() {
   TYPE = {}; PLURAL = {};
@@ -326,9 +333,11 @@ var traceShown = {};
 function connectionsOf(id) {
   var rows = [], seen = {};
   // Labels are the link field; a record pointing here reads "Points at this", from the Links table.
+  // Nested paths share their Links row label, so one sentence covers every edge that reads the same.
   function push(label, tid, via) { if (tid === id) return; var k = label + "|" + tid; if (seen[k]) return; seen[k] = 1; rows.push({ label: label, id: tid, via: via || "" }); }
-  outEdges(id).forEach(function (e) { if (e.id !== parentOf[id]) push(e.field, e.id); });
-  inEdges(id).forEach(function (e) { if (e.id !== parentOf[id]) push("Points at this: " + e.field, e.id); });
+  function shortLabel(field) { return resolveField(field) || field; }
+  outEdges(id).forEach(function (e) { if (e.id !== parentOf[id]) push(shortLabel(e.field), e.id); });
+  inEdges(id).forEach(function (e) { if (e.id !== parentOf[id]) push("Points at this: " + shortLabel(e.field), e.id); });
   return rows;
 }
 
@@ -597,7 +606,7 @@ function securityHtml() {
   }).join("");
 }
 // A batch named by what it holds, as release.md describes the four kinds.
-function batchName(b) { var p = String(b.selector || "").split("/"); if (b.kind === "use-case") return "This use case with its results and scenarios"; if (b.kind === "decision") return "Decision " + (REC[b.selector] || NODE[b.selector] ? '"' + title(b.selector) + '"' : b.selector) + " with what it decides"; if (b.kind === "record") return "This record on its own"; return "All draft " + (PLURAL[p[1]] || p[1] || "").toLowerCase() + (p[0] === "intent" || p[0] === "governance" ? "" : " in " + p[0].replace(/-/g, " ")); }
+function batchName(b) { var p = String(b.selector || "").split("/"); if (b.kind === "use-case") return "This use case with its results and scenarios"; if (b.kind === "decision") { var dn = base(String(b.selector || "").replace(/^decision\//, "")); return "Decision " + (REC[dn] || NODE[dn] ? '"' + title(dn) + '"' : b.selector) + " with what it decides"; } if (b.kind === "record") return "This record on its own"; return "All draft " + (PLURAL[p[1]] || p[1] || "").toLowerCase() + (p[0] === "intent" || p[0] === "governance" ? "" : " in " + p[0].replace(/-/g, " ")); }
 function batchOf(id) {
   var batches = (QUEUE && QUEUE.batches) || {};
   var r = REC[base(id)];
@@ -738,7 +747,7 @@ function callout(kind, iconName, html) { return '<div class="callout c-' + kind 
 function badge(text, kind) { return '<span class="badge' + (kind ? " k-" + kind : "") + '">' + esc(text) + "</span>"; }
 function table(head, rows) { return '<table class="tbl"><thead><tr>' + head.map(function (h) { return "<th>" + esc(h) + "</th>"; }).join("") + "</tr></thead><tbody>" + rows.map(function (r) { return "<tr>" + r.join("") + "</tr>"; }).join("") + "</tbody></table>"; }
 function td(html, cls) { return "<td" + (cls ? ' class="' + cls + '"' : "") + ">" + html + "</td>"; }
-function bullets(list) { return list && list.length ? "<ul>" + list.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + "</ul>" : '<span class="tn">&ndash;</span>'; }
+function bullets(list) { if (typeof list === "string" && list) list = [list]; return list && list.length ? "<ul>" + list.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + "</ul>" : '<span class="tn">&ndash;</span>'; }
 var CLS = { public: ["public", ""], internal: ["internal", "info"], personal: ["personal", "warn"], sensitive: ["sensitive", "bad"], confidential: ["confidential", "bad"] };
 function clsBadge(c) { var x = CLS[c] || [cap(c), ""]; return badge(x[0], x[1]); }
 
@@ -972,7 +981,7 @@ var DETAIL = {
     return metaRow(id) + head + blk("opts", "options", opts, (f.options || []).length) + (f.changeWhen ? blk("rev", "changeWhen", callout("quiet", "clock", esc(f.changeWhen))) : "") + blk("dec", "decides", refs(f.decides), (f.decides || []).length) + blk("basis", "basedOn", refs(f.basedOn)) + (f.replaces ? blk("rep", "replaces", refs([f.replaces])) : "");
   },
   constraint: function (id, r) { var f = r.fields || {}; return metaRow(id, [badge(f.kind, "info"), badge("applies: " + !!f.applies, f.applies ? "warn" : "")]) + leadHtml(secHtml(r, "Summary")) + blk("src", "authority", callout("quiet", "quote", esc(f.authority))) + ""; },
-  research: function (id, r) { var f = r.fields || {}; return metaRow(id) + lead(f.question) + (f.conclusion ? blk("con", "conclusion", '<div class="prose">' + inline(String(f.conclusion)) + "</div>") : "") + blk("srcs", "Sources", '<ol class="rlist">' + (f.sources || []).map(function (x) { var host = ""; try { host = new URL(x.url).host.replace(/^www\./, ""); } catch (e) { host = ""; } return '<li><a href="' + esc(x.url) + '" target="_blank" rel="noopener">' + esc(x.title || x.url.replace(/^https?:\/\/(www\.)?/, "")) + '</a><span class="rsub">' + esc(host) + (x.read ? ", read " + fmtDate(x.read) : "") + "</span></li>"; }).join("") + "</ol>", (f.sources || []).length); },
+  research: function (id, r) { var f = r.fields || {}; return metaRow(id) + lead(f.question) + (f.conclusion ? blk("con", "conclusion", '<div class="prose">' + inline(String(f.conclusion)) + "</div>") : "") + blk("srcs", "Sources", '<ol class="rlist">' + (f.sources || []).map(function (x) { if (x.path) return '<li><span class="code">' + esc(x.path) + "</span>" + (x.title ? " " + esc(x.title) : "") + '<span class="rsub">' + (x.read ? "read " + fmtDate(x.read) : "") + "</span></li>"; var host = ""; try { host = new URL(x.url).host.replace(/^www\./, ""); } catch (e) { host = ""; } return '<li><a href="' + esc(x.url) + '" target="_blank" rel="noopener">' + esc(x.title || x.url.replace(/^https?:\/\/(www\.)?/, "")) + '</a><span class="rsub">' + esc(host) + (x.read ? ", read " + fmtDate(x.read) : "") + "</span></li>"; }).join("") + "</ol>", (f.sources || []).length); },
   journey: function (id, r) {
     var f = r.fields || {}, steps = f.steps || [], srv = r.stepServers || {};
     var served = steps.filter(function (s) { return (srv[s.id] || []).length; }).length;

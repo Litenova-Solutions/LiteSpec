@@ -4,6 +4,16 @@ namespace LiteSpec.Model;
 /// <follows>litespec/core/model#give-every-record-one-parent</follows>
 static partial class Checker
 {
+    /// <summary>Types whose parent is the identifier home, so a missing home is reported here.</summary>
+    private static readonly HashSet<string> HomeParentedTypes = new(StringComparer.Ordinal)
+    {
+        "use-case", "reaction", "job", "notification", "setting", "aggregate",
+        "rule", "event", "result", "scenario",
+    };
+
+    /// <summary>Whether the record reports a missing identifier home through the parent check.</summary>
+    private static bool ReportsMissingHome(Record record) => HomeParentedTypes.Contains(record.Type);
+
     /// <summary>Reports a record whose required parent is missing, at most one finding per record.</summary>
     private static void CheckMissingParent(ProjectModel model, List<Finding> findings)
     {
@@ -76,7 +86,7 @@ static partial class Checker
         {
             findings.Add(new Finding(
                 "record-without-parent",
-                $"Feature '{record.Id}' solves no problem.",
+                $"Feature '{record.Id}' names no parent: 'solves' names no problem.",
                 record.File, record.Line, SubjectOf(record)));
         }
     }
@@ -93,7 +103,7 @@ static partial class Checker
 
         findings.Add(new Finding(
             "record-without-parent",
-            $"Requirement '{record.Id}' names no feature, basedOn or deciding decision.",
+            $"Requirement '{record.Id}' names no parent: it names no feature, basedOn or deciding decision.",
             record.File, record.Line, SubjectOf(record)));
     }
 
@@ -106,7 +116,7 @@ static partial class Checker
         {
             findings.Add(new Finding(
                 "record-without-parent",
-                $"Journey '{record.Id}' serves no goal.",
+                $"Journey '{record.Id}' names no parent: 'serves' names no goal.",
                 record.File, record.Line, SubjectOf(record)));
             return;
         }
@@ -125,7 +135,7 @@ static partial class Checker
 
         findings.Add(new Finding(
             "record-without-parent",
-            $"Journey '{record.Id}' serves no goal.",
+            $"Journey '{record.Id}' names no parent: 'serves' names no goal.",
             record.File, record.Line, SubjectOf(record)));
     }
 
@@ -149,13 +159,17 @@ static partial class Checker
         {
             findings.Add(new Finding(
                 "record-without-parent",
-                $"Scenario '{record.Id}' names no result.",
+                $"Scenario '{record.Id}' names no parent: 'result' names no result.",
                 record.File, record.Line, SubjectOf(record)));
             return;
         }
 
         if (!Identifiers.TrySplit(record.Id, out _, out var home, out _) || home is null)
         {
+            findings.Add(new Finding(
+                "record-without-parent",
+                $"Scenario '{record.Id}' names no parent: its identifier names no home.",
+                record.File, record.Line, SubjectOf(record)));
             return;
         }
 
@@ -163,7 +177,7 @@ static partial class Checker
         {
             findings.Add(new Finding(
                 "record-without-parent",
-                $"Scenario '{record.Id}' names use case '{home}', which no record holds.",
+                $"Scenario '{record.Id}' names no parent: its home '{home}' names no use case.",
                 record.File, record.Line, SubjectOf(record)));
         }
     }
@@ -177,7 +191,7 @@ static partial class Checker
         {
             findings.Add(new Finding(
                 "record-without-parent",
-                $"Screen '{record.Id}' names no entry point.",
+                $"Screen '{record.Id}' names no parent: 'entryPoint' names no entry point.",
                 record.File, record.Line, SubjectOf(record)));
             return;
         }
@@ -200,7 +214,7 @@ static partial class Checker
 
         findings.Add(new Finding(
             "record-without-parent",
-            $"Screen '{record.Id}' names entry point '{points[0]}', which disagrees with its home '{home}'.",
+            $"Screen '{record.Id}' names no parent: 'entryPoint' '{points[0]}' disagrees with its home '{home}'.",
             record.File, record.Line, SubjectOf(record)));
     }
 
@@ -209,6 +223,10 @@ static partial class Checker
     {
         if (!Identifiers.TrySplit(record.Id, out _, out var home, out _) || home is null)
         {
+            findings.Add(new Finding(
+                "record-without-parent",
+                $"Result '{record.Id}' names no parent: its identifier names no home.",
+                record.File, record.Line, SubjectOf(record)));
             return;
         }
 
@@ -216,7 +234,7 @@ static partial class Checker
         {
             findings.Add(new Finding(
                 "record-without-parent",
-                $"Result '{record.Id}' names use case '{home}', which no record holds.",
+                $"Result '{record.Id}' names no parent: its home '{home}' names no use case.",
                 record.File, record.Line, SubjectOf(record)));
         }
     }
@@ -224,16 +242,6 @@ static partial class Checker
     /// <summary>Reports a module-homed record naming a module no record holds.</summary>
     private static void CheckModuleHome(ProjectModel model, Record record, List<Finding> findings)
     {
-        if (!Identifiers.TrySplit(record.Id, out _, out var home, out _) || home is null)
-        {
-            return;
-        }
-
-        if (model.ById.ContainsKey($"module/{home}"))
-        {
-            return;
-        }
-
         var label = record.Type switch
         {
             "use-case" => "Use case",
@@ -244,9 +252,23 @@ static partial class Checker
             _ => "Aggregate",
         };
 
+        if (!Identifiers.TrySplit(record.Id, out _, out var home, out _) || home is null)
+        {
+            findings.Add(new Finding(
+                "record-without-parent",
+                $"{label} '{record.Id}' names no parent: its identifier names no home.",
+                record.File, record.Line, SubjectOf(record)));
+            return;
+        }
+
+        if (model.ById.ContainsKey($"module/{home}"))
+        {
+            return;
+        }
+
         findings.Add(new Finding(
             "record-without-parent",
-            $"{label} '{record.Id}' names module '{home}', which no record holds.",
+            $"{label} '{record.Id}' names no parent: its home '{home}' names no module.",
             record.File, record.Line, SubjectOf(record)));
     }
 
@@ -255,6 +277,10 @@ static partial class Checker
     {
         if (!Identifiers.TrySplit(record.Id, out _, out var home, out _) || home is null)
         {
+            findings.Add(new Finding(
+                "record-without-parent",
+                $"Rule '{record.Id}' names no parent: its identifier names no home.",
+                record.File, record.Line, SubjectOf(record)));
             return;
         }
 
@@ -265,7 +291,7 @@ static partial class Checker
 
         findings.Add(new Finding(
             "record-without-parent",
-            $"Rule '{record.Id}' names module or aggregate '{home}', which no record holds.",
+            $"Rule '{record.Id}' names no parent: its home '{home}' names no module or aggregate.",
             record.File, record.Line, SubjectOf(record)));
     }
 
@@ -274,6 +300,10 @@ static partial class Checker
     {
         if (!Identifiers.TrySplit(record.Id, out _, out var home, out _) || home is null)
         {
+            findings.Add(new Finding(
+                "record-without-parent",
+                $"Event '{record.Id}' names no parent: its identifier names no home.",
+                record.File, record.Line, SubjectOf(record)));
             return;
         }
 
@@ -281,7 +311,7 @@ static partial class Checker
         {
             findings.Add(new Finding(
                 "record-without-parent",
-                $"Event '{record.Id}' names aggregate '{home}', which no record holds.",
+                $"Event '{record.Id}' names no parent: its home '{home}' names no aggregate.",
                 record.File, record.Line, SubjectOf(record)));
         }
     }

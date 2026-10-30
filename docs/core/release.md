@@ -32,7 +32,7 @@ A project with thousands of drafts is reviewed in batches, never record by recor
 
 `litespec model approve --batch` approves one batch in one operation: it promotes each draft, Intent and governance records to approved and Behavior records to reviewed, stamps its approval data, re-stamps each reopened record in the batch, and writes a batch manifest under `docs/proof/approvals/`. A record already approved with an unchanged hash is listed in the manifest and left as it is. The manifest is generated evidence, never a record. A batch is refused whole when one guard fails. Approving a batch is not shipping it: the release gate still asks for passing tier 1 scenarios and a cleared security queue. No record auto-approves: the veto window decides tier 3 questions only, because a question carries a recommendation awaiting a veto, while a record is a promise that carries a person's name.
 
-The second review of a tier 1 batch is a reading recorded beside the approval, never the approval itself. In a project with one person, an independent agent review whose report the manifest cites stands as that reading, while the approval stays the person's.
+The second review of a tier 1 batch is a reading recorded beside the approval, never the approval itself. In a project with one person, an independent agent review whose report the manifest cites stands as that reading, while the approval stays the person's. The report is a page in the `review-report` style under `docs/proof/reviews/`.
 
 ### The Release Gate
 
@@ -164,13 +164,25 @@ A consumer adopts one LiteSpec release by installing the `LiteSpec.Cli` tool pac
 
 **ID:** `litespec/core/release#approve-drafts-in-bounded-batches`
 
-**Statement:** A batch approval MUST cover one use case with its results and scenarios, one decision with the records it decides, one tier 1 record no use case or decision holds, on its own, or the tier 3 drafts of one module and one record type, where an Intent record's module is its identifier home, or for a journey the goal it serves, so an open question holds back only the records of its own home.
+**Statement:** A batch approval MUST cover one use case with its results and scenarios, one reaction or job with the scenarios on its page, one decision with the records it decides, one tier 1 record no use case, reaction, job or decision holds, on its own, or the tier 3 drafts of one module and one record type, where an Intent record's module is its identifier home, or for a journey the goal it serves, so an open question holds back only the records of its own home.
 
 **Rationale:** One signature over hundreds of unread records is a rubber stamp. Bounding a batch to what one person can read in one sitting keeps each approval a decision: a tier 1 use case is read with the results and scenarios that state its promise, a decision with what it settles, and tier 3 drafts in sets small enough to sample.
 
 **Example:** `litespec model approve --batch use-case/spending.split-expense --by Cara --second-reviewer Ben` reviews the split-expense use case with its results and scenarios in one act.
 
 **Checked by:** `litespec model approve --batch` accepts only a `use-case/`, `decision/`, or `<module>/<type>` selector, and leaves tier 1 drafts out of a module and type batch.
+
+### Hold Only the Blocked Records of a Type Batch
+
+**ID:** `litespec/core/release#hold-only-the-blocked-records-of-a-type-batch`
+
+**Statement:** A module and type batch MUST approve every record whose guards pass and hold each record whose guard fails, by name and with that guard.
+
+**Rationale:** A module and type batch gathers unrelated drafts of one kind, so one record waiting on an open question says nothing about its siblings; refusing the whole batch would hold every sibling behind a question that is not theirs. A use case, reaction, job, decision or tier 1 record batch is read as one unit, so it stays approved or refused whole. A held record keeps its status and gets no stamp, and the manifest lists it with the action `held` and its guard, so the next run approves it once the guard passes.
+
+**Example:** The `admin/screen` batch holds twelve screens; two serve a journey step whose journey waits on an open pricing question. The run approves the ten others and lists the two as held, each naming `stays draft behind draft journey/choose-a-plan`.
+
+**Checked by:** `litespec model approve --batch` approves the passing records of a module and type batch, writes each blocked record as `held` with its guard in the manifest, and refuses a module and type batch only when none of its records passes.
 
 ### Refuse a Batch Without a Named Approver
 

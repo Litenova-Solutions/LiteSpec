@@ -165,13 +165,9 @@ static partial class Checker
             DateTime.UtcNow.Date,
             home => ModelBuilder.UseCaseOf(model, home)?.Id);
 
-    /// <summary>Record types using the Behavior status vocabulary.</summary>
-    private static readonly HashSet<string> BehaviorTypes = new(StringComparer.Ordinal)
-    {
-        "module", "aggregate", "rule", "use-case", "result", "scenario", "event",
-        "integration-event", "reaction", "job", "notification", "setting",
-        "role", "permission", "entry-point", "screen", "external-system", "runbook",
-    };
+    /// <summary>Whether the record lives in the behavior layer, from the one layer table.</summary>
+    private static bool IsBehavior(Record record) =>
+        RecordTypes.LayerByType.TryGetValue(record.Type, out var layer) && layer == "behavior";
 
     private static void CheckSchema(ProjectModel model, List<Finding> findings, Codeowners owners)
     {
@@ -266,7 +262,7 @@ static partial class Checker
             return record.Status is "approved" or "reviewed";
         }
 
-        return BehaviorTypes.Contains(record.Type)
+        return IsBehavior(record)
             ? record.Status == "reviewed"
             : record.Status == "approved";
     }
@@ -279,7 +275,7 @@ static partial class Checker
             return "draft, approved, reviewed or retired";
         }
 
-        return BehaviorTypes.Contains(record.Type)
+        return IsBehavior(record)
             ? "draft, reviewed or retired"
             : "draft, approved or retired";
     }
@@ -702,6 +698,13 @@ static partial class Checker
 
             if (!Identifiers.TrySplit(record.Id, out var prefix, out var home, out var name))
             {
+                // A home-parented record reports its missing home through
+                // record-without-parent, so identifier-form stays silent here.
+                if (ReportsMissingHome(record))
+                {
+                    continue;
+                }
+
                 findings.Add(new Finding("identifier-form", $"Identifier '{record.Id}' is not type/name or type/home.name.", record.File, record.Line, SubjectOf(record)));
                 continue;
             }
@@ -715,7 +718,10 @@ static partial class Checker
 
             if (wantsHome && home is null)
             {
-                findings.Add(new Finding("identifier-form", $"Identifier '{record.Id}' names no home.", record.File, record.Line, SubjectOf(record)));
+                if (!ReportsMissingHome(record))
+                {
+                    findings.Add(new Finding("identifier-form", $"Identifier '{record.Id}' names no home.", record.File, record.Line, SubjectOf(record)));
+                }
             }
             else if (!wantsHome && home is not null)
             {

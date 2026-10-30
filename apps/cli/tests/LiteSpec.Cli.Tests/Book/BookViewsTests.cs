@@ -41,37 +41,48 @@ public sealed class BookViewsTests
         var searchIds = ReadSearchIds(data);
         var tops = ReadOutlineTops(data, manifest);
         var ancestors = AncestorsOf(tops);
+        var unplaced = manifest["unplaced"]!.AsArray().Select(node => node!.GetValue<string>()).ToList();
+        Assert.Equal(new[] { "journey/borrowing" }, unplaced);
         foreach (var id in details.Keys)
         {
             Assert.Contains(id, searchIds);
-            Assert.True(ancestors.ContainsKey(id), $"{id} is missing from the outline.");
-        }
-
-        Assert.Equal(details.Count, ancestors.Count);
-
-        var unplaced = manifest["unplaced"]!.AsArray().Select(node => node!.GetValue<string>()).ToList();
-        Assert.Equal(new[] { "journey/borrowing" }, unplaced);
-
-        // Each detail parent agrees with the outline nesting: under its parent record,
-        // or under a group when the product parents it outside Intent or no rule places it.
-        foreach (var pair in details)
-        {
-            var parent = Str(pair.Value, "parent");
-            var ancestor = ancestors[pair.Key];
-            if (parent is null)
+            if (unplaced.Contains(id))
             {
-                Assert.Null(ancestor);
-                Assert.True(
-                    pair.Key == "product/library" || unplaced.Contains(pair.Key),
-                    $"{pair.Key} has no parent but is not unplaced.");
-            }
-            else if (parent == "product/library" && TopsItsLayer(Str(pair.Value, "type")))
-            {
-                Assert.Null(ancestor);
+                Assert.False(ancestors.ContainsKey(id), $"{id} is unplaced but holds an outline node.");
             }
             else
             {
-                Assert.Equal(parent, ancestor);
+                Assert.True(ancestors.ContainsKey(id), $"{id} is missing from the outline.");
+            }
+        }
+
+        Assert.Equal(details.Count - unplaced.Count, ancestors.Count);
+
+        // Each detail parent agrees with the outline nesting: under its parent record,
+        // or under a group when the product parents it outside Intent. An unplaced
+        // record has no node at all.
+        foreach (var pair in details)
+        {
+            var parent = Str(pair.Value, "parent");
+            if (parent is null)
+            {
+                if (pair.Key == "product/library")
+                {
+                    Assert.Null(ancestors[pair.Key]);
+                }
+                else
+                {
+                    Assert.True(unplaced.Contains(pair.Key), $"{pair.Key} has no parent but is not unplaced.");
+                    Assert.False(ancestors.ContainsKey(pair.Key), $"{pair.Key} is unplaced but holds an outline node.");
+                }
+            }
+            else if (parent == "product/library" && TopsItsLayer(Str(pair.Value, "type")))
+            {
+                Assert.Null(ancestors[pair.Key]);
+            }
+            else
+            {
+                Assert.Equal(parent, ancestors[pair.Key]);
             }
         }
 
@@ -89,9 +100,8 @@ public sealed class BookViewsTests
         Assert.Equal("product/library", Str(details["integration-event/loan-borrowed"], "parent"));
 
         // Group nodes carry their layer and type; record nodes carry their records shard.
-        var journeyGroup = FindNode(tops, "intent/journey");
-        Assert.Equal("group", Str(journeyGroup, "kind"));
-        Assert.Equal("journey", Str(journeyGroup, "type"));
+        // The unplaced journey leaves no group behind.
+        Assert.Null(TryFindNode(tops, "intent/journey"));
         var roleGroup = FindNode(tops, "behavior/role");
         Assert.Equal("group", Str(roleGroup, "kind"));
         foreach (var top in tops)
@@ -103,6 +113,40 @@ public sealed class BookViewsTests
                 Assert.True(File.Exists(Path.Combine(data, shard + ".js")), $"Shard {shard} is missing.");
             }
         }
+    }
+
+    /// <summary>The outline nests code, test and finding leaves under their subjects, with no leaf under an unplaced record.</summary>
+    /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
+    [Fact]
+    public void Outline_Nests_Code_Test_And_Finding_Leaves_Under_Their_Subjects()
+    {
+        using var temp = Cli.Temp("book-views");
+        var result = Cli.Run(
+            "book",
+            "--model", BookTruthTests.ModelWithEmbeddedFindings(temp),
+            "--out", temp.Path);
+        Assert.Equal(0, result.Status);
+
+        var data = Path.Combine(temp.Path, "data");
+        var tops = ReadOutlineTops(data, ReadShard(Path.Combine(data, "manifest.js"), "manifest"));
+        var parents = ParentsOf(tops);
+
+        var code = FindNode(tops, "code/src/Application/Lending/BorrowCopyHandler.cs");
+        Assert.Equal("code", Str(code, "kind"));
+        Assert.Equal("code", Str(code, "type"));
+        Assert.Equal("BorrowCopyHandler.cs", Str(code, "label"));
+        Assert.Equal("use-case/lending.borrow-copy", parents["code/src/Application/Lending/BorrowCopyHandler.cs"]);
+
+        var test = FindNode(tops, "test/Library.Tests.BorrowTests.Borrowing_An_Available_Copy_Succeeds");
+        Assert.Equal("test", Str(test, "kind"));
+        Assert.Equal("scenario/borrow-copy.borrowing-an-available-copy-succeeds", parents["test/Library.Tests.BorrowTests.Borrowing_An_Available_Copy_Succeeds"]);
+
+        var finding = FindNode(tops, "finding/1");
+        Assert.Equal("finding", Str(finding, "kind"));
+        Assert.Equal("use-case/lending.return-copy", parents["finding/1"]);
+
+        // The known finding subjects the unplaced journey, so it places no node.
+        Assert.Null(TryFindNode(tops, "finding/2"));
     }
 
     /// <summary>A record detail renders its prose body as text: headings, spans, lists, tables, code and quotes.</summary>
@@ -834,6 +878,13 @@ public sealed class BookViewsTests
 
     static JsonObject FindNode(List<JsonObject> tops, string id)
     {
+        var found = TryFindNode(tops, id);
+        Assert.True(found is not null, $"No outline node for {id}.");
+        return found!;
+    }
+
+    static JsonObject? TryFindNode(List<JsonObject> tops, string id)
+    {
         JsonObject? found = null;
         void Walk(JsonObject node)
         {
@@ -853,8 +904,28 @@ public sealed class BookViewsTests
             Walk(top);
         }
 
-        Assert.True(found is not null, $"No outline node for {id}.");
-        return found!;
+        return found;
+    }
+
+    /// <summary>The exact outline parent per node id, for every kind of node.</summary>
+    static Dictionary<string, string?> ParentsOf(List<JsonObject> tops)
+    {
+        var parents = new Dictionary<string, string?>(StringComparer.Ordinal);
+        void Walk(JsonObject node, string? parent)
+        {
+            parents[Str(node, "id") ?? ""] = parent;
+            foreach (var child in node["children"]!.AsArray().OfType<JsonObject>())
+            {
+                Walk(child, Str(node, "id"));
+            }
+        }
+
+        foreach (var top in tops)
+        {
+            Walk(top, null);
+        }
+
+        return parents;
     }
 
     static List<JsonObject> RecordsUnder(JsonObject node)

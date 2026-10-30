@@ -8,6 +8,8 @@ namespace LiteSpec.Tests.Book;
 public sealed class BookScaleTests
 {
     const int ScaleRecords = 21500;
+    const long FirstPaintBudgetBytes = 500L * 1024;
+    const long LayerBudgetBytes = 1536L * 1024;
 
     sealed record OutlineCheck(string Id, string? Shard);
 
@@ -48,6 +50,37 @@ public sealed class BookScaleTests
         var total = manifest["totals"]!.AsObject().Sum(pair => pair.Value!.GetValue<int>());
         Assert.Equal(ScaleRecords, total);
         Assert.Contains("21500 records", result.Output, StringComparison.Ordinal);
+    }
+
+    /// <summary>First paint stays under 500 KB and every layer outline under 1.5 MB: the shell, fonts, styles, script, manifest, lexicon and Intent outline load first, and each layer outline loads on first open.</summary>
+    /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
+    [Fact]
+    public void Budgets_Hold_First_Paint_And_Layers()
+    {
+        using var temp = Cli.Temp("book-scale");
+        var result = Cli.Run("book", "--model", Cli.Fixture("Book/review.json"), "--out", Out(temp));
+        Assert.Equal(0, result.Status);
+
+        var firstPaint = new[]
+        {
+            Path.Combine(Out(temp), "index.html"),
+            Path.Combine(Out(temp), "assets", "book.js"),
+            Path.Combine(Out(temp), "assets", "book.css"),
+            Path.Combine(Out(temp), "assets", "book-extra.css"),
+            Path.Combine(Out(temp), "assets", "book-fonts.css"),
+            Path.Combine(Out(temp), "data", "manifest.js"),
+            Path.Combine(Out(temp), "data", "lexicon.js"),
+        }.Concat(Directory.GetFiles(Path.Combine(Out(temp), "data"), "outline-intent-*.js"));
+        var firstBytes = firstPaint.Sum(file => new FileInfo(file).Length);
+        Assert.True(firstBytes <= FirstPaintBudgetBytes, $"First paint loads {firstBytes} bytes, past the 500 KB budget.");
+
+        foreach (var layer in BookOutline.LayerKeys)
+        {
+            var layerBytes = Directory
+                .GetFiles(Path.Combine(Out(temp), "data"), $"outline-{layer}-*.js")
+                .Sum(file => new FileInfo(file).Length);
+            Assert.True(layerBytes <= LayerBudgetBytes, $"The {layer} outline loads {layerBytes} bytes, past the 1.5 MB budget.");
+        }
     }
 
     /// <summary>The outline places every scale record exactly once, with none unplaced.</summary>

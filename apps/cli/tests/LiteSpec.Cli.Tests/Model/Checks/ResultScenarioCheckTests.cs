@@ -86,6 +86,50 @@ public sealed class ResultScenarioCheckTests
         Assert.DoesNotContain("result-without-scenario", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/core/model#give-every-use-case-its-results</proves>
+    [Fact]
+    public void UseCaseOf_Resolves_Derived_Shaped_Id_Holder()
+    {
+        using var temp = Cli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("use-case", "use-case/spending.submit-expense", Path.Combine(temp.Path, "submit.md"), """{"kind": "command"}"""));
+
+        Assert.True(Identifiers.TrySplit("result/submit-expense.forbidden", out _, out var home, out _));
+        var holder = ModelBuilder.UseCaseOf(model, home!);
+        Assert.NotNull(holder);
+        Assert.Equal("use-case/spending.submit-expense", holder.Id);
+    }
+
+    /// <proves>litespec/core/model#give-every-use-case-its-results</proves>
+    [Fact]
+    public void Scenario_Ending_In_Other_Use_Case_Result_Reports()
+    {
+        using var temp = Cli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("use-case", "use-case/spending.submit-expense", Path.Combine(temp.Path, "submit.md"), """{"kind": "command"}"""),
+            TestModel.Record("use-case", "use-case/spending.approve-expense", Path.Combine(temp.Path, "approve.md"), """{"kind": "command"}"""),
+            TestModel.Record("result", "result/approve-expense.approved", Path.Combine(temp.Path, "approve.md"), """{"outcome": "success", "meaning": "The expense is approved."}"""),
+            TestModel.Record("scenario", "scenario/submit-expense.submitting-with-a-receipt-succeeds", Path.Combine(temp.Path, "submit.md"), """{"given": "An employee paid for a train ticket and kept the receipt.", "when": "The employee submits the expense with the receipt.", "then": "The expense is approved.", "result": "result/approve-expense.approved"}"""));
+
+        Assert.Contains("scenario-result-unresolved", TestModel.Codes(model));
+    }
+
+    /// <proves>litespec/core/model#give-every-use-case-its-results</proves>
+    [Fact]
+    public void Scenario_Ending_In_Own_Use_Case_Derived_Forbidden_Passes()
+    {
+        using var temp = Cli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("use-case", "use-case/spending.submit-expense", Path.Combine(temp.Path, "submit.md"), """{"kind": "command"}"""),
+            Entry("result", "result/submit-expense.forbidden", Path.Combine(temp.Path, "submit.md"), """{"outcome": "refusal", "code": "spending.forbidden", "meaning": "The caller lacks the grant the use case requires."}""", "use-case/spending.submit-expense", true),
+            TestModel.Record("scenario", "scenario/submit-expense.submitting-without-a-grant-is-refused", Path.Combine(temp.Path, "submit.md"), """{"given": "An employee holds no grant to submit expenses.", "when": "The employee submits the expense.", "then": "The expense is refused.", "result": "result/submit-expense.forbidden"}"""));
+
+        Assert.DoesNotContain("scenario-result-unresolved", TestModel.Codes(model));
+    }
+
     /// <summary>An entry of the type and id on the page, with the JSON fields.</summary>
     static Record Entry(string type, string id, string file, string json, string pageId, bool derived = false)
     {

@@ -37,6 +37,7 @@
     { "$ref": "#/$defs/tutorialPage" },
     { "$ref": "#/$defs/howToPage" },
     { "$ref": "#/$defs/referencePage" },
+    { "$ref": "#/$defs/reviewReportPage" },
     { "$ref": "#/$defs/commandPage" },
     { "$ref": "#/$defs/configurationPage" },
     { "$ref": "#/$defs/glossaryPage" },
@@ -2849,6 +2850,30 @@
         "decideBy": { "$ref": "#/$defs/isoDate" },
         "terms": { "$ref": "#/$defs/termIdArray" },
         "records": { "$ref": "#/$defs/recordsArray" }
+      }
+    },
+    "reviewReportPage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "title", "owner", "reviewedOn", "reviewer", "batches"],
+      "properties": {
+        "type": { "const": "review-report" },
+        "id": { "$ref": "#/$defs/nonEmptyString" },
+        "title": { "$ref": "#/$defs/nonEmptyString" },
+        "owner": { "$ref": "#/$defs/ownerName" },
+        "status": { "$ref": "#/$defs/intentStatus" },
+        "decider": { "$ref": "#/$defs/ownerName" },
+        "decideBy": { "$ref": "#/$defs/isoDate" },
+        "terms": { "$ref": "#/$defs/termIdArray" },
+        "records": { "$ref": "#/$defs/recordsArray" },
+        "reviewedOn": { "$ref": "#/$defs/isoDate" },
+        "reviewer": { "$ref": "#/$defs/ownerName" },
+        "batches": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/nonEmptyString" }
+        }
       }
     },
     "commandPage": {

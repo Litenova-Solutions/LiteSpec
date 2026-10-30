@@ -25,7 +25,9 @@ The glossary is the project ubiquitous language: the one word or phrase the proj
 | `layer` | `intent` or `behavior`. |
 | `aliases` | Established synonyms readers know. |
 | `rejected` | Synonyms barred in their scope. |
-| `broader`, `narrower`, `values`, `labels` | The wider and narrower terms, the closed values, and the manner labels. |
+| `broader`, `narrower`, `values` | The wider and narrower terms, and the closed values. |
+| `labels` | The term in each interface language beside English, keyed by its two-letter language code. |
+| `owner`, `status`, `decider`, `decideBy`, `approvedBy`, `approvedOn`, `approvedHash` | The common fields every record carries. |
 
 ### Aggregates
 

@@ -43,7 +43,7 @@ public sealed class ParentCheckTests
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-without-parent");
         Assert.Equal("G", finding.Tier);
-        Assert.Equal("Requirement 'requirement/borrowing.max-active-loans' names no feature, basedOn or deciding decision.", finding.Message);
+        Assert.Equal("Requirement 'requirement/borrowing.max-active-loans' names no parent: it names no feature, basedOn or deciding decision.", finding.Message);
         Assert.Equal("requirement/borrowing.max-active-loans", finding.Subject);
     }
 
@@ -58,7 +58,7 @@ public sealed class ParentCheckTests
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-without-parent");
         Assert.Equal("G", finding.Tier);
-        Assert.Equal("Requirement 'requirement/borrowing.max-active-loans' names no feature, basedOn or deciding decision.", finding.Message);
+        Assert.Equal("Requirement 'requirement/borrowing.max-active-loans' names no parent: it names no feature, basedOn or deciding decision.", finding.Message);
         Assert.Equal("requirement/borrowing.max-active-loans", finding.Subject);
     }
 
@@ -124,7 +124,7 @@ public sealed class ParentCheckTests
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-without-parent");
         Assert.Equal("G", finding.Tier);
-        Assert.Equal("Feature 'feature/hold-queue' solves no problem.", finding.Message);
+        Assert.Equal("Feature 'feature/hold-queue' names no parent: 'solves' names no problem.", finding.Message);
         Assert.Equal("feature/hold-queue", finding.Subject);
     }
 
@@ -154,7 +154,7 @@ public sealed class ParentCheckTests
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-without-parent");
         Assert.Equal("G", finding.Tier);
-        Assert.Equal("Journey 'journey/borrow-and-return' serves no goal.", finding.Message);
+        Assert.Equal("Journey 'journey/borrow-and-return' names no parent: 'serves' names no goal.", finding.Message);
         Assert.Equal("journey/borrow-and-return", finding.Subject);
     }
 
@@ -169,7 +169,7 @@ public sealed class ParentCheckTests
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-without-parent");
         Assert.Equal("G", finding.Tier);
-        Assert.Equal("Journey 'journey/borrow-and-return' serves no goal.", finding.Message);
+        Assert.Equal("Journey 'journey/borrow-and-return' names no parent: 'serves' names no goal.", finding.Message);
         Assert.Equal("journey/borrow-and-return", finding.Subject);
     }
 
@@ -214,7 +214,7 @@ public sealed class ParentCheckTests
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-without-parent");
         Assert.Equal("G", finding.Tier);
-        Assert.Equal("Scenario 'scenario/borrow-copy.borrowing-an-available-copy-succeeds' names no result.", finding.Message);
+        Assert.Equal("Scenario 'scenario/borrow-copy.borrowing-an-available-copy-succeeds' names no parent: 'result' names no result.", finding.Message);
         Assert.Equal("scenario/borrow-copy.borrowing-an-available-copy-succeeds", finding.Subject);
     }
 
@@ -229,7 +229,7 @@ public sealed class ParentCheckTests
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-without-parent");
         Assert.Equal("G", finding.Tier);
-        Assert.Equal("Scenario 'scenario/no-such-case.filing-succeeds' names use case 'no-such-case', which no record holds.", finding.Message);
+        Assert.Equal("Scenario 'scenario/no-such-case.filing-succeeds' names no parent: its home 'no-such-case' names no use case.", finding.Message);
         Assert.Equal("scenario/no-such-case.filing-succeeds", finding.Subject);
     }
 
@@ -258,7 +258,7 @@ public sealed class ParentCheckTests
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-without-parent");
         Assert.Equal("G", finding.Tier);
-        Assert.Equal("Result 'result/no-such-case.filed' names use case 'no-such-case', which no record holds.", finding.Message);
+        Assert.Equal("Result 'result/no-such-case.filed' names no parent: its home 'no-such-case' names no use case.", finding.Message);
         Assert.Equal("result/no-such-case.filed", finding.Subject);
     }
 
@@ -286,7 +286,7 @@ public sealed class ParentCheckTests
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-without-parent");
         Assert.Equal("G", finding.Tier);
-        Assert.Equal("Screen 'screen/library-app.loans' names no entry point.", finding.Message);
+        Assert.Equal("Screen 'screen/library-app.loans' names no parent: 'entryPoint' names no entry point.", finding.Message);
         Assert.Equal("screen/library-app.loans", finding.Subject);
     }
 
@@ -302,7 +302,7 @@ public sealed class ParentCheckTests
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-without-parent");
         Assert.Equal("G", finding.Tier);
-        Assert.Equal("Screen 'screen/library-app.loans' names entry point 'entry-point/kiosk', which disagrees with its home 'library-app'.", finding.Message);
+        Assert.Equal("Screen 'screen/library-app.loans' names no parent: 'entryPoint' 'entry-point/kiosk' disagrees with its home 'library-app'.", finding.Message);
         Assert.Equal("screen/library-app.loans", finding.Subject);
     }
 
@@ -330,7 +330,7 @@ public sealed class ParentCheckTests
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-without-parent");
         Assert.Equal("G", finding.Tier);
-        Assert.Equal("Use case 'use-case/nope.borrow-copy' names module 'nope', which no record holds.", finding.Message);
+        Assert.Equal("Use case 'use-case/nope.borrow-copy' names no parent: its home 'nope' names no module.", finding.Message);
         Assert.Equal("use-case/nope.borrow-copy", finding.Subject);
     }
 
@@ -345,7 +345,7 @@ public sealed class ParentCheckTests
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-without-parent");
         Assert.Equal("G", finding.Tier);
-        Assert.Equal("Aggregate 'aggregate/nope.loan' names module 'nope', which no record holds.", finding.Message);
+        Assert.Equal("Aggregate 'aggregate/nope.loan' names no parent: its home 'nope' names no module.", finding.Message);
         Assert.Equal("aggregate/nope.loan", finding.Subject);
     }
 
@@ -374,7 +374,7 @@ public sealed class ParentCheckTests
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-without-parent");
         Assert.Equal("G", finding.Tier);
-        Assert.Equal("Rule 'rule/nope.loan-period' names module or aggregate 'nope', which no record holds.", finding.Message);
+        Assert.Equal("Rule 'rule/nope.loan-period' names no parent: its home 'nope' names no module or aggregate.", finding.Message);
         Assert.Equal("rule/nope.loan-period", finding.Subject);
     }
 
@@ -403,7 +403,7 @@ public sealed class ParentCheckTests
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-without-parent");
         Assert.Equal("G", finding.Tier);
-        Assert.Equal("Event 'event/nope.loan-borrowed' names aggregate 'nope', which no record holds.", finding.Message);
+        Assert.Equal("Event 'event/nope.loan-borrowed' names no parent: its home 'nope' names no aggregate.", finding.Message);
         Assert.Equal("event/nope.loan-borrowed", finding.Subject);
     }
 
@@ -418,7 +418,7 @@ public sealed class ParentCheckTests
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-without-parent");
         Assert.Equal("G", finding.Tier);
-        Assert.Equal("Reaction 'reaction/nope.email-clerk-on-loan-borrowed' names module 'nope', which no record holds.", finding.Message);
+        Assert.Equal("Reaction 'reaction/nope.email-clerk-on-loan-borrowed' names no parent: its home 'nope' names no module.", finding.Message);
         Assert.Equal("reaction/nope.email-clerk-on-loan-borrowed", finding.Subject);
     }
 
@@ -433,7 +433,7 @@ public sealed class ParentCheckTests
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-without-parent");
         Assert.Equal("G", finding.Tier);
-        Assert.Equal("Job 'job/nope.scan-due-loans' names module 'nope', which no record holds.", finding.Message);
+        Assert.Equal("Job 'job/nope.scan-due-loans' names no parent: its home 'nope' names no module.", finding.Message);
         Assert.Equal("job/nope.scan-due-loans", finding.Subject);
     }
 
@@ -448,7 +448,7 @@ public sealed class ParentCheckTests
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-without-parent");
         Assert.Equal("G", finding.Tier);
-        Assert.Equal("Notification 'notification/nope.loan-due' names module 'nope', which no record holds.", finding.Message);
+        Assert.Equal("Notification 'notification/nope.loan-due' names no parent: its home 'nope' names no module.", finding.Message);
         Assert.Equal("notification/nope.loan-due", finding.Subject);
     }
 
@@ -463,7 +463,7 @@ public sealed class ParentCheckTests
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-without-parent");
         Assert.Equal("G", finding.Tier);
-        Assert.Equal("Setting 'setting/nope.max-renewals' names module 'nope', which no record holds.", finding.Message);
+        Assert.Equal("Setting 'setting/nope.max-renewals' names no parent: its home 'nope' names no module.", finding.Message);
         Assert.Equal("setting/nope.max-renewals", finding.Subject);
     }
 
@@ -488,6 +488,52 @@ public sealed class ParentCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("goal", "goal/faster-pickup", Path.Combine(temp.Path, "goals.md"), """{"statement": "Readers wait less.", "measure": "Median pickup wait.", "target": "Under two days.", "dueBy": "Pilot launch"}"""));
 
+        Assert.DoesNotContain("record-without-parent", TestModel.Codes(model));
+    }
+
+    /// <proves>litespec/core/model#give-every-record-one-parent</proves>
+    [Fact]
+    public void Result_Without_Home_Reports_Parent()
+    {
+        using var temp = Cli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("result", "result/borrowed", Path.Combine(temp.Path, "borrow.md"), """{"outcome": "success", "meaning": "The copy is lent."}"""));
+
+        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-without-parent");
+        Assert.Equal("G", finding.Tier);
+        Assert.Equal("Result 'result/borrowed' names no parent: its identifier names no home.", finding.Message);
+        Assert.Equal("result/borrowed", finding.Subject);
+        Assert.DoesNotContain("identifier-form", TestModel.Codes(model));
+    }
+
+    /// <proves>litespec/core/model#give-every-record-one-parent</proves>
+    [Fact]
+    public void Use_Case_With_Unparseable_Id_Reports_Parent()
+    {
+        using var temp = Cli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("use-case", "use-case/lending.borrow.copy", Path.Combine(temp.Path, "borrow.md"), """{"kind": "command"}"""));
+
+        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-without-parent");
+        Assert.Equal("G", finding.Tier);
+        Assert.Equal("Use case 'use-case/lending.borrow.copy' names no parent: its identifier names no home.", finding.Message);
+        Assert.Equal("use-case/lending.borrow.copy", finding.Subject);
+        Assert.DoesNotContain("identifier-form", TestModel.Codes(model));
+    }
+
+    /// <proves>litespec/core/model#give-every-record-one-parent</proves>
+    [Fact]
+    public void Requirement_Without_Home_Stays_Identifier_Form()
+    {
+        using var temp = Cli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("requirement", "requirement/max-active-loans", Path.Combine(temp.Path, "borrowing.md"), """{"kind": "functional", "statement": "A reader holds at most five active loans.", "features": ["feature/hold-queue"]}"""),
+            TestModel.Record("feature", "feature/hold-queue", Path.Combine(temp.Path, "holds.md"), """{"status": "approved", "lifecycle": "shipped", "solves": ["problem/overdue-loans-pile-up"]}"""));
+
+        Assert.Contains("identifier-form", TestModel.Codes(model));
         Assert.DoesNotContain("record-without-parent", TestModel.Codes(model));
     }
 }

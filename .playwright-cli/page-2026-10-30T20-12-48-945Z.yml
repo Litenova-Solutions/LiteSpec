@@ -1,0 +1,56 @@
+- generic [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e11]: Riverside Library
+      - generic [ref=e12]: /
+      - generic [ref=e13]: Book
+    - generic [ref=e14]:
+      - searchbox "Filter the navigation" [ref=e18]
+      - generic [aria-hidden] [ref=e19]: /
+    - 'button "Test run 20 Oct 2026: 1 passed" [ref=e625]':
+      - text: "Test run 20 Oct 2026:"
+      - generic [ref=e628]: "1"
+      - text: passed
+    - button "37 of 39 settled" [ref=e629]
+    - button "Intent tree" [active] [ref=e30] [cursor=pointer]
+    - button "Recent" [ref=e32] [cursor=pointer]
+    - button "Download review" [ref=e33] [cursor=pointer]
+    - button "Keyboard shortcuts" [ref=e36] [cursor=pointer]: "?"
+    - button "Switch to dark theme" [ref=e37] [cursor=pointer]
+  - generic [ref=e900]:
+    - generic [ref=e901]:
+      - generic [ref=e902]:
+        - heading "Intent, top down" [level=1] [ref=e903]
+        - generic [ref=e904]:
+          - generic [ref=e905]: Click a box to open the level below it.
+          - generic [ref=e906]: A dashed red box is where the chain breaks.
+          - generic [ref=e907]: opens the page.
+      - generic [ref=e912]:
+        - button "Open two levels" [ref=e913] [cursor=pointer]
+        - button "Collapse" [ref=e914] [cursor=pointer]
+        - button "Close" [ref=e915] [cursor=pointer]
+    - list [ref=e917]:
+      - listitem [ref=e918]:
+        - button "Riverside Library Open the page product 2 goals" [expanded] [ref=e919] [cursor=pointer]:
+          - generic [ref=e923]: Riverside Library
+          - generic "Open the page" [ref=e924]
+          - generic [ref=e929]: product
+          - generic [ref=e930]: 2 goals
+        - list [ref=e931]:
+          - listitem [ref=e932]:
+            - button "Faster Borrowing Open the page goal 1 feature serves it" [ref=e933] [cursor=pointer]:
+              - generic [ref=e938]: Faster Borrowing
+              - generic "Open the page" [ref=e939]
+              - generic [ref=e944]: goal
+              - generic [ref=e945]: 1 feature serves it
+          - listitem [ref=e946]:
+            - button "Quiet Study Open the page goal No feature serves it" [ref=e947] [cursor=pointer]:
+              - generic [ref=e952]: Quiet Study
+              - generic "Open the page" [ref=e953]
+              - generic [ref=e958]: goal
+              - generic [ref=e959]: No feature serves it
+          - listitem [ref=e960]:
+            - button "Features that serve no goal group 0 features" [ref=e961] [cursor=pointer]:
+              - generic [ref=e964]: Features that serve no goal
+              - generic [ref=e965]: group
+              - generic [ref=e966]: 0 features

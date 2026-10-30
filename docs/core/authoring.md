@@ -83,6 +83,7 @@ A consumer page is a record or one of these styles. Each one opens with the spec
 | tutorial | `templates/consumer/tutorial.md` | Purpose, Prerequisites, Lesson, What You Built |
 | how-to | `templates/consumer/how-to.md` | Purpose, optional Prerequisites, Procedure, Check |
 | reference | `templates/consumer/reference.md` | Intent, Reference, optional Notes |
+| review-report | `templates/consumer/review-report.md` | Verdicts, How the Review Ran, optional Changes Made, optional Held |
 | command | `templates/consumer/command.md` | Name, Synopsis, Description, Arguments, Options, Exit Codes, Examples, Underneath |
 | configuration | `templates/consumer/configuration.md` | Intent, Settings, Precedence, optional Notes |
 | index | `templates/consumer/index.md` | Intent, then navigation groups |

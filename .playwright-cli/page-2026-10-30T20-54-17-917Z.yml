@@ -1,0 +1,228 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e11]: Riverside Library
+      - generic [ref=e12]: /
+      - generic [ref=e13]: Book
+    - generic [ref=e14]:
+      - searchbox "Filter the navigation" [ref=e18]
+      - generic [aria-hidden] [ref=e19]: /
+    - 'button "Test run 20 Oct 2026: 1 passed" [ref=e12970]':
+      - text: "Test run 20 Oct 2026:"
+      - generic [ref=e12973]: "1"
+      - text: passed
+    - button "37 of 39 settled" [ref=e12974]
+    - button "Intent tree" [ref=e30] [cursor=pointer]
+    - button "Recent" [ref=e32] [cursor=pointer]
+    - button "Download review" [ref=e33] [cursor=pointer]
+    - button "Keyboard shortcuts" [ref=e36] [cursor=pointer]: "?"
+    - button "Switch to dark theme" [ref=e37] [cursor=pointer]
+  - generic [ref=e40]:
+    - complementary "Navigation" [ref=e41]:
+      - generic [ref=e42]:
+        - tablist "View" [ref=e43]:
+          - tab "Outline" [selected] [ref=e12978] [cursor=pointer]
+          - tab "Review queue" [ref=e12983] [cursor=pointer]
+          - tab "Security 0" [ref=e12986] [cursor=pointer]:
+            - text: Security
+            - generic [ref=e12990]: "0"
+          - tab "Ballots 2" [ref=e12991] [cursor=pointer]:
+            - text: Ballots
+            - generic [ref=e12995]: "2"
+        - generic [ref=e62]:
+          - button "Filter" [ref=e12996] [cursor=pointer]
+          - generic [ref=e12999]: Sort
+          - combobox "Sort" [ref=e13000]:
+            - 'option "Sort: outline" [selected]'
+            - option "Title"
+            - option "Decide by, soonest"
+            - option "Risk tier first"
+            - option "Most open questions"
+            - option "Proof, failing first"
+            - option "Review status"
+          - button "Expand all" [ref=e13001] [cursor=pointer]
+          - button "Collapse all" [ref=e13005] [cursor=pointer]
+          - button "Show the selected record" [ref=e13009] [cursor=pointer]
+        - generic [ref=e80]:
+          - text: 39 records in this book.
+          - generic [ref=e13013]:
+            - generic [ref=e13014]: Draft
+            - generic [ref=e13019]: Approved or reviewed
+            - generic [ref=e13024]: Held by a draft
+            - generic [ref=e13029]: No code or no test
+      - generic [ref=e101]:
+        - generic [ref=e13033]:
+          - button "Intent 13" [expanded] [ref=e13034] [cursor=pointer]:
+            - generic [ref=e13039]: Intent
+            - generic "12 of 13 approved or reviewed" [ref=e13040]: "13"
+          - paragraph [ref=e13043]:
+            - text: Written by agents draft, the founder decides; reviewed by the founder and product people.
+            - button "Open" [ref=e13044] [cursor=pointer]
+          - tree "Intent outline" [ref=e13046]:
+            - button "Product 1" [expanded] [ref=e13047] [cursor=pointer]:
+              - generic [ref=e13050]: Product
+              - generic [ref=e13051]: "1"
+            - treeitem "Product, Riverside Library, approved" [level=1] [ref=e13052] [cursor=pointer]:
+              - button [aria-hidden] [ref=e13053]
+              - generic "Riverside Library" [ref=e13060]
+              - generic [ref=e13061]: "7"
+              - generic "approved" [ref=e13062]
+            - button "Journeys 1" [expanded] [ref=e13066] [cursor=pointer]:
+              - generic [ref=e13069]: Journeys
+              - generic [ref=e13070]: "1"
+            - treeitem "Journey, Borrowing, approved" [level=1] [ref=e13071] [cursor=pointer]:
+              - generic "Borrowing" [ref=e13077]
+              - generic "approved" [ref=e13078]
+        - generic [ref=e13082]:
+          - button "Behavior 23" [expanded] [ref=e13083] [cursor=pointer]:
+            - generic [ref=e13086]: Behavior
+            - generic "22 of 23 approved or reviewed" [ref=e13087]: "23"
+          - paragraph [ref=e13090]:
+            - text: Written by agents; reviewed by developers; the security reviewer for access, outside calls and personal-data flows.
+            - button "Open" [ref=e13091] [cursor=pointer]
+          - tree "Behavior outline" [ref=e13093]:
+            - button "Modules 1" [expanded] [ref=e13094] [cursor=pointer]:
+              - generic [ref=e13097]: Modules
+              - generic [ref=e13098]: "1"
+            - treeitem "Module, Lending, reviewed" [expanded] [level=1] [ref=e13099] [cursor=pointer]:
+              - button [aria-hidden] [ref=e13100]
+              - generic "Lending" [ref=e13106]
+              - generic "reviewed" [ref=e13107]
+            - group [ref=e13111]:
+              - button "Aggregates 1" [expanded] [ref=e13112] [cursor=pointer]:
+                - generic [ref=e13115]: Aggregates
+                - generic [ref=e13116]: "1"
+              - treeitem "Aggregate, Loan, reviewed" [level=2] [ref=e13117] [cursor=pointer]:
+                - button [aria-hidden] [ref=e13118]
+                - generic "Loan" [ref=e13124]
+                - generic [ref=e13125]: "6"
+                - generic "No code" [ref=e13126]
+                - generic "reviewed" [ref=e13129]
+              - button "Reactions 1" [expanded] [ref=e13133] [cursor=pointer]:
+                - generic [ref=e13136]: Reactions
+                - generic [ref=e13137]: "1"
+              - treeitem "Reaction, Send Due Reminder, reviewed" [level=2] [ref=e13138] [cursor=pointer]:
+                - generic "Send Due Reminder" [ref=e13143]
+                - generic "No code" [ref=e13144]
+                - generic "reviewed" [ref=e13147]
+              - button "Jobs 1" [expanded] [ref=e13151] [cursor=pointer]:
+                - generic [ref=e13154]: Jobs
+                - generic [ref=e13155]: "1"
+              - treeitem "Job, Send Overdue Notices, reviewed" [level=2] [ref=e13156] [cursor=pointer]:
+                - generic "Send Overdue Notices" [ref=e13162]
+                - generic "No code" [ref=e13163]
+                - generic "reviewed" [ref=e13166]
+              - button "Notifications 1" [expanded] [ref=e13170] [cursor=pointer]:
+                - generic [ref=e13173]: Notifications
+                - generic [ref=e13174]: "1"
+              - treeitem "Notification, Due Reminder, reviewed" [level=2] [ref=e13175] [cursor=pointer]:
+                - generic "Due Reminder" [ref=e13180]
+                - generic "reviewed" [ref=e13181]
+              - button "Settings 1" [expanded] [ref=e13185] [cursor=pointer]:
+                - generic [ref=e13188]: Settings
+                - generic [ref=e13189]: "1"
+              - treeitem "Setting, Max Active Loans, approved" [level=2] [selected] [ref=e13190] [cursor=pointer]:
+                - generic "Max Active Loans" [ref=e13196]
+                - generic "approved" [ref=e13197]
+            - button "Roles 1" [expanded] [ref=e13201] [cursor=pointer]:
+              - generic [ref=e13204]: Roles
+              - generic [ref=e13205]: "1"
+            - treeitem "Role, Member, reviewed" [level=1] [ref=e13206] [cursor=pointer]:
+              - generic "Member" [ref=e13211]
+              - generic "reviewed" [ref=e13212]
+            - button "Permissions 1" [expanded] [ref=e13216] [cursor=pointer]:
+              - generic [ref=e13219]: Permissions
+              - generic [ref=e13220]: "1"
+            - treeitem "Permission, Borrow Copy, reviewed" [level=1] [ref=e13221] [cursor=pointer]:
+              - generic "Borrow Copy" [ref=e13227]
+              - generic "reviewed" [ref=e13228]
+            - button "Entry points 1" [expanded] [ref=e13232] [cursor=pointer]:
+              - generic [ref=e13235]: Entry points
+              - generic [ref=e13236]: "1"
+            - treeitem "Entry point, Library App, reviewed" [level=1] [ref=e13237] [cursor=pointer]:
+              - button [aria-hidden] [ref=e13238]
+              - generic "Library App" [ref=e13245]
+              - generic [ref=e13246]: "1"
+              - generic "reviewed" [ref=e13247]
+            - button "External systems 1" [expanded] [ref=e13251] [cursor=pointer]:
+              - generic [ref=e13254]: External systems
+              - generic [ref=e13255]: "1"
+            - treeitem "External system, Fine Payments, reviewed" [level=1] [ref=e13256] [cursor=pointer]:
+              - generic "Fine Payments" [ref=e13262]
+              - generic "No code" [ref=e13263]
+              - generic "reviewed" [ref=e13266]
+            - button "Runbooks 1" [expanded] [ref=e13270] [cursor=pointer]:
+              - generic [ref=e13273]: Runbooks
+              - generic [ref=e13274]: "1"
+            - treeitem "Runbook, Overdue Notice, reviewed" [level=1] [ref=e13275] [cursor=pointer]:
+              - generic "Overdue Notice" [ref=e13279]
+              - generic "reviewed" [ref=e13280]
+            - button "Integration events 1" [expanded] [ref=e13284] [cursor=pointer]:
+              - generic [ref=e13287]: Integration events
+              - generic [ref=e13288]: "1"
+            - treeitem "Integration event, Loan Borrowed, reviewed" [level=1] [ref=e13289] [cursor=pointer]:
+              - generic "Loan Borrowed" [ref=e13293]
+              - generic "reviewed" [ref=e13294]
+        - button "Implementation 0" [ref=e13299] [cursor=pointer]:
+          - generic [ref=e13303]: Implementation
+          - generic "0 of 0 approved or reviewed" [ref=e13304]: "0"
+        - button "Proof 0" [ref=e13308] [cursor=pointer]:
+          - generic [ref=e13311]: Proof
+          - generic "0 of 0 approved or reviewed" [ref=e13312]: "0"
+        - button "Governance 2" [ref=e13316] [cursor=pointer]:
+          - generic [ref=e13321]: Governance
+          - generic "2 of 2 approved or reviewed" [ref=e13322]: "2"
+        - button "Glossary 1" [ref=e13326] [cursor=pointer]:
+          - generic [ref=e13329]: Glossary
+          - generic "1 of 1 approved or reviewed" [ref=e13330]: "1"
+    - main [ref=e304]:
+      - article [ref=e305]:
+        - navigation "Location" [ref=e13333]:
+          - button "Behavior" [ref=e13334] [cursor=pointer]
+          - generic [ref=e13335]: /
+          - button "Lending" [ref=e13336] [cursor=pointer]
+          - generic [ref=e13337]: /
+          - generic [ref=e13338]: Settings
+          - generic [ref=e13339]: /
+          - generic [ref=e13340]: Max Active Loans
+        - heading "Max Active Loans" [level=1] [ref=e13341]
+        - group [ref=e13342]:
+          - generic "What is a setting?" [ref=e13343] [cursor=pointer]
+        - link "docs/operations/limits.md:6" [ref=e13347] [cursor=pointer]:
+          - /url: vscode://file/D:\Personal-Projects\LiteSpec/docs/operations/limits.md:6
+        - generic [ref=e13353]:
+          - button "Up" [ref=e13354] [cursor=pointer]
+          - button "Previous sibling" [disabled] [ref=e13357] [cursor=pointer]
+          - generic [ref=e13360]: 1 of 1 settings in Lending
+          - button "Next sibling" [disabled] [ref=e13361] [cursor=pointer]
+        - generic [ref=e13364]:
+          - generic [ref=e13365]:
+            - term [ref=e13366]: Status
+            - definition [ref=e13367]: approved
+          - generic [ref=e13368]:
+            - term [ref=e13369]: Status reason
+            - definition [ref=e13370]: Settled
+          - generic [ref=e13371]:
+            - term [ref=e13372]: Owner
+            - definition [ref=e13373]: lending-team
+          - generic [ref=e13374]:
+            - term [ref=e13375]: Risk tier
+            - definition [ref=e13376]: Tier 3
+        - paragraph [ref=e13377]: Active loans per member.
+        - generic [ref=e13378]:
+          - heading "Default" [level=2] [ref=e13379]
+          - generic [ref=e13380]:
+            - generic [ref=e13381]:
+              - generic [ref=e13382]: Default
+              - generic [ref=e13383]: "5"
+            - generic [ref=e13384]: Value type
+            - generic [ref=e13386]: Set by
+      - generic [ref=e13388]:
+        - generic [ref=e13389]: Approved
+        - button "Request changes" [ref=e13393] [cursor=pointer]
+        - button "Next draft" [ref=e13394] [cursor=pointer]
+    - complementary "Connections" [ref=e376]:
+      - heading "Connections 0" [level=2] [ref=e13397]:
+        - text: Connections
+        - generic [ref=e13398]: "0"
+      - paragraph [ref=e13399]: No other record links to this one.

@@ -95,6 +95,43 @@ public sealed class BookShardTests
         Assert.Equal("records-001", feature["shard"]!.GetValue<string>());
     }
 
+    /// <summary>Code, test and finding outline nodes carry their kind with no shard, nested under their subject.</summary>
+    /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
+    [Fact]
+    public void Outline_Leaf_Nodes_Carry_Their_Kind_With_No_Shard()
+    {
+        var shardOf = new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            ["use-case/lending.borrow-copy"] = "records-000",
+        };
+        var node = new BookOutlineNode(
+            "use-case/lending.borrow-copy",
+            "record",
+            "Borrow Copy",
+            "use-case",
+            "reviewed",
+            new List<BookOutlineNode>
+            {
+                new("code/src/App/Borrow.cs", "code", "Borrow.cs", "code", null, new List<BookOutlineNode>()),
+                new("test/Library.Tests.BorrowTests.Borrowing", "test", "Borrowing", "test", null, new List<BookOutlineNode>()),
+                new("finding/1", "finding", "Missing handler.", "finding", null, new List<BookOutlineNode>()),
+            });
+
+        var json = BookShards.OutlineNodeJson(node, shardOf);
+
+        Assert.Equal("records-000", json["shard"]!.GetValue<string>());
+        var children = json["children"]!.AsArray();
+        Assert.Equal(3, children.Count);
+        Assert.Equal("code", children[0]!.AsObject()["kind"]!.GetValue<string>());
+        Assert.Equal("Borrow.cs", children[0]!.AsObject()["label"]!.GetValue<string>());
+        Assert.Equal("test", children[1]!.AsObject()["kind"]!.GetValue<string>());
+        Assert.Equal("finding", children[2]!.AsObject()["kind"]!.GetValue<string>());
+        foreach (var child in children.OfType<JsonObject>())
+        {
+            Assert.Null(child["shard"]);
+        }
+    }
+
     /// <summary>A layer past the outline budget splits into sequential shards that hold every top node in order.</summary>
     /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Fact]

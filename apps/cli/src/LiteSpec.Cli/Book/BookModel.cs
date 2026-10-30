@@ -207,7 +207,7 @@ static class BookModel
     static readonly IReadOnlyDictionary<string, (string One, string Many)> TypeLabels =
         new Dictionary<string, (string One, string Many)>(StringComparer.Ordinal)
         {
-            ["product"] = ("Product", "Products"),
+            ["product"] = ("Product", "Product"),
             ["goal"] = ("Goal", "Goals"),
             ["constraint"] = ("Constraint", "Constraints"),
             ["research"] = ("Research", "Research"),

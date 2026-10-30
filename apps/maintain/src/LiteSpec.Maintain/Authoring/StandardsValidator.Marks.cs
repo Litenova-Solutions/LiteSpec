@@ -124,6 +124,12 @@ static partial class StandardsValidator
                     continue;
                 }
 
+                // Another checkout nested in this one (a worktree) is not this repository's code.
+                if (Path.Exists(Path.Combine(entry, ".git")))
+                {
+                    continue;
+                }
+
                 CollectSources(entry, files);
             }
             else if (name.EndsWith(".cs", StringComparison.OrdinalIgnoreCase))

@@ -3,7 +3,7 @@ using LiteSpec.Tests.Support;
 
 namespace LiteSpec.Tests.Model.Checks;
 
-/// <summary>Proves the unified edge grammar, the idempotency grammar and the structured failure policy.</summary>
+/// <summary>Proves the record shape checks: the unified edge grammar, the idempotency grammar, the structured failure policy, the renamed fields and the layer status vocabulary.</summary>
 public sealed class RecordShapeCheckTests
 {
     /// <proves>litespec/core/behavior#keep-the-effect-graph-free-of-cycles</proves>
@@ -277,6 +277,82 @@ public sealed class RecordShapeCheckTests
             TestModel.Record("job", "job/lending.nightly-due-scan", Path.Combine(temp.Path, "scan.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "kind": "one-off", "onFailure": {"retry": "none"}}"""));
 
         Assert.DoesNotContain("record-shape", TestModel.Codes(model));
+    }
+
+    /// <proves>litespec/core/intent#state-each-goal-with-its-measure</proves>
+    [Fact]
+    public void Goal_With_DueBy_Passes_Shape()
+    {
+        using var temp = Cli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("goal", "goal/faster-pickup", Path.Combine(temp.Path, "goals.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2027-01-31", "statement": "Readers wait less.", "measure": "Median pickup wait.", "target": "Under two days.", "dueBy": "Pilot launch"}"""));
+
+        Assert.DoesNotContain("record-shape", TestModel.Codes(model));
+    }
+
+    /// <proves>litespec/core/intent#state-each-goal-with-its-measure</proves>
+    [Fact]
+    public void Goal_With_Only_By_Reports_Record_Shape()
+    {
+        using var temp = Cli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("goal", "goal/faster-pickup", Path.Combine(temp.Path, "goals.md"), """{"status": "approved", "statement": "Readers wait less.", "measure": "Median pickup wait.", "target": "Under two days.", "by": "Pilot launch"}"""));
+
+        Assert.True(Reports(model, "record-shape", "has no dueBy"));
+    }
+
+    /// <proves>litespec/core/model#use-the-layer-status-vocabulary</proves>
+    [Fact]
+    public void Screen_With_Reviewed_Passes_Status()
+    {
+        using var temp = Cli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("screen", "screen/library-app.loans", Path.Combine(temp.Path, "loans.md"), """{"status": "reviewed", "entryPoint": "entry-point/library-app", "address": "/loans"}"""),
+            TestModel.Record("entry-point", "entry-point/library-app", Path.Combine(temp.Path, "entry.md"), """{"status": "reviewed", "kind": "browser"}"""));
+
+        Assert.DoesNotContain("invalid-field", TestModel.Codes(model));
+    }
+
+    /// <proves>litespec/core/model#use-the-layer-status-vocabulary</proves>
+    [Fact]
+    public void Screen_With_Approved_Reports_Invalid_Field()
+    {
+        using var temp = Cli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("screen", "screen/library-app.loans", Path.Combine(temp.Path, "loans.md"), """{"status": "approved", "entryPoint": "entry-point/library-app", "address": "/loans"}"""),
+            TestModel.Record("entry-point", "entry-point/library-app", Path.Combine(temp.Path, "entry.md"), """{"status": "reviewed", "kind": "browser"}"""));
+
+        Assert.True(Reports(model, "invalid-field", "has status 'approved'"));
+        Assert.True(Reports(model, "invalid-field", "draft, reviewed or retired"));
+    }
+
+    /// <proves>litespec/core/model#use-the-layer-status-vocabulary</proves>
+    [Fact]
+    public void Known_Gap_With_Approved_Passes_Status()
+    {
+        using var temp = Cli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("known-gap", "known-gap/loan-screens-uncovered", Path.Combine(temp.Path, "gaps.md"), """{"status": "approved", "check": "record-shape", "subject": ["scenario/no-such-case.no-such-scenario"], "endsBy": "2035-06-01", "reason": "The screens land after the pilot."}"""));
+
+        Assert.DoesNotContain("invalid-field", TestModel.Codes(model));
+    }
+
+    /// <proves>litespec/core/model#use-the-layer-status-vocabulary</proves>
+    [Fact]
+    public void Known_Gap_With_Reviewed_Reports_Invalid_Field()
+    {
+        using var temp = Cli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("known-gap", "known-gap/loan-screens-uncovered", Path.Combine(temp.Path, "gaps.md"), """{"status": "reviewed", "check": "record-shape", "subject": ["scenario/no-such-case.no-such-scenario"], "endsBy": "2035-06-01", "reason": "The screens land after the pilot."}"""));
+
+        Assert.True(Reports(model, "invalid-field", "has status 'reviewed'"));
+        Assert.True(Reports(model, "invalid-field", "draft, approved or retired"));
     }
 
     /// <summary>Whether the check reports the code with the text in its message.</summary>

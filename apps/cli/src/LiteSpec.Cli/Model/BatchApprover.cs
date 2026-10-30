@@ -10,6 +10,7 @@ namespace LiteSpec.Model;
 /// <param name="Tier">The approval tier.</param>
 /// <param name="Scenarios">The scenario evidence.</param>
 /// <param name="Findings">The count of open findings about the record.</param>
+/// <param name="HeldGuards">The guards holding the record, empty unless a module and type batch held it.</param>
 sealed record BatchAction(
     Record Record,
     string Action,
@@ -17,7 +18,8 @@ sealed record BatchAction(
     string Hash,
     int Tier,
     ReviewScenarios Scenarios,
-    int Findings);
+    int Findings,
+    IReadOnlyList<string> HeldGuards);
 
 /// <summary>One batch plan: the ordered approvals, the left-out records, the guard failures, and the sample.</summary>
 /// <param name="Batch">The queued batch.</param>
@@ -34,7 +36,8 @@ sealed record BatchPlan(
 
 /// <summary>
 ///     Batch approval: promotes each draft in one batch, re-stamps each reopened record,
-///     refuses the whole batch when one guard fails, and writes the batch manifest.
+///     holds the records whose guards fail in a module and type batch, refuses any other
+///     batch whole when one guard fails, and writes the batch manifest.
 /// </summary>
 /// <follows>litespec/core/release#approve-drafts-in-bounded-batches</follows>
 static class BatchApprover
@@ -46,7 +49,11 @@ static class BatchApprover
 
     /// <summary>
     ///     Plans the batch: the approvals in order, the records a module and type batch
-    ///     leaves out, the guard failures, and the tier 3 sample.
+    ///     leaves out, the guard failures, and the tier 3 sample. A module and type batch
+    ///     holds each record its record guards fail and approves the rest, and fails whole
+    ///     only when no approver is named or no record passes; any other batch fails whole
+    ///     when one guard fails. When the approval date is passed, each changed record
+    ///     carries the hash the stamp writes.
     /// </summary>
     public static BatchPlan Plan(
         ProjectModel model,
@@ -54,7 +61,8 @@ static class BatchApprover
         string? by,
         string? secondReviewer,
         string? reviewReport,
-        IReadOnlyDictionary<string, int>? findings = null)
+        IReadOnlyDictionary<string, int>? findings = null,
+        string? on = null)
     {
         var today = DateOnly.FromDateTime(DateTime.UtcNow);
         findings ??= ReviewQueue.FindingsBySubject(model);
@@ -73,17 +81,62 @@ static class BatchApprover
             ? members.Where(record => ReviewQueue.TierOf(model, record) == 1).ToList()
             : new List<Record>();
         var approvals = members.Except(leftOut).ToList();
-        var ordered = approvals.Select(record => Describe(model, record, findings)).ToList();
+        var ordered = approvals.Select(record => Describe(model, record, findings, on)).ToList();
         var changed = ordered
             .Where(action => action.Action is "promoted" or "re-stamped")
             .ToList();
-        var failures = Guards(model, changed, by, secondReviewer, reviewReport, approvals, today);
+        var batchFailures = BatchGuards(model, changed, by, secondReviewer, reviewReport);
+        var recordFailures = RecordGuards(model, changed, approvals, today);
+        IReadOnlyList<(string Id, string Guard)> failures;
+
+        if (batch.Kind == "module-type" && batchFailures.Count == 0)
+        {
+            ordered = HoldFailed(ordered, recordFailures);
+            changed = ordered
+                .Where(action => action.Action is "promoted" or "re-stamped")
+                .ToList();
+            failures = changed.Count == 0 && recordFailures.Count > 0
+                ? recordFailures
+                : [];
+        }
+        else
+        {
+            failures = batchFailures.Concat(recordFailures).ToList();
+        }
+
         var sample = Sample(
             model,
             changed.Where(action => action.Tier == 3).Select(action => action.Record).ToList(),
             model.Config.SampleShare);
 
         return new BatchPlan(batch, ordered, leftOut, failures, sample);
+    }
+
+    /// <summary>
+    ///     Holds each changed record the record guards fail: it keeps its status, gets no
+    ///     stamp, and carries its guards, so one blocked record holds back only itself.
+    /// </summary>
+    static List<BatchAction> HoldFailed(
+        IReadOnlyList<BatchAction> ordered, IReadOnlyList<(string Id, string Guard)> recordFailures)
+    {
+        var heldGuards = recordFailures
+            .GroupBy(failure => failure.Id, StringComparer.Ordinal)
+            .ToDictionary(
+                group => group.Key,
+                group => (IReadOnlyList<string>)group.Select(failure => failure.Guard).ToList(),
+                StringComparer.Ordinal);
+
+        return ordered
+            .Select(action => action.Action is "promoted" or "re-stamped"
+                && heldGuards.TryGetValue(action.Record.Id, out var guards)
+                    ? action with
+                    {
+                        Action = "held",
+                        TargetStatus = action.Record.Status ?? "approved",
+                        HeldGuards = guards,
+                    }
+                    : action)
+            .ToList();
     }
 
     /// <summary>Every record the batch approval covers, held records included.</summary>
@@ -102,7 +155,8 @@ static class BatchApprover
                     && Identifiers.TrySplit(record.Id, out _, out var home, out _)
                     && home == name
                     && ModelBuilder.UseCaseOf(model, home) is { } holder
-                    && holder.Id == useCase.Id));
+                    && holder.Id == useCase.Id
+                    && !OnReactionOrJobPage(model, record)));
             }
 
             return members;
@@ -151,13 +205,17 @@ static class BatchApprover
         return batch.Records.Select(entry => entry.Record).ToList();
     }
 
+    /// <summary>Whether a reaction or job page carries the scenario, so its own batch holds it.</summary>
+    static bool OnReactionOrJobPage(ProjectModel model, Record record) =>
+        record.Type == "scenario"
+        && record.PageId is not null
+        && model.ById.TryGetValue(record.PageId, out var page)
+        && page.Type is "reaction" or "job";
+
     /// <summary>Whether a use case, reaction or job batch claims the record: a use case result or scenario, or a scenario on a reaction or job page.</summary>
     static bool ClaimedByUseCase(ProjectModel model, Record record)
     {
-        if (record.Type == "scenario"
-            && record.PageId is not null
-            && model.ById.TryGetValue(record.PageId, out var page)
-            && page.Type is "reaction" or "job")
+        if (OnReactionOrJobPage(model, record))
         {
             return true;
         }
@@ -169,7 +227,7 @@ static class BatchApprover
     }
 
     /// <summary>Describes one member's approval: its action, target status, and evidence.</summary>
-    static BatchAction Describe(ProjectModel model, Record record, IReadOnlyDictionary<string, int> findings)
+    static BatchAction Describe(ProjectModel model, Record record, IReadOnlyDictionary<string, int> findings, string? on)
     {
         var action = record.Status == "draft"
             ? "promoted"
@@ -182,24 +240,26 @@ static class BatchApprover
             record,
             action,
             target,
-            Checker.SemanticHash(record),
+            on is not null && action is "promoted" or "re-stamped"
+                ? Approver.StampedHashFor(record, on)
+                : Checker.SemanticHash(record),
             ReviewQueue.TierOf(model, record),
             ReviewQueue.ScenariosOf(model, record),
-            findings.TryGetValue(record.Id, out var count) ? count : 0);
+            findings.TryGetValue(record.Id, out var count) ? count : 0,
+            []);
     }
 
     /// <summary>
-    ///     Checks every guard before anything is written. Guards gate what the batch
-    ///     changes, so held records carry none: they were approved in an earlier act.
+    ///     Checks the batch guards before anything is written: every changed record
+    ///     carries a named owner approver, and every tier 1 record a second reading.
+    ///     A batch guard fails the whole batch, whatever its kind.
     /// </summary>
-    static IReadOnlyList<(string Id, string Guard)> Guards(
+    static IReadOnlyList<(string Id, string Guard)> BatchGuards(
         ProjectModel model,
         IReadOnlyList<BatchAction> changed,
         string? by,
         string? secondReviewer,
-        string? reviewReport,
-        IReadOnlyList<Record> approvals,
-        DateOnly today)
+        string? reviewReport)
     {
         var failures = new List<(string, string)>();
         var tier1 = changed.Where(action => action.Tier == 1).ToList();
@@ -220,6 +280,23 @@ static class BatchApprover
                 failures.Add((action.Record.Id, reviewer));
             }
         }
+
+        return failures;
+    }
+
+    /// <summary>
+    ///     Checks the record guards before anything is written: each changed record
+    ///     carries no open question, each decision names its chosen option, and no
+    ///     record stays draft behind what it rests on. Guards gate what the batch
+    ///     changes, so records held from an earlier act carry none.
+    /// </summary>
+    static IReadOnlyList<(string Id, string Guard)> RecordGuards(
+        ProjectModel model,
+        IReadOnlyList<BatchAction> changed,
+        IReadOnlyList<Record> approvals,
+        DateOnly today)
+    {
+        var failures = new List<(string, string)>();
 
         foreach (var action in changed.OrderBy(entry => entry.Record.Id, StringComparer.Ordinal))
         {
@@ -481,7 +558,9 @@ static class BatchApprover
                     type = action.Record.Type,
                     tier = action.Tier,
                     action = action.Action,
-                    hash = action.Hash,
+                    hash = action.Action is "promoted" or "re-stamped"
+                        ? Approver.StampedHashFor(action.Record, on)
+                        : action.Hash,
                     scenarios = new
                     {
                         total = action.Scenarios.Total,
@@ -490,6 +569,7 @@ static class BatchApprover
                         stale = action.Scenarios.Stale,
                     },
                     findings = action.Findings,
+                    heldBecause = action.HeldGuards.Count > 0 ? action.HeldGuards : null,
                 }).ToList(),
         });
 
@@ -532,13 +612,13 @@ static class BatchApprover
                 DecideBy = record.DecideBy,
                 ApprovedBy = by ?? record.Decider ?? record.Owner ?? "unknown",
                 ApprovedOn = on,
-                ApprovedHash = action.Hash,
+                ApprovedHash = Approver.StampedHashFor(record, on),
                 Derived = record.Derived,
                 File = record.File,
                 Line = record.Line,
                 IsEntry = record.IsEntry,
                 PageId = record.PageId,
-                Raw = record.Raw,
+                Raw = Approver.StampedRaw(record, on),
             };
 
             model.Records[index] = updated;
@@ -590,6 +670,8 @@ static class BatchApprover
             {
                 "promoted" => $"  {action.Record.Id} would be promoted to {action.TargetStatus}",
                 "re-stamped" => $"  {action.Record.Id} would be re-stamped",
+                _ when action.HeldGuards.Count > 0 =>
+                    $"  {action.Record.Id} would be held: {string.Join("; ", action.HeldGuards)}",
                 _ => $"  {action.Record.Id} would be held",
             });
         }

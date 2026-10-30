@@ -98,7 +98,7 @@
       "id": "result/<use-case>.<name> (the use case's own name)",
       "title": "<Refusal display title>",
       "outcome": "refusal",
-      "code": "<module>.<reason; never write the generic forbidden or invalid-input refusals>",
+      "code": "<module>.<reason; never write the generic forbidden or invalid-input refusals, which the builder derives as result/<use-case>.forbidden and result/<use-case>.invalid-input>",
       "meaning": "<What the caller sees in one sentence; list refusals in precedence order, first match wins>",
       "recorded": "<true when the attempt is stored, otherwise remove this line>"
     },
@@ -109,7 +109,7 @@
       "given": "<The starting state>",
       "when": "<What the actor does>",
       "then": "<The observable result>",
-      "result": "result/<use-case>.<name>",
+      "result": "result/<use-case>.<name> (the use case's own name)",
       "examples": [
         {
           "<column>": "<value>"

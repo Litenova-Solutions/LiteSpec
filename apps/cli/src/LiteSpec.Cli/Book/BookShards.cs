@@ -116,7 +116,7 @@ static class BookShards
 
     /// <summary>
     ///     One outline node as the client walks it: identity, kind, label, type,
-    ///     status, nested children, and the records shard id on a record node.
+    ///     status, nested children, and the records shard id on a sharded node.
     /// </summary>
     public static JsonObject OutlineNodeJson(BookOutlineNode node, IReadOnlyDictionary<string, string> shardOf)
     {
@@ -129,7 +129,7 @@ static class BookShards
             ["status"] = StringOrNull(node.Status),
         };
 
-        if (string.Equals(node.Kind, "record", StringComparison.Ordinal)
+        if (!string.Equals(node.Kind, "group", StringComparison.Ordinal)
             && shardOf.TryGetValue(node.Id, out var shard))
         {
             json["shard"] = shard;

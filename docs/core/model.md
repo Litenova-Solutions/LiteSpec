@@ -190,14 +190,16 @@ Each written link lives as a field on the record it starts from: a decision carr
 | `replaces` | decision | The replaced decision | replaces | is replaced by |
 | `audience` | product | Actors | is for | is the audience of |
 | `affects` | problem | Actors | affects | is affected by |
-| `solves` | feature | Problems | solves | is solved by |
+| `solves` | feature | Problems; a refused feature names the problem it declines, read as declines and is declined by | solves | is solved by |
 | `advances` | feature | Goals | advances | is advanced by |
 | `serves` | use case, reaction, job | Journey steps | serves | is served by |
 | `serves` | journey | The goal it walks toward | serves | is served by |
 | `features` | requirement | The feature that carries it, of any lifecycle including shipped | is carried by | carries |
 | `fulfills` | rule, use case, reaction, job, notification, setting, journey | Requirements | fulfills | is fulfilled by |
 | `governs` | rule | Aggregates, use cases | governs | is governed by |
+| `transitions.by` | aggregate | The use case that moves the transition | is moved by | moves |
 | `refusal` | rule | The refusal result carrying its code | is refused as | is the refusal for |
+| `result` | scenario | The written or derived result it ends in | ends in | is shown by |
 | `raises` | use case | Events | raises | is raised by |
 | `access.grant` | use case | A permission, a self scope, anonymous, or system | is granted through | grants |
 | `reachedThrough` | use case | Entry points | is reached through | reaches |
@@ -775,9 +777,9 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 
 **Statement:** A record with source transcribed MUST NOT stand reviewed while its fulfills or serves parent is unapproved.
 
-**Rationale:** Transcription copies working code into a record during adoption, so the record describes what exists rather than what Intent asked for. Draft holds it visibly unfinished until its fulfills or serves parent is approved. `transcribed-reviewed` fails a transcribed record standing reviewed.
+**Rationale:** Transcription copies working code into a record during adoption, so the record describes what exists rather than what Intent asked for. Draft holds it visibly unfinished until its fulfills or serves parent is approved. `transcribed-reviewed` fails a transcribed record standing reviewed while its fulfills or serves parent is unapproved.
 
-**Checked by:** `litespec model check` reports `transcribed-reviewed` for a transcribed record standing reviewed.
+**Checked by:** `litespec model check` reports `transcribed-reviewed` for a transcribed record standing reviewed while its fulfills or serves parent is unapproved.
 
 ### End Transcription at the Named Decision
 

@@ -59,6 +59,7 @@ A page record carries its type, identifier, title, owner, and status in JSON fro
 | `how-to.md` | `docs/guide/<how-to>.md` | Solves one stated goal for a reader who is already running. |
 | `command.md` | `docs/tools/<command>.md` | Documents one command the repository ships. |
 | `reference.md` | `docs/reference/<name>.md` | Publishes exact values a reader looks up. |
+| `review-report.md` | `docs/proof/reviews/<YYYY-MM-DD>-<name>.md` | Records one second review of approval batches: its verdicts, how it ran, and what it changed. |
 | `configuration.md` | `docs/tools/configuration.md` | Documents settings a reader can change, with defaults and precedence. |
 
 ## Interface

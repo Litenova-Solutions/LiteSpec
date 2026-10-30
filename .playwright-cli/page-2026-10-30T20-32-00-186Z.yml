@@ -1,0 +1,241 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e11]: Riverside Library
+      - generic [ref=e12]: /
+      - generic [ref=e13]: Book
+    - generic [ref=e14]:
+      - searchbox "Filter the navigation" [ref=e18]
+      - generic [aria-hidden] [ref=e19]: /
+    - 'button "Test run 20 Oct 2026: 1 passed" [ref=e15051]':
+      - text: "Test run 20 Oct 2026:"
+      - generic [ref=e15054]: "1"
+      - text: passed
+    - button "37 of 39 settled" [ref=e15055]
+    - button "Intent tree" [ref=e30] [cursor=pointer]
+    - button "Recent" [ref=e32] [cursor=pointer]
+    - button "Download review" [ref=e33] [cursor=pointer]
+    - button "Keyboard shortcuts" [ref=e36] [cursor=pointer]: "?"
+    - button "Switch to dark theme" [ref=e37] [cursor=pointer]
+  - generic [ref=e40]:
+    - complementary "Navigation" [ref=e41]:
+      - generic [ref=e42]:
+        - tablist "View" [ref=e43]:
+          - tab "Outline" [selected] [ref=e15059] [cursor=pointer]
+          - tab "Review queue" [ref=e15064] [cursor=pointer]
+          - tab "Security 0" [ref=e15067] [cursor=pointer]:
+            - text: Security
+            - generic [ref=e15071]: "0"
+          - tab "Ballots 2" [ref=e15072] [cursor=pointer]:
+            - text: Ballots
+            - generic [ref=e15076]: "2"
+        - generic [ref=e62]:
+          - button "Filter" [ref=e15077] [cursor=pointer]
+          - generic [ref=e15080]: Sort
+          - combobox "Sort" [ref=e15081]:
+            - 'option "Sort: outline" [selected]'
+            - option "Title"
+            - option "Decide by, soonest"
+            - option "Risk tier first"
+            - option "Most open questions"
+            - option "Proof, failing first"
+            - option "Review status"
+          - button "Expand all" [ref=e15082] [cursor=pointer]
+          - button "Collapse all" [ref=e15086] [cursor=pointer]
+          - button "Show the selected record" [ref=e15090] [cursor=pointer]
+        - generic [ref=e80]:
+          - text: 39 records in this book.
+          - generic [ref=e15094]:
+            - generic [ref=e15095]: Draft
+            - generic [ref=e15100]: Approved or reviewed
+            - generic [ref=e15105]: Held by a draft
+            - generic [ref=e15110]: No code or no test
+      - generic [ref=e101]:
+        - generic [ref=e15114]:
+          - button "Intent 13" [expanded] [ref=e15115] [cursor=pointer]:
+            - generic [ref=e15120]: Intent
+            - generic "12 of 13 approved or reviewed" [ref=e15121]: "13"
+          - paragraph [ref=e15124]:
+            - text: Written by agents draft, the founder decides; reviewed by the founder and product people.
+            - button "Open" [ref=e15125] [cursor=pointer]
+          - tree "Intent outline" [ref=e15127]:
+            - button "Product 1" [expanded] [ref=e15128] [cursor=pointer]:
+              - generic [ref=e15131]: Product
+              - generic [ref=e15132]: "1"
+            - treeitem "Product, Riverside Library, approved" [level=1] [ref=e15133] [cursor=pointer]:
+              - button [aria-hidden] [ref=e15134]
+              - generic "Riverside Library" [ref=e15141]
+              - generic [ref=e15142]: "7"
+              - generic "approved" [ref=e15143]
+            - button "Journeys 1" [expanded] [ref=e15147] [cursor=pointer]:
+              - generic [ref=e15150]: Journeys
+              - generic [ref=e15151]: "1"
+            - treeitem "Journey, Borrowing, approved" [level=1] [ref=e15152] [cursor=pointer]:
+              - generic "Borrowing" [ref=e15158]
+              - generic "approved" [ref=e15159]
+        - generic [ref=e15163]:
+          - button "Behavior 23" [expanded] [ref=e15164] [cursor=pointer]:
+            - generic [ref=e15167]: Behavior
+            - generic "22 of 23 approved or reviewed" [ref=e15168]: "23"
+          - paragraph [ref=e15171]:
+            - text: Written by agents; reviewed by developers; the security reviewer for access, outside calls and personal-data flows.
+            - button "Open" [ref=e15172] [cursor=pointer]
+          - tree "Behavior outline" [ref=e15174]:
+            - button "Modules 1" [expanded] [ref=e15175] [cursor=pointer]:
+              - generic [ref=e15178]: Modules
+              - generic [ref=e15179]: "1"
+            - treeitem "Module, Lending, reviewed" [level=1] [ref=e15180] [cursor=pointer]:
+              - button [aria-hidden] [ref=e15181]
+              - generic "Lending" [ref=e15187]
+              - generic [ref=e15188]: "5"
+              - generic "reviewed" [ref=e15189]
+            - button "Roles 1" [expanded] [ref=e15193] [cursor=pointer]:
+              - generic [ref=e15196]: Roles
+              - generic [ref=e15197]: "1"
+            - treeitem "Role, Member, reviewed" [level=1] [ref=e15198] [cursor=pointer]:
+              - generic "Member" [ref=e15203]
+              - generic "reviewed" [ref=e15204]
+            - button "Permissions 1" [expanded] [ref=e15208] [cursor=pointer]:
+              - generic [ref=e15211]: Permissions
+              - generic [ref=e15212]: "1"
+            - treeitem "Permission, Borrow Copy, reviewed" [level=1] [ref=e15213] [cursor=pointer]:
+              - generic "Borrow Copy" [ref=e15219]
+              - generic "reviewed" [ref=e15220]
+            - button "Entry points 1" [expanded] [ref=e15224] [cursor=pointer]:
+              - generic [ref=e15227]: Entry points
+              - generic [ref=e15228]: "1"
+            - treeitem "Entry point, Library App, reviewed" [level=1] [ref=e15229] [cursor=pointer]:
+              - button [aria-hidden] [ref=e15230]
+              - generic "Library App" [ref=e15237]
+              - generic [ref=e15238]: "1"
+              - generic "reviewed" [ref=e15239]
+            - button "External systems 1" [expanded] [ref=e15243] [cursor=pointer]:
+              - generic [ref=e15246]: External systems
+              - generic [ref=e15247]: "1"
+            - treeitem "External system, Fine Payments, reviewed" [level=1] [ref=e15248] [cursor=pointer]:
+              - generic "Fine Payments" [ref=e15254]
+              - generic "No code" [ref=e15255]
+              - generic "reviewed" [ref=e15258]
+            - button "Runbooks 1" [expanded] [ref=e15262] [cursor=pointer]:
+              - generic [ref=e15265]: Runbooks
+              - generic [ref=e15266]: "1"
+            - treeitem "Runbook, Overdue Notice, reviewed" [level=1] [ref=e15267] [cursor=pointer]:
+              - generic "Overdue Notice" [ref=e15271]
+              - generic "reviewed" [ref=e15272]
+            - button "Integration events 1" [expanded] [ref=e15276] [cursor=pointer]:
+              - generic [ref=e15279]: Integration events
+              - generic [ref=e15280]: "1"
+            - treeitem "Integration event, Loan Borrowed, reviewed" [level=1] [ref=e15281] [cursor=pointer]:
+              - generic "Loan Borrowed" [ref=e15285]
+              - generic "reviewed" [ref=e15286]
+        - button "Implementation 0" [ref=e15291] [cursor=pointer]:
+          - generic [ref=e15295]: Implementation
+          - generic "0 of 0 approved or reviewed" [ref=e15296]: "0"
+        - button "Proof 0" [ref=e15300] [cursor=pointer]:
+          - generic [ref=e15303]: Proof
+          - generic "0 of 0 approved or reviewed" [ref=e15304]: "0"
+        - generic [ref=e15307]:
+          - button "Governance 2" [expanded] [ref=e15308] [cursor=pointer]:
+            - generic [ref=e15313]: Governance
+            - generic "2 of 2 approved or reviewed" [ref=e15314]: "2"
+          - paragraph [ref=e15317]:
+            - button "Open" [ref=e15318] [cursor=pointer]
+          - tree "Governance outline" [ref=e15320]:
+            - button "Deviations 1" [expanded] [ref=e15321] [cursor=pointer]:
+              - generic [ref=e15324]: Deviations
+              - generic [ref=e15325]: "1"
+            - treeitem "Deviation, Kiosk Cache, approved" [level=1] [ref=e15326] [cursor=pointer]:
+              - generic "Kiosk Cache" [ref=e15332]
+              - generic "approved" [ref=e15333]
+            - button "Known gaps 1" [expanded] [ref=e15337] [cursor=pointer]:
+              - generic [ref=e15340]: Known gaps
+              - generic [ref=e15341]: "1"
+            - treeitem "Known gap, Offline Kiosk, approved" [level=1] [ref=e15342] [cursor=pointer]:
+              - generic "Offline Kiosk" [ref=e15346]
+              - generic "approved" [ref=e15347]
+        - generic [ref=e15351]:
+          - button "Glossary 1" [expanded] [ref=e15352] [cursor=pointer]:
+            - generic [ref=e15355]: Glossary
+            - generic "1 of 1 approved or reviewed" [ref=e15356]: "1"
+          - paragraph [ref=e15359]:
+            - button "Open" [ref=e15360] [cursor=pointer]
+          - tree "Glossary outline" [ref=e15362]:
+            - treeitem "Term, Loan, approved" [level=1] [selected] [ref=e15363] [cursor=pointer]:
+              - generic "Loan" [ref=e15367]
+              - generic "approved" [ref=e15368]
+    - main [ref=e304]:
+      - article [ref=e305]:
+        - navigation "Location" [ref=e15372]:
+          - button "Glossary" [ref=e15373] [cursor=pointer]
+          - generic [ref=e15374]: /
+          - generic [ref=e15375]: Terms
+          - generic [ref=e15376]: /
+          - generic [ref=e15377]: Loan
+        - heading "Loan" [level=1] [ref=e15378]
+        - group [ref=e15379]:
+          - generic "What is a term?" [ref=e15380] [cursor=pointer]
+        - link "docs/glossary.json:4" [ref=e15384] [cursor=pointer]:
+          - /url: vscode://file/D:\Personal-Projects\LiteSpec/docs/glossary.json:4
+        - generic [ref=e15390]:
+          - button "Up" [disabled] [ref=e15391] [cursor=pointer]
+          - button "Previous sibling" [disabled] [ref=e15394] [cursor=pointer]
+          - generic [ref=e15397]: 1 of 1 terms
+          - button "Next sibling" [disabled] [ref=e15398] [cursor=pointer]
+        - generic [ref=e15401]:
+          - generic [ref=e15402]:
+            - term [ref=e15403]: Status
+            - definition [ref=e15404]: approved
+          - generic [ref=e15405]:
+            - term [ref=e15406]: Status reason
+            - definition [ref=e15407]: Settled
+          - generic [ref=e15408]:
+            - term [ref=e15409]: Owner
+            - definition [ref=e15410]: lending-team
+          - generic [ref=e15411]:
+            - term [ref=e15412]: Risk tier
+            - definition [ref=e15413]: Tier 3
+        - paragraph [ref=e15414]: A copy lent to a member.
+        - generic [ref=e15415]:
+          - heading "Labels" [level=2] [ref=e15416]
+          - table [ref=e15417]:
+            - rowgroup [ref=e15418]:
+              - row [ref=e15419]:
+                - columnheader "Language" [ref=e15420]
+                - columnheader "Word" [ref=e15421]
+            - rowgroup [ref=e15422]:
+              - row [ref=e15423]:
+                - cell "English" [ref=e15424]
+                - cell "Loan" [ref=e15425]
+              - row [ref=e15426]:
+                - cell "French" [ref=e15427]
+                - cell "emprunt" [ref=e15428]
+          - paragraph [ref=e15429]: Translations sit outside the approval hash, so adding a language reopens no approval.
+        - generic [ref=e15430]:
+          - heading "Values 1" [level=2] [ref=e15431]:
+            - text: Values
+            - generic [ref=e15432]: "1"
+          - table [ref=e15433]:
+            - rowgroup [ref=e15434]:
+              - row [ref=e15435]:
+                - columnheader "Code" [ref=e15436]
+                - columnheader "Label" [ref=e15437]
+            - rowgroup [ref=e15438]:
+              - row [ref=e15439]:
+                - cell "active" [ref=e15440]
+                - cell "Active" [ref=e15441]
+        - generic [ref=e15442]:
+          - heading "Rejected words 1" [level=2] [ref=e15443]:
+            - text: Rejected words
+            - generic [ref=e15444]: "1"
+          - generic [ref=e15446]:
+            - generic [ref=e15447]: rental
+            - paragraph [ref=e15449]: A loan is free.
+      - generic [ref=e15450]:
+        - generic [ref=e15451]: Approved
+        - button "Request changes" [ref=e15455] [cursor=pointer]
+        - button "Next draft" [ref=e15456] [cursor=pointer]
+    - complementary "Connections" [ref=e376]:
+      - heading "Connections 0" [level=2] [ref=e15459]:
+        - text: Connections
+        - generic [ref=e15460]: "0"
+      - paragraph [ref=e15461]: No other record links to this one.

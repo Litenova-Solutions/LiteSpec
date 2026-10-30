@@ -7,8 +7,8 @@ using System.Text.Json.Nodes;
 namespace LiteSpec.Book;
 
 /// <summary>
-///     Shared HTML for the book generator: escaping, the page shell and navigation,
-///     plus the value semantics (truthiness, string coercion, locale comparison) the pages need.
+///     Shared values for the book generator: HTML escaping, JSON string coercion,
+///     truthiness and locale comparison, plus the record reads the writers need.
 /// </summary>
 /// <follows>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</follows>
 static class BookRender

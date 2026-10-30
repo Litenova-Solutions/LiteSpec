@@ -36,7 +36,7 @@ public sealed class BookOutlineTests
         }
     }
 
-    /// <summary>The fixture model places every record exactly once under six layer roots.</summary>
+    /// <summary>The fixture model places every record with a parent exactly once under six layer roots, and only the parentless journey stays unplaced with no node.</summary>
     /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Fact]
     public void Fixture_Model_Places_Every_Record_Exactly_Once()
@@ -57,12 +57,22 @@ public sealed class BookOutlineTests
             }
         }
 
+        Assert.Equal(new[] { "journey/borrowing" }, outline.Unplaced.OrderBy(id => id, StringComparer.Ordinal).ToList());
+
         var placed = RecordIds(outline.Layers);
-        Assert.Equal(ids.Count, placed.Count);
-        Assert.Equal(ids.Count, new HashSet<string>(placed, StringComparer.Ordinal).Count);
+        Assert.Equal(ids.Count - outline.Unplaced.Count, placed.Count);
+        Assert.Equal(placed.Count, new HashSet<string>(placed, StringComparer.Ordinal).Count);
         foreach (var id in ids)
         {
-            Assert.Contains(id, placed);
+            if (outline.Unplaced.Contains(id))
+            {
+                Assert.DoesNotContain(id, placed);
+                Assert.Null(Find(outline.Layers, id));
+            }
+            else
+            {
+                Assert.Contains(id, placed);
+            }
         }
 
         foreach (var id in ids)
@@ -113,7 +123,7 @@ public sealed class BookOutlineTests
         Assert.False(second!.Children.Any(child => string.Equals(child.Id, "feature/self-checkout", StringComparison.Ordinal)));
     }
 
-    /// <summary>Records with no parent land in Unplaced and still appear once under a type group.</summary>
+    /// <summary>Records with no parent land only in Unplaced, with no outline node and no invented group.</summary>
     /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Fact]
     public void Unplaced_Records_Land_In_Unplaced()
@@ -136,13 +146,40 @@ public sealed class BookOutlineTests
         Assert.DoesNotContain("product/library", outline.Unplaced);
 
         var placed = RecordIds(outline.Layers);
-        Assert.Equal(1, placed.Count(id => string.Equals(id, "feature/orphan", StringComparison.Ordinal)));
-        Assert.Equal(1, placed.Count(id => string.Equals(id, "requirement/borrowing.orphan-need", StringComparison.Ordinal)));
-        Assert.Equal(1, placed.Count(id => string.Equals(id, "journey/nowhere", StringComparison.Ordinal)));
+        Assert.DoesNotContain("feature/orphan", placed);
+        Assert.DoesNotContain("requirement/borrowing.orphan-need", placed);
+        Assert.DoesNotContain("journey/nowhere", placed);
+        Assert.Null(Find(outline.Layers, "feature/orphan"));
+        Assert.Null(Find(outline.Layers, "requirement/borrowing.orphan-need"));
+        Assert.Null(Find(outline.Layers, "journey/nowhere"));
 
-        Assert.NotNull(Find(outline.Layers, "intent/feature"));
-        Assert.NotNull(Find(outline.Layers, "intent/requirement"));
-        Assert.NotNull(Find(outline.Layers, "intent/journey"));
+        Assert.Null(Find(outline.Layers, "intent/feature"));
+        Assert.Null(Find(outline.Layers, "intent/requirement"));
+        Assert.Null(Find(outline.Layers, "intent/journey"));
+    }
+
+    /// <summary>A record whose parent is itself unplaced has no outline node either: it is only listed unplaced.</summary>
+    /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
+    [Fact]
+    public void Child_Of_An_Unplaced_Parent_Has_No_Outline_Node()
+    {
+        var model = Model(
+            Record("product", "product/library", "Library", "approved"),
+            Record("feature", "feature/orphan", "Orphan", "draft"),
+            Record(
+                "requirement",
+                "requirement/borrowing.orphan-need",
+                "Orphan Need",
+                "draft",
+                new JsonObject { ["features"] = Links("feature/orphan") }));
+
+        var outline = BookOutline.Build(model);
+
+        Assert.Equal("feature/orphan", outline.ParentOf["requirement/borrowing.orphan-need"]);
+        Assert.Contains("feature/orphan", outline.Unplaced);
+        Assert.Contains("requirement/borrowing.orphan-need", outline.Unplaced);
+        Assert.Null(Find(outline.Layers, "feature/orphan"));
+        Assert.Null(Find(outline.Layers, "requirement/borrowing.orphan-need"));
     }
 
     /// <summary>A requirement follows features before basedOn before the deciding decision.</summary>
@@ -198,7 +235,7 @@ public sealed class BookOutlineTests
 
         Assert.Equal("decision/0001-kiosk", BookParents.ParentOf(decided, "requirement/borrowing.max-wait"));
 
-        var legacy = Model(
+        var singular = Model(
             Record("product", "product/library", "Library", "approved"),
             Record("problem", "problem/slow-queues", "Slow Queues", "approved"),
             Record(
@@ -214,7 +251,211 @@ public sealed class BookOutlineTests
                 "approved",
                 new JsonObject { ["feature"] = Links("feature/self-checkout") }));
 
-        Assert.Equal("feature/self-checkout", BookParents.ParentOf(legacy, "requirement/borrowing.max-wait"));
+        Assert.Null(BookParents.ParentOf(singular, "requirement/borrowing.max-wait"));
+        Assert.Contains("requirement/borrowing.max-wait", BookOutline.Build(singular).Unplaced);
+    }
+
+    /// <summary>A scenario parents only under the result it shows; a missing one is reported, never defaulted to the use case.</summary>
+    /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
+    [Fact]
+    public void Scenario_Parents_Only_Under_Its_Shown_Result()
+    {
+        var shown = Model(
+            Record("product", "product/library", "Library", "approved"),
+            Record("module", "module/lending", "Lending", "reviewed"),
+            Record("use-case", "use-case/lending.borrow-copy", "Borrow Copy", "reviewed"),
+            Record("result", "result/borrow-copy.borrowed", "Borrowed", "reviewed"),
+            Record(
+                "scenario",
+                "scenario/borrow-copy.borrowing-succeeds",
+                "Borrowing Succeeds",
+                "reviewed",
+                new JsonObject { ["result"] = Links("result/borrow-copy.borrowed") }));
+
+        Assert.Equal("result/borrow-copy.borrowed", BookParents.ParentOf(shown, "scenario/borrow-copy.borrowing-succeeds"));
+        var placed = BookOutline.Build(shown);
+        Assert.DoesNotContain("scenario/borrow-copy.borrowing-succeeds", placed.Unplaced);
+        var result = Find(placed.Layers, "result/borrow-copy.borrowed");
+        Assert.NotNull(result);
+        Assert.True(result!.Children.Any(child => string.Equals(child.Id, "scenario/borrow-copy.borrowing-succeeds", StringComparison.Ordinal)));
+
+        var missing = Model(
+            Record("product", "product/library", "Library", "approved"),
+            Record("module", "module/lending", "Lending", "reviewed"),
+            Record("use-case", "use-case/lending.borrow-copy", "Borrow Copy", "reviewed"),
+            Record(
+                "scenario",
+                "scenario/borrow-copy.borrowing-succeeds",
+                "Borrowing Succeeds",
+                "reviewed",
+                new JsonObject { ["result"] = Links("result/borrow-copy.borrowed") }));
+
+        Assert.Null(BookParents.ParentOf(missing, "scenario/borrow-copy.borrowing-succeeds"));
+        var outline = BookOutline.Build(missing);
+        Assert.Contains("scenario/borrow-copy.borrowing-succeeds", outline.Unplaced);
+        Assert.Null(Find(outline.Layers, "scenario/borrow-copy.borrowing-succeeds"));
+    }
+
+    /// <summary>One code node per implementing file sits under the first mark target in identifier order.</summary>
+    /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
+    [Fact]
+    public void Implementation_Nodes_Sit_Under_Their_First_Mark_Target()
+    {
+        var model = FullModel(
+            [
+                Record("product", "product/library", "Library", "approved"),
+                Record("module", "module/lending", "Lending", "reviewed"),
+                Record("use-case", "use-case/lending.borrow-copy", "Borrow Copy", "reviewed"),
+                Record("external-system", "external-system/address-lookup", "Address Lookup", "reviewed"),
+            ],
+            links: new JsonObject
+            {
+                ["implements"] = new JsonArray(
+                    new JsonObject
+                    {
+                        ["path"] = "src/App/Ports.cs",
+                        ["to"] = "use-case/lending.borrow-copy",
+                        ["kind"] = "port",
+                    },
+                    new JsonObject
+                    {
+                        ["path"] = "src/App/Ports.cs",
+                        ["to"] = "external-system/address-lookup",
+                        ["kind"] = "port",
+                    }),
+            });
+
+        var outline = BookOutline.Build(model);
+
+        // external-system/address-lookup sorts before use-case/lending.borrow-copy, so it parents the file.
+        var system = Find(outline.Layers, "external-system/address-lookup");
+        Assert.NotNull(system);
+        var code = system!.Children.SingleOrDefault(child => string.Equals(child.Id, "code/src/App/Ports.cs", StringComparison.Ordinal));
+        Assert.NotNull(code);
+        Assert.Equal("code", code!.Kind);
+        Assert.Equal("code", code.Type);
+        Assert.Equal("Ports.cs", code.Label);
+        Assert.Null(code.Status);
+        Assert.Empty(code.Children);
+
+        var useCase = Find(outline.Layers, "use-case/lending.borrow-copy");
+        Assert.NotNull(useCase);
+        Assert.DoesNotContain(useCase!.Children, child => string.Equals(child.Id, "code/src/App/Ports.cs", StringComparison.Ordinal));
+    }
+
+    /// <summary>One test node per unit and browser test sits under the lowest record it proves.</summary>
+    /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
+    [Fact]
+    public void Proof_Tests_Sit_Under_The_Lowest_Proved_Record()
+    {
+        var model = FullModel(
+            [
+                Record("product", "product/library", "Library", "approved"),
+                Record("module", "module/lending", "Lending", "reviewed"),
+                Record("use-case", "use-case/lending.borrow-copy", "Borrow Copy", "reviewed"),
+                Record("result", "result/borrow-copy.borrowed", "Borrowed", "reviewed"),
+                Record(
+                    "scenario",
+                    "scenario/borrow-copy.borrowing-succeeds",
+                    "Borrowing Succeeds",
+                    "reviewed",
+                    new JsonObject { ["result"] = Links("result/borrow-copy.borrowed") }),
+                Record("rule", "rule/lending.one-loan-per-copy", "One Loan Per Copy", "reviewed"),
+            ],
+            tests: new JsonArray(
+                new JsonObject
+                {
+                    ["scenario"] = "Library.Tests.BorrowTests.Borrowing_Succeeds",
+                    ["class"] = "BorrowTests",
+                    ["file"] = "tests/BorrowTests.cs",
+                    ["line"] = 41,
+                    ["claims"] = new JsonArray(
+                        "scenario/borrow-copy.borrowing-succeeds",
+                        "rule/lending.one-loan-per-copy"),
+                }),
+            browserTests: new JsonArray(
+                new JsonObject
+                {
+                    ["frontend"] = "catalog",
+                    ["title"] = "Borrowing works",
+                    ["file"] = "apps/catalog/tests/borrow.spec.ts",
+                    ["line"] = 7,
+                    ["proves"] = new JsonArray("rule/lending.one-loan-per-copy"),
+                }));
+
+        var outline = BookOutline.Build(model);
+
+        // rule/lending.one-loan-per-copy sorts before the scenario, so it parents the unit test.
+        var rule = Find(outline.Layers, "rule/lending.one-loan-per-copy");
+        Assert.NotNull(rule);
+        var unit = rule!.Children.SingleOrDefault(child => string.Equals(child.Id, "test/Library.Tests.BorrowTests.Borrowing_Succeeds", StringComparison.Ordinal));
+        Assert.NotNull(unit);
+        Assert.Equal("test", unit!.Kind);
+        Assert.Equal("test", unit.Type);
+        Assert.Equal("Borrowing Succeeds", unit.Label);
+
+        var browser = rule.Children.SingleOrDefault(child => string.Equals(child.Id, "test/apps/catalog/tests/borrow.spec.ts:7", StringComparison.Ordinal));
+        Assert.NotNull(browser);
+        Assert.Equal("test", browser!.Kind);
+        Assert.Equal("Borrowing works", browser.Label);
+
+        var scenario = Find(outline.Layers, "scenario/borrow-copy.borrowing-succeeds");
+        Assert.NotNull(scenario);
+        Assert.DoesNotContain(scenario!.Children, child => string.Equals(child.Kind, "test", StringComparison.Ordinal));
+    }
+
+    /// <summary>One finding node per open and known finding sits under its subject; unknown subjects place nothing.</summary>
+    /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
+    [Fact]
+    public void Findings_Sit_Under_Their_Subject()
+    {
+        var model = FullModel(
+            [
+                Record("product", "product/library", "Library", "approved"),
+                Record("module", "module/lending", "Lending", "reviewed"),
+                Record("use-case", "use-case/lending.borrow-copy", "Borrow Copy", "reviewed"),
+            ],
+            findings: new JsonArray(
+                new JsonObject
+                {
+                    ["code"] = "use-case-unimplemented",
+                    ["tier"] = "G",
+                    ["message"] = "Use case 'use-case/lending.borrow-copy' has no handler, reaction or job.",
+                    ["subject"] = "use-case/lending.borrow-copy",
+                    ["path"] = "docs/borrow-copy.md",
+                    ["line"] = 3,
+                },
+                new JsonObject
+                {
+                    ["code"] = "stray",
+                    ["message"] = "Nowhere.",
+                    ["subject"] = "use-case/missing.nope",
+                }),
+            known: new JsonArray(
+                new JsonObject
+                {
+                    ["code"] = "step-unscreened",
+                    ["tier"] = "A",
+                    ["message"] = "Step s2 has no screen.",
+                    ["subject"] = "use-case/lending.borrow-copy#s2",
+                    ["outcome"] = "accepted",
+                    ["reason"] = "Later.",
+                }));
+
+        var outline = BookOutline.Build(model);
+
+        var useCase = Find(outline.Layers, "use-case/lending.borrow-copy");
+        Assert.NotNull(useCase);
+        var open = useCase!.Children.SingleOrDefault(child => string.Equals(child.Id, "finding/1", StringComparison.Ordinal));
+        Assert.NotNull(open);
+        Assert.Equal("finding", open!.Kind);
+        Assert.Equal("finding", open.Type);
+        Assert.Equal("Use case 'use-case/lending.borrow-copy' has no handler, reaction or job.", open.Label);
+        var accepted = useCase.Children.SingleOrDefault(child => string.Equals(child.Id, "finding/3", StringComparison.Ordinal));
+        Assert.NotNull(accepted);
+        Assert.Equal("finding", accepted!.Kind);
+
+        Assert.Null(Find(outline.Layers, "finding/2"));
     }
 
     /// <summary>Containment follows the identifier home: aggregates, use cases, results and rules.</summary>
@@ -354,6 +595,33 @@ public sealed class BookOutlineTests
         }
 
         return new JsonObject { ["records"] = array };
+    }
+
+    static JsonObject FullModel(
+        JsonObject[] records,
+        JsonObject? code = null,
+        JsonObject? links = null,
+        JsonArray? tests = null,
+        JsonArray? browserTests = null,
+        JsonArray? findings = null,
+        JsonArray? known = null)
+    {
+        var array = new JsonArray();
+        foreach (var record in records)
+        {
+            array.Add(record);
+        }
+
+        return new JsonObject
+        {
+            ["records"] = array,
+            ["code"] = code ?? new JsonObject(),
+            ["links"] = links ?? new JsonObject(),
+            ["tests"] = tests ?? new JsonArray(),
+            ["browserTests"] = browserTests ?? new JsonArray(),
+            ["findings"] = findings ?? new JsonArray(),
+            ["known"] = known ?? new JsonArray(),
+        };
     }
 
     static JsonArray Links(params string[] ids)

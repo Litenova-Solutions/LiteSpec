@@ -41,6 +41,7 @@ static partial class ConsumerValidator
         ["tutorial"] = ["Purpose", "Prerequisites", "Lesson", "What You Built"],
         ["how-to"] = ["Purpose", "Procedure", "Check"],
         ["reference"] = ["Intent", "Reference"],
+        ["review-report"] = ["Verdicts", "How the Review Ran"],
         ["command"] = ["Name", "Synopsis", "Description", "Arguments", "Options", "Exit Codes", "Examples", "Underneath"],
         ["configuration"] = ["Intent", "Settings", "Precedence"],
     };

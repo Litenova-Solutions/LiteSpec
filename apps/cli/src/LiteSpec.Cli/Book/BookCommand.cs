@@ -160,7 +160,7 @@ static class BookCommand
             var line = $"{outDir}: {details.Count} records, {shards} shards.";
             if (outline.Unplaced.Count > 0)
             {
-                line += $" Unplaced: {string.Join(", ", outline.Unplaced)}.";
+                line += $" Unplaced (record-without-parent): {string.Join(", ", outline.Unplaced)}.";
             }
 
             Console.Out.Write(line + "\n");

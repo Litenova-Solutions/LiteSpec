@@ -65,6 +65,20 @@ LiteSpec 3.0.0 is a top-down specification standard for one bounded-context busi
 - The `litespec-maintain` tool checks the standard's own pages, schemas, manifest, and provision index from `apps/maintain/` with `validate` and `provisions`; the `litespec` tool serves consumers only.
 - Extensions added: privacy, devices, automation, workflow-engine, pipeline, queues and ai. LS2002 is retired.
 
+### Record Hierarchy
+
+- Every record has exactly one parent: by identifier containment, by one required written up-link, or, for a type with no record above it, its layer list under the product. A record whose required parent is missing is an error at tier G, reported even when the record is a draft. Every inverse link is computed, never written.
+- A feature names at least one problem in `solves`; its parent is the first entry. Every non-refused feature names at least one goal in `advances`. A refused feature names `refusedBecause` and the problem it declines in `solves`, and carries no `advances`.
+- Every journey names its goal record in a required single link `serves`, which is its parent, and states its sentence in `aim`. A use case, reaction, job or screen serves journey steps; a journey serves one goal, and a use case never serves a goal directly.
+- Every requirement names its parent: a carrying feature, a constraint or research in `basedOn`, or a decision naming it in `decides`, in that precedence.
+- Written result and scenario identifiers use the `result/<use-case>.<name>` and `scenario/<use-case>.<name>` form, and derived generic results take the same form. A written result no scenario shows is reported: tier G for a success result, tier A for a refusal, on large projects.
+- Structural parents are tier G for all records; other required links are tier A for tier 3 records and tier G for tier 1 records.
+- Field names follow one grammar: a classifier is `kind`; a link is a present-tense verb, plural when it holds a list; a deadline is `<verb>By`, a recorded date `<verb>On`; a reason is `reason` or `<verb>Because`. Feature `lifecycle`, goal and requirement `dueBy`, feature `plannedFor`, decision `decidedOn`, and constraint `authority` and `kind` follow it, checked by `litespec-maintain validate`. Glossary terms carry `layer` and `aliases`.
+- `setting.readBy` names the use cases that read a setting. The Links table carries a "reads as" phrase in both directions for every link, and the book takes its connection labels from it. A `follows` edge marks export beside `implements` in the built model.
+- Research states its `conclusion`, and LiteSpec keeps its own research and decision records under `docs/intent/`.
+- `litespec book` is one offline shell with sharded data, generated from the model, with the outline from the parent table and the labels from the Links table and the glossary.
+- Approval batches a journey with the goal it serves, keeps each entry a page stamp did not hold at the page's former status, refuses a decision naming no chosen option, and keeps a transcribed record serving a draft journey in draft. Screens are Behavior, and reaction and job scenarios carry their own stamp.
+
 ## v2.0.0
 
 LiteSpec 2.0.0 is the standards contract for one bounded-context business application, built by people and agents. People and agents write intent records; the model builder reads the code, screens, tests, and test runs and computes the links between the two. A consumer installs this release as the `LiteSpec.Cli` local .NET tool at the release version, records it in `reviewedLiteSpecVersion`, and keeps it for as long as it serves. The release takes effect as the `v2.0.0` tag.

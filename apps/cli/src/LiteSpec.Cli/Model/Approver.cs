@@ -151,6 +151,43 @@ static class Approver
         return Checker.SemanticHash(written.RootElement);
     }
 
+    /// <summary>
+    ///     The record fields as the stamp writes them: a decision with no decidedOn
+    ///     gains the approval date, so the hash covers the fields as written.
+    /// </summary>
+    public static JsonElement StampedRaw(Record record, string on)
+    {
+        if (record.Type != "decision"
+            || record.Raw.ValueKind != JsonValueKind.Object
+            || HasDecidedOn(record))
+        {
+            return record.Raw;
+        }
+
+        if (JsonNode.Parse(record.Raw.GetRawText()) is not JsonObject written)
+        {
+            return record.Raw;
+        }
+
+        written["decidedOn"] = on;
+
+        using var document = JsonDocument.Parse(written.ToJsonString());
+        return document.RootElement.Clone();
+    }
+
+    /// <summary>
+    ///     The hash the stamp writes for the record: a decision with no decidedOn
+    ///     gains the approval date first, so the manifest, the memory and the file agree.
+    /// </summary>
+    public static string StampedHashFor(Record record, string on) =>
+        Checker.SemanticHash(StampedRaw(record, on));
+
+    /// <summary>Whether the decision already carries its decision date.</summary>
+    static bool HasDecidedOn(Record record) =>
+        record.Raw.ValueKind == JsonValueKind.Object
+        && record.Raw.TryGetProperty("decidedOn", out var current)
+        && current.ValueKind is not (JsonValueKind.Null or JsonValueKind.Undefined);
+
     /// <summary>One batch stamp: the record with the status and approval it takes.</summary>
     /// <param name="Record">The record to stamp.</param>
     /// <param name="Status">The status to write: approved or reviewed.</param>
@@ -233,6 +270,12 @@ static class Approver
             }
 
             entry["status"] = status;
+
+            // A result carries no decider of its own: it is decided with its use case.
+            if (entry["type"]?.GetValue<string>() == "result")
+            {
+                continue;
+            }
 
             foreach (var name in new[] { "decider", "decideBy" })
             {

@@ -23,6 +23,23 @@ public sealed class BookLexiconTests
             solves["carriers"]!.AsArray().Select(node => node!.GetValue<string>()).ToList());
     }
 
+    /// <summary>An aggregate transition mover reads as its transitions row, with or without the leading record type.</summary>
+    /// <proves>litespec/core/model#name-book-labels-with-litespec-terms</proves>
+    [Fact]
+    public void Transitions_By_Resolves_To_Its_Row()
+    {
+        using var temp = Cli.Temp("book-lexicon");
+        var lexicon = BookLexicon.Load(WriteHome(temp, ModelPage(), ToolsPage(), GlossaryPage()));
+
+        Assert.True(lexicon.TryPhrase("transitions.by", "aggregate", out var forward, out var inverse));
+        Assert.Equal("is moved by", forward);
+        Assert.Equal("moves", inverse);
+
+        Assert.True(lexicon.TryPhrase("aggregate.transitions.by", "aggregate", out forward, out inverse));
+        Assert.Equal("is moved by", forward);
+        Assert.Equal("moves", inverse);
+    }
+
     /// <summary>A nested effects path reads as its effects row; a leading record type reads the same; an unknown nested path reads nothing.</summary>
     /// <proves>litespec/core/model#name-book-labels-with-litespec-terms</proves>
     [Fact]
@@ -154,6 +171,7 @@ public sealed class BookLexiconTests
         Assert.Equal("Authority", lexicon.Fields["authority"]);
         Assert.Equal("Aim", lexicon.Fields["aim"]);
         Assert.Equal("Conclusion", lexicon.Fields["conclusion"]);
+        Assert.Equal("Options", lexicon.Fields["options"]);
 
         Assert.False(lexicon.Fields.ContainsKey("by"));
         Assert.False(lexicon.Fields.ContainsKey("state"));
@@ -338,6 +356,7 @@ public sealed class BookLexiconTests
         | `serves` | use case, reaction, job | Journey steps | serves | is served by |
         | `serves` | journey | The goal it walks toward | serves | is served by |
         | `effects` | use case, reaction, job | Use cases, notifications, integration events, operations | effects | is effected by |
+        | `transitions.by` | aggregate | The use case that moves the transition | is moved by | moves |
         | `access.grant` | use case | A permission | is granted through | grants |
         | `actor` | journey, external system | The actor walking; the actor acted as | is walked by / acts as | walks / is acted as by |
         | `terms` | any record | Terms | uses | is used by |

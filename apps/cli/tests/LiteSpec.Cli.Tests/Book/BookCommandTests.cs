@@ -117,6 +117,22 @@ public sealed class BookCommandTests
         Assert.Contains("83 records", result.Output, StringComparison.Ordinal);
     }
 
+    /// <summary>The console line names each unplaced identifier with the failed record-without-parent rule.</summary>
+    /// <proves>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</proves>
+    [Fact]
+    public void Unplaced_Console_Line_Names_The_Failed_Rule()
+    {
+        using var temp = Cli.Temp("book");
+        var result = Cli.Run(
+            "book",
+            "--model", Cli.Fixture("Book/review.json"),
+            "--out", temp.Path);
+        Assert.Equal(0, result.Status);
+
+        Assert.Contains("record-without-parent", result.Output, StringComparison.Ordinal);
+        Assert.Contains("journey/borrowing", result.Output, StringComparison.Ordinal);
+    }
+
     /// <summary>The queue shard carries the review batches with their order, the ballots, the security items and the review settings.</summary>
     /// <proves>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</proves>
     [Fact]

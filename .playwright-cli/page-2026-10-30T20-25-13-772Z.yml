@@ -1,0 +1,259 @@
+- generic [active] [ref=f1e1]:
+  - banner [ref=f1e2]:
+    - generic [ref=f1e3]:
+      - generic [ref=f1e11]: Riverside Library
+      - generic [ref=f1e12]: /
+      - generic [ref=f1e13]: Book
+    - generic [ref=f1e14]:
+      - searchbox "Filter the navigation" [ref=f1e18]
+      - generic [aria-hidden] [ref=f1e19]: /
+    - 'button "Test run 20 Oct 2026: 1 passed" [ref=f1e12682]':
+      - text: "Test run 20 Oct 2026:"
+      - generic [ref=f1e12685]: "1"
+      - text: passed
+    - button "37 of 39 settled" [ref=f1e12686]
+    - button "Intent tree" [ref=f1e30] [cursor=pointer]
+    - button "Recent" [ref=f1e32] [cursor=pointer]
+    - button "Download review" [ref=f1e33] [cursor=pointer]
+    - button "Keyboard shortcuts" [ref=f1e36] [cursor=pointer]: "?"
+    - button "Switch to dark theme" [ref=f1e37] [cursor=pointer]
+  - generic [ref=f1e40]:
+    - complementary "Navigation" [ref=f1e41]:
+      - generic [ref=f1e42]:
+        - tablist "View" [ref=f1e43]:
+          - tab "Outline" [selected] [ref=f1e12690] [cursor=pointer]
+          - tab "Review queue" [ref=f1e12695] [cursor=pointer]
+          - tab "Security 0" [ref=f1e12698] [cursor=pointer]:
+            - text: Security
+            - generic [ref=f1e12702]: "0"
+          - tab "Ballots 2" [ref=f1e12703] [cursor=pointer]:
+            - text: Ballots
+            - generic [ref=f1e12707]: "2"
+        - generic [ref=f1e62]:
+          - button "Filter" [ref=f1e12708] [cursor=pointer]
+          - generic [ref=f1e12711]: Sort
+          - combobox "Sort" [ref=f1e12712]:
+            - 'option "Sort: outline" [selected]'
+            - option "Title"
+            - option "Decide by, soonest"
+            - option "Risk tier first"
+            - option "Most open questions"
+            - option "Proof, failing first"
+            - option "Review status"
+          - button "Expand all" [ref=f1e12713] [cursor=pointer]
+          - button "Collapse all" [ref=f1e12717] [cursor=pointer]
+          - button "Show the selected record" [ref=f1e12721] [cursor=pointer]
+        - generic [ref=f1e80]:
+          - text: 39 records in this book.
+          - generic [ref=f1e12725]:
+            - generic [ref=f1e12726]: Draft
+            - generic [ref=f1e12731]: Approved or reviewed
+            - generic [ref=f1e12736]: Held by a draft
+            - generic [ref=f1e12741]: No code or no test
+      - generic [ref=f1e101]:
+        - generic [ref=f1e12745]:
+          - button "Intent 13" [expanded] [ref=f1e12746] [cursor=pointer]:
+            - generic [ref=f1e12751]: Intent
+            - generic "12 of 13 approved or reviewed" [ref=f1e12752]: "13"
+          - paragraph [ref=f1e12755]:
+            - text: Written by agents draft, the founder decides; reviewed by the founder and product people.
+            - button "Open" [ref=f1e12756] [cursor=pointer]
+          - tree "Intent outline" [ref=f1e12758]:
+            - button "Products 1" [expanded] [ref=f1e12759] [cursor=pointer]:
+              - generic [ref=f1e12762]: Products
+              - generic [ref=f1e12763]: "1"
+            - treeitem "Product, Riverside Library, approved" [level=1] [ref=f1e12764] [cursor=pointer]:
+              - button [aria-hidden] [ref=f1e12765]
+              - generic "Riverside Library" [ref=f1e12772]
+              - generic [ref=f1e12773]: "7"
+              - generic "approved" [ref=f1e12774]
+            - button "Journeys 1" [expanded] [ref=f1e12778] [cursor=pointer]:
+              - generic [ref=f1e12781]: Journeys
+              - generic [ref=f1e12782]: "1"
+            - treeitem "Journey, Borrowing, approved" [level=1] [ref=f1e12783] [cursor=pointer]:
+              - generic "Borrowing" [ref=f1e12789]
+              - generic "approved" [ref=f1e12790]
+        - generic [ref=f1e12794]:
+          - button "Behavior 23" [expanded] [ref=f1e12795] [cursor=pointer]:
+            - generic [ref=f1e12798]: Behavior
+            - generic "22 of 23 approved or reviewed" [ref=f1e12799]: "23"
+          - paragraph [ref=f1e12802]:
+            - text: Written by agents; reviewed by developers; the security reviewer for access, outside calls and personal-data flows.
+            - button "Open" [ref=f1e12803] [cursor=pointer]
+          - tree "Behavior outline" [ref=f1e12805]:
+            - button "Modules 1" [expanded] [ref=f1e12806] [cursor=pointer]:
+              - generic [ref=f1e12809]: Modules
+              - generic [ref=f1e12810]: "1"
+            - treeitem "Module, Lending, reviewed" [expanded] [level=1] [ref=f1e12811] [cursor=pointer]:
+              - button [aria-hidden] [ref=f1e12812]
+              - generic "Lending" [ref=f1e12818]
+              - generic "reviewed" [ref=f1e12819]
+            - group [ref=f1e12823]:
+              - button "Aggregates 1" [expanded] [ref=f1e12824] [cursor=pointer]:
+                - generic [ref=f1e12827]: Aggregates
+                - generic [ref=f1e12828]: "1"
+              - treeitem "Aggregate, Loan, reviewed" [level=2] [ref=f1e12829] [cursor=pointer]:
+                - button [aria-hidden] [ref=f1e12830]
+                - generic "Loan" [ref=f1e12836]
+                - generic [ref=f1e12837]: "6"
+                - generic "No code" [ref=f1e12838]
+                - generic "reviewed" [ref=f1e12841]
+              - button "Reactions 1" [expanded] [ref=f1e12845] [cursor=pointer]:
+                - generic [ref=f1e12848]: Reactions
+                - generic [ref=f1e12849]: "1"
+              - treeitem "Reaction, Send Due Reminder, reviewed, linked" [level=2] [ref=f1e12850] [cursor=pointer]:
+                - generic "Send Due Reminder" [ref=f1e12855]
+                - generic "No code" [ref=f1e12856]
+                - generic "Linked to the selected record" [ref=f1e12859]
+                - generic "reviewed" [ref=f1e12863]
+              - button "Jobs 1" [expanded] [ref=f1e12867] [cursor=pointer]:
+                - generic [ref=f1e12870]: Jobs
+                - generic [ref=f1e12871]: "1"
+              - treeitem "Job, Send Overdue Notices, reviewed" [level=2] [ref=f1e12872] [cursor=pointer]:
+                - generic "Send Overdue Notices" [ref=f1e12878]
+                - generic "No code" [ref=f1e12879]
+                - generic "reviewed" [ref=f1e12882]
+              - button "Notifications 1" [expanded] [ref=f1e12886] [cursor=pointer]:
+                - generic [ref=f1e12889]: Notifications
+                - generic [ref=f1e12890]: "1"
+              - treeitem "Notification, Due Reminder, reviewed" [level=2] [selected] [ref=f1e12891] [cursor=pointer]:
+                - generic "Due Reminder" [ref=f1e12896]
+                - generic "reviewed" [ref=f1e12897]
+              - button "Settings 1" [expanded] [ref=f1e12901] [cursor=pointer]:
+                - generic [ref=f1e12904]: Settings
+                - generic [ref=f1e12905]: "1"
+              - treeitem "Setting, Max Active Loans, approved" [level=2] [ref=f1e12906] [cursor=pointer]:
+                - generic "Max Active Loans" [ref=f1e12912]
+                - generic "approved" [ref=f1e12913]
+            - button "Roles 1" [expanded] [ref=f1e12917] [cursor=pointer]:
+              - generic [ref=f1e12920]: Roles
+              - generic [ref=f1e12921]: "1"
+            - treeitem "Role, Member, reviewed" [level=1] [ref=f1e12922] [cursor=pointer]:
+              - generic "Member" [ref=f1e12927]
+              - generic "reviewed" [ref=f1e12928]
+            - button "Permissions 1" [expanded] [ref=f1e12932] [cursor=pointer]:
+              - generic [ref=f1e12935]: Permissions
+              - generic [ref=f1e12936]: "1"
+            - treeitem "Permission, Borrow Copy, reviewed" [level=1] [ref=f1e12937] [cursor=pointer]:
+              - generic "Borrow Copy" [ref=f1e12943]
+              - generic "reviewed" [ref=f1e12944]
+            - button "Entry points 1" [expanded] [ref=f1e12948] [cursor=pointer]:
+              - generic [ref=f1e12951]: Entry points
+              - generic [ref=f1e12952]: "1"
+            - treeitem "Entry point, Library App, reviewed" [level=1] [ref=f1e12953] [cursor=pointer]:
+              - button [aria-hidden] [ref=f1e12954]
+              - generic "Library App" [ref=f1e12961]
+              - generic [ref=f1e12962]: "1"
+              - generic "reviewed" [ref=f1e12963]
+            - button "External systems 1" [expanded] [ref=f1e12967] [cursor=pointer]:
+              - generic [ref=f1e12970]: External systems
+              - generic [ref=f1e12971]: "1"
+            - treeitem "External system, Fine Payments, reviewed" [level=1] [ref=f1e12972] [cursor=pointer]:
+              - generic "Fine Payments" [ref=f1e12978]
+              - generic "No code" [ref=f1e12979]
+              - generic "reviewed" [ref=f1e12982]
+            - button "Runbooks 1" [expanded] [ref=f1e12986] [cursor=pointer]:
+              - generic [ref=f1e12989]: Runbooks
+              - generic [ref=f1e12990]: "1"
+            - treeitem "Runbook, Overdue Notice, reviewed" [level=1] [ref=f1e12991] [cursor=pointer]:
+              - generic "Overdue Notice" [ref=f1e12995]
+              - generic "reviewed" [ref=f1e12996]
+            - button "Integration events 1" [expanded] [ref=f1e13000] [cursor=pointer]:
+              - generic [ref=f1e13003]: Integration events
+              - generic [ref=f1e13004]: "1"
+            - treeitem "Integration event, Loan Borrowed, reviewed" [level=1] [ref=f1e13005] [cursor=pointer]:
+              - generic "Loan Borrowed" [ref=f1e13009]
+              - generic "reviewed" [ref=f1e13010]
+        - button "Implementation 0" [ref=f1e13015] [cursor=pointer]:
+          - generic [ref=f1e13019]: Implementation
+          - generic "0 of 0 approved or reviewed" [ref=f1e13020]: "0"
+        - button "Proof 0" [ref=f1e13024] [cursor=pointer]:
+          - generic [ref=f1e13027]: Proof
+          - generic "0 of 0 approved or reviewed" [ref=f1e13028]: "0"
+        - button "Governance 2" [ref=f1e13032] [cursor=pointer]:
+          - generic [ref=f1e13037]: Governance
+          - generic "2 of 2 approved or reviewed" [ref=f1e13038]: "2"
+        - button "Glossary 1" [ref=f1e13042] [cursor=pointer]:
+          - generic [ref=f1e13045]: Glossary
+          - generic "1 of 1 approved or reviewed" [ref=f1e13046]: "1"
+    - main [ref=f1e544]:
+      - article [ref=f1e545]:
+        - navigation "Location" [ref=f1e13049]:
+          - button "Behavior" [ref=f1e13050] [cursor=pointer]
+          - generic [ref=f1e13051]: /
+          - button "Lending" [ref=f1e13052] [cursor=pointer]
+          - generic [ref=f1e13053]: /
+          - generic [ref=f1e13054]: Notifications
+          - generic [ref=f1e13055]: /
+          - generic [ref=f1e13056]: Due Reminder
+        - heading "Due Reminder" [level=1] [ref=f1e13057]
+        - group [ref=f1e13058]:
+          - generic "What is a notification?" [ref=f1e13059] [cursor=pointer]
+        - link "docs/behavior/modules/lending/notifications/due-reminder.md:3" [ref=f1e13063] [cursor=pointer]:
+          - /url: vscode://file/D:\Personal-Projects\LiteSpec/docs/behavior/modules/lending/notifications/due-reminder.md:3
+        - generic [ref=f1e13069]:
+          - button "Up" [ref=f1e13070] [cursor=pointer]
+          - button "Previous sibling" [disabled] [ref=f1e13073] [cursor=pointer]
+          - generic [ref=f1e13076]: 1 of 1 notifications in Lending
+          - button "Next sibling" [disabled] [ref=f1e13077] [cursor=pointer]
+        - generic [ref=f1e13080]:
+          - generic [ref=f1e13081]:
+            - term [ref=f1e13082]: Status
+            - definition [ref=f1e13083]: reviewed
+          - generic [ref=f1e13084]:
+            - term [ref=f1e13085]: Status reason
+            - definition [ref=f1e13086]: Settled
+          - generic [ref=f1e13087]:
+            - term [ref=f1e13088]: Owner
+            - definition [ref=f1e13089]: lending-team
+          - generic [ref=f1e13090]:
+            - term [ref=f1e13091]: Risk tier
+            - definition [ref=f1e13092]: Tier 3
+      - generic [ref=f1e13093]:
+        - generic [ref=f1e13094]: Reviewed
+        - button "Request changes" [ref=f1e13098] [cursor=pointer]
+        - button "Next draft" [ref=f1e13099] [cursor=pointer]
+    - complementary "Connections" [ref=f1e721]:
+      - generic [ref=f1e13102]:
+        - heading "From goal to behavior" [level=3] [ref=f1e13103]
+        - generic [ref=f1e13108]:
+          - generic [ref=f1e13109]: Intent
+          - generic [ref=f1e13111]:
+            - button "Faster Borrowing" [ref=f1e13112] [cursor=pointer]
+            - generic [ref=f1e13118]: goal
+            - generic "approved" [ref=f1e13119]
+          - generic [ref=f1e13124]:
+            - button "Self Checkout" [ref=f1e13125] [cursor=pointer]
+            - generic [ref=f1e13131]: feature
+            - generic "draft" [ref=f1e13132]
+          - generic [ref=f1e13137]:
+            - button "Max Wait" [ref=f1e13138] [cursor=pointer]
+            - generic [ref=f1e13144]: requirement
+            - generic "approved" [ref=f1e13145]
+        - generic [ref=f1e13149]:
+          - generic [ref=f1e13150]: Behavior
+          - generic [ref=f1e13152]:
+            - button "Due Reminder" [ref=f1e13153] [cursor=pointer]
+            - generic [ref=f1e13158]: notification
+            - generic "reviewed" [ref=f1e13159]
+      - heading "Connections 2" [level=2] [ref=f1e13163]:
+        - text: Connections
+        - generic [ref=f1e13164]: "2"
+      - generic [ref=f1e13165]:
+        - heading "Intent 1" [level=3] [ref=f1e13166]:
+          - text: Intent
+          - generic [ref=f1e13171]: "1"
+        - generic [ref=f1e13172]: This notification is for
+        - button "Member actor" [ref=f1e13173] [cursor=pointer]:
+          - generic [ref=f1e13177]: Member
+          - generic [ref=f1e13178]: actor
+          - generic "approved" [ref=f1e13179]
+      - generic [ref=f1e13183]:
+        - heading "Behavior 1" [level=3] [ref=f1e13184]:
+          - text: Behavior
+          - generic [ref=f1e13187]: "1"
+        - generic [ref=f1e13188]: This notification reaction.sends
+        - button "Send Due Reminder reaction" [ref=f1e13189] [cursor=pointer]:
+          - generic [ref=f1e13193]: Send Due Reminder
+          - generic [ref=f1e13194]: reaction
+          - generic "reviewed" [ref=f1e13195]
