@@ -105,36 +105,6 @@ export function resolveImport(specifier: string, importerDirAbs: string, aliases
   return probeCandidates(resolved);
 }
 
-// The use-case module folders the route entry files import directly: for each
-// import resolving below the modules root, the nearest ancestor folder known
-// to be a use-case folder.
-export function directModuleFolders(
-  entryFacts: { facts: FileFacts; dirAbs: string }[],
-  modulesAbs: string,
-  useCaseFolders: Set<string>,
-  aliases: Record<string, string>,
-): Set<string> {
-  const folders = new Set<string>();
-  for (const entry of entryFacts) {
-    for (const specifier of entry.facts.imports) {
-      const target = resolveImport(specifier, entry.dirAbs, aliases);
-      if (target === null || !isWithin(modulesAbs, target)) continue;
-      let dir = parentDir(target);
-      while (true) {
-        if (useCaseFolders.has(canonical(dir))) {
-          folders.add(canonical(dir));
-          break;
-        }
-        if (dir === modulesAbs) break;
-        const parent = parentDir(dir);
-        if (parent === dir || !isWithin(modulesAbs, dir)) break;
-        dir = parent;
-      }
-    }
-  }
-  return folders;
-}
-
 export interface RouteEntry {
   absPath: string;
   dirAbs: string;
@@ -143,29 +113,24 @@ export interface RouteEntry {
 export interface CallScope {
   routeDirAbs: string;
   modulesAbs: string;
-  useCaseFolders: Set<string>;
   operations: Map<string, string>;
   aliases: Record<string, string>;
 }
 
-// Every operation call reached from the route entries, following imports only
-// within the route folder and the directly imported module folders. Files are
-// visited once; entries come out sorted by file and line.
+// Every operation call reached from the route entries, following imports within
+// the route folder and the modules root: a route reaches its modules, and a module
+// may compose another use case's module, which the screen then offers too. The
+// frame and shared packages are never followed. Files are visited once; entries
+// come out sorted by file and line.
 export function collectRouteCalls(entries: RouteEntry[], scope: CallScope, context: ReaderContext): CallFacts[] {
   const entryFacts: { absPath: string; facts: FileFacts; dirAbs: string }[] = [];
   for (const entry of entries) {
     const facts = readFacts(entry.absPath, kindOf(entry.absPath), context);
     if (facts !== null) entryFacts.push({ absPath: entry.absPath, facts, dirAbs: entry.dirAbs });
   }
-  const moduleFolders = directModuleFolders(entryFacts, scope.modulesAbs, scope.useCaseFolders, scope.aliases);
 
-  const inScope = (absPath: string): boolean => {
-    if (isWithin(scope.routeDirAbs, absPath)) return true;
-    for (const folder of moduleFolders) {
-      if (isWithin(folder, absPath)) return true;
-    }
-    return false;
-  };
+  const inScope = (absPath: string): boolean =>
+    isWithin(scope.routeDirAbs, absPath) || isWithin(scope.modulesAbs, absPath);
 
   const calls: CallFacts[] = [];
   const visited = new Set<string>();

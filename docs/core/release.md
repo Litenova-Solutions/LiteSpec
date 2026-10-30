@@ -214,11 +214,11 @@ A consumer adopts one LiteSpec release by installing the `LiteSpec.Cli` tool pac
 
 **Statement:** Every batch approval MUST write a generated manifest under `docs/proof/approvals/` naming its records, approver, second reviewer, date, semantic hashes, sample, scenario proof state, and open findings.
 
-**Rationale:** Approval data on each record says who approved it, but not what else was approved in the same act or what the evidence showed then. The manifest keeps that evidence beside the records as Proof, so a later reader can tell reviewed from verified and see which records a signature covered, without a review record type that would duplicate the approval data.
+**Rationale:** Approval data on each record says who approved it, but not what else was approved in the same act or what the evidence showed then. The manifest keeps that evidence beside the records as Proof, so a later reader can tell reviewed from verified and see which records a signature covered, without a review record type that would duplicate the approval data. An agent second reading writes its report under `docs/proof/reviews/` for the same reason, and the manifest cites it: a report records what its reader saw when the review ran, so a record renamed or removed later is history in it, not a broken link.
 
 **Example:** Reviewing the split-expense batch on 2026-11-20 writes `docs/proof/approvals/2026-11-20-use-case-spending-split-expense.json`, which records that its scenarios were confirmed but not yet run.
 
-**Checked by:** `litespec model approve --batch` writes the manifest named and shaped as the [model command page](../tools/model.md) states, in the same operation that promotes the records, and refuses the batch when it cannot.
+**Checked by:** `litespec model approve --batch` writes the manifest named and shaped as the [model command page](../tools/model.md) states, in the same operation that promotes the records, and refuses the batch when it cannot; `litespec model check` reads no citation in a page under `docs/proof/reviews/`.
 
 ### Draw Each Tier 3 Sample from the Semantic Hash
 

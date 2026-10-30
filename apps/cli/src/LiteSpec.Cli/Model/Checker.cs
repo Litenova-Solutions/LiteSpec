@@ -900,8 +900,18 @@ static partial class Checker
 
         var texts = new List<(string File, string Text, int StartLine, string? Subject)>(model.Bodies.Count);
 
+        // A batch review report records what its reader saw when the review ran, as an approval
+        // manifest does, so a record renamed or removed since then is history, not a broken link.
+        var docs = model.Config.RecordRoots.FirstOrDefault() ?? Path.Combine(model.Config.Root, "docs");
+        var reviews = Path.GetFullPath(Path.Combine(docs, "proof", "reviews")) + Path.DirectorySeparatorChar;
+
         foreach (var body in model.Bodies)
         {
+            if (Path.GetFullPath(body.File).StartsWith(reviews, StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
             texts.Add((body.File, body.Body, body.BodyStartLine, body.PageId));
         }
 

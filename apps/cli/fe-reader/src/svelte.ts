@@ -65,8 +65,7 @@ function routeAddress(routesAbs: string, pageDirAbs: string): string {
 export function readSvelteRoutes(
   routesAbs: string,
   modulesAbs: string,
-  useCaseFolders: Set<string>,
-  scope: Omit<CallScope, "routeDirAbs" | "modulesAbs" | "useCaseFolders">,
+  scope: Omit<CallScope, "routeDirAbs" | "modulesAbs">,
   context: ReaderContext,
 ): RouteFacts[] {
   const routes: RouteFacts[] = [];
@@ -89,7 +88,7 @@ export function readSvelteRoutes(
         { absPath: scriptAbs, dirAbs },
       ]
       : [{ absPath: pageAbs, dirAbs }];
-    const calls = collectRouteCalls(entries, { ...scope, routeDirAbs: dirAbs, modulesAbs, useCaseFolders }, context);
+    const calls = collectRouteCalls(entries, { ...scope, routeDirAbs: dirAbs, modulesAbs }, context);
     routes.push({
       file,
       line,

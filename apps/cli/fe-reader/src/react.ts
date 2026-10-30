@@ -64,8 +64,7 @@ function derivedAddress(routesAbs: string, fileAbs: string): string {
 export function readReactRoutes(
   routesAbs: string,
   modulesAbs: string,
-  useCaseFolders: Set<string>,
-  scope: Omit<CallScope, "routeDirAbs" | "modulesAbs" | "useCaseFolders">,
+  scope: Omit<CallScope, "routeDirAbs" | "modulesAbs">,
   context: ReaderContext,
 ): RouteFacts[] {
   const routes: RouteFacts[] = [];
@@ -77,7 +76,7 @@ export function readReactRoutes(
     const marks = facts === null ? [] : markValues(facts.marks);
     const line = facts === null ? 1 : firstMarkLine(facts.marks);
     const address = facts !== null && facts.route !== null ? visibleAddress(facts.route) : derivedAddress(routesAbs, fileAbs);
-    const calls = collectRouteCalls([{ absPath: fileAbs, dirAbs }], { ...scope, routeDirAbs: dirAbs, modulesAbs, useCaseFolders }, context);
+    const calls = collectRouteCalls([{ absPath: fileAbs, dirAbs }], { ...scope, routeDirAbs: dirAbs, modulesAbs }, context);
     routes.push({ file, line, address, marks, calls });
   }
   routes.sort((a, b) => (a.file < b.file ? -1 : a.file > b.file ? 1 : 0));
