@@ -811,6 +811,78 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 
 **Reviewed for:** Which project-wide severity lowerings in `.editorconfig` lack a deviation record? Look at every `.editorconfig` in the repository beside the deviation records.
 
+### Organize the Book by the Record Layers
+
+**ID:** `litespec/core/model#organize-the-book-by-the-record-layers`
+
+**Statement:** The book MUST outline a project by the four record layers, with the governance records beside them, and place each record under the record its identifier and links name.
+
+**Rationale:** The book is how people read the model, so it shows the model's own hierarchy. A reader who learns Intent, Behavior, Implementation and Proof in the book reads the same structure in the docs folder, in the model output and in every other LiteSpec project. An outline of the book's own invention is a second hierarchy to learn, and it drifts from the one the records keep.
+
+**Example:** In the Claimwick product, `use-case/spending.submit-expense` sits under Behavior, its module and its aggregate; its results under it; each scenario under the result it shows; and the handler that carries its mark under Implementation.
+
+**Reviewed for:** Which book headings or groupings are not a record layer, a record type, or a record the identifier names? Look at the book's outline beside this page's record type table.
+
+### Name Book Labels with LiteSpec Terms
+
+**ID:** `litespec/core/model#name-book-labels-with-litespec-terms`
+
+**Statement:** Every label in the book MUST be a record type, a field name, a status, or a glossary term.
+
+**Rationale:** LiteSpec already names every concept once, for people and agents alike. A friendlier synonym in the book, such as promise for requirement, is a second word for one concept: the reader learns it, then meets the real word in the records, the checks and the diffs, and has to translate.
+
+**Example:** A use case page heads its results "Results" and its scenarios "Scenarios", never "Endings" and "Examples".
+
+**Reviewed for:** Which book labels are neither a record type, a field name, a status, nor a glossary term? Look at the book beside the glossary.
+
+### Explain the Book from LiteSpec Definitions
+
+**ID:** `litespec/core/model#explain-the-book-from-litespec-definitions`
+
+**Statement:** Every explanation the book shows MUST come from the glossary definition of the term or from the question its record type answers on this page.
+
+**Rationale:** The book explains itself so nobody needs a learning curve, and the explanation stays true only when it has one source. An explanation written for the book drifts from the definition the records follow.
+
+**Example:** The book explains a known gap with the glossary definition of Known Gap.
+
+**Reviewed for:** Which explanations in the book are not a glossary definition or a record type question? Look at the book's explanations beside the glossary and the record type table.
+
+### Show Only Computed Judgements in the Book
+
+**ID:** `litespec/core/model#show-only-computed-judgements-in-the-book`
+
+**Statement:** Every status, count, order and finding the book shows MUST be one the builder, a check, or the review queue computes.
+
+**Rationale:** The book is a view of the model, not a second authority. A judgement only the book makes, such as its own idea of what to do next, cannot be checked, cannot fail a build, and cannot be found by an agent reading the model output.
+
+**Example:** The book lists approval batches in the order `litespec model review` gives them.
+
+**Reviewed for:** Which statuses, counts, orders or findings in the book does no builder output, check or review queue produce? Look at the book beside the model output.
+
+### Add a Missing Fact to LiteSpec Before the Book Shows It
+
+**ID:** `litespec/core/model#add-a-missing-fact-to-litespec-before-the-book-shows-it`
+
+**Statement:** A fact the book needs that LiteSpec does not define MUST become a record field, a computed status, or a check in LiteSpec before the book shows it.
+
+**Rationale:** Rendering the book is a probe: what it cannot show is a gap in the specification. Closing the gap in LiteSpec gives every project the fact, checked; closing it in the book gives one view an unchecked fact.
+
+**Example:** The book needs to say that a refusal has no scenario, so LiteSpec gains a check for it, and the book shows that check's findings.
+
+**Reviewed for:** Which facts does the book show that no record field, computed status or check defines? Look at the book beside the model output and the finding codes.
+
+### Point Every Book Entry to Its Source
+
+**ID:** `litespec/core/model#point-every-book-entry-to-its-source`
+
+**Statement:** Every record, code element, test and finding the book shows MUST link to the file and line it comes from.
+
+**Rationale:** The book is where a reader notices what to change, and the source is where the change is made. A link to the file and line makes the next step one click, and it shows that every entry comes from a written record or from code, not from the book.
+
+**Example:** The submit-expense use case page links to `docs/behavior/modules/spending/expenses/submit-expense.md` at its first line, and its handler to the handler file at the class.
+
+**Reviewed for:** Which book entries lack a link to their file and line? Look at the book's record, code, test and finding entries.
+
 ## Conventions
 
 ### Render Generated Regions from the Model

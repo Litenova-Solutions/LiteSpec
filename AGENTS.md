@@ -127,6 +127,19 @@ If you see how a pattern could be better, finish the task on the recorded option
 
 Sources: `litespec/frontend/patterns#keep-one-pattern-catalog`, `litespec/frontend/patterns#start-from-a-litespec-pattern`, `litespec/frontend/patterns#record-who-chose`, `litespec/frontend/patterns#keep-a-visual-registry`, `litespec/frontend/patterns#report-pattern-feedback-after-the-work`, `litespec/frontend/patterns#promote-pattern-improvements`.
 
+## The Book
+
+The book is the model made readable, so it follows LiteSpec and adds nothing of its own:
+
+1. Outline it by the record layers (Intent, Behavior, Implementation, Proof) with the governance records beside them, and place each record under the record its identifier and links name.
+2. Label everything with a record type, a field name, a status, or a glossary term.
+3. Explain each term with its glossary definition or its record type's question.
+4. Show only statuses, counts, orders and findings that the builder, a check or the review queue computes.
+5. When the book needs a fact LiteSpec does not define, add it to LiteSpec first as a record field, a computed status or a check.
+6. Link every record, code element, test and finding to its file and line.
+
+Sources: `litespec/core/model#organize-the-book-by-the-record-layers`, `litespec/core/model#name-book-labels-with-litespec-terms`, `litespec/core/model#explain-the-book-from-litespec-definitions`, `litespec/core/model#show-only-computed-judgements-in-the-book`, `litespec/core/model#add-a-missing-fact-to-litespec-before-the-book-shows-it`, `litespec/core/model#point-every-book-entry-to-its-source`.
+
 ## Verification
 
 In this repository, run these before a change is done:
