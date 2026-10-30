@@ -111,13 +111,17 @@ static class FrontendRecords
         ];
     }
 
-    /// <summary>Every record id a browser test may prove, sorted.</summary>
+    /// <summary>
+    ///     Every record id a browser test may prove, and every LiteSpec frontend provision, such as
+    ///     the route suite's, sorted.
+    /// </summary>
     public static IReadOnlyList<string> ProofTargetIds(ProjectModel model) =>
     [
         .. model.Records
             .Where(record => record.Type is "scenario" or "rule" or "requirement" or "decision"
                 or "external-system" or "integration-event")
             .Select(record => record.Id)
+            .Concat(model.Provisions.Where(id => id.StartsWith("litespec/frontend/", StringComparison.Ordinal)))
             .OrderBy(id => id, StringComparer.Ordinal),
     ];
 

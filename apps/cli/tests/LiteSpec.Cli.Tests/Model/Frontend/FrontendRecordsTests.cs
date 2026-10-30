@@ -17,8 +17,17 @@ public sealed class FrontendRecordsTests
         var web = Path.Combine(fixture.Path, "apps", "web", "src", "lib", "app", "litespec-records.ts");
         var console = Path.Combine(fixture.Path, "apps", "console", "src", "app", "litespec-records.ts");
 
-        Assert.Equal(ExpectedUnion + "\n", File.ReadAllText(web));
-        Assert.Equal(ExpectedUnion + "\n", File.ReadAllText(console));
+        // The fixture holds no proof records, so the proof union is LiteSpec's frontend provisions.
+        foreach (var file in new[] { web, console })
+        {
+            var text = File.ReadAllText(file);
+
+            Assert.Contains("  | \"litespec/frontend/web/ui#check-every-route-in-a-browser\"", text);
+            Assert.Equal(
+                ExpectedUnion + "\n",
+                System.Text.RegularExpressions.Regex.Replace(
+                    text, "export type ProofTargetId =\n(  \\| \"[^\"]+\"\n)*?  \\| \"[^\"]+\";\n", "export type ProofTargetId = never;\n"));
+        }
         Assert.Contains("apps/web/src/lib/app/litespec-records.ts", result.Stdout);
         Assert.Contains("apps/console/src/app/litespec-records.ts", result.Stdout);
     }
