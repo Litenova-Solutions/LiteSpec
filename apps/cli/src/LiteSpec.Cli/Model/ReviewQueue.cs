@@ -218,7 +218,16 @@ static class ReviewQueue
         }
 
         // An Intent record batches with the records of its own home, so one open question
-        // holds back only the records it can change.
+        // holds back only the records it can change. A journey has no identifier home, so it
+        // batches with the goal it serves, its parent.
+        if (record.Type == "journey"
+            && record.Ids("serves").FirstOrDefault() is { } goal
+            && Identifiers.TrySplit(goal, out var prefix, out _, out var goalName)
+            && prefix == "goal")
+        {
+            return goalName;
+        }
+
         return Identifiers.TrySplit(record.Id, out _, out var home, out _) && home is { Length: > 0 }
             ? home
             : "intent";

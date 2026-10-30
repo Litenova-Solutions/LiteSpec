@@ -177,6 +177,8 @@ static class Approver
                 continue;
             }
 
+            var pageBefore = (node as JsonObject)?.DeepClone() as JsonObject;
+
             foreach (var stamp in group)
             {
                 if (Find(node, stamp.Record.Id) is not JsonObject target)
@@ -193,11 +195,53 @@ static class Approver
                 stamped.Add(stamp.Record);
             }
 
+            KeepInheritedStatus(pageBefore, node as JsonObject, group.Select(stamp => stamp.Record.Id).ToHashSet(StringComparer.Ordinal));
+
             var serialized = node.ToJsonString(Write);
             File.WriteAllText(group.Key, json ? serialized + "\n" : head + serialized + tail);
         }
 
         return stamped;
+    }
+
+    /// <summary>
+    ///     Keeps the status an entry inherited from its page when the page is stamped and the
+    ///     entry is not: the entry gains the page's former status, decider and decide-by date
+    ///     as its own, so a page approval never promotes an entry its batch did not hold.
+    /// </summary>
+    static void KeepInheritedStatus(JsonObject? before, JsonObject? page, HashSet<string> stamped)
+    {
+        if (before is null || page is null || page["records"] is not JsonArray entries)
+        {
+            return;
+        }
+
+        var status = before["status"]?.GetValue<string>();
+
+        if (status is null || status == page["status"]?.GetValue<string>())
+        {
+            return;
+        }
+
+        foreach (var entry in entries.OfType<JsonObject>())
+        {
+            if (entry["status"] is not null
+                || entry["id"]?.GetValue<string>() is not { } id
+                || stamped.Contains(id))
+            {
+                continue;
+            }
+
+            entry["status"] = status;
+
+            foreach (var name in new[] { "decider", "decideBy" })
+            {
+                if (entry[name] is null && before[name] is { } value)
+                {
+                    entry[name] = value.DeepClone();
+                }
+            }
+        }
     }
 
     /// <summary>The object carrying the id: the page itself, an entry, or a nested entry.</summary>

@@ -227,6 +227,12 @@ static class BatchApprover
             {
                 failures.Add((action.Record.Id, "has open questions"));
             }
+
+            // An approved decision states the option it chose; a decision with none is not decided.
+            if (action.Record.Type == "decision" && action.Record.Field("chosen") is not { Length: > 0 })
+            {
+                failures.Add((action.Record.Id, "names no chosen option"));
+            }
         }
 
         var simulated = SimulatedStatus(model, approvals);
@@ -237,6 +243,10 @@ static class BatchApprover
                 && RestedOn(model, simulated, action.Record) is { } parent)
             {
                 failures.Add((action.Record.Id, $"stays draft behind draft {parent}"));
+            }
+            else if (TranscribedHold(model, simulated, action.Record) is { } journey)
+            {
+                failures.Add((action.Record.Id, $"stays transcribed behind draft {journey}"));
             }
         }
 
@@ -355,6 +365,21 @@ static class BatchApprover
     ///     One draft record the record rests on: a deciding decision, a fulfilled
     ///     requirement, a served journey for a transcribed record, or the holding use case.
     /// </summary>
+    /// <summary>
+    ///     The draft journey a transcribed record serves, which holds it in draft whatever its
+    ///     own status: a transcribed record is reviewed only once its Intent parent stands.
+    /// </summary>
+    /// <follows>litespec/core/model#hold-transcribed-records-in-draft</follows>
+    static string? TranscribedHold(ProjectModel model, IReadOnlyDictionary<string, string> simulated, Record record) =>
+        record.Field("source") != "transcribed"
+            ? null
+            : record.Ids("serves")
+                .Select(Identifiers.BaseId)
+                .Where(id => model.ById.TryGetValue(id, out var target) && target.Type == "journey"
+                    && simulated.TryGetValue(id, out var status) && status == "draft")
+                .OrderBy(id => id, StringComparer.Ordinal)
+                .FirstOrDefault();
+
     static string? RestedOn(ProjectModel model, IReadOnlyDictionary<string, string> simulated, Record record)
     {
         string? DraftParent(IEnumerable<string> ids) => ids
@@ -377,16 +402,9 @@ static class BatchApprover
             return requirement;
         }
 
-        if (record.Field("source") == "transcribed")
+        if (TranscribedHold(model, simulated, record) is { } journey)
         {
-            var journeys = record.Ids("serves")
-                .Select(Identifiers.BaseId)
-                .Where(id => model.ById.TryGetValue(id, out var target) && target.Type == "journey");
-
-            if (DraftParent(journeys) is { } journey)
-            {
-                return journey;
-            }
+            return journey;
         }
 
         if (record.Type is "result" or "scenario"
