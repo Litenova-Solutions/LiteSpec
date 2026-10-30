@@ -303,6 +303,16 @@
       "uniqueItems": true,
       "items": { "enum": ["money", "door", "personal-data", "access"] }
     },
+    "knownGapSubjectArray": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "anyOf": [
+          { "$ref": "#/$defs/genericRecordId" },
+          { "$ref": "#/$defs/journeyStepId" }
+        ]
+      }
+    },
     "genericIdArray": {
       "type": "array",
       "uniqueItems": true,
@@ -2535,7 +2545,7 @@
         "questions": { "$ref": "#/$defs/questionsArray" },
         "records": { "$ref": "#/$defs/recordsArray" },
         "check": { "$ref": "#/$defs/nonEmptyString" },
-        "subject": { "$ref": "#/$defs/genericIdArray" },
+        "subject": { "$ref": "#/$defs/knownGapSubjectArray" },
         "endsBy": { "$ref": "#/$defs/isoDate" },
         "reason": { "$ref": "#/$defs/nonEmptyString" }
       },

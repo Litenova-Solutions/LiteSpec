@@ -20,12 +20,12 @@ public sealed class ClaimwickExampleTests
     public void PassesUi() => AssertPasses(Cli.Run("ui", "--root", Root));
 
     /// <proves>litespec/core/release#run-consistency-checks</proves>
-    [Fact(DisplayName = "the Claimwick example passes the model check with its two known gaps")]
+    [Fact(DisplayName = "the Claimwick example passes the model check with only known findings")]
     public void PassesModelCheck()
     {
         var result = Cli.Run("model", "check", "--root", Root);
         AssertPasses(result);
-        Assert.Contains("0 findings, 10 known.", result.Output);
+        Assert.Contains("0 findings, 17 known.", result.Output);
     }
 
     static void AssertPasses(CliResult result) => Assert.True(result.Status == 0, result.Output);

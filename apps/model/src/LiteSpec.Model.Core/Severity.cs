@@ -35,7 +35,7 @@ public sealed record Severity(Outcome Outcome, string? Reason)
     /// <param name="subjectEffectiveStatus">The effective status of the finding's subject, or null when it names no record.</param>
     /// <param name="onTest">Whether the finding's path lies under a test root.</param>
     /// <param name="phase">The project phase: working or frozen.</param>
-    /// <param name="readerQualified">Whether the project's stack reader is qualified.</param>
+    /// <param name="readerQualified">Whether the reader that produced the finding is qualified.</param>
     /// <returns>The decided severity.</returns>
     public static Severity Of(
         Finding finding,

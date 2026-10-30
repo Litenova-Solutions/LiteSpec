@@ -1,0 +1,1 @@
+{"reader":"1.0.0","data":{"marks":[{"values":["screen/web.checkout"],"line":4}],"calls":[{"name":"createFileRoute","line":6}],"imports":["@/app/litespec-records","@tanstack/react-router"],"functions":[],"route":"/checkout"}}

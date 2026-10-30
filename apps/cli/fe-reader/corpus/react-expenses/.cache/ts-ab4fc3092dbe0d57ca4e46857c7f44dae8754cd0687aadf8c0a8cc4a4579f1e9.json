@@ -1,0 +1,1 @@
+{"reader":"1.0.0","data":{"marks":[{"values":["screen/web.expense-list"],"line":6}],"calls":[{"name":"createFileRoute","line":8},{"name":"loadExpenses","line":9},{"name":"formatMoney","line":14}],"imports":["@/app/helpers","@/app/litespec-records","@/modules/spending/expenses/list-expenses/client","@tanstack/react-router"],"functions":[],"route":"/expenses"}}

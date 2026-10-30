@@ -1,0 +1,1 @@
+{"reader":"1.0.0","data":{"marks":[{"values":["screen/web.expense-detail"],"line":4}],"calls":[{"name":"createFileRoute","line":6}],"imports":["@/app/litespec-records","@tanstack/react-router"],"functions":[],"route":"/expenses/$expenseId"}}

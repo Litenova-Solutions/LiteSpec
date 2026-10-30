@@ -1,0 +1,17 @@
+{
+  "protocol": 1,
+  "frontends": [
+    {
+      "name": "web",
+      "platform": "svelte",
+      "root": "{case}/app",
+      "routes": "{case}/app/src/routes",
+      "modules": "{case}/app/src/lib/modules",
+      "frame": "{case}/app/src/lib/app",
+      "testRoots": ["{case}/app/tests"],
+      "aliases": { "$lib": "{case}/app/src/lib" },
+      "apiClient": "{case}/app/src/api-client"
+    }
+  ],
+  "cache": "{case}/.cache"
+}

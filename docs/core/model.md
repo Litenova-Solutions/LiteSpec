@@ -217,7 +217,7 @@ Each written link lives as a field on the record it starts from: a decision carr
 | `dependsOn` | module | Modules |
 | `runbook` | job | The runbook answering the job |
 | `provision` | deviation | The LiteSpec provision it departs from |
-| `subject` | known gap, deviation | The records the gap or deviation covers |
+| `subject` | known gap, deviation | The records the gap or deviation covers; a known gap may also name journey steps (`journey/<name>#s<n>`) for the step findings |
 | `terms` | any record | Terms |
 
 Behavior records point up: `serves` points to a goal or a journey step, and `fulfills` points to a requirement. Records never point down: a journey names no use case, and a requirement names no rule.

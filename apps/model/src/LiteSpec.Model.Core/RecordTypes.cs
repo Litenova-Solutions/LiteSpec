@@ -15,7 +15,7 @@ public static class RecordTypes
         "feature", "actor", "role", "permission", "journey", "module",
         "aggregate", "rule", "use-case", "result", "scenario", "event", "integration-event",
         "reaction", "job", "notification", "setting",
-        "entry-point", "external-system", "runbook", "deviation", "known-gap", "term",
+        "entry-point", "screen", "external-system", "runbook", "deviation", "known-gap", "term",
     };
 
     /// <summary>Page styles: templates a page may carry instead of a record.</summary>
@@ -31,7 +31,7 @@ public static class RecordTypes
     public static readonly HashSet<string> WithHome = new HashSet<string>(StringComparer.Ordinal)
     {
         "requirement", "aggregate", "rule", "use-case", "result",
-        "scenario", "event", "reaction", "job", "notification", "setting",
+        "scenario", "event", "reaction", "job", "notification", "setting", "screen",
     };
 
     /// <summary>Types the small size requires.</summary>
@@ -96,6 +96,9 @@ public static class RecordTypes
             ["terms"] = new HashSet<string> { "term" },
             ["result"] = new HashSet<string> { "result" },
             ["actor"] = new HashSet<string> { "actor" },
+            ["entryPoint"] = new HashSet<string> { "entry-point" },
+            ["offers"] = new HashSet<string> { "use-case" },
+            ["host"] = new HashSet<string> { "screen" },
             ["runbook"] = new HashSet<string> { "runbook" },
             ["subject"] = new HashSet<string>(),
             ["values"] = new HashSet<string>(),

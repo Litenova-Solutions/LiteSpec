@@ -14,6 +14,17 @@ namespace LiteSpec.Model;
 /// <param name="Subject">The record id the finding is about, when there is one.</param>
 public sealed record Finding(string Code, string Message, string Path, int Line, string? Subject)
 {
+    /// <summary>The reader that produced this finding's facts: <c>roslyn</c>, <c>typescript</c>, or null for a record-only finding.</summary>
+    public string? Reader { get; init; }
+
+    /// <summary>Whether the reader named by <see cref="Reader" /> is qualified, so its S findings block.</summary>
+    public bool ReaderIsQualified { get; init; } = true;
+
+    /// <summary>The .NET (Roslyn) reader name.</summary>
+    public const string RoslynReader = "roslyn";
+
+    /// <summary>The TypeScript reader name.</summary>
+    public const string TypeScriptReader = "typescript";
     /// <summary>
     ///     Every finding code with its tier: G reads records only and always blocks,
     ///     S reads code through a stack reader and blocks only where the reader is

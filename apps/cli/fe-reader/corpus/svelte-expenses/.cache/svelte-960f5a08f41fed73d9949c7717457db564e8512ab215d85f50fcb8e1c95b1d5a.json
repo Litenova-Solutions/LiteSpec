@@ -1,0 +1,1 @@
+{"reader":"1.0.0","data":{"marks":[],"calls":[{"name":"loadExpenses","line":5}],"imports":["$lib/modules/spending/expenses/list-expenses/client","./expense-table.svelte"],"functions":[],"route":null}}

@@ -89,6 +89,7 @@ Every LS5xxx rule has category `LiteSpec.Traceability`, a reference page `docs/a
 | LS5009 | (generator) | `litespec/backend/dotnet/stack#generate-runtime-values-from-the-records` | Application, Infrastructure, WebApi |
 | LS5010 | (generator) | `litespec/core/access#state-the-scope-of-every-permission` | Application, Infrastructure, WebApi |
 | LS5011 | (generator) | `litespec/core/system#point-code-and-tests-up-to-records` | every layer |
+| LS5012 | (generator) | `litespec/backend/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records` | Domain, Application, Infrastructure, WebApi |
 
 CLI-only findings and their provisions: `use-case-act-uncalled` (`litespec/backend/domain#call-the-marked-act-from-each-command-handler`); `aggregate-unimplemented`, `reaction-unimplemented`, `job-unimplemented`, `external-system-unimplemented`, `use-case-unexposed`, `use-case-unreached` (`litespec/core/model#implement-each-mapped-behavior-record-behind-a-mark`); `effect-unimplemented` (`litespec/core/system#declare-every-edge-between-records`); `mark-style-mixed` (`litespec/core/model#declare-one-mark-style`).
 
@@ -138,15 +139,59 @@ The generator in the analyzer package writes, per project, into namespace `LiteS
 - for each `partial` domain event with an `event/` mark: `public const string Classification = "<event id>";`;
 - for each `partial` rule exception with a `rule/` mark whose rule names a `refusal` result with a `code`: `public override string Code => "<code>";` (or a plain property when the base declares no virtual `Code`);
 - `LiteSpecRegistry`: per assembly, a read-only map from each marked type in that assembly to its record ids, from each use-case id to its `access.grant`, and from each marked handler's message type to its use case; `UseCaseOf` answers a message type's use case and `GrantOf` its grant, both null when the type is no marked handler's message; a message two marked handlers serve with different use cases reports LS5011 and takes no entry;
-- `LiteSpecPermissions`: in Application, Infrastructure and WebApi projects only, one `public const string` per `permission/` record, named by PascalCasing each kebab word of the permission name; two records producing one name stop generation with LS5009 naming both; one `LiteSpecPermission` entry per permission with its id, scope, group, whether it only reads, and its risks, every entry on `All` and one from `Of`, which throws for an unknown id; a permission whose first word is no known verb reads `false` and reports LS5010.
+- `LiteSpecPermissions`: in Domain, Application, Infrastructure and WebApi projects, one `public const string` per `permission/` record, named by PascalCasing each kebab word of the permission name; two records producing one name stop generation with LS5009 naming both; one `LiteSpecPermission` entry per permission with its id, scope, group, whether it only reads, and its risks, every entry on `All` and one from `Of`, which throws for an unknown id; a permission whose first word is no known verb reads `false` and reports LS5010.
+- `LiteSpecRoles`: wherever `LiteSpecPermissions` is generated, one `public const string` per `role/` record named as permission constants are (LS5009 covers a collision), one `LiteSpecRole` entry per role with its id, scope and the permission ids its record allows in record order, `All` sorted by constant name, and `Of`, which throws `ArgumentException` for an unknown id; a role allowing a permission no record declares reports LS5012 (Error) and is still emitted;
+- `LiteSpecRegistry.UseCaseOfType(Type)`: the `use-case/` id the type itself carries in an `implements` mark, from `MarkedTypes`, or null; in WebApi projects only, `UseCaseOfOperation(string)`: the use case each marked endpoint implements, keyed by the PascalCased use-case name (use-case names are unique project-wide, so each operation name maps to one use case);
 
 ## Rename
 
 `litespec rename` rewrites the identifier inside marks in both .NET styles and in frontend `litespec` constants, beside the record citations.
 
-## Frontend Marks (phase 3)
+## Frontend
 
-`litespec model build` writes `litespec-records.ts` per frontend at `<frontend root>/src/lib/litespec-records.ts`, holding the union of use-case ids and the `LiteSpecMark` type. The TypeScript reader reads each module's `litespec` constant; an unmarked use-case folder is `mark-missing`.
+The provisions are `litespec/core/behavior#give-every-page-its-screen-record` and its neighbours, `litespec/frontend/structure#mark-each-route-with-its-screen`, `litespec/frontend/web/structure#generate-the-records-file-into-the-frame`, `litespec/frontend/testing#mark-the-scenario-a-browser-test-proves`, `#reach-a-screen-that-offers-the-scenarios-use-case`, `#assert-the-result-a-scenario-ends-in`, `#prove-each-scenario-at-one-boundary`, `#name-the-journey-a-journey-test-walks`, and `litespec/frontend/web/ui#mark-the-route-suite-and-goldens-with-what-they-prove`.
+
+### Records
+
+A `screen` record (Behavior) per page, at `docs/behavior/screens/<entry-point>.<name>.md`, id `screen/<entry-point>.<name>`. Fields: `entryPoint` (required, one `browser` or `device` entry point), exactly one of `address` (route template) and `host` (a screen, for an overlay), `offers` (use cases, optional), `serves` (journey steps, optional), `floorplan` (optional, a floorplan in the design contract). The `<name>` follows the one-to-six-word rule other names follow. Body is `## Summary` only; a navigation screen states there that it offers no use case. Results shown, outgoing links and copy are derived, never written.
+
+### Marks
+
+| Element | Mark | Names |
+|:---|:---|:---|
+| Web use-case module folder | `litespec.ts`: `export const litespec = { implements: "use-case/..." } as const satisfies LiteSpecMark;` | one use case |
+| Web route entry (Svelte `+page.ts` beside `+page.svelte`, React route file) | the same constant, `implements: "screen/..."` | one screen |
+| Blazor `@page` component, Android destination activity or fragment class | the .NET mark style the project declares | one screen |
+| Browser test | `test(title, proves("scenario/..."), fn)`; `proves` returns `{ annotation: [{ type: "proves", description: id }] }` | the lowest record it verifies |
+| Journey test | also `{ type: "journey", description: "journey/..." }`, never a proof | |
+
+Layouts, error pages, and route groups are not route entries and carry no mark, as each stack page states. For a module folder at `{module}/reads/{use-case}/`, the expected mark names `use-case/<module>.<use-case>` from the module and use-case segments alone.
+
+`litespec model build` writes `<frame>/litespec-records.ts` per frontend (`src/app/` React, `src/lib/app/` Svelte) with `UseCaseId` and `ScreenId` unions of that frontend's own entry points only, the `LiteSpecMark` type, and the `proves` helper typed to the proof-target unions.
+
+### Reader
+
+A TypeScript reader in `apps/cli/fe-reader/`, bundled at pack time to one `.mjs` with `typescript` (below 7) and `svelte`, run as `node <reader>` once per build or check. The facts protocol is one JSON document each way, versioned. The request carries the protocol version, the per-frontend roots (routes, modules, frame, and test roots), the path aliases, the generated-client location, and the record-id sets (`UseCaseId`, `ScreenId`, and the proof targets). The response carries the protocol version, the reader, and the TypeScript and Svelte versions from the handshake, then facts only: module marks, route marks with addresses, per-route calls, and tests with their annotations, `goto` targets, and asserted code literals, plus diagnostics. A version mismatch produces the single `reader-unavailable` finding for that frontend. Parse only: `ts.createSourceFile` per file, `svelte/compiler` `parse` with `modernAst: true`. Per-route `calls` follow imports only within the route's own folder and the use-case module folders it imports directly, through their `litespec.ts` marks, collecting generated-client operation calls and mapping each operation through the endpoint's mark to its use case; the frame and shared packages are not followed, and an operation resolving to two use cases is a reader diagnostic. Facts are cached under `.model/` by file content hash, reader version, and record-id set hash. The regex reader (`TypeScriptSource.cs`, `FrontendMarks.cs` and siblings) is replaced; `ScreenModel`, `CodeModel` and `ScenarioModel` stay.
+
+A finding records the reader that produced its facts, and `Severity.Of` takes that reader's qualification. Qualification is per reader: the TypeScript reader qualifies once its golden corpus (Svelte, React and Playwright files with expected facts) passes and its handshake matches, and is unqualified when Node is absent, the handshake mismatches or the reader fails, which reports one `reader-unavailable` finding. The Roslyn reader, including Blazor and Android screens, stays qualified.
+
+### Findings
+
+| Code | Tier | Meaning |
+|:---|:---|:---|
+| `mark-missing`, `mark-unresolved`, `mark-count` | S | extended to module folders, route modules and browser tests |
+| `screen-unimplemented` | S | no route carries the screen's mark |
+| `behavior-unrecorded` | S | (route case) a route with no mark or a mark naming no screen |
+| `screen-calls-mismatch` | S | `offers` differs from the computed calls |
+| `screen-serves-mismatch` | G | a served step no offered use case serves |
+| `step-unscreened` | G | a browser or device step no screen serves; its pair `step-unserved` names a step no use case serves |
+| `use-case-unreached` | A | per frontend, through each screen's entry point |
+| `result-unshown` | A | a reachable refusal with no sentence and no asserting test |
+| `proves-duplicated` | A | a scenario with `proves` marks on more than one test |
+| `proves-unconfirmed` | S | extended to browser tests: no `goto` reaches a screen offering the use case, or no assertion in the same test holds the refusal code or the success result's declared text or code |
+| `reader-unavailable` | S | the TypeScript reader could not run |
+
+Journey coverage is computed: a step is exercised when a passing test proved a scenario of a use case that serves it.
 
 ## Technical Marks
 
@@ -161,7 +206,7 @@ A technical class names the Behavior record it serves in an `implements` mark, o
 |:---|:---|:---|:---|:---|
 | Application, Application.Abstractions, Infrastructure, WebApi | Technical class | `Technical` | `implements`: any Behavior record type (`aggregate/`, `use-case/`, `reaction/`, `job/`, `external-system/`, `event/`, `rule/`, `notification/`, `setting/`, `integration-event/`); `follows`: `litespec/` provision, `decision/`, `deviation/` | one or more marks in total, of either verb |
 
-A technical class is a top-level class (not a record, struct, interface, enum or delegate) in a project whose layer is Application, Application.Abstractions, Infrastructure or WebApi, that takes no other kind and declares at least one ordinary method (not only constructors, properties, fields or operators). Excluded: generated code (a file the compiler treats as generated, or a class carrying `[GeneratedCode]`), classes deriving from a type named `Migration` or `ModelSnapshot`, test projects, nested types. Partial parts count as one class; a mark on any part counts.
+A technical class is a top-level class (not a record, struct, interface, enum or delegate) in a project whose layer is Application, Application.Abstractions, Infrastructure or WebApi, that takes no other kind and declares at least one ordinary method (not only constructors, properties, fields or operators), or carries an `implements` mark naming a `setting/` record (an options class that binds a setting with properties alone). Excluded: generated code (a file the compiler treats as generated, or a class carrying `[GeneratedCode]`), classes deriving from a type named `Migration` or `ModelSnapshot`, test projects, nested types. Partial parts count as one class; a mark on any part counts.
 
 `follows` is a third mark verb beside `implements` and `proves`. Any type or method of any kind may carry `follows` marks, and a `follows` mark is never stray. A technical class needs at least one mark of either verb; its `implements` marks may name any Behavior record type. A `follows` mark never counts toward `mark-count` of another kind.
 
@@ -175,5 +220,7 @@ Otherwise the mark reports `mark-unresolved` (LS5002), subject the element.
 | Code | Tier | Rule | Meaning |
 |:---|:---|:---|:---|
 | `decision-unfollowed` | S | | A decision under `docs/implementation/decisions/` that no code element follows. CLI only. |
+| `operation-use-case-mismatch` | S | | An operation in the committed contract carries no `x-litespec-use-case`, or names another use case than its endpoint's mark. CLI only. |
+| `constituent-orphaned` | A | | An unmarked Domain type sits under no aggregate folder and outside the shared kernel. CLI only. |
 
 `decision-decides-nothing` covers product decisions only (decisions outside `docs/implementation/decisions/`). The generator writes `FollowsAttribute` (`AttributeTargets.Class | Interface | Struct | Method`, `AllowMultiple = true`) in the attribute style. `LiteSpecRegistry` does not list `follows` targets. `litespec rename` rewrites `follows` ids as it rewrites `implements` ids.

@@ -44,7 +44,7 @@ static class RecordPages
     /// <summary>The file kinds that cite record identifiers: pages, data, and the code that anchors to records.</summary>
     private static readonly HashSet<string> CitingExtensions = new(StringComparer.OrdinalIgnoreCase)
     {
-        ".md", ".json", ".cs", ".ts", ".tsx", ".js", ".mjs", ".svelte",
+        ".md", ".json", ".cs", ".ts", ".tsx", ".js", ".mjs", ".svelte", ".razor",
     };
 
     /// <summary>The documentation root new pages are written under.</summary>
@@ -80,6 +80,7 @@ static class RecordPages
             "notification" => Path.Combine(behavior, "modules", home!, "notifications", $"{name}.md"),
             "role" => Path.Combine(behavior, "access", "roles", $"{name}.md"),
             "integration-event" => Path.Combine(behavior, "integration-events", $"{name}.md"),
+            "screen" => Path.Combine(behavior, "screens", $"{home}.{name}.md"),
             "external-system" => Path.Combine(behavior, "external-systems", $"{name}.md"),
             "runbook" => Path.Combine(behavior, "runbooks", $"{name}.md"),
             "deviation" => Path.Combine(docs, "governance", "deviations", $"{name}.md"),

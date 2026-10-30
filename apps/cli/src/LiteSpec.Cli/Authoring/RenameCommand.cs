@@ -216,6 +216,7 @@ static partial class RenameCommand
     /// <summary>Whether the extension holds code marks rather than record citations.</summary>
     static bool IsCodeFile(string extension) =>
         extension.Equals(".cs", StringComparison.OrdinalIgnoreCase)
+        || extension.Equals(".razor", StringComparison.OrdinalIgnoreCase)
         || extension.Equals(".ts", StringComparison.OrdinalIgnoreCase)
         || extension.Equals(".tsx", StringComparison.OrdinalIgnoreCase)
         || extension.Equals(".js", StringComparison.OrdinalIgnoreCase)
@@ -237,14 +238,21 @@ static partial class RenameCommand
 
         var escaped = System.Text.RegularExpressions.Regex.Escape(oldId);
 
-        if (extension.Equals(".cs", StringComparison.OrdinalIgnoreCase))
+        if (extension.Equals(".cs", StringComparison.OrdinalIgnoreCase)
+            || extension.Equals(".razor", StringComparison.OrdinalIgnoreCase))
         {
             text = ReplacePattern(text, $"<(implements|proves|follows)>\\s*{escaped}\\s*</\\1>", oldId, newId, ref count);
             text = ReplacePattern(text, $"\\b(Implements|Proves|Follows)(Attribute)?\\(\\s*\"{escaped}\"", oldId, newId, ref count);
         }
-        else
+
+        if (!extension.Equals(".cs", StringComparison.OrdinalIgnoreCase))
         {
+            // A route mark and a module mark are frontend constants, and a
+            // browser test names its proof in a proves(...) call or a raw
+            // annotation: a screen or scenario rename rewrites all three.
             text = ReplacePattern(text, $"\\bimplements\\s*:\\s*(?<quote>[\"']){escaped}\\k<quote>", oldId, newId, ref count);
+            text = ReplacePattern(text, $"\\bproves\\s*\\(\\s*(?<quote>[\"']){escaped}\\k<quote>", oldId, newId, ref count);
+            text = ReplacePattern(text, $"\\bdescription\\s*:\\s*(?<quote>[\"']){escaped}\\k<quote>", oldId, newId, ref count);
         }
 
         return text;

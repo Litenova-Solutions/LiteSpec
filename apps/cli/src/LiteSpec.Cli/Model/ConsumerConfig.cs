@@ -8,7 +8,27 @@ namespace LiteSpec.Model;
 /// <param name="Name">The declared name.</param>
 /// <param name="Path">The absolute path.</param>
 /// <param name="Platform">The declared platform.</param>
-sealed record FrontendConfig(string Name, string Path, string Platform);
+sealed record FrontendConfig(
+    string Name,
+    string Path,
+    string Platform,
+    string? RefusalDictionary = null,
+    string? RouteSuite = null,
+    string? VisualGoldens = null)
+{
+    /// <summary>The routes root the reader reads.</summary>
+    public string RoutesRoot => System.IO.Path.Combine(Path, "src", "routes");
+
+    /// <summary>The use-case modules root the reader reads.</summary>
+    public string ModulesRoot => Platform == "react"
+        ? System.IO.Path.Combine(Path, "src", "modules")
+        : System.IO.Path.Combine(Path, "src", "lib", "modules");
+
+    /// <summary>The frame folder holding the generated records file.</summary>
+    public string FrameRoot => Platform == "react"
+        ? System.IO.Path.Combine(Path, "src", "app")
+        : System.IO.Path.Combine(Path, "src", "lib", "app");
+}
 
 /// <summary>
 ///     What the model builder reads from the consumer's declaration.
@@ -600,7 +620,16 @@ sealed class ConsumerConfig
                     ? declared.GetString() ?? ""
                     : "";
 
-                found.Add(new FrontendConfig(named, Combine(root, located), platform));
+                string? Optional(string field) =>
+                    frontend.TryGetProperty(field, out var value)
+                    && value.ValueKind == JsonValueKind.String
+                    && value.GetString() is { Length: > 0 } text
+                        ? Combine(root, text)
+                        : null;
+
+                found.Add(new FrontendConfig(
+                    named, Combine(root, located), platform,
+                    Optional("refusalDictionary"), Optional("routeSuite"), Optional("visualGoldens")));
             }
         }
 

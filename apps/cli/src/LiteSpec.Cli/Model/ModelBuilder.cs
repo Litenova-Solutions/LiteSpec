@@ -34,6 +34,9 @@ static partial class ModelBuilder
 
         model.Screens.AddRange(screens.Screens);
         model.ScreenComments.AddRange(screens.Comments);
+        model.BrowserTests.AddRange(screens.BrowserTests);
+        model.Problems.AddRange(screens.Findings);
+        model.TypeScriptQualified = screens.TypeScriptQualified;
 
         var tests = Timed("tests", () => stacks.Scenarios.Read(config));
 
@@ -129,6 +132,9 @@ static partial class ModelBuilder
     {
         var screens = new List<ScreenInfo>();
         var comments = new List<CodeComment>();
+        var browserTests = new List<BrowserTestInfo>();
+        var findings = new List<Finding>();
+        var qualified = false;
 
         foreach (var frontend in stacks.Frontends)
         {
@@ -136,13 +142,21 @@ static partial class ModelBuilder
 
             screens.AddRange(read.Screens);
             comments.AddRange(read.Comments);
+            browserTests.AddRange(read.BrowserTests);
+            findings.AddRange(read.Findings);
+            qualified |= read.TypeScriptQualified;
         }
 
         return new ScreenRead(
             screens,
             [.. comments
                 .OrderBy(comment => comment.File, StringComparer.Ordinal)
-                .ThenBy(comment => comment.Line)]);
+                .ThenBy(comment => comment.Line)])
+        {
+            BrowserTests = browserTests,
+            Findings = findings,
+            TypeScriptQualified = qualified,
+        };
     }
 
     /// <summary>The record's links with their targets, for model.json.</summary>
@@ -369,7 +383,7 @@ static partial class ModelBuilder
         {
             if (endpoint.Operation.Length > 0)
             {
-                byOperation.Add(endpoint.Operation);
+                byOperation.Add(Naming.OperationKey(endpoint.Operation));
             }
 
             if (endpoint.Method.Length > 0 && endpoint.Route.Length > 0)
@@ -383,7 +397,7 @@ static partial class ModelBuilder
             foreach (var operation in screen.Operations)
             {
                 if (!byRoute.Contains($"{operation.Method} {Template(operation.Path)}")
-                    && !byOperation.Contains(Naming.Pascal(operation.Name)))
+                    && !byOperation.Contains(Naming.OperationKey(operation.Name)))
                 {
                     model.UnmatchedCalls.Add(new UnmatchedCall(
                         $"{screen.Frontend} {screen.Route}", operation.Name, screen.File));
@@ -579,6 +593,128 @@ static partial class ModelBuilder
                     test.Name, claim, Confirm(model, test, claim), passing, Indirect(model, claim)));
             }
         }
+
+        foreach (var test in model.BrowserTests)
+        {
+            foreach (var claim in test.Proves)
+            {
+                model.Proves.Add(new ProvesLink(
+                    test.Title, claim, BrowserConfirm(model, test, claim), null, Indirect(model, claim)));
+            }
+        }
+
+        ComputeExercised(model);
+    }
+
+    /// <summary>
+    ///     A journey step is exercised when a passing test proved a scenario of a
+    ///     use case that serves the step.
+    /// </summary>
+    private static void ComputeExercised(ProjectModel model)
+    {
+        foreach (var link in model.Proves)
+        {
+            if (link.Passing != true || !link.Confirmed)
+            {
+                continue;
+            }
+
+            if (!model.ById.TryGetValue(link.Claim, out var scenario) || scenario.Type != "scenario")
+            {
+                continue;
+            }
+
+            if (!Identifiers.TrySplit(scenario.Id, out _, out var home, out _) || home is null
+                || UseCaseOf(model, home) is not { } useCase)
+            {
+                continue;
+            }
+
+            foreach (var step in useCase.Ids("serves"))
+            {
+                if (Identifiers.TrySplitStep(step, out _, out _))
+                {
+                    model.ExercisedSteps.Add(step);
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    ///     Confirms a browser test's claim: a scenario confirms when one of its
+    ///     <c>gotos</c> matches the <c>address</c> of a screen that offers the
+    ///     scenario's use case (a <c>[param]</c> or <c>{}</c> segment matches any
+    ///     segment), and its <c>codes</c> hold the refusal code (a refusal
+    ///     scenario) or its <c>texts</c> or <c>codes</c> are non-empty (a success
+    ///     scenario). Rule and provision claims follow the same rules as a
+    ///     backend test's claims.
+    /// </summary>
+    public static bool BrowserConfirm(ProjectModel model, BrowserTestInfo test, string claim)
+    {
+        if (claim.StartsWith("litespec/", StringComparison.Ordinal))
+        {
+            return Authoring.Provisions.IsProvisionId(claim)
+                && (model.Provisions.Count == 0 || model.Provisions.Contains(claim));
+        }
+
+        if (!model.ById.TryGetValue(claim, out var claimed))
+        {
+            return false;
+        }
+
+        if (claimed.Type is "requirement" or "decision" or "external-system" or "integration-event")
+        {
+            return true;
+        }
+
+        if (claimed.Type == "rule")
+        {
+            var governed = claimed.Ids("governs");
+
+            return test.Proves.Any(other =>
+                other != claim
+                && model.ById.TryGetValue(other, out var scenario)
+                && scenario.Type == "scenario"
+                && Identifiers.TrySplit(other, out _, out var home, out _)
+                && home is not null
+                && UseCaseOf(model, home) is { } useCase
+                && governed.Contains(useCase.Id, StringComparer.Ordinal)
+                && BrowserConfirm(model, test, other));
+        }
+
+        if (claimed.Type != "scenario")
+        {
+            return false;
+        }
+
+        if (!Identifiers.TrySplit(claim, out _, out var scenarioHome, out _) || scenarioHome is null
+            || UseCaseOf(model, scenarioHome) is not { } scenarioUseCase)
+        {
+            return false;
+        }
+
+        var reached = model.Records
+            .Where(record => record.Type == "screen"
+                && record.Field("address") is { } address
+                && record.Ids("offers").Contains(scenarioUseCase.Id, StringComparer.Ordinal))
+            .Any(screen => test.Gotos.Any(target =>
+                Readers.FrontendFactsRules.AddressMatches(screen.Field("address")!, target)));
+
+        if (!reached)
+        {
+            return false;
+        }
+
+        var resultId = claimed.Ids("result").FirstOrDefault();
+
+        if (resultId is not null
+            && model.ById.TryGetValue(resultId, out var result)
+            && result.Field("outcome") == "refusal")
+        {
+            return result.Field("code") is { } code && test.Codes.Contains(code, StringComparer.Ordinal);
+        }
+
+        return test.Texts.Count > 0 || test.Codes.Count > 0;
     }
 
     private static bool Indirect(ProjectModel model, string claim)

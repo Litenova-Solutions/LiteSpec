@@ -136,6 +136,8 @@ public sealed class ModelCheckTests
         using var fixture = ModelFixture.Prepare("large", "use-case-unimplemented");
         ModelFixture.WriteKnownGap(fixture.Path, "2035-06-01");
         WriteKnownGap(fixture.Path, "known-gap/list-loans-unexposed", "List loans unexposed", "use-case-unexposed", "2035-06-01");
+        WriteKnownGap(fixture.Path, "known-gap/list-loans-screen-calls", "List loans screen calls", "screen-calls-mismatch", "screen/library-app.loans", "2035-06-01");
+        WriteKnownGap(fixture.Path, "known-gap/list-loans-unmatched-call", "List loans unmatched call", "behavior-unrecorded", "screen/library-app.loans", "2035-06-01");
         var result = Cli.Run("model", "check", "--root", fixture.Path, "--format", "json");
         Assert.Equal(0, result.Status);
     }
@@ -152,6 +154,14 @@ public sealed class ModelCheckTests
     }
 
     /// <summary>Writes an open known gap covering the check on the list-loans use case.</summary>
+    static void WriteKnownGap(string root, string id, string title, string check, string subject, string endsBy)
+    {
+        var folder = Path.Combine(root, "docs", "known-gaps");
+        Directory.CreateDirectory(folder);
+        File.WriteAllText(Path.Combine(folder, $"{id.Split('/')[1]}.md"), GapFile(id, title, check, subject, endsBy));
+    }
+
+    /// <summary>Writes an open known gap covering the check on the list-loans use case.</summary>
     static void WriteKnownGap(string root, string id, string title, string check, string endsBy)
     {
         var folder = Path.Combine(root, "docs", "known-gaps");
@@ -161,6 +171,38 @@ public sealed class ModelCheckTests
 
     // Writes JSON frontmatter, a heading, and one line of body, joined with line feeds.
     // The approval hash is stamped over the written fields, so the gap itself reports nothing.
+    static string GapFile(string id, string title, string check, string subject, string endsBy)
+    {
+        var frontmatter =
+            "{\n"
+            + "  \"type\": \"known-gap\",\n"
+            + $"  \"id\": \"{id}\",\n"
+            + $"  \"title\": \"{title}\",\n"
+            + "  \"owner\": \"lending-team\",\n"
+            + "  \"status\": \"approved\",\n"
+            + $"  \"check\": \"{check}\",\n"
+            + "  \"subject\": [\n"
+            + $"    \"{subject}\"\n"
+            + "  ],\n"
+            + $"  \"endsBy\": \"{endsBy}\",\n"
+            + "  \"reason\": \"Listing waits for the search index.\"\n"
+            + "}\n";
+
+        using var document = JsonDocument.Parse(frontmatter);
+        var record = new LiteSpec.Model.Record
+        {
+            Type = "known-gap",
+            Id = id,
+            Raw = document.RootElement.Clone(),
+        };
+        var hash = Checker.SemanticHash(record);
+        var stamped = frontmatter.Replace(
+            "\n}",
+            ",\n  \"approvedBy\": \"lending-team\",\n  \"approvedOn\": \"2026-10-01\",\n  \"approvedHash\": \"" + hash + "\"\n}");
+
+        return "---\n" + stamped + "---\n" + "\n" + $"# {title}\n" + "\n" + "Listing loans has no endpoint yet.\n";
+    }
+
     static string GapFile(string id, string title, string check, string endsBy)
     {
         var frontmatter =

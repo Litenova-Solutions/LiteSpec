@@ -141,7 +141,7 @@ public sealed class ModelBackfillTests
         var result = Cli.Run("model", "backfill", "--root", fixture.Path);
 
         Assert.Equal(0, result.Status);
-        Assert.Contains("0 records backfilled", result.Output);
+        Assert.DoesNotContain("+effects", result.Output);
         Assert.DoesNotContain("\"effects\"", File.ReadAllText(BorrowCopy(fixture.Path)));
     }
 
@@ -219,17 +219,22 @@ public sealed class ModelBackfillTests
         Assert.Contains("\"source\": \"transcribed\"", text);
     }
 
-    /// <summary>Backfill on a clean fixture writes nothing and still prints the table.</summary>
-    /// <proves>litespec/core/agent#mark-transcribed-records-during-adoption</proves>
+    /// <summary>Backfill on a clean fixture drafts only the unmarked route's screen and still prints the table.</summary>
+    /// <proves>litespec/core/behavior#give-every-page-its-screen-record</proves>
     [Fact]
-    public void Backfill_On_Clean_Fixture_Writes_Nothing()
+    public void Backfill_On_Clean_Fixture_Drafts_The_Unmarked_Route_Screen()
     {
         using var fixture = ModelFixture.Prepare("large");
+        File.Delete(Page(fixture.Path, "apps", "catalog", "src", "routes", "loans", "+page.ts"));
+        File.Delete(Page(fixture.Path, "docs", "behavior", "screens", "library-app.loans.md"));
+
         var result = Cli.Run("model", "backfill", "--root", fixture.Path);
 
         Assert.Equal(0, result.Status);
         Assert.Contains("lending", result.Output);
-        Assert.Contains("0 records backfilled", result.Output);
+        Assert.Contains("screen/library-app.loans", result.Output);
+        Assert.True(File.Exists(Page(
+            fixture.Path, "docs", "behavior", "screens", "library-app.loans.md")));
     }
 
     /// <summary>Backfill limits itself to the named module.</summary>

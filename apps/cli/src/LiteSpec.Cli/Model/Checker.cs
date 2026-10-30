@@ -85,6 +85,7 @@ static partial class Checker
         Time("reach", () => CheckJourneyReach(model, findings));
         Time("behavior", () => CheckBehaviorUnrecorded(model, findings));
         Time("marks", () => CheckMarks(model, findings));
+        Time("screens", () => CheckScreens(model, findings));
         Time("code", () => CheckCode(model, findings));
         Time("constituents", () => CheckConstituents(model, findings));
         Time("operations", () => CheckOperations(model, findings));
@@ -166,7 +167,7 @@ static partial class Checker
     {
         "module", "aggregate", "rule", "use-case", "result", "scenario", "event",
         "integration-event", "reaction", "job", "notification", "setting",
-        "role", "permission", "entry-point", "external-system", "runbook",
+        "role", "permission", "entry-point", "screen", "external-system", "runbook",
     };
 
     private static void CheckSchema(ProjectModel model, List<Finding> findings, Codeowners owners)
@@ -474,6 +475,16 @@ static partial class Checker
 
             case "entry-point":
                 RequireEnum(record, "kind", ["browser", "api", "webhook", "device", "cli", "mcp", "served-content", "reaction", "job"], findings);
+                break;
+
+            case "screen":
+                RequireIds(record, "entryPoint", 1, findings);
+
+                if (record.Has("address") == record.Has("host"))
+                {
+                    findings.Add(new Finding("record-shape", $"Screen '{record.Id}' carries exactly one of address and host.", record.File, record.Line, SubjectOf(record)));
+                }
+
                 break;
 
             case "runbook":
@@ -1382,7 +1393,7 @@ static partial class Checker
         {
             if (endpoint.Operation.Length > 0)
             {
-                byOperation.TryAdd(endpoint.Operation, endpoint.UseCaseId);
+                byOperation.TryAdd(Naming.OperationKey(endpoint.Operation), endpoint.UseCaseId);
             }
 
             if (endpoint.Method.Length > 0 && endpoint.Route.Length > 0)
@@ -1396,7 +1407,7 @@ static partial class Checker
             foreach (var operation in screen.Operations.OrderBy(left => left.Name, StringComparer.Ordinal))
             {
                 if (byRoute.ContainsKey($"{operation.Method} {Template(operation.Path)}")
-                    || byOperation.ContainsKey(Naming.Pascal(operation.Name)))
+                    || byOperation.ContainsKey(Naming.OperationKey(operation.Name)))
                 {
                     continue;
                 }
@@ -1406,7 +1417,11 @@ static partial class Checker
                     $"Screen '{screen.Frontend} {screen.Route}' calls '{operation.Name}', which matches no endpoint; {UnrecordedRemedy}.",
                     ScreenFile(model, screen.File),
                     1,
-                    null));
+                    screen.ScreenId)
+                {
+                    Reader = screen.Reader,
+                    ReaderIsQualified = screen.Reader == Finding.TypeScriptReader ? model.TypeScriptQualified : true,
+                });
             }
         }
     }

@@ -1,0 +1,115 @@
+{
+  "protocol": 1,
+  "reader": "1.0.0",
+  "frontends": [
+    {
+      "name": "web",
+      "modules": [
+        {
+          "folder": "src/lib/modules/spending/expenses/drafts",
+          "file": "src/lib/modules/spending/expenses/drafts/litespec.ts",
+          "line": 1,
+          "marks": []
+        },
+        {
+          "folder": "src/lib/modules/spending/expenses/list-expenses",
+          "file": "src/lib/modules/spending/expenses/list-expenses/litespec.ts",
+          "line": 3,
+          "marks": ["use-case/spending.list-expenses"]
+        },
+        {
+          "folder": "src/lib/modules/spending/reads/list-receipts",
+          "file": "src/lib/modules/spending/reads/list-receipts/litespec.ts",
+          "line": 3,
+          "marks": ["use-case/spending.list-receipts"]
+        }
+      ],
+      "routes": [
+        {
+          "file": "src/routes/(shop)/expenses/+page.ts",
+          "line": 6,
+          "address": "/expenses",
+          "marks": ["screen/web.expense-list"],
+          "calls": [
+            {
+              "operation": "listExpenses",
+              "file": "src/lib/modules/spending/expenses/list-expenses/client.ts",
+              "line": 4
+            },
+            {
+              "operation": "fetchExpenses",
+              "file": "src/lib/modules/spending/expenses/list-expenses/client.ts",
+              "line": 5
+            },
+            {
+              "operation": "listExpenses",
+              "file": "src/routes/(shop)/expenses/+page.ts",
+              "line": 10
+            },
+            {
+              "operation": "getExpense",
+              "file": "src/routes/(shop)/expenses/expense-table.svelte",
+              "line": 4
+            }
+          ]
+        },
+        {
+          "file": "src/routes/(shop)/expenses/[id]/+page.svelte",
+          "line": 2,
+          "address": "/expenses/[id]",
+          "marks": ["screen/web.expense-detail"],
+          "calls": [
+            {
+              "operation": "getExpense",
+              "file": "src/lib/modules/spending/reads/list-receipts/reader.ts",
+              "line": 4
+            }
+          ]
+        },
+        {
+          "file": "src/routes/about/+page.svelte",
+          "line": 1,
+          "address": "/about",
+          "marks": [],
+          "calls": []
+        },
+        {
+          "file": "src/routes/broken/+page.svelte",
+          "line": 1,
+          "address": "/broken",
+          "marks": [],
+          "calls": []
+        }
+      ],
+      "tests": [
+        {
+          "file": "tests/expenses.spec.ts",
+          "line": 4,
+          "title": "lists the expenses",
+          "proves": ["scenario/list-expenses.listing-shows-own-expenses"],
+          "journey": null,
+          "gotos": ["/expenses"],
+          "codes": ["spending.receipt-missing"],
+          "texts": ["Expense submitted"]
+        },
+        {
+          "file": "tests/expenses.spec.ts",
+          "line": 10,
+          "title": "shows one expense",
+          "proves": ["scenario/get-expense.detail-shows-expense"],
+          "journey": "journey/submit-and-reimburse",
+          "gotos": ["/expenses/[param]"],
+          "codes": ["expenses.not-found"],
+          "texts": ["Expense detail"]
+        }
+      ],
+      "diagnostics": [
+        {
+          "file": "src/routes/broken/+page.svelte",
+          "line": 1,
+          "message": "parse error: svelte syntax error"
+        }
+      ]
+    }
+  ]
+}

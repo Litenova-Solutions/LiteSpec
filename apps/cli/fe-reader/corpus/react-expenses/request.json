@@ -1,0 +1,17 @@
+{
+  "protocol": 1,
+  "frontends": [
+    {
+      "name": "web",
+      "platform": "react",
+      "root": "{case}/app",
+      "routes": "{case}/app/src/routes",
+      "modules": "{case}/app/src/modules",
+      "frame": "{case}/app/src/app",
+      "testRoots": ["{case}/app/tests"],
+      "aliases": { "@": "{case}/app/src" },
+      "apiClient": "{case}/app/src/api-client"
+    }
+  ],
+  "cache": "{case}/.cache"
+}

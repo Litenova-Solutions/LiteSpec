@@ -1,8 +1,15 @@
 <script>
-  import { borrowCopy } from '@fixture/api';
+  import { borrowCopy, cancelHold, extendLoan, listLoans, placeHold, registerCopy, retireCopy, returnCopy } from '@fixture/api';
 
   async function borrow() {
+    await registerCopy({ copyId: 'copy-1' });
     await borrowCopy({ copyId: 'copy-1' });
+    await extendLoan({ loanId: 'loan-1' });
+    await listLoans({});
+    await returnCopy({ loanId: 'loan-1' });
+    await placeHold({ copyId: 'copy-1' });
+    await cancelHold({ holdId: 'hold-1' });
+    await retireCopy({ copyId: 'copy-1' });
   }
 </script>
 

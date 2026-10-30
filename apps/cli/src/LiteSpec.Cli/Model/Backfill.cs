@@ -98,18 +98,169 @@ static class Backfill
             lines.Add(Describe(model, plan, dryRun));
         }
 
-        var files = plans.Select(plan => plan.Record.File).Distinct(StringComparer.OrdinalIgnoreCase).Count();
+        // Screens are scoped per frontend and entry point, not per module: one
+        // transcribed draft per route of the frontend's entry points that
+        // carries no screen mark, whatever module was named.
+        var screenPlans = ScreenPlans(model);
+
+        foreach (var plan in screenPlans)
+        {
+            lines.Add(DescribeScreen(model, plan, dryRun));
+        }
+
+        var files = plans.Select(plan => plan.Record.File).Distinct(StringComparer.OrdinalIgnoreCase)
+            .Concat(screenPlans.Select(plan => plan.File))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .Count();
+        var records = plans.Count + screenPlans.Count;
 
         lines.Add(dryRun
-            ? $"(dry run) {Files(files)} would be updated, {Records(plans.Count)} backfilled."
-            : $"{Files(files)} updated, {Records(plans.Count)} backfilled.");
+            ? $"(dry run) {Files(files)} would be updated, {Records(records)} backfilled."
+            : $"{Files(files)} updated, {Records(records)} backfilled.");
 
         if (!dryRun)
         {
             Apply(plans);
+            ApplyScreens(screenPlans);
         }
 
         return (lines, false);
+    }
+
+    /// <summary>One drafted screen: its file, id, entry point, address, offers and serves.</summary>
+    sealed record ScreenPlan(
+        string File,
+        string Id,
+        string EntryPoint,
+        string Address,
+        IReadOnlyList<string> Offers,
+        IReadOnlyList<string> Serves,
+        string Owner);
+
+    /// <summary>One transcribed screen draft per unmarked route, per frontend and entry point.</summary>
+    static List<ScreenPlan> ScreenPlans(ProjectModel model)
+    {
+        var plans = new List<ScreenPlan>();
+        var taken = new HashSet<string>(model.Records.Select(record => record.Id), StringComparer.Ordinal);
+
+        foreach (var frontend in model.Config.Frontends)
+        {
+            var entryPoints = FrontendRecords.EntryPointsOf(model, frontend);
+
+            if (entryPoints.Count == 0)
+            {
+                continue;
+            }
+
+            var entryPoint = entryPoints[0];
+            var entryName = Identifiers.TrySplit(entryPoint, out _, out _, out var parsed) ? parsed : entryPoint;
+            var owner = (model.ById.TryGetValue(entryPoint, out var point) ? point.Owner : null)
+                ?? model.Config.Owners.FirstOrDefault()
+                ?? "unknown";
+
+            foreach (var route in model.Screens.Where(screen =>
+                screen.Frontend == frontend.Name && screen.ScreenId is null))
+            {
+                var name = ScreenName(route.Route);
+                var id = $"screen/{entryName}.{name}";
+                var attempt = 2;
+
+                while (!taken.Add(id))
+                {
+                    id = $"screen/{entryName}.{name}-{attempt++}";
+                }
+
+                var serves = route.UseCases
+                    .SelectMany(useCaseId => model.ById.TryGetValue(useCaseId, out var useCase)
+                        ? useCase.Ids("serves")
+                        : [])
+                    .Where(step => Identifiers.TrySplitStep(step, out _, out _))
+                    .Distinct(StringComparer.Ordinal)
+                    .Order(StringComparer.Ordinal)
+                    .ToList();
+
+                plans.Add(new ScreenPlan(
+                    Path.Combine(model.Config.BehaviorDocs, "screens", $"{entryName}.{name}.md"),
+                    id, entryPoint, route.Route, [.. route.UseCases], serves, owner));
+            }
+        }
+
+        return plans;
+    }
+
+    /// <summary>The screen name an address drafts: its last plain segment, or <c>home</c> for the root.</summary>
+    static string ScreenName(string address)
+    {
+        var segments = address.Split('/', StringSplitOptions.RemoveEmptyEntries)
+            .Where(segment => !segment.StartsWith("[", StringComparison.Ordinal)
+                && !segment.StartsWith("{", StringComparison.Ordinal)
+                && !segment.StartsWith("$", StringComparison.Ordinal)
+                && !(segment.StartsWith("(", StringComparison.Ordinal) && segment.EndsWith(")", StringComparison.Ordinal)))
+            .ToList();
+
+        return segments.Count == 0 ? "home" : segments[^1];
+    }
+
+    /// <summary>One line per drafted screen: its path, id, offers and serves.</summary>
+    static string DescribeScreen(ProjectModel model, ScreenPlan plan, bool dryRun)
+    {
+        var parts = new List<string>();
+
+        if (plan.Offers.Count > 0)
+        {
+            parts.Add($"+offers {string.Join(",", plan.Offers)}");
+        }
+
+        if (plan.Serves.Count > 0)
+        {
+            parts.Add($"+serves {string.Join(",", plan.Serves)}");
+        }
+
+        var prefix = dryRun ? "(dry run) " : "";
+
+        return $"{prefix}{model.Config.Relative(plan.File)}: {plan.Id} {string.Join(" ", parts)} (source transcribed)".TrimEnd();
+    }
+
+    /// <summary>Writes every drafted screen as a transcribed draft page.</summary>
+    static void ApplyScreens(List<ScreenPlan> plans)
+    {
+        var decideBy = DateTime.UtcNow.Date.AddDays(30).ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
+
+        foreach (var plan in plans)
+        {
+            Directory.CreateDirectory(Path.GetDirectoryName(plan.File)!);
+
+            var frontmatter = new JsonObject
+            {
+                ["type"] = "screen",
+                ["id"] = plan.Id,
+                ["title"] = TitleOf(plan.Id[(plan.Id.LastIndexOf('.') + 1)..]),
+                ["owner"] = plan.Owner,
+                ["status"] = "draft",
+                ["decider"] = plan.Owner,
+                ["decideBy"] = decideBy,
+                ["entryPoint"] = plan.EntryPoint,
+                ["address"] = plan.Address,
+                ["source"] = "transcribed",
+            };
+
+            if (plan.Offers.Count > 0)
+            {
+                frontmatter["offers"] = new JsonArray(plan.Offers.Select(id => JsonValue.Create(id)).ToArray());
+            }
+
+            if (plan.Serves.Count > 0)
+            {
+                frontmatter["serves"] = new JsonArray(plan.Serves.Select(id => JsonValue.Create(id)).ToArray());
+            }
+
+            var title = TitleOf(plan.Id[(plan.Id.LastIndexOf('.') + 1)..]);
+
+            File.WriteAllText(
+                plan.File,
+                "---\n" + frontmatter.ToJsonString(Write) + "\n---\n\n"
+                + $"# {title}\n\n## Summary\n\nState what a person can do on this page.\n");
+        }
     }
 
     static string Files(int count) => count == 1 ? "1 file" : $"{count} files";

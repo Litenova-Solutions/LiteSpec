@@ -110,7 +110,7 @@ static partial class Checker
             findings.Add(new Finding("mark-unresolved", $"{KindName(element.Kind)} '{DisplayName(element)}' marks '{mark.RecordId}', which is a product decision, not a technical decision.", mark.File, mark.Line, subject));
         }
 
-        if (Readers.TypeScript.FrontendMarks.PathMismatch(model, element, mark) is { } expected)
+        if (FrontendModuleMirror.PathMismatch(model, element, mark) is { } expected)
         {
             findings.Add(new Finding("mark-unresolved", $"{KindName(element.Kind)} '{DisplayName(element)}' marks '{mark.RecordId}', but its folder mirrors '{expected}'.", mark.File, mark.Line, subject));
         }
@@ -570,18 +570,52 @@ static partial class Checker
                 continue;
             }
 
-            var entry = useCase.Ids("reachedThrough").FirstOrDefault(id =>
+            var entries = useCase.Ids("reachedThrough").Where(id =>
                 model.ById.TryGetValue(id, out var point)
                 && point.Type == "entry-point"
-                && point.Field("kind") == "browser");
+                && point.Field("kind") is "browser" or "device").ToList();
 
-            if (entry is null
-                || model.Screens.Any(screen => screen.UseCases.Contains(useCase.Id, StringComparer.Ordinal)))
+            foreach (var entry in entries)
             {
-                continue;
-            }
+                // Per frontend: the frontends serving this entry point are those
+                // holding a route for a screen of it. When none is known, the
+                // project-wide screen set decides, as before.
+                var serving = model.Config.Frontends
+                    .Where(frontend => model.Screens.Any(screen =>
+                        screen.Frontend == frontend.Name
+                        && screen.ScreenId is { } screenId
+                        && model.ById.TryGetValue(screenId, out var screenRecord)
+                        && screenRecord.Ids("entryPoint").Contains(entry, StringComparer.Ordinal)))
+                    .ToList();
 
-            findings.Add(new Finding("use-case-unreached", $"Use case '{useCase.Id}' is reached through '{entry}', but no screen calls it.", useCase.File, useCase.Line, SubjectOf(useCase)));
+                if (serving.Count == 0)
+                {
+                    if (!model.Screens.Any(screen => screen.UseCases.Contains(useCase.Id, StringComparer.Ordinal))
+                        && !ScreenRecords(model).Any(screen =>
+                            screen.Ids("entryPoint").Contains(entry, StringComparer.Ordinal)
+                            && screen.Ids("offers").Contains(useCase.Id, StringComparer.Ordinal)))
+                    {
+                        findings.Add(new Finding("use-case-unreached", $"Use case '{useCase.Id}' is reached through '{entry}', but no screen calls it.", useCase.File, useCase.Line, SubjectOf(useCase)));
+                    }
+
+                    continue;
+                }
+
+                foreach (var frontend in serving)
+                {
+                    var reached = model.Screens
+                        .Where(screen => screen.Frontend == frontend.Name)
+                        .Any(screen => screen.UseCases.Contains(useCase.Id, StringComparer.Ordinal)
+                            || (screen.ScreenId is { } screenId
+                                && model.ById.TryGetValue(screenId, out var screenRecord)
+                                && screenRecord.Ids("offers").Contains(useCase.Id, StringComparer.Ordinal)));
+
+                    if (!reached)
+                    {
+                        findings.Add(new Finding("use-case-unreached", $"Use case '{useCase.Id}' is reached through '{entry}', but no screen calls it.", useCase.File, useCase.Line, SubjectOf(useCase)));
+                    }
+                }
+            }
         }
     }
 
@@ -599,6 +633,8 @@ static partial class Checker
         CodeKind.Adapter => "Adapter",
         CodeKind.Endpoint => "Endpoint",
         CodeKind.FrontendModule => "Frontend module",
+        CodeKind.FrontendRoute => "Route entry",
+        CodeKind.BrowserTest => "Browser test",
         CodeKind.Test => "Test",
         CodeKind.DomainService => "Domain service",
         CodeKind.Technical => "Technical class",

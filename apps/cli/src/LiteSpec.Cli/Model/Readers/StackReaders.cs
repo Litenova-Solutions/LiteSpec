@@ -1,6 +1,6 @@
 using LiteSpec.Model.Readers.Dotnet;
+using LiteSpec.Model.Readers.Frontend;
 using LiteSpec.Model.Readers.JUnit;
-using LiteSpec.Model.Readers.TypeScript;
 
 namespace LiteSpec.Model.Readers;
 
@@ -46,8 +46,9 @@ sealed record StackSet(
 /// <summary>
 ///     Picks the readers for a consumer: the .NET backend and scenario readers when the
 ///     project names a stack with .NET sources (dotnet, blazor, or android), one frontend
-///     reader per declared frontend from its platform, and a test-run reader across every
-///     supported result format.
+///     reader per declared frontend from its platform (the TypeScript reader through
+///     Node for Svelte and React, the .NET screen reader for Blazor and Android), and a
+///     test-run reader across every supported result format.
 /// </summary>
 /// <follows>litespec/core/model#compute-proof-statuses-in-the-builder</follows>
 static class StackReaders
@@ -63,12 +64,17 @@ static class StackReaders
         IScenarioReader scenarios = dotnet ? new DotnetScenarioReader() : new EmptyScenarioReader();
 
         var frontends = new List<IFrontendReader>();
+        var webRun = new Lazy<IReadOnlyList<FrontendFacts>>(() => NodeFrontendReader.Read(config));
 
         foreach (var frontend in config.Frontends)
         {
             if (frontend.Platform is "svelte" or "react")
             {
-                frontends.Add(new TypeScriptFrontendReader(frontend));
+                frontends.Add(new TypeScriptFrontendReader(frontend, webRun));
+            }
+            else if (frontend.Platform is "blazor" or "android")
+            {
+                frontends.Add(new DotnetFrontendReader(frontend));
             }
         }
 

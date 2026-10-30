@@ -165,13 +165,12 @@ static class ModelCommand
                     }
 
                     var phase = config.Phase.ToProjectValue();
-                    var qualified = Finding.ReaderQualified(config.Stacks);
                     var shown = findings
-                        .Select(finding => (Finding: finding, Severity: Decide(model, config, finding, phase, qualified)))
+                        .Select(finding => (Finding: finding, Severity: Decide(model, config, finding, phase)))
                         .Where(entry => entry.Severity.Outcome != Outcome.Silent)
                         .ToList();
                     var shownKnown = known
-                        .Where(gap => Decide(model, config, gap, phase, qualified).Outcome != Outcome.Silent)
+                        .Where(gap => Decide(model, config, gap, phase).Outcome != Outcome.Silent)
                         .ToList();
 
                     if (json)
@@ -528,14 +527,24 @@ static class ModelCommand
             ? null
             : $"Unknown format '{format}'; use text, markdown or json.";
 
-    /// <summary>Decides one finding's severity from its subject, its path, the phase and the reader.</summary>
-    static Severity Decide(ProjectModel model, ConsumerConfig config, Finding finding, string phase, bool qualified) =>
+    /// <summary>
+    ///     Decides one finding's severity from its subject, its path, the phase and
+    ///     the qualification of the reader that produced it: TypeScript findings
+    ///     take the handshake qualification, Roslyn findings stay qualified, and
+    ///     a finding with no reader takes the project's stack qualification.
+    /// </summary>
+    static Severity Decide(ProjectModel model, ConsumerConfig config, Finding finding, string phase) =>
         Severity.Of(
             finding,
             finding.Subject is not null && model.EffectiveStatus.TryGetValue(finding.Subject, out var status) ? status : null,
             UnderTestRoot(config, finding.Path),
             phase,
-            qualified);
+            finding.Reader switch
+            {
+                Finding.TypeScriptReader => model.TypeScriptQualified,
+                Finding.RoslynReader => true,
+                _ => Finding.ReaderQualified(config.Stacks),
+            });
 
     /// <summary>Whether the path lies under a test root.</summary>
     static bool UnderTestRoot(ConsumerConfig config, string path)

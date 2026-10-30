@@ -3,27 +3,27 @@ using LiteSpec.Tests.Support;
 
 namespace LiteSpec.Tests.Model.Frontend;
 
-/// <summary>Proves <c>litespec model build</c> writes the record union each web frontend imports.</summary>
+/// <summary>Proves <c>litespec model build</c> writes the records file each web frontend imports from its frame.</summary>
 public sealed class FrontendRecordsTests
 {
-    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
+    /// <proves>litespec/frontend/web/structure#generate-the-records-file-into-the-frame</proves>
     [Fact]
-    public void Build_Writes_The_Browser_Union_For_Each_Web_Frontend()
+    public void Build_Writes_The_Records_File_Into_Each_Frame()
     {
         using var fixture = FrontendMarksFixture.Prepare("clean");
         var result = Cli.Run("model", "build", "--root", fixture.Path);
         Assert.Equal(0, result.Status);
 
-        var web = Path.Combine(fixture.Path, "apps", "web", "src", "lib", "litespec-records.ts");
-        var console = Path.Combine(fixture.Path, "apps", "console", "src", "lib", "litespec-records.ts");
+        var web = Path.Combine(fixture.Path, "apps", "web", "src", "lib", "app", "litespec-records.ts");
+        var console = Path.Combine(fixture.Path, "apps", "console", "src", "app", "litespec-records.ts");
 
         Assert.Equal(ExpectedUnion + "\n", File.ReadAllText(web));
         Assert.Equal(ExpectedUnion + "\n", File.ReadAllText(console));
-        Assert.Contains("apps/web/src/lib/litespec-records.ts", result.Stdout);
-        Assert.Contains("apps/console/src/lib/litespec-records.ts", result.Stdout);
+        Assert.Contains("apps/web/src/lib/app/litespec-records.ts", result.Stdout);
+        Assert.Contains("apps/console/src/app/litespec-records.ts", result.Stdout);
     }
 
-    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
+    /// <proves>litespec/frontend/web/structure#generate-the-records-file-into-the-frame</proves>
     [Fact]
     public void Build_Leaves_Out_Use_Cases_With_No_Browser_Entry_Point()
     {
@@ -31,48 +31,66 @@ public sealed class FrontendRecordsTests
         var result = Cli.Run("model", "build", "--root", fixture.Path);
         Assert.Equal(0, result.Status);
 
-        var web = Path.Combine(fixture.Path, "apps", "web", "src", "lib", "litespec-records.ts");
+        var web = Path.Combine(fixture.Path, "apps", "web", "src", "lib", "app", "litespec-records.ts");
 
         Assert.DoesNotContain("use-case/lending.register-copy", File.ReadAllText(web));
     }
 
-    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
+    /// <proves>litespec/frontend/web/structure#generate-the-records-file-into-the-frame</proves>
     [Fact]
-    public void Check_Writes_No_Union_File()
+    public void Check_Writes_No_Records_File()
     {
         using var fixture = FrontendMarksFixture.Prepare("clean");
         Cli.Run("model", "check", "--root", fixture.Path);
 
-        Assert.False(File.Exists(Path.Combine(fixture.Path, "apps", "web", "src", "lib", "litespec-records.ts")));
-        Assert.False(File.Exists(Path.Combine(fixture.Path, "apps", "console", "src", "lib", "litespec-records.ts")));
+        Assert.False(File.Exists(Path.Combine(fixture.Path, "apps", "web", "src", "lib", "app", "litespec-records.ts")));
+        Assert.False(File.Exists(Path.Combine(fixture.Path, "apps", "console", "src", "app", "litespec-records.ts")));
     }
 
-    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
+    /// <proves>litespec/frontend/web/structure#generate-the-records-file-into-the-frame</proves>
     [Fact]
-    public void Render_Writes_Never_For_No_Use_Cases()
+    public void Render_Writes_Never_For_No_Ids()
     {
-        var text = FrontendRecords.Render([]);
+        var text = FrontendRecords.Render([], [], []);
 
         Assert.Contains("export type UseCaseId = never;", text);
-        Assert.Contains("export interface LiteSpecMark { readonly implements: UseCaseId }", text);
+        Assert.Contains("export type ScreenId = never;", text);
+        Assert.Contains("export type ProofTargetId = never;", text);
+        Assert.Contains("export interface LiteSpecMark { readonly implements: UseCaseId | ScreenId }", text);
+        Assert.Contains("export function proves(id: ProofTargetId)", text);
         Assert.EndsWith("\n", text);
     }
 
-    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
+    /// <proves>litespec/frontend/web/structure#generate-the-records-file-into-the-frame</proves>
     [Fact]
     public void Render_Breaks_A_Long_Union_One_Id_Per_Line()
     {
         var ids = Enumerable.Range(1, 30).Select(number => $"use-case/lending.use-case-{number:00}").ToList();
-        var text = FrontendRecords.Render(ids);
+        var text = FrontendRecords.Render(ids, [], []);
 
         Assert.Contains("\nexport type UseCaseId =\n  | \"use-case/lending.use-case-01\"\n", text);
         Assert.Contains("  | \"use-case/lending.use-case-30\";\n", text);
-        Assert.Equal(text, FrontendRecords.Render(ids));
+        Assert.Equal(text, FrontendRecords.Render(ids, [], []));
+    }
+
+    /// <proves>litespec/frontend/web/structure#generate-the-records-file-into-the-frame</proves>
+    [Fact]
+    public void Render_Writes_The_Proves_Helper_Typed_To_Proof_Targets()
+    {
+        var text = FrontendRecords.Render([], [], ["scenario/list-loans.listing-succeeds"]);
+
+        Assert.Contains("export type ProofTargetId = \"scenario/list-loans.listing-succeeds\";", text);
+        Assert.Contains("return { annotation: [{ type: \"proves\", description: id }] };", text);
     }
 
     const string ExpectedUnion = """
         // This file is generated by litespec model build. Do not edit it by hand.
         export type UseCaseId = "use-case/lending.borrow-copy" | "use-case/lending.list-loans";
-        export interface LiteSpecMark { readonly implements: UseCaseId }
+        export type ScreenId = never;
+        export type ProofTargetId = never;
+        export interface LiteSpecMark { readonly implements: UseCaseId | ScreenId }
+        export function proves(id: ProofTargetId): { annotation: [{ type: "proves"; description: ProofTargetId }] } {
+          return { annotation: [{ type: "proves", description: id }] };
+        }
         """;
 }

@@ -1,0 +1,93 @@
+{
+  "protocol": 1,
+  "reader": "1.0.0",
+  "frontends": [
+    {
+      "name": "web",
+      "modules": [
+        {
+          "folder": "src/modules/spending/expenses/list-expenses",
+          "file": "src/modules/spending/expenses/list-expenses/litespec.ts",
+          "line": 3,
+          "marks": ["use-case/spending.list-expenses"]
+        }
+      ],
+      "routes": [
+        {
+          "file": "src/routes/(shop)/cart.tsx",
+          "line": 1,
+          "address": "/cart",
+          "marks": [],
+          "calls": []
+        },
+        {
+          "file": "src/routes/(shop)/checkout.tsx",
+          "line": 4,
+          "address": "/checkout",
+          "marks": ["screen/web.checkout"],
+          "calls": []
+        },
+        {
+          "file": "src/routes/_shell/dashboard.tsx",
+          "line": 1,
+          "address": "/dashboard",
+          "marks": [],
+          "calls": []
+        },
+        {
+          "file": "src/routes/about.tsx",
+          "line": 3,
+          "address": "/about",
+          "marks": ["screen/web.about"],
+          "calls": []
+        },
+        {
+          "file": "src/routes/broken.tsx",
+          "line": 1,
+          "address": "/broken",
+          "marks": [],
+          "calls": []
+        },
+        {
+          "file": "src/routes/expenses.tsx",
+          "line": 6,
+          "address": "/expenses",
+          "marks": ["screen/web.expense-list"],
+          "calls": [
+            {
+              "operation": "listExpenses",
+              "file": "src/modules/spending/expenses/list-expenses/client.ts",
+              "line": 4
+            }
+          ]
+        },
+        {
+          "file": "src/routes/expenses/$expenseId.tsx",
+          "line": 4,
+          "address": "/expenses/$expenseId",
+          "marks": ["screen/web.expense-detail"],
+          "calls": []
+        }
+      ],
+      "tests": [
+        {
+          "file": "tests/expenses.spec.ts",
+          "line": 4,
+          "title": "lists the expenses",
+          "proves": ["scenario/list-expenses.listing-shows-own-expenses"],
+          "journey": null,
+          "gotos": ["/expenses"],
+          "codes": ["spending.receipt-missing"],
+          "texts": []
+        }
+      ],
+      "diagnostics": [
+        {
+          "file": "src/routes/broken.tsx",
+          "line": 1,
+          "message": "parse error: typescript syntax error"
+        }
+      ]
+    }
+  ]
+}

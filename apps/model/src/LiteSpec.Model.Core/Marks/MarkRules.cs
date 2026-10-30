@@ -19,6 +19,7 @@ public static class MarkRules
     private static readonly string[] ReactionTypes = { "reaction" };
     private static readonly string[] JobTypes = { "job" };
     private static readonly string[] ExternalSystemTypes = { "external-system" };
+    private static readonly string[] ScreenTypes = { "screen" };
     private static readonly string[] TestTypes =
     {
         "scenario", "rule", "requirement", "decision",
@@ -283,6 +284,10 @@ public static class MarkRules
                 return new KindRule(UseCaseTypes, true, MarkVerb.Implements);
             case CodeKind.FrontendModule:
                 return new KindRule(UseCaseTypes, true, MarkVerb.Implements);
+            case CodeKind.FrontendRoute:
+                return new KindRule(ScreenTypes, true, MarkVerb.Implements);
+            case CodeKind.BrowserTest:
+                return new KindRule(TestTypes, false, MarkVerb.Proves);
             case CodeKind.DomainService:
                 return new KindRule(RuleTypes, true, MarkVerb.Implements);
             case CodeKind.Test:

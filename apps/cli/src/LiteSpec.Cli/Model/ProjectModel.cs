@@ -53,6 +53,15 @@ sealed class ProjectModel
     public List<ScreenInfo> Screens { get; } = [];
     public List<ScenarioInfo> Tests { get; } = [];
 
+    /// <summary>The browser tests every frontend reader found.</summary>
+    public List<BrowserTestInfo> BrowserTests { get; } = [];
+
+    /// <summary>Whether the TypeScript reader's handshake matched, so it is qualified.</summary>
+    public bool TypeScriptQualified { get; set; }
+
+    /// <summary>The journey steps a passing test exercised, as <c>journey/&lt;name&gt;#&lt;step&gt;</c> ids.</summary>
+    public SortedSet<string> ExercisedSteps { get; } = new(StringComparer.Ordinal);
+
     /// <summary>The generated-client operations each steps method calls, keyed by class and method.</summary>
     public IReadOnlyDictionary<string, IReadOnlySet<string>> StepCalls { get; set; } =
         new Dictionary<string, IReadOnlySet<string>>(StringComparer.Ordinal);
@@ -362,6 +371,8 @@ sealed class ProjectModel
                 writer.WriteString("frontend", screen.Frontend);
                 writer.WriteString("route", screen.Route);
                 writer.WriteString("file", screen.File);
+                WriteNullable(writer, "screen", screen.ScreenId);
+                writer.WriteString("reader", screen.Reader);
                 writer.WriteStartArray("operations");
 
                 foreach (var operation in screen.Operations)
@@ -383,6 +394,54 @@ sealed class ProjectModel
 
                 writer.WriteEndArray();
                 writer.WriteEndObject();
+            }
+
+            writer.WriteEndArray();
+
+            writer.WriteStartArray("browserTests");
+
+            foreach (var test in BrowserTests)
+            {
+                writer.WriteStartObject();
+                writer.WriteString("frontend", test.Frontend);
+                writer.WriteString("title", test.Title);
+                writer.WriteString("file", Config.Relative(test.File));
+                writer.WriteNumber("line", test.Line);
+                writer.WriteStartArray("proves");
+
+                foreach (var claim in test.Proves)
+                {
+                    writer.WriteStringValue(claim);
+                }
+
+                writer.WriteEndArray();
+                WriteNullable(writer, "journey", test.Journey);
+                writer.WriteStartArray("gotos");
+
+                foreach (var target in test.Gotos)
+                {
+                    writer.WriteStringValue(target);
+                }
+
+                writer.WriteEndArray();
+                writer.WriteStartArray("codes");
+
+                foreach (var code in test.Codes)
+                {
+                    writer.WriteStringValue(code);
+                }
+
+                writer.WriteEndArray();
+                writer.WriteEndObject();
+            }
+
+            writer.WriteEndArray();
+
+            writer.WriteStartArray("exercisedSteps");
+
+            foreach (var step in ExercisedSteps)
+            {
+                writer.WriteStringValue(step);
             }
 
             writer.WriteEndArray();

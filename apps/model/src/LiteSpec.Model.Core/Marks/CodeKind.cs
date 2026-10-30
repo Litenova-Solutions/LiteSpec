@@ -68,4 +68,10 @@ public enum CodeKind
     ///     <c>implements</c> or choices in <c>follows</c>.
     /// </summary>
     Technical = 13,
+
+    /// <summary>A frontend route entry, marked with one <c>screen/</c> record.</summary>
+    FrontendRoute = 14,
+
+    /// <summary>A browser test, marked with one or more proof targets in <c>proves</c> annotations.</summary>
+    BrowserTest = 15,
 }

@@ -1,0 +1,17 @@
+{
+  "name": "@litespec/fe-reader",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "TypeScript frontend facts reader for the LiteSpec CLI. Parses Svelte, React and Playwright sources and reports facts over stdin/stdout JSON.",
+  "scripts": {
+    "build": "node build.mjs"
+  },
+  "dependencies": {
+    "svelte": "5.57.2",
+    "typescript": "6.0.3"
+  },
+  "devDependencies": {
+    "esbuild": "0.25.10"
+  }
+}

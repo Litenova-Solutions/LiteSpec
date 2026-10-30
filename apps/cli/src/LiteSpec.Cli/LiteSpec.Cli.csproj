@@ -24,6 +24,16 @@
     </ItemGroup>
 
     <ItemGroup>
+        <!-- The TypeScript frontend reader, bundled by the build script in apps/cli/fe-reader, copied beside the tool when it has been built. -->
+        <Content Include="../../fe-reader/dist/litespec-fe-reader.mjs" Link="litespec-fe-reader.mjs" Pack="false" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" Condition="Exists('../../fe-reader/dist/litespec-fe-reader.mjs')" />
+    </ItemGroup>
+
+    <!-- A package without the reader would report every frontend as unreadable, so it is never packed. -->
+    <Target Name="RequireFrontendReader" BeforeTargets="GenerateNuspec">
+        <Error Condition="!Exists('../../fe-reader/dist/litespec-fe-reader.mjs')" Text="The frontend reader bundle is missing; build it in apps/cli/fe-reader before packing the tool." />
+    </Target>
+
+    <ItemGroup>
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
     </ItemGroup>
 
