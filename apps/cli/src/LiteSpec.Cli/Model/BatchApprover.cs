@@ -454,6 +454,80 @@ static class BatchApprover
         return path;
     }
 
+    /// <summary>
+    ///     Updates the in-memory model after a batch is applied: each promoted or
+    ///     re-stamped record holds its target status and approval data, and the
+    ///     effective status is recomputed, so a later batch in the same run sees
+    ///     the promotion without a rebuild from disk.
+    /// </summary>
+    public static void Apply(ProjectModel model, BatchPlan plan, string? by, string on)
+    {
+        foreach (var action in plan.Ordered.Where(entry => entry.Action is "promoted" or "re-stamped"))
+        {
+            var index = model.Records.IndexOf(action.Record);
+
+            if (index < 0)
+            {
+                index = model.Records.FindIndex(record => record.Id == action.Record.Id);
+            }
+
+            if (index < 0)
+            {
+                continue;
+            }
+
+            var record = model.Records[index];
+            var updated = new Record
+            {
+                Type = record.Type,
+                Id = record.Id,
+                Title = record.Title,
+                Owner = record.Owner,
+                Status = action.TargetStatus,
+                Decider = record.Decider,
+                DecideBy = record.DecideBy,
+                ApprovedBy = by ?? record.Decider ?? record.Owner ?? "unknown",
+                ApprovedOn = on,
+                ApprovedHash = action.Hash,
+                Derived = record.Derived,
+                File = record.File,
+                Line = record.Line,
+                IsEntry = record.IsEntry,
+                PageId = record.PageId,
+                Raw = record.Raw,
+            };
+
+            model.Records[index] = updated;
+
+            if (model.ById is Dictionary<string, Record> byId
+                && byId.TryGetValue(updated.Id, out var current)
+                && ReferenceEquals(current, record))
+            {
+                byId[updated.Id] = updated;
+            }
+        }
+
+        var holders = new Dictionary<string, IRecordFacts>(StringComparer.Ordinal);
+
+        foreach (var record in model.Records)
+        {
+            if (record.Id.Length > 0)
+            {
+                holders.TryAdd(record.Id, record);
+            }
+        }
+
+        var effective = Authority.EffectiveStatus(
+            model.Records, record => UseCaseHolder(model, holders, record));
+
+        model.EffectiveStatus.Clear();
+
+        foreach (var entry in effective)
+        {
+            model.EffectiveStatus[entry.Key] = entry.Value;
+        }
+    }
+
     /// <summary>Prints the dry run: the plan, the left-out records, the failures, and the sample.</summary>
     public static string DryRun(BatchPlan plan, double share)
     {

@@ -18,7 +18,7 @@ static class ModelCommand
           litespec model names [--root <consumer>] [--format text|json]
           litespec model review --root <consumer> [--decider <owner>] [--tier 1|3] [--module <module>] [--type <type>] [--format json]
           litespec model approve --root <consumer> (<id>... | --all) [--by <owner>] [--on <YYYY-MM-DD>] [--dry-run]
-          litespec model approve --root <consumer> --batch <selector> --by <owner> [--second-reviewer <owner>|agent] [--review-report <file>] [--on <YYYY-MM-DD>] [--dry-run]
+          litespec model approve --root <consumer> --batch <selector> [--batch <selector>...] [--batches <file>] --by <owner> [--second-reviewer <owner>|agent] [--review-report <file>] [--on <YYYY-MM-DD>] [--dry-run]
           litespec model backfill --root <consumer> [<module>] [--dry-run]
           litespec model diff <base> --root <consumer> [--format text|markdown|json] [--intent|--behavior] [--fail-on breaking] [--breaking-only]
           litespec model --help
@@ -48,7 +48,7 @@ static class ModelCommand
             command switch
             {
                 "diff" => ["--root", "--out", "--format", "--fail-on"],
-                "approve" => ["--root", "--by", "--on", "--batch", "--second-reviewer", "--review-report"],
+                "approve" => ["--root", "--by", "--on", "--batch", "--batches", "--second-reviewer", "--review-report"],
                 "backfill" => ["--root"],
                 "review" => ["--root", "--out", "--format", "--decider", "--tier", "--module", "--type"],
                 _ => ["--root", "--out", "--format"],
@@ -263,9 +263,30 @@ static class ModelCommand
                     var all = parsed.Has("--all");
                     var ids = parsed.Positionals;
 
-                    if (parsed.Value("--batch") is { } selector)
+                    var batchRequests = BatchRequests(args[1..], root, out var batchError);
+
+                    if (batchError is not null)
                     {
-                        return ApproveBatch(config, model, parsed, selector, all, ids, root);
+                        Console.Error.WriteLine(batchError);
+                        return 2;
+                    }
+
+                    if (batchRequests.Count == 0 && parsed.Value("--batches") is not null)
+                    {
+                        Console.Error.WriteLine("The batches file names no batch.");
+                        return 2;
+                    }
+
+                    if (batchRequests.Count > 0)
+                    {
+                        if (batchRequests.Count == 1
+                            && parsed.Value("--batches") is null
+                            && batchRequests[0].ReviewReport is null)
+                        {
+                            return ApproveBatch(config, model, parsed, batchRequests[0].Selector, all, ids, root);
+                        }
+
+                        return ApproveBatches(model, parsed, batchRequests, all, ids, root);
                     }
 
                     if (parsed.Value("--second-reviewer") is not null
@@ -438,6 +459,190 @@ static class ModelCommand
             Console.Error.WriteLine($"Failed: {exception.Message}");
             return 1;
         }
+    }
+
+    /// <summary>One batch approval request: a selector and its review report, when one is named.</summary>
+    sealed record BatchRequest(string Selector, string? ReviewReport);
+
+    /// <summary>
+    ///     Collects the batch requests in the order given: every <c>--batch</c> value,
+    ///     and every line of a <c>--batches</c> file at the place the option stands.
+    ///     Blank lines and lines starting with <c>#</c> are ignored; a second field
+    ///     on a file line names that batch's review report.
+    /// </summary>
+    static List<BatchRequest> BatchRequests(string[] rest, string root, out string? error)
+    {
+        error = null;
+        var requests = new List<BatchRequest>();
+
+        for (var index = 0; index < rest.Length; index++)
+        {
+            var arg = rest[index];
+            string? selector = null;
+            string? file = null;
+
+            if (arg == "--batch" && index + 1 < rest.Length)
+            {
+                selector = rest[++index];
+            }
+            else if (arg.StartsWith("--batch=", StringComparison.Ordinal))
+            {
+                selector = arg["--batch=".Length..];
+            }
+            else if (arg == "--batches" && index + 1 < rest.Length)
+            {
+                file = rest[++index];
+            }
+            else if (arg.StartsWith("--batches=", StringComparison.Ordinal))
+            {
+                file = arg["--batches=".Length..];
+            }
+            else
+            {
+                continue;
+            }
+
+            if (selector is not null)
+            {
+                requests.Add(new BatchRequest(selector, null));
+                continue;
+            }
+
+            if (file is null)
+            {
+                continue;
+            }
+
+            var path = Path.IsPathRooted(file)
+                ? file
+                : File.Exists(Path.Combine(root, file))
+                    ? Path.Combine(root, file)
+                    : File.Exists(file) ? Path.GetFullPath(file) : Path.Combine(root, file);
+
+            if (!File.Exists(path))
+            {
+                error = $"No batches file '{file}'.";
+                return requests;
+            }
+
+            foreach (var line in File.ReadAllLines(path))
+            {
+                var trimmed = line.Trim();
+
+                if (trimmed.Length == 0 || trimmed.StartsWith("#", StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                var split = trimmed.IndexOfAny([' ', '\t']);
+
+                if (split < 0)
+                {
+                    requests.Add(new BatchRequest(trimmed, null));
+                }
+                else
+                {
+                    var report = trimmed[(split + 1)..].Trim();
+
+                    requests.Add(new BatchRequest(
+                        trimmed[..split], report.Length > 0 ? report : null));
+                }
+            }
+        }
+
+        return requests;
+    }
+
+    /// <summary>
+    ///     Approves many review batches in one run, in the order given, on the model
+    ///     built once: each batch is planned and guarded as one batch is, a refused
+    ///     batch writes nothing and holds no later batch back, and each applied
+    ///     batch updates the in-memory model for the batches after it.
+    /// </summary>
+    static int ApproveBatches(
+        ProjectModel model, CliArgs parsed,
+        IReadOnlyList<BatchRequest> requests, bool all, List<string> ids, string root)
+    {
+        if (all || ids.Count > 0)
+        {
+            Console.Error.WriteLine("Approve --batch takes a selector and no record ids.");
+            return 2;
+        }
+
+        var by = parsed.Value("--by");
+        var secondReviewer = parsed.Value("--second-reviewer");
+        var defaultReport = parsed.Value("--review-report");
+        var on = parsed.Value("--on") ?? DateTime.UtcNow.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
+        var dryRun = parsed.Has("--dry-run");
+        var approved = 0;
+        var refused = 0;
+
+        foreach (var request in requests)
+        {
+            var rawReport = request.ReviewReport ?? defaultReport;
+            var reviewReport = rawReport is { Length: > 0 } report && !Path.IsPathRooted(report)
+                ? Path.Combine(root, report)
+                : rawReport;
+            var batch = BatchApprover.Find(ReviewQueue.Compute(model), request.Selector);
+
+            if (batch is null)
+            {
+                Console.WriteLine($"{request.Selector}: refused: No batch '{request.Selector}'.");
+                refused++;
+                continue;
+            }
+
+            var plan = BatchApprover.Plan(model, batch, by, secondReviewer, reviewReport);
+
+            if (dryRun)
+            {
+                Console.WriteLine(BatchApprover.DryRun(plan, model.Config.SampleShare));
+
+                if (plan.Failures.Count > 0)
+                {
+                    refused++;
+                }
+                else
+                {
+                    approved++;
+                    BatchApprover.Apply(model, plan, by, on);
+                }
+
+                continue;
+            }
+
+            if (plan.Failures.Count > 0)
+            {
+                var reasons = string.Join("; ", plan.Failures.Select(failure => $"{failure.Id}: {failure.Guard}"));
+
+                Console.WriteLine($"{request.Selector}: refused: {reasons}");
+                refused++;
+                continue;
+            }
+
+            var stamps = plan.Ordered
+                .Where(action => action.Action is "promoted" or "re-stamped")
+                .Select(action => new Approver.BatchStamp(
+                    action.Record,
+                    action.TargetStatus,
+                    by ?? action.Record.Decider ?? action.Record.Owner ?? "unknown",
+                    on))
+                .ToList();
+
+            Approver.StampBatch(stamps);
+
+            var manifest = BatchApprover.WriteManifest(
+                model, plan, by ?? "", secondReviewer, rawReport, on);
+
+            BatchApprover.Apply(model, plan, by, on);
+            model.Ledger.Save(root);
+            approved++;
+            Console.WriteLine($"{request.Selector}: approved: {Relative(root, manifest)}"
+                + (plan.LeftOut.Count > 0 ? $", {plan.LeftOut.Count} left out" : ""));
+        }
+
+        Console.WriteLine($"{approved} batches approved, {refused} refused.");
+        return refused > 0 ? 1 : 0;
     }
 
     /// <summary>Approves one review batch: its drafts, re-stamps, manifest, and guards.</summary>
