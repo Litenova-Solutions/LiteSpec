@@ -1,1 +1,0 @@
-{"reader":"1.0.0","data":{"marks":[{"values":["screen/web.expense-detail"],"line":2}],"calls":[{"name":"loadReceipt","line":8}],"imports":["$lib/modules/spending/reads/list-receipts/reader"],"functions":[],"route":null}}

@@ -7,6 +7,14 @@ public sealed class ModelBackfillTests
 {
     static string Page(string root, params string[] parts) => Path.Combine([root, .. parts]);
 
+    /// <summary>Removes a Svelte page's module script, which holds its screen mark.</summary>
+    static void Unmark(string page)
+    {
+        var text = File.ReadAllText(page);
+        var end = text.IndexOf("</script>", StringComparison.Ordinal) + "</script>".Length;
+        File.WriteAllText(page, text[end..].TrimStart());
+    }
+
     static string BorrowCopy(string root) => Page(
         root, "docs", "behavior", "modules", "lending", "loans", "borrow-copy.md");
 
@@ -225,7 +233,7 @@ public sealed class ModelBackfillTests
     public void Backfill_On_Clean_Fixture_Drafts_The_Unmarked_Route_Screen()
     {
         using var fixture = ModelFixture.Prepare("large");
-        File.Delete(Page(fixture.Path, "apps", "catalog", "src", "routes", "loans", "+page.ts"));
+        Unmark(Page(fixture.Path, "apps", "catalog", "src", "routes", "loans", "+page.svelte"));
         File.Delete(Page(fixture.Path, "docs", "behavior", "screens", "library-app.loans.md"));
 
         var result = Cli.Run("model", "backfill", "--root", fixture.Path);
@@ -235,6 +243,26 @@ public sealed class ModelBackfillTests
         Assert.Contains("screen/library-app.loans", result.Output);
         Assert.True(File.Exists(Page(
             fixture.Path, "docs", "behavior", "screens", "library-app.loans.md")));
+    }
+
+    /// <summary>Two unmarked routes ending in one segment draft two screens on two pages, named from their whole address.</summary>
+    /// <proves>litespec/core/behavior#give-every-page-its-screen-record</proves>
+    [Fact]
+    public void Backfill_Names_Each_Screen_From_Its_Whole_Address()
+    {
+        using var fixture = ModelFixture.Prepare("large");
+        Unmark(Page(fixture.Path, "apps", "catalog", "src", "routes", "loans", "+page.svelte"));
+        File.Delete(Page(fixture.Path, "docs", "behavior", "screens", "library-app.loans.md"));
+        var archive = Page(fixture.Path, "apps", "catalog", "src", "routes", "archive", "loans", "+page.svelte");
+        Directory.CreateDirectory(Path.GetDirectoryName(archive)!);
+        File.WriteAllText(archive, "<h1>Archived loans</h1>\n");
+
+        var result = Cli.Run("model", "backfill", "--root", fixture.Path);
+
+        Assert.Equal(0, result.Status);
+        Assert.Contains("screen/library-app.archive-loans", result.Output);
+        Assert.True(File.Exists(Page(fixture.Path, "docs", "behavior", "screens", "library-app.loans.md")));
+        Assert.True(File.Exists(Page(fixture.Path, "docs", "behavior", "screens", "library-app.archive-loans.md")));
     }
 
     /// <summary>Backfill limits itself to the named module.</summary>

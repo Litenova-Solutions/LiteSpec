@@ -1,1 +1,0 @@
-{"reader":"1.0.0","data":{"marks":[{"values":["screen/web.expense-list"],"line":6}],"calls":[{"name":"loadExpenses","line":9},{"name":"listExpensesAsync","line":10},{"name":"formatMoney","line":11}],"imports":["$lib/app/helpers","$lib/app/litespec-records","$lib/modules/spending/expenses/list-expenses/client","../../../api-client/client"],"functions":["load"],"route":null}}

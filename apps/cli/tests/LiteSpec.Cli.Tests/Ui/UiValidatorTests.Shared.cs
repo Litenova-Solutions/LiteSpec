@@ -111,7 +111,33 @@ public sealed partial class UiValidatorTests
     {
         using var fixture = UiFixture.Create();
         fixture.MutateProject(project => ((JsonObject)project["paths"]!).Remove("uiPackage"));
-        UiFixture.AssertProblem(fixture.Run(), "and no paths.uiPackage");
+        UiFixture.AssertProblem(
+            fixture.Run(),
+            "[litespec/frontend/ui#select-one-visual-authority] litespec.project.json: 1 controlled frontend(s) and no paths.uiPackage");
+    }
+
+    /// <proves>litespec/frontend/ui#use-the-product-profiles</proves>
+    [Fact]
+    public void A_Controlled_Frontend_With_No_Ui_Block()
+    {
+        using var fixture = UiFixture.Create();
+        fixture.MutateProject(project =>
+            ((JsonObject)((JsonArray)project["paths"]!["frontends"]!)[0]!).Remove("ui"));
+        UiFixture.AssertProblem(
+            fixture.Run(),
+            "[litespec/frontend/ui#use-the-product-profiles] frontend 'web': a controlled frontend requires a 'ui' block declaring its density profile");
+    }
+
+    /// <proves>litespec/frontend/ui#use-the-product-profiles</proves>
+    [Fact]
+    public void A_Controlled_Frontend_With_An_Unknown_Profile()
+    {
+        using var fixture = UiFixture.Create();
+        fixture.MutateProject(project =>
+            ((JsonObject)((JsonArray)project["paths"]!["frontends"]!)[0]!["ui"]!)["profile"] = "fixture-dense");
+        UiFixture.AssertProblem(
+            fixture.Run(),
+            "[litespec/frontend/ui#use-the-product-profiles] frontend 'web': profile must be one of public-light, application-balanced, admin-dense");
     }
 
     /// <proves>litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package</proves>

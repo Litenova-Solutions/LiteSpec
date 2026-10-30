@@ -6,6 +6,12 @@
       "name": "web",
       "modules": [
         {
+          "folder": "src/lib/modules/spending/expenses/archived",
+          "file": "src/lib/modules/spending/expenses/archived/litespec.ts",
+          "line": 1,
+          "marks": []
+        },
+        {
           "folder": "src/lib/modules/spending/expenses/drafts",
           "file": "src/lib/modules/spending/expenses/drafts/litespec.ts",
           "line": 1,
@@ -26,8 +32,8 @@
       ],
       "routes": [
         {
-          "file": "src/routes/(shop)/expenses/+page.ts",
-          "line": 6,
+          "file": "src/routes/(shop)/expenses/+page.svelte",
+          "line": 4,
           "address": "/expenses",
           "marks": ["screen/web.expense-list"],
           "calls": [
@@ -44,7 +50,7 @@
             {
               "operation": "listExpenses",
               "file": "src/routes/(shop)/expenses/+page.ts",
-              "line": 10
+              "line": 7
             },
             {
               "operation": "getExpense",

@@ -475,7 +475,7 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **Example:** The reimburse handler takes its expense repository through its constructor, while a step built with `new` that takes a repository is reported.
 
-**Checked by:** `litespec model check` reports `collaborator-holds-repository` (tier A) for a class built with `new` whose constructor takes a repository.
+**Checked by:** `litespec model check` reports `collaborator-holds-repository` (tier A) for a class built with `new` whose constructor takes a repository, and `dependency-count` (tier A) for a handler, reaction, or job taking more than ten constructor dependencies.
 
 ### Read No Repository Inside a Loop
 

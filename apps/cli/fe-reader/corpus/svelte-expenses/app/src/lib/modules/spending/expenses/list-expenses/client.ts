@@ -1,4 +1,4 @@
-import { listExpenses, fetchExpenses } from "../../../../api-client/client";
+import { listExpenses, fetchExpenses } from "../../../../api-client/client.gen";
 
 export async function loadExpenses(): Promise<unknown> {
   const rows = await listExpenses();

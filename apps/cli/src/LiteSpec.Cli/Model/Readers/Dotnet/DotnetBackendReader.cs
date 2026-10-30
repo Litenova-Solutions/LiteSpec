@@ -328,6 +328,7 @@ sealed class DotnetBackendReader : IBackendReader
                     merged.AggregateMethods.AddRange(local.AggregateMethods);
                     merged.AuditActions.AddRange(local.AuditActions);
                     merged.DomainTypes.AddRange(local.DomainTypes);
+                    merged.RepositoryImplementations.AddRange(local.RepositoryImplementations);
                 }
             });
 
@@ -378,6 +379,11 @@ sealed class DotnetBackendReader : IBackendReader
             .ThenBy(type => type.Line)
             .ThenBy(type => type.Name, StringComparer.Ordinal)
             .ToList()));
+        model.RepositoryImplementations.AddRange(merged.RepositoryImplementations
+            .OrderBy(entry => entry.File, StringComparer.Ordinal)
+            .ThenBy(entry => entry.Line)
+            .ThenBy(entry => entry.Interface, StringComparer.Ordinal)
+            .ToList());
 
         return model;
     }
@@ -439,6 +445,7 @@ sealed class DotnetBackendReader : IBackendReader
         ReadAggregateMethods(file, tree, elements, types, model);
         ReadAuditActions(file, tree, classes, model);
         ReadDomainTypes(config, file, tree, model);
+        ReadRepositoryImplementations(config, file, tree, model);
 
         foreach (var token in root.DescendantTokens())
         {
@@ -573,6 +580,49 @@ sealed class DotnetBackendReader : IBackendReader
                 placed));
         }
     }
+
+    /// <summary>
+    ///     Reads every Infrastructure class implementing a domain repository
+    ///     interface into the model, through its declared base list: the class
+    ///     name, the repository interface it names, and its location. Only files
+    ///     under the Infrastructure root are read, and nested types are left out.
+    /// </summary>
+    private static void ReadRepositoryImplementations(ConsumerConfig config, string file, SyntaxTree tree, CodeModel model)
+    {
+        if (!IsUnder(config.InfrastructureRoot, file))
+        {
+            return;
+        }
+
+        foreach (var declared in tree.GetRoot().DescendantNodes().OfType<TypeDeclarationSyntax>())
+        {
+            if (declared.Parent is TypeDeclarationSyntax || declared is InterfaceDeclarationSyntax || declared.BaseList is null)
+            {
+                continue;
+            }
+
+            foreach (var baseType in declared.BaseList.Types)
+            {
+                var face = SimpleName(KindOf(BaseName(baseType.Type)));
+
+                if (IsRepositoryInterface(face))
+                {
+                    model.RepositoryImplementations.Add(new CodeRepositoryImplementation(
+                        face,
+                        declared.Identifier.ValueText,
+                        file,
+                        tree.GetLineSpan(declared.Identifier.Span).StartLinePosition.Line + 1));
+                }
+            }
+        }
+    }
+
+    /// <summary>Whether the name is a domain repository interface: an <c>I</c>-prefixed name ending in <c>Repository</c>.</summary>
+    private static bool IsRepositoryInterface(string face) =>
+        face.Length > "IRepository".Length
+        && face.StartsWith("I", StringComparison.Ordinal)
+        && char.IsUpper(face[1])
+        && face.EndsWith("Repository", StringComparison.Ordinal);
 
     /// <summary>The namespace holding the declaration, or empty in the global namespace.</summary>
     private static string NamespaceOf(TypeDeclarationSyntax declared)

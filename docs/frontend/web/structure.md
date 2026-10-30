@@ -60,26 +60,26 @@ The generated route artifacts, build output, and dependency folders stay untrack
 
 **Statement:** A frontend use-case folder MUST export one `litespec` constant whose `implements` names its use case, typed against the generated union of use-case identifiers.
 
-**Rationale:** The folder path mirrors the backend use case, which tells a reader where to look but tells a tool only a resemblance. A typed constant is the frontend mark in both mark styles: a mistyped identifier fails the type check, and the route files import the module instead of restating the identifier. The calls a screen makes through the generated client remain the computed `calls` link; the mark adds the written link from the screen to the use case it serves. A query folder at `{module}/reads/{use-case}/` mirrors a use case with no one aggregate, so its expected mark still names `use-case/<module>.<use-case>`, from the module and use-case segments alone.
+**Rationale:** The folder path mirrors the backend use case, which tells a reader where to look but tells a tool only a resemblance. A typed constant is the frontend mark in both mark styles: a mistyped identifier fails the consumer's type check against the generated union, and `litespec model check` reports it as `mark-unresolved` where no type check ran, and the route files import the module instead of restating the identifier. The calls a screen makes through the generated client remain the computed `calls` link; the mark adds the written link from the screen to the use case it serves. A query folder at `{module}/reads/{use-case}/` mirrors a use case with no one aggregate, so its expected mark still names `use-case/<module>.<use-case>`, from the module and use-case segments alone.
 
-**Example:** The submit-expense module in the Claimwick web frontend exports its mark.
+**Example:** The list-expenses module in the Claimwick web frontend exports its mark.
 
 Svelte:
 
 ```ts
-// src/lib/modules/spending/expenses/submit-expense/litespec.ts
-import type { LiteSpecMark } from "$lib/app/litespec-records";
+// src/lib/modules/spending/expenses/list-expenses/litespec.ts
+import type { LiteSpecMark } from "#lib/app/litespec-records.ts";
 
-export const litespec = { implements: "use-case/spending.submit-expense" } as const satisfies LiteSpecMark;
+export const litespec = { implements: "use-case/spending.list-expenses" } as const satisfies LiteSpecMark;
 ```
 
 React:
 
 ```ts
-// src/modules/spending/expenses/submit-expense/litespec.ts
+// src/modules/spending/expenses/list-expenses/litespec.ts
 import type { LiteSpecMark } from "src/app/litespec-records";
 
-export const litespec = { implements: "use-case/spending.submit-expense" } as const satisfies LiteSpecMark;
+export const litespec = { implements: "use-case/spending.list-expenses" } as const satisfies LiteSpecMark;
 ```
 
 **Checked by:** `litespec model check` reports `mark-missing` (tier S) for a use-case folder exporting no `litespec` constant, and `mark-unresolved` (tier S) for one naming a use case its path does not mirror; for a folder at `{module}/reads/{use-case}/` the mirrored use case is the one its module and use-case segments name, with no aggregate segment.

@@ -14,7 +14,7 @@ The project selects `tenancy` only when independent customer organizations share
 
 ## Baseline Relationship
 
-This extension replaces no baseline provision. It adds tenant obligations the baseline does not state: identity, isolation, tenant scope, and operations across every boundary a tenant touches.
+This extension replaces no baseline provision. It adds tenant obligations the baseline does not state: identity, isolation, tenant scope, and operations across every boundary a tenant touches. For delegation, this extension adds only the cross-tenant form; a delegated or temporary grant inside one tenant follows `litespec/core/access#record-a-delegated-grant-inside-one-tenant-as-a-role-assignment`.
 
 It switches on no record type: tenant scope applies to records every project requires, such as decisions, audit records, and exports.
 

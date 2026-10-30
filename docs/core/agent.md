@@ -36,6 +36,20 @@ During adoption, agents write Behavior records from working code and mark each o
 
 Some changes reach beyond an ordinary implementation edit: they alter project boundaries, move money or data, or change state outside the repository. Each such change needs the task authorizer's approval before the agent acts, because the task text alone never justifies it. The side-effect provision below lists the changes it covers.
 
+### New Intent in a Running Project
+
+A running project takes new intent through this one sequence. Other pages link to this sequence instead of stating their own order.
+
+1. Scaffold Intent. Load the records the change touches with `dotnet litespec model query <id>`, add the requirement and the journey step, and open a ballot for every undecided figure, such as a price, a term, a retention period, or a date-dependent default. A tier 1 question waits for its named approver, and a tier 3 question with a recommendation auto-approves after the veto window.
+2. Specify Behavior. Scaffold the use case, its results, and its scenarios with `dotnet litespec new <type> <id>`, `dotnet litespec new result <use-case-id> <name>`, and `dotnet litespec new scenario <use-case-id> <name>`, naming the rules, access, aggregates, consistency, and effects the use case carries.
+3. Validate the records. Run `dotnet litespec consumer` and fix every finding before code moves.
+4. Choose patterns and scaffold screens. Build the pattern Default and record it with `source: recommended`, and wait for an owner only when the route departs from the Default or no Default exists. Scaffold each screen with `dotnet litespec new screen <entry-point>.<name>`.
+5. Implement. Build the Domain change, the handler, the endpoint, the persistence, and the frontend, in that layer order, with `dotnet build` for the backend code. Approval gate: approval lands before this step adds a package, a schema migration, an authentication change, a public API change, production data work, a release, spending, or an outside call that changes state.
+6. Write proofs from Then. Write one test for each scenario through the public boundary, taking every expected value only from the scenario Then. Refusals and calculations also run against the example rows held back from the agent that wrote the code, and the suites in the next step run the proofs.
+7. Run the gates and the model commands in order. Run the boundary-selected gates and the test suites first, then `dotnet litespec model build`, then `dotnet litespec model check`, then `dotnet litespec model render`.
+8. Diff, clear, and batch-approve. Run `dotnet litespec model diff <base> --intent` for the founder review and `dotnet litespec model diff <base> --behavior` for the developer review and the security queue, where `<base>` in a consumer is the consumer default branch, such as `main`, unless it names a consumer folder or another git revision the review names. Clear the security queue, answer the ballots, then approve with `dotnet litespec model review` and `dotnet litespec model approve --batch <selector>`. Batch approval before a final test run is draft review only: the release gate re-reads `verified` after that final run.
+9. Write the release record. Create the release record for the immutable artifact and pass the release gate: green G checks, every tier 1 draft answered, every scenario verified, and green S checks where the reader is qualified.
+
 ## Standards
 
 ### Select Task Context

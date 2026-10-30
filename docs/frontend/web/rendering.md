@@ -191,7 +191,7 @@ The Svelte page does the same in its load:
 
 ```svelte
 <script lang="ts">
-  import ExpensesPage from '$lib/modules/expenses/expenses/search-spender-expenses/expenses-page.svelte';
+  import ExpensesPage from '#lib/modules/expenses/expenses/search-spender-expenses/expenses-page.svelte';
 
   let { data } = $props();
 </script>

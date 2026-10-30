@@ -1,4 +1,4 @@
-import { getExpense } from "../api-client/client";
+import { getExpense } from "../api-client/client.gen";
 
 export function formatMoney(amount: number): string {
   return String(amount);

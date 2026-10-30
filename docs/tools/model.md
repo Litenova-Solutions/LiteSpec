@@ -45,7 +45,7 @@ The eight subcommands share one reader:
 - `query` prints one record with its links in both directions. Agents use it to load a record's context.
 - `names` prints the per-module names inventory: the verbs in use with counts, the nouns after the verb, reaction facts, events, refusal codes, notification template keys, and setting names, with the lookalike groups. Agents read it without rendering the book.
 - `backfill` drafts missing Behavior frontmatter from code during adoption, as above. On a module holding no use-case, reaction, or job records it exits 1.
-- `diff` compares the working tree against a base. The base is a consumer folder holding `litespec.project.json`, or a git revision of the consumer. Records match by identifier. `--intent` shows Intent changes in product words, `--behavior` shows Behavior changes and the security queue, and without either flag it shows both. The changelog prints REMOVED, then MODIFIED, then ADDED; each section groups entries by family: goals and requirements, domain, access, operations. The header counts breaking, removed, modified, and added changes. `text` is the changelog reviewers read, `markdown` is the pull request comment, and `json` carries every change with its fingerprint and the counts for machines. `--breaking-only` shows breaking changes and hides the rest.
+- `diff` compares the working tree against a base. The base is a consumer folder holding `litespec.project.json`, or a git revision of the consumer. In a consumer, `<base>` is the consumer default branch, such as `main`, for a review diff, unless the review names a consumer folder or another git revision. Records match by identifier. `--intent` shows Intent changes in product words, `--behavior` shows Behavior changes and the security queue, and without either flag it shows both. The changelog prints REMOVED, then MODIFIED, then ADDED; each section groups entries by family: goals and requirements, domain, access, operations. The header counts breaking, removed, modified, and added changes. `text` is the changelog reviewers read, `markdown` is the pull request comment, and `json` carries every change with its fingerprint and the counts for machines. `--breaking-only` shows breaking changes and hides the rest.
 
 The security queue ends the behavior diff. It lists the changes the security reviewer named in `review.securityReviewer` approves: access tenant scope widenings to `cross`, new `calls` effects, and new personal or sensitive data classes.
 
@@ -72,7 +72,7 @@ Every reason except `refusal-path-added` fires only on approved or reviewed reco
 
 A finding that an open known gap covers is reported as known and exits zero. The gap covers the finding when its `check` equals the finding code, its `subject` lists the finding's subject, the gap is not retired, and its end date has not passed. A gap on a use case also covers the findings about the scenarios and results it holds. An expired known gap fails the check.
 
-Every check has a tier. G reads records only and always blocks. S reads code through a stack reader: it blocks where the reader that produced the finding is qualified, and reports otherwise. Qualification is per reader: the TypeScript reader qualifies once its golden corpus passes, and the .NET (Roslyn) reader, including Blazor and Android screens, stays qualified. A is advisory: it reports and never blocks. An S finding about a draft record reports without blocking and prints `draft`, and while `check.phase` is `frozen` a proof finding reports without blocking and prints `frozen`. The finding codes are:
+Every check has a tier. G reads records only and always blocks. S reads code through a stack reader: it blocks where the reader that produced the finding is qualified, and reports otherwise. Qualification is per reader: a reader qualifies when its handshake matches; the golden corpus is a test contract for the reader bundle and does not gate a consumer run. The .NET (Roslyn) reader, including Blazor and Android screens, stays qualified. A finding no reader produced, a record finding, is qualified. A is advisory: it reports and never blocks. An S finding about a draft record reports without blocking and prints `draft`, and while `check.phase` is `frozen` a proof finding reports without blocking and prints `frozen`. The finding codes are:
 
 | Code | Tier | Meaning |
 |:---|:---|:---|
@@ -146,12 +146,13 @@ Every check has a tier. G reads records only and always blocks. S reads code thr
 | `act-event-unraised` | S | A use case lists an event in `raises` that no root method marked with it raises. |
 | `use-case-act-uncalled` | S | A command handler calls no root method marked with its use case. |
 | `aggregate-unimplemented` | S | No aggregate root carries the aggregate mark. |
+| `repository-unimplemented` | S | An aggregate a use case changes has no Infrastructure repository implementing its domain repository. |
 | `reaction-unimplemented` | S | No event handler carries the reaction mark. |
 | `job-unimplemented` | S | No job host carries the job mark. |
 | `external-system-unimplemented` | S | No port carries the external system mark. |
 | `use-case-unexposed` | S | A use case reached through a `browser` or `api` entry point has no endpoint carrying its mark. |
 | `effect-unimplemented` | A | A declared effect edge is taken by no code. |
-| `use-case-unreached` | A | A use case reached through a browser or device entry point is offered by no screen of that entry point. |
+| `use-case-unreached` | A | A use case reached through a browser or device entry point is offered by no screen of that entry point. It reports and does not block: a use case with no screen does not block a check or a release. |
 | `screen-unimplemented` | S | No route carries the screen's mark. |
 | `screen-calls-mismatch` | S | A screen's `offers` differs from the use cases its route reaches through the generated client. |
 | `screen-serves-mismatch` | G | A screen serves a journey step no use case it offers serves. |
@@ -194,6 +195,7 @@ Every check has a tier. G reads records only and always blocks. S reads code thr
 | `query-filters-in-memory` | A | A query handler filters a repository list with LINQ in memory. |
 | `dependency-count` | A | A handler, reaction or job takes more than ten constructor dependencies. |
 | `effect-before-commit` | S | A command use case declares a `sends` or `calls` effect with `inline` timing. |
+| `partial-missing` | S | A marked domain event or rule exception is not declared `partial`, so the generator cannot add its runtime value. |
 
 The `render` subcommand writes these generated regions, each fenced by `<!-- generated:<name> -->` and `<!-- /generated:<name> -->`: `history`, `use-case-coverage`, `sub-processors`, `runbook-index`, `rule-map`, `operations-log`, `open-questions`, `journeys`, `glossary`, `deviations`, `census`, `aggregate-map`, `audit-register`, `alert-inventory`, and `counts`.
 
@@ -202,7 +204,7 @@ The `render` subcommand writes these generated regions, each fenced by `<!-- gen
 | Argument | Required | Effect |
 |:---|:---|:---|
 | `<id>` | for `query` | Prints the record with this identifier and its links both ways. |
-| `<base>` | for `diff` | The consumer folder or git revision to compare against. |
+| `<base>` | for `diff` | The consumer folder or git revision to compare against; in a consumer, the default branch, such as `main`, for a review diff. |
 | `<module>` | for `backfill` | Backfills this module only for use cases, reactions, and jobs; without it, every module. Screen backfill runs per frontend and entry point either way. |
 
 ## Options
@@ -322,6 +324,6 @@ litespec model diff main --root ../consumer --format markdown --breaking-only --
 
 ## Underneath
 
-A web frontend is read by a TypeScript reader that ships with the tool as one bundled script: the tool runs it with Node once per build or check, sends one versioned JSON request on standard input, and reads one versioned JSON facts document back, so a consumer installs nothing beyond Node itself. The reader opens with a handshake naming the protocol version, the reader, and the TypeScript and Svelte versions; a version mismatch, an absent Node, or a reader failure produces the single `reader-unavailable` finding for that frontend instead of passing silently. A finding records the reader that produced its facts, and its tier takes that reader's qualification: the TypeScript reader qualifies once its golden corpus passes, and the .NET (Roslyn) reader, which reads Blazor and Android frontends, stays qualified.
+A web frontend is read by a TypeScript reader that ships with the tool as one bundled script: the tool runs it with Node once per build or check, sends one versioned JSON request on standard input, and reads one versioned JSON facts document back, so a consumer installs nothing beyond Node itself. The reader opens with a handshake naming the protocol version, the reader, and the TypeScript and Svelte versions; a version mismatch, an absent Node, or a reader failure produces the single `reader-unavailable` finding for that frontend instead of passing silently. A finding records the reader that produced its facts, and its tier takes that reader's qualification: a reader qualifies when its handshake matches; the golden corpus is a test contract for the reader bundle and does not gate a consumer run. The .NET (Roslyn) reader, which reads Blazor and Android frontends, stays qualified. A finding no reader produced, a record finding, is qualified.
 
 The builder reads `paths`, `shape`, and `stacks` from the consumer's `litespec.project.json`. It reads shared provisions from the release the tool carries, the record owners from the CODEOWNERS file at `.github/CODEOWNERS`, `CODEOWNERS`, or `docs/CODEOWNERS`, and the test run from TRX or JUnit XML files under `paths.testResults`. A git diff base is read through an archive into a temporary folder, which is removed after the diff. Nothing beneath it is separately runnable.

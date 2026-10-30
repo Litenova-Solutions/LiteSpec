@@ -226,7 +226,7 @@ What each field means and what reads it:
 - `operations` names the deployment, proxy, host, and CI workflow files or folders that carry `follows` marks in their `#` comments; below a named folder every file counts except Markdown documentation.
 - `checkResults` names where drill and harness check results live, read beside the measured-check results under `testResults`.
 - `sbom` names the bill of materials files or folders, SPDX or CycloneDX JSON, checked against the manifest pins, the admissions, and `dependencies.licences`.
-- `apiClient` names the generated API client the frontends import, so route calls resolve to the use cases they reach. The model builder appends `src` to the configured path.
+- `apiClient` names the generated API client the frontends import, so route calls resolve to the use cases they reach. The model builder appends `src` to the configured path, and the reader takes operations only from the files the client generator writes (`*.gen.ts`), so a hand-written helper beside them is not an operation.
 - `surfaces` names the surfaces outside `paths.frontends` that invoke a use case: a command-line tool, a distributed server, a background host, or an event reaction. Each entry holds `name`, `description`, and an optional `path`.
 - `uiPackage` declares the one shared UI package of the workspace. A workspace with no controlled web frontend omits it. See the `uiPackage` object below.
 - `uiPatterns` names the workspace UI pattern catalog. A workspace that records no pattern decisions omits it.
@@ -279,6 +279,7 @@ What each field means and what reads it:
 | `name` | string | yes | none |
 | `path` | string | yes | none |
 | `platform` | string | yes | none |
+| `entryPoint` | string | no | the entry points of its screens |
 | `refusalDictionary` | string | no | none |
 | `routeSuite` | string | no | none |
 | `visualGoldens` | string | no | none |
@@ -289,6 +290,7 @@ What each field means and what reads it:
 - `name` is the frontend name, such as `"web"`. It matches `^[a-z][a-z0-9-]*$`.
 - `path` is the frontend directory, such as `"apps/web"`. `litespec consumer` reports a frontend whose directory does not exist.
 - `platform` is `react`, `svelte`, `blazor`, or `android`. Every entry declares it, so a frontend outside the controlled UI contract still declares that position instead of omitting the field. A `react` or `svelte` frontend is controlled and requires a `ui` block and the shared package. A `blazor` or `android` frontend is skipped by the controlled UI check.
+- `entryPoint` names the browser or device entry point the frontend serves, such as `"entry-point/claimwick-app"`. The model builder reads the frontend's screens, use cases and records file through it, and `model backfill` drafts the frontend's screens under it. Without it, the entry points its screens name decide, and before any screen exists every browser entry point does.
 - `refusalDictionary` names the file or folder holding that frontend's refusal dictionary: one sentence per refusal code, keyed by the refusal `code`. The model builder reads it for `result-unshown`, so a refusal a screen can reach is shown from that frontend's own words.
 - `routeSuite` names the file or folder holding that frontend's route suite. The model builder reads it for the route-suite `proves` check, so the suite has a named subject instead of a convention.
 - `visualGoldens` names the folder holding that frontend's visual goldens. The model builder reads it for the same check, so a golden outside the named folder proves nothing.

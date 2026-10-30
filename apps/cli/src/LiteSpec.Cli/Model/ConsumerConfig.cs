@@ -14,7 +14,8 @@ sealed record FrontendConfig(
     string Platform,
     string? RefusalDictionary = null,
     string? RouteSuite = null,
-    string? VisualGoldens = null)
+    string? VisualGoldens = null,
+    string? EntryPoint = null)
 {
     /// <summary>The routes root the reader reads.</summary>
     public string RoutesRoot => System.IO.Path.Combine(Path, "src", "routes");
@@ -629,7 +630,10 @@ sealed class ConsumerConfig
 
                 found.Add(new FrontendConfig(
                     named, Combine(root, located), platform,
-                    Optional("refusalDictionary"), Optional("routeSuite"), Optional("visualGoldens")));
+                    Optional("refusalDictionary"), Optional("routeSuite"), Optional("visualGoldens"),
+                    frontend.TryGetProperty("entryPoint", out var entry) && entry.ValueKind == JsonValueKind.String
+                        ? entry.GetString()
+                        : null));
             }
         }
 

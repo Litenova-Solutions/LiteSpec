@@ -1,3 +1,9 @@
+<script module lang="ts">
+  import type { LiteSpecMark } from "#lib/app/litespec-records.ts";
+
+  export const litespec = { implements: "screen/claimwick-app.expense-list" } as const satisfies LiteSpecMark;
+</script>
+
 <script lang="ts">
   import { listExpenses } from "@claimwick/api";
   import { DataTable, ListPage } from "@claimwick/ui/floorplans";

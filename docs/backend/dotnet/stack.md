@@ -96,7 +96,7 @@ The generated part holds `public const string Classification = "event/expense.su
 
 **Example:** `public sealed partial record ExpenseSubmittedEvent(...)` takes its generated `Classification`; the same record without `partial` is reported.
 
-**Checked by:** `dotnet build` reports `LS5006` for a marked domain event or rule exception that is not `partial`, in every project that references the analyzer package.
+**Checked by:** `litespec model check` reports `partial-missing` (tier S), and `dotnet build` reports `LS5006`, for a marked domain event or rule exception that is not `partial`, in every project that references the analyzer package.
 
 ### Write Test Results the Model Builder Reads
 

@@ -38,6 +38,7 @@ A page record carries its type, identifier, title, owner, and status in JSON fro
 | `notification.md` | `docs/behavior/modules/<module>/notifications/<name>.md` | Defines one person-facing message and its claims. |
 | `integration-event.md` | `docs/behavior/integration-events/<name>.md` | Defines one published or consumed integration event. |
 | `screen.md` | `docs/behavior/screens/<entry-point>.<name>.md` | Records one page a person sees through an entry point, what it offers, and the steps it serves. |
+| `release-record.md` | `docs/releases/<YYYY-MM-DD>.md` | Records one release: what it ships, the evidence it was gated on, and who approved it. |
 | `runbook.md` | `docs/behavior/runbooks/<name>.md` | Gives one repeatable recovery or operating procedure. |
 | `deviation.md` | `docs/governance/deviations/<name>.md` | Records one departure from a provision, with reason and review date. |
 | `known-gap.md` | `docs/governance/known-gaps/<name>.md` | Records one accepted gap whose check stays red. |

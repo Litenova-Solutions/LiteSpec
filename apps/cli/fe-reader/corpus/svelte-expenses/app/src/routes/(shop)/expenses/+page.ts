@@ -1,9 +1,6 @@
-import type { LiteSpecMark } from "$lib/app/litespec-records";
-import { listExpensesAsync } from "../../../api-client/client";
-import { loadExpenses } from "$lib/modules/spending/expenses/list-expenses/client";
-import { formatMoney } from "$lib/app/helpers";
-
-export const litespec = { implements: "screen/web.expense-list" } as const satisfies LiteSpecMark;
+import { listExpensesAsync } from "../../../api-client/client.gen";
+import { loadExpenses } from "#lib/modules/spending/expenses/list-expenses/client.ts";
+import { formatMoney } from "#lib/app/helpers.ts";
 
 export async function load(): Promise<unknown> {
   const rows = await loadExpenses();

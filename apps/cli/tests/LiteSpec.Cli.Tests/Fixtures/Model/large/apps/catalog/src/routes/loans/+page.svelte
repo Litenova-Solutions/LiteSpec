@@ -1,3 +1,9 @@
+<script module lang="ts">
+  import type { LiteSpecMark } from "$lib/app/litespec-records";
+
+  export const litespec = { implements: "screen/library-app.loans" } as const satisfies LiteSpecMark;
+</script>
+
 <script>
   import { borrowCopy, cancelHold, extendLoan, listLoans, placeHold, registerCopy, retireCopy, returnCopy } from '@fixture/api';
 

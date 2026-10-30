@@ -24,6 +24,33 @@ public sealed class ScreenRenameAndRecordsTests
         Assert.Equal(["screen/admin.loans"], FrontendRecords.ScreenIds(model, admin));
     }
 
+    /// <proves>litespec/frontend/web/structure#generate-the-records-file-into-the-frame</proves>
+    [Fact]
+    public void A_Frontend_Naming_Its_Entry_Point_Is_Read_Through_It_Before_Any_Screen_Exists()
+    {
+        using var temp = Cli.Temp("screen-entry-point");
+        Directory.CreateDirectory(Path.Combine(temp.Path, "docs"));
+        File.WriteAllText(
+            Path.Combine(temp.Path, "litespec.project.json"),
+            """
+            {
+              "owners": ["lending-team"],
+              "paths": {
+                "frontends": [
+                  { "name": "admin", "path": "apps/admin", "platform": "react", "entryPoint": "entry-point/admin" }
+                ]
+              }
+            }
+            """);
+        var model = new ProjectModel { Config = ConsumerConfig.Load(temp.Path) };
+        model.Records.Add(Rec("entry-point", "entry-point/app", """{"kind":"browser"}""", temp.Path));
+        model.Records.Add(Rec("entry-point", "entry-point/admin", """{"kind":"browser"}""", temp.Path));
+
+        var admin = model.Config.Frontends.Single();
+
+        Assert.Equal(["entry-point/admin"], FrontendRecords.EntryPointsOf(model, admin));
+    }
+
     /// <proves>litespec/core/maintaining#replace-every-citation-on-a-rename</proves>
     [Fact]
     public void Rename_Screen_Rewrites_Its_Record_Route_Mark_And_Browser_Annotation()
@@ -50,8 +77,7 @@ public sealed class ScreenRenameAndRecordsTests
             An employee sees their loans.
             """);
 
-        var route = Path.Combine(root, "apps", "catalog", "src", "routes", "loans", "+page.ts");
-        File.WriteAllText(route, "export const litespec = { implements: \"screen/library-app.loans\" } as const;\n");
+        var route = Path.Combine(root, "apps", "catalog", "src", "routes", "loans", "+page.svelte");
 
         var spec = Path.Combine(root, "apps", "catalog", "tests", "loans.spec.ts");
         Directory.CreateDirectory(Path.GetDirectoryName(spec)!);

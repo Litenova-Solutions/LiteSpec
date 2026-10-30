@@ -201,13 +201,9 @@ static class NodeFrontendReader
                 writer.WriteEndArray();
                 writer.WriteStartObject("aliases");
 
-                if (frontend.Platform == "react")
+                foreach (var (alias, target) in Aliases(frontend))
                 {
-                    writer.WriteString("@", Slash(Path.Combine(frontend.Path, "src")));
-                }
-                else
-                {
-                    writer.WriteString("$lib", Slash(Path.Combine(frontend.Path, "src", "lib")));
+                    writer.WriteString(alias, Slash(target));
                 }
 
                 writer.WriteEndObject();
@@ -221,6 +217,53 @@ static class NodeFrontendReader
         }
 
         return Encoding.UTF8.GetString(stream.ToArray());
+    }
+
+    /// <summary>
+    ///     The import aliases a frontend resolves: the <c>#</c> subpath imports its
+    ///     <c>package.json</c> declares, or the stack's own alias when it declares none
+    ///     (<c>@</c> for <c>src</c> on React, <c>#lib</c> for <c>src/lib</c> on Svelte).
+    /// </summary>
+    internal static IReadOnlyList<(string Alias, string Target)> Aliases(FrontendConfig frontend)
+    {
+        var declared = new List<(string, string)>();
+        var manifest = Path.Combine(frontend.Path, "package.json");
+
+        if (File.Exists(manifest))
+        {
+            try
+            {
+                using var document = JsonDocument.Parse(File.ReadAllText(manifest));
+
+                if (document.RootElement.TryGetProperty("imports", out var imports)
+                    && imports.ValueKind == JsonValueKind.Object)
+                {
+                    foreach (var entry in imports.EnumerateObject())
+                    {
+                        if (entry.Name.EndsWith("/*", StringComparison.Ordinal)
+                            && entry.Value.ValueKind == JsonValueKind.String
+                            && entry.Value.GetString() is { } target
+                            && target.EndsWith("/*", StringComparison.Ordinal))
+                        {
+                            declared.Add((entry.Name[..^2], Path.GetFullPath(Path.Combine(frontend.Path, target[..^2]))));
+                        }
+                    }
+                }
+            }
+            catch (JsonException)
+            {
+                // An unreadable package file declares nothing; the stack alias applies.
+            }
+        }
+
+        if (declared.Count > 0)
+        {
+            return declared;
+        }
+
+        return frontend.Platform == "react"
+            ? [("@", Path.Combine(frontend.Path, "src"))]
+            : [("#lib", Path.Combine(frontend.Path, "src", "lib"))];
     }
 
     private static IReadOnlyList<string> TestRoots(ConsumerConfig config, FrontendConfig frontend)

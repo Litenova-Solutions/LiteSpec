@@ -334,7 +334,7 @@ static partial class UiValidator
 
             if (controlled.Count > 0 && !hasPkg)
             {
-                Errors.Add($"litespec/frontend/ui#select-one-visual-authority litespec.project.json: {controlled.Count} controlled frontend(s) and no paths.uiPackage");
+                Errors.Add($"[litespec/frontend/ui#select-one-visual-authority] litespec.project.json: {controlled.Count} controlled frontend(s) and no paths.uiPackage");
             }
 
             UiSharedPackage? packageSummary = null;
@@ -467,7 +467,7 @@ static partial class UiValidator
                 var uiBlock = Child(frontend, "ui");
                 if (!Truthy(uiBlock))
                 {
-                    Errors.Add($"{label}: a controlled frontend requires a 'ui' block declaring its density profile");
+                    Errors.Add($"[litespec/frontend/ui#use-the-product-profiles] {label}: a controlled frontend requires a 'ui' block declaring its density profile");
                     continue;
                 }
 
@@ -475,7 +475,7 @@ static partial class UiValidator
                 var profile = uiBlock.Node is JsonObject ? Child(uiBlock.Node, "profile") : new JsValue(false, null);
                 if (profile.Node is not JsonValue profileValue || !profileValue.TryGetValue<string>(out var profileText) || (profileText != "public-light" && profileText != "application-balanced" && profileText != "admin-dense"))
                 {
-                    Errors.Add($"{label}: profile must be one of public-light, application-balanced, admin-dense");
+                    Errors.Add($"[litespec/frontend/ui#use-the-product-profiles] {label}: profile must be one of public-light, application-balanced, admin-dense");
                 }
 
                 var frontendPath = Child(frontend, "path");

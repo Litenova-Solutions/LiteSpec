@@ -269,13 +269,7 @@ A record stays unapproved while a decision behind it stays draft. An accepted ga
 
 ### Authoring Order
 
-Records are authored top-down, one slice at a time:
-
-1. Product intent: brief, goals, problems, features, constraints, decisions, requirements.
-2. Then Behavior: modules, aggregates with states, transitions and data, rules, use cases, results, scenarios, reactions, jobs, notifications, settings.
-3. Actors, roles, permissions and the glossary grow beside both.
-4. One slice at a time: one feature from problem to scenario, then the next.
-5. A question found while modeling goes up as a draft question with a decider and a date; the Behavior record stays draft until it is answered.
+Records are authored top-down, one slice at a time: one feature from problem to scenario, then the next. Actors, roles, permissions, and the glossary grow beside Intent and Behavior. A question found while modeling goes up as a draft question with a decider and a date; the Behavior record stays draft until it is answered. Adding new intent to a running project follows the one sequence under New Intent in a Running Project on the [agent page](agent.md); this page states no second order.
 
 ### Statuses
 
@@ -335,7 +329,7 @@ Every check has a tier.
 | S | Reads code through a stack reader. Blocks where the reader that produced the finding is qualified, and reports otherwise. |
 | A | Advisory. Reports and never blocks. |
 
-Qualification is per reader, never global: a finding takes the qualification of the reader that produced its facts. The TypeScript reader qualifies once its golden corpus passes and its handshake matches; the .NET (Roslyn) reader, including the Blazor and Android screens it reads, stays qualified. An S finding from an unqualified reader reports without blocking even when another reader in the same project is qualified.
+Qualification is per reader, never global: a finding takes the qualification of the reader that produced its facts. A reader qualifies when its handshake matches; the golden corpus is a test contract for the reader bundle and does not gate a consumer run. The .NET (Roslyn) reader, including the Blazor and Android screens it reads, stays qualified. A finding no reader produced, a record finding, is qualified. An S finding from an unqualified reader reports without blocking even when another reader in the same project is qualified. A missing or failing reader produces `reader-unavailable` (tier S) for that frontend, and that frontend's S findings report instead of blocking.
 
 `litespec model check` prints the tier beside each finding.
 
@@ -444,7 +438,7 @@ Field tables render as tables. Scenarios group under their result. Field names n
 
 **Rationale:** A use case with no served journey step or goal and no fulfilled requirement answers to nothing above it: no promise explains why it exists. Pointing up with serves or fulfills ties every behavior to the Intent that asks for it. `record-orphaned` fails a use case carrying neither.
 
-**Checked by:** `litespec model check` reports `record-orphaned` for a use case with neither `serves` nor `fulfills`.
+**Checked by:** `litespec model check` reports `record-orphaned` for a use case with neither `serves` nor `fulfills`, and `journey-reach` (tier G) at large size for a use case that is not background-only and serves no journey step.
 
 ### Serve Every Journey Step
 
@@ -512,7 +506,7 @@ Field tables render as tables. Scenarios group under their result. Field names n
 
 The `use-case-unimplemented` check reports without failing until 2027-06-01, and the expenses team answers for closing the gap, which satisfies this provision.
 
-**Checked by:** `litespec model check` reports `record-shape` and `known-gap-expired` for a gap missing its owner, date, or renewal.
+**Checked by:** `litespec model check` reports `record-shape` and `known-gap-expired` for a gap missing its owner, date, or renewal, and `gap-unknown-check` (tier G) for a known gap naming a check no check uses.
 
 ### Apply Guidance Precedence
 
@@ -584,7 +578,7 @@ A deviation that governs code no record describes names those files in `code`, a
 
 **Rationale:** Why a pattern, a library, or a configuration value was chosen is the first question a maintainer asks before changing it. Written in a comment, the answer drifts and no tool finds it. Written as a decision, it carries its options, what speaks for and against each, and what would reopen it, and every code element shaped by it names it in a `follows` mark. A choice a LiteSpec provision already makes needs no decision, because the provision is the record. Technical decisions sit under Implementation because they name technologies and code, which Intent never holds, and they share the numbered sequence of product decisions, so all decisions share one identifier space.
 
-**Example:** Claimwick stores each expense as one document. `decision/0002-store-expenses-as-documents` weighs a document store against relational tables, chooses documents, and names what reopens the choice: a report that must join expenses across employees. The expense repository carries `/// <follows>decision/0002-store-expenses-as-documents</follows>`.
+**Example:** Claimwick renders each receipt as a PDF file. `decision/0005-render-receipts-as-pdf` weighs a PDF library against an HTML-to-PDF browser, chooses the PDF library, and names what reopens the choice: receipts no longer needing a downloadable file. The receipt PDF renderer carries `/// <follows>decision/0005-render-receipts-as-pdf</follows>`.
 
 **Checked by:** `litespec model check` reports `decision-unfollowed` (tier S) for a technical decision that no code element follows. The check runs in the CLI only, with no analyzer rule: whether any code follows a decision is known only across every project, and one compilation sees one project.
 
@@ -596,7 +590,7 @@ A deviation that governs code no record describes names those files in `code`, a
 
 **Rationale:** A technical decision chooses one way among alternatives, and a better alternative may replace it tomorrow. A rule such as keeping personal data in the European Union, or a target such as answering checkout within two seconds, does not change when the library does: overriding it needs a business, legal, or organizational change. Written inside a decision, the rule disappears the day the decision is replaced, and nobody approves it as the business promise it is. Kept in Intent, the rule and the target are approved by the person who owns them, the decision points up to them, and the chain runs unbroken from code through the decision to the constraint or requirement and the goal above it. A decision with no basis is advice, tier A, while a product decision that decides nothing blocks at tier G: a technical choice among equal options may serve no rule or target yet and still govern the code that follows it, but a product decision that settles no record governs nothing.
 
-**Example:** Claimwick stores receipts in a European region because `constraint/receipts-stay-in-the-eu` requires it, and answers submissions quickly because `requirement/spending.month-end-submissions` sets the target. `decision/0002-store-expenses-as-documents` names both in `basedOn`; neither the region nor the two seconds is written in the decision.
+**Example:** Claimwick keeps each receipt for the tax file because `constraint/tax-receipt-retention` requires it, and answers submissions quickly because `requirement/spending.month-end-submissions` sets the target. `decision/0005-render-receipts-as-pdf` names the constraint in `basedOn`, and `decision/0004-serve-receipts-behind-one-proxy` names the requirement in `basedOn`; neither the seven years nor the two seconds is written in a decision.
 
 **Checked by:** `litespec model check` reports `decision-without-basis` (tier A) for a technical decision whose `basedOn` names nothing, and counts a quality requirement as fulfilled when a technical decision names it in `basedOn`.
 
@@ -701,7 +695,7 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 
 **Rationale:** A Behavior record written around an open question bakes the guess into states, rules, and scenarios. Sending the question up with its decider, its date, its recommendation, its ballot group, and its tier keeps it owned and dated, while the Behavior record stays draft until the answer lands. A draft past its date that cannot auto-approve becomes a known gap with its owner, so it never silently blocks.
 
-**Reviewed for:** Open modeling questions appear as draft questions carrying a decider and a date.
+**Checked by:** `litespec model check` reports `question-aged` (tier A) for a question, or a draft, standing past its decide-by date.
 
 ### Hold Transcribed Records in Draft
 
@@ -789,7 +783,7 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 
 **Rationale:** A test outside the record tree is either proof of something the specification forgot to state or a test that verifies nothing anyone promised. Naming the lowest record it verifies places each test: a scenario or rule for behavior, a quality requirement for how well the product behaves, a technical decision for a technical choice, an external system or integration event for an agreement with the outside, and a provision for a structural rule the code must keep. A test that verifies a choice no record states shows a missing record, which is written at the level where the choice lives, as safety-critical standards resolve derived requirements; a test that verifies nothing a record should state is deleted. Proof stays layered: only scenario and rule proofs verify a use case, and a passing test of a requirement, decision, external system or provision marks that record tested, so "the adapter is right" never reads as "the promise is kept".
 
-**Example:** In Claimwick, the submit-expense acceptance test proves `scenario/submit-expense.submitting-with-a-receipt-succeeds`; a load test of month-end submissions proves `requirement/spending.month-end-submissions`; a round-trip test of the expense document proves `decision/0002-store-expenses-as-documents`; and the layering test that Domain references no persistence package proves `litespec/backend/architecture#point-dependencies-inward`.
+**Example:** In Claimwick, the submit-expense acceptance test proves `scenario/submit-expense.submitting-with-a-receipt-succeeds`; a load test of month-end submissions proves `requirement/spending.month-end-submissions`; a receipt-rendering test proves `decision/0005-render-receipts-as-pdf`; and the layering test that Domain references no persistence package proves `litespec/backend/architecture#point-dependencies-inward`.
 
 **Checked by:** `litespec model check` reports `mark-missing` and `mark-unresolved` (tier S) for a test that names no record or a record of a kind a test does not take.
 

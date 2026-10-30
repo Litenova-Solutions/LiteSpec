@@ -264,6 +264,18 @@ An actor, role, or external system page carries a Summary section stating what t
 
 **Reviewed for:** Which hierarchy, trust, or delegation patterns lack an allowed and a refused scenario? Look at the scenarios on the use cases that carry the pattern.
 
+### Record a Delegated Grant Inside One Tenant as a Role Assignment
+
+**ID:** `litespec/core/access#record-a-delegated-grant-inside-one-tenant-as-a-role-assignment`
+
+**Statement:** A delegated or temporary grant inside one tenant MUST be recorded as a role assignment with a validity window in `validFrom` and `validUntil`, held on an aggregate the access model reads and granted and revoked by its own use cases.
+
+**Rationale:** Inside one tenant, delegation changes who holds a role for a time, not which grant forms exist. Recording the assignment with its window on an aggregate the access model reads gives the authorization guard one stated source for the deputy, the role, and the dates, and the granting and revoking use cases make the start and the end reviewable acts. A use case acting under the assignment declares its permission as usual, so no new access form appears. The tenancy extension adds only the cross-tenant form of delegation; it adds no form inside one tenant.
+
+**Example:** In Claimwick, a manager delegating approval to a deputy for 2026-12-20 to 2027-01-05 is recorded as an assignment of the approver role to the deputy with `validFrom` of 2026-12-20 and `validUntil` of 2027-01-05, granted by its own grant use case and ended by its own revoke use case. The approve use case acting under it still declares `permission/approve-expense`.
+
+**Reviewed for:** Which delegated or temporary grants inside one tenant lack a role assignment with `validFrom` and `validUntil` on an aggregate the access model reads, or lack their own granting and revoking use cases? Look at the assignments beside the actor holds and the use cases that act under them.
+
 ### Grant Across Tenants Only Through Declared Delegation
 
 **ID:** `litespec/core/access#grant-across-tenants-only-through-declared-delegation`

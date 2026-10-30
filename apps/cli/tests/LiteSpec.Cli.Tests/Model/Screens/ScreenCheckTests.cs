@@ -347,7 +347,7 @@ public sealed class ScreenCheckTests
 
     static void AddRoute(ProjectModel model, string screenId, string address, IReadOnlyList<string> useCases)
     {
-        var file = Path.Combine(model.Config.Root, "apps", "web", "src", "routes", "loans", "+page.ts");
+        var file = Path.Combine(model.Config.Root, "apps", "web", "src", "routes", "loans", "+page.svelte");
 
         model.Code.Elements.Add(new MarkedElement(
             CodeKind.FrontendRoute, address, null, file, 3,
@@ -362,7 +362,7 @@ public sealed class ScreenCheckTests
 
     static MarkedElement RouteElement(string? screenId, string address, string root)
     {
-        var file = Path.Combine(root, "apps", "web", "src", "routes", "loans", "+page.ts");
+        var file = Path.Combine(root, "apps", "web", "src", "routes", "loans", "+page.svelte");
         var marks = screenId is null
             ? new List<CodeMark>()
             : [new CodeMark(screenId, MarkStyle.Xml, MarkVerb.Implements, file, 3)];

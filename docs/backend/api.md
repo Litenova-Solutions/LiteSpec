@@ -407,7 +407,7 @@ An operation requiring a control header declares it as a required parameter, for
 
 **Example:** `use-case/spending.reimburse-expense` travels as `ReimburseExpenseCommand`, operation id `ReimburseExpense`, and audit action `reimburse-expense`; an operation id of `PayExpense` is reported.
 
-**Checked by:** `litespec model check` reports `name-drift-across-layers` (tier A) for a message type, operation id or audit action differing from the use-case name.
+**Checked by:** `litespec model check` reports `name-drift-across-layers` (tier A) for a message type, operation id or audit action differing from the use-case name, and `operation-id-duplicate` (tier S) for two endpoints declaring one operation id.
 
 ## Conventions
 

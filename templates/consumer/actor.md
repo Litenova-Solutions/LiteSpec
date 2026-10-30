@@ -19,7 +19,10 @@
     {
       "question": "<The open question, or remove the questions block>",
       "decider": "<owner>",
-      "decideBy": "<YYYY-MM-DD>"
+      "decideBy": "<YYYY-MM-DD>",
+      "recommended": "<The recommended answer>",
+      "ballot": "<decision-id or topic slug>",
+      "tier": "<1|3>"
     }
   ]
 }

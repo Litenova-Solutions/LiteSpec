@@ -121,9 +121,9 @@ Read the full provision before you apply any of these:
 
 A consumer keeps one pattern catalog. Each entry starts from a LiteSpec pattern in `docs/frontend/patterns/`, cites it by ID, and records the chosen option and who chose it.
 
-To help an owner choose, show the options on the pattern's page on the LiteSpec site and recommend one. Then build the chosen option from its wireframe text with the project's own components, style and design system.
+An agent builds the pattern's Default from its wireframe text with the project's own components, style and design system, and records it with `source: recommended`. It waits for an owner only when the route departs from the Default or no Default exists. To help an owner choose in that case, show the options on the pattern's page on the LiteSpec site and recommend one.
 
-If you see how a pattern could be better, finish the task on the chosen option and put the proposal in your completion report. Leave the decision unchanged, and ask nothing mid-task. A proposal that isn't specific to one product goes to the LiteSpec pattern page once the owner accepts it.
+If you see how a pattern could be better, finish the task on the recorded option and put the proposal in your completion report. Leave the decision unchanged, and ask nothing mid-task. A proposal that isn't specific to one product goes to the LiteSpec pattern page once the owner accepts it.
 
 Sources: `litespec/frontend/patterns#keep-one-pattern-catalog`, `litespec/frontend/patterns#start-from-a-litespec-pattern`, `litespec/frontend/patterns#record-who-chose`, `litespec/frontend/patterns#keep-a-visual-registry`, `litespec/frontend/patterns#report-pattern-feedback-after-the-work`, `litespec/frontend/patterns#promote-pattern-improvements`.
 

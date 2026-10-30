@@ -45,6 +45,11 @@ static class FrontendRecords
     /// </summary>
     public static IReadOnlyList<string> EntryPointsOf(ProjectModel model, FrontendConfig frontend)
     {
+        if (frontend.EntryPoint is { Length: > 0 } named)
+        {
+            return [named];
+        }
+
         var own = model.Screens
             .Where(screen => screen.Frontend == frontend.Name && screen.ScreenId is not null)
             .Select(screen => screen.ScreenId!)

@@ -89,6 +89,9 @@ sealed record EndpointOperation(string Operation, string UseCaseId, string Metho
 /// <summary>One repository interface a handler, reaction or job class takes in its constructor.</summary>
 sealed record CodeRepository(string Interface, string File, int Line);
 
+/// <summary>One Infrastructure class implementing a domain repository interface, through its declared base list.</summary>
+sealed record CodeRepositoryImplementation(string Interface, string Class, string File, int Line);
+
 /// <summary>One refusal code a handler, reaction or job class produces in a declaring position.</summary>
 sealed record CodeRefusal(string Code, string File, int Line);
 
@@ -150,4 +153,7 @@ sealed class CodeModel
 
     /// <summary>Every top-level type declared in the Domain project, merged across partial parts.</summary>
     public List<DomainType> DomainTypes { get; } = [];
+
+    /// <summary>Every Infrastructure class implementing a domain repository interface, sorted by file then line.</summary>
+    public List<CodeRepositoryImplementation> RepositoryImplementations { get; } = [];
 }

@@ -51,9 +51,9 @@ Three related rules live on other pages:
 
 **Statement:** A browser test that proves a scenario MUST carry a `proves` annotation naming that scenario.
 
-**Rationale:** The annotation, built by the `proves` helper the generated records file exports, names the lowest record the test verifies exactly as a backend test mark does, and a wrong identifier fails the type check. A title tag claims proof without anything reading it, so the written annotation is the link the builder counts.
+**Rationale:** The annotation, built by the `proves` helper the generated records file exports, names the lowest record the test verifies exactly as a backend test mark does, and a wrong identifier fails the consumer's type check against the generated union, and `litespec model check` reports it as `mark-unresolved` where no type check ran. A title tag claims proof without anything reading it, so the written annotation is the link the builder counts.
 
-**Example:** The evidence specification for submitting an expense carries `proves("scenario/submit-expense.submitting-with-a-receipt-succeeds")`.
+**Example:** The browser specification at `apps/web/tests/expenses/list-expenses.spec.ts` in the Claimwick example carries `proves("scenario/list-expenses.listing-own-expenses-succeeds")`.
 
 **Checked by:** `litespec model check` reports `mark-unresolved` (tier S) for a `proves` annotation naming no record a test may prove, or naming a journey.
 
@@ -77,7 +77,7 @@ Three related rules live on other pages:
 
 **Rationale:** Reaching the screen shows the page opened; the assertion shows the ending the result promises. Holding the refusal code or the success text in the same test ties the proof to the named result, and a money-moving use case that a test only reads leaves completion unshown, so the test submits it.
 
-**Example:** The evidence specification for `scenario/submit-expense.submitting-with-a-receipt-succeeds` submits the expense on the expense form and asserts the confirmation the success result promises.
+**Example:** The browser specification for `scenario/list-expenses.listing-own-expenses-succeeds` opens the expense list on `screen/claimwick-app.expense-list` and asserts the expenses table, the listed ending the success result `result/list-expenses.listed` promises.
 
 **Checked by:** `litespec model check` reports `proves-unconfirmed` (tier S) for a browser test reaching the screen whose assertions in the same test hold neither the refusal code nor the success result's declared text or code.
 
@@ -101,7 +101,7 @@ Three related rules live on other pages:
 
 **Rationale:** An API test proves a business outcome faster and more steadily than a browser test, and a browser test is the only proof that a page offers the use case and renders its result. When both assert one scenario, marking both makes the slower test a second witness nobody needs and doubles the work when the scenario changes. The scenario whose risk is the outcome is proved at the API, and the one whose risk is what a person sees is proved in the browser.
 
-**Example:** `scenario/submit-expense.submitting-with-a-receipt-succeeds` is proved by the API test, while a refusal scenario for the same use case is proved by the browser evidence specification that asserts the refusal on the expense form.
+**Example:** `scenario/list-expenses.listing-own-expenses-succeeds` is proved by the browser specification at `apps/web/tests/expenses/list-expenses.spec.ts`, the cheapest boundary that shows what a person sees on the expense list. A scenario whose risk is a business outcome alone is proved at the API boundary instead.
 
 **Checked by:** `litespec model check` reports `proves-duplicated` (tier A) for a scenario with `proves` marks on more than one test.
 

@@ -19,6 +19,7 @@ static partial class AppendEntry
         Success,
         Refusal,
         Scenario,
+        Entry,
     }
 
     /// <summary>Runs the append path and returns its exit code.</summary>
@@ -376,7 +377,7 @@ static partial class AppendEntry
     private static partial Regex RefusalCodePattern();
 
     /// <summary>Escapes a value for one JSON string.</summary>
-    static string Escape(string value)
+    internal static string Escape(string value)
     {
         var built = new StringBuilder(value.Length);
 
@@ -493,10 +494,10 @@ static partial class AppendEntry
         return groups;
     }
 
-    /// <summary>Where the new entry lands: successes first, refusals next, scenarios last.</summary>
+    /// <summary>Where the new entry lands: successes first, refusals next, scenarios and list entries last.</summary>
     static int InsertionIndex(IReadOnlyList<int> groups, Placement placement)
     {
-        if (placement == Placement.Scenario)
+        if (placement is Placement.Scenario or Placement.Entry)
         {
             return groups.Count;
         }

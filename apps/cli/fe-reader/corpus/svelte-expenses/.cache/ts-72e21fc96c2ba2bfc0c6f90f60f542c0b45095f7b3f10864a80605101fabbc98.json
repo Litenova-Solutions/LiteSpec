@@ -1,1 +1,0 @@
-{"reader":"1.0.0","data":{"marks":[],"calls":[{"name":"getExpense","line":4}],"imports":["../../../../api-client/client"],"functions":["loadReceipt"],"route":null}}

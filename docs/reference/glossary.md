@@ -90,6 +90,12 @@ One route operation, carrying its stable operation id and served by one endpoint
 
 Source: web API practice.
 
+### Page File
+
+The framework file that serves one address: `+page.svelte` with its `+page.ts` on Svelte, one route file on React. A page file renders one screen; the screen is the record, the route is the address, and the page file is the code.
+
+Source: LiteSpec.
+
 ### Persistence Constraint
 
 One rule enforced by durable storage, such as uniqueness.

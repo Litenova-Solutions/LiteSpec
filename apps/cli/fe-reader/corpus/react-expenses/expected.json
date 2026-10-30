@@ -36,10 +36,10 @@
         },
         {
           "file": "src/routes/about.tsx",
-          "line": 3,
+          "line": 4,
           "address": "/about",
           "marks": ["screen/web.about"],
-          "calls": []
+          "calls": [{ "operation": "listExpenses", "file": "src/routes/about.tsx", "line": 7 }]
         },
         {
           "file": "src/routes/broken.tsx",

@@ -2,7 +2,7 @@
 
 ## Intent
 
-The example pages show LiteSpec applied instead of described, following Claimwick, one small product in which employees submit work expenses with receipts, managers approve or reject them, and finance reimburses the approved ones, from its first Intent record through Behavior, Implementation, and Proof. A record is a short page stating one piece of product intent, and every product fact on these pages comes from the records of the Claimwick product in `examples/claimwick/`, a real LiteSpec project that `litespec consumer`, `litespec ui`, and `litespec model check` pass. The pages carry no rules of their own: each rule lives on the standards page the text cites.
+The example pages show LiteSpec applied instead of described, following Claimwick, one small product in which employees submit work expenses with receipts, managers approve or reject them, and finance reimburses the approved ones, from its first Intent record through Behavior, Implementation, and Proof. A record is a short page stating one piece of product intent, and every product fact on these pages comes from the records of the Claimwick product in `examples/claimwick/`, a real LiteSpec project that `litespec consumer`, `litespec ui`, and `litespec model check` pass. The pages carry no rules of their own: each rule lives on the standards page the text cites. The library product illustrates single provisions and is not a walkable consumer; Claimwick is the end-to-end example.
 
 ## How to Read the Example
 

@@ -141,6 +141,61 @@ public sealed class DotnetBackendReaderTests
         Assert.Empty(Literals(temp.Path));
     }
 
+    /// <proves>litespec/backend/persistence#stage-aggregate-writes-through-domain-repositories</proves>
+    [Fact]
+    public void Repository_Implementation_Is_Read_From_Infrastructure()
+    {
+        using var temp = Cli.Temp("reader");
+        WriteProject(temp.Path);
+        WriteSource(temp.Path, "Domain", "ILoanRepository.cs", """
+            namespace Library.Domain.Lending.Loans;
+
+            public interface ILoanRepository
+            {
+                Loan Load(Guid id);
+            }
+            """);
+        WriteSource(temp.Path, "Infra", "LoanRepository.cs", """
+            namespace Library.Infrastructure.Lending.Loans;
+
+            public sealed class LoanRepository : ILoanRepository
+            {
+                public Loan Load(Guid id) => new Loan();
+            }
+            """);
+
+        var implementation = Assert.Single(new DotnetBackendReader().Read(ConsumerConfig.Load(temp.Path)).RepositoryImplementations);
+
+        Assert.Equal("ILoanRepository", implementation.Interface);
+        Assert.Equal("LoanRepository", implementation.Class);
+    }
+
+    /// <proves>litespec/backend/persistence#stage-aggregate-writes-through-domain-repositories</proves>
+    [Fact]
+    public void Repository_Implementation_Outside_Infrastructure_Is_Not_Read()
+    {
+        using var temp = Cli.Temp("reader");
+        WriteProject(temp.Path);
+        WriteSource(temp.Path, "Domain", "ILoanRepository.cs", """
+            namespace Library.Domain.Lending.Loans;
+
+            public interface ILoanRepository
+            {
+                Loan Load(Guid id);
+            }
+            """);
+        WriteSource(temp.Path, "App", "LoanRepository.cs", """
+            namespace Library.Application.Lending.Loans;
+
+            public sealed class LoanRepository : ILoanRepository
+            {
+                public Loan Load(Guid id) => new Loan();
+            }
+            """);
+
+        Assert.Empty(new DotnetBackendReader().Read(ConsumerConfig.Load(temp.Path)).RepositoryImplementations);
+    }
+
     static List<string> Literals(string root) =>
         new DotnetBackendReader().Read(ConsumerConfig.Load(root))
             .Literals.Where(literal => literal.Declares).Select(literal => literal.Value).ToList();

@@ -531,7 +531,7 @@ static class ModelCommand
     ///     Decides one finding's severity from its subject, its path, the phase and
     ///     the qualification of the reader that produced it: TypeScript findings
     ///     take the handshake qualification, Roslyn findings stay qualified, and
-    ///     a finding with no reader takes the project's stack qualification.
+    ///     a finding with no reader is qualified.
     /// </summary>
     static Severity Decide(ProjectModel model, ConsumerConfig config, Finding finding, string phase) =>
         Severity.Of(
@@ -543,7 +543,7 @@ static class ModelCommand
             {
                 Finding.TypeScriptReader => model.TypeScriptQualified,
                 Finding.RoslynReader => true,
-                _ => Finding.ReaderQualified(config.Stacks),
+                _ => true,
             });
 
     /// <summary>Whether the path lies under a test root.</summary>

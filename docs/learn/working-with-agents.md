@@ -38,16 +38,9 @@ That index lists every page the selection applies, with a one-line description a
 
 ## The Agent Task Sequence
 
-The [agent page](../core/agent.md) states the order, and the project's `AGENTS.md` repeats it:
+Adding new intent to a running project follows the one sequence under [New Intent in a Running Project](../core/agent.md#new-intent-in-a-running-project) on the agent page. This page states no second order.
 
-1. Read the project's `AGENTS.md` and `litespec.project.json`.
-2. Query the model for the records the task touches, with `dotnet litespec model query <id>`.
-3. Read those records, then the full standards pages they cite.
-4. Look at neighboring code and follow a pattern that complies.
-5. Write pages below decided Intent: change the records, code, tests, and contracts that belong together, in one change.
-6. Run the checks, and report each command, its result, and anything skipped.
-
-Before editing, the agent also reads `git status`, so unrelated work in the tree stays untouched. When the change touches an extension's boundary, the agent reads the selected extension before it edits.
+For any task, the agent reads the project's `AGENTS.md` and `litespec.project.json`, selects the records the task touches, reads the standards those records cite, and looks at neighboring code after the standards. Before editing, the agent also reads `git status`, so unrelated work in the tree stays untouched. When the change touches an extension's boundary, the agent reads the selected extension before it edits.
 
 The diagram below shows that order, and where the agent stops for a person instead of deciding alone.
 
@@ -69,7 +62,7 @@ An agent makes the decisions the standard has already made: where a type goes, h
 
 During adoption, an agent may write Behavior records from existing code. Each one carries `source: transcribed` and stays in draft until its Intent parent is approved, so transcription never passes review on its own.
 
-UI design works the same way. For each recurring interface question, LiteSpec offers drawn options and a default. An agent shows the options on the pattern's page on the LiteSpec site, recommends one, and builds the one you choose with your own components and style. If it sees a better option while working, it finishes on your choice and proposes the idea in its report, instead of changing your decision.
+UI design works the same way. For each recurring interface question, LiteSpec offers drawn options and a Default. An agent builds the Default with your own components and style and records it with `source: recommended`. It waits for an owner only when the route departs from the Default or no Default exists; in that case it shows the options on the pattern's page on the LiteSpec site and recommends one. If it sees a better option while working, it finishes on the recorded option and proposes the idea in its report, instead of changing the decision.
 
 ## Next Steps
 

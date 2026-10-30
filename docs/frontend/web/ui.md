@@ -90,7 +90,7 @@ Svelte:
 </EntityPage>
 ```
 
-**Checked by:** `tests/routes/every-route.spec.ts` asserts `page.locator("[data-floorplan]")` has count 1 on every route.
+**Checked by:** `pnpm playwright test tests/routes/every-route.spec.ts` asserts `page.locator("[data-floorplan]")` has count 1 on every route, and `litespec ui` reports each route missing its suite.
 
 ### Keep Layout Inside Floorplans
 
@@ -110,7 +110,7 @@ Svelte:
 
 **Rationale:** An author with no named reference invents a page from primitives, and the next author invents another. The `data-registry-item` attribute naming the page type's registry item keeps every page of one type on one reference, and a test resolves it. A freestyle route carries no attribute and names its decision record instead, so the deviation is explicit. This realizes litespec/frontend/ui#derive-each-page-type-from-a-named-reference.
 
-**Checked by:** `tests/routes/every-route.spec.ts` asserts `data-registry-item` resolves to a published registry item on every non-freestyle route.
+**Checked by:** `pnpm playwright test tests/routes/every-route.spec.ts` asserts `data-registry-item` resolves to a published registry item on every non-freestyle route, and `litespec ui` reports each route missing its suite.
 
 ### Select a Tone from the Closed Set
 
@@ -160,7 +160,7 @@ Svelte:
 
 **Rationale:** The Concepts section names the checks: floorplan, registry reference, axe WCAG 2.2 AA, heading, landmark, reflow, text spacing, keyboard use, target size, and status announcements. One suite visits every route the tree discovers, so a new route is checked without anyone writing a specification for it. A route outside the suite can ship any defect on the list with no error. Each frontend names that suite in `routeSuite` in its `paths.frontends[]` entry. This realizes litespec/frontend/ui#check-every-route.
 
-**Checked by:** `tests/routes/every-route.spec.ts` runs axe and the Concepts checks on each discovered route, and `litespec ui` reports each route missing its suite.
+**Checked by:** `pnpm playwright test tests/routes/every-route.spec.ts` runs axe and the Concepts checks on each discovered route, and `litespec ui` reports each route missing its suite. The Playwright run is authoritative for floorplan presence, while `litespec ui` owns suite existence.
 
 ### Mark the Route Suite and Goldens with What They Prove
 
@@ -214,7 +214,7 @@ Svelte:
 
 **Rationale:** The governance matrix on [Controlled UI Governance](../ui.md) maps each change class to the narrowest evidence that covers it: no more than needed, no less. On the web stacks the fork record is the source lock entry, so a fork names the digest beside the component test. This realizes litespec/frontend/ui#prove-ui-behavior-and-appearance.
 
-**Checked by:** `tests/routes/every-route.spec.ts` runs on the changed route, and review confirms the change names the governance matrix evidence for its class.
+**Checked by:** `pnpm playwright test tests/routes/every-route.spec.ts` runs on the changed route, and review confirms the change names the governance matrix evidence for its class.
 
 ## Conventions
 

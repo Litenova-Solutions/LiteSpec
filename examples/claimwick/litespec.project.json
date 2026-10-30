@@ -37,6 +37,7 @@
         "name": "web",
         "path": "apps/web",
         "platform": "svelte",
+        "entryPoint": "entry-point/claimwick-app",
         "routeSuite": "apps/web/tests/routes",
         "ui": {
           "profile": "application-balanced"

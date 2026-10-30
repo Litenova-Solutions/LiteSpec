@@ -1,9 +1,10 @@
 // Use-case module reading (both web stacks) and Svelte route reading. A module
-// entry comes from a folder holding a litespec.ts, a leaf folder three levels
-// deep, or a reads/ folder; its marks are every implements value of every
-// exported litespec constant. A Svelte route entry is a folder holding a
-// +page.svelte; its mark comes from the +page.ts beside it when one exists,
-// else from the module script of the +page.svelte.
+// entry comes from a use-case folder three levels below the modules root,
+// {module}/{aggregate}/{use-case}/ or {module}/reads/{use-case}/; its marks
+// are every implements value of every exported litespec constant. A
+// litespec.ts elsewhere names no module. A Svelte route entry is a folder
+// holding a +page.svelte; its mark comes from the module script of the
+// +page.svelte, because SvelteKit refuses any other export from a +page.ts.
 
 import { collectRouteCalls, CallScope } from "./calls.js";
 import { baseName, canonical, isFile, joinPath, listDirsRecursive, listFilesRecursive, parentDir, relativeTo, toPosix } from "./files.js";
@@ -15,19 +16,20 @@ export interface ModuleScan {
   folders: Set<string>;
 }
 
-// Every use-case folder below the modules root: a folder holding a litespec.ts
-// (any depth), a leaf folder three levels deep, or a {module}/reads/{use-case}
-// folder. Entries come out sorted by folder.
+// Every use-case folder below the modules root: a folder three levels deep,
+// {module}/{aggregate}/{use-case}/ or {module}/reads/{use-case}/, whether or
+// not it holds files, subfolders, or a litespec.ts. A litespec.ts at any
+// other depth names no module. Entries come out sorted by folder.
 export function readModules(modulesAbs: string, context: ReaderContext): ModuleScan {
   const modules: ModuleFacts[] = [];
   const folders = new Set<string>();
-  for (const { dir, hasChildDir } of listDirsRecursive(modulesAbs)) {
+  for (const { dir } of listDirsRecursive(modulesAbs)) {
     const rel = relativeTo(modulesAbs, dir);
     const segments = rel === null ? [] : rel.split("/");
     const depth = rel === null ? 0 : segments.length;
     const hasMarkFile = isFile(joinPath(dir, "litespec.ts"));
     const isReadsFolder = depth === 3 && segments[1] === "reads";
-    if (!hasMarkFile && !(depth === 3 && !hasChildDir) && !isReadsFolder) continue;
+    if (!((depth === 3 && segments[1] !== "reads") || isReadsFolder)) continue;
     folders.add(canonical(dir));
     const folder = relativeTo(context.root, dir) ?? toPosix(dir);
     const markAbs = joinPath(dir, "litespec.ts");
@@ -73,21 +75,13 @@ export function readSvelteRoutes(
     const dirAbs = parentDir(pageAbs);
     const scriptAbs = joinPath(dirAbs, "+page.ts");
     const hasScript = isFile(scriptAbs);
-    const file = relativeTo(context.root, hasScript ? scriptAbs : pageAbs) ?? toPosix(hasScript ? scriptAbs : pageAbs);
+    const file = relativeTo(context.root, pageAbs) ?? toPosix(pageAbs);
     let line = 1;
     let marks: string[] = [];
-    if (hasScript) {
-      const facts = readFacts(scriptAbs, "ts", context);
-      if (facts !== null) {
-        line = firstMarkLine(facts.marks);
-        marks = markValues(facts.marks);
-      }
-    } else {
-      const facts = readFacts(pageAbs, "svelte", context);
-      if (facts !== null) {
-        line = firstMarkLine(facts.marks);
-        marks = markValues(facts.marks);
-      }
+    const facts = readFacts(pageAbs, "svelte", context);
+    if (facts !== null) {
+      line = firstMarkLine(facts.marks);
+      marks = markValues(facts.marks);
     }
     const entries = hasScript
       ? [

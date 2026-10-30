@@ -119,7 +119,7 @@ On a phone the drawing reflows unless a `wireframe compact` block says otherwise
 
 A catalog entry may set `library` to one pattern ID, such as `litespec/frontend/patterns/record-detail#record-header`, to start from that pattern. The entry keeps the pattern's option IDs and names, so a choice stays comparable across products, and it may add options of its own.
 
-The owner chooses among the combined options with the drawings on the pattern's page on the LiteSpec site, and records the source. The entry states the compact behavior and the implementation status per platform, and the platform team implements the chosen option in its own components. A choice that differs from the pattern's default records its reason in the entry.
+The owner chooses among the combined options with the drawings on the pattern's page on the LiteSpec site, and records the source. The entry states the compact behavior and the implementation status per platform, and the platform team implements the chosen option in its own components. A choice that differs from the pattern's default records its reason in the entry. An agent builds the pattern Default and records it with `source: recommended`; it waits for an owner only when the route departs from the Default or no Default exists.
 
 The diagram shows the flow from a LiteSpec pattern through the catalog entry that cites it to the built screen.
 

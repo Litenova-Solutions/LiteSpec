@@ -378,8 +378,8 @@ The key space grows with the schedule's frequency and its retention. A per-secon
 
 ## Dependencies
 
-Packages: `None.`
+Packages: None.
 
 Related extensions: `outbox`.
 
-Guides: `None.`
+Guides: None.

@@ -100,7 +100,7 @@ The problem carries the trace identifier the API returns for the request, so sup
 
 **Example:** Submitting an expense above the receipt threshold with no receipt refuses with `spending.receipt-missing` under `result/submit-expense.receipt-missing`. The page renders the application's sentence for that code beside the Submit control, carries the code in the markup so a test provokes it by name, and keeps the trace identifier in the detail in copyable form.
 
-**Reviewed for:** Refusals render beside the refused record or control in the application's sentence for the code, with the code in the markup. Look in the page sources beside the refusing controls.
+**Reviewed for:** Refusals render beside the refused record or control in the application's sentence for the code, with the code in the markup. Look in the screen's page files beside the refusing controls.
 
 ### Place a Field Refusal on Its Field
 

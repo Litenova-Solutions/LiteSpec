@@ -8,7 +8,7 @@ A Svelte frontend takes one of 3 rendering modes, chosen by who reads it: a stat
 
 ### Structure Bindings
 
-The shared web pages state each rule once; this stack names the values that differ per stack. Svelte frontends hold one folder per address in `src/routes`, and the frame and use-case code in `src/lib/app` and `src/lib/modules`. The toolkit generates the route types from the folders under `src/routes`. A page holds its parameters, its load, and its component. Imports resolve through the `$lib` alias, which points at `src/lib`, and shared files use the `.svelte` extension. Route groups keep their parenthesized names, because those names are router syntax.
+The shared web pages state each rule once; this stack names the values that differ per stack. Svelte frontends hold one folder per address in `src/routes`, and the frame and use-case code in `src/lib/app` and `src/lib/modules`. The toolkit generates the route types from the folders under `src/routes`. A page holds its parameters, its load, and its component. Imports resolve through the `#lib` alias, which the frontend declares in the `imports` field of its `package.json` as `"#lib/*": "./src/lib/*"`, and each import names its module's file extension (`#lib/app/words.ts`), as SvelteKit 3 requires; shared files use the `.svelte` extension. Route groups keep their parenthesized names, because those names are router syntax.
 
 ### Rendering Bindings
 
@@ -22,7 +22,7 @@ A class or style binding spells `class`, `class:`, `style`, or `style:`. A file 
 
 ### Route Entry Bindings
 
-A route entry is the folder under `src/routes` that holds a `+page.svelte`. Its screen mark sits in a `+page.ts` beside that `+page.svelte` as the same typed constant a use-case module exports; a route with no `+page.ts` gains one, and a `<script module>` export in the `+page.svelte` is the fallback where no `+page.ts` can sit. Layout files (`+layout.svelte`, `+layout.ts`), error pages (`+error.svelte`), and route groups (parenthesized folders) are not route entries and carry no screen mark.
+A route entry is the folder under `src/routes` that holds a `+page.svelte`. Its screen mark sits in the `<script module>` of that `+page.svelte`, as the same typed constant a use-case module exports, because SvelteKit refuses any export from a `+page.ts` other than its own options and `_`-prefixed names. Layout files (`+layout.svelte`, `+layout.ts`), error pages (`+error.svelte`), and route groups (parenthesized folders) are not route entries and carry no screen mark.
 
 ### Data Bindings
 

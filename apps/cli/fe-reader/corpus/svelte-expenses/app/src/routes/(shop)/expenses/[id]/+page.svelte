@@ -3,7 +3,7 @@
 </script>
 
 <script>
-  import { loadReceipt } from "$lib/modules/spending/reads/list-receipts/reader";
+  import { loadReceipt } from "#lib/modules/spending/reads/list-receipts/reader.ts";
 
   const receiptPromise = loadReceipt();
 </script>

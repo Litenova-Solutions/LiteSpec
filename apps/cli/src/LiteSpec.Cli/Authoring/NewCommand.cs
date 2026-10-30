@@ -16,6 +16,7 @@ static partial class NewCommand
         Usage: litespec new <type> <id> [--root <path>] [--help]
                litespec new result <use-case-id> <name> --outcome success|refusal [--code <code>] [--root <path>]
                litespec new scenario <use-case-id> <name> --result <result-id> [--root <path>]
+               litespec new entry <page-id> <type> <name> [--root <path>]
 
         Creates one record page from the template for its type, with the opening
         specification metadata block already filled. It reserves the identifier
@@ -41,19 +42,32 @@ static partial class NewCommand
         becomes the first of codes. The command refuses a duplicate id and an
         unknown use case.
 
+        new entry appends one requirement, rule, permission, or setting entry
+        to its owning list page's frontmatter records instead of scaffolding a
+        page. <page-id> is the page's consumer-relative path, because list
+        pages carry no record identifier. The type must belong on the page: a
+        requirement on a requirement page, a rule on a rule-set page, a
+        permission on the permission list, a setting on a setting set. The
+        entry id is <type>/<home>.<name> from the page's home, or
+        permission/<name>; the home is the page's existing entries' home, else
+        the file stem for a requirement or rule and the parent modules folder
+        for a setting. The entry lands last with every required field filled
+        with its template placeholder; every other byte of the page stays
+        untouched. The command refuses a duplicate id and an unknown page.
+
           --root    The consumer repository to write into. Defaults to the working directory.
           --code    The refusal code, for new result.
           --outcome success or refusal, for new result.
           --result  The scenario's result, for new scenario.
           --help    Print this text and exit.
 
-        Exit codes: 0 written, 1 the release holds no readable template for the type, 2 the identifier is taken, the use case is unknown, the type is unknown, or an option is invalid.
+        Exit codes: 0 written, 1 the release holds no readable template for the type, 2 the identifier is taken, the use case or page is unknown, the type is unknown or does not belong on the page, or an option is invalid.
         """;
 
     /// <summary>Runs the command and returns its exit code.</summary>
     public static int Run(string[] args)
     {
-        var parsed = CliArgs.Parse(args, [], ["--root", "--home", "--code", "--outcome", "--result"], maxPositionals: 3);
+        var parsed = CliArgs.Parse(args, [], ["--root", "--home", "--code", "--outcome", "--result"], maxPositionals: 4);
 
         if (parsed.Help)
         {
@@ -71,6 +85,11 @@ static partial class NewCommand
         if (parsed.Positionals is [var first, ..] && first is "result" or "scenario")
         {
             return AppendEntry.Run(parsed);
+        }
+
+        if (parsed.Positionals is ["entry", ..])
+        {
+            return AppendListEntry.Run(parsed);
         }
 
         if (parsed.Positionals is not [var type, var id])

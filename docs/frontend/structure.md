@@ -54,16 +54,16 @@ Imports point one way: routes import modules, modules import the frame, and the 
 <frontend>/modules/orders/orders/search-merchant-orders/
 ```
 
-For example, the Claimwick product submits an expense through `use-case/spending.submit-expense`, implemented in the backend under `Spending/Expenses/SubmitExpense`. The web frontend serves it from the same path in kebab case.
+For example, the Claimwick product lists expenses through `use-case/spending.list-expenses`, implemented in the backend under `Spending/Expenses/ListExpenses`. The web frontend serves it from the same path in kebab case: `lib/modules/spending/expenses/list-expenses` in the Claimwick example, beside the screen record `screen/claimwick-app.expense-list`.
 
 ```text
-<backend>/Spending/Expenses/SubmitExpense/
-<frontend>/modules/spending/expenses/submit-expense/
+<backend>/Spending/Expenses/ListExpenses/
+<frontend>/modules/spending/expenses/list-expenses/
 ```
 
-The three backend names become three lowercase folder names, so a reader holding the use case finds the frontend code by translating Spending, Expenses, and SubmitExpense.
+The three backend names become three lowercase folder names, so a reader holding the use case finds the frontend code by translating Spending, Expenses, and ListExpenses.
 
-A query that describes no one aggregate has its record home under `reads/` beside its module, so its folder mirrors that home with two names instead of three: `use-case/spending.read-spending-summary` lives at `<frontend>/modules/spending/reads/read-spending-summary/` and `<backend>/Spending/Reads/ReadSpendingSummary/`.
+A query that describes no one aggregate has its record home under `reads/` beside its module, so its folder mirrors that home with two names instead of three: a query named `use-case/spending.read-spending-summary` would live at `<frontend>/modules/spending/reads/read-spending-summary/` and `<backend>/Spending/Reads/ReadSpendingSummary/`. The running Claimwick example holds no such reads query.
 
 The diagram shows the backend path beside its frontend mirror, with one arrow per translated segment.
 
@@ -123,9 +123,9 @@ The diagram shows the backend path beside its frontend mirror, with one arrow pe
 
 **Statement:** A route entry MUST carry one mark naming the screen it renders, in the form its stack page states.
 
-**Rationale:** The route is where a screen record becomes code, and its folder or file name only resembles the screen. One mark makes the link written and checkable: a web route exports the same typed `litespec` constant a use-case module exports, so a wrong identifier fails the type check, and a Blazor component or an Android destination carries the .NET mark the .NET reader already reads. Each stack page states its route entry, the file or class that carries the mark, and that layouts, error pages, and route groups are not route entries: the [Svelte Stack](web/svelte/stack.md), [React Stack](web/react/stack.md), [Blazor Stack](blazor/stack.md), and [Android Stack](mobile/android/stack.md) pages state theirs. The use cases a screen offers are not marked on the route; the builder computes them from its calls.
+**Rationale:** The route is where a screen record becomes code, and its folder or file name only resembles the screen. One mark makes the link written and checkable: a web route exports the same typed `litespec` constant a use-case module exports, so a wrong identifier fails the consumer's type check against the generated union, and `litespec model check` reports it as `mark-unresolved` where no type check ran, and a Blazor component or an Android destination carries the .NET mark the .NET reader already reads. Each stack page states its route entry, the file or class that carries the mark, and that layouts, error pages, and route groups are not route entries: the [Svelte Stack](web/svelte/stack.md), [React Stack](web/react/stack.md), [Blazor Stack](blazor/stack.md), and [Android Stack](mobile/android/stack.md) pages state theirs. The use cases a screen offers are not marked on the route; the builder computes them from its calls.
 
-**Example:** The Claimwick expense list route exports `export const litespec = { implements: "screen/claimwick-app.expense-list" } as const satisfies LiteSpecMark;`.
+**Example:** The `<script module>` of the Claimwick expense list page exports `export const litespec = { implements: "screen/claimwick-app.expense-list" } as const satisfies LiteSpecMark;`.
 
 **Checked by:** `litespec model check` reports `mark-missing` (tier S) for a route entry with no mark, `mark-count` (tier S) for one with more than one, and `mark-unresolved` (tier S) for a mark naming no screen of the route's entry point.
 

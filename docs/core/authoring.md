@@ -301,7 +301,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Rationale:** Term drift is invisible one page at a time and plain across a module: each page looks fine while the project slowly speaks two languages. The expensive case is a synonym that is a defined term elsewhere, because one word then names two things and every reader guesses which one.
 
-**Checked by:** `litespec consumer` emits no `GLOSSARY_REJECTED_SYNONYM` diagnostic.
+**Checked by:** `litespec consumer` reports no `GLOSSARY_REJECTED_SYNONYM` finding.
 
 ### State Mannered Terms Literally
 
@@ -313,7 +313,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Example:** The glossary lists `{ "term": "leverage", "instead": "use" }`, so prose reads "use the retry queue" rather than "leverage the retry queue".
 
-**Checked by:** `litespec consumer` emits no `GLOSSARY_MANNERED_TERM` diagnostic.
+**Checked by:** `litespec consumer` reports no `GLOSSARY_MANNERED_TERM` finding.
 
 ### Check the Vocabulary on Every Surface a Reader Meets
 
@@ -346,7 +346,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
   "scope": "^docs/domain/modules/spending/", "except": ["shipping docket"] }
 ```
 
-**Checked by:** `litespec consumer` reports no `GLOSSARY_REJECTED_SYNONYM` diagnostic inside an exempt compound.
+**Checked by:** `litespec consumer` reports no `GLOSSARY_REJECTED_SYNONYM` finding inside an exempt compound.
 
 ### Exclude Generated Regions from Prose Checks
 
@@ -356,7 +356,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Rationale:** A generated region holds tool output that no author wrote and no author can fix by editing the page. Checking it would fail pages for words outside author control and train writers to ignore diagnostics.
 
-**Reviewed for:** Which findings point inside generated-region fences? Look at the diagnostics the checks report.
+**Reviewed for:** Which findings point inside generated-region fences? Look at the findings the checks report.
 
 ### Use Controlled Capitalization
 

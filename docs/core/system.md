@@ -94,7 +94,7 @@ Each page owns its tables and rules, and this page cites them without copying. A
 
 **Rationale:** Every class in the outer layers exists for a record or for a reason. An input validator or a read model serves one use case, and a repository serves one aggregate, so each names that record in `implements` like the handler beside it. Code that serves no record still exists for a reason: a provision requires it, a technical decision chose it, or a deviation allows it, and a `follows` mark names that reason by identifier. A reader asking why the command pipeline commits once, or why the repository stores documents, follows the link instead of guessing, and a check finds the code that still follows a retired decision. A class may carry both kinds when it serves a record in a chosen way.
 
-**Example:** The Claimwick submit-expense validator carries `/// <implements>use-case/spending.submit-expense</implements>`. The expense repository carries `/// <implements>aggregate/spending.expense</implements>` and `/// <follows>decision/0002-store-expenses-as-documents</follows>`, and the command pipeline's commit step carries `/// <follows>litespec/backend/persistence#commit-each-command-pipeline-once</follows>`.
+**Example:** The Claimwick submit-expense validator carries `/// <implements>use-case/spending.submit-expense</implements>`. The receipt PDF renderer carries `/// <follows>decision/0005-render-receipts-as-pdf</follows>`, and the command pipeline's commit step carries `/// <follows>litespec/backend/persistence#commit-each-command-pipeline-once</follows>`.
 
 **Checked by:** `litespec model check` reports `mark-missing` and `mark-unresolved` (tier S), and `dotnet build` reports `LS5001` and `LS5002`, for a technical class with no mark, an `implements` mark naming no Behavior record, or a `follows` mark naming no provision of the carried release, no decision or deviation, a retired record, or a provision on a page the project's stacks do not apply.
 
@@ -198,7 +198,7 @@ docs/
           submit-expense.md
   implementation/
     decisions/
-      0002-store-expenses-as-documents.md
+      0005-render-receipts-as-pdf.md
   research/
     approval-time-benchmarks.md
   operations/

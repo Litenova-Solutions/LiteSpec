@@ -37,7 +37,7 @@ static partial class Checker
         "notification-without-sender", "except-without-fallback", "approval-reopened",
         "transcribed-reviewed", "transcribed-after-adoption",
         "operator-job-without-guard", "schedule-unstructured",
-        "write-undeclared", "result-undeclared", "effect-undeclared",
+        "write-undeclared", "result-undeclared", "effect-undeclared", "repository-unimplemented",
         "use-case-verb-method", "event-tense-mismatch", "name-drift-across-layers", "operation-id-duplicate", "route-shape",
         "reasonless-name", "collaborator-holds-repository", "repository-read-in-loop",
         "query-filters-in-memory", "dependency-count", "effect-before-commit",

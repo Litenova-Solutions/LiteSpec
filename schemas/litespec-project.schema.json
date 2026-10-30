@@ -423,6 +423,11 @@
                 "type": "string",
                 "enum": ["react", "svelte", "blazor", "android"]
               },
+              "entryPoint": {
+                "description": "The browser or device entry point this frontend serves. Screens it drafts and use cases it reaches are read through this entry point.",
+                "type": "string",
+                "pattern": "^entry-point/[a-z0-9][a-z0-9-]*$"
+              },
               "refusalDictionary": {
                 "description": "The refusal dictionary for this frontend: the file or folder holding one sentence per refusal code, which result-unshown reads.",
                 "$ref": "#/$defs/projectPath"

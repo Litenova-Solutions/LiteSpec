@@ -38,7 +38,7 @@ The manifest pins both providers' packages, because the extension is part of thi
 
 **Rationale:** The repository is the only path from a handler to the store, so every write passes a reviewable boundary that loads one aggregate type. Infrastructure implements each repository with the scoped session, and the repository exposes no session, generic query, or save operation. A handler that reached the session directly bypasses aggregate loading and scatters store calls through Application.
 
-**Reviewed for:** Command handler bodies reach persistence through Domain repositories, with no direct session use.
+**Checked by:** `litespec model check` reports `repository-unimplemented` (tier S) for an aggregate a use case changes that has no Infrastructure repository implementing its domain repository.
 
 ### Query Through the Read Session
 

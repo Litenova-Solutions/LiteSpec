@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace LiteSpec.Model;
 
@@ -122,6 +121,7 @@ public sealed record Finding(string Code, string Message, string Path, int Line,
             ["act-event-unraised"] = "S",
             ["use-case-act-uncalled"] = "S",
             ["aggregate-unimplemented"] = "S",
+            ["repository-unimplemented"] = "S",
             ["reaction-unimplemented"] = "S",
             ["job-unimplemented"] = "S",
             ["external-system-unimplemented"] = "S",
@@ -156,15 +156,6 @@ public sealed record Finding(string Code, string Message, string Path, int Line,
 
     /// <summary>The finding tier: G blocks, S blocks where qualified, A reports.</summary>
     public string Tier => Tiers.TryGetValue(Code, out var tier) ? tier : "G";
-
-    /// <summary>
-    ///     Whether the project's stack reader is qualified, so S findings block:
-    ///     the .NET reader is qualified, and every other stack only reports.
-    /// </summary>
-    public static bool ReaderQualified(IEnumerable<string> stacks) =>
-        stacks.Contains("dotnet", StringComparer.Ordinal)
-        || stacks.Contains("blazor", StringComparer.Ordinal)
-        || stacks.Contains("android", StringComparer.Ordinal);
 
     /// <summary>Whether the finding blocks the check under a qualified or unqualified reader.</summary>
     public bool Blocks(bool readerQualified) => Tier == "G" || (Tier == "S" && readerQualified);

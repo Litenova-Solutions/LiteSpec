@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { proves } from "$lib/app/litespec-records";
+import { proves } from "#lib/app/litespec-records.ts";
 
 test("lists the expenses", proves("scenario/list-expenses.listing-shows-own-expenses"), async ({ page }) => {
   await page.goto("/expenses");

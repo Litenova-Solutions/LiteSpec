@@ -31,12 +31,18 @@ function kindOf(absPath: string): FileKind {
   return baseName(absPath).endsWith(".svelte") ? "svelte" : "ts";
 }
 
+// Longest first, so InfiniteQueryKey is tried before QueryKey.
+const QUERY_HELPER_SUFFIXES = ["InfiniteQueryKey", "InfiniteOptions", "QueryKey", "Options", "Mutation"];
+
 // Every operation the generated client folder exports, keyed by its
-// PascalCase form and reported as the client exports it. A client
-// file that fails to parse is diagnosed and contributes no operations.
+// PascalCase form and reported as the client exports it. Only the files the
+// client generator writes (named *.gen.ts) hold operations, so a hand-written
+// helper beside them is never mistaken for one. A client file that fails to
+// parse is diagnosed and contributes no operations.
 export function collectOperations(apiClientAbs: string, context: ReaderContext): Map<string, string> {
   const operations = new Map<string, string>();
   for (const file of listFilesRecursive(apiClientAbs, [".ts", ".tsx"])) {
+    if (!/\.gen\.tsx?$/.test(file)) continue;
     const facts = readFacts(file, "ts", context);
     if (facts === null) continue;
     for (const name of facts.functions) {
@@ -44,8 +50,23 @@ export function collectOperations(apiClientAbs: string, context: ReaderContext):
       if (key !== "" && !operations.has(key)) operations.set(key, name);
     }
   }
+  // A query-library plugin of the client generator wraps each operation in
+  // helpers named after it (listExpensesOptions, listExpensesQueryKey,
+  // submitExpenseMutation). A call to a helper is a call to its operation, so
+  // the helper reports the operation it wraps.
+  for (const [key] of operations) {
+    for (const suffix of QUERY_HELPER_SUFFIXES) {
+      if (!key.endsWith(suffix) || key.length === suffix.length) continue;
+      const wrapped = operations.get(key.slice(0, -suffix.length));
+      if (wrapped !== undefined) {
+        operations.set(key, wrapped);
+        break;
+      }
+    }
+  }
   return operations;
 }
+
 
 function probeCandidates(resolved: string): string | null {
   const candidates = [

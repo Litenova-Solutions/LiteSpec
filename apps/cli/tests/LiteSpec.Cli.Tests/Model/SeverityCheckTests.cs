@@ -52,6 +52,22 @@ public sealed class SeverityCheckTests
         Assert.Null(reason);
     }
 
+    /// <summary>An S finding no reader produced blocks under a project with only web stacks.</summary>
+    /// <proves>litespec/core/model#mark-every-check-with-its-tier</proves>
+    [Fact]
+    public void Record_Finding_Under_Only_Web_Stacks_Blocks()
+    {
+        using var fixture = ModelFixture.Prepare("small", "use-case-unimplemented");
+        SetOnlyWebStacks(fixture.Path);
+
+        var json = Cli.Run("model", "check", "--root", fixture.Path, "--format", "json");
+        var (outcome, reason) = OutcomeOf(json.Stdout, "use-case-unimplemented");
+
+        Assert.Equal(1, json.Status);
+        Assert.Equal("blocking", outcome);
+        Assert.Null(reason);
+    }
+
     /// <summary>
     ///     A frozen phase reports a proof finding with frozen instead of blocking. The overlay also
     ///     leaves a G finding that blocks in every phase, so the outcome is asserted, not the exit code.
@@ -143,6 +159,15 @@ public sealed class SeverityCheckTests
         }
 
         Assert.Contains("\"status\": \"reviewed\",", File.ReadAllText(file));
+    }
+
+    /// <summary>Leaves the fixture with only a web stack, so no .NET reader runs.</summary>
+    static void SetOnlyWebStacks(string root)
+    {
+        var file = Path.Combine(root, "litespec.project.json");
+        var project = JsonNode.Parse(File.ReadAllText(file))!.AsObject();
+        project["stacks"] = new JsonArray(JsonValue.Create("svelte"));
+        File.WriteAllText(file, project.ToJsonString());
     }
 
     /// <summary>Freezes the fixture's check phase.</summary>

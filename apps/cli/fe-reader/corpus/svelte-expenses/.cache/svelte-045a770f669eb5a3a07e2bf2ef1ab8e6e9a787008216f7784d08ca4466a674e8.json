@@ -1,1 +1,0 @@
-{"reader":"1.0.0","data":{"marks":[],"calls":[{"name":"formatMoney","line":5},{"name":"clientName","line":6}],"imports":["$lib/app/helpers","../../api-client/client"],"functions":[],"route":null}}

@@ -180,7 +180,7 @@ static class Backfill
                     .ToList();
 
                 plans.Add(new ScreenPlan(
-                    Path.Combine(model.Config.BehaviorDocs, "screens", $"{entryName}.{name}.md"),
+                    Path.Combine(model.Config.BehaviorDocs, "screens", $"{entryName}.{id[(id.LastIndexOf('.') + 1)..]}.md"),
                     id, entryPoint, route.Route, [.. route.UseCases], serves, owner));
             }
         }
@@ -188,7 +188,11 @@ static class Backfill
         return plans;
     }
 
-    /// <summary>The screen name an address drafts: its last plain segment, or <c>home</c> for the root.</summary>
+    /// <summary>
+    ///     The screen name an address drafts: its plain segments joined, keeping the last five
+    ///     words so a collision suffix stays within the six the name rules allow, or
+    ///     <c>home</c> for the root.
+    /// </summary>
     static string ScreenName(string address)
     {
         var segments = address.Split('/', StringSplitOptions.RemoveEmptyEntries)
@@ -198,7 +202,11 @@ static class Backfill
                 && !(segment.StartsWith("(", StringComparison.Ordinal) && segment.EndsWith(")", StringComparison.Ordinal)))
             .ToList();
 
-        return segments.Count == 0 ? "home" : segments[^1];
+        var words = segments
+            .SelectMany(segment => segment.ToLowerInvariant().Split(['-', '_', '.'], StringSplitOptions.RemoveEmptyEntries))
+            .ToList();
+
+        return words.Count == 0 ? "home" : string.Join("-", words.TakeLast(5));
     }
 
     /// <summary>One line per drafted screen: its path, id, offers and serves.</summary>

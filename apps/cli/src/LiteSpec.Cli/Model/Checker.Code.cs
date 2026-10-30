@@ -20,7 +20,7 @@ static partial class Checker
 /// <follows>litespec/core/model#mark-every-check-with-its-tier</follows>
 static class CodeChecks
 {
-    /// <summary>Runs write-undeclared, result-undeclared, effect-undeclared and the handler shape checks.</summary>
+    /// <summary>Runs write-undeclared, result-undeclared, effect-undeclared, repository-unimplemented and the handler shape checks.</summary>
     public static void Run(ProjectModel model, List<Finding> findings)
     {
         CheckWriteUndeclared(model, findings);
@@ -38,6 +38,7 @@ static class CodeChecks
         CheckQueryFiltersInMemory(model, findings);
         CheckDependencyCount(model, findings);
         CheckEffectBeforeCommit(model, findings);
+        CheckRepositoryUnimplemented(model, findings);
     }
 
     /// <summary>
@@ -1439,6 +1440,66 @@ static class CodeChecks
                             useCase.Id));
                     }
                 }
+            }
+        }
+    }
+
+    /// <summary>
+    ///     Reports each aggregate a use case changes whose domain repository
+    ///     interface no Infrastructure class implements. The check reads the
+    ///     Infrastructure layer through the backend reader, so a consumer with
+    ///     no Infrastructure folder carries no persistence layer for it to
+    ///     judge, and an aggregate with no domain repository interface (a store,
+    ///     or one whose Domain declares none) names nothing to implement.
+    /// </summary>
+    private static void CheckRepositoryUnimplemented(ProjectModel model, List<Finding> findings)
+    {
+        if (!Directory.Exists(model.Config.InfrastructureRoot))
+        {
+            return;
+        }
+
+        var implemented = model.Code.RepositoryImplementations
+            .Select(entry => entry.Interface)
+            .ToHashSet(StringComparer.Ordinal);
+
+        foreach (var useCase in model.Records.Where(record => record.Type == "use-case"))
+        {
+            foreach (var aggregateId in useCase.Ids("changes"))
+            {
+                if (!model.ById.TryGetValue(aggregateId, out var aggregate) || aggregate.Type != "aggregate")
+                {
+                    continue;
+                }
+
+                if (aggregate.Field("kind") == "store")
+                {
+                    continue;
+                }
+
+                if (!Identifiers.TrySplit(aggregateId, out _, out _, out var name))
+                {
+                    continue;
+                }
+
+                var face = $"I{Naming.Pascal(name)}Repository";
+
+                if (!model.Code.DomainTypes.Any(type => type.Name == face))
+                {
+                    continue;
+                }
+
+                if (implemented.Contains(face))
+                {
+                    continue;
+                }
+
+                findings.Add(CodeFinding(
+                    "repository-unimplemented",
+                    $"Aggregate '{aggregateId}' changed by '{useCase.Id}' has no Infrastructure repository implementing '{face}'.",
+                    useCase.File,
+                    useCase.Line,
+                    useCase.Id));
             }
         }
     }

@@ -268,7 +268,7 @@ A screen is one page a person sees through a `browser` or `device` entry point. 
 
 A screen states what a person can do there; what they see follows from it. The results a screen shows come from the use cases it offers, its outgoing links come from its route, and the sentence shown for a refusal is joined by the refusal's `code`, so none of those are written on the screen. Intent never names a screen: a journey step says what a person achieves, and the book adds the screen that carries the step as context outside the approval hash.
 
-The route entry that renders a screen carries its mark, in the form its stack page states, naming `screen/...`. The builder computes `calls` from the route entry: it follows imports only within the route's own folder and the use-case module folders the route imports directly, through their `litespec.ts` marks, collecting generated-client operation calls, and maps each operation through the endpoint's mark to its use case. It follows neither the frame nor shared packages, so a call a shared component makes is not the screen's offer. An operation that resolves to two use cases is a reader diagnostic rather than a silent pick. The builder compares the computed `calls` with `offers`. A journey step is exercised when a passing test proved a scenario of a use case that serves the step.
+The route entry that renders a screen carries its mark, in the form its stack page states, naming `screen/...`. The builder computes `calls` from the route entry: it follows imports only within the route's own folder and the use-case module folders the route imports directly, through their `litespec.ts` marks, collecting generated-client operation calls (a query helper the client generator emits for an operation, such as its options, query key or mutation, counts as a call to that operation), and maps each operation through the endpoint's mark to its use case. It follows neither the frame nor shared packages, so a call a shared component makes is not the screen's offer. An operation that resolves to two use cases is a reader diagnostic rather than a silent pick. The builder compares the computed `calls` with `offers`. A journey step is exercised when a passing test proved a scenario of a use case that serves the step.
 
 ### External Systems
 
@@ -309,6 +309,7 @@ The specification names only what carries business meaning. Child entities and v
 | rule, precondition | a guard the behavior passes before it runs |
 | rule, calculation | a pure computation on the aggregate or its values |
 | rule, cross-aggregate | a stored constraint, or a reaction reaching eventual consistency |
+| rule, precondition spanning aggregates | a synchronous read of the guarding aggregate named in `reads`, with `consistency: atomic` and the guarding rule in `because`; use a stored constraint only when the guard is a single stored value, and a reaction only when eventual consistency is acceptable |
 | rule, atomicity | one atomic write group across the named aggregates |
 | rule, reservation | a held claim with its release |
 | rule, commercial-data | a frozen commercial value with its history |
@@ -402,7 +403,7 @@ The specification names only what carries business meaning. Child entities and v
 
 **Rationale:** States without transitions are a list of names with no path between them: a reviewer sees where an aggregate rests but never how it moves. Listing every allowed change with the use case that moves it shows the whole lifecycle as debated rows, and leaves no state reachable only by a path no record names. The `state-unreachable` and `transition-unresolved` checks report a state no transition reaches and a transition naming a missing state or use case.
 
-**Reviewed for:** The Transitions table on each entity and process page pairs every allowed change with an existing state and use case.
+**Checked by:** `litespec model check` reports `state-unreachable` (tier G) for a state reached by no transition and `transition-unresolved` (tier G) for a transition naming a missing state or use case.
 
 ### Classify Every Aggregate Data Field
 
@@ -644,7 +645,7 @@ The specification names only what carries business meaning. Child entities and v
 
 **Statement:** Each use case MUST start with a verb from the baseline vocabulary or the domain verbs the project declares in `litespec.project.json`.
 
-**Rationale:** One verb per meaning keeps use cases findable: `read` versus `get` and `change` versus `update` stop competing when every project starts from one closed baseline vocabulary and adds only its domain verbs. A shared first word groups related behavior in every listing, and a retired synonym points at its replacement instead of spreading silently. The `use-case-verb-unknown` check reports a use-case name starting outside the baseline vocabulary and the project verbs, and names the replacement of a retired synonym.
+**Rationale:** One verb per meaning keeps use cases findable: `read` versus `get` and `change` versus `update` stop competing when every project starts from one closed baseline vocabulary and adds only its domain verbs. A shared first word groups related behavior in every listing, and a retired synonym points at its replacement instead of spreading silently. When the act verb is in neither list, the author first adds it to `vocabulary.verbs` in `litespec.project.json` in the same change, or to `vocabulary.queryVerbs` for a reading verb, and then scaffolds the use case. `litespec new` scaffolds a use-case page without checking its verb, so the vocabulary addition lands before the scaffold rather than after a refusal from the scaffold command. The `use-case-verb-unknown` check reports a use-case name starting outside the baseline vocabulary and the project verbs, and names the replacement of a retired synonym.
 
 **Example:** The vocabulary declares `verbs: ["borrow"]` and `phrasal: ["check-in"]`, so `use-case/lending.borrow-copy` and `use-case/lending.check-in-copy` pass, `use-case/lending.list-loans` passes on the baseline vocabulary, and `use-case/lending.update-copy` is told to use `change`.
 
@@ -762,7 +763,7 @@ The specification names only what carries business meaning. Child entities and v
 
 **Example:** The reimburse-expense command declares atomic consistency because of the reimbursed-once rule, while the self-checkout scan declares per-record consistency across its attempts.
 
-**Checked by:** `litespec model check` reports `consistency-unexplained` for an atomic multi-aggregate write with no `because`.
+**Checked by:** `litespec model check` reports `consistency-unexplained` for an atomic multi-aggregate write with no `because`, and `many-aggregates` (tier A) for a command saving more than one atomic write group.
 
 ### Declare Every Effect with One Verb and Its Timing
 
