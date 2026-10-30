@@ -2,7 +2,7 @@
 
 ## Intent
 
-The project model is the computed join between a project's written records and its code, screens, and tests: it proves they agree, and its checks report every gap as a finding with a tier. This page shows that model at work on the Claimwick product, the example product these pages follow, with real output from `litespec model build`, `check`, and `query`: how a known gap (a missing piece the team accepts until an end date) covers the still-missing handler for Export expenses, what the check reports when the Approve expense handler is removed, how the book renders the journey chapter and the ballots, what the diffs show, and which continuous integration jobs run these checks.
+The project model is the computed join between a project's written records and its code, screens, and tests: it proves they agree, and its checks report every gap as a finding with a tier. This page shows that model at work on the Claimwick product, the example product these pages follow, with real output from `litespec model build`, `check`, and `query`: how a known gap (a missing piece the team accepts until an end date) covers the still-missing handler for Export expenses, what the check reports when the Approve expense handler is removed, how the book shows journey detail and the Ballots view, what the diffs show, and which continuous integration jobs run these checks.
 
 ## Building the Model
 
@@ -132,9 +132,9 @@ PASS: project configuration, page frontmatter and glossary are valid.
 
 The run scanned 44 pages under `docs` and passed: no mannered term, no rejected synonym.
 
-## The Book Chapter
+## The Journey Detail
 
-`litespec book` renders each journey as one chapter for product readers: the goal, the observable end, the steps as sentences, the requirements with their exceptions and fallbacks inline, one line of serving use case goal per step, the Then clauses as context, a consequences box as context, and the open questions. Field names never render literally. The submit-and-reimburse chapter reads:
+`litespec book` shows each journey as record detail for product readers: the goal, the observable end, the steps as sentences, the requirements with their exceptions and fallbacks inline, one line of serving use case goal per step, the Then clauses as context, a consequences box as context, and the open questions. Field names never render literally. The submit-and-reimburse detail reads:
 
 ```text
 Submit and Reimburse
@@ -170,7 +170,7 @@ Open questions (ballot "erasure-terms", due 2026-04-01)
    Recommended: yes, totals without employee links.
 ```
 
-The book also writes a ballots page listing every open question grouped by ballot, tier 1 first, with each recommendation and auto-approval date. The finance lead approves or answers in the ballot without opening a Behavior page.
+The book also shows the Ballots view, listing every open question grouped by ballot, tier 1 first, with each recommendation and auto-approval date. The finance lead approves or answers in the ballot without opening a Behavior page.
 
 ## The Diffs
 

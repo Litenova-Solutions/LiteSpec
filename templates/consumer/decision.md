@@ -7,7 +7,7 @@
   "status": "draft",
   "decider": "<owner>",
   "decideBy": "<YYYY-MM-DD>",
-  "decided": "<YYYY-MM-DD, set on approval>",
+  "decidedOn": "<YYYY-MM-DD, set on approval>",
   "options": [
     {
       "name": "<one option>",

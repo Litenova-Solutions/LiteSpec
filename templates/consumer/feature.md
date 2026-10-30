@@ -7,11 +7,11 @@
   "status": "draft",
   "decider": "<owner>",
   "decideBy": "<YYYY-MM-DD>",
-  "state": "<planned|shipped|later|refused>",
-  "solves": ["problem/<name>"],
-  "serves": ["goal/<name>"],
+  "lifecycle": "<planned|shipped|later|refused>",
+  "solves": ["problem/<name>, or the problem this feature declines, when refused"],
+  "advances": ["goal/<name>", "or remove this line when the lifecycle is refused"],
   "refusedBecause": "<reason, when refused; remove this line otherwise>",
-  "by": "<The date or milestone, when planned; remove this line otherwise>",
+  "plannedFor": "<The milestone or date, when planned; remove this line otherwise>",
   "terms": ["term/<term-name>"],
   "questions": [
     {

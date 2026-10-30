@@ -26,14 +26,14 @@ The semantic fields per record type are:
 | Type | Fields feeding the hash |
 |:---|:---|
 | `product` | `boundary`, `neverDoes`, `audience` |
-| `goal` | `statement`, `measure`, `target`, `by` |
+| `goal` | `statement`, `measure`, `target`, `dueBy` |
 | `problem` | `affects`, `statement` |
-| `feature` | `state`, `refusedBecause`, `solves`, `by` |
-| `requirement` | `kind`, `statement`, `values`, `measure`, `by`, `except`, `setBy`, `risk` |
-| `constraint` | `category`, `applies`, `appliesBecause` |
-| `decision` | `options`, `changeWhen`, `decided`, `chosen`, `decides` |
-| `research` | `sources`, `question` |
-| `journey` | `actor`, `goal`, `finishedWhen`, `steps`, `fulfills` |
+| `feature` | `lifecycle`, `refusedBecause`, `solves`, `advances`, `plannedFor` |
+| `requirement` | `kind`, `statement`, `values`, `measure`, `dueBy`, `features`, `basedOn`, `except`, `setBy`, `risk` |
+| `constraint` | `authority`, `kind`, `applies`, `appliesBecause` |
+| `decision` | `options`, `changeWhen`, `decidedOn`, `chosen`, `decides` |
+| `research` | `sources`, `question`, `conclusion` |
+| `journey` | `actor`, `serves`, `aim`, `finishedWhen`, `steps`, `fulfills` |
 | `actor` | `kind` |
 | `term` | `term`, `meaning`, `layer`, `aliases` |
 | `module` | `dependsOn` |
@@ -47,7 +47,7 @@ The semantic fields per record type are:
 | `reaction` | `on`, `if`, `effects`, `forEach`, `reads`, `fulfills`, `serves`, `idempotency`, `onFailure`, `onExhausted` |
 | `job` | `kind`, `schedule`, `scope`, `batchSize`, `lease`, `effects`, `reads`, `serviceLevel`, `evidence`, `runbook`, `runsWhere`, `guard`, `cursor`, `fulfills`, `serves`, `onFailure`, `idempotency` |
 | `notification` | `template`, `audience`, `channel`, `consent`, `frequency`, `dedupKey`, `params`, `locale`, `suppressedWhen`, `claims`, `fulfills`, `sender` |
-| `setting` | `valueType`, `default`, `range`, `unit`, `setBy`, `atBound`, `secret`, `meaning`, `runbook`, `fulfills` |
+| `setting` | `valueType`, `default`, `range`, `unit`, `setBy`, `atBound`, `secret`, `meaning`, `runbook`, `fulfills`, `readBy` |
 | `role` | `scope`, `allows` |
 | `permission` | `meaning` |
 | `entry-point` | `kind`, `auth`, `path`, `contentType`, `cacheControl`, `versioning`, `fulfills`, `protocol` |
@@ -56,7 +56,7 @@ The semantic fields per record type are:
 | `deviation` | `provision`, `reason`, `reviewBy`, `removeWhen` |
 | `known-gap` | `check`, `subject`, `endsBy`, `reason` |
 
-`questions`, `terms`, and `replaces` feed the hash where a record carries them. The excluded fields stay outside on every type, so a constraint's `source`, an integration event's CloudEvents `source`, and an aggregate's `owner` feed no hash. This satisfies `litespec/core/model#record-approval-as-data`.
+`questions`, `terms`, and `replaces` feed the hash where a record carries them. The excluded fields stay outside on every type, so an integration event's CloudEvents `source` and an aggregate's `owner` feed no hash. This satisfies `litespec/core/model#record-approval-as-data`.
 
 ### Know What Reopens an Approval
 

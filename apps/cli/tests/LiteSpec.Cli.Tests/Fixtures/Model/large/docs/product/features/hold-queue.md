@@ -5,16 +5,16 @@
   "title": "Hold queue",
   "owner": "lending-team",
   "status": "approved",
-  "state": "shipped",
+  "lifecycle": "shipped",
   "solves": [
     "problem/overdue-loans-pile-up"
   ],
-  "serves": [
+  "advances": [
     "goal/faster-pickup"
   ],
   "approvedBy": "lending-team",
   "approvedOn": "2026-10-01",
-  "approvedHash": "5c053966"
+  "approvedHash": "92fd6857"
 }
 ---
 

@@ -93,11 +93,23 @@ These checks report a manifest or schema the release cannot ship, so they are li
 
 **Statement:** Every top-level class that declares a method in a .NET source project under `apps/`, and every test that verifies a provision, MUST name its provision in a mark: a `follows` mark on the class and a `proves` mark on the test.
 
-**Rationale:** LiteSpec's own tools are technical classes: they serve no product record, and each exists because a provision requires a check, a reader, or a generator of its shape. A `follows` mark is the reverse index from that code to the provision, so a retired or renamed provision finds every class still built for it, and a `proves` mark finds the tests that keep its check honest. LiteSpec holds no Intent or Behavior records of its own, because its provisions already are its specification: the marks point at them directly. The site under `apps/site` is TypeScript with no mark form in the maintainer tool, so it carries no marks.
+**Rationale:** LiteSpec's own tools are technical classes: they serve no product record, and each exists because a provision requires a check, a reader, or a generator of its shape. A `follows` mark is the reverse index from that code to the provision, so a retired or renamed provision finds every class still built for it, and a `proves` mark finds the tests that keep its check honest. LiteSpec keeps the research and decisions behind its provisions as records under `docs/intent/`, in the shapes a consumer uses; its provisions remain its specification, and the marks point at them directly. The site under `apps/site` is TypeScript with no mark form in the maintainer tool, so it carries no marks.
 
 **Example:** The .NET scenario reader carries `/// <follows>litespec/core/model#name-the-lowest-record-each-test-proves</follows>`, and the test that confirms a scenario driven through a shared probe step carries `/// <proves>litespec/core/model#name-the-lowest-record-each-test-proves</proves>`.
 
 **Checked by:** `litespec-maintain validate` emits `MARK_MISSING` for a class with a method and no `follows` mark in a source project under `apps/`, and `MARK_UNRESOLVED` for a `follows` or `proves` mark in a .NET project under `apps/`, outside its `Fixtures` folders, that names no provision in `docs/reference/provisions.md`.
+
+### Record the Reasoning Behind Each Release
+
+**ID:** `litespec/core/maintaining#record-the-reasoning-behind-each-release`
+
+**Statement:** A maintainer MUST keep the research and decisions behind each release as records under `docs/intent/`.
+
+**Rationale:** Provisions state obligations without the questions, sources, or conclusions behind them, so a later change cannot tell why a rule reads as it does. Settled by [decision/0001-keep-release-reasoning-as-records](../intent/decisions/0001-keep-release-reasoning-as-records.md) (`decision/0001-keep-release-reasoning-as-records`) on the evidence in [research/comparable-rationale-practice](../intent/research/comparable-rationale-practice.md) (`research/comparable-rationale-practice`).
+
+**Example:** Claimwick states its five-day approval target in a provision, and the benchmark behind the number sits in a research record beside it.
+
+**Checked by:** `litespec-maintain validate` emits no `RECORD_SCHEMA`, `RECORD_ID_MISMATCH`, `RECORD_SOURCE`, `RECORD_UNKNOWN_REFERENCE`, or `RECORD_DECISION_UNCITED` diagnostic.
 
 ## Conventions
 

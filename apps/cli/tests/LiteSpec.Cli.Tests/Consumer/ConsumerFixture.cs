@@ -93,7 +93,7 @@ static class ConsumerFixture
             """),
         new("docs/product/decisions/0001-launch.md",
             """
-            {"type":"decision","id":"decision/0001-launch","title":"Launch with a flat fee","owner":"fixture","status":"approved","decided":"2026-01-01","options":[{"name":"Flat fee","for":"Every receipt shows the same fee line.","against":"Large orders pay too little for delivery."},{"name":"Percentage","for":"Large orders carry their delivery cost.","against":"Every receipt needs its own math."}],"chosen":"Flat fee","changeWhen":"The fee changes when delivery costs move.","decides":["requirement/pricing.flat-fee"],"basedOn":[],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}
+            {"type":"decision","id":"decision/0001-launch","title":"Launch with a flat fee","owner":"fixture","status":"approved","decidedOn":"2026-01-01","options":[{"name":"Flat fee","for":"Every receipt shows the same fee line.","against":"Large orders pay too little for delivery."},{"name":"Percentage","for":"Large orders carry their delivery cost.","against":"Every receipt needs its own math."}],"chosen":"Flat fee","changeWhen":"The fee changes when delivery costs move.","decides":["requirement/pricing.flat-fee"],"basedOn":[],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}
             """,
             """
             # Launch with a Flat Fee
@@ -346,7 +346,7 @@ static class ConsumerFixture
     ];
 
     const string GlossaryJsonText = """
-        {"schemaVersion":2,"terms":[{"id":"term/order-claim","term":"order claim","meaning":"A claim stating what a customer ordered from the shop.","labels":{"nl":"orderclaim","de":"Bestellanspruch"},"rejected":[{"word":"orderclaim","reason":"the words stay separate."}],"owner":"fixture","status":"approved"}],"mannered":[{"term":"load-bearing","instead":"required"}]}
+        {"schemaVersion":2,"terms":[{"id":"term/order-claim","term":"order claim","meaning":"A claim stating what a customer ordered from the shop.","layer":"intent","labels":{"nl":"orderclaim","de":"Bestellanspruch"},"rejected":[{"word":"orderclaim","reason":"the words stay separate."}],"owner":"fixture","status":"approved"}],"mannered":[{"term":"load-bearing","instead":"required"}]}
         """;
 
     sealed record ManifestInfo(string Version, string KnownExtension);

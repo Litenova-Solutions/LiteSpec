@@ -12,7 +12,7 @@ A reviewer who reads Behavior first meets behavior with no reason. A reviewer wh
 
 ## One Journey End to End
 
-Follow one journey from its goal to its proof. Product readers take this track through the book chapter, which renders the journey without field names or JSON. Read in this order:
+Follow one journey from its goal to its proof. Product readers take this track through the journey detail, which shows the journey without field names or JSON. Read in this order:
 
 1. The goal the journey serves, and the requirements that fulfill it, with their statements and each `except` with its fallback inline.
 2. The journey page: its goal, its `finishedWhen`, its steps as product sentences, and what each step's `ifItGoesWrong` says the person experiences.
@@ -81,7 +81,8 @@ Every record uses the same structural words: the record types, the links between
 | Word | What It Tells the Reader |
 |:---|:---|
 | solves | The feature answers this problem. |
-| serves | The feature serves this goal; the use case, reaction, or job serves this journey step or goal. |
+| advances | The feature advances this goal. |
+| serves | The journey serves this goal; the use case, reaction, job, or screen serves this journey step. |
 | fulfills | This record answers the requirement it names. |
 | basedOn | The evidence or record this one builds on. |
 | decides | The decision settles this record. |
@@ -121,7 +122,7 @@ Every record uses the same structural words: the record types, the links between
 
 ## Which Track to Take
 
-A product owner or reviewer takes the journey track: one goal at a time, from promises to proof, reading chapters and ballots. A developer or agent takes the module track: one module at a time, from aggregates to proof, reading Behavior records and the behavior diff. Both tracks read why before how, and both end at Proof, where passing tests show the promises hold.
+A product owner or reviewer takes the journey track: one goal at a time, from promises to proof, reading journey detail and the Ballots view. A developer or agent takes the module track: one module at a time, from aggregates to proof, reading Behavior records and the behavior diff. Both tracks read why before how, and both end at Proof, where passing tests show the promises hold.
 
 ## Next
 

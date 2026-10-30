@@ -150,7 +150,7 @@ public sealed partial class ConsumerValidatorTests
             folder.Path,
             "docs/product/goals/faster-delivery.md",
             ConsumerFixture.Page(
-                ConsumerFixture.Meta("""{"type":"goal","id":"goal/faster-delivery","title":"Faster Delivery","owner":"fixture","status":"approved","statement":"Orders arrive in two days.","measure":"Median days to arrival.","target":"Two days.","by":"2026-12-31","approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}"""),
+                ConsumerFixture.Meta("""{"type":"goal","id":"goal/faster-delivery","title":"Faster Delivery","owner":"fixture","status":"approved","statement":"Orders arrive in two days.","measure":"Median days to arrival.","target":"Two days.","dueBy":"2026-12-31","approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}"""),
                 "# Faster Delivery\n"));
         AssertProblem(RunConsumer(folder.Path), "requires an H2 'Why It Matters'");
     }
@@ -169,7 +169,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "requires an H2 'Evidence'");
     }
 
-    /// <proves>litespec/core/intent#state-each-feature-with-its-state</proves>
+    /// <proves>litespec/core/intent#state-each-feature-with-its-lifecycle</proves>
     [Fact(DisplayName = "feature that omits its offering")]
     public void FeatureThatOmitsItsOffering()
     {
@@ -178,7 +178,7 @@ public sealed partial class ConsumerValidatorTests
             folder.Path,
             "docs/product/features/approval-reminders.md",
             ConsumerFixture.Page(
-                ConsumerFixture.Meta("""{"type":"feature","id":"feature/approval-reminders","title":"Approval Reminders","owner":"fixture","status":"approved","state":"shipped","approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}"""),
+                ConsumerFixture.Meta("""{"type":"feature","id":"feature/approval-reminders","title":"Approval Reminders","owner":"fixture","status":"approved","lifecycle":"shipped","solves":["problem/slow-approval"],"advances":["goal/faster-delivery"],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}"""),
                 "# Approval Reminders\n"));
         AssertProblem(RunConsumer(folder.Path), "requires an H2 'Offering'");
     }
@@ -192,7 +192,7 @@ public sealed partial class ConsumerValidatorTests
             folder.Path,
             "docs/product/constraints/tax-retention.md",
             ConsumerFixture.Page(
-                ConsumerFixture.Meta("""{"type":"constraint","id":"constraint/tax-retention","title":"Tax Retention","owner":"fixture","status":"approved","source":"Tax office guidance.","category":"technical","applies":true,"appliesBecause":"The shop keeps receipts.","approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}"""),
+                ConsumerFixture.Meta("""{"type":"constraint","id":"constraint/tax-retention","title":"Tax Retention","owner":"fixture","status":"approved","authority":"Tax office guidance.","kind":"technical","applies":true,"appliesBecause":"The shop keeps receipts.","approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}"""),
                 "# Tax Retention\n\n## Summary\n\nThe guidance states the retention duty.\n"));
         AssertProblem(RunConsumer(folder.Path), "requires an H2 'What It Requires'");
     }
@@ -206,7 +206,7 @@ public sealed partial class ConsumerValidatorTests
             folder.Path,
             "docs/research/delivery-benchmarks.md",
             ConsumerFixture.Page(
-                ConsumerFixture.Meta("""{"type":"research","id":"research/delivery-benchmarks","title":"Delivery Benchmarks","owner":"fixture","status":"approved","question":"How fast do rivals deliver?","sources":[{"url":"https://example.com/benchmarks","read":"2026-01-01"}],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}"""),
+                ConsumerFixture.Meta("""{"type":"research","id":"research/delivery-benchmarks","title":"Delivery Benchmarks","owner":"fixture","status":"approved","question":"How fast do rivals deliver?","conclusion":"Rivals deliver in two days.","sources":[{"url":"https://example.com/benchmarks","read":"2026-01-01"}],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}"""),
                 "# Delivery Benchmarks\n"));
         AssertProblem(RunConsumer(folder.Path), "requires an H2 'Answer'");
     }
@@ -220,7 +220,7 @@ public sealed partial class ConsumerValidatorTests
             folder.Path,
             "docs/product/journeys/submit-and-reimburse.md",
             ConsumerFixture.Page(
-                ConsumerFixture.Meta("""{"type":"journey","id":"journey/submit-and-reimburse","title":"Submit and Reimburse","owner":"fixture","status":"approved","actor":"actor/customer","goal":"The customer is reimbursed.","finishedWhen":"The customer holds the reimbursement.","steps":[{"id":"s1","says":"The customer submits the order.","actor":"actor/customer"}],"fulfills":["requirement/pricing.flat-fee"],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}"""),
+                ConsumerFixture.Meta("""{"type":"journey","id":"journey/submit-and-reimburse","title":"Submit and Reimburse","owner":"fixture","status":"approved","actor":"actor/customer","serves":["goal/faster-delivery"],"aim":"The customer is reimbursed.","finishedWhen":"The customer holds the reimbursement.","steps":[{"id":"s1","says":"The customer submits the order.","actor":"actor/customer"}],"fulfills":["requirement/pricing.flat-fee"],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}"""),
                 "# Submit and Reimburse\n\n## Between the Steps\n\nThe shop hands the claim to payment.\n"));
         AssertProblem(RunConsumer(folder.Path), "requires an H2 'Example'");
     }
@@ -234,7 +234,7 @@ public sealed partial class ConsumerValidatorTests
             folder.Path,
             "docs/product/journeys/submit-and-reimburse.md",
             ConsumerFixture.Page(
-                ConsumerFixture.Meta("""{"type":"journey","id":"journey/submit-and-reimburse","title":"Submit and Reimburse","owner":"fixture","status":"approved","actor":"actor/customer","goal":"The customer is reimbursed.","finishedWhen":"The customer holds the reimbursement.","steps":[{"id":"s1","says":"The customer submits the order.","actor":"actor/customer"}],"fulfills":["requirement/pricing.flat-fee"],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}"""),
+                ConsumerFixture.Meta("""{"type":"journey","id":"journey/submit-and-reimburse","title":"Submit and Reimburse","owner":"fixture","status":"approved","actor":"actor/customer","serves":["goal/faster-delivery"],"aim":"The customer is reimbursed.","finishedWhen":"The customer holds the reimbursement.","steps":[{"id":"s1","says":"The customer submits the order.","actor":"actor/customer"}],"fulfills":["requirement/pricing.flat-fee"],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}"""),
                 "# Submit and Reimburse\n\n## Example\n\nAlex submits a claim on Monday and is reimbursed by Friday.\n"));
         AssertProblem(RunConsumer(folder.Path), "requires an H2 'Between the Steps'");
     }

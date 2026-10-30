@@ -60,7 +60,7 @@ export interface Provision {
   evidence: string;
 }
 
-export type PageStyle = "topic" | "stack" | "extension" | "pattern" | "reference" | "command" | "how-to" | "tutorial" | "explanation" | "index" | "glossary";
+export type PageStyle = "topic" | "stack" | "extension" | "pattern" | "reference" | "command" | "how-to" | "tutorial" | "explanation" | "index" | "glossary" | "research" | "decision";
 
 export interface Page {
   /** Repository-relative file path, such as docs/backend/domain.md. */
@@ -85,6 +85,8 @@ function styleOf(rel: string): PageStyle {
   if (rel.endsWith("/README.md")) return "index";
   if (rel === "docs/reference/glossary.md") return "glossary";
   if (rel.includes("/ext/")) return "extension";
+  if (rel.startsWith("docs/intent/research/")) return "research";
+  if (rel.startsWith("docs/intent/decisions/") || rel.startsWith("docs/implementation/decisions/")) return "decision";
   if (rel.startsWith("docs/frontend/patterns/")) return "pattern";
   if (segments[1] === "tools" || segments[1] === "maintain") return "command";
   if (segments[1] === "reference") return "reference";
@@ -143,11 +145,21 @@ function sectionParagraph(children: RootContent[], lines: string[], section: str
   return "";
 }
 
+/** Blanks a leading record frontmatter block, keeping line numbers, so its fences never parse as headings. */
+function blankFrontmatter(text: string): string {
+  if (!text.startsWith("---\n")) return text;
+  const end = text.indexOf("\n---\n", 3);
+  if (end < 0) return text;
+  const block = text.slice(0, end + "\n---".length);
+  return block.replace(/[^\n]/g, "") + text.slice(block.length);
+}
+
 /** Parses one page from its Markdown source. Exported for the parser tests. */
 export function parsePageContent(rel: string, markdown: string): Page {
   const text = markdown.replace(/\r\n/g, "\n");
-  const lines = text.split("\n");
-  const children = fromMarkdown(text, { extensions: [gfm()], mdastExtensions: [gfmFromMarkdown()] }).children;
+  const body = blankFrontmatter(text);
+  const lines = body.split("\n");
+  const children = fromMarkdown(body, { extensions: [gfm()], mdastExtensions: [gfmFromMarkdown()] }).children;
   const pagePath = rel.slice("docs/".length, -".md".length);
   const style = styleOf(rel);
   const sections: string[] = [];

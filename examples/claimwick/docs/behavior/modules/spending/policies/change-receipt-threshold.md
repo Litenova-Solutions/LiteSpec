@@ -63,6 +63,20 @@
       "approvedBy": "claimwick-team",
       "approvedOn": "2026-10-01",
       "approvedHash": "e8e0ca4b"
+    },
+    {
+      "type": "scenario",
+      "id": "scenario/change-receipt-threshold.setting-a-negative-threshold-is-refused",
+      "title": "Setting a negative threshold is refused",
+      "owner": "claimwick-team",
+      "status": "reviewed",
+      "given": "Finance agreed a new receipt threshold with the managers.",
+      "when": "The manager sets a negative receipt threshold.",
+      "result": "result/change-receipt-threshold.negative-threshold",
+      "then": "The change is refused because the threshold is negative.",
+      "approvedBy": "claimwick-team",
+      "approvedOn": "2026-10-01",
+      "approvedHash": "198f0aae"
     }
   ],
   "approvedBy": "claimwick-team",

@@ -6,7 +6,10 @@
   "owner": "lending-team",
   "status": "approved",
   "actor": "actor/reader",
-  "goal": "Borrow and return a copy.",
+  "serves": [
+    "goal/faster-pickup"
+  ],
+  "aim": "Borrow and return a copy.",
   "finishedWhen": "The reader holds the copy, then the copy sits back on its shelf.",
   "steps": [
     {
@@ -58,7 +61,7 @@
   ],
   "approvedBy": "lending-team",
   "approvedOn": "2026-10-01",
-  "approvedHash": "db5cb3b0"
+  "approvedHash": "cad08609"
 }
 ---
 

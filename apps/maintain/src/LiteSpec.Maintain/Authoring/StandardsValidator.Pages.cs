@@ -53,6 +53,20 @@ static partial class StandardsValidator
             return "extension";
         }
 
+        // LiteSpec keeps its own research and decisions as consumer-shaped records.
+        // They inform the provisions and settle nothing themselves.
+        // (litespec/core/maintaining#record-the-reasoning-behind-each-release)
+        if (relative.StartsWith("docs/intent/research/", StringComparison.Ordinal))
+        {
+            return "research";
+        }
+
+        if (relative.StartsWith("docs/intent/decisions/", StringComparison.Ordinal)
+            || relative.StartsWith("docs/implementation/decisions/", StringComparison.Ordinal))
+        {
+            return "decision";
+        }
+
         var segments = relative["docs/".Length..^".md".Length].Split('/');
         if (segments[0] == "tools" || segments[0] == "maintain")
         {
@@ -154,6 +168,18 @@ static partial class StandardsValidator
             return new PageContract(["Name", "Synopsis", "Description", "Arguments", "Options", "Exit Codes", "Examples", "Underneath"], []);
         }
 
+        // The record contracts mirror the consumer table exactly, so an invented
+        // section fails here as it does in a consumer.
+        if (kind == "research")
+        {
+            return new PageContract(["Answer"], ["Notes on Sources"]);
+        }
+
+        if (kind == "decision")
+        {
+            return new PageContract(["Context", "Decision", "Consequences"], ["Evidence with Confidence"]);
+        }
+
         return null;
     }
 
@@ -203,6 +229,14 @@ static partial class StandardsValidator
         else if (kind == "reference")
         {
             canonical = ["Intent", "Reference", "Notes"];
+        }
+        else if (kind == "research")
+        {
+            canonical = ["Answer", "Notes on Sources"];
+        }
+        else if (kind == "decision")
+        {
+            canonical = ["Context", "Decision", "Consequences", "Evidence with Confidence"];
         }
         else
         {

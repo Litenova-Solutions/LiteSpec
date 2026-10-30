@@ -5,7 +5,7 @@
   "title": "Loan period",
   "owner": "lending-team",
   "status": "approved",
-  "decided": "2026-02-01",
+  "decidedOn": "2026-02-01",
   "options": [
     {
       "name": "14 days",
@@ -31,7 +31,7 @@
   "basedOn": [],
   "approvedBy": "lending-team",
   "approvedOn": "2026-10-01",
-  "approvedHash": "5a49c44d"
+  "approvedHash": "3a540632"
 }
 ---
 

@@ -6,7 +6,10 @@
   "owner": "lending-team",
   "status": "approved",
   "actor": "actor/reader",
-  "goal": "Borrow and return a copy.",
+  "serves": [
+    "goal/faster-pickup"
+  ],
+  "aim": "Borrow and return a copy.",
   "finishedWhen": "The reader holds the copy, then the copy sits back on its shelf.",
   "steps": [
     {

@@ -20,7 +20,7 @@
     "event/copy.copy-retired"
   ],
   "serves": [
-    "goal/faster-pickup"
+
   ],
   "fulfills": [
     "requirement/borrowing.copy-shelf-home"

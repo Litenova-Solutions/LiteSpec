@@ -18,7 +18,8 @@
       "setBy": "<founder|operator|tenant>",
       "atBound": "<refuse|truncate|degrade>",
       "secret": false,
-      "fulfills": ["requirement/<topic>.<name>"]
+      "fulfills": ["requirement/<topic>.<name>"],
+      "readBy": ["use-case/<module>.<name>", "or remove this line when no use case reads this setting"]
     }
   ]
 }

@@ -53,6 +53,7 @@ static partial class StandardsValidator
         "EXTENSION_LOCATION",
         "EXTENSION_SCOPE",
         "EXTENSION_UNLISTED",
+        "FIELD_NAME_SHAPE",
         "LAYER_UNREACHABLE",
         "SHAPE_PAGE",
         "STACK_FOLDER",
@@ -89,6 +90,11 @@ static partial class StandardsValidator
         "PROSE_NORMATIVE_LOCATION",
         "PROVISIONS_STALE",
         "PROVISION_RESTATES_HEADING",
+        "RECORD_DECISION_UNCITED",
+        "RECORD_ID_MISMATCH",
+        "RECORD_SCHEMA",
+        "RECORD_SOURCE",
+        "RECORD_UNKNOWN_REFERENCE",
         "REFERENCE_EXAMPLE_DECLARATION",
         "SCHEMA_ID",
         "SCHEMA_INVALID",
@@ -214,6 +220,7 @@ static partial class StandardsValidator
         CheckLinks(resolved, current, Add);
         var provisionsByPage = parsedPages.ToDictionary(page => page.Relative, page => page.Parsed.Provisions, StringComparer.Ordinal);
         CheckManifest(resolved, Add, activeIds, provisionsByPage);
+        CheckRecords(resolved, parsedPages, Add);
 
         // The provision index is derived. A stale page would send a reader to the wrong
         // heading, so the gate compares it with the active standards.
@@ -235,6 +242,7 @@ static partial class StandardsValidator
 
         ValidateSchemaConsumer(resolved, "schemas/litespec-manifest.schema.json", "litespec.manifest.json", Add);
         CheckSchemaIds(resolved, Add);
+        CheckFieldNaming(resolved, Add);
         // Every shipped consumer template meets the schema it teaches. A template
         // the schema never reads drifts from it in silence.
         ValidateSchemaConsumer(resolved, "schemas/litespec-project.schema.json", "templates/consumer/litespec.project.json", Add);

@@ -5,6 +5,8 @@
       "id": "term/expense",
       "term": "expense",
       "meaning": "One work cost an employee submitted for approval.",
+      "layer": "behavior",
+      "aliases": [],
       "labels": {
         "nl": "uitgave",
         "de": "Ausgabe"
@@ -22,6 +24,8 @@
       "id": "term/receipt",
       "term": "receipt",
       "meaning": "Proof of payment attached to an expense.",
+      "layer": "behavior",
+      "aliases": [],
       "labels": {
         "nl": "bonnetje",
         "de": "Beleg"
@@ -39,6 +43,8 @@
       "id": "term/policy",
       "term": "policy",
       "meaning": "The company spending policy and its receipt threshold.",
+      "layer": "behavior",
+      "aliases": [],
       "labels": {
         "nl": "beleid",
         "de": "Richtlinie"
@@ -51,6 +57,8 @@
       "id": "term/approver",
       "term": "approver",
       "meaning": "The manager who decides a submitted expense.",
+      "layer": "intent",
+      "aliases": [],
       "labels": {
         "nl": "goedkeurder",
         "de": "Genehmiger"
@@ -63,6 +71,8 @@
       "id": "term/personal-data",
       "term": "personal data",
       "meaning": "Facts identifying an employee, erased on request.",
+      "layer": "behavior",
+      "aliases": [],
       "labels": {
         "nl": "persoonsgegevens",
         "de": "personenbezogene Daten"

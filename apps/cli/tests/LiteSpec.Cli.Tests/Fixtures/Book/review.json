@@ -52,7 +52,7 @@
                                        "statement":  "Members borrow in under two minutes.",
                                        "measure":  "p95 desk wait",
                                        "target":  "under 2 minutes",
-                                       "by":  "2026-12-31"
+                                       "dueBy":  "2026-12-31"
                                    },
                         "links":  {
 
@@ -126,12 +126,12 @@
                                        "status":  "draft",
                                        "decider":  "Ada",
                                        "decideBy":  "2026-11-15",
-                                       "state":  "planned",
-                                       "by":  "2026-12-31",
+                                       "lifecycle":  "planned",
+                                       "plannedFor":  "2026-12-31",
                                        "solves":  [
                                                       "problem/slow-desk-queues"
                                                   ],
-                                       "serves":  [
+                                       "advances":  [
                                                       "goal/faster-borrowing"
                                                   ],
                                        "questions":  [
@@ -148,7 +148,7 @@
                                       "solves":  [
                                                      "problem/slow-desk-queues"
                                                  ],
-                                      "serves":  [
+                                      "advances":  [
                                                      "goal/faster-borrowing"
                                                  ]
                                   }
@@ -170,8 +170,8 @@
                                        "title":  "Opening Hours",
                                        "owner":  "lending-team",
                                        "status":  "approved",
-                                       "source":  "Branch lease",
-                                       "category":  "organizational",
+                                       "authority":  "Branch lease",
+                                       "kind":  "organizational",
                                        "applies":  "Opening hours",
                                        "appliesBecause":  "The lease sets them."
                                    },
@@ -225,7 +225,7 @@
                                        "title":  "Self Checkout Kiosk",
                                        "owner":  "lending-team",
                                        "status":  "approved",
-                                       "decided":  "2026-10-01",
+                                       "decidedOn":  "2026-10-01",
                                        "options":  [
                                                        {
                                                            "name":  "Kiosk",
@@ -278,12 +278,12 @@
                                        "rationale":  "Queues drive members away.",
                                        "measure":  "p95 desk wait",
                                        "target":  "under 2 minutes",
-                                       "by":  "2026-12-31",
+                                       "dueBy":  "2026-12-31",
                                        "conditions":  "Saturday morning, two desks open",
                                        "check":  "k6 desk-wait p(95)\u003c120",
                                        "runsOn":  "nightly",
                                        "evidence":  "https://example.com/runs/desk-wait",
-                                       "feature":  [
+                                       "features":  [
                                                        "feature/self-checkout"
                                                    ],
                                        "questions":  [
@@ -297,7 +297,7 @@
                                                      ]
                                    },
                         "links":  {
-                                      "feature":  [
+                                      "features":  [
                                                       "feature/self-checkout"
                                                   ]
                                   }
@@ -321,12 +321,12 @@
                                        "status":  "approved",
                                        "kind":  "functional",
                                        "statement":  "Every copy has one home shelf.",
-                                       "feature":  [
+                                       "features":  [
                                                        "feature/self-checkout"
                                                    ]
                                    },
                         "links":  {
-                                      "feature":  [
+                                      "features":  [
                                                       "feature/self-checkout"
                                                   ]
                                   }
@@ -356,12 +356,12 @@
                                                           "effectiveFrom":  "2026-01-01"
                                                       }
                                                   ],
-                                       "feature":  [
+                                       "features":  [
                                                        "feature/self-checkout"
                                                    ]
                                    },
                         "links":  {
-                                      "feature":  [
+                                      "features":  [
                                                       "feature/self-checkout"
                                                   ]
                                   }
@@ -384,7 +384,7 @@
                                        "owner":  "lending-team",
                                        "status":  "approved",
                                        "actor":  "actor/member",
-                                       "goal":  "Borrow before closing",
+                                       "aim":  "Borrow before closing",
                                        "steps":  [
                                                      {
                                                          "id":  "s1",
@@ -1215,6 +1215,91 @@
                                    },
                         "links":  {
 
+                                  }
+                    },
+                    {
+                        "type":  "job",
+                        "id":  "job/lending.send-overdue-notices",
+                        "title":  "Send Overdue Notices",
+                        "owner":  "lending-team",
+                        "status":  "reviewed",
+                        "effectiveStatus":  "approved",
+                        "decider":  null,
+                        "decideBy":  null,
+                        "file":  "docs/behavior/modules/lending/jobs/send-overdue-notices.md",
+                        "line":  3,
+                        "fields":  {
+                                       "type":  "job",
+                                       "id":  "job/lending.send-overdue-notices",
+                                       "title":  "Send Overdue Notices",
+                                       "owner":  "lending-team",
+                                       "status":  "reviewed",
+                                       "schedule":  "daily 06:00",
+                                       "runbook":  "runbook/overdue-notice"
+                                   },
+                        "links":  {
+                                      "runbook":  [
+                                                       "runbook/overdue-notice"
+                                                   ]
+                                  }
+                    },
+                    {
+                        "type":  "screen",
+                        "id":  "screen/library-app.search",
+                        "title":  "Search",
+                        "owner":  "lending-team",
+                        "status":  "reviewed",
+                        "effectiveStatus":  "approved",
+                        "decider":  null,
+                        "decideBy":  null,
+                        "file":  "docs/behavior/screens/library-app/search.md",
+                        "line":  3,
+                        "fields":  {
+                                       "type":  "screen",
+                                       "id":  "screen/library-app.search",
+                                       "title":  "Search",
+                                       "owner":  "lending-team",
+                                       "status":  "reviewed",
+                                       "entryPoint":  "entry-point/library-app",
+                                       "address":  "/search",
+                                       "offers":  [
+                                                       "use-case/lending.borrow-copy"
+                                                   ]
+                                   },
+                        "links":  {
+                                      "entryPoint":  [
+                                                         "entry-point/library-app"
+                                                     ],
+                                      "offers":  [
+                                                     "use-case/lending.borrow-copy"
+                                                 ]
+                                  }
+                    },
+                    {
+                        "type":  "integration-event",
+                        "id":  "integration-event/loan-borrowed",
+                        "title":  "Loan Borrowed",
+                        "owner":  "lending-team",
+                        "status":  "reviewed",
+                        "effectiveStatus":  "approved",
+                        "decider":  null,
+                        "decideBy":  null,
+                        "file":  "docs/behavior/integration/loan-borrowed.md",
+                        "line":  3,
+                        "fields":  {
+                                       "type":  "integration-event",
+                                       "id":  "integration-event/loan-borrowed",
+                                       "title":  "Loan Borrowed",
+                                       "owner":  "lending-team",
+                                       "status":  "reviewed",
+                                       "translates":  [
+                                                           "event/loan.loan-borrowed"
+                                                       ]
+                                   },
+                        "links":  {
+                                      "translates":  [
+                                                         "event/loan.loan-borrowed"
+                                                     ]
                                   }
                     }
                 ],

@@ -107,7 +107,7 @@ A behavior module gathers one business area's glossary terms, aggregates, rules,
     | `actor/manager` | `role/approver` at team scope | `permission/approve-expense` |
     | `actor/finance` | `role/finance` at platform scope | `permission/reimburse-expense` |
 
-10. Write the use cases. Give each use case a name that is unique across the project, so its results and scenarios resolve. Name the kind, `command` or `query`, the journey steps or goals it serves, the requirements it fulfills, the access it declares, the entry points, the aggregates it changes and reads, its consistency, its effects, and the events it raises. This satisfies `litespec/backend/application#use-this-use-case-layout`, `litespec/core/behavior#give-each-use-case-a-command-or-query-kind`, `litespec/core/behavior#connect-each-use-case-to-intent`, and `litespec/core/access#declare-access-on-every-use-case`.
+10. Write the use cases. Give each use case a name that is unique across the project, so its results and scenarios resolve. Name the kind, `command` or `query`, the journey steps it serves, the requirements it fulfills, the access it declares, the entry points, the aggregates it changes and reads, its consistency, its effects, and the events it raises. This satisfies `litespec/backend/application#use-this-use-case-layout`, `litespec/core/behavior#give-each-use-case-a-command-or-query-kind`, `litespec/core/behavior#connect-each-use-case-to-intent`, and `litespec/core/access#declare-access-on-every-use-case`.
 
     | Use case | Kind | Serves | Access grant | Changes | Consistency |
     |:---|:---|:---|:---|:---|:---|

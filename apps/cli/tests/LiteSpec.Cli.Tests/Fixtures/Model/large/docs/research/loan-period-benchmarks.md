@@ -12,9 +12,10 @@
     }
   ],
   "question": "How long do city libraries lend?",
+  "conclusion": "City libraries lend for two to four weeks.",
   "approvedBy": "lending-team",
   "approvedOn": "2026-10-01",
-  "approvedHash": "0262212f"
+  "approvedHash": "c181689c"
 }
 ---
 

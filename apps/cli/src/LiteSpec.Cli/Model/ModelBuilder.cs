@@ -60,6 +60,7 @@ static partial class ModelBuilder
         {
             MatchEvents(model);
             ComputeImplements(model);
+            ComputeFollows(model);
             ComputeCalls(model);
             ComputeRefusalCodes(model);
             ComputeProves(model);
@@ -258,6 +259,22 @@ static partial class ModelBuilder
         foreach (var entry in Authority.EffectiveStatus(model.Records, record => UseCaseHolder(model, (Record)record)))
         {
             model.EffectiveStatus[entry.Key] = entry.Value;
+        }
+    }
+
+    /// <summary>
+    ///     Adds one follows link per follows mark on every element, to the provision,
+    ///     decision or deviation the mark names, exported as written.
+    /// </summary>
+    private static void ComputeFollows(ProjectModel model)
+    {
+        foreach (var element in model.Code.Elements)
+        {
+            foreach (var mark in element.Marks.Where(mark => mark.Verb == MarkVerb.Follows))
+            {
+                model.Follows.Add(new FollowsLink(
+                    model.Config.Relative(mark.File), mark.RecordId, element.Kind.ToString()));
+            }
         }
     }
 
@@ -536,22 +553,23 @@ static partial class ModelBuilder
         model.UseCasesByName.TryGetValue(home, out var useCase) ? useCase : null;
 
     /// <summary>
-    ///     The use case holding a result or scenario: the carrying page for a derived
-    ///     result, else the use case its home names.
+    ///     The use case holding a result or scenario: the use case its home names, else
+    ///     the use case page that carries it.
     /// </summary>
     private static Record? UseCaseHolder(ProjectModel model, Record record)
     {
-        if (record.Derived
-            && record.PageId is not null
-            && model.ById.TryGetValue(record.PageId, out var holder)
-            && holder.Type == "use-case")
+        if (Identifiers.TrySplit(record.Id, out _, out var home, out _)
+            && home is not null
+            && UseCaseOf(model, home) is { } named)
         {
-            return holder;
+            return named;
         }
 
-        return Identifiers.TrySplit(record.Id, out _, out var home, out _) && home is not null
-            ? UseCaseOf(model, home)
-            : null;
+        return record.PageId is not null
+            && model.ById.TryGetValue(record.PageId, out var holder)
+            && holder.Type == "use-case"
+                ? holder
+                : null;
     }
 
     private static void ComputeRefusalCodes(ProjectModel model)

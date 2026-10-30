@@ -13,7 +13,8 @@ public sealed class Tier1RecordBatchTests
     [Fact]
     public void A_Tier1_Requirement_Is_Queued_And_Approved_On_Its_Own()
     {
-        using var fixture = ModelFixture.Prepare("small");
+        // The large fixture's requirement is based on research, so no decision holds it.
+        using var fixture = ModelFixture.Prepare("large");
         ReviewPages.DraftEntry(Borrowing(fixture.Path), "requirement/borrowing.max-active-loans");
         ReviewPages.PatchEntry(Borrowing(fixture.Path), "requirement/borrowing.max-active-loans",
             front => front["risk"] = new JsonArray("money"));

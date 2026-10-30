@@ -177,6 +177,7 @@ public sealed class OperationsCheckTests
     {
         using var temp = ModelFixture.Prepare("small");
         Write(temp.Path, RequirementFile, RequirementPage);
+        Write(temp.Path, OriginFile, OriginPage);
         Write(temp.Path, RunbookFile, RunbookPage);
         Write(temp.Path, DecisionFile, DecisionPage);
         Write(temp.Path, AlertFile, AlertPassing);
@@ -196,6 +197,7 @@ public sealed class OperationsCheckTests
     {
         using var temp = ModelFixture.Prepare("small");
         Write(temp.Path, RequirementFile, RequirementPage);
+        Write(temp.Path, OriginFile, OriginPage);
         Write(temp.Path, DecisionFile, DecisionPage);
         Write(temp.Path, ResultFile, ResultPassing);
         SetPaths(temp.Path, checkResults: CheckResultsDir);
@@ -213,6 +215,7 @@ public sealed class OperationsCheckTests
     {
         using var temp = ModelFixture.Prepare("small");
         Write(temp.Path, RequirementFile, RequirementPage);
+        Write(temp.Path, OriginFile, OriginPage);
         Write(temp.Path, DecisionFile, DecisionPage);
         Write(temp.Path, GapFile, GapPage);
 
@@ -231,6 +234,7 @@ public sealed class OperationsCheckTests
     {
         using var temp = ModelFixture.Prepare("small");
         Write(temp.Path, RequirementFile, RequirementPage);
+        Write(temp.Path, OriginFile, OriginPage);
         Write(temp.Path, DecisionFile, DecisionPage);
 
         var check = Cli.Run("model", "check", "--root", temp.Path);
@@ -249,6 +253,7 @@ public sealed class OperationsCheckTests
     {
         using var temp = ModelFixture.Prepare("small");
         Write(temp.Path, RequirementFile, RequirementPage);
+        Write(temp.Path, OriginFile, OriginPage);
         Write(temp.Path, DecisionFile, DecisionPage);
         Write(temp.Path, ResultFile, ResultPassing);
         SetPaths(temp.Path, checkResults: CheckResultsDir);
@@ -266,6 +271,7 @@ public sealed class OperationsCheckTests
     {
         using var temp = ModelFixture.Prepare("small");
         Write(temp.Path, RequirementFile, RequirementPage);
+        Write(temp.Path, OriginFile, OriginPage);
         Write(temp.Path, DecisionFile, DecisionPage);
         Write(temp.Path, ResultFile, ResultPassing.Replace("\"passed\": true", "\"passed\": false"));
         SetPaths(temp.Path, checkResults: CheckResultsDir);
@@ -373,6 +379,7 @@ public sealed class OperationsCheckTests
     static void WriteWatchedSetup(string root, string alert)
     {
         Write(root, RequirementFile, RequirementPage);
+        Write(root, OriginFile, OriginPage);
         Write(root, RunbookFile, RunbookPage);
         Write(root, DecisionFile, DecisionPage);
         Write(root, AlertFile, alert);
@@ -413,6 +420,8 @@ public sealed class OperationsCheckTests
 
     const string RequirementFile = "docs/product/lending/performance.md";
     const string RunbookFile = "docs/behavior/runbooks/slow-listings.md";
+    const string OriginFile = "docs/product/decisions/0003-term-start-listing.md";
+
     const string DecisionFile = "docs/implementation/decisions/0002-loan-index.md";
     const string AlertFile = "deploy/alerts/lending.yaml";
     const string AlertDir = "deploy/alerts";
@@ -445,7 +454,7 @@ public sealed class OperationsCheckTests
               "environment": "Normal operation, the search index warm.",
               "response": "Each listing answers from the index.",
               "measure": "Share of listings answered within 300 milliseconds: at least 99 percent.",
-              "by": "2027-01-15",
+              "dueBy": "2027-01-15",
               "check": "list-loans-load"
             }
           ]
@@ -488,6 +497,46 @@ public sealed class OperationsCheckTests
         ## Verification
 
         Listings answer within 300 milliseconds again.
+        """;
+
+    // The product decision that decides the latency requirement, its origin.
+    const string OriginPage = """
+        ---
+        {
+          "type": "decision",
+          "id": "decision/0003-term-start-listing",
+          "title": "Term Start Listing",
+          "owner": "lending-team",
+          "status": "draft",
+          "decider": "lending-team",
+          "decideBy": "2027-02-01",
+          "options": [
+            {
+              "name": "Answer within 300 milliseconds",
+              "for": "Readers list loans without waiting at term start.",
+              "against": "The listing needs an index."
+            }
+          ],
+          "changeWhen": "Term start load changes.",
+          "decides": [
+            "requirement/borrowing.list-loans-latency"
+          ]
+        }
+        ---
+
+        # Term Start Listing
+
+        ## Context
+
+        Term start floods the loan listing.
+
+        ## Decision
+
+        Listing loans answers within 300 milliseconds at p95.
+
+        ## Consequences
+
+        The listing reads from an index.
         """;
 
     const string DecisionPage = """

@@ -5,6 +5,9 @@ namespace LiteSpec.Model;
 /// <summary>One computed implements link: code to a record.</summary>
 sealed record ImplementsLink(string Path, string To, string Kind);
 
+/// <summary>One computed follows link: code to the provision, decision or deviation that shapes it.</summary>
+sealed record FollowsLink(string Path, string To, string Kind);
+
 /// <summary>One computed calls link: a screen to a use case.</summary>
 sealed record CallsLink(string Screen, string To, string Operation);
 
@@ -82,6 +85,7 @@ sealed class ProjectModel
     public List<CodeComment> ScreenComments { get; } = [];
     public TestRun? TestRun { get; set; }
     public List<ImplementsLink> Implements { get; } = [];
+    public List<FollowsLink> Follows { get; } = [];
     public List<CallsLink> Calls { get; } = [];
     public List<ProvesLink> Proves { get; } = [];
     public Dictionary<string, UseCaseStatus> Status { get; } = new(StringComparer.Ordinal);
@@ -569,6 +573,19 @@ sealed class ProjectModel
             writer.WriteStartArray("implements");
 
             foreach (var link in Implements)
+            {
+                writer.WriteStartObject();
+                writer.WriteString("path", link.Path);
+                writer.WriteString("to", link.To);
+                writer.WriteString("kind", link.Kind);
+                writer.WriteEndObject();
+            }
+
+            writer.WriteEndArray();
+
+            writer.WriteStartArray("follows");
+
+            foreach (var link in Follows)
             {
                 writer.WriteStartObject();
                 writer.WriteString("path", link.Path);

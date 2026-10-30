@@ -5,7 +5,7 @@ import { describe, it } from "node:test";
 import assert from "node:assert";
 import fs from "node:fs";
 import path from "node:path";
-import { pages, parsePageContent, root, slug, type Page, type PageStyle, type Provision, type ProvisionKind } from "./spec.ts";
+import { appliedPages, pages, parsePageContent, root, slug, type Page, type PageStyle, type Provision, type ProvisionKind } from "./spec.ts";
 
 describe("slug", () => {
   it("matches the shared CLI fixture for every entry", () => {
@@ -85,6 +85,27 @@ describe("parsePageContent", () => {
   });
 });
 
+describe("record pages", () => {
+  it("parses a research page with style research and no provisions", () => {
+    const page = parsePageContent("docs/intent/research/sample-study.md", ["# Sample Study", "", "## Answer", "", "What the sources say.", "", "### A Finding", "", "A detail.", ""].join("\n"));
+    assert.strictEqual(page.style, "research");
+    assert.deepStrictEqual(page.provisions, []);
+    assert.deepStrictEqual(page.sections, ["Answer"]);
+  });
+
+  it("parses a decision page with style decision and no provisions", () => {
+    const page = parsePageContent("docs/intent/decisions/0001-sample-choice.md", ["# Sample Choice", "", "## Context", "", "Why a choice is needed.", "", "## Decision", "", "The selected option.", "", "## Consequences", "", "What follows.", ""].join("\n"));
+    assert.strictEqual(page.style, "decision");
+    assert.deepStrictEqual(page.provisions, []);
+    assert.deepStrictEqual(page.sections, ["Context", "Decision", "Consequences"]);
+  });
+
+  it("applies no record page in any selection", () => {
+    const files = appliedPages({ shape: "server", stacks: ["dotnet"], extensions: [] });
+    assert.ok(files.every((file) => !file.startsWith("docs/intent/") && !file.startsWith("docs/implementation/")));
+  });
+});
+
 // The expected-value reader for the equivalence test: it finds sections,
 // provisions and verification lines with line patterns, and the test requires
 // parsePageContent to produce the same pages.
@@ -95,6 +116,8 @@ function referenceStyleOf(rel: string): PageStyle {
   if (rel.endsWith("/README.md")) return "index";
   if (rel === "docs/reference/glossary.md") return "glossary";
   if (rel.includes("/ext/")) return "extension";
+  if (rel.startsWith("docs/intent/research/")) return "research";
+  if (rel.startsWith("docs/intent/decisions/") || rel.startsWith("docs/implementation/decisions/")) return "decision";
   if (rel.startsWith("docs/frontend/patterns/")) return "pattern";
   if (segments[1] === "tools" || segments[1] === "maintain") return "command";
   if (segments[1] === "reference") return "reference";

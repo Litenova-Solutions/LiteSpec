@@ -32,7 +32,7 @@ The block above opens the page between two lines that carry only `---`, the spec
 
 ## The Goal
 
-A goal record states one measurable outcome the product serves, with the measure, the target, and the date it serves it by. Claimwick keeps one: every submitted expense is decided within five business days. It lives at `docs/intent/goals/decided-in-days.md`, which applies `litespec/core/intent#state-each-goal-with-its-measure` on [Intent Layer](../core/intent.md).
+A goal record states one measurable outcome a feature advances and a journey serves, with the measure, the target, and the date it is due by. Claimwick keeps one: every submitted expense is decided within five business days. It lives at `docs/intent/goals/decided-in-days.md`, which applies `litespec/core/intent#state-each-goal-with-its-measure` on [Intent Layer](../core/intent.md).
 
 ```json
 {
@@ -44,11 +44,11 @@ A goal record states one measurable outcome the product serves, with the measure
   "statement": "Every submitted expense is decided within five business days.",
   "measure": "Median hours from submission to decision.",
   "target": "Under 120 hours.",
-  "by": "2026-12-31"
+  "dueBy": "2026-12-31"
 }
 ```
 
-The body below the block holds one Why It Matters section: employees plan around reimbursements, and a late decision holds their money. The goal carries no authority of its own: it explains why the approval reminders feature exists, and the feature serves it through a `serves` link.
+The body below the block holds one Why It Matters section: employees plan around reimbursements, and a late decision holds their money. The goal carries no authority of its own: it explains why the approval reminders feature exists, and the feature advances it through an `advances` link.
 
 ## The Problem
 
@@ -72,7 +72,7 @@ The statement stays to one sentence, and the page body adds a Situation section 
 
 ## The Feature
 
-A feature record states what the product offers against a problem, with its state and the problem it solves. Claimwick keeps one: managers get a reminder for expenses waiting past three days. It lives at `docs/intent/features/approval-reminders.md`, it solves the waiting problem and serves the five-day goal, which applies `litespec/core/intent#state-each-feature-with-its-state`.
+A feature record states what the product offers against a problem, with its lifecycle and the problem it solves. Claimwick keeps one: managers get a reminder for expenses waiting past three days. It lives at `docs/intent/features/approval-reminders.md`, it solves the waiting problem and advances the five-day goal, which applies `litespec/core/intent#state-each-feature-with-its-lifecycle`.
 
 ```json
 {
@@ -81,17 +81,17 @@ A feature record states what the product offers against a problem, with its stat
   "title": "Approval Reminders",
   "owner": "claimwick-team",
   "status": "approved",
-  "state": "shipped",
+  "lifecycle": "shipped",
   "solves": [
     "problem/expenses-wait-weeks"
   ],
-  "serves": [
+  "advances": [
     "goal/decided-in-days"
   ]
 }
 ```
 
-The body below the block holds one Offering section: the reminder names the expense and its waiting time, and expenses decided in time never trigger one. The feature is the thread this example follows down the tree: the requirements below name it in their `feature` links, and the reminder job and notification in [Modules and Records](modules-and-records.md) carry it out.
+The body below the block holds one Offering section: the reminder names the expense and its waiting time, and expenses decided in time never trigger one. The feature is the thread this example follows down the tree: the requirements below name it in their `features` links, and the reminder job and notification in [Modules and Records](modules-and-records.md) carry it out.
 
 ## The Requirements
 
@@ -123,7 +123,7 @@ A requirement states one behavior the product shows or one guarantee it keeps. C
         }
       ],
       "setBy": "founder",
-      "feature": [
+      "features": [
         "feature/approval-reminders"
       ],
       "basedOn": [
@@ -140,7 +140,7 @@ A requirement states one behavior the product shows or one guarantee it keeps. C
       "statement": "An expense above the receipt threshold carries a receipt.",
       "rationale": "Proof above the line keeps the tax file defensible.",
       "setBy": "founder",
-      "feature": [
+      "features": [
         "feature/approval-reminders"
       ],
       "basedOn": [
@@ -158,7 +158,7 @@ A requirement states one behavior the product shows or one guarantee it keeps. C
       "rationale": "The company keeps no personal data past its need.",
       "setBy": "founder",
       "risk": ["personal-data"],
-      "feature": [
+      "features": [
         "feature/approval-reminders"
       ],
       "basedOn": [],
@@ -189,7 +189,7 @@ All 6 requirements are functional requirements: each states something the produc
 
 ## The Research
 
-A research record states one outside fact that informs a choice, with the question it answers and the sources it read. Claimwick keeps one: small companies decide expenses within one week. It lives at `docs/intent/research/approval-time-benchmarks.md`, which applies `litespec/core/intent#record-research-with-read-sources`.
+A research record states one outside fact that informs a choice, with the question it answers, its conclusion, and the sources it read. Claimwick keeps one: small companies decide expenses within one week. It lives at `docs/intent/research/approval-time-benchmarks.md`, which applies `litespec/core/intent#record-research-with-read-sources`.
 
 ```json
 {
@@ -204,7 +204,8 @@ A research record states one outside fact that informs a choice, with the questi
       "read": "2026-02-10"
     }
   ],
-  "question": "How fast do small companies decide expenses?"
+  "question": "How fast do small companies decide expenses?",
+  "conclusion": "Small companies decide expenses within one week."
 }
 ```
 
@@ -221,7 +222,7 @@ A decision record states one dated choice with the options it weighed. Claimwick
   "title": "Receipt Threshold",
   "owner": "claimwick-team",
   "status": "approved",
-  "decided": "2026-03-01",
+  "decidedOn": "2026-03-01",
   "options": [
     {
       "name": "0 EUR",
@@ -261,8 +262,8 @@ A constraint states one outside rule the product obeys. Claimwick answers the na
   "title": "Tax Receipt Retention",
   "owner": "claimwick-team",
   "status": "approved",
-  "source": "National tax law keeps business receipts for 7 years.",
-  "category": "organizational",
+  "authority": "National tax law keeps business receipts for 7 years.",
+  "kind": "organizational",
   "applies": true,
   "appliesBecause": "Claimwick stores receipts for reimbursed expenses."
 }
@@ -272,7 +273,7 @@ The `applies` field answers whether the outside rule covers this product, and `a
 
 ## The Journey
 
-A journey record holds product sentences with ids toward one goal for one actor. Claimwick keeps one: an employee submits an expense and receives reimbursement. It lives at `docs/intent/journeys/submit-and-reimburse.md`, it states its goal and its observable end, and it fulfills the five-day requirement, which applies `litespec/core/intent#order-each-journey-toward-one-goal`, `litespec/core/intent#write-journey-steps-as-sentences-with-ids`, and `litespec/core/intent#state-when-each-journey-finishes`.
+A journey record holds product sentences with ids toward one goal for one actor. Claimwick keeps one: an employee submits an expense and receives reimbursement. It lives at `docs/intent/journeys/submit-and-reimburse.md`, it states its aim and its observable end, it serves the five-day goal, and it fulfills the five-day requirement, which applies `litespec/core/intent#order-each-journey-toward-one-goal`, `litespec/core/intent#write-journey-steps-as-sentences-with-ids`, and `litespec/core/intent#state-when-each-journey-finishes`.
 
 ```json
 {
@@ -282,7 +283,10 @@ A journey record holds product sentences with ids toward one goal for one actor.
   "owner": "claimwick-team",
   "status": "approved",
   "actor": "actor/employee",
-  "goal": "Submit an expense and receive reimbursement.",
+  "serves": [
+    "goal/decided-in-days"
+  ],
+  "aim": "Submit an expense and receive reimbursement.",
   "finishedWhen": "The employee holds the reimbursement, and the expense record shows every step.",
   "steps": [
     {

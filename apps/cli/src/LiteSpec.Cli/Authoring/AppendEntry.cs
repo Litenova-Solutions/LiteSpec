@@ -345,26 +345,12 @@ static partial class AppendEntry
         $"\"result\": \"{Escape(result)}\"",
     ];
 
-    /// <summary>Whether the reference names a written or derived result id.</summary>
+    /// <summary>Whether the reference names a result id: written and derived results share one form.</summary>
     static bool ValidResultRef(string value)
     {
         if (!value.StartsWith("result/", StringComparison.Ordinal))
         {
             return false;
-        }
-
-        var rest = value["result/".Length..];
-
-        foreach (var suffix in new[] { ".forbidden", ".invalid-input" })
-        {
-            if (rest.EndsWith(suffix, StringComparison.Ordinal))
-            {
-                var written = $"result/{rest[..^suffix.Length]}";
-
-                return Identifiers.TrySplit(written, out var derivedPrefix, out var derivedHome, out var derivedName)
-                    && derivedPrefix == "result"
-                    && RecordPages.GrammarError("result", derivedHome, derivedName, written) is null;
-            }
         }
 
         return Identifiers.TrySplit(value, out var prefix, out var home, out var name)

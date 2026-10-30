@@ -209,4 +209,68 @@ public sealed partial class StandardsValidatorTests
             StandardsFixture.Write(root, "templates/consumer/README.md", "# Templates\n\n## Intent\n\nUse these starting points.\n\n| Template | Target | Purpose |\n|:---|:---|:---|\n| `sample.md` | `docs/sample.md` | Present. |\n");
         },
         [], ["TEMPLATE_INDEX_PATH"]);
+
+    /// <proves>litespec/core/model#name-each-field-for-one-concept</proves>
+    [Fact(DisplayName = "field name carrying two shapes")]
+    public void FieldNameCarryingTwoShapes() => Check(
+        root =>
+        {
+            StandardsFixture.Write(root, "schemas/record.schema.json",
+                "{\"$defs\":{" +
+                "\"alphaPage\":{\"type\":\"object\",\"properties\":{\"summary\":{\"$ref\":\"#/$defs/nonEmptyString\"}}}," +
+                "\"betaPage\":{\"type\":\"object\",\"properties\":{\"summary\":{\"type\":\"array\",\"items\":{\"type\":\"string\"}}}}," +
+                "\"nonEmptyString\":{\"type\":\"string\",\"minLength\":1}}}");
+        },
+        ["FIELD_NAME_SHAPE"]);
+
+    /// <proves>litespec/core/model#name-each-field-for-one-concept</proves>
+    [Fact(DisplayName = "date field without a By or On name")]
+    public void DateFieldWithoutByOrOnName() => Check(
+        root =>
+        {
+            StandardsFixture.Write(root, "schemas/record.schema.json",
+                "{\"$defs\":{" +
+                "\"decisionPage\":{\"type\":\"object\",\"properties\":{\"decided\":{\"$ref\":\"#/$defs/isoDate\"}}}," +
+                "\"isoDate\":{\"type\":\"string\",\"format\":\"date\"}}}");
+        },
+        ["FIELD_NAME_SHAPE"]);
+
+    /// <proves>litespec/core/model#name-each-field-for-one-concept</proves>
+    [Fact(DisplayName = "deadline name holding a plain string")]
+    public void DeadlineNameHoldingPlainString() => Check(
+        root =>
+        {
+            StandardsFixture.Write(root, "schemas/record.schema.json",
+                "{\"$defs\":{" +
+                "\"goalPage\":{\"type\":\"object\",\"properties\":{\"reviewBy\":{\"$ref\":\"#/$defs/nonEmptyString\"}}}," +
+                "\"nonEmptyString\":{\"type\":\"string\",\"minLength\":1}}}");
+        },
+        ["FIELD_NAME_SHAPE"]);
+
+    /// <proves>litespec/core/model#name-each-field-for-one-concept</proves>
+    [Fact(DisplayName = "record-type noun holding a list under its singular name")]
+    public void RecordTypeNounHoldingListUnderSingularName() => Check(
+        root =>
+        {
+            StandardsFixture.Write(root, "schemas/record.schema.json",
+                "{\"$defs\":{" +
+                "\"requirementEntry\":{\"type\":\"object\",\"properties\":{\"feature\":{\"$ref\":\"#/$defs/featureIdArray\"}}}," +
+                "\"featureId\":{\"type\":\"string\"}," +
+                "\"featureIdArray\":{\"type\":\"array\",\"items\":{\"$ref\":\"#/$defs/featureId\"}}}}");
+        },
+        ["FIELD_NAME_SHAPE"]);
+
+    /// <proves>litespec/core/model#name-each-field-for-one-concept</proves>
+    [Fact(DisplayName = "shipped schemas carry consistent field names")]
+    public void ShippedSchemasCarryConsistentFieldNames()
+    {
+        using var temp = Cli.Temp("standards");
+        StandardsFixture.Base(temp.Path);
+        StandardsFixture.Write(temp.Path, "schemas/record.schema.json", File.ReadAllText(Path.Combine(Cli.Repository, "schemas", "record.schema.json")));
+        StandardsFixture.Write(temp.Path, "schemas/glossary.schema.json", File.ReadAllText(Path.Combine(Cli.Repository, "schemas", "glossary.schema.json")));
+
+        var result = StandardsValidator.Validate(temp.Path);
+
+        Assert.DoesNotContain(result.Diagnostics, diagnostic => diagnostic.Code == "FIELD_NAME_SHAPE");
+    }
 }

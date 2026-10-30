@@ -65,6 +65,20 @@
       "approvedBy": "claimwick-team",
       "approvedOn": "2026-10-01",
       "approvedHash": "3cec10d6"
+    },
+    {
+      "type": "scenario",
+      "id": "scenario/refuse-expense.rejecting-a-decided-expense-is-refused",
+      "title": "Rejecting a decided expense is refused",
+      "owner": "claimwick-team",
+      "status": "reviewed",
+      "given": "A manager rejected an expense.",
+      "when": "The manager rejects the expense again.",
+      "result": "result/refuse-expense.not-submitted",
+      "then": "The rejection is refused because the expense is already decided.",
+      "approvedBy": "claimwick-team",
+      "approvedOn": "2026-10-01",
+      "approvedHash": "a127b14b"
     }
   ],
   "approvedBy": "claimwick-team",

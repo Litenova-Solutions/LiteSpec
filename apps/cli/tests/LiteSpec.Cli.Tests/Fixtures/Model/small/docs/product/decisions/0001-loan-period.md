@@ -5,7 +5,7 @@
   "title": "Loan period",
   "owner": "lending-team",
   "status": "approved",
-  "decided": "2026-02-01",
+  "decidedOn": "2026-02-01",
   "options": [
     {
       "name": "14 days",
@@ -26,12 +26,15 @@
   "chosen": "21 days",
   "changeWhen": "Reader demand shifts.",
   "decides": [
-    "requirement/borrowing.loan-period-days"
+    "requirement/borrowing.max-active-loans",
+    "requirement/borrowing.loan-period-days",
+    "requirement/borrowing.hold-pickup-window",
+    "requirement/borrowing.copy-shelf-home"
   ],
   "basedOn": [],
   "approvedBy": "lending-team",
   "approvedOn": "2026-10-01",
-  "approvedHash": "5a49c44d"
+  "approvedHash": "8218157b"
 }
 ---
 

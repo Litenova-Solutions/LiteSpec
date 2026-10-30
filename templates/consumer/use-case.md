@@ -8,7 +8,7 @@
   "decider": "<owner>",
   "decideBy": "<YYYY-MM-DD>",
   "kind": "<command|query>",
-  "serves": ["<journey/<name>#<step-id> or goal/<name>>"],
+  "serves": ["<journey/<name>#<step-id>>"],
   "fulfills": ["requirement/<topic>.<name>"],
   "access": {
     "auth": ["<session|token|device|link|app|anonymous|system>"],
@@ -87,7 +87,7 @@
   "records": [
     {
       "type": "result",
-      "id": "result/<use-case>.<name>",
+      "id": "result/<use-case>.<name> (the use case's own name)",
       "title": "<Success display title>",
       "outcome": "success",
       "meaning": "<The observable result in one sentence>",
@@ -95,7 +95,7 @@
     },
     {
       "type": "result",
-      "id": "result/<use-case>.<name>",
+      "id": "result/<use-case>.<name> (the use case's own name)",
       "title": "<Refusal display title>",
       "outcome": "refusal",
       "code": "<module>.<reason; never write the generic forbidden or invalid-input refusals>",
@@ -104,7 +104,7 @@
     },
     {
       "type": "scenario",
-      "id": "scenario/<use-case>.<name>",
+      "id": "scenario/<use-case>.<name> (the use case's own name)",
       "title": "<Scenario display title>",
       "given": "<The starting state>",
       "when": "<What the actor does>",

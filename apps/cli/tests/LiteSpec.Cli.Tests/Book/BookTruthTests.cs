@@ -6,8 +6,8 @@ namespace LiteSpec.Tests.Book;
 /// <summary>Proves the book says only true things about proof, steps and checks: never-run proof, automation serving, walked steps and embedded findings.</summary>
 public sealed class BookTruthTests
 {
-    /// <summary>A model with no test run renders not-run wording on the home and use-case pages, and no flat verified zero.</summary>
-    /// <proves>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</proves>
+    /// <summary>A model with no test run carries a null run and the not-run proof state on every scenario and rule, with machine truth kept.</summary>
+    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
     public void Book_With_No_Test_Run_Says_Not_Run()
     {
@@ -16,24 +16,33 @@ public sealed class BookTruthTests
         var result = Cli.Run("book", "--model", model, "--out", Out(temp));
         Assert.Equal(0, result.Status);
 
-        var home = File.ReadAllText(Path.Combine(Out(temp), "index.html"));
-        Assert.Contains("not run", home, StringComparison.Ordinal);
-        Assert.Contains("The tests have not been run in this model", home, StringComparison.Ordinal);
-        Assert.Contains("paths.testResults", home, StringComparison.Ordinal);
-        Assert.DoesNotContain("<b>0</b>", home, StringComparison.Ordinal);
+        var data = Path.Combine(Out(temp), "data");
+        var manifest = ReadShard(Path.Combine(data, "manifest.js"), "manifest");
+        Assert.Null(manifest["testRun"]);
 
-        var useCase = File.ReadAllText(Path.Combine(Out(temp), "use-case", "lending", "borrow-copy.html"));
-        Assert.Contains("not run", useCase, StringComparison.Ordinal);
-        Assert.Contains("The tests have not been run in this model", useCase, StringComparison.Ordinal);
-        Assert.DoesNotContain("a scenario is unproved or failing", useCase, StringComparison.Ordinal);
+        var details = ReadRecords(data);
+        foreach (var id in new[]
+        {
+            "scenario/borrow-copy.borrowing-an-available-copy-succeeds",
+            "scenario/borrow-copy.borrowing-a-loaned-copy-is-refused",
+            "rule/loan.one-loan-per-copy",
+            "rule/loan.late-fee",
+        })
+        {
+            Assert.Equal("norun", Str(Obj(details[id], "proof"), "state"));
+        }
 
-        var scenario = File.ReadAllText(Path.Combine(
-            Out(temp), "scenario", "borrow-copy", "borrowing-an-available-copy-succeeds.html"));
-        Assert.Contains("The tests have not been run in this model", scenario, StringComparison.Ordinal);
+        // Proof links still count; only the run verdict is unknown.
+        Assert.Equal(1, Obj(details["scenario/borrow-copy.borrowing-an-available-copy-succeeds"], "proof")["tests"]?.GetValue<int>());
+
+        var borrow = details["use-case/lending.borrow-copy"];
+        Assert.True(BoolOf(Obj(borrow, "machine")["implemented"]));
+        Assert.False(BoolOf(Obj(borrow, "machine")["verified"]));
+        Assert.Null(borrow["proof"]);
     }
 
-    /// <summary>A journey step served only by a reaction renders the automation sentence with a link to the reaction.</summary>
-    /// <proves>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</proves>
+    /// <summary>A journey step served only by a reaction lists the reaction as its server and no screen.</summary>
+    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
     public void Journey_Step_Served_Only_By_A_Reaction_Reads_As_Automation()
     {
@@ -41,19 +50,21 @@ public sealed class BookTruthTests
         var model = WriteReviewModel(temp, root =>
         {
             var reaction = Records(root).Single(record => Text(record["id"]) == "reaction/lending.send-due-reminder");
-            ((JsonObject)reaction["links"]!)["serves"] = new JsonArray("journey/borrowing#s2");
+            ((JsonObject)reaction["fields"]!)["serves"] = new JsonArray("journey/borrowing#s2");
         });
         var result = Cli.Run("book", "--model", model, "--out", Out(temp));
         Assert.Equal(0, result.Status);
 
-        var journey = File.ReadAllText(Path.Combine(Out(temp), "journey", "borrowing.html"));
-        Assert.Contains("served by automation", journey, StringComparison.Ordinal);
-        Assert.Contains("reaction/lending/send-due-reminder.html", journey, StringComparison.Ordinal);
-        Assert.DoesNotContain("no use case serves this step yet", journey, StringComparison.Ordinal);
+        var journey = ReadRecords(Path.Combine(Out(temp), "data"))["journey/borrowing"];
+        var servers = Obj(journey, "stepServers");
+        Assert.True(HasString(servers["s1"] as JsonArray ?? new JsonArray(), "use-case/lending.borrow-copy"));
+        Assert.True(HasString(servers["s2"] as JsonArray ?? new JsonArray(), "reaction/lending.send-due-reminder"));
+        Assert.Empty(Obj(journey, "stepScreens")["s2"] as JsonArray ?? new JsonArray());
+        Assert.True(HasEdge(Arr(journey, "in"), "reaction/lending.send-due-reminder", "reaction.serves"));
     }
 
-    /// <summary>A journey step a passing test walked renders as walked; the step no passing test walked does not.</summary>
-    /// <proves>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</proves>
+    /// <summary>A journey step a passing test walked lists as exercised; the step no passing test walked does not.</summary>
+    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
     public void Exercised_Step_Renders_As_Walked()
     {
@@ -62,33 +73,65 @@ public sealed class BookTruthTests
         var result = Cli.Run("book", "--model", model, "--out", Out(temp));
         Assert.Equal(0, result.Status);
 
-        var journey = File.ReadAllText(Path.Combine(Out(temp), "journey", "borrowing.html"));
-        Assert.Contains("A passing test walked this step.", journey, StringComparison.Ordinal);
-        Assert.Contains("No passing test walked this step.", journey, StringComparison.Ordinal);
+        var journey = ReadRecords(Path.Combine(Out(temp), "data"))["journey/borrowing"];
+        var exercised = Arr(journey, "exercised");
+        Assert.True(HasString(exercised, "s1"));
+        Assert.False(HasString(exercised, "s2"));
     }
 
-    /// <summary>Findings embedded in the model reach the review page.</summary>
-    /// <proves>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</proves>
+    /// <summary>Findings embedded in the model reach their subject records, open and known apart.</summary>
+    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
-    public void Embedded_Findings_Reach_The_Review_Page()
+    public void Embedded_Findings_Reach_Their_Records()
     {
         using var temp = Cli.Temp("book-truth");
         var model = ModelWithEmbeddedFindings(temp);
         var result = Cli.Run("book", "--model", model, "--out", Out(temp));
         Assert.Equal(0, result.Status);
 
-        var review = File.ReadAllText(Path.Combine(Out(temp), "review", "index.html"));
-        Assert.Contains("use-case-unimplemented", review, StringComparison.Ordinal);
-        Assert.Contains("has no handler, reaction or job", review, StringComparison.Ordinal);
+        var details = ReadRecords(Path.Combine(Out(temp), "data"));
+        var open = Arr(details["use-case/lending.return-copy"], "findings");
+        Assert.Single(open);
+        var finding = open[0]!.AsObject();
+        Assert.Equal("use-case-unimplemented", Str(finding, "code"));
+        Assert.Equal("G", Str(finding, "tier"));
+        Assert.Contains("has no handler, reaction or job", Str(finding, "message") ?? "", StringComparison.Ordinal);
+        Assert.False(BoolOf(finding["known"]));
+        Assert.Equal("docs/behavior/modules/lending/loans/return-copy.md", Str(finding, "path"));
+        Assert.Equal(3, finding["line"]?.GetValue<int>());
+
+        var known = Arr(details["journey/borrowing"], "findings");
+        Assert.Single(known);
+        Assert.Equal("step-unscreened", Str(known[0]!.AsObject(), "code"));
+        Assert.True(BoolOf(known[0]!.AsObject()["known"]));
+        Assert.Equal("accepted", Str(known[0]!.AsObject(), "outcome"));
+        Assert.Equal("The kiosk covers it next quarter.", Str(known[0]!.AsObject(), "reason"));
     }
 
-    /// <summary>The review fixture with its findings and known embedded at the model's top level.</summary>
+    /// <summary>The review fixture with one open and one known finding on records the fixture holds.</summary>
     internal static string ModelWithEmbeddedFindings(TempFolder temp) =>
         WriteReviewModel(temp, root =>
         {
-            var findings = (JsonObject)JsonNode.Parse(File.ReadAllText(Cli.Fixture("Book/findings.json")))!;
-            root["findings"] = findings["findings"]?.DeepClone();
-            root["known"] = findings["known"]?.DeepClone();
+            root["findings"] = new JsonArray(
+                new JsonObject
+                {
+                    ["code"] = "use-case-unimplemented",
+                    ["tier"] = "G",
+                    ["message"] = "Use case 'use-case/lending.return-copy' has no handler, reaction or job.",
+                    ["subject"] = "use-case/lending.return-copy",
+                    ["path"] = "docs/behavior/modules/lending/loans/return-copy.md",
+                    ["line"] = 3,
+                });
+            root["known"] = new JsonArray(
+                new JsonObject
+                {
+                    ["code"] = "step-unscreened",
+                    ["tier"] = "A",
+                    ["message"] = "Step s2 has no screen.",
+                    ["subject"] = "journey/borrowing",
+                    ["outcome"] = "accepted",
+                    ["reason"] = "The kiosk covers it next quarter.",
+                });
         });
 
     static string WriteReviewModel(TempFolder temp, Action<JsonObject> mutate)
@@ -106,4 +149,64 @@ public sealed class BookTruthTests
     static string Text(JsonNode? node) => node?.GetValue<string>() ?? "";
 
     static string Out(TempFolder temp) => Path.Combine(temp.Path, "out");
+
+    static JsonObject ReadShard(string path, string key)
+    {
+        var text = File.ReadAllText(path);
+        var prefix = $"BookData.put(\"{key}\", ";
+        Assert.StartsWith(prefix, text, StringComparison.Ordinal);
+        Assert.EndsWith(");\n", text, StringComparison.Ordinal);
+        return JsonNode.Parse(text[prefix.Length..^3])!.AsObject();
+    }
+
+    static Dictionary<string, JsonObject> ReadRecords(string dataDir)
+    {
+        var details = new Dictionary<string, JsonObject>(StringComparer.Ordinal);
+        foreach (var file in Directory.GetFiles(dataDir, "records-*.js").OrderBy(path => path, StringComparer.Ordinal))
+        {
+            var shard = ReadShard(file, Path.GetFileNameWithoutExtension(file));
+            foreach (var pair in shard)
+            {
+                details[pair.Key] = pair.Value!.AsObject();
+            }
+        }
+
+        return details;
+    }
+
+    static string? Str(JsonObject? obj, string name) =>
+        obj?[name] is JsonValue scalar && scalar.TryGetValue<string>(out var text) ? text : null;
+
+    static bool BoolOf(JsonNode? node) =>
+        node is JsonValue scalar && scalar.TryGetValue<bool>(out var flag) && flag;
+
+    static JsonObject Obj(JsonObject obj, string name) => obj[name] as JsonObject ?? new JsonObject();
+
+    static JsonArray Arr(JsonObject obj, string name) => obj[name] as JsonArray ?? new JsonArray();
+
+    static bool HasString(JsonArray list, string value)
+    {
+        foreach (var item in list)
+        {
+            if (item is JsonValue scalar && scalar.TryGetValue<string>(out var text) && text == value)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    static bool HasEdge(JsonArray edges, string id, string key)
+    {
+        foreach (var edge in edges.OfType<JsonObject>())
+        {
+            if (Str(edge, "id") == id && Str(edge, "key") == key)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }

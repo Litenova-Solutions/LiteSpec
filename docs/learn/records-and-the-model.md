@@ -59,7 +59,7 @@ Records join through fields on the record that points. In the Claimwick example,
 
 Read it as a chain: `actor/employee` holds `role/employee`, the role allows `permission/submit-expense` among others, and `use-case/spending.submit-expense` declares session auth, that permission as its grant, and a tenant scope of its own. Access reads as one chain from actor to use case, exactly as the [access page](../core/access.md) states.
 
-Behavior also connects upward and sideways. A use case serves journey steps or goals and fulfills requirements, so every use case answers Intent. A reaction names the event in `on` and the use case or notification it answers with. A job names the use cases it issues. A use case names every edge it causes in `effects`: `issues` for a command, `sends` for a notification, `publishes` for an integration event, and `calls` for an external-system operation, each with its timing. An undeclared edge is the defect the checks report.
+Behavior also connects upward and sideways. A use case serves journey steps and fulfills requirements, so every use case answers Intent. A reaction names the event in `on` and the use case or notification it answers with. A job names the use cases it issues. A use case names every edge it causes in `effects`: `issues` for a command, `sends` for a notification, `publishes` for an integration event, and `calls` for an external-system operation, each with its timing. An undeclared edge is the defect the checks report.
 
 ## Ownership and Approval
 
@@ -83,12 +83,12 @@ Each layer is reviewed where it is written, by the reader it is written for:
 
 | Review | Reads | Decides |
 |:--|:--|:--|
-| Intent review | The intent diff in product words, and the ballots inbox | The finance lead and product people, weekly; tier 1 must approve, tier 3 auto-approves after the veto window |
+| Intent review | The intent diff in product words, and the Ballots view | The finance lead and product people, weekly; tier 1 must approve, tier 3 auto-approves after the veto window |
 | Behavior review | The behavior diff | Developers; tier 1 needs passing scenarios plus advisory review, tier 3 is sampled |
 | Security review | The security queue: access widenings, new outside calls, new personal-data flows | The named security reviewer, separately from reviewed |
 | Release gate | Drafts past their date, aged deviations, and the checks | Ships only reviewed and proven behavior |
 
-Intent is enough to approve because each ballot and book chapter carries a consequences summary rendered from Behavior: new refusals in product words, data kept and for how long, and money effects. The summary is context outside the approval hash. Product people never need to open a Behavior page to decide.
+Intent is enough to approve because each ballot and journey detail carries a consequences summary rendered from Behavior: new refusals in product words, data kept and for how long, and money effects. The summary is context outside the approval hash. Product people never need to open a Behavior page to decide.
 
 Review of the specification holds when each layer is written from the one above, every question has a decider and a date, every edge is declared, and Proof shows passing tests for every scenario.
 
@@ -113,7 +113,7 @@ The diagram below shows the main record types around one use case, the links the
 - **Checks.** `litespec model check` reports each gap as a finding with its tier: `G` checks read records only and always block, `S` checks read code through a stack reader and block where that reader is qualified, and `A` checks advise without blocking. A use case with no handler, a refusal the code never raises, a link to a missing record, or a known gap past its end date each becomes a finding.
 - **Answers.** `litespec model query <id>` prints one record with every link into and out of it. Agents use it to load exactly the context a task needs.
 - **Generated sections.** `litespec model render` fills the marked regions of your pages from the model, so lists such as a module's use cases always match the records. Generated regions derive from other records only, never from code.
-- **The project book.** `litespec book` turns the model into a browsable site of your own project: one chapter per journey for product readers, one page per record, a ballots inbox of open questions, an index per type, a lens per actor, and search.
+- **The project book.** `litespec book` turns the model into a browsable site of your own project: one offline shell with the Outline, Review queue, Security, and Ballots views, hash routes per record, and search.
 - **Diffs.** `litespec model diff <base> --intent` shows Intent changes in product words for the finance lead. `--behavior` shows Behavior changes with the security queue for developers. Without a flag, it shows both.
 
 ## Next Steps

@@ -337,7 +337,7 @@ static partial class Renderer
         {
             var name = Path.GetFileNameWithoutExtension(journey.File);
 
-            lines.Add($"- [{name}]({RelativeLink(file, journey.File)}): {journey.Field("goal") ?? ""}");
+            lines.Add($"- [{name}]({RelativeLink(file, journey.File)}): {journey.Field("aim") ?? ""}");
         }
 
         return string.Join('\n', lines);
@@ -540,7 +540,7 @@ static partial class Renderer
                          && record.Ids("decides").Any(carried.Contains))
                      .OrderBy(record => record.Id, StringComparer.Ordinal))
         {
-            lines.Add($"| `{decision.Id}` | {decision.Status ?? ""} | {decision.Field("decided") ?? ""} |");
+            lines.Add($"| `{decision.Id}` | {decision.Status ?? ""} | {decision.Field("decidedOn") ?? ""} |");
         }
 
         return string.Join('\n', lines);

@@ -153,9 +153,9 @@ An identifier names its record type first, then the record name, with the owning
 | `known-gap` | `known-gap/<name>` | `known-gap/export-expenses-unimplemented` |
 | `term` | `term/<name>` | `term/expense` |
 
-A screen's `<name>` follows the same one-to-six-word rule as every other name; its `<entry-point>` is the name of the entry point it belongs to. A rule home is an aggregate name or a module name. A use case name is unique across the project, so a result cites only that name. An aggregate name is unique across the project, so a rule cites only that name. A reaction, job, notification, or setting is filed with its module, and an integration event belongs to the published set. A rule name keeps the negation its statement makes. Every identifier citation resolves to a written record.
+A screen's `<name>` follows the same one-to-six-word rule as every other name; its `<entry-point>` is the name of the entry point it belongs to. A rule home is an aggregate name or a module name. A use case name is unique across the project, so a result or a scenario cites only that name. An aggregate name is unique across the project, so a rule cites only that name. A reaction, job, notification, or setting is filed with its module, and an integration event belongs to the published set. A rule name keeps the negation its statement makes. Every identifier citation resolves to a written record.
 
-A journey step id is `journey/<name>#<step-id>`, with step ids `s1`, `s2`, and so on. A derived generic result is `result/<module>.<use-case>.forbidden` or `result/<module>.<use-case>.invalid-input`. Scenarios can point at derived results. Derived results are never written as records.
+A journey step id is `journey/<name>#<step-id>`, with step ids `s1`, `s2`, and so on. A derived generic result is `result/<use-case>.forbidden` or `result/<use-case>.invalid-input`. Scenarios can point at derived results. Derived results are never written as records.
 
 ### Common Fields
 
@@ -181,48 +181,94 @@ Every written record carries the shared fields in this table. Entries inherit `o
 
 ### Links
 
-Each written link lives as a field on the record it starts from: a decision carries `decides`, a rule carries `fulfills`, and so on. The table names every written link field, the record that carries it, and what it points at.
+Each written link lives as a field on the record it starts from: a decision carries `decides`, a rule carries `fulfills`, and so on. The table names every written link field, the record that carries it, and what it points at. Each link states how it reads in both directions, and the book takes its connection labels from those two phrases.
 
-| Field | Written on | Points at |
+| Field | Written on | Points at | Reads as | Read back as |
+|:---|:---|:---|:---|:---|
+| `decides` | decision | Requirements, features, rules, constraints, and the permissions, roles, actors, deviations, entry points, settings, or decisions an engineering choice settles | decides | is decided by |
+| `basedOn` | decision, requirement, rule | Constraints, research, and on a technical decision the requirements it serves | is based on | is a basis for |
+| `replaces` | decision | The replaced decision | replaces | is replaced by |
+| `audience` | product | Actors | is for | is the audience of |
+| `affects` | problem | Actors | affects | is affected by |
+| `solves` | feature | Problems | solves | is solved by |
+| `advances` | feature | Goals | advances | is advanced by |
+| `serves` | use case, reaction, job | Journey steps | serves | is served by |
+| `serves` | journey | The goal it walks toward | serves | is served by |
+| `features` | requirement | The feature that carries it, of any lifecycle including shipped | is carried by | carries |
+| `fulfills` | rule, use case, reaction, job, notification, setting, journey | Requirements | fulfills | is fulfilled by |
+| `governs` | rule | Aggregates, use cases | governs | is governed by |
+| `refusal` | rule | The refusal result carrying its code | is refused as | is the refusal for |
+| `raises` | use case | Events | raises | is raised by |
+| `access.grant` | use case | A permission, a self scope, anonymous, or system | is granted through | grants |
+| `reachedThrough` | use case | Entry points | is reached through | reaches |
+| `entryPoint` | screen | The one browser or device entry point it belongs to | belongs to | is entered through |
+| `address` | screen | The route template it serves; a screen carries `address` or `host`, never both | is addressed at | is the address of |
+| `host` | screen | The screen an overlay with no address of its own opens on; a screen carries `address` or `host`, never both | opens on | hosts |
+| `offers` | screen | The use cases a person can start from it | offers | is offered by |
+| `serves` | screen | The journey steps it carries a person through | serves | is served by |
+| `floorplan` | screen | The floorplan it composes | is composed from | is composed into |
+| `changes` | use case | Aggregates | changes | is changed by |
+| `reads` | use case, reaction, job | Aggregates | reads | is read by |
+| `readBy` | setting | The use cases that read it | is read by | reads |
+| `effects` | use case, reaction, job | Use cases, notifications, integration events, external system operations | effects | is effected by |
+| `on` | reaction | Domain events or integration events | answers | is answered by |
+| `holds` | actor | Roles at a scope | holds | is held by |
+| `allows` | role | Permissions | allows | is allowed by |
+| `actor` | journey, external system | The actor walking the journey; the actor the system acts as | is walked by / acts as | walks / is acted as by |
+| `translates` | integration event | Domain events | translates | is translated by |
+| `dependsOn` | module | Modules | depends on | is depended on by |
+| `runbook` | job | The runbook answering the job | is answered by | answers |
+| `provision` | deviation | The LiteSpec provision it departs from | departs from | is departed from by |
+| `subject` | known gap, deviation | The records the gap or deviation covers; a known gap may also name journey steps (`journey/<name>#s<n>`) for the step findings | covers | is covered by |
+| `terms` | any record | Terms | uses | is used by |
+
+Behavior records point up: `serves` on a use case, reaction, job, or screen points to journey steps, `serves` on a journey points to its goal, `advances` on a feature points to goals, and `fulfills` points to a requirement. Records never point down: a journey names no use case, and a requirement names no rule.
+
+Containment needs no link field: it follows the identifier. An aggregate belongs to the module its identifier names, a reaction, job, notification, or setting belongs to the module its identifier names, and a result or a scenario belongs to the use case its identifier names. An integration event belongs to the published set. The builder computes the remaining links from code, routes, and tests: `implements` from a code mark to the record it names, `follows` from a code mark to the provision, decision, or deviation that shapes the code, `calls` from a screen to a use case, and `proves` from a test mark to a scenario or rule. Code and tests point up to the record they serve through their marks, with each handler implementing exactly one record. The Parents table below names each record parent.
+
+### Parents
+
+Every record except the product has exactly one parent. The book places each record once, under its parent. Every other link on the record is a connection: it renders with the reads-as phrase the Links table states, never as a second placement. Every inverse link is computed, never written.
+
+Where the identifier home segment, or the page home for a page or entry record, names one record, that record is the parent and no parent field is written. A use case page beside its aggregate is page containment. Where no containment names a parent, the child carries one required up-link naming it, except the sixteen root types below, whose parent is the product with no field written: a project has exactly one product, so the field would repeat one value on every record.
+
+Two parents need a stated precedence. A requirement names its origin in `features`, in `basedOn`, or through a decision that names it in `decides`, in that order: the first entry of `features` wins when present, else the first entry of `basedOn`, else the deciding decision. A feature names its parent in `solves`, and the parent is its first entry; a refused feature names the problem it declines in the same field. Additional entries are connections. List order decides placement, so reordering a list moves the record.
+
+The product has no record parent; its parent is the project that declares it. Intent, Behavior, Implementation, Proof, and Governance are transparent group nodes on the path from product to record: a group node is never a parent and never satisfies the parent rule. A draft parent is a present parent, so an author may write top down or bottom up. A retired record is exempt and stands beside its replacement under the same parent, and a retired parent still counts as present for a live child.
+
+| Record type | Parent | Found through |
 |:---|:---|:---|
-| `decides` | decision | Requirements, features, rules, constraints, and the permissions, roles, actors, deviations, entry points, settings, or decisions an engineering choice settles |
-| `basedOn` | decision, requirement, rule | Constraints, research, and on a technical decision the requirements it serves |
-| `replaces` | decision | The replaced decision |
-| `audience` | product | Actors |
-| `affects` | problem | Actors |
-| `solves` | feature | Problems |
-| `serves` | feature | Goals |
-| `serves` | use case, reaction, job | Journey steps or goals |
-| `feature` | requirement | The planned, later, or refused feature that carries it |
-| `fulfills` | rule, use case, reaction, job, notification, setting, journey | Requirements |
-| `governs` | rule | Aggregates, use cases |
-| `refusal` | rule | The refusal result carrying its code |
-| `raises` | use case | Events |
-| `access.grant` | use case | A permission, a self scope, anonymous, or system |
-| `reachedThrough` | use case | Entry points |
-| `entryPoint` | screen | The one browser or device entry point it belongs to |
-| `address` | screen | The route template it serves; a screen carries `address` or `host`, never both |
-| `host` | screen | The screen an overlay with no address of its own opens on; a screen carries `address` or `host`, never both |
-| `offers` | screen | The use cases a person can start from it |
-| `serves` | screen | The journey steps it carries a person through |
-| `floorplan` | screen | The floorplan it composes |
-| `changes` | use case | Aggregates |
-| `reads` | use case, reaction, job | Aggregates |
-| `effects` | use case, reaction, job | Use cases, notifications, integration events, external system operations |
-| `on` | reaction | Domain events or integration events |
-| `holds` | actor | Roles at a scope |
-| `allows` | role | Permissions |
-| `actor` | journey, external system | The actor walking the journey; the actor the system acts as |
-| `translates` | integration event | Domain events |
-| `dependsOn` | module | Modules |
-| `runbook` | job | The runbook answering the job |
-| `provision` | deviation | The LiteSpec provision it departs from |
-| `subject` | known gap, deviation | The records the gap or deviation covers; a known gap may also name journey steps (`journey/<name>#s<n>`) for the step findings |
-| `terms` | any record | Terms |
-
-Behavior records point up: `serves` points to a goal or a journey step, and `fulfills` points to a requirement. Records never point down: a journey names no use case, and a requirement names no rule.
-
-Containment needs no link field: it follows the identifier. An aggregate belongs to the module its identifier names, a reaction, job, notification, or setting belongs to the module its identifier names, and a result or a scenario belongs to the use case its identifier names. An integration event belongs to the published set. The builder computes the remaining links from code, routes, and tests: `implements` from a code mark to the record it names, `follows` from a code mark to the provision, decision, or deviation that shapes the code, `calls` from a screen to a use case, and `proves` from a test mark to a scenario or rule. Code and tests point up to the record they serve through their marks, with each handler implementing exactly one record.
+| `product` | none | the project that declares it |
+| `goal` | the product | the product |
+| `problem` | the product | the product |
+| `feature` | `problem` | `solves`, first entry |
+| `constraint` | the product | the product |
+| `research` | the product | the product |
+| `decision` | the product | the product |
+| `requirement` | `feature`, `constraint`, `research` or `decision` | `features`, first entry; else `basedOn`, first entry; else a decision naming it in `decides` |
+| `journey` | `goal` | `serves` |
+| `actor` | the product | the product |
+| `module` | the product | the product |
+| `aggregate` | `module` | identifier home |
+| `rule` | `aggregate` or `module` | identifier home, an aggregate before a module |
+| `use-case` | `aggregate` or `module` | the aggregate holding its page; else identifier home |
+| `result` | `use-case` | identifier home |
+| `scenario` | `result` | `result` |
+| `event` | `aggregate` | identifier home |
+| `integration-event` | the product | the product |
+| `reaction` | `module` | identifier home |
+| `job` | `module` | identifier home |
+| `notification` | `module` | identifier home |
+| `setting` | `module` | identifier home |
+| `role` | the product | the product |
+| `permission` | the product | the product |
+| `entry-point` | the product | the product |
+| `screen` | `entry-point` | `entryPoint`, agreeing with the identifier home |
+| `external-system` | the product | the product |
+| `runbook` | the product | the product |
+| `deviation` | the product | the product |
+| `known-gap` | the product | the product |
+| `term` | the product | the product |
 
 ### Marks
 
@@ -299,7 +345,7 @@ An approved or reviewed record carries its approval as data: `approvedBy` names 
 
 ### Questions and Ballots
 
-`questions` carries `question`, `decider`, `decideBy`, `recommended`, `ballot`, and `tier`. `ballot` groups questions in the inbox, by a decision id or a short topic slug. An open question blocks approval. A draft past its `decideBy` that is not auto-approvable is reported as a known gap with its owner, and never silently blocks. Each ballot carries a consequences summary rendered from Behavior, marked as context and outside the approval hash, so Intent stays enough to approve. `litespec book` writes a ballots page, listing questions grouped by `ballot`, ordered tier 1 first, with each question recommendation and auto-approval date. The [release page](release.md) states the review flow.
+`questions` carries `question`, `decider`, `decideBy`, `recommended`, `ballot`, and `tier`. `ballot` groups questions in the inbox, by a decision id or a short topic slug. An open question blocks approval. A draft past its `decideBy` that is not auto-approvable is reported as a known gap with its owner, and never silently blocks. Each ballot carries a consequences summary rendered from Behavior, marked as context and outside the approval hash, so Intent stays enough to approve. `litespec book` shows the Ballots view, grouping questions by `ballot`, ordered tier 1 first, with each question recommendation and auto-approval date. The [release page](release.md) states the review flow.
 
 ### Transcription Mode
 
@@ -329,6 +375,8 @@ Every check has a tier.
 | S | Reads code through a stack reader. Blocks where the reader that produced the finding is qualified, and reports otherwise. |
 | A | Advisory. Reports and never blocks. |
 
+A structural parent is any link or containment the Parents table and the Identifiers table name as a record parent: requirement origin, feature `solves`, journey `serves`, scenario `result`, screen `entryPoint`, and identifier containment. A missing structural parent is tier G for every record, drafts included. Every other required link is coverage: tier A for a tier 3 record and tier G for a tier 1 record.
+
 Qualification is per reader, never global: a finding takes the qualification of the reader that produced its facts. A reader qualifies when its handshake matches; the golden corpus is a test contract for the reader bundle and does not gate a consumer run. The .NET (Roslyn) reader, including the Blazor and Android screens it reads, stays qualified. A finding no reader produced, a record finding, is qualified. An S finding from an unqualified reader reports without blocking even when another reader in the same project is qualified. A missing or failing reader produces `reader-unavailable` (tier S) for that frontend, and that frontend's S findings report instead of blocking.
 
 `litespec model check` prints the tier beside each finding.
@@ -339,9 +387,9 @@ The [model command page](../tools/model.md) lists every finding code with its ti
 
 ### The Book and the Diffs
 
-The book and the diffs live in the Proof record layer. The book renders each journey as one chapter: the goal, `finishedWhen`, the steps as sentences, `ifItGoesWrong`; the requirements it fulfills, with their statements and their `except` and fallback inline; for each step, the serving use case goal in one line; the Then clauses of its scenarios, as context; a consequences box, as context, naming new refusals in product words, data kept and for how long, and money effects; and the open questions.
+The book and the diffs live in the Proof record layer. The book shows each journey as record detail: its `aim`, `finishedWhen`, the steps as sentences, `ifItGoesWrong`; the requirements it fulfills, with their statements and their `except` and fallback inline; for each step, the serving use case `goal` in one line; the Then clauses of its scenarios, as context; a consequences box, as context, naming new refusals in product words, data kept and for how long, and money effects; and the open questions.
 
-Field tables render as tables. Scenarios group under their result. Field names never render literally in Intent chapters.
+Field tables render as tables. Scenarios group under their result. Field names never render literally in journey detail.
 
 `litespec model diff <base> --intent` shows Intent changes in product words. `--behavior` shows Behavior changes and the security queue. Without a flag, it shows both. The security queue lists tenant scope `cross` access, new `calls` effects, and new personal or sensitive data classes for the security reviewer named in `review.securityReviewer`.
 
@@ -368,6 +416,30 @@ Field tables render as tables. Scenarios group under their result. Field names n
 **Rationale:** Type, identifier, title, owner, and status are the fields every join needs. Without them on every record, the builder cannot connect decisions to requirements, scenarios to results, or records to owners, and the model falls apart into loose pages.
 
 **Checked by:** `litespec model check` reports `record-shape` for a record missing a common field.
+
+### Name Each Field for One Concept
+
+**ID:** `litespec/core/model#name-each-field-for-one-concept`
+
+**Statement:** Every field MUST be named for one concept and hold one shape on every record that carries it.
+
+**Rationale:** One concept, one name, one shape, everywhere it appears. A classifier is `kind`. A link is a present-tense verb, plural when it holds a list, and a list of records named by their type takes the plural type name (`features`, never `feature`). A deadline is `<verb>By` and a recorded date is `<verb>On`, both ISO dates, except the declared date-or-milestone fields `dueBy` (goal, requirement) and `plannedFor` (feature), which hold a milestone name or a date as a plain string. A reason is `reason` or `<verb>Because`. A name already taken by a record type is never reused for a prose field. The mechanical half is checked (below); whether two fields with different names name one concept stays a reviewed judgement beside this provision. The named exceptions, and no others: `audience` (actor lists on product and notification, one permission on an integration event, following its published-fact framing), `code` (one refusal code on a result, a list of codes on a deviation), `subject` (record lists on a known gap and a deviation, the CloudEvents subject string on an integration event), `effectiveFrom` and `read` (dates whose names state what the date does, in `businessValue` and `researchSource`), and `readBy` (a link adopted under that name). Settled by [decision/0006-one-field-naming-grammar](../intent/decisions/0006-one-field-naming-grammar.md) on the evidence in [research/field-naming-evidence](../intent/research/field-naming-evidence.md) and [research/cross-layer-trace-evidence](../intent/research/cross-layer-trace-evidence.md).
+
+**Example:** Claimwick states the month-end goal with `dueBy: "Pilot launch"`, and states each counted requirement with `dueBy` in the same shape. The journey sentence is `aim`, never `goal`, because `goal` already names a record type, and the requirement carrier is `features`, never `feature`, because it holds a list.
+
+**Checked by:** `litespec-maintain validate` reports `FIELD_NAME_SHAPE` for a field whose name breaks the mechanical half of this provision.
+
+### Give Every Record One Parent
+
+**ID:** `litespec/core/model#give-every-record-one-parent`
+
+**Statement:** Every record except the product MUST have exactly one parent from the Parents table on this page.
+
+**Rationale:** A record with no parent has no place in the book, and a record with two parents appears twice. One parent per record puts every record exactly once: by identifier or page containment where one names it, by one required up-link otherwise, and under the product for the sixteen root types with no record above them. A requirement names its origin in `features`, in `basedOn`, or through a decision that names it in `decides`, in that order, and a feature takes the first entry of `solves`. A draft parent is a present parent, so an author may write top down or bottom up. Settled by [decision/0002-parent-for-every-record](../intent/decisions/0002-parent-for-every-record.md) on the evidence in [research/behavior-containment-evidence](../intent/research/behavior-containment-evidence.md), [research/intent-hierarchy-evidence](../intent/research/intent-hierarchy-evidence.md), [research/book-outline-evidence](../intent/research/book-outline-evidence.md), and [research/established-traceability-practice](../intent/research/established-traceability-practice.md).
+
+**Example:** In the Claimwick product, `feature/approval-reminders` names `problem/expenses-wait-weeks` in `solves` as its parent; `requirement/approval.receipt-over-threshold` names the feature in `features`; `journey/submit-and-reimburse` names `goal/faster-reimbursement` in `serves`; and `result/submit-expense.submitted` sits under `use-case/spending.submit-expense` through its identifier home.
+
+**Checked by:** `litespec model check` reports `record-without-parent` (tier G) for a record whose required parent is missing.
 
 ### Use the Layer Status Vocabulary
 
@@ -424,9 +496,9 @@ Field tables render as tables. Scenarios group under their result. Field names n
 
 **ID:** `litespec/core/model#write-links-on-the-record-that-points`
 
-**Statement:** A link MUST live as fields on the record it starts from.
+**Statement:** A link MUST live as a field on the record it starts from, with the Links table stating how it reads in both directions.
 
-**Rationale:** One writing site keeps a link and its source in one edit: changing the source updates the link in the same change. Links written on the target instead would scatter each relationship across every page it touches.
+**Rationale:** One writing site keeps a link and its source in one edit: changing the source updates the link in the same change. Links written on the target instead would scatter each relationship across every page it touches. Settled by [decision/0002-parent-for-every-record](../intent/decisions/0002-parent-for-every-record.md) on the evidence in [research/behavior-containment-evidence](../intent/research/behavior-containment-evidence.md), [research/intent-hierarchy-evidence](../intent/research/intent-hierarchy-evidence.md), [research/book-outline-evidence](../intent/research/book-outline-evidence.md), and [research/established-traceability-practice](../intent/research/established-traceability-practice.md).
 
 **Checked by:** `litespec model check` reports `reference-unresolved` for a link whose target no record carries.
 
@@ -436,7 +508,7 @@ Field tables render as tables. Scenarios group under their result. Field names n
 
 **Statement:** A use case MUST carry serves, fulfills, or both.
 
-**Rationale:** A use case with no served journey step or goal and no fulfilled requirement answers to nothing above it: no promise explains why it exists. Pointing up with serves or fulfills ties every behavior to the Intent that asks for it. `record-orphaned` fails a use case carrying neither.
+**Rationale:** A use case with no served journey step and no fulfilled requirement answers to nothing above it: no promise explains why it exists. Pointing up with serves or fulfills ties every behavior to the Intent that asks for it. `record-orphaned` fails a use case carrying neither.
 
 **Checked by:** `litespec model check` reports `record-orphaned` for a use case with neither `serves` nor `fulfills`, and `journey-reach` (tier G) at large size for a use case that is not background-only and serves no journey step.
 
@@ -671,9 +743,9 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 
 **Statement:** Generic refusals MUST be derived from access and input, never written as records.
 
-**Rationale:** Forbidden and invalid input follow from the access grant and the input rules on every use case, so writing them by hand repeats one decision hundreds of times and drifts. The builder derives `result/<module>.<use-case>.forbidden` and `result/<module>.<use-case>.invalid-input`, and scenarios point at those ids. A written record with a generic id claims a decision the access grant already made.
+**Rationale:** Forbidden and invalid input follow from the access grant and the input rules on every use case, so writing them by hand repeats one decision hundreds of times and drifts. The builder derives `result/<use-case>.forbidden` and `result/<use-case>.invalid-input`, and scenarios point at those ids. A written record with a generic id claims a decision the access grant already made.
 
-**Example:** A scenario for `use-case/spending.submit-expense` points at `result/spending.submit-expense.forbidden` with no result record of that id on the page.
+**Example:** A scenario for `use-case/spending.submit-expense` points at `result/submit-expense.forbidden` with no result record of that id on the page.
 
 **Reviewed for:** Which result records carry a generic refusal id? Look for ids ending in `.forbidden` or `.invalid-input` beside the use case pages.
 
@@ -735,7 +807,7 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 
 **Statement:** Every check MUST carry its tier and block or report as that tier states.
 
-**Rationale:** The tier tells a reader what a finding means: G reads records only and always blocks, S reads code through a stack reader and blocks only where the reader is qualified, and A reports and never blocks. `litespec model check` prints the tier beside each finding, so a review tells a blocking defect from advice at a glance.
+**Rationale:** The tier tells a reader what a finding means: G reads records only and always blocks, S reads code through a stack reader and blocks only where the reader is qualified, and A reports and never blocks. `litespec model check` prints the tier beside each finding, so a review tells a blocking defect from advice at a glance. A missing structural parent is tier G for every record, drafts included; every other required link is coverage, tier A for a tier 3 record and tier G for a tier 1 record.
 
 **Reviewed for:** Which findings lack a tier letter, or block outside their tier? Look at the output of `litespec model check`.
 
@@ -817,7 +889,7 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 
 **Statement:** The book MUST outline a project by the four record layers, with the governance records beside them, and place each record under the record its identifier and links name.
 
-**Rationale:** The book is how people read the model, so it shows the model's own hierarchy. A reader who learns Intent, Behavior, Implementation and Proof in the book reads the same structure in the docs folder, in the model output and in every other LiteSpec project. An outline of the book's own invention is a second hierarchy to learn, and it drifts from the one the records keep.
+**Rationale:** The book is how people read the model, so it shows the model's own hierarchy. A reader who learns Intent, Behavior, Implementation and Proof in the book reads the same structure in the docs folder, in the model output and in every other LiteSpec project. An outline of the book's own invention is a second hierarchy to learn, and it drifts from the one the records keep. Settled by [decision/0002-parent-for-every-record](../intent/decisions/0002-parent-for-every-record.md) on the evidence in [research/behavior-containment-evidence](../intent/research/behavior-containment-evidence.md), [research/intent-hierarchy-evidence](../intent/research/intent-hierarchy-evidence.md), [research/book-outline-evidence](../intent/research/book-outline-evidence.md), and [research/established-traceability-practice](../intent/research/established-traceability-practice.md). Settled by [decision/0008-book-follows-record-layers](../intent/decisions/0008-book-follows-record-layers.md) on the evidence in [research/book-outline-evidence](../intent/research/book-outline-evidence.md), [research/behavior-containment-evidence](../intent/research/behavior-containment-evidence.md), and [research/check-coverage-evidence](../intent/research/check-coverage-evidence.md).
 
 **Example:** In the Claimwick product, `use-case/spending.submit-expense` sits under Behavior, its module and its aggregate; its results under it; each scenario under the result it shows; and the handler that carries its mark under Implementation.
 
@@ -827,13 +899,13 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 
 **ID:** `litespec/core/model#name-book-labels-with-litespec-terms`
 
-**Statement:** Every label in the book MUST be a record type, a field name, a status, or a glossary term.
+**Statement:** Every label in the book MUST be a record type, a field name, a status, a glossary term, or the reads-as phrase the Links table states for a connection.
 
-**Rationale:** LiteSpec already names every concept once, for people and agents alike. A friendlier synonym in the book, such as promise for requirement, is a second word for one concept: the reader learns it, then meets the real word in the records, the checks and the diffs, and has to translate.
+**Rationale:** LiteSpec already names every concept once, for people and agents alike. A friendlier synonym in the book, such as promise for requirement, is a second word for one concept: the reader learns it, then meets the real word in the records, the checks and the diffs, and has to translate. Settled by [decision/0008-book-follows-record-layers](../intent/decisions/0008-book-follows-record-layers.md) on the evidence in [research/book-outline-evidence](../intent/research/book-outline-evidence.md), [research/behavior-containment-evidence](../intent/research/behavior-containment-evidence.md), and [research/check-coverage-evidence](../intent/research/check-coverage-evidence.md).
 
 **Example:** A use case page heads its results "Results" and its scenarios "Scenarios", never "Endings" and "Examples".
 
-**Reviewed for:** Which book labels are neither a record type, a field name, a status, nor a glossary term? Look at the book beside the glossary.
+**Reviewed for:** Which book labels are neither a record type, a field name, a status, a glossary term, nor the reads-as phrase the Links table states for a connection? Look at the book beside the glossary and the Links table.
 
 ### Explain the Book from LiteSpec Definitions
 
@@ -841,7 +913,7 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 
 **Statement:** Every explanation the book shows MUST come from the glossary definition of the term or from the question its record type answers on this page.
 
-**Rationale:** The book explains itself so nobody needs a learning curve, and the explanation stays true only when it has one source. An explanation written for the book drifts from the definition the records follow.
+**Rationale:** The book explains itself so nobody needs a learning curve, and the explanation stays true only when it has one source. An explanation written for the book drifts from the definition the records follow. Settled by [decision/0008-book-follows-record-layers](../intent/decisions/0008-book-follows-record-layers.md) on the evidence in [research/book-outline-evidence](../intent/research/book-outline-evidence.md), [research/behavior-containment-evidence](../intent/research/behavior-containment-evidence.md), and [research/check-coverage-evidence](../intent/research/check-coverage-evidence.md).
 
 **Example:** The book explains a known gap with the glossary definition of Known Gap.
 
@@ -853,7 +925,7 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 
 **Statement:** Every status, count, order and finding the book shows MUST be one the builder, a check, or the review queue computes.
 
-**Rationale:** The book is a view of the model, not a second authority. A judgement only the book makes, such as its own idea of what to do next, cannot be checked, cannot fail a build, and cannot be found by an agent reading the model output.
+**Rationale:** The book is a view of the model, not a second authority. A judgement only the book makes, such as its own idea of what to do next, cannot be checked, cannot fail a build, and cannot be found by an agent reading the model output. Settled by [decision/0008-book-follows-record-layers](../intent/decisions/0008-book-follows-record-layers.md) on the evidence in [research/book-outline-evidence](../intent/research/book-outline-evidence.md), [research/behavior-containment-evidence](../intent/research/behavior-containment-evidence.md), and [research/check-coverage-evidence](../intent/research/check-coverage-evidence.md).
 
 **Example:** The book lists approval batches in the order `litespec model review` gives them.
 
@@ -865,7 +937,7 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 
 **Statement:** A fact the book needs that LiteSpec does not define MUST become a record field, a computed status, or a check in LiteSpec before the book shows it.
 
-**Rationale:** Rendering the book is a probe: what it cannot show is a gap in the specification. Closing the gap in LiteSpec gives every project the fact, checked; closing it in the book gives one view an unchecked fact.
+**Rationale:** Rendering the book is a probe: what it cannot show is a gap in the specification. Closing the gap in LiteSpec gives every project the fact, checked; closing it in the book gives one view an unchecked fact. Settled by [decision/0008-book-follows-record-layers](../intent/decisions/0008-book-follows-record-layers.md) on the evidence in [research/book-outline-evidence](../intent/research/book-outline-evidence.md), [research/behavior-containment-evidence](../intent/research/behavior-containment-evidence.md), and [research/check-coverage-evidence](../intent/research/check-coverage-evidence.md).
 
 **Example:** The book needs to say that a refusal has no scenario, so LiteSpec gains a check for it, and the book shows that check's findings.
 
@@ -877,7 +949,7 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 
 **Statement:** Every record, code element, test and finding the book shows MUST link to the file and line it comes from.
 
-**Rationale:** The book is where a reader notices what to change, and the source is where the change is made. A link to the file and line makes the next step one click, and it shows that every entry comes from a written record or from code, not from the book.
+**Rationale:** The book is where a reader notices what to change, and the source is where the change is made. A link to the file and line makes the next step one click, and it shows that every entry comes from a written record or from code, not from the book. Settled by [decision/0008-book-follows-record-layers](../intent/decisions/0008-book-follows-record-layers.md) on the evidence in [research/book-outline-evidence](../intent/research/book-outline-evidence.md), [research/behavior-containment-evidence](../intent/research/behavior-containment-evidence.md), and [research/check-coverage-evidence](../intent/research/check-coverage-evidence.md).
 
 **Example:** The submit-expense use case page links to `docs/behavior/modules/spending/expenses/submit-expense.md` at its first line, and its handler to the handler file at the class.
 

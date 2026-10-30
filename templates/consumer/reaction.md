@@ -42,7 +42,7 @@
   "records": [
     {
       "type": "scenario",
-      "id": "scenario/<reaction>.<name>",
+      "id": "scenario/<use-case>.<name>",
       "title": "<Scenario display title>",
       "given": "<The starting state>",
       "when": "<What triggers the reaction>",

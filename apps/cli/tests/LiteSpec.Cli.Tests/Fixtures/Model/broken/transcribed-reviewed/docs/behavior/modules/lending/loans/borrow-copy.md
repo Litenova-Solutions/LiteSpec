@@ -16,6 +16,9 @@
   "reachedThrough": [
     "entry-point/library-app"
   ],
+  "fulfills": [
+    "requirement/renewals.borrow-again-on-return"
+  ],
   "raises": [
     "event/loan.loan-borrowed"
   ],

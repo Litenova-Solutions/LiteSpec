@@ -219,6 +219,78 @@ static class StandardsFixture
         The values above come from the repository manifest.
         """) + "\n";
 
+    /// <summary>The research record page for <c>docs/intent/research/sample-study.md</c>, with maintainer evidence.</summary>
+    public static readonly string ResearchPage = Normalize("""
+        ---
+        {
+          "type": "research",
+          "id": "research/sample-study",
+          "title": "Sample Study",
+          "owner": "LiteSpec maintainer",
+          "status": "draft",
+          "decider": "LiteSpec maintainer",
+          "decideBy": "2026-11-30",
+          "question": "What does the sample show?",
+          "conclusion": "The sample shows one finding.",
+          "sources": [
+            {
+              "url": "https://example.com/sample",
+              "read": "2026-10-30"
+            }
+          ]
+        }
+        ---
+
+        # Sample Study
+
+        ## Answer
+
+        The sample shows one finding with high confidence.
+
+        ## Notes on Sources
+
+        One web source, read in October 2026.
+        """) + "\n";
+
+    /// <summary>The decision record page for <c>docs/intent/decisions/0001-sample-choice.md</c>, with maintainer evidence.</summary>
+    public static readonly string DecisionPage = Normalize("""
+        ---
+        {
+          "type": "decision",
+          "id": "decision/0001-sample-choice",
+          "title": "Sample Choice",
+          "owner": "LiteSpec maintainer",
+          "status": "draft",
+          "decider": "LiteSpec maintainer",
+          "decideBy": "2026-11-30",
+          "options": [
+            {
+              "name": "Keep the sample",
+              "for": "The sample is small.",
+              "against": "The sample is narrow."
+            }
+          ],
+          "chosen": "Keep the sample",
+          "changeWhen": "A larger sample disagrees.",
+          "basedOn": ["research/sample-study"]
+        }
+        ---
+
+        # Sample Choice
+
+        ## Context
+
+        The sample forces one choice.
+
+        ## Decision
+
+        Keep the sample.
+
+        ## Consequences
+
+        The sample stays beside `litespec/core/topic#keep-the-topic-bounded`.
+        """) + "\n";
+
     /// <summary>The command page. The validator checks its sections, not its sample command.</summary>
     public static readonly string CommandPage = Normalize("""
         # Sample Command

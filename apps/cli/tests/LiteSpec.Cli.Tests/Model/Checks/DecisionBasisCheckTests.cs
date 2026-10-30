@@ -55,8 +55,8 @@ public sealed class DecisionBasisCheckTests
         var config = TestModel.Config(temp.Path);
         var model = TestModel.Model(
             config,
-            TestModel.Record("decision", "decision/0002-store-orders-as-documents", TechnicalDecisionFile(config, "0002-store-orders-as-documents"), """{"status": "approved", "decided": "2026-02-01", "options": [{"name": "Documents", "for": "Reads stay simple.", "against": "Queries need an index."}], "chosen": "Documents", "changeWhen": "Queries pass one hundred a day.", "basedOn": []}"""),
-            TestModel.Record("decision", "decision/0003-loan-cache-region", TechnicalDecisionFile(config, "0003-loan-cache-region"), """{"status": "approved", "decided": "2026-02-01", "options": [{"name": "Edge cache", "for": "Reads stay near the reader.", "against": "Invalidation lags."}], "chosen": "Edge cache", "changeWhen": "Reads pass one thousand a day."}"""));
+            TestModel.Record("decision", "decision/0002-store-orders-as-documents", TechnicalDecisionFile(config, "0002-store-orders-as-documents"), """{"status": "approved", "decidedOn": "2026-02-01", "options": [{"name": "Documents", "for": "Reads stay simple.", "against": "Queries need an index."}], "chosen": "Documents", "changeWhen": "Queries pass one hundred a day.", "basedOn": []}"""),
+            TestModel.Record("decision", "decision/0003-loan-cache-region", TechnicalDecisionFile(config, "0003-loan-cache-region"), """{"status": "approved", "decidedOn": "2026-02-01", "options": [{"name": "Edge cache", "for": "Reads stay near the reader.", "against": "Invalidation lags."}], "chosen": "Edge cache", "changeWhen": "Reads pass one thousand a day."}"""));
 
         var basis = Checker.Check(model).Findings.Where(finding => finding.Code == "decision-without-basis").ToList();
 
@@ -72,7 +72,7 @@ public sealed class DecisionBasisCheckTests
         var config = TestModel.Config(temp.Path);
         var model = TestModel.Model(
             config,
-            TestModel.Record("constraint", "constraint/receipts-stay-in-the-eu", Path.Combine(temp.Path, "retention.md"), """{"source": "Tax code, article 9.", "category": "technical", "applies": true, "appliesBecause": "The shop stores receipts."}"""),
+            TestModel.Record("constraint", "constraint/receipts-stay-in-the-eu", Path.Combine(temp.Path, "retention.md"), """{"authority": "Tax code, article 9.", "kind": "technical", "applies": true, "appliesBecause": "The shop stores receipts."}"""),
             TestModel.Record("decision", "decision/0002-store-orders-as-documents", TechnicalDecisionFile(config, "0002-store-orders-as-documents"), DecisionJson("constraint/receipts-stay-in-the-eu")));
 
         Assert.DoesNotContain("decision-without-basis", TestModel.Codes(model));
@@ -87,7 +87,7 @@ public sealed class DecisionBasisCheckTests
         var model = TestModel.Model(
             config,
             TestModel.Record("requirement", "requirement/checkout.receipt-on-request", Path.Combine(temp.Path, "checkout.md"), """{"kind": "functional", "statement": "A shopper takes a receipt on request."}"""),
-            TestModel.Record("decision", "decision/0001-receipt-rule", ProductDecisionFile(config), """{"status": "approved", "decided": "2026-02-01", "options": [{"name": "Always", "for": "Every receipt is provable.", "against": "Paper piles up."}], "chosen": "Always", "changeWhen": "Paper costs double.", "decides": ["requirement/checkout.receipt-on-request"], "basedOn": []}"""));
+            TestModel.Record("decision", "decision/0001-receipt-rule", ProductDecisionFile(config), """{"status": "approved", "decidedOn": "2026-02-01", "options": [{"name": "Always", "for": "Every receipt is provable.", "against": "Paper piles up."}], "chosen": "Always", "changeWhen": "Paper costs double.", "decides": ["requirement/checkout.receipt-on-request"], "basedOn": []}"""));
 
         Assert.DoesNotContain("decision-without-basis", TestModel.Codes(model));
     }

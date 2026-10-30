@@ -5,7 +5,7 @@
   "title": "Receipt Threshold",
   "owner": "claimwick-team",
   "status": "approved",
-  "decided": "2026-03-01",
+  "decidedOn": "2026-03-01",
   "options": [
     {
       "name": "0 EUR",
@@ -31,7 +31,7 @@
   "basedOn": [],
   "approvedBy": "claimwick-team",
   "approvedOn": "2026-10-01",
-  "approvedHash": "32fc1654"
+  "approvedHash": "d710e944"
 }
 ---
 

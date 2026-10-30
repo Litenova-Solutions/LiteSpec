@@ -61,7 +61,7 @@ static class BatchApprover
         var members = MembersOf(model, batch);
         var anchor = batch.Kind switch
         {
-            "use-case" => batch.Selector,
+            "use-case" or "reaction" or "job" => batch.Selector,
             "decision" => batch.Selector["decision/".Length..],
             "record" => batch.Selector,
             _ => (string?)null,
@@ -108,6 +108,19 @@ static class BatchApprover
             return members;
         }
 
+        if (batch.Kind is "reaction" or "job"
+            && model.ById.TryGetValue(batch.Selector, out var holder)
+            && holder.Type == batch.Kind)
+        {
+            var members = new List<Record> { holder };
+
+            members.AddRange(model.Records.Where(record => !record.Derived
+                && record.Type == "scenario"
+                && record.PageId == holder.Id));
+
+            return members;
+        }
+
         if (batch.Kind == "decision"
             && model.ById.TryGetValue(batch.Selector["decision/".Length..], out var decision)
             && decision.Type == "decision")
@@ -117,12 +130,13 @@ static class BatchApprover
 
         foreach (var id in decision.Ids("decides").OrderBy(id => id, StringComparer.Ordinal))
         {
-            // Use cases anchor their own batches with their results and scenarios,
-            // and decisions anchor their own, so a decision batch holds neither.
+            // Use cases anchor their own batches with their results and scenarios, reactions
+            // and jobs anchor theirs with the scenarios on their page, and decisions anchor
+            // their own, so a decision batch holds none of those.
             if (!added.Add(id)
                 || !model.ById.TryGetValue(id, out var decided)
                 || decided.Derived
-                || decided.Type is "use-case" or "decision"
+                || decided.Type is "use-case" or "reaction" or "job" or "decision"
                 || ClaimedByUseCase(model, decided))
             {
                 continue;
@@ -137,12 +151,22 @@ static class BatchApprover
         return batch.Records.Select(entry => entry.Record).ToList();
     }
 
-    /// <summary>Whether a use case batch claims the record: its result or scenario.</summary>
-    static bool ClaimedByUseCase(ProjectModel model, Record record) =>
-        record.Type is "result" or "scenario"
-        && Identifiers.TrySplit(record.Id, out _, out var home, out _)
-        && home is not null
-        && ModelBuilder.UseCaseOf(model, home) is not null;
+    /// <summary>Whether a use case, reaction or job batch claims the record: a use case result or scenario, or a scenario on a reaction or job page.</summary>
+    static bool ClaimedByUseCase(ProjectModel model, Record record)
+    {
+        if (record.Type == "scenario"
+            && record.PageId is not null
+            && model.ById.TryGetValue(record.PageId, out var page)
+            && page.Type is "reaction" or "job")
+        {
+            return true;
+        }
+
+        return record.Type is "result" or "scenario"
+            && Identifiers.TrySplit(record.Id, out _, out var home, out _)
+            && home is not null
+            && ModelBuilder.UseCaseOf(model, home) is not null;
+    }
 
     /// <summary>Describes one member's approval: its action, target status, and evidence.</summary>
     static BatchAction Describe(ProjectModel model, Record record, IReadOnlyDictionary<string, int> findings)

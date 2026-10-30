@@ -5,16 +5,16 @@
   "title": "Approval Reminders",
   "owner": "claimwick-team",
   "status": "approved",
-  "state": "shipped",
+  "lifecycle": "shipped",
   "solves": [
     "problem/expenses-wait-weeks"
   ],
-  "serves": [
+  "advances": [
     "goal/decided-in-days"
   ],
   "approvedBy": "claimwick-team",
   "approvedOn": "2026-10-01",
-  "approvedHash": "5093ffa7"
+  "approvedHash": "1f27d9f9"
 }
 ---
 

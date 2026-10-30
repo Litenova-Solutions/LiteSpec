@@ -18,6 +18,26 @@ public static class RecordTypes
         "entry-point", "screen", "external-system", "runbook", "deviation", "known-gap", "term",
     };
 
+    /// <summary>
+    ///     The record layer of each written type: intent, behavior or governance. A term
+    ///     names its own layer in its layer field; this table gives it intent by default.
+    /// </summary>
+    public static readonly IReadOnlyDictionary<string, string> LayerByType =
+        new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            ["product"] = "intent", ["goal"] = "intent", ["constraint"] = "intent",
+            ["research"] = "intent", ["decision"] = "intent", ["requirement"] = "intent",
+            ["problem"] = "intent", ["feature"] = "intent", ["actor"] = "intent",
+            ["journey"] = "intent", ["term"] = "intent",
+            ["module"] = "behavior", ["aggregate"] = "behavior", ["rule"] = "behavior",
+            ["use-case"] = "behavior", ["result"] = "behavior", ["scenario"] = "behavior",
+            ["event"] = "behavior", ["integration-event"] = "behavior", ["reaction"] = "behavior",
+            ["job"] = "behavior", ["notification"] = "behavior", ["setting"] = "behavior",
+            ["role"] = "behavior", ["permission"] = "behavior", ["entry-point"] = "behavior",
+            ["screen"] = "behavior", ["external-system"] = "behavior", ["runbook"] = "behavior",
+            ["deviation"] = "governance", ["known-gap"] = "governance",
+        };
+
     /// <summary>Page styles: templates a page may carry instead of a record.</summary>
     public static readonly HashSet<string> PageStyles = new HashSet<string>(StringComparer.Ordinal)
     {
@@ -64,11 +84,12 @@ public static class RecordTypes
         new Dictionary<string, HashSet<string>>(StringComparer.Ordinal)
         {
             ["decides"] = new HashSet<string>(),
-            ["feature"] = new HashSet<string> { "feature" },
+            ["features"] = new HashSet<string> { "feature" },
             ["basedOn"] = new HashSet<string> { "constraint", "research" },
             ["affects"] = new HashSet<string> { "actor" },
             ["audience"] = new HashSet<string> { "actor" },
             ["solves"] = new HashSet<string> { "problem" },
+            ["advances"] = new HashSet<string> { "goal" },
             ["serves"] = new HashSet<string> { "goal", "journey" },
             ["fulfills"] = new HashSet<string> { "requirement" },
             ["governs"] = new HashSet<string> { "aggregate", "use-case" },
@@ -100,6 +121,7 @@ public static class RecordTypes
             ["offers"] = new HashSet<string> { "use-case" },
             ["host"] = new HashSet<string> { "screen" },
             ["runbook"] = new HashSet<string> { "runbook" },
+            ["readBy"] = new HashSet<string> { "use-case" },
             ["subject"] = new HashSet<string>(),
             ["values"] = new HashSet<string>(),
         };

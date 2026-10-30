@@ -479,7 +479,7 @@ static class Differ
     static void CompareRequirement(
         Record before, Record after, bool approved, List<string> details, List<BreakingReason> reasons)
     {
-        var handled = new HashSet<string>(StringComparer.Ordinal) { "statement", "measure", "by", "except" };
+        var handled = new HashSet<string>(StringComparer.Ordinal) { "statement", "measure", "dueBy", "except" };
 
         if (CompareValue("Statement", Field(before, "statement"), Field(after, "statement"), details) && approved)
         {
@@ -487,7 +487,7 @@ static class Differ
         }
 
         var measureChanged = CompareValue("Measure", Field(before, "measure"), Field(after, "measure"), details);
-        var targetChanged = CompareValue("Target", Field(before, "by"), Field(after, "by"), details);
+        var targetChanged = CompareValue("Due by", Field(before, "dueBy"), Field(after, "dueBy"), details);
 
         if ((measureChanged || targetChanged) && approved && before.Field("kind") == "quality")
         {
@@ -533,9 +533,9 @@ static class Differ
 
     static void CompareJourney(Record before, Record after, List<string> details)
     {
-        var handled = new HashSet<string>(StringComparer.Ordinal) { "goal", "finishedWhen", "steps" };
+        var handled = new HashSet<string>(StringComparer.Ordinal) { "aim", "finishedWhen", "steps" };
 
-        CompareValue("Goal", Field(before, "goal"), Field(after, "goal"), details);
+        CompareValue("Aim", Field(before, "aim"), Field(after, "aim"), details);
         CompareValue("Finished when", Field(before, "finishedWhen"), Field(after, "finishedWhen"), details);
         CompareJourneySteps(before, after, details);
         CompareFields(before, after, details, handled);
@@ -593,10 +593,10 @@ static class Differ
 
     static void CompareDecision(Record before, Record after, List<string> details)
     {
-        var handled = new HashSet<string>(StringComparer.Ordinal) { "chosen", "decided", "options" };
+        var handled = new HashSet<string>(StringComparer.Ordinal) { "chosen", "decidedOn", "options" };
 
         CompareValue("Chosen", Field(before, "chosen"), Field(after, "chosen"), details);
-        CompareValue("Decided", Field(before, "decided"), Field(after, "decided"), details);
+        CompareValue("Decided on", Field(before, "decidedOn"), Field(after, "decidedOn"), details);
         CompareDecisionOptions(before, after, details);
         CompareFields(before, after, details, handled);
     }
@@ -1104,7 +1104,7 @@ static class Differ
 
     static string Label(string type, string name) => (type, name) switch
     {
-        ("requirement", "by") => "Target",
+        ("requirement", "dueBy") => "Due by",
         _ => name.Length == 0 ? name : char.ToUpperInvariant(name[0]) + name[1..],
     };
 

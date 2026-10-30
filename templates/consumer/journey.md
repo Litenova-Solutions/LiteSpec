@@ -8,7 +8,8 @@
   "decider": "<owner>",
   "decideBy": "<YYYY-MM-DD>",
   "actor": "actor/<name>",
-  "goal": "<The goal in one sentence>",
+  "serves": ["goal/<name>"],
+  "aim": "<The goal in one sentence>",
   "finishedWhen": "<The observable end in one sentence>",
   "fulfills": ["requirement/<topic>.<name>"],
   "steps": [
@@ -16,6 +17,7 @@
       "id": "<s1>",
       "says": "<A product sentence>",
       "actor": "actor/<name>",
+  "serves": ["goal/<name>"],
       "ifItGoesWrong": "<What the person experiences in one sentence, or remove this line>"
     }
   ],

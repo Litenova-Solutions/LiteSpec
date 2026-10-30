@@ -80,6 +80,20 @@
       "approvedBy": "claimwick-team",
       "approvedOn": "2026-10-01",
       "approvedHash": "cd3206cd"
+    },
+    {
+      "type": "scenario",
+      "id": "scenario/export-expenses.exporting-with-nothing-approved-is-refused",
+      "title": "Exporting with nothing approved is refused",
+      "owner": "claimwick-team",
+      "status": "reviewed",
+      "given": "No expense was approved this week.",
+      "when": "Finance exports the approved expenses.",
+      "result": "result/export-expenses.nothing-approved",
+      "then": "The export is refused because no approved expense awaits it.",
+      "approvedBy": "claimwick-team",
+      "approvedOn": "2026-10-01",
+      "approvedHash": "0584437c"
     }
   ],
   "approvedBy": "claimwick-team",

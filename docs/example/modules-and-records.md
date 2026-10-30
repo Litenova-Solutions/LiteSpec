@@ -338,7 +338,7 @@ The reimburse use case raises the reimbursement event and publishes the payout i
 
 ## The Use Cases
 
-Spending keeps 10 use cases: 9 commands and 1 query. Each one is a command or a query, serves journey steps or goals, fulfills requirements, declares its access, and states what it changes and how the writes hold together, which applies `litespec/core/behavior#give-each-use-case-a-command-or-query-kind`, `litespec/core/behavior#state-the-consistency-of-every-use-case`, and `litespec/core/behavior#declare-every-effect-with-one-verb-and-its-timing`.
+Spending keeps 10 use cases: 9 commands and 1 query. Each one is a command or a query, serves journey steps, fulfills requirements, declares its access, and states what it changes and how the writes hold together, which applies `litespec/core/behavior#give-each-use-case-a-command-or-query-kind`, `litespec/core/behavior#state-the-consistency-of-every-use-case`, and `litespec/core/behavior#declare-every-effect-with-one-verb-and-its-timing`.
 
 | Use case | Kind | Serves | Grant | Changes | Consistency | Effects |
 |:--|:--|:--|:--|:--|:--|:--|

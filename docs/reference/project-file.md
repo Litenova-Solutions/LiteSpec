@@ -113,7 +113,7 @@ This object is included once the project states which outside constraints apply 
 
 What each field means and what reads it:
 
-- `vetoWindowDays` is the days after `decideBy` in which a tier-3 draft question carrying `recommended` auto-approves unless vetoed, recorded as `approvedBy: auto (veto window)`. The model builder reads it when it reports aged questions, and the book reads it for the auto-approval date on the ballots page.
+- `vetoWindowDays` is the days after `decideBy` in which a tier-3 draft question carrying `recommended` auto-approves unless vetoed, recorded as `approvedBy: auto (veto window)`. The model builder reads it when it reports aged questions, and the book reads it for the auto-approval date in the Ballots view.
 - `securityReviewer` is the owner name holding the security reviewer role. The behavior diff lists the security queue for this reviewer: changes widening access tenant scope to cross, new `calls` effects, and new personal or sensitive data classes. `litespec model check` reports a name the owners list does not hold.
 - `sampleShare` is the share of a tier 3 batch that `litespec model approve --batch` samples, drawn from the records with the lowest semantic hashes and at least one record. The batch manifest records the sample.
 
@@ -152,8 +152,8 @@ What each field means and what reads it:
 
 What each field means and what reads it:
 
-- `forbidden` is the code the derived `result/<use-case-home.name>.forbidden` carries, derived for a use case whose `access.grant` is a permission.
-- `invalidInput` is the code the derived `result/<use-case-home.name>.invalid-input` carries, derived for a use case with any `input` field carrying `rules`.
+- `forbidden` is the code the derived `result/<use-case>.forbidden` carries, derived for a use case whose `access.grant` is a permission.
+- `invalidInput` is the code the derived `result/<use-case>.invalid-input` carries, derived for a use case with any `input` field carrying `rules`.
 - `prefixes` lists the refusal-code prefixes the project shares across modules, such as `shared` for a shared kernel. The `refusal-code-form` check accepts them beside every declared module and the generic `request`, `authorization` and `client` prefixes.
 - `composed` lists the refusal codes the project builds at run time from a key, each a template with one `{key}` placeholder after a prefix and a dot, such as `"uniqueness.{key}-taken"` for the conflict a commit answers when an aggregate loses a uniqueness key. The `refusal-code-form` check accepts the template prefix. The `refusal-not-thrown` check counts a code matching a template as raised when its key is a kebab-case literal in the code, such as the key scope `copy-barcode` on the book aggregate for `uniqueness.copy-barcode-taken`.
 - The model builder reads `forbidden` and `invalidInput` when it derives the generic results. When the object is omitted, the defaults apply.

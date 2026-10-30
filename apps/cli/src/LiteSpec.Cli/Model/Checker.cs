@@ -30,7 +30,7 @@ static partial class Checker
         "state-unreachable", "transition-unresolved",
         "erasure-undeclared", "calculation-without-table",
         "reaction-trigger-unresolved", "requirement-unmeasured",
-        "record-orphaned", "step-unserved", "effect-loop", "consistency-unexplained",
+        "record-orphaned", "record-without-parent", "feature-without-goal", "result-without-scenario", "step-unserved", "effect-loop", "consistency-unexplained",
         "query-output-missing", "paging-undeclared", "widening-unjustified",
         "retention-without-enforcement", "risk-without-acceptance", "exemption-expired",
         "setting-default-without-requirement", "reservation-without-release",
@@ -50,7 +50,7 @@ static partial class Checker
         "functional", "quality", "business",
     };
 
-    /// <summary>Feature states under which a requirement is not yet, or never, made true by code.</summary>
+    /// <summary>Feature lifecycles under which a requirement is not yet, or never, made true by code.</summary>
     private static readonly HashSet<string> UndeliveredStates = new(StringComparer.Ordinal)
     {
         "planned", "later", "refused",
@@ -79,6 +79,7 @@ static partial class Checker
         Time("citations", () => CheckCitations(model, findings));
         Time("gates", () => CheckGates(model, findings));
         Time("proof", () => CheckProof(model, findings));
+        Time("result-scenarios", () => CheckResultWithoutScenario(model, findings));
         Time("fulfillment", () => CheckFulfilment(model, findings));
         Time("links", () => CheckLinks(model, findings));
         Time("profile", () => CheckSizeTypes(model, findings));
@@ -102,6 +103,8 @@ static partial class Checker
         Time("questions", () => CheckQuestions(model, findings));
         Time("aged", () => CheckQuestionAged(model, findings));
         Time("orphaned", () => CheckOrphaned(model, findings));
+        Time("parents", () => CheckMissingParent(model, findings));
+        Time("feature-goal", () => CheckFeatureGoal(model, findings));
         Time("steps", () => CheckStepUnserved(model, findings));
         Time("loops", () => CheckEffectLoop(model, findings));
         Time("consistency", () => CheckConsistency(model, findings));
@@ -295,12 +298,12 @@ static partial class Checker
                 RequireString(record, "statement", findings);
                 RequireString(record, "measure", findings);
                 RequireString(record, "target", findings);
-                RequireString(record, "by", findings);
+                RequireString(record, "dueBy", findings);
                 break;
 
             case "constraint":
-                RequireString(record, "source", findings);
-                RequireEnum(record, "category", ["technical", "organizational", "convention"], findings);
+                RequireString(record, "authority", findings);
+                RequireEnum(record, "kind", ["technical", "organizational", "convention"], findings);
                 RequireBoolean(record, "applies", findings);
                 RequireString(record, "appliesBecause", findings);
                 break;
@@ -308,6 +311,7 @@ static partial class Checker
             case "research":
                 RequireArray(record, "sources", 1, findings);
                 RequireString(record, "question", findings);
+                RequireString(record, "conclusion", findings);
                 break;
 
             case "decision":
@@ -316,7 +320,7 @@ static partial class Checker
 
                 if (record.Status == "approved")
                 {
-                    RequireDate(record, "decided", findings);
+                    RequireDate(record, "decidedOn", findings);
                     RequireString(record, "chosen", findings);
                 }
 
@@ -337,15 +341,15 @@ static partial class Checker
                     RequireString(record, "environment", findings);
                     RequireString(record, "response", findings);
                     RequireString(record, "measure", findings);
-                    RequireString(record, "by", findings);
+                    RequireString(record, "dueBy", findings);
                 }
 
                 if (record.Has("measure"))
                 {
-                    RequireString(record, "by", findings);
+                    RequireString(record, "dueBy", findings);
                 }
 
-                if (record.Has("by"))
+                if (record.Has("dueBy"))
                 {
                     RequireString(record, "measure", findings);
                 }
@@ -358,20 +362,22 @@ static partial class Checker
                 break;
 
             case "feature":
-                RequireEnum(record, "state", ["planned", "shipped", "later", "refused"], findings);
+                RequireEnum(record, "lifecycle", ["planned", "shipped", "later", "refused"], findings);
+                RequireIds(record, "solves", 1, findings);
 
-                if (record.Field("state") == "refused")
+                if (record.Field("lifecycle") == "refused")
                 {
                     RequireString(record, "refusedBecause", findings);
                 }
-                else
+
+                if (record.Field("lifecycle") == "planned")
                 {
-                    RequireIds(record, "solves", 1, findings);
+                    RequireString(record, "plannedFor", findings);
                 }
 
-                if (record.Field("state") == "planned")
+                if (record.Has("serves"))
                 {
-                    RequireString(record, "by", findings);
+                    findings.Add(new Finding("invalid-field", $"Feature '{record.Id}' names serves; a feature advances a goal in advances.", record.File, record.Line, SubjectOf(record)));
                 }
 
                 break;
@@ -391,7 +397,8 @@ static partial class Checker
 
             case "journey":
                 RequireIds(record, "actor", 1, findings);
-                RequireString(record, "goal", findings);
+                RequireString(record, "aim", findings);
+                RequireIds(record, "serves", 1, findings);
                 RequireArray(record, "steps", 1, findings);
                 break;
 
@@ -677,7 +684,6 @@ static partial class Checker
     private static void CheckIdentifiers(ProjectModel model, List<Finding> findings)
     {
         var seen = new HashSet<string>(StringComparer.Ordinal);
-        var moduleNames = new HashSet<string>(StringComparer.Ordinal);
         var recordNames = new HashSet<string>(StringComparer.Ordinal);
         var useCaseNames = new Dictionary<string, List<Record>>(StringComparer.Ordinal);
 
@@ -721,11 +727,6 @@ static partial class Checker
                 findings.Add(new Finding("identifier-form", $"Identifier '{record.Id}' breaks the name rules.", record.File, record.Line, SubjectOf(record)));
             }
 
-            if (record.Type == "module")
-            {
-                moduleNames.Add(name);
-            }
-
             if (record.Type == "aggregate" && !recordNames.Add(name))
             {
                 findings.Add(new Finding("aggregate-name-clash", $"Aggregate name '{name}' is used twice; rule and event homes cannot resolve.", record.File, record.Line, SubjectOf(record)));
@@ -748,33 +749,6 @@ static partial class Checker
             foreach (var record in clash.Value)
             {
                 findings.Add(new Finding("use-case-name-clash", $"Use-case name '{clash.Key}' is used twice; result and scenario homes cannot resolve.", record.File, record.Line, SubjectOf(record)));
-            }
-        }
-
-        foreach (var record in model.Records)
-        {
-            if (!Identifiers.TrySplit(record.Id, out var prefix, out var home, out _))
-            {
-                continue;
-            }
-
-            if (home is null)
-            {
-                continue;
-            }
-
-            var known = prefix switch
-            {
-                "use-case" or "aggregate" or "reaction" or "job" or "notification" or "setting" => moduleNames.Contains(home),
-                "rule" => moduleNames.Contains(home) || recordNames.Contains(home),
-                "result" or "scenario" => useCaseNames.ContainsKey(home),
-                "event" => recordNames.Contains(home),
-                _ => true,
-            };
-
-            if (!known)
-            {
-                findings.Add(new Finding("identifier-form", $"Identifier '{record.Id}' names home '{home}', which no record holds.", record.File, record.Line, SubjectOf(record)));
             }
         }
     }
@@ -1100,9 +1074,9 @@ static partial class Checker
                 continue;
             }
 
-            var undelivered = requirement.Ids("feature").Any(id =>
+            var undelivered = requirement.Ids("features").Any(id =>
                 model.ById.TryGetValue(id, out var feature)
-                && UndeliveredStates.Contains(feature.Field("state") ?? ""));
+                && UndeliveredStates.Contains(feature.Field("lifecycle") ?? ""));
 
             // A quality requirement is also fulfilled when a technical decision serves
             // it: the decision names it in basedOn instead of a rule or use case.
@@ -1217,8 +1191,8 @@ static partial class Checker
 
     /// <summary>
     ///     Whether the scenario ends where it may: a reaction scenario in a result of
-    ///     the use case its reaction issues, any other scenario in a written result of
-    ///     its own use case or a derived generic result its use case carries.
+    ///     the use case its reaction issues, any other scenario in a result of its own
+    ///     use case, written or derived, both named result/<use-case>.<name>.
     /// </summary>
     private static bool ResultBelongsToScenario(ProjectModel model, Record scenario, Record result)
     {
@@ -1230,20 +1204,11 @@ static partial class Checker
             && target.Type == "use-case"
             && Identifiers.TrySplit(issued, out _, out _, out var operation))
         {
-            return (!result.Derived
-                    && Identifiers.TrySplit(result.Id, out _, out var home, out _)
-                    && home == operation)
-                || (result.Derived && result.PageId == issued);
+            return Identifiers.TrySplit(result.Id, out _, out var home, out _)
+                && home == operation;
         }
 
         var scenarioHome = Identifiers.TrySplit(scenario.Id, out _, out var left, out _) ? left : null;
-
-        if (result.Derived)
-        {
-            return result.PageId is not null
-                && Identifiers.TrySplit(result.PageId, out _, out _, out var holder)
-                && holder == scenarioHome;
-        }
 
         var resultHome = Identifiers.TrySplit(result.Id, out _, out var right, out _) ? right : null;
 

@@ -20,4 +20,4 @@ Every command accepts `--help`, and every validator accepts `--format json` for 
 - [Validate Consumer](consumer.md): checks a consumer's pages, project record, and vocabulary.
 - [Validate Controlled UI](ui.md): checks the shared UI package and each controlled web frontend.
 - [Model Builder](model.md): builds, checks, and diffs the project model, renders generated regions, answers record queries, and prints the names inventory.
-- [Book](book.md): generates a static site from `model.json` for reviewers.
+- [Book](book.md): generates the project book from `model.json`: one offline shell with the outline, review queue, security, and ballots views.

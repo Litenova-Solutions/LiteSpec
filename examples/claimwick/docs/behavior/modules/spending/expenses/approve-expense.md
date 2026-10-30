@@ -77,6 +77,34 @@
       "approvedBy": "claimwick-team",
       "approvedOn": "2026-10-01",
       "approvedHash": "ed71684f"
+    },
+    {
+      "type": "scenario",
+      "id": "scenario/approve-expense.approving-an-own-expense-is-refused",
+      "title": "Approving an own expense is refused",
+      "owner": "claimwick-team",
+      "status": "reviewed",
+      "given": "A manager submitted an expense with its receipt.",
+      "when": "The manager approves the expense.",
+      "result": "result/approve-expense.own-expense",
+      "then": "The approval is refused because the approver submitted the expense.",
+      "approvedBy": "claimwick-team",
+      "approvedOn": "2026-10-01",
+      "approvedHash": "421eb8f9"
+    },
+    {
+      "type": "scenario",
+      "id": "scenario/approve-expense.approving-a-decided-expense-is-refused",
+      "title": "Approving a decided expense is refused",
+      "owner": "claimwick-team",
+      "status": "reviewed",
+      "given": "A manager approved an expense.",
+      "when": "The manager approves the expense again.",
+      "result": "result/approve-expense.not-submitted",
+      "then": "The approval is refused because the expense is already decided.",
+      "approvedBy": "claimwick-team",
+      "approvedOn": "2026-10-01",
+      "approvedHash": "f21919e8"
     }
   ],
   "approvedBy": "claimwick-team",

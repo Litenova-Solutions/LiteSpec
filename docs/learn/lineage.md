@@ -34,7 +34,7 @@ LiteSpec borrows its words from established practices: each borrowed concept kee
 
 **Words:** scenario, with given, when, then and an optional examples table; example, the narrative section.
 
-**Differs:** Scenarios are grouped under their result: each one names exactly one result, and each is proven by a passing test through the public boundary. A test's expected values come only from the scenario's then, never from running the code. The book renders Then clauses as context in Intent chapters, so product readers see the promised endings without opening Behavior.
+**Differs:** Scenarios are grouped under their result: each one names exactly one result, and each is proven by a passing test through the public boundary. A test's expected values come only from the scenario's then, never from running the code. The book shows Then clauses as context in journey detail, so product readers see the promised endings without opening Behavior.
 
 ## Requirements Engineering
 

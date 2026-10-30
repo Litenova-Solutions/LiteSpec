@@ -680,8 +680,7 @@ static class BookModel
             if (rest.EndsWith(suffix, StringComparison.Ordinal))
             {
                 var holder = rest[..^suffix.Length];
-                var dot = holder.IndexOf('.');
-                return dot >= 0 && dot + 1 < holder.Length ? holder[(dot + 1)..] : null;
+                return holder.Length > 0 && !holder.Contains('.') ? holder : null;
             }
         }
 

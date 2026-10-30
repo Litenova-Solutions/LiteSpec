@@ -28,12 +28,12 @@ static class Approver
     ///     characters. Page prose bodies and rendered consequences summaries never feed
     ///     the hash, so rewording prose reopens no approval. The semantic fields per
     ///     record type include: product (boundary, neverDoes, audience); goal
-    ///     (statement, measure, target, by); problem (affects, statement); feature
-    ///     (state, refusedBecause, solves, by); requirement (kind, statement, values,
-    ///     measure, by, except, setBy, risk); constraint (source, category, applies,
-    ///     appliesBecause); decision (options, changeWhen, decided, chosen, decides);
-    ///     research (sources, question); journey (actor, goal, finishedWhen, steps,
-    ///     fulfills); actor (kind); term (term, meaning, layer, aliases); module
+    ///     (statement, measure, target, dueBy); problem (affects, statement); feature
+    ///     (lifecycle, refusedBecause, solves, advances, plannedFor); requirement (kind,
+    ///     statement, values, measure, dueBy, features, basedOn, except, setBy, risk);
+    ///     constraint (authority, kind, applies, appliesBecause); decision (options,
+    ///     changeWhen, decidedOn, chosen, decides); research (sources, question,
+    ///     conclusion); journey (actor, serves, aim, finishedWhen, steps, fulfills); actor (kind); term (term, meaning, layer, aliases); module
     ///     (dependsOn); aggregate (kind, states, transitions, data, dataClasses, steps,
     ///     exits, finishedWhen, driver, cursor, owner); rule (kind, statement, governs,
     ///     refusal, releasedBy, frozenWhen, historyLink, computedBy); use-case (kind,
@@ -49,7 +49,7 @@ static class Approver
     ///     idempotency); notification (template, audience, channel, consent, frequency,
     ///     dedupKey, params, locale, suppressedWhen, claims, fulfills, sender); setting
     ///     (valueType, default, range, unit, setBy, atBound, secret, meaning, runbook,
-    ///     fulfills); role (scope, allows); permission (meaning); entry-point (kind,
+    ///     fulfills, readBy); role (scope, allows); permission (meaning); entry-point (kind,
     ///     auth, path, contentType, cacheControl, versioning, fulfills, protocol);
     ///     external-system (actor, operations, erasure, acceptedBy); runbook (trigger,
     ///     steps); deviation (provision, reason, reviewBy, removeWhen); known-gap
@@ -122,7 +122,7 @@ static class Approver
                     target["approvedOn"] = on;
                 }
 
-                target["approvedHash"] = SemanticHash(record);
+                target["approvedHash"] = StampedHash(record, target, on);
                 stamped.Add(record);
             }
 
@@ -131,6 +131,24 @@ static class Approver
         }
 
         return (stamped, missing);
+    }
+
+    /// <summary>
+    ///     The hash an approval writes: an approved decision records its decision date in
+    ///     decidedOn when the author wrote none, and the hash covers the fields as written.
+    /// </summary>
+    /// <follows>litespec/core/intent#record-each-choice-as-a-decision</follows>
+    static string StampedHash(Record record, JsonObject target, string on)
+    {
+        if (record.Type != "decision" || target["decidedOn"] is not null)
+        {
+            return SemanticHash(record);
+        }
+
+        target["decidedOn"] = on;
+
+        using var written = JsonDocument.Parse(target.ToJsonString());
+        return Checker.SemanticHash(written.RootElement);
     }
 
     /// <summary>One batch stamp: the record with the status and approval it takes.</summary>
@@ -169,7 +187,9 @@ static class Approver
                 target["status"] = stamp.Status;
                 target["approvedBy"] = stamp.By;
                 target["approvedOn"] = stamp.On;
-                target["approvedHash"] = SemanticHash(stamp.Record);
+                target["approvedHash"] = stamp.Status == "approved"
+                    ? StampedHash(stamp.Record, target, stamp.On)
+                    : SemanticHash(stamp.Record);
                 stamped.Add(stamp.Record);
             }
 

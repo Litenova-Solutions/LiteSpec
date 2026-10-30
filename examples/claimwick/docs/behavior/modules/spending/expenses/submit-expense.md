@@ -82,6 +82,20 @@
       "approvedBy": "claimwick-team",
       "approvedOn": "2026-10-01",
       "approvedHash": "c583910f"
+    },
+    {
+      "type": "scenario",
+      "id": "scenario/submit-expense.submitting-without-a-receipt-is-refused",
+      "title": "Submitting without a receipt is refused",
+      "owner": "claimwick-team",
+      "status": "reviewed",
+      "given": "An employee paid for a train ticket and lost the receipt.",
+      "when": "The employee submits the expense with no receipt.",
+      "result": "result/submit-expense.receipt-missing",
+      "then": "The submission is refused because the expense is above the receipt threshold and carries no receipt.",
+      "approvedBy": "claimwick-team",
+      "approvedOn": "2026-10-01",
+      "approvedHash": "07e36afb"
     }
   ],
   "approvedBy": "claimwick-team",

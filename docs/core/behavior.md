@@ -106,7 +106,7 @@ An integration event is a published fact crossing the bounded context in CloudEv
 
 ### Use Cases
 
-A use case is one independently testable goal: a page beside its aggregate with one kind. A command changes the product; a query reads without changing. Each use case names the journey steps or goals it serves in `serves`, the requirements it carries in `fulfills`, who calls it in `access`, the entry points reaching it in `reachedThrough`, the aggregates it touches in `changes` and `reads`, the events it raises in `raises`, and how it ends in its results. A use case may carry an optional `risk` from money, door, personal-data, and access, as the [model page](model.md) states.
+A use case is one independently testable goal: a page beside its aggregate with one kind. A command changes the product; a query reads without changing. Each use case names the journey steps it serves in `serves`, the requirements it carries in `fulfills`, who calls it in `access`, the entry points reaching it in `reachedThrough`, the aggregates it touches in `changes` and `reads`, the events it raises in `raises`, and how it ends in its results. A use case may carry an optional `risk` from money, door, personal-data, and access, as the [model page](model.md) states.
 
 | Field | Meaning |
 |:---|:---|
@@ -178,7 +178,7 @@ Each use case ends in named results: child records with an `outcome` of `success
 | `recorded` | Set where the attempt and its reason are stored; a validating refusal stores nothing. |
 | `codes` | The closed list of recorded outcomes inside a success. |
 
-Generic refusals for forbidden access and invalid input are derived from `access` and `input` and never written as records. A derived generic result is `result/<use-case-home.name>.forbidden` or `result/<use-case-home.name>.invalid-input`, and scenarios may point at derived results.
+Generic refusals for forbidden access and invalid input are derived from `access` and `input` and never written as records. A derived generic result is `result/<use-case>.forbidden` or `result/<use-case>.invalid-input`, and scenarios may point at derived results.
 
 ### Scenarios
 
@@ -249,6 +249,7 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 | `atBound` | `refuse`, `truncate`, or `degrade`. |
 | `secret` | Whether the value is secret. |
 | `fulfills` | The requirements carried. |
+| `readBy` | The use cases that read the setting. |
 
 ### Entry Points
 
@@ -947,6 +948,18 @@ The specification names only what carries business meaning. Child entities and v
 
 **Checked by:** `litespec consumer` fails a scenario entry without `result`, and `litespec model check` reports `scenario-result-unresolved` for a scenario ending in an unknown result.
 
+### Prove Every Written Result with a Scenario
+
+**ID:** `litespec/core/behavior#prove-every-written-result-with-a-scenario`
+
+**Statement:** Each written result MUST be shown by at least one scenario of its use case.
+
+**Rationale:** A written result no scenario shows is an ending nobody proved: it reads on the page and is asserted in no test, so it drifts from the code with the next change. One scenario per result pins each ending as a checked fact, including the refusals a caller can meet.
+
+**Example:** The reimburse-expense command declares the `already-reimbursed` refusal, and a scenario walks an approved expense claimed twice to that refusal.
+
+**Checked by:** `litespec model check` reports `result-without-scenario`, tier G for a success result and tier A for a refusal.
+
 ### Write Every Scenario in Given When Then
 
 **ID:** `litespec/core/behavior#write-every-scenario-in-given-when-then`
@@ -1156,6 +1169,18 @@ The specification names only what carries business meaning. Child entities and v
 **Example:** The receipt threshold declares money with a founder-set default of EUR 25, refusing an expense above the line with no receipt, behind its requirement.
 
 **Checked by:** `litespec model check` reports `setting-default-without-requirement` for a commercial, legal, or varying default with no cited requirement.
+
+### Name the Use Cases That Read Each Setting
+
+**ID:** `litespec/core/behavior#name-the-use-cases-that-read-each-setting`
+
+**Statement:** Each setting MUST name the use cases that read it in `readBy`.
+
+**Rationale:** A setting read by a use case no record names is a coupling reviewers cannot see: the tunable moves, the reader breaks, and no diff shows the pair. Naming the readers in `readBy` states the coupling beside the setting, so each change to the range or default meets its readers. Settled by [decision/0007-adopt-setting-readby](../intent/decisions/0007-adopt-setting-readby.md) on the evidence in [research/behavior-containment-evidence](../intent/research/behavior-containment-evidence.md) and [research/field-naming-evidence](../intent/research/field-naming-evidence.md).
+
+**Example:** The receipt threshold names `use-case/spending.submit-expense` in `readBy`, so a move of the threshold meets the submission story.
+
+**Reviewed for:** Which settings are read by a use case that `readBy` does not name? Look at the setting entries beside the use cases that read them.
 
 ### Name the Configuration Key of Every Operator Setting
 

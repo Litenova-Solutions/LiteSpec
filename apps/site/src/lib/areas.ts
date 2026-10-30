@@ -26,6 +26,7 @@ export const sections: Section[] = [
   { key: "tools", label: "CLI", icon: "terminal", areas: ["tools"] },
   { key: "analyzers", label: "Analyzers", icon: "code", areas: ["analyzers"] },
   { key: "reference", label: "Reference", icon: "book", areas: ["reference"] },
+  { key: "intent", label: "Research and Decisions", icon: "book", areas: ["intent"] },
 ];
 
 export function sectionOf(area: string): Section {

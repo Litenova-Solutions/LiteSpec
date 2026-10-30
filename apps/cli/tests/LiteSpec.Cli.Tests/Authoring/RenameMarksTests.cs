@@ -219,7 +219,7 @@ public sealed class RenameMarksTests
               "title": "Store loans as documents",
               "owner": "lending-team",
               "status": "approved",
-              "decided": "2026-10-01",
+              "decidedOn": "2026-10-01",
               "chosen": "Documents",
               "options": [
                 {

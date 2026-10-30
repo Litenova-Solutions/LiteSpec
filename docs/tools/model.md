@@ -74,7 +74,7 @@ Every reason except `refusal-path-added` fires only on approved or reviewed reco
 
 A finding that an open known gap covers is reported as known and exits zero. The gap covers the finding when its `check` equals the finding code, its `subject` lists the finding's subject, the gap is not retired, and its end date has not passed. A gap on a use case also covers the findings about the scenarios and results it holds. An expired known gap fails the check.
 
-Every check has a tier. G reads records only and always blocks. S reads code through a stack reader: it blocks where the reader that produced the finding is qualified, and reports otherwise. Qualification is per reader: a reader qualifies when its handshake matches; the golden corpus is a test contract for the reader bundle and does not gate a consumer run. The .NET (Roslyn) reader, including Blazor and Android screens, stays qualified. A finding no reader produced, a record finding, is qualified. A is advisory: it reports and never blocks. An S finding about a draft record reports without blocking and prints `draft`, and while `check.phase` is `frozen` a proof finding reports without blocking and prints `frozen`. The finding codes are:
+Every check has a tier. G reads records only and always blocks. S reads code through a stack reader: it blocks where the reader that produced the finding is qualified, and reports otherwise. Qualification is per reader: a reader qualifies when its handshake matches; the golden corpus is a test contract for the reader bundle and does not gate a consumer run. The .NET (Roslyn) reader, including Blazor and Android screens, stays qualified. A finding no reader produced, a record finding, is qualified. A is advisory: it reports and never blocks. An S finding about a draft record reports without blocking and prints `draft`, and while `check.phase` is `frozen` a proof finding reports without blocking and prints `frozen`. A structural parent is any link or containment the Links table and the Identifiers table on the [model page](../core/model.md) name as a record's parent (requirement origin, feature `advances` and `solves`, journey `serves`, identifier containment, `entryPoint`, `actor`); a missing structural parent is tier G for every record, drafts included. Every other required link is coverage: tier A for a tier 3 record and tier G for a tier 1 record. The finding codes are:
 
 | Code | Tier | Meaning |
 |:---|:---|:---|
@@ -117,6 +117,9 @@ Every check has a tier. G reads records only and always blocks. S reads code thr
 | `reaction-trigger-unresolved` | G | A reaction names a trigger no domain event or integration event carries. |
 | `erasure-undeclared` | G | A personal or sensitive field stands outside a declared erasure position. |
 | `record-orphaned` | G | A Behavior record names neither `serves` nor `fulfills`. |
+| `record-without-parent` | G | A requirement names no feature, basedOn or deciding decision, a feature solves no problem, a journey serves no goal, or a result or scenario names a use case no record holds. |
+| `feature-without-goal` | A (G for tier 1) | A feature that is not refused advances no goal. |
+| `result-without-scenario` | A (G for success results) | A written result is shown by no scenario. |
 | `step-unserved` | G | A journey step is served by no use case or reaction. Its pair `step-unscreened` names a step a browser or device use case serves that no screen serves. |
 | `effect-loop` | G | The effect graph cycles outside a domain event with a stated end condition. |
 | `consistency-unexplained` | G | An atomic use case changing more than one aggregate names no `because` rule. |

@@ -494,11 +494,11 @@ public sealed class NewAppendTests
         var status = Append(
             consumer,
             "scenario", UseCase, "borrowing-without-a-grant-is-refused",
-            "--result", "result/lending.borrow-copy.forbidden");
+            "--result", "result/borrow-copy.forbidden");
 
         Assert.Equal(0, status);
         Assert.Contains(
-            "\"result\": \"result/lending.borrow-copy.forbidden\"",
+            "\"result\": \"result/borrow-copy.forbidden\"",
             File.ReadAllText(UseCasePage(consumer.Path)));
     }
 

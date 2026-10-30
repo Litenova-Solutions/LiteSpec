@@ -1,6 +1,6 @@
 {
   "$schema": "https://litespec.dev/3.0.0/schemas/glossary.schema.json",
-  "schemaVersion": 3,
+  "schemaVersion": 2,
   "terms": [
     {
       "id": "term/<name>",

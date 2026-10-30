@@ -19,7 +19,7 @@ public sealed partial class ConsumerValidatorTests
     [InlineData("environment")]
     [InlineData("response")]
     [InlineData("measure")]
-    [InlineData("by")]
+    [InlineData("dueBy")]
     public void QualityRequirementMissingScenarioField(string field)
     {
         using var folder = ConsumerFixture.Create();
@@ -47,7 +47,7 @@ public sealed partial class ConsumerValidatorTests
     {
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.WriteFile(folder.Path, "docs/implementation/decisions/0002-order-claim-store.md", ConsumerFixture.Page(
-            ConsumerFixture.Meta("""{"type":"decision","id":"decision/0002-order-claim-store","title":"Store order claims as documents","owner":"fixture","status":"approved","decided":"2026-02-01","options":[{"name":"Documents","for":"Each claim reads as one record.","against":"Cross-claim reports need an index."}],"chosen":"Documents","changeWhen":"Cross-claim reports pass one hundred a day.","decides":[],"basedOn":["requirement/pricing.flat-fee"],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}"""),
+            ConsumerFixture.Meta("""{"type":"decision","id":"decision/0002-order-claim-store","title":"Store order claims as documents","owner":"fixture","status":"approved","decidedOn":"2026-02-01","options":[{"name":"Documents","for":"Each claim reads as one record.","against":"Cross-claim reports need an index."}],"chosen":"Documents","changeWhen":"Cross-claim reports pass one hundred a day.","decides":[],"basedOn":["requirement/pricing.flat-fee"],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}"""),
             """
             # Store Order Claims as Documents
 
@@ -82,7 +82,7 @@ public sealed partial class ConsumerValidatorTests
             ["environment"] = "Normal operation, one application instance down.",
             ["response"] = "Each order is stored and acknowledged.",
             ["measure"] = "Share of orders acknowledged within two seconds: at least 99 percent.",
-            ["by"] = "Holiday sale",
+            ["dueBy"] = "Holiday sale",
         };
 
         foreach (var (name, value) in fields)

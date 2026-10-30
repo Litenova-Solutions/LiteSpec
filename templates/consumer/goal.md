@@ -10,7 +10,7 @@
   "statement": "<The measurable outcome in one sentence>",
   "measure": "<What is counted>",
   "target": "<The value that counts as met>",
-  "by": "<The date or milestone>",
+  "dueBy": "<The date or milestone>",
   "terms": ["term/<term-name>"],
   "questions": [
     {

@@ -65,6 +65,20 @@
       "approvedBy": "claimwick-team",
       "approvedOn": "2026-10-01",
       "approvedHash": "70d59461"
+    },
+    {
+      "type": "scenario",
+      "id": "scenario/attach-receipt.attaching-to-decided-expense-refused",
+      "title": "Attaching to a decided expense is refused",
+      "owner": "claimwick-team",
+      "status": "reviewed",
+      "given": "A manager approved an expense.",
+      "when": "The employee attaches the receipt.",
+      "result": "result/attach-receipt.expense-decided",
+      "then": "The receipt is refused because the expense is already decided.",
+      "approvedBy": "claimwick-team",
+      "approvedOn": "2026-10-01",
+      "approvedHash": "2a2c7cf5"
     }
   ],
   "approvedBy": "claimwick-team",

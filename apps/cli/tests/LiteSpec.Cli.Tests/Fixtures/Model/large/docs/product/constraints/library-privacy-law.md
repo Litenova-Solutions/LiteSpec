@@ -5,13 +5,13 @@
   "title": "Library privacy law",
   "owner": "lending-team",
   "status": "approved",
-  "source": "City library privacy ordinance.",
-  "category": "organizational",
+  "authority": "City library privacy ordinance.",
+  "kind": "organizational",
   "applies": true,
   "appliesBecause": "The library keeps reader records.",
   "approvedBy": "lending-team",
   "approvedOn": "2026-10-01",
-  "approvedHash": "4ae0ded0"
+  "approvedHash": "d4ec7de1"
 }
 ---
 

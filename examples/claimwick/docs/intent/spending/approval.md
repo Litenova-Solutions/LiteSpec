@@ -15,7 +15,7 @@
       "kind": "functional",
       "statement": "Each submitted expense is decided within five business days.",
       "rationale": "Late decisions stall employees and payouts.",
-      "feature": [
+      "features": [
         "feature/approval-reminders"
       ],
       "basedOn": [
@@ -23,7 +23,7 @@
       ],
       "approvedBy": "claimwick-team",
       "approvedOn": "2026-10-01",
-      "approvedHash": "8633bda2"
+      "approvedHash": "9373db66"
     },
     {
       "type": "requirement",
@@ -34,7 +34,7 @@
       "kind": "functional",
       "statement": "An expense above the receipt threshold carries a receipt.",
       "rationale": "Proof above the line keeps the tax file defensible.",
-      "feature": [
+      "features": [
         "feature/approval-reminders"
       ],
       "basedOn": [
@@ -42,7 +42,7 @@
       ],
       "approvedBy": "claimwick-team",
       "approvedOn": "2026-10-01",
-      "approvedHash": "1767aa48"
+      "approvedHash": "9b20e81d"
     },
     {
       "type": "requirement",
@@ -53,13 +53,13 @@
       "kind": "functional",
       "statement": "Nobody approves their own expense.",
       "rationale": "A second pair of eyes keeps approvals honest.",
-      "feature": [
+      "features": [
         "feature/approval-reminders"
       ],
       "basedOn": [],
       "approvedBy": "claimwick-team",
       "approvedOn": "2026-10-01",
-      "approvedHash": "2dca57ec"
+      "approvedHash": "d8ffe64a"
     },
     {
       "type": "requirement",
@@ -70,13 +70,13 @@
       "kind": "functional",
       "statement": "An approved expense is reimbursed at most once.",
       "rationale": "A double payment is hard to take back.",
-      "feature": [
+      "features": [
         "feature/approval-reminders"
       ],
       "basedOn": [],
       "approvedBy": "claimwick-team",
       "approvedOn": "2026-10-01",
-      "approvedHash": "0d1c59cb"
+      "approvedHash": "58c39652"
     },
     {
       "type": "requirement",
@@ -108,8 +108,11 @@
       "environment": "Normal operation, one application instance down",
       "response": "Each submission is stored and acknowledged",
       "measure": "Share of submissions acknowledged within two seconds: at least 99 percent",
-      "by": "Pilot launch",
-      "check": "month-end-load"
+      "dueBy": "Pilot launch",
+      "check": "month-end-load",
+      "features": [
+        "feature/approval-reminders"
+      ]
     }
   ]
 }

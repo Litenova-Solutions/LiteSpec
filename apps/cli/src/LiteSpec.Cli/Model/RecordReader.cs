@@ -764,22 +764,22 @@ static class RecordReader
             }
 
             if (ModelBuilder.GrantedPermission(useCase) is not null
-                && taken.Add($"result/{home}.{name}.forbidden"))
+                && taken.Add($"result/{name}.forbidden"))
             {
                 derived.Add(DerivedResult(
                     useCase,
-                    $"result/{home}.{name}.forbidden",
+                    $"result/{name}.forbidden",
                     "Forbidden",
                     "The caller lacks the grant the use case requires.",
                     forbiddenCode));
             }
 
             if (ModelBuilder.HasValidatedInput(useCase)
-                && taken.Add($"result/{home}.{name}.invalid-input"))
+                && taken.Add($"result/{name}.invalid-input"))
             {
                 derived.Add(DerivedResult(
                     useCase,
-                    $"result/{home}.{name}.invalid-input",
+                    $"result/{name}.invalid-input",
                     "Invalid input",
                     "An input value breaks the rules the use case declares.",
                     invalidInputCode));

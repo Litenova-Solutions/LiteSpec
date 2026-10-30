@@ -6,7 +6,10 @@
   "owner": "claimwick-team",
   "status": "approved",
   "actor": "actor/employee",
-  "goal": "Submit an expense and receive reimbursement.",
+  "serves": [
+    "goal/decided-in-days"
+  ],
+  "aim": "Submit an expense and receive reimbursement.",
   "finishedWhen": "The employee holds the reimbursement, and the personal data of old expenses is erased past retention.",
   "steps": [
     {
@@ -56,7 +59,7 @@
   ],
   "approvedBy": "claimwick-team",
   "approvedOn": "2026-10-01",
-  "approvedHash": "0e4812e7"
+  "approvedHash": "52f35271"
 }
 ---
 

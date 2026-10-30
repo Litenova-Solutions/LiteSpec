@@ -22,6 +22,9 @@ public sealed record Finding(string Code, string Message, string Path, int Line,
     /// <summary>The .NET (Roslyn) reader name.</summary>
     public const string RoslynReader = "roslyn";
 
+    /// <summary>The tier this one finding carries instead of its code's tier, when the check grades it by risk.</summary>
+    public string? TierOverride { get; init; }
+
     /// <summary>The TypeScript reader name.</summary>
     public const string TypeScriptReader = "typescript";
     /// <summary>
@@ -71,6 +74,9 @@ public sealed record Finding(string Code, string Message, string Path, int Line,
             ["reaction-trigger-unresolved"] = "G",
             ["erasure-undeclared"] = "G",
             ["record-orphaned"] = "G",
+            ["record-without-parent"] = "G",
+            ["feature-without-goal"] = "A",
+            ["result-without-scenario"] = "A",
             ["step-unserved"] = "G",
             ["effect-loop"] = "G",
             ["consistency-unexplained"] = "G",
@@ -155,7 +161,7 @@ public sealed record Finding(string Code, string Message, string Path, int Line,
         };
 
     /// <summary>The finding tier: G blocks, S blocks where qualified, A reports.</summary>
-    public string Tier => Tiers.TryGetValue(Code, out var tier) ? tier : "G";
+    public string Tier => TierOverride ?? (Tiers.TryGetValue(Code, out var tier) ? tier : "G");
 
     /// <summary>Whether the finding blocks the check under a qualified or unqualified reader.</summary>
     public bool Blocks(bool readerQualified) => Tier == "G" || (Tier == "S" && readerQualified);

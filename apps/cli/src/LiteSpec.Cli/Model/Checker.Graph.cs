@@ -29,11 +29,14 @@ static partial class Checker
     ///     workflow and approval data, canonicalized and hashed to eight hex characters.
     ///     Prose bodies sit outside the hash, so rewording prose reopens no approval.
     /// </summary>
-    public static string SemanticHash(Record record)
+    public static string SemanticHash(Record record) => SemanticHash(record.Raw);
+
+    /// <summary>The semantic hash over written record fields, as <see cref="SemanticHash(Record)" /> computes it.</summary>
+    public static string SemanticHash(JsonElement raw)
     {
         var built = new StringBuilder();
 
-        CanonicalInto(record.Raw, built, true);
+        CanonicalInto(raw, built, true);
 
         var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(built.ToString()));
 
@@ -105,6 +108,17 @@ static partial class Checker
         && record.Raw.TryGetProperty("risk", out var risk)
         && ((risk.ValueKind == JsonValueKind.Array && risk.GetArrayLength() > 0)
             || (risk.ValueKind == JsonValueKind.String && risk.GetString() is { Length: > 0 }));
+
+    /// <summary>
+    ///     A coverage finding graded by risk: tier G when the record is tier 1,
+    ///     else the code's own tier.
+    /// </summary>
+    /// <follows>litespec/core/model#mark-every-check-with-its-tier</follows>
+    private static Finding Tiered(string code, string message, Record record, ProjectModel model) =>
+        new(code, message, record.File, record.Line, SubjectOf(record))
+        {
+            TierOverride = ReviewQueue.TierOf(model, record) == 1 ? "G" : null,
+        };
 
     /// <summary>
     ///     The tier of a question entry or a draft: its own tier field, else tier 1
@@ -919,11 +933,14 @@ static partial class Checker
         foreach (var record in model.Records.Where(record =>
             record.Field("source") == "transcribed" && record.Status == "reviewed"))
         {
-            var parents = record.Ids("fulfills").Concat(record.Ids("serves")).ToList();
+            // Only an Intent parent that exists can hold the record back; a missing or
+            // dangling parent is record-orphaned or reference-unresolved, never this code.
+            var parents = record.Ids("fulfills").Concat(record.Ids("serves"))
+                .Where(parent => model.ById.ContainsKey(Identifiers.BaseId(parent)))
+                .ToList();
 
             if (parents.Count == 0)
             {
-                findings.Add(new Finding("transcribed-reviewed", $"Record '{record.Id}' is reviewed from transcription with no fulfills or serves parent.", record.File, record.Line, SubjectOf(record)));
                 continue;
             }
 

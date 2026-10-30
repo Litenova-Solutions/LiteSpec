@@ -194,9 +194,10 @@ public sealed class BatchGuardTests
 
         var parent = Cli.Run(
             "model", "approve", "--root", fixture.Path,
-            "--batch", "borrowing/requirement", "--by", "lending-team", "--on", "2026-11-20");
+            "--batch", "decision/decision/0001-loan-period", "--by", "lending-team", "--on", "2026-11-20");
 
         Assert.Equal(0, parent.Status);
+        Assert.Contains("1 record approved, 4 held.", parent.Output);
 
         var approved = Cli.Run(
             "model", "approve", "--root", fixture.Path,

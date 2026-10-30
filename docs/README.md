@@ -40,7 +40,7 @@ One product worked end to end, from its first record to a passing check.
 - [Modules and Records](example/modules-and-records.md): the Behavior records: module, aggregates, rules, access chain, use cases, and the reaction, jobs, notifications, and setting around them.
 - [A Use Case in Code](example/a-use-case-in-code.md): Submit expense from its record into .NET code and tests.
 - [The Claimwick Screen](example/the-screen.md): the expenses list screen, the generated client it reads through, and the UI pattern it starts from.
-- [The Model and Its Checks](example/model-and-checks.md): model build, check, and query runs, the book chapter and ballots, the diffs, and the CI jobs that run the checks.
+- [The Model and Its Checks](example/model-and-checks.md): model build, check, and query runs, journey detail and the Ballots view, the diffs, and the CI jobs that run the checks.
 
 ## Core
 
@@ -212,7 +212,7 @@ Tutorials take a reader to a first working result; how-to guides solve one state
 - [Validate Consumer](tools/consumer.md): checks a consumer's pages, project record, and vocabulary.
 - [Validate Controlled UI](tools/ui.md): checks the shared UI package and each controlled web frontend.
 - [Model Builder](tools/model.md): builds, checks, and diffs the project model, renders generated regions, and answers record queries.
-- [Book](tools/book.md): builds the project book from `model.json`: journey chapters, record pages, and the ballots inbox.
+- [Book](tools/book.md): builds the project book from `model.json`: one offline shell with the Outline, Review queue, Security, and Ballots views.
 
 ## Maintain
 
@@ -240,5 +240,11 @@ The Roslyn analyzers that report LiteSpec rule breaks as compiler errors on .NET
 - [Schemas](reference/schemas.md): every JSON schema, the file it validates, and the command that checks it.
 - [Published URLs](reference/published-urls.md): every URL the site serves for agents and people.
 - [Document templates](../templates/consumer/README.md): the starting files for each consumer record type.
+
+## Research and Decisions
+
+The reasoning behind the provisions, kept as consumer-shaped records. These records inform the provisions and settle nothing themselves.
+
+- [Research and Decisions overview](intent/README.md): the research and decisions behind this release, and how provisions cite them.
 
 Consumers pin a complete release. `CHANGELOG.md` describes the current release.

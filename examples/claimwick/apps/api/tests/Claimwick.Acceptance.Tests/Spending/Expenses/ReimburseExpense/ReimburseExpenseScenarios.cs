@@ -8,4 +8,18 @@ public sealed class ReimburseExpenseScenarios
         given => new ApproveExpenseSteps().ApproveAnExpenseAsync("expense-1"),
         when => new ReimburseExpenseSteps().ReimburseAnExpenseAsync("expense-1"),
         then => new ReimburseExpenseSteps().TheExpenseIsReimbursedAsync());
+
+    /// <proves>scenario/reimburse-expense.reimbursing-an-unapproved-expense-is-refused</proves>
+    [Fact]
+    public Task Reimbursing_an_unapproved_expense_is_refusedAsync() => Runner.RunScenarioAsync(
+        given => new SubmitExpenseSteps().SubmitAnExpenseAsync("employee-1"),
+        when => new ReimburseExpenseSteps().ReimburseAnExpenseAsync("expense-1"),
+        then => new ReimburseExpenseSteps().TheExpenseIsRefusedAsNotApprovedAsync());
+
+    /// <proves>scenario/reimburse-expense.reimbursing-a-reimbursed-expense-is-refused</proves>
+    [Fact]
+    public Task Reimbursing_a_reimbursed_expense_is_refusedAsync() => Runner.RunScenarioAsync(
+        given => new ReimburseExpenseSteps().ReimburseAnExpenseAsync("expense-1"),
+        when => new ReimburseExpenseSteps().ReimburseAnExpenseAsync("expense-1"),
+        then => new ReimburseExpenseSteps().TheExpenseIsRefusedAsAlreadyReimbursedAsync());
 }

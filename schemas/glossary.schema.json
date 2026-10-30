@@ -29,7 +29,7 @@
     "term": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "term", "meaning", "owner", "status"],
+      "required": ["id", "term", "meaning", "owner", "status", "layer"],
       "properties": {
         "id": {
           "description": "The Term identifier.",
@@ -45,6 +45,17 @@
           "description": "What the term means, in at most 25 words.",
           "type": "string",
           "minLength": 1
+        },
+        "layer": {
+          "description": "The record layer whose records use the term.",
+          "type": "string",
+          "enum": ["intent", "behavior"]
+        },
+        "aliases": {
+          "description": "Other spellings of the term that name the same concept and are allowed.",
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1 }
         },
         "labels": {
           "description": "The term in each interface language beside English.",

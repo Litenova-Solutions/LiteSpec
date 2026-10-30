@@ -35,9 +35,9 @@ sealed record ReviewEntry(
     ReviewScenarios Scenarios,
     int Findings);
 
-/// <summary>One review batch: a use case, a decision, or one module and type.</summary>
+/// <summary>One review batch: a use case, a reaction, a job, a decision, or one module and type.</summary>
 /// <param name="Selector">The batch selector.</param>
-/// <param name="Kind">The batch kind: use-case, decision, record (one tier 1 record on its own), or module-type.</param>
+/// <param name="Kind">The batch kind: use-case, reaction, job, decision, record (one tier 1 record on its own), or module-type.</param>
 /// <param name="Tier">The batch tier: 1 when any record is tier 1, else 3.</param>
 /// <param name="Deciders">The distinct deciders, sorted.</param>
 /// <param name="DecideBy">The earliest decide-by date, or null.</param>
@@ -60,20 +60,6 @@ sealed record ReviewBatch(
 /// <follows>litespec/core/release#compute-the-review-queue-from-the-model</follows>
 static class ReviewQueue
 {
-    /// <summary>Record types using the Behavior status vocabulary.</summary>
-    static readonly HashSet<string> BehaviorTypes = new(StringComparer.Ordinal)
-    {
-        "module", "aggregate", "rule", "use-case", "result", "scenario", "event",
-        "integration-event", "reaction", "job", "notification", "setting",
-        "role", "permission", "entry-point", "external-system", "runbook",
-    };
-
-    /// <summary>Record types in the Governance record layer.</summary>
-    static readonly HashSet<string> GovernanceTypes = new(StringComparer.Ordinal)
-    {
-        "deviation", "known-gap",
-    };
-
     /// <summary>The authority ladder for records that carry one.</summary>
     static readonly IReadOnlyList<string> Ladder =
     [
@@ -190,18 +176,13 @@ static class ReviewQueue
     /// <summary>The record layer: intent, behavior, or governance.</summary>
     public static string LayerOf(Record record)
     {
-        if (GovernanceTypes.Contains(record.Type))
-        {
-            return "governance";
-        }
-
         // Terms span both layers, so each term names its own.
         if (record.Type == "term")
         {
             return record.Field("layer") == "behavior" ? "behavior" : "intent";
         }
 
-        return BehaviorTypes.Contains(record.Type) ? "behavior" : "intent";
+        return RecordTypes.LayerByType.TryGetValue(record.Type, out var layer) ? layer : "intent";
     }
 
     /// <summary>
@@ -231,7 +212,7 @@ static class ReviewQueue
             }
         }
 
-        if (GovernanceTypes.Contains(record.Type))
+        if (LayerOf(record) == "governance")
         {
             return "governance";
         }
@@ -487,15 +468,16 @@ static class ReviewQueue
     }
 
     /// <summary>
-    ///     The scenario evidence: a use case counts its scenarios, a scenario counts
-    ///     itself, and every other record counts none.
+    ///     The scenario evidence: a use case, reaction or job counts its scenarios,
+    ///     a scenario counts itself, and every other record counts none.
     /// </summary>
     public static ReviewScenarios ScenariosOf(ProjectModel model, Record record) =>
         ScenariosOf(model.Records, model.Proves, model.Stale, record);
 
     /// <summary>
-    ///     The scenario evidence from the queue inputs: a use case counts its
-    ///     scenarios, a scenario counts itself, and every other record counts none.
+    ///     The scenario evidence from the queue inputs: a use case, reaction or job
+    ///     counts its scenarios, a scenario counts itself, and every other record
+    ///     counts none.
     /// </summary>
     static ReviewScenarios ScenariosOf(
         IReadOnlyList<Record> records,
@@ -505,7 +487,7 @@ static class ReviewQueue
     {
         IReadOnlyList<Record> own = record.Type switch
         {
-            "use-case" => OwnedScenarios(records, record),
+            "use-case" or "reaction" or "job" => OwnedScenarios(records, record),
             "scenario" => [record],
             _ => [],
         };
@@ -536,10 +518,19 @@ static class ReviewQueue
         return new ReviewScenarios(own.Count, confirmed, passing, stale);
     }
 
-    /// <summary>The written scenarios whose home names the use case.</summary>
-    static IReadOnlyList<Record> OwnedScenarios(IReadOnlyList<Record> records, Record useCase)
+    /// <summary>The written scenarios the holder owns: by home for a use case, by page for a reaction or job.</summary>
+    static IReadOnlyList<Record> OwnedScenarios(IReadOnlyList<Record> records, Record holder)
     {
-        if (!Identifiers.TrySplit(useCase.Id, out _, out _, out var name))
+        if (holder.Type is "reaction" or "job")
+        {
+            return records
+                .Where(scenario => !scenario.Derived
+                    && scenario.Type == "scenario"
+                    && scenario.PageId == holder.Id)
+                .ToList();
+        }
+
+        if (!Identifiers.TrySplit(holder.Id, out _, out _, out var name))
         {
             return [];
         }
@@ -552,12 +543,40 @@ static class ReviewQueue
             .ToList();
     }
 
+    /// <summary>The reaction or job whose page carries the scenario, when one holds it.</summary>
+    static Record? PageHolder(IReadOnlyList<Record> records, Record scenario)
+    {
+        if (scenario.PageId is not { Length: > 0 } pageId)
+        {
+            return null;
+        }
+
+        // ProjectModel.ById keeps the first record per id; the scan below keeps the same one.
+        var seen = new HashSet<string>(StringComparer.Ordinal);
+
+        foreach (var record in records)
+        {
+            if (record.Id.Length == 0 || !seen.Add(record.Id))
+            {
+                continue;
+            }
+
+            if (record.Id == pageId && record.Type is "reaction" or "job")
+            {
+                return record;
+            }
+        }
+
+        return null;
+    }
+
     /// <summary>One assignment group: the anchor and the queued records it holds.</summary>
     internal sealed record Group(string Key, string Selector, string Kind, List<Record> Members);
 
     /// <summary>
     ///     Assigns every queued record to exactly one batch: a use case anchors the batch
-    ///     holding it with its results and scenarios, a decision anchors the batch holding
+    ///     holding it with its results and scenarios, a reaction or job anchors the batch
+    ///     holding it with the scenarios on its page, a decision anchors the batch holding
     ///     it with the records it decides, and every other record falls into the batch of
     ///     its module and type.
     /// </summary>
@@ -583,6 +602,15 @@ static class ReviewQueue
             {
                 For("use-case/" + record.Id, record.Id, "use-case").Members.Add(record);
             }
+            else if (record.Type is "reaction" or "job")
+            {
+                For(record.Type + "/" + record.Id, record.Id, record.Type).Members.Add(record);
+            }
+            else if (record.Type == "scenario"
+                && PageHolder(records, record) is { } page)
+            {
+                For(page.Type + "/" + page.Id, page.Id, page.Type).Members.Add(record);
+            }
             else if (record.Type is "result" or "scenario"
                 && Identifiers.TrySplit(record.Id, out _, out var home, out _)
                 && home is not null
@@ -600,8 +628,8 @@ static class ReviewQueue
             }
             else if (TierOf(records, record) == 1)
             {
-                // A tier 1 record no use case or decision holds is read on its own: a module
-                // batch is sampled, and a tier 1 record is never left to a sample.
+                // A tier 1 record no use case, reaction, job or decision holds is read on its own:
+                // a module batch is sampled, and a tier 1 record is never left to a sample.
                 For("record/" + record.Id, record.Id, "record").Members.Add(record);
             }
             else
@@ -718,17 +746,21 @@ static class ReviewQueue
         return type != 0 ? type : string.Compare(left.Id, right.Id, StringComparison.Ordinal);
     }
 
-    /// <summary>The batch anchor: the use case or decision id, else null.</summary>
+    /// <summary>The batch anchor: the use case, reaction, job or decision id, else null.</summary>
     static string? AnchorOf(Group group) => group.Kind switch
     {
-        "use-case" => group.Selector,
+        "use-case" or "reaction" or "job" => group.Selector,
         "decision" => group.Selector["decision/".Length..],
         _ => null,
     };
 
     /// <summary>Intent before Governance before Behavior.</summary>
-    static int LayerRank(Record record) =>
-        GovernanceTypes.Contains(record.Type) ? 1 : BehaviorTypes.Contains(record.Type) ? 2 : 0;
+    static int LayerRank(Record record) => LayerOf(record) switch
+    {
+        "governance" => 1,
+        "behavior" => 2,
+        _ => 0,
+    };
 
     /// <summary>The ladder position, after every ladder type when the type has none.</summary>
     static int LadderRank(string type)

@@ -12,7 +12,7 @@ public sealed class QualityScenarioCheckTests
     [InlineData("environment")]
     [InlineData("response")]
     [InlineData("measure")]
-    [InlineData("by")]
+    [InlineData("dueBy")]
     public void Quality_Requirement_Missing_Field_Reports_Record_Shape(string field)
     {
         using var temp = Cli.Temp("checks");
@@ -56,7 +56,7 @@ public sealed class QualityScenarioCheckTests
         var model = TestModel.Model(
             config,
             TestModel.Record("requirement", "requirement/checkout.two-second-answer", Path.Combine(temp.Path, "checkout.md"), QualityJson()),
-            TestModel.Record("decision", "decision/0002-store-orders-as-documents", TechnicalDecisionFile(config), """{"status": "approved", "decided": "2026-02-01", "options": [{"name": "Documents", "for": "Reads stay simple.", "against": "Queries need an index."}], "chosen": "Documents", "changeWhen": "Queries pass one hundred a day.", "basedOn": ["requirement/checkout.two-second-answer"]}"""));
+            TestModel.Record("decision", "decision/0002-store-orders-as-documents", TechnicalDecisionFile(config), """{"status": "approved", "decidedOn": "2026-02-01", "options": [{"name": "Documents", "for": "Reads stay simple.", "against": "Queries need an index."}], "chosen": "Documents", "changeWhen": "Queries pass one hundred a day.", "basedOn": ["requirement/checkout.two-second-answer"]}"""));
 
         Assert.DoesNotContain("requirement-unfulfilled", TestModel.Codes(model));
     }
@@ -82,7 +82,7 @@ public sealed class QualityScenarioCheckTests
         var model = TestModel.Model(
             config,
             TestModel.Record("requirement", "requirement/checkout.two-second-answer", Path.Combine(temp.Path, "checkout.md"), QualityJson()),
-            TestModel.Record("decision", "decision/0001-checkout-target", ProductDecisionFile(config), """{"status": "approved", "decided": "2026-02-01", "options": [{"name": "Two seconds", "for": "Shoppers never wait.", "against": "Peak load costs more."}], "chosen": "Two seconds", "changeWhen": "Peak load doubles.", "decides": ["requirement/checkout.two-second-answer"], "basedOn": ["requirement/checkout.two-second-answer"]}"""));
+            TestModel.Record("decision", "decision/0001-checkout-target", ProductDecisionFile(config), """{"status": "approved", "decidedOn": "2026-02-01", "options": [{"name": "Two seconds", "for": "Shoppers never wait.", "against": "Peak load costs more."}], "chosen": "Two seconds", "changeWhen": "Peak load doubles.", "decides": ["requirement/checkout.two-second-answer"], "basedOn": ["requirement/checkout.two-second-answer"]}"""));
 
         Assert.Contains("requirement-unfulfilled", TestModel.Codes(model));
     }
@@ -101,7 +101,7 @@ public sealed class QualityScenarioCheckTests
             ["environment"] = "Normal operation, one application instance down.",
             ["response"] = "Each checkout is stored and acknowledged.",
             ["measure"] = "Share of checkouts acknowledged within two seconds: at least 99 percent.",
-            ["by"] = "Holiday sale",
+            ["dueBy"] = "Holiday sale",
         };
 
         return "{" + string.Join(", ", fields

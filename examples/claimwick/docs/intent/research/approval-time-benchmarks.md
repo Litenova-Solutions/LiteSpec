@@ -12,9 +12,10 @@
     }
   ],
   "question": "How fast do small companies decide expenses?",
+  "conclusion": "Small companies decide expenses within one week, so five business days is a defensible target.",
   "approvedBy": "claimwick-team",
   "approvedOn": "2026-10-01",
-  "approvedHash": "bdfdf4b1"
+  "approvedHash": "18cd56e0"
 }
 ---
 

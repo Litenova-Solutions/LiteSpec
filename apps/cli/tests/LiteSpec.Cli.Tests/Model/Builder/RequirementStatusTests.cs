@@ -131,7 +131,7 @@ public sealed class RequirementStatusTests
               "environment": "Normal operation, the catalog index warm.",
               "response": "Each borrow is recorded and confirmed.",
               "measure": "p95 latency of borrowing",
-              "by": "2026-12-01",
+              "dueBy": "2026-12-01",
               "check": "k6 http_req_duration p(95)<200"
             },
             {
@@ -146,7 +146,7 @@ public sealed class RequirementStatusTests
               "environment": "Normal operation, the catalog index warm.",
               "response": "Each borrow either completes or reports its refusal.",
               "measure": "failed borrows",
-              "by": "2026-12-01",
+              "dueBy": "2026-12-01",
               "check": "k6 http_req_failed rate<0.05"
             },
             {
@@ -177,7 +177,10 @@ public sealed class RequirementStatusTests
           "owner": "lending-team",
           "status": "approved",
           "actor": "actor/reader",
-          "goal": "Borrow a copy.",
+          "serves": [
+            "goal/more-borrowing"
+          ],
+          "aim": "Borrow a copy.",
           "finishedWhen": "The reader holds the copy.",
           "steps": [
             {

@@ -578,7 +578,7 @@
                                        "title":  "Library privacy law",
                                        "owner":  "lending-team",
                                        "status":  "approved",
-                                       "source":  "City library privacy ordinance.",
+                                       "authority":  "City library privacy ordinance.",
                                        "applies":  true,
                                        "appliesBecause":  "The library keeps reader records."
                                    },
@@ -603,7 +603,7 @@
                                        "title":  "Loan period",
                                        "owner":  "lending-team",
                                        "status":  "approved",
-                                       "decided":  "2026-02-01",
+                                       "decidedOn":  "2026-02-01",
                                        "options":  [
                                                        {
                                                            "name":  "14 days",
@@ -917,7 +917,7 @@
                                        "title":  "Hold queue",
                                        "owner":  "lending-team",
                                        "status":  "approved",
-                                       "state":  "shipped",
+                                       "lifecycle":  "shipped",
                                        "solves":  [
                                                       "problem/overdue-loans-pile-up"
                                                   ]
@@ -946,7 +946,7 @@
                                        "owner":  "lending-team",
                                        "status":  "approved",
                                        "actor":  "actor/reader",
-                                       "goal":  "Borrow and return a copy.",
+                                       "aim":  "Borrow and return a copy.",
                                        "steps":  [
                                                      {
                                                          "id":  "s1",
@@ -2763,6 +2763,200 @@
                                       "fulfills":  [
                                                        "requirement/borrowing.loan-period-days"
                                                    ]
+                                  }
+                    },
+                    {
+                        "type":  "goal",
+                        "id":  "goal/faster-borrowing",
+                        "title":  "Faster borrowing",
+                        "owner":  "lending-team",
+                        "status":  "approved",
+                        "effectiveStatus":  "approved",
+                        "decider":  null,
+                        "decideBy":  null,
+                        "file":  "docs/product/goals/faster-borrowing.md",
+                        "line":  3,
+                        "fields":  {
+                                       "type":  "goal",
+                                       "id":  "goal/faster-borrowing",
+                                       "title":  "Faster borrowing",
+                                       "owner":  "lending-team",
+                                       "status":  "approved",
+                                       "statement":  "Members borrow in under two minutes.",
+                                       "measure":  "p95 desk wait",
+                                       "target":  "under 2 minutes",
+                                       "dueBy":  "2026-12-31"
+                                   },
+                        "links":  {
+
+                                  }
+                    },
+                    {
+                        "type":  "external-system",
+                        "id":  "external-system/fine-payments",
+                        "title":  "Fine payments",
+                        "owner":  "lending-team",
+                        "status":  "reviewed",
+                        "effectiveStatus":  null,
+                        "decider":  null,
+                        "decideBy":  null,
+                        "file":  "docs/behavior/systems/fine-payments.md",
+                        "line":  3,
+                        "fields":  {
+                                       "type":  "external-system",
+                                       "id":  "external-system/fine-payments",
+                                       "title":  "Fine payments",
+                                       "owner":  "lending-team",
+                                       "status":  "reviewed",
+                                       "actor":  "actor/reader",
+                                       "failure":  "Fines wait until the system answers."
+                                   },
+                        "links":  {
+                                      "actor":  [
+                                                     "actor/reader"
+                                                 ]
+                                  }
+                    },
+                    {
+                        "type":  "integration-event",
+                        "id":  "integration-event/loan-borrowed",
+                        "title":  "Loan borrowed",
+                        "owner":  "lending-team",
+                        "status":  "reviewed",
+                        "effectiveStatus":  null,
+                        "decider":  null,
+                        "decideBy":  null,
+                        "file":  "docs/behavior/integration/loan-borrowed.md",
+                        "line":  3,
+                        "fields":  {
+                                       "type":  "integration-event",
+                                       "id":  "integration-event/loan-borrowed",
+                                       "title":  "Loan borrowed",
+                                       "owner":  "lending-team",
+                                       "status":  "reviewed",
+                                       "translates":  [
+                                                           "event/loan.loan-borrowed"
+                                                       ]
+                                   },
+                        "links":  {
+                                      "translates":  [
+                                                         "event/loan.loan-borrowed"
+                                                     ]
+                                  }
+                    },
+                    {
+                        "type":  "job",
+                        "id":  "job/lending.send-overdue-notices",
+                        "title":  "Send overdue notices",
+                        "owner":  "lending-team",
+                        "status":  "reviewed",
+                        "effectiveStatus":  null,
+                        "decider":  null,
+                        "decideBy":  null,
+                        "file":  "docs/behavior/modules/lending/jobs/send-overdue-notices.md",
+                        "line":  3,
+                        "fields":  {
+                                       "type":  "job",
+                                       "id":  "job/lending.send-overdue-notices",
+                                       "title":  "Send overdue notices",
+                                       "owner":  "lending-team",
+                                       "status":  "reviewed",
+                                       "schedule":  "daily 06:00",
+                                       "runbook":  "runbook/clear-stuck-holds"
+                                   },
+                        "links":  {
+                                      "runbook":  [
+                                                       "runbook/clear-stuck-holds"
+                                                   ]
+                                  }
+                    },
+                    {
+                        "type":  "notification",
+                        "id":  "notification/lending.due-reminder",
+                        "title":  "Due reminder",
+                        "owner":  "lending-team",
+                        "status":  "reviewed",
+                        "effectiveStatus":  null,
+                        "decider":  null,
+                        "decideBy":  null,
+                        "file":  "docs/behavior/modules/lending/notifications/due-reminder.md",
+                        "line":  3,
+                        "fields":  {
+                                       "type":  "notification",
+                                       "id":  "notification/lending.due-reminder",
+                                       "title":  "Due reminder",
+                                       "owner":  "lending-team",
+                                       "status":  "reviewed",
+                                       "audience":  [
+                                                         "actor/reader"
+                                                     ],
+                                       "channel":  "email",
+                                       "template":  "due-reminder"
+                                   },
+                        "links":  {
+                                      "audience":  [
+                                                       "actor/reader"
+                                                   ]
+                                  }
+                    },
+                    {
+                        "type":  "reaction",
+                        "id":  "reaction/lending.send-due-reminder",
+                        "title":  "Send due reminder",
+                        "owner":  "lending-team",
+                        "status":  "reviewed",
+                        "effectiveStatus":  null,
+                        "decider":  null,
+                        "decideBy":  null,
+                        "file":  "docs/behavior/modules/lending/reactions/send-due-reminder.md",
+                        "line":  3,
+                        "fields":  {
+                                       "type":  "reaction",
+                                       "id":  "reaction/lending.send-due-reminder",
+                                       "title":  "Send due reminder",
+                                       "owner":  "lending-team",
+                                       "status":  "reviewed",
+                                       "on":  [
+                                                   "event/loan.loan-borrowed"
+                                               ],
+                                       "sends":  "notification/lending.due-reminder"
+                                   },
+                        "links":  {
+                                      "on":  [
+                                                  "event/loan.loan-borrowed"
+                                              ]
+                                  }
+                    },
+                    {
+                        "type":  "screen",
+                        "id":  "screen/library-app.search",
+                        "title":  "Search",
+                        "owner":  "lending-team",
+                        "status":  "reviewed",
+                        "effectiveStatus":  null,
+                        "decider":  null,
+                        "decideBy":  null,
+                        "file":  "docs/behavior/screens/library-app/search.md",
+                        "line":  3,
+                        "fields":  {
+                                       "type":  "screen",
+                                       "id":  "screen/library-app.search",
+                                       "title":  "Search",
+                                       "owner":  "lending-team",
+                                       "status":  "reviewed",
+                                       "entryPoint":  "entry-point/library-app",
+                                       "address":  "/search",
+                                       "offers":  [
+                                                       "use-case/lending.list-loans"
+                                                   ]
+                                   },
+                        "links":  {
+                                      "entryPoint":  [
+                                                         "entry-point/library-app"
+                                                     ],
+                                      "offers":  [
+                                                     "use-case/lending.list-loans"
+                                                 ]
                                   }
                     }
                 ],

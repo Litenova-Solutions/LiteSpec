@@ -23,7 +23,7 @@
       ],
       "setBy": "<founder|tenant>",
       "risk": ["<money|door|personal-data|access, or remove this line>"],
-      "feature": ["feature/<name>"],
+      "features": ["feature/<name>", "or remove this line when basedOn or a deciding decision is the origin"],
       "basedOn": ["<constraint or research id, or remove this line>"]
     },
     {
@@ -37,7 +37,7 @@
       "environment": "<The conditions it holds under>",
       "response": "<What the product does>",
       "measure": "<What is counted>",
-      "by": "<The date or milestone the target is met>",
+      "dueBy": "<The date or milestone the target is met>",
       "target": "<The value that counts as met, with its unit>",
       "conditions": "<The load, window and environment the target assumes>",
       "check": "<The tool and assertion that confirm it, such as k6 http_req_duration p(95)<200>",
@@ -51,7 +51,7 @@
       ],
       "setBy": "<founder|tenant>",
       "risk": ["<money|door|personal-data|access, or remove this line>"],
-      "feature": ["feature/<name>"],
+      "features": ["feature/<name>", "or remove this line when basedOn or a deciding decision is the origin"],
       "basedOn": ["<constraint or research id, or remove this line>"]
     },
     {
@@ -75,7 +75,7 @@
       ],
       "setBy": "<founder|tenant>",
       "risk": ["<money|door|personal-data|access, or remove this line>"],
-      "feature": ["feature/<name>"],
+      "features": ["feature/<name>", "or remove this line when basedOn or a deciding decision is the origin"],
       "basedOn": ["<constraint or research id, or remove this line>"]
     }
   ]

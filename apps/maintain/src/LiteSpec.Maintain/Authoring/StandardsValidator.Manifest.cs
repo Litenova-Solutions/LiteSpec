@@ -354,7 +354,7 @@ static partial class StandardsValidator
     [
         "docs/core/", "docs/workspace/", "docs/quality/", "docs/ext/", "docs/backend/",
         "docs/frontend/", "docs/guide/", "docs/learn/", "docs/reference/", "docs/tools/", "docs/maintain/", "docs/tutorial/",
-        "docs/analyzers/", "docs/example/",
+        "docs/analyzers/", "docs/example/", "docs/intent/", "docs/implementation/",
     ];
 
     static void CheckStrayPages(string root, Action<string, int, string, string> add)

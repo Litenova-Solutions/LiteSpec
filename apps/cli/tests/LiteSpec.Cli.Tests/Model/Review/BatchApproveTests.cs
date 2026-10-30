@@ -95,7 +95,7 @@ public sealed class BatchApproveTests
             "--batch", "decision/decision/0001-loan-period", "--by", "lending-team", "--on", "2026-11-20");
 
         Assert.Equal(0, result.Status);
-        Assert.Contains("2 records approved, 0 held.", result.Output);
+        Assert.Contains("2 records approved, 3 held.", result.Output);
 
         var (decision, _) = ReviewPages.Read(LoanPeriod(fixture.Path));
 
@@ -109,6 +109,14 @@ public sealed class BatchApproveTests
 
         Assert.Equal("approved", requirement["status"]!.GetValue<string>());
         Assert.Equal("lending-team", requirement["approvedBy"]!.GetValue<string>());
+
+        // The decided requirements already approved are held and untouched.
+        var held = borrowing["records"]!.AsArray()
+            .OfType<JsonObject>()
+            .First(entry => entry["id"]!.GetValue<string>() == "requirement/borrowing.max-active-loans");
+
+        Assert.Equal("approved", held["status"]!.GetValue<string>());
+        Assert.Equal("5de82a4d", held["approvedHash"]!.GetValue<string>());
     }
 
     /// <summary>A module and type batch approves its tier 3 drafts; a tier 1 rule waits in a batch of its own.</summary>

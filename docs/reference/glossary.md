@@ -162,6 +162,14 @@ Layer: Behavior.
 
 Source: LiteSpec.
 
+### Aim
+
+The goal of one journey in one sentence, beside the goal record it serves.
+
+Layer: Intent.
+
+Source: LiteSpec.
+
 ### Ballot
 
 One named group of open questions the inbox shows together, by a decision id or a short topic slug.
@@ -210,6 +218,14 @@ Aliases: undo.
 
 Source: LiteSpec.
 
+### Conclusion
+
+The one sentence a research record concludes, stated as data so a decision can cite it.
+
+Layer: Intent.
+
+Source: LiteSpec.
+
 ### Consistency
 
 The declared write shape of a use case: atomic, per-record, compensated, or best-effort.
@@ -220,7 +236,7 @@ Source: LiteSpec.
 
 ### Constraint
 
-One outside rule the product obeys, such as a law or provider terms.
+One outside rule the product obeys, such as a law or provider terms, with its authority and its kind.
 
 Layer: Intent.
 
@@ -320,7 +336,7 @@ Source: LiteSpec.
 
 ### Feature
 
-One planned answer to a problem, tracked as planned, shipped, later, or refused.
+One planned answer to a problem, tracked by its lifecycle as planned, shipped, later, or refused; unless refused it advances a goal and solves a problem.
 
 Layer: Intent.
 
@@ -358,7 +374,7 @@ Source: arc42; DDD's ubiquitous language.
 
 ### Goal
 
-One measurable outcome the product serves, carrying no authority.
+One measurable outcome a feature advances and a journey serves, carrying no authority.
 
 Layer: Intent.
 
@@ -390,7 +406,7 @@ Source: LiteSpec.
 
 ### Journey
 
-The ordered steps by which an actor reaches one goal. Steps name no use case; each serving use case points up with serves.
+The ordered steps by which an actor reaches one goal, stated in its aim and linked to the goal record it serves. Steps name no use case; each serving use case points up with serves.
 
 Layer: Intent.
 
@@ -403,6 +419,14 @@ One known missing piece with an owner and an end date. A draft past its decide-b
 Layer: Intent or Behavior.
 
 Source: LiteSpec.
+
+### Lifecycle
+
+The planned, shipped, later, or refused span of one feature.
+
+Layer: Intent.
+
+Source: plain English.
 
 ### Measured Requirement
 
@@ -427,6 +451,14 @@ One person-facing message with its audience, channel, consent, and claims.
 Layer: Behavior.
 
 Source: LiteSpec.
+
+### Origin
+
+The feature that carries one requirement, the constraint or research it is based on, or the decision that decides it.
+
+Layer: Intent.
+
+Source: IREB.
 
 ### Outcome
 
@@ -536,7 +568,7 @@ Source: LiteSpec.
 
 ### Requirement
 
-One behavior the product shows or one guarantee it keeps. An exception names its fallback requirement; a tenant-set value is not an exception.
+One behavior the product shows or one guarantee it keeps. An exception names its fallback requirement; a tenant-set value is not an exception. Its origin is the feature that carries it, a constraint or research it is based on, or a decision that decides it.
 
 Layer: Intent.
 
@@ -556,7 +588,7 @@ Rejected: decision evidence, which states where the fact is used instead of what
 
 ### Result
 
-One way a use case ends: success or a named refusal. Refusals read in precedence order; a success may carry codes for recorded outcomes inside it.
+One way a use case ends: success or a named refusal. Refusals read in precedence order; a success may carry codes for recorded outcomes inside it. Its identifier is `result/<use-case>.<name>`.
 
 Layer: Behavior.
 
@@ -596,7 +628,7 @@ Source: the SRE book.
 
 ### Scenario
 
-One testable example proving one result, stated as given, when, then. A scenario may point at a derived result.
+One testable example proving one result, stated as given, when, then. A scenario may point at a derived result. Its identifier is `scenario/<use-case>.<name>`.
 
 Layer: Behavior.
 
@@ -614,7 +646,7 @@ Source: LiteSpec.
 
 ### Setting
 
-One named bound or default the product runs within, with its setter and its behavior at the bound.
+One named bound or default the product runs within, with its setter and its behavior at the bound. The use cases that read it are named in `readBy`.
 
 Layer: Behavior.
 
@@ -628,7 +660,7 @@ Source: LiteSpec.
 
 ### State
 
-One named stage in an aggregate lifecycle, with its meaning.
+One named stage in an aggregate lifecycle, with its meaning. A feature's span is a lifecycle, not a state.
 
 Layer: Behavior.
 
@@ -961,6 +993,14 @@ Source: web API practice.
 ### Reachable
 
 The computed state of an aggregate state a transition leads into.
+
+Source: LiteSpec.
+
+### Reads As
+
+The phrase stating how one link reads from its record, with its pair stating how it reads back.
+
+Layer: Behavior.
 
 Source: LiteSpec.
 

@@ -14,7 +14,9 @@
       "status": "approved",
       "kind": "functional",
       "statement": "A reader holds at most five active loans.",
-      "basedOn": [],
+      "basedOn": [
+        "research/loan-period-benchmarks"
+      ],
       "approvedBy": "lending-team",
       "approvedOn": "2026-10-01",
       "approvedHash": "5de82a4d"
@@ -27,7 +29,9 @@
       "status": "approved",
       "kind": "functional",
       "statement": "A loan lasts 21 days.",
-      "basedOn": [],
+      "basedOn": [
+        "research/loan-period-benchmarks"
+      ],
       "approvedBy": "lending-team",
       "approvedOn": "2026-10-01",
       "approvedHash": "5a16abaa"
@@ -40,7 +44,9 @@
       "status": "approved",
       "kind": "functional",
       "statement": "A ready hold waits seven days.",
-      "basedOn": [],
+      "basedOn": [
+        "research/loan-period-benchmarks"
+      ],
       "approvedBy": "lending-team",
       "approvedOn": "2026-10-01",
       "approvedHash": "d41032c8"
@@ -53,7 +59,9 @@
       "status": "approved",
       "kind": "functional",
       "statement": "A copy lives on one home shelf.",
-      "basedOn": [],
+      "basedOn": [
+        "research/loan-period-benchmarks"
+      ],
       "approvedBy": "lending-team",
       "approvedOn": "2026-10-01",
       "approvedHash": "f39ea9be"
@@ -70,8 +78,10 @@
       "environment": "Normal operation, the search index warm.",
       "response": "Each listing answers from the index.",
       "measure": "p95 latency",
-      "by": "under 200 ms",
-      "basedOn": [],
+      "dueBy": "under 200 ms",
+      "basedOn": [
+        "research/loan-period-benchmarks"
+      ],
       "approvedBy": "lending-team",
       "approvedOn": "2026-10-01",
       "approvedHash": "1e2899b5"

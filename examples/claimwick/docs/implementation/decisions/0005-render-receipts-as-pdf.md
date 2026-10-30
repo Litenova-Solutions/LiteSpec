@@ -5,7 +5,7 @@
   "title": "Render Receipts as PDF",
   "owner": "claimwick-team",
   "status": "approved",
-  "decided": "2026-09-15",
+  "decidedOn": "2026-09-15",
   "options": [
     {
       "name": "PDF library",
@@ -36,7 +36,7 @@
   ],
   "approvedBy": "claimwick-team",
   "approvedOn": "2026-10-01",
-  "approvedHash": "0b36b49d"
+  "approvedHash": "561a6378"
 }
 ---
 

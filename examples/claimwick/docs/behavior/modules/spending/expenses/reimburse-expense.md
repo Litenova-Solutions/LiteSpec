@@ -80,6 +80,34 @@
       "approvedBy": "claimwick-team",
       "approvedOn": "2026-10-01",
       "approvedHash": "46883c3c"
+    },
+    {
+      "type": "scenario",
+      "id": "scenario/reimburse-expense.reimbursing-an-unapproved-expense-is-refused",
+      "title": "Reimbursing an unapproved expense is refused",
+      "owner": "claimwick-team",
+      "status": "reviewed",
+      "given": "An employee submitted an expense with its receipt.",
+      "when": "Finance reimburses the expense.",
+      "result": "result/reimburse-expense.not-approved",
+      "then": "The reimbursement is refused because the expense is not approved.",
+      "approvedBy": "claimwick-team",
+      "approvedOn": "2026-10-01",
+      "approvedHash": "693b4f85"
+    },
+    {
+      "type": "scenario",
+      "id": "scenario/reimburse-expense.reimbursing-a-reimbursed-expense-is-refused",
+      "title": "Reimbursing a reimbursed expense is refused",
+      "owner": "claimwick-team",
+      "status": "reviewed",
+      "given": "Finance reimbursed an expense.",
+      "when": "Finance reimburses the expense again.",
+      "result": "result/reimburse-expense.already-reimbursed",
+      "then": "The reimbursement is refused because the expense is already reimbursed.",
+      "approvedBy": "claimwick-team",
+      "approvedOn": "2026-10-01",
+      "approvedHash": "806626e6"
     }
   ],
   "approvedBy": "claimwick-team",
