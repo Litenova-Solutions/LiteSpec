@@ -23,12 +23,11 @@ static class BookCommand
 {
     /// <summary>The command's usage text.</summary>
     public const string Usage =
-        "Usage: litespec book --model <model.json> --out <folder> [--findings <file>]\n"
+        "Usage: litespec book --model <model.json> --out <folder>\n"
         + "\n"
         + "Options:\n"
         + "  --model <file>     The model.json written by the model builder (required).\n"
         + "  --out <folder>     The folder to write the static site to (required).\n"
-        + "  --findings <file>  The JSON output of the model check, for the review page.\n"
         + "  --help             Print this text and exit.\n"
         + "\n"
         + "Exit codes: 0 written, 1 unreadable input or unwritable output, 2 usage error.\n";
@@ -68,20 +67,14 @@ static class BookCommand
             return 1;
         }
 
+        // The check result reaches the book only through the model: `litespec model build`
+        // writes findings and known into model.json, and the model itself holds that shape.
         JsonNode? findingsFile = null;
-        if (parsed.Findings is not null)
+        if (store["findings"] is JsonArray || store["known"] is JsonArray)
         {
-            try
-            {
-                findingsFile = ReadJson(parsed.Findings);
-            }
-            catch (Exception exception)
-            {
-                Console.Error.Write($"Cannot read findings '{parsed.Findings}': {exception.Message}\n");
-                return 1;
-            }
+            findingsFile = store;
         }
-        else if (store["findings"] is { } embedded && BookRender.IsTruthy(embedded) && embedded is JsonObject or JsonArray)
+        else if (store["findings"] is JsonObject embedded && embedded["findings"] is JsonArray)
         {
             findingsFile = embedded;
         }
@@ -179,33 +172,33 @@ static class BookCommand
         return 0;
     }
 
-    sealed record Parsed(bool Help, string? Error, string? Model, string? Out, string? Findings);
+    sealed record Parsed(bool Help, string? Error, string? Model, string? Out);
 
     static Parsed ParseArgs(string[] argv)
     {
-        var parsed = CliArgs.Parse(argv, [], ["--model", "--out", "--findings"]);
+        var parsed = CliArgs.Parse(argv, [], ["--model", "--out"]);
 
         if (parsed.Help)
         {
-            return new Parsed(true, null, null, null, null);
+            return new Parsed(true, null, null, null);
         }
 
         if (parsed.Error is not null)
         {
-            return new Parsed(false, parsed.Error, null, null, null);
+            return new Parsed(false, parsed.Error, null, null);
         }
 
         if (parsed.Value("--model") is not { Length: > 0 } model)
         {
-            return new Parsed(false, "Missing --model <model.json>.", null, null, null);
+            return new Parsed(false, "Missing --model <model.json>.", null, null);
         }
 
         if (parsed.Value("--out") is not { Length: > 0 } output)
         {
-            return new Parsed(false, "Missing --out <folder>.", null, null, null);
+            return new Parsed(false, "Missing --out <folder>.", null, null);
         }
 
-        return new Parsed(false, null, model, output, parsed.Value("--findings"));
+        return new Parsed(false, null, model, output);
     }
 
     /// <summary>The model file's folder, which supplies the review defaults.</summary>

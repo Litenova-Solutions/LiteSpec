@@ -105,7 +105,7 @@ static class ReviewQueue
     ///     Computes the review batches from the queue inputs, in review order: every
     ///     draft and every reopened record, grouped into the bounded batches one
     ///     approval covers. The model command passes the checker's open-finding counts;
-    ///     the book passes the counts from its findings file.
+    ///     the book passes the counts from the findings the model records.
     /// </summary>
     internal static IReadOnlyList<ReviewBatch> ComputeBatches(
         IReadOnlyList<Record> records,

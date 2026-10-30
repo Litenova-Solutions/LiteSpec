@@ -39,6 +39,7 @@ static partial class BookPages
             }
         }
 
+        var hasRun = BookModel.HasTestRun(index);
         var parts = new List<string>();
         parts.Add(BookRender.PageHeader(
             product is not null ? $"Product · {BookRender.PropText(product, "id")}" : "Product",
@@ -48,8 +49,8 @@ static partial class BookPages
                 ("Records", $"<b>{index.Records.Count}</b>"),
                 ("Use cases", $"<b>{useCases.Count}</b>"),
                 ("Implemented", $"<b>{implemented}</b>"),
-                ("Verified", $"<b>{verified}</b>"),
-                ("Stale", $"<b>{stale}</b>"),
+                ("Verified", hasRun ? $"<b>{verified}</b>" : "<b>not run</b>"),
+                ("Stale", hasRun ? $"<b>{stale}</b>" : "<b>not run</b>"),
             ]));
 
         if (product is not null)
@@ -101,12 +102,17 @@ static partial class BookPages
             + "<th class=\"num\">Records</th><th class=\"num\">Approved</th><th class=\"num\">Reviewed</th><th class=\"num\">Draft</th>"
             + $"<th class=\"num\">Retired</th></tr></thead><tbody>{string.Concat(rows)}</tbody></table></div>");
 
+        parts.Add(BookRender.SectionHeading(2, "test-run", "Latest Test Run"));
+
         if (BookRender.IsTruthy(index.TestRun))
         {
             var run = index.TestRun as JsonObject;
-            parts.Add(BookRender.SectionHeading(2, "test-run", "Latest Test Run"));
             parts.Add($"<p>{BookRender.Esc(run?["passed"])} of {BookRender.Esc(run?["total"])} tests passed, "
                 + $"{BookRender.Esc(run?["failed"])} failed.</p>");
+        }
+        else
+        {
+            parts.Add($"<p>not run: {BookRender.Esc(BookModel.NotRunSentence)}</p>");
         }
 
         parts.Add(BookRender.SectionHeading(2, "layers", "Layers"));

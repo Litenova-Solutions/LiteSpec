@@ -177,8 +177,7 @@ public sealed class BookViewsTests
         using var temp = Cli.Temp("book-views");
         var result = Cli.Run(
             "book",
-            "--model", Cli.Fixture("Book/review.json"),
-            "--findings", Cli.Fixture("Book/findings.json"),
+            "--model", BookTruthTests.ModelWithEmbeddedFindings(temp),
             "--out", temp.Path);
         Assert.Equal(0, result.Status);
         var html = File.ReadAllText(Path.Combine(temp.Path, "review", "index.html"));

@@ -89,7 +89,7 @@ Two commands belong to the LiteSpec repository, and the rest belong to a consume
 | `litespec consumer` | Consumer | Project file, pages, glossary | Diagnostics only |
 | `litespec ui` | Consumer | Shared UI package, frontends | Diagnostics only |
 | `litespec model` | Consumer | Records, code marks, routes, test runs | `model.json`, tiered findings, diffs, rendered regions |
-| `litespec book` | Consumer | `model.json`, optional findings | A static site folder with chapters and ballots |
+| `litespec book` | Consumer | `model.json`, with the findings it records | A static site folder with chapters and ballots |
 
 `litespec-maintain validate` and `litespec-maintain provisions --check` guard the standard itself: the LiteSpec workflow runs them on every change with `git diff --check` and a site build. `dotnet litespec consumer`, `dotnet litespec model check`, and the analyzers guard your project: your CI runs them on every pull request.
 

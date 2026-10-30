@@ -198,11 +198,15 @@ static partial class BookPages
             cells.Add(("Implemented", state.Implemented
                 ? "<span class=\"chip ok\">Yes</span> <span>code implements it</span>"
                 : "<span class=\"chip warn\">No</span> <span>no code implements it</span>", false));
-            cells.Add(("Verified", state.Verified
+            cells.Add(("Verified", !BookModel.HasTestRun(index)
+                ? $"<span class=\"chip warn\">Not run</span> <span>not run: {BookRender.Esc(BookModel.NotRunSentence)}</span>"
+                : state.Verified
                 ? "<span class=\"chip ok\">Yes</span> <span>every scenario proved by a passing test</span>"
                 : "<span class=\"chip warn\">No</span> <span>a scenario is unproved or failing</span>", false));
             cells.Add(("Stale", state.Stale
                 ? "<span class=\"chip risk\">Yes</span> <span>a proof went stale after its scenario changed</span>"
+                : !BookModel.HasTestRun(index)
+                ? $"<span class=\"chip warn\">Not run</span> <span>not run: {BookRender.Esc(BookModel.NotRunSentence)}</span>"
                 : "<span class=\"chip ok\">No</span> <span>no proof went stale</span>", false));
         }
         else if (BookModel.IsStale(index, BookRender.StrProp(record, "id")))
@@ -325,6 +329,14 @@ static partial class BookPages
 
         var date = BookModel.TestRunDate(index);
         var run = date is { Length: > 0 } ? $" The last proof run was on {BookRender.Esc(date)}." : "";
+
+        if (!BookModel.HasTestRun(index))
+        {
+            parts.Add("<p class=\"proofline\"><span class=\"chip warn\">Not run</span> "
+                + $"not run: {BookRender.Esc(BookModel.NotRunSentence)}</p>");
+            return $"<h2 id=\"proof\">Proof</h2>\n{string.Join("\n", parts)}";
+        }
+
         if (state.Stale)
         {
             parts.Add("<p class=\"proofline\"><span class=\"chip risk\">Stale</span> "
@@ -572,11 +584,11 @@ static partial class BookPages
     }
 
     static string PassingText(JsonNode? passing) =>
-        passing is JsonValue scalar && scalar.TryGetValue<bool>(out var outcome) ? (outcome ? "passing" : "failing") : "no test run";
+        passing is JsonValue scalar && scalar.TryGetValue<bool>(out var outcome) ? (outcome ? "passing" : "failing") : "not run";
 
     static string ProofChip(string state)
     {
-        var tone = state == "proved-passing" ? "ok" : state == "unproved" ? "warn" : "note";
+        var tone = state == "proved-passing" ? "ok" : state is "unproved" or "not-run" ? "warn" : "note";
         var label = BookModel.ProofLabels.TryGetValue(state, out var found) ? found : state;
         return $"<span class=\"chip {tone}\">{BookRender.Esc(label)}</span>";
     }
@@ -691,7 +703,7 @@ static partial class BookPages
             {
                 var where = link.Test is not null ? $" <span class=\"mono dim\">{BookRender.Esc(link.Test["file"])}:{BookRender.PropText(link.Test, "line")}</span>" : "";
                 var confirmed = link.Confirmed ? "confirmed" : "unconfirmed";
-                var outcome = link.Passing == true ? "passing" : link.Passing == false ? "failing" : "no test run";
+                var outcome = link.Passing == true ? "passing" : link.Passing == false ? "failing" : "not run";
                 var indirect = link.Indirect ? ", indirect" : "";
                 return $"<li><code>{BookRender.Esc(link.Scenario)}</code> <span class=\"dim\">{confirmed}{indirect}, {outcome}</span>{where}</li>";
             }));
@@ -790,7 +802,12 @@ static partial class BookPages
                 var wrong = BookRender.IsTruthy(step["ifItGoesWrong"])
                     ? $"<div class=\"dim\">If it goes wrong: {BookRender.Esc(step["ifItGoesWrong"])}</div>"
                     : "";
-                return $"<li id=\"{BookRender.Esc(id)}\">{says}{actor}{wrong}</li>";
+                var walked = !BookModel.HasTestRun(index)
+                    ? $"<div class=\"dim\">not run: {BookRender.Esc(BookModel.NotRunSentence)} This step cannot be shown as walked.</div>"
+                    : BookModel.StepExercised(index, $"{journeyId}#{id}")
+                    ? "<div class=\"dim\">A passing test walked this step.</div>"
+                    : "<div class=\"dim\">No passing test walked this step.</div>";
+                return $"<li id=\"{BookRender.Esc(id)}\">{says}{actor}{wrong}{walked}</li>";
             }));
             parts.Add($"<ol class=\"plain\">{items}</ol>");
         }
@@ -801,18 +818,32 @@ static partial class BookPages
         {
             var id = BookRender.StrProp(step, "id") ?? "";
             var says = BookRender.Str(step["says"]);
-            var serving = BookModel.ServingUseCases(index, $"{journeyId}#{id}");
+            var serving = BookModel.ServingRecords(index, $"{journeyId}#{id}");
             if (serving.Count == 0)
             {
                 served.Add($"<li>{BookRender.Esc(says)}: no use case serves this step yet.</li>");
                 continue;
             }
 
-            foreach (var useCase in serving)
+            foreach (var server in serving)
             {
-                var goal = BookRender.Str(BookRender.Fields(useCase)?["goal"]);
-                var line = goal.Length > 0 ? goal : BookModel.SortTitle(useCase);
-                served.Add($"<li>{BookRender.Esc(says)}: {BookRender.Esc(line)} ({BookRender.RecordLink(index, rel, BookRender.StrProp(useCase, "id") ?? "")}).</li>");
+                var serverId = BookRender.StrProp(server, "id") ?? "";
+                var serverType = BookRender.StrProp(server, "type");
+
+                if (serverType == "use-case")
+                {
+                    var goal = BookRender.Str(BookRender.Fields(server)?["goal"]);
+                    var line = goal.Length > 0 ? goal : BookModel.SortTitle(server);
+                    served.Add($"<li>{BookRender.Esc(says)}: {BookRender.Esc(line)} ({BookRender.RecordLink(index, rel, serverId)}).</li>");
+                }
+                else if (serverType is "reaction" or "job")
+                {
+                    served.Add($"<li>{BookRender.Esc(says)}: served by automation ({BookRender.RecordLink(index, rel, serverId)}).</li>");
+                }
+                else
+                {
+                    served.Add($"<li>{BookRender.Esc(says)}: served by {BookRender.RecordLink(index, rel, serverId)}.</li>");
+                }
             }
         }
 

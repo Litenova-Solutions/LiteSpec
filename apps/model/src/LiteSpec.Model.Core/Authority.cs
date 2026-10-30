@@ -14,6 +14,8 @@ public static class Authority
     ///     Computes each record's effective status: draft when the record is a draft, when a draft
     ///     decision decides it, or when a requirement it fulfills is effectively a draft. Reviewed
     ///     counts as live like approved. A result or a scenario takes its use case's effective status.
+    ///     A screen is draft when its entry point, a use case it offers, or a journey it serves is
+    ///     effectively a draft.
     /// </summary>
     /// <param name="records">Every record.</param>
     /// <param name="useCaseHolder">The use case holding a result or scenario, when one holds it.</param>
@@ -43,6 +45,27 @@ public static class Authority
             var own = Own(record);
             var inherited = record.Ids("fulfills").Any(id =>
                 effective.TryGetValue(id, out var status) && status == "draft");
+
+            effective[record.Id] = Live(own) && inherited ? "draft" : own;
+        }
+
+        foreach (var record in records.Where(record => record.Type is "screen"))
+        {
+            var own = Own(record);
+            var parents = record.Ids("entryPoint")
+                .Concat(record.Ids("offers"))
+                .Concat(record.Ids("serves"))
+                .ToList();
+
+            var entryPoint = record.Field("entryPoint");
+
+            if (entryPoint is not null && !parents.Contains(entryPoint, StringComparer.Ordinal))
+            {
+                parents.Add(entryPoint);
+            }
+
+            var inherited = parents.Any(id =>
+                effective.TryGetValue(Identifiers.BaseId(id), out var status) && status == "draft");
 
             effective[record.Id] = Live(own) && inherited ? "draft" : own;
         }

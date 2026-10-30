@@ -14,7 +14,6 @@ public sealed class BookCommandTests
         var result = Cli.Run(
             "book",
             "--model", Cli.Fixture("Book/model.json"),
-            "--findings", Cli.Fixture("Book/findings.json"),
             "--out", temp.Path);
         Assert.Equal(0, result.Status);
         Assert.True(File.Exists(Path.Combine(temp.Path, "index.html")), "index.html was not written.");

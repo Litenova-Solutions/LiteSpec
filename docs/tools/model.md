@@ -21,7 +21,9 @@ litespec model diff <base> [--root <consumer>] [--format text|markdown|json] [--
 
 ## Description
 
-The model builder reads the written records, the code marks, the routes, the tests, and the latest test run. It writes `model.json` with every record and its resolved links. The file names the code, screens, tests, and test runs it read. It adds the computed `implements`, `calls`, and `proves` links, the computed `implemented`, `verified`, `stale`, and `reachable` state of each record, and the effective status of each record. Computed states are never written on a record; they appear in the book and the model output only. The output also lists each unmarked Domain constituent type under the aggregate whose folder holds it, or under `kernel`, in `constituents`.
+The model builder reads the written records, the code marks, the routes, the tests, and the latest test run. It writes `model.json` with every record and its resolved links. The file names the code, screens, tests, and test runs it read. It adds the computed `implements`, `calls`, and `proves` links, the computed `implemented`, `verified`, `stale`, and `reachable` state of each record, and the effective status of each record. Computed states are never written on a record; they appear in the book and the model output only. The output also lists each unmarked Domain constituent type under the aggregate whose folder holds it, or under `kernel`, in `constituents`. `build` runs the checks once on the model it built and writes the result into `model.json` as `findings` and `known`, the same objects `check --format json` writes, so the book reads its findings from the model and needs no separate findings file.
+
+Each screen in `screens` lists its `operations`, its `useCases`, and its `calls`, where each call pairs one operation with the use case it reaches. `links.calls` carries one link per such pair, so a use case reached through two operations gets two links, and a use case whose operation is unknown carries an empty `operation`.
 
 A proof goes stale when its scenario changes after the proof passed. The first time the builder reads a passing run of a scenario's proof, it records the scenario semantic hash and the run's date in `.model/proofs.json`, beside `model.json`. On every later build against the same run, a scenario whose semantic hash differs from the recorded one has a stale proof, and a stale proof verifies nothing until a newer passing run is read. Run the model check after the test run, in the same job, so the hash is recorded before a record changes.
 
@@ -39,7 +41,7 @@ Aggregate transitions and data, and scenario examples, may be written as Markdow
 
 The eight subcommands share one reader:
 
-- `build` writes `model.json` under `.model/` in the consumer root, unless `--out` names another file. That folder holds generated output, and the consumer ignores it in Git.
+- `build` writes `model.json` under `.model/` in the consumer root, unless `--out` names another file. That folder holds generated output, and the consumer ignores it in Git. The file carries the build's check result as `findings` and `known`.
 - `check` builds the model in memory and reports every finding with its tier, code, message, path, and line. With `--staged` it reports only the findings in the staged scope: the records on pages changed in the git index, their direct links in both directions, and the records staged code implements. A finding is in scope when its path is staged or its subject is. Outside a git repository, or when git is unavailable, `--staged` exits 2.
 - `render` rewrites the fenced generated regions and touches no text outside them.
 - `query` prints one record with its links in both directions. Agents use it to load a record's context.

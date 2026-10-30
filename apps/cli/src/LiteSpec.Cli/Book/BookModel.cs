@@ -174,6 +174,12 @@ sealed class BookIndex
     /// <summary>The latest test run, or null when the model holds none.</summary>
     public JsonNode? TestRun { get; set; }
 
+    /// <summary>The journey steps a passing test walked, as <c>journey/&lt;name&gt;#&lt;step&gt;</c> ids.</summary>
+    public HashSet<string> ExercisedSteps { get; init; } = new(StringComparer.Ordinal);
+
+    /// <summary>Whether the model carries the check result the model build wrote, as findings or known.</summary>
+    public bool HasFindings { get; set; }
+
     /// <summary>Days before a tier-3 question auto-approves; 7 when the model names none.</summary>
     public int VetoWindowDays { get; set; } = 7;
 }
@@ -326,7 +332,18 @@ static class BookModel
             ["proved-indirect"] = "Proved indirect",
             ["awaiting-run"] = "Proved, awaiting test run",
             ["unproved"] = "Unproved",
+            ["not-run"] = "Not run",
         };
+
+    /// <summary>What the book says when the model holds no test run: the tests were never read, so nothing can be shown as proved, failing or walked.</summary>
+    public const string NotRunSentence =
+        "The tests have not been run in this model. To read a test run, set paths.testResults to the folder that holds the test result files, then build the model again.";
+
+    /// <summary>Whether the model holds a test run a proof statement can read.</summary>
+    public static bool HasTestRun(BookIndex index) => index.TestRun is not null;
+
+    /// <summary>Whether a passing test walked one journey step, as a <c>journey/&lt;name&gt;#&lt;step&gt;</c> id.</summary>
+    public static bool StepExercised(BookIndex index, string stepId) => index.ExercisedSteps.Contains(stepId);
 
     /// <summary>The display label of a record type, singular or plural.</summary>
     public static string TypeLabel(string? type, bool plural = false) =>
@@ -615,6 +632,16 @@ static class BookModel
         }
 
         index.TestRun = model["testRun"] is { } run && BookRender.IsTruthy(run) && run is JsonObject or JsonArray ? run : null;
+
+        foreach (var step in model["exercisedSteps"] as JsonArray ?? [])
+        {
+            if (step is JsonValue scalar && scalar.TryGetValue<string>(out var id) && id is { Length: > 0 })
+            {
+                index.ExercisedSteps.Add(id);
+            }
+        }
+
+        index.HasFindings = model["findings"] is JsonArray or JsonObject || model["known"] is JsonArray;
         index.VetoWindowDays = VetoWindowOf(model);
 
         return index;
@@ -673,7 +700,11 @@ static class BookModel
             BookRender.StrProp(link, "scenario") is { } scenario ? index.TestsByName.GetValueOrDefault(scenario) : null)).ToList();
         var confirmed = enriched.Where(link => link.Confirmed).ToList();
         var state = "unproved";
-        if (confirmed.Count > 0)
+        if (!HasTestRun(index))
+        {
+            state = "not-run";
+        }
+        else if (confirmed.Count > 0)
         {
             if (confirmed.Any(link => link.Indirect))
             {
@@ -992,7 +1023,8 @@ static class BookModel
             "proved-passing" => $"Proven by a passing test{on}.",
             "proved-failing" => "A test proves it, but the test fails.",
             "proved-indirect" => $"Proven indirectly by a passing test{on}.",
-            "awaiting-run" => "A test proves it; no test run yet.",
+            "awaiting-run" => "A test proves it; the tests have not been run in this model yet.",
+            "not-run" => NotRunSentence,
             _ => "No passing proof yet.",
         };
     }
@@ -1265,6 +1297,41 @@ static class BookModel
                 {
                     serving.Add(record);
                     break;
+                }
+            }
+        }
+
+        return serving
+            .OrderBy(record => SortTitle(record), BookRender.LocaleComparer)
+            .ToList();
+    }
+
+    /// <summary>Every record serving one journey step id, of any type: use cases, reactions, jobs, screens and the rest.</summary>
+    public static IReadOnlyList<JsonObject> ServingRecords(BookIndex index, string stepId)
+    {
+        var serving = new List<JsonObject>();
+
+        foreach (var list in index.ByType.Values)
+        {
+            foreach (var record in list)
+            {
+                var targets = new List<string>();
+                targets.AddRange(LinksOf(record, "serves"));
+
+                if (BookRender.Fields(record)?["serves"] is JsonArray fieldServes)
+                {
+                    targets.AddRange(fieldServes
+                        .Where(target => target is JsonValue scalar && scalar.TryGetValue<string>(out _))
+                        .Select(target => BookRender.Str(target)));
+                }
+                else if (BookRender.Fields(record)?["serves"] is JsonValue single)
+                {
+                    targets.Add(BookRender.Str(single));
+                }
+
+                if (targets.Contains(stepId))
+                {
+                    serving.Add(record);
                 }
             }
         }

@@ -287,7 +287,7 @@ Implemented, verified, stale, and reachable are computed, never handwritten. The
 | reachable | aggregate state | a transition leads into it |
 | exercised | journey step | a passing test proved a scenario of a use case that serves the step |
 
-The builder also writes each record effective status: draft when the record, a decision deciding it, or a requirement it fulfills is a draft. A result or a scenario takes its use case effective status.
+The builder also writes each record effective status: draft when the record, a decision deciding it, or a requirement it fulfills is a draft. A result or a scenario takes its use case effective status. A screen is draft when its entry point, a use case it offers, or a journey it serves is draft.
 
 ### Approval as Data
 
@@ -476,7 +476,7 @@ Field tables render as tables. Scenarios group under their result. Field names n
 
 **Statement:** A record MUST NOT stand approved or reviewed behind a draft decision.
 
-**Rationale:** Approval means the reasoning behind the record already holds. A record approved behind a draft decision claims settled intent while its foundation can still move. The builder also writes each record effective status: draft when the record, a decision deciding it, or a requirement it fulfills is a draft. A result or a scenario takes its use case effective status.
+**Rationale:** Approval means the reasoning behind the record already holds. A record approved behind a draft decision claims settled intent while its foundation can still move. The builder also writes each record effective status: draft when the record, a decision deciding it, or a requirement it fulfills is a draft. A result or a scenario takes its use case effective status. A screen is draft when its entry point, a use case it offers, or a journey it serves is draft.
 
 **Checked by:** `litespec model check` reports `draft-gate` for an approved or reviewed record behind a draft decision.
 

@@ -363,16 +363,14 @@ static partial class ModelBuilder
         }
     }
 
-    private static void ComputeCalls(ProjectModel model)
+    internal static void ComputeCalls(ProjectModel model)
     {
         foreach (var screen in model.Screens)
         {
-            foreach (var useCase in screen.UseCases)
+            foreach (var call in screen.PairedCalls())
             {
-                var operation = screen.Operations.FirstOrDefault()?.Name ?? "";
-
                 model.Calls.Add(new CallsLink(
-                    $"{screen.Frontend} {screen.Route}", useCase, operation));
+                    $"{screen.Frontend} {screen.Route}", call.UseCase, call.Operation));
             }
         }
 

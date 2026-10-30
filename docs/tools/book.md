@@ -7,16 +7,16 @@
 ## Synopsis
 
 ```bash
-litespec book --model <model.json> --out <folder> [--findings <file>]
+litespec book --model <model.json> --out <folder>
 ```
 
 ## Description
 
-The book generator reads the `model.json` file that `litespec model build` wrote and writes a self-contained static site from it. The site holds one page per record, one index per record type, one chapter per journey, a ballots page, a goals index, a review page, a glossary, and a search page. Every count on every page is computed from `model.json` when the site is generated; no count is typed by hand.
+The book generator reads the `model.json` file that `litespec model build` wrote and writes a self-contained static site from it. The site holds one page per record, one index per record type, one chapter per journey, a ballots page, a goals index, a review page, a glossary, and a search page. Every count on every page is computed from `model.json` when the site is generated; no count is typed by hand. The check findings on the review page come from the model too: `litespec model build` writes its check result into `model.json` as `findings` and `known`, so the book needs only the model. When the model holds no test run, every proof statement in the book reads as not run and names the `paths.testResults` setting that reads one, and a journey step the model records as exercised reads as walked by a passing test.
 
 The book renders each record's prose body, and every field has a typed renderer that writes words and tables, so raw JSON never reaches a reviewer. Field tables render as tables, scenarios group under their result, and field names never render literally in Intent chapters.
 
-Each journey chapter holds the goal, the `finishedWhen`, the steps as sentences with their `ifItGoesWrong`, the requirements it fulfils with their statements and their `except` and fallback inline, and the open questions. For each step it names the serving use case's goal in one line and the Then clauses of its scenarios as context. A consequences box states the new refusals in product words, the data kept and for how long, and the money effects, marked as context and outside the approval hash.
+Each journey chapter holds the goal, the `finishedWhen`, the steps as sentences with their `ifItGoesWrong`, the requirements it fulfils with their statements and their `except` and fallback inline, and the open questions. For each step it names the serving use case's goal in one line, or reads as served by automation with a link to the serving reaction or job, and says whether a passing test walked the step; the Then clauses of its scenarios follow as context. A consequences box states the new refusals in product words, the data kept and for how long, and the money effects, marked as context and outside the approval hash.
 
 The ballots page lists the open questions grouped by `ballot`, ordered tier 1 first, with each question's recommendation and auto-approval date.
 
@@ -36,7 +36,6 @@ None.
 |:---|:---|:---|
 | `--model <model.json>` | none | Reads this model file. Required. |
 | `--out <folder>` | none | Writes the static site to this folder, creating it. Required. |
-| `--findings <file>` | none | Shows these findings on the review page instead of the ones in `model.json`. |
 | `--help` | off | Prints the usage text and exits 0. |
 
 ## Exit Codes
@@ -44,7 +43,7 @@ None.
 | Code | Meaning |
 |:---|:---|
 | `0` | The site was written. |
-| `1` | The model or findings file is missing or unreadable, or the output folder cannot be written. |
+| `1` | The model file is missing or unreadable, or the output folder cannot be written. |
 | `2` | The arguments are wrong. |
 
 ## Examples
@@ -55,11 +54,11 @@ Generate the book for a consumer whose model is built:
 litespec book --model ../consumer/.model/model.json --out ../consumer/.book
 ```
 
-Generate it with the check findings on the review page:
+The review page shows the check findings the model build recorded in the model:
 
 ```bash
-litespec model check --root ../consumer --format json > /tmp/findings.json
-litespec book --model ../consumer/.model/model.json --out ../consumer/.book --findings /tmp/findings.json
+litespec model build --root ../consumer
+litespec book --model ../consumer/.model/model.json --out ../consumer/.book
 ```
 
 ## Underneath

@@ -125,6 +125,23 @@ static class ModelCommand
                 case "build":
                 {
                     var model = ModelBuilder.Build(config);
+
+                    // The build writes the check result into the model, so the book
+                    // needs only model.json: one check run, on the model just built,
+                    // with the same severity decision and JSON shape as check --format json.
+                    var (checkFindings, checkKnown) = Checker.Check(model);
+                    var buildPhase = config.Phase.ToProjectValue();
+                    model.FindingsJson = checkFindings
+                        .Select(finding => (Finding: finding, Severity: Decide(model, config, finding, buildPhase)))
+                        .Where(entry => entry.Severity.Outcome != Outcome.Silent)
+                        .Select(entry => AsJson(config, entry.Finding, entry.Severity))
+                        .Cast<object>()
+                        .ToList();
+                    model.KnownJson = checkKnown
+                        .Where(gap => Decide(model, config, gap, buildPhase).Outcome != Outcome.Silent)
+                        .Select(gap => AsKnownJson(config, gap))
+                        .Cast<object>()
+                        .ToList();
                     var output = parsed.Value("--out") ?? Path.Combine(root, ".model", "model.json");
 
                     Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(output))!);

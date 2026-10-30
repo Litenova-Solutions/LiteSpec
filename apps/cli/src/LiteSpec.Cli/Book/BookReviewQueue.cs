@@ -102,7 +102,7 @@ static class BookReviewQueue
         };
     }
 
-    /// <summary>Counts the open findings of the findings file by subject record id.</summary>
+    /// <summary>Counts the open findings recorded in the model by subject record id.</summary>
     static IReadOnlyDictionary<string, int> FindingsBySubject(JsonNode? findingsFile)
     {
         var counts = new Dictionary<string, int>(StringComparer.Ordinal);

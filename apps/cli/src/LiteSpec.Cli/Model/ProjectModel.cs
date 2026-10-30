@@ -39,6 +39,12 @@ sealed class ProjectModel
 {
     public ConsumerConfig Config { get; init; } = null!;
     public List<Finding> Problems { get; } = [];
+
+    /// <summary>The check findings `model build` writes into model.json, as the objects `model check --format json` writes; null when no check result was recorded for this model.</summary>
+    public IReadOnlyList<object>? FindingsJson { get; set; }
+
+    /// <summary>The known findings `model build` writes into model.json, as the objects `model check --format json` writes; null when no check result was recorded for this model.</summary>
+    public IReadOnlyList<object>? KnownJson { get; set; }
     public List<Record> Records { get; } = [];
     public List<PageBody> Bodies { get; } = [];
     public IReadOnlySet<string> Provisions { get; set; } = new HashSet<string>(StringComparer.Ordinal);
@@ -419,6 +425,17 @@ sealed class ProjectModel
                 }
 
                 writer.WriteEndArray();
+                writer.WriteStartArray("calls");
+
+                foreach (var call in screen.PairedCalls())
+                {
+                    writer.WriteStartObject();
+                    writer.WriteString("operation", call.Operation);
+                    writer.WriteString("useCase", call.UseCase);
+                    writer.WriteEndObject();
+                }
+
+                writer.WriteEndArray();
                 writer.WriteEndObject();
             }
 
@@ -730,6 +747,29 @@ sealed class ProjectModel
             }
 
             writer.WriteEndArray();
+
+            writer.WritePropertyName("findings");
+
+            if (FindingsJson is null)
+            {
+                writer.WriteNullValue();
+            }
+            else
+            {
+                JsonSerializer.Serialize(writer, FindingsJson, options);
+            }
+
+            writer.WritePropertyName("known");
+
+            if (KnownJson is null)
+            {
+                writer.WriteNullValue();
+            }
+            else
+            {
+                JsonSerializer.Serialize(writer, KnownJson, options);
+            }
+
             writer.WriteEndObject();
         }
 

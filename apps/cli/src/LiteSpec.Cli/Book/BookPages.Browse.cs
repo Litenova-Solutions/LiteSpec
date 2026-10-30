@@ -16,7 +16,7 @@ static partial class BookPages
         {
             var status = BookRender.OrStr(record["status"], "");
             var extra = BookRender.StrProp(record, "type") == "use-case"
-                ? StatusCells(BookModel.UseCaseStatus(index, BookRender.StrProp(record, "id")))
+                ? StatusCells(index, BookModel.UseCaseStatus(index, BookRender.StrProp(record, "id")))
                 : "";
             return $"<tr><td><a href=\"{rel}{BookModel.RecordUrl(BookRender.StrProp(record, "id") ?? "")}\">{BookRender.Esc(record["title"])}</a>"
                 + $"<div class=\"mono dim dev-only\">{BookRender.Esc(record["id"])}</div></td>"
@@ -32,8 +32,10 @@ static partial class BookPages
         return string.Join("\n", parts);
     }
 
-    static string StatusCells(UseCaseState state) =>
-        $"<td>{(state.Implemented ? "Yes" : "No")}</td><td>{(state.Verified ? "Yes" : "No")}</td><td>{(state.Stale ? "Yes" : "No")}</td>";
+    static string StatusCells(BookIndex index, UseCaseState state) =>
+        $"<td>{(state.Implemented ? "Yes" : "No")}</td>"
+        + $"<td>{(BookModel.HasTestRun(index) ? (state.Verified ? "Yes" : "No") : "not run")}</td>"
+        + $"<td>{(state.Stale ? "Yes" : BookModel.HasTestRun(index) ? "No" : "not run")}</td>";
 
     /// <summary>Renders the lens index: one entry per actor.</summary>
     public static string RenderLensIndex(BookIndex index, string rel)
@@ -209,10 +211,14 @@ static partial class BookPages
             }));
             parts.Add(items);
         }
+        else if (index.HasFindings)
+        {
+            parts.Add("<p>No findings: the check result recorded in the model reports none.</p>");
+        }
         else
         {
-            parts.Add("<p>No findings file was supplied. Run the generator with <code>--findings</code> "
-                + "pointing at the JSON output of the model check to list them here.</p>");
+            parts.Add("<p>No findings are recorded in the model. Run <code>litespec model build</code>, "
+                + "which writes the check result into <code>model.json</code>, then generate the book again to list them here.</p>");
         }
 
         if (review.Known.Count > 0)
@@ -458,7 +464,7 @@ static partial class BookPages
             var lens = BookModel.GoalLensOf(index, BookRender.StrProp(goal, "id") ?? "");
             var fields = BookRender.Fields(goal) ?? new JsonObject();
             parts.Add($"<div class=\"card\"><div class=\"h\"><b><a href=\"{rel}{BookModel.GoalUrl(BookRender.StrProp(goal, "id") ?? "")}\">{BookRender.Esc(goal["title"])}</a></b>"
-                + $"<span>{lens?.Verified ?? 0} of {lens?.Total ?? 0} requirements verified</span></div>"
+                + $"<span>{(BookModel.HasTestRun(index) ? $"{lens?.Verified ?? 0} of {lens?.Total ?? 0} requirements verified" : "not run: the tests have not been run in this model")}</span></div>"
                 + (BookRender.IsTruthy(fields["statement"]) ? $"<p>{BookRender.Esc(fields["statement"])}</p>" : "") + "</div>");
         }
 
@@ -480,7 +486,7 @@ static partial class BookPages
             [
                 ("Features", $"<b>{lens?.Features.Count ?? 0}</b>"),
                 ("Requirements", $"<b>{lens?.Total ?? 0}</b>"),
-                ("Verified", $"<b>{lens?.Verified ?? 0}</b>"),
+                ("Verified", BookModel.HasTestRun(index) ? $"<b>{lens?.Verified ?? 0}</b>" : "<b>not run</b>"),
             ]));
         var about = RenderAbout(index, rel, goal);
         if (about != "")
@@ -516,6 +522,7 @@ static partial class BookPages
                 var state = BookModel.RequirementStateOf(index, BookRender.StrProp(requirement, "id"));
                 var chip = state.Stale
                     ? "<span class=\"chip risk\">Stale</span>"
+                    : !BookModel.HasTestRun(index) ? "<span class=\"chip warn\">Not run</span>"
                     : state.Verified ? "<span class=\"chip ok\">Verified</span>" : "<span class=\"chip warn\">Awaiting proof</span>";
                 return $"<tr><td>{BookRender.RecordLink(index, rel, BookRender.StrProp(requirement, "id") ?? "")}</td>"
                     + $"<td>{BookRender.EscOr(BookRender.Fields(requirement)?["kind"], "")}</td>"

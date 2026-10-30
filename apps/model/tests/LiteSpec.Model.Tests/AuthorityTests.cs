@@ -72,4 +72,139 @@ public sealed class AuthorityTests
         Assert.Equal("approved", effective["requirement/borrowing.max-active-loans"]);
         Assert.Equal("approved", effective["use-case/lending.borrow-copy"]);
     }
+
+    /// <summary>A draft screen is draft.</summary>
+    /// <proves>litespec/core/model#hold-approval-behind-draft-decisions</proves>
+    [Fact]
+    public void Draft_Screen_Is_Draft()
+    {
+        IReadOnlyList<IRecordFacts> records = new IRecordFacts[]
+        {
+            new FakeRecord("entry-point", "entry-point/claimwick-app", "reviewed"),
+            new FakeRecord("use-case", "use-case/spending.list-expenses", "reviewed"),
+            new FakeRecord("journey", "journey/submit-and-reimburse"),
+            new FakeRecord(
+                "screen",
+                "screen/claimwick-app.expense-list",
+                "draft",
+                lists: new Dictionary<string, IReadOnlyList<string>>
+                {
+                    ["entryPoint"] = new[] { "entry-point/claimwick-app" },
+                    ["offers"] = new[] { "use-case/spending.list-expenses" },
+                    ["serves"] = new[] { "journey/submit-and-reimburse#s1" },
+                }),
+        };
+
+        var effective = Authority.EffectiveStatus(records, _ => null);
+
+        Assert.Equal("draft", effective["screen/claimwick-app.expense-list"]);
+    }
+
+    /// <summary>A reviewed screen offering a draft use case is draft.</summary>
+    /// <proves>litespec/core/model#hold-approval-behind-draft-decisions</proves>
+    [Fact]
+    public void Draft_Use_Case_Makes_Screen_Draft()
+    {
+        IReadOnlyList<IRecordFacts> records = new IRecordFacts[]
+        {
+            new FakeRecord("entry-point", "entry-point/claimwick-app", "reviewed"),
+            new FakeRecord("use-case", "use-case/spending.list-expenses", "draft"),
+            new FakeRecord("journey", "journey/submit-and-reimburse"),
+            new FakeRecord(
+                "screen",
+                "screen/claimwick-app.expense-list",
+                "reviewed",
+                lists: new Dictionary<string, IReadOnlyList<string>>
+                {
+                    ["entryPoint"] = new[] { "entry-point/claimwick-app" },
+                    ["offers"] = new[] { "use-case/spending.list-expenses" },
+                    ["serves"] = new[] { "journey/submit-and-reimburse#s1" },
+                }),
+        };
+
+        var effective = Authority.EffectiveStatus(records, _ => null);
+
+        Assert.Equal("draft", effective["screen/claimwick-app.expense-list"]);
+    }
+
+    /// <summary>A reviewed screen serving a draft journey is draft.</summary>
+    /// <proves>litespec/core/model#hold-approval-behind-draft-decisions</proves>
+    [Fact]
+    public void Draft_Journey_Makes_Screen_Draft()
+    {
+        IReadOnlyList<IRecordFacts> records = new IRecordFacts[]
+        {
+            new FakeRecord("entry-point", "entry-point/claimwick-app", "reviewed"),
+            new FakeRecord("use-case", "use-case/spending.list-expenses", "reviewed"),
+            new FakeRecord("journey", "journey/submit-and-reimburse", "draft"),
+            new FakeRecord(
+                "screen",
+                "screen/claimwick-app.expense-list",
+                "reviewed",
+                lists: new Dictionary<string, IReadOnlyList<string>>
+                {
+                    ["entryPoint"] = new[] { "entry-point/claimwick-app" },
+                    ["offers"] = new[] { "use-case/spending.list-expenses" },
+                    ["serves"] = new[] { "journey/submit-and-reimburse#s1" },
+                }),
+        };
+
+        var effective = Authority.EffectiveStatus(records, _ => null);
+
+        Assert.Equal("draft", effective["screen/claimwick-app.expense-list"]);
+    }
+
+    /// <summary>A reviewed screen on a draft entry point is draft.</summary>
+    /// <proves>litespec/core/model#hold-approval-behind-draft-decisions</proves>
+    [Fact]
+    public void Draft_Entry_Point_Makes_Screen_Draft()
+    {
+        IReadOnlyList<IRecordFacts> records = new IRecordFacts[]
+        {
+            new FakeRecord("entry-point", "entry-point/claimwick-app", "draft"),
+            new FakeRecord("use-case", "use-case/spending.list-expenses", "reviewed"),
+            new FakeRecord("journey", "journey/submit-and-reimburse"),
+            new FakeRecord(
+                "screen",
+                "screen/claimwick-app.expense-list",
+                "reviewed",
+                lists: new Dictionary<string, IReadOnlyList<string>>
+                {
+                    ["entryPoint"] = new[] { "entry-point/claimwick-app" },
+                    ["offers"] = new[] { "use-case/spending.list-expenses" },
+                    ["serves"] = new[] { "journey/submit-and-reimburse#s1" },
+                }),
+        };
+
+        var effective = Authority.EffectiveStatus(records, _ => null);
+
+        Assert.Equal("draft", effective["screen/claimwick-app.expense-list"]);
+    }
+
+    /// <summary>A reviewed screen with live parents stays reviewed.</summary>
+    /// <proves>litespec/core/model#hold-approval-behind-draft-decisions</proves>
+    [Fact]
+    public void Live_Parents_Keep_Screen_Live()
+    {
+        IReadOnlyList<IRecordFacts> records = new IRecordFacts[]
+        {
+            new FakeRecord("entry-point", "entry-point/claimwick-app", "reviewed"),
+            new FakeRecord("use-case", "use-case/spending.list-expenses", "reviewed"),
+            new FakeRecord("journey", "journey/submit-and-reimburse"),
+            new FakeRecord(
+                "screen",
+                "screen/claimwick-app.expense-list",
+                "reviewed",
+                lists: new Dictionary<string, IReadOnlyList<string>>
+                {
+                    ["entryPoint"] = new[] { "entry-point/claimwick-app" },
+                    ["offers"] = new[] { "use-case/spending.list-expenses" },
+                    ["serves"] = new[] { "journey/submit-and-reimburse#s1" },
+                }),
+        };
+
+        var effective = Authority.EffectiveStatus(records, _ => null);
+
+        Assert.Equal("reviewed", effective["screen/claimwick-app.expense-list"]);
+    }
 }

@@ -5,9 +5,10 @@ namespace LiteSpec.Model.Readers.Frontend;
 /// <summary>
 ///     Turns one frontend's facts into screens, mark elements and browser tests:
 ///     each route's calls map through the endpoints' <c>.WithName</c> operations
-///     to their use cases, an operation two endpoints map to different use cases
-///     is a <c>behavior-unrecorded</c> diagnostic, and an operation no endpoint
-///     names stays on the screen as the unmatched-call fact.
+///     to their use cases, keeping each operation paired with the use case it
+///     reaches, an operation two endpoints map to different use cases is a
+///     <c>behavior-unrecorded</c> diagnostic, and an operation no endpoint names
+///     stays on the screen as the unmatched-call fact.
 /// </summary>
 /// <follows>litespec/frontend/structure#mark-each-route-with-its-screen</follows>
 static class FrontendReadBuilder
@@ -44,6 +45,8 @@ static class FrontendReadBuilder
             var file = Absolute(frontend, route.File);
             var useCases = new SortedSet<string>(StringComparer.Ordinal);
             var operations = new SortedSet<string>(StringComparer.Ordinal);
+            var paired = new List<ScreenCall>();
+            var pairedSet = new HashSet<(string Operation, string UseCase)>();
 
             foreach (var call in route.Calls)
             {
@@ -68,6 +71,11 @@ static class FrontendReadBuilder
                 }
 
                 useCases.Add(mapped.Min!);
+
+                if (pairedSet.Add((call.Operation, mapped.Min!)))
+                {
+                    paired.Add(new ScreenCall(call.Operation, mapped.Min!));
+                }
             }
 
             screens.Add(new ScreenInfo(
@@ -78,7 +86,15 @@ static class FrontendReadBuilder
                 [.. useCases],
                 route.Marks.FirstOrDefault(),
                 facts.Reader,
-                route.Line));
+                route.Line)
+            {
+                Calls =
+                [
+                    .. paired
+                        .OrderBy(call => call.Operation, StringComparer.Ordinal)
+                        .ThenBy(call => call.UseCase, StringComparer.Ordinal),
+                ],
+            });
         }
 
         if (facts.Failure is { } failure)
