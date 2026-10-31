@@ -231,6 +231,28 @@ public sealed class BookLexiconTests
         Assert.Equal("Covers", lexicon.Fields["covers"]);
         Assert.Equal("Expires on", lexicon.Fields["expiresOn"]);
         Assert.Equal("Paths", lexicon.Fields["paths"]);
+        Assert.Equal("Applies because", lexicon.Fields["appliesBecause"]);
+        Assert.Equal("Refused because", lexicon.Fields["refusedBecause"]);
+        Assert.Equal("Questions", lexicon.Fields["questions"]);
+        Assert.Equal("On exhausted", lexicon.Fields["onExhausted"]);
+        Assert.Equal("Term", lexicon.Fields["term"]);
+        Assert.Equal("Aliases", lexicon.Fields["aliases"]);
+        Assert.Equal("Rejected", lexicon.Fields["rejected"]);
+        Assert.Equal("Failure", lexicon.Fields["failure"]);
+        Assert.Equal("Cache control", lexicon.Fields["cacheControl"]);
+        Assert.Equal("Address", lexicon.Fields["address"]);
+        Assert.Equal("Entry point", lexicon.Fields["entryPoint"]);
+        Assert.Equal("Floorplan", lexicon.Fields["floorplan"]);
+        Assert.Equal("Offers", lexicon.Fields["offers"]);
+        Assert.Equal("Implements", lexicon.Fields["implements"]);
+        Assert.Equal("Timeout", lexicon.Fields["timeout"]);
+        Assert.Equal("On timeout", lexicon.Fields["onTimeout"]);
+        Assert.Equal("Name", lexicon.Fields["name"]);
+        Assert.Equal("Label", lexicon.Fields["label"]);
+        Assert.Equal("Classification", lexicon.Fields["classification"]);
+        Assert.Equal("Effective from", lexicon.Fields["effectiveFrom"]);
+        Assert.Equal("Compensation", lexicon.Fields["compensation"]);
+        Assert.Equal("Restart", lexicon.Fields["restart"]);
 
         Assert.False(lexicon.Fields.ContainsKey("by"));
         Assert.False(lexicon.Fields.ContainsKey("state"));

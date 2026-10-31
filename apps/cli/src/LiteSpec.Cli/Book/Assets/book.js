@@ -267,8 +267,8 @@ function buildLexiconCaches() {
   EXPLAIN = {
     draft: ["Draft", SX.statuses, lexSectionSource("Statuses", "model.md, Statuses")], approved: ["Approved", SX.statuses, lexSectionSource("Statuses", "model.md, Statuses")], reviewed: ["Reviewed", SX.statuses, lexSectionSource("Statuses", "model.md, Statuses")], retired: ["Retired", SX.statuses, lexSectionSource("Statuses", "model.md, Statuses")],
     inherited: ["Effective status", GL["effective status"], "Glossary"], tier1: ["Risk tiers", SX.riskTiers, lexSectionSource("Risk Tiers", "model.md, Risk Tiers")], transcribed: ["Transcription", GL.transcription, "Glossary"],
-    awaiting: ["Verified", GL.verified, "Glossary"], unconfirmed: ["Verified", GL.verified, "Glossary"], unproved: ["Verified", GL.verified, "Glossary"], passing: ["Verified", GL.verified, "Glossary"], failing: ["Verified", GL.verified, "Glossary"], stale: ["Stale", GL.stale, "Glossary"], indirect: ["Verified", GL.verified, "Glossary"],
-    norun: ["Verified", GL.verified, "Glossary"], settled: ["Statuses", SX.statuses, lexSectionSource("Statuses", "model.md, Statuses")], implemented: ["Implemented", GL.implemented, "Glossary"], reachable: ["Reachable", GL.reachable, "Glossary"],
+    awaiting: ["Statuses", SX.statuses, lexSectionSource("Statuses", "model.md, Statuses")], unconfirmed: ["Statuses", SX.statuses, lexSectionSource("Statuses", "model.md, Statuses")], unproved: ["Statuses", SX.statuses, lexSectionSource("Statuses", "model.md, Statuses")], passing: ["Statuses", SX.statuses, lexSectionSource("Statuses", "model.md, Statuses")], failing: ["Statuses", SX.statuses, lexSectionSource("Statuses", "model.md, Statuses")], stale: ["Stale", GL.stale, "Glossary"], indirect: ["Statuses", SX.statuses, lexSectionSource("Statuses", "model.md, Statuses")],
+    norun: ["Statuses", SX.statuses, lexSectionSource("Statuses", "model.md, Statuses")], settled: ["Statuses", SX.statuses, lexSectionSource("Statuses", "model.md, Statuses")], implemented: ["Implemented", GL.implemented, "Glossary"], reachable: ["Reachable", GL.reachable, "Glossary"],
     G: ["Check level", SX.checkLevels, lexSectionSource("Check Levels", "model.md, Check Levels")], S: ["Check level", SX.checkLevels, lexSectionSource("Check Levels", "model.md, Check Levels")], A: ["Check level", SX.checkLevels, lexSectionSource("Check Levels", "model.md, Check Levels")],
     known: ["Exception", GL.exception, "Glossary"], batch: ["Batch review", SX.batch, "release.md, Batch Review"], finding: ["Finding", GL.finding, "Glossary"], ballot: ["Ballot", GL.ballot, "Glossary"]
   };
@@ -357,7 +357,7 @@ function human(id) {
   if (n && n.status) return n.status === "draft" ? "draft" : n.status === "retired" ? "retired" : n.status === "reviewed" ? "reviewed" : "approved";
   return "approved";
 }
-var HLABEL = { approved: "approved", reviewed: "reviewed", mine: "approved by you", mineR: "reviewed by you", draft: "draft", inherited: "effective status: draft", question: "question asked", changes: "changes requested", retired: "retired" };
+var HLABEL = { approved: "approved", reviewed: "reviewed", mine: "approved", mineR: "reviewed", draft: "draft", inherited: "effective status: draft", question: "question", changes: "draft", retired: "retired" };
 var HICON = { approved: "approved", reviewed: "approved", mine: "approved", mineR: "approved", draft: "draft", inherited: "inherited", question: "question", changes: "changes", retired: "retired" };
 function needs(id) { if (!isReal(id)) return false; var h = human(id); return !(h === "approved" || h === "reviewed" || h === "mine" || h === "mineR" || h === "retired"); }
 function tierOf(id) { var r = REC[base(id)], risk = (r && r.fields ? r.fields.risk : null) || []; return risk.length ? 1 : 3; }
@@ -375,7 +375,7 @@ function proofState(id) {
   if (r.type === "requirement" && r.machine) return r.machine.met ? "passing" : "awaiting";
   return null;
 }
-var PLABEL = { passing: "passing", failing: "failing", awaiting: "test written, not run", unconfirmed: "test not traced", unproved: "no test", stale: "stale", indirect: "proved indirectly" };
+var PLABEL = { passing: "passing", failing: "failing", awaiting: "awaiting", unconfirmed: "unconfirmed", unproved: "unproved", stale: "stale", indirect: "indirect", norun: "norun" };
 function pmark(state, text) { if (!state) return ""; return '<span class="pm pm-' + state + '" data-explain="' + state + '" tabindex="0">' + ic(state, "icon-sm") + esc(text || PLABEL[state]) + "</span>"; }
 function days(d) { var x = new Date(d + "T00:00:00Z"); return isNaN(x) ? null : Math.round((x - TODAY) / 86400000); }
 function addDays(d, n) { var x = new Date(d + "T00:00:00Z"); x.setUTCDate(x.getUTCDate() + n); return x.toISOString().slice(0, 10); }
@@ -403,16 +403,16 @@ function xp(key, html, cls) { return '<button type="button" class="xbtn ' + (cls
 // ---------- facets ----------
 var STATUS_KEYS = ["draft", "inherited", "approved", "reviewed", "retired", "mine", "changes", "question"];
 var FACETS = [
-  { key: "layer", label: "Layer", get: function (id) { return layerOf[id] ? [layerOf[id]] : []; }, name: function (v) { return (layerByKey[v] || {}).label || v; } },
+  { key: "layer", label: "Record layer", get: function (id) { return layerOf[id] ? [layerOf[id]] : []; }, name: function (v) { return (layerByKey[v] || {}).label || v; } },
   { key: "type", label: "Type", get: function (id) { return [typeOf(id)]; }, name: function (v) { return typeName(v); } },
-  { key: "status", label: "status", get: function (id) { var h = human(id); return [h === "mineR" ? "mine" : h]; }, name: function (v) { return HLABEL[v]; } },
-  { key: "tier", label: "risk", get: function (id) { var r = REC[base(id)]; if (!r) return []; var risk = (r.fields || {}).risk || []; return risk.length ? risk.map(function (x) { return "risk:" + x; }).concat(["tier1"]) : ["tier3"]; }, name: function (v) { return v === "tier1" ? "Tier 1" : v === "tier3" ? "Tier 3" : cap(v.slice(5).replace("-", " ")); } },
-  { key: "questions", label: "questions", get: function (id) { return openQs(id).length ? ["open"] : []; }, name: function () { return "Has open questions"; } },
+  { key: "status", label: "Status", get: function (id) { var h = human(id); return [h === "mineR" ? "mine" : h]; }, name: function (v) { return HLABEL[v]; } },
+  { key: "tier", label: "Risk", get: function (id) { var r = REC[base(id)]; if (!r) return []; var risk = (r.fields || {}).risk || []; return risk.length ? risk.map(function (x) { return "risk:" + x; }).concat(["tier1"]) : ["tier3"]; }, name: function (v) { return v === "tier1" ? "Tier 1" : v === "tier3" ? "Tier 3" : cap(v.slice(5).replace("-", " ")); } },
+  { key: "questions", label: "Questions", get: function (id) { return openQs(id).length ? ["open"] : []; }, name: function () { return "Question"; } },
   { key: "findings", label: "Findings", get: function (id) { var r = REC[base(id)]; if (!r) return []; var f = r.findings || []; return f.length ? (f.some(function (x) { return !x.known; }) ? ["finding"] : ["known"]) : []; }, name: function (v) { return v === "finding" ? "Finding" : "Excepted"; } },
-  { key: "proof", label: "proves", get: function (id) { var p = proofState(id); return p ? [p] : []; }, name: function (v) { return PLABEL[v]; } },
-  { key: "due", label: "decideBy", get: function (id) { var d = dueOf(id); if (!d) return []; var n = days(d); return [n < 0 ? "over" : n <= 7 ? "week" : n <= 31 ? "month" : "later"]; }, name: function (v) { return { over: "Overdue", week: "Within 7 days", month: "Within a month", later: "Later" }[v]; } },
-  { key: "decider", label: "decider", get: function (id) { var r = REC[base(id)]; return r && r.decider ? [r.decider] : []; }, name: function (v) { return v; } },
-  { key: "provenance", label: "provenance", get: function (id) { var r = REC[base(id)]; if (!r) return []; return (r.fields || {}).provenance === "transcribed" ? ["transcribed"] : ["written"]; }, name: function (v) { return v === "transcribed" ? "transcribed" : "written"; } }
+  { key: "proof", label: "Proof", get: function (id) { var p = proofState(id); return p ? [p] : []; }, name: function (v) { return PLABEL[v]; } },
+  { key: "due", label: "Decide by", get: function (id) { var d = dueOf(id); if (!d) return []; var n = days(d); return [n < 0 ? "over" : n <= 7 ? "week" : n <= 31 ? "month" : "later"]; }, name: function (v) { return { over: "Overdue", week: "Within 7 days", month: "Within a month", later: "Later" }[v]; } },
+  { key: "decider", label: "Decider", get: function (id) { var r = REC[base(id)]; return r && r.decider ? [r.decider] : []; }, name: function (v) { return v; } },
+  { key: "provenance", label: "Provenance", get: function (id) { var r = REC[base(id)]; if (!r) return []; return (r.fields || {}).provenance === "transcribed" ? ["transcribed"] : []; }, name: function () { return "Transcription"; } }
 ];
 var active = {};
 function passes(id, skip) {
@@ -447,12 +447,12 @@ var SORTS = {
   outline: { label: "Outline order", cmp: function (a, b) { return (orderIdx[a] || 0) - (orderIdx[b] || 0); } },
   title: { label: "Title", cmp: function (a, b) { return title(a).localeCompare(title(b)); } },
   due: { label: "Decide by, soonest", cmp: function (a, b) { var x = dueOf(a) || "9999", y = dueOf(b) || "9999"; return x < y ? -1 : x > y ? 1 : (orderIdx[a] || 0) - (orderIdx[b] || 0); } },
-  tier: { label: "Risk tier first", cmp: function (a, b) { return tierOf(a) - tierOf(b) || (orderIdx[a] || 0) - (orderIdx[b] || 0); } },
+  tier: { label: "Risk Tier first", cmp: function (a, b) { return tierOf(a) - tierOf(b) || (orderIdx[a] || 0) - (orderIdx[b] || 0); } },
   questions: { label: "Most open questions", cmp: function (a, b) { return openQs(b).length - openQs(a).length || (orderIdx[a] || 0) - (orderIdx[b] || 0); } },
   proof: { label: "Proof, failing first", cmp: function (a, b) { var o = { failing: 0, unconfirmed: 1, unproved: 2, awaiting: 3, passing: 4, indirect: 4 }; var x = o[proofState(a)], y = o[proofState(b)]; x = x === undefined ? 5 : x; y = y === undefined ? 5 : y; return x - y || (orderIdx[a] || 0) - (orderIdx[b] || 0); } },
   status: { label: "Review status", cmp: function (a, b) { return STATUS_KEYS.indexOf(human(a)) - STATUS_KEYS.indexOf(human(b)) || (orderIdx[a] || 0) - (orderIdx[b] || 0); } }
 };
-var GROUPS = { none: "No grouping", type: "Type", layer: "Layer", status: "Review status", decider: "Decider", tier: "Risk tier" };
+var GROUPS = { none: "No grouping", type: "Type", layer: "Record layer", status: "Review status", decider: "Decider", tier: "Risk Tier" };
 function groupVal(id) {
   if (groupKey === "type") return [typeOf(id), PLURAL[typeOf(id)] || typeOf(id)];
   if (groupKey === "layer") return [layerOf[id], (layerByKey[layerOf[id]] || {}).label || layerOf[id]];
@@ -597,7 +597,7 @@ function securityItems() {
 function securityHtml() {
   if (!queueLoaded) return '<p class="relnote">Loading the security items.</p>';
   var all = securityItems().filter(function (x) { return passes(x.id); });
-  var G = [["cross", "Cross-tenant access", "Use cases that act outside the caller's own tenant."], ["calls", "Outside calls", "Every call that leaves the system for an external system."], ["data", "Personal and sensitive data", "Data classes that hold personal or sensitive fields, with their erasure position."]];
+  var G = [["cross", "Access", "Use cases that act outside the caller's own tenant."], ["calls", "Calls", "Every call that leaves the system for an external system."], ["data", "Data classes", "Data classes that hold personal or sensitive fields, with their erasure position."]];
   return '<p class="relnote">For the security reviewer, ' + esc(securityReviewer()) + ". Security review stands apart from reviewed status.</p>" + G.map(function (g) {
     var list = all.filter(function (x) { return x.kind === g[0]; }); if (!list.length) return "";
     return '<div class="secq-h">' + ic(g[0] === "cross" ? "shield" : g[0] === "calls" ? "ext" : "lock", "icon-sm") + "<span>" + g[1] + '</span><span class="n">' + list.length + "</span></div><p>" + g[2] + "</p>" + list.map(function (x) {
@@ -681,7 +681,7 @@ function chipsHtml() {
   if (s) s += '<button type="button" class="chip clear" data-clear>Clear all</button>';
   return s;
 }
-var LEGEND = '<div class="legend"><span><i class="st s-draft">' + ic("draft", "icon-sm") + "</i>Draft</span><span><i class=\"st s-approved\">" + ic("approved", "icon-sm") + "</i>Approved or reviewed</span><span><i class=\"st s-inherited\">" + ic("inherited", "icon-sm") + "</i>Held by a draft</span><span><i class=\"lackd\">" + ic("missing", "icon-sm") + "</i>No code or no test</span></div>";
+var LEGEND = '<div class="legend"><span><i class="st s-draft">' + ic("draft", "icon-sm") + "</i>Draft</span><span><i class=\"st s-approved\">" + ic("approved", "icon-sm") + "</i>Approved or reviewed</span><span><i class=\"st s-inherited\">" + ic("inherited", "icon-sm") + "</i>Held by a draft</span><span><i class=\"lackd\">" + ic("missing", "icon-sm") + "</i>Not implemented or not tested</span></div>";
 function shownHtml() {
   if (view === "ballots") { var b = ballotItems(), o = b.filter(function (x) { return !answered[x.id + "#" + x.i]; }); return "<b>" + o.length + "</b> open of " + b.length + " questions, tier 1 first"; }
   if (view === "outline") return shownOutline() + LEGEND;
@@ -828,7 +828,7 @@ function refusalOf(ruleId) {
 }
 function resultCards(list) {
   if (!list || !list.length) return "";
-  return '<div class="resgrid">' + list.map(function (x) { var ok = x.outcome === "success"; return '<div class="res ' + (ok ? "ok" : "no") + '"><div class="rt">' + ic(ok ? "passing" : "x", "icon-sm") + (x.id && (REC[x.id] || NODE[x.id]) ? '<button type="button" class="iref" data-go="' + esc(x.id) + '">' + esc(x.title) + "</button>" : "<span>" + esc(x.title) + "</span>") + (x.kind === "generic" ? " " + badge("generic refusal") : "") + "</div><p>" + esc(x.meaning) + "</p>" + (x.code ? '<div class="rc"><span class="code">' + esc(x.code) + "</span></div>" : "") + "</div>"; }).join("") + "</div>";
+  return '<div class="resgrid">' + list.map(function (x) { var ok = x.outcome === "success"; return '<div class="res ' + (ok ? "ok" : "no") + '"><div class="rt">' + ic(ok ? "passing" : "x", "icon-sm") + (x.id && (REC[x.id] || NODE[x.id]) ? '<button type="button" class="iref" data-go="' + esc(x.id) + '">' + esc(x.title) + "</button>" : "<span>" + esc(x.title) + "</span>") + (x.kind === "generic" ? " " + badge("Generic refusal") : "") + "</div><p>" + esc(x.meaning) + "</p>" + (x.code ? '<div class="rc"><span class="code">' + esc(x.code) + "</span></div>" : "") + "</div>"; }).join("") + "</div>";
 }
 function scenarioCard(sid, open) {
   var s = REC[base(sid)]; if (!s) return "";
@@ -851,7 +851,7 @@ function effectsBlock(f) {
   return blk("eff", "effects", '<div class="effects">' + list.map(function (e) {
     var k = Object.keys(VERB).filter(function (x) { return e[x]; })[0]; if (!k) return "";
     var tgt = e[k], op = String(tgt).split("#")[1];
-    var cond = [e.forEach ? "For " + e.forEach : "", e.onFailure ? edgeFailureText(e.onFailure) : "", e.sharesTransaction !== undefined ? (String(e.sharesTransaction) === "true" ? "In the same transaction" : "In its own transaction") : ""].filter(Boolean).join(" &middot; ");
+    var cond = [e.forEach ? "For each " + e.forEach : "", e.onFailure ? edgeFailureText(e.onFailure) : "", e.sharesTransaction !== undefined ? (String(e.sharesTransaction) === "true" ? "In the same transaction" : "In its own transaction") : ""].filter(Boolean).join(" &middot; ");
     return '<div class="eff' + (k === "calls" ? " calls" : "") + '"><span class="verb">' + ic(VERB[k][1], "icon-sm") + VERB[k][0] + "</span><span>" + inlineRef(tgt) + (op ? ' <span class="tn" style="font-family:var(--sans)">' + esc(op.replace(/-/g, " ")) + "</span>" : "") + (cond ? '<span class="cond">' + cond + "</span>" : "") + "</span>" + (e.timing ? badge(cap(e.timing), e.timing === "inline" ? "info" : "") : "") + "</div>";
   }).join("") + "</div>", list.length);
 }
@@ -937,7 +937,7 @@ function triggeredByHtml(t) {
 function typedFieldHtml(x) {
   var bits = [];
   if (x.type) bits.push('<span class="code">' + esc(x.type) + "</span>");
-  if (x.required) bits.push(badge("required"));
+  if (x.required) bits.push(badge("Required"));
   if (x.of) bits.push(Array.isArray(x.of) ? esc(x.of.join(", ")) : inlineRef(x.of));
   return bits.join(" ");
 }
@@ -966,14 +966,14 @@ function travHtml(id) {
 }
 // Every page opens with the same facts, in the same order and the same shape.
 function factKey(text) {
-  if (/^(test written, not run|test not traced|no test|passing|failing|stale|proved indirectly)$/i.test(text)) return "Proof";
-  if (/steps served$/.test(text)) return "Steps served";
+  if (/^(awaiting|unconfirmed|unproved|passing|failing|stale|indirect|norun)$/i.test(text)) return "Proof";
+  if (/steps served$/.test(text)) return "Serves";
   if (/^(implemented|not implemented)$/.test(text)) return "Implemented";
   if (/^outcome: /.test(text)) return "Outcome";
   if (/^Expires |^Expired /.test(text)) return "Expires";
   if (/state(s)? never reached|Every state is reached/.test(text)) return "States";
   if (/^applies: /.test(text)) return "Applies";
-  if (/^Tier [GSA]$/.test(text)) return "Check level";
+  if (/^Level [GSA]$/.test(text)) return "Check level";
   if (/^(Arrives from outside|Leaves the system)$/.test(text)) return "Direction";
   if (/^Met|^Not yet met/.test(text)) return "Met";
   if (/^Tested|^Not yet tested/.test(text)) return "Tested";
@@ -988,12 +988,12 @@ function metaRow(id, extra) {
     var why = r.status === "draft" ? "Waiting for " + esc(r.decider || "a decider") + (r.decideBy ? " to decide by " + fmtDate(r.decideBy) : "") + (openQs(id).length ? ", with " + plural(openQs(id).length, "open question") : "")
       : r.effective === "draft" ? "Counts as draft while " + ((r.heldBy || []).length ? r.heldBy.map(inlineRef).join(", ") + ((r.heldBy || []).length === 1 ? " is" : " are") + " draft" : "a record above it is draft")
       : r.status === "retired" ? "Replaced" : (f.approvedBy ? (isBeh(id) ? "Reviewed by " : "Approved by ") + esc(f.approvedBy) + (f.approvedOn ? " on " + fmtDate(f.approvedOn) : "") : "Settled");
-    add("Status reason", why);
+    add("Reason", why);
   }
   if (r.owner) add("Owner", esc(r.owner));
-  if (isReal(id)) add("Risk tier", (f.risk || []).length ? "Tier 1: " + esc(f.risk.join(", ").replace(/-/g, " ")) : "Tier 3", "tier1");
+  if (isReal(id)) add("Risk Tier", (f.risk || []).length ? "Tier 1: " + esc(f.risk.join(", ").replace(/-/g, " ")) : "Tier 3", "tier1");
   var bo = batchOf(id);
-  if (bo) add("Approval batch", esc(batchName(bo.batch)) + ' <span class="tn">(' + plural(bo.batch.n || 0, "record") + ")</span>", "batch");
+  if (bo) add("Approval", esc(batchName(bo.batch)) + ' <span class="tn">(' + plural(bo.batch.n || 0, "record") + ")</span>", "batch");
   if (f.provenance === "transcribed") add("Provenance", "Transcribed from code", "transcribed");
   (extra || []).forEach(function (x) { if (!x) return; var tmp = document.createElement("div"); tmp.innerHTML = x; var text = tmp.textContent.trim(); if (!text) return; var ex = (tmp.querySelector("[data-explain]") || {}).getAttribute ? tmp.querySelector("[data-explain]").getAttribute("data-explain") : ""; var key = factKey(text); text = text.replace(new RegExp("^" + key + "\\s*:?\\s*", "i"), "").replace(/^[a-z]+:\s*/i, function (m) { return /^(outcome|applies|kind):/i.test(m) ? "" : m; }).replace(/ steps served$/, ""); if (text === "true") text = "Yes"; if (text === "false") text = "No"; add(key, esc(cap(text)), ex); });
   return facts.length ? '<dl class="facts">' + facts.join("") + "</dl>" : "";
@@ -1014,11 +1014,12 @@ function findingsBlock(id) {
   var f = (REC[base(id)] || {}).findings || []; if (!f.length) return "";
   var TL = { G: ["Blocks a release", "bad"], S: ["Blocks once approved", "warn"], A: ["Advice", ""] };
   return blk("checks", "Findings", '<div class="finds">' + f.map(function (x) { var tl = x.known ? ["Excepted", "info"] : TL[x.tier] || ["", ""]; return '<div class="find' + (x.known ? " known" : "") + '">' + ic(x.known ? "exception" : "alert", "icon-sm") + '<div><div class="fp">' + esc(findingMeaning(x.code)) + "</div>" + '<div class="fm">' + inline(String(x.message || "").replace(/'([a-z-]+\/[^']+)'/g, "`$1`")) + "</div>" + '<div class="fx"><span class="fc">' + esc(x.code) + "</span>" + (x.path ? '<span class="code">' + esc(x.path) + (x.line ? ":" + x.line : "") + "</span>" : "") + "</div></div>" + xp(x.known ? "known" : x.tier, badge(tl[0], tl[1])) + "</div>"; }).join("") + "</div>", f.length, "what the checks found on this record");
+
 }
 function kidsStrip(id) {
   var k = kidsOf[id] || []; if (k.length < 2 || k.length > 60) return "";
   var types = uniq(k.map(typeOf));
-  return '<div class="kids-strip"><span class="lab">Contains</span>' + types.map(function (t) { var n = k.filter(function (x) { return typeOf(x) === t; }); return '<button type="button" class="tbtn" data-go="' + esc(n[0]) + '">' + ic(t, "icon-sm") + n.length + " " + esc((n.length === 1 ? TYPE[t] : PLURAL[t] || t).toLowerCase()) + "</button>"; }).join("") + "</div>";
+  return '<div class="kids-strip">' + types.map(function (t) { var n = k.filter(function (x) { return typeOf(x) === t; }); return '<button type="button" class="tbtn" data-go="' + esc(n[0]) + '">' + ic(t, "icon-sm") + n.length + " " + esc((n.length === 1 ? TYPE[t] : PLURAL[t] || t).toLowerCase()) + "</button>"; }).join("") + "</div>";
 }
 
 // ---------- per-type detail ----------
@@ -1032,7 +1033,7 @@ var DETAIL = {
     var f = r.fields || {}, ful = uniq(ins(id, "fulfills")), ver = ful.filter(function (x) { return proofState(x) === "passing"; }).length;
     var testRun = (MAN || {}).testRun || {};
     var cov = ful.length ? '<div class="tiles">' + tile("fulfills", ful.length, uniq(ful.map(typeOf)).map(function (t) { return ful.filter(function (x) { return typeOf(x) === t; }).length + " " + (PLURAL[t] || t).toLowerCase(); }).join(", "), true) + (testRun.date ? tile("met", ver + " of " + ful.length, '<span class="meter" style="display:flex"><i style="width:' + Math.round(ver / ful.length * 100) + '%;background:var(--conv-fg)"></i></span>', true) : tile("met", xp("norun", "Not known yet"), "no test run is in the model", true)) + "</div>" : callout("bad", "alert", "Nothing in Behavior fulfills this requirement yet.");
-    var exc = (f.except || []).length ? (f.except.map(function (x) { var fb = base(x.fallback), fx = REC[fb]; return '<div class="reqline"><div class="t">' + ic("alert", "icon-sm") + "Except when " + esc(x.condition) + '</div><p>Then the fallback holds: ' + inlineRef(x.fallback) + (fx ? ", " + esc(fx.fields.statement || "") : "") + "</p></div>"; }).join("")) : "";
+    var exc = (f.except || []).length ? (f.except.map(function (x) { var fb = base(x.fallback), fx = REC[fb]; return '<div class="reqline"><div class="t">' + ic("alert", "icon-sm") + "Except " + esc(x.condition) + '</div><p>Then the fallback holds: ' + inlineRef(x.fallback) + (fx ? ", " + esc(fx.fields.statement || "") : "") + "</p></div>"; }).join("")) : "";
     var meas = f.measure ? '<div class="tiles">' + tile("Measure", esc(f.measure)) + (f.target ? tile("target", esc(f.target), "", true) : "") + (f.dueBy ? tile("dueBy", fmtDate(f.dueBy), dateHint(f.dueBy)) : "") + "</div>" + kv([["Check", f.check ? esc(f.check) : ""], ["Runs on", f.runsOn ? esc(f.runsOn) : ""], ["Evidence", f.evidence ? esc(f.evidence) : ""]]) : "";
     var vals = (f.values || []).length ? table(["Value", "Effective from"], f.values.map(function (v) { return [td(esc(v.value)), td(fmtDate(v.effectiveFrom) + " &middot; " + dateHint(v.effectiveFrom), "mut")]; })) : "";
     return metaRow(id, [badge(f.kind, "info"), machineChip(r.machine && r.machine.met ? "passing" : "awaiting", r.machine && r.machine.met ? "Met" : "Not yet met"), testedChip(r)]) + lead(f.statement) + "" +
@@ -1040,8 +1041,8 @@ var DETAIL = {
   },
   decision: function (id, r) {
     var f = r.fields || {}, choice = f.choice;
-    var head = choice ? callout("info", "passing", "<b>Chosen:</b> " + esc(choice) + (f.approvedOn ? " on " + fmtDate(f.approvedOn) : "")) : callout("warn", "clock", "<b>Not decided yet.</b> " + esc(r.decider || "The decider") + (r.decideBy ? " decides by " + fmtDate(r.decideBy) + " (" + dateHint(r.decideBy) + ")." : "."));
-    var opts = '<div class="opts">' + (f.options || []).map(function (o) { var c = choice && o.name === choice; return '<div class="opt' + (c ? " chosen" : "") + '"><h3>' + esc(o.name) + (c ? " " + badge("Chosen", "good") : "") + '</h3><div class="pc"><span class="plus">' + ic("plus", "icon-sm") + "</span><span>" + esc(o.pros) + '</span><span class="minus">' + ic("minus", "icon-sm") + "</span><span>" + esc(o.cons) + "</span></div></div>"; }).join("") + "</div>";
+    var head = choice ? callout("info", "passing", "<b>Choice:</b> " + esc(choice) + (f.approvedOn ? " on " + fmtDate(f.approvedOn) : "")) : callout("warn", "clock", "<b>Not decided yet.</b> " + esc(r.decider || "The decider") + (r.decideBy ? " decides by " + fmtDate(r.decideBy) + " (" + dateHint(r.decideBy) + ")." : "."));
+    var opts = '<div class="opts">' + (f.options || []).map(function (o) { var c = choice && o.name === choice; return '<div class="opt' + (c ? " chosen" : "") + '"><h3>' + esc(o.name) + (c ? " " + badge("Choice", "good") : "") + '</h3><div class="pc"><span class="plus">' + ic("plus", "icon-sm") + "</span><span>" + esc(o.pros) + '</span><span class="minus">' + ic("minus", "icon-sm") + "</span><span>" + esc(o.cons) + "</span></div></div>"; }).join("") + "</div>";
     return metaRow(id, [testedChip(r)]) + head + blk("opts", "options", opts, (f.options || []).length) + (f.reopenedWhen ? blk("rev", "reopenedWhen", callout("quiet", "clock", esc(f.reopenedWhen))) : "") + blk("dec", "decides", refs(f.decides), (f.decides || []).length) + blk("basis", "basedOn", refs(f.basedOn)) + (f.replaces ? blk("rep", "replaces", refs([f.replaces])) : "");
   },
   constraint: function (id, r) { var f = r.fields || {}; return metaRow(id, [badge(f.kind, "info"), badge("applies: " + !!f.applies, f.applies ? "warn" : "")]) + leadHtml(secHtml(r, "Summary")) + blk("src", "authority", callout("quiet", "quote", esc(f.authority))) + ""; },
@@ -1052,16 +1053,16 @@ var DETAIL = {
     var stepsH = steps.map(function (s, i) {
       var who = s.actor ? title(s.actor) : "", ini = who.split(/\s+/).map(function (w) { return w[0]; }).join("").slice(0, 2).toUpperCase();
       var by = srv[s.id] || [], scr = (r.stepScreens || {})[s.id] || [], sys = /(automation)$/.test(s.actor || "");
-      return '<div class="chapter-step"><span class="num">' + (i + 1) + '</span><div><div class="statement">' + esc(s.statement) + "</div>" + (who ? '<div class="who"><span class="avatar">' + esc(ini) + "</span>" + inlineRef(s.actor) + "</div>" : "") + (s.failure ? '<div class="wrong">' + ic("alert", "icon-sm") + "<span><b>If it goes wrong</b> " + esc(s.failure) + "</span></div>" : "") + '<div class="srv">' + (by.length ? by.map(serverLine).join("") : '<span class="unserved">' + ic("alert", "icon-sm") + "Nothing serves this step yet</span>") + (scr.length ? '<div class="stepscr">' + ic("screen", "icon-sm") + "<span>screen: " + scr.map(inlineRef).join(", ") + "</span></div>" : sys || !by.length ? "" : '<div class="stepscr none">' + ic("alert", "icon-sm") + "<span>No screen carries this step</span></div>") + "</div></div></div>";
+      return '<div class="chapter-step"><span class="num">' + (i + 1) + '</span><div><div class="statement">' + esc(s.statement) + "</div>" + (who ? '<div class="who"><span class="avatar">' + esc(ini) + "</span>" + inlineRef(s.actor) + "</div>" : "") + (s.failure ? '<div class="wrong">' + ic("alert", "icon-sm") + "<span><b>Failure</b> " + esc(s.failure) + "</span></div>" : "") + '<div class="srv">' + (by.length ? by.map(serverLine).join("") : '<span class="unserved">' + ic("alert", "icon-sm") + "Nothing serves this step yet</span>") + (scr.length ? '<div class="stepscr">' + ic("screen", "icon-sm") + "<span>screen: " + scr.map(inlineRef).join(", ") + "</span></div>" : sys || !by.length ? "" : '<div class="stepscr none">' + ic("alert", "icon-sm") + "<span>No screen carries this step</span></div>") + "</div></div></div>";
     }).join("");
-    var reqs = (f.cites || []).map(function (q) { var x = REC[base(q)]; return '<div class="reqline"><div class="t">' + ic("requirement", "icon-sm") + inlineRef(q) + "</div>" + (x ? "<p>" + esc(x.fields.statement || "") + "</p>" + (((x.fields || {}).except || []).length ? '<div class="exc">' + x.fields.except.map(function (e) { return "<b>Except when</b> " + esc(e.condition) + ", " + inlineRef(e.fallback); }).join("<br>") + "</div>" : "") : "") + "</div>"; }).join("");
+    var reqs = (f.cites || []).map(function (q) { var x = REC[base(q)]; return '<div class="reqline"><div class="t">' + ic("requirement", "icon-sm") + inlineRef(q) + "</div>" + (x ? "<p>" + esc(x.fields.statement || "") + "</p>" + (((x.fields || {}).except || []).length ? '<div class="exc">' + x.fields.except.map(function (e) { return "<b>Except</b> " + esc(e.condition) + ", " + inlineRef(e.fallback); }).join("<br>") + "</div>" : "") : "") + "</div>"; }).join("");
     return metaRow(id, ['<span class="mchip' + (served === steps.length ? " good" : " wait") + '">' + ic("journey", "icon-sm") + served + " of " + steps.length + " steps served</span>"]) + (f.finishedWhen ? '<div class="finished">' + ic("passing", "icon-sm") + "<div><b>Finished when</b> " + esc(f.finishedWhen) + "</div></div>" : "") +
       blk("actor", "actor", refs([f.actor])) + blk("steps", "steps", stepsH, steps.length) + blk("cites", "cites", reqs, (f.cites || []).length);
   },
   actor: function (id, r) { var f = r.fields || {}, h = f.holds || []; return metaRow(id, [badge(f.kind, "info")]) + leadHtml(secHtml(r, "Summary")) + blk("holds", "holds", h.length ? table(["Role", "Scope"], h.map(function (x) { return [td(inlineRef(x.role)), td(badge(cap(x.scope)))]; })) : callout("quiet", "info", "This actor holds no role."), h.length) + blk("walks", "Points at this: actor", refs(ins(id, "actor"))); },
   module: function (id, r) {
     var f = r.fields || {}, all = descByType(id, "aggregate", 6).concat(descByType(id, "use-case", 6), descByType(id, "rule", 6), descByType(id, "event", 6), descByType(id, "automation", 6), descByType(id, "notification", 6), descByType(id, "setting", 6)), cnt = function (t) { return all.filter(function (x) { return typeOf(x) === t; }).length; };
-    return metaRow(id) + lead(f.summary) + (all.length ? blk("size", "Contains", '<div class="tiles">' + ["aggregate", "use-case", "rule", "event", "automation", "notification", "setting"].map(function (t) { return cnt(t) ? tile(PLURAL[t], cnt(t), "", true) : ""; }).join("") + "</div>") : "") + blk("dep", "dependsOn", refs(f.dependsOn), (f.dependsOn || []).length);
+    return metaRow(id) + lead(f.summary) + (all.length ? blk("size", "Records", '<div class="tiles">' + ["aggregate", "use-case", "rule", "event", "automation", "notification", "setting"].map(function (t) { return cnt(t) ? tile(PLURAL[t], cnt(t), "", true) : ""; }).join("") + "</div>") : "") + blk("dep", "dependsOn", refs(f.dependsOn), (f.dependsOn || []).length);
   },
   aggregate: function (id, r) {
     var f = r.fields || {}, reach = r.reachable || [], tr = f.transitions || [], starts = {};
@@ -1069,9 +1070,9 @@ var DETAIL = {
     var states = (f.states || []).length ? '<div class="states">' + f.states.map(function (s) { var b = starts[s.name] ? badge("created as", "info") : reach.length && reach.indexOf(s.name) < 0 ? badge("not reachable", "bad") : ""; return '<div class="stc"><div class="n">' + esc(s.name) + b + "</div><p>" + esc(s.meaning) + "</p></div>"; }).join("") + "</div>" : "";
     var froms = []; tr.forEach(function (t) { if (froms.indexOf(t.from) < 0) froms.push(t.from); });
     var flow = tr.length ? '<div class="flow">' + froms.map(function (fr) { var tos = uniq(tr.filter(function (t) { return t.from === fr; }).map(function (t) { return t.to; })); return '<div class="flow-g"><div class="from' + (fr === "-" ? " start" : "") + '">' + (fr === "-" ? "Created as" : esc(fr)) + "</div><div>" + tos.map(function (to) { return '<div class="tr"><span class="arrow">' + ic("arrow", "icon-sm") + '</span><span class="to">' + esc(to) + '</span><span class="by">' + tr.filter(function (t) { return t.from === fr && t.to === to; }).map(function (t) { return t.by ? inlineRef(t.by) : '<span class="tn">no use case named</span>'; }).join("") + "</span></div>"; }).join("") + "</div></div>"; }).join("") + "</div>" : "";
-    var steps = (f.steps || []).length ? '<ol class="steps">' + f.steps.map(function (s) { var label = s.id || s.name || ""; return "<li><div><b>" + esc(cap(String(label).replace(/-/g, " "))) + "</b>" + (s.runs ? '<div class="who">Runs ' + inlineRef(s.runs) + "</div>" : "") + (s.guard ? '<div class="who">when ' + esc(s.guard) + "</div>" : "") + '<div class="who">Compensation: ' + compensationHtml(s.compensation) + "</div></div><span></span></li>"; }).join("") + "</ol>" + ((f.exits || []).length ? table(["Exit"], f.exits.map(function (x) { var name = typeof x === "string" ? x : (x.name || ""); return [td(esc(cap(String(name))), "nm")]; })) : "") : "";
-    var classes = (f.dataClasses || []).length ? table(["Class", "Fields", "Purpose", "On erasure"], f.dataClasses.map(function (c) { return [td("<b>" + esc(cap(c.name.replace(/-/g, " "))) + "</b><div style=\"margin-top:4px\">" + clsBadge(c.classification) + "</div>"), td('<div class="fieldchips">' + (c.fields || []).map(function (x) { return '<span class="code">' + esc(x) + "</span>"; }).join("") + "</div>"), td(esc(c.purpose || "")), td('<div class="erase"><b>' + esc(cap(c.onErasure)) + "</b>" + periodSuffix(c.period) + "</div>" + (c.basis || c.reason ? '<div class="tn" style="font-family:var(--sans);margin-top:3px">' + esc(c.basis || c.reason) + "</div>" : "") + (c.reviewBy ? '<div class="tn" style="font-family:var(--sans)">review by ' + fmtDate(c.reviewBy) + "</div>" : ""))]; })) : "";
-    var data = (f.data || []).length ? table(["Field", "Meaning", "Class"], f.data.map(function (d) { return [td(esc(d.name), "nm"), td(esc(d.meaning)), td(clsBadge(d.classification))]; })) : "";
+    var steps = (f.steps || []).length ? '<ol class="steps">' + f.steps.map(function (s) { var label = s.id || s.name || ""; return "<li><div><b>" + esc(cap(String(label).replace(/-/g, " "))) + "</b>" + (s.runs ? '<div class="who">Runs ' + inlineRef(s.runs) + "</div>" : "") + (s.guard ? '<div class="who">Guard ' + esc(s.guard) + "</div>" : "") + '<div class="who">Compensation: ' + compensationHtml(s.compensation) + "</div></div><span></span></li>"; }).join("") + "</ol>" + ((f.exits || []).length ? table(["Exit"], f.exits.map(function (x) { var name = typeof x === "string" ? x : (x.name || ""); return [td(esc(cap(String(name))), "nm")]; })) : "") : "";
+    var classes = (f.dataClasses || []).length ? table(["Data class", "Fields", "Purpose", "Erasure"], f.dataClasses.map(function (c) { return [td("<b>" + esc(cap(c.name.replace(/-/g, " "))) + "</b><div style=\"margin-top:4px\">" + clsBadge(c.classification) + "</div>"), td('<div class="fieldchips">' + (c.fields || []).map(function (x) { return '<span class="code">' + esc(x) + "</span>"; }).join("") + "</div>"), td(esc(c.purpose || "")), td('<div class="erase"><b>' + esc(cap(c.onErasure)) + "</b>" + periodSuffix(c.period) + "</div>" + (c.basis || c.reason ? '<div class="tn" style="font-family:var(--sans);margin-top:3px">' + esc(c.basis || c.reason) + "</div>" : "") + (c.reviewBy ? '<div class="tn" style="font-family:var(--sans)">review by ' + fmtDate(c.reviewBy) + "</div>" : ""))]; })) : "";
+    var data = (f.data || []).length ? table(["Name", "Meaning", "Classification"], f.data.map(function (d) { return [td(esc(d.name), "nm"), td(esc(d.meaning)), td(clsBadge(d.classification))]; })) : "";
     var rules = rulesOf(id).filter(function (x) { return REC[base(x)]; });
     var rl = rules.length ? table(["Rule", "Kind", "Refusal"], rules.map(function (x) { var q = REC[base(x)], rf = refusalOf(x); return [td(inlineRef(x) + '<div class="tn" style="font-family:var(--sans);font-size:13px;margin-top:2px">' + esc((q.fields || {}).statement) + "</div>"), td(badge(cap((q.fields || {}).kind))), td(rf.info && rf.info.code ? '<span class="code">' + esc(rf.info.code) + "</span>" : rf.id ? inlineRef(rf.id) : '<span class="tn">none</span>')]; })) : "";
     var evs = eventsOf(id);
@@ -1087,23 +1088,23 @@ var DETAIL = {
     return metaRow(id, [badge(f.kind, "info"), machineChip(r.proof ? r.proof.state : null)]) + lead(f.statement) +
       blk("ref", "refusal", rf.info ? resultCards([{ title: rf.info.title, outcome: "refusal", code: rf.info.code, meaning: rf.info.meaning }]) : rf.id ? refs([rf.id]) : callout("quiet", "info", "This rule names no refusal; it holds by construction.")) +
       blk("gov", "Governs", refs(f.governs), (f.governs || []).length) + blk("binds", "binds", refs(f.binds), (f.binds || []).length) + blk("ful", "Fulfills", refs(f.fulfills)) + blk("basis", "basedOn", refs(f.basedOn)) +
-      blk("more", "reads, releasedBy, frozenWhen", kv([["Reads", refs(f.reads)], ["Released by", releasedByHtml(f.releasedBy)], ["Frozen when", f.frozenWhen ? esc(f.frozenWhen) : ""]]));
+      blk("reads", "reads", refs(f.reads), (f.reads || []).length) + blk("released", "releasedBy", releasedByHtml(f.releasedBy)) + blk("frozen", "frozenWhen", f.frozenWhen ? esc(f.frozenWhen) : "");
   },
   event: function (id, r) { var f = r.fields || {}; return metaRow(id) + lead(f.meaning) + blk("carry", "carries", '<div class="fieldchips">' + (f.carries || []).map(function (c) { return '<span class="code">' + esc(c) + "</span>"; }).join("") + "</div>", (f.carries || []).length) + blk("by", "Points at this: raises", refs(ins(id, "raises"))) + blk("trig", "Points at this: triggeredBy.event", refs(ins(id, "triggeredBy.event"))) + blk("tr", "Points at this: translates", refs(ins(id, "translates"))); },
   "use-case": function (id, r) {
     var f = r.fields || {}, res = resultsOf(id).filter(function (x) { return REC[base(x)]; }).map(function (x) { var q = REC[base(x)], qf = q.fields || {}; return { id: x, title: q.title, outcome: qf.outcome, meaning: qf.meaning, code: qf.code, kind: /\.(forbidden|invalid-input)$/.test(x) ? "generic" : "" }; }), scs = scenariosOf(id).filter(function (s) { return REC[base(s)]; });
     var okR = res.filter(function (x) { return x.outcome === "success"; }), noR = res.filter(function (x) { return x.outcome !== "success"; });
-    var inputT = (f.input || []).length ? table(["Field", "Type", "Meaning", "Rules"], f.input.map(function (x) { return [td(esc(x.name) + (x.classification ? '<div style="margin-top:4px">' + clsBadge(x.classification) + "</div>" : ""), "nm"), td(typedFieldHtml(x)), td(esc(x.meaning) + (x.origin ? '<div class="tn" style="font-family:var(--sans);margin-top:3px">from ' + esc(x.origin) + "</div>" : "")), td(bullets(x.rules))]; })) : "";
+    var inputT = (f.input || []).length ? table(["Name", "Type", "Meaning", "Rules"], f.input.map(function (x) { return [td(esc(x.name) + (x.classification ? '<div style="margin-top:4px">' + clsBadge(x.classification) + "</div>" : ""), "nm"), td(typedFieldHtml(x)), td(esc(x.meaning) + (x.origin ? '<div class="tn" style="font-family:var(--sans);margin-top:3px">from ' + esc(x.origin) + "</div>" : "")), td(bullets(x.rules))]; })) : "";
     var out = "";
-    if (f.output && f.output.include) out = Object.keys(f.output.include).map(function (k) { var g = f.output.include[k]; return '<div class="sub">' + esc(cap(k)) + " " + clsBadge(g.classification || "internal") + (g.freshness ? ' <span class="tn" style="font-family:var(--sans)">' + freshnessNote(g) + "</span>" : "") + "</div>" + table(["Field", "Meaning"], (g.fields || []).map(function (x) { return [td(esc(x.name), "nm"), td(esc(x.meaning))]; })); }).join("");
-    else if (Array.isArray(f.output) && f.output.length) out = table(["Field", "Meaning"], f.output.map(function (x) { return [td(esc(x.name), "nm"), td(esc(x.meaning))]; }));
+    if (f.output && f.output.include) out = Object.keys(f.output.include).map(function (k) { var g = f.output.include[k]; return '<div class="sub">' + esc(cap(k)) + " " + clsBadge(g.classification || "internal") + (g.freshness ? ' <span class="tn" style="font-family:var(--sans)">' + freshnessNote(g) + "</span>" : "") + "</div>" + table(["Name", "Meaning"], (g.fields || []).map(function (x) { return [td(esc(x.name), "nm"), td(esc(x.meaning))]; })); }).join("");
+    else if (Array.isArray(f.output) && f.output.length) out = table(["Name", "Meaning"], f.output.map(function (x) { return [td(esc(x.name), "nm"), td(esc(x.meaning))]; }));
     var paging = pagingHtml(f.paging);
     var audit = f.audit ? (f.audit.exempt ? callout("quiet", "info", "<b>Not audited.</b> " + esc(f.audit.exempt)) : callout("info", "book", "<b>Audited</b> against " + esc(f.audit.target || "") + ". " + esc(f.audit.level || ""))) : "";
     var resH = (okR.length ? '<div class="sub">Outcome: Success</div>' + resultCards(okR) : "") + (noR.length ? '<div class="sub">Outcome: Refusal</div>' + resultCards(noR) : "");
     var ps = proofState(id);
     return metaRow(id, [badge(f.kind, "info"), machineChip(ps)]) + leadHtml(secHtml(r, "Goal")) + (f.summary && !secHtml(r, "Goal") ? lead(f.summary) : "") +
-      jump([["acc", "access", true], ["where", "offers", screensOf(id).length || (browserReached(r) ? true : 0)], ["built", "implements", (r.impl || []).length ? true : 0], ["data", "changes and reads", (f.changes || []).length + (f.reads || []).length], ["in", "input", (f.input || []).length], ["out", "output", out ? true : 0], ["eff", "effects", (f.effects || []).length], ["res", "Results", res.length], ["sc", "Scenarios", scs.length]]) +
-      accessBlock(id, f) + whereBlock(id, r) + builtBlock(r) + blk("data", "changes and reads", dataTouched(f)) + blk("guar", "idempotency", '<div class="tiles">' + idemBlock(f) + "</div>" + (audit ? '<div style="margin-top:10px">' + audit + "</div>" : "")) +
+      jump([["acc", "access", true], ["where", "offers", screensOf(id).length || (browserReached(r) ? true : 0)], ["built", "implements", (r.impl || []).length ? true : 0], ["data", "data", (f.changes || []).length + (f.reads || []).length], ["in", "input", (f.input || []).length], ["out", "output", out ? true : 0], ["eff", "effects", (f.effects || []).length], ["res", "Results", res.length], ["sc", "Scenarios", scs.length]]) +
+      accessBlock(id, f) + whereBlock(id, r) + builtBlock(r) + blk("data", "data", dataTouched(f)) + blk("guar", "idempotency", '<div class="tiles">' + idemBlock(f) + "</div>" + (audit ? '<div style="margin-top:10px">' + audit + "</div>" : "")) +
       (f.background ? blk("bg", "background", '<div class="prose">' + inline(String(f.background)) + "</div>") : "") +
       blk("in", "input", inputT, (f.input || []).length) + blk("out", "output", out + paging) + effectsBlock(f) + blk("res", "Results", resH, res.length) + scenarioBlock(id, scs) +
       blk("rules", "Points at this: governs", refs(ins(id, "governs")), ins(id, "governs").length) + blk("raises", "Raises", refs(f.raises), (f.raises || []).length) + blk("ful", "fulfills and serves", kv([["Fulfills", refs(f.fulfills)], ["Serves", refs(f.serves)]]));
@@ -1114,32 +1115,32 @@ var DETAIL = {
     var run = (kind === "schedule" || kind === "manual") ? blk("run", "schedule", '<div class="tiles">' + (f.guard ? tile("guard", esc(f.guard)) : "") + (f.batchSize ? tile("batchSize", f.batchSize, "", true) : "") + (f.lease ? tile("lease", typeof f.lease === "string" ? esc(f.lease) : esc(f.lease.name) + " for " + duration(f.lease.duration)) : "") + (f.runsWhere ? tile("runsWhere", esc(f.runsWhere)) : "") + (f.cursor ? tile("cursor", esc(typeof f.cursor === "string" ? f.cursor : (f.cursor.name || ""))) : "") + idemBlock(f) + "</div>" + kv([["Selection", f.selection ? esc(f.selection) : ""], ["Service level", f.serviceLevel ? esc(f.serviceLevel) : ""], ["Evidence", f.evidence ? esc(f.evidence) : ""], ["Runbook", f.runbook ? inlineRef(f.runbook) : ""]])) : blk("guar", "idempotency", '<div class="tiles">' + idemBlock(f) + "</div>");
     return metaRow(id, [badge(cap(kind), "info")]) + (secHtml(r, "Goal") ? leadHtml(secHtml(r, "Goal")) : lead(f.summary)) +
       blk("trig", "triggeredBy", triggeredByHtml(t) + (f.skippedWhen ? '<div class="cond">Skipped when ' + esc(f.skippedWhen) + "</div>" : "")) +
-      effectsBlock(f) + run + failureBlock(f) + blk("data", "changes and reads", dataTouched(f)) + blk("ful", "fulfills and serves", kv([["Fulfills", refs(f.fulfills)], ["Serves", refs(f.serves)]]));
+      effectsBlock(f) + run + failureBlock(f) + blk("data", "data", dataTouched(f)) + blk("ful", "fulfills and serves", kv([["Fulfills", refs(f.fulfills)], ["Serves", refs(f.serves)]]));
   },
   notification: function (id, r) {
     var f = r.fields || {}, arr = function (v) { return Array.isArray(v) ? v : v ? [v] : []; };
-    var params = arr(f.params).length ? (typeof arr(f.params)[0] === "string" ? '<div class="fieldchips">' + f.params.map(function (p) { return '<span class="code">' + esc(p) + "</span>"; }).join("") + "</div>" : table(["Parameter", "Meaning", "From"], f.params.map(function (p) { return [td(esc(p.name), "nm"), td(esc(p.meaning)), td(esc(p.source || ""), "mut")]; }))) : "";
+    var params = arr(f.params).length ? (typeof arr(f.params)[0] === "string" ? '<div class="fieldchips">' + f.params.map(function (p) { return '<span class="code">' + esc(p) + "</span>"; }).join("") + "</div>" : table(["Parameter", "Meaning", "Source"], f.params.map(function (p) { return [td(esc(p.name), "nm"), td(esc(p.meaning)), td(esc(p.source || ""), "mut")]; }))) : "";
     var claims = arr(f.claims).length ? f.claims.map(function (c) { return '<div class="reqline"><div class="t">' + ic("quote", "icon-sm") + esc(c.claim) + "</div>" + (c.requirement ? "<p>Backed by " + inlineRef(c.requirement) + "</p>" : "<p class=\"unserved\">No requirement backs this claim</p>") + "</div>"; }).join("") : "";
     return metaRow(id) + lead(f.meaning) +
-      blk("who", "addresses", '<div class="tiles">' + tile("addresses", arr(f.addresses).map(function (a) { return a.indexOf("/") > 0 ? inlineRef(a) : esc(a); }).join(", ") || esc(f.recipient || "")) + tile("channel", arr(f.channel).map(function (c) { return badge(cap(c)); }).join(" ")) + tile("consent", esc(f.consent || "")) + tile("frequency", esc(f.frequency || "")) + "</div>" + kv([["Template", f.template ? '<span class="code">' + esc(f.template) + "</span>" : ""], ["Language", f.locale ? esc(f.locale) : ""], ["Deduplicated by", f.dedupKey ? '<span class="code">' + esc(f.dedupKey) + "</span>" : ""], ["Suppressed when", f.suppressedWhen ? esc(f.suppressedWhen) : ""], ["Personal data", arr(f.personal).map(esc).join(", ")]])) +
+      blk("who", "addresses", '<div class="tiles">' + tile("addresses", arr(f.addresses).map(function (a) { return a.indexOf("/") > 0 ? inlineRef(a) : esc(a); }).join(", ") || esc(f.recipient || "")) + tile("channel", arr(f.channel).map(function (c) { return badge(cap(c)); }).join(" ")) + tile("consent", esc(f.consent || "")) + tile("frequency", esc(f.frequency || "")) + "</div>" + kv([["template", f.template ? '<span class="code">' + esc(f.template) + "</span>" : ""], ["locale", f.locale ? esc(f.locale) : ""], ["dedupKey", f.dedupKey ? '<span class="code">' + esc(f.dedupKey) + "</span>" : ""], ["suppressedWhen", f.suppressedWhen ? esc(f.suppressedWhen) : ""], ["Personal data", arr(f.personal).map(esc).join(", ")]])) +
       blk("params", "params", params, arr(f.params).length) + blk("claims", "claims", claims, arr(f.claims).length) + blk("by", "Points at this: effects.sends", refs(ins(id, "sends"))) + blk("ful", "fulfills and serves", kv([["Fulfills", refs(f.fulfills)], ["Serves", refs(f.serves)]]));
   },
   setting: function (id, r) {
     var f = r.fields || {};
-    return metaRow(id, [f.secret ? badge("Secret", "bad") : "", f.restart ? badge("Needs a restart", "warn") : ""]) + lead(f.meaning || f.statement) +
-      blk("val", "default", '<div class="tiles">' + tile("default", f.secret ? "Hidden" : f["default"] !== undefined ? esc(f["default"]) + (f.unit ? " " + esc(f.unit) : "") : f.value !== undefined ? esc(f.value) : "None", "", true) + tile("valueType", esc(cap(f.valueType || ""))) + (f.range ? tile("range", esc(f.range)) : "") + tile("setBy", esc(cap(f.setBy || ""))) + "</div>" + kv([["At the bound", f.atBound ? esc(f.atBound) : ""], ["Read by", refs(ins(id, "reads"))], ["Runbook", f.runbook ? inlineRef(f.runbook) : ""]])) +
+    return metaRow(id, [f.secret ? badge("Secret", "bad") : "", f.restart ? badge("Restart", "warn") : ""]) + lead(f.meaning || f.statement) +
+      blk("val", "default", '<div class="tiles">' + tile("default", f.secret ? "Hidden" : f["default"] !== undefined ? esc(f["default"]) + (f.unit ? " " + esc(f.unit) : "") : f.value !== undefined ? esc(f.value) : "None", "", true) + tile("valueType", esc(cap(f.valueType || ""))) + (f.range ? tile("range", esc(f.range)) : "") + tile("setBy", esc(cap(f.setBy || ""))) + "</div>" + kv([["atBound", f.atBound ? esc(f.atBound) : ""], ["Read by", refs(ins(id, "reads"))], ["runbook", f.runbook ? inlineRef(f.runbook) : ""]])) +
       blk("ful", "Fulfills", refs(f.fulfills));
   },
   "integration-event": function (id, r) {
     var f = r.fields || {};
     return metaRow(id, [badge(f.direction === "in" ? "Arrives from outside" : "Leaves the system", f.direction === "in" ? "info" : "warn"), testedChip(r)]) + lead("About " + (f.subject || "")) +
       blk("id", "eventType", kv([["Event type", '<span class="code">' + esc(f.eventType) + "</span>"], ["Translates", f.translates ? inlineRef(f.translates) : ""], ["Trust", f.trust ? esc(f.trust) : ""], ["Correlation", f.correlation ? esc(f.correlation) : ""], ["Dataschema", f.dataschema ? '<a href="' + esc(f.dataschema) + '">' + esc(f.dataschema) + "</a>" : ""]])) +
-      blk("pay", "payload", table(["Field", "Type", "Meaning", "Class"], (f.payload || []).map(function (p) { return [td(esc(p.name), "nm"), td(typedFieldHtml(p)), td(esc(p.meaning)), td(clsBadge(p.classification))]; })), (f.payload || []).length) +
+      blk("pay", "payload", table(["Name", "Type", "Meaning", "Classification"], (f.payload || []).map(function (p) { return [td(esc(p.name), "nm"), td(typedFieldHtml(p)), td(esc(p.meaning)), td(clsBadge(p.classification))]; })), (f.payload || []).length) +
       blk("pub", "Points at this: effects.emits", refs(ins(id, "emits"))) + blk("trig", "Points at this: triggeredBy.event", refs(ins(id, "triggeredBy.event")));
   },
   "external-system": function (id, r) {
     var f = r.fields || {};
-    var ops = (f.operations || []).length ? table(["Operation", "Timeout", "When it times out"], f.operations.map(function (o) { return [td(esc(o.name.replace(/-/g, " ")) + '<div style="margin-top:4px">' + badge(o.direction === "in" ? "Inbound" : "Outbound", o.direction === "in" ? "info" : "warn") + "</div>" + (o.response ? '<div class="tn" style="font-family:var(--sans);margin-top:4px;white-space:normal">' + esc(o.response) + "</div>" : "")), td(duration(o.timeout)), td(esc(o.onTimeout))]; })) : "";
+    var ops = (f.operations || []).length ? table(["Operation", "Timeout", "On timeout"], f.operations.map(function (o) { return [td(esc(o.name.replace(/-/g, " ")) + '<div style="margin-top:4px">' + badge(o.direction === "in" ? "Inbound" : "Outbound", o.direction === "in" ? "info" : "warn") + "</div>" + (o.response ? '<div class="tn" style="font-family:var(--sans);margin-top:4px;white-space:normal">' + esc(o.response) + "</div>" : "")), td(duration(o.timeout)), td(esc(o.onTimeout))]; })) : "";
     return metaRow(id, [testedChip(r)]) + leadHtml(secHtml(r, "Summary")) + blk("as", "actor", refs([f.actor])) + blk("ops", "operations", ops, (f.operations || []).length) + (f.erasure ? blk("er", "erasure", callout("quiet", "lock", erasureHtml(f.erasure))) : "") + blk("by", "Points at this: effects.calls", refs(ins(id, "calls")));
   },
   role: function (id, r) { var f = r.fields || {}, al = f.allows || []; return metaRow(id, [badge("Scope: " + cap(f.scope), "info")]) + leadHtml(secHtml(r, "Summary")) + blk("allows", "allows", al.length ? table(["Permission", "Meaning"], al.map(function (p) { return [td(inlineRef(p)), td(esc(REC[base(p)] ? (REC[base(p)].fields || {}).meaning : ""))]; })) : "", al.length) + blk("held", "Points at this: holds", refs(ins(id, "holds"))); },
@@ -1147,12 +1148,12 @@ var DETAIL = {
   "entry-point": function (id, r) { var f = r.fields || {}, u = ins(id, "reachedThrough"); return metaRow(id, [badge(f.kind, "info")]) + (f.path ? blk("path", "path", '<span class="code" style="font-size:14px;padding:4px 10px">' + esc(f.path) + "</span>") : "") + blk("ent", "Points at this: reachedThrough", refs(u), u.length); },
   runbook: function (id, r) { var f = r.fields || {}; return metaRow(id) + (f.trigger ? callout("warn", "alert", "<b>Trigger.</b> " + esc(f.trigger)) : "") + blk("lim", "Points at this: runbook", refs(ins(id, "runbook"))); },
   exception: function (id, r) { var f = r.fields || {}, n = days(f.expiresOn), subj = f.subject || [], paths = f.paths || [], href = lsHref("docs/tools/model.md"); var cov = Array.isArray(f.covers) ? f.covers.map(function (c) { return href ? '<a class="code" href="' + esc(href) + '" title="Open the finding codes in LiteSpec">' + esc(c) + "</a>" : '<span class="code">' + esc(c) + "</span>"; }).join(" ") : provisionLink(f.covers); return metaRow(id, [badge(cap(f.kind || ""), "info"), machineChip(n < 0 ? "failing" : "awaiting", n < 0 ? "Expired " + plural(-n, "day") + " ago" : "Expires " + fmtDate(f.expiresOn) + ", " + dateHint(f.expiresOn))]) + "" + blk("cov", "covers", cov) + blk("subj", "subject", refs(subj.slice(0, 30)) + (subj.length > 30 ? '<p class="cnote" style="margin-top:8px">and ' + (subj.length - 30) + " more</p>" : ""), subj.length) + (paths.length ? blk("paths", "paths", '<div class="fieldchips">' + paths.map(function (p) { return '<span class="code">' + esc(p) + "</span>"; }).join("") + "</div>", paths.length) : "") + (f.reason ? blk("why", "reason", callout("quiet", "quote", "Because " + esc(f.reason))) : ""); },
-  scenario: function (id, r) { var f = r.fields || {}, ri = resultInfoOf(id), pr = r.proof || {}, testRun = (MAN || {}).testRun || {}, t0 = pr.test || {}; return metaRow(id, [machineChip(pr.state)]) + blk("gwt", "given, when, then", '<div class="panel"><dl class="gwt"><dt>Given</dt><dd>' + esc(f.given) + "</dd><dt>When</dt><dd>" + esc(f.when) + "</dd><dt>Then</dt><dd>" + esc(f.then) + "</dd></dl></div>") + blk("exer", "exercises", refs(f.exercises), (f.exercises || []).length) + blk("res", "result", ri ? resultCards([ri]) : "") + blk("ex", "Examples", (f.examples || []).length ? table(Object.keys(f.examples[0]), f.examples.map(function (row) { return Object.keys(row).map(function (k) { return td(esc(row[k])); }); })) : "") + blk("proof", "proves", '<div class="tiles">' + tile("Proof", pmark(pr.state), t0.file || t0.path ? fileLink(t0.path || t0.file, t0.line, t0.name) : pr.tests ? plural(pr.tests, "test") + " claim this example" : "No test claims it") + tile("test run", testRun.date ? fmtDate(testRun.date) : "None recorded", testRun.date ? dateHint(testRun.date) : "the model holds no test run") + "</div>"); },
+  scenario: function (id, r) { var f = r.fields || {}, ri = resultInfoOf(id), pr = r.proof || {}, testRun = (MAN || {}).testRun || {}, t0 = pr.test || {}; return metaRow(id, [machineChip(pr.state)]) + blk("gwt", "given, when, then", '<div class="panel"><dl class="gwt"><dt>Given</dt><dd>' + esc(f.given) + "</dd><dt>When</dt><dd>" + esc(f.when) + "</dd><dt>Then</dt><dd>" + esc(f.then) + "</dd></dl></div>") + blk("exer", "exercises", refs(f.exercises), (f.exercises || []).length) + blk("res", "result", ri ? resultCards([ri]) : "") + blk("ex", "Examples", (f.examples || []).length ? table(Object.keys(f.examples[0]), f.examples.map(function (row) { return Object.keys(row).map(function (k) { return td(esc(row[k])); }); })) : "") + blk("proof", "proves", '<div class="tiles">' + tile("Proof", pmark(pr.state), t0.file || t0.path ? fileLink(t0.path || t0.file, t0.line, t0.name) : pr.tests ? plural(pr.tests, "test") + " claim this example" : "No test claims it") + tile("Test run", testRun.date ? fmtDate(testRun.date) : "None recorded", testRun.date ? dateHint(testRun.date) : "the model holds no test run") + "</div>"); },
   term: function (id, r) {
     var f = r.fields || {}, LANG = { nl: "Dutch", de: "German", fr: "French" };
     var labels = f.labels ? table(["Language", "Word"], [[td("English", "mut"), td("<b>" + esc(f.term) + "</b>")]].concat(Object.keys(f.labels).map(function (k) { return [td(esc(LANG[k] || k), "mut"), td(esc(f.labels[k]))]; }))) + '<p class="cnote" style="margin-top:8px">Translations sit outside the approval hash, so adding a language reopens no approval.</p>' : "";
     return metaRow(id) + lead(f.meaning) + blk("lab", "labels", labels) + blk("vals", "values", (f.values || []).length ? table(["Code", "Label"], f.values.map(function (v) { return [td(esc(v.code), "nm"), td(esc(v.label))]; })) : "", (f.values || []).length) +
-      blk("rej", "rejected", (f.rejected || []).length ? '<div class="rej">' + f.rejected.map(function (x) { return '<div class="rej-i"><s>' + esc(x.word) + "</s><div><p>" + esc(x.reason) + "</p></div></div>"; }).join("") + "</div>" : "", (f.rejected || []).length) + blk("rel", "broader and narrower", kv([["Broader", refs(f.broader)], ["Narrower", refs(f.narrower)]])) + blk("used", "Points at this: terms", refs(ins(id, "terms").slice(0, 30)), ins(id, "terms").length);
+      blk("rej", "rejected", (f.rejected || []).length ? '<div class="rej">' + f.rejected.map(function (x) { return '<div class="rej-i"><s>' + esc(x.word) + "</s><div><p>" + esc(x.reason) + "</p></div></div>"; }).join("") + "</div>" : "", (f.rejected || []).length) + blk("broader", "broader", refs(f.broader), (f.broader || []).length) + blk("narrower", "narrower", refs(f.narrower), (f.narrower || []).length) + blk("used", "Points at this: terms", refs(ins(id, "terms").slice(0, 30)), ins(id, "terms").length);
   }
 };
 function serverLine(b) {
@@ -1176,31 +1177,31 @@ function builtBlock(r) {
   var more = impl.filter(function (c) { return c.kind !== "handler" && c.kind !== "endpoint"; });
   return blk("built", "implements", table(["implements", "source"], rows) + (more.length ? '<p class="cnote" style="margin-top:8px">and ' + plural(more.length, "more part") + " marked with this action: " + uniq(more.map(function (c) { return c.kind.replace(/-/g, " "); })).join(", ") + "</p>" : ""), null, "found by the marks in the code");
 }
-function listOf(id) { var k = kidsOf[id] || []; return blk("in", "Contains", refs(k.slice(0, 150)) + (k.length > 150 ? '<p class="cnote">and ' + (k.length - 150) + " more in the outline</p>" : ""), k.length); }
+function listOf(id) { var k = kidsOf[id] || []; return blk("in", "Records", refs(k.slice(0, 150)) + (k.length > 150 ? '<p class="cnote">and ' + (k.length - 150) + " more in the outline</p>" : ""), k.length); }
 // A layer page: what the layer answers, who writes and reviews it, and its record types with the question each answers.
 DETAIL.layer = function (id, r) {
   var f = r.fields || {}, key = id.slice(6), ids = order.filter(function (x) { return layerOf[x] === key && isReal(x); }), types = uniq(ids.map(typeOf));
   var rows = types.map(function (t) { var first = ids.filter(function (x) { return typeOf(x) === t; }); return [td('<button type="button" class="iref" data-go="' + esc(first[0]) + '">' + ic(t, "icon-sm") + " " + esc(PLURAL[t] || t) + "</button>"), td(String(first.length), "num"), td(esc((((LEX.types || {})[t]) || {}).question || ""))]; });
-  return lead(f.question) + (f.writes ? kv([["Written by", esc(f.writes)], ["Reviewed by", esc(f.reviews)]]) : "") + blk("types", "Record types", table(["Type", "Records", "Answers"], rows), types.length);
+  return lead(f.question) + (f.writes ? kv([["Written by", esc(f.writes)], ["Reviewed by", esc(f.reviews)]]) : "") + blk("types", "Record types", table(["Type", "Records", "Question"], rows), types.length);
 };
 DETAIL["architecture-layer"] = function (id, r) { return lead(GL["architecture layer"]) + listOf(id); };
 DETAIL.folder = listOf; DETAIL.frontend = listOf; DETAIL["test-project"] = listOf; DETAIL["test-class"] = listOf;
 DETAIL["check-tier"] = function (id, r) { return lead(SX.checkLevels) + listOf(id); };
-DETAIL["finding-code"] = function (id, r) { var f = r.fields || {}; return metaRow(id, [xp(f.tier, badge("Tier " + f.tier, f.tier === "G" ? "bad" : f.tier === "S" ? "warn" : ""))]) + lead(f.meaning) + listOf(id); };
+DETAIL["finding-code"] = function (id, r) { var f = r.fields || {}; return metaRow(id, [xp(f.tier, badge("Level " + f.tier, f.tier === "G" ? "bad" : f.tier === "S" ? "warn" : ""))]) + lead(f.meaning) + listOf(id); };
 DETAIL.finding = function (id, r) {
   var f = r.fields || {}, subj = f.subject ? base(f.subject) : null;
-  return metaRow(id, [xp(f.tier, badge("Tier " + f.tier, f.tier === "G" ? "bad" : f.tier === "S" ? "warn" : "")), f.known ? xp("known", badge("known", "info")) : "", f.outcome ? badge(f.outcome) : "", f.reason ? badge(f.reason) : ""]) + lead(f.message) +
+  return metaRow(id, [xp(f.tier, badge("Level " + f.tier, f.tier === "G" ? "bad" : f.tier === "S" ? "warn" : "")), f.known ? xp("known", badge("Excepted", "info")) : "", f.outcome ? badge(f.outcome) : "", f.reason ? badge(f.reason) : ""]) + lead(f.message) +
     blk("about", "Finding", kv([["code", inlineRef("finding-code/" + f.code)], ["subject", subj ? inlineRef(subj) : '<span class="tn">none</span>'], ["path", r.src ? srcLink(r.src) : ""]]));
 };
 DETAIL.code = function (id, r) { var f = r.fields || {}; return metaRow(id, (f.kinds || []).map(function (k) { return badge(k); })) + blk("impl", "implements", refs(f.implements), (f.implements || []).length); };
 DETAIL.route = function (id, r) { var f = r.fields || {}; return metaRow(id, [badge(f.frontend, "info")]) + blk("scr", "implements", refs([f.screen])) + blk("calls", "calls", refs(f.calls), (f.calls || []).length); };
-DETAIL.test = function (id, r) { var f = r.fields || {}; return metaRow(id, [f.browser ? badge("browser test", "info") : "", badge(f.confirmed ? "confirmed" : "not confirmed", f.confirmed ? "good" : "warn"), xp("norun", badge(f.passing === null || f.passing === undefined ? "passing: not run" : f.passing ? "passing" : "failing", f.passing ? "good" : f.passing === false ? "bad" : ""))]) + blk("proves", "proves", refs(f.claims), (f.claims || []).length); };
+DETAIL.test = function (id, r) { var f = r.fields || {}; return metaRow(id, [f.browser ? badge("browser test", "info") : "", badge(f.confirmed ? "confirmed" : "not confirmed", f.confirmed ? "good" : "warn"), xp("norun", badge(f.passing === null || f.passing === undefined ? "passing: not run" : f.passing ? "passing" : "failing", f.passing ? "good" : f.passing === false ? "bad" : ""))]) + blk("claims", "claims", refs(f.claims), (f.claims || []).length); };
 // A screen: where it lives, and each use case it offers with whether its page calls it.
 DETAIL.screen = function (id, r) {
   var f = r.fields || {}, off = (f.offers || []).map(base), calls = r.calls || [];
-  var offT = off.length ? table(["Use case", "Called by the page", "Implemented", "Scenarios confirmed"], off.map(function (u) { var q = REC[base(u)], b = q && q.machine ? { built: q.machine.implemented, scenarios: scenariosOf(u).length, proven: scenariosOf(u).filter(function (x) { return REC[base(x)] && REC[base(x)].proof && REC[base(x)].proof.state === "awaiting"; }).length } : null; return [td(inlineRef(u)), td(!r.route ? '<span class="tn">no page</span>' : calls.indexOf(u) >= 0 ? "Yes" : '<span class="warnt">No</span>'), td(b ? (b.built ? "Yes" : '<span class="warnt">No</span>') : ""), td(b ? (b.scenarios ? b.proven + " of " + b.scenarios : '<span class="warnt">None</span>') : "")]; })) : "";
+  var offT = off.length ? table(["Use case", "Calls", "Implemented", "Scenarios"], off.map(function (u) { var q = REC[base(u)], b = q && q.machine ? { built: q.machine.implemented, scenarios: scenariosOf(u).length, proven: scenariosOf(u).filter(function (x) { return REC[base(x)] && REC[base(x)].proof && REC[base(x)].proof.state === "awaiting"; }).length } : null; return [td(inlineRef(u)), td(!r.route ? '<span class="tn">no page</span>' : calls.indexOf(u) >= 0 ? "Yes" : '<span class="warnt">No</span>'), td(b ? (b.built ? "Yes" : '<span class="warnt">No</span>') : ""), td(b ? (b.scenarios ? b.proven + " of " + b.scenarios : '<span class="warnt">None</span>') : "")]; })) : "";
   return metaRow(id) + lead(f.summary || f.meaning || "") +
-    blk("where", "Where it is", kv([["Address", '<span class="code">' + esc(f.address || f.host || "") + "</span>"], ["Entry point", f.entryPoint ? inlineRef(f.entryPoint) : ""], ["Floorplan", esc(cap(String(f.floorplan || "").replace(/-/g, " ")))], ["Page in the code", r.route ? srcLink({ path: r.route.file || r.route.path, line: 1 }) : '<span class="warnt">No page carries this screen yet</span>']])) +
+    blk("where", "address", kv([["address", '<span class="code">' + esc(f.address || f.host || "") + "</span>"], ["entryPoint", f.entryPoint ? inlineRef(f.entryPoint) : ""], ["floorplan", esc(cap(String(f.floorplan || "").replace(/-/g, " ")))], ["Route", r.route ? srcLink({ path: r.route.file || r.route.path, line: 1 }) : '<span class="warnt">No page carries this screen yet</span>']])) +
     blk("offers", "offers", offT, off.length);
 };
 // A result: what it means, its code, and the scenarios that show it.
@@ -1369,14 +1370,14 @@ function proofHtml(id) {
   if (!ts.length) return s + '<p class="ipnone">' + ic("missing", "icon-sm") + "No test proves this " + esc(typeName(r.type).toLowerCase()) + ".</p></section>";
   return s + ts.map(function (t) { return '<div class="ipi"><span class="ipk">' + (t.browser ? "Browser test" : "Test") + (t.confirmed ? "" : ", not confirmed") + "</span>" + fileLink(t.path || t.file, t.line, t.name) + "</div>"; }).join("") + (hasRun ? "" : '<p class="ipsum">No test run is in the model.</p>') + "</section>";
 }
-function lacks(id) { var r = REC[base(id)]; if (!r) return ""; if (typeof r.lacks === "string") return r.lacks; if (!r.expect) return ""; var miss = []; if (r.expect.impl && !(r.impl || []).length) miss.push("no code"); if (r.expect.proof) { if (r.type === "use-case" || r.type === "automation") { var sc = scenariosOf(id).filter(function (x) { return REC[base(x)]; }); if (!sc.length || sc.some(function (x) { return !((REC[base(x)] || {}).tests || []).length; })) miss.push("scenarios without a test"); } else if (!(r.tests || []).length) miss.push("no test"); } return miss.join(", "); }
+function lacks(id) { var r = REC[base(id)]; if (!r) return ""; if (typeof r.lacks === "string") return r.lacks; if (!r.expect) return ""; var miss = []; if (r.expect.impl && !(r.impl || []).length) miss.push("not implemented"); if (r.expect.proof) { if (r.type === "use-case" || r.type === "automation") { var sc = scenariosOf(id).filter(function (x) { return REC[base(x)]; }); if (!sc.length || sc.some(function (x) { return !((REC[base(x)] || {}).tests || []).length; })) miss.push("scenarios not tested"); } else if (!(r.tests || []).length) miss.push("not tested"); } return miss.join(", "); }
 
 // ---------- findings on the record ----------
 function browserReached(r) { return ((r.fields || {}).reachedThrough || []).some(function (x) { return (kidsOf[base(x)] || []).some(function (k) { return typeOf(k) === "screen"; }); }); }
 function findingsRail(id) {
   var f = ((REC[base(id)] || {}).findings || []).filter(function (x) { return !x.known; }); if (!f.length) return "";
   var byCode = {}; f.forEach(function (x) { (byCode[x.code] = byCode[x.code] || []).push(x); });
-  return '<section class="missing"><h3>' + ic("alert", "icon-sm") + xp("finding", "Findings") + '<span class="n">' + f.length + "</span></h3>" + Object.keys(byCode).map(function (c) { var x = byCode[c][0]; return '<div class="mi"><button type="button" class="iref" data-go="finding-code/' + esc(c) + '"><span class="code">' + esc(c) + "</span></button> " + xp(x.tier, badge("Tier " + x.tier, x.tier === "G" ? "bad" : x.tier === "S" ? "warn" : "")) + (byCode[c].length > 1 ? ' <span class="tn">' + byCode[c].length + "</span>" : "") + "</div>"; }).join("") + "</section>";
+  return '<section class="missing"><h3>' + ic("alert", "icon-sm") + xp("finding", "Findings") + '<span class="n">' + f.length + "</span></h3>" + Object.keys(byCode).map(function (c) { var x = byCode[c][0]; return '<div class="mi"><button type="button" class="iref" data-go="finding-code/' + esc(c) + '"><span class="code">' + esc(c) + "</span></button> " + xp(x.tier, badge("Level " + x.tier, x.tier === "G" ? "bad" : x.tier === "S" ? "warn" : "")) + (byCode[c].length > 1 ? ' <span class="tn">' + byCode[c].length + "</span>" : "") + "</div>"; }).join("") + "</section>";
 }
 
 // ---------- connections ----------

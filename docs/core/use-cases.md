@@ -95,7 +95,7 @@ Generic refusals for forbidden access and invalid input are derived from `access
 
 ### Scenarios
 
-A scenario proves one ending: a child record with `given`, `when`, `then`, an optional `examples` table, and the `result` it ends in. One test proves each scenario through the public boundary, and a proof goes stale when its scenario semantic hash changes. The book groups scenarios under their result.
+A scenario proves one ending: a child record with `given`, `when`, `then`, an optional `examples` table, and the `result` it ends in. One test proves each scenario through the public boundary, and a proof goes stale when either of its proof hashes changes. The book groups scenarios under their result.
 
 | Field | Meaning |
 |:---|:---|

@@ -49,7 +49,7 @@ Proof state lives in `docs/proof/proofs.json`, committed, holding each scenario'
 
 ## Consequences
 
-`litespec/core/system#keep-computed-facts-in-proof` holds the tracked proof state, `litespec/core/model#compute-proof-statuses-in-the-builder` with `litespec/core/model#show-only-computed-judgements-in-the-book` keeps judgement in the builder and rendering in the book, and `litespec/core/model#hold-each-finding-to-its-own-status` gives way to own-status blocking. The glossary holds the four proof words.
+`litespec/core/model#compute-proof-statuses-in-the-builder` holds the tracked proof state and keeps judgement in the builder, `litespec/core/model#show-only-computed-judgements-in-the-book` keeps rendering in the book, and `litespec/core/model#hold-each-finding-to-its-own-status` gives way to own-status blocking. The glossary holds the four proof words.
 
 ## Evidence with Confidence
 

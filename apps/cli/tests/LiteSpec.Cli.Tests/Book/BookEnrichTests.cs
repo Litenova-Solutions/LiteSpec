@@ -356,11 +356,11 @@ public sealed class BookEnrichTests
     public void Tests_Expect_And_Lacks_Are_Computed_Once()
     {
         var details = DetailsOf(LoadFixture("Book/review.json"));
-        Assert.True(HasString(Arr(details["use-case/lending.borrow-copy"], "lacks"), "scenarios without a test"));
-        Assert.True(HasString(Arr(details["use-case/lending.return-copy"], "lacks"), "scenarios without a test"));
-        Assert.True(HasString(Arr(details["aggregate/lending.loan"], "lacks"), "no code"));
+        Assert.True(HasString(Arr(details["use-case/lending.borrow-copy"], "lacks"), "scenarios not tested"));
+        Assert.True(HasString(Arr(details["use-case/lending.return-copy"], "lacks"), "scenarios not tested"));
+        Assert.True(HasString(Arr(details["aggregate/lending.loan"], "lacks"), "not implemented"));
         Assert.Empty(Arr(details["scenario/borrow-copy.borrowing-an-available-copy-succeeds"], "lacks"));
-        Assert.True(HasString(Arr(details["scenario/borrow-copy.borrowing-a-loaned-copy-is-refused"], "lacks"), "no test"));
+        Assert.True(HasString(Arr(details["scenario/borrow-copy.borrowing-a-loaned-copy-is-refused"], "lacks"), "not tested"));
         var expect = Obj(details["use-case/lending.borrow-copy"], "expect");
         Assert.True(BoolOf(expect["impl"]));
         Assert.True(BoolOf(expect["proof"]));

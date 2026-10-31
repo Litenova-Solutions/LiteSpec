@@ -418,6 +418,12 @@ Layer: Intent.
 
 Source: Volere and product practice.
 
+### Implementation
+
+The record layer holding code and technical decisions.
+
+Source: LiteSpec.
+
 ### Integration Event
 
 One published fact crossing the bounded context, with its direction, payload, and trust.
@@ -756,7 +762,7 @@ Source: LiteSpec.
 
 ### Transcription
 
-One Behavior record written from code during adoption, marked provenance transcribed until its Intent parent is approved.
+One Behavior record written from code during adoption, marked provenance transcribed until the records it fulfills or serves are approved.
 
 Layer: Behavior.
 
@@ -814,6 +820,12 @@ The list of alerts a product can fire, with the runbook each alert names.
 
 Source: the SRE book.
 
+### Approval Hash
+
+The hash over a record's semantic fields, recorded as `approvedHash`, that reopens approval when it changes.
+
+Source: LiteSpec.
+
 ### Audit Record
 
 One entry stating actor, action, target, outcome, time, origin, and reason.
@@ -825,6 +837,18 @@ Source: NIST SP 800-53, control AU-3.
 The append-only store that holds audit records, kept separate from logs and domain events.
 
 Source: NIST SP 800-53.
+
+### Background Caller
+
+The automation whose `runs` edge names a background-only use case.
+
+Source: LiteSpec.
+
+### Background-Only
+
+The computed state of a use case an automation runs, needing no journey to walk it.
+
+Source: LiteSpec.
 
 ### Check Level
 
@@ -926,7 +950,7 @@ Source: Diataxis.
 
 ### Effective Status
 
-The status of a record after draft intent above it is taken into account: draft when it, a deciding decision, or a fulfilled requirement is draft.
+The status of a record after draft intent above it is taken into account: draft when it, a decision deciding it, or a requirement it fulfills is draft. A result or a scenario takes its use case effective status, and a screen is draft when its entry point, a use case it offers, or a journey it serves is draft.
 
 Source: LiteSpec.
 
@@ -1018,7 +1042,7 @@ Source: LiteSpec.
 
 ### Mark
 
-The one written link from a code element or a test to the record it serves, holding the record identifier in the project mark style.
+One written link from a code element or a test, of kind `implements` naming the record it serves or `follows` naming the provision, decision, or exception shaping it, holding the identifier in the project mark style.
 
 Source: LiteSpec.
 
@@ -1071,6 +1095,12 @@ Source: LiteSpec.
 ### Project
 
 One bounded-context business application built with LiteSpec.
+
+Source: LiteSpec.
+
+### Proof Hash
+
+The hash of a scenario or of its test body recorded in `docs/proof/proofs.json` at the last passing run.
 
 Source: LiteSpec.
 
@@ -1136,6 +1166,12 @@ Recovery by deploying a newer version rather than restoring the old one.
 
 Source: release practice.
 
+### Sample Hash
+
+The hash each tier 3 record is ordered by to draw the batch sample.
+
+Source: LiteSpec.
+
 ### Secret Inventory
 
 The list of production secrets, each with its owner, location, and rotation date.
@@ -1156,7 +1192,7 @@ Source: LiteSpec.
 
 ### Semantic Hash
 
-The hash over a record's semantic fields that reopens approval when it changes.
+One hash over record content: the approval hash, the proof hash, or the sample hash.
 
 Source: LiteSpec.
 

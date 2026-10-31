@@ -946,13 +946,13 @@ static class BookEnrich
         };
     }
 
-    /// <summary>The missing marks of one record: no code, no test, or untested scenarios.</summary>
+    /// <summary>The missing marks of one record: not implemented, not tested, or scenarios not tested.</summary>
     static JsonArray LacksFor(BookIndex index, Dictionary<string, List<JsonObject>> tests, JsonArray impl, JsonObject expect, string id, string type)
     {
         var lacks = new JsonArray();
         if (BookRender.IsTrue(expect["impl"]) && impl.Count == 0)
         {
-            lacks.Add("no code");
+            lacks.Add("not implemented");
         }
 
         if (!BookRender.IsTrue(expect["proof"]))
@@ -979,12 +979,12 @@ static class BookEnrich
 
             if (missing)
             {
-                lacks.Add("scenarios without a test");
+                lacks.Add("scenarios not tested");
             }
         }
         else if (!tests.TryGetValue(id, out var own) || own.Count == 0)
         {
-            lacks.Add("no test");
+            lacks.Add("not tested");
         }
 
         return lacks;

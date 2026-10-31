@@ -214,7 +214,7 @@ A consumer adopts one LiteSpec release by installing the `LiteSpec.Cli` tool pac
 
 **Statement:** A batch approval MUST refuse the whole batch when a record in it would keep the effective status draft, because a decision deciding it, a requirement it fulfills, or, for a transcribed record, a journey it serves stays draft and is not earlier in the same batch.
 
-**Rationale:** Effective status already says a record cannot hold while what it rests on is undecided, and a transcribed record waits for its Intent. Approving it in a batch anyway would stamp a promise that still reads draft everywhere the model shows it. Allowing the parent earlier in the same batch lets one decision and what it settles be approved together, in authority order.
+**Rationale:** Effective status already says a record cannot hold while what it rests on is undecided, and a transcribed record waits for its Intent. Approving it in a batch anyway would stamp a promise that still reads draft everywhere the model shows it. Allowing the record it rests on earlier in the same batch lets one decision and what it settles be approved together, in authority order.
 
 **Example:** A batch holding a transcribed `use-case/spending.split-expense` that fulfills a draft requirement is refused until the requirement is approved or a decision batch approves both, the requirement first.
 
@@ -224,7 +224,7 @@ A consumer adopts one LiteSpec release by installing the `LiteSpec.Cli` tool pac
 
 **ID:** `litespec/core/release#write-a-manifest-for-every-batch-approval`
 
-**Statement:** Every batch approval MUST write a generated manifest under `docs/proof/approvals/` naming its records, approver, second reviewer, date, semantic hashes, sample, scenario proof state, and open findings.
+**Statement:** Every batch approval MUST write a generated manifest under `docs/proof/approvals/` naming its records, approver, second reviewer, date, approval hashes, sample, scenario proof state, and open findings.
 
 **Rationale:** Approval data on each record says who approved it, but not what else was approved in the same act or what the evidence showed then. The manifest keeps that evidence beside the records as Proof, so a later reader can tell reviewed from verified and see which records a signature covered, without a review record type that would duplicate the approval data. An agent second reading writes its report under `docs/proof/reviews/` for the same reason, and the manifest cites it: a report records what its reader saw when the review ran, so a record renamed or removed later is history in it, not a broken link.
 
@@ -232,15 +232,15 @@ A consumer adopts one LiteSpec release by installing the `LiteSpec.Cli` tool pac
 
 **Checked by:** `litespec model approve --batch` writes the manifest named and shaped as the [model command page](../tools/model.md) states, in the same operation that promotes the records, and refuses the batch when it cannot; `litespec model check` reads no citation in a page under `docs/proof/reviews/`.
 
-### Draw Each Tier 3 Sample from the Semantic Hash
+### Draw Each Tier 3 Sample from the Sample Hash
 
 **ID:** `litespec/core/release#draw-each-tier-3-sample-from-the-semantic-hash`
 
-**Statement:** The sample of a tier 3 batch MUST be drawn from each record's semantic hash at the project's `review.sampleShare`, and recorded in the batch manifest.
+**Statement:** The sample of a tier 3 batch MUST be drawn from each record's sample hash at the project's `review.sampleShare`, and recorded in the batch manifest.
 
-**Rationale:** A sample chosen by the reviewer drifts toward the records that look easy. Drawing it from the semantic hash makes it deterministic: anyone can derive the same sample later from the same records, and a changed record moves in or out of the sample by its content, not by choice.
+**Rationale:** A sample chosen by the reviewer drifts toward the records that look easy. Drawing it from the sample hash makes it deterministic: anyone can derive the same sample later from the same records, and a changed record moves in or out of the sample by its content, not by choice.
 
-**Example:** With `review.sampleShare` at 0.1, a tier 3 batch of forty Claimwick rules samples the four rules with the lowest semantic hashes.
+**Example:** With `review.sampleShare` at 0.1, a tier 3 batch of forty Claimwick rules samples the four rules with the lowest sample hashes.
 
 **Checked by:** `litespec model approve --batch --dry-run` prints the sample, and the batch manifest records it.
 

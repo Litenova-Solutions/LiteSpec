@@ -8,7 +8,7 @@ An agent is software that reads task context, edits files, and runs checks. This
 
 ### The Project Model and the Agent Context
 
-A consumer project describes itself with records of fixed types in four record layers: Intent states the promises, Behavior states how the system keeps them, Implementation is code only, and Proof shows the checks. Governance is a group of records beside the four record layers, not a fifth layer. The [model page](model.md) states the record types and their links. An agent queries that model for the records a task touches: `litespec model query <id>` prints one record with its links in both directions, such as a use case with its rules, results, and scenarios.
+A consumer project describes itself with records of fixed types in four record layers: Intent states the promises, Behavior states how the system keeps them, Implementation holds code and technical decisions, and Proof shows the checks. Governance is a group of records beside the four record layers, not a fifth layer. The [model page](model.md) states the record types and their links. An agent queries that model for the records a task touches: `litespec model query <id>` prints one record with its links in both directions, such as a use case with its rules, results, and scenarios.
 
 The generated agent context is the rendered summary of that selection: the smallest record set that covers the request, with the links the builder joined between records. Code, screens, and tests point up to the records they serve. Reading the context before editing starts the run from decided Intent instead of repository guesswork.
 
@@ -30,7 +30,7 @@ A ballot groups open questions for one decision, by decision identifier or short
 
 ### Transcription Mode
 
-During adoption, agents write Behavior records from working code and mark each one `provenance: transcribed`. A transcribed record stays in draft until its Intent parent is approved, and transcription mode ends when the decision named in `adoption.transcriptionEndsWith` is approved. The [scope page](scope.md) states the adoption record.
+During adoption, agents write Behavior records from working code and mark each one `provenance: transcribed`. A transcribed record stays in draft until the records it fulfills or serves are approved, and transcription mode ends when the decision named in `adoption.transcriptionEndsWith` is approved. The [scope page](scope.md) states the adoption record.
 
 ### Side Effects That Need Approval
 
@@ -40,7 +40,7 @@ Some changes reach beyond an ordinary implementation edit: they alter project bo
 
 A running project takes new intent through this one sequence. Other pages link to this sequence instead of stating their own order.
 
-1. Scaffold Intent. Load the records the change touches with `dotnet litespec model query <id>`, add the requirement and the journey step, and open a ballot for every undecided figure, such as a price, a term, a retention period, or a date-dependent default. A question on a tier 1 record waits for its named decider, and a question with a recommendation follows the auto-approval rule the [model page](model.md) states (`litespec/core/model#answer-each-question-on-its-record`).
+1. Scaffold Intent. Load the records the change touches with `dotnet litespec model query <id>`, add or confirm the problem and the feature, then the requirement and the journey step, and open a ballot for every undecided figure, such as a price, a term, a retention period, or a date-dependent default. A question on a tier 1 record waits for its named decider, and a question with a recommendation follows the auto-approval rule the [model page](model.md) states (`litespec/core/model#answer-each-question-on-its-record`).
 2. Specify Behavior. Scaffold the use case, its results, and its scenarios with `dotnet litespec new <type> <id>`, `dotnet litespec new result <use-case-id> <name>`, and `dotnet litespec new scenario <use-case-id> <name>`, naming the rules, access, aggregates, consistency, and effects the use case carries.
 3. Validate the records. Run `dotnet litespec consumer` and fix every finding before code moves.
 4. Choose patterns and scaffold screens. Build the pattern Default and record it with `source: recommended`, and wait for an owner only when the route departs from the Default or no Default exists. Scaffold each screen with `dotnet litespec new screen <entry-point>.<name>`.
@@ -214,11 +214,11 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **Statement:** An agent writing Behavior from code during adoption MUST mark the record `provenance: transcribed`.
 
-**Rationale:** Transcription reverses the normal direction: the record follows working code instead of leading it. The mark tells every reviewer that the record is evidence, not a promise, so it stays in draft until an approved Intent parent adopts it. When the ending decision is approved, any record still carrying the mark fails, which proves the mode ended cleanly.
+**Rationale:** Transcription reverses the normal direction: the record follows working code instead of leading it. The mark tells every reviewer that the record is evidence, not a promise, so it stays in draft until the records it fulfills or serves are approved. When the ending decision is approved, any record still carrying the mark fails, which proves the mode ended cleanly.
 
 **Example:** A handler with no use-case page gains a transcribed draft that waits for its requirement's ballot.
 
-**Reviewed for:** Each record transcribed from code carries `provenance: transcribed` and stays in draft until its Intent parent is approved.
+**Reviewed for:** Each record transcribed from code carries `provenance: transcribed` and stays in draft until the records it fulfills or serves are approved.
 
 ### Advise Without Gating
 

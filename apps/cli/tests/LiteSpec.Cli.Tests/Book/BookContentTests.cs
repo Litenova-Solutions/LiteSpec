@@ -217,7 +217,7 @@ public sealed class BookContentTests
             "testedChip",
             "Not yet met",
             "Not yet tested",
-            "proved indirectly",
+            "indirect: \"indirect\"",
             "Excepted",
             "GL.exception",
         })
@@ -303,6 +303,52 @@ public sealed class BookContentTests
         Assert.True(extra >= 0, "The shell links no extra stylesheet.");
         Assert.True(fonts < main, "The fonts stylesheet comes after the main stylesheet.");
         Assert.True(main < extra, "The main stylesheet comes after the extra stylesheet.");
+    }
+
+    /// <summary>Status and proof labels use LiteSpec words: no verdict or proof phrase outside the model survives in the client.</summary>
+    /// <proves>litespec/core/model#name-book-labels-with-litespec-terms</proves>
+    [Fact]
+    public void Client_Labels_Use_LiteSpec_Terms()
+    {
+        using var temp = Cli.Temp("book-content");
+        var result = Cli.Run("book", "--model", Cli.Fixture("Book/review.json"), "--out", Out(temp));
+        Assert.Equal(0, result.Status);
+
+        var script = File.ReadAllText(Path.Combine(Out(temp), "assets", "book.js"));
+        foreach (var purged in new[]
+        {
+            "changes requested",
+            "question asked",
+            "approved by you",
+            "reviewed by you",
+            "test written, not run",
+            "test not traced",
+            "proved indirectly",
+            "\"no test\"",
+            "\"no code\"",
+            "scenarios without a test",
+            "Has open questions",
+        })
+        {
+            Assert.DoesNotContain(purged, script, StringComparison.Ordinal);
+        }
+
+        foreach (var words in new[]
+        {
+            "question: \"question\"",
+            "changes: \"draft\"",
+            "awaiting: \"awaiting\"",
+            "unconfirmed: \"unconfirmed\"",
+            "unproved: \"unproved\"",
+            "norun: \"norun\"",
+            "\"not implemented\"",
+            "\"not tested\"",
+            "scenarios not tested",
+            "Not implemented or not tested",
+        })
+        {
+            Assert.Contains(words, script, StringComparison.Ordinal);
+        }
     }
 
     static string Out(TempFolder temp) => Path.Combine(temp.Path, "out");

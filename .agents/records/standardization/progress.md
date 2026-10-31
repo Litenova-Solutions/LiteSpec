@@ -7,3 +7,4 @@
 - 2026-10-31 07:50: wave 6 green (automations, sagas, doors, typed contracts, privacy, scenarios; 14 slices, one API request slice, one fix round of four); committed.
 - 2026-10-31 09:25: wave 7 green (one exception record, tracked proof state, --release and --since, loose approval stated; one request slice with the post-wave-7 patch: startup schedule, service fields, several events, retry prose; one fix slice; many on typed fields); committed.
 - 2026-10-31 10:45: wave 8 green (mark styles per language, mark-folder-drift, symbols, ID line identity with the changelog list, size-aware Defaults, honest Checked by, the Write Code page); committed.
+- 2026-10-31 11:15: wave 9 green (direction rules with their exceptions, one home per provision, checks and docs agreeing, words with two meanings); committed. Owner reversed BP4: reaction and job return (wave 12, 6R); the Lantern slice is stopped until after it.

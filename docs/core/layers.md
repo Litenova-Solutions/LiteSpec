@@ -17,7 +17,7 @@ LiteSpec work moves through four record layers. Each record layer answers one qu
 | Implementation | How is it built? | Agents | Check level S; developers sample |
 | Proof | How do we know it holds? | The builder | Check levels G and S |
 
-The [intent page](intent.md) states the Intent records, and the [behavior page](behavior.md) states the Behavior records. Implementation holds code only, and Proof holds tests, check results, computed statuses, and the rendered book. Governance is a group of records beside the four record layers, not a fifth layer: the `exception` record attaches to any record layer.
+The [intent page](intent.md) states the Intent records, and the [behavior page](behavior.md) states the Behavior records. Implementation holds code and technical decisions, and Proof holds tests, check results, computed statuses, and the rendered book. Governance is a group of records beside the four record layers, not a fifth layer: the `exception` record attaches to any record layer.
 
 ### Translation Rules
 
@@ -35,9 +35,9 @@ A need a lower record layer meets that the upper record layer leaves unstated tr
 
 **Statement:** Each record below Intent MUST be written from a record in the record layer above it.
 
-**Rationale:** Each record layer rests on the one above it: Behavior fulfills Intent, Implementation builds Behavior, and Proof proves Implementation. Derivation between records is part of that direction, so generic refusals derive from `access` and `input` without new records. Code with no parent record stays evidence for a question instead of becoming a record by silent transcription, so the spec wins where Intent has spoken.
+**Rationale:** Each record layer rests on the one above it: Behavior fulfills Intent, Implementation builds Behavior, and Proof proves Implementation. Derivation between records is part of that direction, so generic refusals derive from `access` and `input` without new records. Code with no record above it stays evidence for a question instead of becoming a record by silent transcription, so the spec wins where Intent has spoken.
 
-**Example:** A guard in code with no parent record raises a question; the agent drafts the requirement or rule and keeps the code.
+**Example:** A guard in code with no record above it raises a question; the agent drafts the requirement or rule and keeps the code.
 
 **Checked by:** `litespec model check` emits no `behavior-unrecorded` finding for a refusal literal, a screen call to no endpoint, or an engine step mapping to no use case, and reports `mark-missing` for a code element that carries no mark.
 
@@ -81,9 +81,9 @@ A need a lower record layer meets that the upper record layer leaves unstated tr
 
 **ID:** `litespec/core/layers#prove-each-scenario-through-the-public-boundary`
 
-**Statement:** Each scenario MUST be proved by one test through the public boundary.
+**Statement:** At large size, or with the `bdd` extension, each scenario MUST be proved by one test through the public boundary.
 
-**Rationale:** A scenario is the leaf of the record tree, so one test through the public boundary ties each leaf to running behavior. The checks `use-case-scenario-missing` and `proves-unreached` report the missing proof. A proof goes stale when its scenario hash or its test-body hash changes, while rewording prose leaves the proof green.
+**Rationale:** Small projects carry no scenarios unless the `bdd` extension switches them on, so the rule binds large projects and small projects with the extension. A scenario is the leaf of the record tree, so one test through the public boundary ties each leaf to running behavior. The checks `use-case-scenario-missing` and `proves-unreached` report the missing proof. A proof goes stale when its scenario hash or its test-body hash changes, while rewording prose leaves the proof green.
 
 **Checked by:** `litespec model check` emits no `use-case-scenario-missing` or `proves-unreached` finding across scenarios and tests.
 
@@ -105,7 +105,7 @@ A need a lower record layer meets that the upper record layer leaves unstated tr
 
 **Statement:** A fact learned from the world MUST enter Intent as research or a constraint that cites its source and date.
 
-**Rationale:** Commitments flow down, and facts from the world flow up: a provider's behavior, a regulation, or an incident enters Intent where people can weigh it. The citation and date show where the fact came from and when it held, so a later change rechecks the source instead of the memory. Nothing travels up from code.
+**Rationale:** Commitments flow down, and facts from the world flow up: a provider's behavior, a regulation, or an incident enters Intent where people can weigh it. The citation and date show where the fact came from and when it held, so a later change rechecks the source instead of the memory. Nothing travels up from code, except a transcribed draft written from code during adoption, which stays draft until the records it fulfills or serves are approved (`litespec/core/model#hold-transcribed-records-in-draft`).
 
 **Example:** An observed two-day payout settlement window enters as research, then as a constraint draft citing that research.
 

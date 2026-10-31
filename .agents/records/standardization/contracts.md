@@ -345,3 +345,18 @@ Finding codes: `known-gap-expired` becomes `exception-expired` (G, the day after
 - **Size-aware Defaults (J7, IP7):** the five application projects, property tests, model-based tests and the mutation threshold become a Default and Replacement by size as IP7's table states; an equivalent mutant is recorded in an `exception` of kind `gap` covering the mutation finding.
 - **Honest enforcement (J8, IP8):** every Statement carries Checked by naming an existing finding code, command or shipped file, or Reviewed for as a question; `litespec-maintain validate` reports a Checked by line naming a code, command or file that does not exist (`CHECKED_BY_UNKNOWN`).
 - **One page (J9, IP9):** `docs/backend/write-code-for-a-use-case.md`, title "Write Code for a Use Case", holds the element table (where each element goes, the mark it carries, what checks it); the mark rules keep their one home on `docs/core/model.md`, and `system.md` and the stack pages link to both.
+
+## Wave 6R: Reaction and Job Return (Owner Direction, 2026-10-31)
+
+The owner reversed BP4 (D27): "reaction" and "job" are more explicit and clearer when reading the code. The `automation` record type goes; `reaction` and `job` return as two record types. Every other wave 6 change stays: sagas, doors, typed inputs and payloads, privacy, scenarios, the effect verbs `runs` and `emits`, and the unified `onFailure`.
+
+| Record | Identifier and home | Fields |
+|:---|:---|:---|
+| reaction | `reaction/<module>.<name>`, `docs/behavior/modules/<module>/reactions/<name>.md`; name form `<verb>-<what>-on-<fact>` | `triggeredBy` (a list of `event/...` or `integration-event/...` ids; was `on`, B2), `skippedWhen` (was `if`, B2), `effects`, `reads`, `changes`, `fulfills`, `serves`, `idempotency`, `onFailure`, `risk` |
+| job | `job/<module>.<name>`, `docs/behavior/modules/<module>/jobs/<name>.md`; name form `<verb>-<what>` with the verb of the use case it runs | `kind` (`scheduled`, `one-off`, `manual`; `manual` was `operator`, D32), `schedule` (required with `scheduled`), `selection`, `batchSize`, `lease`, `cursor`, `runbook`, `runsWhere`, `guard` (required with `manual`), `serviceLevel`, `evidence`, `effects`, `reads`, `changes`, `fulfills`, `serves`, `idempotency`, `onFailure`, `risk` |
+
+Code marks: an event handler carries `implements reaction/<...>`, a job host `implements job/<...>`.
+
+Finding codes (B8 form): `automation-name-invalid` splits back into `reaction-name-invalid` and `job-name-invalid`; `automation-trigger-unknown` becomes `reaction-trigger-unknown`; `automation-unimplemented` splits into `reaction-unimplemented` and `job-unimplemented`; `automation-guard-missing` becomes `job-guard-missing`.
+
+Pages: `docs/core/automation.md` keeps its path and title "Automation" as the page for reactions and jobs together; "automation" is the page's subject, never a record type. Its provisions name reactions and jobs. A saga's `drivenBy` names `{ "job": "job/<...>" }` or `{ "reaction": "reaction/<...>" }` or a person. `litespec.project.json` `proof.automationTriggerSteps` becomes `proof.jobTriggerSteps`.

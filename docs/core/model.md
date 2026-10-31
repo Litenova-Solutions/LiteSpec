@@ -8,13 +8,13 @@ A LiteSpec project describes itself with records, written statements of fixed ty
 
 ### The Four Record Layers
 
-Each record layer answers one question, is written from the record layer above it, and owns its records. Nothing above Implementation is computed from code.
+Each record layer answers one question, is written from the record layer above it, and owns its records. Nothing above Implementation is computed from code, except transcription during adoption: a transcribed record stays draft until the records it fulfills or serves are approved, and the mode ends when the decision `adoption.transcriptionEndsWith` names is approved.
 
 | Record layer | Question | Writes | Reviews | Records |
 |:--|:--|:--|:--|:--|
 | Intent | Why build it, and what do we promise? | agents draft, the decider decides | the decider and product people | product, goal, problem, feature, topic, requirement, constraint, decision, research, journey, actor, term (`layer: intent`) |
 | Behavior | How does the system behave to keep the promises? | agents | developers; the security reviewer for access, outside calls and personal-data flows | module, aggregate, rule, event, integration-event, use-case, result, scenario, automation, notification, setting, role, permission, entry-point, external-system, runbook, term (`layer: behavior`) |
-| Implementation | How is it built? | agents | level S checks; developers sample | code only |
+| Implementation | How is it built? | agents | level S checks; developers sample | code and technical decisions |
 | Proof | How do we know it holds? | the builder | level G and level S checks | tests, check results, computed statuses, the rendered book |
 
 Governance is a group of records beside the four record layers, not a fifth layer: the `exception` record attaches to any record layer.
@@ -230,7 +230,7 @@ Each written link lives as a field on the record it starts from: a decision carr
 | `subject` | exception | The records the exception covers; a gap may also name journey steps (`journey/<name>#s<n>`) for the step findings | applies to | is applied to |
 | `terms` | any record | Terms | uses | is used by |
 
-Behavior records point up: `serves` on a use case, automation, or screen points to journey steps, `serves` on a journey points to its goal, `advances` on a feature points to goals, and `fulfills` points to a requirement. Records never point down: a journey names no use case, and a requirement names no rule.
+Behavior records point up: `serves` on a use case, automation, or screen points to journey steps, `serves` on a journey points to its goal, `advances` on a feature points to goals, and `fulfills` points to a requirement. Records never point down, except `decides`, which names the records a decision settles, and `holds`, which names the roles an actor holds at a scope: a journey names no use case, and a requirement names no rule.
 
 Containment needs no link field: it follows the identifier. An aggregate belongs to the module its identifier names, a requirement belongs to the topic its identifier names, an automation, notification, or setting belongs to the module its identifier names, and a result or a scenario belongs to the use case its identifier names. An integration event belongs to the published set. The builder computes the remaining links from code, routes, and tests: `implements` from a code mark to the record it names, `follows` from a code mark to the provision, decision, or exception that shapes the code, `calls` from a screen to a use case, and `proves` from a test mark to a scenario or rule. Code and tests point up to the record they serve through their marks, with each handler implementing exactly one record. The Parents table below names each record parent.
 
@@ -281,7 +281,7 @@ The product has no record parent; its parent is the project that declares it. In
 
 The mark rules keep their one home on this page: the marks table below states the mark each code element carries, and the [Write Code for a Use Case](../backend/write-code-for-a-use-case.md) page states where each element goes and what checks it.
 
-A mark is the one written link from a code element to the record it serves. It holds the record identifier, and every tool reads it the same way: the model builder and the analyzers. A folder path stays the map a reader follows through the code, and it is never the link, except for a Domain constituent type, which takes no mark and belongs to the aggregate whose folder holds it (`litespec/backend/domain#place-every-constituent-type-in-its-aggregates-folder`).
+A mark is a written link from a code element to the record it serves, in one of two kinds: `implements` names the record served and `follows` names the provision, decision, or exception that shapes the code. It holds the record identifier, and every tool reads it the same way: the model builder and the analyzers. A folder path stays the map a reader follows through the code, and it is never the link, except for a Domain constituent type, which takes no mark and belongs to the aggregate whose folder holds it (`litespec/backend/domain#place-every-constituent-type-in-its-aggregates-folder`).
 
 | Record layer the code serves | Code element | Mark names |
 |:--|:--|:--|
@@ -324,7 +324,7 @@ A record stays unapproved while a decision behind it stays draft. An accepted ga
 
 ### Authoring Order
 
-Records are authored top-down, one slice at a time: one feature from problem to scenario, then the next. Actors, roles, permissions, and the glossary grow beside Intent and Behavior. A question found while modeling goes up as an open question with a decider and a date; the Behavior record stays draft until it is answered. Adding new intent to a running project follows the one sequence under New Intent in a Running Project on the [agent page](agent.md); this page states no second order.
+Records are authored top-down, one slice at a time: one feature from problem to scenario, then the next. Actors, roles, permissions, and the glossary grow beside Intent and Behavior. A question found while modeling goes up as an open question with a decider and a date, as `litespec/core/layers#raise-open-needs-as-draft-questions` states; the Behavior record stays draft until it is answered. Adding new intent to a running project follows the one sequence under New Intent in a Running Project on the [agent page](agent.md); this page states no second order.
 
 ### Statuses
 
@@ -347,7 +347,7 @@ The builder also writes each record effective status: draft when the record, a d
 
 ### Approval as Data
 
-An approved or reviewed record carries its approval as data: `approvedBy` names a person owner, `approvedOn` names the date, and `approvedHash` is the builder hash over the semantic fields, written by `litespec model approve`. The semantic fields are the statements, results, output names, rules, and steps. Prose bodies and a term's translation labels sit outside the hash, so rewording prose or adding a language reopens no approval. `approval-reopened` fires when the semantic hash differs from `approvedHash`. The per-type table in [the approval hash guide](../guide/approval-hash.md) is the one definition of which fields feed the hash.
+An approved or reviewed record carries its approval as data: `approvedBy` names a person owner, `approvedOn` names the date, and `approvedHash` carries the approval hash over the semantic fields, written by `litespec model approve`. The semantic fields are the statements, results, output names, rules, and steps. Prose bodies and a term's translation labels sit outside the hash, so rewording prose or adding a language reopens no approval. `approval-reopened` fires when the approval hash differs from the recorded `approvedHash`. The per-type table in [the approval hash guide](../guide/approval-hash.md) is the one definition of which fields feed the hash.
 
 ### Risk Tiers
 
@@ -359,7 +359,7 @@ An approved or reviewed record carries its approval as data: `approvedBy` names 
 
 ### Transcription Mode
 
-During adoption, a Behavior record written from code carries `provenance: transcribed`. Such a record can stand as draft, but never as reviewed, until its `fulfills` or `serves` parent is approved. `litespec.project.json` `adoption.transcriptionEndsWith` names the decision that ends the mode. After that decision is approved, `transcription-expired` fails on any remaining transcribed record.
+During adoption, a Behavior record written from code carries `provenance: transcribed`. Such a record can stand as draft, but never as reviewed, until the records it fulfills or serves are approved. `litespec.project.json` `adoption.transcriptionEndsWith` names the decision that ends the mode. After that decision is approved, `transcription-expired` fails on any remaining transcribed record.
 
 ### Size and Stacks
 
@@ -371,7 +371,7 @@ The model builder reads records, code, routes, tests, and test runs into one mod
 
 Generated regions sit inside fences that only the builder writes and prose checks skip. Each project runs the builder in its own gate, so handwritten prose and computed views stay in one page without mixing.
 
-A finding that an approved exception covers is reported as excepted and exits zero. The exception covers the finding when its `covers` names the finding code, or the provision governing it, and its `subject` lists the finding identifier or its `paths` match the finding path. An exception past its `expiresOn` date is reported as `exception-expired`. Proof state lives in `docs/proof/proofs.json`, committed, holding for each scenario the hash of the scenario and of its test body at the last passing run; a proof is stale when either hash changes.
+A finding that an approved exception covers is reported as excepted and exits zero. A gap covers a finding when its `covers` lists the finding code; a departure covers the finding codes its provision's Checked by line names. The exception covers a finding only on its `subject` records or its `paths` files, and only while the exception is approved and its `expiresOn` date has not passed. An exception on a use case also covers the findings about the scenarios and results it holds. An exception past its `expiresOn` date is reported as `exception-expired`. Proof state lives in `docs/proof/proofs.json`, committed, holding for each scenario the hash of the scenario and of its test body at the last passing run; a proof is stale when either hash changes.
 
 `litespec model diff <base>` prints the records a change adds, changes and removes, in the book words, for review.
 
@@ -445,9 +445,9 @@ Field tables render as tables. Scenarios group under their result. Field names n
 
 **ID:** `litespec/core/model#flag-every-record-whose-parent-changed`
 
-**Statement:** Every record that cites, fulfills, or serves a record whose semantic hash changed MUST be flagged until it is updated.
+**Statement:** Every record that cites, fulfills, or serves a record whose approval hash changed MUST be flagged until it is updated.
 
-**Rationale:** A promise that moves without marking its readers leaves Behavior resting on Intent nobody holds anymore. The flag follows the trace: when a record semantic hash changes, every record that cites, fulfills, or serves it is flagged until it is updated. The top-down story depends on the flag, so demoting the rule and recording a gap instead would hide the change the next author must make.
+**Rationale:** A promise that moves without marking its readers leaves Behavior resting on Intent nobody holds anymore. The flag follows the trace: when a record approval hash changes, every record that cites, fulfills, or serves it is flagged until it is updated. The top-down story depends on the flag, so demoting the rule and recording a gap instead would hide the change the next author must make.
 
 **Example:** The decider raises the receipt threshold from EUR 25 to EUR 50, so the requirement statement changes and the builder flags the policy setting and the receipt rule that cite it until an agent updates them.
 
@@ -491,7 +491,7 @@ Field tables render as tables. Scenarios group under their result. Field names n
 
 **Statement:** An approved or reviewed record MUST carry approvedBy, approvedOn, and approvedHash over its semantic fields.
 
-**Rationale:** Approval as data tells every reader who decided, when, and over which content. The hash covers statements, results, output names, rules, and steps, and never prose bodies, so a typo fix reopens no approval while a moved promise does. `approval-reopened` fires when the semantic hash differs from the stored hash.
+**Rationale:** Approval as data tells every reader who decided, when, and over which content. The hash covers statements, results, output names, rules, and steps, and never prose bodies, so a typo fix reopens no approval while a moved promise does. `approval-reopened` fires when the approval hash differs from the stored hash.
 
 **Example:** An approved requirement carries its approver, its date, and its hash.
 
@@ -526,25 +526,25 @@ Field tables render as tables. Scenarios group under their result. Field names n
 
 **Checked by:** `litespec model check` reports `reference-unknown` for a link whose target no record carries.
 
-### Connect Every Use Case to Intent
+### Connect Every Behavior Record to Intent
 
 **ID:** `litespec/core/model#connect-every-use-case-to-intent`
 
-**Statement:** A use case MUST carry serves, fulfills, or both.
+**Statement:** A use case, automation, notification, or setting MUST carry serves, fulfills, or both.
 
-**Rationale:** A use case with no served journey step and no fulfilled requirement answers to nothing above it: no promise explains why it exists. Pointing up with serves or fulfills ties every behavior to the Intent that asks for it. `record-link-missing` fails a use case carrying neither.
+**Rationale:** A use case, automation, notification, or setting with no served journey step and no fulfilled requirement answers to nothing above it: no promise explains why it exists. Pointing up with serves or fulfills ties every behavior to the Intent that asks for it. `record-link-missing` fails a use case, automation, notification, or setting carrying neither. A use case is background-only when an automation runs it, so `use-case-journey-missing` skips it.
 
-**Checked by:** `litespec model check` reports `record-link-missing` for a use case with neither `serves` nor `fulfills`, and `use-case-journey-missing` (level G) at large size for a use case that is not background-only and serves no journey step.
+**Checked by:** `litespec model check` reports `record-link-missing` for a use case, automation, notification, or setting with neither `serves` nor `fulfills`, and `use-case-journey-missing` (level G) at large size for a use case that is not background-only and serves no journey step.
 
 ### Serve Every Journey Step
 
 **ID:** `litespec/core/model#serve-every-journey-step`
 
-**Statement:** Every journey step MUST have a serving use case.
+**Statement:** Every journey step MUST have a serving use case or automation.
 
-**Rationale:** A step no use case serves promises a moment the product never builds. Use cases point up with serves, so each step id collects the behaviors that carry the walker through it. `step-use-case-missing` fails a step with no serving use case. The pair sits side by side: `step-use-case-missing` names a step no use case serves, and `step-screen-missing` names a step a browser or device use case serves that no screen serves.
+**Rationale:** A step no use case or automation serves promises a moment the product never builds. Use cases and automations point up with serves, so each step id collects the behaviors that carry the walker through it. `step-use-case-missing` fails a step with no serving use case or automation. The pair sits side by side: `step-use-case-missing` names a step no use case or automation serves, and `step-screen-missing` names a step a browser or device use case serves that no screen serves.
 
-**Checked by:** `litespec model check` reports `step-use-case-missing` for a journey step with no serving use case, beside `step-screen-missing` for a step a browser or device use case serves that no screen serves.
+**Checked by:** `litespec model check` reports `step-use-case-missing` for a journey step with no serving use case or automation, beside `step-screen-missing` for a step a browser or device use case serves that no screen serves.
 
 ### Follow the Authority Order
 
@@ -606,7 +606,7 @@ Field tables render as tables. Scenarios group under their result. Field names n
 
 The `use-case-unimplemented` finding reports without failing until 2027-06-01, and the expenses team answers for closing the gap, which satisfies this provision.
 
-**Checked by:** `litespec model check` reports `record-invalid` for an exception missing its owner, date, or renewal, `exception-expired` (level G) past its `expiresOn` date, and `exception-finding-unknown` (level G) for an exception naming a finding code no check uses.
+**Checked by:** `litespec model check` reports `record-invalid` for an exception missing its owner or date, `exception-expired` (level G) past its `expiresOn` date, and `exception-finding-unknown` (level G) for an exception naming a finding code no check uses.
 
 ### Apply Guidance Precedence
 
@@ -638,7 +638,7 @@ The `use-case-unimplemented` finding reports without failing until 2027-06-01, a
 
 The record names the provision it sets aside, the reason, and the expiry date, so the departure stays visible and dated, which satisfies this provision.
 
-An exception that covers code no record describes names those files in `paths`, as globs from the repository root. An exception that covers records names them in `subject`. One of the two is required. While the exception is approved and its `expiresOn` date has not passed, `model check` reports the findings its `covers` names on those files and records, and on the results and scenarios a named use case holds, as excepted instead of failing on them; after the expiry date they fail again. A departure covers the finding codes its provision's Checked by line names.
+An exception that covers code no record describes names those files in `paths`, as globs from the repository root. An exception that covers records names them in `subject`. One of the two is required. The Model Builder section on this page states the one rule for which findings an approved exception covers and when.
 
 **Reviewed for:** Every departure from a shared provision resolves to an exception record under `docs/governance/exceptions/` with reason and expiry date.
 
@@ -791,25 +791,15 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 
 **Reviewed for:** Approved Behavior records show approved Intent above them through their `fulfills` and `decides` links.
 
-### Raise Modeling Questions with a Decider and a Date
-
-**ID:** `litespec/core/model#raise-modeling-questions-with-a-decider-and-a-date`
-
-**Statement:** A question found while modeling MUST travel up as a question carrying its decider and its decision date.
-
-**Rationale:** A Behavior record written around an open question bakes the guess into states, rules, and scenarios. Sending the question up with its decider, its date, its recommendation, and its ballot keeps it owned and dated, while the Behavior record stays draft until the answer lands. A question past its date that cannot auto-approve is reported, so it never silently blocks.
-
-**Checked by:** `litespec model check` reports `question-expired` (level A) for every unanswered question past its `decideBy` that cannot auto-approve.
-
 ### Hold Transcribed Records in Draft
 
 **ID:** `litespec/core/model#hold-transcribed-records-in-draft`
 
-**Statement:** A record with provenance transcribed MUST NOT stand reviewed while its fulfills or serves parent is unapproved.
+**Statement:** A record with provenance transcribed MUST NOT stand reviewed while a record it fulfills or serves is unapproved.
 
-**Rationale:** Transcription copies working code into a record during adoption, so the record describes what exists rather than what Intent asked for. Draft holds it visibly unfinished until its fulfills or serves parent is approved. `transcription-status-invalid` fails a transcribed record standing reviewed while its fulfills or serves parent is unapproved.
+**Rationale:** Transcription copies working code into a record during adoption, so the record describes what exists rather than what Intent asked for. Draft holds it visibly unfinished until the records it fulfills or serves are approved. `transcription-status-invalid` fails a transcribed record standing reviewed while a record it fulfills or serves is unapproved.
 
-**Checked by:** `litespec model check` reports `transcription-status-invalid` for a transcribed record standing reviewed while its fulfills or serves parent is unapproved.
+**Checked by:** `litespec model check` reports `transcription-status-invalid` for a transcribed record standing reviewed while a record it fulfills or serves is unapproved.
 
 ### End Transcription at the Named Decision
 
@@ -817,7 +807,7 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 
 **Statement:** Every transcribed record MUST clear before the adoption decision is approved.
 
-**Rationale:** Transcription mode exists to adopt working code, not to write Behavior from code forever. `adoption.transcriptionEndsWith` names the decision that ends the mode, and approving it closes the door: `transcription-expired` fails on any record still carrying provenance transcribed. Clearing means the record earns its Intent parent and drops the transcribed mark, or retires with the code it copied.
+**Rationale:** Transcription mode exists to adopt working code, not to write Behavior from code forever. `adoption.transcriptionEndsWith` names the decision that ends the mode, and approving it closes the door: `transcription-expired` fails on any record still carrying provenance transcribed. Clearing means the records it fulfills or serves are approved and the record drops the transcribed mark, or the record retires with the code it copied.
 
 **Checked by:** `litespec model check` reports `transcription-expired` for a transcribed record after the adoption decision is approved.
 
@@ -827,7 +817,7 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 
 **Statement:** Implemented, verified, met, tested, exercised, stale, flaky, reachable, and effective status MUST come from the builder, never from handwriting.
 
-**Rationale:** Handwritten status drifts: a record marked implemented stays marked after its handler is deleted. Computed status cannot drift, because the builder re-derives it from handlers, routes, scenarios, and test runs on every run. A use case reads implemented when a handler, automation, or endpoint marked with it carries it out, verified when every scenario has a passing proof through the public boundary that is not stale, and stale when the scenario hash or the test-body hash differs from `docs/proof/proofs.json`. A requirement reads met when everything fulfilling it is verified and its measure's check passes. A record reads tested when a passing test that asserts something links to it. A journey step reads exercised when a passing proof of a use case serves it. A proof reads flaky when its test both passed and failed within the runs read. Nothing above Implementation is computed from code: derivation from code into a record is forbidden, and code-computed facts live in the book and the model output.
+**Rationale:** Handwritten status drifts: a record marked implemented stays marked after its handler is deleted. Computed status cannot drift, because the builder re-derives it from handlers, routes, scenarios, and test runs on every run. A use case reads implemented when a handler, automation, or endpoint marked with it carries it out, verified when every scenario has a passing proof through the public boundary that is not stale, and stale when the scenario hash or the test-body hash differs from `docs/proof/proofs.json`. A requirement reads met when everything fulfilling it is verified and its measure's check passes. A record reads tested when a passing test that asserts something links to it. A journey step reads exercised when a passing proof of a use case serves it. A proof reads flaky when its test both passed and failed within the runs read. Nothing above Implementation is computed from code, except a transcribed draft written from code during adoption: derivation from code into any other record is forbidden, and code-computed facts live in the book and the model output. `litespec/core/model#hold-transcribed-records-in-draft` and `litespec/core/model#end-transcription-at-the-named-decision` state the draft-only exception and the decision that ends it.
 
 **Example:** A use case reads implemented when its handler exists.
 

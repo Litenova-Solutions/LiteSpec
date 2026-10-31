@@ -60,7 +60,7 @@ The semantic fields per record type are:
 
 ### Know What Reopens an Approval
 
-Any change inside the hashed fields reopens the approval: a moved statement, a new result, a renamed output, a new rule, a changed step. `litespec model check` reports `approval-reopened` for a record whose semantic hash differs from its `approvedHash`. A change outside the hash, such as a retitled record, a new owner, or reworded prose, reopens nothing. This satisfies `litespec/core/model#record-approval-as-data`.
+Any change inside the hashed fields reopens the approval: a moved statement, a new result, a renamed output, a new rule, a changed step. `litespec model check` reports `approval-reopened` for a record whose approval hash differs from its `approvedHash`. A change outside the hash, such as a retitled record, a new owner, or reworded prose, reopens nothing. This satisfies `litespec/core/model#record-approval-as-data`.
 
 ### Preview Approval with a Dry Run
 
@@ -70,7 +70,7 @@ Run the dry run before stamping, to see which records would be stamped and which
 litespec model approve --all --dry-run
 ```
 
-Each record with no `approvedHash` prints as one `would be stamped (no approvedHash)` line, and each record whose semantic hash differs prints as one `would be reopened (approvedHash differs)` line. The last line counts both groups. The command writes nothing and exits 1 only when a named id matches no written record. This satisfies `litespec/core/model#record-approval-as-data`.
+Each record with no `approvedHash` prints as one `would be stamped (no approvedHash)` line, and each record whose approval hash differs prints as one `would be reopened (approvedHash differs)` line. The last line counts both groups. The command writes nothing and exits 1 only when a named id matches no written record. This satisfies `litespec/core/model#record-approval-as-data`.
 
 ## Check
 

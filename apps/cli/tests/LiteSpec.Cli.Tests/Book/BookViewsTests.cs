@@ -262,7 +262,7 @@ public sealed class BookViewsTests
 
         var refused = details["scenario/borrow-copy.borrowing-a-loaned-copy-is-refused"];
         Assert.Equal("unproved", Str(Obj(refused, "proof"), "state"));
-        Assert.True(HasString(Arr(refused, "lacks"), "no test"));
+        Assert.True(HasString(Arr(refused, "lacks"), "not tested"));
     }
 
     /// <summary>A scenario traces to its goal through edges: result, use case, rules, requirement, feature and goal.</summary>
@@ -703,12 +703,12 @@ public sealed class BookViewsTests
         Assert.Equal("handler", Str(impl[0]!.AsObject(), "kind"));
         Assert.Equal("src/Application/Lending/BorrowCopyHandler.cs", Str(impl[0]!.AsObject(), "path"));
         Assert.Null(impl[0]!.AsObject()["line"]);
-        Assert.True(HasString(Arr(borrow, "lacks"), "scenarios without a test"));
+        Assert.True(HasString(Arr(borrow, "lacks"), "scenarios not tested"));
 
         var returned = details["use-case/lending.return-copy"];
         Assert.False(BoolOf(Obj(returned, "expect")["impl"]));
         Assert.Empty(Arr(returned, "impl"));
-        Assert.True(HasString(Arr(returned, "lacks"), "scenarios without a test"));
+        Assert.True(HasString(Arr(returned, "lacks"), "scenarios not tested"));
 
         var passing = details["scenario/borrow-copy.borrowing-an-available-copy-succeeds"];
         var tests = Arr(passing, "tests");
@@ -720,7 +720,7 @@ public sealed class BookViewsTests
         Assert.Empty(Arr(passing, "lacks"));
 
         Assert.Empty(Arr(details["scenario/borrow-copy.borrowing-a-loaned-copy-is-refused"], "tests"));
-        Assert.True(HasString(Arr(details["aggregate/lending.loan"], "lacks"), "no code"));
+        Assert.True(HasString(Arr(details["aggregate/lending.loan"], "lacks"), "not implemented"));
     }
 
     /// <summary>The Why block inputs split from the body: the intro stays prose and Why sections list by heading.</summary>

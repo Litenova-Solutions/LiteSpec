@@ -76,7 +76,7 @@ A runbook is the steps to run or recover the product. It carries the identifier 
 
 **Statement:** Each automation MUST be named `<verb>-<what>-on-<fact>` with a declared verb for an event trigger, or `<verb>-<what>` with the verb of a use case it runs for a schedule or manual trigger.
 
-**Rationale:** An event automation runs because something happened, and a name without its trigger hides why it runs: `send-due-notice` could fire on a borrow, a renewal, or a reminder run. Naming the act and the fact lets a reader find every consequence of a fact by its name. A schedule or manual automation selects items and runs one command for each, so naming it for that command lets a reader go from the schedule to the behavior in one step, as `litespec/core/language#name-each-record-by-its-types-name-form` states.
+**Rationale:** An event automation runs because something happened, and a name without its trigger hides why it runs: `send-due-notice` could fire on a borrow, a hold, or a reminder run. Naming the act and the fact lets a reader find every consequence of a fact by its name. A schedule or manual automation selects items and runs one command for each, so naming it for that command lets a reader go from the schedule to the behavior in one step, as `litespec/core/language#name-each-record-by-its-types-name-form` states.
 
 **Example:** `automation/lending.send-due-notice-on-loan-borrowed` answers `event/loan.loan-borrowed`; `automation/lending.expire-lapsed-holds` runs `use-case/lending.expire-holds`.
 

@@ -48,7 +48,7 @@ The system holds one delivery approach and one operating model:
 
 ### What the System Combines
 
-The system combines product intent, domain behavior, access control, operations, and project upkeep into one specification that joins intent to code. The [intent page](intent.md) states goals, problems, features, constraints, research, decisions, requirements, and journeys. The [behavior page](behavior.md) states the bounded context, the glossary, modules, aggregates, rules, events, use cases, results, scenarios, automations, notifications, and settings. The [access page](access.md) states actors, roles, permissions, entry points, and external systems. The [layers page](layers.md) states how each record layer is written from the one above it, and the [model page](model.md) states records, identifiers, links, authority, authoring order, verification, and the builder that computes how intent connects to code. The mark rules keep their one home on the [model page](model.md), and the [Write Code for a Use Case](../backend/write-code-for-a-use-case.md) page states where each code element goes, the mark it carries, and what checks it.
+The system combines product intent, domain behavior, access control, operations, and project upkeep into one specification that joins intent to code. The [intent page](intent.md) states goals, problems, features, constraints, research, decisions, requirements, and journeys. The [behavior page](behavior.md) states the bounded context, the glossary, modules, aggregates, rules, events, use cases, results, scenarios, automations, notifications, and settings. The [access page](access.md) states actors, roles, permissions, entry points, and external systems. The [layers page](layers.md) states how each record layer is written from the one above it, and the [model page](model.md) states records, identifiers, links, authority, authoring order, verification, and the builder that computes how intent connects to code. What the builder computes lives in `litespec/core/model#compute-proof-statuses-in-the-builder`. The mark rules keep their one home on the [model page](model.md), and the [Write Code for a Use Case](../backend/write-code-for-a-use-case.md) page states where each code element goes, the mark it carries, and what checks it.
 
 Each page owns its tables and rules, and this page cites them without copying. A reader who needs a record type, a link field, or the authority order opens the owning page.
 
@@ -80,7 +80,7 @@ Each page owns its tables and rules, and this page cites them without copying. A
 
 **Statement:** Every code element the marks table on the [model page](model.md) assigns a mark MUST carry one naming the record it serves, with each handler marking exactly one record.
 
-**Rationale:** The mark is the one link from Implementation to Behavior and from Proof to the scenario it proves. A folder or a type name only resembles the record, and a resemblance drifts with the next rename; a mark holds the identifier, so the checks, the analyzers and the editor follow the same link without guessing. One record per handler keeps each file answerable to one use case. Nothing above Implementation is computed from code, so the link points up and the records stay the authority.
+**Rationale:** The mark is the link from Implementation to Behavior and from Proof to the scenario it proves, in the two kinds the [model page](model.md) states: `implements` names the record served and `follows` names the choice followed. A folder or a type name only resembles the record, and a resemblance drifts with the next rename; a mark holds the identifier, so the checks, the analyzers and the editor follow the same link without guessing. One record per handler keeps each file answerable to one use case. Nothing above Implementation is computed from code, except a transcribed draft written from code during adoption, so the link points up and the records stay the authority.
 
 **Example:** The reimburse-expense handler carries a mark naming `use-case/spending.reimburse-expense`, the `Reimburse` method on the expense root carries the same mark, and the reminder event handler carries a mark naming `automation/spending.send-approver-reminder-on-expense-submitted`.
 
@@ -130,99 +130,19 @@ Each page owns its tables and rules, and this page cites them without copying. A
 
 **Reviewed for:** The behavior change with its use case page, tests, product records, decision, journey, and operating records changed together.
 
-### Keep Computed Facts in Proof
-
-**ID:** `litespec/core/system#keep-computed-facts-in-proof`
-
-**Statement:** A fact computed from code MUST live in Proof and not in an Intent or Behavior record.
-
-**Rationale:** Implemented, verified, stale, reachable, and the effective status are computed from code and tests, so they appear in the book and the model output only. Writing one into an Intent or Behavior record freezes a figure from commit day that the next unrelated change silently falsifies. The [model page](model.md) states what the builder computes.
-
-**Example:** The book marks a chapter verified when every scenario passes, and stale when a scenario's semantic hash changes after its test last passed.
-
-**Reviewed for:** Which Intent or Behavior records restate a fact computed from code? Look at the statuses and counts the change adds, beside the book and model output.
-
 ## Conventions
 
-### Use This Consumer Documentation Layout
+### Use the Docs Layout on the Model Page
 
 **ID:** `litespec/core/system#use-this-consumer-documentation-layout`
 
-**Default:** Use the consumer documentation layout in this section, creating a directory only when its first real artifact exists.
+**Default:** Use the docs layout the [model page](model.md) states under The Docs Layout, creating a directory only when its first real artifact exists.
 
 **Replacement:** A consumer names its own documentation layout in its project documentation.
 
-**Example:**
+**Rationale:** One home for the docs layout means the folders, the record layers, and the review responsibilities stay in one table. A second tree beside it drifts with the next reorganization, and readers follow the stale one.
 
-```text
-docs/
-  product/
-    README.md
-    brief.md
-    business/
-      pricing.md
-    markets/
-      expansion.md
-    roadmap/
-      milestones.md
-    decisions/
-      0001-receipt-threshold.md
-    problems/
-      expenses-wait-weeks.md
-    features/
-      approval-reminders.md
-    goals/
-      decided-in-days.md
-    journeys/
-      submit-and-reimburse.md
-    actors/
-      employee.md
-    constraints/
-      tax-receipt-retention.md
-  behavior/
-    README.md
-    roles/
-      approver.md
-    permissions.md
-    entry-points.md
-    systems/
-      payout-bank.md
-    rules/
-      spending-rules.md
-    modules/
-      README.md
-      spending/
-        README.md
-        expenses/
-          README.md
-          submit-expense.md
-  implementation/
-    decisions/
-      0005-render-receipts-as-pdf.md
-  research/
-    approval-time-benchmarks.md
-  operations/
-    limits.md
-    secrets.json
-    log/
-  runbooks/
-    restore-a-backup.md
-  governance/
-    exceptions/
-      temporary-direct-database-read.md
-      export-expenses-unimplemented.md
-  ui/
-    README.md
-  glossary.json
-```
-
-`product/` holds the brief, the journeys, the actors, and the business intent: one topic page per area with its requirements, and the product decisions, goals, problems, features, and constraints behind them. Actors are Intent records, so they live with Intent as the [model page](model.md) states. `behavior/` holds the roles, permissions, entry points, external systems, rules, and modules.
-
-`operations/` holds the limits, the secret inventory, and the operations log. `runbooks/` and `governance/exceptions/` hold their records. `ui/` holds the first UI decision or guide. `glossary.json` holds the term records.
-
-Create an optional directory only when its first real artifact exists. Never create empty directories or placeholder records during inception.
-
-**Reviewed for:** The `docs/` tree matching the layout, or the project documentation naming the replacement layout.
+**Reviewed for:** The `docs/` tree matching the layout the model page states, or the project documentation naming the replacement layout.
 
 ### Group Module Use Case Files by Aggregate
 
@@ -274,6 +194,6 @@ Create an optional directory only when its first real artifact exists. Never cre
 
 ## Reference Example
 
-This informative example demonstrates `litespec/core/system#deliver-one-complete-use-case`, `litespec/core/system#update-records-with-behavior`, `litespec/core/system#point-code-and-tests-up-to-records`, `litespec/core/system#declare-every-edge-between-records`, and `litespec/core/system#keep-computed-facts-in-proof`.
+This informative example demonstrates `litespec/core/system#deliver-one-complete-use-case`, `litespec/core/system#update-records-with-behavior`, `litespec/core/system#point-code-and-tests-up-to-records`, `litespec/core/system#declare-every-edge-between-records`, and `litespec/core/model#compute-proof-statuses-in-the-builder`.
 
 The `use-case/spending.submit-expense` use case is complete only with its behavior, persistence, entry points, tests, and operating records. A change to the receipt threshold updates the use case page, the tests, the requirement, the decision, the journey, and the operating records in the same change. The handler mark points up to the use case record, every edge the change adds is declared on its record, and the book marks the chapter verified only after the tests pass.

@@ -91,3 +91,7 @@ Wave 8 made the `**ID:**` line a provision's identity in the validator, but the 
 ## 2026-10-31: Claimwick Drops Two States No Use Case Reaches
 
 J5's rule that every state-changing root method carries a mark found `Policy.Retire` and `Receipt.Remove` in the Claimwick example. No use case or transition reaches them, and nothing calls them; their states (`Retired`, `Removed`) were declared with no transition. The example shows only declared behavior, so the methods, their state types and the two states were removed rather than given invented use cases.
+
+## 2026-10-31: Reaction and Job Return (Owner Direction)
+
+The owner reversed BP4 mid-run: "'reaction' and 'job' were more explicit and more clear when looking at the code." The automation record type is withdrawn; reaction and job return as record types with their folders, identifiers, marks and codes (contracts.md, "Wave 6R"). The language renames on them stay (B2: `on` to `triggeredBy`, `if` to `skippedWhen`; D32: an operator job is `manual`), as do every other wave 6 change and the post-wave-7 patch (the one-off job kind and the job service fields return as job fields; a reaction lists its events). `docs/core/automation.md` keeps its name as the page for both. Decision 0015 is rewritten to record D28 to D30 without D27. The largest consumer's uncommitted migration moves its records back the same way.
