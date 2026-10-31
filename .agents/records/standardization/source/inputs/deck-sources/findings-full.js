@@ -1,5 +1,0 @@
-module.exports = [
-['medium','inconsistency','Ten provisions cite draft decisions as settled','model.md:442, :529, :930, :942, :954, :966, :978, :990, maintaining.md:120 and use-cases.md:550 say Settled by decision/0001, 0002, 0008 or 0012. All nineteen decisions in docs/intent/decisions/ are still draft; intent.md already says Proposed by.','Approve decisions 0001-0019 before tagging 3.0.0, or say Proposed by until they are approved.'],
-['low','gap','Book labels outside the allowed set','tools/book.md:29-31 shows the verdicts changes requested and questioned and the proof label test written, not run. model.md:936-946 allows only a record type, a field name, a status, a glossary term, or a reads-as phrase, and none of the three is one.','Add these states to the model and the glossary, or relabel them.'],
-['low','gap','consumer.md never says findings carry levels','ConsumerValidator.cs:239-240 prints [G] problems and [A] advisories in JSON, and :259, :270 in text. docs/tools/consumer.md never states that every consumer finding carries its level.','State it in one sentence on the consumer page.']
-];

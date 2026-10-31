@@ -19,3 +19,4 @@ mcps/
 
 # Agent worktrees from other sessions are separate checkouts, never part of this repository.
 .claude/worktrees/
+.playwright-cli/

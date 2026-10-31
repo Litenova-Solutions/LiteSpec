@@ -1,9 +1,0 @@
-[      12ms] TypeError: list.map is not a function
-    at bullets (http://127.0.0.1:8932/out-fixture-default/assets/book.js:746:69)
-    at http://127.0.0.1:8932/out-fixture-default/assets/book.js:1028:378
-    at Array.map (<anonymous>)
-    at use-case (http://127.0.0.1:8932/out-fixture-default/assets/book.js:1028:88)
-    at detailHtml (http://127.0.0.1:8932/out-fixture-default/assets/book.js:1154:45)
-    at render (http://127.0.0.1:8932/out-fixture-default/assets/book.js:1390:48)
-    at http://127.0.0.1:8932/out-fixture-default/assets/book.js:1442:5
-[   10173ms] [INFO] Unplaced records: journey/borrowing @ http://127.0.0.1:8932/out-fixture-default/assets/book.js:1603

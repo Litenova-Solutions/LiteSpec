@@ -1,5 +1,0 @@
-module.exports = [
-['medium','inconsistency','Term layer: the page allows implementation, the schema forbids it','domain-model.md:20-28 says layer is intent, behavior, or implementation, for design words that live in code such as a read model. schemas/glossary.schema.json:49-52 allows only intent and behavior.','Add implementation to the enum, or say which of the two layers a code-only word takes.'],
-['low','inconsistency','A behavior term can never be reviewed','glossary.schema.json:106-109 allows draft, approved, retired for every term. model.md:464-466 gives Behavior records the draft, reviewed, retired vocabulary, and domain-model.md:20 says a term carries the vocabulary of its layer.','Make the term status conditional on its layer.'],
-['low','gap','manage lives in code only','UseCaseVerbs.cs:97 defines manage as a command verb, and access.md:151 uses permission/manage-copies in its example. The verb tables on use-cases.md never name it, so a reader cannot tell it is a permission word.','Document manage as a permission word on the access or use-case page, or remove it.']
-];
