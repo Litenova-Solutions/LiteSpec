@@ -391,7 +391,7 @@ static class ModelCommand
 
                     var written = model.Records.Where(record => !record.Derived).ToList();
                     var targets = all
-                        ? written.Where(record => record.Status is "approved" or "reviewed" && string.IsNullOrEmpty(record.ApprovedHash)).ToList()
+                        ? written.Where(record => record.Status is RecordStatuses.Approved or RecordStatuses.Reviewed && string.IsNullOrEmpty(record.ApprovedHash)).ToList()
                         : written.Where(record => ids.Contains(record.Id)).ToList();
                     var unknown = all ? [] : ids.Where(id => written.All(record => record.Id != id)).ToList();
 

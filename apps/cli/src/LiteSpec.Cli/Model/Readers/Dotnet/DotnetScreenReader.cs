@@ -6,12 +6,6 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace LiteSpec.Model.Readers.Dotnet;
 
-/// <summary>What the .NET screen read found: route facts and one problem per file it could not read or parse.</summary>
-/// <param name="Routes">The route entries.</param>
-/// <param name="Problems">One <c>reader-missing</c> finding per unreadable or unparsable file.</param>
-/// <follows>litespec/frontend/structure#mark-each-route-with-its-screen</follows>
-sealed record DotnetScreenRead(IReadOnlyList<RouteFact> Routes, IReadOnlyList<Finding> Problems);
-
 /// <summary>
 ///     Reads the route entries of a Blazor or Android frontend: every Blazor component
 ///     carrying an <c>@page</c> template, and every Android destination activity or

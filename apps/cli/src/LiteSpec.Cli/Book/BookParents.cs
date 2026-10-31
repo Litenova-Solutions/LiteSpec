@@ -312,6 +312,5 @@ static class BookParents
         return null;
     }
 
-    static string? StrProp(JsonObject? obj, string name) =>
-        obj?[name] is JsonValue scalar && scalar.TryGetValue<string>(out var text) ? text : null;
+    static string? StrProp(JsonObject? obj, string name) => BookRender.StrProp(obj, name);
 }

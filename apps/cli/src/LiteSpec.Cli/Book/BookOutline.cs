@@ -680,6 +680,5 @@ static class BookOutline
     static bool IsRecordOf(BookOutlineNode node, string type) =>
         string.Equals(node.Kind, "record", StringComparison.Ordinal) && string.Equals(node.Type, type, StringComparison.Ordinal);
 
-    static string? StrProp(JsonObject? obj, string name) =>
-        obj?[name] is JsonValue scalar && scalar.TryGetValue<string>(out var text) ? text : null;
+    static string? StrProp(JsonObject? obj, string name) => BookRender.StrProp(obj, name);
 }

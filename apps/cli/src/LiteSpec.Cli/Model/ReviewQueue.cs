@@ -63,7 +63,7 @@ static class ReviewQueue
     /// <summary>The authority ladder for records that carry one.</summary>
     static readonly IReadOnlyList<string> Ladder =
     [
-        "constraint", "product", "requirement", "rule", "use-case", "result", "scenario",
+        RecordTypes.Constraint, RecordTypes.Product, RecordTypes.Requirement, RecordTypes.Rule, RecordTypes.UseCase, RecordTypes.Result, RecordTypes.Scenario,
     ];
 
     /// <summary>Computes the review queue from the model, in review order.</summary>
@@ -103,7 +103,7 @@ static class ReviewQueue
         DateOnly today)
     {
         var queued = records
-            .Where(record => !record.Derived && (record.Status == "draft" || IsReopened(record)))
+            .Where(record => !record.Derived && (record.Status == RecordStatuses.Draft || IsReopened(record)))
             .ToList();
         var groups = Assign(records, queued, config.BehaviorDocs);
         var batches = groups
@@ -148,7 +148,7 @@ static class ReviewQueue
             TierOf(records, record),
             effectiveStatus.TryGetValue(record.Id, out var effective)
                 ? effective
-                : record.Status ?? "draft",
+                : record.Status ?? RecordStatuses.Draft,
             IsReopened(record),
             IsFullReRead(record),
             AwaitingOf(records, record),
@@ -177,9 +177,9 @@ static class ReviewQueue
     public static string LayerOf(Record record)
     {
         // Terms span both layers, so each term names its own.
-        if (record.Type == "term")
+        if (record.Type == RecordTypes.Term)
         {
-            return record.Field("layer") == "behavior" ? "behavior" : "intent";
+            return record.Field(RecordFields.Layer) == "behavior" ? "behavior" : "intent";
         }
 
         return RecordTypes.LayerByType.TryGetValue(record.Type, out var layer) ? layer : "intent";
@@ -220,10 +220,10 @@ static class ReviewQueue
         // An Intent record batches with the records of its own home, so one open question
         // holds back only the records it can change. A journey has no identifier home, so it
         // batches with the goal it serves, its parent.
-        if (record.Type == "journey"
-            && record.Ids("serves").FirstOrDefault() is { } goal
+        if (record.Type == RecordTypes.Journey
+            && record.Ids(RecordFields.Serves).FirstOrDefault() is { } goal
             && Identifiers.TrySplit(goal, out var prefix, out _, out var goalName)
-            && prefix == "goal")
+            && prefix == RecordTypes.Goal)
         {
             return goalName;
         }
@@ -246,7 +246,7 @@ static class ReviewQueue
     /// </summary>
     static int TierOf(IReadOnlyList<Record> records, Record record)
     {
-        if (record.Type is "result" or "scenario"
+        if (record.Type is RecordTypes.Result or RecordTypes.Scenario
             && Identifiers.TrySplit(record.Id, out _, out var home, out _)
             && home is not null
             && UseCaseOf(records, home) is { } holder)
@@ -270,7 +270,7 @@ static class ReviewQueue
                 continue;
             }
 
-            if (record.Type == "use-case"
+            if (record.Type == RecordTypes.UseCase
                 && Identifiers.TrySplit(record.Id, out _, out _, out var name)
                 && name == home)
             {
@@ -284,7 +284,7 @@ static class ReviewQueue
     /// <summary>Whether the record carries any risk value, which makes it tier 1.</summary>
     public static bool HasRisk(Record record) =>
         record.Raw.ValueKind == JsonValueKind.Object
-        && record.Raw.TryGetProperty("risk", out var risk)
+        && record.Raw.TryGetProperty(RecordFields.Risk, out var risk)
         && ((risk.ValueKind == JsonValueKind.Array && risk.GetArrayLength() > 0)
             || (risk.ValueKind == JsonValueKind.String && risk.GetString() is { Length: > 0 }));
 
@@ -293,7 +293,7 @@ static class ReviewQueue
     ///     present that no longer matches the semantic hash.
     /// </summary>
     public static bool IsReopened(Record record) =>
-        record.Status is "approved" or "reviewed"
+        record.Status is RecordStatuses.Approved or RecordStatuses.Reviewed
         && record.ApprovedHash is { Length: > 0 }
         && Checker.SemanticHash(record) != record.ApprovedHash;
 
@@ -318,13 +318,13 @@ static class ReviewQueue
             return false;
         }
 
-        if (record.Raw.TryGetProperty("access", out var access)
+        if (record.Raw.TryGetProperty(RecordFields.Access, out var access)
             && access.ValueKind == JsonValueKind.Object)
         {
             return true;
         }
 
-        return record.Raw.TryGetProperty("values", out var values) && Present(values);
+        return record.Raw.TryGetProperty(RecordFields.Values, out var values) && Present(values);
     }
 
     /// <summary>Whether a values field carries anything.</summary>
@@ -352,7 +352,7 @@ static class ReviewQueue
     /// </summary>
     static IReadOnlyList<string> AwaitingOf(IReadOnlyList<Record> records, Record record)
     {
-        if (record.Status != "draft")
+        if (record.Status != RecordStatuses.Draft)
         {
             return [];
         }
@@ -361,22 +361,22 @@ static class ReviewQueue
 
         foreach (var draft in records)
         {
-            if (draft.Derived || draft.Status != "draft" || draft.Id == record.Id || draft.Id.Length == 0)
+            if (draft.Derived || draft.Status != RecordStatuses.Draft || draft.Id == record.Id || draft.Id.Length == 0)
             {
                 continue;
             }
 
-            if (record.Type == "decision" && record.Ids("decides").Contains(draft.Id, StringComparer.Ordinal))
+            if (record.Type == RecordTypes.Decision && record.Ids(RecordFields.Decides).Contains(draft.Id, StringComparer.Ordinal))
             {
                 waiting.Add(draft.Id);
             }
-            else if (record.Type == "requirement" && draft.Ids("fulfills").Contains(record.Id, StringComparer.Ordinal))
+            else if (record.Type == RecordTypes.Requirement && draft.Ids(RecordFields.Fulfills).Contains(record.Id, StringComparer.Ordinal))
             {
                 waiting.Add(draft.Id);
             }
-            else if (record.Type == "journey"
-                && draft.Field("provenance") == "transcribed"
-                && draft.Ids("serves").Any(target =>
+            else if (record.Type == RecordTypes.Journey
+                && draft.Field(RecordFields.Provenance) == "transcribed"
+                && draft.Ids(RecordFields.Serves).Any(target =>
                     target == record.Id || target.StartsWith(record.Id + "#", StringComparison.Ordinal)))
             {
                 waiting.Add(draft.Id);
@@ -392,7 +392,7 @@ static class ReviewQueue
     public static int OpenQuestionCount(Record record, ConsumerConfig config, DateOnly today)
     {
         if (record.Raw.ValueKind != JsonValueKind.Object
-            || !record.Raw.TryGetProperty("questions", out var questions)
+            || !record.Raw.TryGetProperty(RecordFields.Questions, out var questions)
             || questions.ValueKind != JsonValueKind.Array)
         {
             return 0;
@@ -410,17 +410,17 @@ static class ReviewQueue
     /// <summary>Whether the question entry is answered: it carries an answer or an answerer.</summary>
     static bool Answered(JsonElement element) =>
         element.ValueKind == JsonValueKind.Object
-        && ((element.TryGetProperty("answer", out var answer)
+        && ((element.TryGetProperty(RecordFields.Answer, out var answer)
                 && answer.ValueKind == JsonValueKind.String
                 && answer.GetString() is { Length: > 0 })
-            || (element.TryGetProperty("answeredBy", out var by)
+            || (element.TryGetProperty(RecordFields.AnsweredBy, out var by)
                 && by.ValueKind == JsonValueKind.String
                 && by.GetString() is { Length: > 0 }));
 
     /// <summary>Whether the question entry carries a recommended answer.</summary>
     static bool HasRecommendation(JsonElement element) =>
         element.ValueKind == JsonValueKind.Object
-        && element.TryGetProperty("recommendation", out var value)
+        && element.TryGetProperty(RecordFields.Recommendation, out var value)
         && value.ValueKind is not (JsonValueKind.Null or JsonValueKind.Undefined)
         && (value.ValueKind != JsonValueKind.String || value.GetString() is { Length: > 0 })
         && (value.ValueKind != JsonValueKind.Array || value.GetArrayLength() > 0);
@@ -433,7 +433,7 @@ static class ReviewQueue
         QuestionTier(parent) == 3
         && HasRecommendation(element)
         && element.ValueKind == JsonValueKind.Object
-        && element.TryGetProperty("decideBy", out var value)
+        && element.TryGetProperty(RecordFields.DecideBy, out var value)
         && value.ValueKind == JsonValueKind.String
         && value.GetString() is { } text
         && ParseDay(text, out var decideBy)
@@ -476,8 +476,8 @@ static class ReviewQueue
     {
         IReadOnlyList<Record> own = record.Type switch
         {
-            "use-case" or "reaction" or "job" => OwnedScenarios(records, record),
-            "scenario" => [record],
+            RecordTypes.UseCase or RecordTypes.Reaction or RecordTypes.Job => OwnedScenarios(records, record),
+            RecordTypes.Scenario => [record],
             _ => [],
         };
 
@@ -510,11 +510,11 @@ static class ReviewQueue
     /// <summary>The written scenarios the holder owns: by home for a use case, by page for a reaction or job.</summary>
     static IReadOnlyList<Record> OwnedScenarios(IReadOnlyList<Record> records, Record holder)
     {
-        if (holder.Type is "reaction" or "job")
+        if (holder.Type is RecordTypes.Reaction or RecordTypes.Job)
         {
             return records
                 .Where(scenario => !scenario.Derived
-                    && scenario.Type == "scenario"
+                    && scenario.Type == RecordTypes.Scenario
                     && scenario.PageId == holder.Id)
                 .ToList();
         }
@@ -526,7 +526,7 @@ static class ReviewQueue
 
         return records
             .Where(scenario => !scenario.Derived
-                && scenario.Type == "scenario"
+                && scenario.Type == RecordTypes.Scenario
                 && Identifiers.TrySplit(scenario.Id, out _, out var home, out _)
                 && home == name)
             .ToList();
@@ -550,7 +550,7 @@ static class ReviewQueue
                 continue;
             }
 
-            if (record.Id == pageId && record.Type is "reaction" or "job")
+            if (record.Id == pageId && record.Type is RecordTypes.Reaction or RecordTypes.Job)
             {
                 return record;
             }
@@ -587,33 +587,33 @@ static class ReviewQueue
 
         foreach (var record in queued)
         {
-            if (record.Type == "use-case")
+            if (record.Type == RecordTypes.UseCase)
             {
-                For("use-case/" + record.Id, record.Id, "use-case").Members.Add(record);
+                For("use-case/" + record.Id, record.Id, RecordTypes.UseCase).Members.Add(record);
             }
-            else if (record.Type is "reaction" or "job")
+            else if (record.Type is RecordTypes.Reaction or RecordTypes.Job)
             {
                 For(record.Type + "/" + record.Id, record.Id, record.Type).Members.Add(record);
             }
-            else if (record.Type == "scenario"
+            else if (record.Type == RecordTypes.Scenario
                 && PageHolder(records, record) is { } page)
             {
                 For(page.Type + "/" + page.Id, page.Id, page.Type).Members.Add(record);
             }
-            else if (record.Type is "result" or "scenario"
+            else if (record.Type is RecordTypes.Result or RecordTypes.Scenario
                 && Identifiers.TrySplit(record.Id, out _, out var home, out _)
                 && home is not null
                 && UseCaseOf(records, home) is { } holder)
             {
-                For("use-case/" + holder.Id, holder.Id, "use-case").Members.Add(record);
+                For("use-case/" + holder.Id, holder.Id, RecordTypes.UseCase).Members.Add(record);
             }
-            else if (record.Type == "decision")
+            else if (record.Type == RecordTypes.Decision)
             {
-                For("decision/" + record.Id, "decision/" + record.Id, "decision").Members.Add(record);
+                For("decision/" + record.Id, "decision/" + record.Id, RecordTypes.Decision).Members.Add(record);
             }
             else if (Deciding(records, queued, record) is { } decider)
             {
-                For("decision/" + decider.Id, "decision/" + decider.Id, "decision").Members.Add(record);
+                For("decision/" + decider.Id, "decision/" + decider.Id, RecordTypes.Decision).Members.Add(record);
             }
             else if (TierOf(records, record) == 1)
             {
@@ -643,8 +643,8 @@ static class ReviewQueue
 
         return records
             .Where(decision => !decision.Derived
-                && decision.Type == "decision"
-                && decision.Ids("decides").Contains(record.Id, StringComparer.Ordinal))
+                && decision.Type == RecordTypes.Decision
+                && decision.Ids(RecordFields.Decides).Contains(record.Id, StringComparer.Ordinal))
             .OrderBy(decision => queuedIds.Contains(decision.Id) ? 0 : 1)
             .ThenBy(decision => decision.Id, StringComparer.Ordinal)
             .FirstOrDefault();
@@ -738,8 +738,8 @@ static class ReviewQueue
     /// <summary>The batch anchor: the use case, reaction, job or decision id, else null.</summary>
     static string? AnchorOf(Group group) => group.Kind switch
     {
-        "use-case" or "reaction" or "job" => group.Selector,
-        "decision" => group.Selector["decision/".Length..],
+        RecordTypes.UseCase or RecordTypes.Reaction or RecordTypes.Job => group.Selector,
+        RecordTypes.Decision => group.Selector["decision/".Length..],
         _ => null,
     };
 

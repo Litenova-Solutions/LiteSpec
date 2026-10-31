@@ -614,6 +614,10 @@ public sealed class NewAppendTests
     /// <summary>Proves the insertion is exactly the expected text and nothing else changed.</summary>
     static void AssertInserts(string before, string? updated, string error, string inserted)
     {
+        // The page keeps its own line ending, which in a raw string literal is the test file's, so the
+        // expected insertion is compared in that same line ending.
+        inserted = inserted.ReplaceLineEndings(before.Contains("\r\n", StringComparison.Ordinal) ? "\r\n" : "\n");
+
         Assert.True(error == "", error);
         Assert.NotNull(updated);
         Assert.Equal(

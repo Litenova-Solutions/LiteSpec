@@ -53,8 +53,8 @@ static class FrontendRecords
         var own = model.Screens
             .Where(screen => screen.Frontend == frontend.Name && screen.ScreenId is not null)
             .Select(screen => screen.ScreenId!)
-            .Where(id => model.ById.TryGetValue(id, out var record) && record.Type == "screen")
-            .SelectMany(id => model.ById[id].Ids("entryPoint"))
+            .Where(id => model.ById.TryGetValue(id, out var record) && record.Type == RecordTypes.Screen)
+            .SelectMany(id => model.ById[id].Ids(RecordFields.EntryPoint))
             .Distinct(StringComparer.Ordinal)
             .ToList();
 
@@ -66,7 +66,7 @@ static class FrontendRecords
         return
         [
             .. model.Records
-                .Where(record => record.Type == "entry-point" && record.Field("kind") == "browser")
+                .Where(record => record.Type == RecordTypes.EntryPoint && record.Field(RecordFields.Kind) == "browser")
                 .Select(record => record.Id)
                 .OrderBy(id => id, StringComparer.Ordinal),
         ];
@@ -80,8 +80,8 @@ static class FrontendRecords
         return
         [
             .. model.Records
-                .Where(record => record.Type == "use-case"
-                    && record.Ids("reachedThrough").Any(entryPoints.Contains))
+                .Where(record => record.Type == RecordTypes.UseCase
+                    && record.Ids(RecordFields.ReachedThrough).Any(entryPoints.Contains))
                 .Select(record => record.Id)
                 .OrderBy(id => id, StringComparer.Ordinal),
         ];
@@ -91,7 +91,7 @@ static class FrontendRecords
     public static IReadOnlyList<string> UseCaseIds(ProjectModel model) =>
     [
         .. model.Records
-            .Where(record => record.Type == "use-case" && ReachedThroughBrowser(model, record))
+            .Where(record => record.Type == RecordTypes.UseCase && ReachedThroughBrowser(model, record))
             .Select(record => record.Id)
             .OrderBy(id => id, StringComparer.Ordinal),
     ];
@@ -104,8 +104,8 @@ static class FrontendRecords
         return
         [
             .. model.Records
-                .Where(record => record.Type == "screen"
-                    && record.Ids("entryPoint").Any(entryPoints.Contains))
+                .Where(record => record.Type == RecordTypes.Screen
+                    && record.Ids(RecordFields.EntryPoint).Any(entryPoints.Contains))
                 .Select(record => record.Id)
                 .OrderBy(id => id, StringComparer.Ordinal),
         ];
@@ -118,8 +118,8 @@ static class FrontendRecords
     public static IReadOnlyList<string> ProofTargetIds(ProjectModel model) =>
     [
         .. model.Records
-            .Where(record => record.Type is "scenario" or "rule" or "requirement" or "decision"
-                or "external-system" or "integration-event")
+            .Where(record => record.Type is RecordTypes.Scenario or RecordTypes.Rule or RecordTypes.Requirement or RecordTypes.Decision
+                or RecordTypes.ExternalSystem or RecordTypes.IntegrationEvent)
             .Select(record => record.Id)
             .Concat(model.Provisions.Where(id => id.StartsWith("litespec/frontend/", StringComparison.Ordinal)))
             .OrderBy(id => id, StringComparer.Ordinal),
@@ -172,8 +172,8 @@ static class FrontendRecords
     }
 
     private static bool ReachedThroughBrowser(ProjectModel model, Record record) =>
-        record.Ids("reachedThrough").Any(id =>
+        record.Ids(RecordFields.ReachedThrough).Any(id =>
             model.ById.TryGetValue(id, out var point)
-            && point.Type == "entry-point"
-            && point.Field("kind") == "browser");
+            && point.Type == RecordTypes.EntryPoint
+            && point.Field(RecordFields.Kind) == "browser");
 }

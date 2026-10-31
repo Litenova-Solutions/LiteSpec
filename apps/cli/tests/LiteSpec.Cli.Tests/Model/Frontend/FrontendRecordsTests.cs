@@ -24,7 +24,8 @@ public sealed class FrontendRecordsTests
 
             Assert.Contains("  | \"litespec/frontend/web/ui#check-every-route-in-a-browser\"", text);
             Assert.Equal(
-                ExpectedUnion + "\n",
+                // The tool writes the file with LF; the raw literal takes the test file's line ending.
+                ExpectedUnion.ReplaceLineEndings("\n") + "\n",
                 System.Text.RegularExpressions.Regex.Replace(
                     text, "export type ProofTargetId =\n(  \\| \"[^\"]+\"\n)*?  \\| \"[^\"]+\";\n", "export type ProofTargetId = never;\n"));
         }

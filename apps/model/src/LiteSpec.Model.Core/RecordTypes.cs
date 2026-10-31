@@ -8,6 +8,141 @@ namespace LiteSpec.Model;
 /// </summary>
 public static class RecordTypes
 {
+    /// <summary>Gets the `actor` record type name.</summary>
+    public const string Actor = "actor";
+
+    /// <summary>Gets the `aggregate` record type name.</summary>
+    public const string Aggregate = "aggregate";
+
+    /// <summary>Gets the `command` record type name.</summary>
+    public const string Command = "command";
+
+    /// <summary>Gets the `configuration` record type name.</summary>
+    public const string Configuration = "configuration";
+
+    /// <summary>Gets the `constraint` record type name.</summary>
+    public const string Constraint = "constraint";
+
+    /// <summary>Gets the `decision` record type name.</summary>
+    public const string Decision = "decision";
+
+    /// <summary>Gets the `entry-point` record type name.</summary>
+    public const string EntryPoint = "entry-point";
+
+    /// <summary>Gets the `entry-point-list` record type name.</summary>
+    public const string EntryPointList = "entry-point-list";
+
+    /// <summary>Gets the `event` record type name.</summary>
+    public const string Event = "event";
+
+    /// <summary>Gets the `example-cast` record type name.</summary>
+    public const string ExampleCast = "example-cast";
+
+    /// <summary>Gets the `exception` record type name.</summary>
+    public const string Exception = "exception";
+
+    /// <summary>Gets the `external-system` record type name.</summary>
+    public const string ExternalSystem = "external-system";
+
+    /// <summary>Gets the `feature` record type name.</summary>
+    public const string Feature = "feature";
+
+    /// <summary>Gets the `glossary` record type name.</summary>
+    public const string Glossary = "glossary";
+
+    /// <summary>Gets the `goal` record type name.</summary>
+    public const string Goal = "goal";
+
+    /// <summary>Gets the `how-to` record type name.</summary>
+    public const string HowTo = "how-to";
+
+    /// <summary>Gets the `index` record type name.</summary>
+    public const string Index = "index";
+
+    /// <summary>Gets the `integration-event` record type name.</summary>
+    public const string IntegrationEvent = "integration-event";
+
+    /// <summary>Gets the `job` record type name.</summary>
+    public const string Job = "job";
+
+    /// <summary>Gets the `journey` record type name.</summary>
+    public const string Journey = "journey";
+
+    /// <summary>Gets the `module` record type name.</summary>
+    public const string Module = "module";
+
+    /// <summary>Gets the `notification` record type name.</summary>
+    public const string Notification = "notification";
+
+    /// <summary>Gets the `permission` record type name.</summary>
+    public const string Permission = "permission";
+
+    /// <summary>Gets the `permission-list` record type name.</summary>
+    public const string PermissionList = "permission-list";
+
+    /// <summary>Gets the `problem` record type name.</summary>
+    public const string Problem = "problem";
+
+    /// <summary>Gets the `product` record type name.</summary>
+    public const string Product = "product";
+
+    /// <summary>Gets the `reaction` record type name.</summary>
+    public const string Reaction = "reaction";
+
+    /// <summary>Gets the `reference` record type name.</summary>
+    public const string Reference = "reference";
+
+    /// <summary>Gets the `requirement` record type name.</summary>
+    public const string Requirement = "requirement";
+
+    /// <summary>Gets the `research` record type name.</summary>
+    public const string Research = "research";
+
+    /// <summary>Gets the `result` record type name.</summary>
+    public const string Result = "result";
+
+    /// <summary>Gets the `retention-schedule` record type name.</summary>
+    public const string RetentionSchedule = "retention-schedule";
+
+    /// <summary>Gets the `review-report` record type name.</summary>
+    public const string ReviewReport = "review-report";
+
+    /// <summary>Gets the `role` record type name.</summary>
+    public const string Role = "role";
+
+    /// <summary>Gets the `rule` record type name.</summary>
+    public const string Rule = "rule";
+
+    /// <summary>Gets the `rule-set` record type name.</summary>
+    public const string RuleSet = "rule-set";
+
+    /// <summary>Gets the `runbook` record type name.</summary>
+    public const string Runbook = "runbook";
+
+    /// <summary>Gets the `scenario` record type name.</summary>
+    public const string Scenario = "scenario";
+
+    /// <summary>Gets the `screen` record type name.</summary>
+    public const string Screen = "screen";
+
+    /// <summary>Gets the `setting` record type name.</summary>
+    public const string Setting = "setting";
+
+    /// <summary>Gets the `setting-set` record type name.</summary>
+    public const string SettingSet = "setting-set";
+
+    /// <summary>Gets the `term` record type name.</summary>
+    public const string Term = "term";
+
+    /// <summary>Gets the `topic` record type name.</summary>
+    public const string Topic = "topic";
+
+    /// <summary>Gets the `tutorial` record type name.</summary>
+    public const string Tutorial = "tutorial";
+
+    /// <summary>Gets the `use-case` record type name.</summary>
+    public const string UseCase = "use-case";
+
     /// <summary>Every written record type.</summary>
     public static readonly HashSet<string> All = new HashSet<string>(StringComparer.Ordinal)
     {

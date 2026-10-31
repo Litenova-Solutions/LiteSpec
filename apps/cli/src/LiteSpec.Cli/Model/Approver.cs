@@ -68,7 +68,7 @@ static class Approver
         {
             var text = File.ReadAllText(group.Key);
             var json = group.Key.EndsWith(".json", StringComparison.OrdinalIgnoreCase);
-            var (head, node, tail) = json ? ("", JsonNode.Parse(text), "") : SplitFrontmatter(text);
+            var (head, node, tail) = json ? ("", JsonNode.Parse(text), "") : Frontmatter.SplitForWrite(text);
 
             if (node is null)
             {
@@ -125,7 +125,7 @@ static class Approver
         {
             var text = File.ReadAllText(group.Key);
             var json = group.Key.EndsWith(".json", StringComparison.OrdinalIgnoreCase);
-            var (head, node, tail) = json ? ("", JsonNode.Parse(text), "") : SplitFrontmatter(text);
+            var (head, node, tail) = json ? ("", JsonNode.Parse(text), "") : Frontmatter.SplitForWrite(text);
 
             if (node is null)
             {
@@ -238,27 +238,5 @@ static class Approver
             default:
                 return null;
         }
-    }
-
-    /// <summary>Splits a page into the opening fence, its frontmatter and the rest.</summary>
-    static (string Head, JsonNode? Node, string Tail) SplitFrontmatter(string text)
-    {
-        const string fence = "---\n";
-        var normalized = text.Replace("\r\n", "\n", StringComparison.Ordinal);
-
-        if (!normalized.StartsWith(fence, StringComparison.Ordinal))
-        {
-            return ("", null, "");
-        }
-
-        var end = normalized.IndexOf("\n---", fence.Length, StringComparison.Ordinal);
-
-        if (end < 0)
-        {
-            return ("", null, "");
-        }
-
-        var body = normalized[fence.Length..end];
-        return (fence, JsonNode.Parse(body), normalized[end..]);
     }
 }

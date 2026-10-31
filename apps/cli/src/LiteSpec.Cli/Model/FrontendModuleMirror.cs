@@ -45,7 +45,7 @@ static class FrontendModuleMirror
             return null;
         }
 
-        if (!model.ById.TryGetValue(mark.RecordId, out var record) || record.Type != "use-case")
+        if (!model.ById.TryGetValue(mark.RecordId, out var record) || record.Type != RecordTypes.UseCase)
         {
             return null;
         }

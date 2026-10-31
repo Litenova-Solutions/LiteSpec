@@ -29,7 +29,7 @@ static class Querier
             {
                 if (RecordTypes.LinkTargets.ContainsKey(property.Name)
                     || RecordTypes.NestedLinkFields.Contains(property.Name)
-                    || property.Name is "replaces" or "refusal" or "provision")
+                    || property.Name is RecordFields.Replaces or RecordFields.Refusal or RecordFields.Provision)
                 {
                     var targets = ModelBuilder.TargetsOf(property.Value);
 
@@ -49,7 +49,7 @@ static class Querier
 
         object? status = null;
 
-        if (record.Type == "use-case" && model.Status.TryGetValue(id, out var held))
+        if (record.Type == RecordTypes.UseCase && model.Status.TryGetValue(id, out var held))
         {
             status = new
             {

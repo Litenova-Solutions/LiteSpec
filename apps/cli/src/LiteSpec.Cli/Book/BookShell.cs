@@ -10,6 +10,9 @@ namespace LiteSpec.Book;
 static class BookShell
 {
     /// <summary>Renders <c>index.html</c>: the carried shell with its title and no-script summary.</summary>
+    /// <param name="title">The page title.</param>
+    /// <param name="noscript">The no-script summary HTML.</param>
+    /// <returns>The shell HTML.</returns>
     public static string Render(string title, string noscript)
     {
         using var stream = typeof(BookShell).Assembly.GetManifestResourceStream("LiteSpec.Book.Assets.book-shell.html")
@@ -22,6 +25,9 @@ static class BookShell
     }
 
     /// <summary>The static no-script summary: the project title with its total and per-type record counts.</summary>
+    /// <param name="projectTitle">The project title.</param>
+    /// <param name="totals">The record count per record type.</param>
+    /// <returns>The no-script summary HTML.</returns>
     public static string Noscript(string projectTitle, IReadOnlyDictionary<string, int> totals)
     {
         var total = 0;
@@ -40,10 +46,8 @@ static class BookShell
             : $"<p>This book needs JavaScript. <b>{Escape(projectTitle)}</b> holds {records}: {counts}.</p>";
     }
 
-    /// <summary>Escapes one HTML text span.</summary>
-    public static string Escape(string text) =>
-        text.Replace("&", "&amp;", StringComparison.Ordinal)
-            .Replace("<", "&lt;", StringComparison.Ordinal)
-            .Replace(">", "&gt;", StringComparison.Ordinal)
-            .Replace("\"", "&quot;", StringComparison.Ordinal);
+    /// <summary>Escapes one HTML text span, leaving an apostrophe as itself, as the shell has always printed it.</summary>
+    /// <param name="text">The text to escape.</param>
+    /// <returns>The escaped text.</returns>
+    public static string Escape(string text) => HtmlText.EscapeWithoutApostrophe(text);
 }

@@ -38,7 +38,7 @@ static class ModelNames
     public static IReadOnlyList<ModuleNames> Build(ProjectModel model)
     {
         var modules = model.Records
-                           .Where(record => record.Type == "module"
+                           .Where(record => record.Type == RecordTypes.Module
                                && Identifiers.TrySplit(record.Id, out _, out _, out var name)
                                && name.Length > 0)
                            .Select(record => { Identifiers.TrySplit(record.Id, out _, out _, out var name); return name; })
@@ -61,7 +61,7 @@ static class ModelNames
     /// <summary>One module's names from the records the module holds.</summary>
     static ModuleNames Describe(ProjectModel model, string module, IReadOnlyList<Record> records)
     {
-        var useCases = records.Where(record => record.Type == "use-case")
+        var useCases = records.Where(record => record.Type == RecordTypes.UseCase)
                               .OrderBy(record => record.Id, StringComparer.Ordinal)
                               .ToList();
         var verbs = new Dictionary<string, int>(StringComparer.Ordinal);
@@ -89,28 +89,28 @@ static class ModelNames
             useCases.Count,
             Counted(verbs),
             Counted(nouns),
-            records.Where(record => record.Type == "reaction")
-                   .SelectMany(record => record.Ids("on"))
+            records.Where(record => record.Type == RecordTypes.Reaction)
+                   .SelectMany(record => record.Ids(RecordFields.On))
                    .Distinct(StringComparer.Ordinal)
                    .Order(StringComparer.Ordinal)
                    .ToList(),
-            records.Where(record => record.Type == "event")
+            records.Where(record => record.Type == RecordTypes.Event)
                    .Select(record => record.Id)
                    .Distinct(StringComparer.Ordinal)
                    .Order(StringComparer.Ordinal)
                    .ToList(),
-            records.Where(record => record.Type == "result" && record.Field("code") is { Length: > 0 })
-                   .Select(record => record.Field("code")!)
+            records.Where(record => record.Type == RecordTypes.Result && record.Field(RecordFields.Code) is { Length: > 0 })
+                   .Select(record => record.Field(RecordFields.Code)!)
                    .Distinct(StringComparer.Ordinal)
                    .Order(StringComparer.Ordinal)
                    .ToList(),
-            records.Where(record => record.Type == "notification")
+            records.Where(record => record.Type == RecordTypes.Notification)
                    .SelectMany(TemplateKeysOf)
                    .Where(key => key.Length > 0)
                    .Distinct(StringComparer.Ordinal)
                    .Order(StringComparer.Ordinal)
                    .ToList(),
-            records.Where(record => record.Type == "setting")
+            records.Where(record => record.Type == RecordTypes.Setting)
                    .Select(record => Identifiers.TrySplit(record.Id, out _, out _, out var name) ? name : "")
                    .Where(name => name.Length > 0)
                    .Distinct(StringComparer.Ordinal)
@@ -120,7 +120,7 @@ static class ModelNames
 
     /// <summary>A notification's template keys: its template, one or many.</summary>
     static IReadOnlyList<string> TemplateKeysOf(Record record) =>
-        record.Field("template") is { Length: > 0 } key ? [key] : record.Strings("template");
+        record.Field(RecordFields.Template) is { Length: > 0 } key ? [key] : record.Strings(RecordFields.Template);
 
     /// <summary>Counts ordered by uses, most used first, then by name.</summary>
     static IReadOnlyList<NameCount> Counted(Dictionary<string, int> counts) =>
@@ -153,7 +153,7 @@ static class ModelNames
     /// <summary>The aggregate id whose name the home carries, or null when none holds it.</summary>
     static string? AggregateId(ProjectModel model, string name) =>
         model.ById.Values
-             .Where(record => record.Type == "aggregate")
+             .Where(record => record.Type == RecordTypes.Aggregate)
              .FirstOrDefault(record => Identifiers.TrySplit(record.Id, out _, out _, out var named) && named == name)
              ?.Id;
 

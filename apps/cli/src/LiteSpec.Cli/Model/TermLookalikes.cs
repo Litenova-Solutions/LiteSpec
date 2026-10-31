@@ -66,7 +66,7 @@ static class TermLookalikes
                 names.Add((name.ToLowerInvariant(), home, at));
             }
 
-            if (record.Type == "term" && record.Field("term") is { Length: > 0 } term)
+            if (record.Type == RecordTypes.Term && record.Field(RecordFields.Term) is { Length: > 0 } term)
             {
                 Collect(TermWords(term), new Occurrence(record, record.File, record.Line), words, splits);
             }

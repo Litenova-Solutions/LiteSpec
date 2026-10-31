@@ -9,36 +9,40 @@ namespace LiteSpec.Model.Diff;
 /// <follows>litespec/core/release#review-behavior-changes-through-the-behavior-diff</follows>
 static class Differ
 {
-    /// <summary>
-    ///     Fields that carry no intent: identity, ownership, review planning and the
-    ///     entries a page carries, which diff as records of their own.
-    /// </summary>
-    static readonly HashSet<string> MetaFields = new(StringComparer.Ordinal)
-    {
-        "type", "id", "title", "owner", "status", "decider", "decideBy",
-        "terms", "questions", "records",
-    };
+    /// <summary>The breaking reason for a narrowed requirement.</summary>
+    /// <returns>The breaking reason for a narrowed requirement.</returns>
+    internal static BreakingReason RequirementNarrowed => Reason("requirement-narrowed");
 
-    /// <summary>One parsed access grant: auth kinds, grant and tenant scope.</summary>
-    sealed record AccessValue(HashSet<string> Auth, string? Grant, string? Tenant);
+    /// <summary>The breaking reason for a changed quality measure.</summary>
+    /// <returns>The breaking reason for a changed quality measure.</returns>
+    internal static BreakingReason QualityMeasureChanged => Reason("quality-measure-changed");
 
-    /// <summary>One parsed effect edge: its verb, target and timing.</summary>
-    sealed record EffectEntry(string Verb, string Target, string? Timing)
-    {
-        /// <summary>The edge without its timing, such as calls external-system/stripe#charge.</summary>
-        public string Edge() => $"{Verb} {Target}";
+    /// <summary>The breaking reason for a weakened rule.</summary>
+    /// <returns>The breaking reason for a weakened rule.</returns>
+    internal static BreakingReason RuleWeakened => Reason("rule-weakened");
 
-        /// <summary>The edge with its timing.</summary>
-        public string Describe() => $"{Verb} {Target} ({Timing ?? "no timing"})";
-    }
+    /// <summary>The breaking reason for a changed result outcome.</summary>
+    /// <returns>The breaking reason for a changed result outcome.</returns>
+    internal static BreakingReason ResultOutcomeChanged => Reason("result-outcome-changed");
 
-    /// <summary>One parsed data class: its classification, purpose and erasure position.</summary>
-    sealed record DataClassValue(string? Classification, string? Purpose, string? OnErasure);
+    /// <summary>The breaking reason for a changed refusal meaning.</summary>
+    /// <returns>The breaking reason for a changed refusal meaning.</returns>
+    internal static BreakingReason RefusalMeaningChanged => Reason("refusal-meaning-changed");
 
-    /// <summary>One parsed journey step: its statement, actor and failure.</summary>
-    sealed record JourneyStep(string Statement, string? Actor, string? Failure);
+    /// <summary>The breaking reason for a removed state.</summary>
+    /// <returns>The breaking reason for a removed state.</returns>
+    internal static BreakingReason StateRemoved => Reason("state-removed");
+
+    /// <summary>The breaking reason for a removed transition.</summary>
+    /// <returns>The breaking reason for a removed transition.</returns>
+    internal static BreakingReason TransitionRemoved => Reason("transition-removed");
 
     /// <summary>Diffs the base model against the head model.</summary>
+    /// <param name="baseModel">The base model.</param>
+    /// <param name="headModel">The head model.</param>
+    /// <param name="baseLabel">The base name, as the caller passed it.</param>
+    /// <param name="headLabel">The head name, as the caller passed it.</param>
+    /// <returns>The intent diff between the base model and the head model.</returns>
     public static IntentDiff Diff(
         ProjectModel baseModel, ProjectModel headModel, string baseLabel, string headLabel)
     {
@@ -118,26 +122,30 @@ static class Differ
         }
 
         return new IntentDiff(
-            baseLabel, headLabel, changes, SecurityQueue(baseModel, headModel, addedIds, removedIds));
+            baseLabel, headLabel, changes, SecurityQueueBuilder.Build(baseModel, headModel, addedIds, removedIds));
     }
 
+    /// <summary>The change entry of a removed record.</summary>
+    /// <param name="baseModel">The base model.</param>
+    /// <param name="record">The removed record.</param>
+    /// <returns>The change entry of the removed record.</returns>
     static IntentChange RemovedEntry(ProjectModel baseModel, Record record)
     {
         var details = new List<string> { RemovedLine(record) };
 
-        if (record.Type == "scenario")
+        if (record.Type == RecordTypes.Scenario)
         {
-            details.Add(ScenarioLine(record));
+            details.Add(ScenarioDiffer.Line(record));
         }
 
-        if (record.Type == "aggregate")
+        if (record.Type == RecordTypes.Aggregate)
         {
-            details.Add(AggregateStatesLine(record));
+            details.Add(AggregateDiffer.StatesLine(record));
         }
 
-        if (record.Type == "journey")
+        if (record.Type == RecordTypes.Journey)
         {
-            details.AddRange(JourneyStepsLines(record));
+            details.AddRange(JourneyDiffer.StepsLines(record));
         }
 
         var reasons = new List<BreakingReason>();
@@ -146,10 +154,10 @@ static class Differ
         {
             var reason = record.Type switch
             {
-                "requirement" => "requirement-removed",
-                "result" => "result-removed",
-                "scenario" => "scenario-removed",
-                "aggregate" => "aggregate-removed",
+                RecordTypes.Requirement => "requirement-removed",
+                RecordTypes.Result => "result-removed",
+                RecordTypes.Scenario => "scenario-removed",
+                RecordTypes.Aggregate => "aggregate-removed",
                 _ => null,
             };
 
@@ -162,25 +170,31 @@ static class Differ
         return Entry(record, ChangeKind.Removed, reasons, details);
     }
 
+    /// <summary>The change entry of an added record.</summary>
+    /// <param name="baseModel">The base model.</param>
+    /// <param name="headModel">The head model.</param>
+    /// <param name="record">The added record.</param>
+    /// <param name="addedIds">The ids the head adds.</param>
+    /// <returns>The change entry of the added record.</returns>
     static IntentChange AddedEntry(
         ProjectModel baseModel, ProjectModel headModel, Record record, HashSet<string> addedIds)
     {
         var details = new List<string> { AddedLine(baseModel, headModel, record) };
 
-        if (record.Type == "scenario")
+        if (record.Type == RecordTypes.Scenario)
         {
-            details.Add(ScenarioLine(record));
+            details.Add(ScenarioDiffer.Line(record));
         }
 
-        if (record.Type == "journey")
+        if (record.Type == RecordTypes.Journey)
         {
-            details.AddRange(JourneyStepsLines(record));
+            details.AddRange(JourneyDiffer.StepsLines(record));
         }
 
         var reasons = new List<BreakingReason>();
 
-        if (record.Type == "result"
-            && record.Field("outcome") == "refusal"
+        if (record.Type == RecordTypes.Result
+            && record.Field(RecordFields.Outcome) == "refusal"
             && Identifiers.TrySplit(record.Id, out _, out var home, out _)
             && home is not null
             && ModelBuilder.UseCaseOf(baseModel, home) is { } useCase
@@ -189,9 +203,9 @@ static class Differ
             reasons.Add(Reason("refusal-added"));
         }
 
-        if (record.Type == "rule"
-            && record.Field("kind") == "precondition"
-            && record.Ids("governs").Any(target =>
+        if (record.Type == RecordTypes.Rule
+            && record.Field(RecordFields.Kind) == "precondition"
+            && record.Ids(RecordFields.Governs).Any(target =>
                 target.StartsWith("use-case/", StringComparison.Ordinal)
                 && baseModel.ById.TryGetValue(target, out var governed)
                 && Approved(baseModel, governed)))
@@ -199,11 +213,11 @@ static class Differ
             reasons.Add(Reason("precondition-added"));
         }
 
-        if (record.Type == "scenario"
-            && record.Ids("result").FirstOrDefault() is { } resultId
+        if (record.Type == RecordTypes.Scenario
+            && record.Ids(RecordFields.Result).FirstOrDefault() is { } resultId
             && addedIds.Contains(resultId)
             && headModel.ById.TryGetValue(resultId, out var result)
-            && result.Field("outcome") == "refusal")
+            && result.Field(RecordFields.Outcome) == "refusal")
         {
             reasons.Add(Reason("refusal-path-added"));
         }
@@ -211,6 +225,15 @@ static class Differ
         return Entry(record, ChangeKind.Added, reasons, details);
     }
 
+    /// <summary>The change entry of a modified record, or null when nothing changed.</summary>
+    /// <param name="baseModel">The base model.</param>
+    /// <param name="headModel">The head model.</param>
+    /// <param name="before">The base record.</param>
+    /// <param name="after">The head record.</param>
+    /// <param name="addedIds">The ids the head adds.</param>
+    /// <param name="removedIds">The ids the head removes.</param>
+    /// <param name="byId">The change entries by record id.</param>
+    /// <returns>The change entry of the modified record, or null when nothing changed.</returns>
     static IntentChange? ModifiedEntry(
         ProjectModel baseModel,
         ProjectModel headModel,
@@ -235,47 +258,53 @@ static class Differ
 
         switch (before.Type)
         {
-            case "requirement":
-                CompareRequirement(before, after, approved, details, reasons);
+            case RecordTypes.Requirement:
+                RequirementDiffer.CompareRequirement(before, after, approved, details, reasons);
                 break;
 
-            case "journey":
-                CompareJourney(before, after, details);
+            case RecordTypes.Journey:
+                JourneyDiffer.CompareJourney(before, after, details);
                 break;
 
-            case "decision":
-                CompareDecision(before, after, details);
+            case RecordTypes.Decision:
+                DecisionDiffer.CompareDecision(before, after, details);
                 break;
 
-            case "rule":
-                CompareRule(before, after, approved, details, reasons);
+            case RecordTypes.Rule:
+                RuleDiffer.CompareRule(before, after, approved, details, reasons);
                 break;
 
-            case "result":
-                CompareResult(before, after, approved, details, reasons);
+            case RecordTypes.Result:
+                ResultDiffer.CompareResult(before, after, approved, details, reasons);
                 break;
 
-            case "scenario":
-                CompareScenario(before, after, details);
+            case RecordTypes.Scenario:
+                ScenarioDiffer.CompareScenario(before, after, details);
                 break;
 
-            case "aggregate":
-                CompareAggregate(before, after, baseModel, headModel, approved, details, reasons);
+            case RecordTypes.Aggregate:
+                AggregateDiffer.CompareAggregate(before, after, baseModel, headModel, approved, details, reasons);
                 break;
 
-            case "use-case":
-                CompareUseCase(before, after, details);
-                EnrichUseCase(baseModel, headModel, before, addedIds, removedIds, byId, details, reasons);
+            case RecordTypes.UseCase:
+                UseCaseDiffer.CompareUseCase(before, after, details);
+                UseCaseDiffer.EnrichUseCase(baseModel, headModel, before, addedIds, removedIds, byId, details, reasons);
                 break;
 
             default:
-                CompareFields(before, after, details);
+                DiffValues.CompareFields(before, after, details);
                 break;
         }
 
         return details.Count == 0 ? null : Entry(after, ChangeKind.Modified, reasons, details);
     }
 
+    /// <summary>One change entry from its record, change kind, reasons, and details.</summary>
+    /// <param name="record">The changed record.</param>
+    /// <param name="change">The change kind.</param>
+    /// <param name="reasons">The breaking reasons.</param>
+    /// <param name="details">The detail lines.</param>
+    /// <returns>One change entry.</returns>
     static IntentChange Entry(
         Record record, ChangeKind change, List<BreakingReason> reasons, List<string> details) =>
         new(
@@ -290,185 +319,78 @@ static class Differ
             details,
             IntentDiff.ViewOf(record));
 
+    /// <summary>The parenthetical after a change entry's title, such as a kind or an outcome.</summary>
+    /// <param name="record">The changed record.</param>
+    /// <returns>The parenthetical after the change entry's title.</returns>
     static string Qualifier(Record record) => record.Type switch
     {
-        "requirement" => record.Field("kind") is { } kind ? $" ({kind})" : "",
-        "rule" => record.Field("kind") is { } kind ? $" ({kind})" : "",
-        "use-case" => record.Field("kind") is { } kind ? $" ({kind})" : "",
-        "result" => record.Field("outcome") is { } outcome ? $" ({outcome})" : "",
+        RecordTypes.Requirement => record.Field(RecordFields.Kind) is { } kind ? $" ({kind})" : "",
+        RecordTypes.Rule => record.Field(RecordFields.Kind) is { } kind ? $" ({kind})" : "",
+        RecordTypes.UseCase => record.Field(RecordFields.Kind) is { } kind ? $" ({kind})" : "",
+        RecordTypes.Result => record.Field(RecordFields.Outcome) is { } outcome ? $" ({outcome})" : "",
         _ => "",
     };
 
+    /// <summary>The removal sentence of a record.</summary>
+    /// <param name="record">The removed record.</param>
+    /// <returns>The removal sentence of the record.</returns>
     static string RemovedLine(Record record)
     {
         var title = record.Title;
 
         return record.Type switch
         {
-            "result" when record.Field("outcome") == "refusal"
-                => $"Removed refusal: {title} ({record.Field("code") ?? "no code"}).",
-            "result" => $"Removed success result: {title}.",
-            "scenario" => $"Removed scenario: {title}.",
-            "requirement" => $"Removed {record.Field("kind") ?? "requirement"} requirement: {title}.",
-            "rule" => $"Removed {record.Field("kind") ?? "rule"} rule: {title}.",
-            "use-case" => $"Removed {record.Field("kind") ?? "use case"}: {title}.",
-            "aggregate" => $"Removed aggregate: {title}.",
+            RecordTypes.Result when record.Field(RecordFields.Outcome) == "refusal"
+                => $"Removed refusal: {title} ({record.Field(RecordFields.Code) ?? "no code"}).",
+            RecordTypes.Result => $"Removed success result: {title}.",
+            RecordTypes.Scenario => $"Removed scenario: {title}.",
+            RecordTypes.Requirement => $"Removed {record.Field(RecordFields.Kind) ?? "requirement"} requirement: {title}.",
+            RecordTypes.Rule => $"Removed {record.Field(RecordFields.Kind) ?? "rule"} rule: {title}.",
+            RecordTypes.UseCase => $"Removed {record.Field(RecordFields.Kind) ?? "use case"}: {title}.",
+            RecordTypes.Aggregate => $"Removed aggregate: {title}.",
             _ => $"Removed {record.Type.Replace('-', ' ')}: {title}.",
         };
     }
 
+    /// <summary>The addition sentence of a record.</summary>
+    /// <param name="baseModel">The base model.</param>
+    /// <param name="headModel">The head model.</param>
+    /// <param name="record">The added record.</param>
+    /// <returns>The addition sentence of the record.</returns>
     static string AddedLine(ProjectModel baseModel, ProjectModel headModel, Record record)
     {
         var title = record.Title;
 
-        if (record.Type == "result" && record.Field("outcome") == "refusal")
+        if (record.Type == RecordTypes.Result && record.Field(RecordFields.Outcome) == "refusal")
         {
             var holder = Identifiers.TrySplit(record.Id, out _, out var home, out _) && home is not null
                 ? ModelBuilder.UseCaseOf(headModel, home) ?? ModelBuilder.UseCaseOf(baseModel, home)
                 : null;
 
             return holder is null
-                ? $"New refusal: {title} ({record.Field("code") ?? "no code"})."
-                : $"New refusal: {title} ({record.Field("code") ?? "no code"}) on use case \"{holder.Title}\".";
+                ? $"New refusal: {title} ({record.Field(RecordFields.Code) ?? "no code"})."
+                : $"New refusal: {title} ({record.Field(RecordFields.Code) ?? "no code"}) on use case \"{holder.Title}\".";
         }
 
         return record.Type switch
         {
-            "result" => $"New success result: {title}.",
-            "scenario" => $"New scenario: {title}.",
-            "requirement" => $"New {record.Field("kind") ?? "requirement"} requirement: {title}.",
-            "rule" => $"New {record.Field("kind") ?? "rule"} rule: {title}.",
-            "use-case" => $"New {record.Field("kind") ?? "use case"}: {title}.",
+            RecordTypes.Result => $"New success result: {title}.",
+            RecordTypes.Scenario => $"New scenario: {title}.",
+            RecordTypes.Requirement => $"New {record.Field(RecordFields.Kind) ?? "requirement"} requirement: {title}.",
+            RecordTypes.Rule => $"New {record.Field(RecordFields.Kind) ?? "rule"} rule: {title}.",
+            RecordTypes.UseCase => $"New {record.Field(RecordFields.Kind) ?? "use case"}: {title}.",
             _ => $"New {record.Type.Replace('-', ' ')}: {title}.",
         };
     }
 
-    static string ScenarioLine(Record record) =>
-        $"Given {record.Field("given") ?? "nothing"}; when {record.Field("when") ?? "nothing"}; then {record.Field("then") ?? "nothing"}.";
-
-    /// <summary>One product sentence per journey step, in step order.</summary>
-    static List<string> JourneyStepsLines(Record record)
-    {
-        var steps = JourneySteps(record);
-
-        if (steps is null)
-        {
-            return [];
-        }
-
-        return steps
-            .OrderBy(step => step.Key, StringComparer.Ordinal)
-            .Select(step => $"Step {step.Key}: \"{step.Value.Statement}\".")
-            .ToList();
-    }
-
-    static string AggregateStatesLine(Record record)
-    {
-        var states = StateNames(record);
-
-        return states.Count == 0 ? "It held no states." : $"It held states: {string.Join(", ", states)}.";
-    }
-
-    /// <summary>
-    ///     Lists the refusals and preconditions a change adds to or removes from a use
-    ///     case, mirroring the breaking reasons of their own entries.
-    /// </summary>
-    static void EnrichUseCase(
-        ProjectModel baseModel,
-        ProjectModel headModel,
-        Record useCase,
-        HashSet<string> addedIds,
-        HashSet<string> removedIds,
-        Dictionary<string, IntentChange> byId,
-        List<string> details,
-        List<BreakingReason> reasons)
-    {
-        if (!Identifiers.TrySplit(useCase.Id, out _, out _, out var name))
-        {
-            return;
-        }
-
-        var seen = new HashSet<string>(StringComparer.Ordinal);
-
-        void Mirror(string id)
-        {
-            if (byId.TryGetValue(id, out var entry))
-            {
-                foreach (var reason in entry.Reasons)
-                {
-                    if (seen.Add(reason.Code))
-                    {
-                        reasons.Add(reason);
-                    }
-                }
-            }
-        }
-
-        foreach (var result in AddedResults(headModel, addedIds, name)
-                     .OrderBy(record => record.Title, StringComparer.Ordinal))
-        {
-            details.Add(result.Field("outcome") == "refusal"
-                ? $"Added refusal: \"{result.Title}\" ({result.Field("code") ?? "no code"})."
-                : $"Added result: \"{result.Title}\".");
-            Mirror(result.Id);
-        }
-
-        foreach (var result in RemovedResults(baseModel, removedIds, name)
-                     .OrderBy(record => record.Title, StringComparer.Ordinal))
-        {
-            details.Add(result.Field("outcome") == "refusal"
-                ? $"Removed refusal: \"{result.Title}\" ({result.Field("code") ?? "no code"})."
-                : $"Removed result: \"{result.Title}\".");
-            Mirror(result.Id);
-        }
-
-        foreach (var rule in AddedRules(headModel, addedIds, useCase.Id)
-                     .OrderBy(record => record.Title, StringComparer.Ordinal))
-        {
-            details.Add($"Added precondition: \"{rule.Title}\".");
-            Mirror(rule.Id);
-        }
-
-        foreach (var rule in RemovedRules(baseModel, removedIds, useCase.Id)
-                     .OrderBy(record => record.Title, StringComparer.Ordinal))
-        {
-            details.Add($"Removed precondition: \"{rule.Title}\".");
-            Mirror(rule.Id);
-        }
-    }
-
-    static IEnumerable<Record> AddedResults(ProjectModel headModel, HashSet<string> addedIds, string home) =>
-        headModel.Records.Where(record =>
-            record.Type == "result"
-            && addedIds.Contains(record.Id)
-            && Identifiers.TrySplit(record.Id, out _, out var resultHome, out _)
-            && resultHome == home);
-
-    static IEnumerable<Record> RemovedResults(ProjectModel baseModel, HashSet<string> removedIds, string home) =>
-        baseModel.Records.Where(record =>
-            record.Type == "result"
-            && removedIds.Contains(record.Id)
-            && Identifiers.TrySplit(record.Id, out _, out var resultHome, out _)
-            && resultHome == home);
-
-    static IEnumerable<Record> AddedRules(ProjectModel headModel, HashSet<string> addedIds, string useCaseId) =>
-        headModel.Records.Where(record =>
-            record.Type == "rule"
-            && record.Field("kind") == "precondition"
-            && addedIds.Contains(record.Id)
-            && record.Ids("governs").Contains(useCaseId, StringComparer.Ordinal));
-
-    static IEnumerable<Record> RemovedRules(ProjectModel baseModel, HashSet<string> removedIds, string useCaseId) =>
-        baseModel.Records.Where(record =>
-            record.Type == "rule"
-            && record.Field("kind") == "precondition"
-            && removedIds.Contains(record.Id)
-            && record.Ids("governs").Contains(useCaseId, StringComparer.Ordinal));
-
+    /// <summary>Compares the status of two records of one type.</summary>
+    /// <param name="before">The base record.</param>
+    /// <param name="after">The head record.</param>
+    /// <param name="details">The detail lines a change adds to.</param>
     static void CompareStatus(Record before, Record after, List<string> details)
     {
-        var oldStatus = before.Status ?? "approved";
-        var newStatus = after.Status ?? "approved";
+        var oldStatus = before.Status ?? RecordStatuses.Approved;
+        var newStatus = after.Status ?? RecordStatuses.Approved;
 
         if (!string.Equals(oldStatus, newStatus, StringComparison.Ordinal))
         {
@@ -476,167 +398,23 @@ static class Differ
         }
     }
 
-    static void CompareRequirement(
-        Record before, Record after, bool approved, List<string> details, List<BreakingReason> reasons)
-    {
-        var handled = new HashSet<string>(StringComparer.Ordinal) { "statement", "measure", "dueBy", "except" };
-
-        if (CompareValue("Statement", Field(before, "statement"), Field(after, "statement"), details) && approved)
-        {
-            reasons.Add(Reason("requirement-narrowed"));
-        }
-
-        var measureChanged = CompareValue("Measure", Field(before, "measure"), Field(after, "measure"), details);
-        var targetChanged = CompareValue("Due by", Field(before, "dueBy"), Field(after, "dueBy"), details);
-
-        if ((measureChanged || targetChanged) && approved && before.Field("kind") == "quality")
-        {
-            reasons.Add(Reason("quality-measure-changed"));
-        }
-
-        CompareExcept(before, after, details);
-        CompareFields(before, after, details, handled);
-    }
-
-    static void CompareExcept(Record before, Record after, List<string> details)
-    {
-        var oldExcept = ExceptEntries(before);
-        var newExcept = ExceptEntries(after);
-
-        if (oldExcept is null || newExcept is null)
-        {
-            CompareValue("Except", Field(before, "except"), Field(after, "except"), details);
-            return;
-        }
-
-        foreach (var condition in oldExcept.Keys.Where(condition => !newExcept.ContainsKey(condition))
-                     .OrderBy(condition => condition, StringComparer.Ordinal))
-        {
-            details.Add($"Exception removed: \"{condition}\".");
-        }
-
-        foreach (var condition in newExcept.Keys.Where(condition => !oldExcept.ContainsKey(condition))
-                     .OrderBy(condition => condition, StringComparer.Ordinal))
-        {
-            details.Add($"Exception added: \"{condition}\", falling back to {newExcept[condition]}.");
-        }
-
-        foreach (var condition in oldExcept.Keys.Where(newExcept.ContainsKey)
-                     .OrderBy(condition => condition, StringComparer.Ordinal))
-        {
-            if (!string.Equals(oldExcept[condition], newExcept[condition], StringComparison.Ordinal))
-            {
-                details.Add($"Exception \"{condition}\" now falls back to {newExcept[condition]} (was: {oldExcept[condition]}).");
-            }
-        }
-    }
-
-    static void CompareJourney(Record before, Record after, List<string> details)
-    {
-        var handled = new HashSet<string>(StringComparer.Ordinal) { "finishedWhen", "steps" };
-
-        CompareValue("Finished when", Field(before, "finishedWhen"), Field(after, "finishedWhen"), details);
-        CompareJourneySteps(before, after, details);
-        CompareFields(before, after, details, handled);
-    }
-
-    static void CompareJourneySteps(Record before, Record after, List<string> details)
-    {
-        var oldSteps = JourneySteps(before);
-        var newSteps = JourneySteps(after);
-
-        if (oldSteps is null || newSteps is null)
-        {
-            CompareValue("Steps", Field(before, "steps"), Field(after, "steps"), details);
-            return;
-        }
-
-        foreach (var id in oldSteps.Keys.Where(id => !newSteps.ContainsKey(id))
-                     .OrderBy(id => id, StringComparer.Ordinal))
-        {
-            details.Add($"Step {id} removed: \"{oldSteps[id].Statement}\".");
-        }
-
-        foreach (var id in newSteps.Keys.Where(id => !oldSteps.ContainsKey(id))
-                     .OrderBy(id => id, StringComparer.Ordinal))
-        {
-            details.Add($"Step {id} added: \"{newSteps[id].Statement}\".");
-        }
-
-        foreach (var id in oldSteps.Keys.Where(newSteps.ContainsKey)
-                     .OrderBy(id => id, StringComparer.Ordinal))
-        {
-            var oldStep = oldSteps[id];
-            var newStep = newSteps[id];
-
-            if (!string.Equals(oldStep.Statement, newStep.Statement, StringComparison.Ordinal))
-            {
-                details.Add($"Step {id} changed: \"{newStep.Statement}\" (was: \"{oldStep.Statement}\").");
-            }
-
-            if (!string.Equals(oldStep.Actor, newStep.Actor, StringComparison.Ordinal))
-            {
-                details.Add($"Step {id} actor changed from {oldStep.Actor ?? "none"} to {newStep.Actor ?? "none"}.");
-            }
-
-            if (!string.Equals(oldStep.Failure, newStep.Failure, StringComparison.Ordinal))
-            {
-                details.Add(oldStep.Failure is null
-                    ? $"Step {id} gained a failure: \"{newStep.Failure}\"."
-                    : newStep.Failure is null
-                        ? $"Step {id} lost its failure."
-                        : $"Step {id} failure changed: \"{newStep.Failure}\" (was: \"{oldStep.Failure}\").");
-            }
-        }
-    }
-
-    static void CompareDecision(Record before, Record after, List<string> details)
-    {
-        var handled = new HashSet<string>(StringComparer.Ordinal) { "choice", "options" };
-
-        CompareValue("Choice", Field(before, "choice"), Field(after, "choice"), details);
-        CompareDecisionOptions(before, after, details);
-        CompareFields(before, after, details, handled);
-    }
-
-    static void CompareDecisionOptions(Record before, Record after, List<string> details)
-    {
-        var oldOptions = OptionNames(before);
-        var newOptions = OptionNames(after);
-
-        if (oldOptions is null || newOptions is null)
-        {
-            CompareValue("Options", Field(before, "options"), Field(after, "options"), details);
-            return;
-        }
-
-        foreach (var name in oldOptions.Where(name => !newOptions.Contains(name, StringComparer.Ordinal))
-                     .OrderBy(name => name, StringComparer.Ordinal))
-        {
-            details.Add($"Option removed: \"{name}\".");
-        }
-
-        foreach (var name in newOptions.Where(name => !oldOptions.Contains(name, StringComparer.Ordinal))
-                     .OrderBy(name => name, StringComparer.Ordinal))
-        {
-            details.Add($"Option added: \"{name}\".");
-        }
-    }
-
     /// <summary>
     ///     Compares the open questions on any record, keyed by the question text.
     ///     The generic field walk skips questions, so this runs for every type.
     /// </summary>
+    /// <param name="before">The base record.</param>
+    /// <param name="after">The head record.</param>
+    /// <param name="details">The detail lines a change adds to.</param>
     static void CompareQuestions(Record before, Record after, List<string> details)
     {
-        var oldQuestions = QuestionEntries(before);
-        var newQuestions = QuestionEntries(after);
+        var oldQuestions = DiffEntries.QuestionEntries(before);
+        var newQuestions = DiffEntries.QuestionEntries(after);
 
         if (oldQuestions is null || newQuestions is null)
         {
-            if (Field(before, "questions") is not null || Field(after, "questions") is not null)
+            if (DiffValues.Field(before, RecordFields.Questions) is not null || DiffValues.Field(after, RecordFields.Questions) is not null)
             {
-                CompareValue("Questions", Field(before, "questions"), Field(after, "questions"), details);
+                DiffValues.CompareValue("Questions", DiffValues.Field(before, RecordFields.Questions), DiffValues.Field(after, RecordFields.Questions), details);
             }
 
             return;
@@ -675,11 +453,17 @@ static class Differ
         }
     }
 
+    /// <summary>Compares one field of one open question.</summary>
+    /// <param name="question">The question text.</param>
+    /// <param name="field">The field name.</param>
+    /// <param name="oldEntry">The base question entry.</param>
+    /// <param name="newEntry">The head question entry.</param>
+    /// <param name="details">The detail lines a change adds to.</param>
     static void CompareQuestionField(
         string question, string field, JsonElement oldEntry, JsonElement newEntry, List<string> details)
     {
-        var oldValue = StringOf(oldEntry, field);
-        var newValue = StringOf(newEntry, field);
+        var oldValue = DiffEntries.StringOf(oldEntry, field);
+        var newValue = DiffEntries.StringOf(newEntry, field);
 
         if (!string.Equals(oldValue, newValue, StringComparison.Ordinal))
         {
@@ -687,1212 +471,18 @@ static class Differ
         }
     }
 
-    static void CompareRule(
-        Record before, Record after, bool approved, List<string> details, List<BreakingReason> reasons)
-    {
-        var handled = new HashSet<string>(StringComparer.Ordinal) { "kind" };
-        var oldKind = before.Field("kind");
-        var newKind = after.Field("kind");
-
-        if (!string.Equals(oldKind, newKind, StringComparison.Ordinal))
-        {
-            details.Add($"Rule kind changed from {oldKind ?? "none"} to {newKind ?? "none"}.");
-
-            if (approved && Weakened(oldKind, newKind))
-            {
-                reasons.Add(Reason("rule-weakened"));
-            }
-        }
-
-        CompareFields(before, after, details, handled);
-    }
-
-    /// <summary>
-    ///     Whether the kind change weakens the rule: an invariant always holds, so any
-    ///     move away from it narrows what it promises, as does a move from a
-    ///     precondition to a calculation or a cross-aggregate rule.
-    /// </summary>
-    static bool Weakened(string? oldKind, string? newKind) =>
-        oldKind switch
-        {
-            "invariant" => newKind != "invariant",
-            "precondition" => newKind is "calculation" or "cross-aggregate",
-            _ => false,
-        };
-
-    static void CompareResult(
-        Record before, Record after, bool approved, List<string> details, List<BreakingReason> reasons)
-    {
-        var handled = new HashSet<string>(StringComparer.Ordinal) { "outcome", "meaning" };
-        var oldOutcome = before.Field("outcome");
-        var newOutcome = after.Field("outcome");
-
-        if (!string.Equals(oldOutcome, newOutcome, StringComparison.Ordinal))
-        {
-            details.Add($"Outcome changed from {oldOutcome ?? "none"} to {newOutcome ?? "none"}.");
-
-            if (approved)
-            {
-                reasons.Add(Reason("result-outcome-changed"));
-            }
-        }
-
-        if (CompareValue("Meaning", Field(before, "meaning"), Field(after, "meaning"), details)
-            && approved
-            && oldOutcome == "refusal"
-            && newOutcome == "refusal")
-        {
-            reasons.Add(Reason("refusal-meaning-changed"));
-        }
-
-        CompareFields(before, after, details, handled);
-    }
-
-    static void CompareScenario(Record before, Record after, List<string> details)
-    {
-        var handled = new HashSet<string>(StringComparer.Ordinal) { "given", "when", "then", "result", "examples" };
-
-        CompareValue("Given", Field(before, "given"), Field(after, "given"), details);
-        CompareValue("When", Field(before, "when"), Field(after, "when"), details);
-        CompareValue("Then", Field(before, "then"), Field(after, "then"), details);
-        CompareValue("Result", Field(before, "result"), Field(after, "result"), details);
-        CompareExamples(Field(before, "examples"), Field(after, "examples"), details);
-        CompareFields(before, after, details, handled);
-    }
-
-    static void CompareExamples(JsonElement? before, JsonElement? after, List<string> details)
-    {
-        var oldRows = ExampleRows(before);
-        var newRows = ExampleRows(after);
-
-        if (oldRows is null || newRows is null)
-        {
-            if (!JsonEquals(before, after))
-            {
-                details.Add("Examples changed.");
-            }
-
-            return;
-        }
-
-        var added = newRows.Except(oldRows).Count();
-        var removed = oldRows.Except(newRows).Count();
-
-        if (added > 0 && removed > 0)
-        {
-            details.Add($"Examples changed: +{added} rows, -{removed} rows.");
-        }
-        else if (added > 0)
-        {
-            details.Add($"Examples changed: +{added} rows.");
-        }
-        else if (removed > 0)
-        {
-            details.Add($"Examples changed: -{removed} rows.");
-        }
-    }
-
-    static HashSet<string>? ExampleRows(JsonElement? value)
-    {
-        if (value is null)
-        {
-            return new HashSet<string>(StringComparer.Ordinal);
-        }
-
-        if (value.Value.ValueKind != JsonValueKind.Array)
-        {
-            return null;
-        }
-
-        return value.Value.EnumerateArray().Select(CanonicalJson.Canonical).ToHashSet(StringComparer.Ordinal);
-    }
-
-    static void CompareAggregate(
-        Record before,
-        Record after,
-        ProjectModel baseModel,
-        ProjectModel headModel,
-        bool approved,
-        List<string> details,
-        List<BreakingReason> reasons)
-    {
-        var handled = new HashSet<string>(StringComparer.Ordinal) { "states", "transitions", "data", "dataClasses", "steps", "exits", "drivenBy" };
-
-        CompareStates(before, after, approved, details, reasons);
-        CompareTransitions(before, after, baseModel, headModel, approved, details, reasons);
-        CompareData(before, after, details);
-        CompareDataClasses(before, after, details);
-        CompareSagaSteps(before, after, details);
-        CompareExits(before, after, details);
-        CompareDrivenBy(before, after, details);
-        CompareFields(before, after, details, handled);
-    }
-
-    static void CompareUseCase(Record before, Record after, List<string> details)
-    {
-        var handled = new HashSet<string>(StringComparer.Ordinal) { "access", "effects" };
-
-        CompareAccess(before, after, details);
-        CompareEffects(before, after, details);
-        CompareFields(before, after, details, handled);
-    }
-
-    static void CompareAccess(Record before, Record after, List<string> details)
-    {
-        var oldAccess = AccessOf(before);
-        var newAccess = AccessOf(after);
-
-        if (oldAccess is null || newAccess is null)
-        {
-            CompareValue("Access", Field(before, "access"), Field(after, "access"), details);
-            return;
-        }
-
-        if (!string.Equals(oldAccess.Tenant, newAccess.Tenant, StringComparison.Ordinal))
-        {
-            details.Add($"Tenant scope changed from {oldAccess.Tenant ?? "none"} to {newAccess.Tenant ?? "none"}.");
-        }
-
-        if (!string.Equals(oldAccess.Grant, newAccess.Grant, StringComparison.Ordinal))
-        {
-            details.Add($"Grant changed: \"{newAccess.Grant ?? "none"}\" (was: \"{oldAccess.Grant ?? "none"}\").");
-        }
-
-        var oldAuth = oldAccess.Auth;
-        var newAuth = newAccess.Auth;
-
-        if (!oldAuth.SetEquals(newAuth))
-        {
-            var parts = newAuth.Except(oldAuth, StringComparer.Ordinal).OrderBy(kind => kind, StringComparer.Ordinal)
-                    .Select(kind => $"+{kind}")
-                .Concat(oldAuth.Except(newAuth, StringComparer.Ordinal).OrderBy(kind => kind, StringComparer.Ordinal)
-                    .Select(kind => $"-{kind}"))
-                .ToList();
-
-            details.Add($"Auth changed: {string.Join(", ", parts)}.");
-        }
-    }
-
-    static void CompareEffects(Record before, Record after, List<string> details)
-    {
-        var oldEffects = EffectEntries(before);
-        var newEffects = EffectEntries(after);
-
-        if (oldEffects is null || newEffects is null)
-        {
-            CompareValue("Effects", Field(before, "effects"), Field(after, "effects"), details);
-            return;
-        }
-
-        foreach (var key in oldEffects.Keys.Where(key => !newEffects.ContainsKey(key))
-                     .OrderBy(key => key, StringComparer.Ordinal))
-        {
-            details.Add($"Effect removed: {oldEffects[key].Describe()}.");
-        }
-
-        foreach (var key in newEffects.Keys.Where(key => !oldEffects.ContainsKey(key))
-                     .OrderBy(key => key, StringComparer.Ordinal))
-        {
-            details.Add($"Effect added: {newEffects[key].Describe()}.");
-        }
-
-        foreach (var key in oldEffects.Keys.Where(newEffects.ContainsKey)
-                     .OrderBy(key => key, StringComparer.Ordinal))
-        {
-            var oldEffect = oldEffects[key];
-            var newEffect = newEffects[key];
-
-            if (!string.Equals(oldEffect.Timing, newEffect.Timing, StringComparison.Ordinal))
-            {
-                details.Add($"Effect {oldEffect.Edge()} timing changed from {oldEffect.Timing ?? "none"} to {newEffect.Timing ?? "none"}.");
-            }
-        }
-    }
-
-    static void CompareDataClasses(Record before, Record after, List<string> details)
-    {
-        var oldClasses = DataClassEntries(before);
-        var newClasses = DataClassEntries(after);
-
-        if (oldClasses is null || newClasses is null)
-        {
-            CompareValue("Data classes", Field(before, "dataClasses"), Field(after, "dataClasses"), details);
-            return;
-        }
-
-        foreach (var name in oldClasses.Keys.Where(name => !newClasses.ContainsKey(name))
-                     .OrderBy(name => name, StringComparer.Ordinal))
-        {
-            details.Add($"Data class removed: {name}.");
-        }
-
-        foreach (var name in newClasses.Keys.Where(name => !oldClasses.ContainsKey(name))
-                     .OrderBy(name => name, StringComparer.Ordinal))
-        {
-            details.Add($"Data class added: {name} ({newClasses[name].Classification ?? "no classification"}).");
-        }
-
-        foreach (var name in oldClasses.Keys.Where(newClasses.ContainsKey)
-                     .OrderBy(name => name, StringComparer.Ordinal))
-        {
-            var oldClass = oldClasses[name];
-            var newClass = newClasses[name];
-
-            if (!string.Equals(oldClass.Classification, newClass.Classification, StringComparison.Ordinal))
-            {
-                details.Add($"Data class {name} classification changed from {oldClass.Classification ?? "none"} to {newClass.Classification ?? "none"}.");
-            }
-
-            if (!string.Equals(oldClass.Purpose, newClass.Purpose, StringComparison.Ordinal))
-            {
-                details.Add($"Data class {name} purpose changed: \"{newClass.Purpose ?? "none"}\" (was: \"{oldClass.Purpose ?? "none"}\").");
-            }
-
-            if (!string.Equals(oldClass.OnErasure, newClass.OnErasure, StringComparison.Ordinal))
-            {
-                details.Add($"Data class {name} erasure changed from {oldClass.OnErasure ?? "none"} to {newClass.OnErasure ?? "none"}.");
-            }
-        }
-    }
-
-    static void CompareStates(
-        Record before, Record after, bool approved, List<string> details, List<BreakingReason> reasons)
-    {
-        var oldStates = StateEntries(before);
-        var newStates = StateEntries(after);
-
-        if (oldStates is null || newStates is null)
-        {
-            if (!JsonEquals(Field(before, "states"), Field(after, "states")))
-            {
-                details.Add("States changed.");
-            }
-
-            return;
-        }
-
-        foreach (var name in oldStates.Keys.Where(name => !newStates.ContainsKey(name))
-                     .OrderBy(name => name, StringComparer.Ordinal))
-        {
-            details.Add($"State removed: {name}.");
-        }
-
-        foreach (var name in newStates.Keys.Where(name => !oldStates.ContainsKey(name))
-                     .OrderBy(name => name, StringComparer.Ordinal))
-        {
-            details.Add($"State added: {name}.");
-        }
-
-        foreach (var name in oldStates.Keys.Where(newStates.ContainsKey)
-                     .OrderBy(name => name, StringComparer.Ordinal))
-        {
-            if (!string.Equals(oldStates[name], newStates[name], StringComparison.Ordinal))
-            {
-                details.Add($"State {name} meaning changed: \"{newStates[name]}\" (was: \"{oldStates[name]}\").");
-            }
-        }
-
-        if (approved && oldStates.Keys.Any(name => !newStates.ContainsKey(name)))
-        {
-            reasons.Add(Reason("state-removed"));
-        }
-    }
-
-    static void CompareTransitions(
-        Record before,
-        Record after,
-        ProjectModel baseModel,
-        ProjectModel headModel,
-        bool approved,
-        List<string> details,
-        List<BreakingReason> reasons)
-    {
-        var oldTransitions = TransitionEntries(before, baseModel);
-        var newTransitions = TransitionEntries(after, headModel);
-
-        if (oldTransitions is null || newTransitions is null)
-        {
-            if (!JsonEquals(Field(before, "transitions"), Field(after, "transitions")))
-            {
-                details.Add("Transitions changed.");
-            }
-
-            return;
-        }
-
-        var removed = oldTransitions.Keys.Except(newTransitions.Keys)
-            .OrderBy(key => key, StringComparer.Ordinal).ToList();
-        var added = newTransitions.Keys.Except(oldTransitions.Keys)
-            .OrderBy(key => key, StringComparer.Ordinal).ToList();
-
-        foreach (var key in removed)
-        {
-            details.Add($"Transition removed: {oldTransitions[key]}.");
-        }
-
-        foreach (var key in added)
-        {
-            details.Add($"Transition added: {newTransitions[key]}.");
-        }
-
-        if (approved && removed.Count > 0)
-        {
-            reasons.Add(Reason("transition-removed"));
-        }
-    }
-
-    static void CompareData(Record before, Record after, List<string> details)
-    {
-        var oldData = DataEntries(before);
-        var newData = DataEntries(after);
-
-        if (oldData is null || newData is null)
-        {
-            if (!JsonEquals(Field(before, "data"), Field(after, "data")))
-            {
-                details.Add("Data changed.");
-            }
-
-            return;
-        }
-
-        foreach (var name in oldData.Keys.Where(name => !newData.ContainsKey(name))
-                     .OrderBy(name => name, StringComparer.Ordinal))
-        {
-            details.Add($"Data removed: {name}.");
-        }
-
-        foreach (var name in newData.Keys.Where(name => !oldData.ContainsKey(name))
-                     .OrderBy(name => name, StringComparer.Ordinal))
-        {
-            details.Add($"Data added: {name}.");
-        }
-
-        foreach (var name in oldData.Keys.Where(newData.ContainsKey)
-                     .OrderBy(name => name, StringComparer.Ordinal))
-        {
-            var (oldMeaning, oldClassification) = oldData[name];
-            var (newMeaning, newClassification) = newData[name];
-
-            if (!string.Equals(oldClassification, newClassification, StringComparison.Ordinal))
-            {
-                details.Add($"Data {name} classification changed from {oldClassification} to {newClassification}.");
-            }
-
-            if (!string.Equals(oldMeaning, newMeaning, StringComparison.Ordinal))
-            {
-                details.Add($"Data {name} meaning changed: \"{newMeaning}\" (was: \"{oldMeaning}\").");
-            }
-        }
-    }
-
-    static void CompareSagaSteps(Record before, Record after, List<string> details)
-    {
-        var oldSteps = SagaStepEntries(before);
-        var newSteps = SagaStepEntries(after);
-
-        if (oldSteps is null || newSteps is null)
-        {
-            if (!JsonEquals(Field(before, "steps"), Field(after, "steps")))
-            {
-                details.Add("Steps changed.");
-            }
-
-            return;
-        }
-
-        foreach (var id in oldSteps.Keys.Where(id => !newSteps.ContainsKey(id))
-                     .OrderBy(id => id, StringComparer.Ordinal))
-        {
-            details.Add($"Step removed: {id}.");
-        }
-
-        foreach (var id in newSteps.Keys.Where(id => !oldSteps.ContainsKey(id))
-                     .OrderBy(id => id, StringComparer.Ordinal))
-        {
-            var runs = StringOf(newSteps[id], "runs");
-
-            details.Add(runs is null ? $"Step added: {id}." : $"Step added: {id} running {runs}.");
-        }
-
-        foreach (var id in oldSteps.Keys.Where(newSteps.ContainsKey)
-                     .OrderBy(id => id, StringComparer.Ordinal))
-        {
-            var oldStep = oldSteps[id];
-            var newStep = newSteps[id];
-            var oldRuns = StringOf(oldStep, "runs");
-            var newRuns = StringOf(newStep, "runs");
-
-            if (!string.Equals(oldRuns, newRuns, StringComparison.Ordinal))
-            {
-                details.Add($"Step {id} now runs {newRuns ?? "nothing"} (was: {oldRuns ?? "nothing"}).");
-            }
-
-            var oldGuard = StringOf(oldStep, "guard");
-            var newGuard = StringOf(newStep, "guard");
-
-            if (!string.Equals(oldGuard, newGuard, StringComparison.Ordinal))
-            {
-                details.Add(oldGuard is null
-                    ? $"Step {id} gained a guard: \"{newGuard}\"."
-                    : newGuard is null
-                        ? $"Step {id} lost its guard."
-                        : $"Step {id} guard changed: \"{newGuard}\" (was: \"{oldGuard}\").");
-            }
-
-            var oldHas = oldStep.TryGetProperty("compensation", out var oldCompensation);
-            var newHas = newStep.TryGetProperty("compensation", out var newCompensation);
-
-            if (!JsonEquals(
-                    oldHas ? oldCompensation : (JsonElement?)null,
-                    newHas ? newCompensation : (JsonElement?)null))
-            {
-                details.Add($"Step {id} compensation changed.");
-            }
-        }
-    }
-
-    static void CompareExits(Record before, Record after, List<string> details)
-    {
-        var oldExits = ExitNames(before);
-        var newExits = ExitNames(after);
-
-        if (oldExits is null || newExits is null)
-        {
-            if (!JsonEquals(Field(before, "exits"), Field(after, "exits")))
-            {
-                details.Add("Exits changed.");
-            }
-
-            return;
-        }
-
-        foreach (var name in oldExits.Where(name => !newExits.Contains(name, StringComparer.Ordinal))
-                     .OrderBy(name => name, StringComparer.Ordinal))
-        {
-            details.Add($"Exit removed: {name}.");
-        }
-
-        foreach (var name in newExits.Where(name => !oldExits.Contains(name, StringComparer.Ordinal))
-                     .OrderBy(name => name, StringComparer.Ordinal))
-        {
-            details.Add($"Exit added: {name}.");
-        }
-    }
-
-    static void CompareDrivenBy(Record before, Record after, List<string> details)
-    {
-        var oldDriver = Field(before, "drivenBy");
-        var newDriver = Field(after, "drivenBy");
-
-        if (oldDriver is null || newDriver is null)
-        {
-            CompareValue("Driven by", oldDriver, newDriver, details);
-            return;
-        }
-
-        if (JsonEquals(oldDriver, newDriver))
-        {
-            return;
-        }
-
-        var oldNames = DriverNames(oldDriver.Value);
-        var newNames = DriverNames(newDriver.Value);
-
-        details.Add(oldNames.Count == 1 && newNames.Count == 1
-            ? $"Driven by changed from {oldNames[0]} to {newNames[0]}."
-            : "Driven by changed.");
-    }
-
-    static void CompareFields(
-        Record before, Record after, List<string> details, HashSet<string>? handled = null)
-    {
-        if (before.Raw.ValueKind != JsonValueKind.Object || after.Raw.ValueKind != JsonValueKind.Object)
-        {
-            if (!JsonEquals(before.Raw, after.Raw))
-            {
-                details.Add("Fields changed.");
-            }
-
-            return;
-        }
-
-        var names = before.Raw.EnumerateObject().Select(property => property.Name)
-            .Concat(after.Raw.EnumerateObject().Select(property => property.Name))
-            .Where(name => !MetaFields.Contains(name) && !(handled?.Contains(name) ?? false))
-            .Distinct(StringComparer.Ordinal)
-            .OrderBy(name => name, StringComparer.Ordinal);
-
-        foreach (var name in names)
-        {
-            CompareValue(Label(before.Type, name), Field(before, name), Field(after, name), details);
-        }
-    }
-
-    static string Label(string type, string name) => (type, name) switch
-    {
-        ("requirement", "dueBy") => "Due by",
-        _ => name.Length == 0 ? name : char.ToUpperInvariant(name[0]) + name[1..],
-    };
-
-    /// <summary>Compares one field, adding a detail line when it changed.</summary>
-    /// <returns>Whether the field changed.</returns>
-    static bool CompareValue(string label, JsonElement? before, JsonElement? after, List<string> details)
-    {
-        if (before is null && after is null)
-        {
-            return false;
-        }
-
-        if (before is null)
-        {
-            details.Add(after!.Value.ValueKind == JsonValueKind.String
-                ? $"{label} added: \"{after.Value.GetString()}\"."
-                : $"{label} added.");
-            return true;
-        }
-
-        if (after is null)
-        {
-            details.Add($"{label} removed.");
-            return true;
-        }
-
-        if (JsonEquals(before.Value, after.Value))
-        {
-            return false;
-        }
-
-        if (before.Value.ValueKind == JsonValueKind.String && after.Value.ValueKind == JsonValueKind.String)
-        {
-            details.Add($"{label} changed: \"{after.Value.GetString()}\" (was: \"{before.Value.GetString()}\").");
-            return true;
-        }
-
-        if (before.Value.ValueKind == JsonValueKind.True || before.Value.ValueKind == JsonValueKind.False)
-        {
-            if (after.Value.ValueKind == JsonValueKind.True || after.Value.ValueKind == JsonValueKind.False)
-            {
-                details.Add($"{label} changed from {Flat(before.Value)} to {Flat(after.Value)}.");
-                return true;
-            }
-        }
-
-        if (before.Value.ValueKind == JsonValueKind.Number && after.Value.ValueKind == JsonValueKind.Number)
-        {
-            details.Add($"{label} changed from {before.Value.GetRawText()} to {after.Value.GetRawText()}.");
-            return true;
-        }
-
-        if (before.Value.ValueKind == JsonValueKind.Array && after.Value.ValueKind == JsonValueKind.Array
-            && before.Value.EnumerateArray().All(entry => entry.ValueKind == JsonValueKind.String)
-            && after.Value.EnumerateArray().All(entry => entry.ValueKind == JsonValueKind.String))
-        {
-            var oldItems = before.Value.EnumerateArray().Select(entry => entry.GetString()!)
-                .ToHashSet(StringComparer.Ordinal);
-            var newItems = after.Value.EnumerateArray().Select(entry => entry.GetString()!)
-                .ToHashSet(StringComparer.Ordinal);
-            var parts = newItems.Except(oldItems).OrderBy(item => item, StringComparer.Ordinal)
-                    .Select(item => $"+{item}")
-                .Concat(oldItems.Except(newItems).OrderBy(item => item, StringComparer.Ordinal)
-                    .Select(item => $"-{item}"))
-                .ToList();
-
-            if (parts.Count == 0)
-            {
-                return false;
-            }
-
-            details.Add($"{label} changed: {string.Join(", ", parts)}.");
-            return true;
-        }
-
-        details.Add($"{label} changed.");
-        return true;
-    }
-
-    static string Flat(JsonElement value) => value.ValueKind switch
-    {
-        JsonValueKind.True => "true",
-        JsonValueKind.False => "false",
-        JsonValueKind.Null => "none",
-        JsonValueKind.Number => value.GetRawText(),
-        JsonValueKind.String => $"\"{value.GetString()}\"",
-        _ => value.ValueKind.ToString().ToLowerInvariant(),
-    };
-
-    static JsonElement? Field(Record record, string name) =>
-        record.Raw.ValueKind == JsonValueKind.Object
-        && record.Raw.TryGetProperty(name, out var value)
-            ? value
-            : null;
-
-    static bool JsonEquals(JsonElement? left, JsonElement? right)
-    {
-        if (left is null || right is null)
-        {
-            return left is null && right is null;
-        }
-
-        return JsonEquals(left.Value, right.Value);
-    }
-
-    static bool JsonEquals(JsonElement left, JsonElement right) =>
-        string.Equals(CanonicalJson.Canonical(left), CanonicalJson.Canonical(right), StringComparison.Ordinal);
-
-    /// <summary>
-    ///     One entry per transition, keyed by its from, to and use case id and
-    ///     displayed with the use case title, so a retitled use case reads the same.
-    /// </summary>
-    static Dictionary<string, string>? TransitionEntries(Record record, ProjectModel model)
-    {
-        if (Field(record, "transitions") is not { } value)
-        {
-            return new Dictionary<string, string>(StringComparer.Ordinal);
-        }
-
-        if (value.ValueKind != JsonValueKind.Array)
-        {
-            return null;
-        }
-
-        var lines = new Dictionary<string, string>(StringComparer.Ordinal);
-
-        foreach (var entry in value.EnumerateArray())
-        {
-            if (entry.ValueKind != JsonValueKind.Object)
-            {
-                return null;
-            }
-
-            var from = StringOf(entry, "from") ?? "none";
-            var to = StringOf(entry, "to") ?? "none";
-            var by = StringOf(entry, "by");
-            var line = $"{from} -> {to}";
-
-            if (by is not null)
-            {
-                line += model.ById.TryGetValue(by, out var useCase)
-                    ? $" by \"{useCase.Title}\""
-                    : $" by {by}";
-            }
-
-            lines[$"{from}\0{to}\0{by ?? ""}"] = line;
-        }
-
-        return lines;
-    }
-
-    static Dictionary<string, string>? StateEntries(Record record)
-    {
-        if (Field(record, "states") is not { } value)
-        {
-            return new Dictionary<string, string>(StringComparer.Ordinal);
-        }
-
-        if (value.ValueKind != JsonValueKind.Array)
-        {
-            return null;
-        }
-
-        var states = new Dictionary<string, string>(StringComparer.Ordinal);
-
-        foreach (var entry in value.EnumerateArray())
-        {
-            if (entry.ValueKind != JsonValueKind.Object)
-            {
-                return null;
-            }
-
-            states[StringOf(entry, "name") ?? "none"] = StringOf(entry, "meaning") ?? "";
-        }
-
-        return states;
-    }
-
-    static List<string> StateNames(Record record) =>
-        StateEntries(record)?.Keys.OrderBy(name => name, StringComparer.Ordinal).ToList() ?? [];
-
-    static Dictionary<string, (string Meaning, string Classification)>? DataEntries(Record record)
-    {
-        if (Field(record, "data") is not { } value)
-        {
-            return new Dictionary<string, (string, string)>(StringComparer.Ordinal);
-        }
-
-        if (value.ValueKind != JsonValueKind.Array)
-        {
-            return null;
-        }
-
-        var data = new Dictionary<string, (string, string)>(StringComparer.Ordinal);
-
-        foreach (var entry in value.EnumerateArray())
-        {
-            if (entry.ValueKind != JsonValueKind.Object)
-            {
-                return null;
-            }
-
-            data[StringOf(entry, "name") ?? "none"] =
-                (StringOf(entry, "meaning") ?? "", StringOf(entry, "classification") ?? "none");
-        }
-
-        return data;
-    }
-
-    /// <summary>One saga step per entry, keyed by its step id.</summary>
-    static Dictionary<string, JsonElement>? SagaStepEntries(Record record)
-    {
-        if (Field(record, "steps") is not { } value)
-        {
-            return new Dictionary<string, JsonElement>(StringComparer.Ordinal);
-        }
-
-        if (value.ValueKind != JsonValueKind.Array)
-        {
-            return null;
-        }
-
-        var steps = new Dictionary<string, JsonElement>(StringComparer.Ordinal);
-
-        foreach (var entry in value.EnumerateArray())
-        {
-            if (entry.ValueKind != JsonValueKind.Object)
-            {
-                return null;
-            }
-
-            steps[StringOf(entry, "id") ?? "none"] = entry;
-        }
-
-        return steps;
-    }
-
-    /// <summary>Every saga exit name: a bare string, or the name of an exit object.</summary>
-    static List<string>? ExitNames(Record record)
-    {
-        if (Field(record, "exits") is not { } value)
-        {
-            return [];
-        }
-
-        if (value.ValueKind != JsonValueKind.Array)
-        {
-            return null;
-        }
-
-        var names = new List<string>();
-
-        foreach (var entry in value.EnumerateArray())
-        {
-            if (entry.ValueKind == JsonValueKind.String && entry.GetString() is { } name)
-            {
-                names.Add(name);
-            }
-            else if (entry.ValueKind == JsonValueKind.Object)
-            {
-                names.Add(StringOf(entry, "name") ?? "none");
-            }
-            else
-            {
-                return null;
-            }
-        }
-
-        return names;
-    }
-
-    /// <summary>Every saga driver as one id: its job or reaction, or the person driving it.</summary>
-    static IReadOnlyList<string> DriverNames(JsonElement value)
-    {
-        var entries = value.ValueKind == JsonValueKind.Array
-            ? value.EnumerateArray()
-            : Enumerable.Repeat(value, 1);
-        var names = new List<string>();
-
-        foreach (var entry in entries)
-        {
-            if (entry.ValueKind == JsonValueKind.Object
-                && (StringOf(entry, "job") ?? StringOf(entry, "reaction") ?? StringOf(entry, "person")) is { } name)
-            {
-                names.Add(name);
-            }
-        }
-
-        return names;
-    }
-
-    static string? StringOf(JsonElement element, string name) =>
-        element.TryGetProperty(name, out var value) && value.ValueKind == JsonValueKind.String
-            ? value.GetString()
-            : null;
-
-    static AccessValue? AccessOf(Record record)
-    {
-        if (Field(record, "access") is not { } value)
-        {
-            return null;
-        }
-
-        if (value.ValueKind != JsonValueKind.Object)
-        {
-            return null;
-        }
-
-        var auth = new HashSet<string>(StringComparer.Ordinal);
-
-        if (value.TryGetProperty("auth", out var kinds))
-        {
-            if (kinds.ValueKind == JsonValueKind.String && kinds.GetString() is { } single)
-            {
-                auth.Add(single);
-            }
-            else if (kinds.ValueKind == JsonValueKind.Array)
-            {
-                foreach (var kind in kinds.EnumerateArray())
-                {
-                    if (kind.ValueKind == JsonValueKind.String && kind.GetString() is { } name)
-                    {
-                        auth.Add(name);
-                    }
-                }
-            }
-            else
-            {
-                return null;
-            }
-        }
-
-        return new AccessValue(auth, StringOf(value, "grant"), StringOf(value, "tenant"));
-    }
-
-    /// <summary>One entry per effect, keyed by its verb and target.</summary>
-    static Dictionary<string, EffectEntry>? EffectEntries(Record record)
-    {
-        if (Field(record, "effects") is not { } value)
-        {
-            return new Dictionary<string, EffectEntry>(StringComparer.Ordinal);
-        }
-
-        if (value.ValueKind != JsonValueKind.Array)
-        {
-            return null;
-        }
-
-        var effects = new Dictionary<string, EffectEntry>(StringComparer.Ordinal);
-
-        foreach (var entry in value.EnumerateArray())
-        {
-            if (entry.ValueKind != JsonValueKind.Object)
-            {
-                return null;
-            }
-
-            var verb = StringOf(entry, "runs") is not null ? "runs"
-                : StringOf(entry, "sends") is not null ? "sends"
-                : StringOf(entry, "emits") is not null ? "emits"
-                : StringOf(entry, "calls") is not null ? "calls"
-                : null;
-
-            if (verb is null)
-            {
-                return null;
-            }
-
-            var target = StringOf(entry, verb)!;
-
-            effects[$"{verb}\0{target}"] = new EffectEntry(verb, target, StringOf(entry, "timing"));
-        }
-
-        return effects;
-    }
-
-    /// <summary>One entry per data class, keyed by its name.</summary>
-    static Dictionary<string, DataClassValue>? DataClassEntries(Record record)
-    {
-        if (Field(record, "dataClasses") is not { } value)
-        {
-            return new Dictionary<string, DataClassValue>(StringComparer.Ordinal);
-        }
-
-        if (value.ValueKind != JsonValueKind.Array)
-        {
-            return null;
-        }
-
-        var classes = new Dictionary<string, DataClassValue>(StringComparer.Ordinal);
-
-        foreach (var entry in value.EnumerateArray())
-        {
-            if (entry.ValueKind != JsonValueKind.Object)
-            {
-                return null;
-            }
-
-            classes[StringOf(entry, "name") ?? "none"] =
-                new DataClassValue(StringOf(entry, "classification"), StringOf(entry, "purpose"), StringOf(entry, "onErasure"));
-        }
-
-        return classes;
-    }
-
-    /// <summary>One entry per journey step, keyed by its step id.</summary>
-    static Dictionary<string, JourneyStep>? JourneySteps(Record record)
-    {
-        if (Field(record, "steps") is not { } value)
-        {
-            return new Dictionary<string, JourneyStep>(StringComparer.Ordinal);
-        }
-
-        if (value.ValueKind != JsonValueKind.Array)
-        {
-            return null;
-        }
-
-        var steps = new Dictionary<string, JourneyStep>(StringComparer.Ordinal);
-
-        foreach (var entry in value.EnumerateArray())
-        {
-            if (entry.ValueKind != JsonValueKind.Object)
-            {
-                return null;
-            }
-
-            steps[StringOf(entry, "id") ?? "none"] = new JourneyStep(
-                StringOf(entry, "statement") ?? "",
-                StringOf(entry, "actor"),
-                StringOf(entry, "failure"));
-        }
-
-        return steps;
-    }
-
-    /// <summary>One fallback per exception, keyed by its condition.</summary>
-    static Dictionary<string, string>? ExceptEntries(Record record)
-    {
-        if (Field(record, "except") is not { } value)
-        {
-            return new Dictionary<string, string>(StringComparer.Ordinal);
-        }
-
-        if (value.ValueKind != JsonValueKind.Array)
-        {
-            return null;
-        }
-
-        var except = new Dictionary<string, string>(StringComparer.Ordinal);
-
-        foreach (var entry in value.EnumerateArray())
-        {
-            if (entry.ValueKind != JsonValueKind.Object)
-            {
-                return null;
-            }
-
-            except[StringOf(entry, "condition") ?? "none"] = StringOf(entry, "fallback") ?? "none";
-        }
-
-        return except;
-    }
-
-    static List<string>? OptionNames(Record record)
-    {
-        if (Field(record, "options") is not { } value)
-        {
-            return [];
-        }
-
-        if (value.ValueKind != JsonValueKind.Array)
-        {
-            return null;
-        }
-
-        var names = new List<string>();
-
-        foreach (var entry in value.EnumerateArray())
-        {
-            if (entry.ValueKind == JsonValueKind.String && entry.GetString() is { } name)
-            {
-                names.Add(name);
-            }
-            else if (entry.ValueKind == JsonValueKind.Object)
-            {
-                names.Add(StringOf(entry, "name") ?? "none");
-            }
-            else
-            {
-                return null;
-            }
-        }
-
-        return names;
-    }
-
-    /// <summary>One entry per open question, keyed by the question text.</summary>
-    static Dictionary<string, JsonElement>? QuestionEntries(Record record)
-    {
-        if (Field(record, "questions") is not { } value)
-        {
-            return new Dictionary<string, JsonElement>(StringComparer.Ordinal);
-        }
-
-        if (value.ValueKind != JsonValueKind.Array)
-        {
-            return null;
-        }
-
-        var questions = new Dictionary<string, JsonElement>(StringComparer.Ordinal);
-
-        foreach (var entry in value.EnumerateArray())
-        {
-            if (entry.ValueKind != JsonValueKind.Object || StringOf(entry, "question") is not { } question)
-            {
-                return null;
-            }
-
-            questions[question] = entry;
-        }
-
-        return questions;
-    }
-
-    /// <summary>
-    ///     The security queue: use cases widened to tenant scope cross, new calls
-    ///     effects, and new personal or sensitive data classes, in record order.
-    /// </summary>
-    static List<SecurityQueueEntry> SecurityQueue(
-        ProjectModel baseModel, ProjectModel headModel, HashSet<string> addedIds, HashSet<string> removedIds)
-    {
-        var queue = new List<SecurityQueueEntry>();
-
-        foreach (var record in headModel.Records
-                     .OrderBy(left => left.Type, StringComparer.Ordinal)
-                     .ThenBy(left => left.Id, StringComparer.Ordinal))
-        {
-            if (removedIds.Contains(record.Id))
-            {
-                continue;
-            }
-
-            var added = addedIds.Contains(record.Id);
-            baseModel.ById.TryGetValue(record.Id, out var before);
-
-            if (record.Type == "use-case")
-            {
-                QueueTenantWidening(before, record, added, queue);
-                QueueNewCalls(before, record, added, queue);
-            }
-
-            if (record.Type == "aggregate")
-            {
-                QueueNewDataClasses(before, record, added, queue);
-            }
-        }
-
-        return queue;
-    }
-
-    static void QueueTenantWidening(
-        Record? before, Record after, bool added, List<SecurityQueueEntry> queue)
-    {
-        var tenant = AccessOf(after)?.Tenant;
-
-        if (!string.Equals(tenant, "cross", StringComparison.Ordinal))
-        {
-            return;
-        }
-
-        if (!added && before is not null
-            && string.Equals(AccessOf(before)?.Tenant, "cross", StringComparison.Ordinal))
-        {
-            return;
-        }
-
-        queue.Add(new SecurityQueueEntry(
-            after.Id,
-            after.Title,
-            after.Type,
-            added || before is null
-                ? "Access tenant scope is cross."
-                : $"Access tenant scope widened from {AccessOf(before)?.Tenant ?? "none"} to cross."));
-    }
-
-    static void QueueNewCalls(Record? before, Record after, bool added, List<SecurityQueueEntry> queue)
-    {
-        var newEffects = EffectEntries(after);
-
-        if (newEffects is null)
-        {
-            return;
-        }
-
-        var oldEffects = !added && before is not null ? EffectEntries(before) : new Dictionary<string, EffectEntry>();
-
-        if (oldEffects is null)
-        {
-            return;
-        }
-
-        foreach (var key in newEffects.Keys
-                     .Where(key => !oldEffects.ContainsKey(key) && newEffects[key].Verb == "calls")
-                     .OrderBy(key => key, StringComparer.Ordinal))
-        {
-            queue.Add(new SecurityQueueEntry(
-                after.Id, after.Title, after.Type, $"New calls effect: {newEffects[key].Describe()}."));
-        }
-    }
-
-    static void QueueNewDataClasses(Record? before, Record after, bool added, List<SecurityQueueEntry> queue)
-    {
-        var newClasses = DataClassEntries(after);
-
-        if (newClasses is null)
-        {
-            return;
-        }
-
-        var oldClasses = !added && before is not null ? DataClassEntries(before) : new Dictionary<string, DataClassValue>();
-
-        if (oldClasses is null)
-        {
-            return;
-        }
-
-        foreach (var name in newClasses.Keys.OrderBy(left => left, StringComparer.Ordinal))
-        {
-            var classification = newClasses[name].Classification;
-
-            if (classification is not ("personal" or "sensitive"))
-            {
-                continue;
-            }
-
-            if (!oldClasses.TryGetValue(name, out var oldClass))
-            {
-                queue.Add(new SecurityQueueEntry(
-                    after.Id, after.Title, after.Type, $"New {classification} data class: {name}."));
-            }
-            else if (oldClass.Classification is not ("personal" or "sensitive"))
-            {
-                queue.Add(new SecurityQueueEntry(
-                    after.Id,
-                    after.Title,
-                    after.Type,
-                    $"Data class {name} is now {classification} (was: {oldClass.Classification ?? "none"})."));
-            }
-        }
-    }
-
     /// <summary>Whether the record stands approved or reviewed: its effective status, else its own.</summary>
+    /// <param name="model">The model holding the record's effective status.</param>
+    /// <param name="record">The record.</param>
+    /// <returns>True when the record stands approved or reviewed.</returns>
     static bool Approved(ProjectModel model, Record record)
     {
         if (model.EffectiveStatus.TryGetValue(record.Id, out var effective))
         {
-            return effective is "approved" or "reviewed";
+            return effective is RecordStatuses.Approved or RecordStatuses.Reviewed;
         }
 
-        return record.Status is null or "approved" or "reviewed";
+        return record.Status is null or RecordStatuses.Approved or RecordStatuses.Reviewed;
     }
 
     static BreakingReason Reason(string code) => new(code, code switch

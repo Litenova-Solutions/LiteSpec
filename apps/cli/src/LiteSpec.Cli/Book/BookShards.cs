@@ -239,6 +239,5 @@ static class BookShards
     }
 
     /// <summary>A JSON string, or JSON null when the text is absent.</summary>
-    static JsonNode StringOrNull(string? value) =>
-        value is null ? JsonNode.Parse("null")! : JsonValue.Create(value)!;
+    static JsonNode? StringOrNull(string? value) => BookRender.StrNode(value);
 }

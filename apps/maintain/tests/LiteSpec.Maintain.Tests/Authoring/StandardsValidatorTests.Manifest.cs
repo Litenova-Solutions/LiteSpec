@@ -46,7 +46,7 @@ public sealed partial class StandardsValidatorTests
         ## Dependencies
 
         None.
-        """ + "\n";
+        """.ReplaceLineEndings("\n") + "\n";
 
     static readonly string LayerTopicPage = """
         # Sample Topic
@@ -68,7 +68,7 @@ public sealed partial class StandardsValidatorTests
         ## Conventions
 
         None.
-        """ + "\n";
+        """.ReplaceLineEndings("\n") + "\n";
 
     static List<string> LayerCodes(Action<string> build)
     {

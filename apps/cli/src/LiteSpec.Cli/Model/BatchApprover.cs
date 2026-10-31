@@ -68,8 +68,8 @@ static class BatchApprover
         var members = MembersOf(model, batch);
         var anchor = batch.Kind switch
         {
-            "use-case" or "reaction" or "job" => batch.Selector,
-            "decision" => batch.Selector["decision/".Length..],
+            RecordTypes.UseCase or RecordTypes.Reaction or RecordTypes.Job => batch.Selector,
+            RecordTypes.Decision => batch.Selector["decision/".Length..],
             "record" => batch.Selector,
             _ => (string?)null,
         };
@@ -131,7 +131,7 @@ static class BatchApprover
                     ? action with
                     {
                         Action = "held",
-                        TargetStatus = action.Record.Status ?? "approved",
+                        TargetStatus = action.Record.Status ?? RecordStatuses.Approved,
                         HeldGuards = guards,
                     }
                     : action)
@@ -141,16 +141,16 @@ static class BatchApprover
     /// <summary>Every record the batch approval covers, held records included.</summary>
     static List<Record> MembersOf(ProjectModel model, ReviewBatch batch)
     {
-        if (batch.Kind == "use-case"
+        if (batch.Kind == RecordTypes.UseCase
             && model.ById.TryGetValue(batch.Selector, out var useCase)
-            && useCase.Type == "use-case")
+            && useCase.Type == RecordTypes.UseCase)
         {
             var members = new List<Record> { useCase };
 
             if (Identifiers.TrySplit(useCase.Id, out _, out _, out var name))
             {
                 members.AddRange(model.Records.Where(record => !record.Derived
-                    && record.Type is "result" or "scenario"
+                    && record.Type is RecordTypes.Result or RecordTypes.Scenario
                     && Identifiers.TrySplit(record.Id, out _, out var home, out _)
                     && home == name
                     && ModelBuilder.UseCaseOf(model, home) is { } holder
@@ -161,27 +161,27 @@ static class BatchApprover
             return members;
         }
 
-        if (batch.Kind is "reaction" or "job"
+        if (batch.Kind is RecordTypes.Reaction or RecordTypes.Job
             && model.ById.TryGetValue(batch.Selector, out var holder)
             && holder.Type == batch.Kind)
         {
             var members = new List<Record> { holder };
 
             members.AddRange(model.Records.Where(record => !record.Derived
-                && record.Type == "scenario"
+                && record.Type == RecordTypes.Scenario
                 && record.PageId == holder.Id));
 
             return members;
         }
 
-        if (batch.Kind == "decision"
+        if (batch.Kind == RecordTypes.Decision
             && model.ById.TryGetValue(batch.Selector["decision/".Length..], out var decision)
-            && decision.Type == "decision")
+            && decision.Type == RecordTypes.Decision)
         {
             var members = new List<Record> { decision };
         var added = new HashSet<string>(StringComparer.Ordinal) { decision.Id };
 
-        foreach (var id in decision.Ids("decides").OrderBy(id => id, StringComparer.Ordinal))
+        foreach (var id in decision.Ids(RecordFields.Decides).OrderBy(id => id, StringComparer.Ordinal))
         {
             // Use cases anchor their own batches with their results and scenarios, reactions
             // and jobs anchor theirs with the scenarios on their page, and decisions anchor
@@ -189,7 +189,7 @@ static class BatchApprover
             if (!added.Add(id)
                 || !model.ById.TryGetValue(id, out var decided)
                 || decided.Derived
-                || decided.Type is "use-case" or "reaction" or "job" or "decision"
+                || decided.Type is RecordTypes.UseCase or RecordTypes.Reaction or RecordTypes.Job or RecordTypes.Decision
                 || ClaimedByUseCase(model, decided))
             {
                 continue;
@@ -206,10 +206,10 @@ static class BatchApprover
 
     /// <summary>Whether a reaction or job page carries the scenario, so its own batch holds it.</summary>
     static bool OnReactionOrJobPage(ProjectModel model, Record record) =>
-        record.Type == "scenario"
+        record.Type == RecordTypes.Scenario
         && record.PageId is not null
         && model.ById.TryGetValue(record.PageId, out var page)
-        && page.Type is "reaction" or "job";
+        && page.Type is RecordTypes.Reaction or RecordTypes.Job;
 
     /// <summary>Whether a use case, reaction or job batch claims the record: a use case result or scenario, or a scenario on a reaction or job page.</summary>
     static bool ClaimedByUseCase(ProjectModel model, Record record)
@@ -219,7 +219,7 @@ static class BatchApprover
             return true;
         }
 
-        return record.Type is "result" or "scenario"
+        return record.Type is RecordTypes.Result or RecordTypes.Scenario
             && Identifiers.TrySplit(record.Id, out _, out var home, out _)
             && home is not null
             && ModelBuilder.UseCaseOf(model, home) is not null;
@@ -228,12 +228,12 @@ static class BatchApprover
     /// <summary>Describes one member's approval: its action, target status, and evidence.</summary>
     static BatchAction Describe(ProjectModel model, Record record, IReadOnlyDictionary<string, int> findings)
     {
-        var action = record.Status == "draft"
+        var action = record.Status == RecordStatuses.Draft
             ? "promoted"
             : ReviewQueue.IsReopened(record) ? "re-stamped" : "held";
         var target = action == "promoted"
-            ? ReviewQueue.LayerOf(record) == "behavior" ? "reviewed" : "approved"
-            : record.Status ?? "approved";
+            ? ReviewQueue.LayerOf(record) == "behavior" ? RecordStatuses.Reviewed : RecordStatuses.Approved
+            : record.Status ?? RecordStatuses.Approved;
 
         return new BatchAction(
             record,
@@ -303,7 +303,7 @@ static class BatchApprover
             }
 
             // An approved decision states its choice; a decision with none is not decided.
-            if (action.Record.Type == "decision" && action.Record.Field("choice") is not { Length: > 0 })
+            if (action.Record.Type == RecordTypes.Decision && action.Record.Field(RecordFields.Choice) is not { Length: > 0 })
             {
                 failures.Add((action.Record.Id, "names no choice"));
             }
@@ -313,7 +313,7 @@ static class BatchApprover
 
         foreach (var action in changed.OrderBy(entry => entry.Record.Id, StringComparer.Ordinal))
         {
-            if (simulated.TryGetValue(action.Record.Id, out var status) && status == "draft"
+            if (simulated.TryGetValue(action.Record.Id, out var status) && status == RecordStatuses.Draft
                 && RestedOn(model, simulated, action.Record) is { } parent)
             {
                 failures.Add((action.Record.Id, $"stays draft behind draft {parent}"));
@@ -386,9 +386,9 @@ static class BatchApprover
 
         foreach (var record in approvals)
         {
-            targets[record.Id] = record.Status == "draft"
-                ? ReviewQueue.LayerOf(record) == "behavior" ? "reviewed" : "approved"
-                : record.Status ?? "approved";
+            targets[record.Id] = record.Status == RecordStatuses.Draft
+                ? ReviewQueue.LayerOf(record) == "behavior" ? RecordStatuses.Reviewed : RecordStatuses.Approved
+                : record.Status ?? RecordStatuses.Approved;
         }
 
         var overlaid = model.Records
@@ -417,7 +417,7 @@ static class BatchApprover
         if (original.Derived
             && original.PageId is not null
             && byId.TryGetValue(original.PageId, out var page)
-            && page.Type == "use-case")
+            && page.Type == RecordTypes.UseCase)
         {
             return page;
         }
@@ -453,25 +453,25 @@ static class BatchApprover
     /// </summary>
     /// <follows>litespec/core/model#hold-transcribed-records-in-draft</follows>
     static string? TranscribedHold(ProjectModel model, IReadOnlyDictionary<string, string> simulated, Record record) =>
-        record.Field("provenance") != "transcribed"
+        record.Field(RecordFields.Provenance) != "transcribed"
             ? null
-            : record.Ids("serves")
+            : record.Ids(RecordFields.Serves)
                 .Select(Identifiers.BaseId)
-                .Where(id => model.ById.TryGetValue(id, out var target) && target.Type == "journey"
-                    && simulated.TryGetValue(id, out var status) && status == "draft")
+                .Where(id => model.ById.TryGetValue(id, out var target) && target.Type == RecordTypes.Journey
+                    && simulated.TryGetValue(id, out var status) && status == RecordStatuses.Draft)
                 .OrderBy(id => id, StringComparer.Ordinal)
                 .FirstOrDefault();
 
     static string? RestedOn(ProjectModel model, IReadOnlyDictionary<string, string> simulated, Record record)
     {
         string? DraftParent(IEnumerable<string> ids) => ids
-            .Where(id => simulated.TryGetValue(id, out var status) && status == "draft")
+            .Where(id => simulated.TryGetValue(id, out var status) && status == RecordStatuses.Draft)
             .OrderBy(id => id, StringComparer.Ordinal)
             .FirstOrDefault();
 
         var decisions = model.Records
-            .Where(decision => decision.Type == "decision"
-                && decision.Ids("decides").Contains(record.Id, StringComparer.Ordinal))
+            .Where(decision => decision.Type == RecordTypes.Decision
+                && decision.Ids(RecordFields.Decides).Contains(record.Id, StringComparer.Ordinal))
             .Select(decision => decision.Id);
 
         if (DraftParent(decisions) is { } decision)
@@ -479,7 +479,7 @@ static class BatchApprover
             return decision;
         }
 
-        if (DraftParent(record.Ids("fulfills")) is { } requirement)
+        if (DraftParent(record.Ids(RecordFields.Fulfills)) is { } requirement)
         {
             return requirement;
         }
@@ -489,11 +489,11 @@ static class BatchApprover
             return journey;
         }
 
-        if (record.Type is "result" or "scenario"
+        if (record.Type is RecordTypes.Result or RecordTypes.Scenario
             && Identifiers.TrySplit(record.Id, out _, out var home, out _)
             && home is not null
             && ModelBuilder.UseCaseOf(model, home) is { } holder
-            && simulated.TryGetValue(holder.Id, out var status) && status == "draft")
+            && simulated.TryGetValue(holder.Id, out var status) && status == RecordStatuses.Draft)
         {
             return holder.Id;
         }

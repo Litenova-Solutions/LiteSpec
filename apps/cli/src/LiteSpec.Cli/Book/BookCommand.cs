@@ -102,11 +102,11 @@ static class BookCommand
 
         // One pass over the one index: outline, details and review batches are each
         // built once, then packed into shards. Nothing is recomputed per record.
-        var index = BookModel.BuildIndex(store);
+        var index = BookIndexBuilder.BuildIndex(store);
         var outline = BookOutline.Build(store);
         var details = BookEnrich.Build(store, outline);
         var generatedOn = DateTimeOffset.UtcNow.ToString("yyyy-MM-dd'T'HH:mm:ss.fff'Z'", CultureInfo.InvariantCulture);
-        var review = BookModel.ReviewData(index, findingsFile, root);
+        var review = BookReviewQueries.ReviewData(index, findingsFile, root);
 
         try
         {
@@ -396,7 +396,7 @@ static class BookCommand
                         ["q"] = new JsonObject
                         {
                             ["question"] = text,
-                            ["tier"] = BookModel.TierOf(entry),
+                            ["tier"] = BookReviewQueries.TierOf(entry),
                             ["decider"] = StringOrNull(StrProp(question, "decider")),
                             ["decideBy"] = StringOrNull(StrProp(question, "decideBy")),
                             ["ballot"] = StringOrNull(StrProp(question, "ballot")),
@@ -551,10 +551,8 @@ static class BookCommand
     }
 
     /// <summary>One string property, or null when it is missing or not a string.</summary>
-    static string? StrProp(JsonObject? obj, string name) =>
-        obj?[name] is JsonValue scalar && scalar.TryGetValue<string>(out var text) ? text : null;
+    static string? StrProp(JsonObject? obj, string name) => BookRender.StrProp(obj, name);
 
     /// <summary>A JSON string, or JSON null when the text is absent.</summary>
-    static JsonNode StringOrNull(string? value) =>
-        value is null ? JsonNode.Parse("null")! : JsonValue.Create(value)!;
+    static JsonNode? StringOrNull(string? value) => BookRender.StrNode(value);
 }

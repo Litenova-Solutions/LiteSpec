@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Nodes;
 
 namespace LiteSpec.Model;
 
@@ -68,5 +69,34 @@ static class Frontmatter
             error = $"frontmatter is not JSON: {exception.Message}";
             return false;
         }
+    }
+
+    /// <summary>
+    ///     Splits a page into the opening fence, its frontmatter and the rest, for a
+    ///     writer that replaces the frontmatter and keeps the rest. Line endings are
+    ///     normalized to <c>\n</c> first, so the head is always <c>---\n</c> and the
+    ///     tail starts at the closing fence's line ending.
+    /// </summary>
+    /// <param name="text">The file's text.</param>
+    /// <returns>The opening fence, the parsed frontmatter or null when the page carries none, and the rest.</returns>
+    public static (string Head, JsonNode? Node, string Tail) SplitForWrite(string text)
+    {
+        const string fence = "---\n";
+        var normalized = text.Replace("\r\n", "\n", StringComparison.Ordinal);
+
+        if (!normalized.StartsWith(fence, StringComparison.Ordinal))
+        {
+            return ("", null, "");
+        }
+
+        var end = normalized.IndexOf("\n---", fence.Length, StringComparison.Ordinal);
+
+        if (end < 0)
+        {
+            return ("", null, "");
+        }
+
+        var body = normalized[fence.Length..end];
+        return (fence, JsonNode.Parse(body), normalized[end..]);
     }
 }

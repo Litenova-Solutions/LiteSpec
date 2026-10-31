@@ -1,24 +1,10 @@
-using System.Globalization;
-using System.Text;
-using System.Text.RegularExpressions;
-
 namespace LiteSpec.Authoring;
-
-/// <summary>
-///     One authoring finding: the repository-relative file, the 1-based line, the stable code, and the message.
-/// </summary>
-sealed record StandardsDiagnostic(string Relative, int Line, string Code, string Message);
-
-/// <summary>
-///     The repository-wide result: the sorted diagnostics, or a usage error when the root cannot be read.
-/// </summary>
-sealed record StandardsResult(IReadOnlyList<StandardsDiagnostic> Diagnostics, string? UsageError);
 
 /// <summary>
 ///     The <c>litespec-maintain validate</c> command: the authoring checks over the LiteSpec repository.
 /// </summary>
 /// <follows>litespec/core/authoring#run-repeatable-authoring-checks</follows>
-static partial class StandardsValidator
+internal static class StandardsValidator
 {
     /// <summary>The command's usage text.</summary>
     public const string Usage = """
@@ -150,6 +136,8 @@ static partial class StandardsValidator
     ///     Validates the repository at <paramref name="root"/> and returns its sorted diagnostics.
     ///     The released provision identifiers come from the highest release tag.
     /// </summary>
+    /// <param name="root">The repository root.</param>
+    /// <returns>The validation result.</returns>
     public static StandardsResult Validate(string root) => Validate(root, null);
 
     /// <summary>
@@ -157,6 +145,9 @@ static partial class StandardsValidator
     ///     provision identifiers, or the highest release tag when <paramref name="releasedIds"/>
     ///     is null. Tests pass explicit identifiers so the removal check needs no git history.
     /// </summary>
+    /// <param name="root">The repository root.</param>
+    /// <param name="releasedIds">The released provision identifiers, or null.</param>
+    /// <returns>The validation result.</returns>
     internal static StandardsResult Validate(string root, HashSet<string>? releasedIds)
     {
         var resolved = Path.GetFullPath(root.Length == 0 ? "." : root);
@@ -169,7 +160,7 @@ static partial class StandardsValidator
                 throw new InvalidOperationException($"Validator emitted undeclared diagnostic code '{code}'");
             }
 
-            diagnostics.Add(new StandardsDiagnostic(Slash(relative), line, code, message));
+            diagnostics.Add(new StandardsDiagnostic(ValidatorSupport.Slash(relative), line, code, message));
         }
 
         if (!Directory.Exists(resolved))
@@ -189,65 +180,65 @@ static partial class StandardsValidator
         List<string> markdown;
         try
         {
-            markdown = Walk(resolved, file => file.EndsWith(".md", StringComparison.OrdinalIgnoreCase));
+            markdown = ValidatorSupport.Walk(resolved, file => file.EndsWith(".md", StringComparison.OrdinalIgnoreCase));
         }
         catch (Exception exception)
         {
             return new StandardsResult(diagnostics, $"Repository input is unreadable: {exception.Message}");
         }
 
-        var current = markdown.Where(file => IsCurrentStandardsMaterial(Slash(Path.GetRelativePath(resolved, file)))).ToList();
-        var globalIds = new Dictionary<string, string>(StringComparer.Ordinal);
+        var context = new ValidationContext(resolved, Add);
+        var current = markdown.Where(file => ValidatorSupport.IsCurrentStandardsMaterial(ValidatorSupport.Slash(Path.GetRelativePath(resolved, file)))).ToList();
         var parsedPages = new List<ParsedPage>();
         foreach (var file in current)
         {
-            var relative = Slash(Path.GetRelativePath(resolved, file));
+            var relative = ValidatorSupport.Slash(Path.GetRelativePath(resolved, file));
             if (relative.StartsWith("templates/standard/", StringComparison.Ordinal))
             {
                 continue;
             }
 
-            if (ReservedTemplateStems.Contains(relative))
+            if (context.Repository.ReservedTemplateStems.Contains(relative))
             {
                 Add(relative, 1, "ID_PAGE_FILENAME", $"'{relative}' is the virtual path an authoring template parses as; rename the page so its scope is its own");
                 continue;
             }
 
-            var raw = ReadText(file);
+            var raw = ValidatorSupport.ReadText(file);
             var reader = PageReader.Parse(raw);
             var prose = string.Join('\n', reader.Lines.Select((line, index) =>
                 reader.FencedLines.Contains(index + 1) || reader.GeneratedLines.Contains(index + 1) ? "" : line));
-            var nonAscii = NonAsciiOffset(prose);
+            var nonAscii = ValidatorSupport.NonAsciiOffset(prose);
             if (nonAscii >= 0)
             {
-                Add(relative, LineNumber(prose, nonAscii), "PROSE_NON_ASCII", NonAsciiMessage(prose[nonAscii], "non-ASCII character "));
+                Add(relative, ValidatorSupport.LineNumber(prose, nonAscii), "PROSE_NON_ASCII", ValidatorSupport.NonAsciiMessage(prose[nonAscii], "non-ASCII character "));
             }
 
-            parsedPages.Add(new ParsedPage(relative, reader, ParsePage(relative, reader, Add, globalIds, resolved)));
+            parsedPages.Add(new ParsedPage(relative, reader, context.Pages.ParsePage(relative, reader)));
         }
 
-        CheckPageIdentity(parsedPages, Add);
+        context.Repository.CheckPageIdentity(parsedPages);
 
-        var activeIds = new HashSet<string>(globalIds.Keys, StringComparer.Ordinal);
-        CheckCitations(parsedPages, activeIds, Add);
-        CheckMarks(resolved, activeIds, Add);
-        CheckRemovedProvisions(resolved, activeIds, releasedIds, Add);
+        var activeIds = new HashSet<string>(context.GlobalIds.Keys, StringComparer.Ordinal);
+        context.Repository.CheckCitations(parsedPages, activeIds);
+        context.Marks.CheckMarks(activeIds);
+        context.Repository.CheckRemovedProvisions(activeIds, releasedIds);
 
-        CheckAuthoringTemplates(resolved, globalIds, Add);
-        CheckLinks(resolved, current, Add);
+        context.Repository.CheckAuthoringTemplates();
+        context.Repository.CheckLinks(current);
         var provisionsByPage = parsedPages.ToDictionary(page => page.Relative, page => page.Parsed.Provisions, StringComparer.Ordinal);
-        CheckManifest(resolved, Add, activeIds, provisionsByPage);
-        CheckAnalyzerRelease(resolved, parsedPages, Add);
-        CheckRecords(resolved, parsedPages, Add);
+        context.Manifest.CheckManifest(activeIds, provisionsByPage);
+        context.Manifest.CheckAnalyzerRelease(parsedPages);
+        context.Records.CheckRecords(parsedPages);
 
         // The provision index is derived. A stale page would send a reader to the wrong
         // heading, so the gate compares it with the active standards.
         // (litespec/core/authoring#regenerate-the-provision-index)
-        var indexFile = JoinRoot(resolved, Provisions.IndexPath);
+        var indexFile = ValidatorSupport.JoinRoot(resolved, Provisions.IndexPath);
         if (File.Exists(indexFile))
         {
             var expected = Provisions.BuildIndex(resolved) + "\n";
-            var actual = ReadText(indexFile).Replace("\r\n", "\n", StringComparison.Ordinal);
+            var actual = ValidatorSupport.ReadText(indexFile).Replace("\r\n", "\n", StringComparison.Ordinal);
             if (actual != expected)
             {
                 Add(Provisions.IndexPath, 1, "PROVISIONS_STALE", "generated provision index differs from the active standards; run litespec-maintain provisions");
@@ -258,31 +249,31 @@ static partial class StandardsValidator
             Add(Provisions.IndexPath, 1, "PROVISIONS_STALE", "generated provision index is missing; run litespec-maintain provisions");
         }
 
-        ValidateSchemaConsumer(resolved, "schemas/litespec-manifest.schema.json", "litespec.manifest.json", Add);
-        CheckSchemaIds(resolved, Add);
-        CheckFieldNaming(resolved, Add);
+        context.Manifest.ValidateSchemaConsumer("schemas/litespec-manifest.schema.json", "litespec.manifest.json");
+        context.Manifest.CheckSchemaIds();
+        context.Fields.CheckFieldNaming();
         // Every shipped consumer template meets the schema it teaches. A template
         // the schema never reads drifts from it in silence.
-        ValidateSchemaConsumer(resolved, "schemas/litespec-project.schema.json", "templates/consumer/litespec.project.json", Add);
+        context.Manifest.ValidateSchemaConsumer("schemas/litespec-project.schema.json", "templates/consumer/litespec.project.json");
 
         // The template index is the only map from a template file to the consumer path
         // it targets. A renamed template leaves a row pointing at nothing, and that row
         // reads exactly like a correct one. (litespec/core/principles#keep-one-authored-source)
-        CheckTemplateIndex(resolved, Add);
-        CheckConsumerTemplates(resolved, Add);
-        CheckValueStyle(resolved, Add);
+        context.Repository.CheckTemplateIndex();
+        context.Repository.CheckConsumerTemplates();
+        context.ValueStyle.CheckValueStyle();
 
         // A reader who cannot tell a tutorial from a reference opens both and trusts
         // neither, so the documentation root names each class before it links to one.
         // (litespec/core/authoring#route-the-reader-before-listing-pages)
-        CheckRootIndexRouting(resolved, Add);
+        context.Repository.CheckRootIndexRouting();
 
         // A stable sort: diagnostics that share a file, line, and code keep the order
         // the checks emitted them in, as the reference implementation's sort does.
         var sorted = diagnostics
-            .OrderBy(diagnostic => diagnostic.Relative, SortOrder)
+            .OrderBy(diagnostic => diagnostic.Relative, ValidatorSupport.SortOrder)
             .ThenBy(diagnostic => diagnostic.Line)
-            .ThenBy(diagnostic => diagnostic.Code, SortOrder)
+            .ThenBy(diagnostic => diagnostic.Code, ValidatorSupport.SortOrder)
             .ToList();
         return new StandardsResult(sorted, null);
     }
@@ -290,6 +281,8 @@ static partial class StandardsValidator
     /// <summary>
     ///     Runs the <c>validate</c> command over the remaining arguments. Returns the exit code.
     /// </summary>
+    /// <param name="args">The command arguments.</param>
+    /// <returns>The exit code.</returns>
     public static int Run(string[] args)
     {
         var parsed = CliArgs.Parse(args, ["--warnings"], ["--root", "--format"]);
@@ -385,196 +378,4 @@ static partial class StandardsValidator
         Console.WriteLine("LiteSpec authoring checks passed.");
         return 0;
     }
-
-    /// <summary>A fence-stripped line: its visible text, its 1-based number, and whether it sits inside a fence.</summary>
-    private sealed record LineItem(string Line, int Number, bool Fenced);
-
-    /// <summary>An H2 section: its anchor-stripped name and its 1-based line.</summary>
-    private sealed record PageSection(string Name, int Line);
-
-    /// <summary>One provision heading and its body lines. <see cref="Provision.Claim"/> is set once the labels parse.</summary>
-    private sealed record Provision(string Id, string Title, string Section, int Line, List<LineItem> Body)
-    {
-        public string Claim { get; set; } = "";
-    }
-
-    /// <summary>Everything one page parse collects for the later cross-page checks.</summary>
-    private sealed record ParsedBlocks(string? Kind, List<Provision> Provisions);
-
-    /// <summary>One parsed page: its relative path, its reader, and its blocks.</summary>
-    private sealed record ParsedPage(string Relative, PageReader Reader, ParsedBlocks Parsed);
-
-
-    // Every provision identifier is litespec/<page>#<heading-slug>, computed from
-    // the owning page path and the heading. The grammar lives in Provisions, so the
-    // validator, the generator, and the parsed heading cannot report three different
-    // formats.
-    static string IdPattern => Provisions.IdSource.Replace("\\/", "/", StringComparison.Ordinal);
-
-    static readonly Lazy<Regex> CitationLazy = new(() => new Regex($"\\b(?:{IdPattern})\\b"));
-
-    static Regex CitationPattern => CitationLazy.Value;
-
-    /// <summary>The action verbs a provision heading may start with.</summary>
-    static readonly HashSet<string> ActionVerbs = new(
-        ("Accept Activate Add Observe Seed Advance Describe Order Prefetch Reuse Sanitize Share Take Align Anchor Announce Answer Apply Approve Ask Assert Assign Attach Audit " +
-        "Authenticate Author Authorize Avoid Await Back Bind Bound Build Call Canonicalize Centralize Check Cite Claim Classify " +
-        "Co-locate Collect Commit Compare Complete Compose Compute Configure Confirm Connect Control Copy Cover Create " +
-        "Declare Default Defer Define Delay Deliver Deploy Deprecate Derive Diff Discard Dispatch Distinguish Document " +
-        "Drive Emit End Enforce Escalate Escape Evolve Exclude Exercise Explain Expose Express Finish Follow Format Gate Generate " +
-        "Give Govern Grant Group Handle Hide Hold Identify Illustrate Implement Inject Inspect Isolate Keep Lease Limit List Load " +
-        "Localize Locate Make Map Mark Match Measure Meet Minimize Mirror Model Move Name Note Operate Organize Own " +
-        "Parameterize Parse Pass Persist Pin Place Plan Point Prefer Preserve Prevent Process Project Promote Protect " +
-        "Prove Provide Publish Purge Query Raise Reach Read Reconnect Record Recover Reference Reflect Refuse Regenerate " +
-        "Register Reject Reload Release Remove Render Replay Replace Report Represent Require Renew Requeue Resolve " +
-        "Restrict Retain Retire Retry Return Revalidate Review Rotate Route Run Scan Scope Select Separate Serialize Set Shape " +
-        "Show Signal Simulate Specify Split Stage Start State Stop Store Subscribe Supply Support Tabulate Tag Test Tolerate Trace " +
-        "Track Translate Treat Trigger Update Use Validate Verify Version Wait Write " +
-        "Advise Carry Close Confine Draw Enter File Flag Freeze Guard Honor Host Issue Justify Leave Pause Qualify Request Restore Resume Rewrite Sample Scaffold Schedule Send Serve Trust").Split(' '),
-        StringComparer.Ordinal);
-
-    // Naming the codepoint tells an author which character to hunt for. Naming the
-    // ASCII form tells them what to type instead, which is the action the rule
-    // actually asks for. These are the characters an editor substitution or a paste
-    // from a word processor introduces; anything else reports its codepoint alone.
-    // The keys are codepoints rather than characters, because this file is itself
-    // under the ASCII rule.
-    static readonly Dictionary<string, string> AsciiReplacements = new(StringComparer.Ordinal)
-    {
-        ["00A0"] = "a plain space",
-        ["00B7"] = "a hyphen",
-        ["00D7"] = "the letter x",
-        ["2013"] = "a hyphen",
-        ["2014"] = "a hyphen",
-        ["2018"] = "a straight apostrophe",
-        ["2019"] = "a straight apostrophe",
-        ["201C"] = "a straight quotation mark",
-        ["201D"] = "a straight quotation mark",
-        ["2022"] = "a Markdown list marker",
-        ["2026"] = "three full stops",
-        ["2192"] = "the word to",
-    };
-
-    static string Slash(string value) => value.Replace('\\', '/');
-
-    static string[] SplitLines(string text) => NewlinePattern().Split(text);
-
-    static string ReadText(string file) => Encoding.UTF8.GetString(File.ReadAllBytes(file));
-
-    static string TrimBom(string text) => text.StartsWith('\uFEFF') ? text[1..] : text;
-
-    static string JoinRoot(string root, string relative) => Path.Combine([root, .. relative.Split('/')]);
-
-    static List<string> Walk(string directory, Func<string, bool> predicate)
-    {
-        var result = new List<string>();
-        if (!Directory.Exists(directory))
-        {
-            return result;
-        }
-
-        // Entries sort ordinally so the walk order is stable on every OS. Diagnostics
-        // sort before they return, so only duplicate attribution can observe it.
-        foreach (var entry in Directory.GetFileSystemEntries(directory).OrderBy(name => name, StringComparer.Ordinal))
-        {
-            var name = Path.GetFileName(entry);
-            if (name is ".git" or ".opencode" or ".agents" or "node_modules" or "dist" or "build" or "bin" or "obj")
-            {
-                continue;
-            }
-
-            if (Directory.Exists(entry))
-            {
-                // A folder holding its own .git is another checkout (a nested worktree or
-                // repository), never this repository's pages.
-                if (Path.Exists(Path.Combine(entry, ".git")))
-                {
-                    continue;
-                }
-
-                result.AddRange(Walk(entry, predicate));
-            }
-            else if (predicate(entry))
-            {
-                result.Add(entry);
-            }
-        }
-
-        return result;
-    }
-
-    // Sorts ordinally so diagnostics order identically on every machine.
-    static readonly StringComparer SortOrder = StringComparer.Ordinal;
-
-    static bool IsCurrentStandardsMaterial(string relative)
-    {
-        // The CLI owns src/ and tests/: its fixtures are consumer-shaped test
-        // data that can never satisfy the authoring contract, and its own test
-        // suite checks the tool. The changelog and its archives are release history.
-        // The authoring checks read the standards material.
-        // An example under examples/ is a consumer project: the consumer checks own it,
-        // and a test runs them on every example.
-        return relative != "CHANGELOG.md"
-            && relative != "changelog"
-            && !relative.StartsWith("changelog/", StringComparison.Ordinal)
-            && relative != "LICENSE.md"
-            && !relative.StartsWith("apps/", StringComparison.Ordinal)
-            && !relative.StartsWith("packages/", StringComparison.Ordinal)
-            && !relative.StartsWith("examples/", StringComparison.Ordinal);
-    }
-
-    static int LineNumber(string text, int offset)
-    {
-        var line = 1;
-        for (var index = 0; index < offset && index < text.Length; index++)
-        {
-            if (text[index] == '\n')
-            {
-                line++;
-            }
-        }
-
-        return line;
-    }
-
-    static int NonAsciiOffset(string text)
-    {
-        for (var index = 0; index < text.Length; index++)
-        {
-            if (text[index] > 0x7F)
-            {
-                return index;
-            }
-        }
-
-        return -1;
-    }
-
-    static string NonAsciiMessage(char character, string prefix)
-    {
-        var codepoint = ((int)character).ToString("X", CultureInfo.InvariantCulture).PadLeft(4, '0');
-        return AsciiReplacements.TryGetValue(codepoint, out var replacement)
-            ? $"{prefix}U+{codepoint}; write {replacement}"
-            : $"{prefix}U+{codepoint}";
-    }
-
-    // A fenced block is literal content, so the measures do not reach inside one.
-    // The line is replaced rather than dropped, which keeps every reported line
-    // number equal to the line number in the file.
-    static List<LineItem> CleanLines(PageReader reader)
-    {
-        var result = new List<LineItem>(reader.Lines.Length);
-        for (var index = 0; index < reader.Lines.Length; index++)
-        {
-            var number = index + 1;
-            var fenced = reader.FencedLines.Contains(number);
-            var generated = reader.GeneratedLines.Contains(number);
-            result.Add(new LineItem(fenced || generated ? "" : reader.Lines[index], number, fenced));
-        }
-
-        return result;
-    }
-
-    [GeneratedRegex(@"\r?\n")]
-    private static partial Regex NewlinePattern();
 }

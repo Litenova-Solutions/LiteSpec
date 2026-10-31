@@ -91,7 +91,7 @@ sealed class Record : IRecordFacts
         var ids = new List<string>();
 
         if (Raw.ValueKind == JsonValueKind.Object
-            && Raw.TryGetProperty("effects", out var effects)
+            && Raw.TryGetProperty(RecordFields.Effects, out var effects)
             && effects.ValueKind == JsonValueKind.Array)
         {
             foreach (var entry in effects.EnumerateArray())
@@ -140,9 +140,9 @@ sealed class Record : IRecordFacts
     /// <summary>The journey's step targets: journey/name#step for each step carrying an id.</summary>
     public IReadOnlyList<string> StepIds()
     {
-        if (Type != "journey"
+        if (Type != RecordTypes.Journey
             || Raw.ValueKind != JsonValueKind.Object
-            || !Raw.TryGetProperty("steps", out var steps)
+            || !Raw.TryGetProperty(RecordFields.Steps, out var steps)
             || steps.ValueKind != JsonValueKind.Array)
         {
             return [];
@@ -153,7 +153,7 @@ sealed class Record : IRecordFacts
         foreach (var step in steps.EnumerateArray())
         {
             if (step.ValueKind == JsonValueKind.Object
-                && step.TryGetProperty("id", out var id)
+                && step.TryGetProperty(RecordFields.Id, out var id)
                 && id.ValueKind == JsonValueKind.String
                 && id.GetString() is { Length: > 0 } stepId)
             {

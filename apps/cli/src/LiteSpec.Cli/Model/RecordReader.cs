@@ -126,7 +126,7 @@ static class RecordReader
         string? pageDecideBy = null;
 
         if (parsed.Root.ValueKind == JsonValueKind.Object
-            && parsed.Root.TryGetProperty("type", out var typeValue)
+            && parsed.Root.TryGetProperty(RecordFields.Type, out var typeValue)
             && typeValue.ValueKind == JsonValueKind.String
             && typeValue.GetString() is { } type)
         {
@@ -135,7 +135,7 @@ static class RecordReader
             if (RecordTypes.All.Contains(type))
             {
                 var record = BuildRecord(
-                    PatchedPage(parsed.Root, tables), file, LineOf(text, "\"type\""), false, null,
+                    PatchedPage(parsed.Root, tables), file, LineOf(text, $"\"{RecordFields.Type}\""), false, null,
                     null, null, null, null);
 
                 pageId = record.Id;
@@ -151,18 +151,18 @@ static class RecordReader
                     "field-invalid",
                     $"Page type '{type}' is neither a record type nor a page style.",
                     file,
-                    LineOf(text, "\"type\""),
+                    LineOf(text, $"\"{RecordFields.Type}\""),
                     null));
             }
             else
             {
-                pageOwner = StringField(parsed.Root, "owner");
-                pageStatus = StringField(parsed.Root, "status");
-                pageDecider = StringField(parsed.Root, "decider");
-                pageDecideBy = StringField(parsed.Root, "decideBy");
+                pageOwner = StringField(parsed.Root, RecordFields.Owner);
+                pageStatus = StringField(parsed.Root, RecordFields.Status);
+                pageDecider = StringField(parsed.Root, RecordFields.Decider);
+                pageDecideBy = StringField(parsed.Root, RecordFields.DecideBy);
             }
 
-            if (parsed.Root.TryGetProperty("records", out var entries)
+            if (parsed.Root.TryGetProperty(RecordFields.Records, out var entries)
                 && entries.ValueKind == JsonValueKind.Array)
             {
                 foreach (var entry in entries.EnumerateArray())
@@ -172,10 +172,10 @@ static class RecordReader
                         continue;
                     }
 
-                    var entryType = StringField(entry, "type");
-                    var line = StringField(entry, "id") is { } entryId
+                    var entryType = StringField(entry, RecordFields.Type);
+                    var line = StringField(entry, RecordFields.Id) is { } entryId
                         ? LineOf(text, entryId)
-                        : LineOf(text, "\"records\"");
+                        : LineOf(text, $"\"{RecordFields.Records}\"");
 
                     if (!RecordTypes.All.Contains(entryType ?? ""))
                     {
@@ -216,29 +216,29 @@ static class RecordReader
     /// </summary>
     private static JsonElement PatchedPage(JsonElement element, IReadOnlyList<MarkdownTable> tables)
     {
-        if (StringField(element, "type") == "aggregate")
+        if (StringField(element, RecordFields.Type) == RecordTypes.Aggregate)
         {
             var transitions = TransitionsOf(tables);
 
-            if (transitions.Count > 0 && FieldMissing(element, "transitions"))
+            if (transitions.Count > 0 && FieldMissing(element, RecordFields.Transitions))
             {
-                element = WithField(element, "transitions", writer => WriteTransitions(writer, transitions));
+                element = WithField(element, RecordFields.Transitions, writer => WriteTransitions(writer, transitions));
             }
 
             var data = DataOf(tables);
 
-            if (data.Count > 0 && FieldMissing(element, "data"))
+            if (data.Count > 0 && FieldMissing(element, RecordFields.Data))
             {
-                element = WithField(element, "data", writer => WriteData(writer, data));
+                element = WithField(element, RecordFields.Data, writer => WriteData(writer, data));
             }
         }
-        else if (StringField(element, "type") == "scenario")
+        else if (StringField(element, RecordFields.Type) == RecordTypes.Scenario)
         {
             var examples = FirstExamples(tables);
 
-            if (examples.Count > 0 && FieldMissing(element, "examples"))
+            if (examples.Count > 0 && FieldMissing(element, RecordFields.Examples))
             {
-                element = WithField(element, "examples", writer => WriteExamples(writer, examples));
+                element = WithField(element, RecordFields.Examples, writer => WriteExamples(writer, examples));
             }
         }
 
@@ -255,7 +255,7 @@ static class RecordReader
         JsonElement siblings,
         IReadOnlyList<MarkdownTable> tables)
     {
-        if (StringField(entry, "type") != "scenario" || !FieldMissing(entry, "examples"))
+        if (StringField(entry, RecordFields.Type) != RecordTypes.Scenario || !FieldMissing(entry, RecordFields.Examples))
         {
             return entry;
         }
@@ -263,7 +263,7 @@ static class RecordReader
         var examples = ExamplesFor(entry, siblings, tables);
 
         return examples.Count > 0
-            ? WithField(entry, "examples", writer => WriteExamples(writer, examples))
+            ? WithField(entry, RecordFields.Examples, writer => WriteExamples(writer, examples))
             : entry;
     }
 
@@ -279,7 +279,7 @@ static class RecordReader
 
         foreach (var sibling in siblings.EnumerateArray())
         {
-            if (sibling.ValueKind == JsonValueKind.Object && StringField(sibling, "type") == "scenario")
+            if (sibling.ValueKind == JsonValueKind.Object && StringField(sibling, RecordFields.Type) == RecordTypes.Scenario)
             {
                 scenarios++;
             }
@@ -290,8 +290,8 @@ static class RecordReader
             return FirstExamples(tables);
         }
 
-        var id = StringField(entry, "id") ?? "";
-        var title = StringField(entry, "title") ?? "";
+        var id = StringField(entry, RecordFields.Id) ?? "";
+        var title = StringField(entry, RecordFields.Title) ?? "";
         var rows = new List<IReadOnlyDictionary<string, string>>();
 
         foreach (var table in tables)
@@ -706,12 +706,12 @@ static class RecordReader
         foreach (var (from, to, by) in rows)
         {
             writer.WriteStartObject();
-            writer.WriteString("from", from);
-            writer.WriteString("to", to);
+            writer.WriteString(RecordFields.From, from);
+            writer.WriteString(RecordFields.To, to);
 
             if (by is not null)
             {
-                writer.WriteString("by", by);
+                writer.WriteString(RecordFields.By, by);
             }
 
             writer.WriteEndObject();
@@ -727,9 +727,9 @@ static class RecordReader
         foreach (var (name, meaning, classification) in rows)
         {
             writer.WriteStartObject();
-            writer.WriteString("name", name);
-            writer.WriteString("meaning", meaning);
-            writer.WriteString("classification", classification);
+            writer.WriteString(RecordFields.Name, name);
+            writer.WriteString(RecordFields.Meaning, meaning);
+            writer.WriteString(RecordFields.Classification, classification);
             writer.WriteEndObject();
         }
 
@@ -767,16 +767,16 @@ static class RecordReader
         string? pageDecideBy) =>
         new()
         {
-            Type = StringField(element, "type") ?? "",
-            Id = StringField(element, "id") ?? "",
-            Title = StringField(element, "title") ?? "",
-            Owner = StringField(element, "owner") ?? pageOwner,
-            Status = StringField(element, "status") ?? pageStatus,
-            Decider = StringField(element, "decider") ?? pageDecider,
-            DecideBy = StringField(element, "decideBy") ?? pageDecideBy,
-            ApprovedBy = StringField(element, "approvedBy"),
-            ApprovedOn = StringField(element, "approvedOn"),
-            ApprovedHash = StringField(element, "approvedHash"),
+            Type = StringField(element, RecordFields.Type) ?? "",
+            Id = StringField(element, RecordFields.Id) ?? "",
+            Title = StringField(element, RecordFields.Title) ?? "",
+            Owner = StringField(element, RecordFields.Owner) ?? pageOwner,
+            Status = StringField(element, RecordFields.Status) ?? pageStatus,
+            Decider = StringField(element, RecordFields.Decider) ?? pageDecider,
+            DecideBy = StringField(element, RecordFields.DecideBy) ?? pageDecideBy,
+            ApprovedBy = StringField(element, RecordFields.ApprovedBy),
+            ApprovedOn = StringField(element, RecordFields.ApprovedOn),
+            ApprovedHash = StringField(element, RecordFields.ApprovedHash),
             File = file,
             Line = line,
             IsEntry = isEntry,
@@ -797,7 +797,7 @@ static class RecordReader
             .ToHashSet(StringComparer.Ordinal);
         var derived = new List<Record>();
 
-        foreach (var useCase in records.Where(record => record.Type == "use-case"))
+        foreach (var useCase in records.Where(record => record.Type == RecordTypes.UseCase))
         {
             if (!Identifiers.TrySplit(useCase.Id, out _, out var home, out var name) || home is null)
             {
@@ -835,19 +835,19 @@ static class RecordReader
     {
         var json = JsonSerializer.Serialize(new Dictionary<string, string?>(StringComparer.Ordinal)
         {
-            ["type"] = "result",
-            ["id"] = id,
-            ["title"] = title,
-            ["outcome"] = "refusal",
-            ["code"] = code,
-            ["meaning"] = meaning,
+            [RecordFields.Type] = RecordTypes.Result,
+            [RecordFields.Id] = id,
+            [RecordFields.Title] = title,
+            [RecordFields.Outcome] = "refusal",
+            [RecordFields.Code] = code,
+            [RecordFields.Meaning] = meaning,
         });
 
         using var document = JsonDocument.Parse(json);
 
         return new Record
         {
-            Type = "result",
+            Type = RecordTypes.Result,
             Id = id,
             Title = title,
             Owner = useCase.Owner,
@@ -888,7 +888,7 @@ static class RecordReader
 
         using (document)
         {
-            if (!document.RootElement.TryGetProperty("terms", out var terms)
+            if (!document.RootElement.TryGetProperty(RecordFields.Terms, out var terms)
                 || terms.ValueKind != JsonValueKind.Array)
             {
                 return;
@@ -901,21 +901,21 @@ static class RecordReader
                     continue;
                 }
 
-                var id = StringField(term, "id") ?? "";
+                var id = StringField(term, RecordFields.Id) ?? "";
                 var line = id.Length > 0 ? LineOf(text, id) : 1;
 
                 records.Add(new Record
                 {
-                    Type = "term",
+                    Type = RecordTypes.Term,
                     Id = id,
-                    Title = StringField(term, "term") ?? "",
-                    Owner = StringField(term, "owner"),
-                    Status = StringField(term, "status"),
-                    Decider = StringField(term, "decider"),
-                    DecideBy = StringField(term, "decideBy"),
-                    ApprovedBy = StringField(term, "approvedBy"),
-                    ApprovedOn = StringField(term, "approvedOn"),
-                    ApprovedHash = StringField(term, "approvedHash"),
+                    Title = StringField(term, RecordFields.Term) ?? "",
+                    Owner = StringField(term, RecordFields.Owner),
+                    Status = StringField(term, RecordFields.Status),
+                    Decider = StringField(term, RecordFields.Decider),
+                    DecideBy = StringField(term, RecordFields.DecideBy),
+                    ApprovedBy = StringField(term, RecordFields.ApprovedBy),
+                    ApprovedOn = StringField(term, RecordFields.ApprovedOn),
+                    ApprovedHash = StringField(term, RecordFields.ApprovedHash),
                     File = config.GlossaryPath,
                     Line = line,
                     IsEntry = true,

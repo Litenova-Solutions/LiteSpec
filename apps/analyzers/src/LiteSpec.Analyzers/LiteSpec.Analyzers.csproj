@@ -68,4 +68,12 @@
         <None Include="README.md" Pack="true" PackagePath="/" />
     </ItemGroup>
 
+    <!--
+        The code fixes reference this project, so this project cannot reference them back. Pack builds them
+        in the configuration being packed first, so the package never depends on an earlier build having run.
+    -->
+    <Target Name="BuildCodeFixesForPack" BeforeTargets="_GetPackageFiles">
+        <MSBuild Projects="../LiteSpec.Analyzers.CodeFixes/LiteSpec.Analyzers.CodeFixes.csproj" Targets="Build" Properties="Configuration=$(Configuration)" />
+    </Target>
+
 </Project>

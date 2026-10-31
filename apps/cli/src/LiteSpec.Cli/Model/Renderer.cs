@@ -31,7 +31,8 @@ static partial class Renderer
 
                     var newline = text.Contains("\r\n", StringComparison.Ordinal) ? "\r\n" : "\n";
 
-                    return $"<!-- generated:{name} -->{newline}{content}{newline}<!-- /generated:{name} -->";
+                    // The region keeps the page's own line ending, so a CRLF page never gains LF lines.
+                    return $"<!-- generated:{name} -->{newline}{content.ReplaceLineEndings(newline)}{newline}<!-- /generated:{name} -->";
                 });
 
                 if (rewritten != text)
@@ -95,10 +96,10 @@ static partial class Renderer
         };
 
         foreach (var term in model.Records
-                     .Where(record => record.Type == "term")
+                     .Where(record => record.Type == RecordTypes.Term)
                      .OrderBy(record => record.Title, StringComparer.Ordinal))
         {
-            var labels = term.Raw.TryGetProperty("labels", out var held) ? held : (System.Text.Json.JsonElement?)null;
+            var labels = term.Raw.TryGetProperty(RecordFields.Labels, out var held) ? held : (System.Text.Json.JsonElement?)null;
 
             string Label(string language) =>
                 labels is not null
@@ -108,7 +109,7 @@ static partial class Renderer
                     ? value.GetString() ?? ""
                     : "";
 
-            lines.Add($"| {Cell(term.Title)} | {Cell(term.Field("meaning") ?? "")} | {Cell(Label("nl"))} | {Cell(Label("de"))} |");
+            lines.Add($"| {Cell(term.Title)} | {Cell(term.Field(RecordFields.Meaning) ?? "")} | {Cell(Label("nl"))} | {Cell(Label("de"))} |");
         }
 
         return string.Join('\n', lines);
@@ -123,7 +124,7 @@ static partial class Renderer
         };
 
         foreach (var useCase in model.Records
-                     .Where(record => record.Type == "use-case")
+                     .Where(record => record.Type == RecordTypes.UseCase)
                      .OrderBy(record => record.Id, StringComparer.Ordinal))
         {
             var status = model.Status.TryGetValue(useCase.Id, out var held)
@@ -145,7 +146,7 @@ static partial class Renderer
         };
 
         foreach (var actor in model.Records
-                     .Where(record => record.Type == "actor" && record.Field("kind") == "organization")
+                     .Where(record => record.Type == RecordTypes.Actor && record.Field(RecordFields.Kind) == "organization")
                      .OrderBy(record => record.Id, StringComparer.Ordinal))
         {
             var holds = ModelBuilder.TargetsOf(Holds(actor));
@@ -161,10 +162,10 @@ static partial class Renderer
         var lines = new List<string>();
 
         foreach (var runbook in model.Records
-                     .Where(record => record.Type == "runbook")
+                     .Where(record => record.Type == RecordTypes.Runbook)
                      .OrderBy(record => record.Id, StringComparer.Ordinal))
         {
-            var trigger = runbook.Field("trigger") ?? "";
+            var trigger = runbook.Field(RecordFields.Trigger) ?? "";
 
             lines.Add($"- [{runbook.Title}]({RelativeLink(file, runbook.File)}): {trigger}");
         }
@@ -176,11 +177,11 @@ static partial class Renderer
     {
         var lines = new List<string>();
         var rules = model.Records
-            .Where(record => record.Type == "rule")
+            .Where(record => record.Type == RecordTypes.Rule)
             .OrderBy(record => record.Id, StringComparer.Ordinal)
             .ToList();
         var records = model.Records
-            .Where(record => record.Type == "aggregate")
+            .Where(record => record.Type == RecordTypes.Aggregate)
             .OrderBy(record => record.Id, StringComparer.Ordinal)
             .ToList();
         var placed = new HashSet<string>(StringComparer.Ordinal);
@@ -204,7 +205,7 @@ static partial class Renderer
             foreach (var rule in own)
             {
                 placed.Add(rule.Id);
-                lines.Add($"| `{rule.Id}` | {rule.Field("kind") ?? ""} | {Cell(rule.Field("statement") ?? "")} |");
+                lines.Add($"| `{rule.Id}` | {rule.Field(RecordFields.Kind) ?? ""} | {Cell(rule.Field(RecordFields.Statement) ?? "")} |");
             }
 
             lines.Add(string.Empty);
@@ -221,7 +222,7 @@ static partial class Renderer
 
             foreach (var rule in rest)
             {
-                lines.Add($"| `{rule.Id}` | {rule.Field("kind") ?? ""} | {Cell(rule.Field("statement") ?? "")} |");
+                lines.Add($"| `{rule.Id}` | {rule.Field(RecordFields.Kind) ?? ""} | {Cell(rule.Field(RecordFields.Statement) ?? "")} |");
             }
         }
 
@@ -230,7 +231,7 @@ static partial class Renderer
 
     private static bool Governs(ProjectModel model, Record rule, Record record)
     {
-        foreach (var target in rule.Ids("governs"))
+        foreach (var target in rule.Ids(RecordFields.Governs))
         {
             if (target == record.Id)
             {
@@ -238,7 +239,7 @@ static partial class Renderer
             }
 
             if (model.ById.TryGetValue(target, out var governed)
-                && governed.Type == "use-case"
+                && governed.Type == RecordTypes.UseCase
                 && ModelBuilder.AggregateOf(model, governed)?.Id == record.Id)
             {
                 return true;
@@ -274,7 +275,7 @@ static partial class Renderer
 
         foreach (var body in model.Bodies
                      .Where(candidate => model.ById.TryGetValue(candidate.PageId ?? "", out var page)
-                         && page.Type == "aggregate"
+                         && page.Type == RecordTypes.Aggregate
                          && string.Equals(page.File, candidate.File, StringComparison.Ordinal))
                      .OrderBy(candidate => candidate.PageId, StringComparer.Ordinal))
         {
@@ -337,12 +338,12 @@ static partial class Renderer
         var lines = new List<string>();
 
         foreach (var journey in model.Records
-                     .Where(record => record.Type == "journey")
+                     .Where(record => record.Type == RecordTypes.Journey)
                      .OrderBy(record => record.Id, StringComparer.Ordinal))
         {
             var name = Path.GetFileNameWithoutExtension(journey.File);
 
-            lines.Add($"- [{name}]({RelativeLink(file, journey.File)}): {journey.Field("finishedWhen") ?? ""}");
+            lines.Add($"- [{name}]({RelativeLink(file, journey.File)}): {journey.Field(RecordFields.FinishedWhen) ?? ""}");
         }
 
         return string.Join('\n', lines);
@@ -357,11 +358,11 @@ static partial class Renderer
         };
 
         foreach (var exception in model.Records
-                     .Where(record => record.Type == "exception")
+                     .Where(record => record.Type == RecordTypes.Exception)
                      .OrderBy(record => record.Id, StringComparer.Ordinal))
         {
             var name = Path.GetFileNameWithoutExtension(exception.File);
-            var covers = string.Join(", ", exception.Ids("covers").Select(code => $"`{code}`"));
+            var covers = string.Join(", ", exception.Ids(RecordFields.Covers).Select(code => $"`{code}`"));
 
             lines.Add($"| [{name}]({RelativeLink(file, exception.File)}) | {covers} |");
         }
@@ -373,15 +374,15 @@ static partial class Renderer
     {
         var lines = new List<string>
         {
-            $"- workspace applications: {model.Records.Count(record => record.Type == "entry-point" && record.Has("path"))}",
-            $"- domain modules: {model.Records.Count(record => record.Type == "module")}",
-            $"- aggregate roots: {model.Records.Count(record => record.Type == "aggregate")}",
-            $"- use cases: {model.Records.Count(record => record.Type == "use-case")}",
+            $"- workspace applications: {model.Records.Count(record => record.Type == RecordTypes.EntryPoint && record.Has(RecordFields.Path))}",
+            $"- domain modules: {model.Records.Count(record => record.Type == RecordTypes.Module)}",
+            $"- aggregate roots: {model.Records.Count(record => record.Type == RecordTypes.Aggregate)}",
+            $"- use cases: {model.Records.Count(record => record.Type == RecordTypes.UseCase)}",
             $"- reactions: {model.Code.Reactions.Count}",
             $"- recurring commands: {model.Code.Jobs.Count(job => !job.Class.EndsWith("Worker", StringComparison.Ordinal))}",
             $"- workers: {model.Code.Jobs.Count(job => job.Class.EndsWith("Worker", StringComparison.Ordinal))}",
             $"- HTTP operations: {model.Code.Endpoints.Count}",
-            $"- published events: {model.Records.Count(record => record.Type == "event")}",
+            $"- published events: {model.Records.Count(record => record.Type == RecordTypes.Event)}",
             $"- frontend routes: {model.Screens.Count}",
         };
 
@@ -391,10 +392,10 @@ static partial class Renderer
     private static string AggregateMap(ProjectModel model)
     {
         var lines = new List<string>();
-        var records = model.Records.Where(record => record.Type == "aggregate").ToList();
+        var records = model.Records.Where(record => record.Type == RecordTypes.Aggregate).ToList();
 
         foreach (var module in model.Records
-                     .Where(record => record.Type == "module")
+                     .Where(record => record.Type == RecordTypes.Module)
                      .OrderBy(record => record.Id, StringComparer.Ordinal))
         {
             var name = Identifiers.TrySplit(module.Id, out _, out _, out var moduleName) ? moduleName : module.Id;
@@ -416,7 +417,7 @@ static partial class Renderer
             foreach (var record in own)
             {
                 var uses = model.Records
-                    .Where(candidate => candidate.Type == "use-case"
+                    .Where(candidate => candidate.Type == RecordTypes.UseCase
                         && ModelBuilder.AggregateOf(model, candidate)?.Id == record.Id)
                     .OrderBy(candidate => candidate.Id, StringComparer.Ordinal)
                     .Select(candidate => $"`{candidate.Id}`");
@@ -438,27 +439,27 @@ static partial class Renderer
             "|:---|:---|:---|",
         };
         var resultsByHome = model.Records
-            .Where(record => record.Type == "result")
+            .Where(record => record.Type == RecordTypes.Result)
             .Select(record => (Record: record, Home: Identifiers.TrySplit(record.Id, out _, out var home, out _) ? home : null))
             .Where(entry => entry.Home is not null)
             .GroupBy(entry => entry.Home!, StringComparer.Ordinal)
             .ToDictionary(group => group.Key, group => group.Select(entry => entry.Record).ToList(), StringComparer.Ordinal);
 
         foreach (var useCase in model.Records
-                     .Where(record => record.Type == "use-case")
+                     .Where(record => record.Type == RecordTypes.UseCase)
                      .OrderBy(record => record.Id, StringComparer.Ordinal))
         {
             var name = Identifiers.TrySplit(useCase.Id, out _, out _, out var useCaseName) ? useCaseName : null;
             var authorization = name is not null
                 && resultsByHome.TryGetValue(name, out var results)
-                && results.Any(result => result.Field("code")?.StartsWith("authorization.", StringComparison.Ordinal) == true);
+                && results.Any(result => result.Field(RecordFields.Code)?.StartsWith("authorization.", StringComparison.Ordinal) == true);
 
-            if (useCase.Ids("needs").Count == 0 && !authorization)
+            if (useCase.Ids(RecordFields.Needs).Count == 0 && !authorization)
             {
                 continue;
             }
 
-            lines.Add($"| `{useCase.Id}` | {Cell(useCase.Title)} | {Cell(string.Join(", ", useCase.Ids("needs")))} |");
+            lines.Add($"| `{useCase.Id}` | {Cell(useCase.Title)} | {Cell(string.Join(", ", useCase.Ids(RecordFields.Needs)))} |");
         }
 
         return string.Join('\n', lines);
@@ -476,8 +477,8 @@ static partial class Renderer
                      .OrderBy(rule => RuleLabel(rule, "requirement"), StringComparer.Ordinal)
                      .ThenBy(rule => rule.Name, StringComparer.Ordinal))
         {
-            var requirement = RecordCell(model, file, RuleLabel(rule, "requirement"), "requirement");
-            var runbook = RecordCell(model, file, RuleLabel(rule, "runbook"), "runbook");
+            var requirement = RecordCell(model, file, RuleLabel(rule, "requirement"), RecordTypes.Requirement);
+            var runbook = RecordCell(model, file, RuleLabel(rule, "runbook"), RecordTypes.Runbook);
             var severity = Cell(RuleLabel(rule, "severity"));
             var source = Cell(model.Config.Relative(rule.File));
 
@@ -501,7 +502,7 @@ static partial class Renderer
 
     private static System.Text.Json.JsonElement Holds(Record actor) =>
         actor.Raw.ValueKind == System.Text.Json.JsonValueKind.Object
-        && actor.Raw.TryGetProperty("holds", out var holds)
+        && actor.Raw.TryGetProperty(RecordFields.Holds, out var holds)
             ? holds
             : default;
 
@@ -542,8 +543,8 @@ static partial class Renderer
         };
 
         foreach (var decision in model.Records
-                     .Where(record => record.Type == "decision"
-                         && record.Ids("decides").Any(carried.Contains))
+                     .Where(record => record.Type == RecordTypes.Decision
+                         && record.Ids(RecordFields.Decides).Any(carried.Contains))
                      .OrderBy(record => record.Id, StringComparer.Ordinal))
         {
             lines.Add($"| `{decision.Id}` | {decision.Status ?? ""} | {decision.ApprovedOn ?? ""} |");
@@ -555,11 +556,11 @@ static partial class Renderer
     private static string Transitions(ProjectModel model, string file)
     {
         var aggregate = model.Records
-            .FirstOrDefault(record => record.Type == "aggregate"
+            .FirstOrDefault(record => record.Type == RecordTypes.Aggregate
                 && string.Equals(record.File, file, StringComparison.Ordinal)
                 && !record.IsEntry);
 
-        var rows = aggregate is not null ? ArrayField(aggregate, "transitions") : [];
+        var rows = aggregate is not null ? ArrayField(aggregate, RecordFields.Transitions) : [];
 
         if (rows.Count == 0)
         {
@@ -574,7 +575,7 @@ static partial class Renderer
 
         foreach (var row in rows)
         {
-            lines.Add($"| {Cell(Str(row, "from") ?? "")} | {Cell(Str(row, "to") ?? "")} | {Cell(Str(row, "by") ?? "")} |");
+            lines.Add($"| {Cell(Str(row, RecordFields.From) ?? "")} | {Cell(Str(row, RecordFields.To) ?? "")} | {Cell(Str(row, RecordFields.By) ?? "")} |");
         }
 
         return string.Join('\n', lines);
@@ -583,11 +584,11 @@ static partial class Renderer
     private static string Data(ProjectModel model, string file)
     {
         var aggregate = model.Records
-            .FirstOrDefault(record => record.Type == "aggregate"
+            .FirstOrDefault(record => record.Type == RecordTypes.Aggregate
                 && string.Equals(record.File, file, StringComparison.Ordinal)
                 && !record.IsEntry);
 
-        var rows = aggregate is not null ? ArrayField(aggregate, "data") : [];
+        var rows = aggregate is not null ? ArrayField(aggregate, RecordFields.Data) : [];
 
         if (rows.Count == 0)
         {
@@ -602,7 +603,7 @@ static partial class Renderer
 
         foreach (var row in rows)
         {
-            lines.Add($"| {Cell(Str(row, "name") ?? "")} | {Cell(Str(row, "meaning") ?? "")} | {Cell(Str(row, "dataClass") ?? "")} | {Cell(Str(row, "classification") ?? "")} |");
+            lines.Add($"| {Cell(Str(row, RecordFields.Name) ?? "")} | {Cell(Str(row, RecordFields.Meaning) ?? "")} | {Cell(Str(row, RecordFields.DataClass) ?? "")} | {Cell(Str(row, RecordFields.Classification) ?? "")} |");
         }
 
         return string.Join('\n', lines);
@@ -613,19 +614,19 @@ static partial class Renderer
         var rows = new List<(string Class, string Aggregate, string Classification, string Purpose, string Basis, string Period, string EnforcedBy)>();
 
         foreach (var aggregate in model.Records
-                     .Where(record => record.Type == "aggregate")
+                     .Where(record => record.Type == RecordTypes.Aggregate)
                      .OrderBy(record => record.Id, StringComparer.Ordinal))
         {
-            foreach (var entry in ArrayField(aggregate, "dataClasses"))
+            foreach (var entry in ArrayField(aggregate, RecordFields.DataClasses))
             {
                 rows.Add((
-                    Str(entry, "name") ?? "",
+                    Str(entry, RecordFields.Name) ?? "",
                     aggregate.Id,
-                    Str(entry, "classification") ?? "",
-                    Str(entry, "purpose") ?? "",
-                    Str(entry, "basis") ?? "",
+                    Str(entry, RecordFields.Classification) ?? "",
+                    Str(entry, RecordFields.Purpose) ?? "",
+                    Str(entry, RecordFields.Basis) ?? "",
                     PeriodText(entry),
-                    Str(entry, "enforcedBy") ?? ""));
+                    Str(entry, RecordFields.EnforcedBy) ?? ""));
             }
         }
 
@@ -651,7 +652,7 @@ static partial class Renderer
     /// <summary>One period as readers see it: a duration as written, or none with its reason.</summary>
     private static string PeriodText(System.Text.Json.JsonElement entry)
     {
-        if (!entry.TryGetProperty("period", out var period))
+        if (!entry.TryGetProperty(RecordFields.Period, out var period))
         {
             return "";
         }
@@ -662,11 +663,11 @@ static partial class Renderer
         }
 
         if (period.ValueKind == System.Text.Json.JsonValueKind.Object
-            && period.TryGetProperty("mode", out var mode)
+            && period.TryGetProperty(RecordFields.Mode, out var mode)
             && mode.ValueKind == System.Text.Json.JsonValueKind.String
             && mode.GetString() is { } name)
         {
-            var reason = Str(period, "reason");
+            var reason = Str(period, RecordFields.Reason);
 
             return reason is { Length: > 0 } ? $"{name} ({reason})" : name;
         }
@@ -693,7 +694,7 @@ static partial class Renderer
     private static string WhatItRequires(ProjectModel model, string file)
     {
         var constraint = model.Records
-            .FirstOrDefault(record => record.Type == "constraint"
+            .FirstOrDefault(record => record.Type == RecordTypes.Constraint
                 && string.Equals(record.File, file, StringComparison.Ordinal)
                 && !record.IsEntry);
 
@@ -703,8 +704,8 @@ static partial class Renderer
         }
 
         var citing = model.Records
-            .Where(record => record.Type == "requirement"
-                && record.Ids("cites").Contains(constraint.Id, StringComparer.Ordinal))
+            .Where(record => record.Type == RecordTypes.Requirement
+                && record.Ids(RecordFields.Cites).Contains(constraint.Id, StringComparer.Ordinal))
             .OrderBy(record => record.Id, StringComparer.Ordinal)
             .ToList();
 

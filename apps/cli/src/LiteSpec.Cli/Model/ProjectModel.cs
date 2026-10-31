@@ -143,7 +143,7 @@ sealed class ProjectModel
 
                 foreach (var record in ById.Values)
                 {
-                    if (record.Type == "use-case" && Identifiers.TrySplit(record.Id, out _, out _, out var name))
+                    if (record.Type == RecordTypes.UseCase && Identifiers.TrySplit(record.Id, out _, out _, out var name))
                     {
                         index.TryAdd(name, record);
                     }
@@ -196,7 +196,7 @@ sealed class ProjectModel
                     writer.WriteBoolean("derived", true);
                 }
 
-                if (record.Type == "use-case")
+                if (record.Type == RecordTypes.UseCase)
                 {
                     WriteNullable(writer, "aggregate", ModelBuilder.AggregateOf(this, record)?.Id);
                 }
