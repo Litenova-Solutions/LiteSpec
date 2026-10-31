@@ -39,6 +39,29 @@ public sealed class CodeCheckTests
         Assert.DoesNotContain("write-undeclared", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/core/behavior#name-every-aggregate-a-use-case-changes-or-reads</proves>
+    [Fact]
+    public void Repository_Serves_The_Aggregate_Its_Implementation_Marks()
+    {
+        using var temp = Cli.Temp("checks");
+        var handlerFile = Path.Combine(temp.Path, "BorrowCopyCommandHandler.cs");
+        var repositoryFile = Path.Combine(temp.Path, "LoanBookRepository.cs");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.md"), """{"status": "reviewed", "kind": "command", "changes": ["aggregate/lending.loan"]}"""),
+            TestModel.Record("aggregate", "aggregate/lending.loan", Path.Combine(temp.Path, "loan.md"), """{"status": "reviewed", "states": [{"name": "Open", "meaning": "The loan runs."}]}"""));
+        model.Code.Handlers.Add(new HandlerInfo(
+            "use-case/lending.borrow-copy", "lending", "borrow-copy", "BorrowCopy", "command", handlerFile,
+            Repositories: [new CodeRepository("ILoanBookRepository", handlerFile, 5)]));
+        model.Code.RepositoryImplementations.Add(new CodeRepositoryImplementation("ILoanBookRepository", "LoanBookRepository", repositoryFile, 3));
+        model.Code.Elements.Add(new MarkedElement(
+            CodeKind.Technical, "LoanBookRepository", null, repositoryFile, 3,
+            [new CodeMark("aggregate/lending.loan", MarkStyle.Xml, MarkVerb.Implements, repositoryFile, 2)],
+            InTests: false));
+
+        Assert.DoesNotContain("write-undeclared", TestModel.Codes(model));
+    }
+
     /// <proves>litespec/core/layers#implement-only-declared-behavior</proves>
     [Fact]
     public void Handler_Producing_An_Undeclared_Literal_Reports()

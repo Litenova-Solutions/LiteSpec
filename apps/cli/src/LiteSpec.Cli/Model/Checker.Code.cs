@@ -104,9 +104,20 @@ static class CodeChecks
         }
     }
 
-    /// <summary>Whether the repository interface serves an aggregate the declared ids hold.</summary>
+    /// <summary>
+    ///     Whether the repository interface serves an aggregate the declared ids hold. The
+    ///     aggregate an implementing class names in its implements mark decides; the interface
+    ///     name decides only where no implementation names one.
+    /// </summary>
     private static bool RepositoryDeclared(ProjectModel model, string face, HashSet<string> declared)
     {
+        var marked = MarkedRepositoryAggregates(model, face);
+
+        if (marked.Count > 0)
+        {
+            return marked.Any(declared.Contains);
+        }
+
         if (RepositoryAggregate(face) is not { } stem)
         {
             return true;
@@ -128,6 +139,27 @@ static class CodeChecks
         }
 
         return false;
+    }
+
+    /// <summary>The aggregates the classes implementing the repository interface name in their implements marks.</summary>
+    private static List<string> MarkedRepositoryAggregates(ProjectModel model, string face)
+    {
+        var aggregates = new List<string>();
+
+        foreach (var implementation in model.Code.RepositoryImplementations.Where(entry => entry.Interface == face))
+        {
+            foreach (var element in model.Code.Elements.Where(element =>
+                         element.Class == implementation.Class && element.File == implementation.File))
+            {
+                aggregates.AddRange(element.Marks
+                    .Where(mark => mark.Verb == MarkVerb.Implements
+                        && model.ById.TryGetValue(mark.RecordId, out var record)
+                        && record.Type == "aggregate")
+                    .Select(mark => mark.RecordId));
+            }
+        }
+
+        return aggregates;
     }
 
     /// <summary>The aggregate name a repository interface serves, in kebab-case, or null when it names none.</summary>
