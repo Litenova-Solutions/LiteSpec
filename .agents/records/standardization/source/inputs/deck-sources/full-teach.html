@@ -4,7 +4,7 @@
   <h1>From Promise to Proof</h1>
   <p class="lede">How the Intent and Behavior layers connect, how code and tests point back to them, and how the model builder, the checks, the book and the review flow keep the whole chain honest.</p>
   <div class="meta"><span class="badge intent">Intent</span><span class="badge behavior">Behavior</span><span class="badge impl">Implementation</span><span class="badge proof">Proof</span><span class="badge gov">Governance</span></div>
-  <aside class="notes">The third deck. It assumes the Intent and Behavior decks and focuses on the seams. Press G for the slide index.</aside>
+  <aside class="notes">The third deck. It assumes the Intent and Behavior decks and focuses on the seams, closing with a review of what remains open after the 3.0.0 release. Press G for the slide index.</aside>
 </section>
 
 <section class="slide" data-layer="gov" data-section="The System">
@@ -22,7 +22,7 @@
     <g>
       <rect x="0" y="0" width="760" height="88" rx="14" fill="var(--intent-bg)" stroke="var(--intent)" stroke-width="2"/>
       <text x="18" y="28" font-size="17" font-weight="650" fill="var(--intent)">Intent</text><text x="110" y="28" font-size="12.5" fill="var(--muted-foreground)">people decide &middot; docs/intent/ &middot; draft, approved, retired</text>
-      <text x="18" y="56" font-size="12.5" class="mono" fill="var(--foreground)">product  goal  problem  feature  requirement  journey(steps)</text>
+      <text x="18" y="56" font-size="12.5" class="mono" fill="var(--foreground)">product  goal  problem  feature  topic  requirement  journey(steps)</text>
       <text x="18" y="76" font-size="12.5" class="mono" fill="var(--foreground)">constraint  research  decision  actor  term</text>
 
       <rect x="0" y="116" width="760" height="88" rx="14" fill="var(--behavior-bg)" stroke="var(--behavior)" stroke-width="2"/>
@@ -46,7 +46,7 @@
     <g font-size="11.5" fill="var(--amber)"><text x="698" y="106">serves, fulfills</text><text x="698" y="222">marks</text><text x="698" y="322">proves</text></g>
     <!-- governance -->
     <rect x="0" y="414" width="760" height="26" rx="8" fill="var(--gov-bg)" stroke="var(--gov-border)" stroke-dasharray="5 4"/>
-    <text x="14" y="432" font-size="12" fill="var(--foreground)"><tspan font-weight="600">Governance</tspan><tspan fill="var(--muted-foreground)"> beside every layer: deviation (departs from a provision, until a date), known-gap (a red check accepted, until a date)</tspan></text>
+    <text x="14" y="432" font-size="12" fill="var(--foreground)"><tspan font-weight="600">Governance</tspan><tspan fill="var(--muted-foreground)"> beside every layer: exception, a departure from a provision or an accepted gap, each until a date</tspan></text>
     <!-- right column -->
     <rect x="800" y="0" width="368" height="200" rx="14" fill="var(--card)" stroke="var(--border-strong)"/>
     <text x="818" y="28" font-size="15" font-weight="650" fill="var(--foreground)">Model builder</text>
@@ -55,7 +55,7 @@
       <text x="818" y="76">writes <tspan class="mono" fill="var(--foreground)">.model/model.json</tspan></text>
       <text x="818" y="98">computes links: implements, follows, calls, proves</text>
       <text x="818" y="120">computes statuses and effective status</text>
-      <text x="818" y="142">runs checks: tier G, S, A</text>
+      <text x="818" y="142">runs checks: level G, S, A</text>
       <text x="818" y="164">renders generated regions and the book</text>
       <text x="818" y="186">diffs a change in book words</text>
     </g>
@@ -69,7 +69,7 @@
     <rect x="800" y="340" width="368" height="100" rx="14" fill="var(--intent-bg)" stroke="var(--intent-border)"/>
     <text x="818" y="366" font-size="15" font-weight="650" fill="var(--foreground)">People</text>
     <g font-size="12.5" fill="var(--muted-foreground)">
-      <text x="818" y="390">founder: Intent, ballots, tier-1 approval</text>
+      <text x="818" y="390">decider: Intent, ballots, tier-1 approval</text>
       <text x="818" y="410">developers: Behavior review, the diff</text>
       <text x="818" y="430">security reviewer: the security queue</text>
     </g>
@@ -88,12 +88,11 @@
 │  └─ <span style="color:var(--intent)">journey</span>               <span class="c">serves</span>
 ├─ <span class="k" style="color:var(--intent)">problem</span>
 │  └─ <span style="color:var(--intent)">feature</span>               <span class="c">solves[0]</span>
-│     └─ <span style="color:var(--intent)">requirement</span>       <span class="c">features[0]</span>
+├─ <span class="k" style="color:var(--intent)">topic</span>
+│  └─ <span style="color:var(--intent)">requirement</span>          <span class="c">contained</span>
 ├─ <span class="k" style="color:var(--intent)">constraint</span> / <span class="k" style="color:var(--intent)">research</span>
-│  └─ <span style="color:var(--intent)">requirement</span>          <span class="c">else basedOn[0]</span>
 ├─ <span class="k" style="color:var(--intent)">decision</span>
-│  └─ <span style="color:var(--intent)">requirement</span>          <span class="c">else decides</span>
-├─ <span class="k" style="color:var(--intent)">actor</span>, <span class="k" style="color:var(--gov)">term</span>, <span class="k" style="color:var(--gov)">deviation</span>, <span class="k" style="color:var(--gov)">known-gap</span>
+├─ <span class="k" style="color:var(--intent)">actor</span>, <span class="k" style="color:var(--gov)">term</span>, <span class="k" style="color:var(--gov)">exception</span>
 ├─ <span class="k" style="color:var(--behavior)">module</span>
 │  ├─ <span style="color:var(--behavior)">aggregate</span>             <span class="c">identifier home</span>
 │  │  ├─ <span style="color:var(--behavior)">rule</span>, <span style="color:var(--behavior)">event</span>
@@ -106,9 +105,9 @@
 └─ <span class="k" style="color:var(--behavior)">integration-event</span>, <span class="k" style="color:var(--behavior)">external-system</span>,
    <span class="k" style="color:var(--behavior)">role</span>, <span class="k" style="color:var(--behavior)">permission</span>, <span class="k" style="color:var(--behavior)">runbook</span></pre>
   <div style="display:flex;flex-direction:column;gap:10px">
-    <div class="card"><p class="t">Sixteen root types</p><p class="d">goal, problem, constraint, research, decision, actor, module, integration-event, role, permission, entry-point, external-system, runbook, deviation, known-gap, term. Their parent is the product, and no field is written.</p></div>
-    <div class="card"><p class="t">Structural parents block at tier G</p><p class="d">Requirement origin, feature <code>solves</code>, journey <code>serves</code>, scenario <code>result</code>, screen <code>entryPoint</code>, and identifier containment. A missing one is <code>record-without-parent</code>, for every record, drafts included.</p></div>
-    <div class="card"><p class="t">Order decides placement</p><p class="d">The first entry of a list is the parent; reordering <code>features</code> or <code>solves</code> moves the record in the book.</p></div>
+    <div class="card"><p class="t">Sixteen root types</p><p class="d">goal, problem, topic, constraint, research, decision, actor, module, integration-event, role, permission, entry-point, external-system, runbook, exception, term. Their parent is the product, and no field is written.</p></div>
+    <div class="card"><p class="t">Structural parents block at level G</p><p class="d">Topic containment, feature <code>solves</code>, journey <code>serves</code>, scenario <code>result</code>, screen <code>entryPoint</code>, identifier containment. A missing one is <code>record-parent-missing</code>, for every record, drafts included.</p></div>
+    <div class="card"><p class="t">Order decides placement</p><p class="d">The first <code>solves</code> entry is the parent; reordering moves the feature in the book. Requirements sit by containment, not by list order.</p></div>
     <div class="card"><p class="t">Drafts and retired records</p><p class="d">A draft parent is a present parent, so authors may write top-down or bottom-up. A retired record stands beside its replacement.</p></div>
   </div>
   </div>
@@ -124,24 +123,23 @@
 <section class="slide" data-layer="gov">
   <div class="eyebrow">The seam</div>
   <h2>Every Link That Crosses the Seam</h2>
-  <p class="sub">Links are written on the record they start from and read in both directions. Behavior points up into Intent; Intent names no Behavior record, with the exceptions the review lists.</p>
+  <p class="sub">Links are written on the record they start from and read in both directions. Behavior points up into Intent; Intent names no Behavior record except through <code>decides</code>, the one downward link.</p>
   <div class="content">
   <table class="tight">
     <thead><tr><th>Field</th><th>Written on (Behavior)</th><th>Points at (Intent)</th><th>Reads as / read back as</th><th>Guarded by</th></tr></thead>
     <tbody>
-      <tr><td><code>serves</code></td><td>use case, reaction, job, screen</td><td>journey step <code>journey/&lt;name&gt;#s1</code></td><td class="m">serves / is served by</td><td><code>step-unserved</code>, <code>step-unscreened</code>, <code>screen-serves-mismatch</code></td></tr>
-      <tr><td><code>fulfills</code></td><td>rule, use case, reaction, job, notification, setting</td><td>requirement</td><td class="m">fulfills / is fulfilled by</td><td><code>requirement-unfulfilled</code>, <code>record-orphaned</code></td></tr>
-      <tr><td><code>basedOn</code></td><td>rule</td><td>constraint, research</td><td class="m">is based on / is a basis for</td><td class="m">reference-unresolved</td></tr>
-      <tr><td><code>acceptedBy</code></td><td>data class, external-system erasure, processor</td><td>requirement or decision</td><td class="m">not in the Links table</td><td><code>risk-without-acceptance</code></td></tr>
+      <tr><td><code>serves</code></td><td>use case, reaction, job, screen</td><td>journey step <code>journey/&lt;name&gt;#s1</code></td><td class="m">serves / is served by</td><td><code>step-use-case-missing</code>, <code>step-screen-missing</code>, <code>screen-serves-drift</code></td></tr>
+      <tr><td><code>fulfills</code></td><td>rule, use case, reaction, job, notification, setting</td><td>requirement</td><td class="m">fulfills / is fulfilled by</td><td><code>requirement-fulfillment-missing</code>, <code>record-link-missing</code></td></tr>
+      <tr><td><code>basedOn</code></td><td>rule</td><td>constraint, research</td><td class="m">is based on / is a basis for</td><td class="m">reference-unknown</td></tr>
+      <tr><td><code>acceptedBy</code></td><td>data class, external-system erasure, processor</td><td>requirement or decision</td><td class="m">not in the Links table</td><td><code>risk-acceptance-missing</code></td></tr>
       <tr><td><code>claims[].requirement</code></td><td>notification</td><td>requirement</td><td class="m">not in the Links table</td><td class="m">reviewed</td></tr>
-      <tr><td><code>wideningBecause</code></td><td>query output group</td><td>requirement</td><td class="m">not in the Links table</td><td><code>widening-unjustified</code></td></tr>
-      <tr><td><code>intent</code></td><td>retention-schedule row</td><td>requirement</td><td class="m">not in the Links table</td><td class="m">unchecked</td></tr>
-      <tr><td><code>actor</code>, <code>audience</code></td><td>external system; notification</td><td>actor</td><td class="m">acts as; addresses</td><td class="m">reference-unresolved</td></tr>
+      <tr><td><code>cites</code></td><td>query output group, retention-schedule row, consistency</td><td>requirement or rule</td><td class="m">not in the Links table for these writers</td><td><code>widening-cites-missing</code>, <code>consistency-cites-missing</code></td></tr>
+      <tr><td><code>actor</code>, <code>addresses</code></td><td>external system; notification</td><td>actor</td><td class="m">acts as; addresses</td><td class="m">reference-unknown</td></tr>
       <tr><td><code>access.grant</code></td><td>use case</td><td>permission (Behavior) held via actor <code>holds</code> (Intent)</td><td class="m">is granted through</td><td class="m">consumer</td></tr>
-      <tr class="m"><td><code>decides</code></td><td colspan="2">decision (Intent) naming rules, settings, roles, entry points: the one downward link</td><td class="m">decides / is decided by</td><td><code>decision-decides-nothing</code></td></tr>
+      <tr class="m"><td><code>decides</code></td><td colspan="2">decision (Intent) naming rules, settings, roles, entry points: the one downward link</td><td class="m">decides / is decided by</td><td><code>decision-decides-missing</code></td></tr>
     </tbody>
   </table>
-  <p class="small">Effective status crosses the seam too: a Behavior record is draft while a requirement it fulfills, or a decision deciding it, is draft. S-tier findings about a draft record report without blocking.</p>
+  <p class="small">Effective status crosses the seam too: a Behavior record behind a draft requirement reads effectively draft, but level S findings follow the record's own status; the inherited draft shows as a label.</p>
   </div>
 </section>
 
@@ -154,14 +152,14 @@
     <thead><tr><th>Intent record</th><th>Answered in Behavior by</th><th>Through</th><th>What Specify adds</th></tr></thead>
     <tbody>
       <tr><td><b>requirement</b>, functional</td><td>use cases, rules, reactions, jobs</td><td><code>fulfills</code></td><td>states, invariants and preconditions, refusals with codes, consistency, access</td></tr>
-      <tr><td><b>requirement</b>, business</td><td>setting with a default and range; commercial-data rule</td><td><code>fulfills</code></td><td>value type, unit, <code>setBy</code>, <code>atBound</code>; frozen values</td></tr>
+      <tr><td><b>requirement</b>, policy</td><td>setting with a default and range; commercial-data rule</td><td><code>fulfills</code></td><td>value type, unit, <code>setBy</code>, <code>atBound</code>; frozen values</td></tr>
       <tr><td><b>requirement</b>, quality</td><td>tests and alert rules (Proof and operations)</td><td>test mark, alert <code>requirement</code> label</td><td>a check, where it runs, its evidence</td></tr>
-      <tr><td><b>requirement</b> about personal data</td><td>data classes, retention schedule</td><td><code>acceptedBy</code>, <code>intent</code></td><td>classification, erasure position, period, enforcement, reach</td></tr>
+      <tr><td><b>requirement</b> about personal data</td><td>data classes, retention schedule</td><td><code>acceptedBy</code>, <code>cites</code></td><td>classification, erasure position, period, enforcement, reach</td></tr>
       <tr><td><b>journey step</b></td><td>use cases, reactions, jobs, screens</td><td><code>serves</code></td><td>the act behind the sentence, its entry point, the screen it happens on</td></tr>
-      <tr><td><b>journey</b> <code>ifItGoesWrong</code></td><td>refusal results and their scenarios</td><td>(by reading)</td><td>refusal codes, precedence, the sentence the screen shows</td></tr>
+      <tr><td><b>journey</b> <code>failure</code></td><td>refusal results and their scenarios</td><td>(by reading)</td><td>refusal codes, precedence, the sentence the screen shows</td></tr>
       <tr><td><b>constraint</b>, <b>research</b></td><td>rules</td><td><code>basedOn</code></td><td>the rule that obeys the outside fact</td></tr>
       <tr><td><b>decision</b></td><td>whatever it settles</td><td><code>decides</code> (downward)</td><td>nothing: a decision anchors, Behavior follows</td></tr>
-      <tr><td><b>actor</b></td><td>roles, permissions, access, notification audience</td><td><code>holds</code>, <code>audience</code></td><td>tenant scope, auth kinds, grants</td></tr>
+      <tr><td><b>actor</b></td><td>roles, permissions, access, notification addresses</td><td><code>holds</code>, <code>addresses</code></td><td>tenant scope, auth kinds, grants</td></tr>
       <tr><td><b>goal</b>, <b>problem</b>, <b>feature</b></td><td>nothing directly</td><td>through requirements and journeys</td><td>Behavior never names them</td></tr>
     </tbody>
   </table>
@@ -206,7 +204,7 @@
       <path d="M300 32H328" stroke-dasharray="6 4"/>
     </g>
     <g font-size="10.5" class="mono" fill="var(--muted-foreground)">
-      <text x="156" y="56">advances</text><text x="156" y="118">features</text><text x="486" y="56">steps</text>
+      <text x="156" y="56">advances</text><text x="156" y="118">cites</text><text x="486" y="56">steps</text>
       <text x="156" y="190">fulfills</text><text x="156" y="256">fulfills</text><text x="486" y="186">serves</text><text x="310" y="180">fulfills</text>
       <text x="486" y="320">result</text><text x="156" y="390">implements</text><text x="486" y="390">implements</text><text x="668" y="318">proves</text><text x="792" y="154">serves</text><text x="792" y="296">calls (computed)</text>
     </g>
@@ -215,10 +213,10 @@
     <text x="956" y="28" font-size="14" font-weight="650" fill="var(--proof)">Computed by the builder</text>
     <g font-size="12" fill="var(--foreground)">
       <text x="956" y="60" font-weight="600">use case implemented</text><text x="956" y="78" fill="var(--muted-foreground)">a marked handler exists</text>
-      <text x="956" y="112" font-weight="600">use case verified</text><text x="956" y="130" fill="var(--muted-foreground)">every scenario has a passing,</text><text x="956" y="146" fill="var(--muted-foreground)">confirmed, unstale proof</text>
-      <text x="956" y="180" font-weight="600">requirement verified</text><text x="956" y="198" fill="var(--muted-foreground)">everything fulfilling it is</text><text x="956" y="214" fill="var(--muted-foreground)">verified, measure checked</text>
+      <text x="956" y="112" font-weight="600">use case verified</text><text x="956" y="130" fill="var(--muted-foreground)">every scenario has a passing proof</text><text x="956" y="146" fill="var(--muted-foreground)">through the public boundary, unstale</text>
+      <text x="956" y="180" font-weight="600">requirement met</text><text x="956" y="198" fill="var(--muted-foreground)">everything fulfilling it is</text><text x="956" y="214" fill="var(--muted-foreground)">verified, measure checked</text>
       <text x="956" y="248" font-weight="600">step exercised</text><text x="956" y="266" fill="var(--muted-foreground)">a passing test proved a scenario</text><text x="956" y="282" fill="var(--muted-foreground)">of a use case serving it</text>
-      <text x="956" y="316" font-weight="600">proof stale</text><text x="956" y="334" fill="var(--muted-foreground)">the scenario's semantic hash</text><text x="956" y="350" fill="var(--muted-foreground)">changed since the first pass</text>
+      <text x="956" y="316" font-weight="600">proof stale</text><text x="956" y="334" fill="var(--muted-foreground)">its scenario or test-body hash</text><text x="956" y="350" fill="var(--muted-foreground)">differs from proofs.json</text>
       <text x="956" y="384" font-weight="600">book entry</text><text x="956" y="402" fill="var(--muted-foreground)">the journey detail shows the</text><text x="956" y="418" fill="var(--muted-foreground)">promise, its Then clauses, status</text>
     </g>
   </svg>
@@ -226,16 +224,39 @@
   <aside class="notes">Identifiers follow the model page's examples; the rule, setting and scenario names in this chain are illustrative. Solid arrows: written links. Dashed: marks and computed links.</aside>
 </section>
 
+<section class="slide" data-layer="gov">
+  <div class="eyebrow">The seam</div>
+  <h2>From Goal to Code, Before and After</h2>
+  <p class="sub">The chain only works when every link is written. A large consumer's records, measured before the release, showed where links went missing; 3.0.0 writes each link as a record field with a check behind it.</p>
+  <div class="content">
+  <div class="row r2">
+    <div class="card"><p class="t">Before: measured 2026-10-30</p><ul class="list">
+      <li>19 of 925 requirements trace to a goal; 18 of 1,272 use cases do.</li>
+      <li>Journeys name the goal as a sentence, never as a link.</li>
+      <li>112 of 112 journeys carry <code>fulfills</code> over 571 distinct requirements.</li>
+      <li>11 use cases serve a whole journey instead of a step.</li>
+    </ul></div>
+    <div class="card gov"><p class="t">After: the 3.0.0 links</p><ul class="list">
+      <li>A journey's <code>serves</code> names exactly one goal record.</li>
+      <li>A requirement names its goal in <code>cites</code>, beside every other reason.</li>
+      <li>Only Behavior fulfills: journeys cite, and <code>requirement-fulfillment-missing</code> reports the rest.</li>
+      <li>Use cases, reactions, jobs and screens serve steps only, never the journey.</li>
+    </ul></div>
+  </div>
+  <p class="small">On migration, the 18 traced use cases stay traced; the rest report until Behavior serves their steps. The book places each record once, under its parent, with connections as phrases.</p>
+  </div>
+</section>
+
 <section class="slide section-title" data-layer="gov" data-section="Keeping It Honest">
   <div class="num">02</div>
   <h1>Keeping It Honest</h1>
-  <p class="lede">Marks, the model builder, statuses, checks and their tiers, change detection, and the book.</p>
+  <p class="lede">Marks, the model builder, statuses, checks and their levels, change detection, and the book.</p>
 </section>
 
 <section class="slide" data-layer="impl">
   <div class="eyebrow">Keeping it honest</div>
   <h2>Marks: Code Points Up, Never the Reverse</h2>
-  <p class="sub">A mark is a written link from a code element to the record it serves. One mark style per project (<code>xml</code> or <code>attribute</code> in .NET; a typed constant in a frontend). Folders are the map a reader follows, never the link.</p>
+  <p class="sub">A mark is a written link from a code element to the record it serves. The mark style belongs to the language: XML is preferred in C#, but any supported form validates. Backend marks must match their folder.</p>
   <div class="content">
   <div class="row r32">
   <table class="tight">
@@ -250,15 +271,15 @@
       <tr><td>Event handler; job host</td><td class="mono">reaction/...; job/...</td></tr>
       <tr><td>Port and adapter</td><td class="mono">external-system/...</td></tr>
       <tr><td>Route entry</td><td class="mono">screen/&lt;entry-point&gt;.&lt;name&gt;</td></tr>
-      <tr><td>Technical class</td><td class="mono">implements a record, or follows a provision, decision or deviation</td></tr>
+      <tr><td>Technical class</td><td class="mono">implements a record, or follows a provision, decision or exception</td></tr>
       <tr><td>Operations file; alert rule</td><td class="mono">follows decision/...; requirement + runbook labels</td></tr>
       <tr><td>Test</td><td class="mono">the lowest record it proves: scenario, rule, quality requirement, decision, external-system, integration-event, provision</td></tr>
     </tbody>
   </table>
   <div style="display:flex;flex-direction:column;gap:10px">
-    <div class="card impl"><p class="t">Checked from the bottom</p><p class="d"><code>mark-missing</code>, <code>mark-unresolved</code>, <code>mark-count</code>, <code>mark-style-mixed</code>, <code>behavior-unrecorded</code> (code doing something no record declares).</p></div>
+    <div class="card impl"><p class="t">Checked from the bottom</p><p class="d"><code>mark-missing</code>, <code>mark-unknown</code>, <code>mark-count-invalid</code>, <code>mark-style-invalid</code>, <code>mark-folder-drift</code>, <code>behavior-unrecorded</code> (code doing something no record declares).</p></div>
     <div class="card impl"><p class="t">Checked from the top</p><p class="d"><code>use-case-unimplemented</code>, <code>aggregate-unimplemented</code>, <code>reaction-unimplemented</code>, <code>job-unimplemented</code>, <code>screen-unimplemented</code>, <code>setting-unimplemented</code>.</p></div>
-    <div class="card impl"><p class="t">Checked against the record</p><p class="d"><code>write-undeclared</code>, <code>result-undeclared</code>, <code>effect-undeclared</code>, <code>refusal-not-thrown</code>, <code>runtime-value-drift</code>, <code>screen-calls-mismatch</code>.</p></div>
+    <div class="card impl"><p class="t">Checked against the record</p><p class="d"><code>write-undeclared</code>, <code>result-code-unknown</code>, <code>effect-undeclared</code>, <code>refusal-unraised</code>, <code>runtime-value-drift</code>, <code>screen-offers-drift</code>.</p></div>
   </div>
   </div>
   </div>
@@ -283,7 +304,7 @@
       <text x="310" y="158" fill="var(--background)" opacity=".75" font-size="12">Blazor, Android), TypeScript</text>
       <text x="310" y="176" fill="var(--background)" opacity=".75" font-size="12">under Node for web frontends</text>
       <text x="310" y="204" fill="var(--background)" font-size="12" class="mono">.model/model.json</text>
-      <rect x="630" y="0" width="250" height="48" rx="10" fill="var(--card)" stroke="var(--border-strong)"/><text x="644" y="22" fill="var(--foreground)" font-weight="600">model check</text><text x="644" y="40" font-size="11.5" fill="var(--muted-foreground)">123 finding codes, tier G / S / A</text>
+      <rect x="630" y="0" width="250" height="48" rx="10" fill="var(--card)" stroke="var(--border-strong)"/><text x="644" y="22" fill="var(--foreground)" font-weight="600">model check</text><text x="644" y="40" font-size="11.5" fill="var(--muted-foreground)">133 finding codes, level G / S / A</text>
       <rect x="630" y="62" width="250" height="48" rx="10" fill="var(--card)" stroke="var(--border-strong)"/><text x="644" y="84" fill="var(--foreground)" font-weight="600">model render</text><text x="644" y="102" font-size="11.5" fill="var(--muted-foreground)">generated regions inside fences</text>
       <rect x="630" y="124" width="250" height="48" rx="10" fill="var(--card)" stroke="var(--border-strong)"/><text x="644" y="146" fill="var(--foreground)" font-weight="600">book</text><text x="644" y="164" font-size="11.5" fill="var(--muted-foreground)">the model made readable</text>
       <rect x="630" y="186" width="250" height="48" rx="10" fill="var(--card)" stroke="var(--border-strong)"/><text x="644" y="208" fill="var(--foreground)" font-weight="600">model diff &lt;base&gt;</text><text x="644" y="226" font-size="11.5" fill="var(--muted-foreground)">--intent, --behavior, security queue</text>
@@ -296,9 +317,9 @@
         <text x="946" y="124">stale, reachable, exercised</text>
         <text x="946" y="148">effective status</text>
         <text x="946" y="172">approvedHash, via approve</text>
-        <text x="946" y="196">proof ledger .model/proofs.json</text>
+        <text x="946" y="196">proof ledger docs/proof/proofs.json</text>
         <text x="946" y="224">exit 0 clean, 1 blocking,</text><text x="946" y="240">2 bad arguments</text>
-        <text x="946" y="268">a known gap covering a finding</text><text x="946" y="284">reports it as known, exit 0</text>
+        <text x="946" y="268">an exception covering a finding</text><text x="946" y="284">reports it as excepted, exit 0</text>
       </g>
     </g>
     <g stroke="var(--muted-foreground)" stroke-width="1.4" fill="none">
@@ -311,21 +332,21 @@
 
 <section class="slide" data-layer="proof">
   <div class="eyebrow">Keeping it honest</div>
-  <h2>Check Tiers, and the Boundary Each Check Guards</h2>
-  <p class="sub">Every finding has a tier. G reads records only and always blocks. S reads code through a stack reader and blocks where that reader is qualified. A is advisory. A missing structural parent is G for every record; other required links are A for tier 3 and G for tier 1.</p>
+  <h2>Check Levels, and the Boundary Each Check Guards</h2>
+  <p class="sub">Every finding has a level. G reads records only and always blocks. S reads code through a stack reader and blocks where that reader is qualified. A is advisory. A missing structural parent is G for every record; other required links are A for tier 3 and G for tier 1.</p>
   <div class="content">
   <div class="row r4">
-    <div class="card intent"><p class="t">Record shape and names <span class="badge outline">G</span></p><p class="d" style="font-size:12px"><code>record-shape</code> <code>identifier-form</code> <code>reference-unresolved</code> <code>draft-without-decider</code> <code>product-not-singleton</code> <code>use-case-verb-unknown</code> <code>use-case-verb-kind</code> <code>rule-name-negation</code> <code>reaction-name-form</code> <code>job-name-form</code></p></div>
-    <div class="card intent"><p class="t">Structure and coverage <span class="badge outline">G</span></p><p class="d" style="font-size:12px"><code>record-without-parent</code> <code>record-orphaned</code> <code>step-unserved</code> <code>requirement-unfulfilled</code> <code>requirement-unmeasured</code> <code>except-without-fallback</code> <code>state-unreachable</code> <code>use-case-without-success</code> <code>erasure-undeclared</code> <code>effect-loop</code></p></div>
-    <div class="card impl"><p class="t">Behavior to code <span class="badge outline">S</span></p><p class="d" style="font-size:12px"><code>behavior-unrecorded</code> <code>mark-missing</code> <code>use-case-unimplemented</code> <code>write-undeclared</code> <code>result-undeclared</code> <code>effect-undeclared</code> <code>refusal-not-thrown</code> <code>screen-calls-mismatch</code> <code>reader-unavailable</code></p></div>
-    <div class="card proof"><p class="t">Proof and approval <span class="badge outline">S / G</span></p><p class="d" style="font-size:12px"><code>proves-unconfirmed</code> <code>use-case-without-scenario</code> <code>approval-reopened</code> <code>draft-gate</code> <code>transcribed-after-adoption</code> <code>known-gap-expired</code> <code>gap-unknown-check</code></p></div>
+    <div class="card intent"><p class="t">Record shape and names <span class="badge outline">G</span></p><p class="d" style="font-size:12px"><code>record-invalid</code> <code>identifier-invalid</code> <code>reference-unknown</code> <code>decider-missing</code> <code>product-count-invalid</code> <code>use-case-verb-unknown</code> <code>use-case-verb-invalid</code> <code>rule-name-invalid</code> <code>reaction-name-invalid</code> <code>job-name-invalid</code></p></div>
+    <div class="card intent"><p class="t">Structure and coverage <span class="badge outline">G</span></p><p class="d" style="font-size:12px"><code>record-parent-missing</code> <code>record-link-missing</code> <code>step-use-case-missing</code> <code>requirement-fulfillment-missing</code> <code>requirement-measure-missing</code> <code>except-fallback-missing</code> <code>state-unreached</code> <code>use-case-success-missing</code> <code>erasure-undeclared</code> <code>effect-loop-invalid</code></p></div>
+    <div class="card impl"><p class="t">Behavior to code <span class="badge outline">S</span></p><p class="d" style="font-size:12px"><code>behavior-unrecorded</code> <code>mark-missing</code> <code>mark-folder-drift</code> <code>use-case-unimplemented</code> <code>write-undeclared</code> <code>result-code-unknown</code> <code>effect-undeclared</code> <code>refusal-unraised</code> <code>screen-offers-drift</code> <code>reader-missing</code></p></div>
+    <div class="card proof"><p class="t">Proof and approval <span class="badge outline">A / G</span></p><p class="d" style="font-size:12px"><code>use-case-unverified</code> <code>proof-invalid</code> <code>approval-reopened</code> <code>transcription-expired</code> <code>exception-expired</code> <code>exception-finding-unknown</code></p></div>
   </div>
   <div class="row r3">
-    <div class="card"><p class="t">Advisory <span class="badge outline">A</span></p><p class="d" style="font-size:12px"><code>feature-without-goal</code> <code>result-without-scenario</code> <code>question-aged</code> <code>prose-missing</code> <code>many-aggregates</code> <code>use-case-noun-unknown</code> <code>refusal-code-form</code> <code>repository-read-in-loop</code></p></div>
-    <div class="card"><p class="t">Draft code never fails the build</p><p class="d">An S finding about a record follows its effective status: it blocks when the record is approved or reviewed and reports while it is draft. <code>check.phase: frozen</code> holds test findings while tests are frozen.</p></div>
+    <div class="card"><p class="t">Advisory <span class="badge outline">A</span></p><p class="d" style="font-size:12px"><code>feature-goal-missing</code> <code>result-scenario-missing</code> <code>question-expired</code> <code>prose-missing</code> <code>atomic-group-duplicate</code> <code>use-case-noun-unknown</code> <code>refusal-code-invalid</code> <code>repository-read-invalid</code> <code>table-drift</code> <code>value-invalid</code></p></div>
+    <div class="card"><p class="t">Draft code never fails the build</p><p class="d">A level S finding follows the record's own status: it blocks when the record itself is approved or reviewed, and reports while the record itself is a draft. An inherited draft shows as a label beside the finding.</p></div>
     <div class="card"><p class="t">Qualification is per reader</p><p class="d">A finding takes the qualification of the reader that produced its facts. The .NET Roslyn reader is qualified; the golden corpus tests the reader bundle and does not gate a consumer.</p></div>
   </div>
-  <p class="small">The full list of 123 codes with tier and meaning lives in <code>docs/tools/model.md</code>, matching <code>apps/model/.../Finding.cs</code>.</p>
+  <p class="small">The full list of 133 codes with level and meaning lives in <code>docs/tools/model.md</code>, matching <code>apps/model/.../Finding.cs</code>. Unknown codes fail the build.</p>
   </div>
 </section>
 
@@ -351,10 +372,11 @@
     <thead><tr><th>Computed</th><th>Of</th><th>When</th></tr></thead>
     <tbody>
       <tr><td><b>implemented</b></td><td>use case, rule, event, aggregate state</td><td>the stack reader finds code for it</td></tr>
-      <tr><td><b>verified</b></td><td>use case</td><td>every scenario has a confirmed, passing, unstale proof through the public boundary</td></tr>
-      <tr><td><b>verified</b></td><td>requirement</td><td>everything fulfilling it is verified, and a measured requirement's check passes</td></tr>
+      <tr><td><b>verified</b></td><td>use case</td><td>every scenario has a passing, unstale proof through the public boundary</td></tr>
+      <tr><td><b>met</b></td><td>requirement</td><td>everything fulfilling it is verified, and its measure's check passes</td></tr>
       <tr><td><b>tested</b></td><td>quality requirement, technical decision, external system, integration event</td><td>a test proving it passes; never makes a use case verified</td></tr>
-      <tr><td><b>stale</b></td><td>scenario proof</td><td>the scenario's semantic hash differs from the one recorded at its first passing run</td></tr>
+      <tr><td><b>stale</b></td><td>scenario proof</td><td>its scenario or test-body hash differs from <code>docs/proof/proofs.json</code></td></tr>
+      <tr><td><b>flaky</b></td><td>scenario proof</td><td>its test both passed and failed within the runs read</td></tr>
       <tr><td><b>reachable</b></td><td>aggregate state</td><td>a transition leads into it</td></tr>
       <tr><td><b>exercised</b></td><td>journey step</td><td>a passing test proved a scenario of a use case that serves it</td></tr>
     </tbody>
@@ -399,7 +421,7 @@
       <rect x="720" y="0" width="210" height="110" rx="12" fill="var(--impl-bg)" stroke="var(--impl)"/><text x="734" y="26" font-weight="650" fill="var(--impl)">5. Implement</text><text x="734" y="50" fill="var(--muted-foreground)">Domain, handler, endpoint,</text><text x="734" y="68" fill="var(--muted-foreground)">persistence, frontend;</text><text x="734" y="86" fill="var(--muted-foreground)">gate risky changes</text>
       <rect x="958" y="0" width="210" height="110" rx="12" fill="var(--proof-bg)" stroke="var(--proof)"/><text x="972" y="26" font-weight="650" fill="var(--proof)">6. Prove</text><text x="972" y="50" fill="var(--muted-foreground)">one test per scenario,</text><text x="972" y="68" fill="var(--muted-foreground)">written from its Then,</text><text x="972" y="86" fill="var(--muted-foreground)">marked proves</text>
       <rect x="958" y="148" width="210" height="110" rx="12" fill="var(--proof-bg)" stroke="var(--proof)"/><text x="972" y="174" font-weight="650" fill="var(--proof)">7. Gates and model</text><text x="972" y="198" fill="var(--muted-foreground)">CI gates, then model</text><text x="972" y="216" fill="var(--muted-foreground)">build, check, render</text>
-      <rect x="600" y="148" width="330" height="110" rx="12" fill="var(--card)" stroke="var(--border-strong)"/><text x="614" y="174" font-weight="650" fill="var(--foreground)">8. Review and approve</text><text x="614" y="198" fill="var(--muted-foreground)">diff --intent for the founder, --behavior for</text><text x="614" y="216" fill="var(--muted-foreground)">developers and security; answer ballots;</text><text x="614" y="234" fill="var(--muted-foreground)" class="mono">model review, approve --batch</text>
+      <rect x="600" y="148" width="330" height="110" rx="12" fill="var(--card)" stroke="var(--border-strong)"/><text x="614" y="174" font-weight="650" fill="var(--foreground)">8. Review and approve</text><text x="614" y="198" fill="var(--muted-foreground)">diff --intent for the decider, --behavior for</text><text x="614" y="216" fill="var(--muted-foreground)">developers and security; answer ballots;</text><text x="614" y="234" fill="var(--muted-foreground)" class="mono">model review, approve --batch</text>
       <rect x="240" y="148" width="330" height="110" rx="12" fill="var(--gov-bg)" stroke="var(--gov-border)"/><text x="254" y="174" font-weight="650" fill="var(--foreground)">9. Release</text><text x="254" y="198" fill="var(--muted-foreground)">write the release record and pass</text><text x="254" y="216" fill="var(--muted-foreground)">the release gate the release page</text><text x="254" y="234" fill="var(--muted-foreground)">states</text>
       <rect x="0" y="148" width="210" height="110" rx="12" fill="var(--amber-bg)" stroke="var(--amber-border)"/><text x="14" y="174" font-weight="650" fill="var(--amber)">At any step</text><text x="14" y="198" fill="var(--muted-foreground)">an unstated need becomes</text><text x="14" y="216" fill="var(--muted-foreground)">a draft question; the record</text><text x="14" y="234" fill="var(--muted-foreground)">stays draft until answered</text>
     </g>
@@ -409,7 +431,7 @@
     </g>
   </svg>
   </div>
-  <aside class="notes">Sequence from docs/core/agent.md "New Intent in a Running Project". The review notes that agent.md starts at the requirement while model.md says a slice starts at the problem.</aside>
+  <aside class="notes">Sequence from docs/core/agent.md "New Intent in a Running Project".</aside>
 </section>
 
 <section class="slide" data-layer="gov">
@@ -420,14 +442,35 @@
   <div class="row r3">
     <div class="card"><p class="t">Authority between records</p><ol class="list"><li>constraint</li><li>product</li><li>requirement</li><li>rule</li><li>use case</li><li>result</li><li>scenario</li></ol><p class="small" style="margin-top:6px">Between peer decisions, the later approved one wins. Every other link is trace and decides nothing.</p></div>
     <div class="card"><p class="t">Precedence between guidance</p><ol class="list"><li>a project deviation</li><li>a selected extension's replacement</li><li>a deeper page</li><li>a shallower page</li></ol><p class="small" style="margin-top:6px">If nothing decides two conflicting requirements: stop, quote both provision IDs, and ask.</p></div>
-    <div class="card gov"><p class="t">Governance records</p>
-      <dl class="kv"><dt>deviation</dt><dd><code>provision</code>, <code>reason</code>, <code>reviewBy</code>, <code>removeWhen</code>, <code>subject</code> or <code>code</code></dd><dt>known-gap</dt><dd><code>check</code>, <code>subject</code>, <code>owner</code>, <code>endsBy</code>, <code>reason</code></dd></dl>
-      <p class="small" style="margin-top:6px">A gap reports its finding as known until <code>endsBy</code>, then fails. An incident fix ships under a time-boxed deviation that becomes a draft question within seven days.</p></div>
+    <div class="card gov"><p class="t">One exception record</p>
+      <dl class="kv"><dt>departure</dt><dd><code>covers</code> a provision, <code>subject</code>, <code>reason</code>, <code>expiresOn</code>; applies once approved</dd><dt>gap</dt><dd><code>covers</code> finding codes; reports without failing until <code>expiresOn</code></dd></dl>
+      <p class="small" style="margin-top:6px">Past <code>expiresOn</code>, <code>exception-expired</code> fails. An incident fix ships under a time-boxed exception that becomes a draft question within seven days.</p></div>
   </div>
   <div class="row r2">
-    <div class="card"><p class="t">Adoption: transcription mode</p><p class="d">While adopting, <code>litespec model backfill</code> drafts Behavior from code, marked <code>source: transcribed</code>. Such a record stays draft until its Intent is approved. <code>adoption.transcriptionEndsWith</code> names the decision that ends the mode; then <code>transcribed-after-adoption</code> fails.</p></div>
+    <div class="card"><p class="t">Adoption: transcription mode</p><p class="d">While adopting, <code>litespec model backfill</code> drafts Behavior from code, marked <code>provenance: transcribed</code>. Such a record stays draft until its Intent is approved. <code>adoption.transcriptionEndsWith</code> names the decision that ends the mode; then <code>transcription-expired</code> fails.</p></div>
     <div class="card"><p class="t">Code versus specification</p><p class="d">The specification wins where Intent has spoken. Where it is silent, working code is evidence for a question: never a defect to delete, never a source to transcribe silently.</p></div>
   </div>
+  </div>
+</section>
+
+<section class="slide" data-layer="gov">
+  <div class="eyebrow">Working with it</div>
+  <h2>Exceptions Replace Deviations and Gaps, Before and After</h2>
+  <p class="sub">Two loose records with free-text links let debt hide. A large consumer's records showed how; 3.0.0 replaces both with one strict record.</p>
+  <div class="content">
+  <div class="row r2">
+    <div class="card"><p class="t">Before: measured 2026-10-30</p><ul class="list">
+      <li>105 unfulfilled requirements sit in known gaps, invisible in the open findings.</li>
+      <li>5 of 22 deviations govern nothing: neither subject nor code.</li>
+      <li>A deviation once silenced approval-reopened on the record it names.</li>
+    </ul></div>
+    <div class="card gov"><p class="t">After: one exception record</p><ul class="list">
+      <li>A departure names its provision in <code>covers</code> and applies only once approved.</li>
+      <li>A gap names finding codes in <code>covers</code> and a record in <code>subject</code>; the findings report as excepted.</li>
+      <li>Every exception carries <code>reason</code>, <code>expiresOn</code> and approval; past the date, <code>exception-expired</code> fails.</li>
+    </ul></div>
+  </div>
+  <p class="small">Lantern's <code>exception/flash-sale-evidence-later</code> holds two findings on one requirement until 2027-02-01. An exception on a use case also covers its scenarios and results.</p>
   </div>
 </section>
 
@@ -441,7 +484,7 @@
     <table class="tight">
       <thead><tr><th>Choice</th><th>Values</th><th>Effect</th></tr></thead>
       <tbody>
-        <tr><td><b>size</b></td><td><code>small</code>, <code>large</code></td><td>Large adds goals, problems, features, journeys and scenarios, the Acceptance project, <code>journey-reach</code> and <code>use-case-without-scenario</code></td></tr>
+        <tr><td><b>size</b></td><td><code>small</code>, <code>large</code></td><td>Large adds goals, problems, features, journeys and scenarios, the Acceptance project, <code>use-case-journey-missing</code> and <code>result-scenario-missing</code></td></tr>
         <tr><td><b>shape</b></td><td><code>server</code>, <code>client-only</code></td><td>Server names one backend stack</td></tr>
         <tr><td><b>stacks</b></td><td><code>dotnet</code>, <code>react</code>, <code>svelte</code>, <code>blazor</code>, <code>android</code></td><td>One per frontend; a stack applies its folder and every folder above it</td></tr>
         <tr><td><b>extensions</b></td><td>for example <code>bdd</code></td><td>Apply only when selected; <code>bdd</code> switches scenarios on for small projects</td></tr>
@@ -454,9 +497,9 @@
     <tbody>
       <tr><td class="mono">litespec init</td><td>writes the project file from a preset</td></tr>
       <tr><td class="mono">litespec new | rename</td><td>scaffolds or renames a record, result or scenario</td></tr>
-      <tr><td class="mono">litespec consumer</td><td>validates pages, project file, vocabulary</td></tr>
+      <tr><td class="mono">litespec consumer</td><td>validates pages, project file, vocabulary; findings carry <code>[G]</code> or <code>[A]</code></td></tr>
       <tr><td class="mono">litespec model build</td><td>reads everything into <code>.model/model.json</code></td></tr>
-      <tr><td class="mono">litespec model check</td><td>runs the checks; <code>--staged</code>, <code>--format json</code></td></tr>
+      <tr><td class="mono">litespec model check</td><td>runs the checks; <code>--staged</code>, <code>--release</code>, <code>--since</code>, <code>--format json</code></td></tr>
       <tr><td class="mono">litespec model query &lt;id&gt;</td><td>a record with its links both ways</td></tr>
       <tr><td class="mono">litespec model render</td><td>writes the generated regions</td></tr>
       <tr><td class="mono">litespec model diff &lt;base&gt;</td><td><code>--intent</code>, <code>--behavior</code>, <code>--fail-on breaking</code></td></tr>

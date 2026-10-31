@@ -1,17 +1,53 @@
 
 <section class="slide" data-layer="review">
+  <div class="eyebrow">Review &middot; what 3.0.0 changed</div>
+  <h2>The Behavior Layer, Rebuilt in Five Pages</h2>
+  <p class="sub">The last review found one pattern everywhere: the page, the schema, the template and the checker each held their own copy of a rule. 3.0.0 split the page, fixed the copies, and returned reactions and jobs as two record types.</p>
+  <div class="content">
+  <div class="row r2">
+  <div style="display:flex;flex-direction:column;gap:8px">
+    <table class="tight">
+      <thead><tr><th>Page</th><th>Holds</th></tr></thead>
+      <tbody>
+        <tr><td><code>behavior.md</code></td><td class="m">Overview, mapping, cross-page rules</td></tr>
+        <tr><td><code>domain-model.md</code></td><td class="m">Modules, glossary, aggregates, sagas, rules, events</td></tr>
+        <tr><td><code>use-cases.md</code></td><td class="m">Commands, queries, results, scenarios, settings</td></tr>
+        <tr><td><code>automation.md</code></td><td class="m">Reactions, jobs, runbooks</td></tr>
+        <tr><td><code>edges.md</code></td><td class="m">Integration events, notifications, entry points, screens, external systems</td></tr>
+        <tr><td><code>privacy.md</code></td><td class="m">Data classes, retention schedule</td></tr>
+      </tbody>
+    </table>
+    <p class="small">100 provisions: 74 checked by a tool, 26 judged by a reviewer. Counts generated from the five pages.</p>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:8px">
+    <table class="tight">
+      <thead><tr><th>Change</th><th>Where it lives</th></tr></thead>
+      <tbody>
+        <tr><td>Reactions answer <code>triggeredBy</code> events; jobs name their <code>kind</code></td><td><code>trigger-every-reaction</code>, <code>run-every-job</code></td></tr>
+        <tr><td><code>process</code> becomes <code>saga</code>; lifecycle-only records are entities</td><td><code>state-each-saga-step</code>, <code>close-every-saga</code></td></tr>
+        <tr><td>Entry points are doors from outside only; use cases state grant and tenant</td><td><code>give-each-entry-point-a-kind</code></td></tr>
+        <tr><td>Inputs and payloads carry <code>type</code> and <code>required</code>; money is amount with currency</td><td><code>describe-every-use-case-input</code></td></tr>
+        <tr><td>One structured <code>onFailure</code>; effect verbs <code>runs</code>, <code>sends</code>, <code>emits</code>, <code>calls</code></td><td><code>state-the-failure-handling</code></td></tr>
+        <tr><td>Atomic groups bind in a rule; groups above 4 report as saga candidates</td><td><code>atomic-group-drift</code>, <code>atomic-group-invalid</code></td></tr>
+        <tr><td>Generated regions are the one home for tables; values follow the value style</td><td><code>table-drift</code>, <code>value-invalid</code></td></tr>
+        <tr><td>Every finding code follows subject-problem; every Reviewed for is a question</td><td><code>docs/core/language.md</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+  </div>
+  </div>
+</section>
+
+<section class="slide" data-layer="review">
   <div class="eyebrow">Review</div>
-  <h2>Recommendations for the Behavior Layer</h2>
-  <p class="sub">Most Behavior findings are one pattern: the page, the schema, the template and the checker each hold their own copy of a rule, and the copies have drifted. Fix the pattern, not each instance.</p>
+  <h2>Remaining Recommendations for the Behavior Layer</h2>
+  <p class="sub">One medium finding and two lows remain open. Each is one small change with its evidence in the appendix.</p>
   <div class="content">
   <div class="row r3">
-    <div class="card red"><p class="t">1. Make the checks follow the Links table</p><p class="d">requirement-unfulfilled, step-unserved and record-orphaned each read a different set of record types; the audience link is rejected. One link-target table, keyed by record type, drives all of them. Findings 2, 3, 12, 13, 14.</p></div>
-    <div class="card red"><p class="t">2. Schema first, then provisions</p><p class="d">Where a provision says "consumer fails", the schema must require the field. Generate the "Checked by" lists from the schema so they cannot drift. Findings 4, 8, 18, 29, 30, 31.</p></div>
-    <div class="card red"><p class="t">3. One home for each structured fact</p><p class="d">Transitions and data in frontmatter, rendered as tables by the book; the retention schedule generated from data classes; one onFailure shape; suppression in one place. Findings 1, 5, 6, 9.</p></div>
-    <div class="card amber"><p class="t">4. Close the open semantics</p><p class="d">Where derived refusals sit in precedence; whether cross tenant scope raises the risk tier; glossary status per layer; a module for platform settings; advisory freshness with its authority. Findings 7, 10, 11, 27, 28.</p></div>
-    <div class="card amber"><p class="t">5. Split the page</p><p class="d">1387 lines and 94 provisions. Split by folder home: domain model, use cases, automation, edges and screens, privacy and retention. Move obligations out of Concepts. Findings 16, 17, 35.</p></div>
-    <div class="card blue"><p class="t">6. Fix the vocabulary</p><p class="d">Rename the minority meanings of source, calls and owner; one reach vocabulary; document either and manage; make every Reviewed for a question. Findings 15, 20, 21, 22, 23, 24.</p></div>
+    <div class="card amber"><p class="t">1. Admit implementation to the term layer</p><p class="d">The page allows <code>implementation</code> for code-only words; the glossary schema forbids it. Add it to the enum, or say which layer a read model takes. Finding 1.</p></div>
+    <div class="card blue"><p class="t">2. Let a behavior term be reviewed</p><p class="d">The schema allows every term only draft, approved or retired, while Behavior terms should carry the reviewed vocabulary. Make status conditional on layer. Finding 2.</p></div>
+    <div class="card blue"><p class="t">3. Document manage or remove it</p><p class="d"><code>manage</code> is a command verb in code and an access example, but never appears on the verb tables. Name it as a permission word, or remove it. Finding 3.</p></div>
   </div>
-  <div class="card"><p class="t">Method and limits</p><p class="d">Read on 30 October 2026: <code>docs/core/behavior.md</code>, <code>model.md</code>, <code>layers.md</code>, <code>access.md</code>, <code>system.md</code>, <code>schemas/record.schema.json</code>, the Behavior templates, and <code>apps/cli</code> and <code>apps/model</code> for every cited finding code; every code cited on the Behavior page exists. The CLI and tests were not run. Provision counts on the standards slides are generated from the page headings.</p></div>
+  <div class="card"><p class="t">Method and limits</p><p class="d">Re-read on 31 October 2026 against the 3.0.0 release tree: the five Behavior pages, <code>model.md</code>, <code>access.md</code>, <code>system.md</code>, <code>schemas/record.schema.json</code>, the Behavior templates, and <code>apps/cli</code> and <code>apps/model</code> for every cited finding code. The CLI and tests were not run. Provision counts on the standards slides are generated from the page headings.</p></div>
   </div>
 </section>

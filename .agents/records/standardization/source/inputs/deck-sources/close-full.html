@@ -1,17 +1,50 @@
 
 <section class="slide" data-layer="review">
+  <div class="eyebrow">Review &middot; what 3.0.0 changed</div>
+  <h2>The Seams, Rebuilt Around One Exception</h2>
+  <p class="sub">The last review found the same rule stated on several pages, checks following a narrower link set than the Links table, and promised mechanisms never built. 3.0.0 gave each rule one home, completed the table, and built the mechanisms.</p>
+  <div class="content">
+  <div class="row r2">
+  <div style="display:flex;flex-direction:column;gap:8px">
+    <table class="tight">
+      <thead><tr><th>Change</th><th>Where it lives</th></tr></thead>
+      <tbody>
+        <tr><td>One <code>exception</code> record replaces deviations, known gaps, deferrals, frozen phases</td><td><code>exception-expired</code> (G)</td></tr>
+        <tr><td>Proof state lives in committed <code>docs/proof/proofs.json</code>, stale when either hash changes</td><td><code>use-case-unverified</code> (A)</td></tr>
+        <tr><td><code>--release</code> makes readiness block; <code>--since</code> blocks only on what changed</td><td><code>docs/tools/model.md</code></td></tr>
+        <tr><td>Four proof words: verified, met, tested, exercised</td><td><code>docs/core/model.md</code></td></tr>
+        <tr><td>Approval stays loose: agent reading counts, one owner needs no second reviewer</td><td><code>docs/core/release.md</code></td></tr>
+        <tr><td>A finding blocks by its record's own status; inherited draft shows as a label</td><td><code>litespec model check</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:8px">
+    <table class="tight">
+      <thead><tr><th>Change</th><th>Where it lives</th></tr></thead>
+      <tbody>
+        <tr><td>Mark style belongs to the language; backend marks must match their folder</td><td><code>mark-style-invalid</code>, <code>mark-folder-drift</code></td></tr>
+        <tr><td>Marks and handlers are recognized by symbol; state-changing methods need a mark</td><td><code>mark-missing</code> (S)</td></tr>
+        <tr><td>The <code>**ID:**</code> line is a provision's identity; renames list in the changelog</td><td><code>CHANGELOG.md</code></td></tr>
+        <tr><td>Size-aware Defaults; every MUST names a real check or says Reviewed for</td><td><code>write-code-for-a-use-case.md</code></td></tr>
+        <tr><td>One record language page; journeys walk one actor toward one goal</td><td><code>docs/core/language.md</code></td></tr>
+        <tr><td>Unknown finding codes fail the build; the book renders <code>model.json</code> only</td><td><code>docs/tools/model.md</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+  </div>
+  </div>
+</section>
+
+<section class="slide" data-layer="review">
   <div class="eyebrow">Review</div>
-  <h2>Recommendations for the Seams</h2>
-  <p class="sub">The two layers are well separated on paper. Where they meet, the same rule is stated on several pages, the checks follow a narrower link set than the Links table, and a few promised mechanisms are not built.</p>
+  <h2>Remaining Recommendations for the Seams</h2>
+  <p class="sub">One medium finding and two lows remain open. Each is one small change with its evidence in the appendix.</p>
   <div class="content">
   <div class="row r3">
-    <div class="card red"><p class="t">1. Write the direction rule honestly</p><p class="d">"Records never point down" and "nothing is computed from code" each have real exceptions: <code>decides</code>, <code>holds</code>, transcription. Name them as the only exceptions. Findings 1, 2.</p></div>
-    <div class="card red"><p class="t">2. One Links table drives everything</p><p class="d">Complete the Links table, then generate the checker's link-target table, the book's labels and the parent lists from it. Findings 5, 6, 7.</p></div>
-    <div class="card red"><p class="t">3. Build or drop parent-changed</p><p class="d">The top-down change story depends on a flag nothing emits. It is the mechanism that keeps Behavior honest when Intent moves. Finding 3.</p></div>
-    <div class="card amber"><p class="t">4. One home per provision</p><p class="d">Draft questions, world facts, layer derivation, proof statuses and the docs layout each live on two to four pages. Keep the provision in its home and cite it. Findings 4, 17.</p></div>
-    <div class="card amber"><p class="t">5. One meaning per word</p><p class="d">Tier, semantic hash, parent and founder each carry two or three meanings across the pages. Findings 13, 14, 18, 22.</p></div>
-    <div class="card amber"><p class="t">6. Settle the open lifecycle</p><p class="d">Question status, veto, coverage by known gaps and deviations, and auto-approval for records versus questions. Findings 8, 10, 15.</p></div>
+    <div class="card amber"><p class="t">1. Approve LiteSpec's own decisions</p><p class="d">Ten provisions say Settled by a decision, but all nineteen decisions are still draft. Approve them before tagging, or say Proposed by. Finding 1.</p></div>
+    <div class="card blue"><p class="t">2. Bring the book labels inside the model</p><p class="d">The book page shows verdicts and proof labels the label rule does not allow. Add these states to the model and glossary, or relabel them. Finding 2.</p></div>
+    <div class="card blue"><p class="t">3. Say that consumer findings carry levels</p><p class="d">The command prints <code>[G]</code> and <code>[A]</code>, but its page never states it. One sentence on the consumer page closes it. Finding 3.</p></div>
   </div>
-  <div class="card"><p class="t">Method and limits</p><p class="d">Read on 30 October 2026: <code>docs/core/layers.md</code>, <code>model.md</code>, <code>system.md</code>, <code>release.md</code>, <code>scope.md</code>, <code>principles.md</code>, <code>agent.md</code>, <code>docs/tools/</code>, the manifest, the consumer project template, decisions 0001 to 0009, and <code>apps/cli</code> and <code>apps/model</code> for every cited code. The 123 finding codes in <code>Finding.cs</code> match the 123 rows of <code>docs/tools/model.md</code>. The CLI and tests were not run. The Intent and Behavior decks hold the layer-specific findings.</p></div>
+  <div class="card"><p class="t">Method and limits</p><p class="d">Re-read on 31 October 2026 against the 3.0.0 release tree: <code>docs/core/layers.md</code>, <code>model.md</code>, <code>system.md</code>, <code>release.md</code>, <code>scope.md</code>, <code>principles.md</code>, <code>agent.md</code>, <code>docs/tools/</code>, the manifest, the consumer project template, decisions 0001 to 0019, and <code>apps/cli</code> and <code>apps/model</code> for every cited code. The CLI and tests were not run. The finding table on <code>docs/tools/model.md</code> carries a Fix column beside every code. The Intent and Behavior decks hold the layer-specific findings.</p></div>
   </div>
 </section>

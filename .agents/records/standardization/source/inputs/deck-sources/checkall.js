@@ -1,6 +1,6 @@
 async page => {
   await page.setViewportSize({ width: 1320, height: 760 });
-  const files = ['1-intent-layer.html'];
+  const files = ['1-intent-layer.html', '2-behavior-layer.html', '3-promise-to-proof.html'];
   const out = [];
   for (const f of files) {
     await page.goto('about:blank');

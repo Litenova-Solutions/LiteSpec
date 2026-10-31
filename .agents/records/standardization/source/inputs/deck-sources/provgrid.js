@@ -1,26 +1,55 @@
+// node provgrid.js <docs/core dir> > provgrid.html
+// Reads the five Behavior pages (behavior.md holds only the overview) and
+// groups every provision under ## Standards by its area. Output contract is
+// unchanged: <!--A--> first half, <!--B--> second half, <!--STATS ...-->.
 const fs = require('fs');
-const text = fs.readFileSync(process.argv[2], 'utf8').split(/\r?\n/);
-let inStd = false, cur = null; const out = [];
-text.forEach((l, i) => {
-  if (/^## /.test(l)) inStd = /^## (Standards|Conventions)/.test(l);
-  const h = l.match(/^### (.+)/);
-  if (h && inStd) { cur = { title: h[1], line: i + 1, how: '', codes: [] }; out.push(cur); }
-  if (cur && /^\*\*Checked by:\*\*/.test(l)) { cur.how = 'checked'; cur.codes = (l.match(/`([a-z0-9-]+)`/g) || []).map(s => s.replace(/`/g, '')).filter(c => /^[a-z]+(-[a-z]+)+$/.test(c) && !c.startsWith('litespec')); }
-  if (cur && /^\*\*Reviewed for:\*\*/.test(l)) cur.how = 'reviewed';
-});
-const groups = [
-  ['Glossary and modules', 333, 366], ['Aggregates and data', 367, 452], ['Processes', 453, 486], ['Rules', 487, 570],
-  ['Events', 571, 634], ['Use case shape', 635, 758], ['Consistency, effects, audit', 759, 832], ['Queries', 833, 874],
-  ['Results and scenarios', 875, 998], ['Reactions', 999, 1072], ['Jobs', 1073, 1106], ['Notifications', 1107, 1162],
-  ['Settings', 1163, 1232], ['Entry points and screens', 1233, 1312], ['External systems and retention', 1313, 1342], ['Records and pages', 1343, 1400]
+const dir = process.argv[2].replace(/\/$/, '');
+const files = [
+  ['domain-model.md', [
+    ['Glossary and modules', 3], ['Aggregates and lifecycles', 5], ['Sagas', 3],
+    ['Rules', 10], ['Events', 3]
+  ]],
+  ['use-cases.md', [
+    ['Use case shape', 6], ['Access and inputs', 4], ['Consistency and effects', 8],
+    ['Queries', 4], ['Results and refusals', 7], ['Scenarios', 6], ['Settings', 5]
+  ]],
+  ['automation.md', [
+    ['Reactions and jobs', 5], ['Names, failure, runbooks', 7]
+  ]],
+  ['edges.md', [
+    ['Integration events', 4], ['Notifications', 5], ['Entry points and screens', 7],
+    ['Served content and external systems', 2]
+  ]],
+  ['privacy.md', [
+    ['Data classes and retention', 6]
+  ]]
 ];
 const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;');
-const cards = groups.map(([name, a, b]) => {
-  const ps = out.filter(p => p.line >= a && p.line <= b);
-  const items = ps.map(p => '<li class="' + (p.how === 'checked' ? 'ck' : 'rv') + '">' + esc(p.title) + (p.codes.length ? ' <span class="cd">' + p.codes.join(', ') + '</span>' : '') + '</li>').join('');
-  return { html: '<div class="pgrp"><p class="t">' + name + ' <span class="badge outline">' + ps.length + '</span></p><ul>' + items + '</ul></div>', n: ps.length };
-});
-const half = 8;
-console.log('<!--A-->' + cards.slice(0, half).map(c => c.html).join('\n'));
-console.log('<!--B-->' + cards.slice(half).map(c => c.html).join('\n'));
-console.log('<!--STATS ' + out.length + ' checked=' + out.filter(p => p.how === 'checked').length + ' reviewed=' + out.filter(p => p.how === 'reviewed').length + '-->');
+const cards = [];
+let total = 0, checked = 0, reviewed = 0;
+for (const [file, groups] of files) {
+  const text = fs.readFileSync(dir + '/' + file, 'utf8').split(/\r?\n/);
+  let inStd = false, cur = null; const out = [];
+  text.forEach(l => {
+    if (/^## /.test(l)) inStd = /^## Standards/.test(l);
+    const h = l.match(/^### (.+)/);
+    if (h && inStd) { cur = { title: h[1], how: '', codes: [] }; out.push(cur); }
+    if (cur && /^\*\*Checked by:\*\*/.test(l)) { cur.how = 'checked'; cur.codes = (l.match(/`([a-z0-9-]+)`/g) || []).map(s => s.replace(/`/g, '')).filter(c => /^[a-z]+(-[a-z]+)+$/.test(c) && !c.startsWith('litespec')); }
+    if (cur && /^\*\*Reviewed for:\*\*/.test(l)) cur.how = 'reviewed';
+  });
+  const want = groups.reduce((n, g) => n + g[1], 0);
+  if (out.length !== want) console.error('warning: ' + file + ' holds ' + out.length + ' provisions, groups expect ' + want);
+  let at = 0;
+  for (const [name, n] of groups) {
+    const ps = out.slice(at, at + n); at += n;
+    const items = ps.map(p => '<li class="' + (p.how === 'checked' ? 'ck' : 'rv') + '">' + esc(p.title) + (p.codes.length ? ' <span class="cd">' + p.codes.join(', ') + '</span>' : '') + '</li>').join('');
+    cards.push('<div class="pgrp"><p class="t">' + name + ' <span class="badge outline">' + ps.length + '</span></p><ul>' + items + '</ul></div>');
+  }
+  total += out.length;
+  checked += out.filter(p => p.how === 'checked').length;
+  reviewed += out.filter(p => p.how === 'reviewed').length;
+}
+console.log('<!--A-->' + cards.slice(0, 7).join('\n'));
+console.log('<!--B-->' + cards.slice(7, 13).join('\n'));
+console.log('<!--C-->' + cards.slice(13).join('\n'));
+console.log('<!--STATS ' + total + ' checked=' + checked + ' reviewed=' + reviewed + '-->');

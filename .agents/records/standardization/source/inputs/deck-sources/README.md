@@ -9,7 +9,7 @@ The sources of the three decks in `D:/docs/` (built 2026-10-30 and 2026-10-31) a
 | `findings-*.js` | The review findings, one array per deck: severity, category, title, evidence, fix |
 | `review.js` | Turns a findings file into the review appendix slides |
 | `close-*.html` | The proposal and recommendation slides that end each deck |
-| `provgrid.js` | Generates the Behavior provision grids from `docs/core/behavior.md` into `provgrid.html` |
+| `provgrid.js` | Generates the Behavior provision grids from the five Behavior pages under `docs/core/` (domain model, use cases, automation, edges, privacy) into `provgrid.html`, split over three slides |
 | `build.js` | Joins the parts into one self-contained HTML file |
 | `lantern-gen.js` | Writes the Lantern example project |
 | `serve.js`, `checkall.js` | A local server and a Playwright overflow check |
@@ -18,7 +18,7 @@ The sources of the three decks in `D:/docs/` (built 2026-10-30 and 2026-10-31) a
 Build, from this folder:
 
 ```bash
-node provgrid.js <litespec>/docs/core/behavior.md > provgrid.html
+node provgrid.js <litespec>/docs/core > provgrid.html
 node review.js findings-intent.js intent "Intent Layer" 6 > review-intent.html
 node review.js findings-behavior.js behavior "Behavior Layer" 6 > review-behavior.html
 node review.js findings-full.js full "Layer Connections" 6 > review-full.html
