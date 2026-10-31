@@ -206,11 +206,11 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **ID:** `litespec/core/use-cases#name-the-entry-points-that-reach-each-use-case`
 
-**Statement:** Each use case MUST name the entry points that reach it in `reachedThrough`.
+**Statement:** Each use case a caller reaches from outside MUST name the entry points that reach it in `reachedThrough`.
 
-**Rationale:** A use case with no named door is reachable from anywhere or nowhere: reviewers cannot tell a public operation from an internal one. Naming the entry points shows how callers arrive at each behavior.
+**Rationale:** A use case with no named door is reachable from anywhere or nowhere: reviewers cannot tell a public operation from an internal one. Naming the entry points shows how callers arrive at each behavior. A use case that only a reaction, a job, a saga step or another use case runs has no door of its own, and its `runs` edge already shows how it is reached.
 
-**Checked by:** `litespec model check` reports `reference-unknown` for a `reachedThrough` entry naming no entry point.
+**Checked by:** `litespec model check` reports `record-invalid` for a live use case that names no entry point and that nothing runs, and `reference-unknown` for a `reachedThrough` entry naming no entry point.
 
 ### Describe Every Use Case Input with Origin and Classification
 

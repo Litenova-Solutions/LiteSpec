@@ -98,9 +98,13 @@ static partial class Checker
     {
         foreach (var element in model.Code.Elements)
         {
+            // An aggregate method and a technical class take the mark of the use case
+            // that calls them, which may sit in another module: only handlers, endpoints,
+            // event handlers, job hosts and roots have a folder that says what they mark.
             if (element.InTests
                 || element.Kind is CodeKind.Test or CodeKind.BrowserTest
-                    or CodeKind.FrontendModule or CodeKind.FrontendRoute)
+                    or CodeKind.FrontendModule or CodeKind.FrontendRoute
+                    or CodeKind.AggregateMethod or CodeKind.Technical)
             {
                 continue;
             }

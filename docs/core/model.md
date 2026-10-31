@@ -865,13 +865,13 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 
 **ID:** `litespec/core/model#match-each-backend-mark-to-its-folder`
 
-**Statement:** A backend element MUST carry a mark naming a use case, reaction, job, or aggregate in the module and folder it sits in.
+**Statement:** A backend handler, endpoint, event handler, job host or aggregate root MUST carry a mark naming a use case, reaction, job, or aggregate in the module and folder it sits in.
 
-**Rationale:** Copying a handler and forgetting its mark is the most common agent mistake, and the folder already says what the mark should be. A handler that sits in one use-case folder while naming another sends readers and checks to the wrong record. The frontend mirror already compares each mark with its module; the backend check applies the same comparison to handlers, endpoints, and aggregates.
+**Rationale:** Copying a handler and forgetting its mark is the most common agent mistake, and the folder already says what the mark should be. A handler that sits in one use-case folder while naming another sends readers and checks to the wrong record. An aggregate method and a technical class carry the mark of the use case that calls them, which may sit in another module, so their folder says nothing about their mark. The frontend mirror already compares each mark with its module; the backend check applies the same comparison to handlers, endpoints, and aggregates.
 
 **Example:** A handler in `Booking/Holds/HoldRoom/` marked `use-case/booking.release-hold` is reported, because the folder holds `use-case/booking.hold-room`.
 
-**Checked by:** `litespec model check` reports `mark-folder-drift` (level S) for a backend element whose mark names a record outside its module and folder.
+**Checked by:** `litespec model check` reports `mark-folder-drift` (level S) for a handler, endpoint, event handler, job host or aggregate root whose mark names a record outside its module and folder.
 
 ### Hold Each Finding to Its Own Status
 

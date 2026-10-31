@@ -2313,7 +2313,7 @@
     "useCasePage": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["type", "id", "title", "owner", "status", "kind", "access", "reachedThrough", "idempotency"],
+      "required": ["type", "id", "title", "owner", "status", "kind", "access", "idempotency"],
       "properties": {
         "type": { "const": "use-case" },
         "id": { "$ref": "#/$defs/useCaseId" },

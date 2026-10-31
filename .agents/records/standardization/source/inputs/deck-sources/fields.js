@@ -5,6 +5,7 @@ const map = new Map();
 function shape(p) {
   if (!p || typeof p !== 'object') return '?';
   if (p.$ref) return p.$ref.replace('#/$defs/', '');
+  if (p.const !== undefined) return '=' + p.const;
   if (p.enum) return 'enum(' + p.enum.join('|') + ')';
   if (p.type === 'array') return '[' + shape(p.items) + ']';
   if (p.oneOf || p.anyOf) return (p.oneOf || p.anyOf).map(shape).join(' or ');
@@ -17,13 +18,14 @@ function walk(node, def) {
     map.get(k).set(def, shape(v));
     walk(v, def + '.' + k);
   }
-  for (const key of ['items', 'then', 'else', 'if', 'not']) if (node[key]) walk(node[key], def);
-  for (const key of ['allOf', 'oneOf', 'anyOf']) if (Array.isArray(node[key])) node[key].forEach(n => walk(n, def));
+  if (node.patternProperties) for (const v of Object.values(node.patternProperties)) walk(v, def);
+  for (const key of ['items', 'additionalProperties', 'contains', 'then', 'else', 'if', 'not']) if (node[key]) walk(node[key], def);
+  for (const key of ['allOf', 'oneOf', 'anyOf', 'prefixItems']) if (Array.isArray(node[key])) node[key].forEach(n => walk(n, def));
 }
 for (const [name, def] of Object.entries(s.$defs || {})) walk(def, name);
 const rows = [...map.entries()].sort((a, b) => a[0].localeCompare(b[0]));
 for (const [k, defs] of rows) {
   const shapes = [...new Set(defs.values())];
-  console.log(k + '\t' + defs.size + '\t' + shapes.join(' ; ').slice(0, 90) + '\t' + [...defs.keys()].map(d => d.replace(/Page|Entry/g, '')).join(',').slice(0, 140));
+  console.log(k + '\t' + defs.size + '\t' + shapes.join(' ; ').slice(0, 90) + '\t' + [...defs.keys()].map(d => d.replace(/Page|Entry|Value|Object/g, '')).join(',').slice(0, 140));
 }
 console.error(rows.length + ' field names');

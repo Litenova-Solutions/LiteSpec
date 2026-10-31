@@ -396,6 +396,42 @@ static partial class Checker
         }
     }
 
+    private static readonly System.Runtime.CompilerServices.ConditionalWeakTable<ProjectModel, HashSet<string>> RunTargetCache = new();
+
+    /// <summary>
+    ///     The use cases another record runs: a reaction, job or use case through a `runs`
+    ///     effect, or a saga through a step. Such a use case is reached from inside the system.
+    /// </summary>
+    private static HashSet<string> RunTargets(ProjectModel model) => RunTargetCache.GetValue(model, built =>
+    {
+        var targets = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var record in built.Records)
+        {
+            if (record.Raw.ValueKind != JsonValueKind.Object)
+            {
+                continue;
+            }
+
+            foreach (var listName in new[] { "effects", "steps" })
+            {
+                if (!record.Raw.TryGetProperty(listName, out var list) || list.ValueKind != JsonValueKind.Array)
+                {
+                    continue;
+                }
+
+                foreach (var entry in list.EnumerateArray())
+                {
+                    if (Str(entry, "runs") is { Length: > 0 } target)
+                    {
+                        targets.Add(target);
+                    }
+                }
+            }
+        }
+
+        return targets;
+    });
+
     /// <summary>The record's question entries: objects in its questions array.</summary>
     private static IReadOnlyList<JsonElement> QuestionEntries(Record record)
     {
@@ -576,8 +612,10 @@ static partial class Checker
 
             case "use-case":
                 RequireEnum(record, "kind", ["command", "query"], findings);
-                // A retired use case names no entry point, so only a live one must be reached.
-                if (record.Status != "retired")
+                // A retired use case names no entry point, and a use case only a reaction, a job,
+                // a saga step or another use case runs has no door of its own: only the rest must
+                // name one.
+                if (record.Status != "retired" && !RunTargets(model).Contains(record.Id))
                 {
                     RequireIds(record, "reachedThrough", 1, findings);
                 }

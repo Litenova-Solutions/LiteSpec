@@ -9,3 +9,4 @@
 - 2026-10-31 10:45: wave 8 green (mark styles per language, mark-folder-drift, symbols, ID line identity with the changelog list, size-aware Defaults, honest Checked by, the Write Code page); committed.
 - 2026-10-31 11:15: wave 9 green (direction rules with their exceptions, one home per provision, checks and docs agreeing, words with two meanings); committed. Owner reversed BP4: reaction and job return (wave 12, 6R); the Lantern slice is stopped until after it.
 - 2026-10-31 11:55: wave 12 (6R) green: reaction and job are record types again by owner direction; sagas, doors, typed contracts, privacy, runs and emits stay; committed.
+- 2026-10-31 12:25: Lantern regenerated to D:/docs/lantern-example with reactions and jobs (consumer PASS; model check exit 0: 24 level-A findings reported, 2 excepted). mark-folder-drift narrowed to handlers, endpoints, event handlers, job hosts and roots; a use case another record runs needs no reachedThrough. Committed.
