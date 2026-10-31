@@ -62,7 +62,7 @@ Each access record lives in one home, and the [model page](model.md) states the 
 | `entry-point` | entry | The Behavior entry points list |
 | `external-system` | page | The Behavior systems home |
 
-An actor, role, or external system page carries a Summary section stating what the record is for. The permission and entry point lists carry entries only, with no body section.
+An actor, role, or external system page carries a `summary` field stating what the record is for. The permission and entry point lists are record files holding entries only.
 
 ## Standards
 
@@ -340,31 +340,31 @@ An actor, role, or external system page carries a Summary section stating what t
 
 **ID:** `litespec/core/access#write-a-summary-on-every-actor-and-role-page`
 
-**Statement:** An actor or role page MUST carry a Summary section.
+**Statement:** An actor or role page MUST carry a `summary` field.
 
-**Rationale:** The Summary states in plain sentences who the party is and what the grant is for, which the fields alone do not say. A reviewer meets the story first and the fields after, so the grant reads as a decision rather than a row.
+**Rationale:** The `summary` states in plain sentences who the party is and what the grant is for, which the fields alone do not say. A reviewer meets the story first and the fields after, so the grant reads as a decision rather than a row.
 
-**Checked by:** `litespec consumer` fails an actor or role page without an H2 `Summary`.
+**Checked by:** `litespec consumer` fails an actor or role page without `summary`.
 
 ### Write a Summary on Every External System Page
 
 **ID:** `litespec/core/access#write-a-summary-on-every-external-system-page`
 
-**Statement:** An external system page MUST carry a Summary section.
+**Statement:** An external system page MUST carry a `summary` field.
 
-**Rationale:** The Summary states in plain sentences what the outside system does for the product, which the message lists alone do not say. A reviewer meets the relationship first and the messages after, so the dependency reads as a decision rather than a row.
+**Rationale:** The `summary` states in plain sentences what the outside system does for the product, which the message lists alone do not say. A reviewer meets the relationship first and the messages after, so the dependency reads as a decision rather than a row.
 
-**Checked by:** `litespec consumer` fails an external system page without an H2 `Summary`.
+**Checked by:** `litespec consumer` fails an external system page without `summary`.
 
 ### Keep Permission and Entry Point Lists to Entries
 
 **ID:** `litespec/core/access#keep-permission-and-entry-point-lists-to-entries`
 
-**Statement:** A permission list or entry point list page MUST NOT carry a body section.
+**Statement:** A permission list or entry point list page MUST hold entries only.
 
-**Rationale:** The lists hold entries only: each permission and entry point is one row with its fields, and prose around them would restate the meanings the entries already carry. A list with no body section stays readable as a list even as entries grow.
+**Rationale:** The lists hold entries only: each permission and entry point is one row with its fields, and prose around them would restate the meanings the entries already carry. A list with entries only stays readable as a list even as entries grow.
 
-**Reviewed for:** Which permission or entry point lists carry a body section? Look at the permission and entry point lists for H2 sections.
+**Reviewed for:** Which permission or entry point lists carry an explanation file? Look beside each permission and entry point list for a `.md` file with its name.
 
 ## Conventions
 

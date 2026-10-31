@@ -238,7 +238,7 @@ sealed class ConsumerConfig
 
         // Records live under the documentation roots that paths.docs names.
         config.RecordRoots = ReadRoots(config.Root, paths, "docs", ["docs"]);
-        config.GlossaryPath = Combine(config.Root, ReadString(paths, "glossary", "docs/glossary.json"));
+        config.GlossaryPath = Combine(config.Root, ReadString(paths, "glossary", "docs/glossary.yaml"));
         config.BehaviorDocs = Combine(config.Root, ReadString(paths, "behaviorDocs", "docs/behavior"));
         config.ApplicationRoot = DeclaredRoot("application", "apps/api/src/*.Application");
         config.DomainRoot = DeclaredRoot("domain", "apps/api/src/*.Domain");

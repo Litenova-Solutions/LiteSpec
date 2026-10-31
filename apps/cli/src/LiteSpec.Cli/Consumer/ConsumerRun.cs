@@ -73,10 +73,24 @@ sealed class ConsumerRun
     /// <summary>Gets or sets the documentation root as a full path.</summary>
     public string DocsRoot { get; set; } = "";
 
-    /// <summary>Gets the Markdown files the page scan collected.</summary>
+    /// <summary>
+    ///     Gets the glossary file as a full path: the configured <c>paths.glossary</c>,
+    ///     or the glossary beside the documentation root.
+    /// </summary>
+    public string GlossaryFile
+    {
+        get
+        {
+            var paths = (Project as JsonObject)?["paths"] as JsonObject;
+            var glossaryPath = JsonRead.PropString(paths, "glossary");
+            return glossaryPath is not null ? Path.Join(Root, glossaryPath) : Path.Join(DocsRoot, "glossary.yaml");
+        }
+    }
+
+    /// <summary>Gets the record files and Markdown files the page scan collected.</summary>
     public List<string> Files { get; } = [];
 
-    /// <summary>Gets or sets how many files carry a frontmatter page.</summary>
+    /// <summary>Gets or sets the count of record files and documents the scan validated.</summary>
     public int Pages { get; set; }
 
     /// <summary>Gets the normalized extension selections.</summary>
@@ -144,7 +158,7 @@ sealed class ConsumerRun
         // consumer with no page does not exist; a root that resolves to nothing does.
         if (Files.Count == 0)
         {
-            Err($"Scanned no Markdown files under '{DocsPath}'; check paths.docs, because a consumer with no page is a misconfigured scan");
+            Err($"Scanned no record or Markdown files under '{DocsPath}'; check paths.docs, because a consumer with no page is a misconfigured scan");
         }
 
         projectWatch.Stop();
@@ -189,7 +203,7 @@ sealed class ConsumerRun
         }
 
         Console.WriteLine($"Consumer: {Root}");
-        Console.WriteLine($"Files scanned: {Files.Count} under {DocsPath}, frontmatter pages: {Pages}");
+        Console.WriteLine($"Files scanned: {Files.Count} under {DocsPath}, pages: {Pages}");
         Console.WriteLine(GlossarySummary);
 
         if (Advisories.Count > 0)
@@ -217,7 +231,7 @@ sealed class ConsumerRun
         }
 
         Console.WriteLine();
-        Console.WriteLine("PASS: project configuration, page frontmatter and glossary are valid.");
+        Console.WriteLine("PASS: project configuration, record files, documents and glossary are valid.");
         return 0;
     }
 
@@ -235,7 +249,7 @@ sealed class ConsumerRun
 
     /// <summary>
     ///     Reads a file once and reuses the text. Strips a leading byte-order mark,
-    ///     which some editors still write: without the strip a page that carries
+    ///     which some editors still write: without the strip a document that carries
     ///     a frontmatter block reports none.
     /// </summary>
     /// <param name="file">The file to read.</param>

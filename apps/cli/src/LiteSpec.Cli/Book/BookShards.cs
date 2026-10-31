@@ -230,16 +230,16 @@ static class BookShards
         return keys;
     }
 
-    /// <summary>The statement fields the search excerpt prefers, in order.</summary>
+    /// <summary>The fields the search excerpt prefers, in order.</summary>
     static readonly IReadOnlyList<string> ExcerptFields =
-        ["statement", "summary", "question", "conclusion"];
+        ["statement", "summary", "purpose", "question", "conclusion"];
 
     /// <summary>
-    ///     One record's search excerpt: its first statement-like field, else its
-    ///     body's head, flattened to one line and cut to 200 characters.
+    ///     One record's search excerpt: its first preferred field, else its
+    ///     explanation's head, flattened to one line and cut to 200 characters.
     /// </summary>
-    /// <param name="record">The record object that holds the fields and the body.</param>
-    /// <returns>The flattened excerpt cut to 200 characters, or an empty string when the record holds no statement-like field or body.</returns>
+    /// <param name="record">The record object that holds the fields and the explanation.</param>
+    /// <returns>The flattened excerpt cut to 200 characters, or an empty string when the record holds no preferred field or explanation.</returns>
     public static string SearchExcerpt(JsonObject record)
     {
         var fields = record["fields"] as JsonObject;
@@ -253,11 +253,11 @@ static class BookShards
             }
         }
 
-        if (record["body"] is JsonValue body
+        if (record["explanation"] is JsonValue body
             && body.TryGetValue<string>(out var prose)
             && prose.Length > 0)
         {
-            return Flatten(prose);
+            return Flatten(BookBodyDetail.WithoutTitle(prose));
         }
 
         return "";

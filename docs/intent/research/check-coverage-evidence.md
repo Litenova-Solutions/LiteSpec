@@ -1,35 +1,3 @@
----
-{
-  "type": "research",
-  "id": "research/check-coverage-evidence",
-  "title": "Check Coverage Evidence",
-  "owner": "LiteSpec maintainer",
-  "status": "draft",
-  "decider": "LiteSpec maintainer",
-  "decideBy": "2026-10-30",
-  "question": "Which links and parents does the checker enforce, which does it only report, and which does no check read at all?",
-  "conclusion": "The checker is dense below a requirement and almost absent above it: no check reads a feature's goal, a requirement's origin, a rule's fulfillment, or a journey's goal, and those four unchecked links hold the largest measured gaps in the largest consumer.",
-  "sources": [
-    {
-      "path": "docs/tools/model.md",
-      "readOn": "2026-10-30"
-    },
-    {
-      "path": "apps/cli/src/LiteSpec.Cli/Model/Checker.cs",
-      "readOn": "2026-10-30"
-    },
-    {
-      "path": "apps/model/src/LiteSpec.Model.Core/Finding.cs",
-      "readOn": "2026-10-30"
-    },
-    {
-      "path": "apps/model/src/LiteSpec.Model.Core/Suppression.cs",
-      "readOn": "2026-10-30"
-    }
-  ]
-}
----
-
 # Check Coverage Evidence
 
 ## Answer

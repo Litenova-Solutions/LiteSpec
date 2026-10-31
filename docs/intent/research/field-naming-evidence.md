@@ -1,35 +1,3 @@
----
-{
-  "type": "research",
-  "id": "research/field-naming-evidence",
-  "title": "Field Naming Evidence",
-  "owner": "LiteSpec maintainer",
-  "status": "draft",
-  "decider": "LiteSpec maintainer",
-  "decideBy": "2026-11-30",
-  "question": "Where does one field name carry two concepts, or one concept carry two names, across the record types?",
-  "conclusion": "The field set is mostly systematic, but five collisions - `status` beside feature `state`, the bare `by`, `source` with five meanings, `serves` with three target sets, and the journey `goal` sentence beside the goal record - already produce invalid or misleading consumer data.",
-  "sources": [
-    {
-      "path": "schemas/record.schema.json",
-      "readOn": "2026-10-30"
-    },
-    {
-      "path": "schemas/glossary.schema.json",
-      "readOn": "2026-10-30"
-    },
-    {
-      "path": "templates/consumer/glossary.json",
-      "readOn": "2026-10-30"
-    },
-    {
-      "path": "docs/core/model.md",
-      "readOn": "2026-10-30"
-    }
-  ]
-}
----
-
 # Field Naming Evidence
 
 ## Answer

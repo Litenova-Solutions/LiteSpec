@@ -6,7 +6,7 @@ Every LiteSpec project writes its intent (what to build, and why) as small recor
 
 ## Small Records of Intent
 
-A record is the smallest piece of intent one person can own and approve: one requirement, one rule, one use case, one decision. Each record is a short Markdown page, or an entry on a page, with an opening JSON block that holds its facts. People read the page, and tools read the block.
+A record is the smallest piece of intent one person can own and approve: one requirement, one rule, one use case, one decision. Each record is a short YAML record file, or an entry in one, holding its facts as fields. An optional Markdown explanation file beside the record file explains it for people and agents. People read the record with its explanation, and tools read the fields.
 
 Keeping intent in small records instead of long documents gives three results:
 
@@ -45,16 +45,22 @@ The record types follow the questions a team asks, from why down to how:
 
 A small project keeps the rows the [model page](../core/model.md) marks small. A large project also keeps problems, features, journeys, and scenarios, which tie the product story to proven examples. Constraints and research switch on separately, and runbooks join when the product first goes into production.
 
-Each type has one home in the repository. Intent lives under `docs/intent/`, with research beside it under `docs/intent/research/`. Behavior lives under `docs/behavior/`: a module's aggregates and use cases under `docs/behavior/modules/<module>/`, its reactions, jobs, and notifications in matching subfolders, its settings on a settings page, cross-aggregate rules under `docs/behavior/rules/`, the retention schedule at `docs/behavior/retention-schedule.md`, and access records under `docs/behavior/access/`. Exceptions live under `docs/governance/exceptions/`. The [model page](../core/model.md) lists every home, and the `templates/consumer/` folder of the LiteSpec release holds a starting file for each type.
+Each type has one home in the repository. Intent lives under `docs/intent/`, with research beside it under `docs/intent/research/`. Behavior lives under `docs/behavior/`: a module's aggregates and use cases under `docs/behavior/modules/<module>/`, its reactions, jobs, and notifications in matching subfolders, its settings in a settings record file, cross-aggregate rules under `docs/behavior/rules/`, the retention schedule at `docs/behavior/retention-schedule.yaml`, and access records under `docs/behavior/access/`. Exceptions live under `docs/governance/exceptions/`. The [model page](../core/model.md) lists every home, and the `templates/consumer/` folder of the LiteSpec release holds a starting file for each type.
 
 ## Links Between Records
 
 Records join through fields on the record that points. In the Claimwick example, access runs through three records and one declared grant: the actor holds a role, the role allows permissions, and the use case declares its access with one of them:
 
-```json
-"holds": [{ "role": "role/employee", "scope": "self" }],
-"allows": ["permission/submit-expense", "permission/list-expenses"],
-"access": { "grant": "permission/submit-expense", "tenant": "own" }
+```yaml
+holds:
+  - role: role/employee
+    scope: self
+allows:
+  - permission/submit-expense
+  - permission/list-expenses
+access:
+  grant: permission/submit-expense
+  tenant: own
 ```
 
 Read it as a chain: `actor/employee` holds `role/employee`, the role allows `permission/submit-expense` among others, and `use-case/spending.submit-expense` declares that permission as its grant and a tenant scope of its own. Access reads as one chain from actor to use case, exactly as the [access page](../core/access.md) states.
@@ -69,7 +75,7 @@ Every Intent and governance record carries `draft`, `approved`, or `retired`. Ev
 - **Approved** (Intent) and **reviewed** (Behavior) mean the record holds. A decision that changes one replaces it.
 - **Retired** means a newer record replaced it.
 
-Approval is data. An approved or reviewed record carries who approved it, on which date, and the semantic hash the builder wrote over the statements, results, output names, rules, and steps. Prose bodies sit outside the hash, so rewording prose never reopens approval, while a changed semantic hash does.
+Approval is data. An approved or reviewed record carries who approved it, on which date, and the semantic hash the builder wrote over the statements, results, output names, rules, steps, and prose fields. The explanation beside a non-article record sits outside the hash, while the explanation of an article type feeds it with the record; a changed semantic hash reopens approval.
 
 Some records need a person and some do not. A requirement or Behavior record may carry `risk` from `money`, `physical-access`, `personal-data`, and `access`. Any value makes the record tier 1, which needs explicit approval or review. A record with no risk is tier 3. A tier-3 draft question that carries a recommendation auto-approves after its decide-by date plus the project's veto window (`review.vetoWindowDays` in `litespec.project.json`, 7 days by default), recorded as `answeredBy: auto (veto window)` on the question. Questions group into ballots, so each ballot is one inbox of related decisions. An unanswered question past its date that cannot auto-approve is reported by the `question-expired` check; it never silently blocks.
 

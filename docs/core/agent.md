@@ -236,7 +236,7 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **ID:** `litespec/core/agent#read-the-full-record-before-changing-a-boundary`
 
-**Default:** Read the full record before generating a file, changing a public boundary, or choosing between patterns.
+**Default:** Read the full record, the record file with its explanation file, before generating a file, changing a public boundary, or choosing between patterns.
 
 **Replacement:** A consumer records a boundary-reading convention naming which changes need the full record.
 

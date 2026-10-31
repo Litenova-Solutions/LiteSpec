@@ -348,7 +348,7 @@ Source: plain English.
 
 ### Examples Table
 
-One Markdown table of rows a scenario walks through, holding the values the parts argue about.
+One table of rows a scenario walks through, holding the values the parts argue about.
 
 Source: BDD.
 
@@ -412,7 +412,7 @@ Source: LiteSpec.
 
 ### Glossary
 
-The project glossary: each term, its meaning, and its rejected synonyms, held as data in glossary.json.
+The project glossary: each term, its meaning, and its rejected synonyms, held as data in glossary.yaml.
 
 Source: arc42; DDD's ubiquitous language.
 
@@ -852,7 +852,7 @@ Source: the SRE book.
 
 ### Approval Hash
 
-The hash over a record's semantic fields, recorded as `approvedHash`, that reopens approval when it changes.
+The hash over a record's semantic fields and, for a research, decision, or topic page, its explanation file, recorded as `approvedHash`, that reopens approval when it changes.
 
 Source: LiteSpec.
 
@@ -972,6 +972,12 @@ One issue litespec-maintain validate reports about standards material.
 
 Source: LiteSpec.
 
+### Document
+
+One Markdown page under a record root that holds no record.
+
+Source: LiteSpec.
+
 ### Documentation Layer
 
 One depth of documentation, from a first working result down to the mechanism a command runs.
@@ -1002,6 +1008,12 @@ One page that builds understanding of what LiteSpec is and why it works the way 
 
 Source: Diataxis.
 
+### Explanation File
+
+One Markdown file beside a record file that explains the record for people and agents.
+
+Source: LiteSpec.
+
 ### Extension
 
 One conditional standards bundle a project selects when its criterion holds.
@@ -1022,7 +1034,7 @@ Source: LiteSpec.
 
 ### Frontmatter
 
-The opening block stating a page type, owner, status, and records.
+The opening block of a document stating its page style, owner, and status.
 
 Source: LiteSpec.
 
@@ -1098,7 +1110,7 @@ Source: standards practice, as the W3C QA Framework and ISO Directives use it.
 
 ### Page
 
-One authored Markdown file under the documentation root.
+One authored record file or document under the documentation root.
 
 Source: LiteSpec.
 
@@ -1163,6 +1175,12 @@ Source: LiteSpec.
 The phrase stating how one link reads from its record, with its pair stating how it reads back.
 
 Layer: Behavior.
+
+Source: LiteSpec.
+
+### Record File
+
+One YAML file holding one record page with its entries.
 
 Source: LiteSpec.
 

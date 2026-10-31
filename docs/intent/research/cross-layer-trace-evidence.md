@@ -1,31 +1,3 @@
----
-{
-  "type": "research",
-  "id": "research/cross-layer-trace-evidence",
-  "title": "Cross-Layer Trace Evidence",
-  "owner": "LiteSpec maintainer",
-  "status": "draft",
-  "decider": "LiteSpec maintainer",
-  "decideBy": "2026-11-30",
-  "question": "Where does the trace from a goal to a test break in one real consumer, read top down and bottom up?",
-  "conclusion": "The chain breaks at the top: only 19 of 925 live requirements trace to a goal and only 18 of 1,251 handlers sit under a use case that does, while the Behavior-to-code-to-test links below are dense and mostly checked.",
-  "sources": [
-    {
-      "path": "docs/core/model.md",
-      "readOn": "2026-10-30"
-    },
-    {
-      "path": "apps/model/src/LiteSpec.Model.Core/RecordTypes.cs",
-      "readOn": "2026-10-30"
-    },
-    {
-      "path": "docs/tools/model.md",
-      "readOn": "2026-10-30"
-    }
-  ]
-}
----
-
 # Cross-Layer Trace Evidence
 
 ## Answer

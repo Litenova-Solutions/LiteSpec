@@ -28,7 +28,7 @@ static class GlossaryChecks
         var pagesWatch = System.Diagnostics.Stopwatch.StartNew();
         var paths = (run.Project as JsonObject)?["paths"] as JsonObject;
         var glossaryPath = JsonRead.PropString(paths, "glossary");
-        var glossaryFile = glossaryPath is not null ? Path.Join(run.Root, glossaryPath) : Path.Join(run.DocsRoot, "glossary.json");
+        var glossaryFile = run.GlossaryFile;
         var glossaryRelative = run.Relative(glossaryFile);
         CompiledLanguage? compiled = null;
 
@@ -38,11 +38,11 @@ static class GlossaryChecks
 
             try
             {
-                record = run.ReadJson(glossaryFile);
+                record = JsonNode.Parse(YamlText.Parse(run.ReadText(glossaryFile)).ToJson());
             }
             catch (Exception cause)
             {
-                run.Err($"{glossaryRelative}: not valid JSON ({cause.Message})");
+                run.Err($"{glossaryRelative}: not valid YAML ({cause.Message})");
             }
 
             if (JsonValues.IsTruthy(record))
@@ -110,8 +110,11 @@ static class GlossaryChecks
         // sits outside the documentation root. It is the first file an agent reads,
         // so its register is the register that gets copied into every page written
         // afterwards, and a rule the exemplar breaks is a rule that does not hold.
+        // Record files hold data, not prose, so the vocabulary scan reads the Markdown
+        // files only: the explanation files and the documents.
+        var markdown = run.Files.Where(file => file.EndsWith(".md", StringComparison.Ordinal)).ToList();
         var agentsFile = Path.Join(run.Root, "AGENTS.md");
-        var languageFiles = File.Exists(agentsFile) && !run.Files.Contains(agentsFile, StringComparer.OrdinalIgnoreCase) ? run.Files.Append(agentsFile).ToList() : run.Files.ToList();
+        var languageFiles = File.Exists(agentsFile) && !markdown.Contains(agentsFile, StringComparer.OrdinalIgnoreCase) ? markdown.Append(agentsFile).ToList() : markdown;
 
         var languageFindings = new List<string>();
 
@@ -124,7 +127,7 @@ static class GlossaryChecks
             // it, so it matches no scoped rule and is checked by the mannered list.
             var scopeRelative = file == agentsFile ? relative : ConsumerRun.Relative(run.DocsRoot, file);
 
-            Prose.CheckLanguage(scopeRelative, raw, compiled, (_, line, code, message) =>
+            Prose.CheckLanguage(scopeRelative, BlankFrontmatter(raw), compiled, (_, line, code, message) =>
             {
                 languageFindings.Add($"{relative}:{line}: {code} {message}");
             });
@@ -225,5 +228,41 @@ static class GlossaryChecks
         run.GlossarySummary = compiled is not null
             ? $"Glossary: {manneredCount} mannered term(s), {rejectedCount} rejected synonym(s){surfaceNote}"
             : "Glossary: no glossary found; the vocabulary and mannered-term checks did not run";
+    }
+
+    /// <summary>
+    ///     Blanks a document's frontmatter block, keeping every reported line number equal
+    ///     to the file's: the block is machine content, not prose.
+    /// </summary>
+    /// <param name="raw">The file text.</param>
+    /// <returns>The text with the frontmatter lines blanked.</returns>
+    static string BlankFrontmatter(string raw)
+    {
+        if (!raw.StartsWith("---", StringComparison.Ordinal))
+        {
+            return raw;
+        }
+
+        var lines = raw.Split('\n');
+
+        if (lines.Length < 3 || lines[0].TrimEnd('\r') != "---")
+        {
+            return raw;
+        }
+
+        for (var index = 1; index < lines.Length; index++)
+        {
+            if (lines[index].TrimEnd('\r') == "---")
+            {
+                for (var blank = 0; blank <= index; blank++)
+                {
+                    lines[blank] = "";
+                }
+
+                return string.Join('\n', lines);
+            }
+        }
+
+        return raw;
     }
 }

@@ -68,6 +68,21 @@ static class BookDetailValues
         return hash < 0 ? id : id[..hash];
     }
 
+    /// <summary>One record identifier as a hash link with its title, or null when the model holds no such record.</summary>
+    /// <param name="index">The model index.</param>
+    /// <param name="target">The record identifier, optionally with a step fragment.</param>
+    /// <returns>The hash link and the linked record title, or null.</returns>
+    public static (string Href, string Title)? RecordLink(BookIndex index, string target)
+    {
+        var targetBase = BaseId(target);
+        if (!index.ById.TryGetValue(targetBase, out var found))
+        {
+            return null;
+        }
+
+        return ("#" + target, BookRender.StrProp(found, "title") ?? targetBase);
+    }
+
     /// <summary>One test name in words: the last segment with underscores as spaces.</summary>
     /// <param name="scenario">The scenario name.</param>
     /// <returns>The test name in words.</returns>

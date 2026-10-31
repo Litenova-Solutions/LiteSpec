@@ -95,6 +95,19 @@ static class RecordFile
     }
 
     /// <summary>
+    ///     Whether the text already stands in canonical form. Line ends do not count: a
+    ///     checkout may turn LF into CRLF, and the record reads the same either way.
+    /// </summary>
+    /// <param name="text">The file text.</param>
+    /// <param name="canonical">The canonical text, or null when the text is not in the subset.</param>
+    /// <returns>True when the text differs from its canonical form in line ends at most.</returns>
+    public static bool IsCanonical(string text, out string? canonical)
+    {
+        canonical = Canonical(text);
+        return canonical is not null && canonical == text.Replace("\r\n", "\n", StringComparison.Ordinal);
+    }
+
+    /// <summary>
     ///     The explanation text as the approval hash reads it: line ends as LF, trailing
     ///     whitespace dropped from every line, and no blank lines at either end.
     /// </summary>

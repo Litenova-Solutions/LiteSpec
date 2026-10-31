@@ -36,7 +36,7 @@ LiteSpec favors modules, aggregates, domain events, use cases, reactions, and jo
 
 ### One Source for Each Fact
 
-Each fact lives in exactly one home: a requirement on its requirement page, a rule on its home page, a use case on its page, a term in the glossary, stack versions in the manifest. Coverage, history, and status derive from the model; nobody types them by hand. Each record carries its status in its frontmatter, where tools and reviewers read it, and each draft names its decider and decideBy date. Entries inherit their page's `owner` and `status` unless they set their own. The [model page](model.md) defines the common fields and the computed links.
+Each fact lives in exactly one home: a requirement on its requirement page, a rule on its home page, a use case on its page, a term in the glossary, stack versions in the manifest. Coverage, history, and status derive from the model; nobody types them by hand. Each record carries its status in its record file, where tools and reviewers read it, and each draft names its decider and decideBy date. Entries inherit their page's `owner` and `status` unless they set their own. The [model page](model.md) defines the common fields and the computed links.
 
 ### Mechanical Proof of Boundaries
 
@@ -248,15 +248,15 @@ Boundaries are where components meet and where future readers orient themselves.
 
 **Checked by:** `litespec consumer` fails a project whose stack versions do not resolve from the manifest.
 
-### Locate Record Status in Frontmatter
+### Locate Record Status in the Record File
 
 **ID:** `litespec/core/principles#locate-record-status-in-frontmatter`
 
-**Statement:** A consumer MUST carry each record's `status`, `owner`, `decider`, and `decideBy` date in its frontmatter.
+**Statement:** A consumer MUST carry each record's `status`, `owner`, `decider`, and `decideBy` date in its record file.
 
-**Rationale:** Status in frontmatter exposes it to tools and reviewers in one predictable place. Entries inherit their page's `owner` and `status` unless they set their own, so one header governs the whole page. Status kept in prose hides from every check and goes stale with the next edit. The [model page](model.md) defines the common fields.
+**Rationale:** Status in the record file exposes it to tools and reviewers in one predictable place. Entries inherit their page's `owner` and `status` unless they set their own, so one record file governs the whole page. Status kept in prose hides from every check and goes stale with the next edit. The [model page](model.md) defines the common fields.
 
-**Checked by:** `litespec consumer` fails a record whose frontmatter is missing a required common field.
+**Checked by:** `litespec consumer` fails a record whose record file is missing a required common field.
 
 ### Prove Scenarios with Tests
 

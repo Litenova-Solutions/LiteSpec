@@ -129,10 +129,11 @@ A repeatable build resolves the same versions on every machine. The manifest, `l
 ```gitignore
 [Oo]utput/
 !docs/<directory>/
+!docs/<directory>/*.yaml
 !docs/<directory>/*.md
 ```
 
-Confirm with `git check-ignore docs/<directory>/<file>.md` that no record is ignored.
+Confirm with `git check-ignore docs/<directory>/<file>.yaml` that no record is ignored.
 
 **Reviewed for:** Each documentation directory stays tracked; `git check-ignore` reports no match for the record paths under `docs/`.
 

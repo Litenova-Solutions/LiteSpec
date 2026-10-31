@@ -2,7 +2,7 @@
 
 ## Intent
 
-Every JSON file a LiteSpec tool reads has one schema (a contract stating its exact shape), and the checking command and the editor validate the same contract. This page lists every schema the release ships: the file it validates, the command that checks it, its published URL, its top-level properties, and a real example. An author in a consumer project uses it to wire editor validation and to look up a field, and a tool author uses it to find which command owns which file.
+Every file a LiteSpec tool reads has one schema (a contract stating its exact shape), and the checking command and the editor validate the same contract. This page lists every schema the release ships: the file it validates, the command that checks it, its published URL, its top-level properties, and a real example. An author in a consumer project uses it to wire editor validation and to look up a field, and a tool author uses it to find which command owns which file.
 
 ## Reference
 
@@ -60,15 +60,15 @@ The consumer template opens with these fields:
 | Item | Value |
 |:---|:---|
 | File | `schemas/record.schema.json` |
-| Validates | The JSON metadata block that opens a consumer documentation page |
+| Validates | The record file of each consumer record page and the frontmatter of each document |
 | Checked by | `litespec consumer` |
 | Published URL | `https://litespec.dev/3.0.0/schemas/record.schema.json` |
 
-The schema holds no single property list. Instead it carries a `oneOf` across 37 page variants, one per record type and page style, so each opening block matches exactly one variant: `productPage`, `goalPage`, `constraintPage`, `researchPage`, `decisionPage`, `problemPage`, `featurePage`, `actorPage`, `rolePage`, `journeyPage`, `modulePage`, `aggregatePage`, `useCasePage`, `reactionPage`, `jobPage`, `notificationPage`, `externalSystemPage`, `integrationEventPage`, `runbookPage`, `exceptionPage`, `topicPage`, `permissionListPage`, `entryPointListPage`, `screenPage`, `settingPage`, `settingSetPage`, `ruleSetPage`, `retentionSchedulePage`, `indexPage`, `tutorialPage`, `howToPage`, `referencePage`, `reviewReportPage`, `commandPage`, `configurationPage`, `glossaryPage`, and `exampleCastPage`. Each variant requires `type` plus its own fields, such as `id`, `title`, `owner`, and `status`. Intent records take `draft`, `approved`, or `retired`; Behavior records take `draft`, `reviewed`, or `retired`. An approved or reviewed record carries `approvedBy`, `approvedOn`, and `approvedHash`.
+The schema holds no single property list. Instead it carries a `oneOf` across 37 page variants, one per record type and page style, so each record file and each document frontmatter matches exactly one variant: `productPage`, `goalPage`, `constraintPage`, `researchPage`, `decisionPage`, `problemPage`, `featurePage`, `actorPage`, `rolePage`, `journeyPage`, `modulePage`, `aggregatePage`, `useCasePage`, `reactionPage`, `jobPage`, `notificationPage`, `externalSystemPage`, `integrationEventPage`, `runbookPage`, `exceptionPage`, `topicPage`, `permissionListPage`, `entryPointListPage`, `screenPage`, `settingPage`, `settingSetPage`, `ruleSetPage`, `retentionSchedulePage`, `indexPage`, `tutorialPage`, `howToPage`, `referencePage`, `reviewReportPage`, `commandPage`, `configurationPage`, `glossaryPage`, and `exampleCastPage`. Each variant requires `type` plus its own fields, such as `id`, `title`, `owner`, and `status`. Intent records take `draft`, `approved`, or `retired`; Behavior records take `draft`, `reviewed`, or `retired`. An approved or reviewed record carries `approvedBy`, `approvedOn`, and `approvedHash`.
 
 A list page carries its entries in `records`: requirement, permission, rule, result, scenario, event, entry-point, and setting entries. The identifier patterns sit beside the variants in `$defs`, such as `useCaseId` for `use-case/<module>.<name>`, `reactionId` for `reaction/<module>.<name>`, `jobId` for `job/<module>.<name>`, `notificationId`, `settingId`, `integrationEventId`, `topicId` for `topic/<name>`, `journeyStepId` for `journey/<name>#s1`, and `derivedResultId` for the derived generic results. Shared shapes sit there too: the `access` object with `grant` and `tenant`, the query `output` groups, `paging`, `consistency`, `effectEntry` with exactly one verb of `runs`, `sends`, `emits`, or `calls`, the reaction trigger, the job kind and schedule, `idempotency`, `audit`, the one `onFailure` shape, `dataClassEntry`, saga steps, exits, and `drivenBy`, and the `questionEntry` with its ballot.
 
-A use case page requires `kind`, which is `command` or `query`, and the `access` object, and it opens with this block. The entry point the use case is reached through states the caller `auth`; the use case states only `grant` and `tenant`:
+A use case page requires `kind`, which is `command` or `query`, and the `access` object, and its record file holds these fields. The entry point the use case is reached through states the caller `auth`; the use case states only `grant` and `tenant`:
 
 ```json
 {
@@ -87,7 +87,7 @@ A use case page requires `kind`, which is `command` or `query`, and the `access`
 | Item | Value |
 |:---|:---|
 | File | `schemas/glossary.schema.json` |
-| Validates | The project glossary, by default `glossary.json` under the documentation root |
+| Validates | The project glossary, by default `glossary.yaml` under the documentation root |
 | Checked by | `litespec consumer` |
 | Published URL | `https://litespec.dev/3.0.0/schemas/glossary.schema.json` |
 

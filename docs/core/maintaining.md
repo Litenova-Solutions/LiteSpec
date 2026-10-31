@@ -117,7 +117,7 @@ These checks report a manifest or schema the release cannot ship, so they are li
 
 **Statement:** A maintainer MUST keep the research and decisions behind each release as records under `docs/intent/`.
 
-**Rationale:** Provisions state obligations without the questions, sources, or conclusions behind them, so a later change cannot tell why a rule reads as it does. Settled by [decision/0001-keep-release-reasoning-as-records](../intent/decisions/0001-keep-release-reasoning-as-records.md) (`decision/0001-keep-release-reasoning-as-records`) on the evidence in [research/comparable-rationale-practice](../intent/research/comparable-rationale-practice.md) (`research/comparable-rationale-practice`).
+**Rationale:** Provisions state obligations without the questions, sources, or conclusions behind them, so a later change cannot tell why a rule reads as it does. Settled by [decision/0001-keep-release-reasoning-as-records](decision/0001-keep-release-reasoning-as-records) on the evidence in [research/comparable-rationale-practice](research/comparable-rationale-practice).
 
 **Example:** Claimwick states its five-day approval target in a provision, and the benchmark behind the number sits in a research record beside it.
 

@@ -30,12 +30,12 @@ public static partial class Prose
     /// <summary>The options for plain patterns: compiled only.</summary>
     const RegexOptions PlainOptions = RegexOptions.Compiled;
 
-    // The page's metadata block: three dashes, one JSON object, three dashes, with
+    // A document's metadata block: three dashes, its YAML, three dashes, with
     // an optional leading byte-order mark (U+FEFF). The mark is built from its
     // code point so this file stays plain ASCII.
     /// <summary>The pattern of a page metadata block.</summary>
     static readonly Regex MetadataBlock = new(
-        "\\A(?:" + char.ConvertFromUtf32(0xFEFF) + ")?---\\r?\\n\\{[\\s\\S]*?\\r?\\n\\}\\r?\\n---\\r?\\n", PlainOptions);
+        "\\A(?:" + char.ConvertFromUtf32(0xFEFF) + ")?---\\r?\\n[\\s\\S]*?\\r?\\n---\\r?\\n", PlainOptions);
 
     // A generated region holds text the model builder wrote, so the measures do not
     // reach inside one. An opener with no closer is left alone: an unclosed region

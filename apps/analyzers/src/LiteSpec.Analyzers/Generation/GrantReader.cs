@@ -5,35 +5,29 @@ using LiteSpec.Model;
 namespace LiteSpec.Analyzers.Generation;
 
 /// <summary>
-/// Reads each use case's access grant from one record page. The record index exposes top-level
-/// string fields only, so this reader walks the page's frontmatter with the core JSON reader for
+/// Reads each use case's access grant from one record file. The record index exposes top-level
+/// string fields only, so this reader walks the file with the core YAML reader for
 /// the one nested field generation needs, and nothing else.
 /// </summary>
 /// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
 internal static class GrantReader
 {
     /// <summary>
-    /// Reads the use-case grants on one page: the page itself when it is a use case, then its
-    /// entries in order. A page with no frontmatter, or frontmatter that is no JSON object,
+    /// Reads the use-case grants in one record file: the page itself when it is a use case, then its
+    /// entries in order. A file that does not parse, or whose top level is no object,
     /// yields nothing. The first grant wins when two entries carry one identifier.
     /// </summary>
-    /// <param name="text">The page's text.</param>
+    /// <param name="text">The record file's text.</param>
     /// <returns>The grants in read order.</returns>
     public static IReadOnlyList<KeyValuePair<string, string>> Read(string text)
     {
         var found = new List<KeyValuePair<string, string>>();
-        var frontmatter = Frontmatter(text);
-
-        if (frontmatter is null)
-        {
-            return found;
-        }
 
         JsonText root;
 
         try
         {
-            root = JsonText.Parse(frontmatter);
+            root = YamlText.Parse(text);
         }
         catch (JsonTextException)
         {
@@ -99,36 +93,5 @@ internal static class GrantReader
         {
             found.Add(new KeyValuePair<string, string>(identifier, value));
         }
-    }
-
-    /// <summary>Returns the frontmatter block that opens the page text.</summary>
-    /// <param name="text">The source text the edit applies to.</param>
-    /// <returns>The frontmatter text, or null when the page opens with none.</returns>
-    private static string? Frontmatter(string text)
-    {
-        var lines = text.Split('\n');
-
-        if (lines.Length < 3 || lines[0].TrimEnd('\r') != "---")
-        {
-            return null;
-        }
-
-        var closing = -1;
-
-        for (var index = 1; index < lines.Length; index++)
-        {
-            if (lines[index].TrimEnd('\r') == "---")
-            {
-                closing = index;
-                break;
-            }
-        }
-
-        if (closing < 0)
-        {
-            return null;
-        }
-
-        return string.Join("\n", lines, 1, closing - 1);
     }
 }

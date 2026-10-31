@@ -30,9 +30,9 @@ LiteSpec borrows its words from established practices: each borrowed concept kee
 
 ## Behavior-Driven Development
 
-**Takes:** the scenario in given, when, then, written with the Gherkin grammar; examples tables that try one scenario against many rows; and the Example section narrative, drawn from Example Mapping and Specification by Example, that shows behavior inside a real occasion.
+**Takes:** the scenario in given, when, then, written with the Gherkin grammar; `examples` lists that try one scenario against many rows; and the Example section narrative, drawn from Example Mapping and Specification by Example, that shows behavior inside a real occasion.
 
-**Words:** scenario, with given, when, then and an optional examples table; example, the narrative section.
+**Words:** scenario, with given, when, then and an optional `examples` field; example, the narrative section in the explanation file.
 
 **Differs:** Scenarios are grouped under their result: each one names exactly one result, and each is proven by a passing test through the public boundary. A test's expected values come only from the scenario's then, never from running the code. The book shows Then clauses as context in journey detail, so product readers see the promised endings without opening Behavior.
 

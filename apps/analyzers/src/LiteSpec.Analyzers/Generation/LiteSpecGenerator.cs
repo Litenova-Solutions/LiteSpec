@@ -6,7 +6,7 @@ namespace LiteSpec.Analyzers.Generation;
 /// Writes the runtime values the records state into the consumer's code: the mark attributes
 /// for the attribute style, an event's Classification, a rule exception's Code, the assembly
 /// registry, one constant per permission, and one entry per role. The project file and the
-/// record pages arrive as additional files; with no project file, or settings that fail to
+/// record files arrive as additional files; with no project file, or settings that fail to
 /// parse, the generator stays silent, and in an opted-out project (layer <c>None</c>) it writes
 /// no source and reports no diagnostic. Every pipeline model holds strings and equatable arrays
 /// only, so an edit to an unrelated file reruns nothing the edit cannot change.

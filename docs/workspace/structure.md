@@ -41,7 +41,7 @@ The model builder writes the generated project model under `.model/` from record
   packages/
   docs/
     product/
-      brief.md
+      brief.yaml
       {area}/                  requirement pages carrying requirement entries
       constraints/             create with the first constraint record
       decisions/
@@ -54,25 +54,25 @@ The model builder writes the generated project model under `.model/` from record
       README.md
       actors/
       roles/
-      permissions.md
-      entry-points.md
+      permissions.yaml
+      entry-points.yaml
       systems/                 create with the first external system record
       modules/
         {module}/
           README.md
           {aggregate}/
             README.md
-            {use-case}.md
+            {use-case}.yaml
       rules/                   create with the first cross-aggregate rule set
     operations/                create with the first operating record
-      limits.md                create with the first limit record
+      limits.yaml              create with the first limit record
       secrets.json             create with the first secret
       log/                     create with the first operations entry
     runbooks/                  create with the first runbook
     governance/
       exceptions/              create with the first exception record
     ui/                        create with the first UI decision or guide, held in the pattern catalog and the design contract
-    glossary.json
+    glossary.yaml
   AGENTS.md
   <toolchain pin file>
   package.json                 when a frontend or TypeScript package exists

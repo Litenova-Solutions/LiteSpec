@@ -1,14 +1,12 @@
 ---
-{
-  "type": "reference",
-  "title": "<Reference Title>",
-  "owner": "<owner>",
-  "status": "draft",
-  "decider": "<owner>",
-  "decideBy": "<YYYY-MM-DD>"
-}
+type: reference
+title: Error Codes
+owner: claimwick-team
+status: draft
+decider: claimwick-team
+decideBy: 2026-12-15
 ---
-# <Reference Title>
+# Error Codes
 
 ## Intent
 

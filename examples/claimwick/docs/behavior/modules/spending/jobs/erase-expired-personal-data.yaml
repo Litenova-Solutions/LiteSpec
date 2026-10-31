@@ -1,0 +1,21 @@
+type: job
+id: job/spending.erase-expired-personal-data
+title: Erase Expired Personal Data
+owner: claimwick-team
+status: reviewed
+kind: scheduled
+schedule:
+  every: P1D
+  timezone: Europe/Amsterdam
+selection: Decided expenses past their retention.
+runbook: runbook/clear-stuck-reimbursements
+effects:
+  - runs: use-case/spending.erase-personal-data
+    timing: async
+fulfills:
+  - requirement/approval.erase-after-retention
+reads:
+  - aggregate/spending.expense
+approvedBy: claimwick-team
+approvedOn: 2026-10-31
+approvedHash: b41c15df

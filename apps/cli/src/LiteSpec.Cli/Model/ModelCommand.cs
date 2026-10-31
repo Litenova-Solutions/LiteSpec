@@ -14,6 +14,7 @@ static class ModelCommand
         Usage:
           litespec model build --root <consumer> [--out model.json]
           litespec model check --root <consumer> [--format json] [--staged] [--release] [--since <ref>] [--level <levels>]
+          litespec model format --root <consumer> [--check]
           litespec model render --root <consumer>
           litespec model query --root <consumer> <id>
           litespec model names [--root <consumer>] [--format text|json]
@@ -23,10 +24,10 @@ static class ModelCommand
           litespec model diff <base> --root <consumer> [--format text|markdown|json] [--intent|--behavior] [--fail-on breaking] [--breaking-only]
           litespec model --help
 
-        Exit codes: 0 no open blocking finding, 1 an open blocking finding, no record with the id, a refused batch, or a breaking intent change with --fail-on breaking, 2 usage error.
+        Exit codes: 0 no open blocking finding, 1 an open blocking finding, no record with the id, a refused batch, a breaking intent change with --fail-on breaking, or a file that would change with format --check, 2 usage error or a record file that does not parse.
         """;
 
-    /// <summary>Runs the model command: build, check, render, query, names, review, approve or diff.</summary>
+    /// <summary>Runs the model command: build, check, format, render, query, names, review, approve or diff.</summary>
     /// <param name="args">The command arguments, the subcommand first.</param>
     /// <returns>The exit code: 0 for success, 1 for a blocking finding or a missing record, 2 for a usage error.</returns>
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Run is the last-resort command handler: every failure becomes a Failed message with exit code 1, so no exception type is excluded.")]
@@ -46,6 +47,7 @@ static class ModelCommand
                 "diff" => ["--breaking-only", "--intent", "--behavior"],
                 "approve" => ["--all", "--dry-run"],
                 "check" => ["--staged", "--release"],
+                "format" => ["--check"],
                 _ => [],
             },
             command switch
@@ -305,6 +307,38 @@ static class ModelCommand
                     }
 
                     return shown.Any(entry => entry.Severity.Outcome == Outcome.Blocking) ? 1 : 0;
+                }
+
+                case "format":
+                {
+                    var check = parsed.Has("--check");
+                    var (changed, invalid) = RecordFormatter.Format(config, check);
+
+                    foreach (var file in invalid)
+                    {
+                        Console.Error.WriteLine($"{file}: does not parse.");
+                    }
+
+                    foreach (var file in changed)
+                    {
+                        Console.WriteLine(file);
+                    }
+
+                    if (check)
+                    {
+                        Console.WriteLine($"{changed.Count} files would change.");
+                    }
+                    else
+                    {
+                        Console.WriteLine($"{changed.Count} files rewritten.");
+                    }
+
+                    if (invalid.Count > 0)
+                    {
+                        return 2;
+                    }
+
+                    return check && changed.Count > 0 ? 1 : 0;
                 }
 
                 case "render":

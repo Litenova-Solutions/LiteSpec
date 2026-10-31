@@ -9,7 +9,7 @@ using Microsoft.CodeAnalysis;
 namespace LiteSpec.Analyzers.Generation;
 
 /// <summary>
-/// The record facts the generator reads from the project file and the record pages: the declared
+/// The record facts the generator reads from the project file and the record files: the declared
 /// mark style, the event identifiers, each rule's refusal code, each permission with its scope,
 /// group and risks, each role with its scope and allowed permissions, each use case's access
 /// grant, and the project's vocabulary additions. Statuses never gate generation: a mark to a
@@ -101,7 +101,7 @@ internal sealed class RecordModel : IEquatable<RecordModel>
 
     /// <summary>
     /// Reads the model from the additional files: the project file beside the consumer root, and
-    /// every Markdown page under the documentation roots it names. Files read in path order, and
+    /// every record file under the documentation roots it names. Files read in path order, and
     /// the first record wins when two carry one identifier, as the record index does.
     /// </summary>
     /// <param name="texts">Every additional file.</param>
@@ -141,7 +141,7 @@ internal sealed class RecordModel : IEquatable<RecordModel>
 
         foreach (var text in ordered)
         {
-            if (!text.Path.EndsWith(".md", StringComparison.OrdinalIgnoreCase))
+            if (!text.Path.EndsWith(".yaml", StringComparison.OrdinalIgnoreCase))
             {
                 continue;
             }
@@ -546,7 +546,7 @@ internal sealed class RecordModel : IEquatable<RecordModel>
 
     /// <summary>Returns the grants of the index.</summary>
     /// <param name="index">The record index that resolves identifiers to records.</param>
-    /// <param name="grants">The access grants read from the record pages, by use-case identifier.</param>
+    /// <param name="grants">The access grants read from the record files, by use-case identifier.</param>
     /// <returns>The grants of the index.</returns>
     private static ImmutableArray<UseCaseGrant> GrantsOf(
         RecordIndex index, Dictionary<string, string> grants)

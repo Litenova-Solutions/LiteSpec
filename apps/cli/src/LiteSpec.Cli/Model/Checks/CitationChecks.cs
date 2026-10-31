@@ -7,12 +7,12 @@ using static LiteSpec.Model.Checks.FindingHelpers;
 
 namespace LiteSpec.Model.Checks;
 
-/// <summary>The citation checks: every cited identifier resolves to a record or a shared provision, in record fields, page prose, and code and test comments.</summary>
+/// <summary>The citation checks: every cited identifier resolves to a record or a shared provision, in record fields, explanations and documents, and code and test comments.</summary>
 /// <follows>litespec/backend/identifiers#resolve-every-identifier-citation</follows>
 internal static class CitationChecks
 {
     /// <summary>Reports a citation resolving to no record.</summary>
-    /// <param name="model">The loaded project model that holds every record, page body and scanned comment.</param>
+    /// <param name="model">The loaded project model that holds every record, explanation, document and scanned comment.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void Run(ProjectModel model, List<Finding> findings)
     {
@@ -112,7 +112,7 @@ internal static class CitationChecks
     /// <summary>Reports each citation in one text that resolves to no record or shared provision.</summary>
     /// <param name="model">The loaded project model that resolves each cited identifier.</param>
     /// <param name="file">The file that holds the text, shown on each finding.</param>
-    /// <param name="text">The page body or comment text whose citations are checked.</param>
+    /// <param name="text">The explanation, document or comment text whose citations are checked.</param>
     /// <param name="startLine">The one-based line of the first line of the text in its file.</param>
     /// <param name="subject">The record the text belongs to, or null for code and test comments.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
@@ -135,8 +135,20 @@ internal static class CitationChecks
             }
         }
 
-        // A link target is a file path, so a path that starts with a record type's name, such as
-        // product/brief.md, is not a citation. Blanking the targets keeps every offset in place.
+        // A link target naming a record cites it, so each one is collected before
+        // every target is blanked. Any other target is a file path: a path that
+        // starts with a record type's name, such as product/brief.md, is not a
+        // citation. Blanking the targets keeps every offset in place.
+        foreach (Match match in LinkTarget.Matches(text))
+        {
+            var target = match.Value[2..^1].Trim('<', '>');
+
+            if (LinkChecks.IsRecordTarget(target))
+            {
+                cited.TryAdd(Identifiers.TrimCitation(Identifiers.BaseId(target)), startLine + LineOf(starts, match.Index) - 1);
+            }
+        }
+
         var prose = LinkTarget.Replace(text, match => "](" + new string(' ', match.Length - 3) + ")");
 
         Collect(Identifiers.Citation.Matches(prose), Identifiers.TrimCitation);

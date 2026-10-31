@@ -1,0 +1,33 @@
+type: external-system
+id: external-system/payout-bank
+title: Payout Bank
+owner: claimwick-team
+status: draft
+decider: claimwick-team
+decideBy: 2026-12-15
+summary: The payout bank moves approved reimbursements to employee accounts.
+actor: actor/employee
+sends:
+  - The payout amount and target account.
+receives:
+  - The payout reference.
+failure: Callers read cached answers while this system stays down.
+operations:
+  - name: payout
+    direction: out
+    timeout: PT30S
+    onTimeout: Callers see a timeout when the wait ends.
+    response: The payout reference.
+    cache: Payout references stay cached for one day.
+erasure:
+  mode: event
+  event: integration-event/payout
+acceptedBy: decision/0001-receipt-threshold
+terms:
+  - term/expense
+questions:
+  - question: Which approver covers expenses above the receipt threshold?
+    decider: claimwick-team
+    decideBy: 2026-11-30
+    ballot: approval
+    recommendation: The finance lead approves expenses above the threshold.

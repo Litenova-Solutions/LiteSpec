@@ -2,7 +2,7 @@
 
 ## Intent
 
-A LiteSpec project describes itself with records, written statements of fixed types joined by fixed links. This page states the four record layers, the record types with their identifiers and homes, the common fields, the links, the marks, the authority order, the authoring order, the statuses, the approval data, the risk tiers, the questions, the transcription mode, the model builder, the check levels, and the book and the diffs. People write and approve Intent, agents write Behavior from it, and the model builder computes how code and tests connect to the records. The [record language page](language.md) states the grammar of the names and values the records hold.
+A LiteSpec project describes itself with records, written statements of fixed types joined by fixed links. This page states the four record layers, the record types with their identifiers and homes, the record files, the explanation files, the documents, the common fields, the links, the marks, the authority order, the authoring order, the statuses, the approval data, the risk tiers, the questions, the transcription mode, the model builder, the check levels, and the book and the diffs. People write and approve Intent, agents write Behavior from it, and the model builder computes how code and tests connect to the records. The [record language page](language.md) states the grammar of the names and values the records hold.
 
 ## Concepts
 
@@ -61,7 +61,7 @@ Each type answers one question.
 
 The [intent page](intent.md) states the Intent records, the [behavior page](behavior.md) states the Behavior records, and the [access page](access.md) states the access records.
 
-Each record page uses the page style the [Authoring Standard](authoring.md) names for its type. A setting-set page holds many settings, and the retention-schedule page holds the retention rows at `docs/behavior/retention-schedule.md`. The retention schedule is a page style, not a record type.
+Each record file holds the fields the [Authoring Standard](authoring.md) names for its type. A setting-set page holds many settings, and the retention-schedule page holds the retention rows at `docs/behavior/retention-schedule.yaml`. The retention schedule is a container page style, not a record type.
 
 ### The Docs Layout
 
@@ -75,47 +75,79 @@ A consumer keeps its documentation in one folder per record layer, so the folder
 | `docs/proof/` | Proof | Evidence the tools compute or a run leaves behind: generated registers, gate files, and operating logs. No person writes a fact here that a tool can compute |
 | `docs/governance/` | Governance | Exceptions, which can attach to any record layer |
 
-The glossary (`docs/glossary.json`) and the example cast stay at the top of `docs/`, because every record layer uses them.
+A record lives in its record file, an explanation file may sit beside it, and a document holds no record. The file name joins a record file to its explanation file: `<name>.yaml` with `<name>.md` in the same folder.
+
+The glossary (`docs/glossary.yaml`) and the example cast stay at the top of `docs/`, because every record layer uses them.
 
 ### Pages and Entries
 
-A page record is a Markdown file whose opening block names a record type. An entry record is an object in the `records` array of that block. Terms are the exception: each term is an entry in the glossary. Each type has one home. The area in `docs/intent/<area>/<topic>.md` is a folder only, never a record.
+A page record is one record file `<name>.yaml` holding one YAML mapping: the page record with its entries in `records`. An entry record is an object in the `records` sequence of that mapping. Terms are the exception: each term is an entry in the glossary. Each type has one home. The area in `docs/intent/<area>/<topic>.yaml` is a folder only, never a record.
 
 | Type | Stored as | Home |
 |:---|:---|:---|
-| `product` | page, exactly one | `docs/intent/brief.md` |
-| `goal` | page | `docs/intent/goals/<name>.md` |
-| `problem` | page | `docs/intent/problems/<name>.md` |
-| `feature` | page | `docs/intent/features/<name>.md` |
-| `constraint` | page | `docs/intent/constraints/<name>.md` |
-| `research` | page | `docs/intent/research/<name>.md` |
-| `decision` | page | `docs/intent/decisions/<number>-<name>.md`; a technical decision `docs/implementation/decisions/<number>-<name>.md` |
-| `topic` | page | `docs/intent/<area>/<topic>.md` |
+| `product` | record file, exactly one | `docs/intent/brief.yaml` |
+| `goal` | record file | `docs/intent/goals/<name>.yaml` |
+| `problem` | record file | `docs/intent/problems/<name>.yaml` |
+| `feature` | record file | `docs/intent/features/<name>.yaml` |
+| `constraint` | record file | `docs/intent/constraints/<name>.yaml` |
+| `research` | record file | `docs/intent/research/<name>.yaml` |
+| `decision` | record file | `docs/intent/decisions/<number>-<name>.yaml`; a technical decision `docs/implementation/decisions/<number>-<name>.yaml` |
+| `topic` | record file | `docs/intent/<area>/<topic>.yaml` |
 | `requirement` | entry | On its topic page |
-| `journey` | page | `docs/intent/journeys/<name>.md` |
-| `actor` | page | `docs/intent/actors/<name>.md` |
-| `module` | page | `docs/behavior/modules/<module>/README.md` |
-| `aggregate` | page | `docs/behavior/modules/<module>/<aggregate>/README.md` |
+| `journey` | record file | `docs/intent/journeys/<name>.yaml` |
+| `actor` | record file | `docs/intent/actors/<name>.yaml` |
+| `module` | record file | `docs/behavior/modules/<module>/module.yaml` |
+| `aggregate` | record file | `docs/behavior/modules/<module>/<aggregate>/aggregate.yaml` |
 | `rule` | entry | On its aggregate page; a cross-aggregate rule on a rule page under `docs/behavior/rules/` |
-| `use-case` | page | Beside its aggregate: `docs/behavior/modules/<module>/<aggregate>/<use-case>.md`; a query describing no one aggregate under `reads/` beside its module |
+| `use-case` | record file | Beside its aggregate: `docs/behavior/modules/<module>/<aggregate>/<use-case>.yaml`; a query describing no one aggregate under `reads/` beside its module |
 | `result` | entry | In its use case page |
 | `scenario` | entry | In its use case page, or in its reaction or job page |
 | `event` | entry | On its aggregate page |
-| `integration-event` | page | `docs/behavior/integration-events/<name>.md` |
-| `reaction` | page | `docs/behavior/modules/<module>/reactions/<name>.md` |
-| `job` | page | `docs/behavior/modules/<module>/jobs/<name>.md` |
-| `notification` | page | `docs/behavior/modules/<module>/notifications/<name>.md` |
-| `setting` | entry | On a setting-set page: `docs/behavior/modules/<module>/settings.md`, or `docs/behavior/settings/<name>.md` for platform-wide settings |
-| `role` | page | `docs/behavior/access/roles/<name>.md` |
-| `permission` | entry | `docs/behavior/access/permissions.md` |
-| `entry-point` | entry | `docs/behavior/access/entry-points.md` |
-| `screen` | page | `docs/behavior/screens/<entry-point>.<name>.md` |
-| `external-system` | page | `docs/behavior/external-systems/<name>.md` |
-| `runbook` | page | `docs/behavior/runbooks/<name>.md` |
-| `exception` | page | `docs/governance/exceptions/<name>.md` |
-| `term` | entry in the glossary | `docs/glossary.json` |
+| `integration-event` | record file | `docs/behavior/integration-events/<name>.yaml` |
+| `reaction` | record file | `docs/behavior/modules/<module>/reactions/<name>.yaml` |
+| `job` | record file | `docs/behavior/modules/<module>/jobs/<name>.yaml` |
+| `notification` | record file | `docs/behavior/modules/<module>/notifications/<name>.yaml` |
+| `setting` | entry | On a setting-set page: `docs/behavior/modules/<module>/settings.yaml`, or `docs/behavior/settings/<name>.yaml` for platform-wide settings |
+| `role` | record file | `docs/behavior/access/roles/<name>.yaml` |
+| `permission` | entry | `docs/behavior/access/permissions.yaml` |
+| `entry-point` | entry | `docs/behavior/access/entry-points.yaml` |
+| `screen` | record file | `docs/behavior/screens/<entry-point>.<name>.yaml` |
+| `external-system` | record file | `docs/behavior/external-systems/<name>.yaml` |
+| `runbook` | record file | `docs/behavior/runbooks/<name>.yaml` |
+| `exception` | record file | `docs/governance/exceptions/<name>.yaml` |
+| `term` | entry in the glossary | `docs/glossary.yaml` |
+
+Container pages (`permission-list`, `entry-point-list`, `setting-set`, `rule-set`, `retention-schedule`) are record files: they hold entries.
 
 The decision type has two homes: a product decision lives under `docs/intent/decisions/`, and a technical decision lives under `docs/implementation/decisions/`.
+
+### Record Files
+
+A record file is one file `<name>.yaml` holding one YAML mapping: the page record, or a container page, with its entries in `records`. The mapping holds exactly the fields the record schema defines for its type. A record file holds no Markdown and no frontmatter fences. Every `.yaml` file under a record root is a record file, except the glossary file; a file that does not parse, or whose top level names no record type or container page style in `type`, is a `record-invalid` finding. `.yml` files are not read.
+
+### Explanation Files
+
+An explanation file is the optional `<name>.md` beside its record file, with the same name in the same folder. It is plain Markdown with no frontmatter. It opens with `# <record title>` and uses H2 sections. It explains the record for people and agents, and it states no field value a check reads. One explanation file serves one page; entries have no file of their own, and the page explanation cites them by identifier.
+
+### Documents
+
+A document is a `.md` file under a record root with no `.yaml` of the same name beside it. It is Markdown with an optional YAML frontmatter block between `---` lines, holding only a document page style in `type` and its common fields. The document page styles are `index`, `tutorial`, `how-to`, `reference`, `review-report`, `command`, `configuration`, `glossary`, and `example-cast`. A document holds no record type and no entries. A `.md` file with no frontmatter and no record file beside it is an orphaned explanation, except a file named `README.md`, which is a document.
+
+### The Split Rule
+
+Anything a check reads or a reviewer approves is a field in the record file. Anything that only helps someone understand goes in the explanation file. Example, Notes, Known Limits, Evidence, Context, Decision, Answer, Notes on Sources, the topic argument sections, and any project-specific section live in the explanation file under the same H2 heading.
+
+### Article Types
+
+The article types are `research`, `decision`, and `topic`. Their explanation file is required, and the approval hash covers the record file plus the explanation file. For every other type the hash covers the record file alone.
+
+### Canonical Form
+
+Every record file uses one canonical form: block mappings and sequences with two-space indentation, key order from the record schema, multi-line text in `|` block scalars, and quoting only where a scalar would resolve to a non-string. The [Authoring Standard](authoring.md) states the strict YAML subset. `litespec model format` rewrites every record file into canonical form, and a record file that differs from its canonical text is a `format-drift` finding.
+
+### Citations in Prose
+
+A Markdown link whose target is a record identifier cites that record, with an optional `#<step-id>` for a journey step. Link checks resolve the identifier against the model's identifiers, citation checks count it, and the book links it to the record. Prose cites a record by its identifier, never by its file path.
 
 ### Identifiers
 
@@ -161,7 +193,7 @@ A journey step id is `journey/<name>#<step-id>`, with step ids `s1`, `s2`, and s
 
 ### Common Fields
 
-Every written record carries the shared fields in this table. Entries inherit `owner` and `status` from their page unless they set their own. Field names follow `litespec/core/language#name-each-field-by-its-word-class`.
+Every written record carries the shared fields in this table, in its record file. Entries inherit `owner` and `status` from their page unless they set their own. Field names follow `litespec/core/language#name-each-field-by-its-word-class`.
 
 | Field | Written | Meaning |
 |:---|:---|:---|
@@ -177,7 +209,7 @@ Every written record carries the shared fields in this table. Entries inherit `o
 | `questions` | when open | Open questions, each with `question`, `decider`, `decideBy`, `ballot`, `recommendation`, and once answered `answer`, `answeredBy`, `answeredOn`; an open question blocks approval |
 | `approvedBy` | on approved and reviewed | The approver: a person owner name |
 | `approvedOn` | on approved and reviewed | The approval date in ISO form |
-| `approvedHash` | on approved and reviewed | The builder hash over the semantic fields |
+| `approvedHash` | on approved and reviewed | The approval hash over the record file and, for an article type, its explanation file |
 | `risk` | on requirements and Behavior records, when present | Any of `money`, `physical-access`, `personal-data`, `access` |
 | `provenance` | during adoption, when transcribed | `transcribed` for a Behavior record written from code |
 
@@ -351,7 +383,7 @@ The builder also writes each record effective status: draft when the record, a d
 
 ### Approval as Data
 
-An approved or reviewed record carries its approval as data: `approvedBy` names a person owner, `approvedOn` names the date, and `approvedHash` carries the approval hash over the semantic fields, written by `litespec model approve`. The semantic fields are the statements, results, output names, rules, and steps. Prose bodies and a term's translation labels sit outside the hash, so rewording prose or adding a language reopens no approval. `approval-reopened` fires when the approval hash differs from the recorded `approvedHash`. The exclusion set in the builder is the one definition of which fields stay outside the hash: every written frontmatter field feeds the hash except the fields the set names. [The approval hash guide](../guide/approval-hash.md) lists those fields.
+An approved or reviewed record carries its approval as data: `approvedBy` names a person owner, `approvedOn` names the date, and `approvedHash` carries the approval hash, written by `litespec model approve`. The hash is the first 8 lowercase hex characters of SHA-256 over the canonical JSON of the record fields minus the exclusion set; for a page of an article type with an explanation file, it also covers a separator plus the explanation text normalized to LF line ends with trailing whitespace dropped per line and blank lines trimmed at both ends. Every prose field in the record file joins the hash, so a moved promise reopens approval, while an explanation file joins the hash for an article type only, so fixing a typo in any other explanation reopens no approval. `approval-reopened` fires when the computed hash differs from the recorded `approvedHash`. The exclusion set in the builder is the one definition of which fields stay outside the hash: every written record field feeds the hash except the fields the set names. [The approval hash guide](../guide/approval-hash.md) lists those fields.
 
 ### Risk Tiers
 
@@ -371,9 +403,9 @@ Each project declares its size, its stacks, and its optional types in `litespec.
 
 ### The Model Builder
 
-The model builder reads records, code, routes, tests, and test runs into one model. It writes the model file, runs the model checks, and renders generated regions. The [model command page](../tools/model.md) lists the subcommands and finding codes.
+The model builder reads record files, explanation files, documents, code, routes, tests, and test runs into one model. It writes the model file, runs the model checks, and renders generated regions. The [model command page](../tools/model.md) lists the subcommands and finding codes.
 
-Generated regions sit inside fences that only the builder writes and prose checks skip. Each project runs the builder in its own gate, so handwritten prose and computed views stay in one page without mixing.
+Generated regions sit inside fences that only the builder writes and prose checks skip, in explanation files and documents. A region that renders facts about its record finds the record through the explanation file name. Each project runs the builder in its own gate, so handwritten prose and computed views stay in one file without mixing.
 
 A finding that an approved exception covers is reported as excepted and exits zero. A gap covers a finding when its `covers` lists the finding code; a departure covers the finding codes its provision's Checked by line names. The exception covers a finding only on its `subject` records or its `paths` files, and only while the exception is approved and its `expiresOn` date has not passed. An exception on a use case also covers the findings about the scenarios and results it holds. An exception past its `expiresOn` date is reported as `exception-expired`. Proof state lives in `docs/proof/proofs.json`, committed, holding for each scenario the hash of the scenario and of its test body at the last passing run; a proof is stale when either hash changes.
 
@@ -405,7 +437,7 @@ The [model command page](../tools/model.md) lists every finding code with its le
 
 The book and the diffs live in the Proof record layer. The book shows each journey as record detail: its `finishedWhen`, the steps with their `statement` and `failure`; the requirements it cites, with their statements and their `except` and fallback inline; for each step, the serving use case `goal` in one line; the Then clauses of its scenarios, as context; a consequences box, as context, naming new refusals in product words, data kept and for how long, and money effects; and the open questions.
 
-Field tables render as tables. Scenarios group under their result. Field names never render literally in journey detail.
+Field tables render as tables. Scenarios group under their result. Field names never render literally in journey detail. The book renders each record's explanation file under its fields, anchored at the record.
 
 `litespec model diff <base> --intent` shows Intent changes in product words. `--behavior` shows Behavior changes and the security queue. Without a flag, it shows both. The security queue lists tenant scope `cross` access, new `calls` effects, and new personal or sensitive data classes for the security reviewer where the project names one in `review.securityReviewer`. The book renders `model.json` only and judges nothing itself.
 
@@ -419,7 +451,7 @@ Field tables render as tables. Scenarios group under their result. Field names n
 
 **Rationale:** One home per type tells a reader where to open a record and tells the builder where to read it. A record kept anywhere else is invisible to the checks that scan its home, so it looks sound while nothing validates it.
 
-**Example:** A decision lives at `docs/intent/decisions/0001-receipt-threshold.md`.
+**Example:** A decision lives at `docs/intent/decisions/0001-receipt-threshold.yaml`.
 
 **Checked by:** `litespec model check` reports `record-invalid` for a record outside its home.
 
@@ -432,6 +464,66 @@ Field tables render as tables. Scenarios group under their result. Field names n
 **Rationale:** Type, identifier, title, owner, and status are the fields every join needs. Without them on every record, the builder cannot connect decisions to requirements, scenarios to results, or records to owners, and the model falls apart into loose pages.
 
 **Checked by:** `litespec model check` reports `record-invalid` for a record missing a common field.
+
+### Write Every Record in Its Record File
+
+**ID:** `litespec/core/model#write-every-record-in-its-record-file`
+
+**Statement:** Every record page MUST live in one record file holding one YAML mapping with its entries in `records`.
+
+**Rationale:** One file per page tells a reader where to open a record and tells the builder where to read it. The mapping holds exactly the fields the schema defines for its type, with entries in `records`, so every record has one shape and the checks read every record the same way. A record kept anywhere else is invisible to the checks that scan its home.
+
+**Example:** Claimwick keeps `use-case/spending.submit-expense` in `docs/behavior/modules/spending/expense/submit-expense.yaml`, with its results and scenarios in `records`.
+
+**Checked by:** `litespec model check` reports `record-invalid` for a record file that does not parse or whose top level names no record type or container page style.
+
+### Explain Each Record Beside Its Record File
+
+**ID:** `litespec/core/model#explain-each-record-beside-its-record-file`
+
+**Statement:** An explanation file MUST sit beside its record file with the same name and hold plain Markdown with no frontmatter.
+
+**Rationale:** The file name is the link: no field joins the two files, so a rename moves both and nothing else. Plain Markdown with no frontmatter keeps the explanation readable in any reader and tells every check to read fields from the record file only. The file opens with the record title and uses H2 sections, so each explanation has one shape.
+
+**Example:** `submit-expense.yaml` explains its Example and Notes in `submit-expense.md` beside it.
+
+**Checked by:** `litespec model check` reports `explanation-orphaned` for a Markdown file under a record root with no frontmatter and no record file beside it.
+
+### Split Record Fields from Explanation
+
+**ID:** `litespec/core/model#split-record-fields-from-explanation`
+
+**Statement:** A fact a check reads or a reviewer approves MUST live as a field in the record file rather than in the explanation file.
+
+**Rationale:** Fields are checked and hashed; explanation prose is neither, except for article types. A fact a check reads that sits in prose is invisible to the check, and a fact a reviewer approves that sits in prose can move without reopening approval. The page explanation cites entries by identifier, so entries need no file of their own.
+
+**Example:** The submit-expense purpose lives in the `purpose` field of `submit-expense.yaml`, while why the flow reads well lives under Notes in `submit-expense.md`.
+
+**Reviewed for:** Which explanation files state a fact a check reads or a reviewer approves? Look at each explanation file beside its record file.
+
+### Require an Explanation File for Article Types
+
+**ID:** `litespec/core/model#require-an-explanation-file-for-article-types`
+
+**Statement:** A research, decision, or topic page MUST carry its explanation file with the required H2 sections.
+
+**Rationale:** An article is read as prose: the Answer of a research, the Context of a decision, and the argument of a topic are what the reviewer approves, so the approval hash covers the record file plus the explanation file for these types only. The required sections keep each article complete: Answer for research, Context for decision, and The Situation, What We Do, Why It Is Better, Example, Costs and Risks, and How Sure We Are for topic.
+
+**Example:** `research/approval-time-benchmarks` carries its Answer in `approval-time-benchmarks.md`, and the approval hash covers both files.
+
+**Checked by:** `litespec model check` reports `explanation-missing` for an article type with no explanation file or with a required H2 section missing.
+
+### Write Every Record File in Canonical Form
+
+**ID:** `litespec/core/model#write-every-record-file-in-canonical-form`
+
+**Statement:** Every record file MUST match the canonical text the record writer produces for it.
+
+**Rationale:** One layout for every record keeps diffs small and reviews on content: a change shows the moved fact, never reflowed prose or reordered keys. The tool owns the layout, so `litespec model format` rewrites every record file into canonical form and the check reports any file that differs.
+
+**Example:** A use-case file opens with `type`, `id`, `title`, `owner`, and `status`, holds its own fields in schema order, and closes with `records` and the approval fields.
+
+**Checked by:** `litespec model check` reports `format-drift` for a record file whose text differs from its canonical form.
 
 ### Give Every Record One Parent
 
@@ -493,22 +585,20 @@ Field tables render as tables. Scenarios group under their result. Field names n
 
 **ID:** `litespec/core/model#record-approval-as-data`
 
-**Statement:** An approved or reviewed record MUST carry approvedBy, approvedOn, and approvedHash over its semantic fields.
+**Statement:** An approved or reviewed record MUST carry approvedBy, approvedOn, and approvedHash over its semantic fields and, for an article type, its explanation file.
 
-**Rationale:** Approval as data tells every reader who decided, when, and over which content. The hash covers statements, results, output names, rules, and steps, and never prose bodies, so a typo fix reopens no approval while a moved promise does. `approval-reopened` fires when the approval hash differs from the stored hash.
+**Rationale:** Approval as data tells every reader who decided, when, and over which content. The hash is the first 8 lowercase hex characters of SHA-256 over the canonical JSON of the record fields minus the exclusion set; for a page of an article type with an explanation file, it also covers a separator plus the normalized explanation text. Every prose field in the record file joins the hash, so a moved promise reopens approval, while an explanation file joins the hash for an article type only, so a typo fix elsewhere reopens no approval. `approval-reopened` fires when the computed hash differs from the stored hash.
 
 **Example:** An approved requirement carries its approver, its date, and its hash.
 
-```json
-{
-  "status": "approved",
-  "approvedBy": "ava-reyes",
-  "approvedOn": "2026-10-01",
-  "approvedHash": "9f2c41ab"
-}
+```yaml
+status: approved
+approvedBy: ava-reyes
+approvedOn: 2026-10-01
+approvedHash: 9f2c41ab
 ```
 
-**Checked by:** `litespec model check` reports `approval-reopened` for a record whose semantic fields changed after approval.
+**Checked by:** `litespec model check` reports `approval-reopened` for a record whose covered fields or article explanation changed after approval.
 
 ### Approve Tier 1 Records by a Person
 
@@ -588,24 +678,24 @@ Field tables render as tables. Scenarios group under their result. Field names n
 
 **Rationale:** Missing work with no owner and no date is invisible: nobody answers for it and nothing reports it. An exception of kind `gap` with an owner and an `expiresOn` date turns the same missing work into a visible promise: the findings its `covers` names report until the date, and `exception-expired` reports the exception after it. One person may approve it.
 
-**Example:** The running Claimwick example accepts that exporting expenses has no handler yet, so the gap lives as an exception with an owner and an expiry date in `docs/governance/exceptions/export-expenses-unimplemented.md`.
+**Example:** The running Claimwick example accepts that exporting expenses has no handler yet, so the gap lives as an exception with an owner and an expiry date in `docs/governance/exceptions/export-expenses-unimplemented.yaml`.
 
-```json
-{
-  "type": "exception",
-  "id": "exception/export-expenses-unimplemented",
-  "title": "Export expenses unimplemented",
-  "owner": "claimwick-team",
-  "status": "approved",
-  "approvedBy": "ava-reyes",
-  "approvedOn": "2026-10-01",
-  "approvedHash": "9f2c41ab",
-  "kind": "gap",
-  "covers": ["use-case-unimplemented"],
-  "subject": ["use-case/spending.export-expenses"],
-  "reason": "Export waits for the finance file format.",
-  "expiresOn": "2027-06-01"
-}
+```yaml
+type: exception
+id: exception/export-expenses-unimplemented
+title: Export expenses unimplemented
+owner: claimwick-team
+status: approved
+kind: gap
+covers:
+  - use-case-unimplemented
+subject:
+  - use-case/spending.export-expenses
+reason: Export waits for the finance file format.
+expiresOn: 2027-06-01
+approvedBy: ava-reyes
+approvedOn: 2026-10-01
+approvedHash: 9f2c41ab
 ```
 
 The `use-case-unimplemented` finding reports without failing until 2027-06-01, and the expenses team answers for closing the gap, which satisfies this provision.
@@ -620,24 +710,23 @@ The `use-case-unimplemented` finding reports without failing until 2027-06-01, a
 
 **Rationale:** A project requirement can never quietly override a shared standard; without this order it would, one page at a time. The conflict becomes an exception record instead: dated, reasoned, and reviewable. The order puts the project exception first, then the extension, then the deeper page, then the shallower page, so the most local approved decision wins.
 
-**Example:** The running Claimwick example runs its weekend export with no reviewer on shift, so it records a project exception that outranks the shared standard in `docs/governance/exceptions/export-review-bypass.md`.
+**Example:** The running Claimwick example runs its weekend export with no reviewer on shift, so it records a project exception that outranks the shared standard in `docs/governance/exceptions/export-review-bypass.yaml`.
 
-```json
-{
-  "type": "exception",
-  "id": "exception/export-review-bypass",
-  "title": "Export Review Bypass",
-  "owner": "claimwick-team",
-  "status": "approved",
-  "approvedBy": "ava-reyes",
-  "approvedOn": "2026-10-01",
-  "approvedHash": "9f2c41ab",
-  "kind": "departure",
-  "covers": "litespec/backend/application#enforce-target-authorization-in-the-pipeline",
-  "subject": ["use-case/spending.export-expenses"],
-  "reason": "The weekend export runs with no reviewer on shift.",
-  "expiresOn": "2027-01-01"
-}
+```yaml
+type: exception
+id: exception/export-review-bypass
+title: Export Review Bypass
+owner: claimwick-team
+status: approved
+kind: departure
+covers: litespec/backend/application#enforce-target-authorization-in-the-pipeline
+subject:
+  - use-case/spending.export-expenses
+reason: The weekend export runs with no reviewer on shift.
+expiresOn: 2027-01-01
+approvedBy: ava-reyes
+approvedOn: 2026-10-01
+approvedHash: 9f2c41ab
 ```
 
 The record names the provision it sets aside, the reason, and the expiry date, so the departure stays visible and dated, which satisfies this provision.
@@ -706,11 +795,13 @@ An exception that covers code no record describes names those files in `paths`, 
 
 **ID:** `litespec/core/model#resolve-every-page-link`
 
-**Statement:** Every Markdown link outside code on a page under the record roots MUST point at an existing file, by its relative path.
+**Statement:** Every Markdown link outside code in a record field, an explanation file, or a document MUST resolve to an existing file or to a written record identifier.
 
-**Rationale:** A link that points at a moved file or a bare identifier reads as navigation and leads nowhere. Requiring every link to name an existing file by its relative path keeps the documentation clickable at every commit. Identifiers are cited in backticks instead, so the two never confuse.
+**Rationale:** A link that points at a moved file or an unknown identifier reads as navigation and leads nowhere. A link whose target is a record identifier, with an optional `#<step-id>`, cites that record: link checks resolve it against the model's identifiers, citation checks count it, and the book links it to the record. Prose cites a record by its identifier, never by its file path.
 
-**Checked by:** `litespec model check` reports `link-unknown` for a page link naming no file.
+**Example:** The Claimwick receipt rule is cited as `[the receipt rule](rule/expense.approver-is-not-submitter)`.
+
+**Checked by:** `litespec model check` reports `link-unknown` for a link that resolves to no file and no written record identifier.
 
 ### Declare Size Stacks and Optional Types
 
@@ -736,37 +827,30 @@ An exception that covers code no record describes names those files in `paths`, 
 
 The running Claimwick example carries this in `use-case/spending.submit-expense`, which names `result/submit-expense.submitted` and `result/submit-expense.receipt-missing` with `scenario/submit-expense.submitting-with-a-receipt-succeeds`:
 
-```json
-"records": [
-  {
-    "type": "result",
-    "id": "result/submit-expense.submitted",
-    "title": "Submitted",
-    "owner": "claimwick-team",
-    "outcome": "success",
-    "meaning": "The expense is submitted."
-  },
-  {
-    "type": "result",
-    "id": "result/submit-expense.receipt-missing",
-    "title": "Receipt missing",
-    "owner": "claimwick-team",
-    "outcome": "refusal",
-    "code": "spending.receipt-missing",
-    "meaning": "The expense is above the receipt threshold and carries no receipt."
-  },
-  {
-    "type": "scenario",
-    "id": "scenario/submit-expense.submitting-with-a-receipt-succeeds",
-    "title": "Submitting with a receipt succeeds",
-    "owner": "claimwick-team",
-    "status": "approved",
-    "given": "An employee paid for a train ticket and kept the receipt.",
-    "when": "The employee submits the expense with the receipt.",
-    "then": "The expense is submitted.",
-    "result": "result/submit-expense.submitted"
-  }
-]
+```yaml
+records:
+  - type: result
+    id: result/submit-expense.submitted
+    title: Submitted
+    owner: claimwick-team
+    outcome: success
+    meaning: The expense is submitted.
+  - type: result
+    id: result/submit-expense.receipt-missing
+    title: Receipt missing
+    owner: claimwick-team
+    outcome: refusal
+    code: spending.receipt-missing
+    meaning: The expense is above the receipt threshold and carries no receipt.
+  - type: scenario
+    id: scenario/submit-expense.submitting-with-a-receipt-succeeds
+    title: Submitting with a receipt succeeds
+    owner: claimwick-team
+    status: approved
+    given: An employee paid for a train ticket and kept the receipt.
+    when: The employee submits the expense with the receipt.
+    then: The expense is submitted.
+    result: result/submit-expense.submitted
 ```
 
 Success names the submitted ending, the refusal carries the code `spending.receipt-missing`, and the scenario pairs one given and when with the success result, which satisfies this provision.
@@ -989,7 +1073,7 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 
 **Rationale:** The book is where a reader notices what to change, and the source is where the change is made. A link to the file and line makes the next step one click, and it shows that every entry comes from a written record or from code, not from the book. Settled by [decision/0008-book-follows-record-layers](../intent/decisions/0008-book-follows-record-layers.md) on the evidence in [research/book-outline-evidence](../intent/research/book-outline-evidence.md), [research/behavior-containment-evidence](../intent/research/behavior-containment-evidence.md), and [research/check-coverage-evidence](../intent/research/check-coverage-evidence.md).
 
-**Example:** The submit-expense use case page links to `docs/behavior/modules/spending/expenses/submit-expense.md` at its first line, and its handler to the handler file at the class.
+**Example:** The submit-expense use case page links to `docs/behavior/modules/spending/expenses/submit-expense.yaml` at its first line, and its handler to the handler file at the class.
 
 **Reviewed for:** Which book entries lack a link to their file and line? Look at the book's record, code, test and finding entries.
 

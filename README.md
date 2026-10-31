@@ -13,7 +13,7 @@ LiteSpec is for a team that builds one bounded-context business application with
 
 ## How It Works
 
-A project describes itself with records: written statements of fixed types, joined by fixed links. Records sit in four layers.
+A project describes itself with records: written statements of fixed types, joined by fixed links. Each record page is a YAML record file with an optional Markdown explanation file beside it. Records sit in four layers.
 
 | Layer | What It Holds |
 |:---|:---|
@@ -55,7 +55,7 @@ dotnet litespec consumer
 dotnet litespec model check
 ```
 
-`dotnet litespec consumer` validates the project file, the records, and the language of the pages. `dotnet litespec model check` builds the project model and reports each finding with its level, code, and location. See [Validate Consumer](docs/tools/consumer.md) and [Model Builder](docs/tools/model.md) for the exit codes and options.
+`dotnet litespec consumer` validates the project file, the record files, and the language of the explanation files and documents. `dotnet litespec model check` builds the project model and reports each finding with its level, code, and location. See [Validate Consumer](docs/tools/consumer.md) and [Model Builder](docs/tools/model.md) for the exit codes and options.
 
 ## Stacks Supported
 

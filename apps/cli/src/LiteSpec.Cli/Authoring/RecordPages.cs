@@ -3,15 +3,15 @@ using LiteSpec.Model;
 namespace LiteSpec.Authoring;
 
 /// <summary>
-///     Where a record page lives: the home folder of each page-owning record
-///     type, the entry types that live inside another page, and the shared
+///     Where a record file lives: the home folder of each page-owning record
+///     type, the entry types that live inside another file, and the shared
 ///     identifier checks of <c>litespec new</c> and <c>litespec rename</c>.
 /// </summary>
 /// <follows>litespec/core/authoring#scaffold-pages-and-reserve-identifiers</follows>
 /// <follows>litespec/core/authoring#rewrite-every-link-on-a-rename</follows>
 static class RecordPages
 {
-    /// <summary>Record types that own a page <c>litespec new</c> can scaffold.</summary>
+    /// <summary>Record types that own a file <c>litespec new</c> can scaffold.</summary>
     public static readonly HashSet<string> PageTypes = new(StringComparer.Ordinal)
     {
         "product", "goal", "problem", "feature", "topic", "constraint", "research",
@@ -20,18 +20,31 @@ static class RecordPages
         "runbook", "exception",
     };
 
+    /// <summary>Document styles <c>litespec new</c> scaffolds as a Markdown document.</summary>
+    public static readonly HashSet<string> DocumentStyles = new(StringComparer.Ordinal)
+    {
+        "index", "tutorial", "how-to", "reference", "review-report", "command",
+        "configuration", "glossary", "example-cast",
+    };
+
+    /// <summary>Container page styles: record files that hold entries without their own identifier.</summary>
+    public static readonly HashSet<string> ContainerStyles = new(StringComparer.Ordinal)
+    {
+        "permission-list", "entry-point-list", "setting-set", "rule-set", "retention-schedule",
+    };
+
     /// <summary>Where an entry type lives, for the refusal message.</summary>
     public static readonly Dictionary<string, string> EntryHomes = new(StringComparer.Ordinal)
     {
-        ["requirement"] = "a topic page under docs/intent/",
-        ["rule"] = "its aggregate page, or a rule page under docs/behavior/rules/ for a cross-aggregate rule",
-        ["result"] = "its use-case page",
-        ["scenario"] = "its use-case, reaction or job page",
-        ["event"] = "its aggregate page",
-        ["integration-event"] = "one page per event under docs/behavior/integration-events/",
-        ["setting"] = "its module page, or a setting-set page",
-        ["permission"] = "docs/behavior/access/permissions.md",
-        ["entry-point"] = "docs/behavior/access/entry-points.md",
+        ["requirement"] = "a topic file under docs/intent/",
+        ["rule"] = "its aggregate file, or a rule file under docs/behavior/rules/ for a cross-aggregate rule",
+        ["result"] = "its use-case file",
+        ["scenario"] = "its use-case, reaction or job file",
+        ["event"] = "its aggregate file",
+        ["integration-event"] = "one file per event under docs/behavior/integration-events/",
+        ["setting"] = "its module file, or a setting-set file",
+        ["permission"] = "docs/behavior/access/permissions.yaml",
+        ["entry-point"] = "docs/behavior/access/entry-points.yaml",
         ["term"] = "the glossary",
     };
 
@@ -42,29 +55,29 @@ static class RecordPages
         ".svelte-kit", "build", "dist", "coverage",
     };
 
-    /// <summary>The file kinds that cite record identifiers: pages, data, and the code that anchors to records.</summary>
+    /// <summary>The file kinds that cite record identifiers: files, data, and the code that anchors to records.</summary>
     private static readonly HashSet<string> CitingExtensions = new(StringComparer.OrdinalIgnoreCase)
     {
-        ".md", ".json", ".cs", ".ts", ".tsx", ".js", ".mjs", ".svelte", ".razor",
+        ".md", ".yaml", ".json", ".cs", ".ts", ".tsx", ".js", ".mjs", ".svelte", ".razor",
     };
 
-    /// <summary>The documentation root new pages are written under.</summary>
+    /// <summary>The documentation root new files are written under.</summary>
     /// <param name="config">The consumer configuration that holds the record roots.</param>
     /// <returns>The first configured record root, or the docs folder under the consumer root when none is configured.</returns>
     public static string DocsRoot(ConsumerConfig config) =>
         config.RecordRoots.Count > 0 ? config.RecordRoots[0] : Path.Combine(config.Root, "docs");
 
     /// <summary>
-    ///     The absolute path of the page a record owns. A use-case page starts
+    ///     The absolute path of the file a record owns. A use-case file starts
     ///     under <c>reads/</c> beside its module; the author moves the file beside
-    ///     its aggregate once the use case names one. A topic page starts
+    ///     its aggregate once the use case names one. A topic file starts
     ///     directly under <c>intent/</c>; the author moves it into its area folder.
     /// </summary>
     /// <param name="config">The consumer configuration that holds the documentation roots.</param>
-    /// <param name="type">The record type that owns the page.</param>
+    /// <param name="type">The record type that owns the file.</param>
     /// <param name="home">The identifier home segment, such as the module name, or null for a type without a home.</param>
     /// <param name="name">The identifier name segment, which becomes the file name for most types.</param>
-    /// <returns>The absolute path where a page of the type starts.</returns>
+    /// <returns>The absolute path where a file of the type starts.</returns>
     public static string PagePath(ConsumerConfig config, string type, string? home, string name)
     {
         var docs = DocsRoot(config);
@@ -72,46 +85,76 @@ static class RecordPages
 
         return type switch
         {
-            "product" => Path.Combine(docs, "intent", "brief.md"),
-            "goal" => Path.Combine(docs, "intent", "goals", $"{name}.md"),
-            "problem" => Path.Combine(docs, "intent", "problems", $"{name}.md"),
-            "feature" => Path.Combine(docs, "intent", "features", $"{name}.md"),
-            "topic" => Path.Combine(docs, "intent", $"{name}.md"),
-            "constraint" => Path.Combine(docs, "intent", "constraints", $"{name}.md"),
-            "research" => Path.Combine(docs, "intent", "research", $"{name}.md"),
-            "decision" => Path.Combine(docs, "intent", "decisions", $"{name}.md"),
-            "journey" => Path.Combine(docs, "intent", "journeys", $"{name}.md"),
-            "actor" => Path.Combine(docs, "intent", "actors", $"{name}.md"),
-            "module" => Path.Combine(behavior, "modules", name, "README.md"),
-            "aggregate" => Path.Combine(behavior, "modules", home!, name, "README.md"),
-            "use-case" => Path.Combine(behavior, "modules", home!, "reads", $"{name}.md"),
-            "reaction" => Path.Combine(behavior, "modules", home!, "reactions", $"{name}.md"),
-            "job" => Path.Combine(behavior, "modules", home!, "jobs", $"{name}.md"),
-            "notification" => Path.Combine(behavior, "modules", home!, "notifications", $"{name}.md"),
-            "role" => Path.Combine(behavior, "access", "roles", $"{name}.md"),
-            "integration-event" => Path.Combine(behavior, "integration-events", $"{name}.md"),
-            "screen" => Path.Combine(behavior, "screens", $"{home}.{name}.md"),
-            "external-system" => Path.Combine(behavior, "external-systems", $"{name}.md"),
-            "runbook" => Path.Combine(behavior, "runbooks", $"{name}.md"),
-            "exception" => Path.Combine(docs, "governance", "exceptions", $"{name}.md"),
+            "product" => Path.Combine(docs, "intent", "brief.yaml"),
+            "goal" => Path.Combine(docs, "intent", "goals", $"{name}.yaml"),
+            "problem" => Path.Combine(docs, "intent", "problems", $"{name}.yaml"),
+            "feature" => Path.Combine(docs, "intent", "features", $"{name}.yaml"),
+            "topic" => Path.Combine(docs, "intent", $"{name}.yaml"),
+            "constraint" => Path.Combine(docs, "intent", "constraints", $"{name}.yaml"),
+            "research" => Path.Combine(docs, "intent", "research", $"{name}.yaml"),
+            "decision" => Path.Combine(docs, "intent", "decisions", $"{name}.yaml"),
+            "journey" => Path.Combine(docs, "intent", "journeys", $"{name}.yaml"),
+            "actor" => Path.Combine(docs, "intent", "actors", $"{name}.yaml"),
+            "module" => Path.Combine(behavior, "modules", name, "module.yaml"),
+            "aggregate" => Path.Combine(behavior, "modules", home!, name, "aggregate.yaml"),
+            "use-case" => Path.Combine(behavior, "modules", home!, "reads", $"{name}.yaml"),
+            "reaction" => Path.Combine(behavior, "modules", home!, "reactions", $"{name}.yaml"),
+            "job" => Path.Combine(behavior, "modules", home!, "jobs", $"{name}.yaml"),
+            "notification" => Path.Combine(behavior, "modules", home!, "notifications", $"{name}.yaml"),
+            "role" => Path.Combine(behavior, "access", "roles", $"{name}.yaml"),
+            "integration-event" => Path.Combine(behavior, "integration-events", $"{name}.yaml"),
+            "screen" => Path.Combine(behavior, "screens", $"{home}.{name}.yaml"),
+            "external-system" => Path.Combine(behavior, "external-systems", $"{name}.yaml"),
+            "runbook" => Path.Combine(behavior, "runbooks", $"{name}.yaml"),
+            "exception" => Path.Combine(docs, "governance", "exceptions", $"{name}.yaml"),
 
-            _ => throw new ArgumentOutOfRangeException(nameof(type), $"Type '{type}' owns no page."),
+            _ => throw new ArgumentOutOfRangeException(nameof(type), $"Type '{type}' owns no file."),
         };
     }
 
     /// <summary>
-    ///     The file a renamed page moves to, or null when the page stays where it
-    ///     is. A page that already sits inside its home's module area keeps its
+    ///     The absolute path of the document a style owns. An index is the
+    ///     README.md of its section folder; every other document takes the name
+    ///     as its file stem under its home folder.
+    /// </summary>
+    /// <param name="config">The consumer configuration that holds the documentation roots.</param>
+    /// <param name="style">The document style that owns the document.</param>
+    /// <param name="name">The kebab-case name, which becomes the file stem or the section folder.</param>
+    /// <returns>The absolute path where a document of the style starts.</returns>
+    public static string DocumentPath(ConsumerConfig config, string style, string name)
+    {
+        var docs = DocsRoot(config);
+        var behavior = config.BehaviorDocs;
+
+        return style switch
+        {
+            "index" => Path.Combine(docs, name, "README.md"),
+            "tutorial" => Path.Combine(docs, "guide", $"{name}.md"),
+            "how-to" => Path.Combine(docs, "guide", $"{name}.md"),
+            "reference" => Path.Combine(docs, "reference", $"{name}.md"),
+            "review-report" => Path.Combine(docs, "proof", "reviews", $"{name}.md"),
+            "command" => Path.Combine(docs, "tools", $"{name}.md"),
+            "configuration" => Path.Combine(docs, "tools", $"{name}.md"),
+            "glossary" => Path.Combine(behavior, $"{name}.md"),
+            "example-cast" => Path.Combine(behavior, $"{name}.md"),
+
+            _ => throw new ArgumentOutOfRangeException(nameof(style), $"Style '{style}' owns no document."),
+        };
+    }
+
+    /// <summary>
+    ///     The file a renamed record moves to, or null when the file stays where
+    ///     it is. A file that already sits inside its home's module area keeps its
     ///     folder and takes the new file name, so a use case beside its aggregate
     ///     is not dragged back under <c>reads/</c> by its own rename.
     /// </summary>
     /// <param name="config">The consumer configuration that holds the documentation roots.</param>
-    /// <param name="type">The record type that owns the page.</param>
+    /// <param name="type">The record type that owns the file.</param>
     /// <param name="oldHome">The identifier home before the rename, or null for a type without a home.</param>
     /// <param name="newHome">The identifier home after the rename, or null for a type without a home.</param>
     /// <param name="newName">The identifier name after the rename.</param>
-    /// <param name="oldFile">The current absolute path of the page.</param>
-    /// <returns>The absolute path the page moves to, or null when the page stays at its current path.</returns>
+    /// <param name="oldFile">The current absolute path of the file.</param>
+    /// <returns>The absolute path the file moves to, or null when the file stays at its current path.</returns>
     public static string? RenameTarget(
         ConsumerConfig config, string type, string? oldHome, string? newHome, string newName, string oldFile)
     {
@@ -143,34 +186,34 @@ static class RecordPages
         return string.Equals(stayed, oldFile, StringComparison.Ordinal) ? null : stayed;
     }
 
-    /// <summary>Whether a decision page sits under the implementation decisions folder.</summary>
+    /// <summary>Whether a decision file sits under the implementation decisions folder.</summary>
     /// <param name="config">The consumer configuration that holds the documentation roots.</param>
-    /// <param name="file">The absolute path of the decision page.</param>
-    /// <returns>True when the page sits under the implementation decisions folder; otherwise false.</returns>
+    /// <param name="file">The absolute path of the decision file.</param>
+    /// <returns>True when the file sits under the implementation decisions folder; otherwise false.</returns>
     static bool IsTechnicalDecision(ConsumerConfig config, string file) =>
         file.StartsWith(Path.Combine(DocsRoot(config), "implementation", "decisions") + Path.DirectorySeparatorChar, StringComparison.Ordinal);
 
     /// <summary>
-    ///     The folder a renamed module or aggregate page moves to. The folder moves
+    ///     The folder a renamed module or aggregate file moves to. The folder moves
     ///     whole, so the use cases beside a renamed aggregate move with it.
     /// </summary>
     /// <param name="config">The consumer configuration that holds the documentation roots.</param>
     /// <param name="type">The record type that owns the folder, either module or aggregate.</param>
     /// <param name="newHome">The identifier home after the rename, or null for a type without a home.</param>
     /// <param name="newName">The identifier name after the rename.</param>
-    /// <returns>The absolute path of the folder the page moves to after the rename.</returns>
+    /// <returns>The absolute path of the folder the file moves to after the rename.</returns>
     public static string RenameFolderTarget(ConsumerConfig config, string type, string? newHome, string newName) =>
         Path.GetDirectoryName(PagePath(config, type, newHome, newName))!;
 
     /// <summary>
-    ///     Whether the renamed page keeps its folder: the home is unchanged and the
+    ///     Whether the renamed file keeps its folder: the home is unchanged and the
     ///     folder sits inside that home's module area.
     /// </summary>
     /// <param name="config">The consumer configuration that holds the documentation roots.</param>
-    /// <param name="type">The record type that owns the page.</param>
+    /// <param name="type">The record type that owns the file.</param>
     /// <param name="oldHome">The identifier home before the rename, or null for a type without a home.</param>
     /// <param name="newHome">The identifier home after the rename, or null for a type without a home.</param>
-    /// <param name="folder">The folder that currently holds the page.</param>
+    /// <param name="folder">The folder that currently holds the file.</param>
     /// <returns>True when the home is unchanged and the folder sits inside that home module area; otherwise false.</returns>
     static bool StaysInFolder(ConsumerConfig config, string type, string? oldHome, string? newHome, string folder)
     {
@@ -281,9 +324,9 @@ static class RecordPages
         char.IsAsciiLetterOrDigit(value) || value is '_' or '-' or '.';
 
     /// <summary>
-    ///     Every file a record identifier can be cited in under the root, in a stable order: Markdown,
-    ///     JSON, and the source and test files whose anchor and proof tags cite records. Build output,
-    ///     installed packages, and hidden folders are left out.
+    ///     Every file a record identifier can be cited in under the root, in a stable order: record files,
+    ///     explanation files, documents, data, and the source and test files whose anchor and proof tags cite
+    ///     records. Build output, installed packages, and hidden folders are left out.
     /// </summary>
     /// <param name="root">The absolute path of the folder to walk, typically the consumer root.</param>
     /// <returns>Every citing file under the root in ordinal path order, or an empty list when the root does not exist.</returns>

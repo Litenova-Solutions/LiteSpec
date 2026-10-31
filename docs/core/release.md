@@ -512,7 +512,7 @@ A consumer adopts one LiteSpec release by installing the `LiteSpec.Cli` tool pac
 
 **Rationale:** Specifications own behavior and scenarios. A release record that restates them becomes a second copy, and the copies drift until nobody knows which one holds. The record links outward instead.
 
-**Reviewed for:** Which release records restate a specification or copy a scenario? Look at the record body beside the linked specifications.
+**Reviewed for:** Which release records restate a specification or copy a scenario? Look at the record beside the linked specifications.
 
 ### Record Accepted Debt as an Exception
 

@@ -1,5 +1,3 @@
-using System.Text.Encodings.Web;
-using System.Text.Json;
 using System.Text.Json.Nodes;
 
 namespace LiteSpec.Model;
@@ -11,21 +9,11 @@ namespace LiteSpec.Model;
 /// <follows>litespec/core/model#record-approval-as-data</follows>
 static class Approver
 {
-    /// <summary>The JSON options approval writes use: indented, with relaxed escaping so names stay readable.</summary>
-    static readonly JsonSerializerOptions Write = new()
-    {
-        WriteIndented = true,
-        IndentSize = 2,
-        NewLine = "\n",
-        Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
-    };
-
     /// <summary>
-    ///     Computes the approval hash over the record's semantic frontmatter fields.
+    ///     Computes the approval hash over the record's semantic fields.
     ///     Every written field feeds the hash except the fields the exclusion set
     ///     <c>ApprovalExcluded</c> on <c>Checker</c> names, canonicalized and hashed
-    ///     to eight hex characters. Page prose bodies and rendered consequences
-    ///     summaries never feed the hash, so rewording prose reopens no approval.
+    ///     to eight hex characters.
     /// </summary>
     /// <param name="record">The record whose semantic fields are hashed.</param>
     /// <returns>The eight-hex-character hash of the record semantic fields.</returns>
@@ -77,8 +65,14 @@ static class Approver
         foreach (var group in targets.GroupBy(record => record.File, StringComparer.OrdinalIgnoreCase))
         {
             var text = File.ReadAllText(group.Key);
-            var json = group.Key.EndsWith(".json", StringComparison.OrdinalIgnoreCase);
-            var (head, node, tail) = json ? ("", JsonNode.Parse(text), "") : Frontmatter.SplitForWrite(text);
+
+            if (!RecordFile.TryParse(text, out _, out var tree, out _))
+            {
+                missing.AddRange(group.Select(record => record.Id));
+                continue;
+            }
+
+            var node = JsonNode.Parse(tree.ToJson());
 
             if (node is null)
             {
@@ -109,8 +103,7 @@ static class Approver
 
             KeepInheritedStatus(pageBefore, node as JsonObject, group.Select(record => record.Id).ToHashSet(StringComparer.Ordinal));
 
-            var serialized = node.ToJsonString(Write);
-            File.WriteAllText(group.Key, json ? serialized + "\n" : head + serialized + tail);
+            File.WriteAllText(group.Key, RecordFile.Write(node));
         }
 
         return (stamped, missing);
@@ -136,8 +129,13 @@ static class Approver
         foreach (var group in stamps.GroupBy(stamp => stamp.Record.File, StringComparer.OrdinalIgnoreCase))
         {
             var text = File.ReadAllText(group.Key);
-            var json = group.Key.EndsWith(".json", StringComparison.OrdinalIgnoreCase);
-            var (head, node, tail) = json ? ("", JsonNode.Parse(text), "") : Frontmatter.SplitForWrite(text);
+
+            if (!RecordFile.TryParse(text, out _, out var tree, out _))
+            {
+                continue;
+            }
+
+            var node = JsonNode.Parse(tree.ToJson());
 
             if (node is null)
             {
@@ -162,8 +160,7 @@ static class Approver
 
             KeepInheritedStatus(pageBefore, node as JsonObject, group.Select(stamp => stamp.Record.Id).ToHashSet(StringComparer.Ordinal));
 
-            var serialized = node.ToJsonString(Write);
-            File.WriteAllText(group.Key, json ? serialized + "\n" : head + serialized + tail);
+            File.WriteAllText(group.Key, RecordFile.Write(node));
         }
 
         return stamped;

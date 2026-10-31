@@ -164,7 +164,7 @@ Each page owns its tables and rules, and this page cites them without copying. A
 
 **Replacement:** A consumer names its own home for operating and security reference prose in its documentation.
 
-**Rationale:** One home for operating and security reference prose means an on-call reader looks in `docs/behavior/operations/` first and finds the runbooks, limits, and inventories there. Scattering that prose across product and domain pages buries it where an incident never looks. Enforceable security and privacy rules still belong to their owning use case sections and rules, since those are what the code and tests prove.
+**Rationale:** One home for operating and security reference prose means an on-call reader looks in `docs/behavior/operations/` first and finds the runbooks, limits, and inventories there. Scattering that prose across product and domain pages buries it where an incident never looks. Enforceable security and privacy rules still belong to their owning use case fields and rules, since those are what the code and tests prove.
 
 **Reviewed for:** Operating and security reference prose under `docs/behavior/operations/`, or the project documentation naming the replacement home.
 

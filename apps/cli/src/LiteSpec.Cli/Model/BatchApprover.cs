@@ -712,6 +712,8 @@ static class BatchApprover
                 Line = record.Line,
                 IsEntry = record.IsEntry,
                 PageId = record.PageId,
+                ExplanationFile = record.ExplanationFile,
+                Explanation = record.Explanation,
                 Raw = record.Raw,
             };
 

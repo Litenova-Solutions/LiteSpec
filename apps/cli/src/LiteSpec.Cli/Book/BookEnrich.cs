@@ -74,6 +74,8 @@ static class BookEnrich
             var body = BookBodyDetail.Render(index, record);
             detail["bodyHtml"] = body.Html;
             detail["sections"] = body.Sections;
+            detail["fieldsHtml"] = BookProseFields.Render(index, record);
+            BookRequiresDetail.Add(detail, index, id, type);
             order.Add(id);
             details[id] = detail;
         }

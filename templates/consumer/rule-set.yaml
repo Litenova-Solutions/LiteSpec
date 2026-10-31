@@ -1,0 +1,20 @@
+type: rule-set
+title: Spending Rules
+owner: claimwick-team
+status: draft
+decider: claimwick-team
+decideBy: 2026-12-15
+summary: These rules keep expense totals consistent across aggregates.
+records:
+  - type: rule
+    id: rule/spending.receipt-filed-once
+    title: Receipt Filed Once
+    kind: cross-aggregate
+    statement: Every receipt is filed exactly once across expenses.
+    governs:
+      - aggregate/spending.expense
+    refusal: result/submit-expense.receipt-missing
+    basedOn:
+      - research/approval-time-benchmarks
+    fulfills:
+      - requirement/approval.decided-within-five-days

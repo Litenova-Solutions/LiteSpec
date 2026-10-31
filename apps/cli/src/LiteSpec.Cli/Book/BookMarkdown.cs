@@ -5,9 +5,9 @@ using System.Text.RegularExpressions;
 namespace LiteSpec.Book;
 
 /// <summary>
-///     A small Markdown renderer for record bodies: headings, paragraphs, lists,
-///     tables, code blocks, quotes and inline spans. It escapes everything it does
-///     not generate, so a body can never inject markup.
+///     A small Markdown renderer for record explanations and prose fields: headings,
+///     paragraphs, lists, tables, code blocks, quotes and inline spans. It escapes
+///     everything it does not generate, so prose can never inject markup.
 /// </summary>
 /// <follows>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</follows>
 static class BookMarkdown
@@ -16,6 +16,8 @@ static class BookMarkdown
     static readonly Regex CodeSpan = new("`([^`\n]+)`", RegexOptions.Compiled);
     /// <summary>The pattern of one Markdown link with its label and destination.</summary>
     static readonly Regex MdLink = new(@"\[([^\]\n]+)\]\(([^)\s]+)\)", RegexOptions.Compiled);
+    /// <summary>The pattern of one reference link with its label and source key, citing a research source.</summary>
+    static readonly Regex RefLink = new(@"\[([^\]\n]+)\]\[([^\]\n]+)\]", RegexOptions.Compiled);
     /// <summary>The pattern of one bare HTTP or HTTPS address in running text.</summary>
     static readonly Regex RawUrl = new(@"(?<![""'=])\bhttps?://[^\s<]+", RegexOptions.Compiled);
     /// <summary>The pattern of one bold span delimited by double asterisks.</summary>
@@ -35,11 +37,12 @@ static class BookMarkdown
     /// <summary>The pattern of one table delimiter line that separates the header from the rows.</summary>
     static readonly Regex TableDelimiter = new(@"^\s*\|?\s*:?-{1,}:?\s*(\|\s*:?-{1,}:?\s*)*\|?\s*$", RegexOptions.Compiled);
 
-    /// <summary>Renders Markdown to HTML fragments. Record ids link through <paramref name="linkRecord"/>.</summary>
-    /// <param name="markdown">The Markdown text of one record body.</param>
+    /// <summary>Renders Markdown to HTML fragments. Record ids link through <paramref name="linkRecord"/> and source keys through <paramref name="linkSource"/>.</summary>
+    /// <param name="markdown">The Markdown text to render.</param>
     /// <param name="linkRecord">The resolver that maps a record identifier to its link target and title, or null to leave identifiers unlinked.</param>
+    /// <param name="linkSource">The resolver that maps a research source key to its URL, or null to leave reference links literal.</param>
     /// <returns>The rendered HTML fragment with trailing blank lines removed.</returns>
-    public static string Render(string markdown, Func<string, (string Href, string Title)?>? linkRecord = null)
+    public static string Render(string markdown, Func<string, (string Href, string Title)?>? linkRecord = null, Func<string, string?>? linkSource = null)
     {
         var lines = markdown.Replace("\r\n", "\n").Replace('\r', '\n').Split('\n');
         var html = new StringBuilder();
@@ -54,7 +57,7 @@ static class BookMarkdown
             }
 
             html.Append("<p>");
-            html.Append(Inline(string.Join(" ", paragraph), linkRecord));
+            html.Append(Inline(string.Join(" ", paragraph), linkRecord, linkSource));
             html.AppendLine("</p>");
             paragraph.Clear();
         }
@@ -101,7 +104,7 @@ static class BookMarkdown
                 var text = heading.Groups[2].Value.Trim();
                 var slug = Slug(text);
                 html.Append(CultureInfo.InvariantCulture, $"<h{level} id=\"body-{(slug.Length > 0 ? slug : "section")}\">");
-                html.Append(Inline(text, linkRecord));
+                html.Append(Inline(text, linkRecord, linkSource));
                 html.AppendLine(CultureInfo.InvariantCulture, $"</h{level}>");
                 index += 1;
                 continue;
@@ -126,7 +129,7 @@ static class BookMarkdown
                 }
 
                 html.Append("<blockquote><p>");
-                html.Append(Inline(string.Join(" ", quote.Where(part => part.Length > 0)), linkRecord));
+                html.Append(Inline(string.Join(" ", quote.Where(part => part.Length > 0)), linkRecord, linkSource));
                 html.AppendLine("</p></blockquote>");
                 continue;
             }
@@ -134,14 +137,14 @@ static class BookMarkdown
             if (line.Contains('|') && index + 1 < lines.Length && TableDelimiter.IsMatch(lines[index + 1]))
             {
                 Flush();
-                html.Append(RenderTable(lines, ref index, linkRecord));
+                html.Append(RenderTable(lines, ref index, linkRecord, linkSource));
                 continue;
             }
 
             if (ListItem.IsMatch(line))
             {
                 Flush();
-                html.Append(RenderList(lines, ref index, linkRecord));
+                html.Append(RenderList(lines, ref index, linkRecord, linkSource));
                 continue;
             }
 
@@ -157,8 +160,9 @@ static class BookMarkdown
     /// <param name="lines">The body lines that hold the table.</param>
     /// <param name="index">The current line index at the table header; on return, the index of the first line after the table.</param>
     /// <param name="linkRecord">The resolver that maps a record identifier to its link target and title, or null to leave identifiers unlinked.</param>
+    /// <param name="linkSource">The resolver that maps a research source key to its URL, or null to leave reference links literal.</param>
     /// <returns>The rendered table HTML.</returns>
-    static string RenderTable(string[] lines, ref int index, Func<string, (string Href, string Title)?>? linkRecord)
+    static string RenderTable(string[] lines, ref int index, Func<string, (string Href, string Title)?>? linkRecord, Func<string, string?>? linkSource)
     {
         var head = Cells(lines[index]);
         var aligns = Cells(lines[index + 1]).Select(cell =>
@@ -181,7 +185,7 @@ static class BookMarkdown
         for (var column = 0; column < head.Count; column++)
         {
             var align = column < aligns.Count && aligns[column].Length > 0 ? $" class=\"{aligns[column]}\"" : "";
-            html.Append(CultureInfo.InvariantCulture, $"<th{align}>{Inline(head[column], linkRecord)}</th>");
+            html.Append(CultureInfo.InvariantCulture, $"<th{align}>{Inline(head[column], linkRecord, linkSource)}</th>");
         }
 
         html.Append("</tr></thead><tbody>");
@@ -192,7 +196,7 @@ static class BookMarkdown
             {
                 var align = column < aligns.Count && aligns[column].Length > 0 ? $" class=\"{aligns[column]}\"" : "";
                 var cell = column < row.Count ? row[column] : "";
-                html.Append(CultureInfo.InvariantCulture, $"<td{align}>{Inline(cell, linkRecord)}</td>");
+                html.Append(CultureInfo.InvariantCulture, $"<td{align}>{Inline(cell, linkRecord, linkSource)}</td>");
             }
 
             html.Append("</tr>");
@@ -215,8 +219,9 @@ static class BookMarkdown
     /// <param name="lines">The body lines that hold the list.</param>
     /// <param name="index">The current line index at the first item; on return, the index of the first line after the list.</param>
     /// <param name="linkRecord">The resolver that maps a record identifier to its link target and title, or null to leave identifiers unlinked.</param>
+    /// <param name="linkSource">The resolver that maps a research source key to its URL, or null to leave reference links literal.</param>
     /// <returns>The rendered list HTML, ordered when the first item carries a number.</returns>
-    static string RenderList(string[] lines, ref int index, Func<string, (string Href, string Title)?>? linkRecord)
+    static string RenderList(string[] lines, ref int index, Func<string, (string Href, string Title)?>? linkRecord, Func<string, string?>? linkSource)
     {
         var ordered = char.IsDigit(lines[index].TrimStart()[0]);
         var items = new List<string>();
@@ -245,7 +250,7 @@ static class BookMarkdown
         html.Append(CultureInfo.InvariantCulture, $"<{tag} class=\"plain\">");
         foreach (var item in items)
         {
-            html.Append(CultureInfo.InvariantCulture, $"<li>{Inline(item, linkRecord)}</li>");
+            html.Append(CultureInfo.InvariantCulture, $"<li>{Inline(item, linkRecord, linkSource)}</li>");
         }
 
         html.AppendLine(CultureInfo.InvariantCulture, $"</{tag}>");
@@ -255,8 +260,9 @@ static class BookMarkdown
     /// <summary>Renders the inline spans of one text run to HTML, escaping the text and linking record identifiers.</summary>
     /// <param name="text">The raw text run to render.</param>
     /// <param name="linkRecord">The resolver that maps a record identifier to its link target and title, or null to leave identifiers unlinked.</param>
+    /// <param name="linkSource">The resolver that maps a research source key to its URL, or null to leave reference links literal.</param>
     /// <returns>The rendered HTML for the text run.</returns>
-    static string Inline(string text, Func<string, (string Href, string Title)?>? linkRecord)
+    static string Inline(string text, Func<string, (string Href, string Title)?>? linkRecord, Func<string, string?>? linkSource)
     {
         var escaped = BookRender.Esc(text);
         var codes = new List<string>();
@@ -271,9 +277,29 @@ static class BookMarkdown
         {
             var label = Parts(match.Groups[1].Value);
             var href = match.Groups[2].Value;
-            links.Add(BookRender.IsSafeHref(href) ? $"<a href=\"{href}\">{label}</a>" : label);
+            var recordHref = RecordHref(href, linkRecord);
+            if (recordHref is not null)
+            {
+                links.Add($"<a href=\"{recordHref}\">{label}</a>");
+            }
+            else
+            {
+                links.Add(BookRender.IsSafeHref(href) ? $"<a href=\"{href}\">{label}</a>" : label);
+            }
+
             return $"\u0000L{links.Count - 1}\u0000";
         });
+        if (linkSource is not null)
+        {
+            escaped = RefLink.Replace(escaped, match =>
+            {
+                var label = Parts(match.Groups[1].Value);
+                var url = linkSource(match.Groups[2].Value);
+                links.Add(url is not null && BookRender.IsSafeHref(url) ? $"<a href=\"{url}\">{label}</a>" : label);
+                return $"\u0000L{links.Count - 1}\u0000";
+            });
+        }
+
         escaped = RawUrl.Replace(escaped, match =>
         {
             var url = match.Value.TrimEnd('.', ',', ';', ':', '!', '?', ')');
@@ -311,6 +337,28 @@ static class BookMarkdown
         }
 
         return escaped;
+    }
+
+    /// <summary>One Markdown link target as a record hash link, or null when it names no record in the model.</summary>
+    /// <param name="href">The raw link target.</param>
+    /// <param name="linkRecord">The resolver that maps a record identifier to its link target and title, or null to leave identifiers unlinked.</param>
+    /// <returns>The hash link, or null when the target is no record identifier or names no record.</returns>
+    static string? RecordHref(string href, Func<string, (string Href, string Title)?>? linkRecord)
+    {
+        var id = linkRecord is null || href.Length == 0 ? null : RecordId.Match(href).Groups[1].Value;
+        if (id is null || id.Length != href.Length)
+        {
+            return null;
+        }
+
+        var target = linkRecord!(href);
+        if (target is null)
+        {
+            return null;
+        }
+
+
+        return BookRender.IsSafeHref(target.Value.Href) ? target.Value.Href : null;
     }
 
     /// <summary>Renders the bold and italic spans of one link label.</summary>

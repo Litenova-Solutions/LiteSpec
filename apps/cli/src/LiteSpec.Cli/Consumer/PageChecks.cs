@@ -1,4 +1,3 @@
-using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 using LiteSpec.Authoring;
@@ -8,39 +7,31 @@ using LiteSpec.Schemas;
 namespace LiteSpec.Consumer;
 
 /// <summary>
-///     The page scan of the consumer validator: collects the Markdown pages, validates each
-///     page's frontmatter against the record schema, and checks the required sections
-///     and the Example word bound.
+///     The page scan of the consumer validator: collects the record files and Markdown files,
+///     validates each record file and each document's frontmatter against the record schema,
+///     and checks the explanation and document sections, headings, and the Example word bound.
 /// </summary>
 /// <follows>litespec/core/authoring#declare-structured-specification-metadata</follows>
 /// <follows>litespec/core/authoring#use-the-declared-page-contract</follows>
 static class PageChecks
 {
-    // Each template in the 2.0 template table names the sections its reader expects
-    // to find. An absent section is a question the page never answered, which reads
-    // exactly like a question with no answer. Types with no entry carry their
-    // content in frontmatter or hold optional sections only, and keep free body prose.
-    // An aggregate carries its Transitions and Data in frontmatter with generated
-    // regions for reading, so it names no required section. A use case carries Goal
-    // and What Happens only when significant, which the section check below decides.
-    // An exception carries Consequences or Exit by its kind, decided below.
-    /// <summary>The H2 sections each page type requires.</summary>
-    static readonly Dictionary<string, string[]> RequiredSections = new(StringComparer.Ordinal)
+    // An explanation file carries the sections its record type requires: research answers
+    // its question, a decision states its context, and a topic argues its position. Every
+    // other type keeps free prose. Each field the schema requires left the body for the
+    // record file, so no other record type names a required section.
+    /// <summary>The H2 sections each article type's explanation file requires.</summary>
+    static readonly Dictionary<string, string[]> ExplanationSections = new(StringComparer.Ordinal)
     {
-        ["product"] = ["Summary"],
-        ["goal"] = ["Why It Matters"],
-        ["problem"] = ["Situation", "Evidence"],
-        ["feature"] = ["Offering"],
-        ["constraint"] = ["Summary", "What It Requires"],
         ["research"] = ["Answer"],
-        ["decision"] = ["Context", "Decision", "Consequences"],
-        ["topic"] = ["Summary", "The Situation", "What We Do", "Why It Is Better", "Example", "Costs and Risks", "How Sure We Are", "Position"],
-        ["journey"] = ["Example", "Between the Steps"],
-        ["rule-set"] = ["Summary"],
-        ["actor"] = ["Summary"],
-        ["role"] = ["Summary"],
-        ["external-system"] = ["Summary"],
-        ["runbook"] = ["Impact", "Prerequisites", "Procedure", "Verification", "Rollback or Recovery", "Escalation"],
+        ["decision"] = ["Context"],
+        ["topic"] = ["The Situation", "What We Do", "Why It Is Better", "Example", "Costs and Risks", "How Sure We Are"],
+    };
+
+    // A document keeps the sections its page style always required: a document never held
+    // a record, so nothing about it changed when records moved to files.
+    /// <summary>The H2 sections each document page style requires.</summary>
+    static readonly Dictionary<string, string[]> DocumentSections = new(StringComparer.Ordinal)
+    {
         ["example-cast"] = ["The Organization", "The People", "The Occasion", "The Amounts", "Recurring Situations"],
         ["tutorial"] = ["Purpose", "Prerequisites", "Lesson", "What You Built"],
         ["how-to"] = ["Purpose", "Procedure", "Check"],
@@ -50,18 +41,22 @@ static class PageChecks
         ["configuration"] = ["Intent", "Settings", "Precedence"],
     };
 
-    /// <summary>A record held in a fenced block rather than a frontmatter block.</summary>
-    static readonly Regex FencedBlock = new("```[a-z]*\\s*\\n\\s*\\{[\\s\\S]{0,400}?\"type\"\\s*:", RegexOptions.Compiled);
+    /// <summary>The page styles a document carries. Every other named type lives in a record file.</summary>
+    static readonly HashSet<string> DocumentStyles = new(
+        ["index", "tutorial", "how-to", "reference", "review-report", "command", "configuration", "glossary", "example-cast"],
+        StringComparer.Ordinal);
 
     /// <summary>An H2 heading line.</summary>
     static readonly Regex HeadingTwo = new("^##\\s", RegexOptions.Compiled);
 
     /// <summary>
-    ///     Collects the Markdown pages under the documentation root in ordinal name order.
+    ///     Collects the record files and Markdown files under the documentation root in ordinal
+    ///     name order, leaving the glossary file to the glossary check.
     /// </summary>
     /// <param name="run">The state of the run.</param>
     public static void CollectFiles(ConsumerRun run)
     {
+        var glossaryFile = run.GlossaryFile;
         Walk(run.DocsRoot);
 
         void Walk(string directory)
@@ -84,7 +79,7 @@ static class PageChecks
                 {
                     Walk(entry);
                 }
-                else if (name.EndsWith(".md", StringComparison.Ordinal) && File.Exists(entry))
+                else if (IsScanned(name) && File.Exists(entry) && !entry.Equals(glossaryFile, StringComparison.OrdinalIgnoreCase))
                 {
                     run.Files.Add(entry);
                 }
@@ -92,270 +87,275 @@ static class PageChecks
         }
     }
 
+    /// <summary>Whether the page scan reads the file: a record file or a Markdown file.</summary>
+    /// <param name="name">The file name.</param>
+    /// <returns>True for a record file or a Markdown file.</returns>
+    static bool IsScanned(string name) =>
+        name.EndsWith(RecordFile.Extension, StringComparison.Ordinal)
+        || name.EndsWith(RecordFile.ExplanationExtension, StringComparison.Ordinal);
+
     /// <summary>
-    ///     Validates each page's frontmatter, headings, and required sections. Pages
-    ///     are independent, so both phases run in parallel and merge in file order,
-    ///     keeping every finding exactly where the sequential scan reported it.
+    ///     Validates each record file and each Markdown file. Files are independent, so the
+    ///     scan runs in parallel and merges in file order, keeping every finding exactly
+    ///     where the sequential scan reported it.
     /// </summary>
     /// <param name="run">The state of the run.</param>
     public static void CheckPages(ConsumerRun run)
     {
         var exampleLimit = ExampleWordLimit(run);
         var count = run.Files.Count;
-        var relatives = new string[count];
-        var raws = new string[count];
-        var metas = new JsonNode?[count];
-        var firstErrors = new List<string>[count];
-        var secondErrors = new List<string>[count];
+        var errors = new List<string>[count];
         var isPage = new bool[count];
 
         for (var slot = 0; slot < count; slot++)
         {
-            firstErrors[slot] = [];
-            secondErrors[slot] = [];
-            relatives[slot] = "";
-            raws[slot] = "";
+            errors[slot] = [];
         }
 
-        var schemaWatch = System.Diagnostics.Stopwatch.StartNew();
-        var refusalHomes = new System.Collections.Concurrent.ConcurrentDictionary<string, byte>(StringComparer.Ordinal);
+        var watch = System.Diagnostics.Stopwatch.StartNew();
 
         Parallel.For(0, count, index =>
         {
             var file = run.Files[index];
             var relative = run.Relative(file);
-            relatives[index] = relative;
             var raw = run.ReadText(file);
-            raws[index] = raw;
-            var errors = firstErrors[index];
-            var meta = ParseBlock(raw, relative, errors.Add);
+            var add = errors[index].Add;
 
-            if (!JsonValues.IsTruthy(meta))
+            if (RecordFile.IsRecordFile(file))
             {
-                return;
+                isPage[index] = CheckRecordFile(run, file, relative, raw, add);
             }
-
-            isPage[index] = true;
-            metas[index] = meta;
-
-            foreach (var home in RefusalHomes(meta))
+            else
             {
-                refusalHomes.TryAdd(home, 0);
-            }
-
-            // Frontmatter is validated through the shared schema module against the
-            // record schema, so the schema is the one statement of every record shape.
-            foreach (var problem in JsonSchema.Problems(run.RecordSchemaFile, meta, relative, run.ReadSchema))
-            {
-                errors.Add(problem);
+                isPage[index] = CheckMarkdownFile(run, file, relative, raw, exampleLimit, add);
             }
         });
 
-        schemaWatch.Stop();
-        Timing.Report($"[time] consumer-pages-schema {schemaWatch.Elapsed.TotalSeconds:0.0}s");
-
-        var sectionsWatch = System.Diagnostics.Stopwatch.StartNew();
-
-        Parallel.For(0, count, index =>
-        {
-            if (!isPage[index])
-            {
-                return;
-            }
-
-            var relative = relatives[index];
-            var raw = raws[index];
-            var meta = metas[index];
-            var errors = secondErrors[index];
-
-            // The lines split once and the sections collect in one pass: each lookup
-            // below used to re-split the whole page for one section name.
-            var lines = SplitLines(raw);
-            HeadingChecks.CheckHeadings(relative, lines, errors.Add);
-
-            var type = JsonRead.PropString(meta as JsonObject, "type");
-            var required = type is not null && RequiredSections.TryGetValue(type, out var names) ? names : Array.Empty<string>();
-            var bodies = SectionBodies(lines, required.Append("Goal").Append("What Happens").Append("Example").Append("Consequences").Append("Exit"));
-
-            foreach (var name in required)
-            {
-                if (bodies[name] is null)
-                {
-                    errors.Add($"{relative}: type '{type}' requires an H2 '{name}'");
-                }
-            }
-
-            // An exception page carries the section of its kind: a departure states
-            // what is done instead in Consequences, a gap states its closing work in
-            // Exit. The template names both and keeps one.
-            if (type == "exception" && JsonRead.PropString(meta as JsonObject, "kind") is { } kind)
-            {
-                var want = kind == "departure" ? "Consequences" : kind == "gap" ? "Exit" : null;
-
-                if (want is not null && bodies[want] is null)
-                {
-                    errors.Add($"{relative}: type 'exception' requires an H2 '{want}'");
-                }
-            }
-
-            // Goal and What Happens agree with the model check: only a significant
-            // use case carries them, and a query states its goal and no behavior.
-            if (type == "use-case" && SignificantUseCase(meta as JsonObject, refusalHomes))
-            {
-                if (bodies["Goal"] is null)
-                {
-                    errors.Add($"{relative}: type 'use-case' requires an H2 'Goal'");
-                }
-
-                if (JsonRead.PropString(meta as JsonObject, "kind") != "query" && bodies["What Happens"] is null)
-                {
-                    errors.Add($"{relative}: type 'use-case' requires an H2 'What Happens'");
-                }
-            }
-
-            // The Example section stays a narrative, not a second specification: it
-            // illustrates the page within the word bound and carries no authority.
-            if (bodies["Example"] is string example)
-            {
-                var words = Prose.Words(example).Count;
-
-                if (words > exampleLimit)
-                {
-                    errors.Add($"{relative}: Example section has {words} words, over the {exampleLimit} word bound");
-                }
-            }
-        });
-
-        sectionsWatch.Stop();
-        Timing.Report($"[time] consumer-sections-headings {sectionsWatch.Elapsed.TotalSeconds:0.0}s");
+        watch.Stop();
+        Timing.Report($"[time] consumer-pages {watch.Elapsed.TotalSeconds:0.0}s");
 
         for (var index = 0; index < count; index++)
         {
-            foreach (var problem in firstErrors[index])
+            foreach (var problem in errors[index])
             {
                 run.Err(problem);
             }
 
-            if (!isPage[index])
+            if (isPage[index])
             {
-                continue;
-            }
-
-            run.Pages += 1;
-
-            foreach (var problem in secondErrors[index])
-            {
-                run.Err(problem);
+                run.Pages += 1;
             }
         }
     }
 
     /// <summary>
-    ///     Whether the use-case page needs Goal and What Happens prose, mirroring the
-    ///     model check: it changes more than one aggregate, refuses beyond the generic
-    ///     refusals, carries risk, or runs inline effects. A retired use case needs none.
+    ///     Validates one record file: it parses, its type names a record rather than a
+    ///     document, it satisfies the record schema, and an article type keeps its
+    ///     explanation file beside it.
     /// </summary>
-    /// <param name="meta">The page frontmatter.</param>
-    /// <param name="refusalHomes">The refusal-result homes every page names.</param>
-    /// <returns>True when the use case is significant.</returns>
-    static bool SignificantUseCase(JsonObject? meta, System.Collections.Concurrent.ConcurrentDictionary<string, byte> refusalHomes)
+    /// <param name="run">The state of the run.</param>
+    /// <param name="file">The record file.</param>
+    /// <param name="relative">The file path the findings name.</param>
+    /// <param name="raw">The file text.</param>
+    /// <param name="add">Collects one finding.</param>
+    /// <returns>True when the file parsed as a record.</returns>
+    static bool CheckRecordFile(ConsumerRun run, string file, string relative, string raw, Action<string> add)
     {
-        if (meta is null || JsonRead.PropString(meta, "status") == "retired")
+        if (!RecordFile.TryParse(raw, out _, out var tree, out var error))
         {
+            add($"{relative}: {error}");
             return false;
         }
 
-        if (IdCount(meta, "changes") > 1 || HasRisk(meta))
+        var meta = JsonNode.Parse(tree.ToJson());
+
+        // The record is validated through the shared schema module against the
+        // record schema, so the schema is the one statement of every record shape.
+        foreach (var problem in JsonSchema.Problems(run.RecordSchemaFile, meta, relative, run.ReadSchema))
         {
-            return true;
+            add(problem);
         }
 
-        if (meta.TryGetPropertyValue("effects", out var effects) && effects is JsonArray entries)
+        var type = JsonRead.PropString(meta as JsonObject, "type");
+
+        if (type is not null && DocumentStyles.Contains(type))
         {
-            foreach (var entry in entries)
+            add($"{relative}: type '{type}' names a document; documents live in '.md' files");
+        }
+
+        if (type is not null && RecordFile.ArticleTypes.Contains(type))
+        {
+            var explanation = RecordFile.ExplanationPathOf(file);
+
+            if (!File.Exists(explanation))
             {
-                if (entry is JsonObject edge
-                    && JsonRead.PropString(edge, "timing") is { } timing
-                    && timing.Equals("inline", StringComparison.OrdinalIgnoreCase))
-                {
-                    return true;
-                }
+                add($"{relative}: type '{type}' requires an explanation file '{Path.GetFileName(explanation)}' beside the record file");
             }
         }
 
-        return JsonRead.PropString(meta, "id") is { } id
-            && Identifiers.TrySplit(id, out _, out _, out var name)
-            && refusalHomes.ContainsKey(name);
+        return true;
     }
 
-    /// <summary>One id or id array as a count: a single id counts one.</summary>
-    /// <param name="meta">The page frontmatter.</param>
-    /// <param name="key">The property name.</param>
-    /// <returns>The count the property carries.</returns>
-    static int IdCount(JsonObject meta, string key)
+    /// <summary>
+    ///     Validates one Markdown file: an explanation file beside a record file carries no
+    ///     frontmatter, a document carries its page style in one, and anything else is an
+    ///     orphaned explanation. A README without either stays a document.
+    /// </summary>
+    /// <param name="run">The state of the run.</param>
+    /// <param name="file">The Markdown file.</param>
+    /// <param name="relative">The file path the findings name.</param>
+    /// <param name="raw">The file text.</param>
+    /// <param name="exampleLimit">The Example word bound.</param>
+    /// <param name="add">Collects one finding.</param>
+    /// <returns>True when the file is a document.</returns>
+    static bool CheckMarkdownFile(ConsumerRun run, string file, string relative, string raw, int exampleLimit, Action<string> add)
     {
-        if (!meta.TryGetPropertyValue(key, out var value))
-        {
-            return 0;
-        }
+        var recordPath = RecordFile.RecordPathOf(file);
 
-        if (value is JsonArray array)
-        {
-            return array.Count;
-        }
+        // The glossary file is data, not a record, so a Markdown file beside it is no
+        // explanation of it: the glossary document is a document like any other.
+        var hasRecord = File.Exists(recordPath) && !recordPath.Equals(run.GlossaryFile, StringComparison.OrdinalIgnoreCase);
+        var startsFence = StartsFence(raw);
 
-        return JsonRead.AsString(value) is { Length: > 0 } ? 1 : 0;
-    }
-
-    /// <summary>Whether the page carries any risk, which makes its record tier 1.</summary>
-    /// <param name="meta">The page frontmatter.</param>
-    /// <returns>True when the page carries any risk.</returns>
-    static bool HasRisk(JsonObject meta)
-    {
-        if (!meta.TryGetPropertyValue("risk", out var risk))
+        if (hasRecord && !startsFence)
         {
+            CheckExplanation(run, file, relative, raw, exampleLimit, add);
             return false;
         }
 
-        if (risk is JsonArray array)
+        if (hasRecord)
         {
-            return array.Count > 0;
+            add($"{relative}: explanation files carry no frontmatter block; the record lives in '{Path.GetFileName(recordPath)}'");
+            CheckExplanation(run, file, relative, raw, exampleLimit, add);
+            return false;
         }
 
-        return JsonRead.AsString(risk) is { Length: > 0 };
-    }
-
-    /// <summary>Every refusal-result home the page's records name, each a use-case own name.</summary>
-    /// <param name="meta">The page frontmatter.</param>
-    /// <returns>The refusal homes the page names.</returns>
-    static List<string> RefusalHomes(JsonNode? meta)
-    {
-        if (meta is not JsonObject page
-            || !page.TryGetPropertyValue("records", out var records)
-            || records is not JsonArray entries)
+        if (!startsFence)
         {
-            return [];
-        }
-
-        var homes = new List<string>();
-
-        foreach (var entry in entries)
-        {
-            if (entry is not JsonObject record
-                || JsonRead.PropString(record, "type") != "result"
-                || JsonRead.PropString(record, "outcome") != "refusal"
-                || JsonRead.PropString(record, "id") is not { } id
-                || !Identifiers.TrySplit(id, out _, out var home, out _)
-                || home is null)
+            if (Path.GetFileName(file) == "README.md")
             {
-                continue;
+                CheckDocumentBody(relative, raw, null, exampleLimit, add);
+                return true;
             }
 
-            homes.Add(home);
+            add($"{relative}: no frontmatter block and no '{Path.GetFileName(recordPath)}' beside it; every document opens with a '---' frontmatter block carrying its page style");
+            return false;
         }
 
-        return homes;
+        if (!Frontmatter.TryParse(raw, out var parsed, out var error))
+        {
+            add($"{relative}: {error}");
+            return false;
+        }
+
+        var meta = JsonNode.Parse(parsed.Root.GetRawText());
+
+        foreach (var problem in JsonSchema.Problems(run.RecordSchemaFile, meta, relative, run.ReadSchema))
+        {
+            add(problem);
+        }
+
+        var type = JsonRead.PropString(meta as JsonObject, "type");
+
+        if (type is not null && !DocumentStyles.Contains(type) && (RecordTypes.All.Contains(type) || RecordTypes.PageStyles.Contains(type)))
+        {
+            add($"{relative}: type '{type}' names a record; records live in '{Path.GetFileName(recordPath)}' record files");
+        }
+
+        CheckDocumentBody(relative, parsed.Body, type, exampleLimit, add);
+        return true;
     }
+
+    /// <summary>
+    ///     Checks one explanation file: its headings, the sections its record type requires,
+    ///     and the Example word bound.
+    /// </summary>
+    /// <param name="run">The state of the run.</param>
+    /// <param name="file">The explanation file.</param>
+    /// <param name="relative">The file path the findings name.</param>
+    /// <param name="raw">The file text.</param>
+    /// <param name="exampleLimit">The Example word bound.</param>
+    /// <param name="add">Collects one finding.</param>
+    static void CheckExplanation(ConsumerRun run, string file, string relative, string raw, int exampleLimit, Action<string> add)
+    {
+        // The paired record file names the explanation's required sections. The scan
+        // already reported a record file it cannot read, so this read stays quiet and
+        // checks the headings and the Example bound only.
+        string? type = null;
+
+        if (RecordFile.TryParse(run.ReadText(RecordFile.RecordPathOf(file)), out var root, out _, out _))
+        {
+            type = JsonRead.PropString(JsonNode.Parse(root.GetRawText()) as JsonObject, "type");
+        }
+
+        var lines = SplitLines(raw);
+        HeadingChecks.CheckHeadings(relative, lines, add);
+
+        string[] required = type is not null && ExplanationSections.TryGetValue(type, out var names) ? names : [];
+        CheckSections(relative, lines, type, required, exampleLimit, add);
+    }
+
+    /// <summary>
+    ///     Checks one document's body: its headings, the sections its page style requires,
+    ///     and the Example word bound.
+    /// </summary>
+    /// <param name="relative">The file path the findings name.</param>
+    /// <param name="body">The document text after its frontmatter.</param>
+    /// <param name="type">The document page style, or null when it names none.</param>
+    /// <param name="exampleLimit">The Example word bound.</param>
+    /// <param name="add">Collects one finding.</param>
+    static void CheckDocumentBody(string relative, string body, string? type, int exampleLimit, Action<string> add)
+    {
+        var lines = SplitLines(body);
+        HeadingChecks.CheckHeadings(relative, lines, add);
+
+        string[] required = type is not null && DocumentSections.TryGetValue(type, out var names) ? names : [];
+        CheckSections(relative, lines, type, required, exampleLimit, add);
+    }
+
+    /// <summary>
+    ///     Checks the required H2 sections and the Example word bound of one Markdown text.
+    /// </summary>
+    /// <param name="relative">The file path the findings name.</param>
+    /// <param name="lines">The text lines.</param>
+    /// <param name="type">The record type or page style, naming the required sections.</param>
+    /// <param name="required">The required H2 section names.</param>
+    /// <param name="exampleLimit">The Example word bound.</param>
+    /// <param name="add">Collects one finding.</param>
+    static void CheckSections(string relative, string[] lines, string? type, string[] required, int exampleLimit, Action<string> add)
+    {
+        var bodies = SectionBodies(lines, required.Append("Example"));
+
+        foreach (var name in required)
+        {
+            if (bodies[name] is null)
+            {
+                add($"{relative}: type '{type}' requires an H2 '{name}'");
+            }
+        }
+
+        // The Example section stays a narrative, not a second specification: it
+        // illustrates the page within the word bound and carries no authority.
+        if (bodies["Example"] is string example)
+        {
+            var words = Prose.Words(example).Count;
+
+            if (words > exampleLimit)
+            {
+                add($"{relative}: Example section has {words} words, over the {exampleLimit} word bound");
+            }
+        }
+    }
+
+    /// <summary>
+    ///     Whether the text opens with a frontmatter fence line: three dashes and nothing else.
+    /// </summary>
+    /// <param name="raw">The file text.</param>
+    /// <returns>True when the first line is the opening fence.</returns>
+    static bool StartsFence(string raw) =>
+        raw.StartsWith("---\n", StringComparison.Ordinal)
+        || raw.StartsWith("---\r\n", StringComparison.Ordinal)
+        || raw == "---";
 
     /// <summary>
     ///     Reads the Example word bound from the project record. Omitted, the recorded
@@ -379,53 +379,6 @@ static class PageChecks
         }
 
         return 120;
-    }
-
-    /// <summary>
-    ///     Reads the <c>---</c> delimited JSON frontmatter block. A file that carries a record in
-    ///     any other wrapper, or carries none at all, is reported rather than skipped,
-    ///     because a silently skipped page is an unvalidated page: the run passes while
-    ///     that page sits unchecked beside every page that was checked.
-    /// </summary>
-    /// <param name="raw">The page text.</param>
-    /// <param name="relative">The page path the findings name.</param>
-    /// <param name="add">Collects one finding.</param>
-    /// <returns>The parsed frontmatter, or null when it cannot be read.</returns>
-    public static JsonNode? ParseBlock(string raw, string relative, Action<string> add)
-    {
-        if (!raw.StartsWith("---", StringComparison.Ordinal))
-        {
-            var head = raw.Length > 2000 ? raw.Substring(0, 2000) : raw;
-
-            if (FencedBlock.IsMatch(head))
-            {
-                add($"{relative}: frontmatter block is not delimited by '---'");
-            }
-            else
-            {
-                add($"{relative}: no frontmatter block; every page opens with a '---' JSON block carrying its record type or page style");
-            }
-
-            return null;
-        }
-
-        var end = raw.IndexOf("\n---", 3, StringComparison.Ordinal);
-
-        if (end < 0)
-        {
-            add($"{relative}: unterminated frontmatter block");
-            return null;
-        }
-
-        try
-        {
-            return JsonNode.Parse(raw.Substring(3, end - 3).Trim());
-        }
-        catch (JsonException cause)
-        {
-            add($"{relative}: JSON parse error: {cause.Message}");
-            return null;
-        }
     }
 
     /// <summary>

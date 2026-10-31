@@ -1,14 +1,12 @@
 ---
-{
-  "type": "command",
-  "title": "<Command Title>",
-  "owner": "<owner>",
-  "status": "draft",
-  "decider": "<owner>",
-  "decideBy": "<YYYY-MM-DD>"
-}
+type: command
+title: Export Expenses
+owner: claimwick-team
+status: draft
+decider: claimwick-team
+decideBy: 2026-12-15
 ---
-# <Command Title>
+# Export Expenses
 
 ## Name
 

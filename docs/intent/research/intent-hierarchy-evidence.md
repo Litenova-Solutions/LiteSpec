@@ -1,35 +1,3 @@
----
-{
-  "type": "research",
-  "id": "research/intent-hierarchy-evidence",
-  "title": "Intent Hierarchy Evidence",
-  "owner": "LiteSpec maintainer",
-  "status": "draft",
-  "decider": "LiteSpec maintainer",
-  "decideBy": "2026-11-30",
-  "question": "Which Intent links does LiteSpec require and check, and what does the largest consumer show while they stay optional?",
-  "conclusion": "Above the requirements, LiteSpec's hierarchy is rationale prose rather than required or checked links, and in the largest consumer 719 of 928 requirements name no origin while every enforced Intent check passes.",
-  "sources": [
-    {
-      "path": "docs/core/intent.md",
-      "readOn": "2026-10-30"
-    },
-    {
-      "path": "docs/core/model.md",
-      "readOn": "2026-10-30"
-    },
-    {
-      "path": "docs/tools/model.md",
-      "readOn": "2026-10-30"
-    },
-    {
-      "path": "schemas/record.schema.json",
-      "readOn": "2026-10-30"
-    }
-  ]
-}
----
-
 # Intent Hierarchy Evidence
 
 ## Answer

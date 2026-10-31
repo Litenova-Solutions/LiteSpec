@@ -1,6 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
+using LiteSpec.Model;
 
 namespace LiteSpec.Consumer;
 
@@ -219,16 +220,26 @@ static class ManifestSelectionChecks
             return;
         }
 
-        // The page scan already reported every malformed block, so this pass reads
+        // The page scan already reported every malformed record file, so this pass reads
         // quietly and keeps the departure exceptions only.
         var deferrals = new List<(string Relative, string Id, string? Provision)>();
 
         foreach (var file in run.Files)
         {
-            var relative = run.Relative(file);
-            var meta = PageChecks.ParseBlock(run.ReadText(file), relative, _ => { });
+            if (!RecordFile.IsRecordFile(file))
+            {
+                continue;
+            }
 
-            if (meta is JsonObject page
+            var relative = run.Relative(file);
+            if (!RecordFile.TryParse(run.ReadText(file), out var root, out _, out _))
+            {
+                continue;
+            }
+
+            var page = JsonNode.Parse(root.GetRawText()) as JsonObject;
+
+            if (page is not null
                 && JsonRead.PropString(page, "type") == "exception"
                 && JsonRead.PropString(page, "kind") == "departure")
             {

@@ -141,10 +141,10 @@ Every rule is an error by default, so `dotnet build` already fails on a finding 
 
 ### 6. Record a Deliberate Departure
 
-When a finding is wrong for the project, record an exception of kind `departure` that covers the provision, with its reason, owner, and expiry date, as [the model page](../core/model.md) describes. Keep the record at `docs/governance/exceptions/<name>.md`, then suppress narrowly next to the code:
+When a finding is wrong for the project, record an exception of kind `departure` that covers the provision, with its reason, owner, and expiry date, as [the model page](../core/model.md) describes. Keep the record at `docs/governance/exceptions/<name>.yaml`, then suppress narrowly next to the code:
 
 ```csharp
-#pragma warning disable LS1011 // exception: docs/governance/exceptions/domain-docs-deferred.md
+#pragma warning disable LS1011 // exception: docs/governance/exceptions/domain-docs-deferred.yaml
 public string LegacyLabel { get; }
 #pragma warning restore LS1011
 ```

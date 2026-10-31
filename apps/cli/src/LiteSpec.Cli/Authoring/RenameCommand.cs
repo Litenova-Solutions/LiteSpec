@@ -1,25 +1,27 @@
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using LiteSpec.Model;
 
 namespace LiteSpec.Authoring;
 
 /// <summary>
 ///     The <c>litespec rename</c> command: renames one record identifier across
-///     the consumer repository, moving its page and rewriting every link.
+///     the consumer repository, moving its record file and explanation file and
+///     rewriting every citation.
 /// </summary>
 /// <follows>litespec/core/authoring#rewrite-every-link-on-a-rename</follows>
-static partial class RenameCommand
+static class RenameCommand
 {
     /// <summary>The command's usage text.</summary>
     public const string Usage = """
         Usage: litespec rename <old> <new> [--root <path>] [--help]
 
         Renames one record identifier across the consumer repository. It moves
-        the page to the path the new identifier owns, updates the opening
-        specification metadata block, and rewrites every citation of the old
+        the record file and its explanation file to the path the new identifier
+        owns, updates the record file, and rewrites every citation of the old
         identifier, so no link points at the old name after the rename. Both
         arguments are full record identifiers, such as use-case/lending.borrow-copy.
-        A use-case page that already sits beside its aggregate stays in its
+        A use-case file that already sits beside its aggregate stays in its
         folder and takes the new file name. The command refuses a new identifier
         a record already carries and an old identifier no record carries.
 
@@ -130,12 +132,8 @@ static partial class RenameCommand
 
         // The move runs before any content changes, so a blocked move leaves
         // the repository untouched.
-        Move? movedPage = null;
-
         if (!old.IsEntry && MovePage(config, oldType, oldHome, newHome, newName, old.File) is { } moved)
         {
-            movedPage = moved;
-
             if (!moved.Moved)
             {
                 Console.Error.WriteLine(moved.Error);
@@ -143,6 +141,11 @@ static partial class RenameCommand
             }
 
             Console.WriteLine($"Moved {config.Relative(moved.From)} -> {config.Relative(moved.To)}.");
+
+            if (moved.ExplanationFrom is not null && moved.ExplanationTo is not null)
+            {
+                Console.WriteLine($"Moved {config.Relative(moved.ExplanationFrom)} -> {config.Relative(moved.ExplanationTo)}.");
+            }
         }
 
         var files = 0;
@@ -166,9 +169,19 @@ static partial class RenameCommand
 
             var code = IsCodeFile(Path.GetExtension(file));
             int count;
-            var rewritten = code
-                ? ReplaceMarks(text, oldId, newId, Path.GetExtension(file), out count)
-                : RecordPages.ReplaceCitations(text, oldId, newId, out count);
+            string rewritten;
+
+            if (!code && IsRecordCandidate(config, file) && TryRewriteRecord(text, oldId, newId, out var recordText, out var recordCount))
+            {
+                rewritten = recordText;
+                count = recordCount;
+            }
+            else
+            {
+                rewritten = code
+                    ? ReplaceMarks(text, oldId, newId, Path.GetExtension(file), out count)
+                    : RecordPages.ReplaceCitations(text, oldId, newId, out count);
+            }
 
             if (count == 0)
             {
@@ -206,12 +219,6 @@ static partial class RenameCommand
             Console.WriteLine($"Rewrote {marks} marks in {markFiles} files.");
         }
 
-        if (movedPage is { Moved: true } page)
-        {
-            var links = RewriteLinks(root, page.From, page.To);
-            Console.WriteLine($"Rewrote {links} links to the moved page.");
-        }
-
         return 0;
     }
 
@@ -226,6 +233,137 @@ static partial class RenameCommand
         || extension.Equals(".js", StringComparison.OrdinalIgnoreCase)
         || extension.Equals(".mjs", StringComparison.OrdinalIgnoreCase)
         || extension.Equals(".svelte", StringComparison.OrdinalIgnoreCase);
+
+    /// <summary>
+    ///     Whether the file is a candidate for a parsed record rewrite: a record
+    ///     file under a record root. The glossary is rewritten as text instead,
+    ///     since it is not a record file.
+    /// </summary>
+    /// <param name="config">The consumer configuration that holds the record roots and the glossary path.</param>
+    /// <param name="file">The absolute path of the file.</param>
+    /// <returns>True when the file is a record file under a record root and not the glossary; otherwise false.</returns>
+    static bool IsRecordCandidate(ConsumerConfig config, string file)
+    {
+        if (!RecordFile.IsRecordFile(file))
+        {
+            return false;
+        }
+
+        var full = Path.GetFullPath(file);
+
+        if (config.GlossaryPath.Length > 0
+            && string.Equals(full, Path.GetFullPath(config.GlossaryPath), StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        return config.RecordRoots.Any(root => full.StartsWith(
+            root.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar) + Path.DirectorySeparatorChar,
+            StringComparison.OrdinalIgnoreCase));
+    }
+
+    /// <summary>
+    ///     Rewrites every citation of <paramref name="oldId"/> as
+    ///     <paramref name="newId"/> in the record file's parsed values and writes
+    ///     the file back in canonical form.
+    /// </summary>
+    /// <param name="text">The record file text to rewrite.</param>
+    /// <param name="oldId">The identifier to replace.</param>
+    /// <param name="newId">The identifier that replaces each standalone citation.</param>
+    /// <param name="rewritten">When the result is true, the rewritten file in canonical form.</param>
+    /// <param name="count">When the result is true, the number of citations rewritten.</param>
+    /// <returns>True when the text parses as a record file; otherwise false, and the caller rewrites it as text.</returns>
+    static bool TryRewriteRecord(string text, string oldId, string newId, out string rewritten, out int count)
+    {
+        rewritten = text;
+        count = 0;
+
+        if (!RecordFile.TryParse(text, out var root, out var tree, out _))
+        {
+            return false;
+        }
+
+        var type = root.ValueKind == JsonValueKind.Object
+            && root.TryGetProperty("type", out var style)
+            && style.ValueKind == JsonValueKind.String
+                ? style.GetString()
+                : null;
+
+        if (type is null || (!RecordTypes.All.Contains(type) && !RecordPages.ContainerStyles.Contains(type)))
+        {
+            return false;
+        }
+
+        if (JsonNode.Parse(tree.ToJson()) is not JsonObject node)
+        {
+            return false;
+        }
+
+        var total = 0;
+        RewriteValues(node, oldId, newId, ref total);
+
+        if (total == 0)
+        {
+            return true;
+        }
+
+        rewritten = RecordFile.Write(node);
+        count = total;
+
+        return true;
+    }
+
+    /// <summary>Rewrites the identifier inside every string value of the record, counting the rewrites.</summary>
+    /// <param name="node">The record node whose string values are rewritten in place, or null when the subtree holds no value.</param>
+    /// <param name="oldId">The identifier to replace inside each value.</param>
+    /// <param name="newId">The identifier that replaces the old one inside each value.</param>
+    /// <param name="count">The running rewrite count, increased by the citations rewritten in this subtree.</param>
+    static void RewriteValues(JsonNode? node, string oldId, string newId, ref int count)
+    {
+        switch (node)
+        {
+            case JsonObject record:
+                foreach (var key in record.Select(entry => entry.Key).ToList())
+                {
+                    if (record[key] is JsonValue value && value.TryGetValue<string>(out var current))
+                    {
+                        var replaced = RecordPages.ReplaceCitations(current, oldId, newId, out var found);
+
+                        if (found > 0)
+                        {
+                            record[key] = replaced;
+                            count += found;
+                        }
+                    }
+                    else
+                    {
+                        RewriteValues(record[key], oldId, newId, ref count);
+                    }
+                }
+
+                break;
+            case JsonArray items:
+                for (var index = 0; index < items.Count; index++)
+                {
+                    if (items[index] is JsonValue item && item.TryGetValue<string>(out var current))
+                    {
+                        var replaced = RecordPages.ReplaceCitations(current, oldId, newId, out var found);
+
+                        if (found > 0)
+                        {
+                            items[index] = replaced;
+                            count += found;
+                        }
+                    }
+                    else
+                    {
+                        RewriteValues(items[index], oldId, newId, ref count);
+                    }
+                }
+
+                break;
+        }
+    }
 
     /// <summary>
     ///     Rewrites the identifier inside marks only: doc tags and attributes in C#,
@@ -293,89 +431,6 @@ static partial class RenameCommand
     }
 
     /// <summary>
-    ///     Points every relative Markdown link at the page's new place: links from other pages to the
-    ///     moved file or folder, and the moved page's own links when it changed folder.
-    /// </summary>
-    /// <param name="root">The absolute path of the consumer root to scan for Markdown pages.</param>
-    /// <param name="from">The previous absolute path of the moved page or folder.</param>
-    /// <param name="to">The current absolute path of the moved page or folder.</param>
-    /// <returns>The number of relative Markdown links rewritten to point at the new place.</returns>
-    static int RewriteLinks(string root, string from, string to)
-    {
-        var fromFull = Path.GetFullPath(from);
-        var toFull = Path.GetFullPath(to);
-        var rewritten = 0;
-
-        foreach (var file in RecordPages.ProjectFiles(root).Where(path => path.EndsWith(".md", StringComparison.OrdinalIgnoreCase)))
-        {
-            var text = File.ReadAllText(file);
-            var here = Path.GetDirectoryName(Path.GetFullPath(file))!;
-            var movedHere = Under(Path.GetFullPath(file), toFull);
-
-            // A page that moved resolves its old links from where it used to sit.
-            var before = movedHere ? Path.GetDirectoryName(Remap(Path.GetFullPath(file), toFull, fromFull))! : here;
-            var count = 0;
-
-            var updated = MarkdownLink().Replace(text, match =>
-            {
-                var target = match.Groups["target"].Value;
-
-                if (target.Length == 0 || target.StartsWith('#') || target.Contains("://", StringComparison.Ordinal) || target.StartsWith("mailto:", StringComparison.Ordinal))
-                {
-                    return match.Value;
-                }
-
-                var resolved = Path.GetFullPath(Path.Combine(before, target.Replace('/', Path.DirectorySeparatorChar)));
-                var pointsAtMoved = Under(resolved, fromFull);
-
-                if (!pointsAtMoved && !movedHere)
-                {
-                    return match.Value;
-                }
-
-                var destination = pointsAtMoved ? Remap(resolved, fromFull, toFull) : resolved;
-                var relative = Path.GetRelativePath(here, destination).Replace(Path.DirectorySeparatorChar, '/');
-
-                if (relative == target)
-                {
-                    return match.Value;
-                }
-
-                count += 1;
-
-                return match.Value.Replace("(" + target, "(" + relative, StringComparison.Ordinal);
-            });
-
-            if (count > 0)
-            {
-                File.WriteAllText(file, updated);
-                rewritten += count;
-            }
-        }
-
-        return rewritten;
-    }
-
-    /// <summary>Whether the path is the root itself or sits inside it.</summary>
-    /// <param name="path">The absolute path to test.</param>
-    /// <param name="root">The absolute path of the folder that may hold the path.</param>
-    /// <returns>True when the path equals the root or sits inside it, ignoring casing; otherwise false.</returns>
-    static bool Under(string path, string root) =>
-        string.Equals(path, root, StringComparison.OrdinalIgnoreCase)
-        || path.StartsWith(root.TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase);
-
-    /// <summary>The path with its leading root swapped for another.</summary>
-    /// <param name="path">The absolute path whose leading root is swapped.</param>
-    /// <param name="root">The leading root to remove from the path.</param>
-    /// <param name="replacement">The root that takes the place of the removed root.</param>
-    /// <returns>The path with its leading root replaced by the replacement root.</returns>
-    static string Remap(string path, string root, string replacement) =>
-        replacement + path[root.Length..];
-
-    [System.Text.RegularExpressions.GeneratedRegex(@"\]\((?<target>[^)\s#?]*)(?<rest>[^)]*)\)")]
-    private static partial System.Text.RegularExpressions.Regex MarkdownLink();
-
-    /// <summary>
     ///     Splits a full record identifier into its type, home, and name, following
     ///     the record identifier grammar.
     /// </summary>
@@ -404,21 +459,22 @@ static partial class RenameCommand
         return true;
     }
 
-    /// <summary>The outcome of moving the renamed page: moved, stayed, or blocked.</summary>
-    sealed record Move(bool Moved, string From, string To, string Error);
+    /// <summary>The outcome of moving the renamed file: moved, stayed, or blocked.</summary>
+    sealed record Move(bool Moved, string From, string To, string Error, string? ExplanationFrom = null, string? ExplanationTo = null);
 
     /// <summary>
-    ///     Moves the renamed page to the path the new identifier owns. A module or
-    ///     an aggregate moves with its folder; any other page moves as one file.
-    ///     Returns null when the page stays where it is.
+    ///     Moves the renamed file to the path the new identifier owns, with its
+    ///     explanation file beside it. A module or an aggregate moves with its
+    ///     folder; any other file moves as one file with its explanation.
+    ///     Returns null when the file stays where it is.
     /// </summary>
     /// <param name="config">The consumer configuration that holds the documentation roots.</param>
-    /// <param name="type">The record type that owns the page.</param>
+    /// <param name="type">The record type that owns the file.</param>
     /// <param name="oldHome">The identifier home before the rename, or null for a type without a home.</param>
     /// <param name="newHome">The identifier home after the rename, or null for a type without a home.</param>
     /// <param name="newName">The identifier name after the rename.</param>
-    /// <param name="oldFile">The current absolute path of the page.</param>
-    /// <returns>The move outcome, or null when the page stays at its current path.</returns>
+    /// <param name="oldFile">The current absolute path of the file.</param>
+    /// <returns>The move outcome, or null when the file stays at its current path.</returns>
     static Move? MovePage(
         ConsumerConfig config, string type, string? oldHome, string? newHome, string newName, string oldFile)
     {
@@ -467,16 +523,34 @@ static partial class RenameCommand
             return new Move(false, oldFile, target, $"Cannot move '{oldFile}': '{target}' already exists.");
         }
 
+        var explanationFrom = RecordFile.ExplanationPathOf(oldFile);
+        var explanationTo = RecordFile.ExplanationPathOf(target);
+        var hasExplanation = !string.Equals(explanationFrom, oldFile, StringComparison.OrdinalIgnoreCase)
+            && File.Exists(explanationFrom);
+
+        if (hasExplanation && (File.Exists(explanationTo) || Directory.Exists(explanationTo)))
+        {
+            return new Move(false, oldFile, target, $"Cannot move '{explanationFrom}': '{explanationTo}' already exists.");
+        }
+
         try
         {
             Directory.CreateDirectory(Path.GetDirectoryName(target)!);
             File.Move(oldFile, target);
+
+            if (hasExplanation)
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(explanationTo)!);
+                File.Move(explanationFrom, explanationTo);
+            }
         }
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
         {
             return new Move(false, oldFile, target, $"Cannot move '{oldFile}': {exception.Message}");
         }
 
-        return new Move(true, oldFile, target, "");
+        return hasExplanation
+            ? new Move(true, oldFile, target, "", explanationFrom, explanationTo)
+            : new Move(true, oldFile, target, "");
     }
 }

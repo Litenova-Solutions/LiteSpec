@@ -177,7 +177,7 @@ A project whose owners list holds one name needs no second reviewer.
 | Field | Type | Required | Default |
 |:---|:---|:---|:---|
 | `docs` | string | no | none |
-| `glossary` | string | no | `docs/glossary.json` under the documentation root |
+| `glossary` | string | no | `docs/glossary.yaml` under the documentation root |
 | `glossaryScan` | array of string | no | none |
 | `unstructuredDocs` | array of string | no | none |
 | `behaviorDocs` | string | yes | none |
@@ -199,7 +199,7 @@ A project whose owners list holds one name needs no second reviewer.
 
 What each field means and what reads it:
 
-- `docs` is the root of the specification tree. Every Markdown file under it carries a metadata block unless its path is listed in `unstructuredDocs`. When `docs` is omitted, the tools use `docs`.
+- `docs` is the root of the specification tree. Every record file under it holds one record page, with an explanation file beside it where one exists, and every other Markdown file is a document, unless its path is listed in `unstructuredDocs`. When `docs` is omitted, the tools use `docs`.
 - `glossary` names the project glossary. `litespec consumer` validates it and scans the pages and every `glossaryScan` surface against its rejected words and mannered terms.
 - `glossaryScan` holds glob patterns that name the non-Markdown surfaces the vocabulary reaches: source, interface copy, the API contract, and acceptance tests. Each pattern matches repository-relative paths and matches at least one file, or `litespec consumer` reports that the check over that surface did not run.
 - `unstructuredDocs` lists the paths whose Markdown is navigation or prose rather than specification.

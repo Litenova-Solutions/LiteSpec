@@ -1,27 +1,3 @@
----
-{
-  "type": "research",
-  "id": "research/book-outline-evidence",
-  "title": "Book Outline Evidence",
-  "owner": "LiteSpec maintainer",
-  "status": "draft",
-  "decider": "LiteSpec maintainer",
-  "decideBy": "2026-11-30",
-  "question": "Where does the book outline place each record today, and where does that placement invent a parent LiteSpec never named?",
-  "conclusion": "The outline places Behavior correctly but invents Intent groupings from file paths and build order, splits the glossary by layer, and deletes the Implementation and Proof layers it builds, so the book teaches a second hierarchy beside the model's own.",
-  "sources": [
-    {
-      "path": "docs/core/model.md",
-      "readOn": "2026-10-30"
-    },
-    {
-      "path": "docs/tools/book.md",
-      "readOn": "2026-10-30"
-    }
-  ]
-}
----
-
 # Book Outline Evidence
 
 ## Answer

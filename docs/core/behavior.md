@@ -73,25 +73,25 @@ The specification names only what carries business meaning. Child entities and v
 
 **ID:** `litespec/core/behavior#illustrate-pages-with-examples-from-the-cast`
 
-**Default:** Each module, aggregate, and use-case page carries an Example section drawn from the example cast, removed where no walk adds to the records.
+**Default:** Each module, aggregate, and use-case explanation file carries an Example section drawn from the example cast, removed where no walk adds to the records.
 
-**Replacement:** A project names the pages that carry an Example section in its documentation.
+**Replacement:** A project names the records that carry an Example section in its documentation.
 
-**Rationale:** Every other section states a rule, a state, or a mapping; none says when the behavior happens or who is under pressure while it does. An occasion drawn from the one shared cast lets a reviewer judge whether the behavior fits the world it serves, and lets readers carry the same people and figures from page to page.
+**Rationale:** Every field states a rule, a state, or a mapping; none says when the behavior happens or who is under pressure while it does. An occasion drawn from the one shared cast lets a reviewer judge whether the behavior fits the world it serves, and lets readers carry the same people and figures from page to page.
 
-**Reviewed for:** Which module, aggregate, and use-case pages lack an Example section from the cast where a walk would add to the records, without a recorded project convention? Look at the Example sections beside the module, aggregate, and use-case pages.
+**Reviewed for:** Which module, aggregate, and use-case explanation files lack an Example section from the cast where a walk would add to the records, without a recorded project convention? Look at the Example sections beside the module, aggregate, and use-case record files.
 
 ### Group Cross-Aggregate Rules by Theme
 
 **ID:** `litespec/core/behavior#group-cross-aggregate-rules-by-theme`
 
-**Default:** Each rule page holds the cross-aggregate rules of one theme, named in its Summary.
+**Default:** Each rule-set record file holds the cross-aggregate rules of one theme, named in its `summary`.
 
 **Replacement:** A project names its rule-page grouping in its documentation.
 
-**Rationale:** Cross-aggregate rules share no aggregate to gather them, so an ungrouped rule page becomes a list of unrelated checks. One theme per page, stated in its Summary, keeps each page reviewable as one decision about what holds across the domain.
+**Rationale:** Cross-aggregate rules share no aggregate to gather them, so an ungrouped rule set becomes a list of unrelated checks. One theme per rule set, stated in its `summary`, keeps each rule set reviewable as one decision about what holds across the domain.
 
-**Reviewed for:** Which rule pages state no theme in Summary without a recorded project convention? Look at the Summary of each rule page.
+**Reviewed for:** Which rule sets state no theme in `summary` without a recorded project convention? Look at the `summary` of each rule-set record file.
 
 ## Reference Example
 

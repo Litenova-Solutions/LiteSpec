@@ -3,50 +3,79 @@ using System.Text.Json.Nodes;
 namespace LiteSpec.Book;
 
 /// <summary>
-///     The body detail of one record: its body rendered to HTML with hash record
-///     links, split by section.
+///     The explanation detail of one record: its explanation file rendered to HTML
+///     with hash record links, split by section.
 /// </summary>
 /// <follows>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</follows>
 static class BookBodyDetail
 {
-    /// <summary>Renders one record body to HTML with hash record links, split by section.</summary>
+    /// <summary>Renders one record explanation to HTML with hash record links, split by section.</summary>
     /// <param name="index">The model index.</param>
     /// <param name="record">The record.</param>
-    /// <returns>The body HTML and its sections.</returns>
+    /// <returns>The explanation HTML and its sections.</returns>
     public static (string Html, JsonObject Sections) Render(BookIndex index, JsonObject record)
     {
-        var body = BookRender.StrProp(record, "body") ?? "";
-        (string Href, string Title)? LinkRecord(string target)
-        {
-            var targetBase = BookDetailValues.BaseId(target);
-            if (!index.ById.TryGetValue(targetBase, out var found))
-            {
-                return null;
-            }
+        var explanation = WithoutTitle(BookRender.StrProp(record, "explanation") ?? "");
+        (string Href, string Title)? LinkRecord(string target) => BookDetailValues.RecordLink(index, target);
+        Func<string, string?>? linkSource = string.Equals(BookRender.StrProp(record, "type"), "research", StringComparison.Ordinal)
+            ? key => SourceUrl(record, key)
+            : null;
 
-            return ("#" + target, BookRender.StrProp(found, "title") ?? targetBase);
-        }
+        string HtmlOf(string text) => BookMarkdown.Render(text, LinkRecord, linkSource);
 
-        var split = SplitSections(body);
+        var split = SplitSections(explanation);
         var items = new JsonArray();
         foreach (var section in split.Items)
         {
             items.Add(new JsonObject
             {
                 ["h"] = section.Heading,
-                ["html"] = BookMarkdown.Render(section.Body, LinkRecord),
+                ["html"] = HtmlOf(section.Body),
             });
         }
 
-        return (BookMarkdown.Render(body, LinkRecord), new JsonObject
+        return (HtmlOf(explanation), new JsonObject
         {
-            ["intro"] = BookMarkdown.Render(split.Intro, LinkRecord),
+            ["intro"] = HtmlOf(split.Intro),
             ["list"] = items,
         });
     }
 
-    /// <summary>Splits one body on its level-two headings into an intro and sections.</summary>
-    /// <param name="body">The record body.</param>
+    /// <summary>Drops the leading title line of one explanation file, leaving the sections.</summary>
+    /// <param name="explanation">The explanation file text.</param>
+    /// <returns>The explanation without its leading title line.</returns>
+    internal static string WithoutTitle(string explanation)
+    {
+        var normalized = explanation.Replace("\r\n", "\n").Replace('\r', '\n');
+        if (!normalized.StartsWith("# ", StringComparison.Ordinal))
+        {
+            return explanation;
+        }
+
+        var newline = normalized.IndexOf('\n');
+        return newline < 0 ? "" : normalized[(newline + 1)..];
+    }
+
+    /// <summary>One research source key as its URL, or null when the record names no URL source under the key.</summary>
+    /// <param name="record">The record.</param>
+    /// <param name="key">The source key.</param>
+    /// <returns>The source URL, or null.</returns>
+    static string? SourceUrl(JsonObject record, string key)
+    {
+        foreach (var source in BookRender.Fields(record)?["sources"] as JsonArray ?? [])
+        {
+            if (source is JsonObject entry
+                && string.Equals(BookRender.StrProp(entry, "key"), key, StringComparison.Ordinal))
+            {
+                return BookRender.StrProp(entry, "url");
+            }
+        }
+
+        return null;
+    }
+
+    /// <summary>Splits one explanation on its level-two headings into an intro and sections.</summary>
+    /// <param name="body">The explanation text without its title line.</param>
     /// <returns>The intro and the sections.</returns>
     public static (string Intro, List<(string Heading, string Body)> Items) SplitSections(string body)
     {

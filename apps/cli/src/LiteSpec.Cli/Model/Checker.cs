@@ -31,7 +31,7 @@ static class Checker
         "aggregate-unimplemented", "reaction-unimplemented", "job-unimplemented",
         "external-system-unimplemented", "use-case-endpoint-missing", "effect-unimplemented", "use-case-unreached",
         "state-unreached", "transition-unknown",
-        "erasure-undeclared", "calculation-table-missing", "table-drift",
+        "erasure-undeclared", "calculation-table-missing",
         "reaction-trigger-unknown", "requirement-measure-missing",
         "record-link-missing", "record-parent-missing", "feature-goal-missing", "result-scenario-missing", "step-use-case-missing", "effect-loop-invalid", "consistency-cites-missing",
         "query-output-missing", "paging-undeclared", "widening-cites-missing",
@@ -46,6 +46,8 @@ static class Checker
         "name-reason-missing", "collaborator-repository-invalid", "repository-read-invalid",
         "query-filter-invalid", "dependency-count-invalid", "effect-timing-invalid",
         "prose-missing", "atomic-group-duplicate", "question-expired",
+        "explanation-orphaned", "explanation-missing", "format-drift",
+        "source-link-bare", "source-key-unknown", "source-unused",
     };
 
     /// <summary>Fields the semantic hash skips: identity, workflow and approval data.</summary>
@@ -62,13 +64,29 @@ static class Checker
     };
 
     /// <summary>
-    ///     The semantic hash over the record fields: every written field except identity,
+    ///     The semantic hash over the record: every written field except identity,
     ///     workflow and approval data, canonicalized and hashed to eight hex characters.
-    ///     Prose bodies sit outside the hash, so rewording prose reopens no approval.
+    ///     A page of an article type also hashes its explanation file, so rewording the
+    ///     article reopens its approval; every other explanation stays outside the hash.
     /// </summary>
-    /// <param name="record">The record whose written fields are hashed.</param>
+    /// <param name="record">The record whose written fields and article explanation are hashed.</param>
     /// <returns>The eight-hex-character semantic hash of the record.</returns>
-    public static string SemanticHash(Record record) => SemanticHash(record.Raw);
+    public static string SemanticHash(Record record)
+    {
+        var built = new StringBuilder();
+
+        CanonicalJson.WriteTopLevel(record.Raw, built, ApprovalExcluded);
+
+        if (!record.IsEntry && RecordFile.ArticleTypes.Contains(record.Type) && record.Explanation is not null)
+        {
+            built.Append("\n\0explanation\n");
+            built.Append(RecordFile.NormalizeExplanation(record.Explanation));
+        }
+
+        var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(built.ToString()));
+
+        return Convert.ToHexString(bytes)[..8].ToLowerInvariant();
+    }
 
     /// <summary>The semantic hash over written record fields, as <see cref="SemanticHash(Record)" /> computes it.</summary>
     /// <param name="raw">The written record fields as JSON, before exclusions are applied.</param>
@@ -111,6 +129,9 @@ static class Checker
         Time("constraint-cited", () => FulfilmentChecks.RunConstraintCited(model, findings));
         Time("parent-reopened", () => ParentChecks.RunParentChanged(model, findings));
         Time("links", () => LinkChecks.Run(model, findings));
+        Time("explanations", () => ExplanationChecks.Run(model, findings));
+        Time("sources", () => ResearchSourceChecks.Run(model, findings));
+        Time("format", () => FormatChecks.Run(model, findings));
         Time("profile", () => SizeTypeChecks.Run(model, findings));
         Time("reach", () => ReachChecks.RunReach(model, findings));
         Time("behavior", () => ReachChecks.RunBehavior(model, findings));
@@ -127,7 +148,6 @@ static class Checker
         Time("acceptance", () => GraphChecks.RunRiskAcceptance(model, findings));
         Time("exemption", () => GraphChecks.RunExemption(model, findings));
         Time("calculations", () => CalculationChecks.Run(model, findings));
-        Time("tables", () => GraphChecks.RunTableDrift(model, findings));
         Time("reactions", () => GraphChecks.RunReactionTrigger(model, findings));
         Time("measured", () => MeasuredChecks.Run(model, findings));
         Time("questions", () => QuestionChecks.Run(model, findings));

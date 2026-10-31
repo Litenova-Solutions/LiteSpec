@@ -1,14 +1,12 @@
 ---
-{
-  "type": "how-to",
-  "title": "<How-to Title>",
-  "owner": "<owner>",
-  "status": "draft",
-  "decider": "<owner>",
-  "decideBy": "<YYYY-MM-DD>"
-}
+type: how-to
+title: Remind an Approver
+owner: claimwick-team
+status: draft
+decider: claimwick-team
+decideBy: 2026-12-15
 ---
-# <How-to Title>
+# Remind an Approver
 
 ## Purpose
 

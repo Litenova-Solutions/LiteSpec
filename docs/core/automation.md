@@ -8,7 +8,7 @@ Automation states the work that runs without a request: the reactions answering 
 
 ### Reactions
 
-A reaction is work that runs when a domain or integration event arrives. It carries the identifier `reaction/<module>.<name>` and lives at `docs/behavior/modules/<module>/reactions/<name>.md`, filed with the module whose records it changes, or with the module owning the notification it sends when it only sends. A reaction changes nothing directly; a reaction needing a change runs a small command. A reaction is named `<verb>-<what>-on-<fact>`, as the [record language page](language.md) states.
+A reaction is work that runs when a domain or integration event arrives. It carries the identifier `reaction/<module>.<name>` and lives at `docs/behavior/modules/<module>/reactions/<name>.yaml`, filed with the module whose records it changes, or with the module owning the notification it sends when it only sends. A reaction changes nothing directly; a reaction needing a change runs a small command. A reaction is named `<verb>-<what>-on-<fact>`, as the [record language page](language.md) states. It carries `purpose` and `whatHappens`, and Example and Notes live in the explanation file beside the record file.
 
 | Field | Meaning |
 |:---|:---|
@@ -23,7 +23,7 @@ A reaction may hold scenario child records ending in a result of a use case its 
 
 ### Jobs
 
-A job is work that runs on a schedule, once, or by hand. It carries the identifier `job/<module>.<name>` and lives at `docs/behavior/modules/<module>/jobs/<name>.md`, filed with the module whose records it changes, or with the module owning the notification it sends when it only sends. A job changes nothing directly; a job needing a change runs a small command. A job is named `<verb>-<what>` with the verb of the use case it runs, as the [record language page](language.md) states.
+A job is work that runs on a schedule, once, or by hand. It carries the identifier `job/<module>.<name>` and lives at `docs/behavior/modules/<module>/jobs/<name>.yaml`, filed with the module whose records it changes, or with the module owning the notification it sends when it only sends. A job changes nothing directly; a job needing a change runs a small command. A job is named `<verb>-<what>` with the verb of the use case it runs, as the [record language page](language.md) states. It carries `purpose` and `whatHappens`, and Example and Notes live in the explanation file beside the record file.
 
 | Field | Meaning |
 |:---|:---|
@@ -39,7 +39,7 @@ A job may hold scenario child records ending in a result of a use case its effec
 
 ### Runbook
 
-A runbook is the steps to run or recover the product. It carries the identifier `runbook/<name>` and lives at `docs/behavior/runbooks/<name>.md`, named verb-first for what the reader does, as the [record language page](language.md) states. Its `trigger` names when to open it. A job names its runbook in `runbook`, a saga driven by a person names its runbook in `drivenBy`, and any record or effect names its recovery in `onFailure.runbook`. Its sections are Impact, Prerequisites, Procedure, Verification, Rollback or Recovery, and Escalation.
+A runbook is the steps to run or recover the product. It carries the identifier `runbook/<name>` and lives at `docs/behavior/runbooks/<name>.yaml`, named verb-first for what the reader does, as the [record language page](language.md) states. Its `trigger` names when to open it. A job names its runbook in `runbook`, a saga driven by a person names its runbook in `drivenBy`, and any record or effect names its recovery in `onFailure.runbook`. Its fields are `impact`, `prerequisites`, `procedure`, `verification`, `recovery`, and `escalation`.
 
 ## Standards
 
@@ -169,13 +169,13 @@ A runbook is the steps to run or recover the product. It carries the identifier 
 
 **ID:** `litespec/core/automation#write-every-runbook-to-run-or-recover`
 
-**Statement:** Each runbook MUST state its impact, prerequisites, procedure, verification, rollback or recovery, and escalation.
+**Statement:** Each runbook MUST state its `impact`, `prerequisites`, `procedure`, `verification`, `recovery`, and `escalation`.
 
-**Rationale:** A runbook named by a job, a saga, a failure policy, or an alert is the answer a person opens under pressure: impact says what breaks, prerequisites say what to hold, procedure says each step, verification says how to confirm, rollback or recovery says how to undo, and escalation says who to call. A runbook missing one leaves the reader guessing at the worst moment.
+**Rationale:** A runbook named by a job, a saga, a failure policy, or an alert is the answer a person opens under pressure: `impact` says what breaks, `prerequisites` say what to hold, `procedure` says each step, `verification` says how to confirm, `recovery` says how to undo, and `escalation` says who to call. A runbook missing one leaves the reader guessing at the worst moment.
 
-**Example:** The clear-stuck-reimbursements runbook states its impact on waiting expenses, its prerequisites, its procedure, its verification query, its rollback, and its escalation to the spending owner.
+**Example:** The clear-stuck-reimbursements runbook states its impact on waiting expenses, its prerequisites, its procedure, its verification query, its recovery, and its escalation to the spending owner.
 
-**Checked by:** `litespec consumer` fails a runbook page without Impact, Prerequisites, Procedure, Verification, Rollback or Recovery, or Escalation.
+**Checked by:** `litespec consumer` fails a runbook page without `impact`, `prerequisites`, `procedure`, `verification`, `recovery`, or `escalation`.
 
 ## Conventions
 

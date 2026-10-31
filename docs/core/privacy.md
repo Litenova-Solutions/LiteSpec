@@ -8,7 +8,7 @@ Privacy and Retention states how the product handles personal data: the data cla
 
 ### Retention Schedule
 
-The retention schedule is one page listing every data class with its purpose, basis, period, enforcement, and the requirement behind personal or sensitive keeping. It states the time limits of a record of processing; the deleting job and the evidence are LiteSpec extensions to that record. The project's counsel confirms the wording. Processors and conflicts sit on the row: where the data forwards, and which demand wins when keeping for audit and erasing for the subject collide, with who records the exception. The rows render from the data classes as a generated region.
+The retention schedule is one page holding one row per data class with its purpose, basis, period, enforcement, and the requirement behind personal or sensitive keeping. It states the time limits of a record of processing; the deleting job and the evidence are LiteSpec extensions to that record. The project's counsel confirms the wording. Processors and conflicts sit on the row: where the data forwards, and which demand wins when keeping for audit and erasing for the subject collide, with who records the exception.
 
 | Field | Meaning |
 |:---|:---|
@@ -25,11 +25,11 @@ The retention schedule is one page listing every data class with its purpose, ba
 
 **ID:** `litespec/core/privacy#classify-every-aggregate-data-field`
 
-**Statement:** Each aggregate MUST list its data fields with their meaning, classification, and data class in its Data table.
+**Statement:** Each aggregate MUST list its data fields with their meaning, classification, and data class in `data`.
 
-**Rationale:** Data without a classification is handled by guess: personal facts sit beside public ones with nothing marking which is which. A meaning with a classification of public, internal, personal, or sensitive tells every later reader how each field is handled, and the data class ties the field to its erasure position and its retention row. The fields live in frontmatter and the Data table renders them as a generated region.
+**Rationale:** Data without a classification is handled by guess: personal facts sit beside public ones with nothing marking which is which. A meaning with a classification of public, internal, personal, or sensitive tells every later reader how each field is handled, and the data class ties the field to its erasure position and its retention row. The fields live in `data` on the aggregate record file.
 
-**Reviewed for:** Which aggregate data fields lack a meaning, a classification, or a data class? Look at the Data table on each aggregate page.
+**Reviewed for:** Which aggregate data fields lack a meaning, a classification, or a data class? Look at `data` on each aggregate page.
 
 ### Declare Every Data Class with Its Erasure Position
 
@@ -79,7 +79,7 @@ The retention schedule is one page listing every data class with its purpose, ba
 
 **Statement:** Each data class MUST appear on the retention schedule with its purpose, basis, period, enforcement, and the requirement it cites where personal or sensitive.
 
-**Rationale:** Retention decided per aggregate scatters: one module erases in days what another keeps for years, and no page shows the whole. Listing every data class on one schedule with its purpose, basis, period, enforcement, processors with their forwarding and acceptance, and the conflict rule where keeping and erasing collide states the whole as rows a reviewer judges together. The schedule states the time limits of a record of processing, and the rows render from the data classes as a generated region. Personal or sensitive keeping cites its Intent requirement. The `retention-enforcement-missing` check reports a row nothing enforces.
+**Rationale:** Retention decided per aggregate scatters: one module erases in days what another keeps for years, and no page shows the whole. Listing every data class on one schedule with its purpose, basis, period, enforcement, processors with their forwarding and acceptance, and the conflict rule where keeping and erasing collide states the whole as rows a reviewer judges together. The schedule states the time limits of a record of processing. Personal or sensitive keeping cites its Intent requirement. The `retention-enforcement-missing` check reports a row nothing enforces.
 
 **Checked by:** `litespec model check` reports `retention-enforcement-missing` for a data class nothing enforces.
 

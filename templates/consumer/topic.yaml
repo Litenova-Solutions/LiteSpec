@@ -1,0 +1,75 @@
+type: topic
+id: topic/approval
+title: Approval
+owner: claimwick-team
+status: draft
+decider: claimwick-team
+decideBy: 2026-12-15
+summary: Approvers decide each expense within five working days of submission.
+position: decision/0001-receipt-threshold sets the receipt threshold, and requirement/approval.decided-within-five-days carries the deadline.
+refusals: Receipts under the threshold need no approver, and the submitter's manager sees them monthly.
+reviewBy: 2026-12-31
+terms:
+  - term/expense
+questions:
+  - question: Which approver covers expenses above the receipt threshold?
+    decider: claimwick-team
+    decideBy: 2026-11-30
+    ballot: approval
+    recommendation: The finance lead approves expenses above the threshold.
+records:
+  - type: requirement
+    id: requirement/approval.decided-within-five-days
+    title: Decided Within Five Days
+    kind: functional
+    statement: The product decides every expense within five working days.
+    rationale: Approvers batch decisions monthly today.
+    cites:
+      - goal/faster-reimbursement
+    except:
+      - condition: The amount is under the threshold.
+        fallback: requirement/approval.auto-approved-under-threshold
+    setBy: decider
+    risk:
+      - money
+  - type: requirement
+    id: requirement/approval.reminder-delivery-time
+    title: Reminder Delivery Time
+    kind: quality
+    statement: The product delivers every reminder within one hour of schedule.
+    rationale: Late reminders push decisions past the deadline.
+    stimulus: The schedule fires.
+    environment: During working hours.
+    response: The product sends the reminder.
+    measure: Delivery delay per reminder.
+    dueBy: 2026-12-31
+    target: Under one hour.
+    conditions: Up to ten thousand approvers.
+    check: k6 reminder delay p95 under one hour
+    runsOn: nightly
+    evidence: The nightly performance run.
+    cites:
+      - research/approval-time-benchmarks
+    except:
+      - condition: The amount is under the threshold.
+        fallback: requirement/approval.auto-approved-under-threshold
+    setBy: decider
+    risk:
+      - personal-data
+  - type: requirement
+    id: requirement/approval.receipt-archival
+    title: Receipt Archival
+    kind: policy
+    statement: The product keeps every receipt for seven years.
+    rationale: The tax authority requires seven-year retention.
+    values:
+      - value: Seven years.
+        effectiveFrom: 2026-01-01
+    cites:
+      - constraint/tax-receipt-retention
+    except:
+      - condition: The amount is under the threshold.
+        fallback: requirement/approval.auto-approved-under-threshold
+    setBy: decider
+    risk:
+      - personal-data

@@ -189,8 +189,10 @@ internal sealed partial class PageValidator
             return new PageContract(["Name", "Synopsis", "Description", "Arguments", "Options", "Exit Codes", "Examples", "Underneath"], []);
         }
 
-        // The record contracts mirror the consumer table exactly, so an invented
-        // section fails here as it does in a consumer.
+        // The explanation contracts name every section the explanation may hold, so
+        // an invented section fails. A research explanation answers its question; a
+        // decision explanation keeps its Context beside the record, whose choice and
+        // consequences fields state what was chosen and what it costs.
         if (kind == "research")
         {
             return new PageContract(["Answer"], ["Notes on Sources"]);
@@ -198,7 +200,7 @@ internal sealed partial class PageValidator
 
         if (kind == "decision")
         {
-            return new PageContract(["Context", "Decision", "Consequences"], ["Evidence with Confidence"]);
+            return new PageContract(["Context"], ["Decision", "Evidence with Confidence"]);
         }
 
         return null;
@@ -262,7 +264,7 @@ internal sealed partial class PageValidator
         }
         else if (kind == "decision")
         {
-            canonical = ["Context", "Decision", "Consequences", "Evidence with Confidence"];
+            canonical = ["Context", "Decision", "Evidence with Confidence"];
         }
         else
         {

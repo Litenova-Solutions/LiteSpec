@@ -1,0 +1,13 @@
+type: entry-point-list
+title: Entry Points
+owner: claimwick-team
+status: draft
+decider: claimwick-team
+decideBy: 2026-12-15
+records:
+  - type: entry-point
+    id: entry-point/claimwick-app
+    title: Claimwick App
+    kind: browser
+    auth:
+      - session

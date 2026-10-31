@@ -41,11 +41,17 @@ sealed class Record : IRecordFacts
     /// <summary>Gets a value indicating whether whether the builder derived the record rather than reading it from a page.</summary>
     public bool Derived { get; init; }
 
-    /// <summary>Gets the absolute file path.</summary>
+    /// <summary>Gets the absolute record file path.</summary>
     public string File { get; init; } = "";
 
-    /// <summary>Gets the 1-based line.</summary>
+    /// <summary>Gets the 1-based line of the record's node in its file.</summary>
     public int Line { get; init; }
+
+    /// <summary>Gets the absolute explanation file path, for a page record with one beside it.</summary>
+    public string? ExplanationFile { get; init; }
+
+    /// <summary>Gets the explanation file's full text, for a page record with one beside it.</summary>
+    public string? Explanation { get; init; }
 
     /// <summary>Gets a value indicating whether whether the record is an entry rather than a page.</summary>
     public bool IsEntry { get; init; }

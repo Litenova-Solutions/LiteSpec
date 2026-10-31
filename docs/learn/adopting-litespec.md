@@ -2,7 +2,7 @@
 
 ## Intent
 
-Adopting LiteSpec means pinning one release (building against one published version of the standard), describing the project, writing the first records (short pages stating product intent), and building to the standard with the checks in place. This page walks through that sequence in the order teams usually follow it, including what to record when a rule does not fit yet. Technical leads read it when they plan the rollout, so the team starts small and every departure stays visible instead of silent.
+Adopting LiteSpec means pinning one release (building against one published version of the standard), describing the project, writing the first records (short YAML files stating product intent), and building to the standard with the checks in place. This page walks through that sequence in the order teams usually follow it, including what to record when a rule does not fit yet. Technical leads read it when they plan the rollout, so the team starts small and every departure stays visible instead of silent.
 
 ## Fit Check
 
@@ -40,7 +40,7 @@ It writes `litespec.project.json` with the size, shape, and stacks, records the 
 
 ### 4. Write the First Records
 
-Start with the product: one `docs/intent/brief.md` that says what the product is, who it is for, and what it never does. Then work one slice at a time, one feature from problem to scenario, then the next, as the [model page](../core/model.md) describes: Intent first, then Behavior specified from it, then code, then Proof. A first module, its aggregates, and the use cases about to be built are enough to start. Each record has a template in the release.
+Start with the product: one `docs/intent/brief.yaml` that says what the product is, who it is for, and what it never does. Then work one slice at a time, one feature from problem to scenario, then the next, as the [model page](../core/model.md) describes: Intent first, then Behavior specified from it, then code, then Proof. A first module, its aggregates, and the use cases about to be built are enough to start. Each record has a template in the release.
 
 ### 5. Build to the Standard
 

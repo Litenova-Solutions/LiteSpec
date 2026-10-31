@@ -297,7 +297,8 @@
           "$ref": "#/$defs/projectPath"
         },
         "glossary": {
-          "description": "The project glossary, validated against schemas/glossary.schema.json. Defaults to glossary.json under the documentation root.",
+          "description": "The project glossary, validated against schemas/glossary.schema.json. Defaults to docs/glossary.yaml.",
+          "default": "docs/glossary.yaml",
           "$ref": "#/$defs/projectPath"
         },
         "glossaryScan": {

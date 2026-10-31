@@ -2,7 +2,7 @@
 
 ## Intent
 
-Every page in LiteSpec and in a project built with it shares one shape: a fixed page style, testable rules called provisions, stable identifiers for those rules, and a table naming the evidence each rule needs. This page states that shape, the prose rules for LiteSpec pages that the validators enforce, and how each release carries the complete contract, while the [Record Language](language.md) page states the grammar for everything a project writes. One shared shape lets readers learn pages once and lets validators check every page the same way.
+Every page in LiteSpec, and every record file, explanation file, and document in a project built with it, shares one shape: a fixed style, testable rules called provisions, stable identifiers for those rules, and a table naming the evidence each rule needs. This page states that shape, the strict YAML subset for record files, the prose rules for LiteSpec pages that the validators enforce, and how each release carries the complete contract, while the [Record Language](language.md) page states the grammar for everything a project writes. One shared shape lets readers learn pages once and lets validators check every page the same way.
 
 ## Concepts
 
@@ -28,7 +28,7 @@ A reader arrives with one question, and each page answers the one for its docume
 | 3b | Reference, command | What are the exact values and how do I run this? |
 | 4 | The `Underneath` section of a command page | What does the command run, and how do I run it myself? |
 
-An explanation page builds understanding: what LiteSpec is, why it works the way it does, and how its parts fit. It sits beside the documentation layers because a reader takes it before or between tasks, not during one. An index routes readers to pages, and the glossary resolves one term each, so neither sits in a documentation layer. A page links down a documentation layer. Any page may link to the glossary.
+An explanation page builds understanding: what LiteSpec is, why it works the way it does, and how its parts fit. It sits beside the documentation layers because a reader takes it before or between tasks, not during one. An index routes readers to pages, and the glossary resolves one term each, so neither sits in a documentation layer. A page links down a documentation layer. Any page may link to the glossary. An explanation page is not the explanation file beside a consumer record.
 
 ### Page Styles
 
@@ -48,37 +48,44 @@ Every LiteSpec page uses exactly one style, decided by where the page lives.
 | Index | A `README.md` | None | Intent, then navigation groups |
 | Glossary | `docs/reference/glossary.md` | None | H2 groups in alphabetical order, each with one intro sentence, then one H3 heading and definition per term |
 
-A consumer page is a record or one of these styles. Each one opens with the frontmatter block the record schema defines.
+A consumer holds three kinds of files under its documentation root: a record file, an explanation file, and a document. A record file is one file `<name>.yaml` holding one YAML mapping: the page record, or a container page, with its entries in `records`. An explanation file is the optional `<name>.md` beside its record file, with the same name in the same folder: plain Markdown with no frontmatter that explains the record. A document is a `.md` file with no `.yaml` of the same name beside it. Anything a check reads or a reviewer approves is a field in the record file; anything that only helps someone understand goes in the explanation file. The [model page](model.md) states the file rules, the split rule, and the homes; the tables below state the per-type fields and sections.
 
-| Page style | Template | Sections, in order |
+Each record type scaffolds from its template, holds its new fields in the record file, and explains itself in its explanation file. Research, decision, and topic carry a required explanation file; every other explanation file is optional, and any explanation file may add free H2 sections.
+
+| Type | Template | New Fields | Explanation File |
+|:---|:---|:---|:---|
+| product | `templates/consumer/product.yaml` | `summary` | Free sections only |
+| goal | `templates/consumer/goal.yaml` | `whyItMatters` | Free sections only |
+| problem | `templates/consumer/problem.yaml` | `situation` | Evidence |
+| feature | `templates/consumer/feature.yaml` | `offering` | Free sections only |
+| constraint | `templates/consumer/constraint.yaml` | `summary` | Free sections only |
+| research | `templates/consumer/research.yaml`, `templates/consumer/research.md` | `key` on each source | Answer, Notes on Sources |
+| decision | `templates/consumer/decision.yaml`, `templates/consumer/decision.md` | `consequences` | Context, Decision, Evidence with Confidence |
+| topic | `templates/consumer/topic.yaml`, `templates/consumer/topic.md` | `summary`, `position`, `refusals` | The Situation, What We Do, Why It Is Better, Example, Costs and Risks, How Sure We Are |
+| journey | `templates/consumer/journey.yaml` | `betweenSteps` | Example, optional Before It Starts |
+| module | `templates/consumer/module.yaml` | No new fields | optional Example, optional Known Limits, optional Notes |
+| aggregate | `templates/consumer/aggregate.yaml` | No new fields | optional Example, optional Known Limits, optional Notes |
+| use-case | `templates/consumer/use-case.yaml` | `purpose`, `whatHappens`, `exposure` | optional Example, optional Notes |
+| rule-set | `templates/consumer/rule-set.yaml` | `summary` | optional Notes |
+| actor | `templates/consumer/actor.yaml` | `summary` | Free sections only |
+| role | `templates/consumer/role.yaml` | `summary` | Free sections only |
+| external-system | `templates/consumer/external-system.yaml` | `summary` | Free sections only |
+| permission-list | `templates/consumer/permission-list.yaml` | Entries only | Free sections only |
+| entry-point-list | `templates/consumer/entry-point-list.yaml` | Entries only | Free sections only |
+| screen | `templates/consumer/screen.yaml` | `summary` | Free sections only |
+| setting-set | `templates/consumer/setting-set.yaml` | `purpose`, `whatHappens` | optional Notes |
+| reaction | `templates/consumer/reaction.yaml` | `purpose`, `whatHappens` | optional Example, optional Notes |
+| job | `templates/consumer/job.yaml` | `purpose`, `whatHappens` | optional Example, optional Notes |
+| notification | `templates/consumer/notification.yaml` | `purpose`, `whatHappens` | optional Example, optional Notes |
+| integration-event | `templates/consumer/integration-event.yaml` | `summary`, `delivery` | optional Notes |
+| retention-schedule | `templates/consumer/retention-schedule.yaml` | Entries only | Free sections only |
+| runbook | `templates/consumer/runbook.yaml` | `impact`, `prerequisites`, `procedure`, `verification`, `recovery`, `escalation` | What This Runbook Cannot Do Yet |
+| exception | `templates/consumer/exception.yaml` | `exit`, `consequences` | Free sections only |
+
+Each document style scaffolds from its template and keeps its sections in the body.
+
+| Page Style | Template | Sections, in order |
 |:---|:---|:---|
-| product-brief | `templates/consumer/product-brief.md` | Summary |
-| goal | `templates/consumer/goal.md` | Why It Matters |
-| problem | `templates/consumer/problem.md` | Situation, Evidence |
-| feature | `templates/consumer/feature.md` | Offering |
-| constraint | `templates/consumer/constraint.md` | Summary, What It Requires |
-| research | `templates/consumer/research.md` | Answer, optional Notes on Sources |
-| decision | `templates/consumer/decision.md` | Context, Decision, Consequences, optional Evidence with Confidence |
-| topic | `templates/consumer/topic.md` | Summary, The Situation, What We Do, Why It Is Better, Example, Costs and Risks, How Sure We Are, Position |
-| journey | `templates/consumer/journey.md` | Example, optional Before It Starts, Between the Steps |
-| module | `templates/consumer/module.md` | optional Example, optional Known Limits, optional Notes |
-| aggregate | `templates/consumer/aggregate.md` | Transitions, Data, optional Example, optional Known Limits, optional Notes |
-| use-case | `templates/consumer/use-case.md` | Goal, What Happens except on queries, optional Risk, optional Example, optional Notes |
-| rule-set | `templates/consumer/rule-set.md` | Summary, optional Notes |
-| actor | `templates/consumer/actor.md` | Summary |
-| role | `templates/consumer/role.md` | Summary |
-| external-system | `templates/consumer/external-system.md` | Summary |
-| permission-list | `templates/consumer/permission-list.md` | Entries only |
-| entry-point-list | `templates/consumer/entry-point-list.md` | Entries only |
-| screen | `templates/consumer/screen.md` | Summary |
-| setting-set | `templates/consumer/setting-set.md` | Entries only |
-| reaction | `templates/consumer/reaction.md` | Summary, optional Example, optional Notes |
-| job | `templates/consumer/job.md` | Summary, optional Example, optional Notes |
-| notification | `templates/consumer/notification.md` | Summary, optional Example, optional Notes |
-| integration-event | `templates/consumer/integration-event.md` | Summary, optional Notes |
-| retention-schedule | `templates/consumer/retention-schedule.md` | Entries only |
-| runbook | `templates/consumer/runbook.md` | Impact, Prerequisites, Procedure, Verification, Rollback or Recovery, Escalation |
-| exception | `templates/consumer/exception.md` | Consequences for a departure, Exit for a gap |
 | glossary | `templates/consumer/glossary.md` | Generated region only |
 | example-cast | `templates/consumer/example-cast.md` | The Organization, The People, The Occasion, The Amounts, Recurring Situations, optional What This Page Does Not Do |
 | tutorial | `templates/consumer/tutorial.md` | Purpose, Prerequisites, Lesson, What You Built |
@@ -89,11 +96,14 @@ A consumer page is a record or one of these styles. Each one opens with the fron
 | configuration | `templates/consumer/configuration.md` | Intent, Settings, Precedence, optional Notes |
 | index | `templates/consumer/index.md` | Intent, then navigation groups |
 
-These rules apply to every page style:
+A document carries an optional YAML frontmatter block between `---` lines holding only a document page style in `type` and its common fields. A document never holds a record type or entries, and a file named `README.md` with no frontmatter is a document. Term entries live in `docs/glossary.yaml`, satisfying `schemas/glossary.schema.json`; the glossary document renders from it through a generated region. A module page is `docs/behavior/modules/<module>/module.yaml` and an aggregate page is `docs/behavior/modules/<module>/<aggregate>/aggregate.yaml`; any other record file keeps the name its page had, with `.yaml`. A record page that was a `README.md` becomes `<type>.yaml` in the same folder.
 
-- A page that owns provisions lives at `docs/<area>/<page>.md` or deeper, with a lowercase file name.
-- A page has one H1.
+These rules apply to every Markdown page style:
+
+- A LiteSpec page that owns provisions lives at `docs/<area>/<page>.md` or deeper, with a lowercase file name.
+- A Markdown page has one H1.
 - The index page of a section or folder, its `README.md`, is titled `Overview`, so a reader tells a section from its first page. The documentation root index keeps its own title. A link to a section index names its section: `[Backend overview](../backend/README.md)`.
+- A consumer module or aggregate page is `module.yaml` or `aggregate.yaml`, never `README.md`.
 - A required section with nothing to say contains only `None.`
 - An example sits inside the provision it illustrates, or in a Reference Example that names every provision it demonstrates.
 - A tutorial, how-to, explanation, reference, command, or index page owns no provisions.
@@ -102,6 +112,18 @@ These rules apply to every page style:
 - A Concepts section holds definitions, diagrams, and vocabulary; obligations belong in Standards.
 - An Activation section states the activation scope, the kinds, and the criterion that selects the extension.
 - A Baseline Relationship section compares against the baseline it replaces; obligations belong in Standards.
+
+### Strict YAML Subset
+
+A record file holds one YAML mapping written in the strict subset the reader accepts: block mappings and sequences, plain, double-quoted, and single-quoted scalars, literal blocks (`|`, `|-`, `|+`), and `[]` and `{}` only as empty collections. The subset refuses comments, anchors, aliases, tags, `---` and `...` markers, folded `>` blocks, other flow collections, multi-line plain scalars, tabs in indentation, and duplicate keys, each with the line it sits on. Scalars resolve by the YAML 1.2 core schema; a number the core schema reads that JSON cannot hold (`0x1F`, `.inf`, `+1`) is refused. A scalar that would resolve to a non-string where a string is meant is quoted, such as `approvedHash: "12345678"` and `"0001"`.
+
+### Canonical Record Form
+
+`litespec model format` rewrites every record file into one canonical form: block mappings and sequences with two-space indentation, sequences indented under their key, keys in schema order, multi-line text in `|` block scalars, plain scalars where they read back as the same string and double quotes otherwise, and one line end at the end of the file. Keys open with `type`, `id`, `title`, `owner`, `status`, `decider`, `decideBy`, `replaces`, and `provenance`, continue with the type's own fields in schema order, then `risk`, `terms`, and `questions`, and close with `records`, `approvedBy`, `approvedOn`, and `approvedHash`; any other key keeps its written order after these. An object without a record `type` keeps its written key order. `litespec model format --check` lists each file that differs without writing; the [model command page](../tools/model.md) lists the exit codes. The [model page](model.md) owns the canonical obligation (`litespec/core/model#write-every-record-file-in-canonical-form`).
+
+### Record Citations in Prose
+
+A Markdown link whose target is a record identifier cites that record, with an optional `#<step-id>` for a journey step, as Citations in Prose on the [model page](model.md) states (`litespec/core/model#resolve-every-page-link`). Prose cites a record by its identifier, never by its file path: `[the receipt rule](rule/expense.approver-is-not-submitter)` shows the form.
 
 ### Provisions
 
@@ -166,7 +188,7 @@ The heading carries no identifier text. No two provisions share an ID. Consumer 
 
 ### Record Identifiers
 
-A consumer record identifier is `type/home.name` in kebab-case: the type names the record kind, and `home.name` names the module or set that owns it. The [model page](model.md) states the form each type uses, and the [identifier page](../backend/identifiers.md) states the name rules, the checks, and how citations resolve. The [Record Language](language.md) page states the name form each record type uses.
+A consumer record identifier is `type/home.name` in kebab-case: the type names the record kind, and `home.name` names the module or set that owns it. The [model page](model.md) states the form each type uses, and the [identifier page](../backend/identifiers.md) states the name rules, the checks, and how citations resolve. The [Record Language](language.md) page states the name form each record type uses. Prose cites a record by its identifier, as Record Citations in Prose states.
 
 ### Provision Layout
 
@@ -208,11 +230,11 @@ These checks report page defects that no single provision owns, so they are list
 
 ### Generated Regions
 
-A generated region is a section a tool writes, between `<!-- generated:<name> -->` and `<!-- /generated:<name> -->`. Only the owning tool writes inside it, and an edit there is lost at the next generation. Authoring checks skip generated regions. Inside Intent and Behavior records, a generated region derives from other records only.
+A generated region is a section a tool writes, between `<!-- generated:<name> -->` and `<!-- /generated:<name> -->`, in an explanation file or a document. Only the owning tool writes inside it, and an edit there is lost at the next generation. Authoring checks skip generated regions. A region that renders facts about its record finds the record through the shared file name. Inside Intent and Behavior records, a generated region derives from other records only.
 
 ### Authoring at Scale
 
-Many authors, often agents, write records in parallel. `litespec new` scaffolds a page and reserves its identifier before prose exists, and `litespec rename` rewrites every link when an identifier changes. Validating one page before committing keeps each commit sound without walking the whole repository.
+Many authors, often agents, write records in parallel. `litespec new` scaffolds a record file and reserves its identifier before prose exists, and `litespec rename` rewrites every citation when an identifier changes. Validating one record file before committing keeps each commit sound without walking the whole repository.
 
 ### Release Model
 
@@ -376,7 +398,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Statement:** An authored page MUST use the sections, in order, of its page style.
 
-**Rationale:** A fixed shape puts the authority, the context, the defaults, and the evidence in the same place on every page. Readers learn the shape once, and tools find each section without guessing. A page that invents its own order sends both searching.
+**Rationale:** A fixed shape puts the authority, the context, the defaults, and the evidence in the same place on every page. Readers learn the shape once, and tools find each section without guessing. A page that invents its own order sends both searching. A record file carries its type's fields in canonical key order instead of sections.
 
 **Checked by:** `litespec-maintain validate` emits no `PAGE_MISSING_SECTION`, `PAGE_SECTION_ORDER` or `PAGE_UNKNOWN_SECTION` diagnostic.
 
@@ -462,7 +484,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Statement:** A page MUST link to content another page owns instead of restating it.
 
-**Rationale:** A copy drifts from its source with the next unrelated edit, and readers follow the stale one. One home for each fact keeps every reader on the current text.
+**Rationale:** A copy drifts from its source with the next unrelated edit, and readers follow the stale one. One home for each fact keeps every reader on the current text. A link to a record names its identifier, not its file.
 
 **Reviewed for:** Which passages restate content another page owns? Compare repeated passages with the owning page.
 
@@ -668,49 +690,55 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Checked by:** `litespec-maintain provisions --check` exits zero.
 
-### Declare Structured Frontmatter
+### Declare Structured Specification Metadata
 
 **ID:** `litespec/core/authoring#declare-structured-specification-metadata`
 
-**Statement:** A consumer page MUST open with a frontmatter block satisfying the record schema for its declared type.
+**Statement:** Every record file and every document frontmatter block MUST satisfy the record schema for its declared type.
 
-**Rationale:** The record schema owns the field list of every record type and page style. The block is one JSON object between two lines that hold only `---`, which people read as a header and tools parse as data. The [model page](model.md) states the record types and their homes.
+**Rationale:** The record schema owns the field list of every record type and page style. A record file is one YAML mapping with its entries in `records`, holding no Markdown and no frontmatter fences. A document frontmatter block is YAML between two lines that hold only `---`, holding only the page style and its common fields. The [model page](model.md) states the record types and their homes.
 
-**Example:** A use-case page opens with this block.
+**Example:** A use-case record file opens with its identity fields.
 
-```markdown
----
-{
-  "type": "use-case",
-  "id": "use-case/spending.submit-expense",
-  "title": "Submit Expense",
-  "owner": "__OWNER__",
-  "status": "approved"
-}
----
+```yaml
+type: use-case
+id: use-case/spending.submit-expense
+title: Submit Expense
+owner: __OWNER__
+status: draft
 ```
 
-**Checked by:** `litespec consumer` validates each opening frontmatter block against the record schema.
+**Checked by:** `litespec consumer` validates each record file and each document frontmatter block against the record schema.
 
 ### Use One Metadata Carrier
 
 **ID:** `litespec/core/authoring#use-one-metadata-carrier`
 
-**Statement:** A consumer page MUST use its opening frontmatter block as its only metadata carrier.
+**Statement:** A consumer page MUST use its record file as its only metadata carrier.
 
-**Rationale:** Two metadata carriers on one page disagree sooner or later: source links, paths, and evidence drift between the header and the body. One opening block keeps metadata in one place, while the body sections carry the links, paths, and evidence beside what they describe.
+**Rationale:** Two metadata carriers on one page disagree sooner or later: source links, paths, and evidence drift between the record file and the explanation file. One record file keeps every field a check reads or a reviewer approves in one place, while the explanation file beside it explains without stating a field value.
 
-**Reviewed for:** Which pages carry metadata outside the opening block? Look at the body sections of each page the change touches.
+**Reviewed for:** Which pages carry field values outside the record file? Look at the explanation files beside the changed record files.
 
 ### Classify Every Specification File
 
 **ID:** `litespec/core/authoring#classify-every-specification-file`
 
-**Statement:** Every Markdown file under the consumer documentation root MUST declare a record type or page style, or sit under a declared unstructured path.
+**Statement:** Every file under the consumer documentation root MUST be a record file, an explanation file beside its record file, or a document, or sit under a declared unstructured path.
 
-**Rationale:** A file the validator leaves unclassified is skipped, and a skipped file looks sound: its errors stay hidden. Requiring every file to declare a type or sit under a declared unstructured path leaves no page unchecked. A directory index that owns no record uses the index style.
+**Rationale:** A file the validator leaves unclassified is skipped, and a skipped file looks sound: its errors stay hidden. Requiring every file to be a record file, an explanation, or a document, or to sit under a declared unstructured path, leaves no page unchecked. A directory index that owns no record uses the index style, and a `README.md` with no frontmatter is a document.
 
-**Checked by:** `litespec consumer` fails a Markdown file with no declared type outside a declared unstructured path.
+**Checked by:** `litespec model check` reports no `explanation-orphaned` finding, and `litespec consumer` fails a `.yaml` file with no record type outside a declared unstructured path.
+
+### Start Each Explanation File with Its Title
+
+**ID:** `litespec/core/authoring#start-each-explanation-file-with-its-title`
+
+**Statement:** An explanation file MUST open with one H1 title and section its content with H2 sections.
+
+**Rationale:** One shape puts the title and each section in the same place on every explanation. The H1 carries the record title, and each H2 carries one section from the table on this page or a free section; Notes take free `###` headings under their H2.
+
+**Reviewed for:** Which explanation files miss their H1 title or section content outside H2? Look at the explanation files beside the changed record files.
 
 ### Derive a Computed Fact Instead of Restating It
 
@@ -746,9 +774,9 @@ The figures below render from the retention schedule at build time.
 
 **Statement:** An author MUST scaffold a new page with `litespec new <type> <id>`, which reserves its identifier.
 
-**Rationale:** Two agents working in parallel mint the same identifier when each writes a file by hand, and the collision surfaces only at merge time. Scaffolding reserves the identifier before any prose exists, so the second author learns the clash at creation and picks another name.
+**Rationale:** Two agents working in parallel mint the same identifier when each writes a file by hand, and the collision surfaces only at merge time. Scaffolding reserves the identifier before any prose exists, so the second author learns the clash at creation and picks another name. For an article type the command also writes the explanation file, and for a document style it writes the document.
 
-**Example:** `litespec new reaction spending.send-approver-reminder-on-expense-submitted` creates the reaction page with its frontmatter block and reserved identifier.
+**Example:** `litespec new reaction spending.send-approver-reminder-on-expense-submitted` creates the reaction record file with its reserved identifier.
 
 **Reviewed for:** Which new pages lack a reserved identifier? Look for pages created without `litespec new`.
 
@@ -758,7 +786,7 @@ The figures below render from the retention schedule at build time.
 
 **Statement:** An author MUST rename a record identifier with `litespec rename <old> <new>`, which rewrites every link.
 
-**Rationale:** An identifier rename touches the page, its frontmatter, and every record that points at it. Rewriting every link in the same command leaves no citation pointing at the old name, so the repository stays resolvable at every commit.
+**Rationale:** An identifier rename touches the record file, its explanation file, and every record that points at it. Rewriting every link in the same command leaves no citation pointing at the old name, so the repository stays resolvable at every commit. When the file name follows the identifier, both files move together.
 
 **Example:** `litespec rename use-case/spending.close-run use-case/spending.complete-run` updates the page and every citation together.
 

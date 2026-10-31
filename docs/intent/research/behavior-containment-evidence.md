@@ -1,35 +1,3 @@
----
-{
-  "type": "research",
-  "id": "research/behavior-containment-evidence",
-  "title": "Behavior Containment Evidence",
-  "owner": "LiteSpec maintainer",
-  "status": "draft",
-  "decider": "LiteSpec maintainer",
-  "decideBy": "2026-11-30",
-  "question": "How do Behavior records find their parent today, and where does parentage rest on a file name or exist not at all?",
-  "conclusion": "Containment by identifier is sound and complete in the largest consumer, while results, scenarios, events, and rules find their parent only through file placement or a project-wide name lookup, and several Behavior types have no parent at all.",
-  "sources": [
-    {
-      "path": "docs/core/model.md",
-      "readOn": "2026-10-30"
-    },
-    {
-      "path": "docs/core/behavior.md",
-      "readOn": "2026-10-30"
-    },
-    {
-      "path": "docs/core/access.md",
-      "readOn": "2026-10-30"
-    },
-    {
-      "path": "schemas/record.schema.json",
-      "readOn": "2026-10-30"
-    }
-  ]
-}
----
-
 # Behavior Containment Evidence
 
 ## Answer

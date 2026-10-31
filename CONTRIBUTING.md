@@ -35,7 +35,7 @@ Follow the [authoring standard](docs/core/authoring.md) for every standards page
 
 ## Change Workflows
 
-Change the records, code, tests, contracts, and operations that belong together in one change. Each workflow below lists its steps in order.
+Change the YAML record files, explanation files, code, tests, contracts, and operations that belong together in one change. Each workflow below lists its steps in order.
 
 ### Change a Provision and Its Citations
 

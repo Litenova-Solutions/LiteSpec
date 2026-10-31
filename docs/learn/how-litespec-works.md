@@ -11,7 +11,7 @@ LiteSpec has four parts. Each one answers a different question.
 | Part | What it is | The question it answers |
 |:---|:---|:---|
 | The standard | The pages of one LiteSpec release, carried by the installed tool | How do we build? |
-| Records | Short Markdown pages in your project, each with a small JSON header | What do we build, and why? |
+| Records | Short YAML record files in your project, each with an optional Markdown explanation beside it | What do we build, and why? |
 | The model | A file the `litespec model` command computes from your records and the marks in code and tests | Does what we built match what we wrote? |
 | The tools | The `litespec` command line | Is everything consistent, and what is missing? |
 
@@ -27,59 +27,60 @@ Claimwick lets employees submit work expenses with receipts. In LiteSpec, that b
 
 ### 1. the Written Record
 
-The record lives in the project at `docs/behavior/modules/spending/expenses/submit-expense.md`. Its JSON header states what the use case is, who owns it, and how it connects to other records:
+The record file lives in the project at `docs/behavior/modules/spending/expenses/submit-expense.yaml`. It states what the use case is, who owns it, and how it connects to other records:
 
-```json
-{
-  "type": "use-case",
-  "id": "use-case/spending.submit-expense",
-  "title": "Submit expense",
-  "owner": "claimwick-team",
-  "status": "reviewed",
-  "kind": "command",
-  "serves": ["journey/submit-and-reimburse#s1"],
-  "fulfills": ["requirement/approval.receipt-over-threshold"],
-  "access": {
-    "grant": "permission/submit-expense",
-    "tenant": "own"
-  },
-  "reachedThrough": ["entry-point/claimwick-app"],
-  "changes": ["aggregate/spending.expense"],
-  "reads": ["aggregate/spending.policy"],
-  "consistency": { "mode": "atomic" },
-  "raises": ["event/expense.submitted"]
-}
+```yaml
+type: use-case
+id: use-case/spending.submit-expense
+title: Submit expense
+owner: claimwick-team
+status: reviewed
+kind: command
+purpose: An employee submits a work expense.
+serves:
+  - journey/submit-and-reimburse#s1
+fulfills:
+  - requirement/approval.receipt-over-threshold
+access:
+  grant: permission/submit-expense
+  tenant: own
+reachedThrough:
+  - entry-point/claimwick-app
+changes:
+  - aggregate/spending.expense
+reads:
+  - aggregate/spending.policy
+consistency:
+  mode: atomic
+raises:
+  - event/expense.submitted
 ```
 
-Read it as a set of facts: submitting an expense is a command, a message that changes business state; it serves the first step of the submit-and-reimburse journey and fulfills the requirement that an expense above the receipt threshold carries a receipt; the grant names the `submit-expense` permission from the shared list, and the tenant scope stays inside one tenant; employees reach it through the expenses app, whose door declares session authentication; it changes the expense aggregate, reads the policy store for the threshold, and commits atomically; and it raises an `expense.submitted` event, one statement that the submission completed. The body of the page states the goal in one sentence: "An employee submits a work expense."
+Read it as a set of facts: submitting an expense is a command, a message that changes business state; it serves the first step of the submit-and-reimburse journey and fulfills the requirement that an expense above the receipt threshold carries a receipt; the grant names the `submit-expense` permission from the shared list, and the tenant scope stays inside one tenant; employees reach it through the expenses app, whose door declares session authentication; it changes the expense aggregate, reads the policy store for the threshold, and commits atomically; and it raises an `expense.submitted` event, one statement that the submission completed. The `purpose` field states the intent in one sentence: "An employee submits a work expense."
 
-Each result is an entry on the page: one way the use case ends. Refusals are listed in precedence order, first match wins, and each refusal names the stable code the API returns:
+Each result is an entry in `records`: one way the use case ends. Refusals are listed in precedence order, first match wins, and each refusal names the stable code the API returns:
 
-```json
-{
-  "type": "result",
-  "id": "result/submit-expense.receipt-missing",
-  "outcome": "refusal",
-  "code": "spending.receipt-missing",
-  "meaning": "The expense is above the receipt threshold and carries no receipt."
-}
+```yaml
+type: result
+id: result/submit-expense.receipt-missing
+outcome: refusal
+code: spending.receipt-missing
+meaning: The expense is above the receipt threshold and carries no receipt.
 ```
 
 Two generic refusals are derived and never written: a use case whose grant is a permission derives a forbidden result, and a use case with rules on its input derives an invalid-input result. Their codes come from the `refusals` block in `litespec.project.json`.
 
-The record's `status` is `reviewed`, so developers have reviewed this Behavior record. An agent builds reviewed records and does not invent the parts a draft leaves open. Reviewed records also carry approval data: who approved, on which date, and the semantic hash the builder wrote over the statements, results, output names, rules, and steps. Prose may be reworded without reopening approval; a changed semantic hash reopens it.
+The record's `status` is `reviewed`, so developers have reviewed this Behavior record. An agent builds reviewed records and does not invent the parts a draft leaves open. Reviewed records also carry approval data: who approved, on which date, and the semantic hash the builder wrote over the statements, results, output names, rules, and steps. Prose fields feed that hash with every other written field, while the explanation beside a non-article record stays outside it; a changed semantic hash reopens approval.
 
-The use case page also carries a scenario: one worked example that leads from a given situation through an action to one named result.
+The use case also carries a scenario: one worked example that leads from a given situation through an action to one named result.
 
-```json
-{
-  "type": "scenario",
-  "id": "scenario/submit-expense.submitting-with-a-receipt-succeeds",
-  "given": "An employee paid for a train ticket and kept the receipt.",
-  "when": "The employee submits the expense with the receipt.",
-  "result": "result/submit-expense.submitted",
-  "then": "The expense is submitted."
-}
+```yaml
+type: scenario
+id: scenario/submit-expense.submitting-with-a-receipt-succeeds
+given: An employee paid for a train ticket and kept the receipt.
+when: The employee submits the expense with the receipt.
+result: result/submit-expense.submitted
+then: The expense is submitted.
 ```
 
 Read it as one proven path: given the situation, when the employee acts, the use case reaches the `submitted` result, and the expense is submitted. Each scenario names exactly one result, so a later test knows which ending it proves.
@@ -145,9 +146,9 @@ The use case is implemented: the builder found its handler through its mark. Two
 
 ### 4. the Reported Gaps
 
-`dotnet litespec model check` turns gaps into findings with a level beside each one: level G checks read records only and always block, level S checks read code through a stack reader and block where that reader is qualified, and level A checks advise without blocking. A use case with no handler, a result the code never returns, a link to a record that does not exist, a journey step nothing serves, or a requirement nothing fulfills each becomes a finding. `dotnet litespec consumer` checks the project file and every record's header. Both run in CI, so a gap shows up in the pull request that introduced it.
+`dotnet litespec model check` turns gaps into findings with a level beside each one: level G checks read records only and always block, level S checks read code through a stack reader and block where that reader is qualified, and level A checks advise without blocking. A use case with no handler, a result the code never returns, a link to a record that does not exist, a journey step nothing serves, or a requirement nothing fulfills each becomes a finding. `dotnet litespec consumer` checks the project file and every record file. Both run in CI, so a gap shows up in the pull request that introduced it.
 
-For example, if the submit-expense page named no success result, `dotnet litespec model check` reports `[G use-case-success-missing]` against `docs/behavior/modules/spending/expenses/submit-expense.md`, and the pull request fails until the record names one.
+For example, if the submit-expense record named no success result, `dotnet litespec model check` reports `[G use-case-success-missing]` against `docs/behavior/modules/spending/expenses/submit-expense.yaml`, and the pull request fails until the record names one.
 
 ## The Provision Identifier
 

@@ -106,7 +106,7 @@ Names an outside standard fixes stay exactly as that standard spells them. Gherk
 
 ### Finding Codes and Tool Names
 
-A finding code reads as `<subject>-<problem>`: the subject is a record type or field as the glossary spells it, and the problem is one of twelve words, each with one meaning.
+A finding code reads as `<subject>-<problem>`: the subject is a record type or field as the glossary spells it, and the problem is one of fifteen words, each with one meaning.
 
 | Problem | Meaning | Example |
 |:---|:---|:---|
@@ -122,6 +122,9 @@ A finding code reads as `<subject>-<problem>`: the subject is a record type or f
 | `clash` | two names collide | `aggregate-name-clash` |
 | `expired` | the date passed | `exception-expired` |
 | `reopened` | approved content changed after approval | `approval-reopened` |
+| `orphaned` | a file stands without its partner | `explanation-orphaned` |
+| `bare` | a reference bypasses its declared key | `source-link-bare` |
+| `unused` | a declared thing is cited nowhere | `source-unused` |
 
 A finding message states one present-tense fact: it opens with the subject title and its quoted identifier and says what is true, not what to do. What to do lives in the finding table on the [model page](../tools/model.md), in a column for it. Change codes in `litespec model diff` follow the same pattern with past participles (`refusal-added`, `rule-weakened`, `requirement-narrowed`). Analyzer diagnostics keep their `LS` numbers and follow the same message rule.
 
@@ -241,13 +244,13 @@ Subcommands are verbs (`build`, `check`, `render`, `query`, `diff`, `review`, `a
 
 **ID:** `litespec/core/language#name-each-finding-code-by-subject-and-problem`
 
-**Statement:** Every finding code MUST read as `<subject>-<problem>` with the problem drawn from the twelve problem words.
+**Statement:** Every finding code MUST read as `<subject>-<problem>` with the problem drawn from the fifteen problem words.
 
-**Rationale:** A code in subject-problem form tells a reader what the finding is about and what is wrong with it before the message is opened. Twelve problem words, each with one meaning, keep codes comparable across tools: one word for absent, one for expired, and no synonyms. The problem-word table holds each word with its meaning and an example.
+**Rationale:** A code in subject-problem form tells a reader what the finding is about and what is wrong with it before the message is opened. Fifteen problem words, each with one meaning, keep codes comparable across tools: one word for absent, one for expired, and no synonyms. The problem-word table holds each word with its meaning and an example.
 
 **Example:** A use case with no scenario takes the code `use-case-scenario-missing`.
 
-**Reviewed for:** Which finding codes miss the subject-problem form or use a problem word outside the twelve? Look at the finding codes the change adds, beside the problem-word table.
+**Reviewed for:** Which finding codes miss the subject-problem form or use a problem word outside the fifteen? Look at the finding codes the change adds, beside the problem-word table.
 
 ### Write Each Finding Message as a Fact
 

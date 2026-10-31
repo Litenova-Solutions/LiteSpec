@@ -9,12 +9,12 @@ namespace LiteSpec.Analyzers.Records;
 
 /// <summary>
 ///     The consumer's records for one compilation: the project settings and the
-///     record index built from the record pages. Loads from the project file and
-///     the Markdown pages found among the additional files, and stays silent
+///     record index built from the record files. Loads from the project file and
+///     the record files found among the additional files, and stays silent
 ///     (returns null) when no project file is in reach, when its settings do not
 ///     parse, or when the docs root cannot be resolved; the CLI owns those
 ///     configuration errors. Results are cached by the files' content checksums,
-///     so a keystroke in C# does not reparse Markdown.
+///     so a keystroke in C# does not reparse record files.
 /// </summary>
 /// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
 public sealed class RecordStore
@@ -71,7 +71,7 @@ public sealed class RecordStore
 
     /// <summary>
     ///     Loads the store from an analyzer's additional files: the project file
-    ///     plus every Markdown page. Returns null when the rules must stay silent.
+    ///     plus every record file. Returns null when the rules must stay silent.
     /// </summary>
     /// <param name="options">The analyzer options carrying the additional files.</param>
     /// <param name="cancellationToken">The analysis cancellation token.</param>
@@ -100,7 +100,7 @@ public sealed class RecordStore
     ///     file, unparsable settings, an unresolvable docs root, or no record
     ///     page under the roots.
     /// </summary>
-    /// <param name="files">The additional files: the project file plus every Markdown page.</param>
+    /// <param name="files">The additional files: the project file plus every record file.</param>
     /// <returns>The store, or null when the rules stay silent.</returns>
     public static RecordStore? Load(IReadOnlyList<RecordFile> files)
     {
@@ -183,7 +183,7 @@ public sealed class RecordStore
     }
 
     /// <summary>Returns the uncached.</summary>
-    /// <param name="files">The additional files: the project file plus every Markdown page.</param>
+    /// <param name="files">The additional files: the project file plus every record file.</param>
     /// <returns>The uncached, or null when none applies.</returns>
     private static RecordStore? LoadUncached(IReadOnlyList<RecordFile> files)
     {
@@ -222,7 +222,7 @@ public sealed class RecordStore
 
         foreach (var file in files)
         {
-            if (IsMarkdown(file.Path) && UnderRoots(file.Path, roots))
+            if (IsRecordFile(file.Path) && UnderRoots(file.Path, roots))
             {
                 records.AddRange(RecordFiles.Read(file.Path, file.Text));
             }
@@ -237,7 +237,7 @@ public sealed class RecordStore
     }
 
     /// <summary>Returns the file of.</summary>
-    /// <param name="files">The additional files: the project file plus every Markdown page.</param>
+    /// <param name="files">The additional files: the project file plus every record file.</param>
     /// <returns>The file of, or null when none applies.</returns>
     private static RecordFile? ProjectFileOf(IReadOnlyList<RecordFile> files)
     {
@@ -388,11 +388,11 @@ public sealed class RecordStore
         return directory.Replace('\\', '/').TrimEnd('/') + "/" + combined.TrimStart('/');
     }
 
-    /// <summary>Returns true when the path is markdown; otherwise false.</summary>
+    /// <summary>Returns true when the path is a record file; otherwise false.</summary>
     /// <param name="path">The file path as the host reports it.</param>
-    /// <returns>True when the path is markdown; otherwise false.</returns>
-    private static bool IsMarkdown(string path) =>
-        path.EndsWith(".md", StringComparison.OrdinalIgnoreCase);
+    /// <returns>True when the path is a record file; otherwise false.</returns>
+    private static bool IsRecordFile(string path) =>
+        path.EndsWith(".yaml", StringComparison.OrdinalIgnoreCase);
 
     /// <summary>Returns true when the under-roots condition holds; otherwise false.</summary>
     /// <param name="path">The file path as the host reports it.</param>
@@ -417,9 +417,9 @@ public sealed class RecordStore
 
     /// <summary>
     ///     The checksum key of the files: a 64-bit FNV-1a hash over the project
-    ///     file and every Markdown path and text, in path order.
+    ///     file and every record file path and text, in path order.
     /// </summary>
-    /// <param name="files">The additional files: the project file plus every Markdown page.</param>
+    /// <param name="files">The additional files: the project file plus every record file.</param>
     /// <returns>The string as text.</returns>
     private static string Checksum(IReadOnlyList<RecordFile> files)
     {

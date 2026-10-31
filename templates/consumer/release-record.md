@@ -1,15 +1,13 @@
 ---
-{
-  "type": "reference",
-  "id": "release/<YYYY-MM-DD>",
-  "title": "<Release Display Title>",
-  "owner": "<owner>",
-  "status": "draft",
-  "decider": "<owner>",
-  "decideBy": "<YYYY-MM-DD>"
-}
+type: reference
+id: release/2026-12-01
+title: December Release
+owner: claimwick-team
+status: draft
+decider: claimwick-team
+decideBy: 2026-12-15
 ---
-# <Release Display Title>
+# December Release
 
 ## Intent
 

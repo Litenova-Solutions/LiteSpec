@@ -16,7 +16,7 @@ The operations log is append-only: one file per month under `docs/behavior/opera
 
 ### Alert Inventory
 
-The alert inventory lists the baseline alerts and the runbook each one names. A runbook is the procedure that answers an alert. The model builder renders the inventory from the alert rules the project lists in `paths.alerts`, each with the quality requirement it measures, the runbook that answers it, and its severity, beside the severity routing on the limits page at `docs/behavior/operations/limits.md`. The files hold alert rules in the YAML shape Prometheus rule files and Grafana alert provisioning share: `groups[].rules[]`, each rule named by `alert` or `title` and carrying `labels`. The severity routing states where each severity level goes and how fast it is answered. Nobody edits the inventory by hand.
+The alert inventory lists the baseline alerts and the runbook each one names. A runbook is the procedure that answers an alert. The model builder renders the inventory from the alert rules the project lists in `paths.alerts`, each with the quality requirement it measures, the runbook that answers it, and its severity, beside the severity routing on the limits page at `docs/behavior/operations/limits.yaml`. The files hold alert rules in the YAML shape Prometheus rule files and Grafana alert provisioning share: `groups[].rules[]`, each rule named by `alert` or `title` and carrying `labels`. The severity routing states where each severity level goes and how fast it is answered. Nobody edits the inventory by hand.
 
 ### Secret Inventory
 
@@ -340,13 +340,13 @@ Declaring all five before production makes each alert answerable the first time 
 
 **ID:** `litespec/quality/operations#keep-runbooks-near-project-documentation`
 
-**Default:** Place runbooks under `docs/behavior/runbooks/` stating trigger, impact, prerequisites, steps, and verification, covering restore, rollback, schema failure, leaked secrets, dependency outages, and extension recovery.
+**Default:** Place runbooks under `docs/behavior/runbooks/` stating trigger, impact, prerequisites, procedure, verification, recovery, and escalation, covering restore, rollback, schema failure, leaked secrets, dependency outages, and extension recovery.
 
 **Replacement:** A consumer records a runbook-layout convention naming where its runbooks live and what each holds.
 
-**Rationale:** An alert names its runbook, and the reader follows the pointer under pressure. One folder for every runbook keeps each pointer resolving to a procedure with the same sections: trigger, impact, prerequisites, steps, and verification. A runbook kept anywhere else breaks the pointer the alert gave.
+**Rationale:** An alert names its runbook, and the reader follows the pointer under pressure. One folder for every runbook keeps each pointer resolving to a procedure with the same fields: trigger, impact, prerequisites, procedure, verification, recovery, and escalation. A runbook kept anywhere else breaks the pointer the alert gave.
 
-**Reviewed for:** Each runbook sits under `docs/behavior/runbooks/` with its sections, or the runbook-layout convention names another arrangement.
+**Reviewed for:** Each runbook sits under `docs/behavior/runbooks/` with its fields, or the runbook-layout convention names another arrangement.
 
 ### Keep Deployment Descriptors Together
 

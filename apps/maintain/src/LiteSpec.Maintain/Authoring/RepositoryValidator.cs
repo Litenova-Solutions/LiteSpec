@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Text;
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
+using LiteSpec.Model;
 using LiteSpec.Schemas;
 using static LiteSpec.Authoring.ManifestValidator;
 using static LiteSpec.Authoring.ValidatorSupport;
@@ -47,6 +48,20 @@ internal sealed partial class RepositoryValidator
 
     /// <summary>Gets the page paths reserved as authoring template stems.</summary>
     internal readonly HashSet<string> ReservedTemplateStems;
+
+    // The container page styles live in record files beside the record types: they
+    // hold entries, not documents. Topic is a record type, so it needs no entry here.
+    /// <summary>Gets the container page styles held in record files.</summary>
+    private static readonly HashSet<string> ContainerPageStyles = new(
+        ["permission-list", "entry-point-list", "setting-set", "rule-set", "retention-schedule"],
+        StringComparer.Ordinal);
+
+    // A record citation as a link target: a record type, a slash, and the record
+    // name. The book resolves it to the record file.
+    /// <summary>The pattern of a record identifier link target.</summary>
+    static readonly Regex RecordLinkTarget = new(
+        $"^(?:{string.Join("|", RecordTypes.All.OrderBy(kind => kind, StringComparer.Ordinal).Select(Regex.Escape))})/[A-Za-z0-9][A-Za-z0-9._-]*$",
+        RegexOptions.Compiled);
 
     /// <summary>Checks that every docs path segment is lowercase kebab case.</summary>
     /// <param name="parsedPages">The parsed pages.</param>
@@ -148,6 +163,8 @@ internal sealed partial class RepositoryValidator
     {
         var root = Context.Root;
         var add = Context.Add;
+        var known = RecordsValidator.OwnRecordIds(root);
+        known.UnionWith(RecordsValidator.ExampleRecordIds(root));
         var readers = new Dictionary<string, PageReader>(StringComparer.Ordinal);
         foreach (var file in files)
         {
@@ -169,6 +186,15 @@ internal sealed partial class RepositoryValidator
                 var parts = href.Split('#');
                 var targetPart = parts[0];
                 var anchor = parts.Length > 1 ? parts[1] : "";
+
+                // A link whose target is a known record identifier cites that record;
+                // the book resolves it, so the file check below does not apply. An
+                // unknown identifier falls through and reports as a broken link.
+                if (targetPart.Length > 0 && RecordLinkTarget.IsMatch(targetPart) && known.Contains(targetPart))
+                {
+                    continue;
+                }
+
                 if (!TryDecodeURIComponent(targetPart, out var decoded))
                 {
                     add(relative, link.Line, "LINK_BROKEN", $"link target '{href}' holds a malformed percent escape");
@@ -292,15 +318,16 @@ internal sealed partial class RepositoryValidator
         }
     }
 
-    // Every shipped consumer record template teaches a record shape, so its
-    // frontmatter meets the record schema it teaches. A placeholder takes the
-    // documented skip form, an angle-bracketed hint or a dunder name, and the
-    // check normalizes each one to a valid example before validating, so drift
-    // reports while placeholders pass. A template naming a kind instead of a
-    // type teaches a non-record shape its own schema owns, so the record check
-    // skips it. A template whose type matches no record definition teaches nothing.
+    // Every shipped consumer record template teaches a record shape, so its record
+    // file meets the record schema it teaches. A placeholder takes the documented
+    // skip form, an angle-bracketed hint or a dunder name, and the check normalizes
+    // each one to a valid example before validating, so drift reports while
+    // placeholders pass. A document template teaches a document shape the same way
+    // through its frontmatter. A template naming a kind instead of a type teaches a
+    // non-record shape its own schema owns, so the check skips it. A template whose
+    // type matches no definition teaches nothing.
     // (litespec/core/authoring#run-repeatable-authoring-checks)
-    /// <summary>Checks every consumer template against the record schema it teaches.</summary>
+    /// <summary>Checks every consumer template against the schema it teaches.</summary>
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "CheckConsumerTemplates reports a record schema that cannot be read or parsed, or a validation failure over an arbitrary template, as collected TEMPLATE_SCHEMA errors instead of crashing the validation run.")]
     internal void CheckConsumerTemplates()
     {
@@ -336,36 +363,104 @@ internal sealed partial class RepositoryValidator
 
         foreach (var file in Directory.GetFileSystemEntries(directory).OrderBy(name => name, StringComparer.Ordinal))
         {
-            if (!file.EndsWith(".md", StringComparison.OrdinalIgnoreCase))
-            {
-                continue;
-            }
-
             var relative = Slash(Path.GetRelativePath(root, file));
-            var raw = ReadText(file);
-            if (raw.Split('\n')[0].TrimEnd('\r') != "---")
-            {
-                continue;
-            }
+            JsonObject? template = null;
+            string? type = null;
 
-            if (!RecordsValidator.TryParseRecordFrontmatter(raw, out var frontmatter, out var error))
+            if (file.EndsWith(".yaml", StringComparison.OrdinalIgnoreCase))
             {
-                add(relative, 1, "TEMPLATE_SCHEMA", $"record frontmatter is invalid: {error}");
-                continue;
-            }
-
-            var type = JsonString((frontmatter as JsonObject)?["type"]);
-            if (type is null || type.Length == 0)
-            {
-                // A non-record template carries its own schema's discriminator
-                // instead of a record type. The design contract names a kind,
-                // and its schema owns it, so the record check does not apply.
-                if (JsonString((frontmatter as JsonObject)?["kind"]) is not null)
+                // The term entries live beside the record templates but follow the
+                // glossary schema, so the record check does not apply.
+                if (string.Equals(Path.GetFileName(file), "glossary.yaml", StringComparison.OrdinalIgnoreCase))
                 {
                     continue;
                 }
 
-                add(relative, 1, "TEMPLATE_SCHEMA", "template frontmatter names no record type");
+                if (!RecordsValidator.TryParseRecordFile(ReadText(file), out var record, out var error))
+                {
+                    add(relative, 1, "TEMPLATE_SCHEMA", $"record file is invalid: {error}");
+                    continue;
+                }
+
+                template = record as JsonObject;
+                type = JsonString(template?["type"]);
+                if (type is null || type.Length == 0)
+                {
+                    // A non-record template carries its own schema's discriminator
+                    // instead of a record type, and its schema owns it, so the
+                    // record check does not apply.
+                    if (JsonString(template?["kind"]) is not null)
+                    {
+                        continue;
+                    }
+
+                    add(relative, 1, "TEMPLATE_SCHEMA", "template names no record type");
+                    continue;
+                }
+
+                // A document style template is a Markdown file beside the record
+                // templates; a .yaml file teaches a record or a container page.
+                if (!RecordTypes.All.Contains(type) && !ContainerPageStyles.Contains(type))
+                {
+                    if (RecordTypes.PageStyles.Contains(type))
+                    {
+                        add(relative, 1, "TEMPLATE_SCHEMA", $"type '{type}' is a document style; its template lives in '{type}.md', not in this YAML file");
+                    }
+                    else
+                    {
+                        add(relative, 1, "TEMPLATE_SCHEMA", $"template type '{type}' matches no record definition");
+                    }
+
+                    continue;
+                }
+            }
+            else if (file.EndsWith(".md", StringComparison.OrdinalIgnoreCase))
+            {
+                // An explanation template carries no frontmatter; a document
+                // template carries its document style between the fences.
+                var raw = ReadText(file);
+                if (raw.Split('\n')[0].TrimEnd('\r') != "---")
+                {
+                    continue;
+                }
+
+                if (!TryParseDocumentFrontmatter(raw, out var frontmatter, out var error))
+                {
+                    add(relative, 1, "TEMPLATE_SCHEMA", $"document frontmatter is invalid: {error}");
+                    continue;
+                }
+
+                template = frontmatter as JsonObject;
+                type = JsonString(template?["type"]);
+                if (type is null || type.Length == 0)
+                {
+                    // A non-record template carries its own schema's discriminator
+                    // instead of a page style. The design contract names a kind,
+                    // and its schema owns it, so the check does not apply.
+                    if (JsonString(template?["kind"]) is not null)
+                    {
+                        continue;
+                    }
+
+                    add(relative, 1, "TEMPLATE_SCHEMA", "template frontmatter names no document style");
+                    continue;
+                }
+
+                // A record template lives in its .yaml file; a Markdown file
+                // holding a record type is the shape the record files replaced.
+                if (RecordTypes.All.Contains(type) || ContainerPageStyles.Contains(type))
+                {
+                    add(relative, 1, "TEMPLATE_SCHEMA", $"type '{type}' is a record type; its template lives in '{type}.yaml', not in this Markdown file");
+                    continue;
+                }
+            }
+            else
+            {
+                continue;
+            }
+
+            if (template is null || type is null)
+            {
                 continue;
             }
 
@@ -376,7 +471,7 @@ internal sealed partial class RepositoryValidator
                 continue;
             }
 
-            var normalized = ((JsonObject)frontmatter!).DeepClone();
+            var normalized = template.DeepClone();
             NormalizeTemplateNode(normalized, def, defs, schema!);
 
             var errors = new List<string>();
@@ -397,6 +492,36 @@ internal sealed partial class RepositoryValidator
                 add(relative, 1, "TEMPLATE_SCHEMA", text);
             }
         }
+    }
+
+    /// <summary>Parses the YAML frontmatter block of a document template.</summary>
+    /// <param name="raw">The raw template text.</param>
+    /// <param name="node">The parsed frontmatter, or null when it does not parse.</param>
+    /// <param name="error">The parse failure message.</param>
+    /// <returns>True when the frontmatter parses.</returns>
+    private static bool TryParseDocumentFrontmatter(string raw, out JsonNode? node, out string error)
+    {
+        node = null;
+        error = "";
+
+        var lines = raw.Split('\n');
+        var closing = -1;
+        for (var index = 1; index < lines.Length; index++)
+        {
+            if (lines[index].TrimEnd('\r') == "---")
+            {
+                closing = index;
+                break;
+            }
+        }
+
+        if (closing < 0)
+        {
+            error = "unterminated frontmatter block";
+            return false;
+        }
+
+        return RecordsValidator.TryParseRecordFile(string.Join('\n', lines[1..closing]), out node, out error);
     }
 
     /// <summary>Computes the schema definition name of a record type.</summary>

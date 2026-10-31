@@ -256,7 +256,7 @@ The entry names the pattern's default option and records `owner` as the source, 
 
 **Rationale:** When the catalog waits for a later change, the code ships, the follow-up slips, and the entry describes behavior no route renders. Updating the entry in the same change as its implementation keeps the two in agreement by construction. A deliberate departure in one route names a decision record instead, so the departure stays reviewable.
 
-**Example:** A route departing from the chosen option names `decision.record`, such as `docs/intent/decisions/0014-expense-sort-menu.md`.
+**Example:** A route departing from the chosen option names `decision.record`, such as `docs/intent/decisions/0014-expense-sort-menu.yaml`.
 
 **Reviewed for:** Which option switches, added options, or extensions land without their implementation, and which single-route departures name no decision record? Look in the change diffs and the catalog entries.
 

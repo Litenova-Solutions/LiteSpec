@@ -1,14 +1,13 @@
 ---
-{
-  "type": "review-report",
-  "title": "<Review Report Display Title>",
-  "owner": "<owner>",
-  "reviewedOn": "<YYYY-MM-DD>",
-  "reviewer": "<owner or agent>",
-  "batches": ["<batch selector>"]
-}
+type: review-report
+title: October Approval Review
+owner: claimwick-team
+reviewedOn: 2026-10-20
+reviewer: claimwick-team
+batches:
+  - module:spending
 ---
-# <Review Report Display Title>
+# October Approval Review
 
 State in one paragraph what the second review covered and what it concluded.
 

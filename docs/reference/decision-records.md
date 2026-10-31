@@ -2,7 +2,7 @@
 
 ## Intent
 
-A decision record pins one expensive-to-reverse choice (a data model, a provider, a security boundary) down with the options weighed, the evidence cited, and the decider named, so a later team sees why the product looks the way it does instead of relitigating it. This page states where each record lives in the consumer repository (the application repository built against one pinned LiteSpec release), what sections and metadata it holds, and how a record ends: replaced, never edited.
+A decision record pins one expensive-to-reverse choice (a data model, a provider, a security boundary) down with the options weighed, the evidence cited, and the decider named, so a later team sees why the product looks the way it does instead of relitigating it. This page states where each record lives in the consumer repository (the application repository built against one pinned LiteSpec release), what fields and explanation sections it holds, and how a record ends: replaced, never edited.
 
 ## Reference
 
@@ -10,13 +10,14 @@ The [product page](../core/intent.md) states what a decision record means; this 
 
 ### Where a Record Lives
 
-Each record is one Markdown file in the consumer repository. Start it with `litespec new decision <number>-<name>`, which scaffolds the page and reserves its identifier, then fill in the opening frontmatter block and the sections below.
+Each record is one record file with its explanation file beside it in the consumer repository. Start it with `litespec new decision <number>-<name>`, which scaffolds both files and reserves its identifier, then fill in the record fields and the explanation sections below.
 
 | Item | Value |
 |:---|:---|
-| Path | `docs/intent/decisions/<number>-<name>.md` in the consumer repository |
-| Template | `templates/consumer/decision.md` |
-| Metadata type | `decision` |
+| Path | `docs/intent/decisions/<number>-<name>.yaml` with `docs/intent/decisions/<number>-<name>.md` beside it in the consumer repository |
+| Record template | `templates/consumer/decision.yaml` |
+| Explanation template | `templates/consumer/decision.md` |
+| Record type | `decision` |
 
 ### Identifier Form
 
@@ -24,16 +25,15 @@ The identifier is `decision/<number>-<name>`, such as `decision/0001-receipt-thr
 
 ### What a Record Contains
 
-The body carries four sections:
+The explanation file carries three sections:
 
 | Section | What it states |
 |:---|:---|
 | Context | The concrete constraint or conflict forcing a choice. |
 | Decision | The selected behavior and its decider. |
-| Consequences | The required work and the accepted cost. |
 | Evidence | The research and constraints the choice rests on, each with its confidence. |
 
-The frontmatter carries the fields tools read: `options` with one entry per weighed option (`name`, `pros`, `cons`), `choice` with the selected option once approved, and `reopenedWhen` with what would overturn the choice. It also carries `decides` with the records this choice sets, `basedOn` with the constraints and research behind it, and `replaces` with the record this choice overturns. A draft carries `decider` with the decider and `decideBy` with the date the choice is due. `status` is `draft`, `approved`, or `retired`, and an approved record carries `approvedBy`, `approvedOn`, and `approvedHash` over its semantic fields. Open questions on any record group under a ballot named by this decision's id, and the book lists them in the Ballots view.
+The record file carries the fields tools read: `options` with one entry per weighed option (`name`, `pros`, `cons`), `choice` with the selected option once approved, `reopenedWhen` with what would overturn the choice, and `consequences` with the required work and the accepted cost. It also carries `decides` with the records this choice sets, `basedOn` with the constraints and research behind it, and `replaces` with the record this choice overturns. A draft carries `decider` with the decider and `decideBy` with the date the choice is due. `status` is `draft`, `approved`, or `retired`, and an approved record carries `approvedBy`, `approvedOn`, and `approvedHash` over its semantic fields. Open questions on any record group under a ballot named by this decision's id, and the book lists them in the Ballots view.
 
 ### Replaced, Never Edited
 
@@ -45,4 +45,4 @@ A record stays unapproved while a decision it depends on stays draft, because ap
 
 ## Notes
 
-The outside conventions for this artifact are [Nygard's architecture decision record](https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions) and [MADR](https://adr.github.io/). Both record context, decision, and consequences in one immutable file per choice, and this record keeps that shape.
+The outside conventions for this artifact are [Nygard's architecture decision record](https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions) and [MADR](https://adr.github.io/). Both record context, decision, and consequences in one immutable record per choice, and this record keeps that shape.

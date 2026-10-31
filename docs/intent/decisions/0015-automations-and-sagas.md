@@ -1,42 +1,3 @@
----
-{
-  "type": "decision",
-  "id": "decision/0015-automations-and-sagas",
-  "title": "Automations and Sagas",
-  "owner": "LiteSpec maintainer",
-  "status": "draft",
-  "decider": "LiteSpec maintainer",
-  "decideBy": "2026-11-30",
-  "options": [
-    {
-      "name": "Reactions and jobs return, with sagas, doors, and bound atomicity",
-      "pros": "Reaction and job name the two shapes explicitly, saga names the orchestration honestly, doors end the auth split, and bound groups keep atomic writes visible.",
-      "cons": "Reactions, jobs, sagas and entry points all migrate to the new shapes in one change."
-    },
-    {
-      "name": "Keep one automation record",
-      "pros": "One trigger shape ends the reaction and job split.",
-      "cons": "One name hides whether the work answers an event or runs on a schedule, and the owner withdrew it."
-    },
-    {
-      "name": "Atomic writes for one aggregate only",
-      "pros": "The aggregate boundary stays absolute, as the outside practice advises.",
-      "cons": "The largest consumer's place-order writes seven aggregates atomically today, so the ban would force a saga where the business settles at once."
-    },
-    {
-      "name": "Keep process as the saga name",
-      "pros": "No aggregate kind migrates.",
-      "cons": "A lifecycle name for orchestration leaves lifecycles without their plain word and teaches newcomers the wrong shape."
-    }
-  ],
-  "choice": "Reactions and jobs return, with sagas, doors, and bound atomicity",
-  "reopenedWhen": "Work appears that neither a reaction answering events nor a scheduled or manual job can carry.",
-  "basedOn": [
-    "research/lower-layers-practice"
-  ]
-}
----
-
 # Automations and Sagas
 
 ## Context
@@ -46,10 +7,6 @@ The `process` aggregate kind is a saga under a lifecycle name, entry points cove
 ## Decision
 
 Reaction and job return as two record types. A reaction carries `reaction/<module>.<name>`, names the events it answers in `triggeredBy` with its skip condition in `skippedWhen`, and is named `<verb>-<what>-on-<fact>`. A job carries `job/<module>.<name>`, names its `kind` of `scheduled`, `one-off`, or `manual` with its `schedule`, `selection`, `lease`, `cursor`, and `guard`, and is named `<verb>-<what>` with the verb of the use case it runs. The aggregate kind `process` becomes `saga`: a coordinator whose steps run use cases on other aggregates, each with its compensation. A record with only a lifecycle is an `entity`, with "process manager" as the glossary alias. An entry point is a door from outside only (`browser`, `api`, `webhook`, `device`, `cli`, `mcp`, `served-content`): the door states how a caller authenticates in `auth`, and the use case states who may act in `grant` and `tenant`. An atomic write across aggregates stays allowed through an `atomicity` rule that `binds` the aggregates; the use case's `changes` must equal that group; a group above 4 aggregates reports at check level A as a saga candidate; `best-effort` is removed.
-
-## Consequences
-
-`litespec/core/domain-model#declare-the-kind-of-every-aggregate` carries the saga and entity kinds, `litespec/core/edges#give-each-entry-point-a-kind` carries doors only, and `litespec/core/use-cases#state-the-consistency-of-every-use-case` carries bound atomicity. `litespec/core/access#authenticate-every-caller-through-a-declared-auth-kind` keeps auth on the door, and `litespec/core/access#grant-every-use-case-through-a-declared-grant` keeps the grant on the use case. `litespec/core/automation#trigger-every-reaction-from-its-declared-events`, `litespec/core/automation#run-every-job-from-its-declared-kind`, `litespec/core/automation#name-each-reaction-for-its-act-and-its-trigger`, `litespec/core/automation#name-each-job-for-the-use-case-it-runs`, and `litespec/core/automation#guard-every-manual-job` carry the reaction trigger, the job kind, the two name forms, and the manual job guard.
 
 ## Evidence with Confidence
 

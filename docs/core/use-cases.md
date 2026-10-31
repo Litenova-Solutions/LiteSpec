@@ -31,7 +31,7 @@ Each consistency mode defines its promise and the effect timings it permits:
 
 Each effect entry carries the one `onFailure` shape: `{ mode, retry, then, deadLetter, surfacesIn, runbook }` with `mode` of `retry`, `skip-and-log`, or `discard`; `retry` and `then` accompany `mode: retry`, and `deadLetter`, `surfacesIn`, and `runbook` stay optional. `onExhausted` names the act when retries run out. `before` orders the entry ahead of another named target with its reason, and `forEach` names the items the entry repeats over.
 
-Goal states the intent and What Happens walks the steps. Significant use cases carry both, as [Write Prose on Significant Use Cases](#write-prose-on-significant-use-cases) states; frontmatter plus Goal suffices elsewhere.
+`purpose` states the intent and `whatHappens` walks the steps. A significant use case carries `purpose`, and a significant command also carries `whatHappens`, as [Write Prose on Significant Use Cases](#write-prose-on-significant-use-cases) states; the fields plus `purpose` suffice elsewhere. `exposure` states what the use case exposes and what protects it. Example and Notes live in the explanation file beside the record file.
 
 ### Queries
 
@@ -106,7 +106,7 @@ A scenario proves one ending: a child record with `given`, `when`, `then`, an op
 
 ### Settings
 
-A setting is one tunable value with its type, range, unit, setter, and bound behavior. A default or figure that is commercial, legal, or differs by tenant, market, or date fulfills a requirement; a model invariant is a rule instead. A platform-wide setting lives in the `platform` module. The `setting-set` page style holds many settings.
+A setting is one tunable value with its type, range, unit, setter, and bound behavior. A default or figure that is commercial, legal, or differs by tenant, market, or date fulfills a requirement; a model invariant is a rule instead. A platform-wide setting lives in the `platform` module. The `setting-set` page style holds many settings. A setting set carries `purpose` and `whatHappens`, and its explanation file holds Notes.
 
 | Field | Meaning |
 |:---|:---|
@@ -523,11 +523,11 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **ID:** `litespec/core/use-cases#write-prose-on-significant-use-cases`
 
-**Statement:** Each use case changing more than one aggregate, refusing beyond the generic refusals, carrying risk, or running effects inline MUST carry Goal and What Happens.
+**Statement:** Each use case changing more than one aggregate, refusing beyond the generic refusals, carrying risk, or running effects inline MUST carry `purpose` on every kind and `whatHappens` on a command.
 
-**Rationale:** Prose on every use case buries the significant ones: a simple read carries two sections saying what the frontmatter already says. Requiring Goal and What Happens only on significant use cases keeps prose where judgment lives, and frontmatter plus Goal suffice elsewhere. The `prose-missing` check reports a significant use case without its prose as advisory.
+**Rationale:** Prose on every use case buries the significant ones: a simple read carries fields saying what the record already says. Requiring `purpose` on every significant use case and `whatHappens` beside it on a command keeps prose where judgment lives. The `prose-missing` check reports a significant use case without its prose as advisory.
 
-**Checked by:** `litespec model check` reports `prose-missing` for a significant use case without Goal and What Happens.
+**Checked by:** `litespec model check` reports `prose-missing` for a significant use case without `purpose` and for a significant command without `whatHappens`.
 
 ### Hold Every Setting Default to a Requirement
 
@@ -547,7 +547,7 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **Statement:** Each use case MUST name the settings it reads in `reads`.
 
-**Rationale:** A setting read by a use case no record names is a coupling reviewers cannot see: the tunable moves, the reader breaks, and no diff shows the pair. Naming the settings in `reads` beside the use case states the coupling where the reader lives, so each change to the range or default meets its readers. The setting's readers are computed as the inverse, never written. Settled by [decision/0012-use-cases-read-their-settings](../intent/decisions/0012-use-cases-read-their-settings.md) on the evidence in [research/behavior-containment-evidence](../intent/research/behavior-containment-evidence.md) and [research/field-naming-evidence](../intent/research/field-naming-evidence.md).
+**Rationale:** A setting read by a use case no record names is a coupling reviewers cannot see: the tunable moves, the reader breaks, and no diff shows the pair. Naming the settings in `reads` beside the use case states the coupling where the reader lives, so each change to the range or default meets its readers. The setting's readers are computed as the inverse, never written. Settled by [decision/0012-use-cases-read-their-settings](decision/0012-use-cases-read-their-settings) on the evidence in [research/behavior-containment-evidence](research/behavior-containment-evidence) and [research/field-naming-evidence](research/field-naming-evidence).
 
 **Example:** The submit-expense use case names `setting/spending.receipt-threshold` in `reads`, so a move of the threshold meets the submission story.
 

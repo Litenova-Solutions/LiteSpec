@@ -1,7 +1,7 @@
 namespace LiteSpec.Analyzers.Records;
 
 /// <summary>
-///     One Markdown file handed to the record index: its path and its text.
+///     One additional file handed to the record index: its path and its text.
 /// </summary>
 public sealed class RecordFile
 {

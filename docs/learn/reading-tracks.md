@@ -12,7 +12,7 @@ A reviewer who reads Behavior first meets behavior with no reason. A reviewer wh
 
 ## One Journey End to End
 
-Follow one journey from its goal to its proof. Product readers take this track through the journey detail, which shows the journey without field names or JSON. Read in this order:
+Follow one journey from its goal to its proof. Product readers take this track through the journey detail, which shows the journey without field names or record text. Read in this order:
 
 1. The goal the journey serves, and the requirements that fulfill it, with their statements and each `except` with its fallback inline.
 2. The journey page: its goal, its `finishedWhen`, its steps as product sentences, and what each step's `failure` says the person experiences.

@@ -19,7 +19,7 @@ The counts name what the builder found: 105 records, 9 handlers, 1 screen, and 1
 `litespec model check` builds the model in memory and reports every finding with its level, code, message, path, and line. Against the unchanged example it reports this, and exits zero:
 
 ```text
-docs/behavior/modules/spending/expenses/export-expenses.md:3 [S excepted use-case-unimplemented] Use case 'use-case/spending.export-expenses' has no handler.
+docs/behavior/modules/spending/expenses/export-expenses.yaml:1 [S excepted use-case-unimplemented] Use case 'use-case/spending.export-expenses' has no handler.
 0 open findings, 1 excepted.
 ```
 
@@ -27,32 +27,33 @@ The Export expenses use case has no handler, so the `use-case-unimplemented` che
 
 ## The Exception for Export Expenses
 
-The team accepts that exporting expenses has no handler yet, so the gap lives as an exception of kind gap with an owner and an expiry date. The record sits at `docs/governance/exceptions/export-expenses-unimplemented.md`, and the use case it covers waits for its handler at `docs/behavior/modules/spending/expenses/export-expenses.md`. The exception record reads:
+The team accepts that exporting expenses has no handler yet, so the gap lives as an exception of kind gap with an owner and an expiry date. The record file sits at `docs/governance/exceptions/export-expenses-unimplemented.yaml`, and the use case it covers waits for its handler at `docs/behavior/modules/spending/expenses/export-expenses.yaml`. The exception record file reads:
 
-```json
-{
-  "type": "exception",
-  "id": "exception/export-expenses-unimplemented",
-  "title": "Export Expenses Unimplemented",
-  "owner": "claimwick-team",
-  "status": "approved",
-  "kind": "gap",
-  "covers": ["use-case-unimplemented"],
-  "subject": ["use-case/spending.export-expenses"],
-  "reason": "Export waits for the finance file format.",
-  "expiresOn": "2027-06-01"
-}
+```yaml
+type: exception
+id: exception/export-expenses-unimplemented
+title: Export Expenses Unimplemented
+owner: claimwick-team
+status: approved
+kind: gap
+covers:
+  - use-case-unimplemented
+subject:
+  - use-case/spending.export-expenses
+reason: Export waits for the finance file format.
+exit: The gap closes when the finance file format lands and the export use case gains its handler.
+expiresOn: 2027-06-01
 ```
 
-The exception covers the finding because its `covers` lists the finding code and its `subject` lists the finding record. The page body holds one Exit section: the gap closes when the finance file format lands and the export use case gains its handler. The check reports without failing until 2027-06-01, and the expenses team answers for closing the gap. An expired exception fails the check, so the date keeps the missing work visible instead of letting it sit unowned.
+The exception covers the finding because its `covers` lists the finding code and its `subject` lists the finding record. The `exit` field states how the gap closes: when the finance file format lands and the export use case gains its handler. The check reports without failing until 2027-06-01, and the expenses team answers for closing the gap. An expired exception fails the check, so the date keeps the missing work visible instead of letting it sit unowned.
 
 ## The Run with the Approve Expense Handler Removed
 
 Removing `apps/api/src/Claimwick.Application/Spending/Expenses/ApproveExpense/ApproveExpenseCommandHandler.cs` and running the check again gives one open finding:
 
 ```text
-docs/behavior/modules/spending/expenses/approve-expense.md:3 [S use-case-unimplemented] Use case 'use-case/spending.approve-expense' has no handler.
-docs/behavior/modules/spending/expenses/export-expenses.md:3 [S excepted use-case-unimplemented] Use case 'use-case/spending.export-expenses' has no handler.
+docs/behavior/modules/spending/expenses/approve-expense.yaml:1 [S use-case-unimplemented] Use case 'use-case/spending.approve-expense' has no handler.
+docs/behavior/modules/spending/expenses/export-expenses.yaml:1 [S excepted use-case-unimplemented] Use case 'use-case/spending.export-expenses' has no handler.
 1 open findings, 1 excepted.
 exit 1
 ```
@@ -61,7 +62,7 @@ The finding says no code implements the Approve expense use case. The fix is to 
 
 ## Querying One Record
 
-`litespec model query` prints one record with its links in both directions, and agents use it to load a record's context. Querying the Expense aggregate returns its states, data classes, rules, and events:
+`litespec model query` prints one record with its links in both directions, and agents use it to load a record's context. Querying the Expense aggregate returns its states, transitions, data, rules, and events:
 
 ```json
 {
@@ -70,8 +71,8 @@ The finding says no code implements the Approve expense use case. The fix is to 
   "title": "Expense",
   "owner": "claimwick-team",
   "status": "reviewed",
-  "file": "docs/behavior/modules/spending/expenses/README.md",
-  "line": 3,
+  "file": "docs/behavior/modules/spending/expenses/aggregate.yaml",
+  "line": 1,
   "fields": {
     "type": "aggregate",
     "id": "aggregate/spending.expense",
@@ -121,17 +122,17 @@ The record reads `implemented` because its handler exists, and `proves` names th
 
 ## The Consumer Check
 
-`litespec consumer` checks the project configuration, the page frontmatter, and the language of a consumer repository, per [Validate Consumer](../tools/consumer.md). Against the Claimwick example it reports this, and exits zero:
+`litespec consumer` checks the project configuration, the record files, and the language of a consumer repository, per [Validate Consumer](../tools/consumer.md). Against the Claimwick example it reports this, and exits zero:
 
 ```text
 Consumer: ../expenses
-Files scanned: 44 under docs, frontmatter pages: 44
+Files scanned: 44 under docs, record files: 44
 Glossary: 0 mannered term(s), 0 rejected synonym(s), documentation only
 
-PASS: project configuration, page frontmatter and glossary are valid.
+PASS: project configuration, record files and glossary are valid.
 ```
 
-The run scanned 44 pages under `docs` and passed: no mannered term, no rejected synonym.
+The run scanned 44 files under `docs` and passed: no mannered term, no rejected synonym.
 
 ## The Journey Detail
 

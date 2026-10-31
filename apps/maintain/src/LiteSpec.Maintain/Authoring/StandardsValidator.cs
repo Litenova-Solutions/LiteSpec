@@ -83,6 +83,8 @@ internal static class StandardsValidator
         "PROVISIONS_STALE",
         "PROVISION_RESTATES_HEADING",
         "RECORD_DECISION_UNCITED",
+        "RECORD_EXPLANATION_MISSING",
+        "RECORD_EXPLANATION_ORPHANED",
         "RECORD_ID_MISMATCH",
         "RECORD_SCHEMA",
         "RECORD_SOURCE",

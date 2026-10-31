@@ -1,75 +1,3 @@
----
-{
-  "type": "research",
-  "id": "research/lower-layers-practice",
-  "title": "Lower Layers Practice",
-  "owner": "LiteSpec maintainer",
-  "status": "draft",
-  "decider": "LiteSpec maintainer",
-  "decideBy": "2026-11-30",
-  "question": "What do outside practice and the 2026-10-31 review show about exceptions, approval, proof, tooling, and design wording below Intent?",
-  "conclusion": "The review confirms exceptions that are uneven and too wide, approval satisfiable without a second person, proof words that overclaim, tooling that fails open, and design departures without stated reasons, so one exception record, one approval path sized for one-person teams, tracked proof with four proof words, fail-closed checks, and renamed records follow.",
-  "sources": [
-    {
-      "url": "https://cucumber.io/docs/gherkin/reference",
-      "readOn": "2026-10-31"
-    },
-    {
-      "url": "https://github.com/cloudevents/spec",
-      "readOn": "2026-10-31"
-    },
-    {
-      "url": "https://gdpr-info.eu/art-30-gdpr/",
-      "readOn": "2026-10-31"
-    },
-    {
-      "url": "https://gdpr-info.eu/recitals/no-26/",
-      "readOn": "2026-10-31"
-    },
-    {
-      "url": "https://martinfowler.com/bliki/TestPyramid.html",
-      "readOn": "2026-10-31"
-    },
-    {
-      "url": "https://sphinx-needs.readthedocs.io/en/latest/",
-      "readOn": "2026-10-31"
-    },
-    {
-      "url": "https://github.com/TNG/ArchUnitNET",
-      "readOn": "2026-10-31"
-    },
-    {
-      "url": "https://owasp.org/projects/top-10-for-large-language-model-applications/",
-      "readOn": "2026-10-31"
-    },
-    {
-      "path": "docs/core/behavior.md",
-      "readOn": "2026-10-31"
-    },
-    {
-      "path": "docs/core/model.md",
-      "readOn": "2026-10-31"
-    },
-    {
-      "path": "docs/core/release.md",
-      "readOn": "2026-10-31"
-    },
-    {
-      "path": "docs/core/access.md",
-      "readOn": "2026-10-31"
-    },
-    {
-      "path": "schemas/record.schema.json",
-      "readOn": "2026-10-31"
-    },
-    {
-      "path": "litespec.manifest.json",
-      "readOn": "2026-10-31"
-    }
-  ]
-}
----
-
 # Lower Layers Practice
 
 ## Answer
@@ -80,7 +8,7 @@ Exceptions are uneven and too wide. A draft known gap nobody approved silences a
 
 Approval can be satisfied without a second person, and the standing direction keeps it loose on purpose. Any string passes as a second reviewer, since the batch approver checks only that it differs from the author; an agent reading satisfies the tier 1 gate although the release page calls agent review advice; the single-record approve bypasses every batch guard, falls back to unknown as author, and never promotes the record's status, yet it is the only path for deviations and known gaps; a question's own tier 3 clears the open-question guard on a tier 1 record; re-approval keeps the previous approver's name and date on the single-record path while the batch path overwrites; and approval fields sit outside the hash with manifests never read. Outside practice pulls the other way: NIST separation of duties asks for distinct individuals, and the OWASP LLM Top 10 project asks for human approval of high-impact agent actions. The owner direction holds that approval stays loose because LiteSpec serves one-person teams: an agent's reading counts as the tier 1 second reading, a project whose owners list holds one name needs no second reviewer, the security reviewer stays optional with the security queue as a list to read rather than a gate, single-record approval promotes the record's status, and re-approval writes the new approver and date.
 
-Verified does not mean what it says. Browser-proved scenarios can never be passing, because the builder creates browser proof links with a null pass state while every status reader asks for true, so a use case proved only by Playwright is never verified and a step served only by browser flows is never exercised; Cucumber reports a status per scenario instead. Staleness lives in a git-ignored cache that is empty in every fresh clone, so CI never sees a changed scenario, and locally a rerun of an unchanged test clears it; OpenFastTrace instead marks coverage outdated from the revision of the covered item in the sources. Nothing blocks on an unverified scenario, while SonarQube quality gates evaluate pass or fail mechanically. A draft requirement or decision silences blocking findings on approved use cases. An assertion-free test marks records tested, background use cases verify through any when and then step without the docs saying so, verified names two predicates while tested and exercised overlap, and the book recomputes proof state with its own doubled vocabulary across thousands of lines. Proof state therefore lives in the committed proofs file holding each scenario's hash and its test body's hash at the last passing run, stale when either changes, with browser outcomes read. A finding blocks or reports by its record's own status with an inherited draft shown as a label. Use-case-unverified reports by default, the release flag makes release-readiness items block, and the since flag blocks only on what changed. Four proof words each keep one meaning: verified for a use case, met for a requirement, tested for a passing test with an assertion, exercised for a journey step. Finding codes follow subject-problem with twelve problem words, an unknown code fails the build, and the book renders the model file while judging nothing itself. A refusal code is retired, never renamed; a scenario names the rules it shows in exercises; and a use case may hold a shared background, matching Gherkin, where Rule groups the scenarios of one business rule and Background holds the Given steps shared before each scenario.
+Verified does not mean what it says. Browser-proved scenarios can never be passing, because the builder creates browser proof links with a null pass state while every status reader asks for true, so a use case proved only by Playwright is never verified and a step served only by browser flows is never exercised; Cucumber reports a status per scenario instead. Staleness lives in a git-ignored cache that is empty in every fresh clone, so CI never sees a changed scenario, and locally a rerun of an unchanged test clears it; OpenFastTrace instead marks coverage outdated from the revision of the covered item in the sources. Nothing blocks on an unverified scenario, while SonarQube quality gates evaluate pass or fail mechanically. A draft requirement or decision silences blocking findings on approved use cases. An assertion-free test marks records tested, background use cases verify through any when and then step without the docs saying so, verified names two predicates while tested and exercised overlap, and the book recomputes proof state with its own doubled vocabulary across thousands of lines. Proof state therefore lives in the committed proofs file holding each scenario's hash and its test body's hash at the last passing run, stale when either changes, with browser outcomes read. A finding blocks or reports by its record's own status with an inherited draft shown as a label. Use-case-unverified reports by default, the release flag makes release-readiness items block, and the since flag blocks only on what changed. Four proof words each keep one meaning: verified for a use case, met for a requirement, tested for a passing test with an assertion, exercised for a journey step. Finding codes follow subject-problem with fifteen problem words, an unknown code fails the build, and the book renders the model file while judging nothing itself. A refusal code is retired, never renamed; a scenario names the rules it shows in exercises; and a use case may hold a shared background, matching Gherkin, where Rule groups the scenarios of one business rule and Background holds the Given steps shared before each scenario.
 
 The tooling fails open in four places, and marks are matched by name. The manifest pins the analyzers to a release without the traceability rules the stack pages cite, while the analyzer project carries the newer version. A missing frontend reader turns S findings into reports and the build stays green. An unknown layer value silently disables every rule, and a Worker project resolves to no layer at all. The analyzer pin therefore matches the analyzer project with every cited LS code shipped, an unknown layer name is reported, Worker is a layer, and reader-missing blocks when CI is set. Marks take the declared style on frontends, a third syntax on operations files, and name matching on backends, where a handler in one folder marked for another passes, the Blazor reader runs its own narrower regex, and state changes without an event escape every check. Mark style therefore belongs to the language, read by one parser; a backend mark matches its folder; marks and handlers are recognized by symbol; and a state-changing aggregate method needs a mark. The dormant architecture-test library, last released in 2021, gives way to the active ArchUnitNET line.
 

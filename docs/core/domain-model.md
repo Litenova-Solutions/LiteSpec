@@ -8,7 +8,7 @@ Domain Model states the words and things inside the bounded context: the modules
 
 ### Bounded Context and Module
 
-The product speaks one business language inside one deployment boundary, as the [scope page](scope.md) states. Modules organize that language into areas; they stay areas of one language and one deployment, never languages or deployments of their own. A module is one business area: a page under the behavior docs carrying a `summary` and the `dependsOn` links to the modules it relies on, in the home the [model page](model.md) names.
+The product speaks one business language inside one deployment boundary, as the [scope page](scope.md) states. Modules organize that language into areas; they stay areas of one language and one deployment, never languages or deployments of their own. A module is one business area: a page under the behavior docs carrying a `summary` and the `dependsOn` links to the modules it relies on, in the home the [model page](model.md) names. Example, Known Limits, and Notes live in the explanation file beside the record file.
 
 | Field | Meaning |
 |:---|:---|
@@ -39,9 +39,9 @@ An aggregate is one thing the product keeps consistent and changes in one step, 
 | `saga` | A coordinator whose steps run use cases on other aggregates, each with its compensation. |
 | `store` | State no aggregate invariant guards, such as a library-owned table, with a named owner. |
 
-An aggregate lists in `parts` the kebab-case names of the child entities and value objects inside it that use cases act on, such as `line`, `hold`, and `note`. The use-case noun check reads each part as a known word.
+An aggregate lists in `parts` the kebab-case names of the child entities and value objects inside it that use cases act on, such as `line`, `hold`, and `note`. The use-case noun check reads each part as a known word. Example, Known Limits, and Notes live in the explanation file beside the record file.
 
-Transitions and data live in frontmatter, in `transitions` and `data`. The Transitions table lists every allowed change with the use case moving it, naming the state left and the state entered (a creation, the change that brings an instance into being, writes `-` as the state left, or leaves the From cell empty), and the Data table lists the fields the aggregate keeps with name, meaning, classification, and data class; both tables render as generated regions from the frontmatter. Each data class declares how its fields erase:
+`transitions` lists every allowed change with the use case moving it: each entry names the state left in `from`, the state entered in `to`, and the moving use case in `by`. A creation, the change that brings an instance into being, writes `-` as the state left. `data` lists the fields the aggregate keeps, each with name, meaning, classification, and data class. Each data class declares how its fields erase:
 
 | Field | Meaning |
 |:---|:---|
@@ -69,7 +69,7 @@ A saga is an aggregate that coordinates work across aggregates: a refund, a resa
 
 ### Rules
 
-A rule states what holds, with its `kind` and its `statement`. A rule names what it constrains in `governs`, the refusal its breach produces in `refusal`, the requirements it carries in `fulfills`, and the constraints and research behind it in `basedOn`. A cross-aggregate rule spans aggregates and lives on a rule page; each other rule lives as an entry on its aggregate page.
+A rule states what holds, with its `kind` and its `statement`. A rule names what it constrains in `governs`, the refusal its breach produces in `refusal`, the requirements it carries in `fulfills`, and the constraints and research behind it in `basedOn`. A cross-aggregate rule spans aggregates and lives on a rule page; each other rule lives as an entry on its aggregate page. A rule page carries a `summary` stating why its rules sit together, and its explanation file holds Notes.
 
 | Kind | Meaning |
 |:---|:---|
@@ -157,7 +157,7 @@ A domain event is an immutable statement that a business fact completed, named i
 
 **Statement:** Each entity and each saga MUST declare its lifecycle as `states` entries with a name and a meaning.
 
-**Rationale:** A bare state name tells a reviewer nothing: `rejected` without its meaning hides what rejection costs and allows. A name with a meaning makes each lifecycle step reviewable on the page, and gives the Transitions table states worth connecting. An entity tracks what the thing is, and a saga tracks where its coordination stands. A store carries no lifecycle, so it carries no states.
+**Rationale:** A bare state name tells a reviewer nothing: `rejected` without its meaning hides what rejection costs and allows. A name with a meaning makes each lifecycle step reviewable on the page, and gives `transitions` states worth connecting. An entity tracks what the thing is, and a saga tracks where its coordination stands. A store carries no lifecycle, so it carries no states.
 
 **Example:** The hold queue entity declares `Requested`, `Ready`, `Collected`, `Cancelled`, and `Lapsed`, each with one sentence saying what the hold awaits or has received.
 
@@ -181,9 +181,9 @@ A domain event is an immutable statement that a business fact completed, named i
 
 **Statement:** Each entity and each saga MUST list every allowed state change with its use case in `transitions`, including the creation that enters its first state.
 
-**Rationale:** States without transitions are a list of names with no path between them: a reviewer sees where an aggregate rests but never how it moves. Listing every allowed change with the use case that moves it shows the whole lifecycle beside the states, and leaves no state reachable only by a path no record names. The Transitions table renders `transitions` as a generated region. The `state-unreached` and `transition-unknown` checks report a state no transition reaches and a transition naming a missing state or use case, and `table-drift` reports a handwritten table that differs from the frontmatter.
+**Rationale:** States without transitions are a list of names with no path between them: a reviewer sees where an aggregate rests but never how it moves. Listing every allowed change with the use case that moves it shows the whole lifecycle beside the states, and leaves no state reachable only by a path no record names. The `state-unreached` and `transition-unknown` checks report a state no transition reaches and a transition naming a missing state or use case.
 
-**Checked by:** `litespec model check` reports `state-unreached` (level G) for a state reached by no transition, a creation included, `transition-unknown` (level G) for a transition naming a missing state or use case, and `table-drift` (level A) for a handwritten Transitions table that differs from `transitions`.
+**Checked by:** `litespec model check` reports `state-unreached` (level G) for a state reached by no transition, a creation included, and `transition-unknown` (level G) for a transition naming a missing state or use case.
 
 ### State Each Saga Step with Its Compensation
 
@@ -309,9 +309,9 @@ A domain event is an immutable statement that a business fact completed, named i
 
 **ID:** `litespec/core/domain-model#tabulate-every-calculation-with-examples`
 
-**Statement:** Each calculation rule MUST be proven by a scenario carrying an examples table.
+**Statement:** Each calculation rule MUST be proven by a scenario carrying an `examples` table.
 
-**Rationale:** A calculation stated only as a sentence hides its edges: reviewers agree on the words while each pictures other numbers. An examples table shows those edges, and the scenario proving the rule pins them as checked facts. The `calculation-table-missing` check reports a calculation rule with no scenario examples table.
+**Rationale:** A calculation stated only as a sentence hides its edges: reviewers agree on the words while each pictures other numbers. An `examples` table shows those edges, and the scenario proving the rule pins them as checked facts. The `calculation-table-missing` check reports a calculation rule with no scenario `examples` table.
 
 **Checked by:** `litespec model check` reports `calculation-table-missing` for a calculation rule with no scenario examples table.
 

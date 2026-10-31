@@ -2,7 +2,7 @@
 
 ## Name
 
-`litespec new` scaffolds a record page and reserves its identifier, appends a result or scenario entry to a use-case page, or appends a requirement, rule, permission, or setting entry to its owning list page.
+`litespec new` scaffolds a record file and reserves its identifier, appends a result or scenario entry to a use-case file, or appends a requirement, rule, permission, or setting entry to its owning list file.
 
 ## Synopsis
 
@@ -15,15 +15,15 @@ litespec new entry <page-id> <type> <name> [--root <path>]
 
 ## Description
 
-This command creates one record page from the template for its type, with the opening frontmatter block already filled. It reserves the identifier before any prose exists, so two authors working in parallel never mint the same identifier twice. The second author learns the clash at creation and picks another name.
+This command creates one record file from the template for its type, with every required field already filled. For an article type (research, decision, or topic) it also writes the explanation file from its explanation template. For a document style it writes the `.md` document from its template. It reserves the identifier before any prose exists, so two authors working in parallel never mint the same identifier twice. The second author learns the clash at creation and picks another name.
 
-`<type>` is the record type or page style, such as `reaction`, `job`, `use-case`, or `decision`. `<id>` is the `home.name` part of the identifier, such as `spending.send-approver-reminder-on-expense-submitted`; the command composes the full identifier as `<type>/<id>`. The page is written at the home its type owns: a reaction under `modules/<module>/reactions/`, a job under `modules/<module>/jobs/`, a notification under `modules/<module>/notifications/`, a decision under the decisions folder. A use-case page starts under `reads/` beside its module; move the file beside its aggregate once the use case names one. The command refuses an identifier a record already carries.
+`<type>` is the record type or page style, such as `reaction`, `job`, `use-case`, or `decision`. `<id>` is the `home.name` part of the identifier, such as `spending.send-approver-reminder-on-expense-submitted`; the command composes the full identifier as `<type>/<id>`. The file is written at the home its type owns: a reaction under `modules/<module>/reactions/`, a job under `modules/<module>/jobs/`, a notification under `modules/<module>/notifications/`, a decision under the decisions folder with its explanation file beside it. A module file is `modules/<module>/module.yaml`; an aggregate file is `modules/<module>/<aggregate>/aggregate.yaml`. A use-case file starts under `reads/` beside its module; move the file beside its aggregate once the use case names one. The command refuses an identifier a record already carries.
 
-Run it before writing any new record, as `litespec/core/authoring#scaffold-pages-and-reserve-identifiers` states. Validate the new page before committing it.
+Run it before writing any new record, as `litespec/core/authoring#scaffold-pages-and-reserve-identifiers` states. Validate the new file before committing it.
 
-`new result` and `new scenario` append one entry to a use-case page's frontmatter records instead of scaffolding a page. The entry lands in house order, successes first, then refusals in precedence order, then scenarios, so a new refusal follows the existing refusals and a new scenario lands last; every other byte of the page stays untouched. The entry id is `result/<use-case>.<name>` or `scenario/<use-case>.<name>` from the use case's own name. `<use-case-id>` is the use-case identifier, with or without the `use-case/` prefix. `--code` is required for a refusal and carries `<module>.<reason>`; on a success it becomes the first of `codes`. `--result` names the scenario's result, written or derived. The command refuses a duplicate id and an unknown use case.
+`new result` and `new scenario` append one entry to a use-case file's `records` instead of scaffolding a file. The entry lands in house order, successes first, then refusals in precedence order, then scenarios, so a new refusal follows the existing refusals and a new scenario lands last; the file is written back in canonical form. The entry id is `result/<use-case>.<name>` or `scenario/<use-case>.<name>` from the use case's own name. `<use-case-id>` is the use-case identifier, with or without the `use-case/` prefix. `--code` is required for a refusal and carries `<module>.<reason>`; on a success it becomes the first of `codes`. `--result` names the scenario's result, written or derived. The command refuses a duplicate id and an unknown use case.
 
-`new entry` appends one entry to a list page's frontmatter records instead of scaffolding a page. `<page-id>` is the page's consumer-relative path, because list pages carry no record identifier. The type must belong on the page: a requirement on a topic page, a rule on a rule-set page, a permission on the permission list, a setting on a setting set. The entry id is `<type>/<home>.<name>` from the page's home, or `permission/<name>`; the home is the page's existing entries' home, else the file stem for a requirement or rule and the parent modules folder for a setting. The entry lands last with every required field filled with its template placeholder; every other byte of the page stays untouched. The command refuses a duplicate id and an unknown page.
+`new entry` appends one entry to a list file's `records` instead of scaffolding a file. `<page-id>` is the file's consumer-relative path, because list files carry no record identifier. The type must belong on the file: a requirement on a topic file, a rule on a rule-set file, a permission on the permission list, a setting on a setting set. The entry id is `<type>/<home>.<name>` from the file's home, or `permission/<name>`; the home is the file's existing entries' home, else the file stem for a requirement or rule and the parent modules folder for a setting. The entry lands last with every required field filled from its template; the file is written back in canonical form. The command refuses a duplicate id and an unknown file.
 
 A release record starts from `templates/consumer/release-record.md`: copy it to `docs/releases/<date>.md` and fill every placeholder. The template carries the source commit and artifact reference, the included journeys, use cases, and extensions, the evidence results, and the operating readiness a release record holds.
 
@@ -34,7 +34,7 @@ A release record starts from `templates/consumer/release-record.md`: copy it to 
 | `<type>` | The record type or page style to scaffold; for `entry`, the entry type to append. |
 | `<id>` | The `home.name` part of the identifier to reserve. |
 | `<use-case-id>` | For `result` and `scenario`: the use case holding the new entry. |
-| `<page-id>` | For `entry`: the owning page's consumer-relative path. |
+| `<page-id>` | For `entry`: the owning file's consumer-relative path. |
 | `<name>` | For `result`, `scenario`, and `entry`: the kebab-case name of the new entry. |
 
 ## Options
@@ -51,9 +51,9 @@ A release record starts from `templates/consumer/release-record.md`: copy it to 
 
 | Code | Meaning |
 |:---|:---|
-| `0` | The page was written and the identifier reserved, or the entry was appended. |
+| `0` | The file was written and the identifier reserved, or the entry was appended. |
 | `1` | The release holds no readable template for the type, or the repository could not be read or written. |
-| `2` | The identifier is taken, the use case or page is unknown, the type is unknown or does not belong on the page, or an option is invalid. |
+| `2` | The identifier is taken, the use case or file is unknown, the type is unknown or does not belong on the file, or an option is invalid. |
 
 ## Examples
 
@@ -90,27 +90,27 @@ litespec new scenario use-case/orders.cancel-order cancelling-a-shipped-order-is
 Append a requirement to its page:
 
 ```bash
-litespec new entry docs/intent/spending/approval.md requirement decided-within-five-days
+litespec new entry docs/intent/spending/approval.yaml requirement decided-within-five-days
 ```
 
 Append a rule under the page's home:
 
 ```bash
-litespec new entry docs/behavior/rules/spending-rules.md rule receipt-filed-once
+litespec new entry docs/behavior/rules/spending-rules.yaml rule receipt-filed-once
 ```
 
 Append a permission to the permission list:
 
 ```bash
-litespec new entry docs/behavior/access/permissions.md permission approve-expense
+litespec new entry docs/behavior/access/permissions.yaml permission approve-expense
 ```
 
 Append a setting under its module:
 
 ```bash
-litespec new entry docs/behavior/modules/spending/settings.md setting receipt-threshold
+litespec new entry docs/behavior/modules/spending/settings.yaml setting receipt-threshold
 ```
 
 ## Underneath
 
-This command reads `templates/consumer/<type>.md` from the release the tool carries and writes the page with its frontmatter block. The `result` and `scenario` paths read the use-case page instead and splice one entry into its frontmatter records. The `entry` path reads the list page at `<page-id>` instead and splices one entry last into its frontmatter records. Nothing beneath this command is separately runnable. Validate the written page before committing it.
+This command reads `templates/consumer/<type>.yaml` from the release the tool carries and writes the record file; for an article type it also reads `templates/consumer/<type>.md` and writes the explanation file, and for a document style it reads `templates/consumer/<type>.md` and writes the document. The `result` and `scenario` paths read the use-case file instead and write one entry into its `records`. The `entry` path reads the list file at `<page-id>` instead and writes one entry last into its `records`. Every write lands in canonical form. Nothing beneath this command is separately runnable. Validate the written file before committing it.

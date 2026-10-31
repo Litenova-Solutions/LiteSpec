@@ -1,31 +1,3 @@
----
-{
-  "type": "research",
-  "id": "research/research-conclusion-evidence",
-  "title": "Research Conclusion Evidence",
-  "owner": "LiteSpec maintainer",
-  "status": "draft",
-  "decider": "LiteSpec maintainer",
-  "decideBy": "2026-11-30",
-  "question": "Do consumer research records state a conclusion a decision can cite, and where does that conclusion live today?",
-  "conclusion": "Every consumer research record states its finding in Answer, but sixteen of twenty-nine restate what follows under seven different invented headings and the register index repeats the conclusions outside the records, so the conclusion needs one field of its own.",
-  "sources": [
-    {
-      "path": "templates/consumer/research.md",
-      "readOn": "2026-10-30"
-    },
-    {
-      "path": "schemas/record.schema.json",
-      "readOn": "2026-10-30"
-    },
-    {
-      "path": "docs/core/intent.md",
-      "readOn": "2026-10-30"
-    }
-  ]
-}
----
-
 # Research Conclusion Evidence
 
 ## Answer

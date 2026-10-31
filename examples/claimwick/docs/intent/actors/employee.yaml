@@ -1,0 +1,13 @@
+type: actor
+id: actor/employee
+title: Employee
+owner: claimwick-team
+status: approved
+summary: An employee submits expenses and attaches receipts.
+kind: person
+holds:
+  - role: role/employee
+    scope: self
+approvedBy: claimwick-team
+approvedOn: 2026-10-01
+approvedHash: 83ebafae

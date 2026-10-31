@@ -58,5 +58,10 @@ static class BookLexiconFieldLabels
             ["broader"] = "Broader", ["narrower"] = "Narrower", ["mannered"] = "Mannered",
             ["decider"] = "Decider", ["decideBy"] = "Decide by", ["owner"] = "Owner",
             ["approvedBy"] = "Approved by", ["approvedOn"] = "Approved on", ["approvedHash"] = "Approval hash",
+            ["whatHappens"] = "What happens", ["exposure"] = "Exposure", ["offering"] = "Offering",
+            ["whyItMatters"] = "Why it matters", ["situation"] = "Situation", ["consequences"] = "Consequences",
+            ["position"] = "Position", ["refusals"] = "Refusals", ["betweenSteps"] = "Between steps", ["delivery"] = "Delivery",
+            ["impact"] = "Impact", ["prerequisites"] = "Prerequisites", ["procedure"] = "Procedure", ["verification"] = "Verification",
+            ["recovery"] = "Recovery", ["escalation"] = "Escalation", ["exit"] = "Exit", ["key"] = "Key",
         };
 }

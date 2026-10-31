@@ -1,0 +1,22 @@
+type: feature
+id: feature/approval-reminders
+title: Approval Reminders
+owner: claimwick-team
+status: draft
+decider: claimwick-team
+decideBy: 2026-12-15
+offering: Claimwick reminds approvers daily until each expense is decided.
+lifecycle: planned
+solves:
+  - problem/expenses-wait-weeks
+advances:
+  - goal/faster-reimbursement
+plannedFor: 2027-Q1
+terms:
+  - term/expense
+questions:
+  - question: Which approver covers expenses above the receipt threshold?
+    decider: claimwick-team
+    decideBy: 2026-11-30
+    ballot: approval
+    recommendation: The finance lead approves expenses above the threshold.

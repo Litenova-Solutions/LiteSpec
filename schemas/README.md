@@ -6,7 +6,7 @@ You maintain the LiteSpec repository and change a JSON contract, or you build a 
 
 ## What It Is
 
-`schemas/` holds the seven JSON Schema contracts of the release. Each file validates one JSON artifact: the release manifest, the consumer project file, the record frontmatter, the glossary, the design contract, the pattern catalog, or the source lock. Every schema `$id` names the release under `https://litespec.dev/<version>/schemas/`, so a pinned consumer keeps resolving the shape it reviewed.
+`schemas/` holds the seven JSON Schema contracts of the release. Each file validates one artifact: the release manifest, the consumer project file, the record file, the glossary, the design contract, the pattern catalog, or the source lock. Every schema `$id` names the release under `https://litespec.dev/<version>/schemas/`, so a pinned consumer keeps resolving the shape it reviewed.
 
 ## Quick Start
 
@@ -24,8 +24,8 @@ The command checks each `$id` against the manifest version, validates the manife
 |:---|:---|:---|
 | `litespec-manifest.schema.json` | `litespec.manifest.json` | `litespec-maintain validate` |
 | `litespec-project.schema.json` | `litespec.project.json` | `litespec consumer`, `litespec init` |
-| `record.schema.json` | Frontmatter of every consumer record page | `litespec consumer` |
-| `glossary.schema.json` | `docs/glossary.json` | `litespec consumer` |
+| `record.schema.json` | Record file of every consumer record page | `litespec consumer` |
+| `glossary.schema.json` | `docs/glossary.yaml` | `litespec consumer` |
 | `design-contract.schema.json` | Metadata block of `DESIGN.md` | `litespec ui` |
 | `ui-pattern-catalog.schema.json` | `docs/ui/pattern-catalog.json` | `litespec ui` |
 | `ui-source-lock.schema.json` | `packages/ui/ui-source-lock.json` | `litespec ui` |
@@ -42,7 +42,7 @@ The shared evaluator lives in `apps/model/src/LiteSpec.Shared/Schemas/JsonSchema
 
 ### Record Schema
 
-`record.schema.json` owns the frontmatter of every consumer record page: 37 page shapes from product brief through aggregate, use case, reaction, job, notification, setting, screen, and integration event to reference, each with its entry records for requirements, permissions, rules, events, results, scenarios, entry points, and settings. `litespec consumer` validates each page frontmatter through it and then checks the body sections the schema cannot see.
+`record.schema.json` owns the record file of every consumer record page: 37 page shapes from product brief through aggregate, use case, reaction, job, notification, setting, screen, and integration event to reference, each with its entry records for requirements, permissions, rules, events, results, scenarios, entry points, and settings. `litespec consumer` validates each record file through it and then checks the sections the schema cannot see.
 
 ### Language Schema
 
@@ -62,7 +62,7 @@ The shared evaluator lives in `apps/model/src/LiteSpec.Shared/Schemas/JsonSchema
 
 ## How It Works
 
-Each reader loads its schema file and passes values to the shared evaluator. The evaluator first runs the keyword gate: a schema carrying a keyword the evaluator does not implement fails with `SCHEMA_UNSUPPORTED_KEYWORD` instead of validating. It then validates the value and reports each mismatch with its location. The readers add the checks JSON Schema cannot express: the manifest `$id` home and version, the project selection rules, the record body sections, the glossary prose check, the design contract implementation check, the catalog cross-property references, and the lock digest check.
+Each reader loads its schema file and passes values to the shared evaluator. The evaluator first runs the keyword gate: a schema carrying a keyword the evaluator does not implement fails with `SCHEMA_UNSUPPORTED_KEYWORD` instead of validating. It then validates the value and reports each mismatch with its location. The readers add the checks JSON Schema cannot express: the manifest `$id` home and version, the project selection rules, the explanation and document sections, the glossary prose check, the design contract implementation check, the catalog cross-property references, and the lock digest check.
 
 ## How to Change One Safely
 

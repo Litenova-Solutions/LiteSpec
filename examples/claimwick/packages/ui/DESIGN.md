@@ -1,12 +1,12 @@
 ---
-{
-  "kind": "design-contract",
-  "schemaVersion": 1,
-  "package": "@claimwick/ui",
-  "profile": "application-balanced",
-  "shell": "application-shell/default",
-  "patterns": ["list-page", "entity-page"]
-}
+kind: design-contract
+schemaVersion: 1
+package: "@claimwick/ui"
+profile: application-balanced
+shell: application-shell/default
+patterns:
+  - list-page
+  - entity-page
 ---
 
 # Claimwick shared UI package design contract

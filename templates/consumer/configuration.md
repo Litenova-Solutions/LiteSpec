@@ -1,14 +1,12 @@
 ---
-{
-  "type": "configuration",
-  "title": "<Configuration Title>",
-  "owner": "<owner>",
-  "status": "draft",
-  "decider": "<owner>",
-  "decideBy": "<YYYY-MM-DD>"
-}
+type: configuration
+title: Claimwick Configuration
+owner: claimwick-team
+status: draft
+decider: claimwick-team
+decideBy: 2026-12-15
 ---
-# <Configuration Title>
+# Claimwick Configuration
 
 ## Intent
 

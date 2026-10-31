@@ -49,7 +49,7 @@ Approved requirements carry `approvedBy`, `approvedOn`, and the builder-written 
 
 ### Journeys as Product Sentences
 
-A journey carries `actor`, `serves`, `finishedWhen`, ordered `steps`, and `cites`. `serves` names the goal record. `finishedWhen` states the observable end in one sentence. Each step carries its `id` (`s1`, `s2`, and so on) and its product sentence in `statement`, names the walking actor only at a handoff, and carries its failure text in `failure` where the walk can fail. A step id reads `journey/<name>#s1`.
+A journey carries `actor`, `serves`, `finishedWhen`, ordered `steps`, `betweenSteps`, and `cites`. `serves` names the goal record. `finishedWhen` states the observable end in one sentence. Each step carries its `id` (`s1`, `s2`, and so on) and its product sentence in `statement`, names the walking actor only at a handoff, and carries its failure text in `failure` where the walk can fail. `betweenSteps` states the branch order between the steps. A step id reads `journey/<name>#s1`.
 
 Steps name no use case. Use cases, reactions, and jobs point up with `serves`, naming the steps they serve. The book shows each journey as record detail: `finishedWhen`, the steps as sentences with `failure`, the requirements it cites with their statements and their `except` and fallback inline, the serving use case goals, the Then clauses of their scenarios as context, a consequences box as context, and the open questions. Field names never render literally in journey detail.
 
@@ -57,7 +57,7 @@ A journey walks one actor toward one goal. A step names another actor only at a 
 
 ### Staff Journeys
 
-Journeys are not only employee walks. A staff journey walks a staff actor, such as finance exporting the approved batch, through the same shape of serves, `finishedWhen`, and steps. A scheduled promise is a requirement that a job fulfills, not a journey. Staff steps read as product sentences too, so the decider approves them the same way.
+Journeys are not only employee walks. A staff journey walks a staff actor, such as finance exporting the approved batch, through the same shape of serves, `finishedWhen`, steps, and `betweenSteps`. A scheduled promise is a requirement that a job fulfills, not a journey. Staff steps read as product sentences too, so the decider approves them the same way.
 
 ### Questions and Ballots
 
@@ -65,7 +65,7 @@ A question carries `question`, `decider`, `decideBy`, `ballot`, and `recommendat
 
 ### The Consequences Summary
 
-Intent is enough to approve. Each ballot and journey detail carries a consequences summary rendered from Behavior: new refusals in product words, data kept and for how long, and money effects. The summary is marked as context and stays outside the approval hash. The [approval hash guide](../guide/approval-hash.md) lists which fields feed the hash per record type.
+Intent is enough to approve. Each ballot and journey detail carries a consequences summary rendered from Behavior: new refusals in product words, data kept and for how long, and money effects. The summary is marked as context and stays outside the approval hash. The [approval hash guide](../guide/approval-hash.md) lists which fields and which explanation files feed the hash per record type.
 
 ### What Intent Never Contains
 
@@ -79,7 +79,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Statement:** A consumer MUST keep its brief, topic pages, goals, problems, features, constraints, product decisions, actors, and journeys under `docs/intent/`, and its research under `docs/intent/research/`.
 
-**Rationale:** Intent split across notes and books gives no single answer to the question an agent asks before building. One home per kind, with the brief, topic pages, goals, problems, features, constraints, product decisions, actors, and journeys under `docs/intent/` and research under `docs/intent/research/`, gives every reader one place to look. A second home for any kind starts a second truth about the business. An actor is a person, an organization, or a system, and an actor page carries Summary.
+**Rationale:** Intent split across notes and books gives no single answer to the question an agent asks before building. One home per kind, with the brief, topic pages, goals, problems, features, constraints, product decisions, actors, and journeys under `docs/intent/` and research under `docs/intent/research/`, gives every reader one place to look. A second home for any kind starts a second truth about the business. An actor is a person, an organization, or a system, and an actor record carries `summary`.
 
 **Reviewed for:** Each brief, topic page, goal, problem, feature, constraint, product decision, actor, and journey under `docs/intent/`, and each research record under `docs/intent/research/`.
 
@@ -87,9 +87,9 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **ID:** `litespec/core/intent#state-one-product`
 
-**Statement:** A consumer MUST state exactly one product record in its brief, with `boundary`, `exclusions`, `addresses`, and a Summary section.
+**Statement:** A consumer MUST state exactly one product record in its brief, with `boundary`, `exclusions`, `addresses`, and `summary`.
 
-**Rationale:** One product record gives every reader one answer to what the business is, who it serves, and where it stops. The `boundary` and `addresses` focus every later choice; `exclusions` refuses what the product does not become, so tempting expansions meet a written refusal. Two product statements let each plan cite the one it prefers. Summary states what the product is in one place beside the fields.
+**Rationale:** One product record gives every reader one answer to what the business is, who it serves, and where it stops. The `boundary` and `addresses` focus every later choice; `exclusions` refuses what the product does not become, so tempting expansions meet a written refusal. Two product statements let each plan cite the one it prefers. `summary` states what the product is in one place.
 
 **Checked by:** `litespec model check` reports no `product-count-invalid` finding, and `litespec consumer` validates the brief fields against the record schema.
 
@@ -97,61 +97,61 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **ID:** `litespec/core/intent#state-each-goal-with-its-measure`
 
-**Statement:** A goal MUST state its `statement`, `measure`, `target`, and `dueBy` in fields and its reason in Why It Matters.
+**Statement:** A goal MUST state its `statement`, `measure`, `target`, `dueBy`, and `whyItMatters` in fields.
 
-**Rationale:** A goal without a measure is a wish no check can confirm: the team cannot tell whether the product serves it. The `statement` names the outcome, `measure` and `target` name what is counted and the number aimed for, and `dueBy` names the date or milestone. Why It Matters explains why the outcome matters, so a later reader can judge whether a cheaper goal serves as well. A goal carries no authority: it explains why features exist and never decides a conflict.
+**Rationale:** A goal without a measure is a wish no check can confirm: the team cannot tell whether the product serves it. The `statement` names the outcome, `measure` and `target` name what is counted and the number aimed for, and `dueBy` names the date or milestone. `whyItMatters` explains why the outcome matters, so a later reader can judge whether a cheaper goal serves as well. A goal carries no authority: it explains why features exist and never decides a conflict.
 
-**Checked by:** `litespec consumer` fails a goal page missing a required field or its Why It Matters section.
+**Checked by:** `litespec consumer` fails a goal record file missing a required field.
 
 ### State Each Problem with Its Evidence
 
 **ID:** `litespec/core/intent#state-each-problem-with-its-evidence`
 
-**Statement:** A problem MUST state its `statement` in fields and its case in Situation and Evidence.
+**Statement:** A problem MUST state its `statement` and `situation` in fields.
 
-**Rationale:** A problem that names what its people face points to the pain its solution lifts. Situation describes the pain in the people's own terms, and Evidence shows it is real. Problems without owners attract solutions nobody needs. The `affects` link names the actors who face it, so each pain traces to the people a solution must serve.
+**Rationale:** A problem that names what its people face points to the pain its solution lifts. `situation` describes the pain in the people's own terms, and Evidence in the explanation file shows it is real. Problems without owners attract solutions nobody needs. The `affects` link names the actors who face it, so each pain traces to the people a solution must serve.
 
-**Checked by:** `litespec consumer` fails a problem page missing its statement, Situation, or Evidence.
+**Checked by:** `litespec consumer` fails a problem record file missing its `statement` or `situation`.
 
 ### State Each Feature with Its Lifecycle
 
 **ID:** `litespec/core/intent#state-each-feature-with-its-lifecycle`
 
-**Statement:** A feature MUST state its `lifecycle` and its offer in Offering, name the problems it solves in `solves`, and, unless its lifecycle is refused, name the goals it moves in `advances`, with a missing goal link reported as coverage.
+**Statement:** A feature MUST state its `lifecycle` and `offering`, name the problems it solves in `solves`, and, unless its lifecycle is refused, name the goals it moves in `advances`, with a missing goal link reported as coverage.
 
-**Rationale:** A feature names the problems it solves in `solves` and, unless its lifecycle is refused, the goals it moves in `advances`, so each offer traces to a pain and an outcome. Its `lifecycle` is planned, shipped, later, or refused. A refused feature names the problem it declines in `solves` and keeps its reason in `refusedBecause`, so the team never relitigates the refusal, and a planned feature names its milestone or date in `plannedFor`. Offering states what is in and what is out, so the scope of the offer is written where the lifecycle is. Proposed by [decision/0004-features-advance-goals](../intent/decisions/0004-features-advance-goals.md) on the evidence in [research/intent-hierarchy-evidence](../intent/research/intent-hierarchy-evidence.md), [research/cross-layer-trace-evidence](../intent/research/cross-layer-trace-evidence.md), and [research/established-traceability-practice](../intent/research/established-traceability-practice.md).
+**Rationale:** A feature names the problems it solves in `solves` and, unless its lifecycle is refused, the goals it moves in `advances`, so each offer traces to a pain and an outcome. Its `lifecycle` is planned, shipped, later, or refused. A refused feature names the problem it declines in `solves` and keeps its reason in `refusedBecause`, so the team never relitigates the refusal, and a planned feature names its milestone or date in `plannedFor`. `offering` states what is in and what is out, so the scope of the offer is written where the lifecycle is. Proposed by [decision/0004-features-advance-goals](decision/0004-features-advance-goals) on the evidence in [research/intent-hierarchy-evidence](research/intent-hierarchy-evidence), [research/cross-layer-trace-evidence](research/cross-layer-trace-evidence), and [research/established-traceability-practice](research/established-traceability-practice).
 
-**Checked by:** `litespec consumer` fails a feature page missing its lifecycle, Offering, refused reason, or planned milestone or date; `litespec model check` reports `feature-goal-missing` for a feature naming no goal.
+**Checked by:** `litespec consumer` fails a feature record file missing its `lifecycle`, `offering`, refused reason, or planned milestone or date; `litespec model check` reports `feature-goal-missing` for a feature naming no goal.
 
 ### Answer Every Constraint
 
 **ID:** `litespec/core/intent#answer-every-constraint`
 
-**Statement:** A constraint MUST state its `authority`, `kind`, `applies`, and `appliesBecause` in fields and its demand in Summary, with What It Requires generated from the requirements that cite it.
+**Statement:** A constraint MUST state its `authority`, `kind`, `applies`, `appliesBecause`, and `summary` in fields, with What It Requires generated from the requirements that cite it.
 
-**Rationale:** An unanswered constraint is an outside rule the product can break unknowingly: a law, a regulation, or provider terms the team never examined. Recording each rule with its authority and applicability proves the team asked. A project with no outside rules records that answer in `constraints.answered` in `litespec.project.json`, as the [scope page](scope.md) states, so a later reader can tell examined from ignored. The `kind` is technical, organizational, convention, or legal. Summary states the rule in the authority's own words, and What It Requires lists the requirements that cite the constraint, generated at build time. A fact learned from the world, such as the payout bank lengthening its settlement window, first lands as research with its source and date, then as a constraint draft.
+**Rationale:** An unanswered constraint is an outside rule the product can break unknowingly: a law, a regulation, or provider terms the team never examined. Recording each rule with its authority and applicability proves the team asked. A project with no outside rules records that answer in `constraints.answered` in `litespec.project.json`, as the [scope page](scope.md) states, so a later reader can tell examined from ignored. The `kind` is technical, organizational, convention, or legal. `summary` states the rule in the authority's own words, and What It Requires lists the requirements that cite the constraint, generated at build time. A fact learned from the world, such as the payout bank lengthening its settlement window, first lands as research with its source and date, then as a constraint draft.
 
-**Checked by:** `litespec consumer` fails a constraint page missing a required field or Summary; the builder generates What It Requires from citing requirements.
+**Checked by:** `litespec consumer` fails a constraint record file missing a required field; the builder generates What It Requires from citing requirements.
 
 ### Record Research with Read Sources
 
 **ID:** `litespec/core/intent#record-research-with-read-sources`
 
-**Statement:** A research record MUST state its `question`, state its `conclusion` in one sentence, list each source with its read date, and carry Answer.
+**Statement:** A research record MUST state its `question`, state its `conclusion` in one sentence, list each source with its `key`, `url`, and `readOn`, and carry Answer in its explanation file.
 
-**Rationale:** A fact without its source cannot be rechecked when a decision depends on it. The read date shows when the outside fact was true, so a later reader knows whether to trust or refresh it. Research without sources and dates asks every later choice to rest on memory. The `conclusion` states in one sentence what the sources establish and what follows, so a decision can cite it as data. Answer expands the `conclusion`: what the sources say, claim by claim, with the confidence behind each claim, and Notes on Sources holds what a later reader needs about each source. Observed provider behavior lands here too, cited and dated, before any constraint or requirement rests on it. Proposed by [decision/0009-research-states-its-conclusion](../intent/decisions/0009-research-states-its-conclusion.md) on the evidence in [research/research-conclusion-evidence](../intent/research/research-conclusion-evidence.md).
+**Rationale:** A fact without its source cannot be rechecked when a decision depends on it. The read date shows when the outside fact was true, so a later reader knows whether to trust or refresh it. Research without sources and dates asks every later choice to rest on memory. The `conclusion` states in one sentence what the sources establish and what follows, so a decision can cite it as data. Each source carries its `key`, `url`, and `readOn`; the explanation cites a source with a reference link `[text][key]`, and a bare URL, an unknown key, or an unused source is a finding. Answer expands the `conclusion`: what the sources say, claim by claim, with the confidence behind each claim, and Notes on Sources holds what a later reader needs about each source. Observed provider behavior lands here too, cited and dated, before any constraint or requirement rests on it. Proposed by [decision/0009-research-states-its-conclusion](decision/0009-research-states-its-conclusion) on the evidence in [research/research-conclusion-evidence](research/research-conclusion-evidence).
 
-**Checked by:** `litespec consumer` fails a research record without `question`, `conclusion`, `sources`, or Answer.
+**Checked by:** `litespec consumer` fails a research record file without `question`, `conclusion`, or `sources`; `litespec model check` reports `explanation-missing` for a research record without Answer in its explanation file, `source-link-bare` for a bare URL, `source-key-unknown` for an unknown key, and `source-unused` for an unused source.
 
 ### Shape Each Decision Page
 
 **ID:** `litespec/core/intent#shape-each-decision-page`
 
-**Statement:** A decision MUST carry Context, Decision, and Consequences.
+**Statement:** A decision MUST state its `choice` and `consequences` in fields and carry Context in its explanation file.
 
-**Rationale:** Context states the choice, Decision states the chosen option in `choice`, and Consequences states what follows, so each decision reads the same way. Evidence with Confidence holds the supporting material with its confidence where the choice rests on it. The `reopenedWhen` condition names what would reopen the choice, so a decision reopened by a condition rather than a date stays stable until the world actually changes. The `basedOn` link names the constraints and research behind it, and requirements only on a technical decision. The [model page](model.md) requires each product decision to name the records it settles in `decides`.
+**Rationale:** Context in the explanation file states the choice, `choice` names the chosen option, and `consequences` states what follows, so each decision reads the same way. Decision in the explanation file expands the chosen option, and Evidence with Confidence holds the supporting material with its confidence where the choice rests on it. The `reopenedWhen` condition names what would reopen the choice, so a decision reopened by a condition rather than a date stays stable until the world actually changes. The `basedOn` link names the constraints and research behind it, and requirements only on a technical decision. The [model page](model.md) requires each product decision to name the records it settles in `decides`.
 
-**Checked by:** `litespec consumer` fails a decision missing a required field or section.
+**Checked by:** `litespec consumer` fails a decision record file missing a required field; `litespec model check` reports `explanation-missing` for a decision without Context in its explanation file.
 
 ### Record Each Decision Option with Pros and Cons
 
@@ -167,9 +167,9 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **ID:** `litespec/core/intent#name-the-person-who-approved-a-decision`
 
-**Statement:** An approved decision MUST carry `approvedBy` with its decider, `approvedOn` with its date, and `approvedHash` over its semantic fields.
+**Statement:** An approved decision MUST carry `approvedBy` with its decider, `approvedOn` with its date, and `approvedHash` over its semantic fields and its explanation file.
 
-**Rationale:** Product, commercial, and legal choices belong to an accountable person. Naming the decider while the decision is a draft shows who approves before release. Building can start on a draft while approval gates the release, so agent work never stalls on one person's queue. The `approvedBy` name and `approvedOn` date prove the approval happened, and the builder writes `approvedHash` over the semantic fields so a later change reopens the approval. The [approval hash guide](../guide/approval-hash.md) lists which fields feed the hash per record type.
+**Rationale:** Product, commercial, and legal choices belong to an accountable person. Naming the decider while the decision is a draft shows who approves before release. Building can start on a draft while approval gates the release, so agent work never stalls on one person's queue. The `approvedBy` name and `approvedOn` date prove the approval happened, and the builder writes `approvedHash` over the semantic fields and the explanation file so a later change reopens the approval. The [approval hash guide](../guide/approval-hash.md) lists which fields and which explanation files feed the hash per record type.
 
 **Reviewed for:** The `approvedBy` name, `approvedOn` date, and `approvedHash` on the approved decision beside the approval from its named decider.
 
@@ -187,11 +187,11 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **ID:** `litespec/core/intent#shape-each-topic-page`
 
-**Statement:** A topic page MUST carry Summary, The Situation, What We Do, Why It Is Better, Example, Costs and Risks, How Sure We Are, and Position with `reviewBy`, `owner`, and `status` in frontmatter.
+**Statement:** A topic MUST state its `summary`, `position`, `reviewBy`, `owner`, and `status` in fields and carry The Situation, What We Do, Why It Is Better, Example, Costs and Risks, and How Sure We Are in its explanation file.
 
-**Rationale:** The fixed shape puts the present and the future of one area on one page. The chapter sections carry the story for people: Summary, The Situation, What We Do, Why It Is Better, and Example. The commitment sections carry the testable commitments and the choices behind them: Costs and Risks, How Sure We Are, and Position. Position holds choices with their decisions, including choices no system carries. A reader learns where each answer sits once and finds it on every page. The `reviewBy` field dates the next reread against decisions and evidence. Requirements are entries because small commitments sharing one story read better together than alone. The topic is a record with `topic/<name>` as its identifier and `docs/intent/<area>/<topic>.md` as its page, under the product; the area is a folder only. The book lists the requirement entries with their statements and their `except` and fallback inline, so the page carries no entries section.
+**Rationale:** The fixed shape puts the present and the future of one area in one record file and its explanation file. The chapter carries the story for people: `summary` states it in one place, and The Situation, What We Do, Why It Is Better, and Example in the explanation file tell it. The commitments carry the testable promises and the choices behind them: Costs and Risks and How Sure We Are in the explanation file, and `position` in fields. `position` holds choices with their decisions, including choices no system carries, and `refusals` holds what the topic refuses. A reader learns where each answer sits once and finds it on every page. The `reviewBy` field dates the next reread against decisions and evidence. Requirements are entries because small commitments sharing one story read better together than alone. The topic is a record with `topic/<name>` as its identifier and `docs/intent/<area>/<topic>.yaml` as its record file, under the product; the area is a folder only. The book lists the requirement entries with their statements and their `except` and fallback inline.
 
-**Checked by:** `litespec consumer` fails a topic page missing a required section or frontmatter field.
+**Checked by:** `litespec consumer` fails a topic record file missing a required field; `litespec model check` reports `explanation-missing` for a topic without its explanation sections.
 
 ### Identify Every Requirement
 
@@ -199,7 +199,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Statement:** Each requirement entry MUST carry one identifier `requirement/<topic>.<name>` naming its own page.
 
-**Rationale:** An identifier lets a Behavior record name the commitment it fulfills and lets the model resolve the name. A commitment written only as prose cannot be traced from Intent to code. The topic segment names the page holding the entry, and the topic is the parent by identifier containment. Proposed by [decision/0003-requirement-origin](../intent/decisions/0003-requirement-origin.md) on the evidence in [research/intent-hierarchy-evidence](../intent/research/intent-hierarchy-evidence.md), [research/cross-layer-trace-evidence](../intent/research/cross-layer-trace-evidence.md), and [research/established-traceability-practice](../intent/research/established-traceability-practice.md).
+**Rationale:** An identifier lets a Behavior record name the commitment it fulfills and lets the model resolve the name. A commitment written only as prose cannot be traced from Intent to code. The topic segment names the page holding the entry, and the topic is the parent by identifier containment. Proposed by [decision/0003-requirement-origin](decision/0003-requirement-origin) on the evidence in [research/intent-hierarchy-evidence](research/intent-hierarchy-evidence), [research/cross-layer-trace-evidence](research/cross-layer-trace-evidence), and [research/established-traceability-practice](research/established-traceability-practice).
 
 **Checked by:** `litespec consumer` fails a requirement entry without identifier; `litespec model check` reports `identifier-invalid` for a topic segment differing from its page.
 
@@ -279,13 +279,13 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **ID:** `litespec/core/intent#order-each-journey-toward-one-goal`
 
-**Statement:** A journey MUST walk one actor toward one goal through ordered steps, naming the goal record in `serves` and carrying Example and Between the Steps.
+**Statement:** A journey MUST walk one actor toward one goal through ordered steps, naming the goal record in `serves` and stating `betweenSteps` in fields.
 
-**Rationale:** A journey names its `actor`, its goal record in `serves`, its `finishedWhen`, and its ordered `steps`. One actor means a step names another actor only at a handoff; one goal means a walk with several goals splits into several journeys. The order shows how the steps join toward the goal, so a step that fits nowhere is visible. The journey names in `cites` the requirements it carries, and the use cases, reactions, and jobs that serve each step point up with `serves`. Between the Steps holds branch order only. Proposed by [decision/0005-journeys-serve-a-goal](../intent/decisions/0005-journeys-serve-a-goal.md) on the evidence in [research/intent-hierarchy-evidence](../intent/research/intent-hierarchy-evidence.md), [research/cross-layer-trace-evidence](../intent/research/cross-layer-trace-evidence.md), and [research/established-traceability-practice](../intent/research/established-traceability-practice.md).
+**Rationale:** A journey names its `actor`, its goal record in `serves`, its `finishedWhen`, and its ordered `steps`. One actor means a step names another actor only at a handoff; one goal means a walk with several goals splits into several journeys. The order shows how the steps join toward the goal, so a step that fits nowhere is visible. The journey names in `cites` the requirements it carries, and the use cases, reactions, and jobs that serve each step point up with `serves`. `betweenSteps` holds branch order only, and Example in the explanation file shows one concrete occasion. Proposed by [decision/0005-journeys-serve-a-goal](decision/0005-journeys-serve-a-goal) on the evidence in [research/intent-hierarchy-evidence](research/intent-hierarchy-evidence), [research/cross-layer-trace-evidence](research/cross-layer-trace-evidence), and [research/established-traceability-practice](research/established-traceability-practice).
 
 **Example:** The largest consumer held a 21-step journey with five actors, from creating the organizer to closing the books. Split by goal, it is four journeys: set up and sell an event; buy a ticket; admit the crowd; close the night.
 
-**Checked by:** `litespec consumer` fails a journey missing its actor, `serves`, `finishedWhen`, steps, Example, or Between the Steps.
+**Checked by:** `litespec consumer` fails a journey record file missing its `actor`, `serves`, `finishedWhen`, `steps`, or `betweenSteps`.
 
 ### Keep Behavior Out of Intent
 
@@ -341,7 +341,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Example:** `finishedWhen`: the employee holds the reimbursement.
 
-**Checked by:** `litespec consumer` fails a journey missing `finishedWhen`.
+**Checked by:** `litespec consumer` fails a journey record file missing `finishedWhen`.
 
 ### Group Questions into Ballots
 
@@ -385,7 +385,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **ID:** `litespec/core/intent#group-product-records-by-area`
 
-**Default:** Keep the brief at `docs/intent/brief.md`, topic pages in one folder per area, each other kind in its folder, and research under `docs/intent/research/`.
+**Default:** Keep the brief at `docs/intent/brief.yaml`, topic record files in one folder per area, each other kind in its folder, and research under `docs/intent/research/`.
 
 **Replacement:** A project records its own product layout in its documentation index.
 
@@ -396,34 +396,34 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 ```text
 docs/intent/
   README.md
-  brief.md
+  brief.yaml
   business/
-    model.md
-    pricing.md
+    model.yaml
+    pricing.yaml
   markets/
-    expansion.md
-    <market>.md
+    expansion.yaml
+    <market>.yaml
   company/
-    legal-and-tax.md
+    legal-and-tax.yaml
   roadmap/
-    milestones.md
-    later.md
+    milestones.yaml
+    later.yaml
   actors/
-    <name>.md
+    <name>.yaml
   constraints/
-    <name>.md
+    <name>.yaml
   decisions/
-    0001-monthly-plan.md
+    0001-monthly-plan.yaml
   goals/
-    <name>.md
+    <name>.yaml
   problems/
-    <name>.md
+    <name>.yaml
   features/
-    <name>.md
+    <name>.yaml
   journeys/
-    <name>.md
+    <name>.yaml
   research/
-    <name>.md
+    <name>.yaml
 ```
 
 **Reviewed for:** The `docs/intent/` layout beside the project's recorded layout.
@@ -432,19 +432,19 @@ docs/intent/
 
 **ID:** `litespec/core/intent#name-product-decisions-in-one-numbered-sequence`
 
-**Default:** Name each product decision `<four-digit number>-<name>.md` and use `decision/<four-digit number>-<name>` as its identifier.
+**Default:** Name each product decision `<four-digit number>-<name>.yaml` and use `decision/<four-digit number>-<name>` as its identifier.
 
 **Replacement:** A project records its own decision naming in its documentation index.
 
 **Rationale:** One numbered sequence orders each decision by when the choice was proposed, giving every record a short stable name. The number counts as a word, so digits never stand alone in the identifier. Scattered names would force every citation to carry the full path.
 
-**Reviewed for:** Each decision file named `<number>-<name>.md` beside its matching identifier.
+**Reviewed for:** Each decision file named `<number>-<name>.yaml` beside its matching identifier.
 
 ## Reference Example
 
 This informative example demonstrates `litespec/core/intent#order-each-journey-toward-one-goal`, `litespec/core/intent#write-journey-steps-as-sentences-with-ids`, `litespec/core/intent#state-when-each-journey-finishes`, `litespec/core/intent#identify-every-requirement`, `litespec/core/intent#state-each-exception-with-its-fallback`, `litespec/core/intent#group-questions-into-ballots`, `litespec/core/intent#leave-business-choices-to-the-decider`, and `litespec/core/intent#treat-tenant-set-values-as-data`.
 
-The book shows journey `journey/submit-and-reimburse` as record detail. No field name, JSON, or Behavior page appears.
+The book shows journey `journey/submit-and-reimburse` as record detail. No field name, YAML, or Behavior page appears.
 
 ```text
 Submit and reimburse

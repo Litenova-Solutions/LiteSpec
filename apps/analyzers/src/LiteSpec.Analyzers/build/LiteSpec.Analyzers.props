@@ -21,9 +21,9 @@
 
     <!--
         Hands the traceability rules and the source generator the consumer's records:
-        the project file found above the project directory, and every Markdown page
-        under its folder. A project overrides the page glob with its own items:
-            <LiteSpecRecords Include="docs/**/*.md" />
+        the project file found above the project directory, and every record file
+        under its folder. A project overrides the record glob with its own items:
+            <LiteSpecRecords Include="docs/**/*.yaml" />
         Nothing is added when no project file is in reach.
     -->
     <PropertyGroup>
@@ -34,7 +34,7 @@
         <AdditionalFiles Include="$(LiteSpecProjectFile)" />
     </ItemGroup>
     <ItemGroup Condition="'$(LiteSpecProjectFile)' != '' and '@(LiteSpecRecords)' == ''">
-        <AdditionalFiles Include="$(LiteSpecProjectDirectory)/**/*.md" Exclude="$(LiteSpecProjectDirectory)/**/node_modules/**/*;$(LiteSpecProjectDirectory)/**/bin/**/*;$(LiteSpecProjectDirectory)/**/obj/**/*" />
+        <AdditionalFiles Include="$(LiteSpecProjectDirectory)/**/*.yaml" Exclude="$(LiteSpecProjectDirectory)/**/node_modules/**/*;$(LiteSpecProjectDirectory)/**/bin/**/*;$(LiteSpecProjectDirectory)/**/obj/**/*" />
     </ItemGroup>
     <ItemGroup Condition="'$(LiteSpecProjectFile)' != '' and '@(LiteSpecRecords)' != ''">
         <AdditionalFiles Include="@(LiteSpecRecords)" />

@@ -18,7 +18,7 @@ static class InitCommand
     static readonly (string Template, string Target)[] Scaffold =
     [
         ("project-agents.md", "AGENTS.md"),
-        ("glossary.json", "docs/glossary.json"),
+        ("glossary.yaml", "docs/glossary.yaml"),
         ("example-cast.md", "docs/domain/example-cast.md"),
     ];
 

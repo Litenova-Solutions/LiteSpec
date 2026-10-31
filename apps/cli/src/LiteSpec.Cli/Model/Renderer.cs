@@ -54,7 +54,7 @@ static partial class Renderer
         "history", "use-case-coverage", "sub-processors", "runbook-index", "rule-map",
         "operations-log", "open-questions", "journeys", "glossary", "exceptions", "census",
         "aggregate-map", "audit-register", "alert-inventory", "counts", "what-it-requires",
-        "transitions", "data", "retention-schedule",
+        "retention-schedule",
     };
 
     /// <summary>One region fence: its name and the offset where it opens.</summary>
@@ -90,8 +90,6 @@ static partial class Renderer
             "alert-inventory" => AlertInventory(model, file),
             "counts" => Counts(model),
             "what-it-requires" => WhatItRequires(model, file),
-            "transitions" => Transitions(model, file),
-            "data" => Data(model, file),
             "retention-schedule" => RetentionSchedule(model),
             _ => null,
         };
@@ -313,7 +311,7 @@ static partial class Renderer
         foreach (var body in model.Bodies
                      .Where(candidate => model.ById.TryGetValue(candidate.PageId ?? "", out var page)
                          && page.Type == RecordTypes.Aggregate
-                         && string.Equals(page.File, candidate.File, StringComparison.Ordinal))
+                         && string.Equals(page.File, RecordFile.RecordPathOf(candidate.File), StringComparison.Ordinal))
                      .OrderBy(candidate => candidate.PageId, StringComparer.Ordinal))
         {
             if (QuestionsSection(body.Body) is not { } section)
@@ -615,7 +613,7 @@ static partial class Renderer
     private static string History(ProjectModel model, string file)
     {
         var carried = model.Records
-            .Where(record => record.IsEntry && record.File == file)
+            .Where(record => record.IsEntry && record.File == RecordFile.RecordPathOf(file))
             .Select(record => record.Id)
             .ToHashSet(StringComparer.Ordinal);
 
@@ -631,70 +629,6 @@ static partial class Renderer
                      .OrderBy(record => record.Id, StringComparer.Ordinal))
         {
             lines.Add($"| `{decision.Id}` | {decision.Status ?? ""} | {decision.ApprovedOn ?? ""} |");
-        }
-
-        return string.Join('\n', lines);
-    }
-
-    /// <summary>Renders the lifecycle transitions held by the aggregate on the page.</summary>
-    /// <param name="model">The built project model holding the aggregates.</param>
-    /// <param name="file">The aggregate page the table sits on.</param>
-    /// <returns>The transitions table as Markdown lines, or None when the aggregate holds none.</returns>
-    private static string Transitions(ProjectModel model, string file)
-    {
-        var aggregate = model.Records
-            .FirstOrDefault(record => record.Type == RecordTypes.Aggregate
-                && string.Equals(record.File, file, StringComparison.Ordinal)
-                && !record.IsEntry);
-
-        var rows = aggregate is not null ? ArrayField(aggregate, RecordFields.Transitions) : [];
-
-        if (rows.Count == 0)
-        {
-            return "None.";
-        }
-
-        var lines = new List<string>
-        {
-            "| From | To | Triggered By |",
-            "|:---|:---|:---|",
-        };
-
-        foreach (var row in rows)
-        {
-            lines.Add($"| {Cell(Str(row, RecordFields.From) ?? "")} | {Cell(Str(row, RecordFields.To) ?? "")} | {Cell(Str(row, RecordFields.By) ?? "")} |");
-        }
-
-        return string.Join('\n', lines);
-    }
-
-    /// <summary>Renders the data fields held by the aggregate on the page.</summary>
-    /// <param name="model">The built project model holding the aggregates.</param>
-    /// <param name="file">The aggregate page the table sits on.</param>
-    /// <returns>The data table as Markdown lines, or None when the aggregate holds none.</returns>
-    private static string Data(ProjectModel model, string file)
-    {
-        var aggregate = model.Records
-            .FirstOrDefault(record => record.Type == RecordTypes.Aggregate
-                && string.Equals(record.File, file, StringComparison.Ordinal)
-                && !record.IsEntry);
-
-        var rows = aggregate is not null ? ArrayField(aggregate, RecordFields.Data) : [];
-
-        if (rows.Count == 0)
-        {
-            return "None.";
-        }
-
-        var lines = new List<string>
-        {
-            "| Name | Meaning | Data Class | Classification |",
-            "|:---|:---|:---|:---|",
-        };
-
-        foreach (var row in rows)
-        {
-            lines.Add($"| {Cell(Str(row, RecordFields.Name) ?? "")} | {Cell(Str(row, RecordFields.Meaning) ?? "")} | {Cell(Str(row, RecordFields.DataClass) ?? "")} | {Cell(Str(row, RecordFields.Classification) ?? "")} |");
         }
 
         return string.Join('\n', lines);
@@ -801,7 +735,7 @@ static partial class Renderer
     {
         var constraint = model.Records
             .FirstOrDefault(record => record.Type == RecordTypes.Constraint
-                && string.Equals(record.File, file, StringComparison.Ordinal)
+                && string.Equals(record.File, RecordFile.RecordPathOf(file), StringComparison.Ordinal)
                 && !record.IsEntry);
 
         if (constraint is null)

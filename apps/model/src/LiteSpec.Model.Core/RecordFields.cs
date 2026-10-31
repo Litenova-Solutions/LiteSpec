@@ -109,6 +109,9 @@ public static class RecordFields
     /// <summary>Gets the name of the `before` field.</summary>
     public const string Before = "before";
 
+    /// <summary>Gets the name of the `betweenSteps` field.</summary>
+    public const string BetweenSteps = "betweenSteps";
+
     /// <summary>Gets the name of the `binds` field.</summary>
     public const string Binds = "binds";
 
@@ -187,6 +190,9 @@ public static class RecordFields
     /// <summary>Gets the name of the `consent` field.</summary>
     public const string Consent = "consent";
 
+    /// <summary>Gets the name of the `consequences` field.</summary>
+    public const string Consequences = "consequences";
+
     /// <summary>Gets the name of the `consistency` field.</summary>
     public const string Consistency = "consistency";
 
@@ -241,6 +247,9 @@ public static class RecordFields
     /// <summary>Gets the name of the `defaultLimit` field.</summary>
     public const string DefaultLimit = "defaultLimit";
 
+    /// <summary>Gets the name of the `delivery` field.</summary>
+    public const string Delivery = "delivery";
+
     /// <summary>Gets the name of the `dependsOn` field.</summary>
     public const string DependsOn = "dependsOn";
 
@@ -280,6 +289,9 @@ public static class RecordFields
     /// <summary>Gets the name of the `erasure` field.</summary>
     public const string Erasure = "erasure";
 
+    /// <summary>Gets the name of the `escalation` field.</summary>
+    public const string Escalation = "escalation";
+
     /// <summary>Gets the name of the `event` field.</summary>
     public const string Event = "event";
 
@@ -310,11 +322,17 @@ public static class RecordFields
     /// <summary>Gets the name of the `exercises` field.</summary>
     public const string Exercises = "exercises";
 
+    /// <summary>Gets the name of the `exit` field.</summary>
+    public const string Exit = "exit";
+
     /// <summary>Gets the name of the `exits` field.</summary>
     public const string Exits = "exits";
 
     /// <summary>Gets the name of the `expiresOn` field.</summary>
     public const string ExpiresOn = "expiresOn";
+
+    /// <summary>Gets the name of the `exposure` field.</summary>
+    public const string Exposure = "exposure";
 
     /// <summary>Gets the name of the `failure` field.</summary>
     public const string Failure = "failure";
@@ -388,6 +406,9 @@ public static class RecordFields
     /// <summary>Gets the name of the `idempotency` field.</summary>
     public const string Idempotency = "idempotency";
 
+    /// <summary>Gets the name of the `impact` field.</summary>
+    public const string Impact = "impact";
+
     /// <summary>Gets the name of the `include` field.</summary>
     public const string Include = "include";
 
@@ -459,6 +480,9 @@ public static class RecordFields
 
     /// <summary>Gets the name of the `of` field.</summary>
     public const string Of = "of";
+
+    /// <summary>Gets the name of the `offering` field.</summary>
+    public const string Offering = "offering";
 
     /// <summary>Gets the name of the `offers` field.</summary>
     public const string Offers = "offers";
@@ -538,6 +562,15 @@ public static class RecordFields
     /// <summary>Gets the name of the `plannedFor` field.</summary>
     public const string PlannedFor = "plannedFor";
 
+    /// <summary>Gets the name of the `position` field.</summary>
+    public const string Position = "position";
+
+    /// <summary>Gets the name of the `prerequisites` field.</summary>
+    public const string Prerequisites = "prerequisites";
+
+    /// <summary>Gets the name of the `procedure` field.</summary>
+    public const string Procedure = "procedure";
+
     /// <summary>Gets the name of the `processors` field.</summary>
     public const string Processors = "processors";
 
@@ -598,8 +631,14 @@ public static class RecordFields
     /// <summary>Gets the name of the `records` field.</summary>
     public const string Records = "records";
 
+    /// <summary>Gets the name of the `recovery` field.</summary>
+    public const string Recovery = "recovery";
+
     /// <summary>Gets the name of the `refusal` field.</summary>
     public const string Refusal = "refusal";
+
+    /// <summary>Gets the name of the `refusals` field.</summary>
+    public const string Refusals = "refusals";
 
     /// <summary>Gets the name of the `refusedBecause` field.</summary>
     public const string RefusedBecause = "refusedBecause";
@@ -693,6 +732,9 @@ public static class RecordFields
 
     /// <summary>Gets the name of the `sharesTransaction` field.</summary>
     public const string SharesTransaction = "sharesTransaction";
+
+    /// <summary>Gets the name of the `situation` field.</summary>
+    public const string Situation = "situation";
 
     /// <summary>Gets the name of the `skippedWhen` field.</summary>
     public const string SkippedWhen = "skippedWhen";
@@ -805,14 +847,23 @@ public static class RecordFields
     /// <summary>Gets the name of the `valueType` field.</summary>
     public const string ValueType = "valueType";
 
+    /// <summary>Gets the name of the `verification` field.</summary>
+    public const string Verification = "verification";
+
     /// <summary>Gets the name of the `versioning` field.</summary>
     public const string Versioning = "versioning";
 
     /// <summary>Gets the name of the `visibleWhen` field.</summary>
     public const string VisibleWhen = "visibleWhen";
 
+    /// <summary>Gets the name of the `whatHappens` field.</summary>
+    public const string WhatHappens = "whatHappens";
+
     /// <summary>Gets the name of the `when` field.</summary>
     public const string When = "when";
+
+    /// <summary>Gets the name of the `whyItMatters` field.</summary>
+    public const string WhyItMatters = "whyItMatters";
 
     /// <summary>Gets the name of the `within` field.</summary>
     public const string Within = "within";

@@ -1,67 +1,3 @@
----
-{
-  "type": "journey",
-  "id": "journey/submit-and-reimburse",
-  "title": "Submit and Reimburse",
-  "owner": "claimwick-team",
-  "status": "approved",
-  "actor": "actor/employee",
-  "serves": [
-    "goal/decided-in-days"
-  ],
-  "finishedWhen": "The employee holds the reimbursement, and the personal data of old expenses is erased past retention.",
-  "steps": [
-    {
-      "id": "s1",
-      "statement": "The employee submits the expense with its amount and currency.",
-      "actor": "actor/employee"
-    },
-    {
-      "id": "s2",
-      "statement": "The employee attaches the receipt to the expense.",
-      "actor": "actor/employee"
-    },
-    {
-      "id": "s3",
-      "statement": "The manager approves or rejects the expense within five business days.",
-      "actor": "actor/manager",
-      "failure": "The expense waits past three business days, and the approver is reminded."
-    },
-    {
-      "id": "s4",
-      "statement": "Finance reimburses the approved expense.",
-      "actor": "actor/finance"
-    },
-    {
-      "id": "s5",
-      "statement": "The employee watches each expense in their own list.",
-      "actor": "actor/employee"
-    },
-    {
-      "id": "s6",
-      "statement": "The manager sets the receipt threshold for the policy.",
-      "actor": "actor/manager"
-    },
-    {
-      "id": "s7",
-      "statement": "Finance exports the approved expenses in one batch.",
-      "actor": "actor/finance"
-    },
-    {
-      "id": "s8",
-      "statement": "Finance erases the personal data of expenses past retention.",
-      "actor": "actor/finance"
-    }
-  ],
-  "cites": [
-    "requirement/approval.decided-within-five-days"
-  ],
-  "approvedBy": "claimwick-team",
-  "approvedOn": "2026-10-01",
-  "approvedHash": "70b2f9ee"
-}
----
-
 # Submit and Reimburse
 
 ## Example
@@ -71,7 +7,3 @@ Ava submits a train fare on Monday with the receipt attached. Ben approves it on
 ## Before It Starts
 
 Ava signed in as an employee. The policy carries its receipt threshold.
-
-## Between the Steps
-
-Ben may reject instead of approve; then the journey ends with the rejection and no payout. Cara reimburses only approved expenses, and anything else waits. Finance exports approved expenses in one batch and erases personal data past its retention.

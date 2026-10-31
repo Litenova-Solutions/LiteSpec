@@ -1,5 +1,6 @@
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
+using LiteSpec.Model;
 using LiteSpec.Schemas;
 using static LiteSpec.Authoring.ManifestValidator;
 using static LiteSpec.Authoring.ProvisionValidator;
@@ -8,7 +9,7 @@ using static LiteSpec.Authoring.ValidatorSupport;
 namespace LiteSpec.Authoring;
 
 /// <summary>
-///     The record pass: frontmatter, identifiers, sources, references, and decision citations for LiteSpec's own research and decisions.
+///     The record pass: record files, identifiers, sources, references, and decision citations for LiteSpec's own research and decisions.
 /// </summary>
 /// <follows>litespec/core/authoring#run-repeatable-authoring-checks</follows>
 internal sealed partial class RecordsValidator
@@ -26,58 +27,43 @@ internal sealed partial class RecordsValidator
     private ValidationContext Context { get; }
 
     // LiteSpec keeps its own reasoning as consumer-shaped records under docs/intent/.
-    // The record pass reuses the shipped record schema instead of inventing a second
-    // shape, so a consumer page and a LiteSpec record page fail the same way.
+    // Each record is a .yaml record file with its explanation beside it. The record
+    // pass reads the file through the strict YAML reader and joins the explanation
+    // page the main walk parsed, so a consumer record file and a LiteSpec record
+    // file fail the same way.
     // (litespec/core/maintaining#record-the-reasoning-behind-each-release)
     /// <summary>Checks the records among the parsed pages.</summary>
     /// <param name="parsedPages">The parsed pages.</param>
     internal void CheckRecords(List<ParsedPage> parsedPages)
     {
-        CheckRecordSchema(parsedPages);
-        CheckRecordIds(parsedPages);
-        CheckRecordSources(parsedPages);
-        CheckRecordReferences(parsedPages);
-        CheckRecordDecisionCitations(parsedPages);
+        var records = CollectRecords(parsedPages);
+        CheckRecordText(records);
+        CheckRecordSchema(records);
+        CheckRecordExplanations(records, parsedPages);
+        CheckRecordIds(records);
+        CheckRecordSources(records);
+        CheckRecordReferences(records, parsedPages);
+        CheckRecordDecisionCitations(records, parsedPages);
     }
 
-    /// <summary>Parses the JSON frontmatter block of a record page.</summary>
-    /// <param name="raw">The raw page text.</param>
-    /// <param name="node">The parsed frontmatter, or null when it does not parse.</param>
+    /// <summary>Parses a record file's strict YAML text.</summary>
+    /// <param name="text">The record file text.</param>
+    /// <param name="node">The parsed record, or null when it does not parse.</param>
     /// <param name="error">The parse failure message.</param>
-    /// <returns>True when the frontmatter parses.</returns>
-    internal static bool TryParseRecordFrontmatter(string raw, out JsonNode? node, out string error)
+    /// <returns>True when the record parses.</returns>
+    internal static bool TryParseRecordFile(string text, out JsonNode? node, out string error)
     {
         node = null;
-        error = "";
-
-        var lines = raw.Split('\n');
-        if (lines.Length < 3 || lines[0].TrimEnd('\r') != "---")
-        {
-            error = "no frontmatter block; every record page opens with a '---' JSON block carrying its record";
-            return false;
-        }
-
-        var closing = -1;
-        for (var index = 1; index < lines.Length; index++)
-        {
-            if (lines[index].TrimEnd('\r') == "---")
-            {
-                closing = index;
-                break;
-            }
-        }
-
-        if (closing < 0)
-        {
-            error = "unterminated frontmatter block";
-            return false;
-        }
-
-        var json = string.Join('\n', lines[1..closing]);
         try
         {
-            node = JsonNode.Parse(json);
+            node = JsonNode.Parse(YamlText.Parse(text).ToJson());
+            error = "";
             return true;
+        }
+        catch (JsonTextException exception)
+        {
+            error = exception.Message;
+            return false;
         }
         catch (System.Text.Json.JsonException exception)
         {
@@ -86,18 +72,90 @@ internal sealed partial class RecordsValidator
         }
     }
 
-    // Frontmatter is validated against the researchPage or decisionPage shape the
-    // record schema ships, through the shared schema module. A missing schema file
-    // skips the check: the page still faces the identifier, source, and reference
-    // checks below.
-    /// <summary>Checks record frontmatter against the shipped record schema shapes.</summary>
+    /// <summary>Collects every LiteSpec record file with its explanation page.</summary>
     /// <param name="parsedPages">The parsed pages.</param>
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "CheckRecordSchema reports a validation failure over arbitrary record frontmatter as collected errors instead of crashing the validation run on malformed repository input.")]
-    private void CheckRecordSchema(List<ParsedPage> parsedPages)
+    /// <returns>The collected records.</returns>
+    private List<ParsedRecord> CollectRecords(List<ParsedPage> parsedPages)
+    {
+        var explanations = new Dictionary<string, ParsedPage>(StringComparer.Ordinal);
+        foreach (var page in parsedPages)
+        {
+            if (page.Parsed.Kind is "research" or "decision")
+            {
+                explanations[Path.ChangeExtension(page.Relative, ".yaml")] = page;
+            }
+        }
+
+        // A record file is a .yaml file whose path names a research or decision
+        // record. Any other .yaml file holds no LiteSpec record.
+        var records = new List<ParsedRecord>();
+        foreach (var file in Walk(Path.Combine(Context.Root, "docs"), candidate => candidate.EndsWith(".yaml", StringComparison.OrdinalIgnoreCase)))
+        {
+            var relative = Slash(Path.GetRelativePath(Context.Root, file));
+            var kind = PageValidator.PageClass(Path.ChangeExtension(relative, ".md"));
+            if (kind is "research" or "decision")
+            {
+                var raw = ReadText(file);
+                _ = TryParseRecordFile(raw, out var node, out var error);
+                records.Add(new ParsedRecord(relative, kind, raw, node, error, explanations.GetValueOrDefault(relative)));
+            }
+        }
+
+        return records;
+    }
+
+    /// <summary>Collects the record identifiers of LiteSpec's own record files.</summary>
+    /// <param name="root">The repository root.</param>
+    /// <returns>The own record identifiers.</returns>
+    internal static HashSet<string> OwnRecordIds(string root)
+    {
+        var ids = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var file in Walk(Path.Combine(root, "docs"), candidate => candidate.EndsWith(".yaml", StringComparison.OrdinalIgnoreCase)))
+        {
+            var relative = Slash(Path.GetRelativePath(root, file));
+            if (PageValidator.PageClass(Path.ChangeExtension(relative, ".md")) is not ("research" or "decision"))
+            {
+                continue;
+            }
+
+            if (TryParseRecordFile(ReadText(file), out var node, out _)
+                && JsonString((node as JsonObject)?["id"]) is { } id)
+            {
+                ids.Add(id);
+            }
+        }
+
+        return ids;
+    }
+
+    // The record file holds authored prose inside its fields, so the ASCII rule
+    // reads it as it reads every page.
+    /// <summary>Checks that every record file holds ASCII text only.</summary>
+    /// <param name="records">The collected records.</param>
+    private void CheckRecordText(List<ParsedRecord> records)
+    {
+        var add = Context.Add;
+        foreach (var record in records)
+        {
+            var offset = NonAsciiOffset(record.Raw);
+            if (offset >= 0)
+            {
+                add(record.Relative, LineNumber(record.Raw, offset), "PROSE_NON_ASCII", NonAsciiMessage(record.Raw[offset], "non-ASCII character "));
+            }
+        }
+    }
+
+    // A record file is validated against the researchPage or decisionPage shape the
+    // record schema ships, through the shared schema module. A missing schema file
+    // skips the check: the record still faces the identifier, source, and reference
+    // checks below.
+    /// <summary>Checks record files against the shipped record schema shapes.</summary>
+    /// <param name="records">The collected records.</param>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "CheckRecordSchema reports a validation failure over arbitrary record files as collected errors instead of crashing the validation run on malformed repository input.")]
+    private void CheckRecordSchema(List<ParsedRecord> records)
     {
         var root = Context.Root;
         var add = Context.Add;
-        var records = parsedPages.Where(page => page.Parsed.Kind is "research" or "decision").ToList();
         if (records.Count == 0)
         {
             return;
@@ -138,15 +196,15 @@ internal sealed partial class RecordsValidator
             return;
         }
 
-        foreach (var page in records)
+        foreach (var record in records)
         {
-            if (!TryParseRecordFrontmatter(page.Reader.Raw, out var frontmatter, out var error))
+            if (record.Node is null)
             {
-                add(page.Relative, 1, "RECORD_SCHEMA", $"record frontmatter is invalid: {error}");
+                add(record.Relative, 1, "RECORD_SCHEMA", $"record file is invalid: {record.Error}");
                 continue;
             }
 
-            var defName = page.Parsed.Kind == "research" ? "researchPage" : "decisionPage";
+            var defName = record.Kind == "research" ? "researchPage" : "decisionPage";
             var def = defs[defName];
             if (def is null)
             {
@@ -156,19 +214,47 @@ internal sealed partial class RecordsValidator
             var errors = new List<string>();
             try
             {
-                JsonSchema.Validate(frontmatter, def, schema!, page.Relative, errors);
+                JsonSchema.Validate(record.Node, def, schema!, record.Relative, errors);
             }
             catch (Exception exception)
             {
-                errors.Add($"{page.Relative}: {exception.Message}");
+                errors.Add($"{record.Relative}: {exception.Message}");
             }
 
             foreach (var message in errors)
             {
-                var text = message.StartsWith(page.Relative + ": ", StringComparison.Ordinal)
-                    ? message[(page.Relative.Length + 2)..]
+                var text = message.StartsWith(record.Relative + ": ", StringComparison.Ordinal)
+                    ? message[(record.Relative.Length + 2)..]
                     : message;
-                add(page.Relative, 1, "RECORD_SCHEMA", text);
+                add(record.Relative, 1, "RECORD_SCHEMA", text);
+            }
+        }
+    }
+
+    // Research and decision records are articles: a record file without its
+    // explanation is half a page, and an explanation without its record explains
+    // nothing.
+    /// <summary>Checks that every record file sits beside its explanation file.</summary>
+    /// <param name="records">The collected records.</param>
+    /// <param name="parsedPages">The parsed pages.</param>
+    private void CheckRecordExplanations(List<ParsedRecord> records, List<ParsedPage> parsedPages)
+    {
+        var add = Context.Add;
+        foreach (var record in records)
+        {
+            if (record.Explanation is null)
+            {
+                add(record.Relative, 1, "RECORD_EXPLANATION_MISSING", $"record has no explanation file '{Path.ChangeExtension(record.Relative, ".md")}' beside it; research and decision records require one");
+            }
+        }
+
+        var recordFiles = new HashSet<string>(records.Select(record => record.Relative), StringComparer.Ordinal);
+        foreach (var page in parsedPages)
+        {
+            if (page.Parsed.Kind is "research" or "decision"
+                && !recordFiles.Contains(Path.ChangeExtension(page.Relative, ".yaml")))
+            {
+                add(page.Relative, 1, "RECORD_EXPLANATION_ORPHANED", $"explanation file has no record file '{Path.ChangeExtension(page.Relative, ".yaml")}' beside it");
             }
         }
     }
@@ -176,29 +262,24 @@ internal sealed partial class RecordsValidator
     // The identifier names the file, so a reader finds the record from its citation
     // without an index. A missing identifier belongs to the schema check above.
     /// <summary>Checks that each record identifier matches its file name.</summary>
-    /// <param name="parsedPages">The parsed pages.</param>
-    private void CheckRecordIds(List<ParsedPage> parsedPages)
+    /// <param name="records">The collected records.</param>
+    private void CheckRecordIds(List<ParsedRecord> records)
     {
         var add = Context.Add;
-        foreach (var page in parsedPages.Where(page => page.Parsed.Kind is "research" or "decision"))
+        foreach (var record in records)
         {
-            if (!TryParseRecordFrontmatter(page.Reader.Raw, out var frontmatter, out _))
-            {
-                continue;
-            }
-
-            var id = JsonString((frontmatter as JsonObject)?["id"]);
+            var id = JsonString((record.Node as JsonObject)?["id"]);
             if (id is null || id.Length == 0)
             {
                 continue;
             }
 
-            var fileName = page.Relative.Split('/')[^1];
-            var stem = fileName.EndsWith(".md", StringComparison.Ordinal) ? fileName[..^".md".Length] : fileName;
-            var expected = $"{page.Parsed.Kind}/{stem}";
+            var fileName = record.Relative.Split('/')[^1];
+            var stem = fileName.EndsWith(".yaml", StringComparison.Ordinal) ? fileName[..^".yaml".Length] : fileName;
+            var expected = $"{record.Kind}/{stem}";
             if (id != expected)
             {
-                add(page.Relative, 1, "RECORD_ID_MISMATCH", $"record id '{id}' does not match file name; expected '{expected}'");
+                add(record.Relative, 1, "RECORD_ID_MISMATCH", $"record id '{id}' does not match file name; expected '{expected}'");
             }
         }
     }
@@ -206,19 +287,14 @@ internal sealed partial class RecordsValidator
     // Every source carries the date it was read, and a path source names a file the
     // repository holds. A web source needs no existence check beyond its read date.
     /// <summary>Checks that each record source carries a read date and an existing path.</summary>
-    /// <param name="parsedPages">The parsed pages.</param>
-    private void CheckRecordSources(List<ParsedPage> parsedPages)
+    /// <param name="records">The collected records.</param>
+    private void CheckRecordSources(List<ParsedRecord> records)
     {
         var root = Context.Root;
         var add = Context.Add;
-        foreach (var page in parsedPages.Where(page => page.Parsed.Kind is "research" or "decision"))
+        foreach (var record in records)
         {
-            if (!TryParseRecordFrontmatter(page.Reader.Raw, out var frontmatter, out _))
-            {
-                continue;
-            }
-
-            if ((frontmatter as JsonObject)?["sources"] is not JsonArray sources)
+            if ((record.Node as JsonObject)?["sources"] is not JsonArray sources)
             {
                 continue;
             }
@@ -233,52 +309,41 @@ internal sealed partial class RecordsValidator
                 var read = JsonString(entry["readOn"]);
                 if (read is null || read.Length == 0)
                 {
-                    add(page.Relative, 1, "RECORD_SOURCE", $"source {index + 1} has no read date");
+                    add(record.Relative, 1, "RECORD_SOURCE", $"source {index + 1} has no read date");
                 }
 
                 var path = JsonString(entry["path"]);
                 if (path is not null && path.Length > 0 && !File.Exists(JoinRoot(root, path)))
                 {
-                    add(page.Relative, 1, "RECORD_SOURCE", $"source {index + 1} path '{path}' does not exist");
+                    add(record.Relative, 1, "RECORD_SOURCE", $"source {index + 1} path '{path}' does not exist");
                 }
             }
         }
     }
 
     // Every written link resolves to a LiteSpec record, and every backticked record
-    // identifier under docs/ resolves to one of LiteSpec's records or to a record of
-    // the Claimwick example the pages cite. An unknown target names a record that no
-    // file holds.
+    // identifier in prose or in a record field resolves to one of LiteSpec's records
+    // or to a record of the Claimwick example the pages cite. An unknown target
+    // names a record that no file holds.
     /// <summary>Checks that every record reference names a known record.</summary>
+    /// <param name="records">The collected records.</param>
     /// <param name="parsedPages">The parsed pages.</param>
-    private void CheckRecordReferences(List<ParsedPage> parsedPages)
+    private void CheckRecordReferences(List<ParsedRecord> records, List<ParsedPage> parsedPages)
     {
         var root = Context.Root;
         var add = Context.Add;
         var known = new HashSet<string>(StringComparer.Ordinal);
-        var records = parsedPages.Where(page => page.Parsed.Kind is "research" or "decision").ToList();
-        foreach (var page in records)
+        foreach (var record in records)
         {
-            if (!TryParseRecordFrontmatter(page.Reader.Raw, out var frontmatter, out _))
-            {
-                continue;
-            }
-
-            var id = JsonString((frontmatter as JsonObject)?["id"]);
-            if (id is not null)
+            if (JsonString((record.Node as JsonObject)?["id"]) is { } id)
             {
                 known.Add(id);
             }
         }
 
-        foreach (var page in records)
+        foreach (var record in records)
         {
-            if (!TryParseRecordFrontmatter(page.Reader.Raw, out var frontmatter, out _))
-            {
-                continue;
-            }
-
-            if (frontmatter is not JsonObject obj)
+            if (record.Node is not JsonObject obj)
             {
                 continue;
             }
@@ -298,19 +363,19 @@ internal sealed partial class RecordsValidator
                         continue;
                     }
 
-                    add(page.Relative, 1, "RECORD_UNKNOWN_REFERENCE", $"'{field}' names unknown record '{target}'");
+                    add(record.Relative, 1, "RECORD_UNKNOWN_REFERENCE", $"'{field}' names unknown record '{target}'");
                 }
             }
 
             var replaces = JsonString(obj["replaces"]);
             if (replaces is not null && !known.Contains(replaces))
             {
-                add(page.Relative, 1, "RECORD_UNKNOWN_REFERENCE", $"'replaces' names unknown record '{replaces}'");
+                add(record.Relative, 1, "RECORD_UNKNOWN_REFERENCE", $"'replaces' names unknown record '{replaces}'");
             }
         }
 
         var cited = new HashSet<string>(known, StringComparer.Ordinal);
-        cited.UnionWith(ExampleRecordIds());
+        cited.UnionWith(ExampleRecordIds(root));
 
         foreach (var page in parsedPages)
         {
@@ -327,53 +392,60 @@ internal sealed partial class RecordsValidator
                 add(page.Relative, LineNumber(prose, match.Index), "RECORD_UNKNOWN_REFERENCE", $"active content references unknown record '{id}'");
             }
         }
+
+        foreach (var record in records)
+        {
+            foreach (Match match in RecordReferencePattern().Matches(record.Raw))
+            {
+                var id = match.Groups[1].Value.Trim();
+                if (id.Length == 0 || cited.Contains(id))
+                {
+                    continue;
+                }
+
+                add(record.Relative, LineNumber(record.Raw, match.Index), "RECORD_UNKNOWN_REFERENCE", $"active content references unknown record '{id}'");
+            }
+        }
     }
 
     // The research and decision identifiers the Claimwick example records hold.
     /// <summary>Lists the record identifiers held by the Claimwick example.</summary>
+    /// <param name="root">The repository root.</param>
     /// <returns>The example record identifiers.</returns>
-    private IEnumerable<string> ExampleRecordIds()
+    internal static HashSet<string> ExampleRecordIds(string root)
     {
-        var root = Context.Root;
-        var intent = Path.Combine(root, "examples", "claimwick", "docs");
-        if (!Directory.Exists(intent))
+        var ids = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var file in Walk(Path.Combine(root, "examples", "claimwick", "docs"), candidate => candidate.EndsWith(".yaml", StringComparison.OrdinalIgnoreCase)))
         {
-            yield break;
-        }
-
-        foreach (var file in Directory.EnumerateFiles(intent, "*.md", SearchOption.AllDirectories))
-        {
-            if (TryParseRecordFrontmatter(File.ReadAllText(file), out var frontmatter, out _)
-                && JsonString((frontmatter as JsonObject)?["id"]) is { } id
+            if (TryParseRecordFile(ReadText(file), out var node, out _)
+                && JsonString((node as JsonObject)?["id"]) is { } id
                 && (id.StartsWith("research/", StringComparison.Ordinal) || id.StartsWith("decision/", StringComparison.Ordinal)))
             {
-                yield return id;
+                ids.Add(id);
             }
         }
+
+        return ids;
     }
 
     // An approved decision settles at least one provision, so its Rationale cites
     // it. Research may stand uncited as a basis pool, and a draft decision settles
     // nothing yet.
     /// <summary>Checks that each approved decision is cited by a provision Rationale.</summary>
+    /// <param name="records">The collected records.</param>
     /// <param name="parsedPages">The parsed pages.</param>
-    private void CheckRecordDecisionCitations(List<ParsedPage> parsedPages)
+    private void CheckRecordDecisionCitations(List<ParsedRecord> records, List<ParsedPage> parsedPages)
     {
         var add = Context.Add;
         var approved = new List<(string Relative, string Id)>();
-        foreach (var page in parsedPages.Where(page => page.Parsed.Kind == "decision"))
+        foreach (var record in records.Where(record => record.Kind == "decision"))
         {
-            if (!TryParseRecordFrontmatter(page.Reader.Raw, out var frontmatter, out _))
-            {
-                continue;
-            }
-
-            var obj = frontmatter as JsonObject;
+            var obj = record.Node as JsonObject;
             var id = JsonString(obj?["id"]);
             var status = JsonString(obj?["status"]);
             if (id is not null && status == "approved")
             {
-                approved.Add((page.Relative, id));
+                approved.Add((record.Relative, id));
             }
         }
 

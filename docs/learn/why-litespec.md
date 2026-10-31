@@ -2,7 +2,7 @@
 
 ## Intent
 
-LiteSpec exists because teams that build with AI agents watch the same request produce a different design each time, while the reasons behind past designs leave with the people who made them. This page names those failure modes and the 3 parts LiteSpec answers with: a versioned standard (one published set of rules), written records (short pages stating product intent), and a model builder (the command joining records to code, screens, and tests) that checks one against the other. Technical leads read it when they decide whether LiteSpec fits their team.
+LiteSpec exists because teams that build with AI agents watch the same request produce a different design each time, while the reasons behind past designs leave with the people who made them. This page names those failure modes and the 3 parts LiteSpec answers with: a versioned standard (one published set of rules), written records (short YAML files stating product intent), and a model builder (the command joining records to code, screens, and tests) that checks one against the other. Technical leads read it when they decide whether LiteSpec fits their team.
 
 ## The Problem
 
@@ -25,7 +25,7 @@ LiteSpec makes the written record durable and the person or agent doing the work
 It does that with three parts:
 
 - **A standard.** A versioned set of rules for building one [bounded-context business application](../core/scope.md): how Intent states promises, how Behavior keeps them, and how code, tests, security, operations, and releases work. Each rule carries a stable ID, so a person, an agent, or a tool cites exactly one rule. [Read the standard](reading-the-standard.md) explains how the standard is organized.
-- **Records.** A project writes its intent as small pages of fixed types: the product, its requirements and journeys, its modules, aggregates, rules, use cases with their results, the reactions, jobs, notifications, and settings around them, and the decisions behind them. Each record has an owner and a status. [Records and the project model](records-and-the-model.md) explains what a project writes down.
+- **Records.** A project writes its intent as small record files of fixed types: the product, its requirements and journeys, its modules, aggregates, rules, use cases with their results, the reactions, jobs, notifications, and settings around them, and the decisions behind them. Each record has an owner and a status. [Records and the project model](records-and-the-model.md) explains what a project writes down.
 - **A model builder.** A command-line tool reads the records, follows the marks by which code and tests point up to them, and works out how they connect: which handler implements which use case, which screen calls it, and which test proves it. It reports what is missing, and it renders the book product people read. [How the tools fit together](the-tooling.md) explains when each tool runs.
 
 The standard tells everyone how to build. The records say what to build, top down from promises to behavior to code. The model shows whether the two match.

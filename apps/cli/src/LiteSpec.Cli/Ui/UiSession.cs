@@ -4,6 +4,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
+using LiteSpec.Model;
 using LiteSpec.Schemas;
 
 namespace LiteSpec.Ui;
@@ -447,7 +448,7 @@ sealed class UiSession
         }
     }
 
-    // A rule override is an Exception record: docs/governance/exceptions/<name>.md
+    // A rule override is an Exception record: docs/governance/exceptions/<name>.yaml
     // carrying the provision it departs from, the reason, and the expiry date.
     // The consumer validator owns the record shape; this validator reads
     // the departure its own gates need and enforces the expiry date. The folder
@@ -475,49 +476,39 @@ sealed class UiSession
                 continue;
             }
 
-            if (!entry.Name.EndsWith(".md", StringComparison.Ordinal))
+            if (!RecordFile.IsRecordFile(entry.Name))
             {
                 continue;
             }
 
             var raw = File.ReadAllText(entry.FullName);
-            if (!raw.StartsWith("---", StringComparison.Ordinal))
+            if (!RecordFile.TryParse(raw, out var root, out _, out _))
             {
                 continue;
             }
 
-            var end = raw.IndexOf("\n---", 3, StringComparison.Ordinal);
-            if (end < 0)
+            if (root.ValueKind != JsonValueKind.Object)
             {
                 continue;
             }
 
-            JsonNode? meta;
-            try
-            {
-                meta = JsonNode.Parse(raw.Substring(3, end - 3).Trim());
-            }
-            catch (JsonException)
+            if (!root.TryGetProperty("type", out var type) || type.ValueKind != JsonValueKind.String || type.GetString() != "exception")
             {
                 continue;
             }
 
-            if (meta is not JsonObject)
+            if (!root.TryGetProperty("covers", out var covers) || covers.ValueKind != JsonValueKind.String || covers.GetString() is not { } provision)
             {
                 continue;
             }
 
-            if (JsonRead.Child(meta, "type").Node is not JsonValue typeValue || !typeValue.TryGetValue<string>(out var type) || type != "exception")
+            JsonNode? expiresOn = null;
+            if (root.TryGetProperty("expiresOn", out var expires))
             {
-                continue;
+                expiresOn = JsonNode.Parse(expires.GetRawText());
             }
 
-            if (JsonRead.Child(meta, "covers").Node is not JsonValue provisionValue || !provisionValue.TryGetValue<string>(out var provision))
-            {
-                continue;
-            }
-
-            found.Add(new UiException(RelativeToRoot(entry.FullName), provision, JsonRead.Child(meta, "expiresOn").Node));
+            found.Add(new UiException(RelativeToRoot(entry.FullName), provision, expiresOn));
         }
 
         return found;

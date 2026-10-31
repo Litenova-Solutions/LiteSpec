@@ -1,0 +1,27 @@
+type: journey
+id: journey/submit-and-reimburse
+title: Submit and Reimburse
+owner: claimwick-team
+status: draft
+decider: claimwick-team
+decideBy: 2026-12-15
+actor: actor/employee
+serves:
+  - goal/faster-reimbursement
+finishedWhen: The employee receives the reimbursement.
+steps:
+  - id: s1
+    statement: The employee submits the expense with its receipt.
+    actor: actor/employee
+    failure: The submission is refused for a missing receipt.
+betweenSteps: A refused expense returns to the employee for correction, and an approved one waits for payout.
+cites:
+  - requirement/approval.decided-within-five-days
+terms:
+  - term/expense
+questions:
+  - question: Which approver covers expenses above the receipt threshold?
+    decider: claimwick-team
+    decideBy: 2026-11-30
+    ballot: approval
+    recommendation: The finance lead approves expenses above the threshold.

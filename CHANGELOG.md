@@ -13,6 +13,12 @@ LiteSpec 3.0.0 is a top-down specification standard for one bounded-context busi
 
 ### Records
 
+- Each record page is a YAML record file holding one mapping with its entries in `records`; an optional explanation file beside it holds Markdown under H2 sections.
+- A module page is `module.yaml` in its module folder and an aggregate page is `aggregate.yaml` in its aggregate folder; the glossary is `docs/glossary.yaml`.
+- Anything a check reads or a reviewer approves is a record field; the explanation file only helps a reader understand. Product, constraint, rule set, actor, role and external system hold `summary`; goal holds `whyItMatters`; problem holds `situation`; feature holds `offering`; decision holds `consequences`; topic holds `summary`, `position` and `refusals`; journey holds `betweenSteps`.
+- Use cases hold `purpose`, `whatHappens` and `exposure`; reactions, jobs, notifications and setting sets hold `purpose` and `whatHappens`; screens hold `summary`; integration events hold `summary` and `delivery`; runbooks hold `impact`, `prerequisites`, `procedure`, `verification`, `recovery` and `escalation`; exceptions hold `exit` and `consequences`; research sources carry a `key`.
+- Prose cites a record by its identifier, such as `[the refund rule](rule/refund.within-window)`; research cites a source as `[text][key]`.
+- A Markdown page that holds no record is a document with an optional frontmatter block holding only its page style and common fields.
 - Journeys are product sentences with step ids, `finishedWhen` and a per-step `failure`; use cases point up with `serves`.
 - Requirements state exceptions with `except` and a `fallback`, and carry `risk` and `setBy`.
 - Use cases are commands or queries with `access` (`grant` and `tenant`; `auth` sits on the entry point), `changes`, `reads`, `consistency`, `effects` (`runs`, `sends`, `emits`, `calls`), `idempotency`, `audit`, typed query output in `include` groups, freshness and paging. Generic refusals are derived.
@@ -34,8 +40,11 @@ LiteSpec 3.0.0 is a top-down specification standard for one bounded-context busi
 - A project declares its use-case verb vocabulary in `vocabulary`: `verbs`, `phrasal` verbs counted as one, and `retired` synonyms with their replacement, checked by `use-case-verb-unknown`.
 - `effect-timing-invalid` (level S) reports a command whose `sends` or `calls` effect runs inline; consequences run from an event handler or a job after the commit.
 - `event-tense-invalid` accepts a past tense followed by a prepositional complement and a mark method naming its state, and `term-clash` skips a hyphenated pair opening with a function word.
-- `state-unreached` (level G) reports every state no transition enters. An aggregate writes its creation as a transition from `-`, or with an empty From cell in its Transitions table, so its first state is reached too.
-- The approval hash covers every written frontmatter field except the identity, workflow and approval fields the guide lists, and compares numbers by value, so `50.00` and `50` hash alike.
+- `state-unreached` (level G) reports every state no transition enters. An aggregate writes its creation as a transition from `-` in its `transitions` field, so its first state is reached too.
+- The approval hash covers every written record field except the identity, workflow and approval fields the guide lists, and compares numbers by value, so `50.00` and `50` hash alike. For research, decision and topic pages it also covers the explanation file.
+- `prose-missing` reports a significant use case with no `purpose` field and a significant command with no `whatHappens` field.
+- `explanation-orphaned`, `explanation-missing`, `format-drift`, `source-link-bare`, `source-key-unknown` and `source-unused` (level A) report an orphaned explanation, a missing article explanation, a record outside canonical form, and a research source linked directly, cited by an unknown key, or never cited.
+- `record-invalid` reports a record file that does not parse, with the parser message and line.
 - `reader-missing` (level S) also reports a .NET file that cannot be read or parsed, a declared stack root that resolves to no folder, a `server` project with no backend reader, and a configured bill of materials that cannot be read, is not SPDX or CycloneDX, or yields no packages.
 - A test proves a scenario across machines: the proof ledger hashes each test file by its path relative to the project root and its text with normalized line endings.
 
@@ -61,8 +70,11 @@ LiteSpec 3.0.0 is a top-down specification standard for one bounded-context busi
 ### Tools
 
 - `litespec model diff` has `--intent` and `--behavior` views with a security queue, and `litespec book` renders journey chapters and a ballots page.
-- `litespec new` scaffolds a page, `litespec rename` rewrites an id everywhere, and `litespec model approve` records approval.
-- `litespec new result` and `litespec new scenario` append one entry to a use-case page in house order: successes, refusals, then scenarios.
+- `litespec new` scaffolds a record file with its explanation file for an article type, `litespec rename` rewrites an id in record files, explanation files and documents, and `litespec model approve` records approval in the record file.
+- `litespec new result` and `litespec new scenario` append one entry to a use-case record file in house order: successes, refusals, then scenarios.
+- `litespec model format` rewrites every record file and the glossary file into canonical form; `--check` writes nothing, lists each file that would change, and exits 1 when any would. It exits 2 when a file does not parse.
+- `litespec append` adds an entry to a record file; `litespec init` writes `docs/glossary.yaml`.
+- Consumer templates ship as `<type>.yaml` record files, with `<type>.md` explanation files for article types and `<type>.md` documents for document styles.
 - `litespec model check --staged` reports only staged records, their direct links, and the records staged code implements.
 - `litespec model approve --dry-run` prints which records would be stamped and which would be reopened, without writing.
 - The `litespec-maintain` tool checks the standard's own pages, schemas, manifest, and provision index from `apps/maintain/` with `validate` and `provisions`; the `litespec` tool serves consumers only.
@@ -71,12 +83,13 @@ LiteSpec 3.0.0 is a top-down specification standard for one bounded-context busi
 - `litespec model check --since` and `--staged` leave out files under `.model/`, which the tool writes itself.
 - `litespec model approve --all --dry-run` lists exactly the records `litespec model approve --all` stamps.
 - Every command reports an unexpected failure as one line and exit code 1; with `--format json` the line is a JSON object with an `error` field. A repeated option, an empty value, and an unknown option given with `--help` are usage errors.
-- The book links only `http`, `https`, `mailto`, in-page fragments, relative paths and the configured editor scheme, and renders any other link target as text. `litespec book` exits with code 2 when the carried release is missing.
+- The book links only `http`, `https`, `mailto`, in-page fragments, relative paths, record identifiers and the configured editor scheme, and renders any other link target as text. `litespec book` exits with code 2 when the carried release is missing.
 - A project that opts out of the analyzers with `LiteSpecLayer=None` gets no diagnostics and no generated code from the analyzer package.
 - `litespec-maintain validate` checks both directions of the Removed and Renamed table: a listed old provision must be gone, and a listed replacement must exist.
 - The navigation and page-frame patterns draw their wireframes on the Claimwick cast. Their option ids follow the option names: `cost-centre-sections-as-tabs-on-the-cost-centre-page`, `no-switcher-back-to-the-cost-centre-list`, `the-count-the-cost-centres-the-exceptions`, `per-cost-centre-cards-with-a-rate`, `payouts-as-a-timeline`, `split-payouts-left-incidents-right`, `month-grid-with-trips-marked`, `week-lanes-per-cost-centre` and `receipt-scanner-is-offline`.
 - New provisions cover file uploads and the `429` status on the API, and offline commands, saved navigation state, app links and touch and text accessibility on Android. The shared frontend data rules live on the frontend data page for every stack, and the `jobs` extension replaces the execution-host provision so scheduled jobs run in a Worker. FsCheck is pinned for property-based Domain tests.
-- The block of JSON at the top of a record page is called frontmatter throughout the standard.
+- Record files use a strict YAML subset in canonical key order with two-space indentation; `litespec model format` owns the layout.
+- The YAML block at the top of a document is called frontmatter throughout the standard.
 
 ### Record Hierarchy
 

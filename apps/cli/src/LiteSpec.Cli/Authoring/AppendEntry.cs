@@ -1,6 +1,5 @@
-using System.Globalization;
-using System.Text;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 using LiteSpec.Model;
 
@@ -8,13 +7,13 @@ namespace LiteSpec.Authoring;
 
 /// <summary>
 ///     The <c>litespec new result</c> and <c>litespec new scenario</c> append paths:
-///     one entry goes onto a use-case page's frontmatter records, in house order,
-///     while every other byte of the page stays untouched.
+///     one entry goes onto a use-case file's records, in house order, and the
+///     file is written back in canonical form.
 /// </summary>
 /// <follows>litespec/core/authoring#scaffold-pages-and-reserve-identifiers</follows>
 static partial class AppendEntry
 {
-    /// <summary>Where the new entry lands among the page's entries.</summary>
+    /// <summary>Where the new entry lands among the file's entries.</summary>
     internal enum Placement
     {
         /// <summary>A successful result entry, placed with the success results before any refusal.</summary>
@@ -173,11 +172,11 @@ static partial class AppendEntry
             return 2;
         }
 
-        string page;
+        string text;
 
         try
         {
-            page = File.ReadAllText(useCase.File);
+            text = File.ReadAllText(useCase.File);
         }
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
         {
@@ -188,10 +187,10 @@ static partial class AppendEntry
         var placement = kind == "scenario"
             ? Placement.Scenario
             : outcome == "success" ? Placement.Success : Placement.Refusal;
-        var fields = kind == "scenario"
-            ? ScenarioFields(entryId, TitleFrom(name), resultRef!)
-            : ResultFields(entryId, TitleFrom(name), outcome!, code);
-        var updated = Insert(page, placement, fields, out var error);
+        var entry = kind == "scenario"
+            ? ScenarioEntry(entryId, TitleFrom(name), resultRef!)
+            : ResultEntry(entryId, TitleFrom(name), outcome!, code);
+        var updated = Insert(text, placement, entry, out var error);
 
         if (updated is null)
         {
@@ -214,94 +213,45 @@ static partial class AppendEntry
     }
 
     /// <summary>
-    ///     Splices one entry into the page's frontmatter records. The insertion lands
-    ///     in house order and every other byte of the page comes back unchanged.
+    ///     Adds one entry to the file's records in house order and writes the
+    ///     file back in canonical form.
     /// </summary>
-    /// <param name="page">The full text of the use-case page, including its frontmatter.</param>
-    /// <param name="placement">Where the entry lands among the page entries, which selects the insertion group.</param>
-    /// <param name="fields">The field lines of the entry, without indentation.</param>
-    /// <param name="error">When the result is null, the reason the page cannot accept the entry.</param>
-    /// <returns>The updated page, or null with the reason in <paramref name="error"/>.</returns>
-    internal static string? Insert(string page, Placement placement, IReadOnlyList<string> fields, out string error)
+    /// <param name="text">The record file text to append to.</param>
+    /// <param name="placement">Where the entry lands among the file entries, which selects the insertion group.</param>
+    /// <param name="entry">The new entry object.</param>
+    /// <param name="error">When the result is null, the reason the file cannot accept the entry.</param>
+    /// <returns>The updated file in canonical form, or null with the reason in <paramref name="error"/>.</returns>
+    internal static string? Insert(string text, Placement placement, JsonObject entry, out string error)
     {
         error = "";
 
-        if (!Fences(page, out var jsonStart, out var jsonEnd))
+        if (!RecordFile.TryParse(text, out _, out var tree, out var parseError))
         {
-            error = "The page holds no frontmatter to append to.";
+            error = $"The file holds no record to append to: {parseError}";
             return null;
         }
 
-        var json = page[jsonStart..jsonEnd];
-        var newline = json.Contains("\r\n", StringComparison.Ordinal) ? "\r\n" : "\n";
-
-        JsonDocument document;
-
-        try
+        if (JsonNode.Parse(tree.ToJson()) is not JsonObject node)
         {
-            document = JsonDocument.Parse(json);
-        }
-        catch (JsonException exception)
-        {
-            error = $"The page's frontmatter is not JSON: {exception.Message}";
+            error = "The file holds no record to append to.";
             return null;
         }
 
-        using (document)
+        if (!node.TryGetPropertyValue("records", out var found) || found is null)
         {
-            if (document.RootElement.ValueKind != JsonValueKind.Object)
-            {
-                error = "The page's frontmatter holds no record to append to.";
-                return null;
-            }
-
-            var groups = Classify(document.RootElement, out var missing);
-
-            if (groups is null)
-            {
-                error = "The page's records field is not an array.";
-                return null;
-            }
-
-            if (!Scan(json, out var found) || missing != !found.HasRecords || found.Spans.Count != groups.Count)
-            {
-                error = "The page's records array could not be edited without rewriting it.";
-                return null;
-            }
-
-            var index = InsertionIndex(groups, placement);
-            var indent = ElementIndent(page, jsonStart, found, index);
-            var element = Element(indent, newline, fields);
-
-            if (!found.HasRecords)
-            {
-                return InsertArray(page, jsonStart, found, element, newline);
-            }
-
-            if (found.Spans.Count == 0)
-            {
-                var between = json[(found.ArrayOpen + 1)..found.ArrayClose];
-                var closeIndent = between.Contains('\n')
-                    ? LineIndent(page, jsonStart + found.ArrayClose) ?? found.RecordsIndent
-                    : found.RecordsIndent;
-
-                return page.Insert(jsonStart + found.ArrayOpen + 1, newline + element + newline + closeIndent);
-            }
-
-            if (index >= found.Spans.Count)
-            {
-                return page.Insert(jsonStart + found.Spans[^1].End, "," + newline + element);
-            }
-
-            var target = jsonStart + found.Spans[index].Start;
-
-            if (LineIndent(page, target) is null)
-            {
-                return page.Insert(target, element[indent.Length..] + "," + newline + indent);
-            }
-
-            return page.Insert(LineStart(page, target), element + "," + newline);
+            node["records"] = new JsonArray(entry);
+            return RecordFile.Write(node);
         }
+
+        if (found is not JsonArray records)
+        {
+            error = "The file's records field is not an array.";
+            return null;
+        }
+
+        records.Insert(InsertionIndex(records, placement), entry);
+
+        return RecordFile.Write(node);
     }
 
     /// <summary>The display title derived from a kebab-case name: words joined, first word capitalized.</summary>
@@ -321,51 +271,51 @@ static partial class AppendEntry
         return string.Join(' ', words);
     }
 
-    /// <summary>The field lines of the new result entry, without indentation.</summary>
+    /// <summary>The new result entry with every required field filled.</summary>
     /// <param name="id">The full identifier of the result entry.</param>
     /// <param name="title">The display title of the result entry.</param>
     /// <param name="outcome">The outcome kind, either success or refusal.</param>
     /// <param name="code">The refusal code for a refusal, or null for a success without a code.</param>
-    /// <returns>The field lines of the result entry, without indentation.</returns>
-    static List<string> ResultFields(string id, string title, string outcome, string? code)
+    /// <returns>The result entry object.</returns>
+    static JsonObject ResultEntry(string id, string title, string outcome, string? code)
     {
-        var fields = new List<string>
+        var entry = new JsonObject
         {
-            "\"type\": \"result\"",
-            $"\"id\": \"{Escape(id)}\"",
-            $"\"title\": \"{Escape(title)}\"",
-            $"\"outcome\": \"{outcome}\"",
+            ["type"] = "result",
+            ["id"] = id,
+            ["title"] = title,
+            ["outcome"] = outcome,
         };
 
         if (outcome == "refusal")
         {
-            fields.Add($"\"code\": \"{Escape(code!)}\"");
+            entry["code"] = code!;
         }
         else if (code is not null)
         {
-            fields.Add($"\"codes\": [\"{Escape(code)}\"]");
+            entry["codes"] = new JsonArray(code);
         }
 
-        fields.Add("\"meaning\": \"<The observable result in one sentence>\"");
+        entry["meaning"] = $"{title}.";
 
-        return fields;
+        return entry;
     }
 
-    /// <summary>The field lines of the new scenario entry, without indentation.</summary>
+    /// <summary>The new scenario entry with every required field filled.</summary>
     /// <param name="id">The full identifier of the scenario entry.</param>
     /// <param name="title">The display title of the scenario entry.</param>
     /// <param name="result">The identifier of the result the scenario exercises.</param>
-    /// <returns>The field lines of the scenario entry, without indentation.</returns>
-    static IReadOnlyList<string> ScenarioFields(string id, string title, string result) =>
-    [
-        "\"type\": \"scenario\"",
-        $"\"id\": \"{Escape(id)}\"",
-        $"\"title\": \"{Escape(title)}\"",
-        "\"given\": \"<The starting state>\"",
-        "\"when\": \"<What the actor does>\"",
-        "\"then\": \"<The observable result>\"",
-        $"\"result\": \"{Escape(result)}\"",
-    ];
+    /// <returns>The scenario entry object.</returns>
+    static JsonObject ScenarioEntry(string id, string title, string result) => new JsonObject
+    {
+        ["type"] = "scenario",
+        ["id"] = id,
+        ["title"] = title,
+        ["given"] = "The starting state holds.",
+        ["when"] = "The actor performs the act.",
+        ["then"] = "The observable result follows.",
+        ["result"] = result,
+    };
 
     /// <summary>Whether the reference names a result id: written and derived results share one form.</summary>
     /// <param name="value">The candidate result reference from the command line.</param>
@@ -386,557 +336,54 @@ static partial class AppendEntry
     [GeneratedRegex(@"^[a-z0-9][a-z0-9-]*\.[a-z0-9][a-z0-9-]*$")]
     private static partial Regex RefusalCodePattern();
 
-    /// <summary>Escapes a value for one JSON string.</summary>
-    /// <param name="value">The raw value to place inside one JSON string.</param>
-    /// <returns>The value with quotes, backslashes and control characters escaped for JSON.</returns>
-    internal static string Escape(string value)
-    {
-        var built = new StringBuilder(value.Length);
-
-        foreach (var character in value)
-        {
-            switch (character)
-            {
-                case '"':
-                    built.Append("\\\"");
-                    break;
-                case '\\':
-                    built.Append("\\\\");
-                    break;
-                case '\n':
-                    built.Append("\\n");
-                    break;
-                case '\r':
-                    built.Append("\\r");
-                    break;
-                case '\t':
-                    built.Append("\\t");
-                    break;
-                default:
-                    if (character < ' ')
-                    {
-                        built.Append(CultureInfo.InvariantCulture, $"\\u{(int)character:x4}");
-                    }
-                    else
-                    {
-                        built.Append(character);
-                    }
-
-                    break;
-            }
-        }
-
-        return built.ToString();
-    }
-
-    /// <summary>The frontmatter span between the fences, or false when the page carries none.</summary>
-    /// <param name="page">The full text of the page to scan for frontmatter fences.</param>
-    /// <param name="start">When the result is true, the offset just after the opening fence line.</param>
-    /// <param name="end">When the result is true, the offset at the start of the closing fence line.</param>
-    /// <returns>True when the page opens and closes a frontmatter block; otherwise false.</returns>
-    static bool Fences(string page, out int start, out int end)
-    {
-        start = 0;
-        end = 0;
-
-        var firstEnd = page.IndexOf('\n');
-
-        if (firstEnd < 0 || page[..firstEnd].TrimEnd('\r') != "---")
-        {
-            return false;
-        }
-
-        start = firstEnd + 1;
-        var lineStart = start;
-
-        while (lineStart <= page.Length)
-        {
-            var lineEnd = page.IndexOf('\n', lineStart);
-
-            if (lineEnd < 0)
-            {
-                lineEnd = page.Length;
-            }
-
-            if (page[lineStart..lineEnd].TrimEnd('\r') == "---")
-            {
-                end = lineStart;
-                return true;
-            }
-
-            lineStart = lineEnd + 1;
-        }
-
-        return false;
-    }
-
-    /// <summary>
-    ///     The records array's groups in order: 0 for a success, 1 for a refusal,
-    ///     2 for anything else. Null when records is not an array.
-    /// </summary>
-    /// <param name="root">The parsed frontmatter object holding the records array.</param>
-    /// <param name="missing">True when the frontmatter holds no records property at all.</param>
-    /// <returns>The group number of each record in order, an empty list when records is missing, or null when records is not an array.</returns>
-    static List<int>? Classify(JsonElement root, out bool missing)
-    {
-        missing = false;
-
-        if (!root.TryGetProperty("records", out var records))
-        {
-            missing = true;
-            return [];
-        }
-
-        if (records.ValueKind != JsonValueKind.Array)
-        {
-            return null;
-        }
-
-        var groups = new List<int>();
-
-        foreach (var entry in records.EnumerateArray())
-        {
-            var type = entry.ValueKind == JsonValueKind.Object
-                && entry.TryGetProperty("type", out var kind)
-                && kind.ValueKind == JsonValueKind.String
-                    ? kind.GetString()
-                    : null;
-            var outcome = entry.ValueKind == JsonValueKind.Object
-                && entry.TryGetProperty("outcome", out var result)
-                && result.ValueKind == JsonValueKind.String
-                    ? result.GetString()
-                    : null;
-
-            groups.Add(type == "result" && outcome == "success" ? 0 : type == "result" ? 1 : 2);
-        }
-
-        return groups;
-    }
-
     /// <summary>Where the new entry lands: successes first, refusals next, scenarios and list entries last.</summary>
-    /// <param name="groups">The group number of each existing record, in page order.</param>
+    /// <param name="records">The file's existing records, in file order.</param>
     /// <param name="placement">Where the entry lands, which selects the group ceiling it inserts before.</param>
     /// <returns>The index at which the entry inserts, or the record count when it appends at the end.</returns>
-    static int InsertionIndex(List<int> groups, Placement placement)
+    static int InsertionIndex(JsonArray records, Placement placement)
     {
         if (placement is Placement.Scenario or Placement.Entry)
         {
-            return groups.Count;
+            return records.Count;
         }
 
         var ceiling = placement == Placement.Success ? 0 : 1;
 
-        for (var index = 0; index < groups.Count; index++)
+        for (var index = 0; index < records.Count; index++)
         {
-            if (groups[index] > ceiling)
+            if (GroupOf(records[index]) > ceiling)
             {
                 return index;
             }
         }
 
-        return groups.Count;
+        return records.Count;
     }
 
-    /// <summary>The new element's indentation: its neighbor's line indent, else the array's.</summary>
-    /// <param name="page">The full text of the page that holds the frontmatter.</param>
-    /// <param name="jsonStart">The offset in the page where the frontmatter JSON starts.</param>
-    /// <param name="found">The textual scan of the frontmatter, holding the array offsets and indents.</param>
-    /// <param name="index">The insertion index whose neighboring element supplies the indent.</param>
-    /// <returns>The indentation string for the entry, taken from its neighbor or derived from the array indent.</returns>
-    static string ElementIndent(string page, int jsonStart, Found found, int index)
+    /// <summary>The entry's group in house order: 0 for a success, 1 for a refusal, 2 for anything else.</summary>
+    /// <param name="entry">The records entry, or null for a JSON null.</param>
+    /// <returns>The group number of the entry.</returns>
+    static int GroupOf(JsonNode? entry)
     {
-        var anchor = (found.HasRecords ? found.RecordsIndent : found.FirstIndent) + "  ";
+        var type = entry is JsonObject record
+            && record.TryGetPropertyValue("type", out var kind)
+            && kind is JsonValue value
+            && value.TryGetValue<string>(out var name)
+                ? name
+                : null;
 
-        if (!found.HasRecords || found.Spans.Count == 0)
+        if (type != "result")
         {
-            return anchor;
+            return 2;
         }
 
-        var neighbor = found.Spans[Math.Min(index, found.Spans.Count - 1)];
-
-        return LineIndent(page, jsonStart + neighbor.Start) ?? anchor;
-    }
-
-    /// <summary>The entry's lines at the page's indentation.</summary>
-    /// <param name="indent">The indentation string that prefixes the entry and its field lines.</param>
-    /// <param name="newline">The newline sequence the page uses, either CRLF or LF.</param>
-    /// <param name="fields">The field lines of the entry, without indentation.</param>
-    /// <returns>The entry text as one JSON object at the given indentation.</returns>
-    static string Element(string indent, string newline, IReadOnlyList<string> fields)
-    {
-        var built = new StringBuilder();
-        built.Append(indent).Append('{');
-
-        foreach (var field in fields)
-        {
-            built.Append(newline).Append(indent).Append("  ").Append(field).Append(',');
-        }
-
-        // The last field carries no comma.
-        built.Length -= 1;
-        built.Append(newline).Append(indent).Append('}');
-
-        return built.ToString();
-    }
-
-    /// <summary>Splices a records array holding one entry before the frontmatter's close.</summary>
-    /// <param name="page">The full text of the page that holds the frontmatter.</param>
-    /// <param name="jsonStart">The offset in the page where the frontmatter JSON starts.</param>
-    /// <param name="found">The textual scan of the frontmatter, holding the member offsets and indents.</param>
-    /// <param name="element">The rendered entry text to hold in the array.</param>
-    /// <param name="newline">The newline sequence the page uses, either CRLF or LF.</param>
-    /// <returns>The page text with a records array holding the single entry spliced in.</returns>
-    static string InsertArray(string page, int jsonStart, Found found, string element, string newline)
-    {
-        var field = found.FirstIndent;
-        var block = newline + field + "\"records\": [" + newline + element + newline + field + "]";
-
-        // After the last member the page's own newline before the closing brace stays in place.
-        return found.Members == 0
-            ? page.Insert(jsonStart + found.TopClose, block)
-            : page.Insert(jsonStart + found.LastValueEnd, "," + block);
-    }
-
-    /// <summary>The offset's line start.</summary>
-    /// <param name="text">The text that holds the offset.</param>
-    /// <param name="absolute">The offset whose line start is sought.</param>
-    /// <returns>The offset of the start of the line that holds the given offset.</returns>
-    static int LineStart(string text, int absolute) =>
-        absolute <= 0 ? 0 : text.LastIndexOf('\n', absolute - 1) + 1;
-
-    /// <summary>The all-whitespace prefix of the offset's line, or null when text precedes it.</summary>
-    /// <param name="text">The text that holds the offset.</param>
-    /// <param name="absolute">The offset whose line prefix is examined.</param>
-    /// <returns>The whitespace prefix of the line, or null when non-whitespace text precedes the offset or the offset is out of range.</returns>
-    static string? LineIndent(string text, int absolute)
-    {
-        if (absolute <= 0 || absolute > text.Length)
-        {
-            return null;
-        }
-
-        var prefix = text[LineStart(text, absolute)..absolute];
-
-        return prefix.All(character => character is ' ' or '\t') ? prefix : null;
-    }
-
-    /// <summary>What the textual scan found in the frontmatter JSON.</summary>
-    sealed record Found(
-        bool HasRecords,
-        string RecordsIndent,
-        string FirstIndent,
-        int Members,
-        int LastValueEnd,
-        int TopClose,
-        int ArrayOpen,
-        int ArrayClose,
-        IReadOnlyList<(int Start, int End)> Spans);
-
-    /// <summary>
-    ///     Walks the frontmatter text for the records array and its element spans,
-    ///     so the insertion reuses the page's own offsets.
-    /// </summary>
-    /// <param name="json">The frontmatter JSON text to scan.</param>
-    /// <param name="found">When the result is true, the scan result holding the array offsets, indents and element spans.</param>
-    /// <returns>True when the frontmatter holds a scannable records structure; otherwise false.</returns>
-    static bool Scan(string json, out Found found)
-    {
-        found = null!;
-
-        var index = SkipWs(json, 0);
-
-        if (index >= json.Length || json[index] != '{')
-        {
-            return false;
-        }
-
-        index++;
-        var members = 0;
-        var lastValueEnd = -1;
-        var topClose = -1;
-        var firstIndent = "  ";
-        var hasRecords = false;
-        var recordsIndent = "  ";
-        var arrayOpen = -1;
-        var arrayClose = -1;
-        var spans = new List<(int Start, int End)>();
-
-        while (true)
-        {
-            index = SkipWs(json, index);
-
-            if (index >= json.Length)
-            {
-                return false;
-            }
-
-            if (json[index] == '}')
-            {
-                topClose = index;
-                break;
-            }
-
-            if (json[index] != '"')
-            {
-                return false;
-            }
-
-            var keyStart = index;
-            var keyEnd = SkipString(json, index);
-
-            if (keyEnd < 0)
-            {
-                return false;
-            }
-
-            var key = json[(keyStart + 1)..(keyEnd - 1)];
-            index = SkipWs(json, keyEnd);
-
-            if (index >= json.Length || json[index] != ':')
-            {
-                return false;
-            }
-
-            index = SkipWs(json, index + 1);
-            var valueStart = index;
-            var valueEnd = SkipValue(json, index);
-
-            if (valueEnd < 0)
-            {
-                return false;
-            }
-
-            if (members == 0)
-            {
-                firstIndent = LineIndent(json, keyStart) ?? "  ";
-            }
-
-            members++;
-            lastValueEnd = valueEnd;
-
-            if (key == "records" && !hasRecords)
-            {
-                hasRecords = true;
-                recordsIndent = LineIndent(json, keyStart) ?? "  ";
-
-                if (json[valueStart] != '[' || !ArraySpans(json, valueStart, spans, out arrayClose))
-                {
-                    return false;
-                }
-
-                arrayOpen = valueStart;
-            }
-
-            index = SkipWs(json, valueEnd);
-
-            if (index >= json.Length)
-            {
-                return false;
-            }
-
-            if (json[index] == ',')
-            {
-                index++;
-                continue;
-            }
-
-            if (json[index] == '}')
-            {
-                topClose = index;
-                break;
-            }
-
-            return false;
-        }
-
-        found = new Found(
-            hasRecords, recordsIndent, firstIndent, members, lastValueEnd, topClose,
-            arrayOpen, arrayClose, spans);
-
-        return true;
-    }
-
-    /// <summary>The element spans of the array opening at the offset.</summary>
-    /// <param name="json">The frontmatter JSON text that holds the array.</param>
-    /// <param name="open">The offset of the array opening bracket.</param>
-    /// <param name="spans">The list that receives each element span in order.</param>
-    /// <param name="close">When the result is true, the offset of the array closing bracket.</param>
-    /// <returns>True when the array and its elements scan cleanly; otherwise false.</returns>
-    static bool ArraySpans(string json, int open, List<(int Start, int End)> spans, out int close)
-    {
-        close = -1;
-        var index = SkipWs(json, open + 1);
-
-        if (index >= json.Length)
-        {
-            return false;
-        }
-
-        if (json[index] == ']')
-        {
-            close = index;
-            return true;
-        }
-
-        while (true)
-        {
-            var end = SkipValue(json, index);
-
-            if (end < 0)
-            {
-                return false;
-            }
-
-            spans.Add((index, end));
-            index = SkipWs(json, end);
-
-            if (index >= json.Length)
-            {
-                return false;
-            }
-
-            if (json[index] == ',')
-            {
-                index = SkipWs(json, index + 1);
-
-                if (index >= json.Length || json[index] == ']')
-                {
-                    return false;
-                }
-
-                continue;
-            }
-
-            if (json[index] == ']')
-            {
-                close = index;
-                return true;
-            }
-
-            return false;
-        }
-    }
-
-    /// <summary>The offset past the JSON value starting at the offset, or -1.</summary>
-    /// <param name="json">The JSON text that holds the value.</param>
-    /// <param name="index">The offset where the value starts, possibly preceded by whitespace.</param>
-    /// <returns>The offset just past the value, or -1 when no complete value starts there.</returns>
-    static int SkipValue(string json, int index)
-    {
-        index = SkipWs(json, index);
-
-        if (index >= json.Length)
-        {
-            return -1;
-        }
-
-        return json[index] switch
-        {
-            '"' => SkipString(json, index),
-            '{' or '[' => SkipBracketed(json, index),
-            _ => SkipLiteral(json, index),
-        };
-    }
-
-    /// <summary>The offset past the bracketed value starting at the offset, or -1.</summary>
-    /// <param name="json">The JSON text that holds the bracketed value.</param>
-    /// <param name="index">The offset of the opening brace or bracket.</param>
-    /// <returns>The offset just past the matching close, or -1 when the brackets do not balance.</returns>
-    static int SkipBracketed(string json, int index)
-    {
-        var closing = json[index] == '{' ? '}' : ']';
-        var depth = 0;
-        var cursor = index;
-
-        while (cursor < json.Length)
-        {
-            var character = json[cursor];
-
-            if (character == '"')
-            {
-                cursor = SkipString(json, cursor);
-
-                if (cursor < 0)
-                {
-                    return -1;
-                }
-
-                continue;
-            }
-
-            if (character == '{' || character == '[')
-            {
-                depth++;
-            }
-            else if (character == '}' || character == ']')
-            {
-                depth--;
-
-                if (depth == 0)
-                {
-                    return character == closing ? cursor + 1 : -1;
-                }
-            }
-
-            cursor++;
-        }
-
-        return -1;
-    }
-
-    /// <summary>The offset past the string starting at the offset, or -1.</summary>
-    /// <param name="json">The JSON text that holds the string.</param>
-    /// <param name="index">The offset of the opening quote.</param>
-    /// <returns>The offset just past the closing quote, or -1 when the string does not terminate.</returns>
-    static int SkipString(string json, int index)
-    {
-        var cursor = index + 1;
-
-        while (cursor < json.Length)
-        {
-            if (json[cursor] == '"')
-            {
-                return cursor + 1;
-            }
-
-            if (json[cursor] == '\\')
-            {
-                cursor++;
-            }
-
-            cursor++;
-        }
-
-        return -1;
-    }
-
-    /// <summary>The offset past a literal starting at the offset, or -1.</summary>
-    /// <param name="json">The JSON text that holds the literal.</param>
-    /// <param name="index">The offset where the literal starts.</param>
-    /// <returns>The offset just past the literal, or -1 when no literal character stands at the offset.</returns>
-    static int SkipLiteral(string json, int index)
-    {
-        var cursor = index;
-
-        while (cursor < json.Length && ",]} \t\n\r".IndexOf(json[cursor]) < 0)
-        {
-            cursor++;
-        }
-
-        return cursor > index ? cursor : -1;
-    }
-
-    /// <summary>The offset past the whitespace starting at the offset.</summary>
-    /// <param name="json">The JSON text that holds the whitespace.</param>
-    /// <param name="index">The offset where the whitespace run starts.</param>
-    /// <returns>The offset just past the whitespace run, which equals the input offset when no whitespace stands there.</returns>
-    static int SkipWs(string json, int index)
-    {
-        while (index < json.Length && json[index] is ' ' or '\t' or '\n' or '\r')
-        {
-            index++;
-        }
-
-        return index;
+        var outcome = entry is JsonObject result
+            && result.TryGetPropertyValue("outcome", out var held)
+            && held is JsonValue text
+            && text.TryGetValue<string>(out var mode)
+                ? mode
+                : null;
+
+        return outcome == "success" ? 0 : 1;
     }
 }

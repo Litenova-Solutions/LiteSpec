@@ -38,7 +38,7 @@ In this repository, run the CLI with `dotnet run --project apps/cli/src/LiteSpec
 In a consumer:
 
 1. Read the consumer's `AGENTS.md` and `litespec.project.json`.
-2. Find the records the task touches with `litespec model query <id>`, read their generated context, then the records themselves.
+2. Find the records the task touches with `litespec model query <id>`, read their generated context, then the YAML record files themselves with their explanation files.
 3. Before you generate files or change a public boundary, read the full standards pages those records cite.
 4. Before you edit inside an extension's boundary, read the extension.
 5. Then look at neighboring files and follow a local pattern that complies.
@@ -62,7 +62,7 @@ Sources: `litespec/core/agent#apply-guidance-precedence`, `litespec/core/agent#s
 1. Confirm the scope of the request and which repositories it touches.
 2. Read `git status` and leave unrelated work alone.
 3. Check the manifest before you change a dependency. Add a package only with approval.
-4. Change the records, code, tests, contracts and operations that belong together in one change.
+4. Change the record files, explanation files, code, tests, contracts and operations that belong together in one change.
 5. Keep your working files under `.agents/`.
 
 Don't add an unapproved package, schema migration, authentication change, public break or external side effect.

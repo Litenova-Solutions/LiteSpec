@@ -41,39 +41,34 @@ internal sealed partial class ValueStyleValidator
         if (Directory.Exists(templates))
         {
             files.AddRange(Directory.GetFileSystemEntries(templates)
-                .Where(file => file.EndsWith(".md", StringComparison.OrdinalIgnoreCase))
+                .Where(file => file.EndsWith(".yaml", StringComparison.OrdinalIgnoreCase))
                 .OrderBy(file => file, StringComparer.Ordinal));
         }
 
         var examples = Path.Combine(root, "examples");
         if (Directory.Exists(examples))
         {
-            files.AddRange(Walk(examples, file => file.EndsWith(".md", StringComparison.OrdinalIgnoreCase)));
+            files.AddRange(Walk(examples, file => file.EndsWith(".yaml", StringComparison.OrdinalIgnoreCase)
+                && Slash(file).Contains("/docs/", StringComparison.Ordinal)));
         }
 
         foreach (var file in files)
         {
             var relative = Slash(Path.GetRelativePath(root, file));
-            var raw = ReadText(file);
-            if (raw.Split('\n')[0].TrimEnd('\r') != "---")
+            if (!RecordsValidator.TryParseRecordFile(ReadText(file), out var record, out _))
             {
                 continue;
             }
 
-            if (!RecordsValidator.TryParseRecordFrontmatter(raw, out var frontmatter, out _))
-            {
-                continue;
-            }
-
-            if (frontmatter is JsonObject obj)
+            if (record is JsonObject obj)
             {
                 CheckValueStyleNode(obj, false, JsonString(obj["type"]), relative);
             }
         }
     }
 
-    /// <summary>Checks the value style of one frontmatter node.</summary>
-    /// <param name="node">The frontmatter node.</param>
+    /// <summary>Checks the value style of one record node.</summary>
+    /// <param name="node">The record node.</param>
     /// <param name="inSteps">Whether the node sits inside a steps list.</param>
     /// <param name="enclosingType">The enclosing record type.</param>
     /// <param name="relative">The repository-relative path.</param>

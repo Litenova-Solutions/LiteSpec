@@ -21,7 +21,7 @@ sealed class ProjectModel
     public IReadOnlyList<object>? KnownJson { get; set; }
     /// <summary>Gets the written records read from the project pages, with derived records added.</summary>
     public List<Record> Records { get; } = [];
-    /// <summary>Gets the prose body of each record page, for the book and the model JSON.</summary>
+    /// <summary>Gets the explanation and document bodies, for the book and the model JSON.</summary>
     public List<PageBody> Bodies { get; } = [];
     /// <summary>Gets or sets the ids of the LiteSpec provisions in the carried release.</summary>
     public IReadOnlySet<string> Provisions { get; set; } = new HashSet<string>(StringComparer.Ordinal);
@@ -165,7 +165,8 @@ sealed class ProjectModel
 
             foreach (var page in Bodies)
             {
-                bodies[(page.File, page.PageId)] = PageText(page.Body);
+                // An explanation body joins its page record through the record file beside it.
+                bodies[(RecordFile.RecordPathOf(page.File), page.PageId)] = PageText(page.Body);
             }
 
             foreach (var record in Records.OrderBy(left => left.Id, StringComparer.Ordinal))

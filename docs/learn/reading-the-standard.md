@@ -97,23 +97,24 @@ The standard expects departures and gives each one a home:
 
 When guidance overlaps, the most specific source wins: your exception, then a selected extension, then the deeper page, then the shallower one.
 
-The Claimwick example carries one exception, at `examples/claimwick/docs/governance/exceptions/export-review-bypass.md`:
+The Claimwick example carries one exception, at `examples/claimwick/docs/governance/exceptions/export-review-bypass.yaml`:
 
-```json
-{
-  "type": "exception",
-  "id": "exception/export-review-bypass",
-  "kind": "departure",
-  "covers": "litespec/backend/application#enforce-target-authorization-in-the-pipeline",
-  "subject": ["use-case/spending.export-expenses"],
-  "reason": "The weekend export runs with no reviewer on shift.",
-  "owner": "claimwick-team",
-  "status": "approved",
-  "expiresOn": "2027-01-01"
-}
+```yaml
+type: exception
+id: exception/export-review-bypass
+title: Export Review Bypass
+owner: claimwick-team
+status: approved
+kind: departure
+covers: litespec/backend/application#enforce-target-authorization-in-the-pipeline
+subject:
+  - use-case/spending.export-expenses
+reason: The weekend export runs with no reviewer on shift.
+consequences: Weekend exports run without a second pair of eyes until a reviewer returns.
+expiresOn: 2027-01-01
 ```
 
-Read it as one departure: it names the provision it replaces in `covers`, the reason, and the expiry date. An agent follows the exception over the standard until that date.
+Read it as one departure: it names the provision it replaces in `covers`, the reason, the consequences, and the expiry date. An agent follows the exception over the standard until that date.
 
 ## UI Patterns
 

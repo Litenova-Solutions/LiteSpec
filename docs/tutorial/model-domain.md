@@ -2,14 +2,14 @@
 
 ## Purpose
 
-A behavior module gathers one business area's glossary terms, aggregates, rules, use cases, reactions, jobs, notifications, settings, events, and permissions into pages that the model builder, the tool that checks the project, reads. This tutorial works through one kind of page at a time, using the spending module of the Claimwick product as the worked example. Each step names the standard it satisfies, and the tutorial adds no rule of its own.
+A behavior module gathers one business area's glossary terms, aggregates, rules, use cases, reactions, jobs, notifications, settings, events, and permissions into record files that the model builder, the tool that checks the project, reads. This tutorial works through one kind of record at a time, using the spending module of the Claimwick product as the worked example. Each step names the standard it satisfies, and the tutorial adds no rule of its own.
 
 ## Prerequisites
 
 - Finish [Start a Consumer Repository](getting-started.md) through its configuration steps.
 - Read the product brief and the requirements this module fulfills.
 - Read the decisions that constrain identity, persistence, security, or external behavior.
-- Copy the `module.md`, `aggregate.md`, and `use-case.md` templates from the [template index](../../templates/consumer/README.md), and open `docs/glossary.json` for the module terms.
+- Copy the `module.yaml`, `aggregate.yaml`, and `use-case.yaml` templates from the [template index](../../templates/consumer/README.md), and open `docs/glossary.yaml` for the module terms.
 
 ## Lesson
 
@@ -24,11 +24,11 @@ A behavior module gathers one business area's glossary terms, aggregates, rules,
 
     Rejected words stop a later contributor from creating `Voucher` beside `Expense`. Aliases let industry readers find your word under the name they already know. They also tell an agent which plausible names are wrong for this domain and which are accepted synonyms.
 
-2. Write the Example section before the rules. Name one occasion the module exists for: who acts, what surrounds them, and what they use today instead. Record it in the module page's Example section, and reuse its people and figures on every page beneath it. Keep the shared cast on the example cast page. This satisfies `litespec/core/behavior#illustrate-pages-with-examples-from-the-cast`.
+2. Write the Example section before the rules. Name one occasion the module exists for: who acts, what surrounds them, and what they use today instead. Record it in the module's explanation file under Example, and reuse its people and figures in every record beneath it. Keep the shared cast on the example cast page. This satisfies `litespec/core/behavior#illustrate-pages-with-examples-from-the-cast`.
 
     Month end brings every team's expenses at once: employees paid work costs from their own pockets and wait weeks for a decision, chasing managers by email. Without an expense record, finance reconstructs who spent what from forwarded receipts and memory.
 
-3. Write the module page with its summary. Give the module a person-chosen identifier such as `module/spending`. Name each module it depends on, or remove the dependency field when the module stands alone. Spending depends on no other module, so its dependency list stays empty. This satisfies `litespec/core/domain-model#state-every-module-dependency`.
+3. Write the module record file with its summary. Give the module a person-chosen identifier such as `module/spending`. Name each module it depends on, or remove the dependency field when the module stands alone. Spending depends on no other module, so its dependency list stays empty. This satisfies `litespec/core/domain-model#state-every-module-dependency`.
 4. Draw aggregate boundaries from invariants. An aggregate is a consistency boundary: state that must stay valid together in one command. An invariant is a condition that holds before and after every successful change. Declare the kind of every aggregate: `entity` for guarded state, `saga` for a multi-step aggregate, and `store` for state no invariant guards. This satisfies `litespec/backend/domain#treat-aggregates-as-consistency-boundaries`, `litespec/backend/domain#keep-child-entities-inside-the-aggregate-boundary`, and `litespec/core/domain-model#declare-the-kind-of-every-aggregate`.
 
     | Aggregate | Kind | Owns | References by typed ID |
@@ -63,9 +63,9 @@ A behavior module gathers one business area's glossary terms, aggregates, rules,
     ```
 
     For each state, answer what makes it true, which data it alone requires, and which actions it allows and rejects. An unanswered question stays on the page. It receives no guessed default.
-6. Connect the states with transitions. List every allowed state change with the use case that moves it in the aggregate's Transitions table. This satisfies `litespec/core/domain-model#connect-every-state-through-transitions`.
+6. Connect the states with transitions. List every allowed state change with the use case that moves it in the aggregate's `transitions` field. This satisfies `litespec/core/domain-model#connect-every-state-through-transitions`.
 
-    | From | To | By Use Case |
+    | From | To | By |
     |:---|:---|:---|
     | None | Submitted | `use-case/spending.submit-expense` |
     | Submitted | Approved | `use-case/spending.approve-expense` |
@@ -73,7 +73,7 @@ A behavior module gathers one business area's glossary terms, aggregates, rules,
     | Approved | Reimbursed | `use-case/spending.reimburse-expense` |
 
     Creation is a transition from None, so the first state stays reachable. One use case can move more than one transition: approval ends submitted either approved or refused.
-7. Declare the data classes with their erasure positions. A data class groups fields that share one classification and one fate on erasure. Then list every field the aggregate keeps with its meaning, data class, and classification in the aggregate's Data table. This satisfies `litespec/core/privacy#declare-every-data-class-with-its-erasure-position` and `litespec/core/privacy#classify-every-aggregate-data-field`.
+7. Declare the data classes with their erasure positions. A data class groups fields that share one classification and one fate on erasure. Then list every field the aggregate keeps with its meaning, data class, and classification in the aggregate's `data` field. This satisfies `litespec/core/privacy#declare-every-data-class-with-its-erasure-position` and `litespec/core/privacy#classify-every-aggregate-data-field`.
 
     | Data class | Classification | Fields | On erasure | Enforced by |
     |:---|:---|:---|:---|:---|
@@ -98,8 +98,8 @@ A behavior module gathers one business area's glossary terms, aggregates, rules,
     | `rule/expense.approved-before-reimbursement` | `precondition` | An expense is reimbursed only after approval. | `result/reimburse-expense.not-approved` |
     | `rule/receipt.attaches-before-decision` | `precondition` | A receipt attaches before the expense is decided. | `result/attach-receipt.expense-decided` |
 
-    An `invariant` holds after every change to its aggregate. A `precondition` guards the behavior before it runs and refuses caller-correctable input. A `calculation` derives a value and is proven by a scenario with an examples table. A `cross-aggregate` rule spans aggregates and lives on a rule page. The remaining kinds cover atomicity, held reservations, frozen commercial values, and fallback defaults. Each rule that refuses names its refusal. This satisfies `litespec/core/domain-model#name-the-refusal-a-broken-rule-produces` and `litespec/core/domain-model#keep-cross-aggregate-rules-on-a-rule-page`. The cross-aggregate rule `rule/spending.receipt-filed-once`, a receipt file supports one expense across spending, lives on the spending rule page. A tunable bound such as the threshold is a setting, not a rule. Input shape stays in the validator; current aggregate state stays in the aggregate. This satisfies `litespec/backend/application#separate-input-validation-from-invariants`.
-9. Name the people and their permissions. Write one actor page per party and one role page per grantable set. Roles grant permissions; each use case later declares its access against one grant. This satisfies `litespec/core/access#grant-permissions-through-roles` and `litespec/backend/application#enforce-target-authorization-in-the-pipeline`.
+    An `invariant` holds after every change to its aggregate. A `precondition` guards the behavior before it runs and refuses caller-correctable input. A `calculation` derives a value and is proven by a scenario with `examples`. A `cross-aggregate` rule spans aggregates and lives on a rule record file. The remaining kinds cover atomicity, held reservations, frozen commercial values, and fallback defaults. Each rule that refuses names its refusal. This satisfies `litespec/core/domain-model#name-the-refusal-a-broken-rule-produces` and `litespec/core/domain-model#keep-cross-aggregate-rules-on-a-rule-page`. The cross-aggregate rule `rule/spending.receipt-filed-once`, a receipt file supports one expense across spending, lives on the spending rule record file. A tunable bound such as the threshold is a setting, not a rule. Input shape stays in the validator; current aggregate state stays in the aggregate. This satisfies `litespec/backend/application#separate-input-validation-from-invariants`.
+9. Name the people and their permissions. Write one actor record file per party and one role record file per grantable set. Roles grant permissions; each use case later declares its access against one grant. This satisfies `litespec/core/access#grant-permissions-through-roles` and `litespec/backend/application#enforce-target-authorization-in-the-pipeline`.
 
     | Actor | Role | Permission |
     |:---|:---|:---|
@@ -107,7 +107,7 @@ A behavior module gathers one business area's glossary terms, aggregates, rules,
     | `actor/manager` | `role/approver` at team scope | `permission/approve-expense` |
     | `actor/finance` | `role/finance` at platform scope | `permission/reimburse-expense` |
 
-10. Write the use cases. Give each use case a name that is unique across the project, so its results and scenarios resolve. Name the kind, `command` or `query`, the journey steps it serves, the requirements it fulfills, the access it declares, the entry points, the aggregates it changes and reads, its consistency, its effects, and the events it raises. This satisfies `litespec/backend/application#use-this-use-case-layout`, `litespec/core/use-cases#give-each-use-case-a-command-or-query-kind`, `litespec/core/use-cases#connect-each-use-case-to-intent`, and `litespec/core/access#declare-access-on-every-use-case`.
+10. Write the use cases. Give each use case a name that is unique across the project, so its results and scenarios resolve. Name the kind, `command` or `query`, the goal, what happens, the journey steps it serves, the requirements it fulfills, the access it declares, the entry points, the aggregates it changes and reads, its consistency, its effects, and the events it raises. This satisfies `litespec/backend/application#use-this-use-case-layout`, `litespec/core/use-cases#give-each-use-case-a-command-or-query-kind`, `litespec/core/use-cases#connect-each-use-case-to-intent`, and `litespec/core/access#declare-access-on-every-use-case`.
 
     | Use case | Kind | Serves | Access grant | Changes | Consistency |
     |:---|:---|:---|:---|:---|:---|
@@ -134,7 +134,7 @@ A behavior module gathers one business area's glossary terms, aggregates, rules,
     | `scenario/submit-expense.submitting-with-a-receipt-succeeds` | An employee paid for a train ticket and kept the receipt. | The employee submits the expense with the receipt. | The expense is submitted. | `result/submit-expense.submitted` |
     | `scenario/approve-expense.approving-a-submitted-expense-succeeds` | An employee submitted an expense with its receipt. | The manager approves the expense. | The expense is approved. | `result/approve-expense.approved` |
 
-    When the scenario proves a calculation, add an `examples` table with the debated rows. This satisfies `litespec/core/domain-model#tabulate-every-calculation-with-examples`. Name each test by the observable behavior it asserts. This satisfies `litespec/backend/testing#name-tests-by-observable-behavior`. An acceptance test carries one proves mark naming its scenario. The model builder confirms the claim when the test calls the use case through the public boundary and asserts the result the scenario names.
+    When the scenario proves a calculation, add `examples` with the debated rows. This satisfies `litespec/core/domain-model#tabulate-every-calculation-with-examples`. Name each test by the observable behavior it asserts. This satisfies `litespec/backend/testing#name-tests-by-observable-behavior`. An acceptance test carries one proves mark naming its scenario. The model builder confirms the claim when the test calls the use case through the public boundary and asserts the result the scenario names.
 13. Record the events. A domain event is an immutable record of a completed fact. Name what completed and which fields it carries. This satisfies `litespec/core/domain-model#state-each-event-with-meaning-and-carries` and `litespec/backend/dotnet/domain#raise-immutable-domain-facts`.
 
     | Event | Meaning | Carries |

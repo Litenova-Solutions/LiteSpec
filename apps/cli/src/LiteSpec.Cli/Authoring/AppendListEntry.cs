@@ -1,20 +1,21 @@
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using LiteSpec.Model;
 
 namespace LiteSpec.Authoring;
 
 /// <summary>
 ///     The <c>litespec new entry</c> append path: one requirement, rule,
-///     permission, or setting entry goes onto its owning list page's
-///     frontmatter records, last, while every other byte of the page stays
-///     untouched. List pages carry no record identifier, so the page argument
-///     is the page's consumer-relative path.
+///     permission, or setting entry goes onto its owning list file's records,
+///     last, and the file is written back in canonical form. List files carry
+///     no record identifier, so the file argument is the file's
+///     consumer-relative path.
 /// </summary>
 /// <follows>litespec/core/authoring#scaffold-pages-and-reserve-identifiers</follows>
 static class AppendListEntry
 {
     /// <summary>Runs the append path and returns its exit code.</summary>
-    /// <param name="parsed">The parsed command line, holding the page path, the entry type, the entry name and the options.</param>
+    /// <param name="parsed">The parsed command line, holding the file path, the entry type, the entry name and the options.</param>
     /// <returns>The process exit code: 0 when the entry is appended, 1 on a read or write failure, and 2 on invalid input.</returns>
     public static int Run(CliArgs parsed)
     {
@@ -80,11 +81,11 @@ static class AppendListEntry
             return 2;
         }
 
-        string page;
+        string text;
 
         try
         {
-            page = File.ReadAllText(pageFile);
+            text = File.ReadAllText(pageFile);
         }
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
         {
@@ -92,34 +93,32 @@ static class AppendListEntry
             return 1;
         }
 
-        if (!Frontmatter.TryParse(page, out var frontmatter, out var frontmatterError))
+        if (!RecordFile.TryParse(text, out var parsedRoot, out _, out var parseError))
         {
-            Console.Error.WriteLine(frontmatterError.StartsWith("frontmatter is not JSON:", StringComparison.Ordinal)
-                ? $"The page's {frontmatterError}"
-                : "The page holds no frontmatter to append to.");
+            Console.Error.WriteLine($"The file holds no record to append to: {parseError}");
             return 2;
         }
 
-        var pageType = frontmatter.Root.ValueKind == JsonValueKind.Object
-            && frontmatter.Root.TryGetProperty("type", out var style)
+        var pageType = parsedRoot.ValueKind == JsonValueKind.Object
+            && parsedRoot.TryGetProperty("type", out var style)
             && style.ValueKind == JsonValueKind.String
                 ? style.GetString()
                 : null;
 
         if (pageType != PageOf(entryType))
         {
-            var actual = pageType is null ? "a page without a type" : $"'{pageType}'";
+            var actual = pageType is null ? "a file without a type" : $"'{pageType}'";
             Console.Error.WriteLine($"Type '{entryType}' belongs on {OwnerOf(entryType)}; '{config.Relative(pageFile)}' is {actual}.");
             return 2;
         }
 
-        var home = entryType == "permission" ? null : HomeOf(frontmatter.Root, entryType, pageFile);
+        var home = entryType == "permission" ? null : HomeOf(parsedRoot, entryType, pageFile);
 
         if (home is null && entryType != "permission")
         {
             Console.Error.WriteLine(entryType == "setting"
-                ? $"The page '{config.Relative(pageFile)}' sits outside a modules folder and holds no setting to take the module from."
-                : $"The page '{config.Relative(pageFile)}' names no topic to take the home from.");
+                ? $"The file '{config.Relative(pageFile)}' sits outside a modules folder and holds no setting to take the module from."
+                : $"The file '{config.Relative(pageFile)}' names no topic to take the home from.");
             return 2;
         }
 
@@ -139,8 +138,8 @@ static class AppendListEntry
             return 2;
         }
 
-        var fields = EntryFields(entryType, entryId, AppendEntry.TitleFrom(name));
-        var updated = AppendEntry.Insert(page, AppendEntry.Placement.Entry, fields, out var error);
+        var entry = EntryFields(entryType, entryId, AppendEntry.TitleFrom(name));
+        var updated = AppendEntry.Insert(text, AppendEntry.Placement.Entry, entry, out var error);
 
         if (updated is null)
         {
@@ -179,32 +178,32 @@ static class AppendListEntry
     /// <returns>The description of where the entry type belongs for the refusal message, or null when the type is unknown.</returns>
     static string? OwnerOf(string entryType) => entryType switch
     {
-        "requirement" => "a topic page",
-        "rule" => "a rule-set page",
+        "requirement" => "a topic file",
+        "rule" => "a rule-set file",
         "permission" => "the permission list",
         "setting" => "a setting set",
         _ => null,
     };
 
     /// <summary>
-    ///     The new entry's home: the uniform home of the page's existing entries
+    ///     The new entry's home: the uniform home of the file's existing entries
     ///     of the same type, else the topic from the file name for a requirement
     ///     or rule, else the parent modules folder for a setting.
     /// </summary>
-    /// <param name="root">The parsed frontmatter object of the list page.</param>
+    /// <param name="root">The parsed record object of the list file.</param>
     /// <param name="entryType">The entry type name whose home is sought.</param>
-    /// <param name="pageFile">The full path of the list page, used when the entries give no home.</param>
+    /// <param name="pageFile">The full path of the list file, used when the entries give no home.</param>
     /// <returns>The home segment for the entry identifier, or null when neither the entries nor the location gives one.</returns>
     static string? HomeOf(JsonElement root, string entryType, string pageFile) =>
         UniformHome(root, entryType) ?? LocationHome(entryType, pageFile);
 
     /// <summary>
     ///     The home every existing entry of the type shares, or null when the
-    ///     page holds none or mixes homes.
+    ///     file holds none or mixes homes.
     /// </summary>
-    /// <param name="root">The parsed frontmatter object of the list page.</param>
+    /// <param name="root">The parsed record object of the list file.</param>
     /// <param name="entryType">The entry type name whose existing entries are examined.</param>
-    /// <returns>The home shared by every existing entry of the type, or null when the page holds none or mixes homes.</returns>
+    /// <returns>The home shared by every existing entry of the type, or null when the file holds none or mixes homes.</returns>
     static string? UniformHome(JsonElement root, string entryType)
     {
         if (root.ValueKind != JsonValueKind.Object
@@ -244,10 +243,10 @@ static class AppendListEntry
         return home;
     }
 
-    /// <summary>The home the page's place gives: the file stem, or the parent modules folder for a setting.</summary>
+    /// <summary>The home the file's place gives: the file stem, or the parent modules folder for a setting.</summary>
     /// <param name="entryType">The entry type name whose home is sought.</param>
-    /// <param name="pageFile">The full path of the list page.</param>
-    /// <returns>For a setting, the module folder name; otherwise the page file stem, or null when the stem is empty.</returns>
+    /// <param name="pageFile">The full path of the list file.</param>
+    /// <returns>For a setting, the module folder name; otherwise the file stem, or null when the stem is empty.</returns>
     static string? LocationHome(string entryType, string pageFile)
     {
         if (entryType == "setting")
@@ -260,9 +259,9 @@ static class AppendListEntry
         return stem.Length > 0 ? stem : null;
     }
 
-    /// <summary>The parent modules folder's child holding the page, or null outside one.</summary>
-    /// <param name="pageFile">The full path of the list page.</param>
-    /// <returns>The name of the folder directly under a modules folder that holds the page, or null when the page sits outside one.</returns>
+    /// <summary>The parent modules folder's child holding the file, or null outside one.</summary>
+    /// <param name="pageFile">The full path of the list file.</param>
+    /// <returns>The name of the folder directly under a modules folder that holds the file, or null when the file sits outside one.</returns>
     static string? ModuleOf(string pageFile)
     {
         var parts = Path.GetFullPath(pageFile)
@@ -279,45 +278,45 @@ static class AppendListEntry
         return null;
     }
 
-    /// <summary>The field lines of the new entry, without indentation: every required field with its template placeholder.</summary>
+    /// <summary>The new entry with every required field filled.</summary>
     /// <param name="entryType">The entry type name, which selects the field template.</param>
     /// <param name="id">The full identifier of the entry.</param>
     /// <param name="title">The display title of the entry.</param>
-    /// <returns>The field lines of the entry for its type, without indentation, with template placeholders for the text fields.</returns>
-    static IReadOnlyList<string> EntryFields(string entryType, string id, string title) => entryType switch
+    /// <returns>The entry object for its type, with every required field filled.</returns>
+    static JsonObject EntryFields(string entryType, string id, string title) => entryType switch
     {
-        "requirement" =>
-        [
-            "\"type\": \"requirement\"",
-            $"\"id\": \"{AppendEntry.Escape(id)}\"",
-            $"\"title\": \"{AppendEntry.Escape(title)}\"",
-            "\"kind\": \"functional\"",
-            "\"statement\": \"<The commitment in one sentence>\"",
-            "\"rationale\": \"<Why this commitment holds, in one sentence>\"",
-        ],
-        "rule" =>
-        [
-            "\"type\": \"rule\"",
-            $"\"id\": \"{AppendEntry.Escape(id)}\"",
-            $"\"title\": \"{AppendEntry.Escape(title)}\"",
-            "\"kind\": \"invariant\"",
-            "\"statement\": \"<The rule in one sentence>\"",
-        ],
-        "permission" =>
-        [
-            "\"type\": \"permission\"",
-            $"\"id\": \"{AppendEntry.Escape(id)}\"",
-            $"\"title\": \"{AppendEntry.Escape(title)}\"",
-            "\"meaning\": \"<What this permission allows in one sentence>\"",
-            "\"scope\": \"<scope, such as platform, tenant or self>\"",
-        ],
-        _ =>
-        [
-            "\"type\": \"setting\"",
-            $"\"id\": \"{AppendEntry.Escape(id)}\"",
-            $"\"title\": \"{AppendEntry.Escape(title)}\"",
-            "\"valueType\": \"integer\"",
-            "\"setBy\": \"decider\"",
-        ],
+        "requirement" => new JsonObject
+        {
+            ["type"] = "requirement",
+            ["id"] = id,
+            ["title"] = title,
+            ["kind"] = "functional",
+            ["statement"] = "The product keeps this commitment.",
+            ["rationale"] = "The business needs this commitment.",
+        },
+        "rule" => new JsonObject
+        {
+            ["type"] = "rule",
+            ["id"] = id,
+            ["title"] = title,
+            ["kind"] = "invariant",
+            ["statement"] = "The records keep this rule.",
+        },
+        "permission" => new JsonObject
+        {
+            ["type"] = "permission",
+            ["id"] = id,
+            ["title"] = title,
+            ["meaning"] = "This permission allows the action.",
+            ["scope"] = "tenant",
+        },
+        _ => new JsonObject
+        {
+            ["type"] = "setting",
+            ["id"] = id,
+            ["title"] = title,
+            ["valueType"] = "integer",
+            ["setBy"] = "decider",
+        },
     };
 }
