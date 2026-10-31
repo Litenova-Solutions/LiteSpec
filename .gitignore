@@ -16,3 +16,6 @@ mcps/
 
 # The model builder writes its output and proof ledger here.
 .model/
+
+# Agent worktrees from other sessions are separate checkouts, never part of this repository.
+.claude/worktrees/
