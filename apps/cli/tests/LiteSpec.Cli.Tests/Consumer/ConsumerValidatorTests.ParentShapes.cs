@@ -1,4 +1,5 @@
 using System.Text.Json.Nodes;
+using LiteSpec.Tests.Support;
 
 namespace LiteSpec.Tests.Consumer;
 
@@ -11,12 +12,14 @@ public sealed partial class ConsumerValidatorTests
     public void JourneyCarryingItsStepsAndGoalServes()
     {
         using var folder = ConsumerFixture.Create();
-        ConsumerFixture.WriteFile(
+        TestRecords.Write(
+            folder.Path,
+            "docs/product/journeys/submit-and-reimburse.yaml",
+            """{"type":"journey","id":"journey/submit-and-reimburse","title":"Submit and Reimburse","owner":"fixture","status":"approved","actor":"actor/customer","serves":["goal/faster-delivery"],"finishedWhen":"The customer holds the reimbursement.","betweenSteps":"The shop hands the claim to payment.","steps":[{"id":"s1","statement":"The customer submits the order.","actor":"actor/customer"}],"cites":["requirement/pricing.flat-fee"],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}""");
+        TestRecords.Explain(
             folder.Path,
             "docs/product/journeys/submit-and-reimburse.md",
-            ConsumerFixture.Page(
-                ConsumerFixture.Meta("""{"type":"journey","id":"journey/submit-and-reimburse","title":"Submit and Reimburse","owner":"fixture","status":"approved","actor":"actor/customer","serves":["goal/faster-delivery"],"finishedWhen":"The customer holds the reimbursement.","steps":[{"id":"s1","statement":"The customer submits the order.","actor":"actor/customer"}],"cites":["requirement/pricing.flat-fee"],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}"""),
-                "# Submit and Reimburse\n\n## Example\n\nAlex submits a claim on Monday and is reimbursed by Friday.\n\n## Between the Steps\n\nThe shop hands the claim to payment.\n"));
+            "# Submit and Reimburse\n\n## Example\n\nAlex submits a claim on Monday and is reimbursed by Friday.\n");
         AssertClean(RunConsumer(folder.Path));
     }
 
@@ -26,12 +29,10 @@ public sealed partial class ConsumerValidatorTests
     public void JourneyCarryingTheRetiredGoalSentence()
     {
         using var folder = ConsumerFixture.Create();
-        ConsumerFixture.WriteFile(
+        TestRecords.Write(
             folder.Path,
-            "docs/product/journeys/submit-and-reimburse.md",
-            ConsumerFixture.Page(
-                ConsumerFixture.Meta("""{"type":"journey","id":"journey/submit-and-reimburse","title":"Submit and Reimburse","owner":"fixture","status":"approved","actor":"actor/customer","serves":["goal/faster-delivery"],"goal":"The customer is reimbursed.","finishedWhen":"The customer holds the reimbursement.","steps":[{"id":"s1","statement":"The customer submits the order.","actor":"actor/customer"}],"cites":["requirement/pricing.flat-fee"],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}"""),
-                "# Submit and Reimburse\n\n## Example\n\nAlex submits a claim on Monday and is reimbursed by Friday.\n\n## Between the Steps\n\nThe shop hands the claim to payment.\n"));
+            "docs/product/journeys/submit-and-reimburse.yaml",
+            """{"type":"journey","id":"journey/submit-and-reimburse","title":"Submit and Reimburse","owner":"fixture","status":"approved","actor":"actor/customer","serves":["goal/faster-delivery"],"goal":"The customer is reimbursed.","finishedWhen":"The customer holds the reimbursement.","betweenSteps":"The shop hands the claim to payment.","steps":[{"id":"s1","statement":"The customer submits the order.","actor":"actor/customer"}],"cites":["requirement/pricing.flat-fee"],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}""");
         AssertProblem(RunConsumer(folder.Path), "unknown property 'goal'");
     }
 
@@ -41,12 +42,10 @@ public sealed partial class ConsumerValidatorTests
     public void FeatureCarryingItsLifecycleAndAdvances()
     {
         using var folder = ConsumerFixture.Create();
-        ConsumerFixture.WriteFile(
+        TestRecords.Write(
             folder.Path,
-            "docs/product/features/approval-reminders.md",
-            ConsumerFixture.Page(
-                ConsumerFixture.Meta("""{"type":"feature","id":"feature/approval-reminders","title":"Approval Reminders","owner":"fixture","status":"approved","lifecycle":"shipped","solves":["problem/slow-approval"],"advances":["goal/faster-delivery"],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}"""),
-                "# Approval Reminders\n\n## Offering\n\nManagers get a reminder for claims waiting past three days.\n"));
+            "docs/product/features/approval-reminders.yaml",
+            """{"type":"feature","id":"feature/approval-reminders","title":"Approval Reminders","owner":"fixture","status":"approved","offering":"Managers get a reminder for claims waiting past three days.","lifecycle":"shipped","solves":["problem/slow-approval"],"advances":["goal/faster-delivery"],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}""");
         AssertClean(RunConsumer(folder.Path));
     }
 
@@ -56,12 +55,10 @@ public sealed partial class ConsumerValidatorTests
     public void FeatureCarryingTheRetiredStateField()
     {
         using var folder = ConsumerFixture.Create();
-        ConsumerFixture.WriteFile(
+        TestRecords.Write(
             folder.Path,
-            "docs/product/features/approval-reminders.md",
-            ConsumerFixture.Page(
-                ConsumerFixture.Meta("""{"type":"feature","id":"feature/approval-reminders","title":"Approval Reminders","owner":"fixture","status":"approved","lifecycle":"shipped","state":"shipped","solves":["problem/slow-approval"],"advances":["goal/faster-delivery"],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}"""),
-                "# Approval Reminders\n\n## Offering\n\nManagers get a reminder for claims waiting past three days.\n"));
+            "docs/product/features/approval-reminders.yaml",
+            """{"type":"feature","id":"feature/approval-reminders","title":"Approval Reminders","owner":"fixture","status":"approved","offering":"Managers get a reminder for claims waiting past three days.","lifecycle":"shipped","state":"shipped","solves":["problem/slow-approval"],"advances":["goal/faster-delivery"],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}""");
         AssertProblem(RunConsumer(folder.Path), "unknown property 'state'");
     }
 
@@ -71,7 +68,7 @@ public sealed partial class ConsumerValidatorTests
     public void ScenarioEndingInADerivedGenericRefusal()
     {
         using var folder = ConsumerFixture.Create();
-        ConsumerFixture.MutateMeta(folder.Path, "docs/behavior/modules/orders/cancel-order.md", meta => ScenarioResult(meta, "result/cancel-order.forbidden"));
+        ConsumerFixture.MutateMeta(folder.Path, "docs/behavior/modules/orders/cancel-order.yaml", meta => ScenarioResult(meta, "result/cancel-order.forbidden"));
         AssertClean(RunConsumer(folder.Path));
     }
 
@@ -81,12 +78,12 @@ public sealed partial class ConsumerValidatorTests
     public void ScenarioEndingInAModulePrefixedDerivedRefusal()
     {
         using var folder = ConsumerFixture.Create();
-        ConsumerFixture.MutateMeta(folder.Path, "docs/behavior/modules/orders/cancel-order.md", meta => ScenarioResult(meta, "result/orders.cancel-order.forbidden"));
+        ConsumerFixture.MutateMeta(folder.Path, "docs/behavior/modules/orders/cancel-order.yaml", meta => ScenarioResult(meta, "result/orders.cancel-order.forbidden"));
         AssertProblem(RunConsumer(folder.Path), "matches none of the 2 allowed shapes");
     }
 
     /// <summary>Appends a scenario entry ending in the result id to the use case page.</summary>
-    /// <param name="meta">The use-case page frontmatter to append the scenario to.</param>
+    /// <param name="meta">The use-case page fields to append the scenario to.</param>
     /// <param name="result">The result id the appended scenario ends in.</param>
     static void ScenarioResult(JsonObject meta, string result)
     {

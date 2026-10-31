@@ -173,16 +173,16 @@ public sealed class ModelCheckTests
     /// <param name="expiresOn">The date the exception expires, in ISO form.</param>
     static void WriteException(string root, string id, string title, string[] covers, string[] subject, string expiresOn)
     {
-        var folder = Path.Combine(root, "docs", "governance", "exceptions");
-        Directory.CreateDirectory(folder);
-        File.WriteAllText(Path.Combine(folder, $"{id.Split('/')[1]}.md"), ExceptionFile(id, title, covers, subject, expiresOn));
+        var name = id.Split('/')[1];
+        TestRecords.Write(root, $"docs/governance/exceptions/{name}.yaml", ExceptionJson(id, title, covers, subject, expiresOn));
+        TestRecords.Explain(root, $"docs/governance/exceptions/{name}.md", $"# {title}\n\nListing loans has no handler yet.\n");
     }
 
-    // Writes JSON frontmatter, a heading, and one line of body, joined with line feeds.
+    // Builds the stamped exception fields as JSON: the written fields, then the approval they carry.
     // The approval hash is stamped over the written fields, so the exception itself reports nothing.
-    static string ExceptionFile(string id, string title, string[] covers, string[] subject, string expiresOn)
+    static string ExceptionJson(string id, string title, string[] covers, string[] subject, string expiresOn)
     {
-        var frontmatter =
+        var fields =
             "{\n"
             + "  \"type\": \"exception\",\n"
             + $"  \"id\": \"{id}\",\n"
@@ -200,7 +200,7 @@ public sealed class ModelCheckTests
             + "  \"reason\": \"Listing waits for the search index.\"\n"
             + "}\n";
 
-        using var document = JsonDocument.Parse(frontmatter);
+        using var document = JsonDocument.Parse(fields);
         var record = new LiteSpec.Model.Record
         {
             Type = "exception",
@@ -208,11 +208,11 @@ public sealed class ModelCheckTests
             Raw = document.RootElement.Clone(),
         };
         var hash = Checker.SemanticHash(record);
-        var stamped = frontmatter.Replace(
+        var stamped = fields.Replace(
             "\n}",
             ",\n  \"approvedBy\": \"lending-team\",\n  \"approvedOn\": \"2026-10-01\",\n  \"approvedHash\": \"" + hash + "\"\n}");
 
-        return "---\n" + stamped + "---\n" + "\n" + $"# {title}\n" + "\n" + "Listing loans has no handler yet.\n";
+        return stamped;
     }
 
 }

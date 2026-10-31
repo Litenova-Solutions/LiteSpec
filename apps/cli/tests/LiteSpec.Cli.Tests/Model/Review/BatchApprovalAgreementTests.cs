@@ -8,13 +8,13 @@ namespace LiteSpec.Tests.Model.Review;
 public sealed class BatchApprovalAgreementTests
 {
     static string Reaction(string root) => ReviewPages.Page(
-        root, "docs", "behavior", "modules", "lending", "reactions", "send-due-notice-on-loan-borrowed.md");
+        root, "docs", "behavior", "modules", "lending", "reactions", "send-due-notice-on-loan-borrowed.yaml");
 
     static string BorrowCopy(string root) => ReviewPages.Page(
-        root, "docs", "behavior", "modules", "lending", "loans", "borrow-copy.md");
+        root, "docs", "behavior", "modules", "lending", "loans", "borrow-copy.yaml");
 
     static string LoanPeriod(string root) => ReviewPages.Page(
-        root, "docs", "product", "decisions", "0001-loan-period.md");
+        root, "docs", "product", "decisions", "0001-loan-period.yaml");
 
     /// <summary>A use-case batch leaves a scenario on a reaction page alone, and the reaction batch stamps it.</summary>
     /// <proves>litespec/core/release#approve-drafts-in-bounded-batches</proves>
@@ -66,7 +66,7 @@ public sealed class BatchApprovalAgreementTests
 
         Assert.DoesNotContain("scenario/borrow-copy.due-notice-sent-on-borrow", ids);
 
-        var (reaction, _) = ReviewPages.Read(Reaction(fixture.Path));
+        var reaction = ReviewPages.Read(Reaction(fixture.Path));
         var scenario = reaction["records"]!.AsArray()
             .OfType<JsonObject>()
             .First(entry => entry["id"]!.GetValue<string>() == "scenario/borrow-copy.due-notice-sent-on-borrow");
@@ -97,11 +97,11 @@ public sealed class BatchApprovalAgreementTests
 
         Assert.Equal(0, result.Status);
 
-        var (front, _) = ReviewPages.Read(LoanPeriod(fixture.Path));
+        var front = ReviewPages.Read(LoanPeriod(fixture.Path));
 
         Assert.False(front.ContainsKey("decidedOn"));
         Assert.Equal(
-            ReviewPages.SemanticHash("decision", "decision/0001-loan-period", front),
+            ReviewPages.SemanticHash("decision", "decision/0001-loan-period", front, LoanPeriod(fixture.Path)),
             front["approvedHash"]!.GetValue<string>());
 
         var manifest = (JsonObject)JsonNode.Parse(File.ReadAllText(ReviewPages.Page(

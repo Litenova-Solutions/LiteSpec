@@ -73,11 +73,11 @@ public sealed class InitCommandTests
 
         Assert.Equal(0, result.Status);
         var agents = Path.Combine(consumer.Path, "AGENTS.md");
-        var glossary = Path.Combine(consumer.Path, "docs", "glossary.json");
+        var glossary = Path.Combine(consumer.Path, "docs", "glossary.yaml");
         var cast = Path.Combine(consumer.Path, "docs", "domain", "example-cast.md");
         Assert.Contains("litespec.project.json", File.ReadAllText(agents), StringComparison.Ordinal);
         Assert.Contains("glossary.schema.json", File.ReadAllText(glossary), StringComparison.Ordinal);
-        Assert.Contains("\"example-cast\"", File.ReadAllText(cast), StringComparison.Ordinal);
+        Assert.Contains("type: example-cast", File.ReadAllText(cast), StringComparison.Ordinal);
         Assert.Contains($"Wrote {agents}.", result.Stdout, StringComparison.Ordinal);
         Assert.Contains($"Wrote {glossary}.", result.Stdout, StringComparison.Ordinal);
         Assert.Contains($"Wrote {cast}.", result.Stdout, StringComparison.Ordinal);
@@ -175,7 +175,7 @@ public sealed class InitCommandTests
         Assert.Equal(0, result.Status);
         Assert.Equal("# Ours\n", File.ReadAllText(agents));
         Assert.Contains($"'{agents}' already exists; left alone.", result.Stdout, StringComparison.Ordinal);
-        Assert.True(File.Exists(Path.Combine(consumer.Path, "docs", "glossary.json")));
+        Assert.True(File.Exists(Path.Combine(consumer.Path, "docs", "glossary.yaml")));
     }
 
     /// <summary>Init with a missing scaffold template names the checkout file and writes nothing.</summary>
@@ -403,7 +403,7 @@ public sealed class InitCommandTests
 
         if (scaffold)
         {
-            foreach (var name in new[] { "project-agents.md", "glossary.json", "example-cast.md" })
+            foreach (var name in new[] { "project-agents.md", "glossary.yaml", "example-cast.md" })
             {
                 File.Copy(
                     Path.Combine(Cli.Repository, "templates", "consumer", name),

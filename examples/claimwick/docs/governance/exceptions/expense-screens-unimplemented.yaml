@@ -19,5 +19,5 @@ reason: The web app holds the expense list only, so eight browser-reached use ca
 exit: Eight browser-reached use cases have no screen while the web app holds the expense list only. The gap closes when each of them gains its screen.
 expiresOn: 2027-06-01
 approvedBy: claimwick-team
-approvedOn: 2026-10-01
-approvedHash: 7c61b0ba
+approvedOn: 2026-10-31
+approvedHash: 12e4cedd

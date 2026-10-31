@@ -23,20 +23,22 @@ public sealed class RenameCommandTests
         Assert.DoesNotContain("use-case/lending.borrow-copy", File.ReadAllText(source));
     }
 
-    /// <summary>Rename points links to the moved page at its new path.</summary>
+    /// <summary>Rename points citations to the moved page at its new identifier.</summary>
     /// <proves>litespec/core/authoring#rewrite-every-link-on-a-rename</proves>
-    [Fact(DisplayName = "rename points links to the moved page at its new path")]
+    [Fact(DisplayName = "rename points citations to the moved page at its new identifier")]
     public void Rename_Rewrites_Links_To_The_Moved_Page()
     {
         using var fixture = ModelFixture.Prepare("small");
         var loans = Path.Combine(fixture.Path, "docs", "behavior", "modules", "lending", "loans");
         var linking = Path.Combine(fixture.Path, "docs", "behavior", "modules", "lending", "notes.md");
-        File.WriteAllText(linking, "# Notes\n\nSee [borrowing](loans/borrow-copy.md#goal).\n");
+        File.WriteAllText(linking, "---\ntype: reference\nid: notes\ntitle: Notes\nowner: lending-team\nstatus: draft\n---\n\n# Notes\n\nSee [borrowing](use-case/lending.borrow-copy).\n");
 
         var result = Cli.Run("rename", "use-case/lending.borrow-copy", "use-case/lending.borrow-item", "--root", fixture.Path);
 
         Assert.Equal(0, result.Status);
+        Assert.True(File.Exists(Path.Combine(loans, "borrow-item.yaml")));
+        Assert.False(File.Exists(Path.Combine(loans, "borrow-copy.yaml")));
         Assert.True(File.Exists(Path.Combine(loans, "borrow-item.md")));
-        Assert.Contains("[borrowing](loans/borrow-item.md#goal)", File.ReadAllText(linking));
+        Assert.Contains("[borrowing](use-case/lending.borrow-item)", File.ReadAllText(linking));
     }
 }

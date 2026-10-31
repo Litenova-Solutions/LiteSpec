@@ -7,7 +7,7 @@ namespace LiteSpec.Tests.Model.Review;
 public sealed class Tier1RecordBatchTests
 {
     static string Borrowing(string root) => ReviewPages.Page(
-        root, "docs", "product", "lending", "borrowing.md");
+        root, "docs", "product", "lending", "borrowing.yaml");
 
     /// <summary>A Tier1 Requirement Is Queued And Approved On Its Own.</summary>
     /// <proves>litespec/core/release#approve-drafts-in-bounded-batches</proves>
@@ -34,6 +34,6 @@ public sealed class Tier1RecordBatchTests
             "--second-reviewer", "agent", "--review-report", report, "--on", "2026-11-20");
 
         Assert.Equal(0, approved.Status);
-        Assert.Contains("\"status\": \"approved\"", File.ReadAllText(Borrowing(fixture.Path)));
+        Assert.Contains("status: approved", File.ReadAllText(Borrowing(fixture.Path)));
     }
 }

@@ -8,13 +8,12 @@ namespace LiteSpec.Tests.Authoring;
 /// <summary>Tests for <c>litespec new entry</c> and the release record template.</summary>
 public sealed class NewEntryTests
 {
-    const string RequirementPage = "docs/intent/spending/approval.md";
-    const string RulePage = "docs/behavior/rules/spending-rules.md";
-    const string PermissionPage = "docs/behavior/access/permissions.md";
-    const string SettingPage = "docs/behavior/modules/spending/settings.md";
+    const string RequirementPage = "docs/intent/spending/approval.yaml";
+    const string RulePage = "docs/behavior/rules/spending-rules.yaml";
+    const string PermissionPage = "docs/behavior/access/permissions.yaml";
+    const string SettingPage = "docs/behavior/modules/spending/settings.yaml";
 
-    const string RequirementText = """
-        ---
+    const string RequirementJson = """
         {
           "type": "topic",
           "id": "topic/approval",
@@ -35,12 +34,9 @@ public sealed class NewEntryTests
             }
           ]
         }
-        ---
-        # Approval
         """;
 
-    const string RuleText = """
-        ---
+    const string RuleJson = """
         {
           "type": "rule-set",
           "title": "Spending Rules",
@@ -58,12 +54,9 @@ public sealed class NewEntryTests
             }
           ]
         }
-        ---
-        # Spending Rules
         """;
 
-    const string PermissionText = """
-        ---
+    const string PermissionJson = """
         {
           "type": "permission-list",
           "title": "Permissions",
@@ -81,12 +74,9 @@ public sealed class NewEntryTests
             }
           ]
         }
-        ---
-        # Permissions
         """;
 
-    const string SettingText = """
-        ---
+    const string SettingJson = """
         {
           "type": "setting-set",
           "title": "Settings",
@@ -104,8 +94,6 @@ public sealed class NewEntryTests
             }
           ]
         }
-        ---
-        # Settings
         """;
 
     /// <summary>New entry appends a requirement last and reserves its identifier.</summary>
@@ -125,10 +113,10 @@ public sealed class NewEntryTests
         Assert.Contains("Appended requirement/approval.decided-within-five-days to ", result.Stdout);
 
         var after = File.ReadAllText(page);
-        var inserted = AssertSingleInsertion(before, after, "\"id\": \"requirement/approval.decided-within-five-days\"");
-        Assert.Contains("\"kind\": \"functional\"", inserted);
-        Assert.Contains("\"statement\": \"<The commitment in one sentence>\"", inserted);
-        Assert.Contains("\"rationale\": \"<Why this commitment holds, in one sentence>\"", inserted);
+        var inserted = AssertSingleInsertion(before, after, "id: requirement/approval.decided-within-five-days");
+        Assert.Contains("kind: functional", inserted);
+        Assert.Contains("statement: The product keeps this commitment.", inserted);
+        Assert.Contains("rationale: The business needs this commitment.", inserted);
 
         var existing = after.IndexOf("requirement/approval.no-self-approval", StringComparison.Ordinal);
         var added = after.IndexOf("requirement/approval.decided-within-five-days", StringComparison.Ordinal);
@@ -152,9 +140,9 @@ public sealed class NewEntryTests
         Assert.Contains("Appended rule/spending.receipt-kept-seven-years to ", result.Stdout);
 
         var after = File.ReadAllText(page);
-        var inserted = AssertSingleInsertion(before, after, "\"id\": \"rule/spending.receipt-kept-seven-years\"");
-        Assert.Contains("\"kind\": \"invariant\"", inserted);
-        Assert.Contains("\"statement\": \"<The rule in one sentence>\"", inserted);
+        var inserted = AssertSingleInsertion(before, after, "id: rule/spending.receipt-kept-seven-years");
+        Assert.Contains("kind: invariant", inserted);
+        Assert.Contains("statement: The records keep this rule.", inserted);
     }
 
     /// <summary>New entry appends a permission without a home.</summary>
@@ -174,9 +162,9 @@ public sealed class NewEntryTests
         Assert.Contains("Appended permission/approve-expense to ", result.Stdout);
 
         var after = File.ReadAllText(page);
-        var inserted = AssertSingleInsertion(before, after, "\"id\": \"permission/approve-expense\"");
-        Assert.Contains("\"meaning\": \"<What this permission allows in one sentence>\"", inserted);
-        Assert.Contains("\"scope\": \"<scope, such as platform, tenant or self>\"", inserted);
+        var inserted = AssertSingleInsertion(before, after, "id: permission/approve-expense");
+        Assert.Contains("meaning: This permission allows the action.", inserted);
+        Assert.Contains("scope: tenant", inserted);
     }
 
     /// <summary>New entry appends a setting under its module.</summary>
@@ -196,9 +184,9 @@ public sealed class NewEntryTests
         Assert.Contains("Appended setting/spending.approval-reminder-delay to ", result.Stdout);
 
         var after = File.ReadAllText(page);
-        var inserted = AssertSingleInsertion(before, after, "\"id\": \"setting/spending.approval-reminder-delay\"");
-        Assert.Contains("\"valueType\": \"integer\"", inserted);
-        Assert.Contains("\"setBy\": \"decider\"", inserted);
+        var inserted = AssertSingleInsertion(before, after, "id: setting/spending.approval-reminder-delay");
+        Assert.Contains("valueType: integer", inserted);
+        Assert.Contains("setBy: decider", inserted);
     }
 
     /// <summary>New entry refuses a taken requirement id and leaves the page alone.</summary>
@@ -279,7 +267,7 @@ public sealed class NewEntryTests
     public void DerivesRequirementHomeFromFileStem()
     {
         using var consumer = Consumer();
-        const string relative = "docs/intent/spending/fees.md";
+        const string relative = "docs/intent/spending/fees.yaml";
         WritePage(consumer.Path, relative, "topic", "Fees");
 
         var result = Cli.Run(
@@ -289,7 +277,7 @@ public sealed class NewEntryTests
         Assert.Equal(0, result.Status);
         Assert.Contains("Appended requirement/fees.late-fee-cap to ", result.Stdout);
         Assert.Contains(
-            "\"id\": \"requirement/fees.late-fee-cap\"",
+            "id: requirement/fees.late-fee-cap",
             File.ReadAllText(Path.Combine(consumer.Path, relative)));
     }
 
@@ -299,7 +287,7 @@ public sealed class NewEntryTests
     public void DerivesSettingModuleFromPath()
     {
         using var consumer = Consumer();
-        const string relative = "docs/behavior/modules/billing/settings.md";
+        const string relative = "docs/behavior/modules/billing/settings.yaml";
         WritePage(consumer.Path, relative, "setting-set", "Settings");
 
         var result = Cli.Run(
@@ -309,7 +297,7 @@ public sealed class NewEntryTests
         Assert.Equal(0, result.Status);
         Assert.Contains("Appended setting/billing.grace-days to ", result.Stdout);
         Assert.Contains(
-            "\"id\": \"setting/billing.grace-days\"",
+            "id: setting/billing.grace-days",
             File.ReadAllText(Path.Combine(consumer.Path, relative)));
     }
 
@@ -319,7 +307,7 @@ public sealed class NewEntryTests
     public void RefusesSettingWithoutAModule()
     {
         using var consumer = Consumer();
-        const string relative = "docs/behavior/settings.md";
+        const string relative = "docs/behavior/settings.yaml";
         WritePage(consumer.Path, relative, "setting-set", "Settings");
         var before = File.ReadAllText(Path.Combine(consumer.Path, relative));
 
@@ -345,7 +333,7 @@ public sealed class NewEntryTests
             "--root", consumer.Path);
 
         Assert.Equal(2, result.Status);
-        Assert.Contains("belongs on a rule-set page", result.Output);
+        Assert.Contains("belongs on a rule-set file", result.Output);
         Assert.Equal(before, File.ReadAllText(Path.Combine(consumer.Path, RequirementPage)));
     }
 
@@ -369,7 +357,7 @@ public sealed class NewEntryTests
         { ["entry", RulePage, "requirement", "decided-within-five-days"] },
         { ["entry", SettingPage, "permission", "approve-expense"] },
         { ["entry", PermissionPage, "setting", "grace-days"] },
-        { ["entry", "docs/intent/spending/no-such-page.md", "requirement", "decided-within-five-days"] },
+        { ["entry", "docs/intent/spending/no-such-page.yaml", "requirement", "decided-within-five-days"] },
         { ["entry", RequirementPage, "requirement"] },
         { ["entry", RequirementPage, "requirement", "decided-within-five-days", "--code", "spending.x"] },
         { ["entry", RequirementPage, "requirement", "decided-within-five-days", "--outcome", "success"] },
@@ -400,10 +388,8 @@ public sealed class NewEntryTests
         using var folder = ConsumerFixture.Create();
         var template = File.ReadAllText(Path.Join(Cli.Repository, "templates/consumer/release-record.md"));
         var filled = template
-            .Replace("<Release display title>", "First Release", StringComparison.Ordinal)
-            .Replace("<Release Display Title>", "First Release", StringComparison.Ordinal)
-            .Replace("<owner>", "fixture", StringComparison.Ordinal)
-            .Replace("<YYYY-MM-DD>", "2026-08-21", StringComparison.Ordinal)
+            .Replace("release/2026-12-01", "release/2026-08-21", StringComparison.Ordinal)
+            .Replace("December Release", "First Release", StringComparison.Ordinal)
             .Replace("<source commit>", "9f2c4ab1e0d34f7a8b6c5d2e1f0a3948576c1d2e", StringComparison.Ordinal)
             .Replace("<artifact reference>", "registry.example.com/shop:2026-08-21", StringComparison.Ordinal)
             .Replace(
@@ -442,31 +428,30 @@ public sealed class NewEntryTests
         var result = Cli.Run("consumer", "--root", folder.Path);
 
         Assert.Equal(0, result.Status);
-        Assert.Contains("PASS: project configuration, page frontmatter and glossary are valid.", result.Stdout);
+        Assert.Contains("PASS: project configuration, record files, documents and glossary are valid.", result.Stdout);
     }
 
-    /// <summary>A minimal consumer holding one page per entry type.</summary>
-    /// <returns>The temporary consumer folder holding the pages.</returns>
+    /// <summary>A minimal consumer holding one record file per entry type.</summary>
+    /// <returns>The temporary consumer folder holding the record files.</returns>
     static TempFolder Consumer()
     {
         var temp = Cli.Temp("new-entry");
         File.WriteAllText(Path.Combine(temp.Path, "litespec.project.json"), "{}");
-        WriteText(temp.Path, RequirementPage, RequirementText);
-        WriteText(temp.Path, RulePage, RuleText);
-        WriteText(temp.Path, PermissionPage, PermissionText);
-        WriteText(temp.Path, SettingPage, SettingText);
+        TestRecords.Write(temp.Path, RequirementPage, RequirementJson);
+        TestRecords.Write(temp.Path, RulePage, RuleJson);
+        TestRecords.Write(temp.Path, PermissionPage, PermissionJson);
+        TestRecords.Write(temp.Path, SettingPage, SettingJson);
         return temp;
     }
 
-    /// <summary>Writes one list page with an empty records array.</summary>
+    /// <summary>Writes one list record file with an empty records array.</summary>
     /// <param name="root">The consumer root folder.</param>
-    /// <param name="relative">The page path under the root.</param>
-    /// <param name="type">The record type the page lists.</param>
+    /// <param name="relative">The record file path under the root.</param>
+    /// <param name="type">The record type the file lists.</param>
     /// <param name="title">The page heading text.</param>
     static void WritePage(string root, string relative, string type, string title)
     {
-        WriteText(root, relative, $$"""
-            ---
+        TestRecords.Write(root, relative, $$"""
             {
               "type": "{{type}}",
               "title": "{{title}}",
@@ -476,20 +461,7 @@ public sealed class NewEntryTests
               "decideBy": "2026-12-01",
               "records": []
             }
-            ---
-            # {{title}}
             """);
-    }
-
-    /// <summary>Writes one consumer-relative file, creating its directory.</summary>
-    /// <param name="root">The consumer root folder.</param>
-    /// <param name="relative">The file path under the root.</param>
-    /// <param name="contents">The file contents to write.</param>
-    static void WriteText(string root, string relative, string contents)
-    {
-        var file = Path.Combine(root, relative);
-        Directory.CreateDirectory(Path.GetDirectoryName(file)!);
-        File.WriteAllText(file, contents);
     }
 
     /// <summary>Runs the entry path in process against the consumer.</summary>
@@ -507,9 +479,9 @@ public sealed class NewEntryTests
         return AppendListEntry.Run(parsed);
     }
 
-    /// <summary>Every list page's text, for the untouched proof.</summary>
+    /// <summary>Every list record file's text, for the untouched proof.</summary>
     /// <param name="root">The consumer root folder.</param>
-    /// <returns>The text of every list page in the fixture.</returns>
+    /// <returns>The text of every list record file in the fixture.</returns>
     static List<string> AllPages(string root) =>
     [
         File.ReadAllText(Path.Combine(root, RequirementPage)),

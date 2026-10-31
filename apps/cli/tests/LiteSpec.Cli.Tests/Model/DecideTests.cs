@@ -115,40 +115,38 @@ public sealed class DecideTests
     /// <param name="root">The fixture consumer root folder.</param>
     static void DraftTier1Question(string root)
     {
-        var file = Path.Combine(root, "docs", "behavior", "modules", "lending", "loans", "borrow-copy.md");
-        var lines = File.ReadAllLines(file).ToList();
-        var id = lines.FindIndex(line => line.Contains("use-case/lending.borrow-copy", StringComparison.Ordinal));
+        var file = Path.Combine(root, "docs", "behavior", "modules", "lending", "loans", "borrow-copy.yaml");
+        var record = JsonNode.Parse(YamlText.Parse(File.ReadAllText(file)).ToJson())!.AsObject();
 
-        Assert.True(id >= 0, "The borrow-copy page names no use case to draft.");
+        Assert.True(
+            record["id"]?.GetValue<string>() == "use-case/lending.borrow-copy",
+            "The borrow-copy page names no use case to draft.");
+        Assert.True(
+            record["status"]?.GetValue<string>() == "reviewed",
+            "The borrow-copy use case carries no reviewed status to draft.");
 
-        var at = lines.FindIndex(id, line => line.Trim() == "\"status\": \"reviewed\",");
+        record["status"] = "draft";
+        record["decider"] = "lending-team";
+        record["decideBy"] = "2027-06-01";
+        record["risk"] = new JsonArray(JsonValue.Create("money"));
+        record["questions"] = new JsonArray(
+            new JsonObject
+            {
+                ["question"] = "Who covers a lost copy?",
+                ["decider"] = "lending-team",
+                ["decideBy"] = "2020-01-01",
+                ["ballot"] = "lost-copy",
+                ["recommendation"] = "The library covers the copy.",
+            });
 
-        Assert.True(at >= 0, "The borrow-copy use case carries no reviewed status to draft.");
-
-        lines[at] = "  \"status\": \"draft\",";
-        lines.Insert(at + 1, "  \"decider\": \"lending-team\",");
-        lines.Insert(at + 2, "  \"decideBy\": \"2027-06-01\",");
-        lines.Insert(at + 3, "  \"risk\": [\"money\"],");
-        lines.Insert(at + 4, "  \"questions\": [");
-        lines.Insert(at + 5, "    {");
-        lines.Insert(at + 6, "      \"question\": \"Who covers a lost copy?\",");
-        lines.Insert(at + 7, "      \"decider\": \"lending-team\",");
-        lines.Insert(at + 8, "      \"decideBy\": \"2020-01-01\",");
-        lines.Insert(at + 9, "      \"ballot\": \"lost-copy\",");
-        lines.Insert(at + 10, "      \"recommendation\": \"The library covers the copy.\"");
-        lines.Insert(at + 11, "    }");
-        lines.Insert(at + 12, "  ],");
-
-        File.WriteAllLines(file, lines);
+        File.WriteAllText(file, RecordFile.Write(record));
     }
 
     /// <summary>Writes a draft scenario for borrow-copy with no proving test.</summary>
     /// <param name="root">The fixture consumer root folder.</param>
     static void WriteScenario(string root)
     {
-        var path = Path.Combine(root, "docs", "behavior", "modules", "lending", "loans", "borrow-copy-draft-scenario.md");
-        File.WriteAllText(path, """
-            ---
+        TestRecords.Write(root, "docs/behavior/modules/lending/loans/borrow-copy-draft-scenario.yaml", """
             {
               "type": "scenario",
               "id": "scenario/borrow-copy.borrowing-an-available-copy-succeeds",
@@ -162,8 +160,8 @@ public sealed class DecideTests
               "result": "result/borrow-copy.borrowed",
               "then": "The loan is active."
             }
-            ---
-
+            """);
+        TestRecords.Explain(root, "docs/behavior/modules/lending/loans/borrow-copy-draft-scenario.md", """
             # Borrowing an available copy succeeds
 
             A reader borrows an available copy.
@@ -174,21 +172,23 @@ public sealed class DecideTests
     /// <param name="root">The fixture consumer root folder.</param>
     static void DraftMaxActiveLoans(string root)
     {
-        var file = Path.Combine(root, "docs", "product", "lending", "borrowing.md");
-        var lines = File.ReadAllLines(file).ToList();
-        var id = lines.FindIndex(line => line.Contains("requirement/borrowing.max-active-loans", StringComparison.Ordinal));
+        var file = Path.Combine(root, "docs", "product", "lending", "borrowing.yaml");
+        var page = JsonNode.Parse(YamlText.Parse(File.ReadAllText(file)).ToJson())!.AsObject();
+        var entry = page["records"]!.AsArray()
+            .OfType<JsonObject>()
+            .FirstOrDefault(candidate => candidate["id"]?.GetValue<string>() == "requirement/borrowing.max-active-loans");
 
-        Assert.True(id >= 0, "The borrowing page names no max-active-loans requirement to draft.");
+        Assert.True(entry is not null, "The borrowing page names no max-active-loans requirement to draft.");
+        var requirement = entry!;
+        Assert.True(
+            requirement["status"]?.GetValue<string>() == "approved",
+            "The max-active-loans requirement carries no approved status to draft.");
 
-        var at = lines.FindIndex(id, line => line.Trim() == "\"status\": \"approved\",");
+        requirement["status"] = "draft";
+        requirement["decider"] = "lending-team";
+        requirement["decideBy"] = "2027-06-01";
 
-        Assert.True(at >= 0, "The max-active-loans requirement carries no approved status to draft.");
-
-        lines[at] = "      \"status\": \"draft\",";
-        lines.Insert(at + 1, "      \"decider\": \"lending-team\",");
-        lines.Insert(at + 2, "      \"decideBy\": \"2027-06-01\",");
-
-        File.WriteAllLines(file, lines);
+        File.WriteAllText(file, RecordFile.Write(page));
     }
 
     /// <summary>Declares a Svelte frontend the reader cannot reach once Node is hidden from PATH.</summary>

@@ -115,7 +115,7 @@ public sealed class DecisionBasisCheckTests
 
     /// <summary>An approved technical decision naming the target in basedOn.</summary>
     /// <param name="basedOn">The target id placed in the decision basedOn list.</param>
-    /// <returns>The decision frontmatter JSON.</returns>
+    /// <returns>The decision fields as JSON.</returns>
     static string DecisionJson(string basedOn) =>
         "{\"status\": \"approved\", \"options\": [{\"name\": \"Documents\", \"pros\": \"Reads stay simple.\", \"cons\": \"Queries need an index.\"}], \"choice\": \"Documents\", \"reopenedWhen\": \"Queries pass one hundred a day.\", \"basedOn\": [\"" + basedOn + "\"]}";
 

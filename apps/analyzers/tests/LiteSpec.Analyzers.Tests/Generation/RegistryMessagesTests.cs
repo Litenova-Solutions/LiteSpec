@@ -31,7 +31,7 @@ public sealed class RegistryMessagesTests
                 """),
             RecordPages.Files(
                 "xml",
-                ("submit-expense.md", RecordPages.UseCasePage("use-case/spending.submit-expense", "permission/submit-expense"))));
+                ("submit-expense.yaml", RecordPages.UseCasePage("use-case/spending.submit-expense", "permission/submit-expense"))));
 
         Assert.True(run.Sources.TryGetValue("LiteSpecRegistry.g.cs", out var registry), "The registry source is missing.");
         Assert.Contains("[typeof(global::Shop.Spending.SubmitExpenseCommand)] = \"use-case/spending.submit-expense\",", registry, StringComparison.Ordinal);
@@ -61,7 +61,7 @@ public sealed class RegistryMessagesTests
                 """),
             RecordPages.Files(
                 "xml",
-                ("view-ledger.md", RecordPages.UseCasePage("use-case/spending.view-ledger", "permission/view-ledger"))));
+                ("view-ledger.yaml", RecordPages.UseCasePage("use-case/spending.view-ledger", "permission/view-ledger"))));
 
         Assert.True(run.Sources.TryGetValue("LiteSpecRegistry.g.cs", out var registry), "The registry source is missing.");
         Assert.Contains("[typeof(global::Shop.Spending.ViewLedgerQuery)] = \"use-case/spending.view-ledger\",", registry, StringComparison.Ordinal);
@@ -88,7 +88,7 @@ public sealed class RegistryMessagesTests
                 """),
             RecordPages.Files(
                 "xml",
-                ("submit-expense.md", RecordPages.UseCasePage("use-case/spending.submit-expense", "permission/submit-expense"))));
+                ("submit-expense.yaml", RecordPages.UseCasePage("use-case/spending.submit-expense", "permission/submit-expense"))));
 
         Assert.True(run.Sources.TryGetValue("LiteSpecRegistry.g.cs", out var registry), "The registry source is missing.");
         Assert.Contains("new System.Collections.Generic.Dictionary<System.Type, string>();", registry, StringComparison.Ordinal);
@@ -118,7 +118,7 @@ public sealed class RegistryMessagesTests
                 """),
             RecordPages.Files(
                 "xml",
-                ("submit-expense.md", RecordPages.UseCasePage("use-case/spending.submit-expense", "permission/submit-expense"))));
+                ("submit-expense.yaml", RecordPages.UseCasePage("use-case/spending.submit-expense", "permission/submit-expense"))));
 
         Assert.True(run.Sources.TryGetValue("LiteSpecRegistry.g.cs", out var registry), "The registry source is missing.");
         Assert.Contains("[\"Shop.Spending.SubmitExpenseCommandHandler\"] = new string[] { \"use-case/spending.submit-expense\", \"use-case/spending.approve-expense\" },", registry, StringComparison.Ordinal);
@@ -152,8 +152,8 @@ public sealed class RegistryMessagesTests
                 """),
             RecordPages.Files(
                 "xml",
-                ("submit-expense.md", RecordPages.UseCasePage("use-case/spending.submit-expense", "permission/submit-expense")),
-                ("approve-expense.md", RecordPages.UseCasePage("use-case/spending.approve-expense", "permission/approve-expense"))));
+                ("submit-expense.yaml", RecordPages.UseCasePage("use-case/spending.submit-expense", "permission/submit-expense")),
+                ("approve-expense.yaml", RecordPages.UseCasePage("use-case/spending.approve-expense", "permission/approve-expense"))));
 
         var diagnostic = Assert.Single(run.ReportedDiagnostics);
         Assert.Equal("LS5011", diagnostic.Id);
@@ -191,8 +191,8 @@ public sealed class RegistryMessagesTests
             """);
         var files = RecordPages.Files(
             "xml",
-            ("submit-expense.md", RecordPages.UseCasePage("use-case/spending.submit-expense", "permission/submit-expense")),
-            ("rename-expense.md", RecordPages.UseCasePage("use-case/spending.rename-expense", null)));
+            ("submit-expense.yaml", RecordPages.UseCasePage("use-case/spending.submit-expense", "permission/submit-expense")),
+            ("rename-expense.yaml", RecordPages.UseCasePage("use-case/spending.rename-expense", null)));
         var run = GeneratorVerify.Run(sources, files, assemblyName: "Shop.Application");
         Assert.True(run.Sources.ContainsKey("LiteSpecRegistry.g.cs"), "The registry source is missing.");
         Assert.Empty(run.ReportedDiagnostics);

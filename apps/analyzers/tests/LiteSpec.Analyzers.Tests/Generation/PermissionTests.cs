@@ -13,7 +13,7 @@ public sealed class PermissionTests
     {
         var run = GeneratorVerify.Run(
             RecordPages.Sources("namespace Shop.Spending; internal sealed class Placeholder;"),
-            RecordPages.Files("xml", ("permissions.md", RecordPages.PermissionPage("permission/cancel-order", "permission/view-ledger"))),
+            RecordPages.Files("xml", ("permissions.yaml", RecordPages.PermissionPage("permission/cancel-order", "permission/view-ledger"))),
             assemblyName: "Shop.Application");
 
         Assert.True(run.Sources.TryGetValue("LiteSpecPermissions.g.cs", out var permissions), "The permissions source is missing.");
@@ -29,7 +29,7 @@ public sealed class PermissionTests
     {
         var run = GeneratorVerify.Run(
             RecordPages.Sources("namespace Shop.Spending; internal sealed class Placeholder;"),
-            RecordPages.Files("xml", ("permissions.md", RecordPages.PermissionPage("permission/cancel-order"))),
+            RecordPages.Files("xml", ("permissions.yaml", RecordPages.PermissionPage("permission/cancel-order"))),
             assemblyName: "Shop.Infrastructure");
 
         Assert.True(run.Sources.ContainsKey("LiteSpecPermissions.g.cs"), "The permissions source is missing.");
@@ -43,7 +43,7 @@ public sealed class PermissionTests
     {
         var run = GeneratorVerify.Run(
             RecordPages.Sources("namespace Shop.Core; internal sealed class Placeholder;"),
-            RecordPages.Files("xml", ("permissions.md", RecordPages.PermissionPage("permission/cancel-order"))),
+            RecordPages.Files("xml", ("permissions.yaml", RecordPages.PermissionPage("permission/cancel-order"))),
             assemblyName: "Shop.Core",
             layer: "WebApi");
 
@@ -58,7 +58,7 @@ public sealed class PermissionTests
     {
         var run = GeneratorVerify.Run(
             RecordPages.Sources("namespace Shop.Spending; internal sealed class Placeholder;"),
-            RecordPages.Files("xml", ("permissions.md", RecordPages.PermissionPage("permission/cancel-order"))),
+            RecordPages.Files("xml", ("permissions.yaml", RecordPages.PermissionPage("permission/cancel-order"))),
             assemblyName: "Shop.Domain");
 
         Assert.True(run.Sources.TryGetValue("LiteSpecPermissions.g.cs", out var permissions), "The permissions source is missing.");
@@ -73,7 +73,7 @@ public sealed class PermissionTests
     {
         var run = GeneratorVerify.Run(
             RecordPages.Sources("namespace Shop.Core; internal sealed class Placeholder;"),
-            RecordPages.Files("xml", ("permissions.md", RecordPages.PermissionPage("permission/cancel-order"))),
+            RecordPages.Files("xml", ("permissions.yaml", RecordPages.PermissionPage("permission/cancel-order"))),
             assemblyName: "Shop.Core");
 
         Assert.False(run.Sources.ContainsKey("LiteSpecPermissions.g.cs"), "The permissions source must not be generated.");
@@ -87,7 +87,7 @@ public sealed class PermissionTests
     {
         var run = GeneratorVerify.Run(
             RecordPages.Sources("namespace Shop.Spending; internal sealed class Placeholder;"),
-            RecordPages.Files("xml", ("permissions.md", RecordPages.PermissionPage("permission/3d-view"))),
+            RecordPages.Files("xml", ("permissions.yaml", RecordPages.PermissionPage("permission/3d-view"))),
             assemblyName: "Shop.Application");
 
         Assert.True(run.Sources.TryGetValue("LiteSpecPermissions.g.cs", out var permissions), "The permissions source is missing.");
@@ -102,7 +102,7 @@ public sealed class PermissionTests
     {
         var run = GeneratorVerify.Run(
             RecordPages.Sources("namespace Shop.Spending; internal sealed class Placeholder;"),
-            RecordPages.Files("xml", ("permissions.md", RecordPages.PermissionPage("permission/a-b", "permission/a--b"))),
+            RecordPages.Files("xml", ("permissions.yaml", RecordPages.PermissionPage("permission/a-b", "permission/a--b"))),
             assemblyName: "Shop.Application");
 
         var diagnostic = Assert.Single(run.ReportedDiagnostics);

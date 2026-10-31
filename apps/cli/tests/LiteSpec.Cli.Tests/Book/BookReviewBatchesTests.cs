@@ -7,9 +7,9 @@ namespace LiteSpec.Tests.Book;
 /// <follows>litespec/core/release#compute-the-review-queue-from-the-model</follows>
 public sealed class BookReviewBatchesTests
 {
-    const string BorrowCopyUseCase = @"{""type"":""use-case"",""id"":""use-case/lending.borrow-copy"",""title"":""Borrow Copy"",""owner"":""Ada"",""status"":""draft"",""effectiveStatus"":""draft"",""decider"":""Ada"",""decideBy"":""2026-11-20"",""file"":""docs/behavior/modules/lending/loans/borrow-copy.md"",""line"":3,""fields"":{""risk"":[""money""]},""links"":{}}";
-    const string BorrowedResult = @"{""type"":""result"",""id"":""result/borrow-copy.borrowed"",""title"":""Borrowed"",""owner"":""Ada"",""status"":""draft"",""effectiveStatus"":""draft"",""decider"":""Ada"",""decideBy"":""2026-11-15"",""file"":""docs/behavior/modules/lending/loans/borrow-copy.md"",""line"":40,""fields"":{},""links"":{}}";
-    const string BorrowingScenario = @"{""type"":""scenario"",""id"":""scenario/borrow-copy.borrowing-succeeds"",""title"":""Borrowing Succeeds"",""owner"":""Ada"",""status"":""draft"",""effectiveStatus"":""draft"",""decider"":null,""decideBy"":null,""file"":""docs/behavior/modules/lending/loans/borrow-copy.md"",""line"":60,""fields"":{},""links"":{}}";
+    const string BorrowCopyUseCase = @"{""type"":""use-case"",""id"":""use-case/lending.borrow-copy"",""title"":""Borrow Copy"",""owner"":""Ada"",""status"":""draft"",""effectiveStatus"":""draft"",""decider"":""Ada"",""decideBy"":""2026-11-20"",""file"":""docs/behavior/modules/lending/loans/borrow-copy.yaml"",""line"":3,""fields"":{""risk"":[""money""]},""links"":{}}";
+    const string BorrowedResult = @"{""type"":""result"",""id"":""result/borrow-copy.borrowed"",""title"":""Borrowed"",""owner"":""Ada"",""status"":""draft"",""effectiveStatus"":""draft"",""decider"":""Ada"",""decideBy"":""2026-11-15"",""file"":""docs/behavior/modules/lending/loans/borrow-copy.yaml"",""line"":40,""fields"":{},""links"":{}}";
+    const string BorrowingScenario = @"{""type"":""scenario"",""id"":""scenario/borrow-copy.borrowing-succeeds"",""title"":""Borrowing Succeeds"",""owner"":""Ada"",""status"":""draft"",""effectiveStatus"":""draft"",""decider"":null,""decideBy"":null,""file"":""docs/behavior/modules/lending/loans/borrow-copy.yaml"",""line"":60,""fields"":{},""links"":{}}";
 
     /// <summary>Drafts of one use case group under one batch with its tier, deciders, decide-by date and record order.</summary>
     /// <proves>litespec/core/release#compute-the-review-queue-from-the-model</proves>
@@ -42,8 +42,8 @@ public sealed class BookReviewBatchesTests
     public void Batches_Render_In_Queue_Order()
     {
         using var temp = Cli.Temp("book-batches");
-        var feature = @"{""type"":""feature"",""id"":""feature/self-checkout"",""title"":""Self Checkout"",""owner"":""Ada"",""status"":""draft"",""effectiveStatus"":""draft"",""decider"":""Ada"",""decideBy"":""2026-12-31"",""file"":""docs/product/features/self-checkout.md"",""line"":3,""fields"":{},""links"":{}}";
-        var useCase = @"{""type"":""use-case"",""id"":""use-case/lending.return-copy"",""title"":""Return Copy"",""owner"":""Ada"",""status"":""draft"",""effectiveStatus"":""draft"",""decider"":""Ada"",""decideBy"":""2026-11-01"",""file"":""docs/behavior/modules/lending/loans/return-copy.md"",""line"":3,""fields"":{},""links"":{}}";
+        var feature = @"{""type"":""feature"",""id"":""feature/self-checkout"",""title"":""Self Checkout"",""owner"":""Ada"",""status"":""draft"",""effectiveStatus"":""draft"",""decider"":""Ada"",""decideBy"":""2026-12-31"",""file"":""docs/product/features/self-checkout.yaml"",""line"":3,""fields"":{},""links"":{}}";
+        var useCase = @"{""type"":""use-case"",""id"":""use-case/lending.return-copy"",""title"":""Return Copy"",""owner"":""Ada"",""status"":""draft"",""effectiveStatus"":""draft"",""decider"":""Ada"",""decideBy"":""2026-11-01"",""file"":""docs/behavior/modules/lending/loans/return-copy.yaml"",""line"":3,""fields"":{},""links"":{}}";
         var model = WriteModel(temp, string.Join(",", feature, useCase), "[]", "[]");
         var result = Cli.Run("book", "--model", model, "--out", Out(temp));
         Assert.Equal(0, result.Status);
@@ -82,7 +82,7 @@ public sealed class BookReviewBatchesTests
     public void Reopened_Full_Re_Read_Sorts_First_With_Questions_Carried()
     {
         using var temp = Cli.Temp("book-batches");
-        var requirement = @"{""type"":""requirement"",""id"":""requirement/borrowing.late-fee"",""title"":""Late Fee"",""owner"":""Ada"",""status"":""approved"",""effectiveStatus"":""approved"",""decider"":""Ada"",""decideBy"":null,""file"":""docs/product/requirements/late-fee.md"",""line"":3,""fields"":{""approvedHash"":""stale"",""risk"":[""money""]},""links"":{}}";
+        var requirement = @"{""type"":""requirement"",""id"":""requirement/borrowing.late-fee"",""title"":""Late Fee"",""owner"":""Ada"",""status"":""approved"",""effectiveStatus"":""approved"",""decider"":""Ada"",""decideBy"":null,""file"":""docs/product/requirements/late-fee.yaml"",""line"":3,""fields"":{""approvedHash"":""stale"",""risk"":[""money""]},""links"":{}}";
         var asking = BorrowCopyUseCase.Replace(
             @"""fields"":{""risk"":[""money""]}",
             @"""fields"":{""questions"":[{""question"":""Who approves shared copies?"",""decider"":""Ada"",""decideBy"":""2999-01-01""}]}",

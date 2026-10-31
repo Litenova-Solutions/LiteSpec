@@ -3,7 +3,6 @@ using System.Text.Json.Nodes;
 using LiteSpec.Model;
 using LiteSpec.Tests.Model.Checks;
 using LiteSpec.Tests.Model.Marks;
-using LiteSpec.Tests.Model.Review;
 using LiteSpec.Tests.Support;
 
 namespace LiteSpec.Tests.Model.Builder;
@@ -46,9 +45,10 @@ public sealed class LinkExportTests
     public void Use_Case_Reads_Setting_Is_Exported_As_A_Link()
     {
         using var temp = ModelFixture.Prepare("large");
-        Write(temp.Path, "docs/operations/reading.md", SettingPage);
-        ReviewPages.PatchPage(
-            Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "loans", "borrow-copy.md"),
+        TestRecords.Write(temp.Path, "docs/operations/reading.yaml", SettingJson);
+        PatchRecord(
+            temp.Path,
+            "docs/behavior/modules/lending/loans/borrow-copy.yaml",
             front => front["reads"] = new JsonArray("setting/lending.loan-days"));
 
         using var document = Build(temp.Path);
@@ -173,15 +173,16 @@ public sealed class LinkExportTests
         return JsonDocument.Parse(File.ReadAllText(output));
     }
 
-    static void Write(string root, string relative, string text)
+    static void PatchRecord(string root, string relative, Action<JsonObject> mutate)
     {
-        var path = Path.Combine(root, relative);
-        Directory.CreateDirectory(Path.GetDirectoryName(path)!);
-        File.WriteAllText(path, text);
+        var path = Path.Combine(root, relative.Replace('/', Path.DirectorySeparatorChar));
+        var node = JsonNode.Parse(YamlText.Parse(File.ReadAllText(path)).ToJson())!.AsObject();
+
+        mutate(node);
+        File.WriteAllText(path, RecordFile.Write(node));
     }
 
-    const string SettingPage = """
-        ---
+    const string SettingJson = """
         {
           "type": "setting-set",
           "title": "Reading Settings",
@@ -202,7 +203,5 @@ public sealed class LinkExportTests
             }
           ]
         }
-        ---
-        # Reading Settings
         """;
 }

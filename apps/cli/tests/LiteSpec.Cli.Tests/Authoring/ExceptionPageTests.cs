@@ -19,7 +19,7 @@ public sealed class ExceptionPageTests
         Assert.Equal(0, result.Status);
 
         var page = Path.Combine(
-            fixture.Path, "docs", "governance", "exceptions", "payment-retries-later.md");
+            fixture.Path, "docs", "governance", "exceptions", "payment-retries-later.yaml");
 
         Assert.True(File.Exists(page), $"Expected the exception page at '{page}'.");
         Assert.Contains("exception/payment-retries-later", File.ReadAllText(page));

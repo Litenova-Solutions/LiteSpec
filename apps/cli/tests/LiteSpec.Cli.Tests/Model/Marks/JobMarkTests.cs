@@ -1,3 +1,5 @@
+using LiteSpec.Tests.Support;
+
 namespace LiteSpec.Tests.Model.Marks;
 
 /// <summary>Proves a plain class carrying a job mark hosts its job: it clears job-unimplemented and takes exactly one mark.</summary>
@@ -118,12 +120,7 @@ public sealed class JobMarkTests
 
     static void WriteJob(string root)
     {
-        var folder = Path.Combine(root, "docs", "behavior", "modules", "billing", "jobs");
-        Directory.CreateDirectory(folder);
-        File.WriteAllText(
-            Path.Combine(folder, "charge-dues.md"),
-            """
-            ---
+        TestRecords.Write(root, "docs/behavior/modules/billing/jobs/charge-dues.yaml", """
             {
               "type": "job",
               "id": "job/billing.charge-dues",
@@ -141,8 +138,8 @@ public sealed class JobMarkTests
                 }
               ]
             }
-            ---
-
+            """);
+        TestRecords.Explain(root, "docs/behavior/modules/billing/jobs/charge-dues.md", """
             # Charge Dues
 
             Each night the dues are charged.

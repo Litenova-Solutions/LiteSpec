@@ -6,17 +6,54 @@ namespace LiteSpec.Tests.Model.Checks;
 /// <summary>Proves the advisory checks and the open-questions shape rule against hand-built models.</summary>
 public sealed class AdvisoryCheckTests
 {
-    /// <summary>Significant Use Case Without Goal Reports.</summary>
+    /// <summary>Significant Use Case Without Purpose Reports.</summary>
     /// <proves>litespec/core/use-cases#write-prose-on-significant-use-cases</proves>
     [Fact]
-    public void Significant_Use_Case_Without_Goal_Reports()
+    public void Significant_Use_Case_Without_Purpose_Reports()
     {
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.md"), """{"status": "reviewed", "kind": "command", "changes": ["aggregate/lending.loan", "aggregate/lending.copy"]}"""));
 
-        Assert.Contains("prose-missing", TestModel.Codes(model));
+        var findings = Checker.Check(model).Findings.Where(found => found.Code == "prose-missing").ToList();
+        var purpose = Assert.Single(findings, found => found.Message.Contains("no purpose field", StringComparison.Ordinal));
+        Assert.Equal("A", purpose.Tier);
+        Assert.Equal("Use case 'use-case/lending.borrow-copy' holds no purpose field.", purpose.Message);
+        Assert.Equal("use-case/lending.borrow-copy", purpose.Subject);
+        var happens = Assert.Single(findings, found => found.Message.Contains("no whatHappens field", StringComparison.Ordinal));
+        Assert.Equal("A", happens.Tier);
+        Assert.Equal("Use case 'use-case/lending.borrow-copy' holds no whatHappens field.", happens.Message);
+        Assert.Equal("use-case/lending.borrow-copy", happens.Subject);
+    }
+
+    /// <summary>Significant Command With Purpose But No WhatHappens Reports.</summary>
+    /// <proves>litespec/core/use-cases#write-prose-on-significant-use-cases</proves>
+    [Fact]
+    public void Significant_Command_With_Purpose_But_No_WhatHappens_Reports()
+    {
+        using var temp = Cli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.md"), """{"status": "reviewed", "kind": "command", "changes": ["aggregate/lending.loan", "aggregate/lending.copy"], "purpose": "A reader borrows an available copy."}"""));
+
+        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "prose-missing");
+        Assert.Equal("A", finding.Tier);
+        Assert.Equal("Use case 'use-case/lending.borrow-copy' holds no whatHappens field.", finding.Message);
+        Assert.Equal("use-case/lending.borrow-copy", finding.Subject);
+    }
+
+    /// <summary>Significant Query With Purpose Passes.</summary>
+    /// <proves>litespec/core/use-cases#write-prose-on-significant-use-cases</proves>
+    [Fact]
+    public void Significant_Query_With_Purpose_Passes()
+    {
+        using var temp = Cli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("use-case", "use-case/lending.list-loans", Path.Combine(temp.Path, "loans.md"), """{"status": "reviewed", "kind": "query", "changes": ["aggregate/lending.loan", "aggregate/lending.copy"], "purpose": "A reader lists their loans."}"""));
+
+        Assert.DoesNotContain("prose-missing", TestModel.Codes(model));
     }
 
     /// <summary>Trivial Use Case Passes.</summary>

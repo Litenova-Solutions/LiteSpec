@@ -99,37 +99,36 @@ public sealed class SeverityCheckTests
     /// <param name="root">The fixture consumer root folder.</param>
     static void DraftListLoans(string root)
     {
-        var file = Path.Combine(root, "docs", "behavior", "modules", "lending", "loans", "list-loans.md");
-        var lines = File.ReadAllLines(file).ToList();
-        var at = lines.FindIndex(line => line.Trim() == "\"status\": \"reviewed\",");
+        var file = Path.Combine(root, "docs", "behavior", "modules", "lending", "loans", "list-loans.yaml");
+        var record = JsonNode.Parse(YamlText.Parse(File.ReadAllText(file)).ToJson())!.AsObject();
 
-        Assert.True(at >= 0, "The list-loans page carries no reviewed status to draft.");
+        Assert.True(
+            record["status"]?.GetValue<string>() == "reviewed",
+            "The list-loans page carries no reviewed status to draft.");
 
-        lines[at] = "  \"status\": \"draft\",";
-        lines.Insert(at + 1, "  \"decider\": \"lending-team\",");
-        lines.Insert(at + 2, "  \"decideBy\": \"2027-06-01\",");
+        record["status"] = "draft";
+        record["decider"] = "lending-team";
+        record["decideBy"] = "2027-06-01";
 
-        File.WriteAllLines(file, lines);
+        File.WriteAllText(file, RecordFile.Write(record));
     }
 
     /// <summary>Leaves the list-loans page reviewed, restoring it when a draft is found.</summary>
     /// <param name="root">The fixture consumer root folder.</param>
     static void EnsureReviewedListLoans(string root)
     {
-        var file = Path.Combine(root, "docs", "behavior", "modules", "lending", "loans", "list-loans.md");
-        var lines = File.ReadAllLines(file).ToList();
-        var at = lines.FindIndex(line => line.Trim() == "\"status\": \"draft\",");
+        var file = Path.Combine(root, "docs", "behavior", "modules", "lending", "loans", "list-loans.yaml");
+        var record = JsonNode.Parse(YamlText.Parse(File.ReadAllText(file)).ToJson())!.AsObject();
 
-        if (at >= 0)
+        if (record["status"]?.GetValue<string>() == "draft")
         {
-            lines[at] = "  \"status\": \"reviewed\",";
-            lines.RemoveAll(line =>
-                line.Trim().StartsWith("\"decider\":", StringComparison.Ordinal)
-                || line.Trim().StartsWith("\"decideBy\":", StringComparison.Ordinal));
-            File.WriteAllLines(file, lines);
+            record["status"] = "reviewed";
+            record.Remove("decider");
+            record.Remove("decideBy");
+            File.WriteAllText(file, RecordFile.Write(record));
         }
 
-        Assert.Contains("\"status\": \"reviewed\",", File.ReadAllText(file));
+        Assert.Contains("status: reviewed", File.ReadAllText(file));
     }
 
     /// <summary>Leaves the fixture with only a web stack, so no .NET reader runs.</summary>

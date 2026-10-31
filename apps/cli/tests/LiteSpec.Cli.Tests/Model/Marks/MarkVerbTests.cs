@@ -74,7 +74,7 @@ public sealed class MarkVerbTests
                   "paths": {
                     "docs": "docs",
                     "behaviorDocs": "docs/behavior",
-                    "glossary": "docs/glossary.json",
+                    "glossary": "docs/glossary.yaml",
                     "testRoots": [
                       "apps/api/tests"
                     ],
@@ -95,15 +95,12 @@ public sealed class MarkVerbTests
                   }
                 }
                 """);
-            Write(temp.Path, "docs/glossary.json", """
-                {
-                  "schemaVersion": 2,
-                  "terms": [],
-                  "mannered": []
-                }
+            Write(temp.Path, "docs/glossary.yaml", """
+                schemaVersion: 2
+                terms: []
+                mannered: []
                 """);
-            Write(temp.Path, "docs/behavior/modules/lending/loans/borrow-copy.md", """
-                ---
+            TestRecords.Write(temp.Path, "docs/behavior/modules/lending/loans/borrow-copy.yaml", """
                 {
                   "type": "use-case",
                   "id": "use-case/lending.borrow-copy",
@@ -133,8 +130,8 @@ public sealed class MarkVerbTests
                     }
                   ]
                 }
-                ---
-
+                """);
+            TestRecords.Explain(temp.Path, "docs/behavior/modules/lending/loans/borrow-copy.md", """
                 # Borrow copy
 
                 A reader borrows an available copy.

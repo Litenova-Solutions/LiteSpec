@@ -69,7 +69,7 @@ public sealed partial class UiValidatorTests
         fixture.WriteException("ui-authority", "litespec/frontend/ui#select-one-visual-authority", "2020-01-01");
         UiFixture.AssertProblem(
             fixture.Run(),
-            "[litespec/frontend/ui#select-one-visual-authority] docs/governance/exceptions/ui-authority.md: expiresOn 2020-01-01 has passed; renew the exception");
+            "[litespec/frontend/ui#select-one-visual-authority] docs/governance/exceptions/ui-authority.yaml: expiresOn 2020-01-01 has passed; renew the exception");
     }
 
     /// <summary>UI Exception With A Live Date.</summary>
@@ -103,12 +103,11 @@ public sealed partial class UiValidatorTests
             ((JsonObject)project["paths"]!)["records"] = new JsonObject { ["exception"] = "docs/departures" };
         });
         fixture.WriteExceptionFile(
-            "docs/departures/moved.md",
-            UiFixture.ExceptionMeta("exception/moved", "Moved exception", "litespec/frontend/ui#select-one-visual-authority", "2020-01-01"),
-            "Moved exception");
+            "docs/departures/moved.yaml",
+            UiFixture.ExceptionMeta("exception/moved", "Moved exception", "litespec/frontend/ui#select-one-visual-authority", "2020-01-01"));
         UiFixture.AssertProblem(
             fixture.Run(),
-            "[litespec/frontend/ui#select-one-visual-authority] docs/departures/moved.md: expiresOn 2020-01-01 has passed; renew the exception");
+            "[litespec/frontend/ui#select-one-visual-authority] docs/departures/moved.yaml: expiresOn 2020-01-01 has passed; renew the exception");
     }
 
     // Shared package (litespec/frontend/web/ui#pin-the-baseline-in-the-shared-package).

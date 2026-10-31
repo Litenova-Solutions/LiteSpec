@@ -7,10 +7,10 @@ namespace LiteSpec.Tests.Model.Review;
 public sealed class BatchGuardTests
 {
     static string BorrowCopy(string root) => ReviewPages.Page(
-        root, "docs", "behavior", "modules", "lending", "loans", "borrow-copy.md");
+        root, "docs", "behavior", "modules", "lending", "loans", "borrow-copy.yaml");
 
     static string Borrowing(string root) => ReviewPages.Page(
-        root, "docs", "product", "lending", "borrowing.md");
+        root, "docs", "product", "lending", "borrowing.yaml");
 
     static void DraftTier1UseCase(string root)
     {

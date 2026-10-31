@@ -33,7 +33,7 @@ public sealed class ExceptionValueTests
                     }
                 }
                 """),
-            RecordPages.Files("xml", ("rules.md", RecordPages.RuleSetPage(
+            RecordPages.Files("xml", ("rules.yaml", RecordPages.RuleSetPage(
                 RecordPages.RuleEntry("rule/expense.receipt-required", "result/submit-expense.receipt-missing"),
                 RecordPages.ResultEntry("result/submit-expense.receipt-missing", "refusal", "expense.receipt-missing")))));
 
@@ -68,7 +68,7 @@ public sealed class ExceptionValueTests
                     }
                 }
                 """),
-            RecordPages.Files("xml", ("rules.md", RecordPages.RuleSetPage(
+            RecordPages.Files("xml", ("rules.yaml", RecordPages.RuleSetPage(
                 RecordPages.RuleEntry("rule/expense.receipt-required", "result/submit-expense.receipt-missing"),
                 RecordPages.ResultEntry("result/submit-expense.receipt-missing", "refusal", "expense.receipt-missing")))));
 
@@ -106,7 +106,7 @@ public sealed class ExceptionValueTests
                     }
                 }
                 """),
-            RecordPages.Files("xml", ("rules.md", RecordPages.RuleSetPage(
+            RecordPages.Files("xml", ("rules.yaml", RecordPages.RuleSetPage(
                 RecordPages.RuleEntry("rule/expense.receipt-required", "expense.receipt-missing")))));
 
         Assert.True(run.Sources.TryGetValue("LiteSpecException.Shop.Orders.ReceiptRequiredException.g.cs", out var part), "The exception part is missing.");
@@ -142,7 +142,7 @@ public sealed class ExceptionValueTests
                     }
                 }
                 """),
-            RecordPages.Files("xml", ("rules.md", RecordPages.RuleSetPage(
+            RecordPages.Files("xml", ("rules.yaml", RecordPages.RuleSetPage(
                 RecordPages.RuleEntry("rule/expense.receipt-required", null)))));
 
         Assert.DoesNotContain(run.Sources.Keys, key => key.StartsWith("LiteSpecException.", StringComparison.Ordinal));
@@ -178,7 +178,7 @@ public sealed class ExceptionValueTests
                     public override string Code => "expense.receipt-missing";
                 }
                 """),
-            RecordPages.Files("xml", ("rules.md", RecordPages.RuleSetPage(
+            RecordPages.Files("xml", ("rules.yaml", RecordPages.RuleSetPage(
                 RecordPages.RuleEntry("rule/expense.receipt-required", "expense.receipt-missing")))));
 
         Assert.DoesNotContain(run.Sources.Keys, key => key.StartsWith("LiteSpecException.", StringComparison.Ordinal));
@@ -215,7 +215,7 @@ public sealed class ExceptionValueTests
                     public override string Code => "expense.receipt-missing";
                 }
                 """),
-            RecordPages.Files("xml", ("rules.md", RecordPages.RuleSetPage(
+            RecordPages.Files("xml", ("rules.yaml", RecordPages.RuleSetPage(
                 RecordPages.RuleEntry("rule/expense.receipt-required", "expense.receipt-missing")))));
 
         Assert.DoesNotContain(run.Sources.Keys, key => key.StartsWith("LiteSpecException.", StringComparison.Ordinal));
@@ -250,7 +250,7 @@ public sealed class ExceptionValueTests
                     }
                 }
                 """),
-            RecordPages.Files("xml", ("rules.md", RecordPages.RuleSetPage(
+            RecordPages.Files("xml", ("rules.yaml", RecordPages.RuleSetPage(
                 RecordPages.RuleEntry("rule/expense.receipt-required", "expense.receipt-missing")))));
 
         Assert.DoesNotContain(run.Sources.Keys, key => key.StartsWith("LiteSpecException.", StringComparison.Ordinal));
@@ -287,7 +287,7 @@ public sealed class ExceptionValueTests
                     }
                 }
                 """),
-            RecordPages.Files("xml", ("rules.md", RecordPages.RuleSetPage(
+            RecordPages.Files("xml", ("rules.yaml", RecordPages.RuleSetPage(
                 RecordPages.RuleEntry("rule/expense.receipt-required", "expense.receipt-missing")))));
 
         Assert.DoesNotContain(run.Sources.Keys, key => key.StartsWith("LiteSpecException.", StringComparison.Ordinal));

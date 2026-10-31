@@ -1,3 +1,5 @@
+using LiteSpec.Model;
+
 namespace LiteSpec.Analyzers.Tests.Generation;
 
 /// <summary>Builds the project files, record pages, sources and additional files generator tests run over.</summary>
@@ -175,5 +177,5 @@ internal static class RecordPages
         return Page(page + "}");
     }
 
-    private static string Page(string json) => "---\n" + json + "\n---\n\n# Record\n";
+    private static string Page(string json) => YamlWriter.Write(JsonText.Parse(json));
 }

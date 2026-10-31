@@ -5,8 +5,8 @@ namespace LiteSpec.Tests.Consumer;
 /// <summary>Consumer validator cases for the glossary file and prose measures.</summary>
 public sealed partial class ConsumerValidatorTests
 {
-    const string ModuleReadme = "docs/behavior/modules/orders/README.md";
-    const string GlossaryFile = "docs/glossary.json";
+    const string ModuleReadme = "docs/behavior/modules/orders/module.md";
+    const string GlossaryFile = "docs/glossary.yaml";
 
     /// <summary>Glossary without its version.</summary>
     /// <proves>litespec/core/authoring#record-the-project-vocabulary-as-data</proves>
@@ -14,7 +14,7 @@ public sealed partial class ConsumerValidatorTests
     public void GlossaryFileWithoutItsVersion()
     {
         using var folder = ConsumerFixture.Create();
-        ConsumerFixture.MutateJson(folder.Path, GlossaryFile, record => record.Remove("schemaVersion"));
+        ConsumerFixture.MutateYaml(folder.Path, GlossaryFile, record => record.Remove("schemaVersion"));
         AssertProblem(RunConsumer(folder.Path), "schemaVersion");
     }
 
@@ -24,7 +24,7 @@ public sealed partial class ConsumerValidatorTests
     public void GlossaryFileWithTheOldVersion()
     {
         using var folder = ConsumerFixture.Create();
-        ConsumerFixture.MutateJson(folder.Path, GlossaryFile, record => record["schemaVersion"] = 1);
+        ConsumerFixture.MutateYaml(folder.Path, GlossaryFile, record => record["schemaVersion"] = 1);
         AssertProblem(RunConsumer(folder.Path), "/schemaVersion");
     }
 
@@ -34,7 +34,7 @@ public sealed partial class ConsumerValidatorTests
     public void TermScopeThatIsNotARegularExpression()
     {
         using var folder = ConsumerFixture.Create();
-        ConsumerFixture.MutateJson(
+        ConsumerFixture.MutateYaml(
             folder.Path,
             GlossaryFile,
             record =>

@@ -8,10 +8,10 @@ namespace LiteSpec.Tests.Model.Review;
 public sealed class PartialBatchTests
 {
     static string LoanAggregate(string root) => ReviewPages.Page(
-        root, "docs", "behavior", "modules", "lending", "loans", "README.md");
+        root, "docs", "behavior", "modules", "lending", "loans", "aggregate.yaml");
 
     static string Borrowing(string root) => ReviewPages.Page(
-        root, "docs", "product", "lending", "borrowing.md");
+        root, "docs", "product", "lending", "borrowing.yaml");
 
     static string Manifest(string root) => ReviewPages.Page(
         root, "docs", "proof", "approvals", "2026-11-20-lending-rule.json");
@@ -58,7 +58,7 @@ public sealed class PartialBatchTests
         Assert.Equal(0, result.Status);
         Assert.Contains("1 record approved, 1 held.", result.Output);
 
-        var (front, _) = ReviewPages.Read(LoanAggregate(fixture.Path));
+        var front = ReviewPages.Read(LoanAggregate(fixture.Path));
         var entries = front["records"]!.AsArray().OfType<JsonObject>().ToList();
         var approved = entries.First(entry => entry["id"]!.GetValue<string>() == "rule/loan.has-one-borrower");
         var held = entries.First(entry => entry["id"]!.GetValue<string>() == "rule/loan.extended-before-due");
@@ -112,7 +112,7 @@ public sealed class PartialBatchTests
         Assert.Equal(0, result.Status);
         Assert.Contains("1 record approved, 1 held.", result.Output);
 
-        var (front, _) = ReviewPages.Read(LoanAggregate(fixture.Path));
+        var front = ReviewPages.Read(LoanAggregate(fixture.Path));
         var entries = front["records"]!.AsArray().OfType<JsonObject>().ToList();
         var held = entries.First(entry => entry["id"]!.GetValue<string>() == "rule/loan.has-one-borrower");
         var approved = entries.First(entry => entry["id"]!.GetValue<string>() == "rule/loan.extended-before-due");

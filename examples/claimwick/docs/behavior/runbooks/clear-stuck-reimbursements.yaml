@@ -12,5 +12,5 @@ verification: The queue holds no reimbursement older than one business day.
 recovery: A retried payout that doubled is reclaimed through `external-system/payout-bank`.
 escalation: When the queue still stands after one retry round, finance calls the bank and freezes new batches.
 approvedBy: claimwick-team
-approvedOn: 2026-10-01
-approvedHash: e582aaa7
+approvedOn: 2026-10-31
+approvedHash: "06216547"

@@ -8,13 +8,13 @@ namespace LiteSpec.Tests.Model.Review;
 public sealed class BatchManyApproveTests
 {
     static string BorrowCopy(string root) => ReviewPages.Page(
-        root, "docs", "behavior", "modules", "lending", "loans", "borrow-copy.md");
+        root, "docs", "behavior", "modules", "lending", "loans", "borrow-copy.yaml");
 
     static string LoanAggregate(string root) => ReviewPages.Page(
-        root, "docs", "behavior", "modules", "lending", "loans", "README.md");
+        root, "docs", "behavior", "modules", "lending", "loans", "aggregate.yaml");
 
     static string Borrowing(string root) => ReviewPages.Page(
-        root, "docs", "product", "lending", "borrowing.md");
+        root, "docs", "product", "lending", "borrowing.yaml");
 
     static string Manifest(string root, string name) => ReviewPages.Page(
         root, "docs", "proof", "approvals", name);
@@ -43,11 +43,11 @@ public sealed class BatchManyApproveTests
         Assert.True(File.Exists(Manifest(fixture.Path, "2026-11-20-use-case-lending-borrow-copy.json")));
         Assert.True(File.Exists(Manifest(fixture.Path, "2026-11-20-lending-rule.json")));
 
-        var (front, _) = ReviewPages.Read(BorrowCopy(fixture.Path));
+        var front = ReviewPages.Read(BorrowCopy(fixture.Path));
 
         Assert.Equal("reviewed", front["status"]!.GetValue<string>());
 
-        var (loans, _) = ReviewPages.Read(LoanAggregate(fixture.Path));
+        var loans = ReviewPages.Read(LoanAggregate(fixture.Path));
         var rule = loans["records"]!.AsArray()
             .OfType<JsonObject>()
             .First(entry => entry["id"]!.GetValue<string>() == "rule/loan.has-one-borrower");
@@ -106,7 +106,7 @@ public sealed class BatchManyApproveTests
         Assert.True(File.Exists(Manifest(fixture.Path, "2026-11-20-decision-decision-0001-loan-period.json")));
         Assert.True(File.Exists(Manifest(fixture.Path, "2026-11-20-use-case-lending-borrow-copy.json")));
 
-        var (front, _) = ReviewPages.Read(BorrowCopy(fixture.Path));
+        var front = ReviewPages.Read(BorrowCopy(fixture.Path));
 
         Assert.Equal("reviewed", front["status"]!.GetValue<string>());
     }

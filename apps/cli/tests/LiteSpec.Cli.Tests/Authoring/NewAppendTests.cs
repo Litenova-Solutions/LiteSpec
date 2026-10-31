@@ -1,5 +1,7 @@
+using System.Text.Json.Nodes;
 using LiteSpec;
 using LiteSpec.Authoring;
+using LiteSpec.Model;
 using LiteSpec.Tests.Model;
 using LiteSpec.Tests.Support;
 
@@ -10,8 +12,7 @@ public sealed class NewAppendTests
 {
     const string UseCase = "use-case/lending.borrow-copy";
 
-    const string OrderedPage = """
-        ---
+    const string OrderedJson = """
         {
           "type": "use-case",
           "id": "use-case/lending.borrow-copy",
@@ -43,8 +44,6 @@ public sealed class NewAppendTests
             }
           ]
         }
-        ---
-        # Borrow copy
         """;
 
     /// <summary>New result appends a refusal after the existing refusals.</summary>
@@ -65,9 +64,9 @@ public sealed class NewAppendTests
         Assert.Contains("Appended result/borrow-copy.copy-on-loan to ", result.Stdout);
 
         var after = File.ReadAllText(page);
-        var inserted = AssertSingleInsertion(before, after, "\"id\": \"result/borrow-copy.copy-on-loan\"");
-        Assert.Contains("\"outcome\": \"refusal\"", inserted);
-        Assert.Contains("\"code\": \"lending.copy-on-loan\"", inserted);
+        var inserted = AssertSingleInsertion(before, after, "id: result/borrow-copy.copy-on-loan");
+        Assert.Contains("outcome: refusal", inserted);
+        Assert.Contains("code: lending.copy-on-loan", inserted);
 
         var success = after.IndexOf("result/borrow-copy.borrowed", StringComparison.Ordinal);
         var oldRefusal = after.IndexOf("result/borrow-copy.copy-unavailable", StringComparison.Ordinal);
@@ -92,10 +91,10 @@ public sealed class NewAppendTests
         Assert.Equal(0, result.Status);
 
         var after = File.ReadAllText(page);
-        var inserted = AssertSingleInsertion(before, after, "\"id\": \"result/borrow-copy.renewed\"");
-        Assert.Contains("\"outcome\": \"success\"", inserted);
-        Assert.DoesNotContain("\"code\":", inserted);
-        Assert.DoesNotContain("\"codes\":", inserted);
+        var inserted = AssertSingleInsertion(before, after, "id: result/borrow-copy.renewed");
+        Assert.Contains("outcome: success", inserted);
+        Assert.DoesNotContain("code:", inserted);
+        Assert.DoesNotContain("codes:", inserted);
 
         var success = after.IndexOf("result/borrow-copy.borrowed", StringComparison.Ordinal);
         var added = after.IndexOf("result/borrow-copy.renewed", StringComparison.Ordinal);
@@ -122,8 +121,8 @@ public sealed class NewAppendTests
 
         var after = File.ReadAllText(page);
         var inserted = AssertSingleInsertion(
-            before, after, "\"id\": \"scenario/borrow-copy.borrowing-a-loaned-copy-is-refused\"");
-        Assert.Contains("\"result\": \"result/borrow-copy.copy-unavailable\"", inserted);
+            before, after, "id: scenario/borrow-copy.borrowing-a-loaned-copy-is-refused");
+        Assert.Contains("result: result/borrow-copy.copy-unavailable", inserted);
 
         var oldScenario = after.IndexOf(
             "scenario/borrow-copy.borrowing-an-available-copy-succeeds", StringComparison.Ordinal);
@@ -204,34 +203,26 @@ public sealed class NewAppendTests
     [Fact(DisplayName = "insert places a refusal after the existing refusals")]
     public void InsertPlacesRefusalAfterRefusals()
     {
-        var updated = AppendEntry.Insert(
-            OrderedPage,
-            AppendEntry.Placement.Refusal,
-            [
-                "\"type\": \"result\"",
-                "\"id\": \"result/borrow-copy.copy-on-loan\"",
-                "\"title\": \"Copy on loan\"",
-                "\"outcome\": \"refusal\"",
-                "\"code\": \"lending.copy-on-loan\"",
-                "\"meaning\": \"<The observable result in one sentence>\"",
-            ],
-            out var error);
+        var entry = new JsonObject
+        {
+            ["type"] = "result",
+            ["id"] = "result/borrow-copy.copy-on-loan",
+            ["title"] = "Copy on loan",
+            ["outcome"] = "refusal",
+            ["code"] = "lending.copy-on-loan",
+            ["meaning"] = "The copy is on loan.",
+        };
+        var before = RecordFile.Write(JsonNode.Parse(OrderedJson)!);
 
-        AssertInserts(
-            OrderedPage,
-            updated,
-            error,
-            string.Join("\n",
-            [
-                "    {",
-                "      \"type\": \"result\",",
-                "      \"id\": \"result/borrow-copy.copy-on-loan\",",
-                "      \"title\": \"Copy on loan\",",
-                "      \"outcome\": \"refusal\",",
-                "      \"code\": \"lending.copy-on-loan\",",
-                "      \"meaning\": \"<The observable result in one sentence>\"",
-                "    },",
-            ]) + "\n");
+        var updated = AppendEntry.Insert(before, AppendEntry.Placement.Refusal, entry, out var error);
+
+        AssertInserts(before, updated, error, entry,
+        [
+            "result/borrow-copy.borrowed",
+            "result/borrow-copy.copy-unavailable",
+            "result/borrow-copy.copy-on-loan",
+            "scenario/borrow-copy.borrowing-an-available-copy-succeeds",
+        ]);
     }
 
     /// <summary>Insert places a success before the refusals.</summary>
@@ -239,32 +230,25 @@ public sealed class NewAppendTests
     [Fact(DisplayName = "insert places a success before the refusals")]
     public void InsertPlacesSuccessBeforeRefusals()
     {
-        var updated = AppendEntry.Insert(
-            OrderedPage,
-            AppendEntry.Placement.Success,
-            [
-                "\"type\": \"result\"",
-                "\"id\": \"result/borrow-copy.renewed\"",
-                "\"title\": \"Renewed\"",
-                "\"outcome\": \"success\"",
-                "\"meaning\": \"<The observable result in one sentence>\"",
-            ],
-            out var error);
+        var entry = new JsonObject
+        {
+            ["type"] = "result",
+            ["id"] = "result/borrow-copy.renewed",
+            ["title"] = "Renewed",
+            ["outcome"] = "success",
+            ["meaning"] = "The loan is renewed.",
+        };
+        var before = RecordFile.Write(JsonNode.Parse(OrderedJson)!);
 
-        AssertInserts(
-            OrderedPage,
-            updated,
-            error,
-            string.Join("\n",
-            [
-                "    {",
-                "      \"type\": \"result\",",
-                "      \"id\": \"result/borrow-copy.renewed\",",
-                "      \"title\": \"Renewed\",",
-                "      \"outcome\": \"success\",",
-                "      \"meaning\": \"<The observable result in one sentence>\"",
-                "    },",
-            ]) + "\n");
+        var updated = AppendEntry.Insert(before, AppendEntry.Placement.Success, entry, out var error);
+
+        AssertInserts(before, updated, error, entry,
+        [
+            "result/borrow-copy.borrowed",
+            "result/borrow-copy.renewed",
+            "result/borrow-copy.copy-unavailable",
+            "scenario/borrow-copy.borrowing-an-available-copy-succeeds",
+        ]);
     }
 
     /// <summary>Insert appends a scenario last.</summary>
@@ -272,75 +256,27 @@ public sealed class NewAppendTests
     [Fact(DisplayName = "insert appends a scenario last")]
     public void InsertAppendsScenarioLast()
     {
-        var updated = AppendEntry.Insert(
-            OrderedPage,
-            AppendEntry.Placement.Scenario,
-            [
-                "\"type\": \"scenario\"",
-                "\"id\": \"scenario/borrow-copy.borrowing-a-loaned-copy-is-refused\"",
-                "\"title\": \"Borrowing a loaned copy is refused\"",
-                "\"given\": \"<The starting state>\"",
-                "\"when\": \"<What the actor does>\"",
-                "\"then\": \"<The observable result>\"",
-                "\"result\": \"result/borrow-copy.copy-unavailable\"",
-            ],
-            out var error);
+        var entry = new JsonObject
+        {
+            ["type"] = "scenario",
+            ["id"] = "scenario/borrow-copy.borrowing-a-loaned-copy-is-refused",
+            ["title"] = "Borrowing a loaned copy is refused",
+            ["given"] = "The copy sits on loan.",
+            ["when"] = "The reader borrows the copy.",
+            ["then"] = "The borrow is refused.",
+            ["result"] = "result/borrow-copy.copy-unavailable",
+        };
+        var before = RecordFile.Write(JsonNode.Parse(OrderedJson)!);
 
-        AssertInserts(
-            OrderedPage,
-            updated,
-            error,
-            ",\n" + string.Join("\n",
-            [
-                "    {",
-                "      \"type\": \"scenario\",",
-                "      \"id\": \"scenario/borrow-copy.borrowing-a-loaned-copy-is-refused\",",
-                "      \"title\": \"Borrowing a loaned copy is refused\",",
-                "      \"given\": \"<The starting state>\",",
-                "      \"when\": \"<What the actor does>\",",
-                "      \"then\": \"<The observable result>\",",
-                "      \"result\": \"result/borrow-copy.copy-unavailable\"",
-                "    }",
-            ]));
-    }
+        var updated = AppendEntry.Insert(before, AppendEntry.Placement.Scenario, entry, out var error);
 
-    /// <summary>Insert keeps carriage returns.</summary>
-    /// <proves>litespec/core/authoring#scaffold-pages-and-reserve-identifiers</proves>
-    [Fact(DisplayName = "insert keeps carriage returns")]
-    public void InsertKeepsCarriageReturns()
-    {
-        var page = OrderedPage.Replace("\n", "\r\n", StringComparison.Ordinal);
-
-        var updated = AppendEntry.Insert(
-            page,
-            AppendEntry.Placement.Refusal,
-            [
-                "\"type\": \"result\"",
-                "\"id\": \"result/borrow-copy.copy-on-loan\"",
-                "\"title\": \"Copy on loan\"",
-                "\"outcome\": \"refusal\"",
-                "\"code\": \"lending.copy-on-loan\"",
-                "\"meaning\": \"<The observable result in one sentence>\"",
-            ],
-            out var error);
-
-        AssertInserts(
-            page,
-            updated,
-            error,
-            string.Join("\r\n",
-            [
-                "    {",
-                "      \"type\": \"result\",",
-                "      \"id\": \"result/borrow-copy.copy-on-loan\",",
-                "      \"title\": \"Copy on loan\",",
-                "      \"outcome\": \"refusal\",",
-                "      \"code\": \"lending.copy-on-loan\",",
-                "      \"meaning\": \"<The observable result in one sentence>\"",
-                "    },",
-            ]) + "\r\n");
-
-        Assert.DoesNotContain("\n", updated!.Replace("\r\n", "", StringComparison.Ordinal));
+        AssertInserts(before, updated, error, entry,
+        [
+            "result/borrow-copy.borrowed",
+            "result/borrow-copy.copy-unavailable",
+            "scenario/borrow-copy.borrowing-an-available-copy-succeeds",
+            "scenario/borrow-copy.borrowing-a-loaned-copy-is-refused",
+        ]);
     }
 
     /// <summary>Insert fills an empty records array.</summary>
@@ -348,44 +284,27 @@ public sealed class NewAppendTests
     [Fact(DisplayName = "insert fills an empty records array")]
     public void InsertFillsEmptyRecords()
     {
-        const string page = """
-            ---
+        const string pageJson = """
             {
               "type": "use-case",
               "id": "use-case/lending.borrow-copy",
               "title": "Borrow copy",
               "records": []
             }
-            ---
-            # Borrow copy
             """;
+        var entry = new JsonObject
+        {
+            ["type"] = "result",
+            ["id"] = "result/borrow-copy.borrowed",
+            ["title"] = "Borrowed",
+            ["outcome"] = "success",
+            ["meaning"] = "The copy is lent.",
+        };
+        var before = RecordFile.Write(JsonNode.Parse(pageJson)!);
 
-        var updated = AppendEntry.Insert(
-            page,
-            AppendEntry.Placement.Success,
-            [
-                "\"type\": \"result\"",
-                "\"id\": \"result/borrow-copy.borrowed\"",
-                "\"title\": \"Borrowed\"",
-                "\"outcome\": \"success\"",
-                "\"meaning\": \"<The observable result in one sentence>\"",
-            ],
-            out var error);
+        var updated = AppendEntry.Insert(before, AppendEntry.Placement.Success, entry, out var error);
 
-        AssertInserts(
-            page,
-            updated,
-            error,
-            "\n" + string.Join("\n",
-            [
-                "    {",
-                "      \"type\": \"result\",",
-                "      \"id\": \"result/borrow-copy.borrowed\",",
-                "      \"title\": \"Borrowed\",",
-                "      \"outcome\": \"success\",",
-                "      \"meaning\": \"<The observable result in one sentence>\"",
-                "    }",
-            ]) + "\n  ");
+        AssertInserts(before, updated, error, entry, ["result/borrow-copy.borrowed"]);
     }
 
     /// <summary>Insert writes a missing records array.</summary>
@@ -393,50 +312,30 @@ public sealed class NewAppendTests
     [Fact(DisplayName = "insert writes a missing records array")]
     public void InsertWritesMissingRecords()
     {
-        const string page = """
-            ---
+        const string pageJson = """
             {
               "type": "use-case",
               "id": "use-case/lending.borrow-copy",
               "title": "Borrow copy"
             }
-            ---
-            # Borrow copy
             """;
-        const string expected = """
-            ---
-            {
-              "type": "use-case",
-              "id": "use-case/lending.borrow-copy",
-              "title": "Borrow copy",
-              "records": [
-                {
-                  "type": "result",
-                  "id": "result/borrow-copy.borrowed",
-                  "title": "Borrowed",
-                  "outcome": "success",
-                  "meaning": "<The observable result in one sentence>"
-                }
-              ]
-            }
-            ---
-            # Borrow copy
-            """;
+        var entry = new JsonObject
+        {
+            ["type"] = "result",
+            ["id"] = "result/borrow-copy.borrowed",
+            ["title"] = "Borrowed",
+            ["outcome"] = "success",
+            ["meaning"] = "The copy is lent.",
+        };
+        var before = RecordFile.Write(JsonNode.Parse(pageJson)!);
 
-        var updated = AppendEntry.Insert(
-            page,
-            AppendEntry.Placement.Success,
-            [
-                "\"type\": \"result\"",
-                "\"id\": \"result/borrow-copy.borrowed\"",
-                "\"title\": \"Borrowed\"",
-                "\"outcome\": \"success\"",
-                "\"meaning\": \"<The observable result in one sentence>\"",
-            ],
-            out var error);
+        var updated = AppendEntry.Insert(before, AppendEntry.Placement.Success, entry, out var error);
+
+        var expectedNode = (JsonObject)JsonNode.Parse(pageJson)!;
+        expectedNode["records"] = new JsonArray((JsonNode)entry.DeepClone());
 
         Assert.True(error == "", error);
-        Assert.Equal(expected, updated);
+        Assert.Equal(RecordFile.Write(expectedNode), updated);
     }
 
     /// <summary>Insert refuses a records field that is not an array.</summary>
@@ -444,33 +343,30 @@ public sealed class NewAppendTests
     [Fact(DisplayName = "insert refuses a records field that is not an array")]
     public void InsertRefusesNonArrayRecords()
     {
-        const string page = """
-            ---
+        var page = RecordFile.Write(JsonNode.Parse("""
             {
               "type": "use-case",
               "id": "use-case/lending.borrow-copy",
               "title": "Borrow copy",
               "records": {}
             }
-            ---
-            # Borrow copy
-            """;
+            """)!);
 
-        var updated = AppendEntry.Insert(page, AppendEntry.Placement.Success, [], out var error);
+        var updated = AppendEntry.Insert(page, AppendEntry.Placement.Success, new JsonObject(), out var error);
 
         Assert.Null(updated);
         Assert.Contains("not an array", error);
     }
 
-    /// <summary>Insert refuses a page without frontmatter.</summary>
+    /// <summary>Insert refuses a file that holds no record.</summary>
     /// <proves>litespec/core/authoring#scaffold-pages-and-reserve-identifiers</proves>
-    [Fact(DisplayName = "insert refuses a page without frontmatter")]
-    public void InsertRefusesMissingFrontmatter()
+    [Fact(DisplayName = "insert refuses a file that holds no record")]
+    public void InsertRefusesFileWithoutRecord()
     {
-        var updated = AppendEntry.Insert("# Just prose\n", AppendEntry.Placement.Success, [], out var error);
+        var updated = AppendEntry.Insert("# Just prose\n", AppendEntry.Placement.Success, new JsonObject(), out var error);
 
         Assert.Null(updated);
-        Assert.Contains("no frontmatter", error);
+        Assert.Contains("holds no record", error);
     }
 
     /// <summary>Run writes a result through the model lookup.</summary>
@@ -478,7 +374,7 @@ public sealed class NewAppendTests
     [Fact(DisplayName = "run writes a result through the model lookup")]
     public void RunWritesResult()
     {
-        using var consumer = Consumer(OrderedPage);
+        using var consumer = Consumer(OrderedJson);
 
         var status = Append(
             consumer,
@@ -488,8 +384,8 @@ public sealed class NewAppendTests
         Assert.Equal(0, status);
 
         var after = File.ReadAllText(UseCasePage(consumer.Path));
-        Assert.Contains("\"id\": \"result/borrow-copy.copy-on-loan\"", after);
-        Assert.Contains("\"title\": \"Copy on loan\"", after);
+        Assert.Contains("id: result/borrow-copy.copy-on-loan", after);
+        Assert.Contains("title: Copy on loan", after);
     }
 
     /// <summary>Run accepts the use case as home and name.</summary>
@@ -497,12 +393,12 @@ public sealed class NewAppendTests
     [Fact(DisplayName = "run accepts the use case as home and name")]
     public void RunAcceptsBareUseCaseName()
     {
-        using var consumer = Consumer(OrderedPage);
+        using var consumer = Consumer(OrderedJson);
 
         var status = Append(consumer, "result", "lending.borrow-copy", "renewed", "--outcome", "success");
 
         Assert.Equal(0, status);
-        Assert.Contains("\"id\": \"result/borrow-copy.renewed\"", File.ReadAllText(UseCasePage(consumer.Path)));
+        Assert.Contains("id: result/borrow-copy.renewed", File.ReadAllText(UseCasePage(consumer.Path)));
     }
 
     /// <summary>Run accepts a derived result reference.</summary>
@@ -510,7 +406,7 @@ public sealed class NewAppendTests
     [Fact(DisplayName = "run accepts a derived result reference")]
     public void RunAcceptsDerivedResultRef()
     {
-        using var consumer = Consumer(OrderedPage);
+        using var consumer = Consumer(OrderedJson);
 
         var status = Append(
             consumer,
@@ -519,7 +415,7 @@ public sealed class NewAppendTests
 
         Assert.Equal(0, status);
         Assert.Contains(
-            "\"result\": \"result/borrow-copy.forbidden\"",
+            "result: result/borrow-copy.forbidden",
             File.ReadAllText(UseCasePage(consumer.Path)));
     }
 
@@ -528,7 +424,7 @@ public sealed class NewAppendTests
     [Fact(DisplayName = "run carries a success code as codes")]
     public void RunCarriesSuccessCodeAsCodes()
     {
-        using var consumer = Consumer(OrderedPage);
+        using var consumer = Consumer(OrderedJson);
         var before = File.ReadAllText(UseCasePage(consumer.Path));
 
         var status = Append(
@@ -537,8 +433,9 @@ public sealed class NewAppendTests
         Assert.Equal(0, status);
 
         var after = File.ReadAllText(UseCasePage(consumer.Path));
-        Assert.Contains("\"codes\": [\"lending.renewed\"]", after);
-        Assert.Equal(CountOccurrences(before, "\"code\":"), CountOccurrences(after, "\"code\":"));
+        Assert.Contains("codes:", after);
+        Assert.Contains("- lending.renewed", after);
+        Assert.Equal(CountOccurrences(before, "code:"), CountOccurrences(after, "code:"));
     }
 
     public static TheoryData<string[]> RejectedArgs() => new()
@@ -571,29 +468,27 @@ public sealed class NewAppendTests
     [MemberData(nameof(RejectedArgs))]
     public void RunRefusesInvalidAppends(string[] args)
     {
-        using var consumer = Consumer(OrderedPage);
+        using var consumer = Consumer(OrderedJson);
         var before = File.ReadAllText(UseCasePage(consumer.Path));
 
         Assert.Equal(2, Append(consumer, args));
         Assert.Equal(before, File.ReadAllText(UseCasePage(consumer.Path)));
     }
 
-    /// <summary>The use-case page of the fixture or consumer.</summary>
+    /// <summary>The use-case record file of the fixture or consumer.</summary>
     /// <param name="root">The consumer root folder.</param>
-    /// <returns>The full path to the borrow-copy use-case page under the root.</returns>
+    /// <returns>The full path to the borrow-copy use-case record file under the root.</returns>
     static string UseCasePage(string root) =>
-        Path.Combine(root, "docs", "behavior", "modules", "lending", "loans", "borrow-copy.md");
+        Path.Combine(root, "docs", "behavior", "modules", "lending", "loans", "borrow-copy.yaml");
 
-    /// <summary>A minimal consumer holding one use-case page.</summary>
-    /// <param name="pageText">The page contents written to the borrow-copy page.</param>
-    /// <returns>The temporary consumer folder holding the page.</returns>
-    static TempFolder Consumer(string pageText)
+    /// <summary>A minimal consumer holding one use-case record file.</summary>
+    /// <param name="pageJson">The record file's fields as one JSON object.</param>
+    /// <returns>The temporary consumer folder holding the record file.</returns>
+    static TempFolder Consumer(string pageJson)
     {
         var temp = Cli.Temp("new-append");
         File.WriteAllText(Path.Combine(temp.Path, "litespec.project.json"), "{}");
-        var folder = Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "loans");
-        Directory.CreateDirectory(folder);
-        File.WriteAllText(Path.Combine(folder, "borrow-copy.md"), pageText);
+        TestRecords.Write(temp.Path, "docs/behavior/modules/lending/loans/borrow-copy.yaml", pageJson);
         return temp;
     }
 
@@ -646,23 +541,45 @@ public sealed class NewAppendTests
         return inserted;
     }
 
-    /// <summary>Proves the insertion is exactly the expected text and nothing else changed.</summary>
-    /// <param name="before">The page text before the insertion.</param>
-    /// <param name="updated">The page text after the insertion, or null when the insert failed.</param>
+    /// <summary>Proves the insert wrote the entry in canonical form, in house order, and changed nothing else.</summary>
+    /// <param name="before">The record file text before the insertion, in canonical form.</param>
+    /// <param name="updated">The record file text after the insertion, or null when the insert failed.</param>
     /// <param name="error">The insert error text, empty when the insert succeeded.</param>
-    /// <param name="inserted">The exact text the insert must add once.</param>
-    static void AssertInserts(string before, string? updated, string error, string inserted)
+    /// <param name="entry">The entry the insert must add with every field intact.</param>
+    /// <param name="orderedIds">The record identifiers in the order the file must hold them after the insert.</param>
+    static void AssertInserts(string before, string? updated, string error, JsonObject entry, string[] orderedIds)
     {
-        // The page keeps its own line ending, which in a raw string literal is the test file's, so the
-        // expected insertion is compared in that same line ending.
-        inserted = inserted.ReplaceLineEndings(before.Contains("\r\n", StringComparison.Ordinal) ? "\r\n" : "\n");
-
         Assert.True(error == "", error);
         Assert.NotNull(updated);
+        Assert.Equal(updated, RecordFile.Canonical(updated!));
+        Assert.True(RecordFile.TryParse(updated!, out var root, out _, out var parseError), parseError);
+
+        var records = root.GetProperty("records");
         Assert.Equal(
-            updated!.IndexOf(inserted, StringComparison.Ordinal),
-            updated!.LastIndexOf(inserted, StringComparison.Ordinal));
-        Assert.Equal(before, updated!.Replace(inserted, "", StringComparison.Ordinal));
+            orderedIds,
+            records.EnumerateArray().Select(item => item.GetProperty("id").GetString()!).ToArray());
+
+        var id = entry["id"]!.GetValue<string>();
+        var actual = records.EnumerateArray().First(item => item.GetProperty("id").GetString() == id);
+        Assert.Equal(entry.Count, actual.EnumerateObject().Count());
+
+        foreach (var (key, value) in entry)
+        {
+            Assert.Equal(value!.GetValue<string>(), actual.GetProperty(key).GetString());
+        }
+
+        var node = (JsonObject)JsonNode.Parse(root.GetRawText())!;
+        var items = (JsonArray)node["records"]!;
+
+        for (var index = items.Count - 1; index >= 0; index--)
+        {
+            if (items[index]?["id"]?.GetValue<string>() == id)
+            {
+                items.RemoveAt(index);
+            }
+        }
+
+        Assert.Equal(before, RecordFile.Write(node));
     }
 
     /// <summary>Counts the needle's occurrences in the text.</summary>

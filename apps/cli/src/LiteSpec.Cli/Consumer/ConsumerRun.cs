@@ -83,7 +83,7 @@ sealed class ConsumerRun
         {
             var paths = (Project as JsonObject)?["paths"] as JsonObject;
             var glossaryPath = JsonRead.PropString(paths, "glossary");
-            return glossaryPath is not null ? Path.Join(Root, glossaryPath) : Path.Join(DocsRoot, "glossary.yaml");
+            return Path.GetFullPath(glossaryPath is not null ? Path.Join(Root, glossaryPath) : Path.Join(DocsRoot, "glossary.yaml"));
         }
     }
 

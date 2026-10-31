@@ -225,10 +225,10 @@ public sealed class BookShardTests
         Assert.Equal("a" + ((char)0x2028).ToString() + "b", back["line"]!.GetValue<string>());
     }
 
-    /// <summary>Search excerpts prefer the statement-like fields, then the body's head on one line cut to 200 characters.</summary>
+    /// <summary>Search excerpts prefer the statement-like fields, then the explanation's head on one line cut to 200 characters.</summary>
     /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Fact]
-    public void Search_Excerpts_Prefer_Statement_Then_Body()
+    public void Search_Excerpts_Prefer_Statement_Then_Explanation()
     {
         var stated = new JsonObject
         {
@@ -237,30 +237,30 @@ public sealed class BookShardTests
                 ["statement"] = "Wait under ten minutes.",
                 ["summary"] = "Short waits.",
             },
-            ["body"] = "Long prose.",
+            ["explanation"] = "Long prose.",
         };
         Assert.Equal("Wait under ten minutes.", BookShards.SearchExcerpt(stated));
 
         var summarized = new JsonObject
         {
             ["fields"] = new JsonObject { ["summary"] = "Short waits." },
-            ["body"] = "Long prose.",
+            ["explanation"] = "Long prose.",
         };
         Assert.Equal("Short waits.", BookShards.SearchExcerpt(summarized));
 
-        var bodied = new JsonObject
+        var explained = new JsonObject
         {
             ["fields"] = new JsonObject(),
-            ["body"] = "First line.\nSecond line.",
+            ["explanation"] = "First line.\nSecond line.",
         };
-        Assert.Equal("First line. Second line.", BookShards.SearchExcerpt(bodied));
+        Assert.Equal("First line. Second line.", BookShards.SearchExcerpt(explained));
 
-        var longBody = new JsonObject
+        var longExplanation = new JsonObject
         {
             ["fields"] = new JsonObject(),
-            ["body"] = new string('z', 500),
+            ["explanation"] = new string('z', 500),
         };
-        Assert.Equal(200, BookShards.SearchExcerpt(longBody).Length);
+        Assert.Equal(200, BookShards.SearchExcerpt(longExplanation).Length);
 
         Assert.Equal("", BookShards.SearchExcerpt(new JsonObject { ["fields"] = new JsonObject() }));
     }

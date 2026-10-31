@@ -1,0 +1,38 @@
+type: use-case
+id: use-case/lending.cancel-hold
+title: Cancel hold
+owner: lending-team
+status: reviewed
+kind: command
+access:
+  grant: permission/place-hold
+  tenant: own
+fulfills:
+  - requirement/borrowing.hold-pickup-window
+reachedThrough:
+  - entry-point/library-app
+raises:
+  - event/hold.hold-canceled
+records:
+  - type: result
+    id: result/cancel-hold.canceled
+    title: Canceled
+    owner: lending-team
+    outcome: success
+    meaning: The hold is canceled.
+    approvedBy: lending-team
+    approvedOn: 2026-10-01
+    approvedHash: 04cfe11e
+  - type: result
+    id: result/cancel-hold.hold-ended
+    title: Hold ended
+    owner: lending-team
+    outcome: refusal
+    code: lending.hold-not-waiting
+    meaning: The hold already left the queue.
+    approvedBy: lending-team
+    approvedOn: 2026-10-01
+    approvedHash: fcfc0b84
+approvedBy: lending-team
+approvedOn: 2026-10-31
+approvedHash: d377f249

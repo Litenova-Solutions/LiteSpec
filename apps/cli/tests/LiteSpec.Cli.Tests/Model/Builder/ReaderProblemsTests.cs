@@ -93,33 +93,45 @@ public sealed class ReaderProblemsTests
         Assert.Empty(read.Routes);
     }
 
-    /// <summary>A record page whose frontmatter fence holds invalid JSON reports record-invalid naming the page and the parse error.</summary>
+    /// <summary>A record file that does not parse reports record-invalid naming the file, the parser error and its line.</summary>
     /// <proves>litespec/core/model#state-the-common-fields-on-every-record</proves>
     [Fact]
-    public void Malformed_Frontmatter_Page_Reports_Record_Invalid()
+    public void Malformed_Record_File_Reports_Record_Invalid()
     {
         using var temp = ModelFixture.Prepare("small");
-        Write(temp.Path, "docs/behavior/broken-frontmatter.md", """
-            ---
-            { "type": "use-case", "id": "use-case/lending.broken",
-            ---
-
-            # Broken
-
-            A page whose frontmatter is not JSON.
-            """);
-        Write(temp.Path, "docs/plain-note.md", "# Plain note\n\nNo frontmatter fence.\n");
+        Write(temp.Path, "docs/behavior/broken-record.yaml", "type: use-case\n\tid: use-case/lending.broken\n");
+        Write(temp.Path, "docs/README.md", "# Notes\n\nA plain readme.\n");
 
         var model = ModelBuilder.Build(ConsumerConfig.Load(temp.Path));
         var problem = Assert.Single(
             model.Problems,
-            found => found.Code == "record-invalid" && found.Path.EndsWith("broken-frontmatter.md", StringComparison.Ordinal));
+            found => found.Code == "record-invalid" && found.Path.EndsWith("broken-record.yaml", StringComparison.Ordinal));
 
-        Assert.Contains("broken-frontmatter.md", problem.Message);
-        Assert.Contains("frontmatter is not JSON", problem.Message);
+        Assert.Contains("broken-record.yaml", problem.Message);
+        Assert.Contains("could not be read", problem.Message);
+        Assert.Contains("spaces, not tabs, for indentation at line 2", problem.Message);
+        Assert.Equal(2, problem.Line);
         Assert.DoesNotContain(
             model.Problems,
-            found => found.Path.EndsWith("plain-note.md", StringComparison.Ordinal));
+            found => found.Path.EndsWith("README.md", StringComparison.Ordinal));
+    }
+
+    /// <summary>An explanation file with no record file beside it reports explanation-orphaned at line 1.</summary>
+    /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
+    [Fact]
+    public void Orphaned_Explanation_Reports_Explanation_Orphaned()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        Write(temp.Path, "docs/behavior/stray-note.md", "# Stray note\n\nNo record file stands beside this file.\n");
+
+        var model = ModelBuilder.Build(ConsumerConfig.Load(temp.Path));
+        var finding = Assert.Single(
+            Checker.Check(model).Findings,
+            found => found.Code == "explanation-orphaned" && found.Path.EndsWith("stray-note.md", StringComparison.Ordinal));
+
+        Assert.Equal(1, finding.Line);
+        Assert.Contains("stray-note.md", finding.Message);
+        Assert.Contains("stands beside no record file", finding.Message);
     }
 
     /// <summary>A declared stack root that does not exist reports reader-missing naming the declared root.</summary>

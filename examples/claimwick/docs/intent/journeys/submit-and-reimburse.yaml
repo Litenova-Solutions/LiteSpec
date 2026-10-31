@@ -37,5 +37,5 @@ betweenSteps: Ben may reject instead of approve; then the journey ends with the 
 cites:
   - requirement/approval.decided-within-five-days
 approvedBy: claimwick-team
-approvedOn: 2026-10-01
-approvedHash: 70b2f9ee
+approvedOn: 2026-10-31
+approvedHash: "43237897"

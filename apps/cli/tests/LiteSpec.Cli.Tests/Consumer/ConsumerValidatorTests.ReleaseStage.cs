@@ -1,4 +1,5 @@
 using System.Text.Json.Nodes;
+using LiteSpec.Tests.Support;
 
 namespace LiteSpec.Tests.Consumer;
 
@@ -26,20 +27,12 @@ public sealed partial class ConsumerValidatorTests
     /// <param name="provision">The provision id the deferral covers.</param>
     /// <param name="expiresOn">The date the deferral expires, in ISO form.</param>
     static void WriteDeferral(string root, string provision, string expiresOn = "2999-01-01") =>
-        ConsumerFixture.WriteFile(root, "docs/governance/exceptions/stage-deferral.md", ConsumerFixture.Page(
-            ConsumerFixture.Meta(
-                "{\"type\":\"exception\",\"id\":\"exception/stage-deferral\",\"title\":\"Stage Deferral\",\"owner\":\"fixture\",\"status\":\"approved\","
-                + "\"approvedBy\":\"fixture\",\"approvedOn\":\"2026-10-01\",\"approvedHash\":\"00000000\",\"kind\":\"departure\","
-                + $"\"covers\":\"{provision}\",\"subject\":[\"use-case/orders.cancel-order\"],"
-                + $"\"reason\":\"No deployment holds customer data yet.\",\"expiresOn\":\"{expiresOn}\"}}"),
-            """
-            # Stage Deferral
-
-            ## Consequences
-
-            The shop defers the provision until promotion.
-
-            """));
+        TestRecords.Write(root, "docs/governance/exceptions/stage-deferral.yaml",
+            "{\"type\":\"exception\",\"id\":\"exception/stage-deferral\",\"title\":\"Stage Deferral\",\"owner\":\"fixture\",\"status\":\"approved\","
+            + "\"approvedBy\":\"fixture\",\"approvedOn\":\"2026-10-01\",\"approvedHash\":\"00000000\",\"kind\":\"departure\","
+            + $"\"covers\":\"{provision}\",\"subject\":[\"use-case/orders.cancel-order\"],"
+            + "\"consequences\":\"The shop defers the provision until promotion.\","
+            + $"\"reason\":\"No deployment holds customer data yet.\",\"expiresOn\":\"{expiresOn}\"}}");
 
     /// <summary>Stage selection with its release stage and a live deferral.</summary>
     /// <proves>litespec/ext/stage#declare-the-release-stage</proves>

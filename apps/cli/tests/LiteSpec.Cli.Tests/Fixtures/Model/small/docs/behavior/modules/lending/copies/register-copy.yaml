@@ -1,0 +1,38 @@
+type: use-case
+id: use-case/lending.register-copy
+title: Register copy
+owner: lending-team
+status: reviewed
+kind: command
+access:
+  grant: permission/manage-copies
+  tenant: own
+fulfills:
+  - requirement/borrowing.copy-shelf-home
+reachedThrough:
+  - entry-point/library-app
+raises:
+  - event/copy.copy-registered
+records:
+  - type: result
+    id: result/register-copy.registered
+    title: Registered
+    owner: lending-team
+    outcome: success
+    meaning: The copy is registered.
+    approvedBy: lending-team
+    approvedOn: 2026-10-01
+    approvedHash: 30ca4281
+  - type: result
+    id: result/register-copy.copy-already-registered
+    title: Copy already registered
+    owner: lending-team
+    outcome: refusal
+    code: lending.copy-already-registered
+    meaning: The copy is already registered.
+    approvedBy: lending-team
+    approvedOn: 2026-10-01
+    approvedHash: 71afb1ee
+approvedBy: lending-team
+approvedOn: 2026-10-31
+approvedHash: e984345c

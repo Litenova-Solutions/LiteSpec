@@ -196,7 +196,7 @@ sealed class ProjectModel
 
                 if (bodies.TryGetValue((record.File, record.Id), out var text))
                 {
-                    writer.WriteString("body", text);
+                    writer.WriteString("explanation", text);
                 }
                 writer.WritePropertyName("fields");
                 record.Raw.WriteTo(writer);

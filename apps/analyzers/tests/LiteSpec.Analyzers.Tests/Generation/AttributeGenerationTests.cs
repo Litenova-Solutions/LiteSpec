@@ -13,7 +13,7 @@ public sealed class AttributeGenerationTests
     {
         var run = GeneratorVerify.Run(
             RecordPages.Sources("namespace Shop.Spending; internal sealed class Placeholder;"),
-            RecordPages.Files("attribute", ("events.md", RecordPages.EventPage("event/expense.submitted"))));
+            RecordPages.Files("attribute", ("events.yaml", RecordPages.EventPage("event/expense.submitted"))));
 
         Assert.True(run.Sources.TryGetValue("LiteSpecAttributes.g.cs", out var attributes), "The attributes source is missing.");
         Assert.Contains(
@@ -30,7 +30,7 @@ public sealed class AttributeGenerationTests
     {
         var run = GeneratorVerify.Run(
             RecordPages.Sources("namespace Shop.Orders; internal sealed class Placeholder;"),
-            RecordPages.Files("attribute", ("events.md", RecordPages.EventPage("event/expense.submitted"))));
+            RecordPages.Files("attribute", ("events.yaml", RecordPages.EventPage("event/expense.submitted"))));
 
         Assert.True(run.Sources.TryGetValue("LiteSpecAttributes.g.cs", out var attributes), "The attributes source is missing.");
         Assert.Contains("class ImplementsAttribute", attributes, StringComparison.Ordinal);
@@ -49,7 +49,7 @@ public sealed class AttributeGenerationTests
     {
         var run = GeneratorVerify.Run(
             RecordPages.Sources("namespace Shop.Orders; internal sealed class Placeholder;"),
-            RecordPages.Files("xml", ("events.md", RecordPages.EventPage("event/expense.submitted"))));
+            RecordPages.Files("xml", ("events.yaml", RecordPages.EventPage("event/expense.submitted"))));
 
         Assert.False(run.Sources.ContainsKey("LiteSpecAttributes.g.cs"), "The attributes source must not be generated.");
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
@@ -62,7 +62,7 @@ public sealed class AttributeGenerationTests
     {
         var run = GeneratorVerify.Run(
             RecordPages.Sources("namespace Shop.Orders; internal sealed class Placeholder;"),
-            [("/project/docs/behavior/events.md", RecordPages.EventPage("event/expense.submitted"))]);
+            [("/project/docs/behavior/events.yaml", RecordPages.EventPage("event/expense.submitted"))]);
 
         Assert.Empty(run.Sources);
         Assert.Empty(run.ReportedDiagnostics);
@@ -75,7 +75,7 @@ public sealed class AttributeGenerationTests
     {
         var run = GeneratorVerify.Run(
             RecordPages.Sources("namespace Shop.Orders; internal sealed class Placeholder;"),
-            RecordPages.Files("attribute", ("events.md", RecordPages.EventPage("event/expense.submitted"))),
+            RecordPages.Files("attribute", ("events.yaml", RecordPages.EventPage("event/expense.submitted"))),
             extraReferences: [MetadataReference.CreateFromFile(typeof(Xunit.v3.ITraitAttribute).Assembly.Location)]);
 
         Assert.True(run.Sources.TryGetValue("LiteSpecAttributes.g.cs", out var attributes), "The attributes source is missing.");
@@ -92,7 +92,7 @@ public sealed class AttributeGenerationTests
     {
         var run = GeneratorVerify.Run(
             RecordPages.Sources("namespace Shop.Orders; internal sealed class Placeholder;"),
-            RecordPages.Files("attribute", ("events.md", RecordPages.EventPage("event/expense.submitted"))));
+            RecordPages.Files("attribute", ("events.yaml", RecordPages.EventPage("event/expense.submitted"))));
 
         Assert.True(run.Sources.TryGetValue("LiteSpecAttributes.g.cs", out var attributes), "The attributes source is missing.");
         Assert.DoesNotContain("ITraitAttribute", attributes, StringComparison.Ordinal);
@@ -115,7 +115,7 @@ public sealed class AttributeGenerationTests
                 [Implements("event/expense.submitted")]
                 public sealed partial record ExpenseSubmittedEvent(string ExpenseId) : IDomainEvent;
                 """),
-            RecordPages.Files("attribute", ("events.md", RecordPages.EventPage("event/expense.submitted"))));
+            RecordPages.Files("attribute", ("events.yaml", RecordPages.EventPage("event/expense.submitted"))));
 
         Assert.True(run.Sources.TryGetValue("LiteSpecEvent.Shop.Orders.ExpenseSubmittedEvent.g.cs", out var part), "The event part is missing.");
         Assert.Contains("public const string Classification = \"event/expense.submitted\";", part, StringComparison.Ordinal);

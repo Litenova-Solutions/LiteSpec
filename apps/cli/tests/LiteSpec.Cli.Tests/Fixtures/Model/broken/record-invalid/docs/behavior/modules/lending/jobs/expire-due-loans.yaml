@@ -1,0 +1,22 @@
+---
+type: job
+id: job/lending.expire-due-loans
+title: Sloppy sweep
+owner: lending-team
+status: draft
+decider: lending-team
+decideBy: 2035-06-01
+kind: scheduled
+schedule:
+  every: P1D
+fulfills:
+  - requirement/borrowing.loan-period-days
+onFailure:
+  mode: retry
+  retry:
+    maxAttempts: 10
+    backoff: 5 seconds
+  then: dead-letter
+runs:
+  - use-case/lending.return-copy
+---

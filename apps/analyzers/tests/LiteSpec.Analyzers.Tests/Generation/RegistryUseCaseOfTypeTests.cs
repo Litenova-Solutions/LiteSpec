@@ -33,7 +33,7 @@ public sealed class RegistryUseCaseOfTypeTests
             """);
         var files = RecordPages.Files(
             "xml",
-            ("submit-expense.md", RecordPages.UseCasePage("use-case/spending.submit-expense", "permission/submit-expense")));
+            ("submit-expense.yaml", RecordPages.UseCasePage("use-case/spending.submit-expense", "permission/submit-expense")));
         var run = GeneratorVerify.Run(sources, files, assemblyName: "Shop.Application");
         Assert.True(run.Sources.TryGetValue("LiteSpecRegistry.g.cs", out var registry), "The registry source is missing.");
         Assert.Contains("public static string? UseCaseOfType(System.Type type)", registry, StringComparison.Ordinal);
@@ -74,7 +74,7 @@ public sealed class RegistryUseCaseOfTypeTests
             """);
         var files = RecordPages.Files(
             "xml",
-            ("approve-expense.md", RecordPages.UseCasePage("use-case/spending.approve-expense", "permission/approve-expense")));
+            ("approve-expense.yaml", RecordPages.UseCasePage("use-case/spending.approve-expense", "permission/approve-expense")));
         var run = GeneratorVerify.Run(sources, files, assemblyName: "Shop.Application");
         Assert.True(run.Sources.TryGetValue("LiteSpecRegistry.g.cs", out var registry), "The registry source is missing.");
         Assert.Contains("[\"Shop.Spending.ExpenseHandlers.ApproveExpenseCommandHandler\"] = new string[] { \"use-case/spending.approve-expense\" },", registry, StringComparison.Ordinal);

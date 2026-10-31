@@ -60,7 +60,7 @@ public sealed class BookLinkTests
         Assert.False(BookRender.IsSafeHref(null));
     }
 
-    /// <summary>A record body with a data Markdown link renders into the book detail with no data href.</summary>
+    /// <summary>A record explanation with a data Markdown link renders into the book detail with no data href.</summary>
     /// <proves>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</proves>
     [Fact]
     public void Book_Detail_Holds_No_Data_Href()
@@ -68,7 +68,7 @@ public sealed class BookLinkTests
         var model = JsonNode.Parse(
             """
             {"records":[
-              {"type":"research","id":"research/links","title":"Links","owner":"Ada","status":"draft","effectiveStatus":"draft","decider":null,"decideBy":null,"file":"docs/test.md","line":3,"fields":{"question":"Which links?","sources":[{"title":"Trap","url":"javascript:alert(1)"}]},"links":{},"body":"See [click](data:text/html,hello) and [site](https://example.com)."}
+              {"type":"research","id":"research/links","title":"Links","owner":"Ada","status":"draft","effectiveStatus":"draft","decider":null,"decideBy":null,"file":"docs/test.yaml","line":3,"fields":{"question":"Which links?","sources":[{"title":"Trap","url":"javascript:alert(1)"}]},"links":{},"explanation":"# Links\n\nSee [click](data:text/html,hello) and [site](https://example.com)."}
             ]}
             """)!.AsObject();
 

@@ -1,3 +1,5 @@
+using System.Text.Json.Nodes;
+using LiteSpec.Model;
 using LiteSpec.Tests.Support;
 
 namespace LiteSpec.Tests.Model;
@@ -83,7 +85,7 @@ static class ModelFixture
     }
 
     /// <summary>
-    ///     Removes the <c>transitions</c> field from the frontmatter of one lending aggregate page, so a
+    ///     Removes the <c>transitions</c> field from the record file of one lending aggregate page, so a
     ///     test can start from an aggregate whose lifecycle is not yet written. The page's approval reopens,
     ///     so a test that runs the check stamps the aggregate again.
     /// </summary>
@@ -91,14 +93,11 @@ static class ModelFixture
     /// <param name="folder">The aggregate's folder under <c>docs/behavior/modules/lending</c>, such as <c>loans</c>.</param>
     public static void RemoveTransitions(string root, string folder)
     {
-        var page = Path.Combine(root, "docs", "behavior", "modules", "lending", folder, "README.md");
-        var text = File.ReadAllText(page).Replace("\r\n", "\n", StringComparison.Ordinal);
-        var end = text.IndexOf("\n---", 4, StringComparison.Ordinal);
-        var frontmatter = System.Text.Json.Nodes.JsonNode.Parse(text[4..end])!.AsObject();
+        var page = Path.Combine(root, "docs", "behavior", "modules", "lending", folder, "aggregate.yaml");
+        var record = JsonNode.Parse(YamlText.Parse(File.ReadAllText(page)).ToJson())!.AsObject();
 
-        frontmatter.Remove("transitions");
+        record.Remove("transitions");
 
-        var json = frontmatter.ToJsonString(new System.Text.Json.JsonSerializerOptions { WriteIndented = true, NewLine = "\n" });
-        File.WriteAllText(page, "---\n" + json + text[end..]);
+        File.WriteAllText(page, RecordFile.Write(record));
     }
 }

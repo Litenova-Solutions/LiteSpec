@@ -8,16 +8,16 @@ namespace LiteSpec.Tests.Model.Review;
 public sealed class BatchApproveTests
 {
     static string BorrowCopy(string root) => ReviewPages.Page(
-        root, "docs", "behavior", "modules", "lending", "loans", "borrow-copy.md");
+        root, "docs", "behavior", "modules", "lending", "loans", "borrow-copy.yaml");
 
     static string LoanAggregate(string root) => ReviewPages.Page(
-        root, "docs", "behavior", "modules", "lending", "loans", "README.md");
+        root, "docs", "behavior", "modules", "lending", "loans", "aggregate.yaml");
 
     static string Borrowing(string root) => ReviewPages.Page(
-        root, "docs", "product", "lending", "borrowing.md");
+        root, "docs", "product", "lending", "borrowing.yaml");
 
     static string LoanPeriod(string root) => ReviewPages.Page(
-        root, "docs", "product", "decisions", "0001-loan-period.md");
+        root, "docs", "product", "decisions", "0001-loan-period.yaml");
 
     /// <summary>A use-case batch promotes the use case, its results and scenarios, and writes the manifest.</summary>
     /// <proves>litespec/core/release#approve-drafts-in-bounded-batches</proves>
@@ -47,7 +47,7 @@ public sealed class BatchApproveTests
         Assert.Equal(0, result.Status);
         Assert.Contains("4 records approved, 0 held.", result.Output);
 
-        var (front, _) = ReviewPages.Read(BorrowCopy(fixture.Path));
+        var front = ReviewPages.Read(BorrowCopy(fixture.Path));
 
         Assert.Equal("reviewed", front["status"]!.GetValue<string>());
         Assert.Equal("lending-team", front["approvedBy"]!.GetValue<string>());
@@ -90,7 +90,7 @@ public sealed class BatchApproveTests
         ReviewPages.DraftPage(LoanPeriod(fixture.Path));
         ReviewPages.DraftEntry(Borrowing(fixture.Path), "requirement/borrowing.loan-period-days");
 
-        var before = ReviewPages.Read(Borrowing(fixture.Path)).Front["records"]!.AsArray()
+        var before = ReviewPages.Read(Borrowing(fixture.Path))["records"]!.AsArray()
             .OfType<JsonObject>()
             .First(entry => entry["id"]!.GetValue<string>() == "requirement/borrowing.max-active-loans")["approvedHash"]!.GetValue<string>();
 
@@ -101,12 +101,12 @@ public sealed class BatchApproveTests
         Assert.Equal(0, result.Status);
         Assert.Contains("2 records approved, 3 held.", result.Output);
 
-        var (decision, _) = ReviewPages.Read(LoanPeriod(fixture.Path));
+        var decision = ReviewPages.Read(LoanPeriod(fixture.Path));
 
         Assert.Equal("approved", decision["status"]!.GetValue<string>());
         Assert.Equal("lending-team", decision["approvedBy"]!.GetValue<string>());
 
-        var (borrowing, _) = ReviewPages.Read(Borrowing(fixture.Path));
+        var borrowing = ReviewPages.Read(Borrowing(fixture.Path));
         var requirement = borrowing["records"]!.AsArray()
             .OfType<JsonObject>()
             .First(entry => entry["id"]!.GetValue<string>() == "requirement/borrowing.loan-period-days");
@@ -145,7 +145,7 @@ public sealed class BatchApproveTests
         var queue = Cli.Run("model", "review", "--root", fixture.Path);
         Assert.Contains("rule/loan.extended-before-due  tier 1  1 record", queue.Output);
 
-        var (front, _) = ReviewPages.Read(LoanAggregate(fixture.Path));
+        var front = ReviewPages.Read(LoanAggregate(fixture.Path));
         var entries = front["records"]!.AsArray().OfType<JsonObject>().ToList();
         var approved = entries.First(entry => entry["id"]!.GetValue<string>() == "rule/loan.has-one-borrower");
         var leftOut = entries.First(entry => entry["id"]!.GetValue<string>() == "rule/loan.extended-before-due");
@@ -173,7 +173,7 @@ public sealed class BatchApproveTests
 
         ReviewPages.DraftEntry(BorrowCopy(fixture.Path), "result/borrow-copy.copy-unavailable");
 
-        var before = ReviewPages.Read(BorrowCopy(fixture.Path)).Front;
+        var before = ReviewPages.Read(BorrowCopy(fixture.Path));
         var pageHash = before["approvedHash"]!.GetValue<string>();
         var heldHash = before["records"]!.AsArray()
             .OfType<JsonObject>()
@@ -200,8 +200,8 @@ public sealed class BatchApproveTests
 
         // The held records keep their approval data.
         var text = File.ReadAllText(BorrowCopy(fixture.Path));
-        Assert.Contains($"\"approvedHash\": \"{pageHash}\"", text);
-        Assert.Contains($"\"approvedHash\": \"{heldHash}\"", text);
+        Assert.Contains($"approvedHash: {pageHash}", text);
+        Assert.Contains($"approvedHash: {heldHash}", text);
     }
 
     /// <summary>A reopened record is re-stamped with its new hash.</summary>
@@ -211,7 +211,7 @@ public sealed class BatchApproveTests
     {
         using var fixture = ModelFixture.Prepare("small");
 
-        var stale = ReviewPages.Read(BorrowCopy(fixture.Path)).Front["records"]!.AsArray()
+        var stale = ReviewPages.Read(BorrowCopy(fixture.Path))["records"]!.AsArray()
             .OfType<JsonObject>()
             .First(entry => entry["id"]!.GetValue<string>() == "result/borrow-copy.borrowed")["approvedHash"]!.GetValue<string>();
 
@@ -227,7 +227,7 @@ public sealed class BatchApproveTests
         Assert.Contains("re-stamped", result.Output);
         Assert.DoesNotContain(stale, File.ReadAllText(BorrowCopy(fixture.Path)));
 
-        var (front, _) = ReviewPages.Read(BorrowCopy(fixture.Path));
+        var front = ReviewPages.Read(BorrowCopy(fixture.Path));
         var entry = front["records"]!.AsArray()
             .OfType<JsonObject>()
             .First(entry => entry["id"]!.GetValue<string>() == "result/borrow-copy.borrowed");

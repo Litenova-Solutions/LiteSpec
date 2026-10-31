@@ -6,4 +6,4 @@ Small companies decide expenses within one week. The study behind this answer is
 
 ## Notes on Sources
 
-One industry study, read in February 2026.
+One [industry study][example-expense-study], read in February 2026.

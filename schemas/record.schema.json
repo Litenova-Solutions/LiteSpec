@@ -42,22 +42,6 @@
     { "$ref": "#/$defs/glossaryPage" },
     { "$ref": "#/$defs/exampleCastPage" }
   ],
-  "allOf": [
-    {
-      "if": {
-        "required": ["type"],
-        "properties": { "type": { "const": "actor" } }
-      },
-      "then": { "required": ["summary"] }
-    },
-    {
-      "if": {
-        "required": ["type"],
-        "properties": { "type": { "const": "rule-set" } }
-      },
-      "then": { "required": ["summary"] }
-    }
-  ],
   "$defs": {
     "productId": {
       "type": "string",
@@ -2045,7 +2029,7 @@
     "actorPage": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["type", "id", "title", "owner", "status", "kind"],
+      "required": ["type", "id", "title", "owner", "status", "kind", "summary"],
       "properties": {
         "type": { "const": "actor" },
         "id": { "$ref": "#/$defs/actorId" },
@@ -3102,7 +3086,7 @@
     "ruleSetPage": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["type"],
+      "required": ["type", "summary"],
       "properties": {
         "type": { "const": "rule-set" },
         "summary": { "$ref": "#/$defs/nonEmptyString" },

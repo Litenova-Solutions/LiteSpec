@@ -8,22 +8,22 @@ namespace LiteSpec.Tests.Model.Review;
 public sealed class ApprovalToolFixTests
 {
     static string Screen(string root) => ReviewPages.Page(
-        root, "docs", "behavior", "screens", "library-app.loans.md");
+        root, "docs", "behavior", "screens", "library-app.loans.yaml");
 
     static string Reaction(string root) => ReviewPages.Page(
-        root, "docs", "behavior", "modules", "lending", "reactions", "send-due-notice-on-loan-borrowed.md");
+        root, "docs", "behavior", "modules", "lending", "reactions", "send-due-notice-on-loan-borrowed.yaml");
 
     static string Job(string root) => ReviewPages.Page(
-        root, "docs", "behavior", "modules", "lending", "jobs", "nightly-due-scan.md");
+        root, "docs", "behavior", "modules", "lending", "jobs", "nightly-due-scan.yaml");
 
     static string LoanPeriod(string root) => ReviewPages.Page(
-        root, "docs", "product", "decisions", "0001-loan-period.md");
+        root, "docs", "product", "decisions", "0001-loan-period.yaml");
 
     static string BorrowCopy(string root) => ReviewPages.Page(
-        root, "docs", "behavior", "modules", "lending", "loans", "borrow-copy.md");
+        root, "docs", "behavior", "modules", "lending", "loans", "borrow-copy.yaml");
 
     static string Borrowing(string root) => ReviewPages.Page(
-        root, "docs", "product", "lending", "borrowing.md");
+        root, "docs", "product", "lending", "borrowing.yaml");
 
     /// <summary>A screen is Behavior: the queue names its layer behavior and approval promotes it to reviewed.</summary>
     /// <proves>litespec/core/release#compute-the-review-queue-from-the-model</proves>
@@ -52,7 +52,7 @@ public sealed class ApprovalToolFixTests
 
         Assert.Equal(0, result.Status);
 
-        var (front, _) = ReviewPages.Read(Screen(fixture.Path));
+        var front = ReviewPages.Read(Screen(fixture.Path));
 
         Assert.Equal("reviewed", front["status"]!.GetValue<string>());
         Assert.Equal("lending-team", front["approvedBy"]!.GetValue<string>());
@@ -87,7 +87,7 @@ public sealed class ApprovalToolFixTests
         Assert.Equal(0, result.Status);
         Assert.Contains("2 records approved, 0 held.", result.Output);
 
-        var (front, _) = ReviewPages.Read(Reaction(fixture.Path));
+        var front = ReviewPages.Read(Reaction(fixture.Path));
 
         Assert.Equal("reviewed", front["status"]!.GetValue<string>());
 
@@ -127,7 +127,7 @@ public sealed class ApprovalToolFixTests
         Assert.Equal(0, result.Status);
         Assert.Contains("2 records approved, 0 held.", result.Output);
 
-        var (front, _) = ReviewPages.Read(Job(fixture.Path));
+        var front = ReviewPages.Read(Job(fixture.Path));
 
         Assert.Equal("reviewed", front["status"]!.GetValue<string>());
 
@@ -155,7 +155,7 @@ public sealed class ApprovalToolFixTests
 
         Assert.Equal(0, result.Status);
 
-        var (front, _) = ReviewPages.Read(LoanPeriod(fixture.Path));
+        var front = ReviewPages.Read(LoanPeriod(fixture.Path));
 
         Assert.Equal("approved", front["status"]!.GetValue<string>());
         Assert.Equal("21 days", front["choice"]!.GetValue<string>());
@@ -236,7 +236,7 @@ public sealed class ApprovalToolFixTests
 
         Assert.Equal(1, result.Status);
         Assert.Contains("names no choice", result.Output, StringComparison.Ordinal);
-        Assert.Equal("draft", ReviewPages.Read(LoanPeriod(fixture.Path)).Front["status"]!.GetValue<string>());
+        Assert.Equal("draft", ReviewPages.Read(LoanPeriod(fixture.Path))["status"]!.GetValue<string>());
     }
 
     /// <summary>Stamping a page leaves an entry that inherited its status, and is not in the batch, at the page's former status.</summary>
@@ -245,9 +245,7 @@ public sealed class ApprovalToolFixTests
     public void Page_Stamp_Keeps_Inherited_Entry_Status()
     {
         using var temp = Cli.Temp("review");
-        var page = Path.Combine(temp.Path, "loan.md");
-        File.WriteAllText(page, """
-            ---
+        var page = TestRecords.Write(temp.Path, "loan.yaml", """
             {
               "type": "aggregate",
               "id": "aggregate/lending.loan",
@@ -264,14 +262,12 @@ public sealed class ApprovalToolFixTests
                 }
               ]
             }
-            ---
-            # Loan
             """);
         var record = LiteSpec.Tests.Model.Checks.TestModel.Record("aggregate", "aggregate/lending.loan", page, """{"status": "draft"}""");
 
         LiteSpec.Model.Approver.StampBatch([new LiteSpec.Model.Approver.BatchStamp(record, "reviewed", "lending-team", "2026-11-20")]);
 
-        var (front, _) = ReviewPages.Read(page);
+        var front = ReviewPages.Read(page);
         var rule = front["records"]!.AsArray()[0]!.AsObject();
 
         Assert.Equal("reviewed", front["status"]!.GetValue<string>());
@@ -289,7 +285,7 @@ public sealed class ApprovalToolFixTests
 
         ReviewPages.DraftPage(BorrowCopy(fixture.Path));
         ReviewPages.PatchPage(BorrowCopy(fixture.Path), front => front["provenance"] = "transcribed");
-        ReviewPages.DraftPage(ReviewPages.Page(fixture.Path, "docs", "product", "journeys", "borrow-and-return.md"));
+        ReviewPages.DraftPage(ReviewPages.Page(fixture.Path, "docs", "product", "journeys", "borrow-and-return.yaml"));
 
         var result = Cli.Run(
             "model", "approve", "--root", fixture.Path,

@@ -65,7 +65,7 @@ public sealed class IntegrationFactProofTests
     public void Scenario_Fact_Pinning_The_Message_Type_Confirms()
     {
         using var temp = ModelFixture.Prepare("small");
-        Write(temp.Path, "docs/behavior/modules/lending/loans/success-scenario.md", SuccessScenarioPage);
+        TestRecords.Write(temp.Path, "docs/behavior/modules/lending/loans/success-scenario.yaml", SuccessScenarioJson);
         Write(temp.Path, "apps/api/tests/Library.Integration.Tests/Strength/TypeofFactTests.cs", TypeofFile);
 
         using var document = Build(temp.Path);
@@ -79,7 +79,7 @@ public sealed class IntegrationFactProofTests
     public void Scenario_Fact_Building_A_Nested_Value_Confirms()
     {
         using var temp = ModelFixture.Prepare("small");
-        Write(temp.Path, "docs/behavior/modules/lending/loans/success-scenario.md", SuccessScenarioPage);
+        TestRecords.Write(temp.Path, "docs/behavior/modules/lending/loans/success-scenario.yaml", SuccessScenarioJson);
         Write(temp.Path, "apps/api/tests/Library.Integration.Tests/Strength/NestedValueFactTests.cs", NestedFile);
 
         using var document = Build(temp.Path);
@@ -116,8 +116,7 @@ public sealed class IntegrationFactProofTests
         File.WriteAllText(path, text);
     }
 
-    const string SuccessScenarioPage = """
-        ---
+    const string SuccessScenarioJson = """
         {
           "type": "scenario",
           "id": "scenario/borrow-copy.borrowing-an-available-copy-succeeds",
@@ -129,11 +128,6 @@ public sealed class IntegrationFactProofTests
           "result": "result/borrow-copy.borrowed",
           "then": "The loan is active."
         }
-        ---
-
-        # Borrowing an available copy succeeds
-
-        A reader borrows an available copy.
         """;
 
     const string RuleMessageFile = """

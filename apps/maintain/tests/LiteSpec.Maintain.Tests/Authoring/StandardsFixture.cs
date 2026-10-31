@@ -219,9 +219,8 @@ static class StandardsFixture
         The values above come from the repository manifest.
         """) + "\n";
 
-    /// <summary>The research record page for <c>docs/intent/research/sample-study.md</c>, with maintainer evidence.</summary>
-    public static readonly string ResearchPage = Normalize("""
-        ---
+    /// <summary>The research record for <c>docs/intent/research/sample-study.yaml</c>, as JSON, with maintainer evidence.</summary>
+    public static readonly string ResearchJson = Normalize("""
         {
           "type": "research",
           "id": "research/sample-study",
@@ -239,22 +238,10 @@ static class StandardsFixture
             }
           ]
         }
-        ---
-
-        # Sample Study
-
-        ## Answer
-
-        The sample shows one finding with high confidence.
-
-        ## Notes on Sources
-
-        One web source, read in October 2026.
         """) + "\n";
 
-    /// <summary>The decision record page for <c>docs/intent/decisions/0001-sample-choice.md</c>, with maintainer evidence.</summary>
-    public static readonly string DecisionPage = Normalize("""
-        ---
+    /// <summary>The decision record for <c>docs/intent/decisions/0001-sample-choice.yaml</c>, as JSON, with maintainer evidence.</summary>
+    public static readonly string DecisionJson = Normalize("""
         {
           "type": "decision",
           "id": "decision/0001-sample-choice",
@@ -272,10 +259,26 @@ static class StandardsFixture
           ],
           "choice": "Keep the sample",
           "reopenedWhen": "A larger sample disagrees.",
-          "basedOn": ["research/sample-study"]
+          "basedOn": ["research/sample-study"],
+          "consequences": "The sample stays beside `litespec/core/topic#keep-the-topic-bounded`."
         }
-        ---
+        """) + "\n";
 
+    /// <summary>The research explanation for <c>docs/intent/research/sample-study.md</c>.</summary>
+    public static readonly string ResearchExplanation = Normalize("""
+        # Sample Study
+
+        ## Answer
+
+        The sample shows one finding with high confidence.
+
+        ## Notes on Sources
+
+        One web source, read in October 2026.
+        """) + "\n";
+
+    /// <summary>The decision explanation for <c>docs/intent/decisions/0001-sample-choice.md</c>.</summary>
+    public static readonly string DecisionExplanation = Normalize("""
         # Sample Choice
 
         ## Context
@@ -285,10 +288,6 @@ static class StandardsFixture
         ## Decision
 
         Keep the sample.
-
-        ## Consequences
-
-        The sample stays beside `litespec/core/topic#keep-the-topic-bounded`.
         """) + "\n";
 
     /// <summary>The command page. The validator checks its sections, not its sample command.</summary>
@@ -368,6 +367,33 @@ static class StandardsFixture
         {
             File.Delete(file);
         }
+    }
+
+    /// <summary>Converts a JSON record to its canonical YAML record file text.</summary>
+    /// <param name="json">The record as JSON.</param>
+    /// <returns>The record file text.</returns>
+    public static string Yaml(string json) =>
+        LiteSpec.Model.YamlWriter.Write(LiteSpec.Model.JsonText.Parse(json));
+
+    /// <summary>Writes the sample research record file with its explanation file.</summary>
+    /// <param name="root">The temporary repository root folder.</param>
+    /// <param name="json">The record as JSON, or null for the sample record.</param>
+    /// <param name="explanation">The explanation text, or null for the sample explanation.</param>
+    public static void WriteResearch(string root, string? json = null, string? explanation = null)
+    {
+        Write(root, "docs/intent/research/sample-study.yaml", Yaml(json ?? ResearchJson));
+        Write(root, "docs/intent/research/sample-study.md", explanation ?? ResearchExplanation);
+    }
+
+    /// <summary>Writes the sample decision record file with its explanation file.</summary>
+    /// <param name="root">The temporary repository root folder.</param>
+    /// <param name="stem">The record path without its extension.</param>
+    /// <param name="json">The record as JSON, or null for the sample record.</param>
+    /// <param name="explanation">The explanation text, or null for the sample explanation.</param>
+    public static void WriteDecision(string root, string stem, string? json = null, string? explanation = null)
+    {
+        Write(root, stem + ".yaml", Yaml(json ?? DecisionJson));
+        Write(root, stem + ".md", explanation ?? DecisionExplanation);
     }
 
     /// <summary>The minimal project file a mark case writes beside its sources.</summary>

@@ -1,3 +1,5 @@
+using LiteSpec.Model;
+
 namespace LiteSpec.Analyzers.Tests.Support;
 
 /// <summary>
@@ -35,7 +37,7 @@ internal static class TraceabilityFixtures
         string title = "Submit expense",
         string status = "approved",
         string[]? raises = null) =>
-        Page("submit-expense.md", $$"""
+        Page("submit-expense.yaml", $$"""
             {
               "type": "use-case",
               "id": "{{id}}",
@@ -43,7 +45,7 @@ internal static class TraceabilityFixtures
               "status": "{{status}}",
               "raises": [{{string.Join(", ", (raises ?? ["event/expense.submitted"]).Select(Quote))}}]
             }
-            """, title);
+            """);
 
     /// <summary>An event page with its status.</summary>
     /// <param name="id">The record identifier of the page.</param>
@@ -61,7 +63,7 @@ internal static class TraceabilityFixtures
               "title": "{{title}}",
               "status": "{{status}}"
             }
-            """, title);
+            """);
 
     /// <summary>A rule page with its refusal and status.</summary>
     /// <param name="id">The record identifier of the page.</param>
@@ -84,7 +86,7 @@ internal static class TraceabilityFixtures
               "statement": "An expense over twenty euros carries a receipt.",
               "refusal": "{{refusal}}"
             }
-            """, title);
+            """);
 
     /// <summary>A result page with its outcome, code and status.</summary>
     /// <param name="id">The record identifier of the page.</param>
@@ -109,7 +111,7 @@ internal static class TraceabilityFixtures
               "code": "{{code}}",
               "meaning": "The expense carries no receipt."
             }
-            """, title);
+            """);
 
     /// <summary>A scenario page with its status.</summary>
     /// <param name="id">The record identifier of the page.</param>
@@ -131,7 +133,7 @@ internal static class TraceabilityFixtures
               "then": "the expense is submitted",
               "result": "result/submit-expense.submitted"
             }
-            """, title);
+            """);
 
     /// <summary>An aggregate page with its status.</summary>
     /// <param name="id">The record identifier of the page.</param>
@@ -149,7 +151,7 @@ internal static class TraceabilityFixtures
               "title": "{{title}}",
               "status": "{{status}}"
             }
-            """, title);
+            """);
 
     /// <summary>A job page with its status.</summary>
     /// <param name="id">The record identifier of the page.</param>
@@ -167,7 +169,7 @@ internal static class TraceabilityFixtures
               "title": "{{title}}",
               "status": "{{status}}"
             }
-            """, title);
+            """);
 
     /// <summary>A reaction page with its status.</summary>
     /// <param name="id">The record identifier of the page.</param>
@@ -185,7 +187,7 @@ internal static class TraceabilityFixtures
               "title": "{{title}}",
               "status": "{{status}}"
             }
-            """, title);
+            """);
 
     /// <summary>An external-system page with its status.</summary>
     /// <param name="id">The record identifier of the page.</param>
@@ -196,14 +198,14 @@ internal static class TraceabilityFixtures
         string id = "external-system/payments",
         string title = "Payments",
         string status = "approved") =>
-        Page("payments.md", $$"""
+        Page("payments.yaml", $$"""
             {
               "type": "external-system",
               "id": "{{id}}",
               "title": "{{title}}",
               "status": "{{status}}"
             }
-            """, title);
+            """);
 
     /// <summary>An approved exception covering the codes on the subjects and paths until 2099.</summary>
     /// <param name="covers">The finding codes the exception covers.</param>
@@ -233,7 +235,7 @@ internal static class TraceabilityFixtures
               "reason": "Marks are deferred.",
               "expiresOn": "{{expiresOn}}"
             }
-            """, "Marks deferred");
+            """);
 
     /// <summary>A decision page with its status.</summary>
     /// <param name="id">The record identifier of the page.</param>
@@ -251,7 +253,7 @@ internal static class TraceabilityFixtures
               "title": "{{title}}",
               "status": "{{status}}"
             }
-            """, title);
+            """);
 
     /// <summary>A technical decision page under the implementation decisions folder.</summary>
     /// <param name="id">The record identifier of the page.</param>
@@ -262,14 +264,14 @@ internal static class TraceabilityFixtures
         string id = "decision/0002-store-expenses-as-documents",
         string title = "Store expenses as documents",
         string status = "approved") =>
-        Page("implementation/decisions/0002-store-expenses-as-documents.md", $$"""
+        Page("implementation/decisions/0002-store-expenses-as-documents.yaml", $$"""
             {
               "type": "decision",
               "id": "{{id}}",
               "title": "{{title}}",
               "status": "{{status}}"
             }
-            """, title);
+            """);
 
     /// <summary>A requirement page with its kind and status.</summary>
     /// <param name="id">The record identifier of the page.</param>
@@ -291,7 +293,7 @@ internal static class TraceabilityFixtures
               "kind": "{{kind}}",
               "statement": "Borrowing answers fast."
             }
-            """, title);
+            """);
 
     /// <summary>An integration-event page with its status.</summary>
     /// <param name="id">The record identifier of the page.</param>
@@ -309,10 +311,10 @@ internal static class TraceabilityFixtures
               "title": "{{title}}",
               "status": "{{status}}"
             }
-            """, title);
+            """);
 
-    private static (string Path, string Source) Page(string file, string json, string heading) =>
-        ($"{DocsRoot}/{file}", $"---\n{json}\n---\n\n# {heading}\n");
+    private static (string Path, string Source) Page(string file, string json) =>
+        ($"{DocsRoot}/{file}", YamlWriter.Write(JsonText.Parse(json)));
 
     private static string FileOf(string id)
     {
@@ -320,7 +322,7 @@ internal static class TraceabilityFixtures
         var rest = slash < 0 ? id : id.Substring(slash + 1);
         var dot = rest.IndexOf('.');
 
-        return (dot < 0 ? rest : rest.Substring(dot + 1)) + ".md";
+        return (dot < 0 ? rest : rest.Substring(dot + 1)) + ".yaml";
     }
 
     private static string Quote(string value) => "\"" + value + "\"";

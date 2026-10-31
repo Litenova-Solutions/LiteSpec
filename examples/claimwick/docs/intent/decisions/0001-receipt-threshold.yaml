@@ -20,5 +20,5 @@ decides:
   - requirement/approval.receipt-over-threshold
 basedOn: []
 approvedBy: claimwick-team
-approvedOn: 2026-10-01
-approvedHash: 21fa87c2
+approvedOn: 2026-10-31
+approvedHash: 07cb4ece

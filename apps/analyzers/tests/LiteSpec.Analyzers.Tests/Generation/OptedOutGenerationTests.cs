@@ -13,7 +13,7 @@ public sealed class OptedOutGenerationTests
     {
         var run = GeneratorVerify.Run(
             RecordPages.Sources("namespace Shop.Spending; internal sealed class Placeholder;"),
-            RecordPages.Files("attribute", ("permissions.md", RecordPages.PermissionPage("permission/a-b", "permission/a--b"))),
+            RecordPages.Files("attribute", ("permissions.yaml", RecordPages.PermissionPage("permission/a-b", "permission/a--b"))),
             assemblyName: "Shop.Domain",
             layer: "None");
 
@@ -30,7 +30,7 @@ public sealed class OptedOutGenerationTests
     {
         var run = GeneratorVerify.Run(
             RecordPages.Sources("namespace Shop.Core; internal sealed class Placeholder;"),
-            RecordPages.Files("attribute", ("permissions.md", RecordPages.PermissionPage("permission/a-b", "permission/a--b"))),
+            RecordPages.Files("attribute", ("permissions.yaml", RecordPages.PermissionPage("permission/a-b", "permission/a--b"))),
             assemblyName: "Shop.Core");
 
         Assert.Empty(run.Sources);
@@ -46,7 +46,7 @@ public sealed class OptedOutGenerationTests
     {
         var run = GeneratorVerify.Run(
             RecordPages.Sources("namespace Shop.Core; internal sealed class Placeholder;"),
-            RecordPages.Files("xml", ("permissions.md", RecordPages.PermissionPage("permission/cancel-order"))),
+            RecordPages.Files("xml", ("permissions.yaml", RecordPages.PermissionPage("permission/cancel-order"))),
             assemblyName: "Shop.Core",
             layer: "Staging");
 

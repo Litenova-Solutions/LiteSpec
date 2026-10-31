@@ -717,11 +717,11 @@ sealed class UiSession
 
         try
         {
-            return JsonNode.Parse(raw.Substring(3, end - 3).Trim());
+            return JsonNode.Parse(YamlText.Parse(raw.Substring(3, end - 3).Trim('\r', '\n')).ToJson());
         }
-        catch (JsonException cause)
+        catch (JsonTextException cause)
         {
-            Errors.Add($"{RelativeToRoot(file)}: metadata is not JSON ({cause.Message})");
+            Errors.Add($"{RelativeToRoot(file)}: metadata is not in the YAML subset ({cause.Message})");
             return null;
         }
     }

@@ -42,7 +42,7 @@
                         "decideBy":  null,
                         "file":  "docs/product/goals/faster-borrowing.md",
                         "line":  3,
-                        "body":  "## Why It Matters\n\nShort waits bring members back.",
+                        "explanation":  "# Faster Borrowing\n\n## Why It Matters\n\nShort waits bring members back.",
                         "fields":  {
                                        "type":  "goal",
                                        "id":  "goal/faster-borrowing",
@@ -117,7 +117,7 @@
                         "decideBy":  "2026-11-15",
                         "file":  "docs/product/features/self-checkout.md",
                         "line":  3,
-                        "body":  "## Offering\n\nMembers scan and go; the desk keeps helping with holds.",
+                        "explanation":  "# Self Checkout\n\n## Offering\n\nMembers scan and go; the desk keeps helping with holds.",
                         "fields":  {
                                        "type":  "feature",
                                        "id":  "feature/self-checkout",
@@ -443,7 +443,7 @@
                         "decideBy":  null,
                         "file":  "docs/behavior/modules/lending/README.md",
                         "line":  3,
-                        "body":  "## Known Limits\n\nThe branch lends its own copies only.",
+                        "explanation":  "# Lending\n\n## Known Limits\n\nThe branch lends its own copies only.",
                         "fields":  {
                                        "type":  "module",
                                        "id":  "module/lending",
@@ -467,7 +467,7 @@
                         "decideBy":  null,
                         "file":  "docs/behavior/modules/lending/loans/README.md",
                         "line":  3,
-                        "body":  "## Bounds\n\nA loan covers **one copy** and *one member*. The desk kiosk prints the due slip; see use-case/lending.borrow-copy for the flow.\n\nBorrowing rules:\n\n- One copy lends to one member at a time.\n- A loan lasts `three weeks`.\n\nCounts:\n\n1. Scan the member card.\n2. Scan the copy.\n\n| Week | Loans |\n| --- | ---: |\n| First | 120 |\n| Second | 140 |\n\n```\nscan member, scan copy, print slip\n```\n\n\u003e A loan is a promise to bring the copy back.\n\n---\n\nRead the [lending guide](https://example.com/lending) or visit https://example.com/desks.",
+                        "explanation":  "# Loan\n\n## Bounds\n\nA loan covers **one copy** and *one member*. The desk kiosk prints the due slip; see use-case/lending.borrow-copy for the flow.\n\nBorrowing rules:\n\n- One copy lends to one member at a time.\n- A loan lasts `three weeks`.\n\nCounts:\n\n1. Scan the member card.\n2. Scan the copy.\n\n| Week | Loans |\n| --- | ---: |\n| First | 120 |\n| Second | 140 |\n\n```\nscan member, scan copy, print slip\n```\n\n\u003e A loan is a promise to bring the copy back.\n\n---\n\nRead the [lending guide](https://example.com/lending) or visit https://example.com/desks.",
                         "fields":  {
                                        "type":  "aggregate",
                                        "id":  "aggregate/lending.loan",
@@ -611,7 +611,7 @@
                         "aggregate":  "aggregate/lending.loan",
                         "file":  "docs/behavior/modules/lending/loans/borrow-copy.md",
                         "line":  3,
-                        "body":  "## Goal\n\nThe member leaves the desk with the copy in under two minutes.\n\n## What Happens\n\nThe kiosk scans the member card and the copy, then prints the due slip.",
+                        "explanation":  "# Borrow Copy\n\n## Goal\n\nThe member leaves the desk with the copy in under two minutes.\n\n## What Happens\n\nThe kiosk scans the member card and the copy, then prints the due slip.",
                         "fields":  {
                                        "type":  "use-case",
                                        "id":  "use-case/lending.borrow-copy",
@@ -1066,7 +1066,7 @@
                         "decideBy":  null,
                         "file":  "docs/behavior/systems/fine-payments.md",
                         "line":  3,
-                        "body":  "## Summary\n\nFine Payments takes card payments for overdue fines.",
+                        "explanation":  "# Fine Payments\n\n## Summary\n\nFine Payments takes card payments for overdue fines.",
                         "fields":  {
                                        "type":  "external-system",
                                        "id":  "external-system/fine-payments",
@@ -1123,7 +1123,7 @@
                         "decideBy":  null,
                         "file":  "docs/runbooks/overdue-notice.md",
                         "line":  3,
-                        "body":  "## Impact\n\nMembers keep borrowing while notices wait.\n\n## Procedure\n\n1. List overdue loans.\n2. Send reminders.\n\nLabels print as `\u003ccode\u003eLOAN-1\u003c/code\u003e` from the template.",
+                        "explanation":  "# Overdue Notice\n\n## Impact\n\nMembers keep borrowing while notices wait.\n\n## Procedure\n\n1. List overdue loans.\n2. Send reminders.\n\nLabels print as `\u003ccode\u003eLOAN-1\u003c/code\u003e` from the template.",
                         "fields":  {
                                        "type":  "runbook",
                                        "id":  "runbook/overdue-notice",
@@ -1213,7 +1213,7 @@
                         "effectiveStatus":  "approved",
                         "decider":  null,
                         "decideBy":  null,
-                        "file":  "docs/glossary.json",
+                        "file":  "docs/glossary.yaml",
                         "line":  4,
                         "fields":  {
                                        "type":  "term",

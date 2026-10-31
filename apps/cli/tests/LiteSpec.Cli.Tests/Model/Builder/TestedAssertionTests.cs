@@ -15,7 +15,7 @@ public sealed class TestedAssertionTests
     public void Passing_Test_With_An_Assertion_Tests_Its_Requirement()
     {
         using var temp = ModelFixture.Prepare("small");
-        Write(temp.Path, RequirementPath, RequirementPage);
+        TestRecords.Write(temp.Path, RequirementPath, RequirementJson);
         Write(temp.Path, ProofPath, AssertingFile);
         WriteTrx(temp.Path, "Library.Integration.Tests.Tested.TestedProofTests.Borrowing_stays_fast");
 
@@ -30,7 +30,7 @@ public sealed class TestedAssertionTests
     public void Passing_Test_Without_An_Assertion_Leaves_Its_Requirement_Untested()
     {
         using var temp = ModelFixture.Prepare("small");
-        Write(temp.Path, RequirementPath, RequirementPage);
+        TestRecords.Write(temp.Path, RequirementPath, RequirementJson);
         Write(temp.Path, ProofPath, BareFile);
         WriteTrx(temp.Path, "Library.Integration.Tests.Tested.TestedProofTests.Borrowing_runs");
 
@@ -39,7 +39,7 @@ public sealed class TestedAssertionTests
         Assert.False(document.RootElement.GetProperty("tested").GetProperty(Requirement).GetBoolean());
     }
 
-    const string RequirementPath = "docs/intent/lending/performance.md";
+    const string RequirementPath = "docs/intent/lending/performance.yaml";
     const string ProofPath = "apps/api/tests/Library.Integration.Tests/Tested/TestedProofTests.cs";
 
     static void WriteTrx(string root, string testName)
@@ -72,8 +72,7 @@ public sealed class TestedAssertionTests
         File.WriteAllText(path, text);
     }
 
-    const string RequirementPage = """
-        ---
+    const string RequirementJson = """
         {
           "type": "topic",
           "id": "topic/performance",
@@ -95,11 +94,6 @@ public sealed class TestedAssertionTests
             }
           ]
         }
-        ---
-
-        # Borrowing performance
-
-        Borrowing stays fast.
         """;
 
     const string AssertingFile = """

@@ -443,7 +443,7 @@ public sealed class BookEnrichTests
             ["tier"] = "G",
             ["message"] = "Missing handler.",
             ["subject"] = "use-case/lending.borrow-copy#step",
-            ["path"] = "docs/a.md",
+            ["path"] = "docs/a.yaml",
             ["line"] = 3,
         });
         (model["known"] as JsonArray)!.Add(new JsonObject
@@ -473,7 +473,7 @@ public sealed class BookEnrichTests
         Assert.False(details.ContainsKey("use-case/missing.nope"));
     }
 
-    /// <summary>Bodies render to HTML with hash record links, split into intro and sections.</summary>
+    /// <summary>Explanations render to HTML with hash record links, split into intro and sections.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
     public void BodyHtml_Renders_Markdown_With_Hash_Links_And_Sections()
@@ -486,7 +486,7 @@ public sealed class BookEnrichTests
         Assert.True(list.Count >= 1);
         Assert.Equal("Bounds", Str(list[0] as JsonObject, "h"));
         Assert.Contains("one copy", Str(list[0] as JsonObject, "html") ?? "", StringComparison.Ordinal);
-        var model = NewModel(Record("feature", "feature/demo", "Demo", "draft", "draft", "{}", "Intro words.\n\n## Why Now\n\nBecause demand.\n"));
+        var model = NewModel(Record("feature", "feature/demo", "Demo", "draft", "draft", "{}", "# Demo\n\nIntro words.\n\n## Why Now\n\nBecause demand.\n"));
         var sections = Obj(DetailsOf(model)["feature/demo"], "sections");
         Assert.Contains("Intro words", Str(sections, "intro") ?? "", StringComparison.Ordinal);
         var items = sections["list"] as JsonArray ?? new JsonArray();
@@ -676,7 +676,7 @@ public sealed class BookEnrichTests
         };
     }
 
-    static JsonObject Record(string type, string id, string title, string status = "draft", string? effective = null, string fieldsJson = "{}", string? body = null)
+    static JsonObject Record(string type, string id, string title, string status = "draft", string? effective = null, string fieldsJson = "{}", string? explanation = null)
     {
         var record = new JsonObject
         {
@@ -688,14 +688,14 @@ public sealed class BookEnrichTests
             ["effectiveStatus"] = effective ?? status,
             ["decider"] = null,
             ["decideBy"] = null,
-            ["file"] = "docs/test.md",
+            ["file"] = "docs/test.yaml",
             ["line"] = 3,
             ["fields"] = (JsonObject)JsonNode.Parse(fieldsJson)!,
             ["links"] = new JsonObject(),
         };
-        if (body is not null)
+        if (explanation is not null)
         {
-            record["body"] = body;
+            record["explanation"] = explanation;
         }
 
         return record;

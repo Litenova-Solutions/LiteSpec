@@ -140,7 +140,7 @@ public sealed class CoverageCheckTests
                   "paths": {
                     "docs": "docs",
                     "behaviorDocs": "docs/behavior",
-                    "glossary": "docs/glossary.json",
+                    "glossary": "docs/glossary.yaml",
                     "testRoots": [
                       "apps/api/tests"
                     ],
@@ -156,15 +156,12 @@ public sealed class CoverageCheckTests
                   }
                 }
                 """);
-            Write(temp.Path, "docs/glossary.json", """
-                {
-                  "schemaVersion": 2,
-                  "terms": [],
-                  "mannered": []
-                }
+            Write(temp.Path, "docs/glossary.yaml", """
+                schemaVersion: 2
+                terms: []
+                mannered: []
                 """);
-            Write(temp.Path, "docs/behavior/modules/lending/loans/README.md", """
-                ---
+            TestRecords.Write(temp.Path, "docs/behavior/modules/lending/loans/aggregate.yaml", """
                 {
                   "type": "aggregate",
                   "id": "aggregate/lending.loan",
@@ -179,14 +176,13 @@ public sealed class CoverageCheckTests
                     }
                   ]
                 }
-                ---
-
+                """);
+            TestRecords.Explain(temp.Path, "docs/behavior/modules/lending/loans/aggregate.md", """
                 # Loan
 
                 A loan lends one copy to one reader.
                 """);
-            Write(temp.Path, "docs/behavior/modules/lending/outbox/README.md", """
-                ---
+            TestRecords.Write(temp.Path, "docs/behavior/modules/lending/outbox/aggregate.yaml", """
                 {
                   "type": "aggregate",
                   "id": "aggregate/lending.outbox",
@@ -195,8 +191,8 @@ public sealed class CoverageCheckTests
                   "status": "reviewed",
                   "kind": "store"
                 }
-                ---
-
+                """);
+            TestRecords.Explain(temp.Path, "docs/behavior/modules/lending/outbox/aggregate.md", """
                 # Outbox
 
                 The lending-owned table of scans awaiting dispatch.

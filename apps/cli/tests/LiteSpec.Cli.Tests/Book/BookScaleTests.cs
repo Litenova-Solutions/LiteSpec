@@ -241,7 +241,7 @@ public sealed class BookScaleTests
             ["effectiveStatus"] = status,
             ["decider"] = null,
             ["decideBy"] = null,
-            ["file"] = "docs/scale.md",
+            ["file"] = "docs/scale.yaml",
             ["line"] = 3,
             ["fields"] = new JsonObject(),
             ["links"] = new JsonObject(),

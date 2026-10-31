@@ -98,14 +98,14 @@ public sealed partial class ConsumerValidatorTests
         ConsumerFixture.MutateBody(
             folder.Path,
             "docs/product/decisions/0001-launch.md",
-            raw => ReplaceFirst(raw, "## Decision", "## Notes"));
+            raw => ReplaceFirst(raw, "## Context", "## Notes"));
         var result = RunConsumer(folder.Path, "--format", "json");
         Assert.Equal(1, result.Status);
         var parsed = (JsonObject)JsonNode.Parse(result.Stdout)!;
         Assert.Equal(false, (bool?)parsed["ok"]);
         Assert.Equal("consumer", (string?)parsed["tool"]);
         var problems = parsed["problems"]!.AsArray().Select(problem => (string?)problem ?? string.Empty);
-        Assert.Contains(problems, problem => problem.Contains("requires an H2 'Decision'", StringComparison.Ordinal));
+        Assert.Contains(problems, problem => problem.Contains("requires an H2 'Context'", StringComparison.Ordinal));
     }
 
     /// <summary>Machine-readable problems carry their level.</summary>
@@ -117,7 +117,7 @@ public sealed partial class ConsumerValidatorTests
         ConsumerFixture.MutateBody(
             folder.Path,
             "docs/product/decisions/0001-launch.md",
-            raw => ReplaceFirst(raw, "## Decision", "## Notes"));
+            raw => ReplaceFirst(raw, "## Context", "## Notes"));
         var result = RunConsumer(folder.Path, "--format", "json");
         Assert.Equal(1, result.Status);
         var parsed = (JsonObject)JsonNode.Parse(result.Stdout)!;

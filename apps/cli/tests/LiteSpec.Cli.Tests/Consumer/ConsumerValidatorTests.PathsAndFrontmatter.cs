@@ -33,7 +33,7 @@ public sealed partial class ConsumerValidatorTests
         using var folder = ConsumerFixture.Create();
         Directory.CreateDirectory(Path.Combine(folder.Path, "empty-docs"));
         ConsumerFixture.MutateProject(folder.Path, project => PathsOf(project)["docs"] = "empty-docs");
-        AssertProblem(RunConsumer(folder.Path), "Scanned no Markdown files");
+        AssertProblem(RunConsumer(folder.Path), "Scanned no record or Markdown files");
     }
 
     /// <summary>Project naming no backend stack.</summary>
@@ -97,8 +97,8 @@ public sealed partial class ConsumerValidatorTests
     public void GlossaryPathThatIsNotOnDisk()
     {
         using var folder = ConsumerFixture.Create();
-        ConsumerFixture.MutateProject(folder.Path, project => PathsOf(project)["glossary"] = "docs/missing.json");
-        AssertProblem(RunConsumer(folder.Path), "paths.glossary 'docs/missing.json' does not exist");
+        ConsumerFixture.MutateProject(folder.Path, project => PathsOf(project)["glossary"] = "docs/missing.yaml");
+        AssertProblem(RunConsumer(folder.Path), "paths.glossary 'docs/missing.yaml' does not exist");
     }
 
     /// <summary>Frontend path that is not on disk.</summary>
@@ -138,7 +138,7 @@ public sealed partial class ConsumerValidatorTests
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.MutateMeta(
             folder.Path,
-            "docs/behavior/modules/orders/cancel-order.md",
+            "docs/behavior/modules/orders/cancel-order.yaml",
             meta => meta.Remove("title"));
         AssertProblem(RunConsumer(folder.Path), "missing required property 'title'");
     }
@@ -151,7 +151,7 @@ public sealed partial class ConsumerValidatorTests
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.MutateMeta(
             folder.Path,
-            "docs/behavior/modules/orders/cancel-order.md",
+            "docs/behavior/modules/orders/cancel-order.yaml",
             meta => meta["implementationStatus"] = "planned");
         AssertProblem(RunConsumer(folder.Path), "unknown property 'implementationStatus'");
     }
@@ -164,7 +164,7 @@ public sealed partial class ConsumerValidatorTests
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.MutateMeta(
             folder.Path,
-            "docs/product/brief.md",
+            "docs/product/brief.yaml",
             meta => meta["status"] = "final");
         AssertProblem(RunConsumer(folder.Path), "/status");
     }
@@ -177,7 +177,7 @@ public sealed partial class ConsumerValidatorTests
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.MutateMeta(
             folder.Path,
-            "docs/behavior/modules/orders/cancel-order.md",
+            "docs/behavior/modules/orders/cancel-order.yaml",
             meta => meta["kind"] = "mutation");
         AssertProblem(RunConsumer(folder.Path), "/kind");
     }
@@ -190,7 +190,7 @@ public sealed partial class ConsumerValidatorTests
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.MutateMeta(
             folder.Path,
-            "docs/behavior/modules/orders/cancel-order.md",
+            "docs/behavior/modules/orders/cancel-order.yaml",
             meta => ((JsonObject)((JsonArray)meta["records"]!)[0]!).Remove("outcome"));
         AssertProblem(RunConsumer(folder.Path), "/records/0");
     }
@@ -203,7 +203,7 @@ public sealed partial class ConsumerValidatorTests
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.MutateMeta(
             folder.Path,
-            "docs/behavior/modules/orders/cancel-order.md",
+            "docs/behavior/modules/orders/cancel-order.yaml",
             meta => meta["type"] = "business-record");
         AssertProblem(RunConsumer(folder.Path), "matches 0 of");
     }
@@ -231,6 +231,6 @@ public sealed partial class ConsumerValidatorTests
             folder.Path,
             "docs/behavior/modules/orders/broken.md",
             "---\n{bad json}\n---\n\n# Broken\n");
-        AssertProblem(RunConsumer(folder.Path), "JSON parse error");
+        AssertProblem(RunConsumer(folder.Path), "frontmatter is not YAML");
     }
 }

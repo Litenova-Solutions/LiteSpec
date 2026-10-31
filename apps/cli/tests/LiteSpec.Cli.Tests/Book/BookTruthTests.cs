@@ -100,7 +100,7 @@ public sealed class BookTruthTests
         Assert.Equal("G", Str(finding, "tier"));
         Assert.Contains("has no handler, reaction or job", Str(finding, "message") ?? "", StringComparison.Ordinal);
         Assert.False(BoolOf(finding["known"]));
-        Assert.Equal("docs/behavior/modules/lending/loans/return-copy.md", Str(finding, "path"));
+        Assert.Equal("docs/behavior/modules/lending/loans/return-copy.yaml", Str(finding, "path"));
         Assert.Equal(3, finding["line"]?.GetValue<int>());
 
         var known = Arr(details["journey/borrowing"], "findings");
@@ -124,7 +124,7 @@ public sealed class BookTruthTests
                     ["tier"] = "G",
                     ["message"] = "Use case 'use-case/lending.return-copy' has no handler, reaction or job.",
                     ["subject"] = "use-case/lending.return-copy",
-                    ["path"] = "docs/behavior/modules/lending/loans/return-copy.md",
+                    ["path"] = "docs/behavior/modules/lending/loans/return-copy.yaml",
                     ["line"] = 3,
                 });
             root["known"] = new JsonArray(

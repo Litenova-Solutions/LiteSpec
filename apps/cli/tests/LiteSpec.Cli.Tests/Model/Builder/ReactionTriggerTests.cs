@@ -13,8 +13,8 @@ public sealed class ReactionTriggerTests
     public void Reaction_Without_A_Mark_Links_Nothing_And_Reports_Mark_Missing()
     {
         using var temp = ModelFixture.Prepare("small");
-        Write(temp.Path, "docs/behavior/modules/lending/loans/notify-overdue.md", UseCasePage);
-        Write(temp.Path, "docs/behavior/modules/lending/reactions/send-notice-on-loan-borrowed.md", ReactionPage);
+        TestRecords.Write(temp.Path, "docs/behavior/modules/lending/loans/notify-overdue.yaml", UseCaseJson);
+        TestRecords.Write(temp.Path, "docs/behavior/modules/lending/reactions/send-notice-on-loan-borrowed.yaml", ReactionJson);
         Write(temp.Path, "apps/api/src/Library.Application/Lending/Loans/OnLoanBorrowed/NotifyReaderOnLoanBorrowedHandler.cs", ReactionFile);
 
         using var document = Build(temp.Path);
@@ -67,8 +67,7 @@ public sealed class ReactionTriggerTests
         File.WriteAllText(path, text);
     }
 
-    const string UseCasePage = """
-        ---
+    const string UseCaseJson = """
         {
           "type": "use-case",
           "id": "use-case/lending.notify-overdue",
@@ -97,15 +96,9 @@ public sealed class ReactionTriggerTests
             }
           ]
         }
-        ---
-
-        # Notify overdue
-
-        A reader learns a loan passed its due date.
         """;
 
-    const string ReactionPage = """
-        ---
+    const string ReactionJson = """
         {
           "type": "reaction",
           "id": "reaction/lending.send-notice-on-loan-borrowed",
@@ -125,11 +118,6 @@ public sealed class ReactionTriggerTests
             "requirement/borrowing.loan-period-days"
           ]
         }
-        ---
-
-        # Send notice on loan borrowed
-
-        Every borrowed loan earns one notice for its reader.
         """;
 
     const string ReactionFile = """

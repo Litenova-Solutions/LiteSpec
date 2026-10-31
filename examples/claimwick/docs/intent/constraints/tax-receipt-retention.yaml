@@ -9,5 +9,5 @@ kind: organizational
 applies: true
 appliesBecause: Claimwick stores receipts for reimbursed expenses.
 approvedBy: claimwick-team
-approvedOn: 2026-10-01
-approvedHash: ae1b05e7
+approvedOn: 2026-10-31
+approvedHash: "36873955"

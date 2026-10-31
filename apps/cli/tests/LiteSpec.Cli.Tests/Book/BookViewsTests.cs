@@ -160,10 +160,10 @@ public sealed class BookViewsTests
         Assert.Null(TryFindNode(tops, "finding/2"));
     }
 
-    /// <summary>A record detail renders its prose body as text: headings, spans, lists, tables, code and quotes.</summary>
+    /// <summary>A record detail renders its explanation as text: headings, spans, lists, tables, code and quotes.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
-    public void Record_Body_Renders_As_Escaped_Html_With_Sections()
+    public void Record_Explanation_Renders_As_Escaped_Html_With_Sections()
     {
         using var temp = Cli.Temp("book-views");
         var result = Cli.Run("book", "--model", Cli.Fixture("Book/review.json"), "--out", temp.Path);
@@ -194,10 +194,10 @@ public sealed class BookViewsTests
         Assert.Contains("one copy", Str(list[0]!.AsObject(), "html") ?? "", StringComparison.Ordinal);
     }
 
-    /// <summary>A body can never inject markup: angle brackets escape inside code spans.</summary>
+    /// <summary>An explanation can never inject markup: angle brackets escape inside code spans.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
-    public void Record_Body_Escapes_Markup()
+    public void Record_Explanation_Escapes_Markup()
     {
         using var temp = Cli.Temp("book-views");
         var result = Cli.Run("book", "--model", Cli.Fixture("Book/review.json"), "--out", temp.Path);
@@ -636,10 +636,10 @@ public sealed class BookViewsTests
         Assert.True(HasEdge(Arr(details["journey/borrowing"], "in"), "use-case/lending.borrow-copy", "use-case.serves"));
     }
 
-    /// <summary>The search shards cover statements, summaries and body heads for every record.</summary>
+    /// <summary>The search shards cover statements, summaries and explanation heads for every record.</summary>
     /// <proves>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</proves>
     [Fact]
-    public void Search_Shards_Cover_Statements_And_Body_Heads()
+    public void Search_Shards_Cover_Statements_And_Explanation_Heads()
     {
         using var temp = Cli.Temp("book-views");
         var result = Cli.Run("book", "--model", Cli.Fixture("Book/review.json"), "--out", temp.Path);
@@ -730,7 +730,7 @@ public sealed class BookViewsTests
         Assert.True(HasString(Arr(details["aggregate/lending.loan"], "lacks"), "not implemented"));
     }
 
-    /// <summary>The Why block inputs split from the body: the intro stays prose and Why sections list by heading.</summary>
+    /// <summary>The Why block inputs split from the explanation: the intro stays prose and Why sections list by heading.</summary>
     /// <proves>litespec/core/model#explain-the-book-from-litespec-definitions</proves>
     [Fact]
     public void Why_Block_Placement()

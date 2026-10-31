@@ -71,16 +71,16 @@ public sealed class RenameMarksTests
 
         using var temp = Cli.Temp("rename-marks");
         WriteConsumer(temp.Path);
-        var intentPage = Path.Combine(temp.Path, "docs", "intent", "decisions", "0002-store-loans-as-documents.md");
+        var intentPage = Path.Combine(temp.Path, "docs", "intent", "decisions", "0002-store-loans-as-documents.yaml");
         var technicalFolder = Path.Combine(temp.Path, "docs", "implementation", "decisions");
         Directory.CreateDirectory(technicalFolder);
-        File.Move(intentPage, Path.Combine(technicalFolder, "0002-store-loans-as-documents.md"));
+        File.Move(intentPage, Path.Combine(technicalFolder, "0002-store-loans-as-documents.yaml"));
 
         var result = Cli.Run("rename", oldDecision, newDecision, "--root", temp.Path);
 
         Assert.True(result.Status == 0, result.Output);
-        Assert.True(File.Exists(Path.Combine(technicalFolder, "0002-store-loans-as-files.md")), result.Output);
-        Assert.False(File.Exists(Path.Combine(temp.Path, "docs", "intent", "decisions", "0002-store-loans-as-files.md")));
+        Assert.True(File.Exists(Path.Combine(technicalFolder, "0002-store-loans-as-files.yaml")), result.Output);
+        Assert.False(File.Exists(Path.Combine(temp.Path, "docs", "intent", "decisions", "0002-store-loans-as-files.yaml")));
     }
 
     /// <summary>Rename Rewrites A Requirement Id Inside Proves Marks In Both Styles.</summary>
@@ -181,7 +181,7 @@ public sealed class RenameMarksTests
               "paths": {
                 "docs": "docs",
                 "behaviorDocs": "docs/behavior",
-                "glossary": "docs/glossary.json",
+                "glossary": "docs/glossary.yaml",
                 "testRoots": [
                   "apps/api/tests"
                 ]
@@ -195,15 +195,14 @@ public sealed class RenameMarksTests
               }
             }
             """);
-        Write(Path.Combine(root, "docs", "glossary.json"), """
+        TestRecords.Write(root, "docs/glossary.yaml", """
             {
               "schemaVersion": 2,
               "terms": [],
               "mannered": []
             }
             """);
-        Write(Path.Combine(root, "docs", "behavior", "modules", "lending", "loans", "borrow-copy.md"), """
-            ---
+        TestRecords.Write(root, "docs/behavior/modules/lending/loans/borrow-copy.yaml", """
             {
               "type": "use-case",
               "id": "use-case/lending.borrow-copy",
@@ -212,14 +211,8 @@ public sealed class RenameMarksTests
               "status": "reviewed",
               "kind": "command"
             }
-            ---
-
-            # Borrow copy
-
-            A reader borrows an available copy.
             """);
-        Write(Path.Combine(root, "docs", "intent", "decisions", "0002-store-loans-as-documents.md"), """
-            ---
+        TestRecords.Write(root, "docs/intent/decisions/0002-store-loans-as-documents.yaml", """
             {
               "type": "decision",
               "id": "decision/0002-store-loans-as-documents",
@@ -237,11 +230,6 @@ public sealed class RenameMarksTests
               ],
               "reopenedWhen": "Cross-loan queries pass one hundred a day"
             }
-            ---
-
-            # Store loans as documents
-
-            Store each loan as one document.
             """);
         Write(DocTag(root), """
             namespace Library.Application;
@@ -278,8 +266,7 @@ public sealed class RenameMarksTests
             [Follows("decision/0002-store-loans-as-documents")]
             internal sealed class LoanDocumentStore;
             """);
-        Write(Path.Combine(root, "docs", "intent", "borrowing", "performance.md"), """
-            ---
+        TestRecords.Write(root, "docs/intent/borrowing/performance.yaml", """
             {
               "type": "topic",
               "id": "topic/performance",
@@ -298,14 +285,8 @@ public sealed class RenameMarksTests
                 }
               ]
             }
-            ---
-
-            # Borrowing performance
-
-            Borrowing stays fast.
             """);
-        Write(Path.Combine(root, "docs", "behavior", "external-systems", "text-gateway.md"), """
-            ---
+        TestRecords.Write(root, "docs/behavior/external-systems/text-gateway.yaml", """
             {
               "type": "external-system",
               "id": "external-system/text-gateway",
@@ -313,14 +294,8 @@ public sealed class RenameMarksTests
               "owner": "lending-team",
               "status": "reviewed"
             }
-            ---
-
-            # Text gateway
-
-            The text gateway sends overdue notices to readers.
             """);
-        Write(Path.Combine(root, "docs", "behavior", "integration-events", "loan-borrowed.md"), """
-            ---
+        TestRecords.Write(root, "docs/behavior/integration-events/loan-borrowed.yaml", """
             {
               "type": "integration-event",
               "id": "integration-event/loan-borrowed",
@@ -328,11 +303,6 @@ public sealed class RenameMarksTests
               "owner": "lending-team",
               "status": "reviewed"
             }
-            ---
-
-            # Loan borrowed
-
-            A loan opened on the shelf.
             """);
         Write(ProvesTag(root), """
             namespace Library.Acceptance.Tests;

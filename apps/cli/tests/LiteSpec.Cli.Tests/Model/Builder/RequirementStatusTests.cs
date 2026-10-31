@@ -1,4 +1,6 @@
 using System.Text.Json;
+using System.Text.Json.Nodes;
+using LiteSpec.Model;
 using LiteSpec.Tests.Model;
 using LiteSpec.Tests.Support;
 
@@ -13,10 +15,10 @@ public sealed class RequirementStatusTests
     public void Measured_Requirement_With_A_Passing_Check_Verifies()
     {
         using var temp = ModelFixture.Prepare("small");
-        Write(temp.Path, "docs/behavior/modules/lending/loans/borrow-copy-proof-scenario.md", ScenarioPage);
+        TestRecords.Write(temp.Path, "docs/behavior/modules/lending/loans/borrow-copy-proof-scenario.yaml", ScenarioJson);
         Write(temp.Path, "apps/api/tests/Library.Acceptance.Tests/JUnit/JUnitScenarios.cs", ScenariosFile);
-        Write(temp.Path, "docs/intent/lending/performance.md", RequirementPage);
-        Write(temp.Path, "docs/intent/journeys/borrow-and-return.md", JourneyPage);
+        TestRecords.Write(temp.Path, "docs/intent/lending/performance.yaml", RequirementJson);
+        TestRecords.Write(temp.Path, "docs/intent/journeys/borrow-and-return.yaml", JourneyJson);
         Fulfill(temp.Path, "requirement/performance.borrow-latency", "requirement/performance.borrow-errors", "requirement/performance.borrow-journey");
 
         var results = Path.Combine(temp.Path, "TestResults");
@@ -48,17 +50,26 @@ public sealed class RequirementStatusTests
 
     static void Fulfill(string root, params string[] requirements)
     {
-        var page = Path.Combine(root, "docs", "behavior", "modules", "lending", "loans", "borrow-copy.md");
-        var text = File.ReadAllText(page);
-        var joined = "\"requirement/borrowing.max-active-loans\",\n        \""
-            + string.Join("\",\n        \"", requirements) + "\"";
+        PatchRecord(root, "docs/behavior/modules/lending/loans/borrow-copy.yaml", front =>
+        {
+            var fulfills = front["fulfills"]!.AsArray();
 
-        text = text.Replace("\"requirement/borrowing.max-active-loans\"", joined);
-        text = text.Replace(
-            "  \"fulfills\": [",
-            "  \"serves\": [\n    \"journey/borrow-and-return#s1\"\n  ],\n  \"fulfills\": [");
+            foreach (var requirement in requirements)
+            {
+                fulfills.Add(requirement);
+            }
 
-        File.WriteAllText(page, text);
+            front["serves"] = new JsonArray("journey/borrow-and-return#s1");
+        });
+    }
+
+    static void PatchRecord(string root, string relative, Action<JsonObject> mutate)
+    {
+        var path = Path.Combine(root, relative.Replace('/', Path.DirectorySeparatorChar));
+        var node = JsonNode.Parse(YamlText.Parse(File.ReadAllText(path)).ToJson())!.AsObject();
+
+        mutate(node);
+        File.WriteAllText(path, RecordFile.Write(node));
     }
 
     static JsonDocument Build(string root)
@@ -77,8 +88,7 @@ public sealed class RequirementStatusTests
         File.WriteAllText(path, text);
     }
 
-    const string ScenarioPage = """
-        ---
+    const string ScenarioJson = """
         {
           "type": "scenario",
           "id": "scenario/borrow-copy.borrowing-an-available-copy-succeeds",
@@ -90,11 +100,6 @@ public sealed class RequirementStatusTests
           "result": "result/borrow-copy.borrowed",
           "then": "The loan is active."
         }
-        ---
-
-        # Borrowing an available copy succeeds
-
-        A reader borrows an available copy.
         """;
 
     const string ScenariosFile = """
@@ -110,8 +115,7 @@ public sealed class RequirementStatusTests
         }
         """;
 
-    const string RequirementPage = """
-        ---
+    const string RequirementJson = """
         {
           "type": "topic",
           "id": "topic/performance",
@@ -167,15 +171,9 @@ public sealed class RequirementStatusTests
             }
           ]
         }
-        ---
-
-        # Borrowing performance
-
-        Borrowing stays fast and certain.
         """;
 
-    const string JourneyPage = """
-        ---
+    const string JourneyJson = """
         {
           "type": "journey",
           "id": "journey/borrow-and-return",
@@ -198,10 +196,5 @@ public sealed class RequirementStatusTests
             "requirement/performance.borrow-journey"
           ]
         }
-        ---
-
-        # Borrow and return
-
-        A reader borrows a copy.
         """;
 }

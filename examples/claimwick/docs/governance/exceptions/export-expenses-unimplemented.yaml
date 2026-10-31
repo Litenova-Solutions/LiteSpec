@@ -12,5 +12,5 @@ reason: Export waits for the finance file format.
 exit: Exporting expenses has no handler yet. The gap closes when the finance file format lands and the export use case gains its handler.
 expiresOn: 2027-06-01
 approvedBy: claimwick-team
-approvedOn: 2026-10-01
-approvedHash: f3c491e6
+approvedOn: 2026-10-31
+approvedHash: b9ddbb02

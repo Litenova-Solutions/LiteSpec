@@ -8,13 +8,13 @@ namespace LiteSpec.Tests.Model.Review;
 public sealed class SingleRecordApproveTests
 {
     static string LoanAggregate(string root) => ReviewPages.Page(
-        root, "docs", "behavior", "modules", "lending", "loans", "README.md");
+        root, "docs", "behavior", "modules", "lending", "loans", "aggregate.yaml");
 
     static string Borrowing(string root) => ReviewPages.Page(
-        root, "docs", "product", "lending", "borrowing.md");
+        root, "docs", "product", "lending", "borrowing.yaml");
 
     static JsonObject Entry(string path, string id) =>
-        ReviewPages.Read(path).Front["records"]!.AsArray()
+        ReviewPages.Read(path)["records"]!.AsArray()
             .OfType<JsonObject>()
             .First(entry => entry["id"]!.GetValue<string>() == id);
 

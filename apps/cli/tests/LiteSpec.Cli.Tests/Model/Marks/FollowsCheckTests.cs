@@ -268,12 +268,15 @@ public sealed class FollowsCheckTests
                 {"project": {"name": "Marks Follows Attribute Fixture"}, "size": "small", "shape": "server",
                   "stacks": ["dotnet"], "reviewedLiteSpecVersion": "3.0.0", "owners": ["lending-team"],
                   "marks": "attribute",
-                  "paths": {"docs": "docs", "glossary": "docs/glossary.json", "testRoots": [], "frontends": []},
+                  "paths": {"docs": "docs", "glossary": "docs/glossary.yaml", "testRoots": [], "frontends": []},
                   "stackConfig": {"dotnet": {"application": "apps/api/src/Library.Application"}}}
                 """);
-            Write(temp.Path, "docs/glossary.json", """{"schemaVersion": 2, "terms": [], "mannered": []}""");
-            Write(temp.Path, "docs/implementation/decisions/0002-store-loans-as-documents.md", """
-                ---
+            Write(temp.Path, "docs/glossary.yaml", """
+                schemaVersion: 2
+                terms: []
+                mannered: []
+                """);
+            TestRecords.Write(temp.Path, "docs/implementation/decisions/0002-store-loans-as-documents.yaml", """
                 {
                   "type": "decision",
                   "id": "decision/0002-store-loans-as-documents",
@@ -282,11 +285,12 @@ public sealed class FollowsCheckTests
                   "status": "draft",
                   "decider": "lending-team",
                   "decideBy": "2030-01-31",
-                  "options": [{"name": "Documents", "for": "Reads stay simple", "against": "Queries need an index"}],
-                  "changeWhen": "Queries pass one hundred a day"
+                  "options": [{"name": "Documents", "pros": "Reads stay simple", "cons": "Queries need an index"}],
+                  "consequences": "The document store owns loan persistence.",
+                  "reopenedWhen": "Queries pass one hundred a day"
                 }
-                ---
-
+                """);
+            TestRecords.Explain(temp.Path, "docs/implementation/decisions/0002-store-loans-as-documents.md", """
                 # Store loans as documents
 
                 ## Context
@@ -296,10 +300,6 @@ public sealed class FollowsCheckTests
                 ## Decision
 
                 Store each loan as one document.
-
-                ## Consequences
-
-                The document store owns loan persistence.
                 """);
             Write(temp.Path, "apps/api/src/Library.Application/Lending/Technical/CommitStep.cs", """
                 namespace Library.Application.Lending.Technical;

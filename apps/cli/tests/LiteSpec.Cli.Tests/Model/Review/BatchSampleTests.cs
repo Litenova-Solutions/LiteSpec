@@ -9,7 +9,7 @@ namespace LiteSpec.Tests.Model.Review;
 public sealed class BatchSampleTests
 {
     static string LoanAggregate(string root) => ReviewPages.Page(
-        root, "docs", "behavior", "modules", "lending", "loans", "README.md");
+        root, "docs", "behavior", "modules", "lending", "loans", "aggregate.yaml");
 
     static readonly string[] LoanRules =
     [
@@ -33,7 +33,7 @@ public sealed class BatchSampleTests
     /// <returns>The record ids in the expected sample.</returns>
     static IReadOnlyList<string> ExpectedSample(string root, double share)
     {
-        var (front, _) = ReviewPages.Read(LoanAggregate(root));
+        var front = ReviewPages.Read(LoanAggregate(root));
 
         return front["records"]!.AsArray()
             .OfType<JsonObject>()

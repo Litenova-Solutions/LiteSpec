@@ -13,4 +13,4 @@ exit: Exporting expenses has no endpoint, because it has no handler yet. The gap
 expiresOn: 2027-06-01
 approvedBy: claimwick-team
 approvedOn: 2026-10-31
-approvedHash: 47d378df
+approvedHash: 758bd2b5

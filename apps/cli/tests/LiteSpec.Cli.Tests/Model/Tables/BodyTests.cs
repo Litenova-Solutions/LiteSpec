@@ -3,10 +3,10 @@ using LiteSpec.Tests.Support;
 
 namespace LiteSpec.Tests.Model.Tables;
 
-/// <summary>Proves page records carry their body text while entries carry none.</summary>
+/// <summary>Proves page records carry their explanation text while entries carry none.</summary>
 public sealed class BodyTests
 {
-    /// <summary>Pages write their body without the title; entries write no body.</summary>
+    /// <summary>Pages write their explanation; entries write none.</summary>
     /// <proves>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</proves>
     [Fact]
     public void Pages_Write_Bodies_And_Entries_Write_None()
@@ -17,12 +17,12 @@ public sealed class BodyTests
 
         Assert.Equal(
             "A loan lends one copy to one reader.",
-            Record(document, "aggregate/lending.loan").GetProperty("body").GetString());
+            Record(document, "aggregate/lending.loan").GetProperty("explanation").GetString());
         Assert.Equal(
             "A reader borrows an available copy.",
-            Record(document, "use-case/lending.borrow-copy").GetProperty("body").GetString());
-        Assert.False(Record(document, "rule/loan.has-one-borrower").TryGetProperty("body", out _));
-        Assert.False(Record(document, "result/borrow-copy.borrowed").TryGetProperty("body", out _));
+            Record(document, "use-case/lending.borrow-copy").GetProperty("explanation").GetString());
+        Assert.False(Record(document, "rule/loan.has-one-borrower").TryGetProperty("explanation", out _));
+        Assert.False(Record(document, "result/borrow-copy.borrowed").TryGetProperty("explanation", out _));
     }
 
     static JsonDocument Build(string root)

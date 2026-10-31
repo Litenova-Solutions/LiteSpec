@@ -1,4 +1,5 @@
 using System.Text.Json.Nodes;
+using LiteSpec.Tests.Support;
 
 namespace LiteSpec.Tests.Consumer;
 
@@ -11,7 +12,7 @@ public sealed partial class ConsumerValidatorTests
     public void QualityRequirementCarryingItsScenario()
     {
         using var folder = ConsumerFixture.Create();
-        ConsumerFixture.MutateMeta(folder.Path, "docs/product/pricing.md", meta => QualityRecord(meta, []));
+        ConsumerFixture.MutateMeta(folder.Path, "docs/product/pricing.yaml", meta => QualityRecord(meta, []));
         AssertClean(RunConsumer(folder.Path));
     }
 
@@ -28,7 +29,7 @@ public sealed partial class ConsumerValidatorTests
     public void QualityRequirementMissingScenarioField(string field)
     {
         using var folder = ConsumerFixture.Create();
-        ConsumerFixture.MutateMeta(folder.Path, "docs/product/pricing.md", meta => QualityRecord(meta, [field]));
+        ConsumerFixture.MutateMeta(folder.Path, "docs/product/pricing.yaml", meta => QualityRecord(meta, [field]));
         AssertProblem(RunConsumer(folder.Path), $"missing required property '{field}'");
     }
 
@@ -38,7 +39,7 @@ public sealed partial class ConsumerValidatorTests
     public void FunctionalRequirementWithoutScenarioFields()
     {
         using var folder = ConsumerFixture.Create();
-        ConsumerFixture.MutateMeta(folder.Path, "docs/product/pricing.md", meta =>
+        ConsumerFixture.MutateMeta(folder.Path, "docs/product/pricing.yaml", meta =>
         {
             var record = FirstRecord(meta);
             record["kind"] = "functional";
@@ -53,8 +54,13 @@ public sealed partial class ConsumerValidatorTests
     public void TechnicalDecisionNamingRequirement()
     {
         using var folder = ConsumerFixture.Create();
-        ConsumerFixture.WriteFile(folder.Path, "docs/implementation/decisions/0002-order-claim-store.md", ConsumerFixture.Page(
-            ConsumerFixture.Meta("""{"type":"decision","id":"decision/0002-order-claim-store","title":"Store order claims as documents","owner":"fixture","status":"approved","options":[{"name":"Documents","pros":"Each claim reads as one record.","cons":"Cross-claim reports need an index."}],"choice":"Documents","reopenedWhen":"Cross-claim reports pass one hundred a day.","decides":[],"basedOn":["requirement/pricing.flat-fee"],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}"""),
+        TestRecords.Write(
+            folder.Path,
+            "docs/implementation/decisions/0002-order-claim-store.yaml",
+            """{"type":"decision","id":"decision/0002-order-claim-store","title":"Store order claims as documents","owner":"fixture","status":"approved","options":[{"name":"Documents","pros":"Each claim reads as one record.","cons":"Cross-claim reports need an index."}],"choice":"Documents","consequences":"The document store owns claim persistence.","reopenedWhen":"Cross-claim reports pass one hundred a day.","decides":[],"basedOn":["requirement/pricing.flat-fee"],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}""");
+        TestRecords.Explain(
+            folder.Path,
+            "docs/implementation/decisions/0002-order-claim-store.md",
             """
             # Store Order Claims as Documents
 
@@ -66,21 +72,17 @@ public sealed partial class ConsumerValidatorTests
 
             The shop stores each claim as one document.
 
-            ## Consequences
-
-            The document store owns claim persistence.
-
-            """));
+            """);
         AssertClean(RunConsumer(folder.Path));
     }
 
     /// <summary>The first requirement entry on the pricing page.</summary>
-    /// <param name="meta">The pricing page frontmatter.</param>
+    /// <param name="meta">The pricing page record fields.</param>
     /// <returns>The first record in the page records array.</returns>
     static JsonObject FirstRecord(JsonObject meta) => (JsonObject)((JsonArray)meta["records"]!)[0]!;
 
     /// <summary>Turns the first pricing record into a quality requirement missing the named fields.</summary>
-    /// <param name="meta">The pricing page frontmatter to mutate.</param>
+    /// <param name="meta">The pricing page record fields to mutate.</param>
     /// <param name="missing">The scenario fields to omit from the record.</param>
     static void QualityRecord(JsonObject meta, string[] missing)
     {

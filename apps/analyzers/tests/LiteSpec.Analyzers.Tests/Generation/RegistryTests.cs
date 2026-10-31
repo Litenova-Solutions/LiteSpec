@@ -28,8 +28,8 @@ public sealed class RegistryTests
                 """),
             RecordPages.Files(
                 "xml",
-                ("events.md", RecordPages.EventPage("event/expense.submitted")),
-                ("submit-expense.md", RecordPages.UseCasePage("use-case/spending.submit-expense", "permission/submit-expense"))));
+                ("events.yaml", RecordPages.EventPage("event/expense.submitted")),
+                ("submit-expense.yaml", RecordPages.UseCasePage("use-case/spending.submit-expense", "permission/submit-expense"))));
 
         Assert.True(run.Sources.TryGetValue("LiteSpecRegistry.g.cs", out var registry), "The registry source is missing.");
         Assert.Contains("[\"Shop.Spending.ExpenseSubmittedEvent\"] = new string[] { \"event/expense.submitted\" },", registry, StringComparison.Ordinal);
@@ -56,7 +56,7 @@ public sealed class RegistryTests
                 {
                 }
                 """),
-            RecordPages.Files("xml", ("events.md", RecordPages.EventPage("event/expense.submitted"))));
+            RecordPages.Files("xml", ("events.yaml", RecordPages.EventPage("event/expense.submitted"))));
 
         Assert.True(run.Sources.TryGetValue("LiteSpecRegistry.g.cs", out var registry), "The registry source is missing.");
         Assert.DoesNotContain("UnmarkedHelper", registry, StringComparison.Ordinal);
@@ -81,7 +81,7 @@ public sealed class RegistryTests
                 """),
             RecordPages.Files(
                 "xml",
-                ("submit-expense.md", RecordPages.UseCasePage("use-case/spending.submit-expense", "permission/submit-expense"))));
+                ("submit-expense.yaml", RecordPages.UseCasePage("use-case/spending.submit-expense", "permission/submit-expense"))));
 
         Assert.True(run.Sources.TryGetValue("LiteSpecRegistry.g.cs", out var registry), "The registry source is missing.");
         Assert.Contains("[\"Shop.Spending.UnknownCommandHandler\"] = new string[] { \"use-case/spending.unknown\" },", registry, StringComparison.Ordinal);
@@ -96,7 +96,7 @@ public sealed class RegistryTests
     {
         var run = GeneratorVerify.Run(
             RecordPages.Sources("namespace Shop.Spending; internal sealed class Placeholder;"),
-            RecordPages.Files("xml", ("events.md", RecordPages.EventPage("event/expense.submitted"))));
+            RecordPages.Files("xml", ("events.yaml", RecordPages.EventPage("event/expense.submitted"))));
 
         Assert.True(run.Sources.TryGetValue("LiteSpecRegistry.g.cs", out var registry), "The registry source is missing.");
         Assert.Contains("new System.Collections.Generic.Dictionary<string, string[]>();", registry, StringComparison.Ordinal);
@@ -131,8 +131,8 @@ public sealed class RegistryTests
                 """),
             RecordPages.Files(
                 "xml",
-                ("submit-expense.md", RecordPages.UseCasePage("use-case/spending.submit-expense", null)),
-                ("0002-store-expenses-as-documents.md", RecordPages.DecisionPage("decision/0002-store-expenses-as-documents"))));
+                ("submit-expense.yaml", RecordPages.UseCasePage("use-case/spending.submit-expense", null)),
+                ("0002-store-expenses-as-documents.yaml", RecordPages.DecisionPage("decision/0002-store-expenses-as-documents"))));
 
         Assert.True(run.Sources.TryGetValue("LiteSpecRegistry.g.cs", out var registry), "The registry source is missing.");
         Assert.Contains("[\"Shop.Spending.SubmitExpenseCommandHandler\"] = new string[] { \"use-case/spending.submit-expense\" },", registry, StringComparison.Ordinal);

@@ -6,14 +6,14 @@ namespace LiteSpec.Tests.Authoring;
 /// <summary>Value-style cases, each asserting its diagnostic codes.</summary>
 public sealed partial class StandardsValidatorTests
 {
-    static void WriteExample(string root, string name, string frontmatter) =>
-        StandardsFixture.Write(root, $"examples/sample/docs/{name}", TemplatePage(frontmatter));
+    static void WriteExample(string root, string name, string json) =>
+        StandardsFixture.Write(root, $"examples/sample/docs/{name}", StandardsFixture.Yaml(json));
 
     /// <summary>Goal statement without a period.</summary>
     /// <proves>litespec/core/language#write-each-value-in-the-value-style</proves>
     [Fact(DisplayName = "goal statement without a period")]
     public void GoalStatementWithoutPeriod() => Check(
-        root => WriteExample(root, "goal.md",
+        root => WriteExample(root, "goal.yaml",
             "{\"type\":\"goal\",\"id\":\"goal/sample\",\"title\":\"Sample Goal\"," +
             "\"statement\":\"Every expense is decided within five days\"}"),
         ["VALUE_STYLE"]);
@@ -22,7 +22,7 @@ public sealed partial class StandardsValidatorTests
     /// <proves>litespec/core/language#write-each-value-in-the-value-style</proves>
     [Fact(DisplayName = "requirement statement holding a modal word")]
     public void RequirementStatementHoldingModalWord() => Check(
-        root => WriteExample(root, "approval.md",
+        root => WriteExample(root, "approval.yaml",
             "{\"type\":\"topic\",\"id\":\"topic/sample\",\"title\":\"Sample\"," +
             "\"records\":[{\"type\":\"requirement\",\"id\":\"requirement/sample.entry\"," +
             "\"title\":\"Decided Within Five Days\"," +
@@ -34,7 +34,7 @@ public sealed partial class StandardsValidatorTests
     /// <proves>litespec/core/language#write-each-value-in-the-value-style</proves>
     [Fact(DisplayName = "step statement without an actor start or a period")]
     public void StepStatementWithoutActorStartOrPeriod() => Check(
-        root => WriteExample(root, "journey.md",
+        root => WriteExample(root, "journey.yaml",
             "{\"type\":\"journey\",\"id\":\"journey/sample\",\"title\":\"Sample Journey\"," +
             "\"steps\":[{\"id\":\"s1\",\"statement\":\"submits the expense\"}]}"),
         ["VALUE_STYLE"]);
@@ -43,7 +43,7 @@ public sealed partial class StandardsValidatorTests
     /// <proves>litespec/core/language#write-each-value-in-the-value-style</proves>
     [Fact(DisplayName = "setting meaning without an article")]
     public void SettingMeaningWithoutArticle() => Check(
-        root => WriteExample(root, "settings.md",
+        root => WriteExample(root, "settings.yaml",
             "{\"type\":\"setting\",\"id\":\"setting/sample.entry\",\"title\":\"Sample Setting\"," +
             "\"meaning\":\"Confirmed reservation of one room.\"}"),
         ["VALUE_STYLE"]);
@@ -52,7 +52,7 @@ public sealed partial class StandardsValidatorTests
     /// <proves>litespec/core/language#write-each-value-in-the-value-style</proves>
     [Fact(DisplayName = "setting meaning over twenty-five words")]
     public void SettingMeaningOverTwentyFiveWords() => Check(
-        root => WriteExample(root, "settings.md",
+        root => WriteExample(root, "settings.yaml",
             "{\"type\":\"setting\",\"id\":\"setting/sample.entry\",\"title\":\"Sample Setting\"," +
             "\"meaning\":\"A room hold window policy expense claim audit trail queue batch export import sync retry delay cache lock stamp seal tag chip card pass key badge.\"}"),
         ["VALUE_STYLE"]);
@@ -61,7 +61,7 @@ public sealed partial class StandardsValidatorTests
     /// <proves>litespec/core/language#write-each-value-in-the-value-style</proves>
     [Fact(DisplayName = "rationale starting with because")]
     public void RationaleStartingWithBecause() => Check(
-        root => WriteExample(root, "approval.md",
+        root => WriteExample(root, "approval.yaml",
             "{\"type\":\"topic\",\"id\":\"topic/sample\",\"title\":\"Sample\"," +
             "\"records\":[{\"type\":\"requirement\",\"id\":\"requirement/sample.entry\"," +
             "\"title\":\"Decided Within Five Days\"," +
@@ -73,7 +73,7 @@ public sealed partial class StandardsValidatorTests
     /// <proves>litespec/core/language#write-each-value-in-the-value-style</proves>
     [Fact(DisplayName = "Because reason starting with because")]
     public void BecauseReasonStartingWithBecause() => Check(
-        root => WriteExample(root, "constraint.md",
+        root => WriteExample(root, "constraint.yaml",
             "{\"type\":\"constraint\",\"id\":\"constraint/sample\",\"title\":\"Sample Constraint\"," +
             "\"appliesBecause\":\"Because partners keep the no-show risk.\"}"),
         ["VALUE_STYLE"]);
@@ -82,7 +82,7 @@ public sealed partial class StandardsValidatorTests
     /// <proves>litespec/core/language#write-each-value-in-the-value-style</proves>
     [Fact(DisplayName = "mode object reason starting with because")]
     public void ModeObjectReasonStartingWithBecause() => Check(
-        root => WriteExample(root, "use-case.md",
+        root => WriteExample(root, "use-case.yaml",
             "{\"type\":\"use-case\",\"id\":\"use-case/sample.entry\",\"title\":\"Sample Entry\"," +
             "\"paging\":{\"mode\":\"none\",\"reason\":\"Because it returns one object.\"}}"),
         ["VALUE_STYLE"]);
@@ -91,7 +91,7 @@ public sealed partial class StandardsValidatorTests
     /// <proves>litespec/core/language#write-each-value-in-the-value-style</proves>
     [Fact(DisplayName = "mode objects carrying bare clauses")]
     public void ModeObjectsCarryingBareClauses() => Check(
-        root => WriteExample(root, "use-case.md",
+        root => WriteExample(root, "use-case.yaml",
             "{\"type\":\"use-case\",\"id\":\"use-case/sample.entry\",\"title\":\"Sample Entry\"," +
             "\"paging\":{\"mode\":\"none\",\"reason\":\"It returns one object.\"}," +
             "\"freshness\":{\"mode\":\"bounded\",\"within\":\"PT5M\"}}"),
@@ -101,7 +101,7 @@ public sealed partial class StandardsValidatorTests
     /// <proves>litespec/core/language#write-each-value-in-the-value-style</proves>
     [Fact(DisplayName = "When condition starting with when")]
     public void WhenConditionStartingWithWhen() => Check(
-        root => WriteExample(root, "journey.md",
+        root => WriteExample(root, "journey.yaml",
             "{\"type\":\"journey\",\"id\":\"journey/sample\",\"title\":\"Sample Journey\"," +
             "\"finishedWhen\":\"When the employee holds the reimbursement.\"}"),
         ["VALUE_STYLE"]);
@@ -110,7 +110,7 @@ public sealed partial class StandardsValidatorTests
     /// <proves>litespec/core/language#write-each-value-in-the-value-style</proves>
     [Fact(DisplayName = "except condition starting with if")]
     public void ExceptConditionStartingWithIf() => Check(
-        root => WriteExample(root, "approval.md",
+        root => WriteExample(root, "approval.yaml",
             "{\"type\":\"topic\",\"id\":\"topic/sample\",\"title\":\"Sample\"," +
             "\"records\":[{\"type\":\"requirement\",\"id\":\"requirement/sample.entry\"," +
             "\"title\":\"Decided Within Five Days\"," +
@@ -123,7 +123,7 @@ public sealed partial class StandardsValidatorTests
     /// <proves>litespec/core/language#write-each-value-in-the-value-style</proves>
     [Fact(DisplayName = "failure holding a refusal code")]
     public void FailureHoldingRefusalCode() => Check(
-        root => WriteExample(root, "external-system.md",
+        root => WriteExample(root, "external-system.yaml",
             "{\"type\":\"external-system\",\"id\":\"external-system/sample\",\"title\":\"Sample System\"," +
             "\"failure\":\"The call fails with spending.receipt-missing.\"}"),
         ["VALUE_STYLE"]);
@@ -132,7 +132,7 @@ public sealed partial class StandardsValidatorTests
     /// <proves>litespec/core/language#write-each-value-in-the-value-style</proves>
     [Fact(DisplayName = "question without a question mark")]
     public void QuestionWithoutQuestionMark() => Check(
-        root => WriteExample(root, "research.md",
+        root => WriteExample(root, "research.yaml",
             "{\"type\":\"research\",\"id\":\"research/sample\",\"title\":\"Sample Study\"," +
             "\"question\":\"How fast are expenses decided\"}"),
         ["VALUE_STYLE"]);
@@ -141,7 +141,7 @@ public sealed partial class StandardsValidatorTests
     /// <proves>litespec/core/language#write-each-value-in-the-value-style</proves>
     [Fact(DisplayName = "title starting lower case with a final period")]
     public void TitleStartingLowerCaseWithFinalPeriod() => Check(
-        root => WriteExample(root, "goal.md",
+        root => WriteExample(root, "goal.yaml",
             "{\"type\":\"goal\",\"id\":\"goal/sample\",\"title\":\"sample goal.\"," +
             "\"statement\":\"Every expense is decided within five days.\"}"),
         ["VALUE_STYLE"]);
@@ -150,7 +150,7 @@ public sealed partial class StandardsValidatorTests
     /// <proves>litespec/core/language#write-each-value-in-the-value-style</proves>
     [Fact(DisplayName = "template placeholders skip the value style")]
     public void TemplatePlaceholdersSkipValueStyle() => Check(
-        root => WriteExample(root, "goal.md",
+        root => WriteExample(root, "goal.yaml",
             "{\"type\":\"goal\",\"id\":\"goal/<name>\",\"title\":\"<Goal display title>\"," +
             "\"statement\":\"<The measurable outcome in one sentence>\"}"),
         []);

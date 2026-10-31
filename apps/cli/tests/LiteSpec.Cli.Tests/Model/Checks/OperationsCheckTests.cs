@@ -29,7 +29,7 @@ public sealed class OperationsCheckTests
     public void Title_Named_Rule_Passes()
     {
         using var temp = ModelFixture.Prepare("small");
-        WriteWatchedSetup(temp.Path, AlertGrafana);
+        WriteWatchedSetup(temp.Path, AlertPassing);
 
         var check = Cli.Run("model", "check", "--root", temp.Path);
 
@@ -178,10 +178,10 @@ public sealed class OperationsCheckTests
     public void Quality_Covered_By_Alert_Passes()
     {
         using var temp = ModelFixture.Prepare("small");
-        Write(temp.Path, RequirementFile, RequirementPage);
-        Write(temp.Path, OriginFile, OriginPage);
-        Write(temp.Path, RunbookFile, RunbookPage);
-        Write(temp.Path, DecisionFile, DecisionPage);
+        WriteRecord(temp.Path, RequirementFile, RequirementJson, RequirementExplanation);
+        WriteRecord(temp.Path, OriginFile, OriginJson, OriginExplanation);
+        WriteRecord(temp.Path, RunbookFile, RunbookJson);
+        WriteRecord(temp.Path, DecisionFile, DecisionJson, DecisionExplanation);
         Write(temp.Path, AlertFile, AlertPassing);
         SetPaths(temp.Path, alerts: [AlertDir], checkResults: CheckResultsDir);
 
@@ -198,9 +198,9 @@ public sealed class OperationsCheckTests
     public void Quality_Covered_By_Check_Result_Passes()
     {
         using var temp = ModelFixture.Prepare("small");
-        Write(temp.Path, RequirementFile, RequirementPage);
-        Write(temp.Path, OriginFile, OriginPage);
-        Write(temp.Path, DecisionFile, DecisionPage);
+        WriteRecord(temp.Path, RequirementFile, RequirementJson, RequirementExplanation);
+        WriteRecord(temp.Path, OriginFile, OriginJson, OriginExplanation);
+        WriteRecord(temp.Path, DecisionFile, DecisionJson, DecisionExplanation);
         Write(temp.Path, ResultFile, ResultPassing);
         SetPaths(temp.Path, checkResults: CheckResultsDir);
 
@@ -216,10 +216,10 @@ public sealed class OperationsCheckTests
     public void Quality_Covered_By_Exception_Reports_Known()
     {
         using var temp = ModelFixture.Prepare("small");
-        Write(temp.Path, RequirementFile, RequirementPage);
-        Write(temp.Path, OriginFile, OriginPage);
-        Write(temp.Path, DecisionFile, DecisionPage);
-        Write(temp.Path, ExceptionFile, ExceptionPage());
+        WriteRecord(temp.Path, RequirementFile, RequirementJson, RequirementExplanation);
+        WriteRecord(temp.Path, OriginFile, OriginJson, OriginExplanation);
+        WriteRecord(temp.Path, DecisionFile, DecisionJson, DecisionExplanation);
+        WriteRecord(temp.Path, ExceptionFile, ExceptionJson(), ExceptionExplanation);
 
         var check = Cli.Run("model", "check", "--root", temp.Path);
 
@@ -235,9 +235,9 @@ public sealed class OperationsCheckTests
     public void Quality_With_No_Alert_Or_Check_Reports()
     {
         using var temp = ModelFixture.Prepare("small");
-        Write(temp.Path, RequirementFile, RequirementPage);
-        Write(temp.Path, OriginFile, OriginPage);
-        Write(temp.Path, DecisionFile, DecisionPage);
+        WriteRecord(temp.Path, RequirementFile, RequirementJson, RequirementExplanation);
+        WriteRecord(temp.Path, OriginFile, OriginJson, OriginExplanation);
+        WriteRecord(temp.Path, DecisionFile, DecisionJson, DecisionExplanation);
 
         var check = Cli.Run("model", "check", "--root", temp.Path);
         var unalerted = check.Output.Split('\n').Single(candidate =>
@@ -254,9 +254,9 @@ public sealed class OperationsCheckTests
     public void Passing_Check_Result_Counts_Toward_Measure()
     {
         using var temp = ModelFixture.Prepare("small");
-        Write(temp.Path, RequirementFile, RequirementPage);
-        Write(temp.Path, OriginFile, OriginPage);
-        Write(temp.Path, DecisionFile, DecisionPage);
+        WriteRecord(temp.Path, RequirementFile, RequirementJson, RequirementExplanation);
+        WriteRecord(temp.Path, OriginFile, OriginJson, OriginExplanation);
+        WriteRecord(temp.Path, DecisionFile, DecisionJson, DecisionExplanation);
         Write(temp.Path, ResultFile, ResultPassing);
         SetPaths(temp.Path, checkResults: CheckResultsDir);
 
@@ -275,9 +275,9 @@ public sealed class OperationsCheckTests
     public void Failing_Check_Result_Counts_Nothing()
     {
         using var temp = ModelFixture.Prepare("small");
-        Write(temp.Path, RequirementFile, RequirementPage);
-        Write(temp.Path, OriginFile, OriginPage);
-        Write(temp.Path, DecisionFile, DecisionPage);
+        WriteRecord(temp.Path, RequirementFile, RequirementJson, RequirementExplanation);
+        WriteRecord(temp.Path, OriginFile, OriginJson, OriginExplanation);
+        WriteRecord(temp.Path, DecisionFile, DecisionJson, DecisionExplanation);
         Write(temp.Path, ResultFile, ResultPassing.Replace("\"passed\": true", "\"passed\": false"));
         SetPaths(temp.Path, checkResults: CheckResultsDir);
 
@@ -294,7 +294,7 @@ public sealed class OperationsCheckTests
     public void Operations_File_With_Follows_Passes()
     {
         using var temp = ModelFixture.Prepare("small");
-        Write(temp.Path, DecisionFile, LonelyDecisionPage);
+        WriteRecord(temp.Path, DecisionFile, LonelyDecisionJson, DecisionExplanation);
         Write(temp.Path, CaddyFile, CaddyPassing);
         SetPaths(temp.Path, operations: [CaddyFile]);
 
@@ -312,7 +312,7 @@ public sealed class OperationsCheckTests
     public void Operations_File_Without_Mark_Reports()
     {
         using var temp = ModelFixture.Prepare("small");
-        Write(temp.Path, DecisionFile, LonelyDecisionPage);
+        WriteRecord(temp.Path, DecisionFile, LonelyDecisionJson, DecisionExplanation);
         Write(temp.Path, CaddyFile, CaddyMissing);
         SetPaths(temp.Path, operations: [CaddyFile]);
 
@@ -332,7 +332,7 @@ public sealed class OperationsCheckTests
     public void Operations_Mark_Naming_Nothing_Reports()
     {
         using var temp = ModelFixture.Prepare("small");
-        Write(temp.Path, DecisionFile, LonelyDecisionPage);
+        WriteRecord(temp.Path, DecisionFile, LonelyDecisionJson, DecisionExplanation);
         Write(temp.Path, CaddyFile, CaddyPassing.Replace("decision/0002-loan-index", "decision/0099-no-such-thing"));
         SetPaths(temp.Path, operations: [CaddyFile]);
 
@@ -352,7 +352,7 @@ public sealed class OperationsCheckTests
     public void Decision_With_No_Follower_Reports_Unfollowed()
     {
         using var temp = ModelFixture.Prepare("small");
-        Write(temp.Path, DecisionFile, LonelyDecisionPage);
+        WriteRecord(temp.Path, DecisionFile, LonelyDecisionJson, DecisionExplanation);
 
         var check = Cli.Run("model", "check", "--root", temp.Path);
 
@@ -383,10 +383,10 @@ public sealed class OperationsCheckTests
 
     static void WriteWatchedSetup(string root, string alert)
     {
-        Write(root, RequirementFile, RequirementPage);
-        Write(root, OriginFile, OriginPage);
-        Write(root, RunbookFile, RunbookPage);
-        Write(root, DecisionFile, DecisionPage);
+        WriteRecord(root, RequirementFile, RequirementJson, RequirementExplanation);
+        WriteRecord(root, OriginFile, OriginJson, OriginExplanation);
+        WriteRecord(root, RunbookFile, RunbookJson);
+        WriteRecord(root, DecisionFile, DecisionJson, DecisionExplanation);
         Write(root, AlertFile, alert);
         Write(root, ResultFile, ResultPassing);
         SetPaths(root, alerts: [AlertDir], checkResults: CheckResultsDir);
@@ -423,21 +423,30 @@ public sealed class OperationsCheckTests
         File.WriteAllText(path, text);
     }
 
-    const string RequirementFile = "docs/product/lending/performance.md";
-    const string RunbookFile = "docs/behavior/runbooks/slow-listings.md";
-    const string OriginFile = "docs/product/decisions/0003-term-start-listing.md";
+    static void WriteRecord(string root, string relative, string json, string? explanation = null)
+    {
+        TestRecords.Write(root, relative, json);
 
-    const string DecisionFile = "docs/implementation/decisions/0002-loan-index.md";
+        if (explanation is not null)
+        {
+            TestRecords.Explain(root, Path.ChangeExtension(relative, ".md"), explanation);
+        }
+    }
+
+    const string RequirementFile = "docs/product/lending/performance.yaml";
+    const string RunbookFile = "docs/behavior/runbooks/slow-listings.yaml";
+    const string OriginFile = "docs/product/decisions/0003-term-start-listing.yaml";
+
+    const string DecisionFile = "docs/implementation/decisions/0002-loan-index.yaml";
     const string AlertFile = "deploy/alerts/lending.yaml";
     const string AlertDir = "deploy/alerts";
     const string ResultFile = "docs/proof/checks/2026-11-20-list-loans-load.json";
     const string CheckResultsDir = "docs/proof/checks";
     const string CaddyFile = "deploy/Caddyfile";
     const string LimitsFile = "docs/behavior/operations/limits.md";
-    const string ExceptionFile = "docs/governance/exceptions/list-loans-latency-unwatched.md";
+    const string ExceptionFile = "docs/governance/exceptions/list-loans-latency-unwatched.yaml";
 
-    const string RequirementPage = """
-        ---
+    const string RequirementJson = """
         {
           "type": "topic",
           "id": "topic/performance",
@@ -446,6 +455,8 @@ public sealed class OperationsCheckTests
           "status": "draft",
           "decider": "lending-team",
           "decideBy": "2027-02-01",
+          "summary": "Listing loans answers fast at term start.",
+          "position": "decision/0003-term-start-listing sets the latency target, and requirement/performance.list-loans-latency carries the measure.",
           "reviewBy": "2027-04-01",
           "records": [
             {
@@ -467,15 +478,37 @@ public sealed class OperationsCheckTests
             }
           ]
         }
-        ---
-
-        # Performance
-
-        Listing loans answers fast at term start.
         """;
 
-    const string RunbookPage = """
-        ---
+    const string RequirementExplanation = """
+        # Performance
+
+        ## The Situation
+
+        Term start floods the loan listing with readers listing at once.
+
+        ## What We Do
+
+        Listing loans answers from one warm search index within 300 milliseconds at p95.
+
+        ## Why It Is Better
+
+        The index answers faster than reading loans one by one.
+
+        ## Example
+
+        Two hundred readers list their loans in the first hour of the term, and each listing answers within 300 milliseconds.
+
+        ## Costs and Risks
+
+        The index needs warming after deploys.
+
+        ## How Sure We Are
+
+        The list-loans-load check measures the share answered within 300 milliseconds.
+        """;
+
+    const string RunbookJson = """
         {
           "type": "runbook",
           "id": "runbook/slow-listings",
@@ -484,32 +517,18 @@ public sealed class OperationsCheckTests
           "status": "draft",
           "decider": "lending-team",
           "decideBy": "2027-02-01",
-          "trigger": "The listing-latency-high alert fires."
+          "trigger": "The listing-latency-high alert fires.",
+          "impact": "Readers wait on listings past the promised time.",
+          "prerequisites": "Access to the listing dashboard and the search index.",
+          "procedure": "Check the index lag. Warm the index. Escalate to the search owner.",
+          "verification": "Listings answer within 300 milliseconds again.",
+          "recovery": "Roll the index back to its last warm snapshot and rewarm it.",
+          "escalation": "Page the search owner when listings stay slow after rewarming."
         }
-        ---
-
-        # Slow Listings
-
-        ## Impact
-
-        Readers wait on listings past the promised time.
-
-        ## Prerequisites
-
-        Access to the listing dashboard and the search index.
-
-        ## Procedure
-
-        Check the index lag. Warm the index. Escalate to the search owner.
-
-        ## Verification
-
-        Listings answer within 300 milliseconds again.
         """;
 
     // The product decision that decides the latency requirement.
-    const string OriginPage = """
-        ---
+    const string OriginJson = """
         {
           "type": "decision",
           "id": "decision/0003-term-start-listing",
@@ -525,13 +544,15 @@ public sealed class OperationsCheckTests
               "cons": "The listing needs an index."
             }
           ],
+          "consequences": "The listing reads from an index.",
           "reopenedWhen": "Term start load changes.",
           "decides": [
             "requirement/performance.list-loans-latency"
           ]
         }
-        ---
+        """;
 
+    const string OriginExplanation = """
         # Term Start Listing
 
         ## Context
@@ -541,14 +562,9 @@ public sealed class OperationsCheckTests
         ## Decision
 
         Listing loans answers within 300 milliseconds at p95.
-
-        ## Consequences
-
-        The listing reads from an index.
         """;
 
-    const string DecisionPage = """
-        ---
+    const string DecisionJson = """
         {
           "type": "decision",
           "id": "decision/0002-loan-index",
@@ -564,30 +580,15 @@ public sealed class OperationsCheckTests
               "cons": "The index needs warming after deploys."
             }
           ],
+          "consequences": "The index needs warming after deploys.",
           "reopenedWhen": "Listing load changes shape.",
           "basedOn": [
             "requirement/performance.list-loans-latency"
           ]
         }
-        ---
-
-        # Loan Index
-
-        ## Context
-
-        Listings read loans one by one today.
-
-        ## Decision
-
-        Listings read from one warm search index.
-
-        ## Consequences
-
-        The index needs warming after deploys.
         """;
 
-    const string LonelyDecisionPage = """
-        ---
+    const string LonelyDecisionJson = """
         {
           "type": "decision",
           "id": "decision/0002-loan-index",
@@ -603,13 +604,15 @@ public sealed class OperationsCheckTests
               "cons": "The index needs warming after deploys."
             }
           ],
+          "consequences": "The index needs warming after deploys.",
           "reopenedWhen": "Listing load changes shape.",
           "basedOn": [
             "requirement/borrowing.max-active-loans"
           ]
         }
-        ---
+        """;
 
+    const string DecisionExplanation = """
         # Loan Index
 
         ## Context
@@ -619,10 +622,6 @@ public sealed class OperationsCheckTests
         ## Decision
 
         Listings read from one warm search index.
-
-        ## Consequences
-
-        The index needs warming after deploys.
         """;
 
     const string AlertPassing = """
@@ -683,11 +682,11 @@ public sealed class OperationsCheckTests
         }
         """;
 
-    // Writes JSON frontmatter, a heading, and one line of body, joined with line feeds.
-    // The approval hash is stamped over the written fields, so the exception itself reports nothing.
-    static string ExceptionPage()
+    // Writes the exception fields as JSON, stamped with the approval hash over the
+    // written fields, so the exception itself reports nothing.
+    static string ExceptionJson()
     {
-        var frontmatter =
+        var fields =
             "{\n"
             + "  \"type\": \"exception\",\n"
             + "  \"id\": \"exception/list-loans-latency-unwatched\",\n"
@@ -702,10 +701,11 @@ public sealed class OperationsCheckTests
             + "    \"requirement/performance.list-loans-latency\"\n"
             + "  ],\n"
             + "  \"expiresOn\": \"2027-06-01\",\n"
-            + "  \"reason\": \"The listing alert ships with the search index.\"\n"
+            + "  \"reason\": \"The listing alert ships with the search index.\",\n"
+            + "  \"exit\": \"The listing-latency-high alert ships and watches the requirement.\"\n"
             + "}\n";
 
-        using var document = JsonDocument.Parse(frontmatter);
+        using var document = JsonDocument.Parse(fields);
         var record = new LiteSpec.Model.Record
         {
             Type = "exception",
@@ -713,12 +713,16 @@ public sealed class OperationsCheckTests
             Raw = document.RootElement.Clone(),
         };
         var hash = Checker.SemanticHash(record);
-        var stamped = frontmatter.Replace(
+        return fields.Replace(
             "\n}",
             ",\n  \"approvedBy\": \"lending-team\",\n  \"approvedOn\": \"2026-10-01\",\n  \"approvedHash\": \"" + hash + "\"\n}");
-
-        return "---\n" + stamped + "---\n" + "\n" + "# List loans latency unwatched\n" + "\n" + "Listing latency has no alert yet.\n";
     }
+
+    const string ExceptionExplanation = """
+        # List loans latency unwatched
+
+        Listing latency has no alert yet.
+        """;
 
     const string LimitsPage = """
         # Limits

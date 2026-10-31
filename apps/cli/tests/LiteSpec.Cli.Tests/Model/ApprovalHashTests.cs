@@ -19,8 +19,12 @@ public sealed class ApprovalHashTests
         var end = guide.IndexOf("### ", start + 1, StringComparison.Ordinal);
         Assert.True(end > start);
         var section = guide[start..end];
-        var listed = Regex.Matches(section, "`([^`]+)`")
-            .Select(match => match.Groups[1].Value)
+
+        // The section also names hashed fields as examples of what feeds the hash,
+        // so only the sentences stating which fields stay outside list exclusions.
+        var listed = Regex.Split(section, @"(?<=[.!?])\s+")
+            .Where(sentence => sentence.Contains("stay outside", StringComparison.Ordinal))
+            .SelectMany(sentence => Regex.Matches(sentence, "`([^`]+)`").Select(match => match.Groups[1].Value))
             .Where(token => !token.Contains('/', StringComparison.Ordinal) && !token.Contains('#', StringComparison.Ordinal))
             .ToHashSet(StringComparer.Ordinal);
 
@@ -73,20 +77,88 @@ public sealed class ApprovalHashTests
     {
         var path = Path.Combine(
             Cli.Repository, "apps", "cli", "tests", "LiteSpec.Cli.Tests", "Fixtures", "Model", "large",
-            "docs", "behavior", "modules", "lending", "loans", "borrow-copy.md");
-        var text = File.ReadAllText(path).Replace("\r\n", "\n", StringComparison.Ordinal);
-        var body = text["---\n".Length..text.IndexOf("\n---", StringComparison.Ordinal)];
-
-        using var document = JsonDocument.Parse(body);
+            "docs", "behavior", "modules", "lending", "loans", "borrow-copy.yaml");
+        Assert.True(RecordFile.TryParse(File.ReadAllText(path), out var root, out _, out var error), error);
         var record = new LiteSpec.Model.Record
         {
             Type = "use-case",
             Id = "use-case/lending.borrow-copy",
-            Raw = document.RootElement.Clone(),
+            Raw = root,
         };
 
         Assert.Equal("74687aab", Checker.SemanticHash(record));
     }
+
+    /// <summary>An article page hashes its explanation with its fields.</summary>
+    /// <proves>litespec/core/model#record-approval-as-data</proves>
+    [Fact]
+    public void Article_Page_Hashes_Its_Explanation()
+    {
+        var fieldsOnly = HashOf(ResearchFields, "research", "research/hold-limits", null);
+        var answered = HashOf(ResearchFields, "research", "research/hold-limits", "# Hold limits\n\n## Answer\n\nSeven days.\n");
+        var reworded = HashOf(ResearchFields, "research", "research/hold-limits", "# Hold limits\n\n## Answer\n\nAbout a week.\n");
+
+        Assert.Equal(Checker.SemanticHash(RawOf(ResearchFields)), fieldsOnly);
+        Assert.NotEqual(fieldsOnly, answered);
+        Assert.NotEqual(answered, reworded);
+    }
+
+    /// <summary>A page of any other type hashes its fields alone, ignoring its explanation.</summary>
+    /// <proves>litespec/core/model#record-approval-as-data</proves>
+    [Fact]
+    public void Non_Article_Page_Ignores_Its_Explanation()
+    {
+        var fieldsOnly = HashOf(UseCaseFields, "use-case", "use-case/lending.borrow-copy", null);
+        var explained = HashOf(UseCaseFields, "use-case", "use-case/lending.borrow-copy", "# Borrow copy\n\nA reader borrows an available copy.\n");
+
+        Assert.Equal(fieldsOnly, explained);
+    }
+
+    /// <summary>An entry of an article type hashes its fields alone, ignoring any explanation.</summary>
+    /// <proves>litespec/core/model#record-approval-as-data</proves>
+    [Fact]
+    public void Article_Entry_Ignores_Its_Explanation()
+    {
+        var fieldsOnly = HashOf(ResearchFields, "research", "research/hold-limits", null, isEntry: true);
+        var explained = HashOf(ResearchFields, "research", "research/hold-limits", "# Hold limits\n\n## Answer\n\nSeven days.\n", isEntry: true);
+
+        Assert.Equal(fieldsOnly, explained);
+    }
+
+    /// <summary>The article hash reads the explanation normalized: line ends, trailing space and surrounding blank lines change nothing.</summary>
+    /// <proves>litespec/core/model#record-approval-as-data</proves>
+    [Fact]
+    public void Article_Hash_Ignores_Explanation_Line_Ends_And_Surrounding_Blanks()
+    {
+        var clean = HashOf(ResearchFields, "research", "research/hold-limits", "# Hold limits\n\n## Answer\n\nSeven days.\n");
+        var noisy = HashOf(ResearchFields, "research", "research/hold-limits", "\r\n# Hold limits  \r\n\r\n## Answer\r\n\r\nSeven days.  \r\n\r\n");
+
+        Assert.Equal(clean, noisy);
+    }
+
+    const string ResearchFields = """
+        {
+          "type": "research",
+          "id": "research/hold-limits",
+          "title": "Hold limits",
+          "owner": "lending-team",
+          "status": "approved",
+          "question": "How long does a hold last?",
+          "sources": [{"key": "desk-manual", "url": "https://example.com/manual", "readOn": "2026-01-01"}],
+          "conclusion": "Seven days."
+        }
+        """;
+
+    const string UseCaseFields = """
+        {
+          "type": "use-case",
+          "id": "use-case/lending.borrow-copy",
+          "title": "Borrow copy",
+          "owner": "lending-team",
+          "status": "reviewed",
+          "kind": "command"
+        }
+        """;
 
     static string HashOf(string json)
     {
@@ -99,6 +171,28 @@ public sealed class ApprovalHashTests
         };
 
         return Checker.SemanticHash(record);
+    }
+
+    static string HashOf(string json, string type, string id, string? explanation, bool isEntry = false)
+    {
+        using var document = JsonDocument.Parse(json);
+        var record = new LiteSpec.Model.Record
+        {
+            Type = type,
+            Id = id,
+            Raw = document.RootElement.Clone(),
+            Explanation = explanation,
+            IsEntry = isEntry,
+        };
+
+        return Checker.SemanticHash(record);
+    }
+
+    static JsonElement RawOf(string json)
+    {
+        using var document = JsonDocument.Parse(json);
+
+        return document.RootElement.Clone();
     }
 
     static string CanonicalOf(string json)

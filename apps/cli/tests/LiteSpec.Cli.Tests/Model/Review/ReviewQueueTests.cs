@@ -7,16 +7,16 @@ namespace LiteSpec.Tests.Model.Review;
 public sealed class ReviewQueueTests
 {
     static string BorrowCopy(string root) => ReviewPages.Page(
-        root, "docs", "behavior", "modules", "lending", "loans", "borrow-copy.md");
+        root, "docs", "behavior", "modules", "lending", "loans", "borrow-copy.yaml");
 
     static string ExtendLoan(string root) => ReviewPages.Page(
-        root, "docs", "behavior", "modules", "lending", "loans", "extend-loan.md");
+        root, "docs", "behavior", "modules", "lending", "loans", "extend-loan.yaml");
 
     static string ReturnCopy(string root) => ReviewPages.Page(
-        root, "docs", "behavior", "modules", "lending", "loans", "return-copy.md");
+        root, "docs", "behavior", "modules", "lending", "loans", "return-copy.yaml");
 
     static string Borrowing(string root) => ReviewPages.Page(
-        root, "docs", "product", "lending", "borrowing.md");
+        root, "docs", "product", "lending", "borrowing.yaml");
 
     /// <summary>A draft use case lists its batch with its results.</summary>
     /// <proves>litespec/core/release#compute-the-review-queue-from-the-model</proves>

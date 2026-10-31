@@ -27,8 +27,11 @@ static class TestModel
     /// <param name="file">The file the record sits in.</param>
     /// <param name="line">The line the record starts on.</param>
     /// <param name="json">The record fields as JSON.</param>
+    /// <param name="explanationFile">The explanation file path, for a page record with one beside it.</param>
+    /// <param name="explanation">The explanation file's full text, for a page record with one beside it.</param>
+    /// <param name="isEntry">Whether the record is an entry on its page rather than the page itself.</param>
     /// <returns>The record at the given position.</returns>
-    public static Record Record(string type, string id, string file, int line, string json)
+    public static Record Record(string type, string id, string file, int line, string json, string? explanationFile = null, string? explanation = null, bool isEntry = false)
     {
         using var document = JsonDocument.Parse(json);
         var raw = document.RootElement.Clone();
@@ -47,6 +50,9 @@ static class TestModel
             ApprovedHash = StringField(raw, "approvedHash"),
             File = file,
             Line = line,
+            ExplanationFile = explanationFile,
+            Explanation = explanation,
+            IsEntry = isEntry,
             Raw = raw,
         };
     }
@@ -62,10 +68,10 @@ static class TestModel
         return model;
     }
 
-    /// <summary>A page body of the file, kept for table reads.</summary>
+    /// <summary>A page body of the file.</summary>
     /// <param name="file">The page file path.</param>
     /// <param name="body">The page body text.</param>
-    /// <returns>The page body at line 1 with no frontmatter record.</returns>
+    /// <returns>The page body at line 1 with no carrying page record.</returns>
     public static PageBody Body(string file, string body) =>
         new PageBody(file, body, 1, null);
 

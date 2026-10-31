@@ -392,8 +392,11 @@ public sealed class DependencyCheckTests
         File.WriteAllText(file, node.ToJsonString(new JsonSerializerOptions { WriteIndented = true }));
     }
 
-    static void WriteDecision(string root, string admitsJson) =>
-        Write(root, "docs/implementation/decisions/0099-admit-extra-package.md", DecisionPage("decision/0099-admit-extra-package", admitsJson));
+    static void WriteDecision(string root, string admitsJson)
+    {
+        TestRecords.Write(root, "docs/implementation/decisions/0099-admit-extra-package.yaml", DecisionJson("decision/0099-admit-extra-package", admitsJson));
+        TestRecords.Explain(root, "docs/implementation/decisions/0099-admit-extra-package.md", DecisionExplanation);
+    }
 
     static void WriteFollower(string root) =>
         Write(root, "apps/api/src/Library.Application/Lending/Loans/ExtraPackageAdapter.cs", FollowerFile("decision/0099-admit-extra-package", "ExtraPackageAdapter"));
@@ -405,9 +408,21 @@ public sealed class DependencyCheckTests
         File.WriteAllText(path, text);
     }
 
-    static string DecisionPage(string id, string admitsJson)
+    const string DecisionExplanation = """
+        # Admit extra package
+
+        ## Context
+
+        A technical choice needs a package the pins do not name.
+
+        ## Decision
+
+        The project admits the package with its license and operating cost.
+        """;
+
+    static string DecisionJson(string id, string admitsJson)
     {
-        var frontmatter =
+        var fields =
             "{\n"
             + "  \"type\": \"decision\",\n"
             + $"  \"id\": \"{id}\",\n"
@@ -419,24 +434,24 @@ public sealed class DependencyCheckTests
             + "    {\"name\": \"Hand written\", \"pros\": \"No package.\", \"cons\": \"More code.\"}\n"
             + "  ],\n"
             + "  \"choice\": \"Library\",\n"
+            + "  \"consequences\": \"The package joins the bill of materials with its license.\",\n"
             + "  \"reopenedWhen\": \"The library stops fitting.\",\n"
             + "  \"basedOn\": [\"requirement/borrowing.loan-period-days\"],\n"
             + $"  \"admits\": {admitsJson}\n"
             + "}\n";
 
-        using var document = JsonDocument.Parse(frontmatter);
+        using var document = JsonDocument.Parse(fields);
         var record = new LiteSpec.Model.Record
         {
             Type = "decision",
             Id = id,
             Raw = document.RootElement.Clone(),
+            Explanation = DecisionExplanation,
         };
         var hash = Checker.SemanticHash(record);
-        var stamped = frontmatter.Replace(
+        return fields.Replace(
             "\n}",
             ",\n  \"approvedBy\": \"lending-team\",\n  \"approvedOn\": \"2026-10-01\",\n  \"approvedHash\": \"" + hash + "\"\n}");
-
-        return "---\n" + stamped + "---\n" + "\n" + "# Admit extra package\n" + "\n" + "A technical choice with its admission.\n";
     }
 
     static string FollowerFile(string decisionId, string className) =>

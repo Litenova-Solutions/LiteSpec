@@ -384,6 +384,8 @@ public sealed partial class StandardsValidatorTests
             "PROVISION_RESTATES_HEADING",
             "PROVISIONS_STALE",
             "RECORD_DECISION_UNCITED",
+            "RECORD_EXPLANATION_MISSING",
+            "RECORD_EXPLANATION_ORPHANED",
             "RECORD_ID_MISMATCH",
             "RECORD_SCHEMA",
             "RECORD_SOURCE",

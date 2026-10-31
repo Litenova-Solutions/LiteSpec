@@ -70,12 +70,22 @@ public sealed class StackReaderTests
     {
         using var temp = ModelFixture.Prepare("small");
 
-        File.WriteAllText(
-            Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "loans", "borrow-copy-junit-scenario.md"),
-            BorrowScenarioPage);
-        File.WriteAllText(
-            Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "loans", "return-copy-junit-scenario.md"),
-            ReturnScenarioPage);
+        TestRecords.Write(
+            temp.Path,
+            "docs/behavior/modules/lending/loans/borrow-copy-junit-scenario.yaml",
+            BorrowScenarioJson);
+        TestRecords.Explain(
+            temp.Path,
+            "docs/behavior/modules/lending/loans/borrow-copy-junit-scenario.md",
+            BorrowScenarioExplanation);
+        TestRecords.Write(
+            temp.Path,
+            "docs/behavior/modules/lending/loans/return-copy-junit-scenario.yaml",
+            ReturnScenarioJson);
+        TestRecords.Explain(
+            temp.Path,
+            "docs/behavior/modules/lending/loans/return-copy-junit-scenario.md",
+            ReturnScenarioExplanation);
 
         var scenariosFolder = Path.Combine(
             temp.Path, "apps", "api", "tests", "Library.Acceptance.Tests", "JUnit");
@@ -111,12 +121,22 @@ public sealed class StackReaderTests
     {
         using var temp = ModelFixture.Prepare("small");
 
-        File.WriteAllText(
-            Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "loans", "borrow-copy-trx-scenario.md"),
-            BorrowScenarioPage);
-        File.WriteAllText(
-            Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "loans", "return-copy-trx-scenario.md"),
-            ReturnScenarioPage);
+        TestRecords.Write(
+            temp.Path,
+            "docs/behavior/modules/lending/loans/borrow-copy-trx-scenario.yaml",
+            BorrowScenarioJson);
+        TestRecords.Explain(
+            temp.Path,
+            "docs/behavior/modules/lending/loans/borrow-copy-trx-scenario.md",
+            BorrowScenarioExplanation);
+        TestRecords.Write(
+            temp.Path,
+            "docs/behavior/modules/lending/loans/return-copy-trx-scenario.yaml",
+            ReturnScenarioJson);
+        TestRecords.Explain(
+            temp.Path,
+            "docs/behavior/modules/lending/loans/return-copy-trx-scenario.md",
+            ReturnScenarioExplanation);
 
         var scenariosFolder = Path.Combine(
             temp.Path, "apps", "api", "tests", "Library.Acceptance.Tests", "Trx");
@@ -152,15 +172,26 @@ public sealed class StackReaderTests
     {
         using var temp = ModelFixture.Prepare("large");
 
-        File.WriteAllText(
-            Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "loans", "review-loans.md"),
-            ReviewLoansPage);
-        File.WriteAllText(
-            Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "loans", "review-loans-browser-scenario.md"),
-            ReviewLoansScenarioPage);
-        File.WriteAllText(
-            Path.Combine(temp.Path, "docs", "behavior", "screens", "library-app.loan-review.md"),
-            LoanReviewScreenPage);
+        TestRecords.Write(
+            temp.Path,
+            "docs/behavior/modules/lending/loans/review-loans.yaml",
+            ReviewLoansJson);
+        TestRecords.Explain(
+            temp.Path,
+            "docs/behavior/modules/lending/loans/review-loans.md",
+            ReviewLoansExplanation);
+        TestRecords.Write(
+            temp.Path,
+            "docs/behavior/modules/lending/loans/review-loans-browser-scenario.yaml",
+            ReviewLoansScenarioJson);
+        TestRecords.Explain(
+            temp.Path,
+            "docs/behavior/modules/lending/loans/review-loans-browser-scenario.md",
+            ReviewLoansScenarioExplanation);
+        TestRecords.Write(
+            temp.Path,
+            "docs/behavior/screens/library-app.loan-review.yaml",
+            LoanReviewScreenJson);
 
         var specsFolder = Path.Combine(temp.Path, "apps", "catalog", "tests");
         Directory.CreateDirectory(specsFolder);
@@ -197,15 +228,26 @@ public sealed class StackReaderTests
     {
         using var temp = ModelFixture.Prepare("large");
 
-        File.WriteAllText(
-            Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "loans", "review-loans.md"),
-            ReviewLoansPage);
-        File.WriteAllText(
-            Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "loans", "review-loans-browser-scenario.md"),
-            ReviewLoansScenarioPage);
-        File.WriteAllText(
-            Path.Combine(temp.Path, "docs", "behavior", "screens", "library-app.loan-review.md"),
-            LoanReviewScreenPage);
+        TestRecords.Write(
+            temp.Path,
+            "docs/behavior/modules/lending/loans/review-loans.yaml",
+            ReviewLoansJson);
+        TestRecords.Explain(
+            temp.Path,
+            "docs/behavior/modules/lending/loans/review-loans.md",
+            ReviewLoansExplanation);
+        TestRecords.Write(
+            temp.Path,
+            "docs/behavior/modules/lending/loans/review-loans-browser-scenario.yaml",
+            ReviewLoansScenarioJson);
+        TestRecords.Explain(
+            temp.Path,
+            "docs/behavior/modules/lending/loans/review-loans-browser-scenario.md",
+            ReviewLoansScenarioExplanation);
+        TestRecords.Write(
+            temp.Path,
+            "docs/behavior/screens/library-app.loan-review.yaml",
+            LoanReviewScreenJson);
 
         var specsFolder = Path.Combine(temp.Path, "apps", "catalog", "tests");
         Directory.CreateDirectory(specsFolder);
@@ -239,8 +281,7 @@ public sealed class StackReaderTests
         throw new InvalidOperationException($"No proves link claims '{claim}'.");
     }
 
-    const string BorrowScenarioPage = """
-        ---
+    const string BorrowScenarioJson = """
         {
           "type": "scenario",
           "id": "scenario/borrow-copy.borrowing-an-available-copy-succeeds",
@@ -252,15 +293,15 @@ public sealed class StackReaderTests
           "result": "result/borrow-copy.borrowed",
           "then": "The loan is active."
         }
-        ---
+        """;
 
+    const string BorrowScenarioExplanation = """
         # Borrowing an available copy succeeds
 
         A reader borrows an available copy.
         """;
 
-    const string ReturnScenarioPage = """
-        ---
+    const string ReturnScenarioJson = """
         {
           "type": "scenario",
           "id": "scenario/return-copy.returning-a-borrowed-copy-succeeds",
@@ -272,8 +313,9 @@ public sealed class StackReaderTests
           "result": "result/return-copy.returned",
           "then": "The loan is returned."
         }
-        ---
+        """;
 
+    const string ReturnScenarioExplanation = """
         # Returning a borrowed copy succeeds
 
         A reader returns a borrowed copy.
@@ -317,8 +359,7 @@ public sealed class StackReaderTests
         }
         """;
 
-    const string ReviewLoansPage = """
-        ---
+    const string ReviewLoansJson = """
         {
           "type": "use-case",
           "id": "use-case/lending.review-loans",
@@ -350,15 +391,15 @@ public sealed class StackReaderTests
             }
           ]
         }
-        ---
+        """;
 
+    const string ReviewLoansExplanation = """
         # Review loans
 
         A reader reviews their own loans.
         """;
 
-    const string ReviewLoansScenarioPage = """
-        ---
+    const string ReviewLoansScenarioJson = """
         {
           "type": "scenario",
           "id": "scenario/review-loans.reviewing-loans-succeeds",
@@ -370,15 +411,15 @@ public sealed class StackReaderTests
           "result": "result/review-loans.reviewed",
           "then": "The loans are listed."
         }
-        ---
+        """;
 
+    const string ReviewLoansScenarioExplanation = """
         # Reviewing loans succeeds
 
         A reader reviews their loans.
         """;
 
-    const string LoanReviewScreenPage = """
-        ---
+    const string LoanReviewScreenJson = """
         {
           "type": "screen",
           "id": "screen/library-app.loan-review",
@@ -387,15 +428,9 @@ public sealed class StackReaderTests
           "status": "reviewed",
           "entryPoint": "entry-point/library-app",
           "address": "/loans",
-          "offers": ["use-case/lending.review-loans"]
+          "offers": ["use-case/lending.review-loans"],
+          "summary": "A reader reviews their loans."
         }
-        ---
-
-        # Loan review
-
-        ## Summary
-
-        A reader reviews their loans.
         """;
 
     const string LoansSpec = """

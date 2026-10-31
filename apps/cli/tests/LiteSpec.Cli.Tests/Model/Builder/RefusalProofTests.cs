@@ -13,7 +13,7 @@ public sealed class RefusalProofTests
     public void Refusal_Status_Alone_Confirms_When_The_Table_Maps_It()
     {
         using var temp = ModelFixture.Prepare("small");
-        Write(temp.Path, "docs/behavior/modules/lending/loans/refusal-scenario.md", RefusalScenarioPage);
+        TestRecords.Write(temp.Path, "docs/behavior/modules/lending/loans/refusal-scenario.yaml", RefusalScenarioJson);
         Write(temp.Path, "apps/api/tests/Library.Acceptance.Tests/Strength/StatusRefusalScenarios.cs", StatusFile);
         WriteRefusals(temp.Path, """{"lending.copy-not-available": 409}""", "{}");
 
@@ -28,7 +28,7 @@ public sealed class RefusalProofTests
     public void Refusal_Client_Code_Confirms_When_The_Map_Translates_It()
     {
         using var temp = ModelFixture.Prepare("small");
-        Write(temp.Path, "docs/behavior/modules/lending/loans/refusal-scenario.md", RefusalScenarioPage);
+        TestRecords.Write(temp.Path, "docs/behavior/modules/lending/loans/refusal-scenario.yaml", RefusalScenarioJson);
         Write(temp.Path, "apps/api/tests/Library.Acceptance.Tests/Strength/AliasRefusalScenarios.cs", AliasFile);
         WriteRefusals(temp.Path, "{}", """{"COPY_UNAVAILABLE": "lending.copy-not-available"}""");
 
@@ -43,7 +43,7 @@ public sealed class RefusalProofTests
     public void Refusal_Wrong_Status_Does_Not_Confirm()
     {
         using var temp = ModelFixture.Prepare("small");
-        Write(temp.Path, "docs/behavior/modules/lending/loans/refusal-scenario.md", RefusalScenarioPage);
+        TestRecords.Write(temp.Path, "docs/behavior/modules/lending/loans/refusal-scenario.yaml", RefusalScenarioJson);
         Write(temp.Path, "apps/api/tests/Library.Acceptance.Tests/Strength/WrongStatusScenarios.cs", WrongStatusFile);
         WriteRefusals(temp.Path, """{"lending.copy-not-available": 409}""", "{}");
 
@@ -58,7 +58,7 @@ public sealed class RefusalProofTests
     public void Refusal_Unmapped_Client_Code_Does_Not_Confirm()
     {
         using var temp = ModelFixture.Prepare("small");
-        Write(temp.Path, "docs/behavior/modules/lending/loans/refusal-scenario.md", RefusalScenarioPage);
+        TestRecords.Write(temp.Path, "docs/behavior/modules/lending/loans/refusal-scenario.yaml", RefusalScenarioJson);
         Write(temp.Path, "apps/api/tests/Library.Acceptance.Tests/Strength/UnmappedCodeScenarios.cs", UnmappedFile);
         WriteRefusals(temp.Path, "{}", """{"COPY_UNAVAILABLE": "lending.copy-not-available"}""");
 
@@ -73,7 +73,7 @@ public sealed class RefusalProofTests
     public void Refusal_Status_Member_Confirms_An_Integration_Fact()
     {
         using var temp = ModelFixture.Prepare("small");
-        Write(temp.Path, "docs/behavior/modules/lending/loans/refusal-scenario.md", RefusalScenarioPage);
+        TestRecords.Write(temp.Path, "docs/behavior/modules/lending/loans/refusal-scenario.yaml", RefusalScenarioJson);
         Write(temp.Path, "apps/api/tests/Library.Integration.Tests/Strength/StatusMemberRefusalTests.cs", StatusMemberFile);
         WriteRefusals(temp.Path, """{"lending.copy-not-available": 409}""", "{}");
 
@@ -121,8 +121,7 @@ public sealed class RefusalProofTests
         File.WriteAllText(path, updated);
     }
 
-    const string RefusalScenarioPage = """
-        ---
+    const string RefusalScenarioJson = """
         {
           "type": "scenario",
           "id": "scenario/borrow-copy.borrowing-an-unavailable-copy-refuses",
@@ -134,11 +133,6 @@ public sealed class RefusalProofTests
           "result": "result/borrow-copy.copy-unavailable",
           "then": "The copy stays shelved."
         }
-        ---
-
-        # Borrowing an unavailable copy refuses
-
-        A reader borrows a copy that is lent out.
         """;
 
     const string StatusFile = """

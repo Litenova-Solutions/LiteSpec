@@ -24,7 +24,7 @@ public sealed class IncrementalCachingTests
                 """),
             "Shop.Domain");
         var driver = GeneratorVerify.CreateDriver(
-            RecordPages.Files("xml", ("events.md", RecordPages.EventPage("event/expense.submitted"))), null);
+            RecordPages.Files("xml", ("events.yaml", RecordPages.EventPage("event/expense.submitted"))), null);
         var first = driver.RunGenerators(compilation, TestContext.Current.CancellationToken);
         var firstResult = first.GetRunResult();
         var second = first.RunGenerators(compilation.AddSyntaxTrees(CSharpSyntaxTree.ParseText(

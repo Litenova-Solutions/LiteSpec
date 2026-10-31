@@ -97,7 +97,7 @@ public sealed class QualityScenarioCheckTests
 
     /// <summary>A quality requirement carrying every scenario field except the missing ones, as a draft.</summary>
     /// <param name="missing">The scenario fields to omit from the requirement.</param>
-    /// <returns>The requirement frontmatter JSON.</returns>
+    /// <returns>The requirement fields as JSON.</returns>
     static string QualityJson(params string[] missing)
     {
         var fields = new Dictionary<string, string>(StringComparer.Ordinal)

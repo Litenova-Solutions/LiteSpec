@@ -11,5 +11,5 @@ receives:
   - A settlement report per payout batch.
 failure: The bank rejects a payout file, and finance fixes the entry and re-sends the batch.
 approvedBy: claimwick-team
-approvedOn: 2026-10-01
-approvedHash: "40462387"
+approvedOn: 2026-10-31
+approvedHash: 364f34ab

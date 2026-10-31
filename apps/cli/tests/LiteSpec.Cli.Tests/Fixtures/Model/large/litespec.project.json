@@ -25,7 +25,7 @@
     "docs": "docs",
     "behaviorDocs": "docs/behavior",
     "uiDocs": "docs/ui",
-    "glossary": "docs/glossary.json",
+    "glossary": "docs/glossary.yaml",
     "testRoots": [
       "apps/api/tests"
     ],

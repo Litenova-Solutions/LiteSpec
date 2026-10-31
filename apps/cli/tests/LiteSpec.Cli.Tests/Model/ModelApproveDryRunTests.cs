@@ -1,3 +1,5 @@
+using System.Text.Json.Nodes;
+using LiteSpec.Model;
 using LiteSpec.Tests.Support;
 
 namespace LiteSpec.Tests.Model;
@@ -6,7 +8,7 @@ namespace LiteSpec.Tests.Model;
 public sealed class ModelApproveDryRunTests
 {
     static string BorrowCopy(string root) => Path.Combine(
-        root, "docs", "behavior", "modules", "lending", "loans", "borrow-copy.md");
+        root, "docs", "behavior", "modules", "lending", "loans", "borrow-copy.yaml");
 
     /// <summary>A dry run lists the record missing its hash and writes nothing.</summary>
     /// <proves>litespec/core/model#record-approval-as-data</proves>
@@ -16,9 +18,9 @@ public sealed class ModelApproveDryRunTests
         using var fixture = ModelFixture.Prepare("large");
 
         var path = BorrowCopy(fixture.Path);
-        var broken = File.ReadAllText(path)
-            .Replace(",\r\n  \"approvedHash\": \"74687aab\"", "", StringComparison.Ordinal)
-            .Replace(",\n  \"approvedHash\": \"74687aab\"", "", StringComparison.Ordinal);
+        var record = JsonNode.Parse(YamlText.Parse(File.ReadAllText(path)).ToJson())!.AsObject();
+        record.Remove("approvedHash");
+        var broken = RecordFile.Write(record);
 
         Assert.DoesNotContain("74687aab", broken);
         File.WriteAllText(path, broken);

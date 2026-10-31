@@ -107,7 +107,7 @@ The consumer glossary template carries real mannered entries:
 | Item | Value |
 |:---|:---|
 | File | `schemas/design-contract.schema.json` |
-| Validates | The JSON metadata block that opens the `DESIGN.md` a shared UI package ships |
+| Validates | The YAML metadata block that opens the `DESIGN.md` a shared UI package ships |
 | Checked by | `litespec ui` (`litespec/frontend/ui#publish-a-design-contract`) |
 | Published URL | `https://litespec.dev/3.0.0/schemas/design-contract.schema.json` |
 

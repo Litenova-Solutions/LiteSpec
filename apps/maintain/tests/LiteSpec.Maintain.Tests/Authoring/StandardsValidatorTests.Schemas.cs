@@ -497,8 +497,8 @@ public sealed partial class StandardsValidatorTests
         "\"intentStatus\":{\"type\":\"string\",\"enum\":[\"draft\",\"approved\"]}," +
         "\"isoDate\":{\"type\":\"string\",\"pattern\":\"^\\\\d{4}-\\\\d{2}-\\\\d{2}$\"}}}";
 
-    static string TemplatePage(string frontmatter) =>
-        "---\n" + frontmatter + "\n---\n\n# <Sample Goal>\n\n## Why It Matters\n\nState why this outcome matters.\n";
+    static string TemplateDocument(string json) =>
+        "---\n" + StandardsFixture.Yaml(json) + "---\n\n# <Sample Goal>\n\n## Why It Matters\n\nState why this outcome matters.\n";
 
     /// <summary>Consumer template carrying only placeholders.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
@@ -507,7 +507,7 @@ public sealed partial class StandardsValidatorTests
         root =>
         {
             StandardsFixture.Write(root, "schemas/record.schema.json", TemplateGoalSchema);
-            StandardsFixture.Write(root, "templates/consumer/goal.md", TemplatePage(
+            StandardsFixture.Write(root, "templates/consumer/goal.yaml", StandardsFixture.Yaml(
                 "{\"type\":\"goal\",\"id\":\"goal/<name>\",\"title\":\"<Goal display title>\"," +
                 "\"owner\":\"<owner>\",\"status\":\"draft\",\"decideBy\":\"<YYYY-MM-DD>\",\"kind\":\"<a|b>\"}"));
         },
@@ -520,20 +520,31 @@ public sealed partial class StandardsValidatorTests
         root =>
         {
             StandardsFixture.Write(root, "schemas/record.schema.json", TemplateGoalSchema);
-            StandardsFixture.Write(root, "templates/consumer/goal.md", TemplatePage(
+            StandardsFixture.Write(root, "templates/consumer/goal.yaml", StandardsFixture.Yaml(
                 "{\"type\":\"goal\",\"id\":\"goal/sample\",\"owner\":\"Sam\"," +
                 "\"status\":\"draft\",\"decideBy\":\"2026-11-30\",\"kind\":\"a\"}"));
         },
         ["TEMPLATE_SCHEMA"]);
 
-    /// <summary>Consumer template with invalid frontmatter.</summary>
+    /// <summary>Consumer template with an invalid record file.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
-    [Fact(DisplayName = "consumer template with invalid frontmatter")]
-    public void ConsumerTemplateWithInvalidFrontmatter() => Check(
+    [Fact(DisplayName = "consumer template with an invalid record file")]
+    public void ConsumerTemplateWithInvalidRecordFile() => Check(
         root =>
         {
             StandardsFixture.Write(root, "schemas/record.schema.json", "{\"$defs\":{}}");
-            StandardsFixture.Write(root, "templates/consumer/goal.md", "---\n{not json}\n---\n\n# Sample\n");
+            StandardsFixture.Write(root, "templates/consumer/goal.yaml", "{");
+        },
+        ["TEMPLATE_SCHEMA"]);
+
+    /// <summary>Document template with invalid frontmatter.</summary>
+    /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
+    [Fact(DisplayName = "document template with invalid frontmatter")]
+    public void DocumentTemplateWithInvalidFrontmatter() => Check(
+        root =>
+        {
+            StandardsFixture.Write(root, "schemas/record.schema.json", "{\"$defs\":{}}");
+            StandardsFixture.Write(root, "templates/consumer/design-contract.md", "---\n{not yaml}\n---\n\n# Sample\n");
         },
         ["TEMPLATE_SCHEMA"]);
 
@@ -544,7 +555,7 @@ public sealed partial class StandardsValidatorTests
         root =>
         {
             StandardsFixture.Write(root, "schemas/record.schema.json", "{\"$defs\":{\"goalPage\":{\"type\":\"object\"}}}");
-            StandardsFixture.Write(root, "templates/consumer/portal.md", TemplatePage("{\"type\":\"portal\"}"));
+            StandardsFixture.Write(root, "templates/consumer/portal.yaml", StandardsFixture.Yaml("{\"type\":\"portal\"}"));
         },
         ["TEMPLATE_SCHEMA"]);
 
@@ -565,7 +576,7 @@ public sealed partial class StandardsValidatorTests
                 "\"oneOf\":[{\"required\":[\"address\"],\"not\":{\"required\":[\"host\"]}}," +
                 "{\"required\":[\"host\"],\"not\":{\"required\":[\"address\"]}}]}," +
                 "\"nonEmptyString\":{\"type\":\"string\",\"minLength\":1}}}");
-            StandardsFixture.Write(root, "templates/consumer/screen.md", TemplatePage(
+            StandardsFixture.Write(root, "templates/consumer/screen.yaml", StandardsFixture.Yaml(
                 "{\"type\":\"screen\",\"id\":\"screen/sample\"," +
                 "\"address\":\"<Route template, or remove this line and keep host>\"," +
                 "\"host\":\"screen/sample\"}"));
@@ -580,9 +591,9 @@ public sealed partial class StandardsValidatorTests
         {
             StandardsFixture.Write(root, "schemas/record.schema.json",
                 "{\"$defs\":{" +
-                "\"queryPage\":{\"type\":\"object\",\"additionalProperties\":false," +
+                "\"eventPage\":{\"type\":\"object\",\"additionalProperties\":false," +
                 "\"required\":[\"type\",\"kind\"]," +
-                "\"properties\":{\"type\":{\"const\":\"query\"}," +
+                "\"properties\":{\"type\":{\"const\":\"event\"}," +
                 "\"kind\":{\"enum\":[\"command\",\"query\"]}," +
                 "\"output\":{\"type\":\"object\"}}," +
                 "\"allOf\":[" +
@@ -590,8 +601,8 @@ public sealed partial class StandardsValidatorTests
                 "\"then\":{\"required\":[\"output\"]}}," +
                 "{\"if\":{\"required\":[\"kind\"],\"properties\":{\"kind\":{\"const\":\"command\"}}}," +
                 "\"then\":{\"not\":{\"required\":[\"output\"]}}}]}}}");
-            StandardsFixture.Write(root, "templates/consumer/query.md", TemplatePage(
-                "{\"type\":\"query\",\"kind\":\"<command|query>\",\"output\":{\"include\":{}}}"));
+            StandardsFixture.Write(root, "templates/consumer/event.yaml", StandardsFixture.Yaml(
+                "{\"type\":\"event\",\"kind\":\"<command|query>\",\"output\":{\"include\":{}}}"));
         },
         []);
 
@@ -611,7 +622,7 @@ public sealed partial class StandardsValidatorTests
                 "\"retryPolicy\":{\"type\":\"object\",\"additionalProperties\":false," +
                 "\"required\":[\"maxAttempts\"]," +
                 "\"properties\":{\"maxAttempts\":{\"type\":\"integer\",\"minimum\":1}}}}}");
-            StandardsFixture.Write(root, "templates/consumer/job.md", TemplatePage(
+            StandardsFixture.Write(root, "templates/consumer/job.yaml", StandardsFixture.Yaml(
                 "{\"type\":\"job\",\"batchSize\":\"<number>\"," +
                 "\"retry\":{\"maxAttempts\":\"<number>\"}}"));
         },
@@ -636,7 +647,7 @@ public sealed partial class StandardsValidatorTests
                 "\"allOf\":[{\"if\":{\"required\":[\"mode\"],\"properties\":{\"mode\":{\"const\":\"bounded\"}}}," +
                 "\"then\":{\"required\":[\"within\"]}}]}," +
                 "\"isoDuration\":{\"type\":\"string\",\"pattern\":\"^P.+\"}}}");
-            StandardsFixture.Write(root, "templates/consumer/use-case.md", TemplatePage(
+            StandardsFixture.Write(root, "templates/consumer/use-case.yaml", StandardsFixture.Yaml(
                 "{\"type\":\"use-case\"," +
                 "\"freshness\":{\"mode\":\"bounded\",\"within\":\"<ISO 8601 duration>\"}}"));
         },
@@ -659,7 +670,7 @@ public sealed partial class StandardsValidatorTests
                 "\"reactionId\":{\"type\":\"string\",\"pattern\":\"^reaction/[a-z0-9][a-z0-9-]*\\\\.[a-z0-9][a-z0-9-]*$\"}," +
                 "\"reactionTriggeredBy\":{\"type\":\"object\"}," +
                 "\"nonEmptyString\":{\"type\":\"string\",\"minLength\":1}}}");
-            StandardsFixture.Write(root, "templates/consumer/reaction.md", TemplatePage(
+            StandardsFixture.Write(root, "templates/consumer/reaction.yaml", StandardsFixture.Yaml(
                 "{\"type\":\"reaction\",\"id\":\"reaction/<module>.<name>\",\"title\":\"<Reaction display title>\"," +
                 "\"triggeredBy\":{}}"));
         },
@@ -681,7 +692,7 @@ public sealed partial class StandardsValidatorTests
                 "\"kind\":{\"enum\":[\"scheduled\",\"one-off\",\"manual\"]}}}," +
                 "\"jobId\":{\"type\":\"string\",\"pattern\":\"^job/[a-z0-9][a-z0-9-]*\\\\.[a-z0-9][a-z0-9-]*$\"}," +
                 "\"nonEmptyString\":{\"type\":\"string\",\"minLength\":1}}}");
-            StandardsFixture.Write(root, "templates/consumer/job.md", TemplatePage(
+            StandardsFixture.Write(root, "templates/consumer/job.yaml", StandardsFixture.Yaml(
                 "{\"type\":\"job\",\"id\":\"job/<module>.<name>\",\"title\":\"<Job display title>\"," +
                 "\"kind\":\"<scheduled|one-off|manual>\"}"));
         },
@@ -709,7 +720,7 @@ public sealed partial class StandardsValidatorTests
                 "\"findingCode\":{\"type\":\"string\",\"pattern\":\"^[a-z0-9]+(-[a-z0-9]+)*$\"}," +
                 "\"isoDate\":{\"type\":\"string\",\"pattern\":\"^\\\\d{4}-\\\\d{2}-\\\\d{2}$\"}," +
                 "\"nonEmptyString\":{\"type\":\"string\",\"minLength\":1}}}");
-            StandardsFixture.Write(root, "templates/consumer/exception.md", TemplatePage(
+            StandardsFixture.Write(root, "templates/consumer/exception.yaml", StandardsFixture.Yaml(
                 "{\"type\":\"exception\",\"id\":\"exception/<name>\",\"title\":\"<Exception display title>\"," +
                 "\"kind\":\"gap\",\"covers\":[\"<finding-code>\"],\"reason\":\"<reason>\",\"expiresOn\":\"<YYYY-MM-DD>\"}"));
         },
@@ -722,7 +733,7 @@ public sealed partial class StandardsValidatorTests
         root =>
         {
             StandardsFixture.Write(root, "schemas/record.schema.json", "{\"$defs\":{\"goalPage\":{\"type\":\"object\"}}}");
-            StandardsFixture.Write(root, "templates/consumer/design-contract.md", TemplatePage(
+            StandardsFixture.Write(root, "templates/consumer/design-contract.md", TemplateDocument(
                 "{\"kind\":\"design-contract\",\"schemaVersion\":1," +
                 "\"package\":\"@sample/ui\",\"shell\":\"sample\",\"patterns\":[\"list-page\"]}"));
         },

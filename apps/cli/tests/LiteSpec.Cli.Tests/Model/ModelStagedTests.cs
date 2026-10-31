@@ -133,7 +133,7 @@ public sealed class ModelStagedTests
         CommitAll(fixture.Path);
         ApplyOverlay(fixture.Path, "paging-undeclared");
         ApplyOverlay(fixture.Path, "write-undeclared");
-        RunGit(fixture.Path, "add", "docs/behavior/modules/lending/loans/list-loans.md");
+        RunGit(fixture.Path, "add", "docs/behavior/modules/lending/loans/list-loans.yaml");
 
         var staged = Cli.Run("model", "check", "--root", fixture.Path, "--staged");
 

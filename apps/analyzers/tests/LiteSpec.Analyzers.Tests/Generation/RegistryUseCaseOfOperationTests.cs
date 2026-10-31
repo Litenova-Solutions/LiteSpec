@@ -32,8 +32,8 @@ public sealed class RegistryUseCaseOfOperationTests
             """);
         var files = RecordPages.Files(
             "xml",
-            ("submit-expense.md", RecordPages.UseCasePage("use-case/spending.submit-expense", "permission/submit-expense")),
-            ("export-expense-report.md", RecordPages.UseCasePage("use-case/spending.export-expense-report", null)));
+            ("submit-expense.yaml", RecordPages.UseCasePage("use-case/spending.submit-expense", "permission/submit-expense")),
+            ("export-expense-report.yaml", RecordPages.UseCasePage("use-case/spending.export-expense-report", null)));
         var run = GeneratorVerify.Run(sources, files, assemblyName: "Shop.WebApi");
         Assert.True(run.Sources.TryGetValue("LiteSpecRegistry.g.cs", out var registry), "The registry source is missing.");
         Assert.Contains("[\"ExportExpenseReport\"] = \"use-case/spending.export-expense-report\",", registry, StringComparison.Ordinal);
@@ -59,7 +59,7 @@ public sealed class RegistryUseCaseOfOperationTests
             RecordPages.Sources("namespace Shop.Spending; internal sealed class Placeholder;"),
             RecordPages.Files(
                 "xml",
-                ("submit-expense.md", RecordPages.UseCasePage("use-case/spending.submit-expense", "permission/submit-expense"))),
+                ("submit-expense.yaml", RecordPages.UseCasePage("use-case/spending.submit-expense", "permission/submit-expense"))),
             assemblyName: "Shop.WebApi");
 
         Assert.True(run.Sources.TryGetValue("LiteSpecRegistry.g.cs", out var registry), "The registry source is missing.");
@@ -87,7 +87,7 @@ public sealed class RegistryUseCaseOfOperationTests
                 """),
             RecordPages.Files(
                 "xml",
-                ("submit-expense.md", RecordPages.UseCasePage("use-case/spending.submit-expense", "permission/submit-expense"))),
+                ("submit-expense.yaml", RecordPages.UseCasePage("use-case/spending.submit-expense", "permission/submit-expense"))),
             assemblyName: "Shop.Application");
 
         Assert.True(run.Sources.TryGetValue("LiteSpecRegistry.g.cs", out var registry), "The registry source is missing.");

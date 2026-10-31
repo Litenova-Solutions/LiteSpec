@@ -249,29 +249,22 @@ sealed class UiFixture : IDisposable
     /// <param name="expiresOn">The date the exception expires, in ISO form.</param>
     /// <returns>The full path to the exception file.</returns>
     public string WriteException(string name, string provision, string expiresOn) =>
-        WriteExceptionFile($"docs/governance/exceptions/{name}.md",
-            ExceptionMeta($"exception/{name}", $"Fixture exception {name}", provision, expiresOn),
-            $"Fixture exception {name}");
+        WriteExceptionFile($"docs/governance/exceptions/{name}.yaml",
+            ExceptionMeta($"exception/{name}", $"Fixture exception {name}", provision, expiresOn));
 
     /// <summary>Writes one Exception record at a consumer-relative path.</summary>
     /// <param name="relative">The file path under the fixture root.</param>
-    /// <param name="meta">The exception frontmatter object.</param>
-    /// <param name="heading">The page heading text.</param>
+    /// <param name="meta">The exception record fields.</param>
     /// <returns>The full path to the exception file.</returns>
-    public string WriteExceptionFile(string relative, JsonObject meta, string heading)
-    {
-        var file = Join(relative);
-        Directory.CreateDirectory(Path.GetDirectoryName(file)!);
-        File.WriteAllText(file, "---\n" + meta.ToJsonString(Indented) + $"\n---\n# {heading}\n");
-        return file;
-    }
+    public string WriteExceptionFile(string relative, JsonObject meta) =>
+        TestRecords.Write(Root, relative, meta.ToJsonString());
 
-    /// <summary>The frontmatter of a fixture Exception record.</summary>
+    /// <summary>The fields of a fixture Exception record.</summary>
     /// <param name="id">The exception record id.</param>
     /// <param name="title">The exception title.</param>
     /// <param name="provision">The provision id the exception covers.</param>
     /// <param name="expiresOn">The date the exception expires, in ISO form.</param>
-    /// <returns>The exception frontmatter object.</returns>
+    /// <returns>The exception record fields.</returns>
     public static JsonObject ExceptionMeta(string id, string title, string provision, string expiresOn) => new()
     {
         ["type"] = "exception",
@@ -283,6 +276,7 @@ sealed class UiFixture : IDisposable
         ["covers"] = provision,
         ["paths"] = new JsonArray("packages/ui/**"),
         ["reason"] = "The fixture needs this departure.",
+        ["consequences"] = "The fixture ships with this departure until the exception expires.",
         ["expiresOn"] = expiresOn,
     };
 

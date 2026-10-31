@@ -100,7 +100,7 @@ public sealed class RoleTests
     {
         var run = GeneratorVerify.Run(
             RoleSources(),
-            RecordPages.Files("xml", ("onlooker.md", RecordPages.RolePage("role/onlooker"))),
+            RecordPages.Files("xml", ("onlooker.yaml", RecordPages.RolePage("role/onlooker"))),
             assemblyName: "Shop.Application");
 
         Assert.True(run.Sources.TryGetValue("LiteSpecRoles.g.cs", out var roles), "The roles source is missing.");
@@ -119,8 +119,8 @@ public sealed class RoleTests
             RoleSources(),
             RecordPages.FilesWithVocabulary(
                 "{\"verbs\": [\"submit\"]}",
-                ("employee.md", RecordPages.RolePage("role/employee", "self", ["permission/submit-expense", "permission/mint-money"])),
-                ("permissions.md", RecordPages.PermissionFactsPage(
+                ("employee.yaml", RecordPages.RolePage("role/employee", "self", ["permission/submit-expense", "permission/mint-money"])),
+                ("permissions.yaml", RecordPages.PermissionFactsPage(
                     RecordPages.PermissionEntry("permission/submit-expense", "self")))),
             assemblyName: "Shop.Application");
 
@@ -142,9 +142,9 @@ public sealed class RoleTests
             RoleSources(),
             RecordPages.Files(
                 "xml",
-                ("a-b.md", RecordPages.RolePage("role/a-b", "self")),
-                ("a--b.md", RecordPages.RolePage("role/a--b", "self")),
-                ("permissions.md", RecordPages.PermissionFactsPage(
+                ("a-b.yaml", RecordPages.RolePage("role/a-b", "self")),
+                ("a--b.yaml", RecordPages.RolePage("role/a--b", "self")),
+                ("permissions.yaml", RecordPages.PermissionFactsPage(
                     RecordPages.PermissionEntry("permission/read-loans", "tenant")))),
             assemblyName: "Shop.Application");
 
@@ -168,8 +168,8 @@ public sealed class RoleTests
             RoleSources(),
             RecordPages.Files(
                 "xml",
-                ("employee.md", RecordPages.RolePage("role/employee", "self", ["permission/list-expenses"])),
-                ("permissions.md", RecordPages.PermissionFactsPage(
+                ("employee.yaml", RecordPages.RolePage("role/employee", "self", ["permission/list-expenses"])),
+                ("permissions.yaml", RecordPages.PermissionFactsPage(
                     RecordPages.PermissionEntry("permission/list-expenses", "self")))),
             assemblyName: "Shop.Domain");
 
@@ -188,8 +188,8 @@ public sealed class RoleTests
             RoleSources(),
             RecordPages.Files(
                 "xml",
-                ("employee.md", RecordPages.RolePage("role/employee", "self", ["permission/list-expenses"])),
-                ("permissions.md", RecordPages.PermissionFactsPage(
+                ("employee.yaml", RecordPages.RolePage("role/employee", "self", ["permission/list-expenses"])),
+                ("permissions.yaml", RecordPages.PermissionFactsPage(
                     RecordPages.PermissionEntry("permission/list-expenses", "self")))),
             assemblyName: "Shop.Core");
 
@@ -203,10 +203,10 @@ public sealed class RoleTests
     private static IReadOnlyList<(string Path, string Text)> ClaimwickFiles() =>
         RecordPages.FilesWithVocabulary(
             "{\"verbs\": [\"submit\", \"reimburse\", \"erase\"]}",
-            ("employee.md", RecordPages.RolePage("role/employee", "self", ["permission/submit-expense", "permission/list-expenses"])),
-            ("approver.md", RecordPages.RolePage("role/approver", "team", ["permission/approve-expense", "permission/list-expenses", "permission/manage-policy"])),
-            ("finance.md", RecordPages.RolePage("role/finance", "platform", ["permission/reimburse-expense", "permission/list-expenses", "permission/export-expenses", "permission/erase-personal-data"])),
-            ("permissions.md", RecordPages.PermissionFactsPage(
+            ("employee.yaml", RecordPages.RolePage("role/employee", "self", ["permission/submit-expense", "permission/list-expenses"])),
+            ("approver.yaml", RecordPages.RolePage("role/approver", "team", ["permission/approve-expense", "permission/list-expenses", "permission/manage-policy"])),
+            ("finance.yaml", RecordPages.RolePage("role/finance", "platform", ["permission/reimburse-expense", "permission/list-expenses", "permission/export-expenses", "permission/erase-personal-data"])),
+            ("permissions.yaml", RecordPages.PermissionFactsPage(
                 RecordPages.PermissionEntry("permission/submit-expense", "self"),
                 RecordPages.PermissionEntry("permission/list-expenses", "self"),
                 RecordPages.PermissionEntry("permission/approve-expense", "team"),

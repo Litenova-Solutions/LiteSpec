@@ -57,7 +57,7 @@ public sealed class FactoryActTests
                   "paths": {
                     "docs": "docs",
                     "behaviorDocs": "docs/behavior",
-                    "glossary": "docs/glossary.json",
+                    "glossary": "docs/glossary.yaml",
                     "testRoots": [
                       "apps/api/tests"
                     ],
@@ -79,15 +79,12 @@ public sealed class FactoryActTests
                   }
                 }
                 """);
-            Write(temp.Path, "docs/glossary.json", """
-                {
-                  "schemaVersion": 2,
-                  "terms": [],
-                  "mannered": []
-                }
+            Write(temp.Path, "docs/glossary.yaml", """
+                schemaVersion: 2
+                terms: []
+                mannered: []
                 """);
-            Write(temp.Path, "docs/behavior/modules/lending/orders/README.md", """
-                ---
+            TestRecords.Write(temp.Path, "docs/behavior/modules/lending/orders/aggregate.yaml", """
                 {
                   "type": "aggregate",
                   "id": "aggregate/lending.order",
@@ -114,14 +111,13 @@ public sealed class FactoryActTests
                     }
                   ]
                 }
-                ---
-
+                """);
+            TestRecords.Explain(temp.Path, "docs/behavior/modules/lending/orders/aggregate.md", """
                 # Order
 
                 An order is one purchase a reader placed.
                 """);
-            Write(temp.Path, "docs/behavior/modules/lending/orders/submit-order.md", """
-                ---
+            TestRecords.Write(temp.Path, "docs/behavior/modules/lending/orders/submit-order.yaml", """
                 {
                   "type": "use-case",
                   "id": "use-case/lending.submit-order",
@@ -146,14 +142,13 @@ public sealed class FactoryActTests
                     }
                   ]
                 }
-                ---
-
+                """);
+            TestRecords.Explain(temp.Path, "docs/behavior/modules/lending/orders/submit-order.md", """
                 # Submit order
 
                 A reader submits an order.
                 """);
-            Write(temp.Path, "docs/behavior/modules/lending/orders/renew-order.md", """
-                ---
+            TestRecords.Write(temp.Path, "docs/behavior/modules/lending/orders/renew-order.yaml", """
                 {
                   "type": "use-case",
                   "id": "use-case/lending.renew-order",
@@ -175,8 +170,8 @@ public sealed class FactoryActTests
                     }
                   ]
                 }
-                ---
-
+                """);
+            TestRecords.Explain(temp.Path, "docs/behavior/modules/lending/orders/renew-order.md", """
                 # Renew order
 
                 A reader renews an order.

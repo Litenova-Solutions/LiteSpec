@@ -17,7 +17,7 @@ public sealed class StaleProofTests
     public void Unchanged_Scenario_Stays_Verified_Across_Builds()
     {
         using var temp = ModelFixture.Prepare("small");
-        Write(temp.Path, ScenarioPath, ScenarioPage("The loan is active."));
+        TestRecords.Write(temp.Path, ScenarioPath, ScenarioJson("The loan is active."));
         Write(temp.Path, ProofPath, ProofFile);
         WriteTrx(temp.Path, "run-1");
 
@@ -41,7 +41,7 @@ public sealed class StaleProofTests
     public void Ledger_Records_Scenario_And_Test_Hashes()
     {
         using var temp = ModelFixture.Prepare("small");
-        Write(temp.Path, ScenarioPath, ScenarioPage("The loan is active."));
+        TestRecords.Write(temp.Path, ScenarioPath, ScenarioJson("The loan is active."));
         Write(temp.Path, ProofPath, ProofFile);
         WriteTrx(temp.Path, "run-1");
 
@@ -63,7 +63,7 @@ public sealed class StaleProofTests
     public void Scenario_Changed_After_Its_Proof_Passed_Reads_Stale()
     {
         using var temp = ModelFixture.Prepare("small");
-        Write(temp.Path, ScenarioPath, ScenarioPage("The loan is active."));
+        TestRecords.Write(temp.Path, ScenarioPath, ScenarioJson("The loan is active."));
         Write(temp.Path, ProofPath, ProofFile);
         WriteTrx(temp.Path, "run-1");
 
@@ -72,7 +72,7 @@ public sealed class StaleProofTests
             Assert.True(Verified(first.RootElement));
         }
 
-        Write(temp.Path, ScenarioPath, ScenarioPage("The loan is active for three weeks."));
+        TestRecords.Write(temp.Path, ScenarioPath, ScenarioJson("The loan is active for three weeks."));
 
         using var changed = Build(temp.Path);
 
@@ -86,7 +86,7 @@ public sealed class StaleProofTests
     public void Test_Changed_After_Its_Proof_Passed_Reads_Stale()
     {
         using var temp = ModelFixture.Prepare("small");
-        Write(temp.Path, ScenarioPath, ScenarioPage("The loan is active."));
+        TestRecords.Write(temp.Path, ScenarioPath, ScenarioJson("The loan is active."));
         Write(temp.Path, ProofPath, ProofFile);
         WriteTrx(temp.Path, "run-1");
 
@@ -109,12 +109,12 @@ public sealed class StaleProofTests
     public void Newer_Run_Clears_A_Stale_Proof()
     {
         using var temp = ModelFixture.Prepare("small");
-        Write(temp.Path, ScenarioPath, ScenarioPage("The loan is active."));
+        TestRecords.Write(temp.Path, ScenarioPath, ScenarioJson("The loan is active."));
         Write(temp.Path, ProofPath, ProofFile);
         WriteTrx(temp.Path, "run-1");
 
         Build(temp.Path).Dispose();
-        Write(temp.Path, ScenarioPath, ScenarioPage("The loan is active for three weeks."));
+        TestRecords.Write(temp.Path, ScenarioPath, ScenarioJson("The loan is active for three weeks."));
         Build(temp.Path).Dispose();
         WriteTrx(temp.Path, "run-2");
 
@@ -124,7 +124,7 @@ public sealed class StaleProofTests
         Assert.Empty(rerun.RootElement.GetProperty("stale").EnumerateArray());
     }
 
-    const string ScenarioPath = "docs/behavior/modules/lending/loans/borrow-copy-proof-scenario.md";
+    const string ScenarioPath = "docs/behavior/modules/lending/loans/borrow-copy-proof-scenario.yaml";
     const string ProofPath = "apps/api/tests/Library.Acceptance.Tests/Proof/ProofScenarios.cs";
 
     static bool Verified(JsonElement root) =>
@@ -160,8 +160,7 @@ public sealed class StaleProofTests
         File.WriteAllText(path, text);
     }
 
-    static string ScenarioPage(string then) => $$"""
-        ---
+    static string ScenarioJson(string then) => $$"""
         {
           "type": "scenario",
           "id": "{{Scenario}}",
@@ -173,11 +172,6 @@ public sealed class StaleProofTests
           "result": "result/borrow-copy.borrowed",
           "then": "{{then}}"
         }
-        ---
-
-        # Borrowing an available copy succeeds
-
-        A reader borrows a copy that sits on its shelf.
         """;
 
     const string ProofFile = """

@@ -50,7 +50,7 @@ public sealed class ProofIdentityTests
     }
 
     static void WriteScenario(string root) =>
-        Write(root, "docs/behavior/modules/lending/loans/borrow-copy-proof-scenario.md", ScenarioPage);
+        TestRecords.Write(root, "docs/behavior/modules/lending/loans/borrow-copy-proof-scenario.yaml", ScenarioJson);
 
     static void WriteProof(string root) =>
         Write(root, "apps/api/tests/Library.Acceptance.Tests/Proof/ProofScenarios.cs", ProofFile);
@@ -99,8 +99,7 @@ public sealed class ProofIdentityTests
         + "  </Results>\n"
         + "</TestRun>\n";
 
-    const string ScenarioPage = """
-        ---
+    const string ScenarioJson = """
         {
           "type": "scenario",
           "id": "scenario/borrow-copy.borrowing-an-available-copy-succeeds",
@@ -112,11 +111,6 @@ public sealed class ProofIdentityTests
           "result": "result/borrow-copy.borrowed",
           "then": "The loan is active."
         }
-        ---
-
-        # Borrowing an available copy succeeds
-
-        A reader borrows an available copy.
         """;
 
     const string ProofFile = """

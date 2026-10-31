@@ -6,7 +6,7 @@ namespace LiteSpec.Tests.Model;
 /// <summary>Proves the record index reads every fixture page exactly like the CLI reader.</summary>
 public sealed class RecordIndexParityTests
 {
-    /// <summary>Every non-derived record from a Markdown page appears in the index unchanged.</summary>
+    /// <summary>Every non-derived record from a record file appears in the index unchanged.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
     public void Index_Matches_Cli_Reader_On_Every_Consumer_Fixture()
@@ -33,7 +33,7 @@ public sealed class RecordIndexParityTests
 
         foreach (var recordRoot in config.RecordRoots)
         {
-            foreach (var file in SourceTree.Files(recordRoot, ".md"))
+            foreach (var file in SourceTree.Files(recordRoot, RecordFile.Extension))
             {
                 pages.AddRange(RecordFiles.Read(file, SourceTree.Read(file)));
             }
@@ -41,7 +41,9 @@ public sealed class RecordIndexParityTests
 
         var index = new RecordIndex(pages);
         var written = read.Records
-            .Where(record => !record.Derived && record.File.EndsWith(".md", StringComparison.OrdinalIgnoreCase))
+            .Where(record => !record.Derived
+                && record.File.EndsWith(RecordFile.Extension, StringComparison.OrdinalIgnoreCase)
+                && !record.File.Equals(config.GlossaryPath, StringComparison.OrdinalIgnoreCase))
             .ToList();
 
         Assert.Equal(written.Count, index.Records.Count);

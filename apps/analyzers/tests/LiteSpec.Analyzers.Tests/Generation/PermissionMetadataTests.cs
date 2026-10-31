@@ -18,7 +18,7 @@ public sealed class PermissionMetadataTests
     {
         var run = GeneratorVerify.Run(
             RecordPages.Sources("namespace Shop.Spending; internal sealed class Placeholder;"),
-            RecordPages.Files("xml", ("permissions.md", RecordPages.PermissionFactsPage(
+            RecordPages.Files("xml", ("permissions.yaml", RecordPages.PermissionFactsPage(
                 RecordPages.PermissionEntry("permission/read-loans", "tenant", "loans", ["money", "access"])))),
             assemblyName: "Shop.Application");
 
@@ -36,7 +36,7 @@ public sealed class PermissionMetadataTests
     {
         var run = GeneratorVerify.Run(
             RecordPages.Sources("namespace Shop.Spending; internal sealed class Placeholder;"),
-            RecordPages.Files("xml", ("permissions.md", RecordPages.PermissionFactsPage(
+            RecordPages.Files("xml", ("permissions.yaml", RecordPages.PermissionFactsPage(
                 RecordPages.PermissionEntry("permission/export-report")))),
             assemblyName: "Shop.Application");
 
@@ -53,7 +53,7 @@ public sealed class PermissionMetadataTests
     {
         var run = GeneratorVerify.Run(
             RecordPages.Sources("namespace Shop.Spending; internal sealed class Placeholder;"),
-            RecordPages.Files("xml", ("permissions.md", RecordPages.PermissionFactsPage(
+            RecordPages.Files("xml", ("permissions.yaml", RecordPages.PermissionFactsPage(
                 RecordPages.PermissionEntry("permission/approve-order", "platform")))),
             assemblyName: "Shop.Application");
 
@@ -70,7 +70,7 @@ public sealed class PermissionMetadataTests
     {
         var run = GeneratorVerify.Run(
             RecordPages.Sources("namespace Shop.Spending; internal sealed class Placeholder;"),
-            RecordPages.Files("xml", ("permissions.md", RecordPages.PermissionFactsPage(
+            RecordPages.Files("xml", ("permissions.yaml", RecordPages.PermissionFactsPage(
                 RecordPages.PermissionEntry("permission/frobnicate-widgets", "tenant")))),
             assemblyName: "Shop.Application");
 
@@ -90,7 +90,7 @@ public sealed class PermissionMetadataTests
     {
         var run = GeneratorVerify.Run(
             RecordPages.Sources("namespace Shop.Spending; internal sealed class Placeholder;"),
-            RecordPages.Files("xml", ("permissions.md", RecordPages.PermissionFactsPage(
+            RecordPages.Files("xml", ("permissions.yaml", RecordPages.PermissionFactsPage(
                 RecordPages.PermissionEntry("permission/manage-copies", "tenant")))),
             assemblyName: "Shop.Application");
 
@@ -109,7 +109,7 @@ public sealed class PermissionMetadataTests
             RecordPages.Sources("namespace Shop.Spending; internal sealed class Placeholder;"),
             RecordPages.FilesWithVocabulary(
                 "{\"verbs\": [\"borrow\"]}",
-                ("permissions.md", RecordPages.PermissionFactsPage(
+                ("permissions.yaml", RecordPages.PermissionFactsPage(
                     RecordPages.PermissionEntry("permission/borrow-book", "tenant")))),
             assemblyName: "Shop.Application");
 
@@ -128,7 +128,7 @@ public sealed class PermissionMetadataTests
             RecordPages.Sources("namespace Shop.Spending; internal sealed class Placeholder;"),
             RecordPages.FilesWithVocabulary(
                 "{\"queryVerbs\": [\"inspect\"]}",
-                ("permissions.md", RecordPages.PermissionFactsPage(
+                ("permissions.yaml", RecordPages.PermissionFactsPage(
                     RecordPages.PermissionEntry("permission/inspect-vault", "platform")))),
             assemblyName: "Shop.Application");
 
@@ -144,7 +144,7 @@ public sealed class PermissionMetadataTests
     public void OfReturnsKnownAndThrowsForUnknown()
     {
         var sources = RecordPages.Sources("namespace Shop.Spending; internal sealed class Placeholder;");
-        var files = RecordPages.Files("xml", ("permissions.md", RecordPages.PermissionFactsPage(
+        var files = RecordPages.Files("xml", ("permissions.yaml", RecordPages.PermissionFactsPage(
             RecordPages.PermissionEntry("permission/read-loans", "tenant", "loans", ["money"]),
             RecordPages.PermissionEntry("permission/approve-order", "platform"))));
         var run = GeneratorVerify.Run(sources, files, assemblyName: "Shop.Application");

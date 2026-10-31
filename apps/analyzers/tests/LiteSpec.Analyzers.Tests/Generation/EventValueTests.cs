@@ -19,7 +19,7 @@ public sealed class EventValueTests
                 /// <implements>event/expense.submitted</implements>
                 public sealed partial record ExpenseSubmittedEvent(string ExpenseId) : IDomainEvent;
                 """),
-            RecordPages.Files("xml", ("events.md", RecordPages.EventPage("event/expense.submitted"))));
+            RecordPages.Files("xml", ("events.yaml", RecordPages.EventPage("event/expense.submitted"))));
 
         Assert.True(run.Sources.TryGetValue("LiteSpecEvent.Shop.Orders.ExpenseSubmittedEvent.g.cs", out var part), "The event part is missing.");
         Assert.Contains("partial record ExpenseSubmittedEvent", part, StringComparison.Ordinal);
@@ -41,7 +41,7 @@ public sealed class EventValueTests
                 /// <implements>event/expense.submitted</implements>
                 public sealed record ExpenseSubmittedEvent(string ExpenseId) : IDomainEvent;
                 """),
-            RecordPages.Files("xml", ("events.md", RecordPages.EventPage("event/expense.submitted"))));
+            RecordPages.Files("xml", ("events.yaml", RecordPages.EventPage("event/expense.submitted"))));
 
         Assert.DoesNotContain(run.Sources.Keys, key => key.StartsWith("LiteSpecEvent.", StringComparison.Ordinal));
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
@@ -64,7 +64,7 @@ public sealed class EventValueTests
                     public const string Classification = "event/expense.submitted";
                 }
                 """),
-            RecordPages.Files("xml", ("events.md", RecordPages.EventPage("event/expense.submitted"))));
+            RecordPages.Files("xml", ("events.yaml", RecordPages.EventPage("event/expense.submitted"))));
 
         Assert.DoesNotContain(run.Sources.Keys, key => key.StartsWith("LiteSpecEvent.", StringComparison.Ordinal));
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
@@ -84,7 +84,7 @@ public sealed class EventValueTests
                 /// <implements>event/expense.unknown</implements>
                 public sealed partial record ExpenseUnknownEvent(string ExpenseId) : IDomainEvent;
                 """),
-            RecordPages.Files("xml", ("events.md", RecordPages.EventPage("event/expense.submitted"))));
+            RecordPages.Files("xml", ("events.yaml", RecordPages.EventPage("event/expense.submitted"))));
 
         Assert.DoesNotContain(run.Sources.Keys, key => key.StartsWith("LiteSpecEvent.", StringComparison.Ordinal));
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
@@ -104,7 +104,7 @@ public sealed class EventValueTests
                 /// <implements>event/expense.submitted</implements>
                 public sealed partial record ExpenseSubmittedEvent(string ExpenseId) : IDomainEvent;
                 """),
-            [("/project/docs/behavior/events.md", RecordPages.EventPage("event/expense.submitted"))]);
+            [("/project/docs/behavior/events.yaml", RecordPages.EventPage("event/expense.submitted"))]);
 
         Assert.Empty(run.Sources);
     }
@@ -126,7 +126,7 @@ public sealed class EventValueTests
                     public sealed partial record ExpenseSubmittedEvent(string ExpenseId) : IDomainEvent;
                 }
                 """),
-            RecordPages.Files("xml", ("events.md", RecordPages.EventPage("event/expense.submitted"))));
+            RecordPages.Files("xml", ("events.yaml", RecordPages.EventPage("event/expense.submitted"))));
 
         Assert.DoesNotContain(run.Sources.Keys, key => key.StartsWith("LiteSpecEvent.", StringComparison.Ordinal));
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
@@ -149,7 +149,7 @@ public sealed class EventValueTests
                     public sealed partial record ExpenseSubmittedEvent(string ExpenseId) : IDomainEvent;
                 }
                 """),
-            RecordPages.Files("xml", ("events.md", RecordPages.EventPage("event/expense.submitted"))));
+            RecordPages.Files("xml", ("events.yaml", RecordPages.EventPage("event/expense.submitted"))));
 
         Assert.Contains(run.Sources.Keys, key => key.StartsWith("LiteSpecEvent.", StringComparison.Ordinal));
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));

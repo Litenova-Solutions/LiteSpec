@@ -9,5 +9,5 @@ holds:
   - role: role/employee
     scope: self
 approvedBy: claimwick-team
-approvedOn: 2026-10-01
-approvedHash: 83ebafae
+approvedOn: 2026-10-31
+approvedHash: 29eb1037

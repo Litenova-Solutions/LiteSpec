@@ -1,4 +1,6 @@
 using System.Text.Json;
+using System.Text.Json.Nodes;
+using LiteSpec.Model;
 using LiteSpec.Tests.Model;
 using LiteSpec.Tests.Support;
 
@@ -114,9 +116,9 @@ public sealed class ProofReaderTests
     static bool Confirmed(string claim, string scenarios, (string Path, string Text)? steps = null, bool effects = false)
     {
         using var temp = ModelFixture.Prepare("small");
-        Write(temp.Path, "docs/behavior/modules/lending/loans/extend-loan-proof-scenario.md", ScenarioPage(Extend, "Extending an active loan succeeds", "result/extend-loan.extended"));
-        Write(temp.Path, "docs/behavior/modules/lending/loans/return-copy-proof-scenario.md", ScenarioPage(Return, "Returning a borrowed copy succeeds", "result/return-copy.returned"));
-        Write(temp.Path, "docs/behavior/modules/lending/loans/borrow-copy-refusal-scenario.md", ScenarioPage(Refusal, "Borrowing an unavailable copy refuses", "result/borrow-copy.copy-unavailable"));
+        TestRecords.Write(temp.Path, "docs/behavior/modules/lending/loans/extend-loan-proof-scenario.yaml", ScenarioJson(Extend, "Extending an active loan succeeds", "result/extend-loan.extended"));
+        TestRecords.Write(temp.Path, "docs/behavior/modules/lending/loans/return-copy-proof-scenario.yaml", ScenarioJson(Return, "Returning a borrowed copy succeeds", "result/return-copy.returned"));
+        TestRecords.Write(temp.Path, "docs/behavior/modules/lending/loans/borrow-copy-refusal-scenario.yaml", ScenarioJson(Refusal, "Borrowing an unavailable copy refuses", "result/borrow-copy.copy-unavailable"));
         Write(temp.Path, "apps/api/tests/Library.Acceptance.Tests/Harness/HarnessScenarios.cs", scenarios);
         WriteRefusals(temp.Path, """{"lending.copy-not-available": 409}""");
 
@@ -127,13 +129,16 @@ public sealed class ProofReaderTests
 
         if (effects)
         {
-            var page = Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "loans", "borrow-copy.md");
-            var text = File.ReadAllText(page);
-
-            File.WriteAllText(page, text.Replace(
-                "\"raises\": [",
-                "\"effects\": [{\"runs\": \"use-case/lending.extend-loan\", \"timing\": \"after-commit\", \"reason\": \"A borrowed copy starts its first extension.\"}],\n  \"raises\": [",
-                StringComparison.Ordinal));
+            PatchRecord(
+                temp.Path,
+                "docs/behavior/modules/lending/loans/borrow-copy.yaml",
+                front => front["effects"] = new JsonArray(
+                    new JsonObject
+                    {
+                        ["runs"] = "use-case/lending.extend-loan",
+                        ["timing"] = "after-commit",
+                        ["reason"] = "A borrowed copy starts its first extension.",
+                    }));
         }
 
         using var document = Build(temp.Path);
@@ -163,6 +168,15 @@ public sealed class ProofReaderTests
         var path = Path.Combine(root, relative.Replace('/', Path.DirectorySeparatorChar));
         Directory.CreateDirectory(Path.GetDirectoryName(path)!);
         File.WriteAllText(path, text);
+    }
+
+    static void PatchRecord(string root, string relative, Action<JsonObject> mutate)
+    {
+        var path = Path.Combine(root, relative.Replace('/', Path.DirectorySeparatorChar));
+        var node = JsonNode.Parse(YamlText.Parse(File.ReadAllText(path)).ToJson())!.AsObject();
+
+        mutate(node);
+        File.WriteAllText(path, RecordFile.Write(node));
     }
 
     static void WriteRefusals(string root, string statuses)
@@ -290,8 +304,7 @@ public sealed class ProofReaderTests
         }
         """;
 
-    static string ScenarioPage(string id, string title, string result) => $$"""
-        ---
+    static string ScenarioJson(string id, string title, string result) => $$"""
         {
           "type": "scenario",
           "id": "{{id}}",
@@ -303,10 +316,5 @@ public sealed class ProofReaderTests
           "result": "{{result}}",
           "then": "The library answers."
         }
-        ---
-
-        # {{title}}
-
-        A scenario a shared harness proves.
         """;
 }
