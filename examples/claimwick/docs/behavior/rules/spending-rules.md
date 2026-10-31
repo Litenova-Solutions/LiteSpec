@@ -8,7 +8,7 @@
     {
       "type": "rule",
       "id": "rule/spending.receipt-filed-once",
-      "title": "Receipt filed once",
+      "title": "Receipt Filed Once",
       "owner": "claimwick-team",
       "status": "reviewed",
       "kind": "cross-aggregate",

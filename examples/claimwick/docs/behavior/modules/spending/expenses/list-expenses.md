@@ -29,11 +29,11 @@
         "fields": [
           {
             "name": "expenses",
-            "meaning": "One row per expense: its identity, amount, currency, state and submission time, newest first."
+            "meaning": "The set of rows with one row per expense: its identity, amount, currency, state and submission time, newest first."
           }
         ],
         "classification": "internal",
-        "source": [
+        "reads": [
           "aggregate/spending.expense"
         ],
         "freshness": "immediate"
@@ -64,7 +64,7 @@
     {
       "type": "scenario",
       "id": "scenario/list-expenses.listing-own-expenses-succeeds",
-      "title": "Listing own expenses succeeds",
+      "title": "Listing Own Expenses Succeeds",
       "owner": "claimwick-team",
       "status": "reviewed",
       "given": "An employee submitted two expenses.",
@@ -77,8 +77,8 @@
     }
   ],
   "approvedBy": "claimwick-team",
-  "approvedOn": "2026-10-01",
-  "approvedHash": "5063ead9"
+  "approvedOn": "2026-10-31",
+  "approvedHash": "c9273836"
 }
 ---
 

@@ -261,6 +261,98 @@ public sealed partial class StandardsValidatorTests
         ["FIELD_NAME_SHAPE"]);
 
     /// <proves>litespec/core/language#name-each-field-by-its-word-class</proves>
+    [Fact(DisplayName = "link verb holding prose")]
+    public void LinkVerbHoldingProse() => Check(
+        root =>
+        {
+            StandardsFixture.Write(root, "schemas/record.schema.json",
+                "{\"$defs\":{" +
+                "\"alphaPage\":{\"type\":\"object\",\"properties\":{\"cites\":{\"$ref\":\"#/$defs/nonEmptyString\"}}}," +
+                "\"nonEmptyString\":{\"type\":\"string\",\"minLength\":1}}}");
+        },
+        ["FIELD_NAME_SHAPE"]);
+
+    /// <proves>litespec/core/language#name-each-field-by-its-word-class</proves>
+    [Fact(DisplayName = "By name without a participle stem")]
+    public void ByNameWithoutParticipleStem() => Check(
+        root =>
+        {
+            StandardsFixture.Write(root, "schemas/record.schema.json",
+                "{\"$defs\":{" +
+                "\"alphaPage\":{\"type\":\"object\",\"properties\":{\"ownerBy\":{\"$ref\":\"#/$defs/ownerName\"}}}," +
+                "\"ownerName\":{\"type\":\"string\",\"minLength\":1}}}");
+        },
+        ["FIELD_NAME_SHAPE"]);
+
+    /// <proves>litespec/core/language#name-each-field-by-its-word-class</proves>
+    [Fact(DisplayName = "closed-set noun holding prose")]
+    public void ClosedSetNounHoldingProse() => Check(
+        root =>
+        {
+            StandardsFixture.Write(root, "schemas/record.schema.json",
+                "{\"$defs\":{" +
+                "\"alphaPage\":{\"type\":\"object\",\"properties\":{\"kind\":{\"$ref\":\"#/$defs/nonEmptyString\"}}}," +
+                "\"nonEmptyString\":{\"type\":\"string\",\"minLength\":1}}}");
+        },
+        ["FIELD_NAME_SHAPE"]);
+
+    /// <proves>litespec/core/language#name-each-field-by-its-word-class</proves>
+    [Fact(DisplayName = "prose noun holding a boolean")]
+    public void ProseNounHoldingBoolean() => Check(
+        root =>
+        {
+            StandardsFixture.Write(root, "schemas/record.schema.json",
+                "{\"$defs\":{" +
+                "\"alphaPage\":{\"type\":\"object\",\"properties\":{\"summary\":{\"type\":\"boolean\"}}}}}");
+        },
+        ["FIELD_NAME_SHAPE"]);
+
+    /// <proves>litespec/core/language#name-each-field-by-its-word-class</proves>
+    [Fact(DisplayName = "When condition holding a boolean")]
+    public void WhenConditionHoldingBoolean() => Check(
+        root =>
+        {
+            StandardsFixture.Write(root, "schemas/record.schema.json",
+                "{\"$defs\":{" +
+                "\"alphaPage\":{\"type\":\"object\",\"properties\":{\"finishedWhen\":{\"type\":\"boolean\"}}}}}");
+        },
+        ["FIELD_NAME_SHAPE"]);
+
+    /// <proves>litespec/core/language#name-each-field-by-its-word-class</proves>
+    [Fact(DisplayName = "Because reason holding a boolean")]
+    public void BecauseReasonHoldingBoolean() => Check(
+        root =>
+        {
+            StandardsFixture.Write(root, "schemas/record.schema.json",
+                "{\"$defs\":{" +
+                "\"alphaPage\":{\"type\":\"object\",\"properties\":{\"appliesBecause\":{\"type\":\"boolean\"}}}}}");
+        },
+        ["FIELD_NAME_SHAPE"]);
+
+    /// <proves>litespec/core/language#name-each-date-by-what-it-marks</proves>
+    [Fact(DisplayName = "recorded date without a past verb stem")]
+    public void RecordedDateWithoutPastVerbStem() => Check(
+        root =>
+        {
+            StandardsFixture.Write(root, "schemas/record.schema.json",
+                "{\"$defs\":{" +
+                "\"alphaPage\":{\"type\":\"object\",\"properties\":{\"ownerOn\":{\"$ref\":\"#/$defs/isoDate\"}}}," +
+                "\"isoDate\":{\"type\":\"string\",\"format\":\"date\"}}}");
+        },
+        ["FIELD_NAME_SHAPE"]);
+
+    /// <proves>litespec/core/language#name-a-boolean-as-a-predicate</proves>
+    [Fact(DisplayName = "boolean with an is prefix")]
+    public void BooleanWithIsPrefix() => Check(
+        root =>
+        {
+            StandardsFixture.Write(root, "schemas/record.schema.json",
+                "{\"$defs\":{" +
+                "\"alphaPage\":{\"type\":\"object\",\"properties\":{\"isActive\":{\"type\":\"boolean\"}}}}}");
+        },
+        ["FIELD_NAME_SHAPE"]);
+
+    /// <proves>litespec/core/language#name-each-field-by-its-word-class</proves>
     [Fact(DisplayName = "shipped schemas carry consistent field names")]
     public void ShippedSchemasCarryConsistentFieldNames()
     {

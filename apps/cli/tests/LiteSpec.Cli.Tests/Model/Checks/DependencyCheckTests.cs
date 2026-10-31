@@ -46,7 +46,7 @@ public sealed class DependencyCheckTests
         AssertNoDependencyFindings(check);
     }
 
-    /// <summary>A pinned package at its pin with an accepted licence reports nothing.</summary>
+    /// <summary>A pinned package at its pin with an accepted license reports nothing.</summary>
     /// <proves>litespec/workspace/dependencies#match-every-shipped-package-to-its-pin</proves>
     [Fact]
     public void Pinned_Package_At_Pin_Passes()
@@ -82,10 +82,10 @@ public sealed class DependencyCheckTests
         Assert.DoesNotContain("dependency-license-unknown", check.Output);
     }
 
-    /// <summary>A direct package under a rejected licence reports dependency-license-unknown.</summary>
-    /// <proves>litespec/workspace/dependencies#accept-every-shipped-package-licence-explicitly</proves>
+    /// <summary>A direct package under a rejected license reports dependency-license-unknown.</summary>
+    /// <proves>litespec/workspace/dependencies#accept-every-shipped-package-license-explicitly</proves>
     [Fact]
-    public void Licence_Not_Accepted_Reports()
+    public void License_Not_Accepted_Reports()
     {
         using var temp = ModelFixture.Prepare("small");
         ConfigureSbom(temp.Path);
@@ -103,10 +103,10 @@ public sealed class DependencyCheckTests
         Assert.DoesNotContain("dependency-version-drift", check.Output);
     }
 
-    /// <summary>An expression with every identifier accepted reports no licence finding.</summary>
-    /// <proves>litespec/workspace/dependencies#accept-every-shipped-package-licence-explicitly</proves>
+    /// <summary>An expression with every identifier accepted reports no license finding.</summary>
+    /// <proves>litespec/workspace/dependencies#accept-every-shipped-package-license-explicitly</proves>
     [Fact]
-    public void Expression_With_All_Licences_Accepted_Passes()
+    public void Expression_With_All_Licenses_Accepted_Passes()
     {
         using var temp = ModelFixture.Prepare("small");
         ConfigureSbom(temp.Path);
@@ -118,9 +118,9 @@ public sealed class DependencyCheckTests
     }
 
     /// <summary>An expression with one identifier rejected reports dependency-license-unknown.</summary>
-    /// <proves>litespec/workspace/dependencies#accept-every-shipped-package-licence-explicitly</proves>
+    /// <proves>litespec/workspace/dependencies#accept-every-shipped-package-license-explicitly</proves>
     [Fact]
-    public void Expression_With_One_Licence_Rejected_Reports()
+    public void Expression_With_One_License_Rejected_Reports()
     {
         using var temp = ModelFixture.Prepare("small");
         ConfigureSbom(temp.Path);
@@ -133,10 +133,10 @@ public sealed class DependencyCheckTests
         Assert.Contains("MIT OR GPL-3.0-only", finding);
     }
 
-    /// <summary>A licence the admitting decision names reports no licence finding.</summary>
-    /// <proves>litespec/workspace/dependencies#accept-every-shipped-package-licence-explicitly</proves>
+    /// <summary>A license the admitting decision names reports no license finding.</summary>
+    /// <proves>litespec/workspace/dependencies#accept-every-shipped-package-license-explicitly</proves>
     [Fact]
-    public void Licence_Named_On_Admission_Passes()
+    public void License_Named_On_Admission_Passes()
     {
         using var temp = ModelFixture.Prepare("small");
         ConfigureSbom(temp.Path);
@@ -238,7 +238,7 @@ public sealed class DependencyCheckTests
         Assert.Contains("MIT", finding);
     }
 
-    /// <summary>A CycloneDX pinned package at its pin with an accepted licence reports nothing.</summary>
+    /// <summary>A CycloneDX pinned package at its pin with an accepted license reports nothing.</summary>
     /// <proves>litespec/workspace/dependencies#match-every-shipped-package-to-its-pin</proves>
     [Fact]
     public void CycloneDx_Pinned_Passes()
@@ -282,7 +282,7 @@ public sealed class DependencyCheckTests
         Assert.Contains("npm:React", finding);
     }
 
-    /// <summary>An npm package at its pin with an accepted licence reports nothing.</summary>
+    /// <summary>An npm package at its pin with an accepted license reports nothing.</summary>
     /// <proves>litespec/workspace/dependencies#match-every-shipped-package-to-its-pin</proves>
     [Fact]
     public void Npm_Pinned_Package_Passes()
@@ -309,7 +309,7 @@ public sealed class DependencyCheckTests
         var file = Path.Combine(root, "litespec.project.json");
         var node = JsonNode.Parse(File.ReadAllText(file))!.AsObject();
         node["paths"]!.AsObject()["sbom"] = new JsonArray("docs/proof/sbom");
-        node["dependencies"] = new JsonObject { ["licences"] = new JsonArray("MIT", "Apache-2.0") };
+        node["dependencies"] = new JsonObject { ["licenses"] = new JsonArray("MIT", "Apache-2.0") };
         File.WriteAllText(file, node.ToJsonString(new JsonSerializerOptions { WriteIndented = true }));
     }
 
@@ -370,7 +370,7 @@ public sealed class DependencyCheckTests
         + "    public string Describe(string input) => \"Admitted: \" + input;\n"
         + "}\n";
 
-    static string SpdxDoc(params (string Name, string Version, string Licence, string Purl)[] direct)
+    static string SpdxDoc(params (string Name, string Version, string License, string Purl)[] direct)
     {
         var packages = string.Join(",\n", direct.Select((entry, index) =>
             "    {\n"
@@ -380,8 +380,8 @@ public sealed class DependencyCheckTests
             + "      \"supplier\": \"Organization: Test\",\n"
             + "      \"downloadLocation\": \"NOASSERTION\",\n"
             + "      \"filesAnalyzed\": false,\n"
-            + $"      \"licenseConcluded\": \"{entry.Licence}\",\n"
-            + $"      \"licenseDeclared\": \"{entry.Licence}\",\n"
+            + $"      \"licenseConcluded\": \"{entry.License}\",\n"
+            + $"      \"licenseDeclared\": \"{entry.License}\",\n"
             + "      \"copyrightText\": \"NOASSERTION\",\n"
             + "      \"externalRefs\": [\n"
             + "        {\n"
@@ -430,7 +430,7 @@ public sealed class DependencyCheckTests
             + "}\n";
     }
 
-    static string CycloneDxDoc(params (string Name, string Version, string Licence, bool Expression, string Purl)[] direct)
+    static string CycloneDxDoc(params (string Name, string Version, string License, bool Expression, string Purl)[] direct)
     {
         var components = string.Join(",\n", direct.Select((entry, index) =>
             "    {\n"
@@ -440,7 +440,7 @@ public sealed class DependencyCheckTests
             + $"      \"version\": \"{entry.Version}\",\n"
             + $"      \"purl\": \"{entry.Purl}\",\n"
             + "      \"licenses\": [\n"
-            + (entry.Expression ? $"        {{\"expression\": \"{entry.Licence}\"}}\n" : $"        {{\"license\": {{\"id\": \"{entry.Licence}\"}}}}\n")
+            + (entry.Expression ? $"        {{\"expression\": \"{entry.License}\"}}\n" : $"        {{\"license\": {{\"id\": \"{entry.License}\"}}}}\n")
             + "      ]\n"
             + "    }"));
 
@@ -461,9 +461,9 @@ public sealed class DependencyCheckTests
             + "}\n";
     }
 
-    const string CompleteAdmits = """[{"package": "nuget:UnknownLib", "layer": "Infrastructure", "licence": "MIT", "location": "in-process", "accountOwner": "none", "failureBehavior": "The download fails and the page stays readable.", "operatingCost": "none"}]""";
+    const string CompleteAdmits = """[{"package": "nuget:UnknownLib", "layer": "Infrastructure", "license": "MIT", "location": "in-process", "accountOwner": "none", "failureBehavior": "The download fails and the page stays readable.", "operatingCost": "none"}]""";
 
-    const string IncompleteAdmits = """[{"package": "nuget:UnknownLib", "layer": "Infrastructure", "licence": "MIT", "location": "in-process", "accountOwner": "none", "failureBehavior": "The download fails and the page stays readable."}]""";
+    const string IncompleteAdmits = """[{"package": "nuget:UnknownLib", "layer": "Infrastructure", "license": "MIT", "location": "in-process", "accountOwner": "none", "failureBehavior": "The download fails and the page stays readable."}]""";
 
-    const string GplAdmits = """[{"package": "nuget:UnknownLib", "layer": "Infrastructure", "licence": "GPL-3.0-only", "location": "in-process", "accountOwner": "none", "failureBehavior": "The download fails and the page stays readable.", "operatingCost": "none"}]""";
+    const string GplAdmits = """[{"package": "nuget:UnknownLib", "layer": "Infrastructure", "license": "GPL-3.0-only", "location": "in-process", "accountOwner": "none", "failureBehavior": "The download fails and the page stays readable.", "operatingCost": "none"}]""";
 }

@@ -179,6 +179,14 @@ public sealed class BookLexiconTests
         Assert.Equal("Authority", lexicon.Fields["authority"]);
         Assert.Equal("Conclusion", lexicon.Fields["conclusion"]);
         Assert.Equal("Options", lexicon.Fields["options"]);
+        Assert.Equal("Provenance", lexicon.Fields["provenance"]);
+        Assert.Equal("Origin", lexicon.Fields["origin"]);
+        Assert.Equal("Selection", lexicon.Fields["selection"]);
+        Assert.Equal("History", lexicon.Fields["history"]);
+        Assert.Equal("Level", lexicon.Fields["level"]);
+        Assert.Equal("Source", lexicon.Fields["source"]);
+        Assert.Equal("Scope", lexicon.Fields["scope"]);
+        Assert.Equal("Reason", lexicon.Fields["reason"]);
 
         Assert.False(lexicon.Fields.ContainsKey("by"));
         Assert.False(lexicon.Fields.ContainsKey("state"));
@@ -191,6 +199,7 @@ public sealed class BookLexiconTests
         Assert.False(lexicon.Fields.ContainsKey("neverDoes"));
         Assert.False(lexicon.Fields.ContainsKey("audience"));
         Assert.False(lexicon.Fields.ContainsKey("aim"));
+        Assert.False(lexicon.Fields.ContainsKey("historyLink"));
     }
 
     /// <summary>Each glossary term carries its definition, layer and source; aliases and rejected words stay out.</summary>

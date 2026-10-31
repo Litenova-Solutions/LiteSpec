@@ -17,7 +17,7 @@ Read [Project Model](../core/model.md) before this guide: it states the approval
 
 ### Know Which Fields Stay Outside
 
-The hash covers every written frontmatter field except identity, workflow, and approval data. These fields stay outside on every record type: `type`, `id`, `title`, `owner`, `status`, `decider`, `decideBy`, `approvedBy`, `approvedOn`, `approvedHash`, and `source`. A term's `labels` stay outside too, so adding a language leaves the approved meaning alone. The entries a page nests under `records` carry their own hash and stay outside their page's, so promoting a result or a scenario leaves its use case's approval alone. Page prose bodies and rendered consequences summaries never feed the hash, so rewording prose reopens no approval. The builder canonicalizes the remaining fields and hashes them to eight hex characters. This satisfies `litespec/core/model#record-approval-as-data`.
+The hash covers every written frontmatter field except identity, workflow, and approval data. These fields stay outside on every record type: `type`, `id`, `title`, `owner`, `status`, `decider`, `decideBy`, `approvedBy`, `approvedOn`, `approvedHash`, and `provenance`. A term's `labels` stay outside too, so adding a language leaves the approved meaning alone. The entries a page nests under `records` carry their own hash and stay outside their page's, so promoting a result or a scenario leaves its use case's approval alone. Page prose bodies and rendered consequences summaries never feed the hash, so rewording prose reopens no approval. The builder canonicalizes the remaining fields and hashes them to eight hex characters. This satisfies `litespec/core/model#record-approval-as-data`.
 
 ### Know Which Fields Feed the Hash
 
@@ -39,16 +39,16 @@ The semantic fields per record type are:
 | `term` | `term`, `meaning`, `layer`, `aliases` |
 | `module` | `dependsOn` |
 | `aggregate` | `kind`, `states`, `transitions`, `data`, `dataClasses`, `steps`, `exits`, `finishedWhen`, `driver`, `cursor` |
-| `rule` | `kind`, `statement`, `governs`, `refusal`, `releasedBy`, `frozenWhen`, `historyLink`, `computedBy` |
+| `rule` | `kind`, `statement`, `governs`, `refusal`, `releasedBy`, `frozenWhen`, `history`, `computedBy` |
 | `use-case` | `kind`, `serves`, `fulfills`, `access`, `reachedThrough`, `input`, `output`, `paging`, `builtAsynchronously`, `changes`, `reads`, `consistency`, `effects`, `raises`, `idempotency`, `audit`, `risk` |
 | `result` | `outcome`, `code`, `meaning`, `recorded`, `codes` |
 | `scenario` | `given`, `when`, `then`, `result`, `examples` |
 | `event` | `meaning`, `carries` |
 | `integration-event` | `direction`, `eventType`, `subject`, `payload`, `addresses`, `trust`, `correlation`, `translates` |
 | `reaction` | `on`, `if`, `effects`, `forEach`, `reads`, `fulfills`, `serves`, `idempotency`, `onFailure`, `onExhausted` |
-| `job` | `kind`, `schedule`, `scope`, `batchSize`, `lease`, `effects`, `reads`, `serviceLevel`, `evidence`, `runbook`, `runsWhere`, `guard`, `cursor`, `fulfills`, `serves`, `onFailure`, `idempotency` |
+| `job` | `kind`, `schedule`, `selection`, `batchSize`, `lease`, `effects`, `reads`, `serviceLevel`, `evidence`, `runbook`, `runsWhere`, `guard`, `cursor`, `fulfills`, `serves`, `onFailure`, `idempotency` |
 | `notification` | `template`, `addresses`, `channel`, `consent`, `frequency`, `dedupKey`, `params`, `locale`, `suppressedWhen`, `claims`, `fulfills`, `sender` |
-| `setting` | `valueType`, `default`, `range`, `unit`, `setBy`, `atBound`, `secret`, `meaning`, `runbook`, `fulfills`, `readBy` |
+| `setting` | `valueType`, `default`, `range`, `unit`, `setBy`, `atBound`, `secret`, `meaning`, `runbook`, `fulfills` |
 | `role` | `scope`, `allows` |
 | `permission` | `meaning` |
 | `entry-point` | `kind`, `auth`, `path`, `contentType`, `cacheControl`, `versioning`, `fulfills`, `protocol` |

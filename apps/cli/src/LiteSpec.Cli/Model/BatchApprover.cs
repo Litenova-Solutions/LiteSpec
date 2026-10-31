@@ -445,7 +445,7 @@ static class BatchApprover
     /// </summary>
     /// <follows>litespec/core/model#hold-transcribed-records-in-draft</follows>
     static string? TranscribedHold(ProjectModel model, IReadOnlyDictionary<string, string> simulated, Record record) =>
-        record.Field("source") != "transcribed"
+        record.Field("provenance") != "transcribed"
             ? null
             : record.Ids("serves")
                 .Select(Identifiers.BaseId)

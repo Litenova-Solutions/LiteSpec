@@ -64,7 +64,7 @@
       "refusal": "<result id or refusal code, or remove this line>",
       "releasedBy": "<use-case/<module>.<name>, or never (<cost>), when the kind is reservation; otherwise remove this line>",
       "frozenWhen": "<When the value freezes, when the kind is commercial-data; otherwise remove this line>",
-      "historyLink": "<Where past values live, when the kind is commercial-data; otherwise remove this line>",
+      "history": "<Where past values live, when the kind is commercial-data; otherwise remove this line>",
       "basedOn": ["<constraint or research id, or remove this line>"],
       "fulfills": ["requirement/<topic>.<name>"]
     },

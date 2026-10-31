@@ -187,7 +187,7 @@ static partial class Checker
             {
                 findings.Add(new Finding(
                     "behavior-unrecorded",
-                    $"Route '{element.Class}' carries no screen mark; delete the code, or write its parent record from a requirement, drafting the requirement if none exists.",
+                    $"Route '{element.Class}' carries no screen mark.",
                     element.File, element.Line, null)
                 {
                     Reader = reader,
@@ -202,7 +202,7 @@ static partial class Checker
                 {
                     findings.Add(new Finding(
                         "behavior-unrecorded",
-                        $"Route '{element.Class}' marks '{mark.RecordId}', which names no screen; delete the code, or write its parent record from a requirement, drafting the requirement if none exists.",
+                        $"Route '{element.Class}' marks '{mark.RecordId}', which names no screen.",
                         mark.File, mark.Line, mark.RecordId.Length > 0 ? mark.RecordId : null)
                     {
                         Reader = reader,
@@ -358,7 +358,7 @@ static partial class Checker
 
                         findings.Add(new Finding(
                             "refusal-sentence-missing",
-                            $"Refusal '{code}' of '{useCaseId}' can be reached on screen '{screen.Id}' but has no sentence in frontend '{frontend.Name}'s refusal dictionary and no browser test asserting its code.",
+                            $"Screen '{screen.Id}' reaches refusal '{code}' of '{useCaseId}' but has no sentence in frontend '{frontend.Name}'s refusal dictionary and no browser test asserting its code.",
                             screen.File, screen.Line, SubjectOf(screen))
                         {
                             Reader = route.Reader,

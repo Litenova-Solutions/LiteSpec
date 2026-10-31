@@ -50,7 +50,7 @@ A use case names the settings it reads in `reads`. The setting's `readBy` is rem
 
 ## Consequences
 
-`litespec/core/model#write-links-on-the-record-that-points` puts the link on the use case, and `litespec/core/language#name-each-field-by-its-word-class` reads `reads` as a link verb. `litespec/core/behavior#name-the-use-cases-that-read-each-setting` is restated for `reads`.
+`litespec/core/model#write-links-on-the-record-that-points` puts the link on the use case, and `litespec/core/language#name-each-field-by-its-word-class` reads `reads` as a link verb. `litespec/core/behavior#name-the-settings-each-use-case-reads` is restated for `reads`.
 
 ## Evidence with Confidence
 

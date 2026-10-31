@@ -33,8 +33,8 @@ public sealed class TermDeciderTests
         var missing = findings.Where(finding => finding.Code == "decider-missing").ToList();
 
         Assert.Equal(2, missing.Count);
-        Assert.Contains("Draft 'term/loan' names no decider.", missing.Select(finding => finding.Message));
-        Assert.Contains("Draft 'term/loan' names no decide-by date.", missing.Select(finding => finding.Message));
+        Assert.Contains("Record 'term/loan' is a draft with no decider.", missing.Select(finding => finding.Message));
+        Assert.Contains("Record 'term/loan' is a draft with no decide-by date.", missing.Select(finding => finding.Message));
     }
 
     static string Term(bool decider) =>

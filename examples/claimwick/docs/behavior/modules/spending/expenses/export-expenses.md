@@ -31,11 +31,11 @@
         "fields": [
           {
             "name": "rows",
-            "meaning": "One row per approved expense: its identity, amount, currency, approver and approval time."
+            "meaning": "The set of rows with one row per approved expense: its identity, amount, currency, approver and approval time."
           }
         ],
         "classification": "internal",
-        "source": [
+        "reads": [
           "aggregate/spending.expense"
         ],
         "freshness": "immediate"
@@ -58,19 +58,19 @@
     {
       "type": "result",
       "id": "result/export-expenses.nothing-approved",
-      "title": "Nothing approved",
+      "title": "Nothing Approved",
       "owner": "claimwick-team",
       "outcome": "refusal",
       "code": "spending.nothing-approved",
-      "meaning": "No approved expense awaits export.",
+      "meaning": "The state of an export with no approved expense awaiting it.",
       "approvedBy": "claimwick-team",
-      "approvedOn": "2026-10-01",
-      "approvedHash": "bde9550b"
+      "approvedOn": "2026-10-31",
+      "approvedHash": "3a0866c0"
     },
     {
       "type": "scenario",
       "id": "scenario/export-expenses.exporting-approved-expenses-succeeds",
-      "title": "Exporting approved expenses succeeds",
+      "title": "Exporting Approved Expenses Succeeds",
       "owner": "claimwick-team",
       "status": "reviewed",
       "given": "Two expenses were approved this week.",
@@ -84,7 +84,7 @@
     {
       "type": "scenario",
       "id": "scenario/export-expenses.exporting-with-nothing-approved-is-refused",
-      "title": "Exporting with nothing approved is refused",
+      "title": "Exporting with Nothing Approved Is Refused",
       "owner": "claimwick-team",
       "status": "reviewed",
       "given": "No expense was approved this week.",
@@ -97,8 +97,8 @@
     }
   ],
   "approvedBy": "claimwick-team",
-  "approvedOn": "2026-10-01",
-  "approvedHash": "73d66fa8"
+  "approvedOn": "2026-10-31",
+  "approvedHash": "7fd19e99"
 }
 ---
 # Export Expenses

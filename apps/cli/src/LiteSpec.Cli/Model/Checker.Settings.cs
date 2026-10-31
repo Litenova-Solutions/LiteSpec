@@ -80,7 +80,7 @@ static partial class Checker
                 {
                     findings.Add(new Finding(
                         "setting-key-drift",
-                        $"Options class '{bound.Class}' marks setting '{id}', but its SectionName and properties do not spell '{key}'.",
+                        $"Setting '{id}' names key '{key}', which options class '{bound.Class}' does not spell with its SectionName and properties.",
                         bound.File,
                         bound.Line,
                         id));
@@ -122,7 +122,7 @@ static partial class Checker
         {
             findings.Add(new Finding(
                 "template-unimplemented",
-                $"The template store '{model.Config.Relative(model.Config.TemplateStore)}' names a file that does not exist.",
+                $"Template store '{model.Config.Relative(model.Config.TemplateStore)}' names a file that does not exist.",
                 model.Config.TemplateStore,
                 1,
                 null));
@@ -162,7 +162,7 @@ static partial class Checker
             {
                 findings.Add(new Finding(
                     "template-unrecorded",
-                    $"The template store holds '{entry.Key}', which no notification declares.",
+                    $"Template store '{model.Config.Relative(model.Config.TemplateStore)}' holds '{entry.Key}', which no notification declares.",
                     model.Config.TemplateStore,
                     entry.Line,
                     null));

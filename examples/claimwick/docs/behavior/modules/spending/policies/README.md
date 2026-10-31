@@ -20,7 +20,7 @@
     {
       "type": "rule",
       "id": "rule/policy.threshold-never-negative",
-      "title": "Threshold never negative",
+      "title": "Threshold Never Negative",
       "owner": "claimwick-team",
       "status": "reviewed",
       "kind": "invariant",

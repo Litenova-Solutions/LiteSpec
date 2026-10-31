@@ -145,8 +145,8 @@ sealed class ConsumerConfig
     /// <summary>The template store file, from <c>stackConfig.dotnet.templateStore</c>, or empty.</summary>
     public string TemplateStore { get; private set; } = "";
 
-    /// <summary>The licences the project accepts, as SPDX identifiers, from <c>dependencies.licences</c>.</summary>
-    public IReadOnlySet<string> AcceptedLicences { get; private set; } = new HashSet<string>(StringComparer.Ordinal);
+    /// <summary>The licenses the project accepts, as SPDX identifiers, from <c>dependencies.licenses</c>.</summary>
+    public IReadOnlySet<string> AcceptedLicenses { get; private set; } = new HashSet<string>(StringComparer.Ordinal);
 
     /// <summary>The declared frontends.</summary>
     public IReadOnlyList<FrontendConfig> Frontends { get; private set; } = [];
@@ -264,10 +264,10 @@ sealed class ConsumerConfig
 
         if (document.RootElement.TryGetProperty("dependencies", out var dependencies)
             && dependencies.ValueKind == JsonValueKind.Object
-            && dependencies.TryGetProperty("licences", out var licences)
-            && licences.ValueKind == JsonValueKind.Array)
+            && dependencies.TryGetProperty("licenses", out var licenses)
+            && licenses.ValueKind == JsonValueKind.Array)
         {
-            config.AcceptedLicences = licences.EnumerateArray()
+            config.AcceptedLicenses = licenses.EnumerateArray()
                 .Where(entry => entry.ValueKind == JsonValueKind.String)
                 .Select(entry => entry.GetString()!)
                 .ToHashSet(StringComparer.Ordinal);

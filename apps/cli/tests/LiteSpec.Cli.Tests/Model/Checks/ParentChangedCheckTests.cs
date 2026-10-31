@@ -19,7 +19,7 @@ public sealed class ParentChangedCheckTests
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "parent-reopened");
         Assert.Equal("G", finding.Tier);
-        Assert.Equal("Record 'requirement/borrowing.max-active-loans' cites 'problem/overdue-loans-pile-up', which changed after approval.", finding.Message);
+        Assert.Equal("Record 'requirement/borrowing.max-active-loans' cites 'problem/overdue-loans-pile-up' which differs after approval.", finding.Message);
         Assert.Equal("requirement/borrowing.max-active-loans", finding.Subject);
     }
 
@@ -35,7 +35,7 @@ public sealed class ParentChangedCheckTests
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "parent-reopened");
         Assert.Equal("A", finding.Tier);
-        Assert.Equal("Record 'requirement/borrowing.max-active-loans' cites 'problem/overdue-loans-pile-up', which changed after approval.", finding.Message);
+        Assert.Equal("Record 'requirement/borrowing.max-active-loans' cites 'problem/overdue-loans-pile-up' which differs after approval.", finding.Message);
         Assert.Equal("requirement/borrowing.max-active-loans", finding.Subject);
     }
 
@@ -64,7 +64,7 @@ public sealed class ParentChangedCheckTests
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "parent-reopened");
         Assert.Equal("G", finding.Tier);
-        Assert.Equal("Record 'rule/lending.allow-renewal' fulfills 'requirement/borrowing.max-active-loans', which changed after approval.", finding.Message);
+        Assert.Equal("Record 'rule/lending.allow-renewal' fulfills 'requirement/borrowing.max-active-loans' which differs after approval.", finding.Message);
         Assert.Equal("rule/lending.allow-renewal", finding.Subject);
     }
 
@@ -80,7 +80,7 @@ public sealed class ParentChangedCheckTests
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "parent-reopened");
         Assert.Equal("G", finding.Tier);
-        Assert.Equal("Record 'journey/borrow-and-return' serves 'goal/faster-pickup', which changed after approval.", finding.Message);
+        Assert.Equal("Record 'journey/borrow-and-return' serves 'goal/faster-pickup' which differs after approval.", finding.Message);
         Assert.Equal("journey/borrow-and-return", finding.Subject);
     }
 

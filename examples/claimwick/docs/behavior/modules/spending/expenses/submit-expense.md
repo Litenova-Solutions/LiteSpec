@@ -60,7 +60,7 @@
     {
       "type": "result",
       "id": "result/submit-expense.receipt-missing",
-      "title": "Receipt missing",
+      "title": "Receipt Missing",
       "owner": "claimwick-team",
       "outcome": "refusal",
       "code": "spending.receipt-missing",
@@ -72,7 +72,7 @@
     {
       "type": "scenario",
       "id": "scenario/submit-expense.submitting-with-a-receipt-succeeds",
-      "title": "Submitting with a receipt succeeds",
+      "title": "Submitting with a Receipt Succeeds",
       "owner": "claimwick-team",
       "status": "reviewed",
       "given": "An employee paid for a train ticket and kept the receipt.",
@@ -86,7 +86,7 @@
     {
       "type": "scenario",
       "id": "scenario/submit-expense.submitting-without-a-receipt-is-refused",
-      "title": "Submitting without a receipt is refused",
+      "title": "Submitting Without a Receipt Is Refused",
       "owner": "claimwick-team",
       "status": "reviewed",
       "given": "An employee paid for a train ticket and lost the receipt.",

@@ -420,7 +420,7 @@ Source: DDD.
 
 ### Job
 
-One scheduled, one-off, or operator run that issues use cases over a scope.
+One scheduled, one-off, or operator run that issues use cases over a selection.
 
 Layer: Behavior.
 

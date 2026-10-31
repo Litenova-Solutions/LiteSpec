@@ -12,7 +12,7 @@ Every folder in Application is a module, an aggregate, a use case, or an event h
 
 ### The Command Pipeline
 
-A command travels fixed stages in order: validation, authorization, idempotency, audit, timestamp, holds, the handler, commit, and fault classification, with exactly one commit post-handler. The handler loads or creates the one aggregate its use case changes, calls one domain method on it, stages it through its domain repository, and returns a result. Validation, authorization, idempotency, audit, the timestamp, holds, the commit, and fault classification each belong to their own pipeline stage, so none appears in the handler. A query travels validation and the guard, then projects its result directly without loading an aggregate. An event handler answers its trigger outside the command pipeline, running the declared `issues`, `sends`, and `calls` effects after the commit, while a `publishes` effect leaves the commit as a domain event staged in the outbox. A job issues its commands once per item in its scope.
+A command travels fixed stages in order: validation, authorization, idempotency, audit, timestamp, holds, the handler, commit, and fault classification, with exactly one commit post-handler. The handler loads or creates the one aggregate its use case changes, calls one domain method on it, stages it through its domain repository, and returns a result. Validation, authorization, idempotency, audit, the timestamp, holds, the commit, and fault classification each belong to their own pipeline stage, so none appears in the handler. A query travels validation and the guard, then projects its result directly without loading an aggregate. An event handler answers its trigger outside the command pipeline, running the declared `issues`, `sends`, and `calls` effects after the commit, while a `publishes` effect leaves the commit as a domain event staged in the outbox. A job issues its commands once per item in its selection.
 
 ### Ports
 
@@ -189,7 +189,7 @@ The handler loads or creates, calls once, stages, and returns. Validation, autho
 
 **Statement:** A query result type MUST carry the `include` groups its record's `output` declares, with their fields, freshness, and visibility.
 
-**Rationale:** The record's `output` names each group with its fields, their classification, the source aggregates, and the freshness the caller can rely on: `immediate`, `snapshot`, `bounded`, or `advisory`. The result type carries one member per group, so the caller reads what the record promises and nothing more. A group with `visibleWhen` appears only when its condition holds, and a group wider than its sources cites its `wideningBecause` requirement. A query with `builtAsynchronously` carries a `bounded` or `advisory` freshness with its lag scenario.
+**Rationale:** The record's `output` names each group with its fields, their classification, the aggregates it reads, and the freshness the caller can rely on: `immediate`, `snapshot`, `bounded`, or `advisory`. The result type carries one member per group, so the caller reads what the record promises and nothing more. A group with `visibleWhen` appears only when its condition holds, and a group wider than its `reads` names the approved requirement widening it in `cites`. A query with `builtAsynchronously` carries a `bounded` or `advisory` freshness with its lag scenario.
 
 **Example:** The expense-list result carries its `rows` group with the declared fields, freshness, and visibility.
 
@@ -257,7 +257,7 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **Statement:** Each `sends` effect MUST run in an event handler through the messenger port, after the commit of the command that raised its trigger.
 
-**Rationale:** A command handler changes only its aggregate under `litespec/backend/application#dispatch-only-declared-effect-edges`, so a notification send runs in an event handler after the commit. The notification record owns the template, the audience, the channel, the consent rule, the frequency, the dedup key, and the claims each message keeps. The `sends` edge names the notification with its own suppression condition, and the messenger port carries the send with project-owned types. A send no edge declares fails `effect-undeclared`, and a second send of a `once` notification with the same dedup key sends nothing.
+**Rationale:** A command handler changes only its aggregate under `litespec/backend/application#dispatch-only-declared-effect-edges`, so a notification send runs in an event handler after the commit. The notification record owns the template, the addresses, the channel, the consent rule, the frequency, the dedup key, and the claims each message keeps. The `sends` edge names the notification with its own suppression condition, and the messenger port carries the send with project-owned types. A send no edge declares fails `effect-undeclared`, and a second send of a `once` notification with the same dedup key sends nothing.
 
 **Example:** The due-notice event handler sends the loan-due notification through the messenger port; the template and consent rule stay on the notification record.
 
@@ -321,17 +321,17 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **Reviewed for:** Each event handler answers its reaction trigger in one class carrying its record mark, in its `On{Fact}` folder.
 
-### Run Each Job Within Its Declared Scope
+### Run Each Job Within Its Declared Selection
 
-**ID:** `litespec/backend/application#run-each-job-within-its-declared-scope`
+**ID:** `litespec/backend/application#run-each-job-within-its-declared-selection`
 
-**Statement:** A background job MUST issue its declared commands once per item in its record's `scope`, honoring its batch size, lease, and cursor.
+**Statement:** A background job MUST issue its declared commands once per item in its record's `selection`, honoring its batch size, lease, and cursor.
 
 **Rationale:** The job record owns what each run selects, how many items each batch takes, the lease that keeps two runs apart, and the cursor where a run resumes. The job runs its `effects` entries once per item, records its evidence where the record states, and follows its `onFailure` when an item fails. An `operator` job carries no aggregate: it states its `runsWhere` and its guard, and runs as interactive platform work. One execution host runs the job under `litespec/backend/architecture#declare-the-execution-host-for-work-that-outlives-a-request`.
 
 **Example:** The erase-expired-data job selects decided expenses past retention in batches of 200 under its lease, issues one erase command per expense, and resumes from its cursor.
 
-**Reviewed for:** Each background job issues its commands once per item in its scope, honoring batch size, lease, and cursor.
+**Reviewed for:** Each background job issues its commands once per item in its selection, honoring batch size, lease, and cursor.
 
 ### Issue Per-Record Work from a Job
 
@@ -339,7 +339,7 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **Statement:** Work over many records MUST run as a job that issues one command per record, each in its own unit of work, never as a command handler that changes records in a loop.
 
-**Rationale:** One failing record otherwise rolls back the batch, and the batch holds locks for its whole length. The job runs each command within its declared scope under `litespec/backend/application#run-each-job-within-its-declared-scope`, and persistence commits each record alone under `litespec/backend/persistence#commit-each-command-pipeline-once`.
+**Rationale:** One failing record otherwise rolls back the batch, and the batch holds locks for its whole length. The job runs each command within its declared selection under `litespec/backend/application#run-each-job-within-its-declared-selection`, and persistence commits each record alone under `litespec/backend/persistence#commit-each-command-pipeline-once`.
 
 **Example:** The erase-expired-data job issues one erase command per expense, each in its own unit of work, instead of a command looping over expenses.
 

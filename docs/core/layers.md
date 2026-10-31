@@ -35,7 +35,7 @@ A need a lower record layer meets that the upper record layer leaves unstated tr
 
 **Statement:** Each record below Intent MUST be written from a record in the record layer above it.
 
-**Rationale:** Each record layer rests on the one above it: Behavior fulfils Intent, Implementation builds Behavior, and Proof proves Implementation. Derivation between records is part of that direction, so generic refusals derive from `access` and `input` without new records. Code with no parent record stays evidence for a question instead of becoming a record by silent transcription, so the spec wins where Intent has spoken.
+**Rationale:** Each record layer rests on the one above it: Behavior fulfills Intent, Implementation builds Behavior, and Proof proves Implementation. Derivation between records is part of that direction, so generic refusals derive from `access` and `input` without new records. Code with no parent record stays evidence for a question instead of becoming a record by silent transcription, so the spec wins where Intent has spoken.
 
 **Example:** A guard in code with no parent record raises a question; the agent drafts the requirement or rule and keeps the code.
 
@@ -45,9 +45,9 @@ A need a lower record layer meets that the upper record layer leaves unstated tr
 
 **ID:** `litespec/core/layers#add-behavior-detail-when-specifying-intent`
 
-**Statement:** Behavior that fulfils an Intent record MUST add the states, invariants, refusals, consistency, data classes with erasure positions, freshness, and tenant-scoped access the Intent record leaves unstated.
+**Statement:** Behavior that fulfills an Intent record MUST add the states, invariants, refusals, consistency, data classes with erasure positions, freshness, and tenant-scoped access the Intent record leaves unstated.
 
-**Rationale:** Intent promises outcomes in product words, and Behavior turns each promise into the states, invariants, refusals, consistency, data classes with erasure positions, freshness, and tenant-scoped access that keep it. Only Behavior records fulfil a requirement (`litespec/core/intent#restrict-requirement-fulfillment-to-behavior`). Without that detail each implementer guesses the states and the access scope, and two guesses diverge. The checks `requirement-fulfillment-missing`, `record-link-missing`, `step-use-case-missing`, `erasure-undeclared`, and `setting-requirement-missing` report the gaps.
+**Rationale:** Intent promises outcomes in product words, and Behavior turns each promise into the states, invariants, refusals, consistency, data classes with erasure positions, freshness, and tenant-scoped access that keep it. Only Behavior records fulfill a requirement (`litespec/core/intent#restrict-requirement-fulfillment-to-behavior`). Without that detail each implementer guesses the states and the access scope, and two guesses diverge. The checks `requirement-fulfillment-missing`, `record-link-missing`, `step-use-case-missing`, `erasure-undeclared`, and `setting-requirement-missing` report the gaps.
 
 **Example:** A reimbursement promise gains a process with Approved and Reimbursed states, a refusal for an expense that is already reimbursed, and atomic consistency over one aggregate.
 
@@ -117,7 +117,7 @@ A need a lower record layer meets that the upper record layer leaves unstated tr
 
 **Statement:** Each record whose parent record changes MUST be flagged for update, and its review and proof stay stale until an agent updates it.
 
-**Rationale:** A change at the top reaches every record that fulfils or serves the changed parent, so the builder flags each one as parent-reopened. Agents update the flagged records, and review and proof follow the update. Without the flag a Behavior record keeps proving a promise nobody makes anymore.
+**Rationale:** A change at the top reaches every record that fulfills or serves the changed parent, so the builder flags each one as parent-reopened. Agents update the flagged records, and review and proof follow the update. Without the flag a Behavior record keeps proving a promise nobody makes anymore.
 
 **Reviewed for:** Which records with a changed parent still show a passing review and proof? Look at the flagged records beside their updated parents.
 

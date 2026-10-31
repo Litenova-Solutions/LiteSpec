@@ -60,7 +60,7 @@ When two rules conflict and nothing decides between them, the agent stops and as
 
 An agent makes the decisions the standard has already made: where a type goes, how a lifecycle is modeled, how a refusal is reported, and which tests to write. It drafts Intent and Behavior records, and the finance lead and reviewers decide them. It does not decide product policy, legal questions, money, or risk. When a lower layer needs what the upper layer does not say, the agent raises a draft question with a decider, a date, a recommendation, and a ballot, instead of answering it.
 
-During adoption, an agent may write Behavior records from existing code. Each one carries `source: transcribed` and stays in draft until its Intent parent is approved, so transcription never passes review on its own.
+During adoption, an agent may write Behavior records from existing code. Each one carries `provenance: transcribed` and stays in draft until its Intent parent is approved, so transcription never passes review on its own.
 
 UI design works the same way. For each recurring interface question, LiteSpec offers drawn options and a Default. An agent builds the Default with your own components and style and records it with `source: recommended`. It waits for an owner only when the route departs from the Default or no Default exists; in that case it shows the options on the pattern's page on the LiteSpec site and recommends one. If it sees a better option while working, it finishes on the recorded option and proposes the idea in its report, instead of changing the decision.
 

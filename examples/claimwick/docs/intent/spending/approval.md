@@ -10,7 +10,7 @@
     {
       "type": "requirement",
       "id": "requirement/approval.decided-within-five-days",
-      "title": "Decided within five days",
+      "title": "Decided Within Five Days",
       "owner": "claimwick-team",
       "status": "approved",
       "kind": "functional",
@@ -27,7 +27,7 @@
     {
       "type": "requirement",
       "id": "requirement/approval.receipt-over-threshold",
-      "title": "Receipt over threshold",
+      "title": "Receipt over Threshold",
       "owner": "claimwick-team",
       "status": "approved",
       "kind": "functional",
@@ -44,7 +44,7 @@
     {
       "type": "requirement",
       "id": "requirement/approval.no-self-approval",
-      "title": "No self approval",
+      "title": "No Self Approval",
       "owner": "claimwick-team",
       "status": "approved",
       "kind": "functional",
@@ -60,7 +60,7 @@
     {
       "type": "requirement",
       "id": "requirement/approval.single-reimbursement",
-      "title": "Single reimbursement",
+      "title": "Single Reimbursement",
       "owner": "claimwick-team",
       "status": "approved",
       "kind": "functional",
@@ -76,7 +76,7 @@
     {
       "type": "requirement",
       "id": "requirement/approval.erase-after-retention",
-      "title": "Erase after retention",
+      "title": "Erase After Retention",
       "owner": "claimwick-team",
       "status": "approved",
       "kind": "functional",
@@ -92,7 +92,7 @@
     {
       "type": "requirement",
       "id": "requirement/approval.month-end-submissions",
-      "title": "Month-end submissions",
+      "title": "Month-end Submissions",
       "status": "draft",
       "decider": "claimwick-team",
       "decideBy": "2027-02-01",

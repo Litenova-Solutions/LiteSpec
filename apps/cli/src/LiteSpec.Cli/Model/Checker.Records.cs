@@ -300,7 +300,7 @@ static partial class Checker
 
                 if (!names)
                 {
-                    findings.Add(new Finding("template-key-invalid", $"Notification '{notification.Id}' has template key '{key}', which names no audience the record declares.", notification.File, notification.Line, SubjectOf(notification)));
+                    findings.Add(new Finding("template-key-invalid", $"Notification '{notification.Id}' has template key '{key}', which names no addresses the record declares.", notification.File, notification.Line, SubjectOf(notification)));
                 }
             }
         }

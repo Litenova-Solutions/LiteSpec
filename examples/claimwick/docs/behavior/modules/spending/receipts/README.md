@@ -20,7 +20,7 @@
     {
       "type": "rule",
       "id": "rule/receipt.attaches-before-decision",
-      "title": "Attaches before decision",
+      "title": "Attaches Before Decision",
       "owner": "claimwick-team",
       "status": "reviewed",
       "kind": "precondition",
@@ -40,7 +40,7 @@
     {
       "type": "event",
       "id": "event/receipt.attached",
-      "title": "Receipt attached",
+      "title": "Receipt Attached",
       "owner": "claimwick-team",
       "status": "reviewed",
       "meaning": "A receipt was attached.",

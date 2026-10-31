@@ -33,7 +33,7 @@
           }
         ],
         "classification": "internal",
-        "source": [
+        "reads": [
           "aggregate/lending.loan"
         ],
         "freshness": "immediate"

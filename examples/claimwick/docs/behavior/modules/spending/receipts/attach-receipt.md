@@ -43,7 +43,7 @@
     {
       "type": "result",
       "id": "result/attach-receipt.expense-decided",
-      "title": "Expense decided",
+      "title": "Expense Decided",
       "owner": "claimwick-team",
       "outcome": "refusal",
       "code": "spending.expense-decided",
@@ -55,7 +55,7 @@
     {
       "type": "scenario",
       "id": "scenario/attach-receipt.attaching-a-receipt-succeeds",
-      "title": "Attaching a receipt succeeds",
+      "title": "Attaching a Receipt Succeeds",
       "owner": "claimwick-team",
       "status": "reviewed",
       "given": "An employee submitted an expense below the threshold with no receipt.",
@@ -69,7 +69,7 @@
     {
       "type": "scenario",
       "id": "scenario/attach-receipt.attaching-to-decided-expense-refused",
-      "title": "Attaching to a decided expense is refused",
+      "title": "Attaching to a Decided Expense Is Refused",
       "owner": "claimwick-team",
       "status": "reviewed",
       "given": "A manager approved an expense.",

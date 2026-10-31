@@ -46,7 +46,7 @@
     {
       "type": "result",
       "id": "result/reimburse-expense.not-approved",
-      "title": "Not approved",
+      "title": "Not Approved",
       "owner": "claimwick-team",
       "outcome": "refusal",
       "code": "spending.not-approved",
@@ -58,7 +58,7 @@
     {
       "type": "result",
       "id": "result/reimburse-expense.already-reimbursed",
-      "title": "Already reimbursed",
+      "title": "Already Reimbursed",
       "owner": "claimwick-team",
       "outcome": "refusal",
       "code": "spending.already-reimbursed",
@@ -70,7 +70,7 @@
     {
       "type": "scenario",
       "id": "scenario/reimburse-expense.reimbursing-an-approved-expense-succeeds",
-      "title": "Reimbursing an approved expense succeeds",
+      "title": "Reimbursing an Approved Expense Succeeds",
       "owner": "claimwick-team",
       "status": "reviewed",
       "given": "A manager approved an expense.",
@@ -84,7 +84,7 @@
     {
       "type": "scenario",
       "id": "scenario/reimburse-expense.reimbursing-an-unapproved-expense-is-refused",
-      "title": "Reimbursing an unapproved expense is refused",
+      "title": "Reimbursing an Unapproved Expense Is Refused",
       "owner": "claimwick-team",
       "status": "reviewed",
       "given": "An employee submitted an expense with its receipt.",
@@ -98,7 +98,7 @@
     {
       "type": "scenario",
       "id": "scenario/reimburse-expense.reimbursing-a-reimbursed-expense-is-refused",
-      "title": "Reimbursing a reimbursed expense is refused",
+      "title": "Reimbursing a Reimbursed Expense Is Refused",
       "owner": "claimwick-team",
       "status": "reviewed",
       "given": "Finance reimbursed an expense.",

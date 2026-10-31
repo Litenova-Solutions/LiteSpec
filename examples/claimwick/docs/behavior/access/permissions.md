@@ -8,86 +8,86 @@
     {
       "type": "permission",
       "id": "permission/submit-expense",
-      "title": "Submit expense",
+      "title": "Submit Expense",
       "owner": "claimwick-team",
       "status": "reviewed",
-      "meaning": "Submit an expense and attach receipts.",
+      "meaning": "The right to submit an expense and attach its receipts.",
       "scope": "self",
       "approvedBy": "claimwick-team",
-      "approvedOn": "2026-10-01",
-      "approvedHash": "44c32b6c"
+      "approvedOn": "2026-10-31",
+      "approvedHash": "e2ab6b1d"
     },
     {
       "type": "permission",
       "id": "permission/approve-expense",
-      "title": "Approve expense",
+      "title": "Approve Expense",
       "owner": "claimwick-team",
       "status": "reviewed",
-      "meaning": "Approve or reject a submitted expense.",
+      "meaning": "The right to approve or reject a submitted expense.",
       "scope": "team",
       "approvedBy": "claimwick-team",
-      "approvedOn": "2026-10-01",
-      "approvedHash": "2a7e8a1e"
+      "approvedOn": "2026-10-31",
+      "approvedHash": "7e2db1a1"
     },
     {
       "type": "permission",
       "id": "permission/reimburse-expense",
-      "title": "Reimburse expense",
+      "title": "Reimburse Expense",
       "owner": "claimwick-team",
       "status": "reviewed",
-      "meaning": "Reimburse an approved expense.",
+      "meaning": "The right to reimburse an approved expense.",
       "scope": "platform",
       "approvedBy": "claimwick-team",
-      "approvedOn": "2026-10-01",
-      "approvedHash": "6074fccf"
+      "approvedOn": "2026-10-31",
+      "approvedHash": "4311e7aa"
     },
     {
       "type": "permission",
       "id": "permission/list-expenses",
-      "title": "List expenses",
+      "title": "List Expenses",
       "owner": "claimwick-team",
       "status": "reviewed",
-      "meaning": "Read own expenses.",
+      "meaning": "The right to read own expenses.",
       "scope": "self",
       "approvedBy": "claimwick-team",
-      "approvedOn": "2026-10-01",
-      "approvedHash": "03f9f4ac"
+      "approvedOn": "2026-10-31",
+      "approvedHash": "ad73b4fb"
     },
     {
       "type": "permission",
       "id": "permission/manage-policy",
-      "title": "Manage policy",
+      "title": "Manage Policy",
       "owner": "claimwick-team",
       "status": "reviewed",
-      "meaning": "Set the receipt threshold.",
+      "meaning": "The right to set the receipt threshold.",
       "scope": "team",
       "approvedBy": "claimwick-team",
-      "approvedOn": "2026-10-01",
-      "approvedHash": "83be0b22"
+      "approvedOn": "2026-10-31",
+      "approvedHash": "e6f2cbfc"
     },
     {
       "type": "permission",
       "id": "permission/export-expenses",
-      "title": "Export expenses",
+      "title": "Export Expenses",
       "owner": "claimwick-team",
       "status": "reviewed",
-      "meaning": "Export approved expenses for finance.",
+      "meaning": "The right to export approved expenses for finance.",
       "scope": "platform",
       "approvedBy": "claimwick-team",
-      "approvedOn": "2026-10-01",
-      "approvedHash": "f899f8fa"
+      "approvedOn": "2026-10-31",
+      "approvedHash": "c6c656a8"
     },
     {
       "type": "permission",
       "id": "permission/erase-personal-data",
-      "title": "Erase personal data",
+      "title": "Erase Personal Data",
       "owner": "claimwick-team",
       "status": "reviewed",
-      "meaning": "Erase the personal data of a decided expense.",
+      "meaning": "The right to erase the personal data of a decided expense.",
       "scope": "platform",
       "approvedBy": "claimwick-team",
-      "approvedOn": "2026-10-01",
-      "approvedHash": "5d156a95"
+      "approvedOn": "2026-10-31",
+      "approvedHash": "15300dbf"
     }
   ]
 }

@@ -135,7 +135,7 @@ public sealed partial class ConsumerValidatorTests
             meta =>
             {
                 meta["kind"] = "query";
-                meta["output"] = ConsumerFixture.Meta("""{"include":{"rows":{"fields":[{"name":"claims","meaning":"One row per order claim."}],"classification":"internal","source":["aggregate/orders.order-claim"],"freshness":"immediate"}}}""");
+                meta["output"] = ConsumerFixture.Meta("""{"include":{"rows":{"fields":[{"name":"claims","meaning":"One row per order claim."}],"classification":"internal","reads":["aggregate/orders.order-claim"],"freshness":"immediate"}}}""");
             });
         ConsumerFixture.MutateBody(folder.Path, UseCasePage, raw => WithoutSection(raw, "What Happens"));
         AssertClean(RunConsumer(folder.Path));

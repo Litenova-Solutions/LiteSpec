@@ -180,7 +180,7 @@ Every written record carries the shared fields in this table. Entries inherit `o
 | `approvedOn` | on approved and reviewed | The approval date in ISO form |
 | `approvedHash` | on approved and reviewed | The builder hash over the semantic fields |
 | `risk` | on requirements and Behavior records, when present | Any of `money`, `door`, `personal-data`, `access` |
-| `source` | during adoption, when transcribed | `transcribed` for a Behavior record written from code |
+| `provenance` | during adoption, when transcribed | `transcribed` for a Behavior record written from code |
 
 ### Links
 
@@ -214,8 +214,7 @@ Each written link lives as a field on the record it starts from: a decision carr
 | `serves` | screen | The journey steps it carries a person through | serves | is served by |
 | `floorplan` | screen | The floorplan it composes | is composed from | is composed into |
 | `changes` | use case | Aggregates | changes | is changed by |
-| `reads` | use case, reaction, job | Aggregates | reads | is read by |
-| `readBy` | setting | The use cases that read it | is read by | reads |
+| `reads` | use case, reaction, job | Aggregates, and on a use case the settings it reads | reads | is read by |
 | `effects` | use case, reaction, job | Use cases, notifications, integration events, external system operations | effects | is effected by |
 | `on` | reaction | Domain events or integration events | answers | is answered by |
 | `holds` | actor | Roles at a scope | holds | is held by |
@@ -356,7 +355,7 @@ An approved or reviewed record carries its approval as data: `approvedBy` names 
 
 ### Transcription Mode
 
-During adoption, a Behavior record written from code carries `source: transcribed`. Such a record can stand as draft, but never as reviewed, until its `fulfills` or `serves` parent is approved. `litespec.project.json` `adoption.transcriptionEndsWith` names the decision that ends the mode. After that decision is approved, `transcription-expired` fails on any remaining transcribed record.
+During adoption, a Behavior record written from code carries `provenance: transcribed`. Such a record can stand as draft, but never as reviewed, until its `fulfills` or `serves` parent is approved. `litespec.project.json` `adoption.transcriptionEndsWith` names the decision that ends the mode. After that decision is approved, `transcription-expired` fails on any remaining transcribed record.
 
 ### Size and Stacks
 
@@ -792,7 +791,7 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 
 **ID:** `litespec/core/model#hold-transcribed-records-in-draft`
 
-**Statement:** A record with source transcribed MUST NOT stand reviewed while its fulfills or serves parent is unapproved.
+**Statement:** A record with provenance transcribed MUST NOT stand reviewed while its fulfills or serves parent is unapproved.
 
 **Rationale:** Transcription copies working code into a record during adoption, so the record describes what exists rather than what Intent asked for. Draft holds it visibly unfinished until its fulfills or serves parent is approved. `transcription-status-invalid` fails a transcribed record standing reviewed while its fulfills or serves parent is unapproved.
 
@@ -804,7 +803,7 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 
 **Statement:** Every transcribed record MUST clear before the adoption decision is approved.
 
-**Rationale:** Transcription mode exists to adopt working code, not to write Behavior from code forever. `adoption.transcriptionEndsWith` names the decision that ends the mode, and approving it closes the door: `transcription-expired` fails on any record still carrying source transcribed. Clearing means the record earns its Intent parent and drops the transcribed mark, or retires with the code it copied.
+**Rationale:** Transcription mode exists to adopt working code, not to write Behavior from code forever. `adoption.transcriptionEndsWith` names the decision that ends the mode, and approving it closes the door: `transcription-expired` fails on any record still carrying provenance transcribed. Clearing means the record earns its Intent parent and drops the transcribed mark, or retires with the code it copied.
 
 **Checked by:** `litespec model check` reports `transcription-expired` for a transcribed record after the adoption decision is approved.
 

@@ -81,7 +81,7 @@ static partial class Checker
         {
             findings.Add(new Finding(
                 "record-parent-missing",
-                $"Feature '{record.Id}' names no parent: 'solves' names no problem.",
+                $"Feature '{record.Id}' has no parent and 'solves' names no problem.",
                 record.File, record.Line, SubjectOf(record)));
         }
     }
@@ -99,7 +99,7 @@ static partial class Checker
         {
             findings.Add(new Finding(
                 "record-parent-missing",
-                $"Requirement '{record.Id}' names no parent: its home '{home}' names no topic.",
+                $"Requirement '{record.Id}' has no parent and its home '{home}' names no topic.",
                 record.File, record.Line, SubjectOf(record)));
         }
     }
@@ -113,7 +113,7 @@ static partial class Checker
         {
             findings.Add(new Finding(
                 "record-parent-missing",
-                $"Journey '{record.Id}' names no parent: 'serves' names no goal.",
+                $"Journey '{record.Id}' has no parent and 'serves' names no goal.",
                 record.File, record.Line, SubjectOf(record)));
             return;
         }
@@ -132,7 +132,7 @@ static partial class Checker
 
         findings.Add(new Finding(
             "record-parent-missing",
-            $"Journey '{record.Id}' names no parent: 'serves' names no goal.",
+            $"Journey '{record.Id}' has no parent and 'serves' names no goal.",
             record.File, record.Line, SubjectOf(record)));
     }
 
@@ -156,7 +156,7 @@ static partial class Checker
         {
             findings.Add(new Finding(
                 "record-parent-missing",
-                $"Scenario '{record.Id}' names no parent: 'result' names no result.",
+                $"Scenario '{record.Id}' has no parent and 'result' names no result.",
                 record.File, record.Line, SubjectOf(record)));
             return;
         }
@@ -165,7 +165,7 @@ static partial class Checker
         {
             findings.Add(new Finding(
                 "record-parent-missing",
-                $"Scenario '{record.Id}' names no parent: its identifier names no home.",
+                $"Scenario '{record.Id}' has no parent and its identifier names no home.",
                 record.File, record.Line, SubjectOf(record)));
             return;
         }
@@ -174,7 +174,7 @@ static partial class Checker
         {
             findings.Add(new Finding(
                 "record-parent-missing",
-                $"Scenario '{record.Id}' names no parent: its home '{home}' names no use case.",
+                $"Scenario '{record.Id}' has no parent and its home '{home}' names no use case.",
                 record.File, record.Line, SubjectOf(record)));
         }
     }
@@ -188,7 +188,7 @@ static partial class Checker
         {
             findings.Add(new Finding(
                 "record-parent-missing",
-                $"Screen '{record.Id}' names no parent: 'entryPoint' names no entry point.",
+                $"Screen '{record.Id}' has no parent and 'entryPoint' names no entry point.",
                 record.File, record.Line, SubjectOf(record)));
             return;
         }
@@ -211,7 +211,7 @@ static partial class Checker
 
         findings.Add(new Finding(
             "record-parent-missing",
-            $"Screen '{record.Id}' names no parent: 'entryPoint' '{points[0]}' disagrees with its home '{home}'.",
+            $"Screen '{record.Id}' has no parent and 'entryPoint' '{points[0]}' disagrees with its home '{home}'.",
             record.File, record.Line, SubjectOf(record)));
     }
 
@@ -222,7 +222,7 @@ static partial class Checker
         {
             findings.Add(new Finding(
                 "record-parent-missing",
-                $"Result '{record.Id}' names no parent: its identifier names no home.",
+                $"Result '{record.Id}' has no parent and its identifier names no home.",
                 record.File, record.Line, SubjectOf(record)));
             return;
         }
@@ -231,7 +231,7 @@ static partial class Checker
         {
             findings.Add(new Finding(
                 "record-parent-missing",
-                $"Result '{record.Id}' names no parent: its home '{home}' names no use case.",
+                $"Result '{record.Id}' has no parent and its home '{home}' names no use case.",
                 record.File, record.Line, SubjectOf(record)));
         }
     }
@@ -253,7 +253,7 @@ static partial class Checker
         {
             findings.Add(new Finding(
                 "record-parent-missing",
-                $"{label} '{record.Id}' names no parent: its identifier names no home.",
+                $"{label} '{record.Id}' has no parent and its identifier names no home.",
                 record.File, record.Line, SubjectOf(record)));
             return;
         }
@@ -265,7 +265,7 @@ static partial class Checker
 
         findings.Add(new Finding(
             "record-parent-missing",
-            $"{label} '{record.Id}' names no parent: its home '{home}' names no module.",
+            $"{label} '{record.Id}' has no parent and its home '{home}' names no module.",
             record.File, record.Line, SubjectOf(record)));
     }
 
@@ -276,7 +276,7 @@ static partial class Checker
         {
             findings.Add(new Finding(
                 "record-parent-missing",
-                $"Rule '{record.Id}' names no parent: its identifier names no home.",
+                $"Rule '{record.Id}' has no parent and its identifier names no home.",
                 record.File, record.Line, SubjectOf(record)));
             return;
         }
@@ -288,7 +288,7 @@ static partial class Checker
 
         findings.Add(new Finding(
             "record-parent-missing",
-            $"Rule '{record.Id}' names no parent: its home '{home}' names no module or aggregate.",
+            $"Rule '{record.Id}' has no parent and its home '{home}' names no module or aggregate.",
             record.File, record.Line, SubjectOf(record)));
     }
 
@@ -299,7 +299,7 @@ static partial class Checker
         {
             findings.Add(new Finding(
                 "record-parent-missing",
-                $"Event '{record.Id}' names no parent: its identifier names no home.",
+                $"Event '{record.Id}' has no parent and its identifier names no home.",
                 record.File, record.Line, SubjectOf(record)));
             return;
         }
@@ -308,7 +308,7 @@ static partial class Checker
         {
             findings.Add(new Finding(
                 "record-parent-missing",
-                $"Event '{record.Id}' names no parent: its home '{home}' names no aggregate.",
+                $"Event '{record.Id}' has no parent and its home '{home}' names no aggregate.",
                 record.File, record.Line, SubjectOf(record)));
         }
     }

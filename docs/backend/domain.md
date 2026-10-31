@@ -46,7 +46,7 @@ A closed set is a fixed menu of values where the type system knows every case, s
 
 **Statement:** An aggregate root MUST be the only public mutation entry point for every invariant its transaction protects.
 
-**Rationale:** If outside code could set properties or call child mutations, it could change data without passing the root's checks. The root stands as the only public mutation entry point, so every change passes the invariant the transaction protects. A command with `consistency: atomic` changes every aggregate its `changes` names in one transaction, citing the rule in `because` when it changes more than one.
+**Rationale:** If outside code could set properties or call child mutations, it could change data without passing the root's checks. The root stands as the only public mutation entry point, so every change passes the invariant the transaction protects. A command with `consistency: atomic` changes every aggregate its `changes` names in one transaction, citing the rule in `cites` when it changes more than one.
 
 **Reviewed for:** Each aggregate root is the only public mutation entry point for the invariants its transaction protects.
 
@@ -320,7 +320,7 @@ Application validators handle malformed caller input through validity findings. 
 
 **Statement:** An aggregate MUST store another aggregate's typed identifier rather than an object reference.
 
-**Rationale:** An object reference between aggregates loads one aggregate's data through another, which couples their consistency boundaries and their storage. A typed identifier keeps each aggregate loadable on its own: Application loads each aggregate through its domain repository when a command coordinates several, with `consistency: atomic` citing the rule in `because`.
+**Rationale:** An object reference between aggregates loads one aggregate's data through another, which couples their consistency boundaries and their storage. A typed identifier keeps each aggregate loadable on its own: Application loads each aggregate through its domain repository when a command coordinates several, with `consistency: atomic` citing the rule in `cites`.
 
 **Reviewed for:** Each aggregate stores other aggregates as typed identifiers, with no object reference.
 

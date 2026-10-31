@@ -44,7 +44,7 @@
     {
       "type": "scenario",
       "id": "scenario/erase-personal-data.erasing-personal-data-succeeds",
-      "title": "Erasing personal data succeeds",
+      "title": "Erasing Personal Data Succeeds",
       "owner": "claimwick-team",
       "status": "reviewed",
       "given": "An expense was reimbursed and its retention ended.",

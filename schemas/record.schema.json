@@ -208,7 +208,7 @@
       "type": "string",
       "enum": ["draft", "reviewed", "retired"]
     },
-    "transcribedSource": {
+    "transcribedProvenance": {
       "enum": ["transcribed"]
     },
     "classification": {
@@ -367,6 +367,16 @@
         ]
       }
     },
+    "readsArray": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "anyOf": [
+          { "$ref": "#/$defs/aggregateId" },
+          { "$ref": "#/$defs/settingId" }
+        ]
+      }
+    },
     "refusalValue": {
       "anyOf": [
         { "$ref": "#/$defs/resultId" },
@@ -425,7 +435,7 @@
     "outputGroup": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["fields", "classification", "source", "freshness"],
+      "required": ["fields", "classification", "reads", "freshness"],
       "properties": {
         "fields": {
           "type": "array",
@@ -434,10 +444,10 @@
           "items": { "$ref": "#/$defs/outputField" }
         },
         "classification": { "$ref": "#/$defs/classification" },
-        "source": { "$ref": "#/$defs/aggregateIdArray" },
+        "reads": { "$ref": "#/$defs/aggregateIdArray" },
         "freshness": { "$ref": "#/$defs/freshnessValue" },
         "visibleWhen": { "$ref": "#/$defs/nonEmptyString" },
-        "wideningBecause": { "$ref": "#/$defs/requirementId" }
+        "cites": { "$ref": "#/$defs/requirementId" }
       }
     },
     "queryOutput": {
@@ -489,7 +499,7 @@
       "required": ["mode"],
       "properties": {
         "mode": { "enum": ["atomic", "per-record", "compensated", "best-effort"] },
-        "because": { "$ref": "#/$defs/ruleIdArray" }
+        "cites": { "$ref": "#/$defs/ruleIdArray" }
       }
     },
     "onFailurePolicy": {
@@ -646,9 +656,9 @@
     "auditObject": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["reason", "target"],
+      "required": ["level", "target"],
       "properties": {
-        "reason": { "enum": ["required", "optional", "none"] },
+        "level": { "enum": ["required", "optional", "none"] },
         "target": { "$ref": "#/$defs/nonEmptyString" }
       }
     },
@@ -667,7 +677,7 @@
       ]
     },
     "erasurePosition": {
-      "enum": ["erase", "pseudonymise", "retain", "exempt"]
+      "enum": ["erase", "pseudonymize", "retain", "exempt"]
     },
     "enforcedByValue": {
       "anyOf": [
@@ -837,10 +847,10 @@
     "retentionRow": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["dataClass", "aggregates", "basis", "period", "enforcedBy"],
+      "required": ["dataClass", "covers", "basis", "period", "enforcedBy"],
       "properties": {
         "dataClass": { "$ref": "#/$defs/nonEmptyString" },
-        "aggregates": {
+        "covers": {
           "type": "array",
           "minItems": 1,
           "uniqueItems": true,
@@ -849,7 +859,7 @@
         "basis": { "enum": ["statute", "business", "engineering"] },
         "period": { "$ref": "#/$defs/nonEmptyString" },
         "enforcedBy": { "$ref": "#/$defs/enforcedByValue" },
-        "intent": { "$ref": "#/$defs/requirementId" },
+        "cites": { "$ref": "#/$defs/requirementId" },
         "processors": {
           "type": "array",
           "uniqueItems": true,
@@ -973,7 +983,7 @@
           "uniqueItems": true,
           "items": { "$ref": "#/$defs/nonEmptyString" }
         },
-        "source": { "enum": ["caller", "claim", "derived"] },
+        "origin": { "enum": ["caller", "claim", "derived"] },
         "classification": { "$ref": "#/$defs/classification" }
       }
     },
@@ -1098,7 +1108,7 @@
         "scope": { "type": "string", "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$" },
         "group": { "type": "string", "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$" },
         "risk": { "$ref": "#/$defs/riskArray" },
-        "source": { "$ref": "#/$defs/transcribedSource" }
+        "provenance": { "$ref": "#/$defs/transcribedProvenance" }
       },
       "allOf": [
         {
@@ -1147,9 +1157,9 @@
           ]
         },
         "frozenWhen": { "$ref": "#/$defs/nonEmptyString" },
-        "historyLink": { "$ref": "#/$defs/nonEmptyString" },
+        "history": { "$ref": "#/$defs/nonEmptyString" },
         "risk": { "$ref": "#/$defs/riskArray" },
-        "source": { "$ref": "#/$defs/transcribedSource" }
+        "provenance": { "$ref": "#/$defs/transcribedProvenance" }
       },
       "allOf": [
         {
@@ -1178,7 +1188,7 @@
             "required": ["kind"],
             "properties": { "kind": { "const": "commercial-data" } }
           },
-          "then": { "required": ["frozenWhen", "historyLink"] }
+          "then": { "required": ["frozenWhen", "history"] }
         }
       ]
     },
@@ -1208,7 +1218,7 @@
           "items": { "$ref": "#/$defs/nonEmptyString" }
         },
         "risk": { "$ref": "#/$defs/riskArray" },
-        "source": { "$ref": "#/$defs/transcribedSource" }
+        "provenance": { "$ref": "#/$defs/transcribedProvenance" }
       },
       "allOf": [
         {
@@ -1253,7 +1263,7 @@
           "items": { "type": "object" }
         },
         "risk": { "$ref": "#/$defs/riskArray" },
-        "source": { "$ref": "#/$defs/transcribedSource" }
+        "provenance": { "$ref": "#/$defs/transcribedProvenance" }
       },
       "allOf": [
         {
@@ -1296,7 +1306,7 @@
           "items": { "$ref": "#/$defs/nonEmptyString" }
         },
         "risk": { "$ref": "#/$defs/riskArray" },
-        "source": { "$ref": "#/$defs/transcribedSource" }
+        "provenance": { "$ref": "#/$defs/transcribedProvenance" }
       },
       "allOf": [
         {
@@ -1340,7 +1350,7 @@
         "versioning": { "$ref": "#/$defs/nonEmptyString" },
         "fulfills": { "$ref": "#/$defs/requirementIdArray" },
         "risk": { "$ref": "#/$defs/riskArray" },
-        "source": { "$ref": "#/$defs/transcribedSource" }
+        "provenance": { "$ref": "#/$defs/transcribedProvenance" }
       },
       "allOf": [
         {
@@ -1379,7 +1389,7 @@
       "properties": {
         "package": { "type": "string", "pattern": "^(nuget|npm):.+$" },
         "layer": { "$ref": "#/$defs/nonEmptyString" },
-        "licence": { "$ref": "#/$defs/nonEmptyString" },
+        "license": { "$ref": "#/$defs/nonEmptyString" },
         "location": { "$ref": "#/$defs/nonEmptyString" },
         "accountOwner": { "$ref": "#/$defs/nonEmptyString" },
         "failureBehavior": { "$ref": "#/$defs/nonEmptyString" },
@@ -1413,9 +1423,8 @@
         "atBound": { "enum": ["refuse", "truncate", "degrade"] },
         "secret": { "type": "boolean" },
         "fulfills": { "$ref": "#/$defs/requirementIdArray" },
-        "readBy": { "$ref": "#/$defs/useCaseIdArray" },
         "risk": { "$ref": "#/$defs/riskArray" },
-        "source": { "$ref": "#/$defs/transcribedSource" }
+        "provenance": { "$ref": "#/$defs/transcribedProvenance" }
       },
       "allOf": [
         {
@@ -1820,7 +1829,7 @@
         "scope": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$" },
         "allows": { "$ref": "#/$defs/permissionIdArray" },
         "risk": { "$ref": "#/$defs/riskArray" },
-        "source": { "$ref": "#/$defs/transcribedSource" }
+        "provenance": { "$ref": "#/$defs/transcribedProvenance" }
       },
       "allOf": [
         {
@@ -1906,7 +1915,7 @@
         "summary": { "$ref": "#/$defs/nonEmptyString" },
         "dependsOn": { "$ref": "#/$defs/moduleIdArray" },
         "risk": { "$ref": "#/$defs/riskArray" },
-        "source": { "$ref": "#/$defs/transcribedSource" }
+        "provenance": { "$ref": "#/$defs/transcribedProvenance" }
       },
       "allOf": [
         {
@@ -1993,7 +2002,7 @@
         },
         "cursor": { "$ref": "#/$defs/nonEmptyString" },
         "risk": { "$ref": "#/$defs/riskArray" },
-        "source": { "$ref": "#/$defs/transcribedSource" }
+        "provenance": { "$ref": "#/$defs/transcribedProvenance" }
       },
       "allOf": [
         {
@@ -2087,7 +2096,7 @@
         "paging": { "$ref": "#/$defs/pagingValue" },
         "builtAsynchronously": { "type": "boolean" },
         "changes": { "$ref": "#/$defs/aggregateIdArray" },
-        "reads": { "$ref": "#/$defs/aggregateIdArray" },
+        "reads": { "$ref": "#/$defs/readsArray" },
         "consistency": { "$ref": "#/$defs/consistencyObject" },
         "effects": {
           "type": "array",
@@ -2098,7 +2107,7 @@
         "idempotency": { "$ref": "#/$defs/idempotencyObject" },
         "audit": { "$ref": "#/$defs/auditValue" },
         "risk": { "$ref": "#/$defs/riskArray" },
-        "source": { "$ref": "#/$defs/transcribedSource" }
+        "provenance": { "$ref": "#/$defs/transcribedProvenance" }
       },
       "allOf": [
         {
@@ -2180,7 +2189,7 @@
         "onFailure": { "$ref": "#/$defs/structuredOnFailure" },
         "onExhausted": { "$ref": "#/$defs/nonEmptyString" },
         "risk": { "$ref": "#/$defs/riskArray" },
-        "source": { "$ref": "#/$defs/transcribedSource" }
+        "provenance": { "$ref": "#/$defs/transcribedProvenance" }
       },
       "allOf": [
         {
@@ -2219,7 +2228,7 @@
         "records": { "$ref": "#/$defs/recordsArray" },
         "kind": { "enum": ["scheduled", "one-off", "operator"] },
         "schedule": { "$ref": "#/$defs/scheduleObject" },
-        "scope": { "$ref": "#/$defs/nonEmptyString" },
+        "selection": { "$ref": "#/$defs/nonEmptyString" },
         "batchSize": { "type": "integer" },
         "lease": { "$ref": "#/$defs/leaseObject" },
         "effects": {
@@ -2241,7 +2250,7 @@
         "onExhausted": { "$ref": "#/$defs/nonEmptyString" },
         "idempotency": { "$ref": "#/$defs/idempotencyObject" },
         "risk": { "$ref": "#/$defs/riskArray" },
-        "source": { "$ref": "#/$defs/transcribedSource" }
+        "provenance": { "$ref": "#/$defs/transcribedProvenance" }
       },
       "allOf": [
         {
@@ -2323,7 +2332,7 @@
         },
         "fulfills": { "$ref": "#/$defs/requirementIdArray" },
         "risk": { "$ref": "#/$defs/riskArray" },
-        "source": { "$ref": "#/$defs/transcribedSource" }
+        "provenance": { "$ref": "#/$defs/transcribedProvenance" }
       },
       "allOf": [
         {
@@ -2381,7 +2390,7 @@
         "erasure": { "$ref": "#/$defs/erasureValue" },
         "acceptedBy": { "$ref": "#/$defs/acceptedByValue" },
         "risk": { "$ref": "#/$defs/riskArray" },
-        "source": { "$ref": "#/$defs/transcribedSource" }
+        "provenance": { "$ref": "#/$defs/transcribedProvenance" }
       },
       "allOf": [
         {
@@ -2495,7 +2504,7 @@
         "trigger": { "$ref": "#/$defs/nonEmptyString" },
         "severity": { "$ref": "#/$defs/nonEmptyString" },
         "risk": { "$ref": "#/$defs/riskArray" },
-        "source": { "$ref": "#/$defs/transcribedSource" }
+        "provenance": { "$ref": "#/$defs/transcribedProvenance" }
       },
       "allOf": [
         {
@@ -2689,7 +2698,7 @@
         "serves": { "$ref": "#/$defs/journeyStepIdArray" },
         "floorplan": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$" },
         "risk": { "$ref": "#/$defs/riskArray" },
-        "source": { "$ref": "#/$defs/transcribedSource" }
+        "provenance": { "$ref": "#/$defs/transcribedProvenance" }
       },
       "oneOf": [
         {
@@ -2746,9 +2755,8 @@
         "atBound": { "enum": ["refuse", "truncate", "degrade"] },
         "secret": { "type": "boolean" },
         "fulfills": { "$ref": "#/$defs/requirementIdArray" },
-        "readBy": { "$ref": "#/$defs/useCaseIdArray" },
         "risk": { "$ref": "#/$defs/riskArray" },
-        "source": { "$ref": "#/$defs/transcribedSource" }
+        "provenance": { "$ref": "#/$defs/transcribedProvenance" }
       },
       "allOf": [
         {

@@ -121,9 +121,9 @@ What each field means and what reads it:
 
 | Field | Type | Required | Default |
 |:---|:---|:---|:---|
-| `licences` | array of strings | no | none |
+| `licenses` | array of strings | no | none |
 
-- `licences` lists the SPDX licence identifiers the project accepts, such as `MIT` and `Apache-2.0`. A shipped package under any other licence needs an admitting decision that names it.
+- `licenses` lists the SPDX license identifiers the project accepts, such as `MIT` and `Apache-2.0`. A shipped package under any other license needs an admitting decision that names it.
 
 ### The `check` Object
 
@@ -139,7 +139,7 @@ What each field means and what reads it:
 |:---|:---|:---|:---|
 | `transcriptionEndsWith` | string | yes | none |
 
-`transcriptionEndsWith` names the decision that ends transcription mode, such as `"decision/0084-promote-to-production"`. Before that decision is approved, a Behavior record marked `source: transcribed` may be `draft` but never `reviewed`. After it is approved, any remaining transcribed record fails `transcription-expired`.
+`transcriptionEndsWith` names the decision that ends transcription mode, such as `"decision/0084-promote-to-production"`. Before that decision is approved, a Behavior record marked `provenance: transcribed` may be `draft` but never `reviewed`. After it is approved, any remaining transcribed record fails `transcription-expired`.
 
 ### The `refusals` Object
 
@@ -225,7 +225,7 @@ What each field means and what reads it:
 - `alerts` names the alert rule files or folders, in the YAML shape Prometheus rule files and Grafana alert provisioning share, so each rule's `requirement` and `runbook` labels are checked and the alert inventory is rendered from them.
 - `operations` names the deployment, proxy, host, and CI workflow files or folders that carry `follows` marks in their `#` comments; below a named folder every file counts except Markdown documentation.
 - `checkResults` names where drill and harness check results live, read beside the measured-check results under `testResults`.
-- `sbom` names the bill of materials files or folders, SPDX or CycloneDX JSON, checked against the manifest pins, the admissions, and `dependencies.licences`.
+- `sbom` names the bill of materials files or folders, SPDX or CycloneDX JSON, checked against the manifest pins, the admissions, and `dependencies.licenses`.
 - `apiClient` names the generated API client the frontends import, so route calls resolve to the use cases they reach. The model builder appends `src` to the configured path, and the reader takes operations only from the files the client generator writes (`*.gen.ts`), so a hand-written helper beside them is not an operation.
 - `surfaces` names the surfaces outside `paths.frontends` that invoke a use case: a command-line tool, a distributed server, a background host, or an event reaction. Each entry holds `name`, `description`, and an optional `path`.
 - `uiPackage` declares the one shared UI package of the workspace. A workspace with no controlled web frontend omits it. See the `uiPackage` object below.

@@ -15,7 +15,7 @@ static partial class Checker
     private static readonly HashSet<string> ApprovalExcluded = new(StringComparer.Ordinal)
     {
         "type", "id", "title", "owner", "status", "decider", "decideBy",
-        "approvedBy", "approvedOn", "approvedHash", "source",
+        "approvedBy", "approvedOn", "approvedHash", "provenance",
 
         // A nested entry carries its own hash, so its workflow and approval data never reopen its page.
         "records",
@@ -372,7 +372,7 @@ static partial class Checker
             .Select(id => model.ById[id])
             .First(record => record.Type is "use-case" or "reaction" or "job");
 
-        findings.Add(new Finding("effect-loop-invalid", $"Effect loop with no stated end: {key} -> {rotated[0]}.", holder.File, holder.Line, holder.Id));
+        findings.Add(new Finding("effect-loop-invalid", $"{Label(holder.Type)} '{holder.Id}' holds an effect loop with no stated end: {key} -> {rotated[0]}.", holder.File, holder.Line, holder.Id));
     }
 
     /// <summary>
@@ -396,9 +396,9 @@ static partial class Checker
 
             var changes = useCase.Ids("changes");
 
-            if (changes.Count > 1 && BecauseCount(useCase) == 0)
+            if (changes.Count > 1 && CitesCount(useCase) == 0)
             {
-                findings.Add(new Finding("consistency-cites-missing", $"Use case '{useCase.Id}' changes {changes.Count} aggregates atomically with no because rule.", useCase.File, useCase.Line, SubjectOf(useCase)));
+                findings.Add(new Finding("consistency-cites-missing", $"Use case '{useCase.Id}' changes {changes.Count} aggregates atomically with no cites rule.", useCase.File, useCase.Line, SubjectOf(useCase)));
             }
         }
     }
@@ -427,20 +427,20 @@ static partial class Checker
         return null;
     }
 
-    private static int BecauseCount(Record useCase)
+    private static int CitesCount(Record useCase)
     {
         if (useCase.Raw.ValueKind != JsonValueKind.Object
             || !useCase.Raw.TryGetProperty("consistency", out var consistency)
             || consistency.ValueKind != JsonValueKind.Object
-            || !consistency.TryGetProperty("because", out var because))
+            || !consistency.TryGetProperty("cites", out var cites))
         {
             return 0;
         }
 
-        return because.ValueKind switch
+        return cites.ValueKind switch
         {
-            JsonValueKind.Array => because.GetArrayLength(),
-            JsonValueKind.String when because.GetString() is { Length: > 0 } => 1,
+            JsonValueKind.Array => cites.GetArrayLength(),
+            JsonValueKind.String when cites.GetString() is { Length: > 0 } => 1,
             _ => 0,
         };
     }
@@ -451,7 +451,7 @@ static partial class Checker
         {
             if (!HasIncludeGroups(query))
             {
-                findings.Add(new Finding("query-output-missing", $"Query '{query.Id}' declares no output in include groups.", query.File, query.Line, SubjectOf(query)));
+                findings.Add(new Finding("query-output-missing", $"Use case '{query.Id}' declares no output in include groups.", query.File, query.Line, SubjectOf(query)));
             }
         }
     }
@@ -471,7 +471,7 @@ static partial class Checker
             if (!query.Has("paging")
                 || (query.Raw.TryGetProperty("paging", out var paging) && paging.ValueKind == JsonValueKind.Null))
             {
-                findings.Add(new Finding("paging-undeclared", $"Query '{query.Id}' declares no paging.", query.File, query.Line, SubjectOf(query)));
+                findings.Add(new Finding("paging-undeclared", $"Use case '{query.Id}' declares no paging.", query.File, query.Line, SubjectOf(query)));
             }
         }
     }
@@ -491,7 +491,7 @@ static partial class Checker
 
             foreach (var group in include.EnumerateObject().OrderBy(entry => entry.Name, StringComparer.Ordinal))
             {
-                foreach (var cited in LinkStrings(group.Value, "wideningBecause").Order(StringComparer.Ordinal))
+                foreach (var cited in LinkStrings(group.Value, "cites").Order(StringComparer.Ordinal))
                 {
                     // An unknown target is left to reference-unknown.
                     if (!model.ById.TryGetValue(cited, out var target))
@@ -501,7 +501,7 @@ static partial class Checker
 
                     if (target.Type != "requirement" || !LiveApproved(model, target))
                     {
-                        findings.Add(new Finding("widening-cites-missing", $"Query '{query.Id}' widens '{group.Name}' through '{cited}', which is no approved requirement.", query.File, query.Line, SubjectOf(query)));
+                        findings.Add(new Finding("widening-cites-missing", $"Use case '{query.Id}' widens '{group.Name}' through '{cited}', which is no approved requirement.", query.File, query.Line, SubjectOf(query)));
                     }
                 }
             }
@@ -617,7 +617,7 @@ static partial class Checker
             {
                 if (Personal(position.Classification) && position.OnErasure is not { Length: > 0 })
                 {
-                    findings.Add(new Finding("erasure-undeclared", $"Data class '{position.Name}' on aggregate '{aggregate.Id}' holds {position.Classification} data with no erasure position.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
+                    findings.Add(new Finding("erasure-undeclared", $"Aggregate '{aggregate.Id}' holds data class '{position.Name}' with {position.Classification} data and no erasure position.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
                 }
             }
 
@@ -629,7 +629,7 @@ static partial class Checker
             {
                 if (!FieldCovered(classes, listed, field.Name))
                 {
-                    findings.Add(new Finding("erasure-undeclared", $"Field '{field.Name}' on aggregate '{aggregate.Id}' holds {field.Classification} data with no erasure position.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
+                    findings.Add(new Finding("erasure-undeclared", $"Aggregate '{aggregate.Id}' holds field '{field.Name}' with {field.Classification} data and no erasure position.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
                 }
             }
         }
@@ -657,7 +657,7 @@ static partial class Checker
             {
                 if (position.EnforcedBy is not { Length: > 0 })
                 {
-                    findings.Add(new Finding("retention-enforcement-missing", $"Data class '{position.Name}' on aggregate '{aggregate.Id}' names no enforcedBy.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
+                    findings.Add(new Finding("retention-enforcement-missing", $"Aggregate '{aggregate.Id}' holds data class '{position.Name}' with no enforcedBy.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
                 }
 
                 foreach (var exception in position.Exceptions.OrderBy(entry => entry.Field, StringComparer.Ordinal))
@@ -666,7 +666,7 @@ static partial class Checker
                         && exception.EnforcedBy is not { Length: > 0 }
                         && position.EnforcedBy is not { Length: > 0 })
                     {
-                        findings.Add(new Finding("retention-enforcement-missing", $"Field '{exception.Field}' of data class '{position.Name}' on aggregate '{aggregate.Id}' names no enforcedBy.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
+                        findings.Add(new Finding("retention-enforcement-missing", $"Aggregate '{aggregate.Id}' holds field '{exception.Field}' of data class '{position.Name}' with no enforcedBy.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
                     }
                 }
             }
@@ -681,7 +681,7 @@ static partial class Checker
             {
                 if (Personal(position.Classification) && Kept(position.OnErasure))
                 {
-                    CheckAcceptedBy(model, aggregate, position.AcceptedBy, $"Data class '{position.Name}' on aggregate '{aggregate.Id}' keeps {position.Classification} data with '{position.OnErasure}'", findings);
+                    CheckAcceptedBy(model, aggregate, position.AcceptedBy, $"Aggregate '{aggregate.Id}' holds data class '{position.Name}' keeping {position.Classification} data with '{position.OnErasure}'", findings);
                 }
 
                 foreach (var exception in position.Exceptions.OrderBy(entry => entry.Field, StringComparer.Ordinal))
@@ -690,7 +690,7 @@ static partial class Checker
                     {
                         var accepted = exception.AcceptedBy.Count > 0 ? exception.AcceptedBy : position.AcceptedBy;
 
-                        CheckAcceptedBy(model, aggregate, accepted, $"Field '{exception.Field}' of data class '{position.Name}' on aggregate '{aggregate.Id}' keeps {position.Classification} data with '{exception.OnErasure}'", findings);
+                        CheckAcceptedBy(model, aggregate, accepted, $"Aggregate '{aggregate.Id}' holds field '{exception.Field}' of data class '{position.Name}' keeping {position.Classification} data with '{exception.OnErasure}'", findings);
                     }
                 }
             }
@@ -740,14 +740,14 @@ static partial class Checker
             {
                 if (Exempt(position.OnErasure))
                 {
-                    CheckReviewBy(aggregate, position.ReviewBy, $"Data class '{position.Name}' on aggregate '{aggregate.Id}' is exempt", today, findings);
+                    CheckReviewBy(aggregate, position.ReviewBy, $"Aggregate '{aggregate.Id}' holds data class '{position.Name}' that is exempt", today, findings);
                 }
 
                 foreach (var exception in position.Exceptions.OrderBy(entry => entry.Field, StringComparer.Ordinal))
                 {
                     if (Exempt(exception.OnErasure))
                     {
-                        CheckReviewBy(aggregate, exception.ReviewBy ?? position.ReviewBy, $"Field '{exception.Field}' of data class '{position.Name}' on aggregate '{aggregate.Id}' is exempt", today, findings);
+                        CheckReviewBy(aggregate, exception.ReviewBy ?? position.ReviewBy, $"Aggregate '{aggregate.Id}' holds field '{exception.Field}' of data class '{position.Name}' that is exempt", today, findings);
                     }
                 }
             }
@@ -895,7 +895,7 @@ static partial class Checker
             }
             else if (SemanticHash(record) != record.ApprovedHash)
             {
-                findings.Add(new Finding("approval-reopened", $"Record '{record.Id}' changed after {record.Status}: its semantic fields no longer match approvedHash.", record.File, record.Line, SubjectOf(record)));
+                findings.Add(new Finding("approval-reopened", $"Record '{record.Id}' holds semantic fields that differ from its approvedHash.", record.File, record.Line, SubjectOf(record)));
             }
         }
     }
@@ -935,7 +935,7 @@ static partial class Checker
 
                     findings.Add(new Finding(
                         "parent-reopened",
-                        $"Record '{record.Id}' {field} '{target}', which changed after approval.",
+                        $"Record '{record.Id}' {field} '{target}' which differs after approval.",
                         record.File, record.Line, SubjectOf(record))
                     {
                         TierOverride = record.Status == "draft" ? "A" : "G",
@@ -948,7 +948,7 @@ static partial class Checker
     private static void CheckTranscribed(ProjectModel model, List<Finding> findings)
     {
         foreach (var record in model.Records.Where(record =>
-            record.Field("source") == "transcribed" && record.Status == "reviewed"))
+            record.Field("provenance") == "transcribed" && record.Status == "reviewed"))
         {
             // Only an Intent parent that exists can hold the record back; a missing or
             // dangling parent is record-link-missing or reference-unknown, never this code.
@@ -980,10 +980,10 @@ static partial class Checker
             && effective == "approved")
         {
             foreach (var record in model.Records
-                .Where(record => record.Field("source") == "transcribed" && record.Status != "retired")
+                .Where(record => record.Field("provenance") == "transcribed" && record.Status != "retired")
                 .OrderBy(record => record.Id, StringComparer.Ordinal))
             {
-                findings.Add(new Finding("transcription-expired", $"Record '{record.Id}' is still transcribed after '{endsWith}' ended adoption.", record.File, record.Line, SubjectOf(record)));
+                findings.Add(new Finding("transcription-expired", $"Record '{record.Id}' stays transcribed after '{endsWith}' ends adoption.", record.File, record.Line, SubjectOf(record)));
             }
         }
     }
@@ -1009,12 +1009,12 @@ static partial class Checker
         {
             if (!FieldPresent(job, "runsWhere"))
             {
-                findings.Add(new Finding("job-guard-missing", $"Operator job '{job.Id}' states no runsWhere.", job.File, job.Line, SubjectOf(job)));
+                findings.Add(new Finding("job-guard-missing", $"Job '{job.Id}' is an operator job with no runsWhere.", job.File, job.Line, SubjectOf(job)));
             }
 
             if (!FieldPresent(job, "guard"))
             {
-                findings.Add(new Finding("job-guard-missing", $"Operator job '{job.Id}' states no guard.", job.File, job.Line, SubjectOf(job)));
+                findings.Add(new Finding("job-guard-missing", $"Job '{job.Id}' is an operator job with no guard.", job.File, job.Line, SubjectOf(job)));
             }
         }
     }
@@ -1078,13 +1078,13 @@ static partial class Checker
 
             if (!HasSection(body, "Goal"))
             {
-                findings.Add(new Finding("prose-missing", $"Use case '{useCase.Id}' needs a Goal section.", useCase.File, useCase.Line, SubjectOf(useCase)));
+                findings.Add(new Finding("prose-missing", $"Use case '{useCase.Id}' holds no Goal section.", useCase.File, useCase.Line, SubjectOf(useCase)));
             }
 
             // Queries carry no What Happens section, so only commands need one.
             if (useCase.Field("kind") != "query" && !HasSection(body, "What Happens"))
             {
-                findings.Add(new Finding("prose-missing", $"Use case '{useCase.Id}' needs a What Happens section.", useCase.File, useCase.Line, SubjectOf(useCase)));
+                findings.Add(new Finding("prose-missing", $"Use case '{useCase.Id}' holds no What Happens section.", useCase.File, useCase.Line, SubjectOf(useCase)));
             }
         }
     }
@@ -1174,9 +1174,9 @@ static partial class Checker
         foreach (var useCase in model.Records.Where(record =>
             record.Type == "use-case" && record.Field("kind") == "command" && record.Status != "retired"))
         {
-            if (ConsistencyMode(useCase) == "atomic" && BecauseCount(useCase) > 1)
+            if (ConsistencyMode(useCase) == "atomic" && CitesCount(useCase) > 1)
             {
-                findings.Add(new Finding("atomic-group-duplicate", $"Use case '{useCase.Id}' saves more than one atomic write group; consider splitting.", useCase.File, useCase.Line, SubjectOf(useCase)));
+                findings.Add(new Finding("atomic-group-duplicate", $"Use case '{useCase.Id}' saves more than one atomic write group.", useCase.File, useCase.Line, SubjectOf(useCase)));
             }
         }
     }
@@ -1207,7 +1207,7 @@ static partial class Checker
                     continue;
                 }
 
-                findings.Add(new Finding("question-expired", $"Question on '{record.Id}' stands past its decide-by date.", record.File, record.Line, SubjectOf(record)));
+                findings.Add(new Finding("question-expired", $"Record '{record.Id}' holds a question past its decide-by date.", record.File, record.Line, SubjectOf(record)));
                 break;
             }
         }

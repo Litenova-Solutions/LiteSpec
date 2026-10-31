@@ -43,7 +43,7 @@
     {
       "type": "result",
       "id": "result/refuse-expense.not-submitted",
-      "title": "Not submitted",
+      "title": "Not Submitted",
       "owner": "claimwick-team",
       "outcome": "refusal",
       "code": "spending.not-submitted",
@@ -55,7 +55,7 @@
     {
       "type": "scenario",
       "id": "scenario/refuse-expense.rejecting-a-submitted-expense-succeeds",
-      "title": "Rejecting a submitted expense succeeds",
+      "title": "Rejecting a Submitted Expense Succeeds",
       "owner": "claimwick-team",
       "status": "reviewed",
       "given": "An employee submitted an expense outside the policy.",
@@ -69,7 +69,7 @@
     {
       "type": "scenario",
       "id": "scenario/refuse-expense.rejecting-a-decided-expense-is-refused",
-      "title": "Rejecting a decided expense is refused",
+      "title": "Rejecting a Decided Expense Is Refused",
       "owner": "claimwick-team",
       "status": "reviewed",
       "given": "A manager rejected an expense.",

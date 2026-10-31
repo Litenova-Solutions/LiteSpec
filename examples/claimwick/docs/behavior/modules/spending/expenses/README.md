@@ -21,7 +21,7 @@
     },
     {
       "name": "Reimbursed",
-      "meaning": "Finance reimbursed the expense."
+      "meaning": "The reimbursed state of an expense whose payout reached the submitter."
     }
   ],
   "dataClasses": [
@@ -31,7 +31,7 @@
       "fields": [
         "employee"
       ],
-      "onErasure": "pseudonymise",
+      "onErasure": "pseudonymize",
       "basis": "business",
       "period": "P7Y",
       "enforcedBy": "job/spending.erase-expired-personal-data"
@@ -54,7 +54,7 @@
     {
       "type": "rule",
       "id": "rule/expense.receipt-required-above-threshold",
-      "title": "Receipt required above threshold",
+      "title": "Receipt Required Above Threshold",
       "owner": "claimwick-team",
       "status": "reviewed",
       "kind": "precondition",
@@ -74,7 +74,7 @@
     {
       "type": "rule",
       "id": "rule/expense.approver-is-not-submitter",
-      "title": "Approver is not submitter",
+      "title": "Approver Is Not Submitter",
       "owner": "claimwick-team",
       "status": "reviewed",
       "kind": "precondition",
@@ -94,7 +94,7 @@
     {
       "type": "rule",
       "id": "rule/expense.reimbursed-once",
-      "title": "Reimbursed once",
+      "title": "Reimbursed Once",
       "owner": "claimwick-team",
       "status": "reviewed",
       "kind": "invariant",
@@ -114,7 +114,7 @@
     {
       "type": "rule",
       "id": "rule/expense.approved-before-reimbursement",
-      "title": "Approved before reimbursement",
+      "title": "Approved Before Reimbursement",
       "owner": "claimwick-team",
       "status": "reviewed",
       "kind": "precondition",
@@ -134,7 +134,7 @@
     {
       "type": "rule",
       "id": "rule/expense.decided-from-submitted",
-      "title": "Decided from submitted",
+      "title": "Decided from Submitted",
       "owner": "claimwick-team",
       "status": "reviewed",
       "kind": "precondition",
@@ -155,7 +155,7 @@
     {
       "type": "rule",
       "id": "rule/expense.export-carries-approved",
-      "title": "Export carries approved",
+      "title": "Export Carries Approved",
       "owner": "claimwick-team",
       "status": "reviewed",
       "kind": "precondition",
@@ -175,7 +175,7 @@
     {
       "type": "event",
       "id": "event/expense.submitted",
-      "title": "Expense submitted",
+      "title": "Expense Submitted",
       "owner": "claimwick-team",
       "status": "reviewed",
       "meaning": "An expense was submitted.",
@@ -192,7 +192,7 @@
     {
       "type": "event",
       "id": "event/expense.approved",
-      "title": "Expense approved",
+      "title": "Expense Approved",
       "owner": "claimwick-team",
       "status": "reviewed",
       "meaning": "An expense was approved.",
@@ -208,7 +208,7 @@
     {
       "type": "event",
       "id": "event/expense.refused",
-      "title": "Expense refused",
+      "title": "Expense Refused",
       "owner": "claimwick-team",
       "status": "reviewed",
       "meaning": "An expense was refused.",
@@ -224,7 +224,7 @@
     {
       "type": "event",
       "id": "event/expense.reimbursed",
-      "title": "Expense reimbursed",
+      "title": "Expense Reimbursed",
       "owner": "claimwick-team",
       "status": "reviewed",
       "meaning": "An expense was reimbursed.",
@@ -240,8 +240,8 @@
     }
   ],
   "approvedBy": "claimwick-team",
-  "approvedOn": "2026-10-01",
-  "approvedHash": "99b0243b"
+  "approvedOn": "2026-10-31",
+  "approvedHash": "e5377a30"
 }
 ---
 

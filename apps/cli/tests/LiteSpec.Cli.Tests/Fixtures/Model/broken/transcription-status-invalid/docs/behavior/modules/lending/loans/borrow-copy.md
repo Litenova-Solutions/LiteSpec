@@ -64,7 +64,7 @@
   "approvedBy": "lending-team",
   "approvedOn": "2026-10-01",
   "approvedHash": "47d21725",
-  "source": "transcribed"
+  "provenance": "transcribed"
 }
 ---
 

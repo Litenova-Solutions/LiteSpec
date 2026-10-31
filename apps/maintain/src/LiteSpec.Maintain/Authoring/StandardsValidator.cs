@@ -125,6 +125,7 @@ static partial class StandardsValidator
         "VERIFY_MISSING_ID",
         "VERIFY_ORDER",
         "VERIFY_TEMPLATED_EVIDENCE",
+        "VALUE_STYLE",
 
         "TEMPLATE_INDEX_PATH",
         "TEMPLATE_SCHEMA",
@@ -256,6 +257,7 @@ static partial class StandardsValidator
         // reads exactly like a correct one. (litespec/core/principles#keep-one-authored-source)
         CheckTemplateIndex(resolved, Add);
         CheckConsumerTemplates(resolved, Add);
+        CheckValueStyle(resolved, Add);
 
         // A reader who cannot tell a tutorial from a reference opens both and trusts
         // neither, so the documentation root names each class before it links to one.

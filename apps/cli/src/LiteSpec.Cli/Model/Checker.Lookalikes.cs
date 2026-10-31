@@ -10,10 +10,18 @@ static partial class Checker
         {
             findings.Add(new Finding(
                 "term-clash",
-                TermLookalikes.MessageFor(pair),
+                LookalikeMessage(pair),
                 pair.Second.File,
                 pair.Second.Line,
                 pair.Second.Subject ?? pair.First.Subject));
         }
     }
+
+    /// <summary>The B8 finding message for one pair, starting with the second term and its holder.</summary>
+    private static string LookalikeMessage(LookalikePair pair) => pair.Kind switch
+    {
+        "spelling" => $"Term '{pair.Second.Seen}' holds '{pair.Second.Form}' which mixes British and American spelling with '{pair.First.Form}' in '{pair.First.Seen}'.",
+        "plurality" => $"Term '{pair.Second.Seen}' holds '{pair.Second.Form}' which is the singular or plural of '{pair.First.Form}' in '{pair.First.Seen}'.",
+        _ => $"Term '{pair.Second.Seen}' holds '{pair.Second.Form}' which differs only in hyphenation from '{pair.First.Form}' in '{pair.First.Seen}'.",
+    };
 }

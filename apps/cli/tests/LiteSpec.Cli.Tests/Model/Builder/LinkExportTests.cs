@@ -1,7 +1,9 @@
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using LiteSpec.Model;
 using LiteSpec.Tests.Model.Checks;
 using LiteSpec.Tests.Model.Marks;
+using LiteSpec.Tests.Model.Review;
 using LiteSpec.Tests.Support;
 
 namespace LiteSpec.Tests.Model.Builder;
@@ -36,20 +38,27 @@ public sealed class LinkExportTests
             finding.Code == "field-invalid" && finding.Message.Contains("links advances to 'problem/long-waits', which is a problem", StringComparison.Ordinal));
     }
 
-    /// <proves>litespec/core/behavior#name-the-use-cases-that-read-each-setting</proves>
+    /// <proves>litespec/core/behavior#name-the-settings-each-use-case-reads</proves>
     [Fact]
-    public void Setting_ReadBy_Is_Exported_As_A_Link()
+    public void Use_Case_Reads_Setting_Is_Exported_As_A_Link()
     {
         using var temp = ModelFixture.Prepare("large");
         Write(temp.Path, "docs/operations/reading.md", SettingPage);
+        ReviewPages.PatchPage(
+            Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "loans", "borrow-copy.md"),
+            front => front["reads"] = new JsonArray("setting/lending.loan-days"));
 
         using var document = Build(temp.Path);
-        var setting = document.RootElement.GetProperty("records").EnumerateArray()
+        var records = document.RootElement.GetProperty("records").EnumerateArray().ToList();
+        var useCase = records
+            .Single(record => record.GetProperty("id").GetString() == "use-case/lending.borrow-copy");
+        var setting = records
             .Single(record => record.GetProperty("id").GetString() == "setting/lending.loan-days");
 
         Assert.Contains(
-            setting.GetProperty("links").GetProperty("readBy").EnumerateArray().Select(link => link.GetString()),
-            id => id == "use-case/lending.register-copy");
+            useCase.GetProperty("links").GetProperty("reads").EnumerateArray().Select(link => link.GetString()),
+            id => id == "setting/lending.loan-days");
+        Assert.False(setting.GetProperty("links").TryGetProperty("readBy", out _));
     }
 
     /// <proves>litespec/core/model#derive-generic-refusals</proves>
@@ -129,8 +138,7 @@ public sealed class LinkExportTests
               "default": 21,
               "range": "7..60",
               "unit": "days",
-              "setBy": "decider",
-              "readBy": ["use-case/lending.register-copy"]
+              "setBy": "decider"
             }
           ]
         }

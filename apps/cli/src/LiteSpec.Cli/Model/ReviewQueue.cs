@@ -375,7 +375,7 @@ static class ReviewQueue
                 waiting.Add(draft.Id);
             }
             else if (record.Type == "journey"
-                && draft.Field("source") == "transcribed"
+                && draft.Field("provenance") == "transcribed"
                 && draft.Ids("serves").Any(target =>
                     target == record.Id || target.StartsWith(record.Id + "#", StringComparison.Ordinal)))
             {

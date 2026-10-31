@@ -10,7 +10,7 @@ Application code in a .NET backend sends commands and queries through mediators 
 
 A command is a message that changes business state; a query reads a read model without changing state. The boundary sends the message through a LiteBus mediator, and the command pipeline around the handler runs validation, authorization, the handler itself, and then one commit. Commands travel through `ICommandMediator` and queries through `IQueryMediator`, so the write path and the read path stay visibly separate at every call site.
 
-A reaction answers a domain event or an integration event in one class carrying one mark naming its reaction record. A job issues its declared commands once per item in its scope.
+A reaction answers a domain event or an integration event in one class carrying one mark naming its reaction record. A job issues its declared commands once per item in its selection.
 
 ### Validity Findings
 
@@ -110,7 +110,7 @@ internal sealed class SendDueNoticeOnLoanBorrowedHandler(...)
 
 **Statement:** A job MUST run as one hosted operation carrying one mark naming its job record.
 
-**Rationale:** The job class lives in Infrastructure with the scheduling concerns and registers on the declared execution host. It honors its record's scope, batch size, lease, and cursor, issues its commands once per item, and records its evidence where the record states. An `operator` job states its `runsWhere` and its guard and touches no aggregate. This provision states the .NET form of `litespec/backend/application#run-each-job-within-its-declared-scope`.
+**Rationale:** The job class lives in Infrastructure with the scheduling concerns and registers on the declared execution host. It honors its record's selection, batch size, lease, and cursor, issues its commands once per item, and records its evidence where the record states. An `operator` job states its `runsWhere` and its guard and touches no aggregate. This provision states the .NET form of `litespec/backend/application#run-each-job-within-its-declared-selection`.
 
 **Example:**
 
@@ -122,7 +122,7 @@ internal sealed class EraseExpiredPersonalDataJob(...)
 }
 ```
 
-**Reviewed for:** Each job: one hosted operation carrying its record's mark, honoring scope, batch size, lease, and cursor.
+**Reviewed for:** Each job: one hosted operation carrying its record's mark, honoring selection, batch size, lease, and cursor.
 
 ### Bind the Pipeline to the Pinned LiteBus APIs
 

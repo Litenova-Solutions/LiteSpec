@@ -22,7 +22,7 @@ Every version resolves in one owned place: `litespec.manifest.json` pins the bas
 
 ### Approving a New Package
 
-A package outside the manifest lands only with a technical decision under `docs/implementation/decisions/`: the use case it serves, the alternatives weighed, and the condition that removes it, with an `admits` entry per package naming its owning layer, licence, processing location, account owner, failure behavior, and operating cost. Writing the removal condition while the alternatives are still fresh keeps each package traceable to the requirement that admitted it.
+A package outside the manifest lands only with a technical decision under `docs/implementation/decisions/`: the use case it serves, the alternatives weighed, and the condition that removes it, with an `admits` entry per package naming its owning layer, license, processing location, account owner, failure behavior, and operating cost. Writing the removal condition while the alternatives are still fresh keeps each package traceable to the requirement that admitted it.
 
 The bill of materials the project generates in CI, an SPDX or CycloneDX JSON document `paths.sbom` names, is checked against the manifest pins and the admissions. A direct package is one the document root depends on in one step: an SPDX `DEPENDS_ON` relationship from the root package, or a CycloneDX `dependencies` entry of `metadata.component`. Its ecosystem comes from its package URL: `pkg:nuget/` maps to the manifest's NuGet pins and to `nuget:` admission ids, and `pkg:npm/` to its npm pins and `npm:` ids.
 
@@ -84,11 +84,11 @@ The bill of materials the project generates in CI, an SPDX or CycloneDX JSON doc
 
 **ID:** `litespec/workspace/dependencies#approve-new-packages-explicitly`
 
-**Statement:** A package absent from the manifest MUST be admitted by a technical decision whose `admits` entry names the package with its owning layer, licence, processing location, account owner, failure behavior, and operating cost.
+**Statement:** A package absent from the manifest MUST be admitted by a technical decision whose `admits` entry names the package with its owning layer, license, processing location, account owner, failure behavior, and operating cost.
 
-**Rationale:** A package arrives with a cost nobody revisits: updates, advisories, licence review, and migration work, and a hosted one adds a place personal data may travel and an account someone must own. The decision answers those while the alternatives are still fresh: its options and chosen option give the use case and the alternatives, its `changeWhen` gives the removal condition, and its `admits` entry gives the facts a dependency gate asks per package. A baseline package lands in the manifest in the same change as its decision. A consumer-owned package lands in the consumer's central file instead, because the manifest belongs to the LiteSpec release rather than to the consumer.
+**Rationale:** A package arrives with a cost nobody revisits: updates, advisories, license review, and migration work, and a hosted one adds a place personal data may travel and an account someone must own. The decision answers those while the alternatives are still fresh: its options and choice give the use case and the alternatives, its `reopenedWhen` gives the removal condition, and its `admits` entry gives the facts a dependency gate asks per package. A baseline package lands in the manifest in the same change as its decision. A consumer-owned package lands in the consumer's central file instead, because the manifest belongs to the LiteSpec release rather than to the consumer.
 
-**Example:** Claimwick's `decision/0005-render-receipts-as-pdf` chooses a PDF library over an HTML-to-PDF browser and admits `nuget:PdfSharp` with layer `Infrastructure`, licence `MIT`, location `in-process`, account owner `none`, failure behavior "the receipt download fails and the expense stays readable", and operating cost `none`.
+**Example:** Claimwick's `decision/0005-render-receipts-as-pdf` chooses a PDF library over an HTML-to-PDF browser and admits `nuget:PdfSharp` with layer `Infrastructure`, license `MIT`, location `in-process`, account owner `none`, failure behavior "the receipt download fails and the expense stays readable", and operating cost `none`.
 
 **Checked by:** `litespec model check` reports `dependency-undeclared` (tier S) for a direct package in the bill of materials that the manifest does not pin and no decision admits, and `admission-invalid` (tier G) for an `admits` entry missing any of its six facts.
 
@@ -104,17 +104,17 @@ The bill of materials the project generates in CI, an SPDX or CycloneDX JSON doc
 
 **Checked by:** `litespec model check` reports `dependency-version-drift` (tier S) for a direct package whose version differs from its manifest pin.
 
-### Accept Every Shipped Package Licence Explicitly
+### Accept Every Shipped Package License Explicitly
 
-**ID:** `litespec/workspace/dependencies#accept-every-shipped-package-licence-explicitly`
+**ID:** `litespec/workspace/dependencies#accept-every-shipped-package-license-explicitly`
 
-**Statement:** Every direct package in the project's generated bill of materials MUST carry a licence the project accepts in `dependencies.licences`, or one its `admits` entry names.
+**Statement:** Every direct package in the project's generated bill of materials MUST carry a license the project accepts in `dependencies.licenses`, or one its `admits` entry names.
 
-**Rationale:** A copyleft or commercial licence binds the product the day the package ships, and a licence nobody accepted is found at an audit rather than at the change that brought it. Listing the accepted licences once, and naming any other on the admitting decision, keeps the licence choice a decision with a person's name on it.
+**Rationale:** A copyleft or commercial license binds the product the day the package ships, and a license nobody accepted is found at an audit rather than at the change that brought it. Listing the accepted licenses once, and naming any other on the admitting decision, keeps the license choice a decision with a person's name on it.
 
-**Example:** Claimwick accepts `MIT`, `Apache-2.0`, and `BSD-3-Clause` in `dependencies.licences`, so a direct package under `AGPL-3.0-only` that no decision admits is reported.
+**Example:** Claimwick accepts `MIT`, `Apache-2.0`, and `BSD-3-Clause` in `dependencies.licenses`, so a direct package under `AGPL-3.0-only` that no decision admits is reported.
 
-**Checked by:** `litespec model check` reports `dependency-license-unknown` (tier S) for a direct package whose licence the project does not accept and no `admits` entry names.
+**Checked by:** `litespec model check` reports `dependency-license-unknown` (tier S) for a direct package whose license the project does not accept and no `admits` entry names.
 
 ### Keep Frontend Applications Isolated
 

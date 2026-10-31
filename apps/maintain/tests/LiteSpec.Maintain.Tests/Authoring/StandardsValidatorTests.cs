@@ -370,6 +370,7 @@ public sealed partial class StandardsValidatorTests
             "VERIFY_MISSING_ID",
             "VERIFY_ORDER",
             "VERIFY_TEMPLATED_EVIDENCE",
+            "VALUE_STYLE",
         };
 
         foreach (var code in StandardsValidator.StableDiagnosticCodes)

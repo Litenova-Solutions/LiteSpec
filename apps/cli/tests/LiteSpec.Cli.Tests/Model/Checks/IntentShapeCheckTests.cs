@@ -27,7 +27,7 @@ public sealed class IntentShapeCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.md"), """{"kind": "functional", "statement": "A reader holds at most five active loans.", "rationale": "Readers share popular copies.", "setBy": "founder"}"""));
 
-        Assert.True(Reports(model, "field-invalid", "has setBy 'founder'; decider, operator, tenant."));
+        Assert.True(Reports(model, "field-invalid", "has setBy 'founder' outside decider, operator, tenant."));
     }
 
     /// <proves>litespec/core/intent#shape-each-decision-page</proves>

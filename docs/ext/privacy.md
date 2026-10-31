@@ -10,7 +10,7 @@ Activation scope: `project`.
 
 Applicable specification kinds: None.
 
-The project selects `privacy` when its retention schedule names a tombstone, discard, cascade-only, or transferred position, a requested reach, an export-first guard, a retention conflict, or a restore that can bring erased data back. A project whose data classes use only erase, pseudonymise, retain, and exempt does not select it: the core positions already cover that project.
+The project selects `privacy` when its retention schedule names a tombstone, discard, cascade-only, or transferred position, a requested reach, an export-first guard, a retention conflict, or a restore that can bring erased data back. A project whose data classes use only erase, pseudonymize, retain, and exempt does not select it: the core positions already cover that project.
 
 ## Baseline Relationship
 

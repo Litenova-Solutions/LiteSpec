@@ -26,7 +26,7 @@ A [module](../reference/glossary.md) is one business area organizing language, r
 
 ### Commands and Queries
 
-CQRS separates the command and query models inside the one Application part: a command mutates one aggregate through its domain repository, while a query projects read results without loading an aggregate and without writing. A use case whose record declares `consistency: atomic` over several aggregates is the declared exception, naming each aggregate it changes. A reaction answers its trigger by issuing a command or sending a notification, and a job issues one command per item in its scope; neither travels the command pipeline itself. Publishing a post, for example, runs a `PublishPostCommand` through the handler and the domain repository, while reading a post runs a query that projects the stored data directly to its result.
+CQRS separates the command and query models inside the one Application part: a command mutates one aggregate through its domain repository, while a query projects read results without loading an aggregate and without writing. A use case whose record declares `consistency: atomic` over several aggregates is the declared exception, naming each aggregate it changes. A reaction answers its trigger by issuing a command or sending a notification, and a job issues one command per item in its selection; neither travels the command pipeline itself. Publishing a post, for example, runs a `PublishPostCommand` through the handler and the domain repository, while reading a post runs a query that projects the stored data directly to its result.
 
 ### From Records to Code
 

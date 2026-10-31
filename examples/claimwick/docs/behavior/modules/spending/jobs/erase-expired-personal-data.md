@@ -10,7 +10,7 @@
     "every": "P1D",
     "timezone": "Europe/Amsterdam"
   },
-  "scope": "Decided expenses past their retention.",
+  "selection": "Decided expenses past their retention.",
   "effects": [
     {
       "issues": "use-case/spending.erase-personal-data",
@@ -21,8 +21,8 @@
     "requirement/approval.erase-after-retention"
   ],
   "approvedBy": "claimwick-team",
-  "approvedOn": "2026-10-01",
-  "approvedHash": "5bc21c0f"
+  "approvedOn": "2026-10-31",
+  "approvedHash": "9a6e6d7d"
 }
 ---
 

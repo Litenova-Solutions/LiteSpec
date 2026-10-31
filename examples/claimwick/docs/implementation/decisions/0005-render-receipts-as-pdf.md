@@ -26,7 +26,7 @@
     {
       "package": "nuget:PdfSharp",
       "layer": "Infrastructure",
-      "licence": "MIT",
+      "license": "MIT",
       "location": "in-process",
       "accountOwner": "none",
       "failureBehavior": "the receipt download fails and the expense stays readable",
@@ -34,8 +34,8 @@
     }
   ],
   "approvedBy": "claimwick-team",
-  "approvedOn": "2026-10-01",
-  "approvedHash": "f179da6a"
+  "approvedOn": "2026-10-31",
+  "approvedHash": "7dc3afe4"
 }
 ---
 

@@ -172,7 +172,7 @@ public sealed class ApprovalToolFixTests
     {
         using var fixture = ModelFixture.Prepare("large");
 
-        ReviewPages.PatchPage(BorrowCopy(fixture.Path), front => front["source"] = "transcribed");
+        ReviewPages.PatchPage(BorrowCopy(fixture.Path), front => front["provenance"] = "transcribed");
 
         var approved = Cli.Run("model", "check", "--root", fixture.Path, "--format", "json");
 
@@ -288,7 +288,7 @@ public sealed class ApprovalToolFixTests
         using var fixture = ModelFixture.Prepare("large");
 
         ReviewPages.DraftPage(BorrowCopy(fixture.Path));
-        ReviewPages.PatchPage(BorrowCopy(fixture.Path), front => front["source"] = "transcribed");
+        ReviewPages.PatchPage(BorrowCopy(fixture.Path), front => front["provenance"] = "transcribed");
         ReviewPages.DraftPage(ReviewPages.Page(fixture.Path, "docs", "product", "journeys", "borrow-and-return.md"));
 
         var result = Cli.Run(

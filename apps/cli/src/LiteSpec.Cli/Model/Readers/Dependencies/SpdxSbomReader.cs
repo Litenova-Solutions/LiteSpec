@@ -6,7 +6,7 @@ namespace LiteSpec.Model.Readers.Dependencies;
 ///     Reads the direct packages of an SPDX 2.x JSON bill of materials: the packages the
 ///     root package depends on in one step, where the root is the DESCRIBES target of
 ///     SPDXRef-DOCUMENT. The ecosystem and name come from each package's purl external
-///     reference, and the licence from licenseConcluded else licenseDeclared.
+///     reference, and the license from licenseConcluded else licenseDeclared.
 /// </summary>
 /// <follows>litespec/workspace/dependencies#match-every-shipped-package-to-its-pin</follows>
 static class SpdxSbomReader
@@ -68,7 +68,7 @@ static class SpdxSbomReader
                 parsed.Ecosystem,
                 parsed.Name,
                 parsed.Version.Length > 0 ? parsed.Version : StringOf(package, "versionInfo"),
-                LicenceOf(package),
+                LicenseOf(package),
                 file));
         }
 
@@ -139,10 +139,10 @@ static class SpdxSbomReader
     }
 
     /// <summary>
-    ///     The package's licence: licenseConcluded else licenseDeclared, where NONE and
+    ///     The package's license: licenseConcluded else licenseDeclared, where NONE and
     ///     NOASSERTION count as unstated and fall through. Empty when neither states one.
     /// </summary>
-    private static string LicenceOf(JsonElement package)
+    private static string LicenseOf(JsonElement package)
     {
         var concluded = StringOf(package, "licenseConcluded");
 

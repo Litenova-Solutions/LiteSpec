@@ -200,3 +200,38 @@ Reaction, job, process, deviation and known-gap fields are not renamed here: wav
 ## Wave 4: The Value Style Check
 
 `litespec model check` reports the mechanical half of the value style (B3) on consumer records as one code, `value-invalid`, at level A. Its message names the record, the field and the rule the value breaks: "Requirement 'checkout.room-held' has a statement that does not end in a period."
+
+## Wave 5: Mini-Languages Become Objects (D12)
+
+Every value below was a string with its own small grammar; it becomes an object whose `mode` names the case. A `reason` completes "because ..." (B6). Durations are ISO 8601.
+
+| Field | Old string | New object |
+|:---|:---|:---|
+| query `freshness` | `immediate`, `snapshot` | `{ "mode": "immediate" }`, `{ "mode": "snapshot" }` |
+| query `freshness` | `bounded (<duration>)` | `{ "mode": "bounded", "within": "PT5M" }` |
+| query `freshness` | `advisory` | `{ "mode": "advisory", "authority": "<record id that holds the authoritative value>" }` |
+| query `paging` | `none (<reason>)` | `{ "mode": "none", "reason": "..." }`; a paged query keeps its object and adds `"mode": "pages"` |
+| `compensation` | `none (<reason>)` | `{ "mode": "none", "reason": "..." }`; a compensating use case is `{ "mode": "use-case", "useCase": "use-case/..." }` |
+| retention `period` | `none (on-demand)` | `{ "mode": "none", "reason": "..." }`; a duration stays a string |
+| rule `releasedBy` | `never (<cost>)` | `{ "mode": "never", "reason": "..." }`; a releasing record stays an id |
+| erasure `forwarding`, data class erasure | `call <operation>` | `{ "mode": "call", "operation": "external-system/<name>#<operation>" }` |
+| erasure | `via integration-event/<name>` | `{ "mode": "event", "event": "integration-event/<name>" }` |
+| erasure | `impossible (<reason>)` | `{ "mode": "impossible", "reason": "..." }` |
+| `onFailure` | `retry (<n>, <backoff>) then dead-letter`, `skip-and-log`, `discard` | the structured object only: `{ "mode": "retry", "retry": { "maxAttempts": 5, "backoff": "PT1M" }, "then": "dead-letter" }`, `{ "mode": "skip-and-log" }`, `{ "mode": "discard" }` |
+| `retries` | integer or string | removed; the retry count lives in `onFailure.retry.maxAttempts` |
+
+The process `driver` (`operator: ...`) is reshaped in wave 6 with the saga (D28, D32).
+
+## Wave 5: The Behavior Page Splits by Folder Home (D5)
+
+`docs/core/behavior.md` keeps the Behavior overview: its Intent, the Spec to Design Mapping concept, Keep Design Choices Out of the Records, the Conventions and the Reference Example, and a table linking the five pages below. Every other concept and provision moves, unchanged in heading, to one page:
+
+| Page | Title | Holds |
+|:---|:---|:---|
+| `docs/core/domain-model.md` | Domain Model | Bounded Context and Module, Glossary, Aggregates, Process Aggregates, Rules, Domain Events; the provisions from Define Every Behavior Term in the Glossary through Raise Every Event Through Its Aggregate Root, except the data-class and erasure ones; Keep Model Invariants in Rules |
+| `docs/core/use-cases.md` | Use Cases | Use Cases, Queries, Use-Case Verbs, Results and Refusals, Scenarios, Settings; the provisions from Give Each Use Case a Command or Query Kind through Write Prose on Significant Use Cases, and the setting provisions |
+| `docs/core/automation.md` | Automation | Reactions, Jobs; the reaction and job provisions |
+| `docs/core/edges.md` | Edges and Screens | Integration Events, Notifications, Entry Points, Screens, External Systems; their provisions, except Route Every External Erasure Through an Operation or Event |
+| `docs/core/privacy.md` | Privacy and Retention | Retention Schedule and the data classes; Classify Every Aggregate Data Field, Declare Every Data Class with Its Erasure Position, Accept Every Retained Personal Data Class in Intent, Review Every Erasure Exemption Before Its Date, Route Every External Erasure Through an Operation or Event, Schedule Every Data Class for Retention |
+
+A moved provision keeps its heading, so its ID changes only in the page part: `litespec/core/behavior#<slug>` becomes `litespec/core/<page>#<slug>`. The judge renames every citation by script after the split.

@@ -90,7 +90,7 @@ public sealed class ErasureCheckTests
              "data": [{"name": "borrower-email", "meaning": "The address notices go to.", "classification": "personal"}],
              "dataClasses": [{"name": "Borrower identity", "classification": "personal", "fields": ["shelf"],
                "onErasure": "erase", "basis": "business", "enforcedBy": "record-expiry",
-               "exceptions": [{"field": "borrower-email", "onErasure": "pseudonymise"}]}]}
+               "exceptions": [{"field": "borrower-email", "onErasure": "pseudonymize"}]}]}
             """;
         var model = TestModel.Model(
             TestModel.Config(temp.Path),

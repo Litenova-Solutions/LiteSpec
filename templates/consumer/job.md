@@ -12,7 +12,7 @@
     "every": "<ISO duration, or replace this line with a cron expression line>",
     "timezone": "<IANA timezone>"
   },
-  "scope": "<What each run selects>",
+  "selection": "<What each run selects>",
   "batchSize": "<number>",
   "lease": {
     "name": "<lock>",

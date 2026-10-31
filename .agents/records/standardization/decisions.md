@@ -43,3 +43,7 @@ After the wave 1 and 2 fix round, two book tests still fail because `model.md` a
 ## 2026-10-31: Finding Codes Are Renamed by Script Before the Wave
 
 The 85 code renames of contracts.md are exact hyphenated tokens, so `w4.codes` renamed 1,570 occurrences in 143 files by a whole-token script (no letter, digit or hyphen may touch a match), moved the 38 broken-overlay fixture folders named after codes, and left heading-slug test data alone. Two approved Claimwick known gaps named renamed codes; they were re-stamped. The rename was committed alone, so wave 4's workers start from a HEAD where every code already follows B8.
+
+## 2026-10-31: Part D Pages Land with Part I
+
+Part D's page items (D4, D5) edit the Behavior pages that Part I (wave 6) rewrites for automations, sagas, doors and typed inputs. Wave 5 splits `behavior.md` into its five pages (D5) and lands Part D's code and schema items with the mini-language objects (D12); the remaining Part D page items join wave 6, so each Behavior page is rewritten once.

@@ -689,7 +689,7 @@ public sealed class HandlerShapeCheckTests
 
         Assert.Contains("void-order", finding.Message, StringComparison.Ordinal);
         Assert.Contains("notification/lending.voided", finding.Message, StringComparison.Ordinal);
-        Assert.Contains("after the commit from an event handler or a job", finding.Message, StringComparison.Ordinal);
+        Assert.EndsWith(" inline.", finding.Message, StringComparison.Ordinal);
     }
 
     /// <proves>litespec/backend/application#send-messages-after-commit</proves>
@@ -736,7 +736,7 @@ public sealed class HandlerShapeCheckTests
 
         Assert.Contains("void-order", finding.Message, StringComparison.Ordinal);
         Assert.Contains("external-system/billing#void", finding.Message, StringComparison.Ordinal);
-        Assert.Contains("after the commit from an event handler or a job", finding.Message, StringComparison.Ordinal);
+        Assert.EndsWith(" inline.", finding.Message, StringComparison.Ordinal);
     }
 
     /// <proves>litespec/backend/application#send-messages-after-commit</proves>

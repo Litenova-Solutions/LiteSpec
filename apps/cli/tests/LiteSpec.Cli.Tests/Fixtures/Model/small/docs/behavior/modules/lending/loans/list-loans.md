@@ -30,7 +30,7 @@
           }
         ],
         "classification": "internal",
-        "source": [
+        "reads": [
           "aggregate/lending.loan"
         ],
         "freshness": "immediate"
@@ -57,8 +57,8 @@
     }
   ],
   "approvedBy": "lending-team",
-  "approvedOn": "2026-10-01",
-  "approvedHash": "508222a9"
+  "approvedOn": "2026-10-31",
+  "approvedHash": "fb1aaa40"
 }
 ---
 

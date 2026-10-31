@@ -33,11 +33,11 @@
           }
         ],
         "classification": "internal",
-        "source": [
+        "reads": [
           "aggregate/lending.loan"
         ],
         "freshness": "immediate",
-        "wideningBecause": "rule/loan.has-one-borrower"
+        "cites": "rule/loan.has-one-borrower"
       }
     }
   },

@@ -86,7 +86,7 @@ It switches on no record type: the promotion decision is a core record every pro
 
 **ID:** `litespec/ext/stage#hold-transcribed-records-in-draft`
 
-**Statement:** A Behavior record with `source: transcribed` MUST stay in `draft` until its `fulfills` or `serves` parent is approved.
+**Statement:** A Behavior record with `provenance: transcribed` MUST stay in `draft` until its `fulfills` or `serves` parent is approved.
 
 **Rationale:** A transcribed record carries what working code does, not what anyone decided, so reviewing it would approve behavior with no promise behind it. Holding it in draft until its requirement or journey parent is approved keeps every reviewed record a carried promise. The `transcription-status-invalid` check reports a transcribed record that reached reviewed early.
 

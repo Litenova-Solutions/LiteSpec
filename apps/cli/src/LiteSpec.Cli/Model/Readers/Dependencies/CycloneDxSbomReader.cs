@@ -5,7 +5,7 @@ namespace LiteSpec.Model.Readers.Dependencies;
 /// <summary>
 ///     Reads the direct packages of a CycloneDX 1.x JSON bill of materials: the dependsOn of
 ///     the dependencies entry whose ref is metadata.component.bom-ref. The ecosystem and name
-///     come from each component's purl, and the licence from its licenses entries.
+///     come from each component's purl, and the license from its licenses entries.
 /// </summary>
 /// <follows>litespec/workspace/dependencies#match-every-shipped-package-to-its-pin</follows>
 static class CycloneDxSbomReader
@@ -66,7 +66,7 @@ static class CycloneDxSbomReader
                 parsed.Ecosystem,
                 parsed.Name,
                 parsed.Version.Length > 0 ? parsed.Version : StringOf(component, "version"),
-                LicenceOf(component),
+                LicenseOf(component),
                 file));
         }
 
@@ -123,10 +123,10 @@ static class CycloneDxSbomReader
     }
 
     /// <summary>
-    ///     The component's licence: the first licenses expression, else every
+    ///     The component's license: the first licenses expression, else every
     ///     licenses license id joined by OR. Empty when the component states none.
     /// </summary>
-    private static string LicenceOf(JsonElement component)
+    private static string LicenseOf(JsonElement component)
     {
         if (!component.TryGetProperty("licenses", out var licenses)
             || licenses.ValueKind != JsonValueKind.Array)

@@ -75,7 +75,7 @@ Some records need a person and some do not. A requirement or Behavior record may
 
 Intent flows one way, from constraint down to scenario: constraint outranks product, product outranks requirement, requirement outranks rule, rule outranks use case, use case outranks result, and result outranks scenario. When code and an approved record disagree where Intent has spoken, the spec wins. Where Intent is silent, working code is evidence for a question, never a defect to delete and never a source to transcribe silently.
 
-An agent builds from approved and reviewed records. Where a record is still a draft, the agent reports the open question to its decider instead of choosing an answer. During adoption, a Behavior record written from existing code carries `source: transcribed` and stays in draft until its Intent parent is approved; the `adoption.transcriptionEndsWith` decision ends that mode.
+An agent builds from approved and reviewed records. Where a record is still a draft, the agent reports the open question to its decider instead of choosing an answer. During adoption, a Behavior record written from existing code carries `provenance: transcribed` and stays in draft until its Intent parent is approved; the `adoption.transcriptionEndsWith` decision ends that mode.
 
 ## The Review Flow
 

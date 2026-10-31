@@ -46,7 +46,7 @@ The body keeps the Transitions and Data tables from the aggregate page style. Th
 | Field | Meaning |
 |:---|:---|
 | `name`, `classification`, `fields` | The class, its `public`, `internal`, `personal`, or `sensitive` handling, and its fields. |
-| `onErasure` | `erase`, `pseudonymise`, `retain`, or `exempt`. |
+| `onErasure` | `erase`, `pseudonymize`, `retain`, or `exempt`. |
 | `basis` | `statute`, `business`, or `engineering`. |
 | `period` | The retention period as an ISO duration, or `none (on-demand)`. |
 | `enforcedBy` | `job/...`, `record-expiry`, `store-ttl`, or `query-filter`. |
@@ -78,7 +78,7 @@ A rule states what holds, with its `kind` and its `statement`. A rule names what
 | `cross-aggregate` | Spans aggregates and lives on a rule page. |
 | `atomicity` | Names one atomic write group. |
 | `reservation` | Holds a claim until a use case releases it, named in `releasedBy`, or `never` with its cost. |
-| `commercial-data` | Freezes a commercial value, with `frozenWhen` and `historyLink`. |
+| `commercial-data` | Freezes a commercial value, with `frozenWhen` and `history`. |
 | `default` | States a model default. |
 
 A query and a command showing and recording one value both cite the same calculation rule in `computedBy`. Code carries a mark naming the rule, and never the reverse.
@@ -113,25 +113,25 @@ A use case is one independently testable goal: a page beside its aggregate with 
 | Field | Meaning |
 |:---|:---|
 | `access` | `{ auth, grant, tenant }`: auth of `session`, `token`, `device`, `link`, `app`, `anonymous`, or `system`; grant of `permission/<name>`, `self(permission/<name>)`, `anonymous`, or `system`; tenant of `own`, `cross`, `public`, or `none`. |
-| `input` | `{ name, meaning, rules, source, classification }` entries; source is `caller`, `claim`, or `derived`. |
-| `changes`, `reads` | Aggregate ids touched, including `store` aggregates. |
-| `consistency` | `{ mode, because }`: mode of `atomic`, `per-record`, `compensated`, or `best-effort`. |
+| `input` | `{ name, meaning, rules, origin, classification }` entries; origin is `caller`, `claim`, or `derived`. |
+| `changes`, `reads` | Aggregate ids changed, and aggregate and setting ids read, including `store` aggregates. |
+| `consistency` | `{ mode, cites }`: mode of `atomic`, `per-record`, `compensated`, or `best-effort`. |
 | `effects` | `{ issues / sends / publishes / calls, timing, onFailure, before, forEach }` entries with exactly one verb; timing is `inline`, `after-commit`, or `async`. On a command, a `sends` or `calls` effect uses `after-commit` or `async` timing. An inline `issues` entry states `sharesTransaction`. |
 | `idempotency` | `{ mode, key, scope, reason }`: mode of `key`, `state`, `not-pending`, or `none`; `key` templates `{field}` placeholders over the input field names; `scope` is `tenant`, `account`, `login`, or `global`. |
-| `audit` | `{ reason, target }` with reason of `required`, `optional`, or `none`, or `{ exempt }` with its justification. Commands are audited by default with reason `none`, and async work audits at request time. |
+| `audit` | `{ level, target }` with level of `required`, `optional`, or `none`, or `{ exempt }` with its justification. Commands are audited by default with level `none`, and async work audits at request time. |
 
 Goal and What Happens are required only when the use case changes more than one aggregate, refuses beyond the generic refusals, carries risk, or issues inline effects. Otherwise frontmatter plus Goal is enough.
 
 ### Queries
 
-A query reads without changing and declares what its readers receive. Its output groups fields into named `include` groups, each with its fields, classification, source aggregates, and freshness. Freshness is `immediate`, `snapshot`, `bounded` with a duration, or `advisory` naming the authority deciding later and exposing the gap as a typed output field. A command may declare its output as a list of `{ name, meaning }`.
+A query reads without changing and declares what its readers receive. Its output groups fields into named `include` groups, each with its fields, classification, the aggregates it reads, and freshness. Freshness is `immediate`, `snapshot`, `bounded` with a duration, or `advisory` naming the authority deciding later and exposing the gap as a typed output field. A command may declare its output as a list of `{ name, meaning }`.
 
 | Field | Meaning |
 |:---|:---|
-| `output.include` | Named groups of `{ fields, classification, source, freshness, visibleWhen, wideningBecause }`; each field carries `name` and `meaning`. |
-| `visibleWhen`, `wideningBecause` | The optional visibility condition and the requirement widening visibility beyond the sources. |
+| `output.include` | Named groups of `{ fields, classification, reads, freshness, visibleWhen, cites }`; each field carries `name` and `meaning`. |
+| `visibleWhen`, `cites` | The optional visibility condition and the requirement widening visibility beyond the aggregates in `reads`. |
 | `paging` | `{ order, cursor | offset, defaultLimit, maxLimit }`, or `none (reason)`. |
-| `builtAsynchronously` | Set where the source lags, with a bounded or advisory freshness and a lag scenario. |
+| `builtAsynchronously` | Set where a read aggregate lags, with a bounded or advisory freshness and a lag scenario. |
 
 ### Use-Case Verbs
 
@@ -210,13 +210,13 @@ A reaction may hold scenario child records ending in a result of a use case its 
 
 ### Jobs
 
-A job is scheduled, one-off, or operator work running without a request. A scheduled job runs on its structured schedule; a one-off job runs once; an operator job is interactive platform work with no aggregate, such as a rehearsal harness. Its `effects` run once per item in its `scope`.
+A job is scheduled, one-off, or operator work running without a request. A scheduled job runs on its structured schedule; a one-off job runs once; an operator job is interactive platform work with no aggregate, such as a rehearsal harness. Its `effects` run once per item in its `selection`.
 
 | Field | Meaning |
 |:---|:---|
 | `kind` | `scheduled`, `one-off`, or `operator`. |
 | `schedule` | `{ every | cron, timezone }` in structured form. |
-| `scope`, `batchSize`, `lease` | What each run selects, how many items per batch, and the lock with its duration. |
+| `selection`, `batchSize`, `lease` | What each run selects, how many items per batch, and the lock with its duration. |
 | `effects`, `reads` | The `{ issues / sends / publishes / calls, timing }` entries run per item and the aggregates read. There is no top-level `issues`. |
 | `serviceLevel`, `evidence` | The promise citing its requirement, and where proof of a run lands. |
 | `runbook`, `runsWhere` | The runbook answering the job and where it runs. |
@@ -251,7 +251,6 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 | `atBound` | `refuse`, `truncate`, or `degrade`. |
 | `secret` | Whether the value is secret. |
 | `fulfills` | The requirements carried. |
-| `readBy` | The use cases that read the setting. |
 
 ### Entry Points
 
@@ -289,9 +288,9 @@ The retention schedule is one page listing every data class with its basis, peri
 
 | Field | Meaning |
 |:---|:---|
-| `dataClass`, `aggregates` | The class and the aggregates holding it. |
+| `dataClass`, `covers` | The class and the aggregates holding it. |
 | `basis`, `period`, `enforcedBy` | The statute, business, or engineering basis, the period, and the enforcement. |
-| `intent` | The requirement behind personal or sensitive keeping. |
+| `cites` | The requirement behind personal or sensitive keeping. |
 | `processors` | `{ system, forwarding, acceptedBy }` entries. |
 | `conflicts` | Which demand wins on a keeping-versus-erasing collision and who records it. |
 
@@ -312,7 +311,7 @@ The specification names only what carries business meaning. Child entities and v
 | rule, precondition | a guard the behavior passes before it runs |
 | rule, calculation | a pure computation on the aggregate or its values |
 | rule, cross-aggregate | a stored constraint, or a reaction reaching eventual consistency |
-| rule, precondition spanning aggregates | a synchronous read of the guarding aggregate named in `reads`, with `consistency: atomic` and the guarding rule in `because`; use a stored constraint only when the guard is a single stored value, and a reaction only when eventual consistency is acceptable |
+| rule, precondition spanning aggregates | a synchronous read of the guarding aggregate named in `reads`, with `consistency: atomic` and the guarding rule in `cites`; use a stored constraint only when the guard is a single stored value, and a reaction only when eventual consistency is acceptable |
 | rule, atomicity | one atomic write group across the named aggregates |
 | rule, reservation | a held claim with its release |
 | rule, commercial-data | a frozen commercial value with its history |
@@ -424,9 +423,9 @@ The specification names only what carries business meaning. Child entities and v
 
 **Statement:** Each data class MUST declare its classification, its fields, its erasure position, its basis, its retention period, and the enforcement that carries it out.
 
-**Rationale:** Erasure declared per field drifts: one field keeps a new position while its twin keeps the old one. Declaring the position once per class, with per-field exceptions beside it, keeps one decision in one place. The position is `erase`, `pseudonymise`, `retain`, or `exempt`; the basis is `statute`, `business`, or `engineering`; the period is an ISO duration or `none (on-demand)`; the enforcement is `job/...`, `record-expiry`, `store-ttl`, or `query-filter`. The `erasure-undeclared` check reports a personal or sensitive field with no declared position, and `retention-enforcement-missing` reports a class nothing enforces.
+**Rationale:** Erasure declared per field drifts: one field keeps a new position while its twin keeps the old one. Declaring the position once per class, with per-field exceptions beside it, keeps one decision in one place. The position is `erase`, `pseudonymize`, `retain`, or `exempt`; the basis is `statute`, `business`, or `engineering`; the period is an ISO duration or `none (on-demand)`; the enforcement is `job/...`, `record-expiry`, `store-ttl`, or `query-filter`. The `erasure-undeclared` check reports a personal or sensitive field with no declared position, and `retention-enforcement-missing` reports a class nothing enforces.
 
-**Example:** The submitter-contact class declares `personal`, `pseudonymise`, and its approving requirement, while the expense-ledger class declares `internal`, `retain`, a statutory seven years, and the finance expiry job.
+**Example:** The submitter-contact class declares `personal`, `pseudonymize`, and its approving requirement, while the expense-ledger class declares `internal`, `retain`, a statutory seven years, and the finance expiry job.
 
 **Checked by:** `litespec model check` reports `erasure-undeclared` for a personal or sensitive field with no declared position and `retention-enforcement-missing` for a class nothing enforces.
 
@@ -542,11 +541,11 @@ The specification names only what carries business meaning. Child entities and v
 
 **ID:** `litespec/core/behavior#freeze-every-commercial-data-value`
 
-**Statement:** Each commercial-data rule MUST name when the value freezes in `frozenWhen` and where its history lives in `historyLink`.
+**Statement:** Each commercial-data rule MUST name when the value freezes in `frozenWhen` and where its history lives in `history`.
 
 **Rationale:** A price, fee, or rate read live changes under settled business: a refund follows today price instead of the price at sale. Naming when the value freezes pins each reading to its moment, and the history link keeps the earlier values reachable for audit and dispute.
 
-**Checked by:** `litespec consumer` fails a commercial-data rule without `frozenWhen` or `historyLink`.
+**Checked by:** `litespec consumer` fails a commercial-data rule without `frozenWhen` or `history`.
 
 ### Compute Shared Values from One Calculation Rule
 
@@ -724,21 +723,21 @@ The specification names only what carries business meaning. Child entities and v
 
 **Checked by:** `litespec model check` reports `reference-unknown` for a `reachedThrough` entry naming no entry point.
 
-### Describe Every Use Case Input with Source and Classification
+### Describe Every Use Case Input with Origin and Classification
 
-**ID:** `litespec/core/behavior#describe-every-use-case-input-with-source-and-classification`
+**ID:** `litespec/core/behavior#describe-every-use-case-input-with-origin-and-classification`
 
-**Statement:** Each use-case input MUST declare its name, meaning, source, and classification.
+**Statement:** Each use-case input MUST declare its name, meaning, origin, and classification.
 
-**Rationale:** An input without a source is trusted on faith: caller-asserted values pass as verified claims, and money moves on an unchecked figure. Declaring the name, the meaning, the source of `caller`, `claim`, or `derived`, and the classification states what arrives and how far to trust it.
+**Rationale:** An input without an origin is trusted on faith: caller-asserted values pass as verified claims, and money moves on an unchecked figure. Declaring the name, the meaning, the origin of `caller`, `claim`, or `derived`, and the classification states what arrives and how far to trust it.
 
-**Checked by:** `litespec consumer` fails a use-case input without name, meaning, source, or classification.
+**Checked by:** `litespec consumer` fails a use-case input without name, meaning, origin, or classification.
 
 ### Bound Every Caller-Supplied Input Value
 
 **ID:** `litespec/core/behavior#bound-every-caller-supplied-input-value`
 
-**Statement:** Each input value with `source: caller` on a money or access path MUST cite the rule bounding it.
+**Statement:** Each input value with `origin: caller` on a money or access path MUST cite the rule bounding it.
 
 **Rationale:** A caller-asserted figure on a money or access path is an open till: a replacement amount arrives negative, a quantity arrives absurd, and the code obliges. Citing the rule bounding it ties each such value to the guard holding it.
 
@@ -762,11 +761,11 @@ The specification names only what carries business meaning. Child entities and v
 
 **Statement:** Each use case MUST declare its write consistency in `consistency`.
 
-**Rationale:** Consistency left unsaid defaults to hope: a multi-aggregate write is read as atomic until it fails halfway. Declaring the mode states the promise: `atomic` with its `because` rules when `changes` lists more than one aggregate, `per-record` with a receipt per target on best effort, `compensated` with every mutating step naming its compensation. Atomic consistency never spans an `async` edge. The `consistency-cites-missing` check reports an atomic multi-aggregate write with no `because`, and `atomic-group-duplicate` flags more than one atomic write group as a smell to consider.
+**Rationale:** Consistency left unsaid defaults to hope: a multi-aggregate write is read as atomic until it fails halfway. Declaring the mode states the promise: `atomic` with its `cites` rules when `changes` lists more than one aggregate, `per-record` with a receipt per target on best effort, `compensated` with every mutating step naming its compensation. Atomic consistency never spans an `async` edge. The `consistency-cites-missing` check reports an atomic multi-aggregate write with no `cites`, and `atomic-group-duplicate` flags more than one atomic write group as a smell to consider.
 
-**Example:** The reimburse-expense command declares atomic consistency because of the reimbursed-once rule, while the self-checkout scan declares per-record consistency across its attempts.
+**Example:** The reimburse-expense command declares atomic consistency citing the reimbursed-once rule, while the self-checkout scan declares per-record consistency across its attempts.
 
-**Checked by:** `litespec model check` reports `consistency-cites-missing` for an atomic multi-aggregate write with no `because`, and `atomic-group-duplicate` (tier A) for a command saving more than one atomic write group.
+**Checked by:** `litespec model check` reports `consistency-cites-missing` for an atomic multi-aggregate write with no `cites`, and `atomic-group-duplicate` (tier A) for a command saving more than one atomic write group.
 
 ### Declare Every Effect with One Verb and Its Timing
 
@@ -824,11 +823,11 @@ The specification names only what carries business meaning. Child entities and v
 
 **ID:** `litespec/core/behavior#state-the-audit-position-of-every-command`
 
-**Statement:** Each command MUST declare its audit reason and target, or its exemption with its justification.
+**Statement:** Each command MUST declare its audit level and target, or its exemption with its justification.
 
-**Rationale:** An unaudited change with no exemption is a gap nobody admitted: money moves, holds lapse, and no record says who asked. Declaring the reason of `required`, `optional`, or `none` with its target, or the exemption with its justification, states the audit beside the change. Commands are audited by default with reason `none`, and async work audits at request time.
+**Rationale:** An unaudited change with no exemption is a gap nobody admitted: money moves, holds lapse, and no record says who asked. Declaring the level of `required`, `optional`, or `none` with its target, or the exemption with its justification, states the audit beside the change. Commands are audited by default with level `none`, and async work audits at request time.
 
-**Checked by:** `litespec consumer` fails a command without an audit reason and target or an exemption with its justification.
+**Checked by:** `litespec consumer` fails a command without an audit level and target or an exemption with its justification.
 
 ### Declare Every Query Output
 
@@ -836,7 +835,7 @@ The specification names only what carries business meaning. Child entities and v
 
 **Statement:** Each query MUST declare its output in named `include` groups.
 
-**Rationale:** A query without a declared output returns whatever its author fetched: readers and screens guess the shape from code. Declaring the output in named groups with fields, classifications, sources, and freshness states what readers receive, so the shape is reviewable before anything implements it. The `query-output-missing` check reports a query with no declared output.
+**Rationale:** A query without a declared output returns whatever its author fetched: readers and screens guess the shape from code. Declaring the output in named groups with fields, classifications, the aggregates each group reads, and freshness states what readers receive, so the shape is reviewable before anything implements it. The `query-output-missing` check reports a query with no declared output.
 
 **Example:** The list-expenses query declares open and decided groups with immediate freshness.
 
@@ -846,9 +845,9 @@ The specification names only what carries business meaning. Child entities and v
 
 **ID:** `litespec/core/behavior#justify-every-wider-visibility`
 
-**Statement:** Each include group visible to more roles than its sources MUST cite the approved requirement widening it in `wideningBecause`.
+**Statement:** Each include group visible to more roles than the aggregates it reads MUST cite the approved requirement widening it in `cites`.
 
-**Rationale:** A read showing more than its sources is a quiet widening: roles see figures their own grants never allowed, and no requirement approved the view. Citing the approved requirement in `wideningBecause` keeps the widening a decided choice, and `visibleWhen` states the condition where one narrows it. The `widening-cites-missing` check reports a widened group with no cited requirement.
+**Rationale:** A read showing more than the aggregates it reads is a quiet widening: roles see figures their own grants never allowed, and no requirement approved the view. Citing the approved requirement in `cites` keeps the widening a decided choice, and `visibleWhen` states the condition where one narrows it. The `widening-cites-missing` check reports a widened group with no cited requirement.
 
 **Checked by:** `litespec model check` reports `widening-cites-missing` for a widened include group with no cited requirement.
 
@@ -866,7 +865,7 @@ The specification names only what carries business meaning. Child entities and v
 
 **ID:** `litespec/core/behavior#mark-every-lagging-query-as-built-asynchronously`
 
-**Statement:** Each query whose source lags MUST set `builtAsynchronously` with a bounded or advisory freshness and a lag scenario.
+**Statement:** Each query reading lagging aggregates MUST set `builtAsynchronously` with a bounded or advisory freshness and a lag scenario.
 
 **Rationale:** A read built asynchronously without a mark is trusted as fresh: screens show yesterday figures as now, and nobody warned them. Marking the query, with a bounded or advisory freshness and one scenario covering the lag, states the staleness beside the promise.
 
@@ -1074,13 +1073,13 @@ The specification names only what carries business meaning. Child entities and v
 
 **ID:** `litespec/core/behavior#declare-every-job-with-kind-and-structured-schedule`
 
-**Statement:** Each job MUST declare its kind, scope, effects, reads, service level, evidence, and runbook, with a structured schedule when it runs on time.
+**Statement:** Each job MUST declare its kind, selection, effects, reads, service level, evidence, and runbook, with a structured schedule when it runs on time.
 
-**Rationale:** A job without a declared scope and promise is a blind run: nobody states what each run selects, what it runs per item, what it guarantees, or where proof lands. Declaring the kind of `scheduled`, `one-off`, or `operator`, the scope with its batch size and lease, the `effects` entries with the aggregates read, the service level citing its requirement, the evidence, and the runbook states the run beside its promise. The schedule is structured with its timezone, never prose. The `schedule-invalid` check reports a schedule no tool can read, and `record-invalid` reports a job holding top-level `issues`.
+**Rationale:** A job without a declared selection and promise is a blind run: nobody states what each run selects, what it runs per item, what it guarantees, or where proof lands. Declaring the kind of `scheduled`, `one-off`, or `operator`, the selection with its batch size and lease, the `effects` entries with the aggregates read, the service level citing its requirement, the evidence, and the runbook states the run beside its promise. The schedule is structured with its timezone, never prose. The `schedule-invalid` check reports a schedule no tool can read, and `record-invalid` reports a job holding top-level `issues`.
 
 **Example:** The expire-lapsed-holds job runs every six hours over open holds past their window, issues one expiry per item, and lands its evidence in the run log.
 
-**Checked by:** `litespec model check` reports `schedule-invalid` for a schedule no tool can read and `record-invalid` for top-level `issues`; `litespec consumer` fails a job without kind, scope, effects, reads, service level, evidence, or runbook.
+**Checked by:** `litespec model check` reports `schedule-invalid` for a schedule no tool can read and `record-invalid` for top-level `issues`; `litespec consumer` fails a job without kind, selection, effects, reads, service level, evidence, or runbook.
 
 ### Name Each Job for the Command It Issues
 
@@ -1172,17 +1171,17 @@ The specification names only what carries business meaning. Child entities and v
 
 **Checked by:** `litespec model check` reports `setting-requirement-missing` for a commercial, legal, or varying default with no cited requirement.
 
-### Name the Use Cases That Read Each Setting
+### Name the Settings Each Use Case Reads
 
-**ID:** `litespec/core/behavior#name-the-use-cases-that-read-each-setting`
+**ID:** `litespec/core/behavior#name-the-settings-each-use-case-reads`
 
-**Statement:** Each setting MUST name the use cases that read it in `readBy`.
+**Statement:** Each use case MUST name the settings it reads in `reads`.
 
-**Rationale:** A setting read by a use case no record names is a coupling reviewers cannot see: the tunable moves, the reader breaks, and no diff shows the pair. Naming the readers in `readBy` states the coupling beside the setting, so each change to the range or default meets its readers. Settled by [decision/0007-adopt-setting-readby](../intent/decisions/0007-adopt-setting-readby.md) on the evidence in [research/behavior-containment-evidence](../intent/research/behavior-containment-evidence.md) and [research/field-naming-evidence](../intent/research/field-naming-evidence.md).
+**Rationale:** A setting read by a use case no record names is a coupling reviewers cannot see: the tunable moves, the reader breaks, and no diff shows the pair. Naming the settings in `reads` beside the use case states the coupling where the reader lives, so each change to the range or default meets its readers. The setting's readers are computed as the inverse, never written. Settled by [decision/0012-use-cases-read-their-settings](../intent/decisions/0012-use-cases-read-their-settings.md) on the evidence in [research/behavior-containment-evidence](../intent/research/behavior-containment-evidence.md) and [research/field-naming-evidence](../intent/research/field-naming-evidence.md).
 
-**Example:** The receipt threshold names `use-case/spending.submit-expense` in `readBy`, so a move of the threshold meets the submission story.
+**Example:** The submit-expense use case names `setting/spending.receipt-threshold` in `reads`, so a move of the threshold meets the submission story.
 
-**Reviewed for:** Which settings are read by a use case that `readBy` does not name? Look at the setting entries beside the use cases that read them.
+**Reviewed for:** Which use cases read a setting that `reads` does not name? Look at the use cases beside the settings they read.
 
 ### Name the Configuration Key of Every Operator Setting
 
@@ -1334,7 +1333,7 @@ The specification names only what carries business meaning. Child entities and v
 
 **ID:** `litespec/core/behavior#schedule-every-data-class-for-retention`
 
-**Statement:** Each data class MUST appear on the retention schedule with its basis, period, enforcement, and intent link where personal or sensitive.
+**Statement:** Each data class MUST appear on the retention schedule with its basis, period, enforcement, and the requirement it cites where personal or sensitive.
 
 **Rationale:** Retention decided per aggregate scatters: one module erases in days what another keeps for years, and no page shows the whole. Listing every data class on one schedule with its basis, period, enforcement, processors with their forwarding and acceptance, and the conflict rule where keeping and erasing collide states the whole as debated rows. Personal or sensitive keeping cites its Intent requirement. The `retention-enforcement-missing` check reports a row nothing enforces.
 
@@ -1382,6 +1381,6 @@ The specification names only what carries business meaning. Child entities and v
 
 This informative example demonstrates `litespec/core/behavior#declare-the-kind-of-every-aggregate`, `litespec/core/behavior#model-each-aggregate-lifecycle-with-states`, `litespec/core/behavior#state-each-process-step-with-its-compensation`, `litespec/core/behavior#close-every-process-with-named-exits-and-a-driver`, `litespec/core/behavior#state-each-rule-with-its-kind`, `litespec/core/behavior#give-each-use-case-a-command-or-query-kind`, `litespec/core/behavior#connect-each-use-case-to-intent`, `litespec/core/behavior#grant-each-use-case-scoped-access`, `litespec/core/behavior#bound-every-caller-supplied-input-value`, `litespec/core/behavior#state-the-consistency-of-every-use-case`, `litespec/core/behavior#declare-every-effect-with-one-verb-and-its-timing`, `litespec/core/behavior#end-every-use-case-in-named-results`, `litespec/core/behavior#order-every-refusal-list-by-precedence`, `litespec/core/behavior#trigger-every-reaction-from-a-declared-event`, `litespec/core/behavior#issue-or-send-from-every-reaction`, `litespec/core/behavior#file-every-reaction-with-the-module-it-changes`, `litespec/core/behavior#state-the-failure-handling-of-every-reaction`, `litespec/core/behavior#tabulate-every-calculation-with-examples`, `litespec/core/behavior#record-attempts-behind-recorded-refusals`, `litespec/core/behavior#list-recorded-outcomes-inside-success-codes`, and `litespec/core/behavior#name-the-idempotency-of-every-use-case`.
 
-**Hold queue.** A reader who finds the copy lent places a hold. The hold queue aggregate is a process with states `Requested`, `Ready`, `Collected`, `Cancelled`, and `Lapsed`, steps from hold-place to collect with compensations, exits for cancellation and lapse, and a driver of a completion reaction, an expiry job, and the librarian. The collect-ready-hold command serves the hold journey step, fulfills the pickup-window requirement, declares session auth with the place-hold permission, bounds the caller-supplied pickup code with the code-shape rule, writes atomically because of the one-ready-hold rule, and publishes the collected integration event after commit. Its refusals stand in precedence order ahead of the hold-collected result. The advance-queue reaction answers the collected domain event, issues the advance-hold-queue command from the lending module through its effects, and retries five times with exponential backoff before dead-lettering. The fine-per-day rule is proven by a scenario with an examples table: a copy three days overdue accrues EUR 1.50 at EUR 0.50 a day, and a copy returned on time accrues nothing.
+**Hold queue.** A reader who finds the copy lent places a hold. The hold queue aggregate is a process with states `Requested`, `Ready`, `Collected`, `Cancelled`, and `Lapsed`, steps from hold-place to collect with compensations, exits for cancellation and lapse, and a driver of a completion reaction, an expiry job, and the librarian. The collect-ready-hold command serves the hold journey step, fulfills the pickup-window requirement, declares session auth with the place-hold permission, bounds the caller-supplied pickup code with the code-shape rule, writes atomically citing the one-ready-hold rule, and publishes the collected integration event after commit. Its refusals stand in precedence order ahead of the hold-collected result. The advance-queue reaction answers the collected domain event, issues the advance-hold-queue command from the lending module through its effects, and retries five times with exponential backoff before dead-lettering. The fine-per-day rule is proven by a scenario with an examples table: a copy three days overdue accrues EUR 1.50 at EUR 0.50 a day, and a copy returned on time accrues nothing.
 
 **Self-checkout scan.** A kiosk records each scan attempt. The record-self-checkout-scan command declares device auth with a system grant, per-record consistency, and idempotency keyed on `{nonce}` scoped to the login. Its recorded refusals for unknown, retired, and already-lent barcodes store each attempt with its reason, while malformed scans store nothing, and its checked-out result lists `borrow` and `renew` codes.

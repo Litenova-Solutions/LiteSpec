@@ -2,7 +2,7 @@
 
 ## Intent
 
-Scheduled jobs start work from a timetable instead of from a request, such as nightly statements, delayed reminders, and calendar-based billing. This page states how a project records each schedule on a job record with its kind, scope, lease, and issued use cases, and runs it in a Worker with leases that survive restarts and overlapping replicas. A team applies it for recurring, delayed, or calendar-based work, so each occurrence runs once even when a replica fails mid-job.
+Scheduled jobs start work from a timetable instead of from a request, such as nightly statements, delayed reminders, and calendar-based billing. This page states how a project records each schedule on a job record with its kind, selection, lease, and issued use cases, and runs it in a Worker with leases that survive restarts and overlapping replicas. A team applies it for recurring, delayed, or calendar-based work, so each occurrence runs once even when a replica fails mid-job.
 
 ## Activation
 
@@ -30,15 +30,15 @@ This extension switches on no optional record type: the job, setting, and runboo
 
 **Reviewed for:** Each scheduled and one-off job record carries a structured schedule with its timezone.
 
-### Issue One Run per Item in Scope
+### Issue One Run per Item in Selection
 
-**ID:** `litespec/ext/jobs#issue-one-run-per-item-in-scope`
+**ID:** `litespec/ext/jobs#issue-one-run-per-item-in-selection`
 
-**Statement:** A job MUST issue one command per item in its `scope` within its `batchSize`, each in its own unit of work.
+**Statement:** A job MUST issue one command per item in its `selection` within its `batchSize`, each in its own unit of work.
 
-**Rationale:** The scope states what each run selects, the batch size bounds how many items one batch takes, and `issues` names the command run per item. Each item runs as one command in its own unit of work, as `litespec/backend/application#issue-per-record-work-from-a-job` requires: a failed item replays without replaying its batch.
+**Rationale:** The selection states what each run selects, the batch size bounds how many items one batch takes, and `issues` names the command run per item. Each item runs as one command in its own unit of work, as `litespec/backend/application#issue-per-record-work-from-a-job` requires: a failed item replays without replaying its batch.
 
-**Reviewed for:** Each job run issues one command per item in its scope within its batch size, each in its own unit of work.
+**Reviewed for:** Each job run issues one command per item in its selection within its batch size, each in its own unit of work.
 
 ### Resume Driven Work Through the Cursor
 

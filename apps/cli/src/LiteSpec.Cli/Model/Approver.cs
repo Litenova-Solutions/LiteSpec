@@ -24,7 +24,7 @@ static class Approver
     ///     The hash covers every written field except identity, workflow and approval
     ///     data (<c>type</c>, <c>id</c>, <c>title</c>, <c>owner</c>, <c>status</c>,
     ///     <c>decider</c>, <c>decideBy</c>, <c>approvedBy</c>, <c>approvedOn</c>,
-    ///     <c>approvedHash</c> and <c>source</c>), canonicalized and hashed to eight hex
+    ///     <c>approvedHash</c> and <c>provenance</c>), canonicalized and hashed to eight hex
     ///     characters. Page prose bodies and rendered consequences summaries never feed
     ///     the hash, so rewording prose reopens no approval. The semantic fields per
     ///     record type include: product (boundary, exclusions, addresses); goal
@@ -36,7 +36,7 @@ static class Approver
     ///     conclusion); topic (reviewBy); journey (actor, serves, cites, finishedWhen, steps); actor (kind); term (term, meaning, layer, aliases); module
     ///     (dependsOn); aggregate (kind, states, transitions, data, dataClasses, steps,
     ///     exits, finishedWhen, driver, cursor, owner); rule (kind, statement, governs,
-    ///     refusal, releasedBy, frozenWhen, historyLink, computedBy); use-case (kind,
+    ///     refusal, releasedBy, frozenWhen, history, computedBy); use-case (kind,
     ///     serves, fulfills, access, reachedThrough, input, output, paging,
     ///     builtAsynchronously, changes, reads, consistency, effects, raises,
     ///     idempotency, audit, risk); result (outcome, code, meaning, recorded, codes);
@@ -44,12 +44,12 @@ static class Approver
     ///     integration-event (direction, eventType, source, subject, payload, addresses,
     ///     trust, correlation, translates); reaction (on, if, issues, sends, forEach,
     ///     reads, fulfills, serves, idempotency, onFailure, onExhausted); job (kind,
-    ///     schedule, scope, batchSize, lease, issues, reads, serviceLevel, evidence,
+    ///     schedule, selection, batchSize, lease, issues, reads, serviceLevel, evidence,
     ///     runbook, runsWhere, guard, cursor, fulfills, serves, onFailure,
     ///     idempotency); notification (template, addresses, channel, consent, frequency,
     ///     dedupKey, params, locale, suppressedWhen, claims, fulfills, sender); setting
     ///     (valueType, default, range, unit, setBy, atBound, secret, meaning, runbook,
-    ///     fulfills, readBy); role (scope, allows); permission (meaning); entry-point (kind,
+    ///     fulfills); role (scope, allows); permission (meaning); entry-point (kind,
     ///     auth, path, contentType, cacheControl, versioning, fulfills, protocol);
     ///     external-system (actor, operations, erasure, acceptedBy); runbook (trigger,
     ///     steps); deviation (provision, reason, reviewBy, removeWhen); known-gap

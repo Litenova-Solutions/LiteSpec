@@ -84,7 +84,7 @@ public sealed class UseCaseVerbCheckTests
             TestModel.Record("use-case", "use-case/lending.update-copy", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "loans", "update-copy.md"), """{"kind": "command"}"""));
 
         var message = Checker.Check(model).Findings.Single(finding => finding.Code == "use-case-verb-unknown").Message;
-        Assert.Contains("starts with 'update'; use 'change'", message, StringComparison.Ordinal);
+        Assert.Contains("starts with 'update' and 'change' replaces it", message, StringComparison.Ordinal);
     }
 
     /// <proves>litespec/core/behavior#start-every-use-case-with-a-declared-verb</proves>
@@ -101,7 +101,7 @@ public sealed class UseCaseVerbCheckTests
         var unknown = Checker.Check(model).Findings.Where(finding => finding.Code == "use-case-verb-unknown").ToList();
 
         Assert.Single(unknown);
-        Assert.Contains("use 'read'", unknown[0].Message);
+        Assert.Contains("'read' replaces it", unknown[0].Message);
     }
 
     /// <proves>litespec/core/behavior#keep-one-kind-per-verb</proves>

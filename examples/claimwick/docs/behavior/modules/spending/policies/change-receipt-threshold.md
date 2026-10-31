@@ -30,7 +30,7 @@
     {
       "type": "result",
       "id": "result/change-receipt-threshold.threshold-set",
-      "title": "Threshold set",
+      "title": "Threshold Set",
       "owner": "claimwick-team",
       "outcome": "success",
       "meaning": "The receipt threshold is set.",
@@ -41,7 +41,7 @@
     {
       "type": "result",
       "id": "result/change-receipt-threshold.negative-threshold",
-      "title": "Negative threshold",
+      "title": "Negative Threshold",
       "owner": "claimwick-team",
       "outcome": "refusal",
       "code": "spending.negative-threshold",
@@ -53,7 +53,7 @@
     {
       "type": "scenario",
       "id": "scenario/change-receipt-threshold.setting-the-threshold-succeeds",
-      "title": "Setting the threshold succeeds",
+      "title": "Setting the Threshold Succeeds",
       "owner": "claimwick-team",
       "status": "reviewed",
       "given": "Finance agreed a new receipt threshold with the managers.",
@@ -67,7 +67,7 @@
     {
       "type": "scenario",
       "id": "scenario/change-receipt-threshold.setting-a-negative-threshold-is-refused",
-      "title": "Setting a negative threshold is refused",
+      "title": "Setting a Negative Threshold Is Refused",
       "owner": "claimwick-team",
       "status": "reviewed",
       "given": "Finance agreed a new receipt threshold with the managers.",

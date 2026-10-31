@@ -69,7 +69,7 @@ Existing code rarely meets every rule at the start. Record each departure instea
 
 - A **Deviation record** for a provision the project will not follow, with its reason and a review date.
 - A **Known gap** for one the project will fix later, with an owner and an end date.
-- A **transcribed record** for Behavior written from existing code during adoption, marked with `source: transcribed`. It stays in draft until its Intent parent is approved, and the mode ends at the decision `adoption.transcriptionEndsWith` names.
+- A **transcribed record** for Behavior written from existing code during adoption, marked with `provenance: transcribed`. It stays in draft until its Intent parent is approved, and the mode ends at the decision `adoption.transcriptionEndsWith` names.
 
 All three keep the checks honest. A deviation holds until its review date, when someone looks at it again. A known gap is reported without failing the build until its end date, and fails after it. A transcribed record can never reach reviewed on its own.
 

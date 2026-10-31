@@ -50,7 +50,7 @@ The spec defines no reader link for a setting, so whether a setting is read at a
 
 ## Consequences
 
-`litespec/core/behavior#name-the-use-cases-that-read-each-setting` states the obligation as reviewed guidance, since no tool proves completeness. The adopted name stays `readBy` even though it reads passively, because renaming it would break the consumer already using it.
+`litespec/core/behavior#name-the-settings-each-use-case-reads` states the obligation as reviewed guidance, since no tool proves completeness. The adopted name stays `readBy` even though it reads passively, because renaming it would break the consumer already using it.
 
 ## Evidence with Confidence
 

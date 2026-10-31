@@ -32,24 +32,24 @@ public sealed class AdvisoryCheckTests
 
     /// <proves>litespec/core/behavior#state-the-consistency-of-every-use-case</proves>
     [Fact]
-    public void Atomic_With_Two_Because_Rules_Reports()
+    public void Atomic_With_Two_Cites_Rules_Reports()
     {
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.md"), """{"status": "reviewed", "kind": "command", "consistency": {"mode": "atomic", "because": ["rule/loan.one-open-loan", "rule/copy.one-home-shelf"]}}"""));
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.md"), """{"status": "reviewed", "kind": "command", "consistency": {"mode": "atomic", "cites": ["rule/loan.one-open-loan", "rule/copy.one-home-shelf"]}}"""));
 
         Assert.Contains("atomic-group-duplicate", TestModel.Codes(model));
     }
 
     /// <proves>litespec/core/behavior#state-the-consistency-of-every-use-case</proves>
     [Fact]
-    public void Atomic_With_One_Because_Rule_Passes()
+    public void Atomic_With_One_Cites_Rule_Passes()
     {
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.md"), """{"status": "reviewed", "kind": "command", "consistency": {"mode": "atomic", "because": ["rule/loan.one-open-loan"]}}"""));
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.md"), """{"status": "reviewed", "kind": "command", "consistency": {"mode": "atomic", "cites": ["rule/loan.one-open-loan"]}}"""));
 
         Assert.DoesNotContain("atomic-group-duplicate", TestModel.Codes(model));
     }
@@ -65,7 +65,7 @@ public sealed class AdvisoryCheckTests
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "question-expired");
         Assert.Equal("A", finding.Tier);
-        Assert.Equal("Question on 'actor/reader' stands past its decide-by date.", finding.Message);
+        Assert.Equal("Record 'actor/reader' holds a question past its decide-by date.", finding.Message);
         Assert.Equal("actor/reader", finding.Subject);
     }
 
@@ -92,7 +92,7 @@ public sealed class AdvisoryCheckTests
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "question-expired");
         Assert.Equal("A", finding.Tier);
-        Assert.Equal("Question on 'actor/reader' stands past its decide-by date.", finding.Message);
+        Assert.Equal("Record 'actor/reader' holds a question past its decide-by date.", finding.Message);
         Assert.Equal("actor/reader", finding.Subject);
     }
 
@@ -122,7 +122,7 @@ public sealed class AdvisoryCheckTests
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "decider-missing");
         Assert.Equal("G", finding.Tier);
-        Assert.Equal("Question on 'actor/reader' names no decider.", finding.Message);
+        Assert.Equal("Record 'actor/reader' holds a question that names no decider.", finding.Message);
         Assert.Equal("actor/reader", finding.Subject);
     }
 
@@ -137,7 +137,7 @@ public sealed class AdvisoryCheckTests
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "decider-missing");
         Assert.Equal("G", finding.Tier);
-        Assert.Equal("Question on 'actor/reader' names no decide-by date.", finding.Message);
+        Assert.Equal("Record 'actor/reader' holds a question that names no decide-by date.", finding.Message);
         Assert.Equal("actor/reader", finding.Subject);
     }
 
@@ -153,7 +153,7 @@ public sealed class AdvisoryCheckTests
         var finding = Assert.Single(
             Checker.Check(model).Findings,
             found => found.Code == "record-invalid" && found.Message.Contains("names no recommendation", StringComparison.Ordinal));
-        Assert.Equal("Question on 'actor/reader' names no recommendation.", finding.Message);
+        Assert.Equal("Record 'actor/reader' holds a question that names no recommendation.", finding.Message);
         Assert.Equal("actor/reader", finding.Subject);
     }
 

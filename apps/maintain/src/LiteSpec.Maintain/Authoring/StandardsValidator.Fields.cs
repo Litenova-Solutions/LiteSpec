@@ -16,6 +16,25 @@ static partial class StandardsValidator
     static readonly HashSet<string> IsoDateNameExceptions = new(["effectiveFrom"], StringComparer.Ordinal);
     static readonly HashSet<string> DateOrMilestoneFields = new(["dueBy"], StringComparer.Ordinal);
 
+    // The word-class names the schemas carry: a link verb holds links, a
+    // closed-set noun holds an enum, and a prose noun holds text. A name
+    // outside every set faces no class rule.
+    // (litespec/core/language#name-each-field-by-its-word-class)
+    static readonly HashSet<string> LinkVerbFields = new(
+        ["serves", "fulfills", "solves", "advances", "cites", "governs", "raises", "reads", "changes", "covers", "addresses",
+            "allows", "affects", "holds", "offers", "sends", "receives", "translates", "admits", "decides", "carries", "replaces"],
+        StringComparer.Ordinal);
+    static readonly HashSet<string> ClosedSetNouns = new(
+        ["kind", "mode", "direction", "trust", "reach", "lifecycle", "level"],
+        StringComparer.Ordinal);
+    static readonly HashSet<string> ProseNouns = new(
+        ["statement", "meaning", "rationale", "summary", "conclusion", "failure", "exclusions"],
+        StringComparer.Ordinal);
+
+    // The participle stems a suffix test cannot see: irregular verbs whose
+    // past form spells nothing like the base.
+    static readonly HashSet<string> IrregularParticiples = new(["set", "read"], StringComparer.Ordinal);
+
     // The entry records the records array carries. Nested object defs stay out
     // of scope: their fields are read inside their parent object, so they
     // cannot collide with record-level names.
@@ -154,6 +173,93 @@ static partial class StandardsValidator
                     {
                         add(relative, 1, "FIELD_NAME_SHAPE", $"field `{field}` in {def} names a record type but holds prose; use the plural name for a list and another name for prose");
                     }
+                }
+
+                // A link verb holds one link or a list of links: an identifier
+                // reference or an array. A verb holding prose or a flag names
+                // the wrong class.
+                if (LinkVerbFields.Contains(field))
+                {
+                    var shape = FieldShape(node, defs, []);
+                    if (shape is not null && shape != "array" && !ReachesAnyId(node, idDefs, defs, []))
+                    {
+                        add(relative, 1, "FIELD_NAME_SHAPE", $"field `{field}` in {def} reads as a link verb but holds {shape}; a link verb holds one link or a list of links");
+                    }
+                }
+
+                // A name ending in By either marks a deadline or reads as
+                // <participle>By: the target acts on this record. A deadline
+                // holds a date; anything else carries a participle stem.
+                if (field.Length > 2
+                    && field.EndsWith("By", StringComparison.Ordinal)
+                    && !DateOrMilestoneFields.Contains(field)
+                    && !ResolvesToIsoDate(node, defs, []))
+                {
+                    var stem = field[..^2];
+                    if (!IsParticipleStem(stem))
+                    {
+                        add(relative, 1, "FIELD_NAME_SHAPE", $"field `{field}` in {def} ends in By but `{stem}` is no participle; name it `<participle>By` or hold a date under a deadline name");
+                    }
+                }
+
+                // A closed-set noun holds an enum: the dimension it names takes
+                // one of fixed values.
+                if (ClosedSetNouns.Contains(field) && !HoldsEnum(node, defs, []))
+                {
+                    add(relative, 1, "FIELD_NAME_SHAPE", $"field `{field}` in {def} names a closed set but holds no enum; a closed-set noun holds one of its values");
+                }
+
+                // A prose noun holds text, or a list of sentences under a plural
+                // name. Anything else names the wrong class.
+                if (ProseNouns.Contains(field))
+                {
+                    var shape = FieldShape(node, defs, []);
+                    if (shape is not null && shape != "string" && !(shape == "array" && ArrayItemsAreStrings(node, defs)))
+                    {
+                        add(relative, 1, "FIELD_NAME_SHAPE", $"field `{field}` in {def} names prose but holds {shape}; a prose noun holds text or a list of sentences");
+                    }
+                }
+
+                // A condition holds one clause completing "when ...": text under
+                // a *When name, or `condition` inside an entry.
+                if ((field.Length > 4 && field.EndsWith("When", StringComparison.Ordinal)) || field == "condition")
+                {
+                    var shape = FieldShape(node, defs, []);
+                    if (shape is not null && shape != "string")
+                    {
+                        add(relative, 1, "FIELD_NAME_SHAPE", $"field `{field}` in {def} names a condition but holds {shape}; a condition holds one clause");
+                    }
+                }
+
+                // A reason holds one clause completing "because ...": text under
+                // a *Because name, or `reason` alone.
+                if ((field.Length > 7 && field.EndsWith("Because", StringComparison.Ordinal)) || field == "reason")
+                {
+                    var shape = FieldShape(node, defs, []);
+                    if (shape is not null && shape != "string")
+                    {
+                        add(relative, 1, "FIELD_NAME_SHAPE", $"field `{field}` in {def} names a reason but holds {shape}; a reason holds one clause");
+                    }
+                }
+
+                // A recorded date reads as <verb>edOn: the past verb says what
+                // happened, and On says when it was recorded.
+                // (litespec/core/language#name-each-date-by-what-it-marks)
+                if (field.Length > 2 && field.EndsWith("On", StringComparison.Ordinal) && ResolvesToIsoDate(node, defs, []))
+                {
+                    var stem = field[..^2];
+                    if (!IsPastVerbStem(stem))
+                    {
+                        add(relative, 1, "FIELD_NAME_SHAPE", $"field `{field}` in {def} names a recorded date but `{stem}` is no past verb; name it `<verb>edOn`");
+                    }
+                }
+
+                // A boolean reads as a present-tense predicate that is true
+                // about the record when true, with no `is` or `has` prefix.
+                // (litespec/core/language#name-a-boolean-as-a-predicate)
+                if (FieldShape(node, defs, []) == "boolean" && HasIsHasPrefix(field))
+                {
+                    add(relative, 1, "FIELD_NAME_SHAPE", $"field `{field}` in {def} is a boolean with an `is` or `has` prefix; name it a present-tense predicate");
                 }
             }
         }
@@ -329,4 +435,162 @@ static partial class StandardsValidator
 
         return false;
     }
+
+    // A single link: the $ref chain lands on an identifier def, as a verb
+    // naming one record does.
+    static bool ReachesAnyId(JsonNode? node, HashSet<string> idDefs, JsonObject defs, HashSet<string> visited)
+    {
+        if (node is not JsonObject obj)
+        {
+            return false;
+        }
+
+        var target = FieldRefTarget(obj);
+        if (target is not null)
+        {
+            if (idDefs.Contains(target))
+            {
+                return true;
+            }
+
+            if (!visited.Add(target))
+            {
+                return false;
+            }
+
+            try
+            {
+                return defs[target] is JsonObject resolved && ReachesAnyId(resolved, idDefs, defs, visited);
+            }
+            finally
+            {
+                visited.Remove(target);
+            }
+        }
+
+        foreach (var key in new[] { "anyOf", "allOf", "oneOf" })
+        {
+            if (obj[key] is JsonArray branches && branches.Count > 0)
+            {
+                return branches.All(branch => ReachesAnyId(branch, idDefs, defs, visited));
+            }
+        }
+
+        return false;
+    }
+
+    // An ISO date either references the shared isoDate def or spells the date
+    // shape inline, as the glossary schema does: a date format or a
+    // year-month-day pattern.
+    static bool ResolvesToIsoDate(JsonNode? node, JsonObject defs, HashSet<string> visited)
+    {
+        if (node is not JsonObject obj)
+        {
+            return false;
+        }
+
+        var target = FieldRefTarget(obj);
+        if (target is not null)
+        {
+            if (target == "isoDate")
+            {
+                return true;
+            }
+
+            if (!visited.Add(target))
+            {
+                return false;
+            }
+
+            try
+            {
+                return defs[target] is JsonObject resolved && ResolvesToIsoDate(resolved, defs, visited);
+            }
+            finally
+            {
+                visited.Remove(target);
+            }
+        }
+
+        foreach (var key in new[] { "anyOf", "allOf", "oneOf" })
+        {
+            if (obj[key] is JsonArray branches && branches.Count > 0)
+            {
+                return branches.All(branch => ResolvesToIsoDate(branch, defs, visited));
+            }
+        }
+
+        return JsonString(obj["format"]) == "date" || IsInlineDatePattern(JsonString(obj["pattern"]));
+    }
+
+    static bool IsInlineDatePattern(string? pattern) =>
+        pattern is not null
+        && (pattern.Contains("[0-9]{4}-[0-9]{2}-[0-9]{2}", StringComparison.Ordinal)
+            || pattern.Contains(@"\d{4}-\d{2}-\d{2}", StringComparison.Ordinal));
+
+    static bool HoldsEnum(JsonNode? node, JsonObject defs, HashSet<string> visited)
+    {
+        if (node is not JsonObject obj)
+        {
+            return false;
+        }
+
+        var target = FieldRefTarget(obj);
+        if (target is not null)
+        {
+            if (!visited.Add(target))
+            {
+                return false;
+            }
+
+            try
+            {
+                return defs[target] is JsonObject resolved && HoldsEnum(resolved, defs, visited);
+            }
+            finally
+            {
+                visited.Remove(target);
+            }
+        }
+
+        foreach (var key in new[] { "anyOf", "allOf", "oneOf" })
+        {
+            if (obj[key] is JsonArray branches && branches.Count > 0)
+            {
+                return branches.All(branch => HoldsEnum(branch, defs, visited));
+            }
+        }
+
+        return obj["enum"] is JsonArray { Count: > 0 };
+    }
+
+    static bool ArrayItemsAreStrings(JsonNode? node, JsonObject defs)
+    {
+        const string prefix = "#/$defs/";
+        var current = node as JsonObject;
+        var visited = new HashSet<string>(StringComparer.Ordinal);
+        while (current is not null && FieldRefTarget(current) is string reference)
+        {
+            if (!reference.StartsWith(prefix, StringComparison.Ordinal) || !visited.Add(reference))
+            {
+                return false;
+            }
+
+            current = defs[reference[prefix.Length..]] as JsonObject;
+        }
+
+        return current?["items"] is JsonNode items && FieldShape(items, defs, []) == "string";
+    }
+
+    static bool IsParticipleStem(string stem) =>
+        stem.EndsWith("ed", StringComparison.Ordinal)
+        || stem.EndsWith("en", StringComparison.Ordinal)
+        || IrregularParticiples.Contains(stem);
+
+    static bool IsPastVerbStem(string stem) =>
+        stem.EndsWith("ed", StringComparison.Ordinal) || stem == "read";
+
+    static bool HasIsHasPrefix(string field) =>
+        (field.StartsWith("is", StringComparison.Ordinal) && field.Length > 2 && char.IsUpper(field[2]))
+        || (field.StartsWith("has", StringComparison.Ordinal) && field.Length > 3 && char.IsUpper(field[3]));
 }

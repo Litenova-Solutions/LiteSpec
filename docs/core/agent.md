@@ -30,7 +30,7 @@ A ballot groups open questions for one decision, by decision identifier or short
 
 ### Transcription Mode
 
-During adoption, agents write Behavior records from working code and mark each one `source: transcribed`. A transcribed record stays in draft until its Intent parent is approved, and transcription mode ends when the decision named in `adoption.transcriptionEndsWith` is approved. The [scope page](scope.md) states the adoption record.
+During adoption, agents write Behavior records from working code and mark each one `provenance: transcribed`. A transcribed record stays in draft until its Intent parent is approved, and transcription mode ends when the decision named in `adoption.transcriptionEndsWith` is approved. The [scope page](scope.md) states the adoption record.
 
 ### Side Effects That Need Approval
 
@@ -212,13 +212,13 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **ID:** `litespec/core/agent#mark-transcribed-records-during-adoption`
 
-**Statement:** An agent writing Behavior from code during adoption MUST mark the record `source: transcribed`.
+**Statement:** An agent writing Behavior from code during adoption MUST mark the record `provenance: transcribed`.
 
 **Rationale:** Transcription reverses the normal direction: the record follows working code instead of leading it. The mark tells every reviewer that the record is evidence, not a promise, so it stays in draft until an approved Intent parent adopts it. When the ending decision is approved, any record still carrying the mark fails, which proves the mode ended cleanly.
 
 **Example:** A handler with no use-case page gains a transcribed draft that waits for its requirement's ballot.
 
-**Reviewed for:** Each record transcribed from code carries `source: transcribed` and stays in draft until its Intent parent is approved.
+**Reviewed for:** Each record transcribed from code carries `provenance: transcribed` and stays in draft until its Intent parent is approved.
 
 ### Advise Without Gating
 

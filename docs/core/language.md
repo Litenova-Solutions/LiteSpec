@@ -187,7 +187,7 @@ Subcommands are verbs (`build`, `check`, `render`, `query`, `diff`, `review`, `a
 
 **Example:** A Claimwick journey step states "The traveller pays for the booking."
 
-**Reviewed for:** Which values miss the value style? Look at the statements, meanings, failures, questions, and titles the change adds, beside the value-style table.
+**Checked by:** `litespec model check` reports no `value-invalid` finding for a record value, and `litespec-maintain validate` emits no `VALUE_STYLE` diagnostic for a template or example value.
 
 ### Write Quantities in Standard Units
 

@@ -89,14 +89,6 @@ static class TermLookalikes
             && !ignore.Contains($"{pair.Second.Form}|{pair.First.Form}")).ToList();
     }
 
-    /// <summary>The finding message for one pair, naming both forms and the first record of each.</summary>
-    public static string MessageFor(LookalikePair pair) => pair.Kind switch
-    {
-        "spelling" => $"Terms '{pair.First.Form}' in '{pair.First.Seen}' and '{pair.Second.Form}' in '{pair.Second.Seen}' mix British and American spelling.",
-        "plurality" => $"Terms '{pair.First.Form}' in '{pair.First.Seen}' and '{pair.Second.Form}' in '{pair.Second.Seen}' are the singular and plural of one noun.",
-        _ => $"Terms '{pair.First.Form}' in '{pair.First.Seen}' and '{pair.Second.Form}' in '{pair.Second.Seen}' differ only in hyphenation.",
-    };
-
     /// <summary>Collects the words and their consecutive pairs, keeping the first occurrence of each.</summary>
     static void Collect(
         IReadOnlyList<string> found,

@@ -413,7 +413,7 @@ var FACETS = [
   { key: "proof", label: "proves", get: function (id) { var p = proofState(id); return p ? [p] : []; }, name: function (v) { return PLABEL[v]; } },
   { key: "due", label: "decideBy", get: function (id) { var d = dueOf(id); if (!d) return []; var n = days(d); return [n < 0 ? "over" : n <= 7 ? "week" : n <= 31 ? "month" : "later"]; }, name: function (v) { return { over: "Overdue", week: "Within 7 days", month: "Within a month", later: "Later" }[v]; } },
   { key: "decider", label: "decider", get: function (id) { var r = REC[base(id)]; return r && r.decider ? [r.decider] : []; }, name: function (v) { return v; } },
-  { key: "source", label: "source", get: function (id) { var r = REC[base(id)]; if (!r) return []; return (r.fields || {}).source === "transcribed" ? ["transcribed"] : ["written"]; }, name: function (v) { return v === "transcribed" ? "transcribed" : "written"; } }
+  { key: "provenance", label: "provenance", get: function (id) { var r = REC[base(id)]; if (!r) return []; return (r.fields || {}).provenance === "transcribed" ? ["transcribed"] : ["written"]; }, name: function (v) { return v === "transcribed" ? "transcribed" : "written"; } }
 ];
 var active = {};
 function passes(id, skip) {
@@ -738,7 +738,7 @@ function refs(ids) {
 }
 function inlineRef(id) { var b = base(id); return (REC[b] || NODE[b]) ? '<button type="button" class="iref" data-go="' + esc(b) + '">' + esc(title(b)) + "</button>" : missingRef(b); }
 // Blocks that only list linked records move to the rail, so the page reads as content.
-var LINKS_IN_RAIL = { "based on": 1, "depends on": 1, "governs": 1, "raised by": 1, "fulfilled by": 1, "governed by": 1, "fulfills": 1, "fulfills and serves": 1, "solves and advances": 1, "basedOn": 1, "addresses": 1, "actor": 1, "dependsOn": 1, "decides": 1, "raises": 1, "subject": 1, "affects": 1, "replaces": 1, "implements": 1, "calls": 1, "proves": 1, "serves": 1, "advances": 1, "cites": 1, "readBy": 1 };
+var LINKS_IN_RAIL = { "based on": 1, "depends on": 1, "governs": 1, "raised by": 1, "fulfilled by": 1, "governed by": 1, "fulfills": 1, "fulfills and serves": 1, "solves and advances": 1, "basedOn": 1, "addresses": 1, "actor": 1, "dependsOn": 1, "decides": 1, "raises": 1, "subject": 1, "affects": 1, "replaces": 1, "implements": 1, "calls": 1, "proves": 1, "serves": 1, "advances": 1, "cites": 1 };
 // A field reads with its LiteSpec label; an unknown field renders raw, never invented.
 function fieldLabel(s) { s = String(s); return (LEX.fields || {})[s] || s; }
 function blk(key, heading, inner, count, aside) { if (!inner) return ""; if (count === 0) return ""; var hk = fieldLabel(heading).toLowerCase(); if (heading.indexOf("Points at this: ") === 0 || LINKS_IN_RAIL[heading] || LINKS_IN_RAIL[hk] || LINKS_IN_RAIL[heading.toLowerCase()]) return ""; return '<section class="blk" id="b-' + key + '"><h2>' + esc(fieldLabel(heading)) + (count != null ? ' <span class="n">' + count + "</span>" : "") + (aside ? '<span class="aside">' + aside + "</span>" : "") + "</h2>" + inner + "</section>"; }
@@ -791,7 +791,7 @@ function leadHtml(html) { return html ? '<div class="lead prose">' + html + "</d
 var WHY_SECTIONS = /^(Why.*|Rationale)$/;
 function whyHtml(r) {
   var f = r.fields || {}, parts = [];
-  [["reason", "Reason"], ["rationale", "Rationale"], ["appliesBecause", "Applies because"], ["refusedBecause", "Refused because"], ["because", "Because"]].forEach(function (k) { if (f[k[0]]) parts.push([k[1], inline(String(f[k[0]]))]); });
+  [["reason", "Reason"], ["rationale", "Rationale"], ["appliesBecause", "Applies because"], ["refusedBecause", "Refused because"]].forEach(function (k) { if (f[k[0]]) parts.push([k[1], inline(String(f[k[0]]))]); });
   secList(r).forEach(function (x) { if (WHY_SECTIONS.test(x.h) && (x.html || "").trim()) parts.push([x.h, x.html]); });
   return parts.length ? '<div class="whyb">' + parts.map(function (p) { return '<div class="whyr"><span class="whyk">' + esc(p[0]) + '</span><div class="whyv prose">' + p[1] + "</div></div>"; }).join("") + "</div>" : "";
 }
@@ -877,7 +877,7 @@ function dataTouched(f) {
   var s = "";
   if ((f.changes || []).length) s += kv([["Changes", refs(f.changes)]]);
   if ((f.reads || []).length) s += kv([["Reads", refs(f.reads)]]);
-  if (f.consistency) s += kv([["Consistency", badge(cap(f.consistency.mode), "info") + ((f.consistency.because || []).length ? '<div class="tn" style="font-family:var(--sans);margin-top:4px">because ' + f.consistency.because.map(inlineRef).join(", ") + "</div>" : "")]]);
+  if (f.consistency) s += kv([["Consistency", badge(cap(f.consistency.mode), "info") + ((f.consistency.cites || []).length ? '<div class="tn" style="font-family:var(--sans);margin-top:4px">because ' + f.consistency.cites.map(inlineRef).join(", ") + "</div>" : "")]]);
   return s;
 }
 
@@ -933,7 +933,7 @@ function metaRow(id, extra) {
   if (isReal(id)) add("Risk tier", (f.risk || []).length ? "Tier 1: " + esc(f.risk.join(", ").replace(/-/g, " ")) : "Tier 3", "tier1");
   var bo = batchOf(id);
   if (bo) add("Approval batch", esc(batchName(bo.batch)) + ' <span class="tn">(' + plural(bo.batch.n || 0, "record") + ")</span>", "batch");
-  if (f.source === "transcribed") add("Source", "Transcribed from code", "transcribed");
+  if (f.provenance === "transcribed") add("Provenance", "Transcribed from code", "transcribed");
   (extra || []).forEach(function (x) { if (!x) return; var tmp = document.createElement("div"); tmp.innerHTML = x; var text = tmp.textContent.trim(); if (!text) return; var ex = (tmp.querySelector("[data-explain]") || {}).getAttribute ? tmp.querySelector("[data-explain]").getAttribute("data-explain") : ""; var key = factKey(text); text = text.replace(new RegExp("^" + key + "\\s*:?\\s*", "i"), "").replace(/^[a-z]+:\s*/i, function (m) { return /^(outcome|applies|kind):/i.test(m) ? "" : m; }).replace(/ steps served$/, ""); if (text === "true") text = "Yes"; if (text === "false") text = "No"; add(key, esc(cap(text)), ex); });
   return facts.length ? '<dl class="facts">' + facts.join("") + "</dl>" : "";
 }
@@ -1031,12 +1031,12 @@ var DETAIL = {
   "use-case": function (id, r) {
     var f = r.fields || {}, res = resultsOf(id).filter(function (x) { return REC[base(x)]; }).map(function (x) { var q = REC[base(x)], qf = q.fields || {}; return { id: x, title: q.title, outcome: qf.outcome, meaning: qf.meaning, code: qf.code, kind: /\.(forbidden|invalid-input)$/.test(x) ? "generic" : "" }; }), scs = scenariosOf(id).filter(function (s) { return REC[base(s)]; });
     var okR = res.filter(function (x) { return x.outcome === "success"; }), noR = res.filter(function (x) { return x.outcome !== "success"; });
-    var inputT = (f.input || []).length ? table(["Field", "Meaning", "Rules"], f.input.map(function (x) { return [td(esc(x.name) + (x.classification ? '<div style="margin-top:4px">' + clsBadge(x.classification) + "</div>" : ""), "nm"), td(esc(x.meaning) + (x.source ? '<div class="tn" style="font-family:var(--sans);margin-top:3px">from ' + esc(x.source) + "</div>" : "")), td(bullets(x.rules))]; })) : "";
+    var inputT = (f.input || []).length ? table(["Field", "Meaning", "Rules"], f.input.map(function (x) { return [td(esc(x.name) + (x.classification ? '<div style="margin-top:4px">' + clsBadge(x.classification) + "</div>" : ""), "nm"), td(esc(x.meaning) + (x.origin ? '<div class="tn" style="font-family:var(--sans);margin-top:3px">from ' + esc(x.origin) + "</div>" : "")), td(bullets(x.rules))]; })) : "";
     var out = "";
     if (f.output && f.output.include) out = Object.keys(f.output.include).map(function (k) { var g = f.output.include[k]; return '<div class="sub">' + esc(cap(k)) + " " + clsBadge(g.classification || "internal") + (g.freshness ? ' <span class="tn" style="font-family:var(--sans)">fresh within ' + esc(g.freshness) + "</span>" : "") + "</div>" + table(["Field", "Meaning"], (g.fields || []).map(function (x) { return [td(esc(x.name), "nm"), td(esc(x.meaning))]; })); }).join("");
     else if (Array.isArray(f.output) && f.output.length) out = table(["Field", "Meaning"], f.output.map(function (x) { return [td(esc(x.name), "nm"), td(esc(x.meaning))]; }));
     var paging = typeof f.paging === "object" ? kv([["Order", esc(f.paging.order)], ["Paging", esc(f.paging.offset)], ["Page size", f.paging.defaultLimit + " by default, at most " + f.paging.maxLimit]]) : f.paging ? kv([["Paging", esc(f.paging)]]) : "";
-    var audit = f.audit ? (f.audit.exempt ? callout("quiet", "info", "<b>Not audited.</b> " + esc(f.audit.exempt)) : callout("info", "book", "<b>Audited</b> against " + esc(f.audit.target || "") + ". " + esc(f.audit.reason || ""))) : "";
+    var audit = f.audit ? (f.audit.exempt ? callout("quiet", "info", "<b>Not audited.</b> " + esc(f.audit.exempt)) : callout("info", "book", "<b>Audited</b> against " + esc(f.audit.target || "") + ". " + esc(f.audit.level || ""))) : "";
     var resH = (okR.length ? '<div class="sub">Outcome: Success</div>' + resultCards(okR) : "") + (noR.length ? '<div class="sub">Outcome: Refusal</div>' + resultCards(noR) : "");
     var ps = proofState(id);
     return metaRow(id, [badge(f.kind, "info"), machineChip(ps)]) + leadHtml(secHtml(r, "Goal")) + (f.summary && !secHtml(r, "Goal") ? lead(f.summary) : "") +
@@ -1054,7 +1054,7 @@ var DETAIL = {
   job: function (id, r) {
     var f = r.fields || {}, sch = f.schedule ? "Every " + duration(f.schedule.every) + (f.schedule.timezone ? ", " + esc(f.schedule.timezone) + " time" : "") : f.trigger ? esc(f.trigger) : cap(f.kind || "");
     return metaRow(id, [badge(cap(f.kind || "job"), "info")]) + lead(f.summary) +
-      blk("run", "schedule", '<div class="tiles">' + tile("schedule", sch) + (f.batchSize ? tile("batchSize", f.batchSize, "", true) : "") + (f.lease ? tile("lease", typeof f.lease === "string" ? esc(f.lease) : esc(f.lease.name) + " for " + duration(f.lease.duration)) : "") + (f.runsWhere ? tile("runsWhere", esc(f.runsWhere)) : "") + idemBlock(f) + "</div>" + kv([["Scope", f.scope ? esc(f.scope) : ""], ["Service level", f.serviceLevel ? esc(f.serviceLevel) : ""], ["Evidence", f.evidence ? esc(f.evidence) : ""], ["Runbook", f.runbook ? inlineRef(f.runbook) : ""]])) +
+      blk("run", "schedule", '<div class="tiles">' + tile("schedule", sch) + (f.batchSize ? tile("batchSize", f.batchSize, "", true) : "") + (f.lease ? tile("lease", typeof f.lease === "string" ? esc(f.lease) : esc(f.lease.name) + " for " + duration(f.lease.duration)) : "") + (f.runsWhere ? tile("runsWhere", esc(f.runsWhere)) : "") + idemBlock(f) + "</div>" + kv([["Selection", f.selection ? esc(f.selection) : ""], ["Service level", f.serviceLevel ? esc(f.serviceLevel) : ""], ["Evidence", f.evidence ? esc(f.evidence) : ""], ["Runbook", f.runbook ? inlineRef(f.runbook) : ""]])) +
       effectsBlock(f) + failureBlock(f) + blk("data", "changes and reads", dataTouched(f)) + blk("ful", "fulfills and serves", kv([["Fulfills", refs(f.fulfills)], ["Serves", refs(f.serves)]]));
   },
   notification: function (id, r) {
@@ -1068,7 +1068,7 @@ var DETAIL = {
   setting: function (id, r) {
     var f = r.fields || {};
     return metaRow(id, [f.secret ? badge("Secret", "bad") : "", f.restart ? badge("Needs a restart", "warn") : ""]) + lead(f.meaning || f.statement) +
-      blk("val", "default", '<div class="tiles">' + tile("default", f.secret ? "Hidden" : f["default"] !== undefined ? esc(f["default"]) + (f.unit ? " " + esc(f.unit) : "") : f.value !== undefined ? esc(f.value) : "None", "", true) + tile("valueType", esc(cap(f.valueType || ""))) + (f.range ? tile("range", esc(f.range)) : "") + tile("setBy", esc(cap(f.setBy || ""))) + "</div>" + kv([["At the bound", f.atBound ? esc(f.atBound) : ""], ["Read by", refs(f.readBy)], ["Runbook", f.runbook ? inlineRef(f.runbook) : ""]])) +
+      blk("val", "default", '<div class="tiles">' + tile("default", f.secret ? "Hidden" : f["default"] !== undefined ? esc(f["default"]) + (f.unit ? " " + esc(f.unit) : "") : f.value !== undefined ? esc(f.value) : "None", "", true) + tile("valueType", esc(cap(f.valueType || ""))) + (f.range ? tile("range", esc(f.range)) : "") + tile("setBy", esc(cap(f.setBy || ""))) + "</div>" + kv([["At the bound", f.atBound ? esc(f.atBound) : ""], ["Read by", refs(ins(id, "reads"))], ["Runbook", f.runbook ? inlineRef(f.runbook) : ""]])) +
       blk("ful", "Fulfills", refs(f.fulfills));
   },
   "integration-event": function (id, r) {

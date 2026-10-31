@@ -99,7 +99,7 @@ public static class RecordTypes
             ["calls"] = new HashSet<string> { "external-system" },
             ["on"] = new HashSet<string> { "event", "integration-event" },
             ["changes"] = new HashSet<string> { "aggregate" },
-            ["reads"] = new HashSet<string> { "aggregate" },
+            ["reads"] = new HashSet<string> { "aggregate", "setting" },
             ["translates"] = new HashSet<string> { "event" },
             ["acceptedBy"] = new HashSet<string> { "decision", "requirement" },
             ["fallback"] = new HashSet<string> { "requirement" },
@@ -120,7 +120,6 @@ public static class RecordTypes
             ["offers"] = new HashSet<string> { "use-case" },
             ["host"] = new HashSet<string> { "screen" },
             ["runbook"] = new HashSet<string> { "runbook" },
-            ["readBy"] = new HashSet<string> { "use-case" },
             ["subject"] = new HashSet<string>(),
             ["values"] = new HashSet<string>(),
         };

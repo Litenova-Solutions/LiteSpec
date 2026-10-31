@@ -68,7 +68,7 @@ static class CodeChecks
                 {
                     findings.Add(CodeFinding(
                         "write-undeclared",
-                        $"Handler for '{handler.UseCaseId}' takes repository '{repository.Interface}', whose aggregate is outside its changes and reads.",
+                        $"Use case '{handler.UseCaseId}' takes repository '{repository.Interface}', whose aggregate is outside its changes and reads.",
                         repository.File,
                         repository.Line,
                         handler.UseCaseId));
@@ -217,7 +217,7 @@ static class CodeChecks
                 {
                     findings.Add(CodeFinding(
                         "result-undeclared",
-                        $"Handler for '{handler.UseCaseId}' produces '{code}', which no result of the use case declares.",
+                        $"Use case '{handler.UseCaseId}' produces '{code}', which no result of the use case declares.",
                         file,
                         line,
                         handler.UseCaseId));
@@ -446,7 +446,7 @@ static class CodeChecks
                 {
                     findings.Add(CodeFinding(
                         "effect-undeclared",
-                        $"Handler for '{handler.UseCaseId}' {dispatch.Verb} '{DispatchTarget(dispatch)}'{ViaText(dispatch)}, which no effects entry of the use case declares.",
+                        $"Use case '{handler.UseCaseId}' {dispatch.Verb} '{DispatchTarget(dispatch)}'{ViaText(dispatch)}, which no effects entry of the use case declares.",
                         dispatch.File,
                         dispatch.Line,
                         handler.UseCaseId));
@@ -470,7 +470,12 @@ static class CodeChecks
             var edges = record.Type == "use-case"
                 ? [.. UseCaseEdges(record), ("issues", record.Id)]
                 : HolderEdges(record);
-            var kind = record.Type == "job" ? "Job" : "Reaction";
+            var kind = record.Type switch
+            {
+                "job" => "Job",
+                "use-case" => "Use case",
+                _ => "Reaction",
+            };
 
             foreach (var dispatch in reaction.Dispatches)
             {
@@ -494,6 +499,16 @@ static class CodeChecks
     /// <summary>The helper a one-hop attribution found the dispatch through, or nothing when direct.</summary>
     private static string ViaText(CodeDispatch dispatch) =>
         dispatch.Via is { Length: > 0 } via ? $" via '{via}'" : "";
+
+    /// <summary>The title and identifier a reaction or job finding names: the holder record when known, else the class.</summary>
+    private static (string Title, string Id) HolderTitle(ReactionInfo reaction, string? holder) =>
+        holder switch
+        {
+            not null when holder.StartsWith("job/", StringComparison.Ordinal) => ("Job", holder),
+            not null when holder.StartsWith("use-case/", StringComparison.Ordinal) => ("Use case", holder),
+            not null => ("Reaction", holder),
+            null => (reaction.Kind == "job" ? "Job" : "Reaction", reaction.Class),
+        };
 
     /// <summary>Every edge a use case declares in its effects entries.</summary>
     internal static List<(string Verb, string Target)> UseCaseEdges(Record useCase)
@@ -697,7 +712,7 @@ static class CodeChecks
 
                 findings.Add(CodeFinding(
                     "use-case-method-drift",
-                    $"Handler for '{handler.UseCaseId}' calls '{called}' on its aggregate, none starting with the use-case verb '{verb}'.",
+                    $"Use case '{handler.UseCaseId}' calls '{called}' on its aggregate, none starting with the use-case verb '{verb}'.",
                     first.File,
                     first.Line,
                     handler.UseCaseId));
@@ -807,7 +822,7 @@ static class CodeChecks
                 {
                     findings.Add(CodeFinding(
                         "name-drift",
-                        $"Handler for '{handler.UseCaseId}' handles message '{handler.MessageType}', which does not match the use-case name.",
+                        $"Use case '{handler.UseCaseId}' handles message '{handler.MessageType}', which does not match the use-case name.",
                         handler.File,
                         handler.Line,
                         handler.UseCaseId));
@@ -829,7 +844,7 @@ static class CodeChecks
                 {
                     findings.Add(CodeFinding(
                         "name-drift",
-                        $"Endpoint for '{handler.UseCaseId}' declares operation id '{endpoint.Operation}', which does not match the use-case name.",
+                        $"Use case '{handler.UseCaseId}' has endpoint operation id '{endpoint.Operation}', which does not match the use-case name.",
                         endpoint.File,
                         endpoint.Line,
                         handler.UseCaseId));
@@ -842,7 +857,7 @@ static class CodeChecks
                 {
                     findings.Add(CodeFinding(
                         "name-drift",
-                        $"Command '{handler.UseCaseId}' declares audit action '{action.Action}', which does not match the use-case name.",
+                        $"Use case '{handler.UseCaseId}' declares audit action '{action.Action}', which does not match the use-case name.",
                         action.File,
                         action.Line,
                         handler.UseCaseId));
@@ -929,7 +944,7 @@ static class CodeChecks
 
             findings.Add(CodeFinding(
                 "operation-use-case-drift",
-                $"Contract '{model.Config.Relative(contract)}' could not be read: {(detail.Length > 0 ? detail : "an unknown error")}.",
+                $"Contract '{model.Config.Relative(contract)}' is unreadable: {(detail.Length > 0 ? detail : "an unknown error")}.",
                 contract,
                 1,
                 null));
@@ -942,7 +957,7 @@ static class CodeChecks
             {
                 findings.Add(CodeFinding(
                     "operation-use-case-drift",
-                    $"Contract '{model.Config.Relative(contract)}' could not be read: the document is not an object.",
+                    $"Contract '{model.Config.Relative(contract)}' is unreadable: the document is not an object.",
                     contract,
                     1,
                     null));
@@ -958,7 +973,7 @@ static class CodeChecks
             {
                 findings.Add(CodeFinding(
                     "operation-use-case-drift",
-                    $"Contract '{model.Config.Relative(contract)}' could not be read: the 'paths' value is not an object.",
+                    $"Contract '{model.Config.Relative(contract)}' is unreadable: the 'paths' value is not an object.",
                     contract,
                     1,
                     null));
@@ -1313,7 +1328,7 @@ static class CodeChecks
             {
                 findings.Add(CodeFinding(
                     "collaborator-repository-invalid",
-                    $"Handler for '{handler.UseCaseId}' builds '{collaborator.Type}' with 'new', whose constructor takes a repository; register it in the container.",
+                    $"Use case '{handler.UseCaseId}' builds '{collaborator.Type}' with 'new', whose constructor takes a repository.",
                     collaborator.File,
                     collaborator.Line,
                     handler.UseCaseId));
@@ -1328,13 +1343,13 @@ static class CodeChecks
             }
 
             var holder = reaction.RecordId ?? reaction.UseCaseId;
-            var kind = reaction.Kind == "job" ? "Job" : "Reaction";
+            var (kind, id) = HolderTitle(reaction, holder);
 
             foreach (var collaborator in reaction.Collaborators)
             {
                 findings.Add(CodeFinding(
                     "collaborator-repository-invalid",
-                    $"{kind} '{reaction.Class}' builds '{collaborator.Type}' with 'new', whose constructor takes a repository; register it in the container.",
+                    $"{kind} '{id}' builds '{collaborator.Type}' with 'new', whose constructor takes a repository.",
                     collaborator.File,
                     collaborator.Line,
                     holder));
@@ -1355,7 +1370,7 @@ static class CodeChecks
             {
                 findings.Add(CodeFinding(
                     "repository-read-invalid",
-                    $"Handler for '{handler.UseCaseId}' reads repository '{read.Repository}' inside a loop with '{read.Method}'.",
+                    $"Use case '{handler.UseCaseId}' reads repository '{read.Repository}' inside a loop with '{read.Method}'.",
                     read.File,
                     read.Line,
                     handler.UseCaseId));
@@ -1370,13 +1385,13 @@ static class CodeChecks
             }
 
             var holder = reaction.RecordId ?? reaction.UseCaseId;
-            var kind = reaction.Kind == "job" ? "Job" : "Reaction";
+            var (kind, id) = HolderTitle(reaction, holder);
 
             foreach (var read in reaction.LoopReads)
             {
                 findings.Add(CodeFinding(
                     "repository-read-invalid",
-                    $"{kind} '{reaction.Class}' reads repository '{read.Repository}' inside a loop with '{read.Method}'.",
+                    $"{kind} '{id}' reads repository '{read.Repository}' inside a loop with '{read.Method}'.",
                     read.File,
                     read.Line,
                     holder));
@@ -1397,7 +1412,7 @@ static class CodeChecks
             {
                 findings.Add(CodeFinding(
                     "query-filter-invalid",
-                    $"Query handler for '{handler.UseCaseId}' filters a repository list in memory.",
+                    $"Use case '{handler.UseCaseId}' filters a repository list in memory.",
                     filter.File,
                     filter.Line,
                     handler.UseCaseId));
@@ -1413,7 +1428,7 @@ static class CodeChecks
             {
                 findings.Add(CodeFinding(
                     "dependency-count-invalid",
-                    $"Handler for '{handler.UseCaseId}' takes {handler.DependencyCount} constructor dependencies.",
+                    $"Use case '{handler.UseCaseId}' takes {handler.DependencyCount} constructor dependencies.",
                     handler.File,
                     handler.Line,
                     handler.UseCaseId));
@@ -1425,11 +1440,11 @@ static class CodeChecks
             if (reaction.DependencyCount > 10)
             {
                 var holder = reaction.RecordId ?? reaction.UseCaseId;
-                var kind = reaction.Kind == "job" ? "Job" : "Reaction";
+                var (kind, id) = HolderTitle(reaction, holder);
 
                 findings.Add(CodeFinding(
                     "dependency-count-invalid",
-                    $"{kind} '{reaction.Class}' takes {reaction.DependencyCount} constructor dependencies.",
+                    $"{kind} '{id}' takes {reaction.DependencyCount} constructor dependencies.",
                     reaction.File,
                     reaction.Line,
                     holder));
@@ -1466,7 +1481,7 @@ static class CodeChecks
                     {
                         findings.Add(CodeFinding(
                             "effect-timing-invalid",
-                            $"Use case '{useCase.Id}' {verb} '{target}' inline; it runs after the commit from an event handler or a job.",
+                            $"Use case '{useCase.Id}' {verb} '{target}' inline.",
                             useCase.File,
                             useCase.Line,
                             useCase.Id));

@@ -6,7 +6,7 @@ namespace LiteSpec.Model;
 /// <summary>
 ///     The dependency checks: every direct package in the bill of materials is admitted by
 ///     a manifest pin or a technical decision, ships at its manifest pin, and carries an
-///     accepted licence, and every admission names its six facts.
+///     accepted license, and every admission names its six facts.
 /// </summary>
 static partial class Checker
 {
@@ -20,16 +20,16 @@ static partial class Checker
 /// </summary>
 /// <follows>litespec/workspace/dependencies#approve-new-packages-explicitly</follows>
 /// <follows>litespec/workspace/dependencies#match-every-shipped-package-to-its-pin</follows>
-/// <follows>litespec/workspace/dependencies#accept-every-shipped-package-licence-explicitly</follows>
+/// <follows>litespec/workspace/dependencies#accept-every-shipped-package-license-explicitly</follows>
 static class DependencyChecks
 {
     /// <summary>The six facts every admits entry names.</summary>
     private static readonly string[] AdmissionFacts =
     [
-        "layer", "licence", "location", "accountOwner", "failureBehavior", "operatingCost",
+        "layer", "license", "location", "accountOwner", "failureBehavior", "operatingCost",
     ];
 
-    /// <summary>SPDX expression operators: every other token is a licence identifier.</summary>
+    /// <summary>SPDX expression operators: every other token is a license identifier.</summary>
     private static readonly HashSet<string> ExpressionOperators = new(StringComparer.Ordinal)
     {
         "AND", "OR", "WITH",
@@ -67,7 +67,7 @@ static class DependencyChecks
             {
                 findings.Add(new Finding(
                     "dependency-undeclared",
-                    $"Direct package '{package.Id}' version {VersionText(package.Version)} with licence {LicenceText(package.Licence)} is pinned by no manifest entry and admitted by no decision.",
+                    $"Direct package '{package.Id}' version {VersionText(package.Version)} with license {LicenseText(package.License)} is pinned by no manifest entry and admitted by no decision.",
                     package.File,
                     1,
                     null));
@@ -77,17 +77,17 @@ static class DependencyChecks
             {
                 findings.Add(new Finding(
                     "dependency-version-drift",
-                    $"Direct package '{package.Id}' version {VersionText(package.Version)} with licence {LicenceText(package.Licence)} differs from its manifest pin '{pin}'.",
+                    $"Direct package '{package.Id}' version {VersionText(package.Version)} with license {LicenseText(package.License)} differs from its manifest pin '{pin}'.",
                     package.File,
                     1,
                     null));
             }
 
-            if (!LicenceAccepted(model.Config.AcceptedLicences, admitted?.Licence, package.Licence))
+            if (!LicenseAccepted(model.Config.AcceptedLicenses, admitted?.License, package.License))
             {
                 findings.Add(new Finding(
                     "dependency-license-unknown",
-                    $"Direct package '{package.Id}' version {VersionText(package.Version)} carries licence {LicenceText(package.Licence)}, which the project does not accept.",
+                    $"Direct package '{package.Id}' version {VersionText(package.Version)} carries license {LicenseText(package.License)}, which the project does not accept.",
                     package.File,
                     1,
                     null));
@@ -95,8 +95,8 @@ static class DependencyChecks
         }
     }
 
-    /// <summary>One admission: the admitted package id and the licence its entry names, when it names one.</summary>
-    private sealed record Admission(string Ecosystem, string Name, string? Licence);
+    /// <summary>One admission: the admitted package id and the license its entry names, when it names one.</summary>
+    private sealed record Admission(string Ecosystem, string Name, string? License);
 
     /// <summary>
     ///     Every admission: the admits entries of the technical decisions that are not retired.
@@ -137,9 +137,9 @@ static class DependencyChecks
                 admissions.Add(new Admission(
                     id[..separator],
                     id[(separator + 1)..],
-                    entry.TryGetProperty("licence", out var licence)
-                        && licence.ValueKind == JsonValueKind.String
-                        && licence.GetString() is { Length: > 0 } text
+                    entry.TryGetProperty("license", out var license)
+                        && license.ValueKind == JsonValueKind.String
+                        && license.GetString() is { Length: > 0 } text
                             ? text
                             : null));
             }
@@ -193,17 +193,17 @@ static class DependencyChecks
     }
 
     /// <summary>
-    ///     Whether the shipped licence is accepted: it equals the licence the admission names,
+    ///     Whether the shipped license is accepted: it equals the license the admission names,
     ///     or every identifier in the SPDX expression is accepted.
     /// </summary>
-    private static bool LicenceAccepted(IReadOnlySet<string> accepted, string? admitsLicence, string shipped)
+    private static bool LicenseAccepted(IReadOnlySet<string> accepted, string? admitsLicense, string shipped)
     {
         if (shipped.Length == 0)
         {
             return false;
         }
 
-        if (admitsLicence is not null && shipped.Equals(admitsLicence, StringComparison.Ordinal))
+        if (admitsLicense is not null && shipped.Equals(admitsLicense, StringComparison.Ordinal))
         {
             return true;
         }
@@ -271,7 +271,7 @@ static class DependencyChecks
     private static string VersionText(string version) =>
         version.Length > 0 ? $"'{version}'" : "no version";
 
-    /// <summary>The licence as the message names it.</summary>
-    private static string LicenceText(string licence) =>
-        licence.Length > 0 ? $"'{licence}'" : "no licence";
+    /// <summary>The license as the message names it.</summary>
+    private static string LicenseText(string license) =>
+        license.Length > 0 ? $"'{license}'" : "no license";
 }

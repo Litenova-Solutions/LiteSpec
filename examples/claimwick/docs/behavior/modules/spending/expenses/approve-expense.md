@@ -43,7 +43,7 @@
     {
       "type": "result",
       "id": "result/approve-expense.own-expense",
-      "title": "Own expense",
+      "title": "Own Expense",
       "owner": "claimwick-team",
       "outcome": "refusal",
       "code": "spending.own-expense",
@@ -55,7 +55,7 @@
     {
       "type": "result",
       "id": "result/approve-expense.not-submitted",
-      "title": "Not submitted",
+      "title": "Not Submitted",
       "owner": "claimwick-team",
       "outcome": "refusal",
       "code": "spending.not-submitted",
@@ -67,7 +67,7 @@
     {
       "type": "scenario",
       "id": "scenario/approve-expense.approving-a-submitted-expense-succeeds",
-      "title": "Approving a submitted expense succeeds",
+      "title": "Approving a Submitted Expense Succeeds",
       "owner": "claimwick-team",
       "status": "reviewed",
       "given": "An employee submitted an expense with its receipt.",
@@ -81,7 +81,7 @@
     {
       "type": "scenario",
       "id": "scenario/approve-expense.approving-an-own-expense-is-refused",
-      "title": "Approving an own expense is refused",
+      "title": "Approving an Own Expense Is Refused",
       "owner": "claimwick-team",
       "status": "reviewed",
       "given": "A manager submitted an expense with its receipt.",
@@ -95,7 +95,7 @@
     {
       "type": "scenario",
       "id": "scenario/approve-expense.approving-a-decided-expense-is-refused",
-      "title": "Approving a decided expense is refused",
+      "title": "Approving a Decided Expense Is Refused",
       "owner": "claimwick-team",
       "status": "reviewed",
       "given": "A manager approved an expense.",

@@ -65,6 +65,27 @@ public sealed class FindingCodesTests
         Assert.Equal(tier, Finding.Tiers[code]);
     }
 
+    /// <summary>The value-style code reports at level A.</summary>
+    /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
+    [Fact]
+    public void Value_Invalid_Code_Is_Advisory()
+    {
+        Assert.Equal("A", Finding.Tiers["value-invalid"]);
+    }
+
+    /// <summary>Every finding code reads subject-problem with one of the twelve problem words.</summary>
+    /// <proves>litespec/core/language#name-each-finding-code-by-subject-and-problem</proves>
+    [Fact]
+    public void Codes_Follow_Subject_Problem_Grammar()
+    {
+        var bad = Finding.Tiers.Keys
+            .Where(code => !FollowsGrammar(code))
+            .OrderBy(code => code, StringComparer.Ordinal)
+            .ToList();
+
+        Assert.Empty(bad);
+    }
+
     /// <summary>Every literal a checker passes as a finding code, across the CLI and model sources.</summary>
     static IReadOnlyList<string> EmittedCodes(string repository)
     {
@@ -117,6 +138,21 @@ public sealed class FindingCodesTests
 
         return found;
     }
+
+    /// <summary>Whether the code ends with one of the twelve problem words.</summary>
+    static bool FollowsGrammar(string code)
+    {
+        var dash = code.LastIndexOf('-');
+
+        return dash > 0 && dash < code.Length - 1 && ProblemWords.Contains(code[(dash + 1)..]);
+    }
+
+    /// <summary>The twelve problem words of the finding-code grammar.</summary>
+    static HashSet<string> ProblemWords { get; } = new(StringComparer.Ordinal)
+    {
+        "missing", "unknown", "undeclared", "unrecorded", "unimplemented", "unreached",
+        "drift", "invalid", "duplicate", "clash", "expired", "reopened",
+    };
 
     /// <summary>The LiteSpec repository root, found above the test binary.</summary>
     static string FindRepository()

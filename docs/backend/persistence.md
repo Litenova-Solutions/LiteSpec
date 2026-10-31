@@ -76,7 +76,7 @@ A failed submission leaves the session uncommitted, so no partial expense is sto
 
 **Statement:** Persistence MUST commit a command exactly as its use-case record's `consistency` mode states.
 
-**Rationale:** `atomic` commits everything the handler staged in one unit of work, citing the rule in `because` when `changes` names more than one aggregate. `per-record` commits each record's command alone, with the driver resuming from its cursor after a failure. `compensated` commits each step alone, and a failure runs the compensation the step declares. `best-effort` records a receipt per target. A second commit in one command splits one unit of work across two transactions, so the failure between them leaves a partial write.
+**Rationale:** `atomic` commits everything the handler staged in one unit of work, citing the rule in `cites` when `changes` names more than one aggregate. `per-record` commits each record's command alone, with the driver resuming from its cursor after a failure. `compensated` commits each step alone, and a failure runs the compensation the step declares. `best-effort` records a receipt per target. A second commit in one command splits one unit of work across two transactions, so the failure between them leaves a partial write.
 
 **Example:** The erase-expired-data job commits each expense alone under `per-record`; the submit-expense command commits its staged aggregates together under `atomic`.
 

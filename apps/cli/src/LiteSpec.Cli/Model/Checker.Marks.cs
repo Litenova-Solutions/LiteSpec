@@ -354,7 +354,7 @@ static partial class Checker
 
             if (!called)
             {
-                findings.Add(new Finding("use-case-act-missing", $"Handler for '{handler.UseCaseId}' calls no aggregate method marked with the use case.", handler.File, handler.Line, handler.UseCaseId));
+                findings.Add(new Finding("use-case-act-missing", $"Use case '{handler.UseCaseId}' has no handler calling an aggregate method marked with the use case.", handler.File, handler.Line, handler.UseCaseId));
             }
         }
     }
@@ -428,7 +428,7 @@ static partial class Checker
 
                 if (decided.Code == "act-event-undeclared")
                 {
-                    findings.Add(new Finding("act-event-undeclared", $"Aggregate method '{method.Aggregate}.{method.Method}' marked with '{useCase.Id}' raises '{decided.EventId}', which the use case does not list in raises.", method.File, method.Line, useCase.Id));
+                    findings.Add(new Finding("act-event-undeclared", $"Use case '{useCase.Id}' lists no '{decided.EventId}' in raises, but aggregate method '{method.Aggregate}.{method.Method}' marked with the use case raises it.", method.File, method.Line, useCase.Id));
                 }
                 else
                 {

@@ -82,7 +82,7 @@ public sealed class FeatureGoalCheckTests
             TestModel.Record("feature", "feature/hold-requests", Path.Combine(temp.Path, "holds.md"), """{"status": "approved", "lifecycle": "planned", "plannedFor": "Pilot launch", "solves": ["problem/hold-delays"], "advances": ["goal/faster-checkout"], "serves": ["goal/faster-checkout"]}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "field-invalid" && found.Message.Contains("names serves", StringComparison.Ordinal));
-        Assert.Equal("Feature 'feature/hold-requests' names serves; a feature advances a goal in advances.", finding.Message);
+        Assert.Equal("Feature 'feature/hold-requests' names serves and advances holds its goal.", finding.Message);
         Assert.Equal("feature/hold-requests", finding.Subject);
     }
 }

@@ -21,7 +21,7 @@
       "name": "<field>",
       "meaning": "<What this field means>",
       "rules": ["<The shape each value obeys>"],
-      "source": "<caller|claim|derived>",
+      "origin": "<caller|claim|derived>",
       "classification": "<public|internal|personal|sensitive>"
     }
   ],
@@ -35,10 +35,10 @@
           }
         ],
         "classification": "<public|internal|personal|sensitive>",
-        "source": ["aggregate/<module>.<name>"],
+        "reads": ["aggregate/<module>.<name>"],
         "freshness": "<immediate|snapshot|bounded (<duration>)|advisory>",
         "visibleWhen": "<Condition, or remove this line>",
-        "wideningBecause": "<requirement/<topic>.<name>, or remove this line>"
+        "cites": "<requirement/<topic>.<name>, or remove this line>"
       }
     }
   },
@@ -50,10 +50,10 @@
   },
   "builtAsynchronously": "<true when the query source lags, otherwise remove this line>",
   "changes": ["aggregate/<module>.<name>"],
-  "reads": ["aggregate/<module>.<name>"],
+  "reads": ["<aggregate/<module>.<name> or setting/<module>.<name>>"],
   "consistency": {
     "mode": "<atomic|per-record|compensated|best-effort>",
-    "because": ["<rule/<aggregate>.<name> when the mode is atomic across aggregates, or remove this line>"]
+    "cites": ["<rule/<aggregate>.<name> when the mode is atomic across aggregates, or remove this line>"]
   },
   "effects": [
     {
@@ -80,7 +80,7 @@
     "reason": "<Reason when the mode is none, otherwise remove this line>"
   },
   "audit": {
-    "reason": "<required|optional|none; replace this whole audit object with { exempt: <justification> } when exempt>",
+    "level": "<required|optional|none; replace this whole audit object with { exempt: <justification> } when exempt>",
     "target": "<Target kind, or none>"
   },
   "risk": ["<money|door|personal-data|access, or remove this line>"],

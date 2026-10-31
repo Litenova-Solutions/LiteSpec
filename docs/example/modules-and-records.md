@@ -357,7 +357,7 @@ Set-receipt-threshold fulfills the receipt requirement, and erase-personal-data 
 
 ## One Use Case Tying Them Together
 
-Submit expense is a command: an employee submits a work expense with a receipt through the expenses app. Its record serves the journey's first step, fulfills the receipt requirement, declares its access, names its input with sources and classifications, changes the expense while reading the policy store, commits atomically, and raises the submitted event. Its result and scenario entries live in `records`, which is the shape the record schema defines.
+Submit expense is a command: an employee submits a work expense with a receipt through the expenses app. Its record serves the journey's first step, fulfills the receipt requirement, declares its access, names its input with origins and classifications, changes the expense while reading the policy store, commits atomically, and raises the submitted event. Its result and scenario entries live in `records`, which is the shape the record schema defines.
 
 ```json
 {
@@ -389,26 +389,26 @@ Submit expense is a command: an employee submits a work expense with a receipt t
       "name": "amount",
       "meaning": "The exact amount claimed.",
       "rules": ["A positive decimal with at most two fraction digits."],
-      "source": "caller",
+      "origin": "caller",
       "classification": "internal"
     },
     {
       "name": "currency",
       "meaning": "The ISO 4217 code of the amount.",
       "rules": ["A three-letter code."],
-      "source": "caller",
+      "origin": "caller",
       "classification": "internal"
     },
     {
       "name": "receiptId",
       "meaning": "The attached receipt, required above the threshold.",
-      "source": "caller",
+      "origin": "caller",
       "classification": "internal"
     },
     {
       "name": "employeeId",
       "meaning": "The submitting employee.",
-      "source": "claim",
+      "origin": "claim",
       "classification": "personal"
     }
   ],
@@ -428,7 +428,7 @@ Submit expense is a command: an employee submits a work expense with a receipt t
     "scope": "login"
   },
   "audit": {
-    "reason": "none",
+    "level": "none",
     "target": "expense"
   },
   "records": [
@@ -521,7 +521,7 @@ The entry omits `timing`, so it reads as `async`. The reaction serves the journe
 
 ## The Jobs
 
-A job is scheduled, one-off, or operator work that issues use cases. Claimwick keeps 3 scheduled jobs. The reminder job runs nightly and issues the reminder command once per waiting expense. It lives at `docs/behavior/modules/spending/jobs/send-approver-reminders-on-expense-submitted.md`, declares its kind with a structured schedule, and states its scope, lease, service level, evidence, and runbook, which applies `litespec/core/behavior#declare-every-job-with-kind-and-structured-schedule`.
+A job is scheduled, one-off, or operator work that issues use cases. Claimwick keeps 3 scheduled jobs. The reminder job runs nightly and issues the reminder command once per waiting expense. It lives at `docs/behavior/modules/spending/jobs/send-approver-reminders-on-expense-submitted.md`, declares its kind with a structured schedule, and states its selection, lease, service level, evidence, and runbook, which applies `litespec/core/behavior#declare-every-job-with-kind-and-structured-schedule`.
 
 ```json
 {
@@ -535,7 +535,7 @@ A job is scheduled, one-off, or operator work that issues use cases. Claimwick k
     "cron": "0 6 * * *",
     "timezone": "Europe/Amsterdam"
   },
-  "scope": "Submitted expenses waiting past three business days without a decision.",
+  "selection": "Submitted expenses waiting past three business days without a decision.",
   "batchSize": 200,
   "lease": {
     "name": "send-approver-reminders-on-expense-submitted",
@@ -706,7 +706,7 @@ List expenses is a query: an employee reads their own expenses with the latest s
           }
         ],
         "classification": "internal",
-        "source": ["aggregate/spending.expense"],
+        "reads": ["aggregate/spending.expense"],
         "freshness": "immediate"
       }
     }
@@ -785,11 +785,11 @@ The retention schedule at `docs/behavior/retention-schedule.md` schedules every 
 ```json
 {
   "dataClass": "submitter",
-  "aggregates": ["aggregate/spending.expense"],
+  "covers": ["aggregate/spending.expense"],
   "basis": "business",
   "period": "none (on-demand)",
   "enforcedBy": "job/spending.erase-expired-personal-data",
-  "intent": "requirement/approval.erasure-on-request",
+  "cites": "requirement/approval.erasure-on-request",
   "processors": [
     {
       "system": "external-system/payout-bank",
@@ -801,6 +801,6 @@ The retention schedule at `docs/behavior/retention-schedule.md` schedules every 
 }
 ```
 
-The row names what the class covers, what enforces its erasure, the Intent that accepts it, how erasure forwards to the bank, and which side wins when keeping and erasing collide.
+The row names what the class covers, what enforces its erasure, the requirement that accepts it, how erasure forwards to the bank, and which side wins when keeping and erasing collide.
 
 Next, [A Use Case in Code](a-use-case-in-code.md) follows the Submit expense record into .NET code and tests.

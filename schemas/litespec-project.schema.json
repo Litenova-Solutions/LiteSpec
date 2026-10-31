@@ -138,12 +138,12 @@
       }
     },
     "dependencies": {
-      "description": "The dependency gate: the licences every shipped package may carry without an admitting decision.",
+      "description": "The dependency gate: the licenses every shipped package may carry without an admitting decision.",
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "licences": {
-          "description": "SPDX licence identifiers the project accepts, such as MIT and Apache-2.0.",
+        "licenses": {
+          "description": "SPDX license identifiers the project accepts, such as MIT and Apache-2.0.",
           "type": "array",
           "uniqueItems": true,
           "items": { "type": "string", "minLength": 1 }

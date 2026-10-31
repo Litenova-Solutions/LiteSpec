@@ -8,7 +8,7 @@
     {
       "type": "entry-point",
       "id": "entry-point/claimwick-app",
-      "title": "Claimwick app",
+      "title": "Claimwick App",
       "owner": "claimwick-team",
       "status": "reviewed",
       "kind": "browser",
