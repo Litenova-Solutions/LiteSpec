@@ -47,7 +47,7 @@ None.
 |:---|:---|
 | `0` | The project file was written. |
 | `1` | The release holds no readable template, preset, scaffold file, or version. |
-| `2` | The project file exists, the preset or size is invalid, or an option is unknown. |
+| `2` | The project file exists, the preset or size is invalid, or an option is unknown, repeated, or empty. A usage error is reported before `--help` is honoured. |
 
 ## Examples
 

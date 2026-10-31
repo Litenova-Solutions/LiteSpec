@@ -17,9 +17,9 @@ Read this before composing anything. The list below is the whole of it. A screen
 
 State who the reader is and what they came to do. Name the one thing this surface is accountable for.
 
-Three words it is: __WORD__, __WORD__, __WORD__.
+Three words it is: clear, direct, dependable.
 
-Three words it is not: __WORD__, __WORD__, __WORD__.
+Three words it is not: decorative, vague, hurried.
 
 ## Tokens
 
@@ -77,4 +77,4 @@ Name the reader and write to them. State the words this product uses and the wor
 
 | Say | Not |
 |:---|:---|
-| __PHRASE__ | __PHRASE__ |
+| attach a receipt | attach a docket |

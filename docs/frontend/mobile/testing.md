@@ -32,6 +32,16 @@ The core holds no platform type, so its tests run on the plain .NET runner with 
 
 **Reviewed for:** Which screens a use case reaches lack a device test driving them on an emulator or device? Look in the device tests beside the screens.
 
+### Prove Touch and Text Accessibility on a Device
+
+**ID:** `litespec/frontend/mobile/testing#prove-touch-and-text-accessibility-on-a-device`
+
+**Statement:** A device test for each screen MUST check that every interactive view carries a content description and the platform-minimum touch target, and that text scales with the system font scale.
+
+**Rationale:** A screen can render correctly at the default font size and still hide its commands from a screen reader, place a target a finger misses, or clip text a reader enlarged. Checking content descriptions, touch targets, and font scaling on a device meets the screen with the platform accessibility settings its visitors use, rather than with the settings the developer happened to keep. This proves `litespec/frontend/mobile/screens#meet-touch-and-text-accessibility` on each screen.
+
+**Reviewed for:** Which screens lack a device test checking content descriptions, platform-minimum touch targets, and text scaling with the system font scale? Look in the device tests beside the screens.
+
 ## Conventions
 
 ### Run the Release Build Before a Release

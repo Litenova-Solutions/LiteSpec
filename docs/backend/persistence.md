@@ -238,7 +238,7 @@ A tool that alters the schema from application startup is not a reviewed step wh
 
 **Example:** The register-reader handler creates the reader aggregate and stages it through its Domain repository, reserving no card number and checking no registry first. When two registrations race for one card number, the second commit violates the unique index and refuses with the use case conflict, with no reservation or cleanup code in the handler. The submit-expense handler likewise stages the expense and leaves the payout number to the store sequence.
 
-**Checked by:** `dotnet build` reports `LS2016` for a handler taking a pipeline-owned collaborator.
+**Checked by:** `dotnet build` reports `LS2016` for a handler whose constructor takes a pipeline-owned type.
 
 ### Map a Constraint Violation to Its Refusal
 

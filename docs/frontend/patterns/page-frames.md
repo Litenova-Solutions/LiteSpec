@@ -8,11 +8,11 @@ This page holds the layout pattern for each kind of page, from home and list to 
 
 ### How to Read a Pattern
 
-Each pattern answers one layout question, such as how a list page orders its search, filters, table, and paging. It states the question, the default option a project builds, how the default behaves on a narrow screen, and why the default won. Each option then shows one wireframe drawing with its own rationale, cost, and optional reference. A project records its choice in its pattern catalog and builds the chosen option with its own components. The [UI patterns](../patterns.md) page states the catalog contract and the wireframe language.
+Each pattern answers one layout question, such as how a list page arranges its search, filters, table, and paging. It states the question, the default option a project builds, how the default behaves on a narrow screen, and why the default won. Each option then shows one wireframe drawing with its own rationale, cost, and optional reference. A project records its choice in its pattern catalog and builds the chosen option with its own components. The [UI patterns](../patterns.md) page states the catalog contract and the wireframe language.
 
 ### The Running Example
 
-The drawings on this page use the Acme Supply back office: order SO-1042 for Maria Garcia, the Garcia Interiors restock delivery, and the Amsterdam warehouse. Each kind of page repeats the same frame, so a reader meets one heading and at most one primary action on every screen. The Standards section states the two rules every option keeps: each page shows one top-level heading, and each frame shows at most one primary action outside its rows and overlays.
+The drawings on this page use the Claimwick expense product for Harbor and Pine: expense EXP-1042 for Ava, the Rotterdam client visit, and the Amsterdam sales cost centre. Each kind of page repeats the same frame, so a reader meets one heading and at most one primary action on every screen. The Standards section states the two rules every option keeps: each page shows one top-level heading, and each frame shows at most one primary action outside its rows and overlays.
 
 ## Standards
 
@@ -32,7 +32,7 @@ The drawings on this page use the Acme Supply back office: order SO-1042 for Mar
 
 **Statement:** A page frame MUST show at most one primary action outside its rows and overlays.
 
-**Rationale:** One primary action names the step readers take most often next on the page, such as New delivery on a deliveries list. Without that single answer, two equal buttons force the reader to compare labels on every visit, and the hurried click lands on the wrong one.
+**Rationale:** One primary action names the step readers take most often next on the page, such as New trip on a trips list. Without that single answer, two equal buttons force the reader to compare labels on every visit, and the hurried click lands on the wrong one.
 
 **Reviewed for:** Which built frame carries two primary actions outside rows and overlays? Open every built page frame and count the primary actions.
 
@@ -50,7 +50,7 @@ The drawings on this page use the Acme Supply back office: order SO-1042 for Mar
 
 **Rationale:** Work first, tiles second stays the pick. The manager reads the queue and stops, and the figures wait below for the curious reader. The Linear-style my-work split is the runner-up. Prefer it once assignment is a real command and two people share one queue.
 
-Never ship the tiles-first order as the default. Three stat tiles push the queue below the fold and the page reads as a report instead of a task list.
+Never ship the tiles-first layout as the default. Three stat tiles push the queue below the fold and the page reads as a report instead of a task list.
 
 **Reviewed for:** Which built start screen breaks from the wireframe its catalog entry chose? Open the built queues, tiles, and next actions beside the catalog entry recording the chosen option and its reason.
 
@@ -60,17 +60,17 @@ Never ship the tiles-first order as the default. Three stat tiles push the queue
 page
   header
     heading "Good afternoon, Alex"
-    text "Two things need you today. Dispatch for the Garcia restock starts Saturday."
-    action primary "New delivery"
+    text "Two things need you today. The Rotterdam client visit starts Saturday."
+    action primary "New trip"
   region "Needs attention"
     status "2 to do" caution
     list 2
-      item: text "Close out the Becker restock" · text muted "The delivery is complete. Nothing left to settle." · action "Close out"
+      item: text "Close out the Rotterdam trip" · text muted "The trip is complete. Nothing left to settle." · action "Close out"
   region "Coming up"
     list 2
-      item: text "Garcia Interiors restock" · text muted "Sat 14 Mar 2026, 08:00 to 12:00" · status "Active" positive · action "Open delivery"
+      item: text "Rotterdam client visit" · text muted "Sat 14 Mar 2026, 08:00 to 12:00" · status "Active" positive · action "Open trip"
   row
-    figure "Ordered this month" "9,412"
+    figure "Filed this month" "9,412"
     figure "Paid out by the provider" "EUR 57,506"
     figure "Active now" "2"
 ```
@@ -85,22 +85,22 @@ page
 page
   header
     heading "Good afternoon, Alex"
-    text "What is waiting for you, and the coming deliveries."
-    action primary "New delivery"
+    text "What is waiting for you, and the coming trips."
+    action primary "New trip"
   row
-    figure "Ordered" "9,412"
+    figure "Filed" "9,412"
     figure "Coming up" "2"
-    figure "Dispatching now" "0"
+    figure "Paying out now" "0"
   region "Finish your setup"
     list 1
       item: text "Connect a payment account" · text muted "Money cannot be taken until the provider is connected." · action "Connect"
   region "Needs attention"
     status "1 thing to do" caution
     list 1
-      item: text "Close out the Becker restock" · text muted "Nothing left to settle." · action "Close out"
+      item: text "Close out the Rotterdam trip" · text muted "Nothing left to settle." · action "Close out"
   region "Coming up"
     list 2
-      item: text "Garcia Interiors restock" · text muted "Sat 14 Mar 2026, 08:00 to 12:00" · status "Active" positive · action "Open delivery"
+      item: text "Rotterdam client visit" · text muted "Sat 14 Mar 2026, 08:00 to 12:00" · status "Active" positive · action "Open trip"
 ```
 
 **Rationale:** Figures give the reader a sense of scale in the first second, and the queue reads as a drill-down from them.
@@ -113,15 +113,15 @@ page
 page
   header
     heading "Today"
-    text "Two things need you, in the order they cost most if they wait."
-    action primary "New delivery"
+    text "Two things need you, ranked by what they cost if they wait."
+    action primary "New trip"
   region "Needs attention"
     status "3 to do" caution
     list 3
-      item: text "31 refunds need a decision" · text muted "5 close their 180-day window this week." · action "Decide"
+      item: text "31 reversals need a decision" · text muted "5 close their 180-day window this week." · action "Decide"
 ```
 
-**Rationale:** The home page is nothing but the queue, ordered by consequence. Nothing sits to scroll past, and no figure reads as the answer.
+**Rationale:** The home page is nothing but the queue, ranked by consequence. Nothing sits to scroll past, and no figure reads as the answer.
 
 **Cost:** The reader loses orientation entirely. Nothing says how big the day is, how much is coming, or whether anything is broken. The work-page shape calls for two to four tiles below the queue.
 
@@ -131,11 +131,11 @@ page
 page
   header
     heading "Good afternoon, Alex"
-    text "Everything Acme Supply runs, and where it needs you."
+    text "Everything Harbor and Pine runs, and where it needs you."
   region "Areas"
     text muted "Each area links into its own list."
     list 4
-      item: text "Orders" · text muted "268 orders, 2 needing attention" · status "2 to do" caution · action "Open"
+      item: text "Expenses" · text muted "268 expenses, 2 needing attention" · status "2 to do" caution · action "Open"
 ```
 
 **Rationale:** The page is a set of per-area summaries, each linking into its own list. Home becomes a directory rather than a task list.
@@ -148,11 +148,11 @@ page
 page
   header
     heading "Needs you"
-    text "Ordered by how long each has been waiting."
+    text "Ranked by how long each has been waiting."
     action "Filter"
   region "Queue"
     table 3 "What" "Why" "Waiting" "Owner" "Decision"
-      item: text "Refund SO-1042" · text muted "Maria Garcia, requested 6 days ago" · status "6 days" caution · text "Priya Shah" · action "Deal with"
+      item: text "Reversal EXP-1042" · text muted "Ava, requested 6 days ago" · status "6 days" caution · text "Priya Shah" · action "Deal with"
 ```
 
 **Rationale:** It is a triage shape. Each row carries who must act and how long it has waited, so several people can share the queue rather than duplicate the work.
@@ -164,15 +164,15 @@ page
 ```wireframe
 page
   header
-    heading "Set up Acme Supply"
-    text "Three steps between a company and a first sale."
+    heading "Set up Harbor and Pine"
+    text "Three steps between a company and its first payout."
   region "Before you can take money"
     text muted "Each step is a command of its own."
     list 3
-      item: status "Done" positive · text "Create a company" · text muted "Acme Supply, Amsterdam."
+      item: status "Done" positive · text "Create a company" · text muted "Harbor and Pine, Amsterdam."
   region "What you can do now"
     list 1
-      item: text "Add a product" · text muted "It stays a draft until you price it and publish it." · action "New product"
+      item: text "Add a trip" · text muted "It stays a draft until you set its amount and publish it." · action "New trip"
 ```
 
 **Rationale:** A new company gets a checklist before the queue exists, because a queue of nothing teaches nothing. The queue takes over once the checklist is done.
@@ -186,22 +186,22 @@ page
   header
     heading "Good afternoon, Alex"
     text "Yours first, then what belongs to everybody."
-    action primary "New delivery"
+    action primary "New trip"
   region "Assigned to you"
     status "2 yours" caution
     list 2
-      item: text "Decide the refund on order SO-1042" · text muted "Maria Garcia paid EUR 125.00." · action "Decide"
+      item: text "Decide the reversal on expense EXP-1042" · text muted "Ava paid EUR 125.00." · action "Decide"
   region "The shared queue"
     text muted "Work nobody owns yet, and work somebody else owns."
     list 2
-      item: text "Close out the Becker restock" · text muted "The delivery is complete." · status "Unassigned" neutral · action "Take it"
+      item: text "Close out the Rotterdam trip" · text muted "The trip is complete." · status "Unassigned" neutral · action "Take it"
   row
-    figure "Ordered this month" "9,412"
+    figure "Filed this month" "9,412"
     figure "Paid out by the provider" "EUR 57,506"
     figure "Active now" "2"
 ```
 
-**Rationale:** The Linear triage shape. What is assigned to Alex sits above what belongs to Acme Supply as a whole, so two people never decide the same refund twice. The shared queue stays visible, which keeps one morning from hiding the shared state.
+**Rationale:** The Linear triage shape. What is assigned to Alex sits above what belongs to Harbor and Pine as a whole, so two people never decide the same reversal twice. The shared queue stays visible, which keeps one morning from hiding the shared state.
 
 **Cost:** Assignment must be a real command with a real owner, or every row reads Alex and the split is decoration. It costs the tiles their place on short screens.
 
@@ -214,18 +214,18 @@ page
   header
     heading "Good morning, Alex Morgan"
     text "One thing cannot wait. The rest is queued below it."
-    action primary "New delivery"
+    action primary "New trip"
   region "Do this first"
     text muted "The oldest ask in the queue."
     list 1
-      item: text "Decide the refund on order SO-1042" · text muted "Maria Garcia paid EUR 125.00." · action "Decide now"
+      item: text "Decide the reversal on expense EXP-1042" · text muted "Ava paid EUR 125.00." · action "Decide now"
   region "Then this"
     list 2
-      item: text "Set the price for the Oak desk lamp" · text muted "Nothing can sell until the price is set." · action "Set pricing"
+      item: text "Set the amount for EXP-1042" · text muted "Nothing can be paid until the amount is set." · action "Set amounts"
   row
-    figure "Pallets at Amsterdam warehouse" "40 pallets"
-    figure "Paid on order SO-1042" "EUR 125.00"
-    figure "Oak desk lamp" "EUR 45.00"
+    figure "Expenses at Amsterdam sales" "40 expenses"
+    figure "Paid on expense EXP-1042" "EUR 125.00"
+    figure "EXP-1042" "EUR 45.00"
 ```
 
 **Rationale:** The page names the single thing that costs most if it waits and puts its command at the top. A busy reader acts in the first second without scanning. Everything else stays queued below in the same shape as the work-first page.
@@ -242,7 +242,7 @@ page
 
 **Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
 
-**Rationale:** Search plus one state filter stays the pick. Two controls answer the two questions readers ask, and a bare list needs only the filter added. The GitHub-style dense filter bar is the runner-up. Prefer it past a few hundred rows across many customers, where the query is restated in words.
+**Rationale:** Search plus one state filter stays the pick. Two controls answer the two questions readers ask, and a bare list needs only the filter added. The GitHub-style dense filter bar is the runner-up. Prefer it past a few hundred rows across many spenders, where the query is restated in words.
 
 Never ship two tables on one page. A list page holds one table, and a second table is a second route wearing a disguise.
 
@@ -252,42 +252,42 @@ Never ship two tables on one page. A list page holds one table, and a second tab
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every order across your customers, newest first."
+    heading "Expenses"
+    text "Every expense across your spenders, newest first."
   toolbar
-    field "Order number, name or email" search
+    field "Expense number, name or email" search
     field "State" select = "Any state"
     action "Export"
-  region "Orders"
-    table 6 "Order" "Customer" "Placed" "State" "Paid"
-      item: text "SO-1042" · text "Maria Garcia" · text muted "8 Oct 2026, 09:32" · status "Paid" positive · text "EUR 125.00"
+  region "Expenses"
+    table 6 "Expense" "Spender" "Filed" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · text muted "8 Oct 2026, 09:32" · status "Paid" positive · text "EUR 125.00"
     text muted "1 to 25 of 268"
 ```
 
 **Rationale:** Two controls for the two questions people ask: who is this, and what state is it in. Everything else is a view. This is the smallest honest addition to a bare list.
 
-**Cost:** A reader with 268 orders from 40 customers still cannot narrow to one customer. It stays acceptable while the search box already searches the customer name.
+**Cost:** A reader with 268 expenses from 40 spenders still cannot narrow to one spender. It stays acceptable while the search box already searches the spender name.
 
 #### `views-instead-of-filters`: Views Instead of Filters
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every order across your customers, newest first."
+    heading "Expenses"
+    text "Every expense across your spenders, newest first."
   toolbar
-    field "Order number, name or email" search
-  tabs "All 268" "Paid 214" "Awaiting 31" "Refunded 18" "Disputed 5"
-    region "Orders"
-      table 6 "Order" "Customer" "Placed" "State" "Paid"
-        item: text "SO-1042" · text "Maria Garcia" · text muted "8 Oct 2026, 09:32" · status "Paid" positive · text "EUR 125.00"
+    field "Expense number, name or email" search
+  tabs "All 268" "Paid 214" "Awaiting 31" "Reversed 18" "Disputed 5"
+    region "Expenses"
+      table 6 "Expense" "Spender" "Filed" "State" "Paid"
+        item: text "EXP-1042" · text "Ava" · text muted "8 Oct 2026, 09:32" · status "Paid" positive · text "EUR 125.00"
       text muted "1 to 25 of 268"
 ```
 
-**Rationale:** A segmented control across the top reads All, Paid, Awaiting, Refunded, Disputed. One control replaces five, and the current choice stays visible rather than hiding in a list.
+**Rationale:** A segmented control across the top reads All, Paid, Awaiting, Reversed, Disputed. One control replaces five, and the current choice stays visible rather than hiding in a list.
 
 **Cost:** Five segments plus a search box crowd one toolbar, and segments have no room for a count per state. The reader cannot see where the work is before choosing.
 
@@ -295,27 +295,27 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders from 40 customers."
+    heading "Expenses"
+    text "268 expenses from 40 spenders."
   toolbar
-    field "Search orders" search
-    field "Customer" select = "Any customer"
+    field "Search expenses" search
+    field "Spender" select = "Any spender"
     field "State" select = "Any state"
     field "Date" select = "Any date"
-    field "Channel" select = "Any channel"
+    field "Trip" select = "Any trip"
     action "Columns"
-  region "Orders"
+  region "Expenses"
     status "Paid" neutral
-    status "Garcia Interiors" neutral
+    status "Rotterdam client visit" neutral
     action quiet "Clear both"
-    table 5 "Order" "Customer" "Placed" "State" "Paid"
-      item: text "SO-1042" · text "Maria Garcia" · text muted "8 Oct 2026, 09:32" · status "Paid" positive · text "EUR 125.00"
+    table 5 "Expense" "Spender" "Filed" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · text muted "8 Oct 2026, 09:32" · status "Paid" positive · text "EUR 125.00"
     text muted "1 to 25 of 268"
 ```
 
-**Rationale:** Search, customer, state, date range, and channel, each as a control that stays visible. The applied set is restated as removable chips underneath, so the reader never guesses what narrowed the table.
+**Rationale:** Search, spender, state, date range, and trip, each as a control that stays visible. The applied set is restated as removable chips underneath, so the reader never guesses what narrowed the table.
 
 **Cost:** Four controls and a chip row is a lot of chrome above a table, and the chips duplicate the controls. It pays off once the list holds mixed records.
 
@@ -323,25 +323,25 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders from 40 customers."
+    heading "Expenses"
+    text "268 expenses from 40 spenders."
   toolbar
-    field "Search orders" search
+    field "Search expenses" search
     menu "Views"
-      action "Late payments"
+      action "Late approvals"
       action "Disputed this week"
-      action "Garcia orders"
+      action "Ava expenses"
     action "Filters"
     action "Columns"
-  region "Orders"
-    table 6 "Order" "Customer" "Placed" "State" "Paid"
-      item: text "SO-1042" · text "Maria Garcia" · text muted "8 Oct 2026, 09:32" · status "Paid" positive · text "EUR 125.00"
+  region "Expenses"
+    table 6 "Expense" "Spender" "Filed" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · text muted "8 Oct 2026, 09:32" · status "Paid" positive · text "EUR 125.00"
     text muted "1 to 25 of 268"
 ```
 
-**Rationale:** The states people return to are saved under names: Late payments, Disputed this week, Garcia orders. A menu holds them so the toolbar stays empty until asked.
+**Rationale:** The states people return to are saved under names: Late approvals, Disputed this week, Ava expenses. A menu holds them so the toolbar stays empty until asked.
 
 **Cost:** Nothing is discoverable on arrival, and every view needs its own storage. It suits power users and reads poorly as a first-run surface.
 
@@ -349,21 +349,21 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every order across your customers, newest first."
+    heading "Expenses"
+    text "Every expense across your spenders, newest first."
   region "Waiting for something"
     status "2" caution
-    table 2 "Order" "Customer" "Placed" "Paid"
-      item: text "SO-1040" · text "Elin Lindqvist" · text muted "8 Oct 2026, 08:55" · text "EUR 64.50"
+    table 2 "Expense" "Spender" "Filed" "Paid"
+      item: text "EXP-1040" · text "Elin Lindqvist" · text muted "8 Oct 2026, 08:55" · text "EUR 64.50"
   region "Settled"
-    text muted "214 orders. Nothing is waiting on these."
-    table 3 "Order" "Customer" "Placed" "Paid"
-      item: text "SO-1042" · text "Maria Garcia" · text muted "8 Oct 2026, 09:32" · text "EUR 125.00"
+    text muted "214 expenses. Nothing is waiting on these."
+    table 3 "Expense" "Spender" "Filed" "Paid"
+      item: text "EXP-1042" · text "Ava" · text muted "8 Oct 2026, 09:32" · text "EUR 125.00"
 ```
 
-**Rationale:** Orders waiting for something sit above orders that need nothing. It uses two tables, so the working set never mixes with the settled set.
+**Rationale:** Expenses waiting for something sit above expenses that need nothing. It uses two tables, so the working set never mixes with the settled set.
 
 **Cost:** A list page holds one table, and a second table means a second page or a tab. Following it means two routes and two search states.
 
@@ -371,18 +371,18 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every order across your customers, newest first."
+    heading "Expenses"
+    text "Every expense across your spenders, newest first."
   toolbar
-    field "Filter by state, customer or product" search = "state:paid"
+    field "Filter by state, spender or trip" search = "state:paid"
     action "Export"
-  region "Orders"
-    text muted "214 of 268 orders"
+  region "Expenses"
+    text muted "214 of 268 expenses"
     action quiet "Save this view"
-    table 6 "Order" "Customer" "Placed" "State" "Paid"
-      item: text "SO-1042" · text "Maria Garcia" · text muted "8 Oct 2026, 09:32" · status "Paid" positive · text "EUR 125.00"
+    table 6 "Expense" "Spender" "Filed" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · text muted "8 Oct 2026, 09:32" · status "Paid" positive · text "EUR 125.00"
     text muted "1 to 25 of 214"
 ```
 
@@ -396,29 +396,29 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders. Select one to read it here."
+    heading "Expenses"
+    text "268 expenses. Select one to read it here."
   toolbar
-    field "Search orders" search
+    field "Search expenses" search
     field "State" select = "Any state"
   split 1:2
-    region "Orders"
-      table 5 "Order" "Customer" "State" "Paid"
-        item: text "SO-1042" · text "Maria Garcia" · status "Paid" positive · text "EUR 125.00"
-    region "SO-1042"
+    region "Expenses"
+      table 5 "Expense" "Spender" "State" "Paid"
+        item: text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
+    region "EXP-1042"
       action quiet "Close the detail"
       status "Paid" positive
-      fact "Customer" "Maria Garcia"
-      fact "Company" "Garcia Interiors"
-      fact "Placed" "8 Oct 2026, 09:32"
+      fact "Spender" "Ava"
+      fact "Company" "Rotterdam client visit"
+      fact "Filed" "8 Oct 2026, 09:32"
       fact "Paid" "EUR 125.00"
       action "Resend the confirmation"
-      action "Refund"
+      action "Reversal"
 ```
 
-**Rationale:** The table sits on the left and the record on the right. Selecting a row fills the detail panel, so several orders compare in one sitting without losing the list.
+**Rationale:** The table sits on the left and the record on the right. Selecting a row fills the detail panel, so several expenses compare in one sitting without losing the list.
 
 **Cost:** PatternFly reserves this for comparing short lists of the same type, and the detail pane needs a selected state and a close control. On a 1440 screen the table keeps roughly 900 pixels, which fits five columns and not eight.
 
@@ -444,25 +444,25 @@ Never ship the toolbar-replacing bulk bar. The layout jumps mid-decision and the
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "Refunds"
+  breadcrumb "Home" "Expenses" "Reversals"
   header
-    heading "Refunds"
-    text "31 orders waiting for a decision."
+    heading "Reversals"
+    text "31 expenses waiting for a decision."
   toolbar
-    field "Search by order or customer" search
+    field "Search by expense or spender" search
     field "Age" select = "Any age"
     action "Columns"
-  region "Refunds"
-    message "All 25 refunds on this page are selected. 6 more are on the next page." info
+  region "Reversals"
+    message "All 25 reversals on this page are selected. 6 more are on the next page." info
     action "Select all 31"
     action quiet "Clear"
-    table 5 "Select" "Order" "Customer" "Asked" "Amount" "Window"
-      item: field "Select SO-1042" checkbox · text "SO-1042" · text "Maria Garcia" · text muted "6 days ago" · text "EUR 45.00" · status "174 days left" info
+    table 5 "Select" "Expense" "Spender" "Asked" "Amount" "Window"
+      item: field "Select EXP-1042" checkbox · text "EXP-1042" · text "Ava" · text muted "6 days ago" · text "EUR 45.00" · status "174 days left" info
   footer sticky
     text "25 of 31 selected, EUR 1,155.00 in total"
     action "Offer credit"
-    action "Refund part"
-    action primary "Refund in full"
+    action "Reversal part"
+    action primary "Reversal in full"
 ```
 
 **Rationale:** The header checkbox selects the 25 rows on screen. A banner then says all 25 on this page are selected. It offers all 31, which makes the larger set an explicit second act rather than an invisible jump.
@@ -475,37 +475,37 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "Refunds"
+  breadcrumb "Home" "Expenses" "Reversals"
   header
-    heading "Refunds"
-    text "31 orders waiting for a decision. Choose up to 20 at a time."
-  region "Refunds"
-    table 4 "Select" "Order" "Customer" "Asked" "Amount" "Refund"
-      item: field "Select SO-1042" checkbox · text "SO-1042" · text "Maria Garcia" · text muted "6 days ago" · text "EUR 45.00" · action "Refund"
+    heading "Reversals"
+    text "31 expenses waiting for a decision. Choose up to 20 at a time."
+  region "Reversals"
+    table 4 "Select" "Expense" "Spender" "Asked" "Amount" "Reversal"
+      item: field "Select EXP-1042" checkbox · text "EXP-1042" · text "Ava" · text muted "6 days ago" · text "EUR 45.00" · action "Reversal"
   footer sticky
-    action primary "Refund 1 order"
+    action primary "Reversal 1 expense"
 ```
 
-**Rationale:** Selection is per order and never global, which is honest for money. The reader acts on five at a time and the page never implies it can act on all of them.
+**Rationale:** Selection is per expense and never global, which is honest for money. The reader acts on five at a time and the page never implies it can act on all of them.
 
-**Cost:** The most common bulk job, refunding everything inside the window, becomes 31 clicks. A cap that protects money also removes the batch work the queue exists for.
+**Cost:** The most common bulk job, reversing everything inside the window, becomes 31 clicks. A cap that protects money also removes the batch work the queue exists for.
 
 #### `bulk-bar-that-replaces-the-toolbar`: Bulk Bar That Replaces the Toolbar
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "Refunds"
+  breadcrumb "Home" "Expenses" "Reversals"
   header
-    heading "Refunds"
-    text "31 orders waiting for a decision."
+    heading "Reversals"
+    text "31 expenses waiting for a decision."
   toolbar
     text "3 selected, EUR 215.00 in total"
     action quiet "Clear"
-    action "Refund in full"
-    action primary "Refund these 3"
-  region "Refunds"
-    table 3 "Select" "Order" "Customer" "Amount"
-      item: field "Select SO-1042" checkbox · text "SO-1042" · text "Maria Garcia" · text "EUR 125.00"
+    action "Reversal in full"
+    action primary "Reversal these 3"
+  region "Reversals"
+    table 3 "Select" "Expense" "Spender" "Amount"
+      item: field "Select EXP-1042" checkbox · text "EXP-1042" · text "Ava" · text "EUR 125.00"
 ```
 
 **Rationale:** While anything is selected, the toolbar is replaced by a bulk bar. The selection is the only thing the page offers, so the reader cannot act on a stale table.
@@ -516,13 +516,13 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "Late payments"
+  breadcrumb "Home" "Expenses" "Late approvals"
   header
-    heading "Late payments"
-    text "Orders where the money has not arrived. Each one needs a person."
-  region "Late payments"
+    heading "Late approvals"
+    text "Expenses where the money has not arrived. Each one needs a person."
+  region "Late approvals"
     list 3
-      item: text "SO-1042" · text muted "Maria Garcia, Garcia Interiors" · status "Awaiting payment" caution · text "EUR 125.00" · action "Send reminder"
+      item: text "EXP-1042" · text muted "Ava, Rotterdam client visit" · status "Awaiting approval" caution · text "EUR 125.00" · action "Send reminder"
 ```
 
 **Rationale:** No selection at all. Each row has the one action that applies to it, with its own confirmation. The queue becomes a list of decisions rather than a list of things.
@@ -533,22 +533,22 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "Refunds"
+  breadcrumb "Home" "Expenses" "Reversals"
   header
-    heading "Refunds"
+    heading "Reversals"
     text "31 open. Grouped by what happens if you wait."
   region "Window closes this week"
     status "2" caution
     list 2
-      item: text "SO-1036" · text muted "Ade Okafor, Oak desk lamp" · status "3 days left" caution · action primary "Decide now"
+      item: text "EXP-1036" · text muted "Ade Okafor, EXP-1042" · status "3 days left" caution · action primary "Decide now"
   region "Already outside the window"
-    text muted "This payment method cannot refund after 180 days. Offer credit instead."
+    text muted "This payment method cannot reversal after 180 days. Offer credit instead."
     status "5" critical
     list 1
-      item: text "SO-1031" · text muted "Tom Becker, asked 214 days ago" · status "Window closed" critical · action "Offer credit"
+      item: text "EXP-1031" · text muted "Tom Becker, asked 214 days ago" · status "Window closed" critical · action "Offer credit"
 ```
 
-**Rationale:** The queue is grouped into priority tiers rather than one ordered list: money at risk, refunds closing, and everything else. The reader takes the top group and stops if it is empty.
+**Rationale:** The queue is grouped into priority tiers rather than one ranked list: money at risk, reversals closing, and everything else. The reader takes the top group and stops if it is empty.
 
 **Cost:** Groups need a stated ordering and someone has to decide it. Atlassian advises that several simple queues beat one complex one, which argues for separate routes rather than groups on one page.
 
@@ -558,29 +558,29 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "Refunds"
+  breadcrumb "Home" "Expenses" "Reversals"
   header
-    heading "Refunds, 4 of 31"
+    heading "Reversals, 4 of 31"
     text "One decision at a time. Skip what needs somebody else."
-  region "Order SO-1042"
+  region "Expense EXP-1042"
     status "Open" info
-    fact "Customer" "Maria Garcia, maria@garcia-interiors.example"
-    fact "Company" "Garcia Interiors"
+    fact "Spender" "Ava, ava@harbor-pine.example"
+    fact "Company" "Rotterdam client visit"
     fact "Asked" "6 days ago"
     fact "Amount" "EUR 45.00"
-    fact "Refund window" "174 days left"
-    action primary "Refund EUR 45.00"
+    fact "Reversal window" "174 days left"
+    action primary "Reversal EUR 45.00"
     action "Offer credit"
     action quiet "Skip"
   region "Next"
     text muted "The two behind this one, soonest window first."
     list 2
-      item: text "SO-1041" · text muted "Tom Becker, EUR 45.00"
+      item: text "EXP-1041" · text muted "Tom Becker, EUR 45.00"
 ```
 
-**Rationale:** The Zendesk play mode. The queue becomes one record at a time with Decide and Skip beside it and the next one already named. Each refund gets full attention, and the reader cannot half-read a row.
+**Rationale:** The Zendesk play mode. The queue becomes one record at a time with Decide and Skip beside it and the next one already named. Each reversal gets full attention, and the reader cannot half-read a row.
 
-**Cost:** One at a time is slow for thirty identical refunds, and the batch these queues exist for disappears. Prefer it when each decision needs different information, never for uniform work.
+**Cost:** One at a time is slow for thirty identical reversals, and the batch these queues exist for disappears. Prefer it when each decision needs different information, never for uniform work.
 
 **Reference:** Zendesk
 
@@ -588,20 +588,20 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "Refunds"
+  breadcrumb "Home" "Expenses" "Reversals"
   header
-    heading "Refunds"
+    heading "Reversals"
     text "Sorted by how long you have left, soonest first."
   tabs "All 31" "Closing 5" "Closed 8"
-    region "Refunds"
-      table 5 "Select" "Order" "Customer" "Amount" "Time left" "State"
-        item: field "Select SO-1031" checkbox · text "SO-1031" · text "Tom Becker" · text "EUR 45.00" · text muted "Window closed 34 days ago" · status "Closed" critical
+    region "Reversals"
+      table 5 "Select" "Expense" "Spender" "Amount" "Time left" "State"
+        item: field "Select EXP-1031" checkbox · text "EXP-1031" · text "Tom Becker" · text "EUR 45.00" · text muted "Window closed 34 days ago" · status "Closed" critical
       text muted "1 to 25 of 31"
 ```
 
 **Rationale:** The queue sorts by the commitment clock, with three states: fine, closing, closed. This is the Jira Service Management shape, and it makes the ordering self-explanatory.
 
-**Cost:** The clock is only meaningful where something expires. A refunds table that holds the deadline but does not show it leaves the window invisible on the page.
+**Cost:** The clock is only meaningful where something expires. A reversals table that holds the deadline but does not show it leaves the window invisible on the page.
 
 **Reference:** Jira Service Management
 
@@ -617,7 +617,7 @@ page
 
 **Rationale:** Summary with sections and history in the aside stays the pick. What defines the record runs down the main column while history supports it from the side. The Linear-style properties rail is the runner-up. Prefer it when the aside must carry editable values rather than history.
 
-Never ship the facts-in-header variant. A dense header pushes every command below the fold on a phone and fights the trail for space.
+Never ship the facts-in-header receipt. A dense header pushes every command below the fold on a phone and fights the trail for space.
 
 **Reviewed for:** Which built single-record screen breaks from the wireframe its catalog entry chose? Open the built summaries, tabs, and asides beside the catalog entry recording the chosen option and its reason.
 
@@ -625,20 +625,20 @@ Never ship the facts-in-header variant. A dense header pushes every command belo
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "SO-1042"
+  breadcrumb "Home" "Expenses" "EXP-1042"
   header
-    heading "SO-1042"
+    heading "EXP-1042"
     status "Paid" positive
-    text "Placed 8 Oct 2026, 09:32 by Garcia Interiors."
+    text "Filed 8 Oct 2026, 09:32 by Rotterdam client visit."
     action "Resend the confirmation"
-    action "Refund"
-    action primary "Message the customer"
+    action "Reversal"
+    action primary "Message the spender"
   split 2:1
-    region "The order"
-      fact "Customer" "Maria Garcia"
-      fact "Email" "maria@garcia-interiors.example"
-      fact "Two Oak desk lamps" "EUR 90.00"
-      fact "Paid by the customer" "EUR 125.00"
+    region "The expense"
+      fact "Spender" "Ava"
+      fact "Email" "ava@harbor-pine.example"
+      fact "Two EXP-1042s" "EUR 90.00"
+      fact "Paid by the spender" "EUR 125.00"
     aside
       region "What happened"
         timeline 3
@@ -647,7 +647,7 @@ page
 
 **Rationale:** What defines the record runs down the main column in at most three sections. History, which supports but does not define, goes in a narrower aside. This is the proven shape and the one the Shopify details template describes.
 
-**Cost:** Below roughly 1000 pixels the aside stacks under the sections, so the history lands after the actions. The order is acceptable either way.
+**Cost:** Below roughly 1000 pixels the aside stacks under the sections, so the history lands after the actions. The expense is acceptable either way.
 
 **Reference:** Shopify
 
@@ -655,20 +655,20 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Oak desk lamp"
+  breadcrumb "Home" "Trips" "EXP-1042"
   header
-    heading "Oak desk lamp"
+    heading "EXP-1042"
     status "Active" positive
-    text "What this product is, and the SKU its parcels carry."
-    action "Pause selling"
+    text "What this expense is, and the code its receipts carry."
+    action "Pause payouts"
     action destructive "Discontinue"
-  tabs "Pricing" "Stock" "Returns" "Details"
+  tabs "Amounts" "Budget" "Reversals" "Details"
     region "Details"
-      fact "Units per pack" "1"
-      fact "Stock" "412 in Amsterdam"
-      fact "SKU" "LMP-OAK-01"
+      fact "Lines per expense" "1"
+      fact "Budget" "412 in Amsterdam sales"
+      fact "EXPENSE CODE" "EXP-1042"
       action quiet "Copy"
-      field "Name" text = "Oak desk lamp"
+      field "Name" text = "EXP-1042"
       action primary "Save"
 ```
 
@@ -682,22 +682,22 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "Garcia Interiors restock"
+  breadcrumb "Home" "Expenses" "Rotterdam client visit"
   header
-    heading "Garcia Interiors restock"
+    heading "Rotterdam client visit"
     status "Scheduled" info
-    text "Sat 14 Mar 2026, 08:00 to 12:00, Amsterdam warehouse."
+    text "Sat 14 Mar 2026, 08:00 to 12:00, Amsterdam sales."
     action "Reschedule"
     action primary "Add a line"
   region "When and where"
     fact "Date" "Sat 14 Mar 2026, 08:00 to 12:00"
-    fact "Warehouse" "Amsterdam warehouse, 40 pallets"
+    fact "Cost centre" "Amsterdam sales, 40 expenses"
     fact "Time zone" "Europe/Amsterdam"
   region "What is on the manifest"
-    table 2 "Product" "Pallets" "Price"
-      item: text "Oak desk lamp" · text "32 of 40" · text "EUR 45.00"
+    table 2 "Trip" "Expenses" "Amount"
+      item: text "EXP-1042" · text "32 of 40" · text "EUR 45.00"
   region "Money so far"
-    fact "Product sales" "EUR 54,180.00"
+    fact "Expenses paid" "EUR 54,180.00"
     fact "To settle on 4 Nov" "EUR 57,506.20"
 ```
 
@@ -711,21 +711,21 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "SO-1042"
+  breadcrumb "Home" "Expenses" "EXP-1042"
   header
-    heading "SO-1042"
+    heading "EXP-1042"
     status "Paid" positive
-    text "Maria Garcia, Garcia Interiors, 8 Oct 2026, 09:32."
+    text "Ava, Rotterdam client visit, 8 Oct 2026, 09:32."
     fact "Paid" "EUR 125.00"
-    fact "Parcels" "2, both packed"
+    fact "Expenses" "2, both packed"
     fact "Method" "Card"
-    fact "Refunds" "None"
-    action primary "Message the customer"
+    fact "Reversals" "None"
+    action primary "Message the spender"
     action "Resend the confirmation"
-    action "Refund"
+    action "Reversal"
   region "Lines"
     list 2
-      item: text "Oak desk lamp" · text muted "LMP-OAK-01, one unit" · status "Confirmed" positive · action "Cancel"
+      item: text "EXP-1042" · text muted "EXP-1042, one unit" · status "Confirmed" positive · action "Cancel"
 ```
 
 **Rationale:** The values of the record sit in the header area as a definition list, and the sections below hold only what can be done. The page separates what the record is from what it can do.
@@ -736,48 +736,48 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "SO-1042" "Collection"
+  breadcrumb "Home" "Expenses" "EXP-1042" "Collection"
   header
-    heading "Maria Garcia"
-    text "Collected at the pickup counter at 10:41 on Sat 14 Mar 2026."
+    heading "Ava"
+    text "Filed at the Amsterdam office at 10:41 on Sat 14 Mar 2026."
     action "Undo this collection"
   split 2:1
     region "What happened"
       timeline 5
-        item: text "Collected at the pickup counter" · text muted "10:41" · text muted "Chris Novak"
+        item: text "Filed at the Amsterdam office" · text muted "10:41" · text muted "Ade Okafor"
     aside
-      region "The order"
-        fact "Product" "Oak desk lamp"
-        fact "Barcode" "PKG-0C893968A2"
-        fact "Order" "SO-1042"
-        fact "Name on order" "Maria Garcia"
+      region "The expense"
+        fact "Trip" "EXP-1042"
+        fact "Barcode" "EXP-1042"
+        fact "Expense" "EXP-1042"
+        fact "Name on expense" "Ava"
 ```
 
 **Rationale:** For a record whose main interest is what happened to it, the history is the main column. The values of the record support it from the side.
 
-**Cost:** This option is wrong for most records. An order is mostly its facts. An audit trail or a collection record is mostly its history, and the shape has to follow the record.
+**Cost:** This option is wrong for most records. An expense is mostly its facts. An audit trail or a collection record is mostly its history, and the shape has to follow the record.
 
 #### `editable-properties-in-the-rail`: Editable Properties in the Rail
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "SO-1042"
+  breadcrumb "Home" "Expenses" "EXP-1042"
   header
-    heading "SO-1042"
+    heading "EXP-1042"
     status "Paid" positive
-    text "Placed 8 Oct 2026, 09:32 by Garcia Interiors."
+    text "Filed 8 Oct 2026, 09:32 by Rotterdam client visit."
     action "Resend the confirmation"
-    action "Refund"
+    action "Reversal"
   split 2:1
-    region "The customer"
-      fact "Name" "Maria Garcia"
-      fact "Email" "maria@garcia-interiors.example"
+    region "The spender"
+      fact "Name" "Ava"
+      fact "Email" "ava@harbor-pine.example"
       fact "Country" "Netherlands"
     aside
       region "Properties"
         field "Owner" select = "Priya Shah"
         field "Follow-up" select = "Calling back"
-        field "Customer note" text = "Called 8 Oct, no answer"
+        field "Spender note" text = "Called 8 Oct, no answer"
         action primary "Save properties"
 ```
 
@@ -791,11 +791,11 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "Garcia Interiors restock" "Schedule"
+  breadcrumb "Home" "Expenses" "Rotterdam client visit" "Schedule"
   header
-    heading "Garcia Interiors restock"
+    heading "Rotterdam client visit"
     status "Scheduled" info
-    text "Sat 14 Mar 2026, 08:00 to 12:00, Amsterdam warehouse."
+    text "Sat 14 Mar 2026, 08:00 to 12:00, Amsterdam sales."
     action "Reschedule"
     action primary "Add a line"
   split 1:3
@@ -804,14 +804,14 @@ page
       link "Details"
       link "Manifest"
       link current "Schedule"
-      link "Dispatch"
+      link "Payout run"
       link "Packing"
       link "Questions"
-      link "Orders"
+      link "Expenses"
       link "Costs"
     region "Lines"
-      table 2 "Product" "Pallets" "Price" "State"
-        item: text "Oak desk lamp" · text "32 of 40" · text "EUR 45.00" · status "Active" positive
+      table 2 "Trip" "Expenses" "Amount" "State"
+        item: text "EXP-1042" · text "32 of 40" · text "EUR 45.00" · status "Active" positive
 ```
 
 **Rationale:** Where a record holds six or more facets, tabs become a side navigation of links, and the current one is marked. More room for labels, and it survives a phone.
@@ -830,7 +830,7 @@ page
 
 **Rationale:** One section, one column, Cancel beside Save stays the pick. A single command reads as a list of questions with one place to submit and one to leave. The GOV.UK one-question-per-screen flow is the runner-up. Prefer it when each answer changes the next question and nothing may be skipped.
 
-Never ship the stepper for creating a product. Three steps for work that fits one page is one step too many.
+Never ship the stepper for creating an expense. Three steps for work that fits one page is one step too many.
 
 **Reviewed for:** Which built input screen breaks from the wireframe its catalog entry chose? Open the built sections, steppers, and save bars beside the catalog entry recording the chosen option and its reason.
 
@@ -838,18 +838,18 @@ Never ship the stepper for creating a product. Three steps for work that fits on
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "New product"
+  breadcrumb "Home" "Trips" "New expense"
   header
-    heading "New product"
+    heading "New expense"
     text "Start with a name. Everything else can wait."
-  region "New product"
+  region "New expense"
     field "Name" text
     field "Description" textarea
     field "Category" select = "Choose a category"
-    field "Price" text = "45.00"
-    field "SKU" text = "LMP-OAK-01"
+    field "Amount" text = "45.00"
+    field "EXPENSE CODE" text = "EXP-1042"
     action "Cancel"
-    action primary "Create product"
+    action primary "Create expense"
 ```
 
 **Rationale:** One command, one column, one place to submit and one to leave. The section is the only box, and the field labels sit above their controls so the column reads as a list of questions.
@@ -860,25 +860,25 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "New product"
+  breadcrumb "Home" "Trips" "New expense"
   header
-    heading "New product"
+    heading "New expense"
     text "Start with a name."
   split 1:2
-    region "The product"
-      text muted "The name shows on the storefront. The SKU identifies the stock."
-    region "Product fields"
+    region "The trip"
+      text muted "The name shows on the expense list. The receipt identifies the expense."
+    region "Trip fields"
       field "Name" text
-      field "SKU" text = "LMP-OAK-01"
+      field "EXPENSE CODE" text = "EXP-1042"
   split 1:2
-    region "Pricing"
-      text muted "The price is what the customer pays."
-    region "Pricing fields"
-      field "Price" text = "45.00"
-      field "Compare-at price" text = "59.00"
+    region "Amounts"
+      text muted "The amount is what the payout sends."
+    region "Amounts fields"
+      field "Amount" text = "45.00"
+      field "Compare-at amount" text = "59.00"
   region "Submit"
     action "Cancel"
-    action primary "Create product"
+    action primary "Create expense"
 ```
 
 **Rationale:** The labeled-block shape. Each block names itself on the left and holds its fields on the right. Several blocks read as a form with structure rather than a column of questions.
@@ -889,23 +889,23 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "New product"
+  breadcrumb "Home" "Trips" "New expense"
   header
-    heading "New product"
+    heading "New expense"
     text "Start with a name."
-  region "The product"
-    text muted "The name shows on the storefront. The SKU identifies the stock."
+  region "The trip"
+    text muted "The name shows on the expense list. The receipt identifies the expense."
     field "Name" text
-  region "Pricing"
-    text muted "The price is what the customer pays."
-    field "Price" text = "45.00"
-    field "Compare-at price" text = "59.00"
-  region "Stock"
-    text muted "Which warehouse holds it."
-    field "Warehouse" select = "Amsterdam warehouse"
+  region "Amounts"
+    text muted "The amount is what the payout sends."
+    field "Amount" text = "45.00"
+    field "Compare-at amount" text = "59.00"
+  region "Budget"
+    text muted "Which cost centre holds it."
+    field "Cost centre" select = "Amsterdam sales"
   region "Submit"
     action "Cancel"
-    action primary "Create product"
+    action primary "Create expense"
 ```
 
 **Rationale:** The same labeled blocks with the title above its fields rather than beside them. The label gets the full width, so the explanatory line reads at a normal measure.
@@ -916,22 +916,22 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "New product"
+  breadcrumb "Home" "Trips" "New expense"
   header
-    heading "New product"
+    heading "New expense"
     text "Start with a name. Everything else can wait."
-  region "New product"
+  region "New expense"
     row
       field "Name" text
       field "Category" select = "Choose a category"
     row
-      field "Price" text = "45.00"
-      field "SKU" text = "LMP-OAK-01"
+      field "Amount" text = "45.00"
+      field "EXPENSE CODE" text = "EXP-1042"
     action "Cancel"
-    action primary "Create product"
+    action primary "Create expense"
 ```
 
-**Rationale:** Short fields sit side by side: price and compare-at price together, SKU and category together. One Save for the page rather than per block.
+**Rationale:** Short fields sit side by side: amount and compare-at amount together, EXPENSE CODE and category together. One Save for the page rather than per block.
 
 **Cost:** A long amount or a long name does not fit half a column, so the layout forces some fields to be narrower than others. Two columns suit short fields on wide screens.
 
@@ -939,24 +939,24 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "New product"
+  breadcrumb "Home" "Trips" "New expense"
   header
-    heading "New product"
+    heading "New expense"
     text "Three steps. Two minutes, and you can stop after the first."
-  tabs "The product" "The price" "Publish"
-    region "The product"
+  tabs "The trip" "The amount" "Publish"
+    region "The trip"
       field "Name" text
       field "Category" select = "Choose a category"
-      field "SKU" text = "LMP-OAK-01"
-      field "Price" text = "45.00"
+      field "EXPENSE CODE" text = "EXP-1042"
+      field "Amount" text = "45.00"
       action quiet "Save and close"
       action "Back"
       action primary "Continue"
 ```
 
-**Rationale:** A flow with more than three linear steps gets a stepper: The product, Then the price, Then publish. Each step validates before the next one opens.
+**Rationale:** A flow with more than three linear steps gets a stepper: The trip, Then the amount, Then publish. Each step validates before the next one opens.
 
-**Cost:** Carbon keeps a stepper for a linear flow of three or more steps. It has no place when the steps can be done in any order. Creating a product does not need three steps, so this is one step too many.
+**Cost:** Carbon keeps a stepper for a linear flow of three or more steps. It has no place when the steps can be done in any expense. Creating an expense does not need three steps, so this is one step too many.
 
 **Reference:** Carbon
 
@@ -964,13 +964,13 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "New product"
+  breadcrumb "Home" "Trips" "New expense"
   header
-    heading "What is the product called"
+    heading "What is the trip called"
     text "Step 1 of 5."
   region "Name"
     field "Name" text
-    text muted "Customers see this on the storefront and on their confirmation."
+    text muted "Spenders see this on the expense form and on their confirmation."
     action primary "Continue"
     action quiet "Back"
 ```
@@ -985,33 +985,33 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "New product"
+  breadcrumb "Home" "Trips" "New expense"
   header
-    heading "New product"
+    heading "New expense"
     text "Start with a name. Everything else can wait."
-  region "The product"
+  region "The trip"
     field "Name" text
     field "Description" textarea
-  region "Pricing"
+  region "Amounts"
     text muted "EUR, including VAT."
-    field "Price" text = "45.00"
-    field "Compare-at price" text = "59.00"
-  region "Stock"
-    field "Warehouse" select = "Amsterdam warehouse"
+    field "Amount" text = "45.00"
+    field "Compare-at amount" text = "59.00"
+  region "Budget"
+    field "Cost centre" select = "Amsterdam sales"
   footer sticky
     action "Cancel"
-    action primary "Create product"
+    action primary "Create expense"
 ```
 
 **Rationale:** Each block is its own section with its own title and its own commands. A single sticky foot carries one Save for the whole page. The reader sees the total work of the page before committing any of it.
 
-**Cost:** One Save means a partial failure loses the lot, and a reader who wants to save the name and leave the price cannot. Two Saves on one screen is the worse version of this problem.
+**Cost:** One Save means a partial failure loses the lot, and a reader who wants to save the name and leave the amount cannot. Two Saves on one screen is the worse version of this problem.
 
 ### Report Page
 
 **ID:** `litespec/frontend/patterns/page-frames#report-page`
 
-**Question:** Read figures over one period. An Acme Supply statement puts the period in the heading with August 2026 and October 2026 buttons beside it. Nothing says which is previous and which is next.
+**Question:** Read figures over one period. An Harbor and Pine statement puts the period in the heading with August 2026 and October 2026 buttons beside it. Nothing says which is previous and which is next.
 
 **Default:** `chevron-pair-with-the-period-as-the-heading`
 
@@ -1035,15 +1035,15 @@ page
     action quiet "Next month"
     field "Month" select = "September 2026"
     action "Download"
-  region "Income"
-    fact "Product sales" "EUR 54,180.00"
-    fact "Shipping fees" "EUR 6,020.00"
-    fact "Total income" "EUR 60,200.00"
-  region "Net for Acme Supply, September 2026"
+  region "Paid out"
+    fact "Expenses paid" "EUR 54,180.00"
+    fact "Booking fees" "EUR 6,020.00"
+    fact "Total paid out" "EUR 60,200.00"
+  region "Net for Harbor and Pine, September 2026"
     figure "EUR 57,506.20"
-  region "By warehouse"
-    table 2 "Warehouse" "Net"
-      item: text "Amsterdam warehouse" · text "EUR 49,686.20"
+  region "By cost centre"
+    table 2 "Cost centre" "Net"
+      item: text "Amsterdam sales" · text "EUR 49,686.20"
 ```
 
 **Rationale:** The period is the page heading, with an unambiguous chevron on each side to step through consecutive months and a list to jump across them. A reader cannot mistake a chevron for a tab.
@@ -1060,10 +1060,10 @@ page
     text "Every euro of the month under the kind it is."
   tabs "August 2026" "September 2026" "October 2026"
     region "September 2026"
-      fact "Product sales" "EUR 54,180.00"
-      fact "Shipping fees" "EUR 6,020.00"
-      fact "Total income" "EUR 60,200.00"
-  region "Net for Acme Supply, September 2026"
+      fact "Expenses paid" "EUR 54,180.00"
+      fact "Booking fees" "EUR 6,020.00"
+      fact "Total paid out" "EUR 60,200.00"
+  region "Net for Harbor and Pine, September 2026"
     figure "EUR 57,506.20"
 ```
 
@@ -1077,9 +1077,9 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Reports" "Revenue"
+  breadcrumb "Home" "Reports" "Payouts"
   header
-    heading "Revenue"
+    heading "Payouts"
     text "Every euro that moved, by the day it moved."
   region "Period"
     field "Range" select = "Custom"
@@ -1088,7 +1088,7 @@ page
       field "To" date = "08/10/2026"
       action primary "Apply"
   region "Daily"
-    image "Sales per day, bar chart for 9 Sep to 8 Oct"
+    image "Payouts per day, bar chart for 9 Sep to 8 Oct"
     text muted "Peak 26 Sep, EUR 12,400.00"
 ```
 
@@ -1108,11 +1108,11 @@ page
     action "September 2026"
     action quiet "October 2026"
     action quiet "More options"
-  region "Income"
-    fact "Product sales" "EUR 54,180.00"
-    fact "Shipping fees" "EUR 6,020.00"
-    fact "Total income" "EUR 60,200.00"
-  region "Net for Acme Supply, September 2026"
+  region "Paid out"
+    fact "Expenses paid" "EUR 54,180.00"
+    fact "Booking fees" "EUR 6,020.00"
+    fact "Total paid out" "EUR 60,200.00"
+  region "Net for Harbor and Pine, September 2026"
     figure "EUR 57,506.20"
 ```
 
@@ -1124,21 +1124,21 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Reports" "Revenue"
+  breadcrumb "Home" "Reports" "Payouts"
   header
-    heading "Revenue, September 2026"
+    heading "Payouts, September 2026"
     text "Every euro that moved."
   region "The month in total"
-    fact "Product sales" "EUR 54,180.00"
-    fact "Shipping fees" "EUR 6,020.00"
-    fact "Net for Acme Supply" "EUR 62,146.35"
-  tabs "By warehouse" "By channel" "By tax rate"
-    region "By warehouse"
-      table 3 "Warehouse" "Income" "Net"
-        item: text "Amsterdam warehouse" · text "EUR 54,000.00" · text "EUR 52,974.00"
+    fact "Expenses paid" "EUR 54,180.00"
+    fact "Booking fees" "EUR 6,020.00"
+    fact "Net for Harbor and Pine" "EUR 62,146.35"
+  tabs "By cost centre" "By trip" "By tax rate"
+    region "By cost centre"
+      table 3 "Cost centre" "Paid out" "Net"
+        item: text "Amsterdam sales" · text "EUR 54,000.00" · text "EUR 52,974.00"
 ```
 
-**Rationale:** The statement is the report. By warehouse, By channel, and By tax rate sit as tabs beneath it. The top of the page keeps one shape whatever breakdown is chosen.
+**Rationale:** The statement is the report. By cost centre, By trip, and By tax rate sit as tabs beneath it. The top of the page keeps one shape whatever breakdown is chosen.
 
 **Cost:** The reader loses the statement when they want a breakdown, and the tabs have to deep-link.
 
@@ -1146,19 +1146,19 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Reports" "Revenue"
+  breadcrumb "Home" "Reports" "Payouts"
   header
-    heading "Revenue, September 2026"
+    heading "Payouts, September 2026"
     text "The trend first, then every euro under the kind it is."
   grid 3
-    card "Product sales"
+    card "Expenses paid"
       figure "EUR 54,180"
       text muted "Up 12 percent on August"
-      image "Product sales rising through September, sparkline"
+      image "Expenses paid rising through September, sparkline"
   region "Statement for September 2026"
-    fact "Product sales" "EUR 54,180.00"
-    fact "Refunds" "EUR -1,550.00"
-    fact "Net for Acme Supply" "EUR 57,506.20"
+    fact "Expenses paid" "EUR 54,180.00"
+    fact "Reversals" "EUR -1,550.00"
+    fact "Net for Harbor and Pine" "EUR 57,506.20"
 ```
 
 **Rationale:** Shopify's analytics shape. Three cards with sparklines name the trend before the statement names the total, so a dip is noticed before it is explained. The statement underneath keeps every euro accountable.
@@ -1179,20 +1179,20 @@ page
     action quiet "August 2026"
     action quiet "October 2026"
   region "September 2026"
-    fact "Product sales" "EUR 54,180.00"
-    fact "Shipping fees" "EUR 6,020.00"
+    fact "Expenses paid" "EUR 54,180.00"
+    fact "Booking fees" "EUR 6,020.00"
     fact "Handling services" "EUR 3,150.00"
-    fact "Total income" "EUR 63,350.00"
+    fact "Total paid out" "EUR 63,350.00"
     fact "The provider fee" "EUR -1,203.65"
     figure "EUR 62,146.35"
-  region "By warehouse"
-    table 3 "Warehouse" "Income" "Net"
-      item: text "Amsterdam warehouse" · text "EUR 54,000.00" · text "EUR 52,974.00"
+  region "By cost centre"
+    table 3 "Cost centre" "Paid out" "Net"
+      item: text "Amsterdam sales" · text "EUR 54,000.00" · text "EUR 52,974.00"
 ```
 
 **Rationale:** One statement and nothing else, because a statement that adds up top to bottom is the whole report. A monthly settlement page is usually close to this already.
 
-**Cost:** It suits a monthly settlement and fails a revenue question during the month.
+**Cost:** It suits a monthly settlement and fails a payout question during the month.
 
 ### Settings Home
 
@@ -1217,13 +1217,13 @@ page
   breadcrumb "Home" "Settings"
   header
     heading "Settings"
-    text "What Acme Supply runs on, and who can change it."
+    text "What Harbor and Pine runs on, and who can change it."
   region "The company"
     list 4
       item: text "General" · text muted "Name, address, contact details and time zone." · action "Open"
-  region "Selling"
+  region "Filing"
     list 3
-      item: text "Order form templates" · text muted "What a customer fills in when they place an order." · action "Open"
+      item: text "Expense form templates" · text muted "What a spender fills in when they file an expense." · action "Open"
   region "People and access"
     list 5
       item: text "Team" · text muted "5 people, 2 invitations outstanding." · action "Open"
@@ -1231,7 +1231,7 @@ page
 
 **Rationale:** Each area is a link with a line saying what it holds, grouped into a handful of sections. The reader knows the area before they click and the page never grows a form.
 
-**Cost:** Nothing states which areas are incomplete, so a new starter has to open each one. The Acme Supply home page already covers this with its setup section.
+**Cost:** Nothing states which areas are incomplete, so a new starter has to open each one. The Harbor and Pine home page already covers this with its setup section.
 
 #### `cards-with-an-icon-and-a-state`: Cards with an Icon and a State
 
@@ -1240,7 +1240,7 @@ page
   breadcrumb "Home" "Settings"
   header
     heading "Settings"
-    text "What Acme Supply runs on, and who can change it."
+    text "What Harbor and Pine runs on, and who can change it."
   grid 10
     card "Payments"
       text "The provider pays into NL91 ABNA 0417 1643."
@@ -1259,13 +1259,13 @@ page
   breadcrumb "Home" "Settings"
   header
     heading "Settings"
-    text "Every setting Acme Supply holds. Search by what it is called."
+    text "Every setting Harbor and Pine holds. Search by what it is called."
   toolbar
     field "Search settings" search
     text muted "30 settings"
   region "All settings"
     list 10
-      item: text "Dock plan" · text muted "Settings, Warehouses, Docks and counters." · action "Open"
+      item: text "Cost centres" · text muted "Settings, Cost centres, Budgets and spenders." · action "Open"
 ```
 
 **Rationale:** One flat list of every setting with a search box over it. Thirty routes become one searchable index, and the reader types what they are looking for.
@@ -1282,7 +1282,7 @@ page
     text "Grouped by how often each one is changed."
   region "Changed every day or every week"
     list 3
-      item: text "Dock plan" · text muted "Docks and counters for the warehouse." · action "Open"
+      item: text "Cost centres" · text muted "Budgets and spenders for each cost centre." · action "Open"
   region "Changed every month"
     list 3
       item: text "Statements" · text muted "What settled and what did not." · action "Open"
@@ -1293,7 +1293,7 @@ page
 
 **Rationale:** A Daily, Monthly, and Once section. The page states that a monthly task goes in a menu. A once-only setup belongs in settings. That is the rule the page applies to itself.
 
-**Cost:** The grouping is about frequency rather than about the thing. A reader hunting the dock plan must recall which bucket holds it.
+**Cost:** The grouping is about frequency rather than about the thing. A reader hunting the cost centre plan must recall which bucket holds it.
 
 #### `incomplete-areas-first-everything-else-beneath`: Incomplete Areas First, Everything Else Beneath
 
@@ -1313,7 +1313,7 @@ page
 
 **Rationale:** Anything not yet set sits at the top with the one command that fills it. The rest of the settings follow, so the page is also the setup checklist.
 
-**Cost:** The order changes as setup completes. That makes the page feel unstable and makes a link unreliable by position.
+**Cost:** The expense changes as setup completes. That makes the page feel unstable and makes a link unreliable by position.
 
 #### `left-navigation-with-the-area-on-the-right`: Left Navigation with the Area on the Right
 
@@ -1328,11 +1328,11 @@ page
     nav side
       link current "General"
       link "Locations"
-      link "Warehouses"
+      link "Cost centres"
       link "Payments"
     region "General"
-      field "Company name" = "Acme Supply"
-      field "Contact email" = "hello@acme-supply.example"
+      field "Company name" = "Harbor and Pine"
+      field "Contact email" = "hello@harbor-pine.example"
       field "Time zone" select = "Europe/Amsterdam"
 ```
 
@@ -1366,7 +1366,7 @@ page
 
 **ID:** `litespec/frontend/patterns/page-frames#editor-page`
 
-**Question:** Edit what a customer sees, with a live preview beside the form. A storefront editor holds the look in a form. It shows the result in a preview card beside the form. It must carry a Cancel and a dirty state. Without them, leaving silently discards work.
+**Question:** Edit what a spender sees, with a live preview beside the form. An expense form editor holds the look in a form. It shows the result in a preview card beside the form. It must carry a Cancel and a dirty state. Without them, leaving silently discards work.
 
 **Default:** `form-left-live-preview-right-one-save`
 
@@ -1382,12 +1382,12 @@ Never ship the preview-above-the-form stack. Every edit pushes the preview off s
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Storefront"
+  breadcrumb "Home" "Trips" "Expense form"
   header
-    heading "Storefront"
-    text "The logo, cover, accent color and typeface customers see."
-  tabs "Storefront" "Domains"
-    region "Storefront"
+    heading "Expense form"
+    text "The logo, cover, accent color and typeface spenders see."
+  tabs "Expense form" "Domains"
+    region "Expense form"
       split 1:1
         region "The look"
           field "Drop a logo here or choose a file" file
@@ -1397,25 +1397,25 @@ page
           action "Cancel"
           action primary "Save"
         card "Preview"
-          image "Storefront preview with cover image and logo"
-          heading small "Oak desk lamp"
-          text "Solid oak, linen shade, ready to ship."
-          action quiet "Order now"
-          text muted "Acme Supply, Canal Street 12, Amsterdam"
+          image "Expense form preview with cover image and logo"
+          heading small "EXP-1042"
+          text "Hotel night for the Rotterdam client visit, ready to pay."
+          action quiet "Submit expense"
+          text muted "Harbor and Pine, Amsterdam office, Amsterdam"
 ```
 
 **Rationale:** Every control writes straight into the preview, so the reader never saves to find out what a change looks like.
 
-**Cost:** The preview needs a phone toggle to be trusted for a storefront. Two thirds of a 1440 screen is a lot of preview for a few fields.
+**Cost:** The preview needs a phone toggle to be trusted for an expense form. Two thirds of a 1440 screen is a lot of preview for a few fields.
 
 #### `preview-as-a-device-frame-with-a-width-toggle`: Preview as a Device Frame with a Width Toggle
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Storefront"
+  breadcrumb "Home" "Trips" "Expense form"
   header
-    heading "Storefront"
-    text "The logo, cover, accent color and typeface customers see."
+    heading "Expense form"
+    text "The logo, cover, accent color and typeface spenders see."
   split 1:1
     region "The look"
       field "Drop a logo here or choose a file" file
@@ -1428,14 +1428,14 @@ page
         action quiet "Phone"
         action quiet "Desktop"
       card "Phone preview"
-        image "Storefront preview at phone width with cover image"
-        heading small "Oak desk lamp"
-        text "Solid oak, linen shade."
-        action quiet "Order now"
-        text muted "Acme Supply"
+        image "Expense form preview at phone width with cover image"
+        heading small "EXP-1042"
+        text "Hotel night for the Rotterdam client visit."
+        action quiet "Submit expense"
+        text muted "Harbor and Pine"
 ```
 
-**Rationale:** The preview sits in a phone or desktop frame with an explicit toggle. A storefront is judged at both widths and the form can hide half of it.
+**Rationale:** The preview sits in a phone or desktop frame with an explicit toggle. An expense form is judged at both widths and the form can hide half of it.
 
 **Cost:** The device frame costs horizontal room, so the form column narrows. A toggle means one width is never visible while the other is edited.
 
@@ -1443,16 +1443,16 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Storefront"
+  breadcrumb "Home" "Trips" "Expense form"
   header
-    heading "Storefront"
-    text "The logo, cover, accent color and typeface customers see."
+    heading "Expense form"
+    text "The logo, cover, accent color and typeface spenders see."
   card "Preview"
-    image "Storefront preview with cover image and logo"
-    heading small "Oak desk lamp"
-    text "Solid oak, linen shade, ready to ship."
-    action quiet "Order now"
-    text muted "Acme Supply, Canal Street 12, Amsterdam"
+    image "Expense form preview with cover image and logo"
+    heading small "EXP-1042"
+    text "Hotel night for the Rotterdam client visit, ready to pay."
+    action quiet "Submit expense"
+    text muted "Harbor and Pine, Amsterdam office, Amsterdam"
   region "The look"
     field "Drop a logo here" file
     field "Drop a cover here" file
@@ -1470,10 +1470,10 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Storefront"
+  breadcrumb "Home" "Trips" "Expense form"
   header
-    heading "Storefront"
-    text "The logo, cover, accent color and typeface customers see."
+    heading "Expense form"
+    text "The logo, cover, accent color and typeface spenders see."
     action "Preview"
   region "The look"
     field "Drop a logo here or choose a file" file
@@ -1483,10 +1483,10 @@ page
     action primary "Save"
   drawer right
     heading small "Preview"
-    text muted "As a customer sees it."
-    image "Storefront preview with cover image and logo"
-    heading small "Oak desk lamp"
-    text "Solid oak, linen shade."
+    text muted "As a spender sees it."
+    image "Expense form preview with cover image and logo"
+    heading small "EXP-1042"
+    text "Hotel night for the Rotterdam client visit."
     action quiet "Close"
 ```
 
@@ -1498,10 +1498,10 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Storefront"
+  breadcrumb "Home" "Trips" "Expense form"
   header
-    heading "Storefront"
-    text "The logo, cover, accent color and typeface customers see."
+    heading "Expense form"
+    text "The logo, cover, accent color and typeface spenders see."
   tabs "Branding" "Content" "Domains"
     region "Branding"
       split 1:1
@@ -1512,14 +1512,14 @@ page
           action primary "Save"
         card "Preview"
           status "Unsaved changes" neutral
-          image "Storefront preview with cover image and logo"
-          heading small "Oak desk lamp"
-          text "Solid oak, linen shade, ready to ship."
-          action quiet "Order now"
-          text muted "Acme Supply, Canal Street 12, Amsterdam"
+          image "Expense form preview with cover image and logo"
+          heading small "EXP-1042"
+          text "Hotel night for the Rotterdam client visit, ready to pay."
+          action quiet "Submit expense"
+          text muted "Harbor and Pine, Amsterdam office, Amsterdam"
 ```
 
-**Rationale:** Branding, content, and delivery are tabs and the preview does not move. Each tab is a short form, so the two columns never both get long.
+**Rationale:** Branding, content, and trip are tabs and the preview does not move. Each tab is a short form, so the two columns never both get long.
 
 **Cost:** The preview shows a whole that the reader has only partly set. A tabbed editor grows a third tab here, so this is the next step rather than a change of kind.
 
@@ -1527,10 +1527,10 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Storefront"
+  breadcrumb "Home" "Trips" "Expense form"
   header
-    heading "Storefront"
-    text "The logo, cover, accent color and typeface customers see."
+    heading "Expense form"
+    text "The logo, cover, accent color and typeface spenders see."
     action quiet "Hide panel"
   region "The look"
     field "Accent color" = "#1F2937"
@@ -1538,11 +1538,11 @@ page
     action "Cancel"
     action primary "Save"
   card "Preview"
-    image "Cover image judged at real size with logo and Order now"
-    heading small "Oak desk lamp"
-    text "Solid oak, linen shade, ready to ship."
-    action quiet "Order now"
-    text muted "Acme Supply, Canal Street 12, Amsterdam"
+    image "Cover image judged at real size with logo and Submit expense"
+    heading small "EXP-1042"
+    text "Hotel night for the Rotterdam client visit, ready to pay."
+    action quiet "Submit expense"
+    text muted "Harbor and Pine, Amsterdam office, Amsterdam"
 ```
 
 **Rationale:** Webflow's shape. The preview takes the whole page and the settings float over it as a panel. A cover image is judged at real size. Closing the panel is the same as stepping back from the work.
@@ -1555,21 +1555,21 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Storefront"
+  breadcrumb "Home" "Trips" "Expense form"
   header
-    heading "Storefront"
-    text "The logo, cover, accent color and typeface customers see."
+    heading "Expense form"
+    text "The logo, cover, accent color and typeface spenders see."
   split 1:1
     region "The look"
       field "Drop a logo here or choose a file" file
       field "Accent color" = "#1F2937"
       action primary "Save"
     card "Preview"
-      image "Storefront preview with cover image and logo"
-      heading small "Oak desk lamp"
-      text "Solid oak, linen shade, ready to ship."
-      action quiet "Order now"
-      text muted "Acme Supply, Canal Street 12, Amsterdam"
+      image "Expense form preview with cover image and logo"
+      heading small "EXP-1042"
+      text "Hotel night for the Rotterdam client visit, ready to pay."
+      action quiet "Submit expense"
+      text muted "Harbor and Pine, Amsterdam office, Amsterdam"
   footer sticky
     text "Unsaved changes, accent color."
     action quiet "Discard"
@@ -1585,7 +1585,7 @@ page
 
 **ID:** `litespec/frontend/patterns/page-frames#outcome-page`
 
-**Question:** Where a flow ends: an order confirmed, a payment that failed, a link that expired. One state, one statement of what happened, one next step. Flows often end in a toast instead, so this frame states what an ending page holds.
+**Question:** Where a flow ends: an expense confirmed, a payment that failed, a link that expired. One state, one statement of what happened, one next step. Flows often end in a toast instead, so this frame states what an ending page holds.
 
 **Default:** `one-statement-one-next-step`
 
@@ -1603,16 +1603,16 @@ Never ship the toast-only outcome for anything the reader may need to return to.
 page
   header
     status "Sent" positive
-    heading "EUR 45.00 is on its way back to Maria Garcia"
-    text "Refunds reach the bank in one to three working days. The lamp on order SO-1042 returns to stock."
-    action quiet "Back to orders"
-    action "Email the customer"
-    action primary "Open order SO-1042"
+    heading "EUR 45.00 is on its way back to Ava"
+    text "Reversals reach the bank in one to three working days. The expense EXP-1042 returns to the budget."
+    action quiet "Back to expenses"
+    action "Email the spender"
+    action primary "Open expense EXP-1042"
   region "What happened"
-    fact "Order" "SO-1042"
-    fact "Customer" "Maria Garcia, maria@garcia-interiors.example"
+    fact "Expense" "EXP-1042"
+    fact "Spender" "Ava, ava@harbor-pine.example"
     fact "Amount" "EUR 45.00"
-    fact "Refunded by" "Priya Shah, 8 Oct 2026 at 11:04"
+    fact "Reversed by" "Priya Shah, 8 Oct 2026 at 11:04"
     fact "Method" "Back to the account it came from"
 ```
 
@@ -1624,19 +1624,19 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "SO-1042"
+  breadcrumb "Home" "Expenses" "EXP-1042"
   header
-    heading "EUR 45.00 is on its way back to Maria Garcia"
-    text "The lamp on this order returns to stock."
-    action "Email the customer"
-  region "The refund"
-    fact "Order" "SO-1042"
+    heading "EUR 45.00 is on its way back to Ava"
+    text "The expense returns to the budget."
+    action "Email the spender"
+  region "The reversal"
+    fact "Expense" "EXP-1042"
     fact "Amount" "EUR 45.00"
     fact "Sent" "8 Oct 2026, 11:04"
     fact "By" "Priya Shah"
-  region "The order now"
-    fact "Product and handling" "EUR 125.00"
-    fact "Refunded" "EUR -45.00"
+  region "The expense now"
+    fact "Trip and handling" "EUR 125.00"
+    fact "Reversed" "EUR -45.00"
     figure "EUR 80.00"
 ```
 
@@ -1650,13 +1650,13 @@ page
 page
   header
     status "Refused" critical
-    heading "The refund window has closed"
-    text "This payment method refunds only within 180 days of the payment. This one is 214 days old."
-    action quiet "Back to order SO-1042"
+    heading "The reversal window has closed"
+    text "This payment method reversals only within 180 days of the payment. This one is 214 days old."
+    action quiet "Back to expense EXP-1042"
     action primary "Offer credit instead"
   region "What you can do"
     list 2
-      item: text "Offer the customer credit" · text muted "A credit against a future order, paid for by Acme Supply." · action "Offer credit"
+      item: text "Offer the spender credit" · text muted "A credit against a future expense, paid for by Harbor and Pine." · action "Offer credit"
 ```
 
 **Rationale:** The same frame carries the refusal tone. The primary action is the one that resolves it: not Back, but the refused command.
@@ -1669,13 +1669,13 @@ page
 page
   header
     status "Sent" positive
-    heading "Chris Novak has been invited as warehouse lead"
+    heading "Ade Okafor has been invited as finance lead"
     text "They can accept from the message. The invitation runs out on 22 Oct 2026."
   region "The invitation"
-    fact "Sent to" "chris@acme-supply.example"
+    fact "Sent to" "ade@harbor-pine.example"
     fact "Expires" "22 Oct 2026"
-    fact "Role" "Warehouse lead"
-    fact "Invitation reference" "INV-4F82C1A9"
+    fact "Role" "Finance lead"
+    fact "Invitation reference" "EXP-1042"
     action quiet "Copy the invitation reference"
   footer
     action quiet "Back to team"
@@ -1693,13 +1693,13 @@ page
 page
   header
     status "Published" positive
-    heading "Oak desk lamp is published"
-    text "The storefront shows it at EUR 45.00 and the 412 in stock are ready to sell."
-  region "Three things this product still needs"
+    heading "EXP-1042 is published"
+    text "The expense form shows it at EUR 45.00 and the 412 filed are ready to pay."
+  region "Three things this trip still needs"
     list 3
-      item: text "No photos" · text muted "Three slots, all empty. Customers see a placeholder." · action "Add photos"
+      item: text "No photos" · text muted "Three slots, all empty. Spenders see a placeholder." · action "Add photos"
   footer
-    action primary "Open Oak desk lamp"
+    action primary "Open EXP-1042"
 ```
 
 **Rationale:** A command sometimes settles one thing and leaves three. Then the outcome page lists them, so the flow does not end with silent work outstanding.
@@ -1710,17 +1710,17 @@ page
 
 ```wireframe
 page
-  card "Refund sent"
-    text "Order SO-1042"
-    heading small "EUR 45.00 is on its way back to Maria Garcia"
+  card "Reversal sent"
+    text "Expense EXP-1042"
+    heading small "EUR 45.00 is on its way back to Ava"
   region "What happened"
     fact "Amount" "EUR 45.00"
-    fact "Customer" "Maria Garcia, maria@garcia-interiors.example"
-    fact "Refunded by" "Priya Shah, 8 Oct 2026 at 11:04"
+    fact "Spender" "Ava, ava@harbor-pine.example"
+    fact "Reversed by" "Priya Shah, 8 Oct 2026 at 11:04"
     fact "Method" "Back to the account it came from"
   footer
-    action quiet "Back to orders"
-    action primary "Open order SO-1042"
+    action quiet "Back to expenses"
+    action primary "Open expense EXP-1042"
 ```
 
 **Rationale:** GOV.UK's confirmation panel. A green band carries the outcome and the reference together, so the one thing to keep is the one thing that stands out. Everything below it is supporting detail.
@@ -1733,17 +1733,17 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every order across your customers, newest first."
+    heading "Expenses"
+    text "Every expense across your spenders, newest first."
   toolbar
-    field "Search orders" search
+    field "Search expenses" search
     field "State" select = "Any state"
-  region "Orders"
-    table 3 "Order" "Placed" "Paid"
-      item: text "SO-1042" · text "8 Oct 2026, 09:32" · text "EUR 125.00"
-  toast positive "EUR 45.00 is on its way back to Maria Garcia"
+  region "Expenses"
+    table 3 "Expense" "Filed" "Paid"
+      item: text "EXP-1042" · text "8 Oct 2026, 09:32" · text "EUR 125.00"
+  toast positive "EUR 45.00 is on its way back to Ava"
 ```
 
 **Rationale:** No new page at all. The command succeeds, the record updates in place, and a toast names what happened. The reader never loses their position.
@@ -1756,89 +1756,89 @@ page
 
 **ID:** `litespec/frontend/patterns/page-frames#live-operations-page`
 
-**Question:** Dispatch day is happening: the docks are open, scanners are reading, and the warehouse lead needs the count at a glance. The decision is what earns the glance: the total, the per-dock split, or only the exceptions.
+**Question:** Payout run day is happening: the cost centres are open, scanners are reading, and the finance lead needs the count at a glance. The decision is what earns the glance: the total, the per-cost-centre split, or only the exceptions.
 
 **Default:** `the-count-the-docks-the-exceptions`
 
 **Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
 
-**Rationale:** The count with docks and exceptions stays the pick. The warehouse lead reads one number first. Then comes the per-dock split, then only what needs a person. The exceptions-only wall is the runner-up. Prefer it on the wall display once the day is steady and the count is already known.
+**Rationale:** The count with cost centres and exceptions stays the pick. The finance lead reads one number first. Then comes the per-cost-centre split, then only what needs a person. The exceptions-only wall is the runner-up. Prefer it on the wall display once the day is steady and the count is already known.
 
-Never ship the timeline as the main view. A list of six hundred dispatches is a log, not a page.
+Never ship the timeline as the main view. A list of six hundred payouts is a log, not a page.
 
-**Reviewed for:** Which built wall display breaks from the wireframe its catalog entry chose? Open the built counts, docks, and exception views beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Which built wall display breaks from the wireframe its catalog entry chose? Open the built counts, cost centres, and exception views beside the catalog entry recording the chosen option and its reason.
 
-#### `the-count-the-docks-the-exceptions`: The Count, the Docks, the Exceptions
+#### `the-count-the-docks-the-exceptions`: The Count, the Cost Centres, the Exceptions
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "Garcia Interiors restock" "Dispatch"
+  breadcrumb "Home" "Expenses" "Rotterdam client visit" "Payout run"
   header
-    heading "Garcia restock dispatch, live"
+    heading "Rotterdam trip payouts, live"
     status "Live" positive
-    text "Sat 14 Mar 2026, 08:00 to 12:00, Amsterdam warehouse."
-    action quiet "End dispatch"
-  region "Dispatched"
-    figure "554 of 840 parcels"
-    text muted "66 percent dispatched"
+    text "Sat 14 Mar 2026, 08:00 to 12:00, Amsterdam sales."
+    action quiet "End payout run"
+  region "Paid out"
+    figure "554 of 840 expenses"
+    text muted "66 percent paid out"
   grid 4
-    card "Dock 1 and 2"
+    card "Amsterdam and Rotterdam"
       figure "210"
-      text muted "Parcels, Chris Novak"
+      text muted "Expenses, Ade Okafor"
   region "Needs somebody"
     list 2
-      item: text "One parcel scanned at two docks" · text muted "PKG-0C893968A2, read at 09:40 and 09:41." · status "Check it" caution · action "Open"
+      item: text "One expense scanned at two cost centres" · text muted "EXP-1042, read at 09:40 and 09:41." · status "Check it" caution · action "Open"
 ```
 
-**Rationale:** One number first, then the per-dock split, then only what needs a person. The warehouse lead reads the count in one glance and reaches the exceptions without scrolling past the day's log.
+**Rationale:** One number first, then the per-cost-centre split, then only what needs a person. The finance lead reads the count in one glance and reaches the exceptions without scrolling past the day's log.
 
-**Cost:** Three structures on one page, and the exceptions sit below the docks on a phone. That order still reads correctly.
+**Cost:** Three structures on one page, and the exceptions sit below the cost centres on a phone. That expense still reads correctly.
 
-#### `per-dock-cards-with-a-rate`: Per-Dock Cards with a Rate
+#### `per-dock-cards-with-a-rate`: Per-Cost-Centre Cards with a Rate
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "Garcia Interiors restock" "Dispatch"
+  breadcrumb "Home" "Expenses" "Rotterdam client visit" "Payout run"
   header
-    heading "Garcia restock dispatch, live"
+    heading "Rotterdam trip payouts, live"
     status "Live" positive
-    text "554 parcels dispatched of 840 scheduled."
-    action quiet "End dispatch"
+    text "554 expenses paid out of 840 scheduled."
+    action quiet "End payout run"
   grid 4
-    card "Dock 1 and 2"
+    card "Amsterdam and Rotterdam"
       figure "210"
       text muted "38 percent of the day"
       text muted "88 in the last hour"
   region "Needs somebody"
     list 1
-      item: text "Dock 3 scanner is offline" · text muted "Last sync 10:10, scans queue on the device." · status "Offline" critical · action "Open"
+      item: text "Receipt scanner scanner is offline" · text muted "Last sync 10:10, scans queue on the device." · status "Offline" critical · action "Open"
 ```
 
-**Rationale:** Each dock carries its count, its share of the day, and its last-hour rate, the way Datadog draws per-host cards. A slow dock is visible as a number, not as a feeling.
+**Rationale:** Each cost centre carries its count, its share of the day, and its last-hour rate, the way Datadog draws per-host cards. A slow cost centre is visible as a number, not as a feeling.
 
-**Cost:** Four cards with three figures each is twelve numbers before the exceptions. The warehouse lead gets diagnosis, not a glance.
+**Cost:** Four cards with three figures each is twelve numbers before the exceptions. The finance lead gets diagnosis, not a glance.
 
 **Reference:** Datadog
 
-#### `dispatches-as-a-timeline`: Dispatches as a Timeline
+#### `dispatches-as-a-timeline`: Payouts as a Timeline
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "Garcia Interiors restock" "Dispatch"
+  breadcrumb "Home" "Expenses" "Rotterdam client visit" "Payout run"
   header
-    heading "Garcia restock dispatch, live"
+    heading "Rotterdam trip payouts, live"
     status "Live" positive
-    text "554 dispatched. The newest first."
+    text "554 paid out. The newest first."
     action quiet "Pause the feed"
   region "Today"
     text muted "The last 5 of 559 entries today."
     timeline 5
-      item: text "Maria Garcia collected at the pickup counter" · text muted "10:41, Chris Novak." · status "Collected" positive
+      item: text "Ava filed an expense at the Amsterdam office" · text muted "10:41, Ade Okafor." · status "Filed" positive
 ```
 
-**Rationale:** The day reads newest first: dispatches, double reads, and connection drops in one place, the way PagerDuty draws an incident timeline. Nothing is grouped away from the reader.
+**Rationale:** The day reads newest first: payouts, double reads, and connection drops in one place, the way PagerDuty draws an incident timeline. Nothing is grouped away from the reader.
 
-**Cost:** Six hundred dispatches do not fit a timeline, so the page shows the last five and a count of the rest. The count is the page and the timeline is decoration.
+**Cost:** Six hundred payouts do not fit a timeline, so the page shows the last five and a count of the rest. The count is the page and the timeline is decoration.
 
 **Reference:** PagerDuty
 
@@ -1846,19 +1846,19 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "Garcia Interiors restock" "Dispatch"
+  breadcrumb "Home" "Expenses" "Rotterdam client visit" "Payout run"
   header
-    heading "Garcia restock dispatch, live"
+    heading "Rotterdam trip payouts, live"
     status "Live" positive
-    text "554 dispatched of 840 scheduled. Nothing needs somebody."
-  region "The docks are clear"
-    text "554 dispatched across 4 docks. The next exception appears here."
+    text "554 paid out of 840 scheduled. Nothing needs somebody."
+  region "The cost centres are clear"
+    text "554 paid out across 4 cost centres. The next exception appears here."
   region "Earlier today"
     list 1
-      item: text "Dock 3 scanner was offline" · text muted "10:10 to 10:40, 41 scans queued, all synced." · status "Resolved" positive
+      item: text "Receipt scanner scanner was offline" · text muted "10:10 to 10:40, 41 scans queued, all synced." · status "Resolved" positive
 ```
 
-**Rationale:** The page promises silence: the count in the header, and below it only what needs a person. A warehouse lead who trusts the scanners reads one line and puts the phone away.
+**Rationale:** The page promises silence: the count in the header, and below it only what needs a person. A finance lead who trusts the scanners reads one line and puts the phone away.
 
 **Cost:** When nothing needs anybody the page is nearly empty, and an empty page on a wall display reads as broken. It needs the count to prove it is alive.
 
@@ -1869,8 +1869,8 @@ page
   header
     status "Live" positive
     heading "554"
-    text "Parcels of 840 dispatched."
-    text muted "Garcia restock, Sat 14 Mar 2026, Amsterdam warehouse."
+    text "Expenses of 840 paid out."
+    text muted "Rotterdam trip, Sat 14 Mar 2026, Amsterdam sales."
     status "1 needs somebody" caution
     action primary "Open the exceptions"
 ```
@@ -1879,30 +1879,30 @@ page
 
 **Cost:** A display is not a workplace: nothing can be opened, decided or closed from it. It answers how many, and every other question needs a phone.
 
-#### `split-dispatches-left-incidents-right`: Split: Dispatches Left, Incidents Right
+#### `split-dispatches-left-incidents-right`: Split: Payouts Left, Incidents Right
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "Garcia Interiors restock" "Dispatch"
+  breadcrumb "Home" "Expenses" "Rotterdam client visit" "Payout run"
   header
-    heading "Garcia restock dispatch, live"
+    heading "Rotterdam trip payouts, live"
     status "Live" positive
-    text "554 dispatched of 840 scheduled."
-    action quiet "End dispatch"
+    text "554 paid out of 840 scheduled."
+    action quiet "End payout run"
   split 1:1
-    region "Dispatches by hour"
+    region "Payouts by hour"
       fact "08:00, start" "204"
       fact "09:00" "210"
       fact "10:00" "128"
       fact "11:00, so far" "12"
     region "Incidents"
       list 2
-        item: text "One parcel scanned at two docks" · text muted "PKG-0C893968A2, 10:40." · status "Check it" caution · action "Open"
+        item: text "One expense scanned at two cost centres" · text muted "EXP-1042, 10:40." · status "Check it" caution · action "Open"
 ```
 
-**Rationale:** The dispatch story and the incidents story sit side by side, the way GitHub draws a deploy beside its checks. Either column can be read without the other.
+**Rationale:** The payout run story and the incidents story sit side by side, the way GitHub draws a deploy beside its checks. Either column can be read without the other.
 
-**Cost:** Below a laptop the columns stack and the incidents land under the dispatch log. The stacking order has to put incidents first on a phone.
+**Cost:** Below a laptop the columns stack and the incidents land under the payout run log. The stacking expense has to put incidents first on a phone.
 
 **Reference:** GitHub
 
@@ -1910,35 +1910,35 @@ page
 
 **ID:** `litespec/frontend/patterns/page-frames#calendar-or-schedule-page`
 
-**Question:** Ninety-three deliveries ahead need a shape that answers when, not what. The decision is density: a grid that shows the month against a list that shows the next delivery.
+**Question:** Ninety-three trips ahead need a shape that answers when, not what. The decision is density: a grid that shows the month against a list that shows the next trip.
 
 **Default:** `month-grid-with-deliveries-marked`
 
-**Compact:** Seven columns do not fit a phone. The agenda list is the phone shape, with each day as a date chip beside its deliveries. The compact option is `agenda-grouped-by-day`.
+**Compact:** Seven columns do not fit a phone. The agenda list is the phone shape, with each day as a date chip beside its trips. The compact option is `agenda-grouped-by-day`.
 
-**Rationale:** The month grid stays the pick: ninety-three deliveries ahead need density, and the grid shows the month the list cannot. The agenda list is the runner-up. Prefer it on a phone, where seven columns become unreadable whichever way they are drawn. Never ship the week lanes as the default. Two warehouses fit, and the third warehouse breaks the shape.
+**Rationale:** The month grid stays the pick: ninety-three trips ahead need density, and the grid shows the month the list cannot. The agenda list is the runner-up. Prefer it on a phone, where seven columns become unreadable whichever way they are drawn. Never ship the week lanes as the default. Two cost centres fit, and the third cost centre breaks the shape.
 
 **Reviewed for:** Which built date view breaks from the wireframe its catalog entry chose? Open the built month grids, agendas, and week lanes beside the catalog entry recording the chosen option and its reason.
 
-#### `month-grid-with-deliveries-marked`: Month Grid with Deliveries Marked
+#### `month-grid-with-deliveries-marked`: Month Grid with Trips Marked
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "Schedule"
+  breadcrumb "Home" "Expenses" "Schedule"
   header
     heading "March 2026"
-    text "3 deliveries across 2 warehouses."
+    text "3 trips across 2 cost centres."
     action quiet "‹ Previous month"
     action quiet "Next month ›"
   region "March 2026"
     text muted "Sun Mon Tue Wed Thu Fri Sat"
     grid 35
-      item: text "14" · status "Garcia restock" positive
+      item: text "14" · status "Rotterdam trip" positive
 ```
 
-**Rationale:** The month at a glance, with each delivery sitting on its date. Google Calendar's shape, and the only one where a clash between two deliveries is visible without opening either.
+**Rationale:** The month at a glance, with each trip sitting on its date. Google Calendar's shape, and the only one where a clash between two trips is visible without opening either.
 
-**Cost:** Seven columns are hard to read on a phone, and a date with three deliveries shows three clipped pills. The agenda is the honest phone shape.
+**Cost:** Seven columns are hard to read on a phone, and a date with three trips shows three clipped pills. The agenda is the honest phone shape.
 
 **Reference:** Google Calendar
 
@@ -1946,49 +1946,49 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "Schedule"
+  breadcrumb "Home" "Expenses" "Schedule"
   header
     heading "Schedule"
-    text "The next deliveries, soonest first."
-    action primary "New delivery"
+    text "The next trips, soonest first."
+    action primary "New trip"
   region "Sat 14 Mar 2026"
     list 1
-      item: text "Garcia Interiors restock" · text muted "08:00 to 12:00 · Amsterdam warehouse" · status "Active" positive · action "Open"
+      item: text "Rotterdam client visit" · text muted "08:00 to 12:00 · Amsterdam sales" · status "Active" positive · action "Open"
   region "Sat 21 Mar 2026"
     list 1
-      item: text "Becker Bouw restock" · text muted "08:00 to 12:00 · Rotterdam warehouse" · status "Scheduled" info · action "Open"
+      item: text "Utrecht client visit" · text muted "08:00 to 12:00 · Rotterdam sales" · status "Scheduled" info · action "Open"
   region "Sat 28 Mar 2026"
     list 1
-      item: text "Okafor Office delivery" · text muted "08:00 to 12:00 · Rotterdam warehouse" · status "Scheduled" info · action "Open"
+      item: text "Amsterdam client visit" · text muted "08:00 to 12:00 · Rotterdam sales" · status "Scheduled" info · action "Open"
 ```
 
-**Rationale:** Each day is a date chip with its deliveries beside it, the way Apple Calendar draws the list view. The reader scrolls time itself rather than paging through it.
+**Rationale:** Each day is a date chip with its trips beside it, the way Apple Calendar draws the list view. The reader scrolls time itself rather than paging through it.
 
 **Cost:** Empty days still take a row or the rhythm breaks, so a quiet month is mostly scrolling. The grid shows the quiet month better.
 
 **Reference:** Apple Calendar
 
-#### `week-lanes-per-warehouse`: Week Lanes per Warehouse
+#### `week-lanes-per-warehouse`: Week Lanes per Cost Centre
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "Schedule"
+  breadcrumb "Home" "Expenses" "Schedule"
   header
     heading "Week 11 · 9 to 15 Mar"
-    text "One lane per warehouse. A block is a delivery."
+    text "One lane per cost centre. A block is a trip."
     action quiet "‹ Previous week"
     action quiet "Next week ›"
-  region "Amsterdam warehouse"
+  region "Amsterdam sales"
     text muted "Mon Tue Wed Thu Fri Sat Sun"
-    text "Garcia restock · Sat · 32 of 40 pallets"
-  region "Rotterdam warehouse"
+    text "Rotterdam trip · Sat · 32 of 40 expenses"
+  region "Rotterdam sales"
     text muted "Mon Tue Wed Thu Fri Sat Sun"
-    text "Becker restock · Sat · 12 of 40 pallets"
+    text "Rotterdam trip · Sat · 12 of 40 expenses"
 ```
 
-**Rationale:** Each warehouse gets a lane and each delivery a block on its days, the way Float draws allocations. A clash at one warehouse is a visible overlap, not a second page.
+**Rationale:** Each cost centre gets a lane and each trip a block on its days, the way Float draws allocations. A clash at one cost centre is a visible overlap, not a second page.
 
-**Cost:** Two warehouses fit. The third warehouse breaks the shape, and a phone has no room for lanes at all. Only honest for a company with few warehouses.
+**Cost:** Two cost centres fit. The third cost centre breaks the shape, and a phone has no room for lanes at all. Only honest for a company with few cost centres.
 
 **Reference:** Float
 
@@ -1996,52 +1996,52 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "Schedule"
+  breadcrumb "Home" "Expenses" "Schedule"
   header
     heading "Schedule"
-    text "93 deliveries ahead, soonest first."
-    action primary "New delivery"
+    text "93 trips ahead, soonest first."
+    action primary "New trip"
   toolbar
-    field "Search deliveries" search
+    field "Search trips" search
     field "State" select = "Any state"
     action "Export"
-  region "Deliveries"
-    table 3 "Delivery" "Date" "State"
-      item: text "Garcia Interiors restock" · text "Sat 14 Mar 2026" · status "Active" positive
+  region "Trips"
+    table 3 "Trip" "Date" "State"
+      item: text "Rotterdam client visit" · text "Sat 14 Mar 2026" · status "Active" positive
   row
     text muted "1 to 25 of 93"
     action quiet "Next ›"
 ```
 
-**Rationale:** The schedule as a plain list page: search, one state filter, one table. Nothing to learn, and the toolbar matches the one an Acme Supply order list uses.
+**Rationale:** The schedule as a plain list page: search, one state filter, one table. Nothing to learn, and the toolbar matches the one an Harbor and Pine expense list uses.
 
-**Cost:** A list answers what, not when: dates read as text and the shape of the month is invisible. It is fine for ten deliveries and wrong for ninety-three.
+**Cost:** A list answers what, not when: dates read as text and the shape of the month is invisible. It is fine for ten trips and wrong for ninety-three.
 
 #### `mini-month-beside-the-day`: Mini Month Beside the Day
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "Schedule"
+  breadcrumb "Home" "Expenses" "Schedule"
   header
     heading "Sat 14 Mar 2026"
-    text "One delivery, with the month beside it."
-    action primary "New delivery"
+    text "One trip, with the month beside it."
+    action primary "New trip"
   split 1:2
     region "March 2026"
       text muted "S M T W T F S"
       grid 31
         item: text "14"
-    region "Garcia Interiors restock"
+    region "Rotterdam client visit"
       fact "Window" "08:00 to 12:00"
-      fact "Warehouse" "Amsterdam warehouse"
-      fact "Pallets" "32 of 40"
-      action "Open delivery"
-      action "Open dispatch"
+      fact "Cost centre" "Amsterdam sales"
+      fact "Expenses" "32 of 40"
+      action "Open trip"
+      action "Open payout run"
 ```
 
-**Rationale:** Outlook's shape: a small month for orientation, the chosen day in full beside it. The reader never loses the month while reading the delivery.
+**Rationale:** Outlook's shape: a small month for orientation, the chosen day in full beside it. The reader never loses the month while reading the trip.
 
-**Cost:** Two structures need two selections that must agree, and on a phone the mini month stacks above the day it orients. It is twice the page for one delivery.
+**Cost:** Two structures need two selections that must agree, and on a phone the mini month stacks above the day it orients. It is twice the page for one trip.
 
 **Reference:** Outlook
 
@@ -2049,19 +2049,19 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "Schedule"
+  breadcrumb "Home" "Expenses" "Schedule"
   header
     heading "Next 30 days"
-    text "9 Mar to 7 Apr 2026 · 3 deliveries."
-    action primary "New delivery"
+    text "9 Mar to 7 Apr 2026 · 3 trips."
+    action primary "New trip"
   region "The next four weeks"
     list 4
-      item: text "Week 11 · Garcia restock, Sat 14 Mar" · text muted "32 of 40 pallets"
+      item: text "Week 11 · Rotterdam trip, Sat 14 Mar" · text muted "32 of 40 expenses"
 ```
 
-**Rationale:** Four weeks as four rows with their deliveries named inside, the way Airbnb draws payout weeks. The reader sees the rhythm of the month without learning a grid.
+**Rationale:** Four weeks as four rows with their trips named inside, the way Airbnb draws payout weeks. The reader sees the rhythm of the month without learning a grid.
 
-**Cost:** Weeks are not months. A delivery on the 31st falls off the strip, and the strip must restate its range on every reading.
+**Cost:** Weeks are not months. A trip on the 31st falls off the strip, and the strip must restate its range on every reading.
 
 **Reference:** Airbnb
 
@@ -2085,20 +2085,20 @@ page
 page
   breadcrumb "Home" "Set up"
   header
-    heading "Set up Acme Supply"
-    text "Three steps between a company and a first sale."
+    heading "Set up Harbor and Pine"
+    text "Three steps between a company and its first payout."
   region "Before you can take money"
     text muted "1 of 3 steps done."
   region "Create a company"
     status "Done" positive
-    text "Acme Supply, Amsterdam."
+    text "Harbor and Pine, Amsterdam."
   region "Connect a payment account"
     status "Current" info
     text "The provider holds the money for you."
     action primary "Connect"
-  region "Publish a storefront"
+  region "Publish the expense form"
     status "Open" neutral
-    text "Your own address, so customers order where you send them."
+    text "Your own address, so spenders file expenses where you send them."
     action "Set up"
 ```
 
@@ -2114,10 +2114,10 @@ page
 page
   breadcrumb "Home" "Set up"
   header
-    heading "Set up Acme Supply"
+    heading "Set up Harbor and Pine"
     text "Step 2 of 3. Two minutes, and you can stop after this one."
   region "Steps"
-    text muted "1 The company done · 2 Payments current · 3 Storefront open"
+    text muted "1 The company done · 2 Payments current · 3 Expense form open"
   region "Connect a payment account"
     field "Business number" text
     field "Payout account" text
@@ -2127,7 +2127,7 @@ page
 
 **Rationale:** One step open at a time with a stepper above it, the way Stripe draws onboarding. Each step validates before the next opens, so nothing half-filled is ever left behind.
 
-**Cost:** A wizard leads, which means it also blocks: the reader cannot add a product until the wizard is done. Wrong when the steps are independent.
+**Cost:** A wizard leads, which means it also blocks: the reader cannot add a trip until the wizard is done. Wrong when the steps are independent.
 
 **Reference:** Stripe
 
@@ -2137,7 +2137,7 @@ page
 page
   breadcrumb "Home" "Set up"
   header
-    heading "Set up Acme Supply"
+    heading "Set up Harbor and Pine"
     text "Three steps. What each one needs is beside it."
   split 1:1
     region "The steps"
@@ -2145,7 +2145,7 @@ page
         item: status "Done" positive · text "Create a company" · action "Connect"
     region "What each step needs"
       fact "Payments" "A business number and a bank account."
-      fact "Storefront" "A logo and a cover image."
+      fact "Expense form" "A logo and a cover image."
 ```
 
 **Rationale:** The steps on the left, what each step needs on the right, the way Notion draws setup beside its guide. The reader sees what a step costs before starting it.
@@ -2160,19 +2160,19 @@ page
 page
   breadcrumb "Home" "Set up"
   header
-    heading "What is the first shipment?"
+    heading "What is the first trip?"
     text "The template sets the lines. Everything stays editable."
   region "Templates"
     list 3
-      item: text "Restock" · text muted "Pallet quantities, one warehouse, scheduled" · action "Choose"
+      item: text "Client visit" · text muted "Hotel and train lines, one trip, scheduled" · action "Choose"
   row
     action quiet "Skip"
     action primary "Continue"
 ```
 
-**Rationale:** Starting from a template names what the first shipment is before anything else, and the template sets the lines to match. Everything stays editable after the choice.
+**Rationale:** Starting from a template names what the first trip is before anything else, and the template sets the lines to match. Everything stays editable after the choice.
 
-**Cost:** A template is a guess about the shipment, and a wrong guess sets lines nobody reads. Templates must stay visibly editable, never silently applied.
+**Cost:** A template is a guess about the trip, and a wrong guess sets lines nobody reads. Templates must stay visibly editable, never silently applied.
 
 #### `one-page-one-section-per-step`: One Page, One Section per Step
 
@@ -2180,18 +2180,18 @@ page
 page
   breadcrumb "Home" "Set up"
   header
-    heading "Set up Acme Supply"
+    heading "Set up Harbor and Pine"
     text "Everything on one page. Save each step as you finish it."
   region "The company"
     status "Done" positive
-    field "Company name" text = "Acme Supply"
+    field "Company name" text = "Harbor and Pine"
     action "Save"
   region "Payments"
     field "Business number" text
     field "Payout account" text
     action primary "Connect the provider"
-  region "Storefront"
-    field "Storefront address" text = "acme-supply"
+  region "Expense form"
+    field "Expense form address" text = "harbor-pine"
     action "Publish"
 ```
 
@@ -2207,10 +2207,10 @@ page
 page
   breadcrumb "Home" "Set up"
   header
-    heading "Set up Acme Supply"
+    heading "Set up Harbor and Pine"
     text "Ten minutes alone, or fifteen with the support team."
-  region "Three steps to a first sale"
-    text "Connect a payment account, publish a storefront, add a product."
+  region "Three steps to a first payout"
+    text "Connect a payout account, publish the expense form, add a trip."
     action primary "Start with payments"
   region "Rather talk it through"
     list 2
@@ -2242,14 +2242,14 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
     heading "This page is not here"
-    text muted "404 · /products/oak-desk-lamp/dock-plan"
-    text "It may have been moved, or the address may be wrong. The product and its orders are untouched."
+    text muted "404 · /trips/exp-1042/cost centre-plan"
+    text "It may have been moved, or the address may be wrong. The trip and its expenses are untouched."
   region "Where to go"
     action primary "Back to home"
-    action "Open orders"
+    action "Open expenses"
 ```
 
 **Rationale:** What happened, where to go, in one glance: the code, one line, and the two places the reader most likely wanted. GitHub's 404 shape, minus the joke.
@@ -2262,15 +2262,15 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every order across your customers, newest first."
-  message "The orders did not load. The connection dropped at 11:04." critical
+    heading "Expenses"
+    text "Every expense across your spenders, newest first."
+  message "The expenses did not load. The connection dropped at 11:04." critical
   action "Try again"
-  region "Orders"
-    table 3 "Order" "Customer" "Paid"
-      item: text "SO-1042" · text "Maria Garcia" · text "EUR 125.00"
+  region "Expenses"
+    table 3 "Expense" "Spender" "Paid"
+      item: text "EXP-1042" · text "Ava" · text "EUR 125.00"
 ```
 
 **Rationale:** The page keeps its frame and names what failed inside it, the way Vercel draws a failed deploy beside the project. The reader keeps their place and retries from it.
@@ -2287,7 +2287,7 @@ page
     heading "Payments cannot be taken right now"
     text "Payment provider · since 11:04."
   region "What still works"
-    text "Placed orders stay valid and dispatch keeps working."
+    text "Filed expenses stay valid and payout run keeps working."
     action "Read the status"
   region "What to do"
     action primary "Try again"
@@ -2303,20 +2303,20 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "SO-1042"
+  breadcrumb "Home" "Expenses" "EXP-1042"
   header
     heading "Your role cannot do this"
-    text "Refunds sit with Finance. Nothing was changed."
-  message "Support can read orders and message customers. Only Finance can issue a refund." neutral
+    text "Reversals sit with Finance. Nothing was changed."
+  message "Support can read expenses and message spenders. Only Finance can issue a reversal." neutral
   region "What you can do"
     list 2
-      item: text "Ask Sam Rivera to grant Finance" · text muted "They own Acme Supply" · action "Ask"
+      item: text "Ask Priya Shah to grant Finance" · text muted "They own Harbor and Pine" · action "Ask"
     link "Read what your role may do"
   footer
-    action quiet "Back to order SO-1042"
+    action quiet "Back to expense EXP-1042"
 ```
 
-**Rationale:** A refusal worded from its code, with the one command that resolves it beside it. The page knows Jordan cannot refund and knows Sam Rivera can grant it, so it says both.
+**Rationale:** A refusal worded from its code, with the one command that resolves it beside it. The page knows Jordan cannot reversal and knows Priya Shah can grant it, so it says both.
 
 **Cost:** Every refusal needs its own fix, and one without a fix falls back to explaining itself. The fix must be a command, never a longer paragraph.
 
@@ -2327,12 +2327,12 @@ page
   breadcrumb "Home" "Settings" "Team"
   header
     heading "This invitation ran out on 22 Oct 2026"
-    text "Chris Novak can be invited again. The old link stays dead."
-    action primary "Invite Chris Novak again"
+    text "Ade Okafor can be invited again. The old link stays dead."
+    action primary "Invite Ade Okafor again"
   region "The invitation"
-    fact "Sent to" "chris@acme-supply.example"
-    fact "Role" "Warehouse lead"
-    fact "Reference" "INV-4F82C1A9"
+    fact "Sent to" "ade@harbor-pine.example"
+    fact "Role" "Finance lead"
+    fact "Reference" "EXP-1042"
     action quiet "Copy the reference"
   footer
     action quiet "Back to team"
@@ -2344,26 +2344,26 @@ page
 
 **Reference:** Slack
 
-#### `warehouse-scanner-is-offline`: Warehouse Scanner Is Offline
+#### `warehouse-scanner-is-offline`: Receipt Scanner Is Offline
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "Garcia Interiors restock" "Dispatch"
+  breadcrumb "Home" "Expenses" "Rotterdam client visit" "Payout run"
   header
-    heading "Dock 3 · offline"
+    heading "Receipt scanner · offline"
     text "Scanning continues. Everything queues on the device."
     action primary "Try to reconnect"
   message "The connection dropped at 10:10. Scans queue here and sync when it returns." caution
   region "On this device"
     fact "Queued scans" "41"
     fact "Last sync" "10:10"
-    fact "Device" "Dock 3 · Chris Novak"
+    fact "Device" "Receipt scanner · Ade Okafor"
     fact "Battery" "78%"
 ```
 
-**Rationale:** The offline dock keeps scanning and says so: what is queued, when it last synced, and that nothing is lost. The page reports a state, not a failure.
+**Rationale:** The offline cost centre keeps scanning and says so: what is queued, when it last synced, and that nothing is lost. The page reports a state, not a failure.
 
-**Cost:** Offline confidence must be earned: the queued count has to be exact, or the first discrepancy teaches the warehouse to distrust the page.
+**Cost:** Offline confidence must be earned: the queued count has to be exact, or the first discrepancy teaches the cost centre to distrust the page.
 
 ### Record Drawer
 
@@ -2383,42 +2383,42 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every order across your customers, newest first."
+    heading "Expenses"
+    text "Every expense across your spenders, newest first."
   toolbar
-    field "Order number, name or email" search
+    field "Expense number, name or email" search
     field "State" select = "Any state"
   split 1:1
-    region "Orders"
-      table 5 "Order" "Customer" "Paid"
-        item: text "SO-1042" · text "Maria Garcia" · text "EUR 125.00"
-    region "SO-1042"
+    region "Expenses"
+      table 5 "Expense" "Spender" "Paid"
+        item: text "EXP-1042" · text "Ava" · text "EUR 125.00"
+    region "EXP-1042"
       status "Paid" positive
-      fact "Customer" "Maria Garcia"
-      fact "Placed" "8 Oct 2026, 09:32"
+      fact "Spender" "Ava"
+      fact "Filed" "8 Oct 2026, 09:32"
       fact "Paid" "EUR 125.00"
       action "Resend"
-      action "Refund"
+      action "Reversal"
       link "Open the full record"
 ```
 
 ```wireframe compact
 page
-  breadcrumb "Home" "Orders" "SO-1042"
+  breadcrumb "Home" "Expenses" "EXP-1042"
   header
-    action quiet "‹ All orders"
-    heading "SO-1042"
+    action quiet "‹ All expenses"
+    heading "EXP-1042"
     status "Paid" positive
-    text "Maria Garcia · Garcia Interiors restock."
-  region "The customer"
-    fact "Name" "Maria Garcia"
-    fact "Email" "maria@garcia-interiors.example"
-  region "What was ordered"
-    fact "Oak desk lamp, 2 pcs" "EUR 90.00"
-    fact "Pallet handling" "EUR 30.00"
-    fact "Shipping" "EUR 5.00"
+    text "Ava · Rotterdam client visit."
+  region "The spender"
+    fact "Name" "Ava"
+    fact "Email" "ava@harbor-pine.example"
+  region "What was claimed"
+    fact "EXP-1042, 2 pcs" "EUR 90.00"
+    fact "Booking fee" "EUR 30.00"
+    fact "Local travel" "EUR 5.00"
     fact "Paid" "EUR 125.00"
 ```
 
@@ -2430,22 +2430,22 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every order across your customers, newest first."
+    heading "Expenses"
+    text "Every expense across your spenders, newest first."
   toolbar
-    field "Order number, name or email" search
+    field "Expense number, name or email" search
     field "State" select = "Any state"
-  region "Orders"
-    table 5 "Order" "Customer" "Paid"
-      item: text "SO-1042" · text "Maria Garcia" · text "EUR 125.00"
-  drawer right "SO-1042"
+  region "Expenses"
+    table 5 "Expense" "Spender" "Paid"
+      item: text "EXP-1042" · text "Ava" · text "EUR 125.00"
+  drawer right "EXP-1042"
     status "Paid" positive
-    text "Placed 8 Oct 2026, 09:32."
-    fact "Customer" "Maria Garcia"
+    text "Filed 8 Oct 2026, 09:32."
+    fact "Spender" "Ava"
     fact "Paid" "EUR 125.00"
-    action "Refund"
+    action "Reversal"
     action primary "Open the record"
 ```
 
@@ -2459,22 +2459,22 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every order across your customers, newest first."
+    heading "Expenses"
+    text "Every expense across your spenders, newest first."
   toolbar
-    field "Order number, name or email" search
+    field "Expense number, name or email" search
     field "State" select = "Any state"
-  region "Orders"
-    table 4 "Order" "Customer" "State" "Paid"
-      item: text "SO-1042" · text "Maria Garcia" · status "Paid" positive · text "EUR 125.00"
-  region "SO-1042 keeps its row open"
-    fact "Placed" "8 Oct 2026, 09:32"
+  region "Expenses"
+    table 4 "Expense" "Spender" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
+  region "EXP-1042 keeps its row open"
+    fact "Filed" "8 Oct 2026, 09:32"
     fact "Method" "Card"
     fact "Lines" "3, all confirmed"
     action "Resend the confirmation"
-    action "Refund"
+    action "Reversal"
 ```
 
 **Rationale:** The record opens under its own row inside the table. Nothing is overlaid and nothing moves, so the comparison the reader came for is right there.
@@ -2487,16 +2487,16 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every order across your customers, newest first."
-  region "Orders"
-    table 4 "Order" "Customer" "State" "Paid"
-      item: text "SO-1042" · text "Maria Garcia" · status "Paid" positive · text "EUR 125.00"
-  drawer right "SO-1042"
-    text muted "Change one thing. The customer sees nothing of this."
-    field "Customer note" textarea
+    heading "Expenses"
+    text "Every expense across your spenders, newest first."
+  region "Expenses"
+    table 4 "Expense" "Spender" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
+  drawer right "EXP-1042"
+    text muted "Change one thing. The spender sees nothing of this."
+    field "Spender note" textarea
     field "Internal state" select = "No answer needed"
     action "Cancel"
     action primary "Save note"
@@ -2512,19 +2512,19 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every order across your customers, newest first."
+    heading "Expenses"
+    text "Every expense across your spenders, newest first."
   split 1:1
-    region "Orders"
-      table 4 "Order" "Customer" "Paid"
-        item: text "SO-1042" · text "Maria Garcia" · text "EUR 125.00"
-    region "SO-1042 preview"
-      fact "Lines" "Oak desk lamp, 2 pcs"
-      fact "Shipping" "Tracked · EUR 5.00"
+    region "Expenses"
+      table 4 "Expense" "Spender" "Paid"
+        item: text "EXP-1042" · text "Ava" · text "EUR 125.00"
+    region "EXP-1042 preview"
+      fact "Lines" "EXP-1042, 2 pcs"
+      fact "Local travel" "Tracked · EUR 5.00"
       timeline 3
-        item: text "Paid" · text muted "8 Oct 2026, 09:32" · text muted "Maria Garcia"
+        item: text "Paid" · text muted "8 Oct 2026, 09:32" · text muted "Ava"
       link "Open the full record"
 ```
 
@@ -2536,18 +2536,18 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every order across your customers, newest first."
+    heading "Expenses"
+    text "Every expense across your spenders, newest first."
   split 1:1
-    region "Orders"
-      table 3 "Order" "Customer" "Paid"
-        item: text "SO-1042" · text "Maria Garcia" · text "EUR 125.00"
-    region "Order SO-1042"
+    region "Expenses"
+      table 3 "Expense" "Spender" "Paid"
+        item: text "EXP-1042" · text "Ava" · text "EUR 125.00"
+    region "Expense EXP-1042"
       timeline 3
-        item: text "Maria asked where her order is" · text muted "8 Oct, 10:12" · text muted "Support inbox"
-      field "Reply to Maria Garcia" textarea
+        item: text "Ava asked where her expense is" · text muted "8 Oct, 10:12" · text muted "Support inbox"
+      field "Reply to Ava" textarea
       action primary "Send"
 ```
 
@@ -2561,23 +2561,23 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "SO-1042"
+  breadcrumb "Home" "Expenses" "EXP-1042"
   header
-    action quiet "‹ All orders"
-    heading "SO-1042"
+    action quiet "‹ All expenses"
+    heading "EXP-1042"
     status "Paid" positive
-    text "Maria Garcia · Garcia Interiors restock."
-  region "The customer"
-    fact "Name" "Maria Garcia"
-    fact "Email" "maria@garcia-interiors.example"
+    text "Ava · Rotterdam client visit."
+  region "The spender"
+    fact "Name" "Ava"
+    fact "Email" "ava@harbor-pine.example"
     fact "Country" "Netherlands"
-  region "What was ordered"
-    fact "Oak desk lamp, 2 pcs" "EUR 90.00"
-    fact "Pallet handling" "EUR 30.00"
-    fact "Shipping" "EUR 5.00"
+  region "What was claimed"
+    fact "EXP-1042, 2 pcs" "EUR 90.00"
+    fact "Booking fee" "EUR 30.00"
+    fact "Local travel" "EUR 5.00"
     fact "Paid" "EUR 125.00"
   footer
-    action primary "Refund this order"
+    action primary "Reversal this expense"
 ```
 
 **Rationale:** At 390 pixels there is no beside. The drawer takes the whole screen. A Back control returns to the list at the same scroll position.

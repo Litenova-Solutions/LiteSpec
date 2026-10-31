@@ -38,7 +38,7 @@ None.
 |:---|:---|
 | `0` | The UI contract holds, or no controlled web frontend is present. |
 | `1` | At least one check reported a defect. |
-| `2` | The root holds no project record, an option is unknown, or an input file is unreadable. |
+| `2` | The root holds no project record, an option is unknown, repeated, or empty, or an input file is unreadable. A usage error is reported before `--help` is honoured. |
 
 ## Examples
 

@@ -207,7 +207,9 @@
         "use-case",
         "journey"
       ],
-      "replaces": [],
+      "replaces": [
+        "litespec/backend/architecture#declare-the-execution-host-for-work-that-outlives-a-request"
+      ],
       "switchesOn": [
         "setting",
         "runbook"
@@ -304,6 +306,7 @@
       "Aspire.Hosting.PostgreSQL": "13.6.1",
       "AwesomeAssertions": "9.6.0",
       "EFCore.NamingConventions": "10.0.1",
+      "FsCheck": "3.6.0",
       "LightBDD.XUnit3": "3.12.1",
       "LiteBus.Analyzers": "7.0.0",
       "LiteBus.Commands": "7.0.0",

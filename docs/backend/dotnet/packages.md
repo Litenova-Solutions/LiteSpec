@@ -117,7 +117,7 @@ The manifest pins the baseline stack, which is the set these standards name. A c
 | Architecture.Tests | xUnit v3, assertions, and ArchUnitNET |
 | Acceptance.Tests | xUnit v3, assertions, the behavior runner its extension selects, test host, and the report and coverage extensions |
 
-Test projects reference xUnit v3 and run on Microsoft.Testing.Platform. The consumer `global.json` sets `"test": { "runner": "Microsoft.Testing.Platform" }`, because the .NET 10 `dotnet test` command refuses the VSTest mode for these projects. Domain.Tests carries FsCheck for the property tests that `litespec/backend/dotnet/testing#seed-property-tests-from-example-tables` names and the model-based tests that `litespec/backend/dotnet/testing#generate-model-tests-from-declared-transitions` names.
+Test projects reference xUnit v3 and run on Microsoft.Testing.Platform. The consumer `global.json` sets `"test": { "runner": "Microsoft.Testing.Platform" }`, because the .NET 10 `dotnet test` command refuses the VSTest mode for these projects. Domain.Tests carries FsCheck at the 3.6.0 pin `litespec.manifest.json` states for the property tests that `litespec/backend/dotnet/testing#seed-property-tests-from-example-tables` names and the model-based tests that `litespec/backend/dotnet/testing#generate-model-tests-from-declared-transitions` names.
 
 The example adds a package to the narrowest owning project. A central version entry does not authorize every project to reference that package. Conditional packages such as EF Core, Reqnroll, LightBDD, SignalR, and WireMock are referenced only after their extension activates.
 

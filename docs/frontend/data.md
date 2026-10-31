@@ -16,6 +16,10 @@ The frame is the part of a frontend that holds everything cross-cutting, such as
 
 Every value the frontend holds has one owner, from the widest to the narrowest: server data in the query cache, shareable values in the address, input in form state, and the rest in the component's own state. A value kept above its narrowest owner forces unrelated components to re-render and hides where the value changes.
 
+### The Three State Classifications
+
+Durable state is what the user made: persisted, versioned, and exported. The expense draft is durable state, because the user built it and it must survive a restart and an export. Device-local state is persisted but stays on the device, excluded from export. Derived state is computed from durable state and never persisted: an expense total is derived from the expense lines each time it is read.
+
 ### Outcomes of a Command
 
 Every command ends in one outcome. A page handles each outcome as the table states.
@@ -143,6 +147,30 @@ The problem carries the trace identifier the API returns for the request, so sup
 **Rationale:** Server data belongs in the query cache, shareable values in the address, input in form state, and the rest in the component's own state. A value kept above its narrowest owner, typically in a shared store, makes unrelated components re-render when it changes and hides where the change came from. The order gives each value the smallest audience that can use it.
 
 **Reviewed for:** Which values live above their narrowest owner instead of the query cache, the address, form state, or component state? Look in the state declarations.
+
+### Route Use Cases Through Application
+
+**ID:** `litespec/frontend/data#route-use-cases-through-application`
+
+**Statement:** A frontend MUST invoke an Application handler carrying a `Command` or `Query` role suffix for each use case rather than compose Domain calls or write storage.
+
+**Rationale:** The handler is the one place a use case exists: its validation, its rules, and its result. A screen or component that composes its own sequence of Domain calls and storage writes creates a second definition that no record names and no test pins down. Routing every use case through a handler keeps the screen or component a caller and the handler the definition.
+
+**Example:** The expense screen invokes the submit-expense Application handler for EXP-1042 rather than composing the Domain expense calls and writing the expense store itself.
+
+**Reviewed for:** Which screens or components compose Domain calls or write storage instead of invoking an Application handler carrying a `Command` or `Query` role suffix? Look in the screen and component sources.
+
+### Classify State
+
+**ID:** `litespec/frontend/data#classify-state`
+
+**Statement:** An aggregate introducing state MUST classify it as durable, device-local, or derived.
+
+**Rationale:** The classification decides what happens to the state: durable state is persisted, versioned, and exported, device-local state is persisted but excluded from export, and derived state is never persisted. Without a declared classification each reader guesses, and a value the user made can end up unpersisted while a computed value ends up stored and stale.
+
+**Example:** The expense draft for the Rotterdam client visit is durable state, the device copy of the receipt photo is device-local state, and the expense total for EXP-1042 is derived state computed from its lines.
+
+**Reviewed for:** Which aggregates introducing state name no durable, device-local, or derived classification on their page? Look on the aggregate pages.
 
 ### Route a Personal Value in a Header
 

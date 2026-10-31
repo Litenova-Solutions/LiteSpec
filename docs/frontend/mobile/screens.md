@@ -32,6 +32,18 @@ A screen is one full-window state of the app, such as the expense list or the re
 
 **Reviewed for:** Which navigation state lives outside the one controller, and which screens navigate instead of raising events? Look in the controller and the screens.
 
+### Route App Links to Journey Entry Screens
+
+**ID:** `litespec/frontend/mobile/screens#route-app-links-to-journey-entry-screens`
+
+**Statement:** A screen a journey can be entered from MUST open directly from its app link, with the controller resolving the link to that screen and its record.
+
+**Rationale:** A journey that starts outside the app, in a message or a browser page, lands on the screen the link names rather than on the first screen with the work still to find. The controller resolves the link, so a cold start and a link that arrives while the app runs open the same screen with the same history behind it. Each stack page names how its platform delivers the link to the controller.
+
+**Example:** An approval message for expense EXP-1042 carries an app link that opens the approval screen for EXP-1042, with the expenses list behind it for back.
+
+**Reviewed for:** Which journey entry screens open the first screen instead of the screen and record their app link names, and which links resolve outside the one controller? Look in the app link handling and the controller.
+
 ### Follow the System Back Gesture
 
 **ID:** `litespec/frontend/mobile/screens#follow-the-system-back-gesture`
@@ -72,6 +84,16 @@ A screen is one full-window state of the app, such as the expense list or the re
 
 **Reviewed for:** Which players, animators, or decoded images survive their view leaving the window? Look in the view teardown.
 
+### Meet Touch and Text Accessibility
+
+**ID:** `litespec/frontend/mobile/screens#meet-touch-and-text-accessibility`
+
+**Statement:** Every interactive view MUST carry a content description, meet a minimum touch target of 48 dp on Android or 44 pt on iOS, and scale its text with the system font scale.
+
+**Rationale:** A view without a content description is silent to a screen reader, and a target below the platform minimum is missed by the finger it was drawn for. Text fixed at one size ignores the reader who enlarged the system font to read at all. Meeting the platform target size and scaling with its font scale keeps every screen usable with the platform's own accessibility settings. The device tests on the [Mobile Testing](testing.md) page prove each screen against this rule.
+
+**Reviewed for:** Which interactive views lack a content description or the platform-minimum touch target, and which text ignores the system font scale? Look in the views, the text styles, and the accessibility device tests the Mobile Testing page names.
+
 ## Conventions
 
 ### Restore the Visitor's Place
@@ -85,15 +107,3 @@ A screen is one full-window state of the app, such as the expense list or the re
 **Rationale:** The platform may destroy the app's process while it is in the background, and recreation without saved state drops the visitor on the first screen. Saving the controller's navigation state in the platform's saved-state mechanism returns the visitor to the same screen with the same overlay and history. Each stack page names the saved-state mechanism for its platform.
 
 **Reviewed for:** Which process recreations drop the visitor outside the screen the saved navigation state names? Look in the saved-state handling.
-
-### Meet Touch and Text Accessibility
-
-**ID:** `litespec/frontend/mobile/screens#meet-touch-and-text-accessibility`
-
-**Default:** Give every interactive view a content description and a 48 dp (Android) or 44 pt (iOS) minimum target, and scale text sizes with the system font scale.
-
-**Replacement:** A consumer can replace this default with an explicit local convention.
-
-**Rationale:** A view without a content description is silent to a screen reader, and a target below the platform minimum is missed by the finger it was drawn for. Text fixed at one size ignores the reader who enlarged the system font to read at all. Meeting the platform's target size and scaling with its font scale keeps every screen usable with the platform's own accessibility settings.
-
-**Reviewed for:** Which interactive views lack a content description or platform-minimum target, and which text ignores the system font scale? Look in the views and the text styles.

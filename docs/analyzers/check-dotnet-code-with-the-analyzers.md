@@ -44,7 +44,7 @@ When a project name does not end in a layer name, set the layer in its project f
 </PropertyGroup>
 ```
 
-The values are `Domain`, `Application.Abstractions`, `Application`, `Infrastructure`, `WebApi`, `Worker`, `Test`, and `None`. A value naming no known layer reports `LS2017`. Set `None` to opt a project out. The package ships a props file that exposes `LiteSpecLayer` to the compiler, so no extra wiring is needed. This step implements `litespec/backend/dotnet/architecture#use-five-application-projects`.
+The values are `Domain`, `Application.Abstractions`, `Application`, `Infrastructure`, `WebApi`, `Worker`, `Test`, and `None`. A value naming no known layer reports `LS2017`. Set `None` to opt a project out: opting out turns off the whole package, so no analyzer rule runs and the generator writes no source and reports no diagnostic. An assembly name with no layer suffix opts the project out in the same way. The package ships a props file that exposes `LiteSpecLayer` to the compiler, so no extra wiring is needed. This step implements `litespec/backend/dotnet/architecture#use-five-application-projects`.
 
 ### 3. Build and Read the First Diagnostics
 

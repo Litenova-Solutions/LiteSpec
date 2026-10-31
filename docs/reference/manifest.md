@@ -14,10 +14,10 @@ A consumer selects from this manifest: the [supported scope](../core/scope.md) p
 |:---|:---|
 | Path | `litespec.manifest.json` at the repository root |
 | Schema | `schemas/litespec-manifest.schema.json` |
-| Current version | `2.0.0` |
+| Current version | `3.0.0` |
 | Schema version | `5` |
 
-The current release is `2.0.0`. Each release is a complete contract that states every active provision, so a consumer pins one release and adopts a later one by accepting that release as a whole.
+The current release is `3.0.0`. Each release is a complete contract that states every active provision, so a consumer pins one release and adopts a later one by accepting that release as a whole.
 
 ### Top-Level Fields
 
@@ -30,7 +30,7 @@ The current release is `2.0.0`. Each release is a complete contract that states 
 | `agentsEntry` | string | yes | none |
 | `stacks` | object | yes | none |
 | `shapes` | object | yes | none |
-| `extensions` | object | no | none |
+| `extensions` | object | yes | none |
 | `stack` | object | no | none |
 | `packages` | object | no | none |
 | `uiBaseline` | object | yes | none |
@@ -40,7 +40,7 @@ What each field means and what reads it:
 
 - `$schema` holds the editor hint that points at the manifest schema. Only the editor reads it.
 - `schemaVersion` is the constant `5`. It names the exact manifest shape this release uses, so a consumer adopting a later release absorbs every difference at that moment.
-- `version` is the release version, currently `"2.0.0"`. `litespec init` stamps it into a new `litespec.project.json` as `reviewedLiteSpecVersion`, and `litespec consumer` compares the two and fails the run when they differ.
+- `version` is the release version, currently `"3.0.0"`. `litespec init` stamps it into a new `litespec.project.json` as `reviewedLiteSpecVersion`, and `litespec consumer` compares the two and fails the run when they differ.
 - `name` is the distribution name, currently `"litespec"`.
 - `agentsEntry` points at the agent entry page, currently `"AGENTS.md"`. The authoring validator checks that the path exists.
 - `stacks` lists the stacks the release ships, by stack id. See the stacks table below.
@@ -89,25 +89,33 @@ What the field drives:
 |:---|:---|:---|:---|
 | `bdd` | `docs/backend/dotnet/ext/bdd.md` | `local` | `scenario` |
 | `compat` | `docs/ext/compat.md` | `project` | none |
-| `cache` | `docs/ext/cache.md` | `local` | `limit` |
-| `concurrency` | `docs/ext/concurrency.md` | `local` | `limit` |
-| `lifecycle` | `docs/ext/lifecycle.md` | `local` | `limit` |
-| `containers` | `docs/ext/containers.md` | `project` | `limit`, `runbook` |
+| `cache` | `docs/ext/cache.md` | `local` | `setting` |
+| `concurrency` | `docs/ext/concurrency.md` | `local` | `setting` |
+| `lifecycle` | `docs/ext/lifecycle.md` | `local` | `setting` |
+| `containers` | `docs/ext/containers.md` | `project` | `setting`, `runbook` |
 | `integrations` | `docs/ext/integrations.md` | `local` | none |
 | `audit` | `docs/ext/audit.md` | `project` | none |
 | `locale` | `docs/ext/locale.md` | `project` | none |
 | `mcp` | `docs/ext/mcp.md` | `project` | none |
 | `tenancy` | `docs/ext/tenancy.md` | `project` | none |
-| `outbox` | `docs/ext/outbox.md` | `local` | `event`, `limit`, `runbook` |
+| `plans` | `docs/ext/plans.md` | `project` | none |
+| `outbox` | `docs/ext/outbox.md` | `local` | `event`, `setting`, `runbook` |
 | `efcore` | `docs/backend/dotnet/ext/efcore.md` | `local` | none |
-| `realtime` | `docs/ext/realtime.md` | `local` | `event`, `limit` |
-| `report` | `docs/ext/report.md` | `local` | `limit` |
-| `jobs` | `docs/ext/jobs.md` | `local` | `limit`, `runbook` |
+| `realtime` | `docs/ext/realtime.md` | `local` | `event`, `setting` |
+| `report` | `docs/ext/report.md` | `local` | `setting` |
+| `jobs` | `docs/ext/jobs.md` | `local` | `setting`, `runbook` |
 | `stage` | `docs/ext/stage.md` | `project` | none |
 | `delegation` | `docs/ext/delegation.md` | `project` | none |
 | `site` | `docs/ext/site.md` | `project` | none |
+| `privacy` | `docs/ext/privacy.md` | `project` | none |
+| `devices` | `docs/ext/devices.md` | `local` | none |
+| `automation` | `docs/ext/automation.md` | `project` | none |
+| `workflow-engine` | `docs/ext/workflow-engine.md` | `local` | none |
+| `pipeline` | `docs/ext/pipeline.md` | `local` | none |
+| `queues` | `docs/ext/queues.md` | `local` | none |
+| `ai` | `docs/ext/ai.md` | `local` | none |
 
-Each entry holds `path`, which is required, and the optional `activationScope`, `applicableKinds`, `replaces`, and `switchesOn`. The path is the extension page: `docs/ext/<id>.md` for an extension that supports every stack, or `<stack folder>/ext/<id>.md` for one that supports a single stack, such as `bdd` and `efcore` under `docs/backend/dotnet/`. The file name is the extension id. The scope is `project` or `local`. The kinds name the record types the extension applies to, such as `use-case` and `journey` for `bdd`. `switchesOn` names the record types a selection requires, such as `scenario` for `bdd` and `event`, `limit`, and `runbook` for `outbox`. The [extensions index](../ext/README.md) states each extension with its activation criterion.
+Each entry holds `path`, which is required, and the optional `activationScope`, `applicableKinds`, `replaces`, and `switchesOn`. The path is the extension page: `docs/ext/<id>.md` for an extension that supports every stack, or `<stack folder>/ext/<id>.md` for one that supports a single stack, such as `bdd` and `efcore` under `docs/backend/dotnet/`. The file name is the extension id. The scope is `project` or `local`. The kinds name the record types the extension applies to, such as `use-case` and `journey` for `bdd`. `switchesOn` names the record types a selection requires, such as `scenario` for `bdd` and `event`, `setting`, and `runbook` for `outbox`. The [extensions index](../ext/README.md) states each extension with its activation criterion.
 
 Three extensions replace baseline provisions, and the manifest repeats the list where checks read it:
 
@@ -193,4 +201,4 @@ An extension is added in three steps:
 
 ## Notes
 
-The field lists follow `schemas/litespec-manifest.schema.json` and the values follow `litespec.manifest.json` at version `2.0.0`. The selection behavior follows `apps/model/src/LiteSpec.Shared/Authoring/Layout.cs`. The manifest checks follow `apps/maintain/src/LiteSpec.Maintain/Authoring/StandardsValidator.Manifest.cs`. The consumer checks follow `apps/cli/src/LiteSpec.Cli/Consumer/ConsumerValidator.Project.cs`. The baseline checks follow `apps/cli/src/LiteSpec.Cli/Ui/UiValidator.cs`. The [cache extension](../ext/cache.md) and the [site extension](../ext/site.md) show the two extension paths: a shared page under `docs/ext/` and the index that explains each selection.
+The field lists follow `schemas/litespec-manifest.schema.json` and the values follow `litespec.manifest.json` at version `3.0.0`. The selection behavior follows `apps/model/src/LiteSpec.Shared/Authoring/Layout.cs`. The manifest checks follow `apps/maintain/src/LiteSpec.Maintain/Authoring/StandardsValidator.Manifest.cs`. The consumer checks follow `apps/cli/src/LiteSpec.Cli/Consumer/ConsumerValidator.Project.cs`. The baseline checks follow `apps/cli/src/LiteSpec.Cli/Ui/UiValidator.cs`. The [cache extension](../ext/cache.md) and the [site extension](../ext/site.md) show the two extension paths: a shared page under `docs/ext/` and the index that explains each selection.

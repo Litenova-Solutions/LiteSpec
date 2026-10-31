@@ -75,7 +75,7 @@ These checks report a manifest or schema the release cannot ship, so they are li
 
 **Example:** The release entry lists each old identifier with the new identifier or `removed` beside it.
 
-**Checked by:** `litespec-maintain validate` emits no `ID_REMOVED_UNRECORDED` diagnostic for an identifier present at the highest release tag that is gone now and not listed under `Removed and Renamed Provisions` in the changelog entry.
+**Checked by:** `litespec-maintain validate` emits no `ID_REMOVED_UNRECORDED` diagnostic for an identifier present at the highest release tag that is absent from the current pages and not listed under `Removed and Renamed Provisions` in the changelog entry, no `ID_REMOVED_STILL_PRESENT` diagnostic for an identifier listed there that exists in the current pages, and no `ID_RENAME_TARGET_MISSING` diagnostic for a replacement identifier listed there that does not exist in the current pages.
 
 ### Publish a LiteSpec Release from a Tag
 

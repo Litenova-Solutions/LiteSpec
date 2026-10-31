@@ -351,7 +351,7 @@ The builder also writes each record effective status: draft when the record, a d
 
 ### Approval as Data
 
-An approved or reviewed record carries its approval as data: `approvedBy` names a person owner, `approvedOn` names the date, and `approvedHash` carries the approval hash over the semantic fields, written by `litespec model approve`. The semantic fields are the statements, results, output names, rules, and steps. Prose bodies and a term's translation labels sit outside the hash, so rewording prose or adding a language reopens no approval. `approval-reopened` fires when the approval hash differs from the recorded `approvedHash`. The per-type table in [the approval hash guide](../guide/approval-hash.md) is the one definition of which fields feed the hash.
+An approved or reviewed record carries its approval as data: `approvedBy` names a person owner, `approvedOn` names the date, and `approvedHash` carries the approval hash over the semantic fields, written by `litespec model approve`. The semantic fields are the statements, results, output names, rules, and steps. Prose bodies and a term's translation labels sit outside the hash, so rewording prose or adding a language reopens no approval. `approval-reopened` fires when the approval hash differs from the recorded `approvedHash`. The exclusion set in the builder is the one definition of which fields stay outside the hash: every written frontmatter field feeds the hash except the fields the set names. [The approval hash guide](../guide/approval-hash.md) lists those fields.
 
 ### Risk Tiers
 
@@ -391,7 +391,7 @@ Every check has a level.
 
 A structural parent is any link or containment the Parents table and the Identifiers table name as a record parent: topic containment for a requirement, feature `solves`, journey `serves`, scenario `result`, screen `entryPoint`, and identifier containment. A missing structural parent is level G for every record, drafts included. Every other required link is coverage: level A for a tier 3 record and level G for a tier 1 record.
 
-Qualification is per reader, never global: a finding takes the qualification of the reader that produced its facts. A reader qualifies when it ran and its handshake matched. A finding no reader produced, a record finding, is qualified. A level S finding from an unqualified reader reports without blocking even when another reader in the same project is qualified. A missing or failing reader produces `reader-missing` (level S) for that frontend, and that frontend's level S findings report instead of blocking.
+Qualification is per reader, never global: a finding takes the qualification of the reader that produced its facts. A reader qualifies when it ran and its handshake matched. A finding no reader produced, a record finding, is qualified. A level S finding from an unqualified reader reports without blocking even when another reader in the same project is qualified. A missing or failing reader produces `reader-missing` (level S) for that frontend, and that frontend's level S findings report instead of blocking. A .NET reader that cannot read or parse a backend, test or screen file, a declared stack root with no folder, a `server` project with no backend reader, and a configured bill of materials that cannot be read or parsed, is not SPDX or CycloneDX, or yields no packages each report `reader-missing` (level S) naming the file or path, and the model is built from what could be read.
 
 `litespec model check` prints the level beside each finding.
 
@@ -847,7 +847,7 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 
 **Rationale:** The level tells a reader what a finding means: G reads records only and always blocks, S reads code through a stack reader and blocks only where the reader is qualified, and A reports and never blocks. `litespec model check` prints the level beside each finding, so a review tells a blocking defect from advice at a glance. A missing structural parent is level G for every record, drafts included; every other required link is coverage, level A for a tier 3 record and level G for a tier 1 record.
 
-**Reviewed for:** Which findings lack a level letter, or block outside their level? Look at the output of `litespec model check`.
+**Checked by:** `litespec model check` reports `reader-missing` (level S) for a frontend whose reader is missing or failing, and prints the level beside each finding.
 
 ### Declare One Mark Style
 

@@ -39,14 +39,13 @@ The [supported scope](../core/scope.md) page states which sizes, shapes, stacks,
 | `reviewedLiteSpecVersion` | string | yes | none |
 | `paths` | object | yes | none |
 | `exampleWordLimit` | integer | no | `120` |
-| `prohibitedKinds` | array of string | no | none |
 | `selectedExtensions` | array of object | yes | none |
 | `stackConfig` | object | no | none |
 
 What each field means and what reads it:
 
 - `$schema` holds the editor hint that points at the project schema. Only the editor reads it.
-- `project` names the project and its identifier sources. `litespec consumer` checks it against the schema. See the `project` object below.
+- `project` names the project. `litespec consumer` checks it against the schema. See the `project` object below.
 - `size` is `small` or `large`. Small requires the core record types with Architecture and Integration test projects, and large adds goals, problems, features, journeys, and scenarios with the Acceptance project. `litespec consumer` checks the value, and the model builder sizes the record set it expects.
 - `shape` is `server` or `client-only`. A server names exactly one backend stack, and a client-only project names no backend stack. `litespec init` writes it from the preset, `litespec consumer` checks the backend count, and the model builder applies the shape.
 - `stacks` lists the selected stack ids: `dotnet` for the backend and one entry per frontend from its platform. `litespec consumer` refuses an id the pinned release does not ship.
@@ -62,7 +61,6 @@ What each field means and what reads it:
 - `reviewedLiteSpecVersion` records the LiteSpec release whose complete contract the project last reviewed, such as `"3.0.0"`. `litespec consumer` compares it with the release of the installed `litespec` tool and fails the run when the two differ.
 - `paths` declares every location the tools read. See the `paths` object below.
 - `exampleWordLimit` bounds the words in an Example section. When omitted, the recorded default of `120` applies, and the validator refuses a value below `40`.
-- `prohibitedKinds` lists the record types or page styles the consumer does not use. A page that declares one is refused.
 - `selectedExtensions` lists the extensions the project selected, each with its criterion and review date. See the extension entry below.
 - `stackConfig` holds per-stack configuration keyed by stack id. See the `stackConfig.dotnet` object below.
 
@@ -71,14 +69,10 @@ What each field means and what reads it:
 | Field | Type | Required | Default |
 |:---|:---|:---|:---|
 | `name` | string | yes | none |
-| `identifierSource` | string | no | the project name in lower kebab case |
-| `citedSources` | array of string | no | none |
 
 What each field means and what reads it:
 
-- `name` is the project name, such as `"shop"`. `litespec init` sets it from `--name` or from the root folder name. Use lower kebab case to match the default identifier source.
-- `identifierSource` is the source segment the project's own identifiers carry in a cross-source citation. It matches `^[a-z][a-z0-9-]*$`.
-- `citedSources` lists the other sources a citation in the project can name, beside `owasp`, `rfc`, and `litespec`. Each entry matches `^[a-z][a-z0-9-]*$`.
+- `name` is the project name, such as `"shop"`. `litespec init` sets it from `--name` or from the root folder name.
 
 ### The `proof` Object
 
@@ -283,7 +277,7 @@ What each field means and what reads it:
 - `name` is the frontend name, such as `"web"`. It matches `^[a-z][a-z0-9-]*$`.
 - `path` is the frontend directory, such as `"apps/web"`. `litespec consumer` reports a frontend whose directory does not exist.
 - `platform` is `react`, `svelte`, `blazor`, or `android`. Every entry declares it, so a frontend outside the controlled UI contract still declares that position instead of omitting the field. A `react` or `svelte` frontend is controlled and requires a `ui` block and the shared package. A `blazor` or `android` frontend is skipped by the controlled UI check.
-- `entryPoint` names the browser or device entry point the frontend serves, such as `"entry-point/claimwick-app"`. The model builder reads the frontend's screens, use cases and records file through it, and `model backfill` drafts the frontend's screens under it. Without it, the entry points its screens name decide, and before any screen exists every browser entry point does.
+- `entryPoint` names the browser or device entry point the frontend serves, such as `"entry-point/claimwick-app"`. The model builder reads the frontend's screens, use cases and records file through it. Without it, the entry points its screens name decide, and before any screen exists every browser entry point does.
 - `refusalDictionary` names the file or folder holding that frontend's refusal dictionary: one sentence per refusal code, keyed by the refusal `code`. The model builder reads it for `refusal-sentence-missing`, so a refusal a screen can reach is shown from that frontend's own words.
 - `routeSuite` names the file or folder holding that frontend's route suite. The model builder reads it for the route-suite `proves` check, so the suite has a named subject instead of a convention.
 - `visualGoldens` names the folder holding that frontend's visual goldens. The model builder reads it for the same check, so a golden outside the named folder proves nothing.

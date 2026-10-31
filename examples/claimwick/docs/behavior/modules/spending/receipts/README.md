@@ -52,7 +52,7 @@
   ],
   "approvedBy": "claimwick-team",
   "approvedOn": "2026-10-31",
-  "approvedHash": "011399c6"
+  "approvedHash": "74c1e1b0"
 }
 ---
 
@@ -62,7 +62,9 @@ A receipt is proof of payment attached to an expense.
 
 ## Transitions
 
-None.
+| From | To | Triggered By |
+|:--|:--|:--|
+|  | Attached | `use-case/spending.attach-receipt` |
 
 ## Data
 

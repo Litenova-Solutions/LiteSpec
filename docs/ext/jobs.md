@@ -10,11 +10,11 @@ Activation scope: `local`.
 
 Applicable specification kinds: `job`, `use-case`, `journey`.
 
-The consumer enables `jobs` for recurring, delayed, or calendar-based work. Each schedule lives on a job record with its `kind`, `schedule`, and run fields, as the [automation page](../core/automation.md) states. Selecting it activates `litespec/backend/architecture#declare-the-execution-host-for-work-that-outlives-a-request`: the project declares the execution host that runs the scheduler.
+The consumer enables `jobs` for recurring, delayed, or calendar-based work. Each schedule lives on a job record with its `kind`, `schedule`, and run fields, as the [automation page](../core/automation.md) states. Selecting it replaces `litespec/backend/architecture#declare-the-execution-host-for-work-that-outlives-a-request` for scheduled work: a Worker runs the scheduler.
 
 ## Baseline Relationship
 
-This extension replaces no baseline provision.
+This extension replaces `litespec/backend/architecture#declare-the-execution-host-for-work-that-outlives-a-request`. The baseline lets a project declare either the WebApi process or a Worker project as the execution host for work that outlives a request. A project selecting `jobs` runs scheduled work in a Worker outside WebApi request handling, under `litespec/ext/jobs#run-scheduled-jobs-in-worker`.
 
 This extension switches on no optional record type: the job, setting, and runbook records belong to the core. Schedules bound their retention with setting records and operators recover through runbook records.
 

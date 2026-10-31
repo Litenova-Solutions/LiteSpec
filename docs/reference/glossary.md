@@ -370,6 +370,14 @@ Layer: Behavior.
 
 Source: LiteSpec.
 
+### Failure Policy
+
+The `onFailure` handling a reaction, job, or effect declares, with a mode of `retry`, `skip-and-log`, or `discard` and the retry, dead-letter, surface, and runbook its mode states.
+
+Layer: Behavior.
+
+Source: LiteSpec.
+
 ### Feature
 
 One planned answer to a problem, tracked by its lifecycle as planned, shipped, later, or refused; unless refused it advances a goal and solves a problem.
@@ -415,6 +423,14 @@ One measurable outcome a feature advances and a journey serves, carrying no auth
 Layer: Intent.
 
 Source: Volere and product practice.
+
+### Idempotency
+
+The declared way a repeated call collapses to one effect, stated as a mode of `key`, `state`, `not-pending`, or `none` with the key, scope, or reason its mode needs.
+
+Layer: Behavior.
+
+Source: LiteSpec.
 
 ### Implementation
 
@@ -1004,6 +1020,12 @@ The computed state of a proof whose test both passed and failed within the runs 
 
 Source: LiteSpec.
 
+### Frontmatter
+
+The opening block stating a page type, owner, status, and records.
+
+Source: LiteSpec.
+
 ### Governance
 
 The group of records beside the four record layers, holding exceptions.
@@ -1228,14 +1250,6 @@ Research kept outside the documentation, which carries no authority on its own.
 
 Source: LiteSpec.
 
-### Specification Metadata
-
-The opening block stating a page type, owner, status, and records.
-
-Source: LiteSpec.
-
-Rejected: frontmatter, which names the Markdown fence instead of the record data.
-
 ### Stack
 
 One technology binding of the specification, held in one folder.
@@ -1299,6 +1313,12 @@ Source: LiteSpec.
 ### Veto Window
 
 The days after decideBy in which a tier-3 recommendation auto-approves.
+
+Source: LiteSpec.
+
+### Vocabulary
+
+The project-file `vocabulary` object that adds a project's domain verbs, query verbs, phrasal verbs, retired synonyms, lookalike exceptions, and past-tense forms to the baseline use-case verbs.
 
 Source: LiteSpec.
 

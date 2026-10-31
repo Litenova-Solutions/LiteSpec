@@ -18,7 +18,7 @@ Durable state is what the user made: persisted, versioned, and exported. The exp
 
 **Statement:** A screen MUST invoke an Application handler carrying a `Command` or `Query` role suffix rather than compose Domain calls or write storage.
 
-**Rationale:** The handler is the one place a use case exists: its validation, its rules, and its result. A screen that composes its own sequence of Domain calls and storage writes creates a second definition that no record names and no test pins down. Routing every use case through a handler keeps the screen a caller and the handler the definition. This realizes litespec/frontend/blazor/data#route-use-cases-through-application for mobile.
+**Rationale:** The handler is the one place a use case exists: its validation, its rules, and its result. A screen that composes its own sequence of Domain calls and storage writes creates a second definition that no record names and no test pins down. Routing every use case through a handler keeps the screen a caller and the handler the definition. This realizes litespec/frontend/data#route-use-cases-through-application for mobile.
 
 **Reviewed for:** Which screens resolve a Domain service or storage adapter instead of invoking an Application handler? Look in the screen sources.
 
@@ -28,7 +28,7 @@ Durable state is what the user made: persisted, versioned, and exported. The exp
 
 **Statement:** An aggregate introducing state MUST classify it as durable, device-local, or derived.
 
-**Rationale:** The classification decides what happens to the state: durable state is persisted, versioned, and exported, device-local state is persisted but excluded from export, and derived state is never persisted. Without a declared classification each reader guesses, and a value the user made can end up unpersisted while a computed value ends up stored and stale. The three classifications carry the meaning litespec/frontend/blazor/data#classify-state states.
+**Rationale:** The classification decides what happens to the state: durable state is persisted, versioned, and exported, device-local state is persisted but excluded from export, and derived state is never persisted. Without a declared classification each reader guesses, and a value the user made can end up unpersisted while a computed value ends up stored and stale. This realizes litespec/frontend/data#classify-state for mobile.
 
 **Reviewed for:** Which aggregates introducing state name no durable, device-local, or derived classification on their page? Look on the aggregate pages.
 
@@ -85,6 +85,20 @@ Durable state is what the user made: persisted, versioned, and exported. The exp
 **Reviewed for:** Which backend calls in a `server` app bypass the generated client in `{ProjectName}.Client`? Look in the backend call sites.
 
 ## Conventions
+
+### Refuse Commands While Offline
+
+**ID:** `litespec/frontend/mobile/data#refuse-commands-while-offline`
+
+**Default:** While the network is unavailable, a screen shows its failure state and queues no command; the visitor retries the command in the foreground when the network returns.
+
+**Replacement:** A project records a departure as an explicit local convention naming each command it queues offline, its stored form, and its replay order.
+
+**Rationale:** A queued command runs later against state the visitor cannot see, so an expense submitted on a train can land after its trip closed or its approval policy changed. Showing the failure state keeps the refusal where the visitor caused it, and queuing nothing keeps every command tied to the screen that sent it. A project that needs offline capture states that departure and its replay rules instead of letting each screen improvise a queue.
+
+**Example:** Filing expense EXP-1042 for the Rotterdam client visit with no network shows the failure state on the expense screen and sends nothing; the visitor submits the expense again when the network returns.
+
+**Reviewed for:** Which screens queue a command while offline without a recorded departure naming the queued commands and their replay order, and which offline screens show no failure state? Look in the command call sites and the offline screens.
 
 ### Update the Store from Command Results
 

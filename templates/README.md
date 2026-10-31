@@ -28,7 +28,7 @@ Each record template carries JSON frontmatter shaped like [record.schema.json](.
 
 ### Presets
 
-`presets/` holds three JSON files: `blazor-client.json`, `dotnet-react.json`, and `dotnet-svelte.json`. Each one names the shape, the stacks, and the frontends a new project starts from. `litespec init --preset <name> --size <small|large>` reads the preset, merges it over `consumer/litespec.project.json`, and stamps the release version. A preset adds no rule: switching presets changes the starting file only.
+`presets/` holds four JSON files: `android-client.json`, `blazor-client.json`, `dotnet-react.json`, and `dotnet-svelte.json`. Each one names the shape, the stacks, and the frontends a new project starts from. `android-client` and `blazor-client` select the `client-only` shape, and `dotnet-react` and `dotnet-svelte` select `server`. `litespec init --preset <name> --size <small|large>` reads the preset, merges it over `consumer/litespec.project.json`, and stamps the release version. A preset adds no rule: switching presets changes the starting file only.
 
 ### Standard Seeds
 
@@ -36,7 +36,7 @@ Each record template carries JSON frontmatter shaped like [record.schema.json](.
 
 ## How It Works
 
-`litespec init` accepts only the three shipped preset names and the two sizes, `small` and `large`. It reads `templates/presets/<name>.json` and `templates/consumer/litespec.project.json` from the release the tool carries, or from `LITESPEC_HOME` when set. It fills the project name from `--name` or from the target folder name, stamps `reviewedLiteSpecVersion` with the release the tool carries, writes the file, copies the scaffold with the `## LiteSpec` block of `AGENTS.md` filled, and writes `.config/dotnet-tools.json` pinning the tool at the release. It reports an unreadable template, preset, or scaffold file with exit code 1, and an existing project file or an invalid option with exit code 2.
+`litespec init` accepts only the four shipped preset names and the two sizes, `small` and `large`. It reads `templates/presets/<name>.json` and `templates/consumer/litespec.project.json` from the release the tool carries, or from `LITESPEC_HOME` when set. It fills the project name from `--name` or from the target folder name, stamps `reviewedLiteSpecVersion` with the release the tool carries, writes the file, copies the scaffold with the `## LiteSpec` block of `AGENTS.md` filled, and writes `.config/dotnet-tools.json` pinning the tool at the release. It reports an unreadable template, preset, or scaffold file with exit code 1, and an existing project file or an invalid option with exit code 2.
 
 Record authors copy templates by hand into the paths [consumer/README.md](consumer/README.md) maps. The standard seeds are never copied into consumers: the validator reads them directly as virtual pages.
 

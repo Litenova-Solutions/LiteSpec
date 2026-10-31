@@ -104,7 +104,7 @@ A test carries no coverage mark; the proves mark is its only record citation. A 
 
 **ID:** `litespec/backend/dotnet/testing#seed-property-tests-from-example-tables`
 
-**Default:** Run property tests for each calculation rule on FsCheck with cases seeded from the rule's scenario examples table at size large; property tests stay optional at size small.
+**Default:** Run property tests for each calculation rule on FsCheck 3.6.0, at the pin `litespec.manifest.json` states, with cases seeded from the rule's scenario examples table at size large; property tests stay optional at size small.
 
 **Replacement:** A project records its own calculation-proof technique in its testing documentation.
 
@@ -116,7 +116,7 @@ A test carries no coverage mark; the proves mark is its only record citation. A 
 
 **ID:** `litespec/backend/dotnet/testing#generate-model-tests-from-declared-transitions`
 
-**Default:** Carry a model-based test generated from the declared transitions and run with FsCheck for each aggregate at size large; model-based tests stay optional at size small.
+**Default:** Carry a model-based test generated from the declared transitions and run with FsCheck 3.6.0, at the pin `litespec.manifest.json` states, for each aggregate at size large; model-based tests stay optional at size small.
 
 **Replacement:** A project records its own lifecycle-proof technique in its testing documentation.
 

@@ -62,6 +62,30 @@ One activity hosts every screen as a view, and its navigation controller owns th
 
 **Reviewed for:** Which views miss system bar or cutout insets from `WindowInsets` as padding or margins? Look in the view layouts.
 
+### Persist Navigation State in the Activity Bundle
+
+**ID:** `litespec/frontend/mobile/android/views#persist-navigation-state-in-the-activity-bundle`
+
+**Statement:** The host activity MUST write the controller navigation state into the `Android.OS.Bundle` in `Activity.OnSaveInstanceState` and restore it from the bundle passed to `Activity.OnCreate` or `Activity.OnRestoreInstanceState`.
+
+**Rationale:** The activity bundle is the saved-state mechanism this stack uses on .NET for Android, taking the place a `SavedStateHandle` holds in a Jetpack ViewModel. The platform calls `OnSaveInstanceState` before it kills the activity so the state can be restored in `OnCreate` or `OnRestoreInstanceState`, which returns the visitor to the same screen after process death without treating a finished activity as restorable. Saving the current screen, the open overlay, and the history in that bundle keeps restoration inside the one controller rather than in each view. This realizes `litespec/frontend/mobile/screens#restore-the-visitors-place` for Android. [The `Activity.OnSaveInstanceState` reference](https://learn.microsoft.com/en-us/dotnet/api/android.app.activity.onsaveinstancestate) states the contract.
+
+**Example:** Before the platform reclaims the process behind the EXP-1042 expense screen, the host activity writes the expense screen and its place in the history into the bundle; recreation restores that screen from the bundle instead of opening the expenses list.
+
+**Reviewed for:** Which host activities save no navigation state in `OnSaveInstanceState`, or restore it outside `OnCreate` and `OnRestoreInstanceState`? Look in the host activity lifecycle methods.
+
+### Deliver App Links to the Controller
+
+**ID:** `litespec/frontend/mobile/android/views#deliver-app-links-to-the-controller`
+
+**Statement:** The host activity MUST declare an intent filter for each app link its screens answer and pass the arriving `Intent.Data` to the navigation controller in `Activity.OnCreate` and `Activity.OnNewIntent`.
+
+**Rationale:** An app link reaches the app as an intent on the host activity, on a cold start through `OnCreate` and on a running app through `OnNewIntent`. Declaring the intent filter for each link the screens answer lets the platform offer the app for those links, and passing `Intent.Data` to the controller in both entry points makes the two arrivals open the same journey entry screen. A link handled in a view instead bypasses the history the controller owns, so back leaves through a different path than the screen shows. This realizes `litespec/frontend/mobile/screens#route-app-links-to-journey-entry-screens` for Android. [The Android app links guidance](https://developer.android.com/training/app-links/add-applinks) states the intent-filter form.
+
+**Example:** The approval link for expense EXP-1042 arrives as `Intent.Data` on the host activity; the controller opens the approval screen for EXP-1042 with the expenses list behind it, on a cold start and on a running app alike.
+
+**Reviewed for:** Which app links have no intent filter on the host activity, and which arriving intents never reach the navigation controller from `OnCreate` or `OnNewIntent`? Look in the host activity attributes and its intent handling.
+
 ## Conventions
 
 ### Avoid Platform Names That Collide with the App Namespace

@@ -10,7 +10,7 @@ The [product page](../core/intent.md) states what a decision record means; this 
 
 ### Where a Record Lives
 
-Each record is one Markdown file in the consumer repository. Start it with `litespec new decision <number>-<name>`, which scaffolds the page and reserves its identifier, then fill in the opening metadata block and the sections below.
+Each record is one Markdown file in the consumer repository. Start it with `litespec new decision <number>-<name>`, which scaffolds the page and reserves its identifier, then fill in the opening frontmatter block and the sections below.
 
 | Item | Value |
 |:---|:---|
@@ -33,11 +33,11 @@ The body carries four sections:
 | Consequences | The required work and the accepted cost. |
 | Evidence | The research and constraints the choice rests on, each with its confidence. |
 
-The metadata block carries the fields tools read: `options` with one entry per weighed option (`name`, `pros`, `cons`), `choice` with the selected option once approved, and `reopenedWhen` with what would overturn the choice. It also carries `decides` with the records this choice sets, `basedOn` with the constraints and research behind it, and `replaces` with the record this choice overturns. A draft carries `decider` with the decider and `decideBy` with the date the choice is due. `status` is `draft`, `approved`, or `retired`, and an approved record carries `approvedBy`, `approvedOn`, and `approvedHash` over its semantic fields. Open questions on any record group under a ballot named by this decision's id, and the book lists them in the Ballots view.
+The frontmatter carries the fields tools read: `options` with one entry per weighed option (`name`, `pros`, `cons`), `choice` with the selected option once approved, and `reopenedWhen` with what would overturn the choice. It also carries `decides` with the records this choice sets, `basedOn` with the constraints and research behind it, and `replaces` with the record this choice overturns. A draft carries `decider` with the decider and `decideBy` with the date the choice is due. `status` is `draft`, `approved`, or `retired`, and an approved record carries `approvedBy`, `approvedOn`, and `approvedHash` over its semantic fields. Open questions on any record group under a ballot named by this decision's id, and the book lists them in the Ballots view.
 
 ### Replaced, Never Edited
 
-An approved record never changes, so its bytes stay a faithful history of the reasoning. A later choice is a new record naming the old one in `replaces`, and the old record stands retired beside the new one. A departure from a shared standard is a deviation rather than a decision.
+An approved record never changes, so its bytes stay a faithful history of the reasoning. A later choice is a new record naming the old one in `replaces`, and the old record stands retired beside the new one. A departure from a shared standard is an exception of kind `departure` rather than a decision.
 
 ### The Draft Gate
 

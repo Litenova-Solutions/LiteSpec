@@ -12,18 +12,7 @@
       "additionalProperties": false,
       "required": ["name"],
       "properties": {
-        "name": { "type": "string", "minLength": 1 },
-        "identifierSource": {
-          "description": "The source segment this project's own identifiers carry in a cross-source citation. Defaults to the project name in lower kebab case.",
-          "type": "string",
-          "pattern": "^[a-z][a-z0-9-]*$"
-        },
-        "citedSources": {
-          "description": "Other sources a citation in this project may name, beyond owasp, rfc, and litespec.",
-          "type": "array",
-          "uniqueItems": true,
-          "items": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" }
-        }
+        "name": { "type": "string", "minLength": 1 }
       }
     },
     "size": {
@@ -493,15 +482,6 @@
     "exampleWordLimit": {
       "description": "The word bound an Example section stays within. Omitted, the recorded default of 120 applies, and the validator refuses a value below 40.",
       "type": "integer"
-    },
-    "prohibitedKinds": {
-      "description": "Record types or page styles this consumer does not use. A page declaring one is refused.",
-      "type": "array",
-      "uniqueItems": true,
-      "items": {
-        "type": "string",
-        "pattern": "^[a-z][a-z0-9-]*$"
-      }
     },
     "selectedExtensions": {
       "description": "Extensions active for this project. Each entry records the criterion that was met and the date the selection is next reviewed, so a selection that costs nothing to keep still expires. The 3.0 extensions are privacy, devices, automation, workflow-engine, pipeline, queues and ai.",

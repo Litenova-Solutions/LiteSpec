@@ -2,20 +2,19 @@
 
 ## Name
 
-`litespec model` builds the project model, checks it, diffs it against a base, renders generated regions, approves records, backfills drafts from code, answers record queries, and prints the names inventory.
+`litespec model` builds the project model, checks it, diffs it against a base, renders generated regions, approves records, answers record queries, and prints the names inventory.
 
 ## Synopsis
 
 ```bash
 litespec model build [--root <consumer>] [--out <file>]
-litespec model check [--root <consumer>] [--format json] [--staged] [--release] [--since <ref>]
+litespec model check [--root <consumer>] [--format json] [--staged] [--release] [--since <ref>] [--level <levels>]
 litespec model render [--root <consumer>]
 litespec model query [--root <consumer>] <id>
 litespec model names [--root <consumer>] [--format text|json]
 litespec model review [--root <consumer>] [--decider <owner>] [--tier 1|3] [--module <module>] [--type <type>] [--format json]
 litespec model approve [--root <consumer>] (<id>... | --all) [--by <owner>] [--on <YYYY-MM-DD>] [--dry-run]
 litespec model approve [--root <consumer>] --batch <selector> [--batch <selector>...] [--batches <file>] --by <owner> [--second-reviewer <owner>|agent] [--review-report <file>] [--on <YYYY-MM-DD>] [--dry-run]
-litespec model backfill [--root <consumer>] [<module>] [--dry-run]
 litespec model diff <base> [--root <consumer>] [--format text|markdown|json] [--intent|--behavior] [--fail-on breaking] [--breaking-only]
 ```
 
@@ -33,8 +32,6 @@ A proof goes stale when its scenario changes after the proof passed. `docs/proof
 
 `approve --batch` approves one batch per `--batch`, and `--batch` may be given more than once to approve many batches in one run. `--batches <file>` names a text file with one selector per line; blank lines and lines starting with `#` are ignored, and a second whitespace-separated field on a line names that batch's review report, overriding `--review-report` for that batch. The model is built once, and the batches run in the order given; every other option applies to every batch. Each batch promotes each draft in the batch, Intent and governance records to `approved` and Behavior records to `reviewed`, writes `approvedBy` from `--by`, `approvedOn`, and `approvedHash`, re-stamps each reopened record, and leaves a record already approved with an unchanged hash as it is. A `decision/` batch promotes the decision first, then the records it decides in authority order. After a batch is applied, its records count as approved or reviewed for the batches after it in the same run. Any batch except a module and type batch is refused as a whole, writes nothing, and holds no later batch back when a guard fails: no `--by` naming an owner, a tier 1 record and no `--second-reviewer` other than the approver, a record with an open question, a decision that names no chosen option, a transcribed record that serves a journey still in draft, or a record whose effective status would stay draft. A module and type batch instead approves every record whose guards pass and holds the rest: each held record keeps its status, gets no stamp, is named with its guard, and is written with action `held` and its guards in `heldBecause`. A module and type batch is refused whole only when no `--by` names an owner, or when no record in it passes its guards. Stamping a page leaves each entry that inherits the page status and is not in the batch at the page's former status, written on the entry. Each refusal names the batch, the record, and the guard. On success each batch writes the manifest `docs/proof/approvals/<YYYY-MM-DD>-<selector>.json`, the selector with every `/`, `.`, and `:` replaced by `-`, and `-2`, `-3` and so on appended when a manifest of that name exists. The manifest holds `selector`, `approvedBy`, `secondReviewer`, `reviewReport`, `approvedOn`, `sampleShare`, `sample` (the sampled ids, tier 3 only), and `records`, each with `id`, `type`, `tier`, `action` (`promoted`, `re-stamped`, or `held`), `hash`, `scenarios`, `findings`, and `heldBecause` (the guards holding the record when a module and type batch held it, else null). A run over many batches prints one line per batch, approved with its manifest path or refused with its reasons, then `<n> batches approved, <m> refused.`, and exits 0 when no batch was refused and 1 otherwise. With `--dry-run` it prints the plans, the guard failures, and the sample, and writes nothing.
 
-`backfill` drafts Behavior records from code during adoption: for each use case, reaction, and job a mark places, it reads the repositories, dispatches, and refusal codes the code model already holds and drafts the missing frontmatter. A use case gains `changes` or `reads`, `effects` entries, and refusal results; a reaction gains `reads` and its edges; a job gains `reads` and its edges. Every touched record is marked transcribed. Existing entries are never removed or rewritten; only missing entries are appended. For screens, backfill is scoped per frontend and entry point, not per module: for each browser or device frontend it drafts one `screen` record per route of that frontend's entry points that carries no screen mark, with its entry point, its address, the use cases its route calls as `offers`, and the steps those use cases serve as `serves`, as a transcribed draft, and the `<module>` argument does not narrow that screen pass. With a module name it covers that module only for use cases, reactions, and jobs; without one it covers every module. The per-module completeness table covers use cases, reactions, and jobs only; screens appear in the plan lines per frontend and entry point. With `--dry-run` it prints the plan and writes nothing. It prints a per-module completeness table first, then one line per planned record, then the count of files updated and records backfilled.
-
 The .NET stack reader links each code element to its record through its mark, in the style `marks` declares: a handler, an event handler, a job host, a port, an adapter, an endpoint, an aggregate root and its state-changing methods, a domain event, a refusal type, and a test. A folder or a type name is never the link. A marked refusal type declares the `code` of the refusal result its rule names.
 
 Aggregate transitions and data, and scenario examples, may be written as Markdown tables the builder parses, so the parts people debate read naturally even in the raw file. A front-matter field wins over a table with the same name. A handwritten transitions, data, or retention table that differs from the frontmatter reports `table-drift`.
@@ -42,11 +39,10 @@ Aggregate transitions and data, and scenario examples, may be written as Markdow
 The eight subcommands share one reader:
 
 - `build` writes `model.json` under `.model/` in the consumer root, unless `--out` names another file. That folder holds generated output, and the consumer ignores it in Git. The file carries the build's check result as `findings` and `known`.
-- `check` builds the model in memory and reports every finding with its level, code, message, path, and line. With `--staged` it reports only the findings in the staged scope: the records on pages changed in the git index, their direct links in both directions, and the records staged code implements. A finding is in scope when its path is staged or its subject is. Outside a git repository, or when git is unavailable, `--staged` exits 2. With `--release` the release-readiness findings block: `use-case-unverified`, and a `question-expired` on a tier 1 record. With `--since <ref>` only the findings about records and code changed since `<ref>` block, and the rest report.
+- `check` builds the model in memory and reports every finding with its level, code, message, path, and line. It prints a summary before the detail: every open blocking finding in full, one line per finding code with its level and count ordered by level (G, then S, then A) and then by count, such as `value-invalid A 21767`, and the totals line. With `--level <levels>` it limits the detail lines, the counts and the JSON findings to the named levels. With `--staged` it reports only the findings in the staged scope: the records on pages changed in the git index, their direct links in both directions, and the records staged code implements. A finding is in scope when its path is staged or its subject is. Outside a git repository, or when git is unavailable, `--staged` exits 2. With `--release` the release-readiness findings block: `use-case-unverified`, and a `question-expired` on a tier 1 record. With `--since <ref>` only the findings about records and code changed since `<ref>` block, and the rest report.
 - `render` rewrites the fenced generated regions and touches no text outside them.
 - `query` prints one record with its links in both directions. Agents use it to load a record's context.
 - `names` prints the per-module names inventory: the verbs in use with counts, the nouns after the verb, reaction facts, events, refusal codes, notification template keys, and setting names, with the lookalike groups. Agents read it without rendering the book.
-- `backfill` drafts missing Behavior frontmatter from code during adoption, as above. On a module holding no use-case, reaction, or job records it exits 1.
 - `diff` compares the working tree against a base. The base is a consumer folder holding `litespec.project.json`, or a git revision of the consumer. In a consumer, `<base>` is the consumer default branch, such as `main`, for a review diff, unless the review names a consumer folder or another git revision. Records match by identifier. `--intent` shows Intent changes in product words, `--behavior` shows Behavior changes and the security queue, and without either flag it shows both. The changelog prints REMOVED, then MODIFIED, then ADDED; each section groups entries by family: goals and requirements, domain, access, operations. The header counts breaking, removed, modified, and added changes. `text` is the changelog reviewers read, `markdown` is the pull request comment, and `json` carries every change with its fingerprint and the counts for machines. `--breaking-only` shows breaking changes and hides the rest.
 
 The security queue ends the behavior diff. It lists the changes the security reviewer named in `review.securityReviewer` approves: access tenant scope widenings to `cross`, new `calls` effects, and new personal or sensitive data classes.
@@ -171,7 +167,7 @@ Every check has a level. G reads records only and always blocks. S reads code th
 | `screen-serves-drift` | G | A screen serves a journey step no use case it offers serves. | Serve the step from an offered use case, or stop serving it. |
 | `step-screen-missing` | G | A journey step a browser or device use case serves is served by no screen. Its pair `step-use-case-missing` names a step no use case serves. | Serve the step from a screen. |
 | `refusal-sentence-missing` | A | A refusal a screen can reach has neither a dictionary sentence nor a browser test asserting its code. | Write the dictionary sentence and the browser test. |
-| `reader-missing` | S | A frontend reader could not run: Node is absent, its handshake names another protocol, or it failed; the finding names the cause, and that frontend's S findings report instead of blocking. | Restore the reader: install Node, match the handshake, or fix the failure the finding names. |
+| `reader-missing` | S | A reader could not read what it was given: a frontend reader could not run (Node is absent, its handshake names another protocol, or it failed), a .NET reader could not read or parse a backend, test or screen file, a declared stack root resolved to no folder, a `server` project selected no backend reader, or a configured bill of materials was missing, not JSON, not SPDX or CycloneDX, or yielded no packages. The finding names the cause and the file or path; a frontend's S findings report instead of blocking. | Restore the reader: install Node, match the handshake, or fix the failure the finding names. |
 | `use-case-unimplemented` | S | No code implements the use case and no exception covers it. | Implement the use case, or record an exception. |
 | `refusal-unimplemented` | S | A refusal result names a code the code never throws, or a code matching a `refusals.composed` template whose key no code declares. | Throw the named code, or remove the refusal result. |
 | `proves-duplicate` | A | A scenario carries `proves` marks on more than one test. | Keep the `proves` mark on one test. |
@@ -220,7 +216,6 @@ The `render` subcommand writes these generated regions, each fenced by `<!-- gen
 |:---|:---|:---|
 | `<id>` | for `query` | Prints the record with this identifier and its links both ways. |
 | `<base>` | for `diff` | The consumer folder or git revision to compare against; in a consumer, the default branch, such as `main`, for a review diff. |
-| `<module>` | for `backfill` | Backfills this module only for use cases, reactions, and jobs; without it, every module. Screen backfill runs per frontend and entry point either way. |
 
 ## Options
 
@@ -235,7 +230,7 @@ The `render` subcommand writes these generated regions, each fenced by `<!-- gen
 | `--breaking-only` | off | Only `diff` reads it. Shows the breaking changes and hides the rest. |
 | `--by <owner>` | the record decider, else its owner | Only `approve` reads it, and never with `--dry-run`. Sets `approvedBy` where it is missing. |
 | `--on <YYYY-MM-DD>` | today | Only `approve` reads it, and never with `--dry-run`. Sets `approvedOn` where it is missing. |
-| `--dry-run` | off | Only `approve` and `backfill` read it. Prints the plan and writes nothing. |
+| `--dry-run` | off | Only `approve` reads it. Prints the plan and writes nothing. |
 | `--decider <owner>`, `--tier 1\|3`, `--module <module>`, `--type <type>` | none | Only `review` reads them. Keeps the batches holding a record that matches every given filter. |
 | `--batch <selector>` | none | Only `approve` reads it. May be given more than once; each value approves one batch, in the order given: `use-case/<module>.<name>`, `decision/<id>`, a tier 1 record's own id, or `<module>/<type>`. |
 | `--batches <file>` | none | Only `approve` reads it. Names a text file with one batch selector per line; blank lines and lines starting with `#` are ignored. A second field on a line names that batch's review report and overrides `--review-report` for that batch. |
@@ -244,6 +239,7 @@ The `render` subcommand writes these generated regions, each fenced by `<!-- gen
 | `--staged` | off | Only `check` reads it. Reports the staged scope only: staged records, their direct links, and the records staged code implements. |
 | `--release` | off | Only `check` reads it. Makes the release-readiness findings block: `use-case-unverified`, and a `question-expired` on a tier 1 record. |
 | `--since <ref>` | off | Only `check` reads it. Blocks only on findings about records and code changed since `<ref>`; older findings report. |
+| `--level <levels>` | every level | Only `check` reads it. A comma-separated subset of `G`, `S`, `A`, such as `G,S`. Limits the detail lines, the per-code counts and the JSON findings to the named levels. Any other value exits 2. |
 | `--help` | off | Prints the usage text and exits 0. |
 
 ## Exit Codes
@@ -251,7 +247,7 @@ The `render` subcommand writes these generated regions, each fenced by `<!-- gen
 | Code | Meaning |
 |:---|:---|
 | `0` | The command finished with no open blocking finding. |
-| `1` | `check` found an open blocking finding or an expired exception, `query` found no record with the `id`, `approve` named an unknown record id, `approve --batch` refused its batch, `backfill` named a module with no use-case, reaction, or job records, `diff` with `--fail-on breaking` found a breaking change, or the run failed. |
+| `1` | `check` found an open blocking finding or an expired exception, `query` found no record with the `id`, `approve` named an unknown record id, `approve --batch` refused its batch, `diff` with `--fail-on breaking` found a breaking change, or the run failed. |
 | `2` | The arguments are wrong, the root holds no project record, the diff base is neither a consumer folder nor a git revision, or `check --staged` runs outside git. |
 
 ## Examples
@@ -316,16 +312,10 @@ Block only on the findings changed since the main branch:
 litespec model check --root ../consumer --since main
 ```
 
-Draft the missing spending frontmatter from code during adoption:
+Show only the blocking levels, with the blocking findings and the counts before the detail:
 
 ```bash
-litespec model backfill --root ../consumer spending
-```
-
-Show what backfilling every module would draft, without writing:
-
-```bash
-litespec model backfill --root ../consumer --dry-run
+litespec model check --root ../consumer --level G,S
 ```
 
 Diff the working tree against the main branch:

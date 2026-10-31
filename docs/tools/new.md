@@ -15,7 +15,7 @@ litespec new entry <page-id> <type> <name> [--root <path>]
 
 ## Description
 
-This command creates one record page from the template for its type, with the opening specification metadata block already filled. It reserves the identifier before any prose exists, so two authors working in parallel never mint the same identifier twice. The second author learns the clash at creation and picks another name.
+This command creates one record page from the template for its type, with the opening frontmatter block already filled. It reserves the identifier before any prose exists, so two authors working in parallel never mint the same identifier twice. The second author learns the clash at creation and picks another name.
 
 `<type>` is the record type or page style, such as `reaction`, `job`, `use-case`, or `decision`. `<id>` is the `home.name` part of the identifier, such as `spending.send-approver-reminder-on-expense-submitted`; the command composes the full identifier as `<type>/<id>`. The page is written at the home its type owns: a reaction under `modules/<module>/reactions/`, a job under `modules/<module>/jobs/`, a notification under `modules/<module>/notifications/`, a decision under the decisions folder. A use-case page starts under `reads/` beside its module; move the file beside its aggregate once the use case names one. The command refuses an identifier a record already carries.
 
@@ -113,4 +113,4 @@ litespec new entry docs/behavior/modules/spending/settings.md setting receipt-th
 
 ## Underneath
 
-This command reads `templates/consumer/<type>.md` from the release the tool carries and writes the page with its metadata block. The `result` and `scenario` paths read the use-case page instead and splice one entry into its frontmatter records. The `entry` path reads the list page at `<page-id>` instead and splices one entry last into its frontmatter records. Nothing beneath this command is separately runnable. Validate the written page before committing it.
+This command reads `templates/consumer/<type>.md` from the release the tool carries and writes the page with its frontmatter block. The `result` and `scenario` paths read the use-case page instead and splice one entry into its frontmatter records. The `entry` path reads the list page at `<page-id>` instead and splices one entry last into its frontmatter records. Nothing beneath this command is separately runnable. Validate the written page before committing it.

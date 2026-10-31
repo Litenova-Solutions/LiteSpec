@@ -28,7 +28,7 @@ A [product](../reference/glossary.md) record states what is built, for whom, and
 }
 ```
 
-The block above opens the page between two lines that carry only `---`, the specification metadata block that `litespec/core/authoring#declare-structured-specification-metadata` on the [Authoring Standard](../core/authoring.md) defines. Its common fields, `type`, `id`, `title`, `owner`, and `status`, appear on every record in this example, which applies `litespec/core/model#state-the-common-fields-on-every-record`. The body below the block holds one Summary section: employees submit and attach, managers approve and reject, and finance reimburses.
+The block above opens the page between two lines that carry only `---`, the frontmatter block that `litespec/core/authoring#declare-structured-specification-metadata` on the [Authoring Standard](../core/authoring.md) defines. Its common fields, `type`, `id`, `title`, `owner`, and `status`, appear on every record in this example, which applies `litespec/core/model#state-the-common-fields-on-every-record`. The body below the block holds one Summary section: employees submit and attach, managers approve and reject, and finance reimburses.
 
 ## The Goal
 

@@ -41,7 +41,7 @@ An aggregate is one thing the product keeps consistent and changes in one step, 
 
 An aggregate lists in `parts` the kebab-case names of the child entities and value objects inside it that use cases act on, such as `line`, `hold`, and `note`. The use-case noun check reads each part as a known word.
 
-Transitions and data live in frontmatter, in `transitions` and `data`. The Transitions table lists every allowed change with the use case moving it, naming the state left and the state entered, and the Data table lists the fields the aggregate keeps with name, meaning, classification, and data class; both tables render as generated regions from the frontmatter. Each data class declares how its fields erase:
+Transitions and data live in frontmatter, in `transitions` and `data`. The Transitions table lists every allowed change with the use case moving it, naming the state left and the state entered (a creation, the change that brings an instance into being, writes `-` as the state left, or leaves the From cell empty), and the Data table lists the fields the aggregate keeps with name, meaning, classification, and data class; both tables render as generated regions from the frontmatter. Each data class declares how its fields erase:
 
 | Field | Meaning |
 |:---|:---|
@@ -179,11 +179,11 @@ A domain event is an immutable statement that a business fact completed, named i
 
 **ID:** `litespec/core/domain-model#connect-every-state-through-transitions`
 
-**Statement:** Each entity and each saga MUST list every allowed state change with its use case in `transitions`.
+**Statement:** Each entity and each saga MUST list every allowed state change with its use case in `transitions`, including the creation that enters its first state.
 
 **Rationale:** States without transitions are a list of names with no path between them: a reviewer sees where an aggregate rests but never how it moves. Listing every allowed change with the use case that moves it shows the whole lifecycle beside the states, and leaves no state reachable only by a path no record names. The Transitions table renders `transitions` as a generated region. The `state-unreached` and `transition-unknown` checks report a state no transition reaches and a transition naming a missing state or use case, and `table-drift` reports a handwritten table that differs from the frontmatter.
 
-**Checked by:** `litespec model check` reports `state-unreached` (level G) for a state reached by no transition, `transition-unknown` (level G) for a transition naming a missing state or use case, and `table-drift` (level A) for a handwritten Transitions table that differs from `transitions`.
+**Checked by:** `litespec model check` reports `state-unreached` (level G) for a state reached by no transition, a creation included, `transition-unknown` (level G) for a transition naming a missing state or use case, and `table-drift` (level A) for a handwritten Transitions table that differs from `transitions`.
 
 ### State Each Saga Step with Its Compensation
 

@@ -37,7 +37,7 @@
   ],
   "approvedBy": "claimwick-team",
   "approvedOn": "2026-10-31",
-  "approvedHash": "b1b18b8c"
+  "approvedHash": "bf0d019b"
 }
 ---
 
@@ -47,7 +47,9 @@ The policy is the company spending policy and its receipt threshold.
 
 ## Transitions
 
-None.
+| From | To | Triggered By |
+|:--|:--|:--|
+|  | Active |  |
 
 ## Data
 

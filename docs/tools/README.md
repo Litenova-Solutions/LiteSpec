@@ -8,7 +8,7 @@ The Tools section documents the LiteSpec command line: one command for each cons
 
 In the LiteSpec repository, run `dotnet run --project apps/cli/src/LiteSpec.Cli -- <command>`. In a consumer, install the `litespec` command line as a local .NET tool at the adopted release, restore once with `dotnet tool restore`, then run `dotnet litespec <command>` (or `dotnet tool run litespec <command>`) from the consumer root, the folder that holds `litespec.project.json`. The command pages write the consumer form as `litespec <command>`.
 
-The CLI needs the .NET 10 SDK and nothing else: no Node runtime. It carries its release beside its own binary; set `LITESPEC_HOME` to point it at another copy. Set `LITESPEC_TIMING` to print the phase timings of `litespec model` on standard error.
+The CLI needs the .NET 10 SDK. A project with a React or Svelte frontend also needs Node at the version the manifest pins (`stack.node`), because the tool reads those frontends with a bundled Node reader. It carries its release beside its own binary; set `LITESPEC_HOME` to point it at another copy. Set `LITESPEC_TIMING` to print the phase timings of `litespec model` on standard error.
 
 Every command accepts `--help`, and every validator accepts `--format json` for a caller that reads the result rather than the text.
 

@@ -22,7 +22,7 @@ Every record answers one layer's question, and each layer is written from the la
 |:--|:--|:--|:--|:--|
 | Intent | Why build it, and what do we promise? | Agents draft, the finance lead decides | The finance lead and product people | Product, goal, problem, feature, topic, requirement, constraint, decision, research, journey, actor, term |
 | Behavior | How does the system behave to keep the promises? | Agents | Developers; the security queue for access, outside calls, and personal-data flows | Module, aggregate, rule, event, integration event, use case, result, scenario, reaction, job, notification, setting, role, permission, entry point, external system, runbook, term |
-| Implementation | How is it built? | Agents | Check level S; developers sample | Code only |
+| Implementation | How is it built? | Agents | Check level S; developers sample | Code and technical decisions |
 | Proof | How do we know it holds? | The builder | level G and level S checks | Tests, check results, computed statuses, the rendered book |
 
 Governance records attach to any layer: an exception of kind `departure` replaces one provision for the project, and an exception of kind `gap` records one check staying red until a date. Each carries an owner and an expiry date.

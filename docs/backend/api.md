@@ -140,10 +140,59 @@ The endpoint catches no failure. The diagram shows how a domain failure or a val
 | Authenticated but forbidden | 403 |
 | Resource unavailable under the disclosure policy | 404 |
 | State, version, or idempotency conflict | 409 |
+| Abuse limit exceeded | 429 with a `Retry-After` header |
 | Accepted background operation | 202 with status location |
 | Unexpected failure | 500 |
 
 **Reviewed for:** Which operation responses return a status outside the outcome table? Look at each response beside the outcome table.
+
+### Bound Every File Upload
+
+**ID:** `litespec/backend/api#bound-every-file-upload`
+
+**Statement:** A file upload operation MUST accept no file larger than the size its use-case record declares and no media type outside the media types its use-case record declares.
+
+**Rationale:** An upload without a declared size or media-type bound lets one caller send work the server never agreed to store or inspect. Declaring both bounds on the use-case record lets the server refuse an oversize file or an undeclared type before storage, and lets a reviewer see the limit beside the use case that owns the file.
+
+**Example:** The Claimwick submit-expense upload declares the size and the image media types a receipt photo may carry, and the server refuses a larger file or another media type before it stores anything.
+
+**Reviewed for:** Which upload operations lack a declared size or media-type bound, or accept a file outside either bound? Look at each upload endpoint beside its use-case record.
+
+### Prove Every Upload Type from Its Content
+
+**ID:** `litespec/backend/api#prove-every-upload-type-from-its-content`
+
+**Statement:** A file upload operation MUST determine the file type from the file content rather than the media type or file name the client claims.
+
+**Rationale:** A claimed media type and a file name are caller input, so either one can name an image while the bytes carry anything else. Reading the type from the content itself keeps the declared media-type bound honest, because the check runs on what the server stores rather than on what the caller says it sent.
+
+**Example:** A Claimwick receipt photo named as an image is stored as an image only when its bytes read as one of the declared image types, and bytes of another type are refused even when the name and claimed type agree.
+
+**Reviewed for:** Which upload operations trust a claimed media type or file name over the file bytes? Look at the type check of each upload endpoint beside the declared media types.
+
+### Store Every Upload Through Infrastructure
+
+**ID:** `litespec/backend/api#store-every-upload-through-infrastructure`
+
+**Statement:** File storage for an upload MUST live in Infrastructure.
+
+**Rationale:** Storing a file is provider work, like storing an aggregate, so the endpoint stays a transport adapter and the handler stays on behavior. Infrastructure owns the storage provider, its configuration, and its errors, so a project can change where files live without touching an endpoint or a handler.
+
+**Example:** The Claimwick endpoint for a receipt photo converts the request to its command and dispatches it, the handler stages the expense, and Infrastructure writes the photo bytes to the configured store.
+
+**Reviewed for:** Which endpoints or handlers write file bytes to a storage provider directly? Look at the upload endpoints and handlers beside the Infrastructure storage code.
+
+### Authorize Every File Download Through Its Owning Use Case
+
+**ID:** `litespec/backend/api#authorize-every-file-download-through-its-owning-use-case`
+
+**Statement:** A caller MUST reach a stored file only through a download use case authorized from the access that use case declares.
+
+**Rationale:** A stored file carries the data of the record it belongs to, so a direct storage address would serve that data to anyone holding the address and skip the owning use case's grant and tenant scope. Routing each download through its owning use case keeps one authorization decision for the file and for the record it belongs to.
+
+**Example:** A Claimwick receipt photo downloads through the use case that owns the expense, so only an actor its access allows reads the photo, and no storage address serves it on its own.
+
+**Reviewed for:** Which stored files are reachable outside a download use case and its declared access? Look at the download endpoints and the storage addresses beside each owning use case.
 
 ### Require the Marker Header on Cookie-Authenticated Writes
 

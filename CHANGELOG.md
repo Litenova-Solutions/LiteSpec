@@ -13,27 +13,27 @@ LiteSpec 3.0.0 is a top-down specification standard for one bounded-context busi
 
 ### Records
 
-- Journeys are product sentences with step ids, `finishedWhen` and `ifItGoesWrong`; use cases point up with `serves`.
+- Journeys are product sentences with step ids, `finishedWhen` and a per-step `failure`; use cases point up with `serves`.
 - Requirements state exceptions with `except` and a `fallback`, and carry `risk` and `setBy`.
-- Use cases are commands or queries with `access` (auth, grant, tenant scope), `changes`, `reads`, `consistency`, `effects` (issues, sends, publishes, calls), `idempotency`, `audit`, typed query output in `include` groups, freshness and paging. Generic refusals are derived.
-- New record types: reaction, job, notification, setting (replacing limit) and integration event. Aggregates have entity, process and store kinds, and data classes with erasure positions. A retention schedule page holds retention rows.
-- Reactions and jobs declare edges in `effects` with the same verb grammar as use cases; a reaction may omit `timing`, which reads as `async`, and top-level `issues` and `sends` are refused.
+- Use cases are commands or queries with `access` (`grant` and `tenant`; `auth` sits on the entry point), `changes`, `reads`, `consistency`, `effects` (`runs`, `sends`, `emits`, `calls`), `idempotency`, `audit`, typed query output in `include` groups, freshness and paging. Generic refusals are derived.
+- New record types: reaction, job, notification, setting and integration event. Aggregates have `entity`, `saga` and `store` kinds, and data classes with erasure positions. A retention schedule page holds retention rows.
+- Reactions and jobs declare edges in `effects` with the same verb grammar as use cases; a reaction may omit `timing`, which reads as `async`, and a top-level verb beside `effects` is refused.
 - An idempotency `key` templates `{field}` placeholders over the record's `input` fields, and `scope` is `tenant`, `account`, `login` or `global`; reaction and job placeholders name triggering event or run window fields and are not checked.
-- Reaction and job `onFailure` is a structured policy: `retry` of `none`, `next-run` or attempts with delays and backoff, an optional `deadLetter`, `surfacesIn` and `runbook`, with ISO 8601 durations.
+- Reaction and job `onFailure` is a structured policy: `mode` is `retry`, `skip-and-log` or `discard`; a `retry` policy holds `maxAttempts`, `initialDelay`, `maxDelay` and `backoff`; `then` is `dead-letter`, with `deadLetter`, `surfacesIn` and `runbook`, with ISO 8601 durations.
 - Approval is data: `approvedBy`, `approvedOn` and a semantic `approvedHash`, written by `litespec model approve`.
 
 ### Review and checks
 
-- Product people read journey chapters and ballots; developers review Behavior diffs; a named security reviewer sees tier-1 access and data changes. Tier-3 questions auto-approve after a veto window.
-- Every check has a tier: G (record graph, blocking), S (stack reader, blocking where qualified) and A (advisory).
+- Product people read journey chapters and ballots; developers review Behavior diffs; a named security reviewer sees tier 1 access and data changes. Tier 3 questions auto-approve after a veto window.
+- Every check has a level: G (record graph, blocking), S (stack reader, blocking where qualified) and A (advisory).
 - Declared edges replace mechanism bans: every edge between use cases, reactions, jobs, notifications, integration events and external systems is declared and checked. A calls edge counts only through a port anchored to an external-system record.
 - A refusal proof confirms from the asserted code, a client code `refusals.aliases` translates, or the HTTP status `refusals.statuses` maps to the code.
 - An integration fact that drives a use case or rule confirms its scenario or rule claim from inside the host.
 - An `effect-undeclared` finding names a one-hop helper as `via 'Type.Method'`.
 - A term's `labels` sit outside the approval hash, so adding a language reopens no approval.
 - A project declares its use-case verb vocabulary in `vocabulary`: `verbs`, `phrasal` verbs counted as one, and `retired` synonyms with their replacement, checked by `use-case-verb-unknown`.
-- `effect-timing-invalid` (tier S) reports a command whose `sends` or `calls` effect runs inline; consequences run from an event handler or a job after the commit.
-- `event-tense-invalid` accepts a past tense followed by a prepositional complement and a `mark` method naming its state, and `term-clash` skips a hyphenated pair opening with a function word.
+- `effect-timing-invalid` (level S) reports a command whose `sends` or `calls` effect runs inline; consequences run from an event handler or a job after the commit.
+- `event-tense-invalid` accepts a past tense followed by a prepositional complement and a mark method naming its state, and `term-clash` skips a hyphenated pair opening with a function word.
 
 ### Application Layer
 
@@ -59,7 +59,6 @@ LiteSpec 3.0.0 is a top-down specification standard for one bounded-context busi
 - `litespec model diff` has `--intent` and `--behavior` views with a security queue, and `litespec book` renders journey chapters and a ballots page.
 - `litespec new` scaffolds a page, `litespec rename` rewrites an id everywhere, and `litespec model approve` records approval.
 - `litespec new result` and `litespec new scenario` append one entry to a use-case page in house order: successes, refusals, then scenarios.
-- `litespec model backfill` drafts missing Behavior frontmatter from code during adoption and marks touched records transcribed; `--dry-run` prints the plan.
 - `litespec model check --staged` reports only staged records, their direct links, and the records staged code implements.
 - `litespec model approve --dry-run` prints which records would be stamped and which would be reopened, without writing.
 - The `litespec-maintain` tool checks the standard's own pages, schemas, manifest, and provision index from `apps/maintain/` with `validate` and `provisions`; the `litespec` tool serves consumers only.
@@ -67,14 +66,14 @@ LiteSpec 3.0.0 is a top-down specification standard for one bounded-context busi
 
 ### Record Hierarchy
 
-- Every record has exactly one parent: by identifier containment, by one required written up-link, or, for a type with no record above it, its layer list under the product. A record whose required parent is missing is an error at tier G, reported even when the record is a draft. Every inverse link is computed, never written.
+- Every record has exactly one parent: by identifier containment, by one required written up-link, or, for a type with no record above it, its layer list under the product. A record whose required parent is missing is an error at level G, reported even when the record is a draft. Every inverse link is computed, never written.
 - A feature names at least one problem in `solves`; its parent is the first entry. Every non-refused feature names at least one goal in `advances`. A refused feature names `refusedBecause` and the problem it declines in `solves`, and carries no `advances`.
-- Every journey names its goal record in a required single link `serves`, which is its parent, and states its sentence in `aim`. A use case, reaction, job or screen serves journey steps; a journey serves one goal, and a use case never serves a goal directly.
+- Every journey names its goal record in a required single link `serves`, which is its parent. A use case, reaction, job or screen serves journey steps; a journey serves one goal, and a use case never serves a goal directly.
 - Every requirement names its parent: a carrying feature, a constraint or research in `basedOn`, or a decision naming it in `decides`, in that precedence.
-- Written result and scenario identifiers use the `result/<use-case>.<name>` and `scenario/<use-case>.<name>` form, and derived generic results take the same form. A written result no scenario shows is reported: tier G for a success result, tier A for a refusal, on large projects.
-- Structural parents are tier G for all records; other required links are tier A for tier 3 records and tier G for tier 1 records.
-- Field names follow one grammar: a classifier is `kind`; a link is a present-tense verb, plural when it holds a list; a deadline is `<verb>By`, a recorded date `<verb>On`; a reason is `reason` or `<verb>Because`. Feature `lifecycle`, goal and requirement `dueBy`, feature `plannedFor`, decision `decidedOn`, and constraint `authority` and `kind` follow it, checked by `litespec-maintain validate`. Glossary terms carry `layer` and `aliases`.
-- `setting.readBy` names the use cases that read a setting. The Links table carries a "reads as" phrase in both directions for every link, and the book takes its connection labels from it. A `follows` edge marks export beside `implements` in the built model.
+- Written result and scenario identifiers use the `result/<use-case>.<name>` and `scenario/<use-case>.<name>` form, and derived generic results take the same form. A written result no scenario shows is reported: level G for a success result, level A for a refusal, on large projects.
+- Structural parents are level G for all records; other required links are level A for tier 3 records and level G for tier 1 records.
+- Field names follow one grammar: a classifier is `kind`; a link is a present-tense verb, plural when it holds a list; a deadline is `<verb>By`, a recorded date `<verb>On`; a reason is `reason` or `<verb>Because`. Feature `lifecycle`, goal and requirement `dueBy`, feature `plannedFor`, decision `approvedOn`, and constraint `authority` and `kind` follow it, checked by `litespec-maintain validate`. Glossary terms carry `layer` and `aliases`.
+- Use cases list the settings they read in `reads`; a setting's readers are computed, never written. The Links table carries a "reads as" phrase in both directions for every link, and the book takes its connection labels from it. A follows edge marks export beside implements in the built model.
 - Research states its `conclusion`, and LiteSpec keeps its own research and decision records under `docs/intent/`.
 - `litespec book` is one offline shell with sharded data, generated from the model, with the outline from the parent table and the labels from the Links table and the glossary.
 - Approval batches a journey with the goal it serves, keeps each entry a page stamp did not hold at the page's former status, refuses a decision naming no chosen option, and keeps a transcribed record serving a draft journey in draft. Screens are Behavior, and reaction and job scenarios carry their own stamp.
@@ -86,10 +85,9 @@ Every provision identifier present in v2.0.0 and gone now, with the identifier t
 | Removed or Renamed ID | Replacement |
 |:---|:---|
 | `litespec/backend/application#keep-command-handlers-narrow` | `litespec/backend/application#keep-command-handlers-to-load-call-and-stage` |
-| `litespec/backend/application#keep-event-reaction-implementations-explicit` | `litespec/backend/application#keep-event-automation-implementations-explicit` |
+| `litespec/backend/application#keep-event-reaction-implementations-explicit` | `litespec/backend/application#keep-reaction-implementations-explicit` |
 | `litespec/backend/application#keep-one-state-changing-use-case-in-one-pipeline` | `litespec/backend/application#dispatch-only-declared-effect-edges` |
 | `litespec/backend/dotnet/application#keep-one-state-changing-use-case-in-one-command-pipeline` | `litespec/backend/dotnet/application#dispatch-declared-effects-through-their-entry-points` |
-| `litespec/backend/dotnet/application#run-reactions-in-dedicated-handlers` | `litespec/backend/dotnet/application#run-event-automations-in-dedicated-handlers` |
 | `litespec/backend/testing#tag-the-test-that-proves-each-scenario` | `litespec/backend/testing#mark-the-test-that-proves-each-scenario` |
 | `litespec/core/access#name-what-an-external-system-receives` | `litespec/core/edges#describe-every-external-system-operation` |
 | `litespec/core/access#name-what-an-external-system-sends` | `litespec/core/edges#describe-every-external-system-operation` |
@@ -119,7 +117,7 @@ Every provision identifier present in v2.0.0 and gone now, with the identifier t
 | `litespec/core/domain#write-every-scenario-in-given-when-then` | `litespec/core/use-cases#write-every-scenario-in-given-when-then` |
 | `litespec/core/model#approve-intent-above-the-review-line` | `litespec/core/model#approve-tier-1-records-by-a-person` |
 | `litespec/core/model#cover-every-public-use-case-from-a-journey` | `litespec/core/model#connect-every-use-case-to-intent` |
-| `litespec/core/model#raise-modeling-questions-as-draft-intent` | `litespec/core/model#raise-modeling-questions-with-a-decider-and-a-date` |
+| `litespec/core/model#raise-modeling-questions-as-draft-intent` | `litespec/core/layers#raise-open-needs-as-draft-questions` |
 | `litespec/core/model#read-truth-from-code-screens-and-test-runs` | `litespec/core/model#compute-proof-statuses-in-the-builder` |
 | `litespec/core/model#record-accepted-gaps-as-known-gaps` | `litespec/core/model#record-accepted-gaps-as-exceptions` |
 | `litespec/core/product#answer-every-constraint` | `litespec/core/intent#answer-every-constraint` |
@@ -156,15 +154,11 @@ Every provision identifier present in v2.0.0 and gone now, with the identifier t
 | `litespec/ext/compat#declare-published-events` | `litespec/ext/compat#declare-published-facts-as-integration-events` |
 | `litespec/ext/compat#retire-published-events-with-notice` | `litespec/ext/compat#retire-integration-events-with-notice` |
 | `litespec/ext/compat#version-breaking-published-events` | `litespec/ext/compat#version-breaking-integration-events` |
-| `litespec/ext/jobs#bound-job-duration` | `litespec/ext/jobs#bound-automation-duration` |
-| `litespec/ext/jobs#bound-job-retries` | `litespec/ext/jobs#bound-automation-retries` |
-| `litespec/ext/jobs#observe-job-cancellation` | `litespec/ext/jobs#observe-automation-cancellation` |
 | `litespec/ext/jobs#record-schedule-behavior` | `removed` |
-| `litespec/ext/jobs#run-jobs-in-worker` | `litespec/ext/jobs#run-scheduled-automations-in-worker` |
-| `litespec/ext/jobs#state-schedules-as-reaction-triggers` | `litespec/ext/jobs#carry-the-schedule-on-the-automation-record` |
-| `litespec/ext/jobs#stop-jobs-during-graceful-shutdown` | `litespec/ext/jobs#stop-automations-during-graceful-shutdown` |
-| `litespec/ext/outbox#exclude-manually-repeatable-reactions` | `litespec/ext/outbox#exclude-manually-repeatable-automations` |
-| `litespec/ext/outbox#publish-best-effort-reactions-after-commit` | `litespec/ext/outbox#emit-excluded-automations-after-commit` |
+| `litespec/ext/jobs#run-jobs-in-worker` | `litespec/ext/jobs#run-scheduled-jobs-in-worker` |
+| `litespec/ext/jobs#state-schedules-as-reaction-triggers` | `litespec/ext/jobs#carry-the-schedule-on-the-job-record` |
+| `litespec/ext/outbox#exclude-manually-repeatable-reactions` | `litespec/ext/outbox#exclude-manually-repeatable-reactions-and-jobs` |
+| `litespec/ext/outbox#publish-best-effort-reactions-after-commit` | `litespec/ext/outbox#emit-excluded-reactions-and-jobs-after-commit` |
 | `litespec/ext/plans#bound-plan-amounts-in-limits` | `litespec/ext/plans#bound-plan-amounts-in-settings` |
 | `litespec/frontend/patterns/admin-screens#discount-and-promotion-codes` | `litespec/frontend/patterns/admin-screens#budget-codes-and-advances` |
 | `litespec/frontend/patterns/create-edit-remove#publishing-and-unpublishing-a-listing` | `litespec/frontend/patterns/create-edit-remove#publishing-and-unpublishing-a-policy` |
@@ -248,4 +242,4 @@ LiteSpec 2.0.0 is the standards contract for one bounded-context business applic
 
 ### Releases
 
-- A `v<version>` tag publishes `LiteSpec.Cli` and `LiteSpec.Analyzers` to nuget.org, creates the GitHub release from this section, and deploys the site.
+- A `v<version>` tag publishes `LiteSpec.Cli` and `LiteSpec.Analyzers` to nuget.org and creates the GitHub release from this section. The site deploys when the release merges to `main`.

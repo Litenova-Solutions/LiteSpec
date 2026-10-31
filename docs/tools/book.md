@@ -24,6 +24,8 @@ Hovering a mark, a type, a link, a status, a tier, or a finding shows its LiteSp
 
 Every record, code element, test, and finding links to the file and line it comes from, opened in the editor. `--root` names the consumer root for those links, and `--editor` names the link template. With `--editor none` the book renders no source links.
 
+A link taken from record data renders as a link only for an `http:`, `https:`, or `mailto:` target, an in-page fragment, a relative path with no scheme, or the configured editor scheme. Any other target renders as plain text. Records order by ordinal title, then identifier.
+
 The data shards load by inserting script elements, never by fetch, so the site needs no server: open the output folder's `index.html` in a browser. The shell carries a `noscript` note and the manifest summary as static text; there are no static record pages. Record links are hash routes of the form `index.html#<id>`.
 
 Verdicts stay local. A reviewer marks a record approved, reviewed, changes requested, or questioned, and answers ballot questions, all in the browser. Download review writes the verdicts and answers as `review.json`; the book never writes records.
@@ -51,8 +53,8 @@ None.
 | Code | Meaning |
 |:---|:---|
 | `0` | The site was written. |
-| `1` | The model file is missing or unreadable, the output folder cannot be written, or a carried LiteSpec page the lexicon needs is missing or lost its table shape; the message names the file. |
-| `2` | The arguments are wrong. |
+| `1` | The model file is missing or unreadable, or the output folder cannot be written. |
+| `2` | The arguments are wrong, the carried LiteSpec release is missing, or a carried LiteSpec page the lexicon needs is missing or lost its table shape; the message names the file. |
 
 ## Examples
 

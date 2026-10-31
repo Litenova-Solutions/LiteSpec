@@ -8,11 +8,11 @@ This page holds the patterns for the product frame around every screen, which le
 
 ### How to Read a Pattern
 
-Each pattern answers one recurring question about moving through the product, such as how the sidebar shows seven areas. It states the question, the default option a project builds, how the default behaves on a narrow screen, and why the default won. Each option then shows one wireframe drawing with its own rationale, cost, and optional reference. A project records its choice in its pattern catalog and builds the chosen option with its own components. The [UI patterns](../patterns.md) page states the catalog contract and the wireframe language.
+Each pattern answers one recurring question about moving through the console, such as how the sidebar shows seven areas. It states the question, the default option a project builds, how the default behaves on a narrow screen, and why the default won. Each option then shows one wireframe drawing with its own rationale, cost, and optional reference. A project records its choice in its pattern catalog and builds the chosen option with its own components. The [UI patterns](../patterns.md) page states the catalog contract and the wireframe language.
 
 ### The Running Example
 
-The drawings on this page use the Acme Supply console: seven areas from Home to Settings, order SO-1042 for Maria Garcia, and the Amsterdam warehouse. The frame marks the current area, and every page carries its own address. The Standards section states the two rules every option keeps: the navigation marks the section holding the current page, and every page opens directly from its own URL.
+The drawings on this page use the Claimwick expense console for Harbor and Pine: seven areas from Home to Settings, expense EXP-1042 for Ava, and the Amsterdam sales cost centre. The frame marks the current area, and every page carries its own address. The Standards section states the two rules every option keeps: the navigation marks the section holding the current page, and every page opens directly from its own URL.
 
 ## Standards
 
@@ -48,7 +48,7 @@ The drawings on this page use the Acme Supply console: seven areas from Home to 
 
 **Compact:** Below the md breakpoint the sidebar becomes an off-canvas sheet: the same entries slide in over a scrim and close with a control. The compact option is `the-sidebar-as-an-off-canvas-sheet-on-a-phone`.
 
-**Rationale:** Keep the grouped areas with expandable sub-items. Seven areas with two levels are what Fluent allows. The expandable group is the shape sidebar components ship. The counts beside groups are the runner-up for areas that hold a queue, such as refunds.
+**Rationale:** Keep the grouped areas with expandable sub-items. Seven areas with two levels are what Fluent allows. The expandable group is the shape sidebar components ship. The counts beside groups are the runner-up for areas that hold a queue, such as reversals.
 
 A count beside every area reports status the reader did not ask for. Never ship the flat list of every page. Over a hundred entries is an index, not a map, and it belongs in the command palette.
 
@@ -58,28 +58,28 @@ A count beside every area reports status the reader did not ask for. Never ship 
 
 ```wireframe
 page
-  breadcrumb "Home" "Products"
+  breadcrumb "Home" "Trips"
   header
-    heading "Products"
-    text "93 in the catalog."
-    action primary "New product"
+    heading "Trips"
+    text "93 in the expense list."
+    action primary "New expense"
   split 1:4
     nav side
       link "Home"
-      link "Orders"
-      link "Customers"
-      link current "Products"
-      link "Variants"
-      link "Invoices"
+      link "Expenses"
+      link "Spenders"
+      link current "Trips"
+      link "Receipts"
+      link "Payouts"
       link "Reports"
       link "Settings"
-    region "Products"
+    region "Trips"
       toolbar
-        field "Search products" search
+        field "Search trips" search
         action "Active 81"
         action "Draft 9"
-      table 4 "Product" "Stock" "State" "Price"
-        item: text "Oak desk lamp" · text "412 in stock" · status "Active" positive · text "EUR 45.00"
+      table 4 "Trip" "Budget" "State" "Amount"
+        item: text "Rotterdam client visit" · text "412 filed" · status "Active" positive · text "EUR 45.00"
 ```
 
 **Rationale:** Seven areas expand, with the current item marked and the sub-item indented under its area. The account sits at the foot.
@@ -90,31 +90,31 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "Refunds"
+  breadcrumb "Home" "Expenses" "Reversals"
   header
-    heading "Refunds"
+    heading "Reversals"
     text "10 open. The oldest waited 214 days."
     action "Export"
   split 1:4
     nav side
       link "Home"
-      link "Orders"
-      link "Awaiting payment 31"
-      link current "Refunds 10"
+      link "Expenses"
+      link "Awaiting approval 31"
+      link current "Reversals 10"
       link "Exceptions 2"
-      link "Customers"
-      link "Products"
-      link "Invoices"
+      link "Spenders"
+      link "Trips"
+      link "Payouts"
       link "Reports"
       link "Settings"
-    region "Refunds"
+    region "Reversals"
       toolbar
-        field "Search refunds" search
-      table 4 "Order" "Customer" "Asked" "State" "Amount"
-        item: text "SO-1042" · text "Maria Garcia" · text muted "Asked 6 days ago" · status "Open" neutral · text "EUR 125.00"
+        field "Search reversals" search
+      table 4 "Expense" "Spender" "Asked" "State" "Amount"
+        item: text "EXP-1042" · text "Ava" · text muted "Asked 6 days ago" · status "Open" neutral · text "EUR 125.00"
 ```
 
-**Rationale:** The groups carry the number a reader would otherwise have to go and get: 10 under Refunds, 3 team invitations, 5 disputes. The count is the group's whole job.
+**Rationale:** The groups carry the number a reader would otherwise have to go and get: 10 under Reversals, 3 team invitations, 5 disputes. The count is the group's whole job.
 
 **Cost:** A count beside every area is a claim on every read. An area with a zero count looks finished rather than empty.
 
@@ -129,10 +129,10 @@ page
   split 1:4
     nav side
       link "Home"
-      link "Orders"
-      link "Customers"
-      link "Products"
-      link "Invoices"
+      link "Expenses"
+      link "Spenders"
+      link "Trips"
+      link "Payouts"
       link "Reports"
       link "Settings"
     region "Settings"
@@ -140,41 +140,41 @@ page
         field "Jump to" search
         text "2 match"
       list 2
-        item: text "Dispatch plan" · text muted "Settings · Warehouses · Bays and carriers" · action "Open"
+        item: text "Payout run plan" · text muted "Settings · Cost centres · Payouts and approvals" · action "Open"
 ```
 
 **Rationale:** Thirty settings routes plus six areas is a tree. A flat list of every page with a search box collapses the tree into one index, and the reader types what they want.
 
 **Cost:** Thirty settings routes is the reason a tree exists at all. A flat list of over a hundred entries is a wall, and the sidebar stops being a map.
 
-#### `a-command-palette-for-the-whole-product`: A Command Palette for the Whole Product
+#### `a-command-palette-for-the-whole-product`: A Command Palette for the Whole Console
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders."
+    heading "Expenses"
+    text "268 expenses."
     action "Open the palette"
   split 1:4
     nav side
       link "Home"
-      link current "Orders"
-      link "Customers"
-      link "Products"
-      link "Invoices"
+      link current "Expenses"
+      link "Spenders"
+      link "Trips"
+      link "Payouts"
       link "Reports"
       link "Settings"
-    region "Orders"
+    region "Expenses"
       toolbar
-        field "Search orders" search
-      table 3 "Order" "Customer" "State" "Paid"
-        item: text "SO-1042" · text "Maria Garcia" · status "Paid" positive · text "EUR 125.00"
+        field "Search expenses" search
+      table 3 "Expense" "Spender" "State" "Paid"
+        item: text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
   dialog "Jump to"
-    field "Search pages, orders, products" search = "refund"
+    field "Search pages, expenses, trips" search = "reversal"
     region "Go to"
       list 2
-        item: text "Refunds" · text muted "Orders" · action "Open"
+        item: text "Reversals" · text muted "Expenses" · action "Open"
 ```
 
 **Rationale:** The sidebar holds the seven areas and a palette holds everything else. Cmd+K is the shape most consoles use for a large route count.
@@ -187,42 +187,42 @@ page
 page
   header
     heading "Menu"
-    text "Acme Supply"
+    text "Harbor and Pine"
     action "Close"
   region "Areas"
     list 7
-      item: text "Orders" · text muted "268 orders, 2 needing attention" · action "Open"
+      item: text "Expenses" · text muted "268 expenses, 2 needing attention" · action "Open"
   region "Account"
-    text "Signed in as Chris Novak, warehouse lead."
+    text "Signed in as Ade Okafor, finance lead."
     action "Help"
 ```
 
 **Rationale:** At 390 pixels there is no beside, so the navigation is a page of its own with a Back. Every entry is visible at once rather than behind a hamburger.
 
-**Cost:** One more navigation level on a phone on the warehouse floor. A warehouse lead holding a phone pays one extra tap at the worst time.
+**Cost:** One more navigation level on a phone in the office. A finance lead holding a phone pays one extra tap at the worst time.
 
 #### `the-sidebar-as-an-accordion-with-only-one-open`: The Sidebar as an Accordion with Only One Open
 
 ```wireframe
 page
-  breadcrumb "Home" "Products"
+  breadcrumb "Home" "Trips"
   header
-    heading "Products"
-    text "93 in the catalog."
-    action primary "New product"
+    heading "Trips"
+    text "93 in the expense list."
+    action primary "New expense"
   split 1:4
     nav side
       link "Home"
-      link current "Products"
-      link "Variants"
-      link "Orders ›"
-      link "Customers ›"
-      link "Invoices ›"
+      link current "Trips"
+      link "Receipts"
+      link "Expenses ›"
+      link "Spenders ›"
+      link "Payouts ›"
       link "Reports ›"
       link "Settings ›"
-    region "Products"
-      table 2 "Product" "Stock" "State" "Price"
-        item: text "Oak desk lamp" · text "412 in stock" · status "Active" positive · text "EUR 45.00"
+    region "Trips"
+      table 2 "Trip" "Budget" "State" "Amount"
+        item: text "Rotterdam client visit" · text "412 filed" · status "Active" positive · text "EUR 45.00"
 ```
 
 **Rationale:** One group open at a time keeps the sidebar short regardless of how many routes each group holds. Seven areas become seven lines plus two.
@@ -233,28 +233,28 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders from 142 customers."
+    heading "Expenses"
+    text "268 expenses from 142 spenders."
   split 1:4
     nav side
-      link "SO-1042 · Maria Garcia"
-      link "Garcia Interiors restock"
+      link "EXP-1042 · Ava"
+      link "Rotterdam client visit"
       link "September statement"
       link "Home"
-      link current "Orders"
-      link "Customers"
-      link "Products"
-      link "Invoices"
-    region "Orders"
+      link current "Expenses"
+      link "Spenders"
+      link "Trips"
+      link "Payouts"
+    region "Expenses"
       toolbar
-        field "Search orders" search
-      table 4 "Order" "Customer" "State" "Paid"
-        item: text "SO-1042" · text "Maria Garcia" · status "Paid" positive · text "EUR 125.00"
+        field "Search expenses" search
+      table 4 "Expense" "Spender" "State" "Paid"
+        item: text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
 ```
 
-**Rationale:** The three most recent pages sit above the seven areas, so resuming work is one click instead of re-walking the tree. None of the other variants remembers where the reader was: this one navigates by recency rather than by structure.
+**Rationale:** The three most recent pages sit above the seven areas, so resuming work is one click instead of re-walking the tree. None of the other options remembers where the reader was: this one navigates by recency rather than by structure.
 
 **Cost:** Recents are per person, so a shared screen shows another person's trail. A recent that was archived or renamed also needs a rule for what its row says.
 
@@ -262,25 +262,25 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders from 142 customers, newest first."
+    heading "Expenses"
+    text "268 expenses from 142 spenders, newest first."
   split 1:9
     region "Areas"
       icon "Home"
-      icon "Orders"
-      icon "Customers"
-      icon "Products"
-      icon "Invoices"
+      icon "Expenses"
+      icon "Spenders"
+      icon "Trips"
+      icon "Payouts"
       icon "Reports"
       icon "Settings"
-    region "Orders"
+    region "Expenses"
       toolbar
-        field "Search orders" search
+        field "Search expenses" search
         action "Any state"
-      table 2 "Order" "Customer" "State" "Paid"
-        item: text "SO-1042" · text "Maria Garcia" · status "Paid" positive · text "EUR 125.00"
+      table 2 "Expense" "Spender" "State" "Paid"
+        item: text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
 ```
 
 **Rationale:** Linear collapses its sidebar to an icon rail rather than hiding it, so the seven areas stay one click away on a narrow laptop. The rail keeps the current item marked and the account visible as an avatar.
@@ -294,27 +294,27 @@ page
 ```wireframe
 page
   header
-    heading "Orders"
-    text "268 orders."
+    heading "Expenses"
+    text "268 expenses."
     action "Open the menu"
-  region "Orders"
+  region "Expenses"
     toolbar
-      field "Search orders" search
+      field "Search expenses" search
     list 2
-      item: text "SO-1042 · Maria Garcia" · text muted "8 Oct 2026, 09:32 · Garcia Interiors" · status "Paid" positive · text "EUR 125.00"
+      item: text "EXP-1042 · Ava" · text muted "8 Oct 2026, 09:32 · Rotterdam client visit" · status "Paid" positive · text "EUR 125.00"
   drawer left "Menu"
     nav side
       link "Home"
-      link current "Orders"
-      link "Returns"
+      link current "Expenses"
+      link "Reversals"
       link "Exceptions"
-      link "Customers"
-      link "Products"
+      link "Spenders"
+      link "Trips"
 ```
 
 **Rationale:** The sidebar turns into a sheet below the md breakpoint: the same entries slide in over a scrim and dismiss with a close control. Nothing about the tree changes between desktop and phone.
 
-**Cost:** The sheet covers the page it came from, so comparing the navigation with the content means opening and closing it. A warehouse lead looking up one order costs one extra tap.
+**Cost:** The sheet covers the page it came from, so comparing the navigation with the content means opening and closing it. A finance lead looking up one expense costs one extra tap.
 
 **Reference:** shadcn
 
@@ -322,7 +322,7 @@ page
 
 **ID:** `litespec/frontend/patterns/navigation#breadcrumb`
 
-**Question:** Trails run four levels deep on a product variant. A trail never wraps and may scroll sideways. The last item carries aria-current. Dutch strings sometimes appear in an English frame.
+**Question:** Trails run four levels deep on an expense record. A trail never wraps and may scroll sideways. The last item carries aria-current. Dutch strings sometimes appear in an English frame.
 
 **Default:** `the-trail-as-the-parent-chain`
 
@@ -338,21 +338,21 @@ Never ship no trail at all: on a phone the sidebar is closed, so the trail is th
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Oak desk lamp" "Standard"
+  breadcrumb "Home" "Trips" "EXP-1042" "Standard"
   header
     heading "Standard"
     status "Active" positive
-    text "What this price tier is, and the discount rule its lines carry."
-    action "Pause sales"
+    text "What this expense is, and the receipt rule its lines carry."
+    action "Pause payouts"
   region "Details"
-    fact "Units per line" "1"
-    fact "Stock" "Whole product"
-    fact "Sold" "9,412 of 10,000"
+    fact "Lines per expense" "1"
+    fact "Budget" "Whole trip"
+    fact "Filed" "9,412 of 10,000"
 ```
 
 **Rationale:** Every level is a link except the last, which carries the current item. It is the only place the record's place in the tree is stated.
 
-**Cost:** Four levels on a price tier, and Fluent's no-wrap rule pushes the last item off a phone unless the trail scrolls.
+**Cost:** Four levels on an expense, and Fluent's no-wrap rule pushes the last item off a phone unless the trail scrolls.
 
 #### `a-trail-that-truncates-from-the-left`: A Trail That Truncates from the Left
 
@@ -360,19 +360,19 @@ page
 page
   breadcrumb "Home" "Standard"
   menu "Levels above"
-    action "Products"
-    action "Oak desk lamp, natural oil finish with brass fittings"
+    action "Trips"
+    action "EXP-1042, Rotterdam client visit"
   header
     heading "Standard"
     status "Active" positive
-    text "What this price tier is, and the discount rule its lines carry."
-    action "Pause sales"
+    text "What this expense is, and the receipt rule its lines carry."
+    action "Pause payouts"
   region "Details"
-    fact "Units per line" "1"
-    fact "Sold" "9,412 of 10,000"
+    fact "Lines per expense" "1"
+    fact "Filed" "9,412 of 10,000"
 ```
 
-**Rationale:** Fluent truncates after 80 characters with a tooltip. The overflow collapses into a menu from the second item. A long product name never pushes the current page off.
+**Rationale:** Fluent truncates after 80 characters with a tooltip. The overflow collapses into a menu from the second item. A long trip name never pushes the current page off.
 
 **Cost:** A menu in the trail is a third kind of menu on one page. The page already has row menus and header menus. The reader opens it to see where they are.
 
@@ -383,21 +383,21 @@ page
 ```wireframe
 page
   header
-    heading "Products"
-    text "93 in the catalog."
-    action primary "New product"
+    heading "Trips"
+    text "93 in the expense list."
+    action primary "New expense"
   split 1:4
     nav side
       link "Home"
-      link "Orders"
-      link "Customers"
-      link current "Products"
-      link "Invoices"
+      link "Expenses"
+      link "Spenders"
+      link current "Trips"
+      link "Payouts"
       link "Reports"
       link "Settings"
-    region "Products"
-      table 2 "Product" "Stock" "State" "Price"
-        item: text "Oak desk lamp" · text "LMP-OAK-01 · 412 in stock" · status "Active" positive · text "EUR 45.00"
+    region "Trips"
+      table 2 "Trip" "Budget" "State" "Amount"
+        item: text "Rotterdam client visit" · text "412 filed" · status "Active" positive · text "EUR 45.00"
 ```
 
 **Rationale:** The expanded sidebar entry is the trail. One navigation element instead of two, and the heading starts at the top of the page.
@@ -408,34 +408,34 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Oak desk lamp, Active" "Standard"
+  breadcrumb "Home" "Trips" "EXP-1042, Active" "Standard"
   header
     heading "Standard"
     status "Active" positive
-    text "In stock, 412 ready to ship. 1,204 orders."
-    action "Pause sales"
+    text "In budget, 412 ready to pay. 1,204 expenses."
+    action "Pause payouts"
   region "Details"
-    fact "Units per line" "1"
-    fact "Sold" "9,412 of 10,000 stocked"
+    fact "Lines per expense" "1"
+    fact "Filed" "9,412 of 10,000 stocked"
 ```
 
-**Rationale:** The trail carries the parent's state, so a reader knows whether the product they are inside is still live before they read anything else. The trail becomes informative rather than structural.
+**Rationale:** The trail carries the parent's state, so a reader knows whether the trip they are inside is still live before they read anything else. The trail becomes informative rather than structural.
 
-**Cost:** Fluent truncates a trail item at 80 characters. A product name plus a state badge plus an ellipsis is three things in eighty characters. The breadcrumb stops being a navigation control.
+**Cost:** Fluent truncates a trail item at 80 characters. A trip name plus a state badge plus an ellipsis is three things in eighty characters. The breadcrumb stops being a navigation control.
 
 #### `a-trail-with-the-area-s-other-pages-beside-it`: A Trail with the Area's Other Pages Beside It
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Oak desk lamp"
+  breadcrumb "Home" "Trips" "EXP-1042"
   header
-    heading "Oak desk lamp"
+    heading "EXP-1042"
     status "Active" positive
-    text "LMP-OAK-01 · 412 in stock."
-    action "Pause sales"
-  tabs "Details" "Variants" "Pricing" "Stock" "Money" "Operations" "Orders" "Questions"
-    region "Pricing"
-      table 1 "Tier" "Sold" "Price"
+    text "EXP-1042 · 412 filed."
+    action "Pause payouts"
+  tabs "Details" "Receipts" "Amounts" "Budget" "Money" "Operations" "Expenses" "Questions"
+    region "Amounts"
+      table 1 "Tier" "Filed" "Amount"
         item: text "Standard" · text "1,182 of 2,000" · text "EUR 45.00"
 ```
 
@@ -447,13 +447,13 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Oak desk lamp, natural oil finish" "Standard, list price" "Pricing"
+  breadcrumb "Home" "Trips" "EXP-1042, Rotterdam client visit" "Standard, list amount" "Amounts"
   header
-    heading "Pricing"
-    text "Standard, list price. Garcia Interiors restock."
-  region "Pricing"
+    heading "Amounts"
+    text "Standard, list amount. Rotterdam client visit."
+  region "Amounts"
     fact "Standard" "EUR 45.00"
-    fact "Sold" "9,412 of 10,000"
+    fact "Filed" "9,412 of 10,000"
 ```
 
 **Rationale:** Fluent allows a breadcrumb to scroll horizontally rather than wrap. Every level stays readable. The reader reaches the current item by scrolling rather than by truncation.
@@ -466,15 +466,15 @@ page
 
 ```wireframe
 page
-  link "‹ Oak desk lamp"
+  link "‹ EXP-1042"
   header
     heading "Standard"
     status "Active" positive
-    text "What this price tier is, and the discount rule its lines carry."
-    action "Pause sales"
+    text "What this expense is, and the receipt rule its lines carry."
+    action "Pause payouts"
   region "Details"
-    fact "Units per line" "1"
-    fact "Sold" "9,412 of 10,000"
+    fact "Lines per expense" "1"
+    fact "Filed" "9,412 of 10,000"
 ```
 
 **Rationale:** GitHub collapses its trail to a single back link on narrow screens: the parent name with a chevron, above the heading. One line replaces four levels and the heading keeps its place.
@@ -487,24 +487,24 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Oak desk lamp" "Standard"
+  breadcrumb "Home" "Trips" "EXP-1042" "Standard"
   header
     heading "Standard"
     status "Active" positive
-    text "What this price tier is, and the discount rule its lines carry."
+    text "What this expense is, and the receipt rule its lines carry."
     action quiet "Standard ▾"
-    action "Pause sales"
-  menu "Price tiers"
+    action "Pause payouts"
+  menu "Expenses"
     action "Standard"
     action "Economy"
     action "Bundle"
-    action "Add a price tier"
+    action "Add an expense"
   region "Details"
-    fact "Units per line" "1"
-    fact "Sold" "9,412 of 10,000"
+    fact "Lines per expense" "1"
+    fact "Filed" "9,412 of 10,000"
 ```
 
-**Rationale:** Notion turns the current page title into a menu of its siblings: opening it lists the other price tiers beside Standard. Moving sideways costs one click instead of up and back down.
+**Rationale:** Notion turns the current page title into a menu of its siblings: opening it lists the other expenses beside Standard. Moving sideways costs one click instead of up and back down.
 
 **Cost:** A heading that opens a menu is a heading that does not behave like one. The menu repeats the sidebar section the reader left. It fits only where siblings are visited together.
 
@@ -524,7 +524,7 @@ page
 
 The deployment identity band is the runner-up for sandbox deployments only, where naming the deployment on every page avoids confusion with production. Never ship no bar at all: burying the theme and language in the sidebar foot turns a visible control into three taps.
 
-**Reviewed for:** Which built top band breaks from the wireframe its catalog entry chose? Open the built product header, with its company name and deployment identity, beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Which built top band breaks from the wireframe its catalog entry chose? Open the built trip header, with its company name and deployment identity, beside the catalog entry recording the chosen option and its reason.
 
 #### `the-bar-with-the-company-name`: The Bar with the Company Name
 
@@ -532,17 +532,17 @@ The deployment identity band is the runner-up for sandbox deployments only, wher
 page
   toolbar
     action "Toggle the sidebar"
-    text "Acme Supply"
+    text "Harbor and Pine"
     text "Acting as Alex Morgan"
     action "Help"
     action "Switch the theme"
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders from 142 customers, newest first."
-  region "Orders"
-    table 3 "Order" "Customer" "State" "Paid"
-      item: text "SO-1042" · text "Maria Garcia" · status "Paid" positive · text "EUR 125.00"
+    heading "Expenses"
+    text "268 expenses from 142 spenders, newest first."
+  region "Expenses"
+    table 3 "Expense" "Spender" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
 ```
 
 **Rationale:** The page title on the left, then the things that are true everywhere: which company, who is acting, help, and theme. The sidebar toggle stays because a phone needs it.
@@ -555,17 +555,17 @@ page
 page
   toolbar
     action "Toggle the sidebar"
-    text "Products › Oak desk lamp › Standard"
+    text "Trips › EXP-1042 › Standard"
     action "Help"
     action "Switch the theme"
   header
     heading "Standard"
     status "Active" positive
-    text "What this price tier is, and the discount rule its lines carry."
-    action "Pause sales"
+    text "What this expense is, and the receipt rule its lines carry."
+    action "Pause payouts"
   region "Details"
-    fact "Units per line" "1"
-    fact "Sold" "9,412 of 10,000"
+    fact "Lines per expense" "1"
+    fact "Filed" "9,412 of 10,000"
 ```
 
 **Rationale:** The chain moves into the bar, where the page title already is. One place states where the reader is rather than two.
@@ -578,15 +578,15 @@ page
 page
   toolbar
     action "Switch the theme"
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders from 142 customers, newest first."
-  region "Orders"
+    heading "Expenses"
+    text "268 expenses from 142 spenders, newest first."
+  region "Expenses"
     toolbar
-      field "Search orders" search
-    table 2 "Order" "Customer" "State" "Paid"
-      item: text "SO-1042" · text "Maria Garcia" · status "Paid" positive · text "EUR 125.00"
+      field "Search expenses" search
+    table 2 "Expense" "Spender" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
 ```
 
 **Rationale:** The bar holds only the sidebar toggle and the theme. Everything else is in the sidebar or the page, so the bar never competes with the content.
@@ -598,22 +598,22 @@ page
 ```wireframe
 page
   toolbar
-    text "Orders"
+    text "Expenses"
     action "Act as Alex Morgan"
     action "Help"
     action "Switch the theme"
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders."
+    heading "Expenses"
+    text "268 expenses."
   menu "Act as"
-    action "Sam Rivera"
+    action "Priya Shah"
     action "Alex Morgan"
     action "Priya Shah"
-    action "Chris Novak"
-  region "Orders"
-    table 2 "Order" "Customer" "State" "Paid"
-      item: text "SO-1042" · text "Maria Garcia" · status "Paid" positive · text "EUR 125.00"
+    action "Ade Okafor"
+  region "Expenses"
+    table 2 "Expense" "Spender" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
 ```
 
 **Rationale:** The foot switcher moves into the bar and becomes explicit. Acting as somebody changes what the session can do, so it belongs where a reader looks for who they are.
@@ -625,17 +625,17 @@ page
 ```wireframe
 page
   toolbar
-    text "Orders"
+    text "Expenses"
     status "Sandbox" info
     action "Help"
     action "Switch the theme"
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
+    heading "Expenses"
     text "Nothing here is charged and nothing reaches a bank."
-  region "Orders"
-    table 2 "Order" "Customer" "State" "Paid"
-      item: text "SO-1042" · text "Maria Garcia" · status "Paid" positive · text "EUR 125.00"
+  region "Expenses"
+    table 2 "Expense" "Spender" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
 ```
 
 **Rationale:** Where a deployment is a sandbox, the bar says so on every page. Naming the deployment is the one job of an identity band.
@@ -646,25 +646,25 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders from 142 customers, newest first."
+    heading "Expenses"
+    text "268 expenses from 142 spenders, newest first."
   split 1:4
     nav side
       link "Home"
-      link current "Orders"
-      link "Customers"
-      link "Products"
-      link "Invoices"
+      link current "Expenses"
+      link "Spenders"
+      link "Trips"
+      link "Payouts"
       link "Reports"
       link "Settings"
-    region "Orders"
+    region "Expenses"
       toolbar
-        field "Search orders" search
+        field "Search expenses" search
         action "Any state"
-      table 3 "Order" "Customer" "State" "Paid"
-        item: text "SO-1042" · text "Maria Garcia" · status "Paid" positive · text "EUR 125.00"
+      table 3 "Expense" "Spender" "State" "Paid"
+        item: text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
   footer
     text "Alex Morgan, operations manager"
     action "English"
@@ -681,17 +681,17 @@ page
 ```wireframe
 page
   toolbar
-    text "Orders"
+    text "Expenses"
     field "Search" search
     action "Notifications, 3 unread"
     action "Account: Alex Morgan"
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders from 142 customers, newest first."
-  region "Orders"
-    table 3 "Order" "Customer" "State" "Paid"
-      item: text "SO-1042" · text "Maria Garcia" · status "Paid" positive · text "EUR 125.00"
+    heading "Expenses"
+    text "268 expenses from 142 spenders, newest first."
+  region "Expenses"
+    table 3 "Expense" "Spender" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
 ```
 
 **Rationale:** GitHub keeps one global bar: a search trigger that opens the palette, a bell with the unread count, and the account avatar. Everything true on every page sits in one row and the page starts below it.
@@ -705,20 +705,20 @@ page
 ```wireframe
 page
   toolbar
-    action "Back to Orders"
-    text "SO-1042"
+    action "Back to Expenses"
+    text "EXP-1042"
     status "Paid" positive
     action "Help"
     action "Switch the theme"
-  breadcrumb "Home" "Orders" "SO-1042"
+  breadcrumb "Home" "Expenses" "EXP-1042"
   header
-    heading "SO-1042"
+    heading "EXP-1042"
     status "Paid" positive
-    text "Maria Garcia · Garcia Interiors · 8 Oct 2026, 09:32 · EUR 125.00"
-    action primary "Message customer"
+    text "Ava · Rotterdam client visit · 8 Oct 2026, 09:32 · EUR 125.00"
+    action primary "Message spender"
   region "Lines"
     list 2
-      item: text "Oak desk lamp" · text muted "LMP-OAK-01 · quantity 2" · text "EUR 90.00"
+      item: text "EXP-1042" · text muted "EXP-1042 · quantity 2" · text "EUR 90.00"
 ```
 
 **Rationale:** Linear keeps the record identifier and state in the header once a record is open. A reader who scrolled past the heading still knows which record is on screen. The bar names the record. The page carries the detail.
@@ -747,19 +747,19 @@ Tabs as real links are the runner-up and the most defensible alternative. Middle
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Oak desk lamp" "Standard"
+  breadcrumb "Home" "Trips" "EXP-1042" "Standard"
   header
     heading "Standard"
     status "Active" positive
-    text "What this price tier is, and the discount rule its lines carry."
-    action "Pause sales"
-  tabs "Pricing" "Availability" "Returns" "Details"
+    text "What this expense is, and the receipt rule its lines carry."
+    action "Pause payouts"
+  tabs "Amounts" "Receipts" "Reversals" "Details"
     region "Details"
-      fact "Units per line" "1"
-      fact "Stock" "Whole product"
+      fact "Lines per expense" "1"
+      fact "Budget" "Whole trip"
 ```
 
-**Rationale:** The tab row under the header on a price tier, with the active tab as a URL parameter, so a pasted link carries it.
+**Rationale:** The tab row under the header on an expense, with the active tab as a URL parameter, so a pasted link carries it.
 
 **Cost:** A reader cannot compare two facets, and every new backend facet adds a tab. Carbon and GOV.UK both cap tabs at about six for this reason.
 
@@ -767,15 +767,15 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Oak desk lamp"
+  breadcrumb "Home" "Trips" "EXP-1042"
   header
-    heading "Oak desk lamp"
+    heading "EXP-1042"
     status "Active" positive
-    text "LMP-OAK-01 · 412 in stock."
-    action primary "Add a variant"
-  tabs "Details" "Variants 2" "Price tiers 3" "Returns 0" "Questions 4"
-    region "Variants"
-      table 2 "Variant" "Sold" "Price" "State"
+    text "EXP-1042 · 412 filed."
+    action primary "Add a receipt"
+  tabs "Details" "Receipts 2" "Expenses 3" "Reversals 0" "Questions 4"
+    region "Receipts"
+      table 2 "Receipt" "Filed" "Amount" "State"
         item: text "Standard" · text "9,412 of 10,000" · text "EUR 45.00" · status "Active" positive
 ```
 
@@ -787,19 +787,19 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "SO-1042"
+  breadcrumb "Home" "Expenses" "EXP-1042"
   header
-    heading "SO-1042"
+    heading "EXP-1042"
     status "Paid" positive
-    text "Maria Garcia · Garcia Interiors · 8 Oct 2026, 09:32 · EUR 125.00"
-    action primary "Message customer"
-  region "The order at a glance"
+    text "Ava · Rotterdam client visit · 8 Oct 2026, 09:32 · EUR 125.00"
+    action primary "Message spender"
+  region "The expense at a glance"
     fact "Paid" "EUR 125.00"
-    fact "Placed" "8 Oct 2026, 09:32"
-  tabs "Lines" "Payment" "Refunds" "Messages"
+    fact "Filed" "8 Oct 2026, 09:32"
+  tabs "Lines" "Payment" "Reversals" "Messages"
     region "Lines"
       list 3
-        item: text "Oak desk lamp" · text muted "LMP-OAK-01 · quantity 2" · status "Ready" info · action "Refund"
+        item: text "EXP-1042" · text muted "EXP-1042 · quantity 2" · status "Ready" info · action "Reversal"
 ```
 
 **Rationale:** The summary stays on screen, and the sibling pages of this area become a tab row at a subordinate level beneath it.
@@ -810,16 +810,16 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Products" "Oak desk lamp"
+  breadcrumb "Home" "Trips" "EXP-1042"
   header
-    heading "Oak desk lamp"
+    heading "EXP-1042"
     status "Active" positive
-    text "LMP-OAK-01 · 412 in stock."
-    action primary "Add a variant"
-  tabs "Details" "Pricing" "Stock" "Money" "Operations"
-    region "Pricing"
+    text "EXP-1042 · 412 filed."
+    action primary "Add a receipt"
+  tabs "Details" "Amounts" "Budget" "Money" "Operations"
+    region "Amounts"
       fact "Standard" "EUR 45.00"
-      text muted "9,412 sold of 10,000"
+      text muted "9,412 filed of 10,000"
 ```
 
 **Rationale:** The tab labels are real links to sibling routes rather than buttons that swap a panel. Middle click, open in a new tab, and the back button all behave the way a reader expects.
@@ -832,19 +832,19 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Settings" "Warehouses" "Amsterdam warehouse"
+  breadcrumb "Home" "Settings" "Cost centres" "Amsterdam sales"
   header
-    heading "Amsterdam warehouse"
+    heading "Amsterdam sales"
     status "Active" positive
-    text "40 pallets, general storage."
-    action primary "Add a bay"
+    text "40 expenses, general storage."
+    action primary "Add a cost centre"
   row
-    action primary "Bays 4"
+    action primary "Cost centres 4"
     action quiet "Capacity"
     action quiet "Details"
-  region "Bays"
+  region "Cost centres"
     list 3
-      item: text "Bay A" · text muted "4 docks · open from 08:00" · status "Active" positive · action "Edit"
+      item: text "Cost centre A" · text muted "4 cost centres · open from 08:00" · status "Active" positive · action "Edit"
 ```
 
 **Rationale:** Where the choice is between two or three views of the same data rather than different pages, a segmented control is the right control. Carbon names the content switcher for exactly this.
@@ -857,22 +857,22 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Settings" "Warehouses" "Amsterdam warehouse"
+  breadcrumb "Home" "Settings" "Cost centres" "Amsterdam sales"
   header
-    heading "Amsterdam warehouse"
+    heading "Amsterdam sales"
     status "Active" positive
-    text "40 pallets, general storage."
-    action primary "Add a bay"
+    text "40 expenses, general storage."
+    action primary "Add a cost centre"
   region "What it is"
-    fact "Name" "Amsterdam warehouse"
-    fact "Capacity" "40 pallets"
-    fact "Company" "Acme Supply"
-  region "Bays"
+    fact "Name" "Amsterdam sales"
+    fact "Capacity" "40 expenses"
+    fact "Company" "Harbor and Pine"
+  region "Cost centres"
     list 2
-      item: text "Bay A" · text muted "4 docks · open from 08:00" · status "Active" positive · action "Edit"
-  region "Which deliveries use it"
+      item: text "Cost centre A" · text muted "4 cost centres · open from 08:00" · status "Active" positive · action "Edit"
+  region "Which trips use it"
     list 1
-      item: text "Garcia Interiors restock" · text muted "Sat 14 Mar 2026 · 40 pallets" · action "Open"
+      item: text "Rotterdam client visit" · text muted "Sat 14 Mar 2026 · 40 expenses" · action "Open"
 ```
 
 **Rationale:** Where a record has a handful of facets and they all fit, keep headed sections on one page. GOV.UK names this as the first-class alternative to tabs and it is the right answer for most records.
@@ -885,23 +885,23 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "Garcia Interiors restock"
+  breadcrumb "Home" "Expenses" "Rotterdam client visit"
   header
-    heading "Garcia Interiors restock"
+    heading "Rotterdam client visit"
     status "Scheduled" info
-    text "Sat 14 Mar 2026 · Amsterdam warehouse"
+    text "Sat 14 Mar 2026 · Amsterdam sales"
     action primary "Add an item"
-  tabs "Details" "Items" "Schedule" "Dispatch" "Money" "More"
+  tabs "Details" "Items" "Schedule" "Payout run" "Money" "More"
     region "Items"
-      table 2 "Item" "Units" "Price" "State"
-        item: text "Oak desk lamp" · text "200 units" · text "EUR 45.00" · status "Ready" info
+      table 2 "Item" "Units" "Amount" "State"
+        item: text "EXP-1042" · text "200 units" · text "EUR 45.00" · status "Ready" info
   menu "More"
     action "Operations"
-    action "Orders"
+    action "Expenses"
     action "Notes"
 ```
 
-**Rationale:** GitHub Primer moves overflowing tabs into a menu rather than scrolling the row. The first five facets stay visible and the rest sit one click away. Eight delivery sections fit a row built for five.
+**Rationale:** GitHub Primer moves overflowing tabs into a menu rather than scrolling the row. The first five facets stay visible and the rest sit one click away. Eight trip sections fit a row built for five.
 
 **Cost:** A reader cannot see which facet is current when it sits inside the menu. The More control has to carry the current label too. The menu also needs the same counts the row would have shown.
 
@@ -911,22 +911,22 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Settings" "Warehouses"
+  breadcrumb "Home" "Settings" "Cost centres"
   header
-    heading "Warehouses"
-    text "3 sites with a dispatch plan."
-    action primary "Add a warehouse"
+    heading "Cost centres"
+    text "3 cost centres with a payout run plan."
+    action primary "Add a cost centre"
   split 1:3
     nav side
       link "General"
-      link current "Warehouses"
+      link current "Cost centres"
       link "Payments"
       link "Policies"
       link "Team"
       link "Roles"
-    region "Warehouses"
+    region "Cost centres"
       list 3
-        item: text "Amsterdam warehouse" · text muted "40 pallets · general storage" · status "Active" positive · action "Edit"
+        item: text "Amsterdam sales" · text muted "40 expenses · general storage" · status "Active" positive · action "Edit"
 ```
 
 **Rationale:** Stripe settings put the sections in a vertical list beside the content, so six sections read as a short index rather than a wide row. The current section stays visible while its fields scroll.
@@ -959,7 +959,7 @@ page
   header
     heading "Good afternoon, Alex"
     text "Two things need you today."
-    action primary "New order"
+    action primary "New expense"
   split 1:4
     region "Areas"
       list 7
@@ -967,7 +967,7 @@ page
     region "Needs attention"
       status "2 to do" caution
       list 1
-        item: text "Close out the March stock count" · text muted "The count ended. Nothing left to settle." · action "Close out"
+        item: text "Close out the March payout run" · text muted "The count ended. Nothing left to settle." · action "Close out"
 ```
 
 **Rationale:** Every area carries an icon and its name, so the icon is reinforcement rather than the only label. It is what makes seven areas easy to read at a glance.
@@ -982,20 +982,20 @@ page
   header
     heading "Good afternoon, Alex"
     text "Two things need you today."
-    action primary "New order"
+    action primary "New expense"
   split 1:4
     nav side
       link current "Home"
-      link "Orders"
-      link "Customers"
-      link "Products"
-      link "Invoices"
+      link "Expenses"
+      link "Spenders"
+      link "Trips"
+      link "Payouts"
       link "Reports"
       link "Settings"
     region "Needs attention"
       status "2 to do" caution
       list 1
-        item: text "Close out the March stock count" · text muted "The count ended. Nothing left to settle." · action "Close out"
+        item: text "Close out the March payout run" · text muted "The count ended. Nothing left to settle." · action "Close out"
 ```
 
 **Rationale:** The labels are the navigation. Nothing to draw, nothing to name, and nothing that fails when a reader cannot distinguish the icons.
@@ -1016,7 +1016,7 @@ page
     region "Needs attention"
       status "2 to do" caution
       list 1
-        item: text "Close out the March stock count" · text muted "The count ended." · action "Close out"
+        item: text "Close out the March payout run" · text muted "The count ended." · action "Close out"
 ```
 
 **Rationale:** On a phone the sidebar is a page of words. Inside the collapsed frame the icons carry the seven areas and the labels are gone. The same component serves two densities.
@@ -1027,57 +1027,57 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders."
+    heading "Expenses"
+    text "268 expenses."
   split 1:4
     region "Areas"
       text muted "Today"
       link current "Home"
-      text muted "What you sell"
-      link "Orders"
-      link "Customers"
-      link "Products"
+      text muted "What you file"
+      link "Expenses"
+      link "Spenders"
+      link "Trips"
       text muted "What it makes"
-      link "Invoices"
+      link "Payouts"
       link "Reports"
       text muted "How it is set up"
       link "Settings"
-    region "Orders"
-      table 2 "Order" "Customer" "State" "Paid"
-        item: text "SO-1042" · text "Maria Garcia" · status "Paid" positive · text "EUR 125.00"
+    region "Expenses"
+      table 2 "Expense" "Spender" "State" "Paid"
+        item: text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
 ```
 
-**Rationale:** Seven areas become two or three headed groups: what you sell, what it makes, how it is set up. The grouping is about the job rather than the object.
+**Rationale:** Seven areas become two or three headed groups: what you file, what it pays, how it is set up. The grouping is about the job rather than the object.
 
-**Cost:** Grouping an area tree by job means a reader decides which group holds an area. Grouping by object is the convention everywhere else in the product.
+**Cost:** Grouping an area tree by job means a reader decides which group holds an area. Grouping by object is the convention everywhere else in the console.
 
 #### `icons-only-for-the-actions-words-only-for-the-areas`: Icons Only for the Actions, Words Only for the Areas
 
 ```wireframe
 page
   toolbar
-    text "Orders"
-    action "Search orders"
+    text "Expenses"
+    action "Search expenses"
     action "Export as CSV"
     action "Light or dark"
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders from 142 customers, newest first."
+    heading "Expenses"
+    text "268 expenses from 142 spenders, newest first."
   split 1:4
     nav side
       link "Home"
-      link current "Orders"
-      link "Customers"
-      link "Products"
-      link "Invoices"
+      link current "Expenses"
+      link "Spenders"
+      link "Trips"
+      link "Payouts"
       link "Reports"
       link "Settings"
-    region "Orders"
-      table 3 "Order" "Customer" "State" "Paid"
-        item: text "SO-1042" · text "Maria Garcia" · status "Paid" positive · text "EUR 125.00" · action "More actions for order SO-1042"
+    region "Expenses"
+      table 3 "Expense" "Spender" "State" "Paid"
+        item: text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00" · action "More actions for expense EXP-1042"
 ```
 
 **Rationale:** The split the evidence supports: an icon reinforces a labeled area, but an icon alone is never the label for a place. An action with one unmistakable meaning can be an icon with a tooltip and an accessible name.
@@ -1089,17 +1089,17 @@ page
 ```wireframe
 page
   toolbar
-    text "Orders"
+    text "Expenses"
     action "Language: English"
     action "Theme: light"
     action "Help"
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders."
-  region "Orders"
-    table 2 "Order" "Customer" "State" "Paid"
-      item: text "SO-1042" · text "Maria Garcia" · status "Paid" positive · text "EUR 125.00"
+    heading "Expenses"
+    text "268 expenses."
+  region "Expenses"
+    table 2 "Expense" "Spender" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
 ```
 
 **Rationale:** The theme and the language are icons because they carry one conventional meaning and no label worth the width. The company name is not an icon because it has to be read.
@@ -1110,23 +1110,23 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders from 142 customers, newest first."
+    heading "Expenses"
+    text "268 expenses from 142 spenders, newest first."
   split 1:4
     nav side
       link "Home"
-      link current "Orders"
-      link "Customers"
-      link "Products"
-      link "Invoices"
+      link current "Expenses"
+      link "Spenders"
+      link "Trips"
+      link "Payouts"
       link "Reports"
       link "Settings"
     region "Needs attention"
       status "1 to do" caution
       list 1
-        item: text "31 refunds need a decision" · text muted "The 180-day window closes on 5 of them this week." · action "Decide"
+        item: text "31 reversals need a decision" · text muted "The 180-day window closes on 5 of them this week." · action "Decide"
 ```
 
 **Rationale:** VS Code marks the current view with a border beside the label rather than an icon, so the eye finds it without reading. The bar sits outside the label, which keeps words-only areas easy to read at a glance.
@@ -1143,16 +1143,16 @@ page
   header
     heading "Good afternoon, Alex"
     text "Two things need you today."
-    action primary "New order"
+    action primary "New expense"
   split 1:4
     region "Areas"
       list 7
-        item: icon "Orders" · link "Orders"
+        item: icon "Expenses" · link "Expenses"
       link "Help"
     region "Needs attention"
       status "2 to do" caution
       list 2
-        item: text "Close out the March stock count" · text muted "The count ended. Nothing left to settle." · action "Close out"
+        item: text "Close out the March payout run" · text muted "The count ended. Nothing left to settle." · action "Close out"
 ```
 
 **Rationale:** Icons come from the Lucide set at 16 px with a 2 px stroke. Every area icon comes from one set at one size. No two disagree on weight. One set is what keeps seven drawings consistent.
@@ -1173,7 +1173,7 @@ page
 
 **Rationale:** Keep both switches in the header, each showing its value. The reader sees what is set without opening anything. The theme is one tap at the end of a shift.
 
-The account menu is the runner-up for language only, since language rarely changes and the menu groups it with the account it belongs to. Never ship no switch at all. One language is a commercial decision about which companies the product serves. It is not a UI simplification. The product already serves companies in two languages.
+The account menu is the runner-up for language only, since language rarely changes and the menu groups it with the account it belongs to. Never ship no switch at all. One language is a commercial decision about which companies Claimwick serves. It is not a UI simplification. Claimwick already serves companies in two languages.
 
 **Reviewed for:** Which built switch differs from the wireframe its catalog entry chose? Open the built locale and appearance controls, in the header and account menu, beside the catalog entry recording the chosen option and its reason.
 
@@ -1182,16 +1182,16 @@ The account menu is the runner-up for language only, since language rarely chang
 ```wireframe
 page
   toolbar
-    text "Orders"
+    text "Expenses"
     field "Language" select = "English"
     field "Theme" select = "Light"
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders."
-  region "Orders"
-    table 3 "Order" "Customer" "State" "Paid"
-      item: text "SO-1042" · text "Maria Garcia" · status "Paid" positive · text "EUR 125.00"
+    heading "Expenses"
+    text "268 expenses."
+  region "Expenses"
+    table 3 "Expense" "Spender" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
 ```
 
 **Rationale:** Each control carries its current value rather than an icon, so the reader can see what is set without opening it.
@@ -1203,25 +1203,25 @@ page
 ```wireframe
 page
   toolbar
-    text "Orders"
+    text "Expenses"
     action "Account: Alex Morgan"
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders."
-  menu "Alex Morgan · Acme Supply"
+    heading "Expenses"
+    text "268 expenses."
+  menu "Alex Morgan · Harbor and Pine"
     action "Your account"
     action "Sign out"
     action "English"
     action "Nederlands"
     action "Light"
     action "Dark"
-  region "Orders"
-    table 2 "Order" "Customer" "State" "Paid"
-      item: text "SO-1042" · text "Maria Garcia" · status "Paid" positive · text "EUR 125.00"
+  region "Expenses"
+    table 2 "Expense" "Spender" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
 ```
 
-**Rationale:** Everything about who you are and how the product looks sits in one place, and the header is left for the page title. Account, language, theme, and sign-out are one decision.
+**Rationale:** Everything about who you are and how the trip looks sits in one place, and the header is left for the page title. Account, language, theme, and sign-out are one decision.
 
 **Cost:** Two taps for a reader who only wants dark at the end of a shift. The theme is not something a reader opens an account menu to find.
 
@@ -1230,21 +1230,21 @@ page
 ```wireframe
 page
   toolbar
-    text "Orders"
+    text "Expenses"
     status "System theme" neutral
     field "Theme" select = "Match my device"
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders."
-  region "Orders"
-    table 4 "Order" "Customer" "State" "Paid"
-      item: text "SO-1042" · text "Maria Garcia" · status "Paid" positive · text "EUR 125.00"
+    heading "Expenses"
+    text "268 expenses."
+  region "Expenses"
+    table 4 "Expense" "Spender" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
 ```
 
 **Rationale:** The theme defaults to the operating system's and the reader overrides it once. The preference is kept, and the switch shows the override rather than the system's value.
 
-**Cost:** A reader whose system is dark gets a dark console without asking. That is the correct behavior. A company filming a screen for a customer then gets a dark screenshot.
+**Cost:** A reader whose system is dark gets a dark console without asking. That is the correct behavior. A company filming a screen for a spender then gets a dark screenshot.
 
 #### `a-language-choice-made-once-on-the-account`: A Language Choice Made Once, on the Account
 
@@ -1253,9 +1253,9 @@ page
   breadcrumb "Home" "Account"
   header
     heading "Your account"
-    text "Alex Morgan · Acme Supply"
+    text "Alex Morgan · Harbor and Pine"
   region "Language"
-    field "Email" text = "alex@acme-supply.example"
+    field "Email" text = "alex@harbor-pine.example"
     field "Language" select = "English"
     message info "Every page is available in English and Nederlands."
     action primary "Save"
@@ -1269,22 +1269,22 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders."
+    heading "Expenses"
+    text "268 expenses."
   split 1:4
     nav side
       link "Home"
-      link current "Orders"
-      link "Customers"
-      link "Products"
-      link "Invoices"
+      link current "Expenses"
+      link "Spenders"
+      link "Trips"
+      link "Payouts"
       link "Reports"
       link "Settings"
-    region "Orders"
-      table 2 "Order" "Customer" "State" "Paid"
-        item: text "SO-1042" · text "Maria Garcia" · status "Paid" positive · text "EUR 125.00"
+    region "Expenses"
+      table 2 "Expense" "Spender" "State" "Paid"
+        item: text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
   footer
     text "Alex Morgan, operations manager"
     field "Language" select = "English"
@@ -1308,32 +1308,32 @@ page
     text "268 bestellingen van 142 klanten, nieuwste eerst."
   region "Bestellingen"
     table 3 "Bestelling" "Klant" "Staat" "Betaald"
-      item: text "SO-1042" · text "Maria Garcia" · status "Betaald" positive · text "EUR 125,00"
+      item: text "EXP-1042" · text "Ava" · status "Betaald" positive · text "EUR 125,00"
 ```
 
 **Rationale:** Dutch only. One language, one currency, one tax regime, and no reader has to choose anything about how the console looks or reads.
 
-**Cost:** The product already serves companies in two languages. One language is a real commercial decision, not a UI one.
+**Cost:** Claimwick already serves companies in two languages. One language is a real commercial decision, not a UI one.
 
 #### `theme-on-the-device-language-on-the-account`: Theme on the Device, Language on the Account
 
 ```wireframe
 page
   toolbar
-    text "Orders"
+    text "Expenses"
     action "Theme: System"
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders."
+    heading "Expenses"
+    text "268 expenses."
   menu "Theme"
     action "Match my device"
     action "Light"
     action "Dark"
     action "Language: English, on your account"
-  region "Orders"
-    table 2 "Order" "Customer" "State" "Paid"
-      item: text "SO-1042" · text "Maria Garcia" · status "Paid" positive · text "EUR 125.00"
+  region "Expenses"
+    table 2 "Expense" "Spender" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
 ```
 
 **Rationale:** Vercel keeps theme as a device-level choice with the system as the default, while language stays on the account. Each switch lives where its value lives, so neither pretends to be the other.
@@ -1356,7 +1356,7 @@ page
   region "Needs attention"
     status "2 to do" caution
     list 2
-      item: text "Close out the March stock count" · text muted "The count ended. Nothing left to settle." · action "Close out"
+      item: text "Close out the March payout run" · text muted "The count ended. Nothing left to settle." · action "Close out"
 ```
 
 **Rationale:** Atlassian offers the browser language once on first sign-in rather than guessing silently: a banner names what was detected and asks. Accepting sets the account language. Refusing dismisses the offer for good.
@@ -1369,7 +1369,7 @@ page
 
 **ID:** `litespec/frontend/patterns/navigation#command-palette`
 
-**Question:** An operations manager working a list often needs one record or one command and then the list again. The palette jumps straight to the order for Garcia Interiors. It runs the next step from the keyboard, so the reader never loses the page they were working.
+**Question:** An operations manager working a list often needs one record or one command and then the list again. The palette jumps straight to the expense for Rotterdam client visit. It runs the next step from the keyboard, so the reader never loses the page they were working.
 
 **Default:** `cmd-k-dialog-with-grouped-results`
 
@@ -1377,7 +1377,7 @@ page
 
 **Rationale:** Keep the grouped Cmd+K dialog. Pages above records answer both where to go and what to open. The footer hints teach the keyboard without a help page.
 
-Recent items first is the runner-up. It fits warehouse and support work that moves between a few records. Recency is personal state, and it reads wrong on a shared machine.
+Recent items first is the runner-up. It fits cost centre and support work that moves between a few records. Recency is personal state, and it reads wrong on a shared machine.
 
 Never ship command verbs with a preview as the default palette. Every verb becomes a second path to a use case. Each one needs its own permission and refusal wording to keep.
 
@@ -1387,18 +1387,18 @@ Never ship command verbs with a preview as the default palette. Every verb becom
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every paid order, newest first."
+    heading "Expenses"
+    text "Every paid expense, newest first."
   dialog "Jump to"
-    field "Search pages, orders, products" search
+    field "Search pages, expenses, trips" search
     region "Go to"
       list 2
-        item: text "Orders" · text muted "Pages"
-    region "Orders"
+        item: text "Expenses" · text muted "Pages"
+    region "Expenses"
       list 2
-        item: text "SO-1042" · text "Maria Garcia" · status "Paid" positive
+        item: text "EXP-1042" · text "Ava" · status "Paid" positive
     text muted "Move with Up and Down. Open with Enter."
 ```
 
@@ -1410,20 +1410,20 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every paid order, newest first."
+    heading "Expenses"
+    text "Every paid expense, newest first."
   dialog "Jump to"
-    field "Scope" select = "Orders"
-    field "Search orders" search
-    region "Orders"
+    field "Scope" select = "Expenses"
+    field "Search expenses" search
+    region "Expenses"
       list 2
-        item: text "SO-1042" · text "Maria Garcia" · status "Paid" positive
+        item: text "EXP-1042" · text "Ava" · status "Paid" positive
     text muted "Scope with Tab. Open with Enter."
 ```
 
-**Rationale:** The scope starts on the area the reader is already in, so typing an order number on the orders page searches orders first. Widening to everything is one explicit step.
+**Rationale:** The scope starts on the area the reader is already in, so typing an expense number on the expenses page searches expenses first. Widening to everything is one explicit step.
 
 **Cost:** A scoped default hides matches elsewhere, so a reader who mistakes the scope concludes a record is missing.
 
@@ -1431,22 +1431,22 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every paid order, newest first."
+    heading "Expenses"
+    text "Every paid expense, newest first."
   dialog "Jump to"
-    field "Search pages, orders, products" search
+    field "Search pages, expenses, trips" search
     region "Recent"
       list 2
-        item: text "SO-1042" · text "Maria Garcia" · status "Paid" positive
+        item: text "EXP-1042" · text "Ava" · status "Paid" positive
     region "Go to"
       list 2
-        item: text "Orders" · text muted "Pages"
+        item: text "Expenses" · text muted "Pages"
     text muted "Open with Enter."
 ```
 
-**Rationale:** Recent records sit above the groups before anything is typed, so returning to the order left open is one keypress. Recency matches how warehouse and support work moves between a few records.
+**Rationale:** Recent records sit above the groups before anything is typed, so returning to the expense left open is one keypress. Recency matches how cost centre and support work moves between a few records.
 
 **Cost:** Recency is personal state on a shared machine, so the next person at the keyboard sees what the last person opened.
 
@@ -1454,24 +1454,24 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every paid order, newest first."
+    heading "Expenses"
+    text "Every paid expense, newest first."
   dialog "Run a command"
     field "Type a command or search" search
     split 1:1
       region "Commands"
         list 2
-          item: text "Open order" · text muted "SO-1042"
-      region "SO-1042"
-        fact "Order" "SO-1042"
-        fact "Customer" "Maria Garcia"
+          item: text "Open expense" · text muted "EXP-1042"
+      region "EXP-1042"
+        fact "Expense" "EXP-1042"
+        fact "Spender" "Ava"
         fact "Total" "EUR 125.00"
     text muted "Run with Enter."
 ```
 
-**Rationale:** Verbs sit beside the records they act on, with the record preview beside the verb. Acting on the open order never needs a visit to its page first. The preview confirms the right record before the verb runs.
+**Rationale:** Verbs sit beside the records they act on, with the record preview beside the verb. Acting on the open expense never needs a visit to its page first. The preview confirms the right record before the verb runs.
 
 **Cost:** Every verb in the palette is a second path to a use case. Each one needs the same permission and refusal wording as its page.
 
@@ -1479,13 +1479,13 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every paid order, newest first."
+    heading "Expenses"
+    text "Every paid expense, newest first."
   dialog "Jump to"
-    field "Search pages, orders, products" search = "zzz"
-    message "No matches in Acme Supply." neutral
+    field "Search pages, expenses, trips" search = "zzz"
+    message "No matches in Harbor and Pine." neutral
     text muted "Close with Esc."
 ```
 
@@ -1497,15 +1497,15 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every paid order, newest first."
+    heading "Expenses"
+    text "Every paid expense, newest first."
   dialog "Jump to"
-    field "Search pages, orders, products" search
+    field "Search pages, expenses, trips" search
     menu "Results"
-      action "Open SO-1042"
-      action "Open Garcia Interiors restock"
+      action "Open EXP-1042"
+      action "Open Rotterdam client visit"
     text muted "Move with Up and Down. Open with Enter. Close with Esc."
 ```
 
@@ -1517,16 +1517,16 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every paid order, newest first."
+    heading "Expenses"
+    text "Every paid expense, newest first."
   dialog "Run a command"
-    field "Type a command or search" search = "Refund"
+    field "Type a command or search" search = "Reversal"
     menu "Commands"
-      action "Refund order"
-      action "Message customer"
-      action "Pause sales"
+      action "Reversal expense"
+      action "Message spender"
+      action "Pause payouts"
     text "Pick the record the verb acts on next."
     text muted "Run with Enter. Back with Esc."
 ```
@@ -1542,18 +1542,18 @@ page
 ```wireframe
 page
   header
-    heading "Orders"
-    text "268 orders."
-  region "Orders"
+    heading "Expenses"
+    text "268 expenses."
+  region "Expenses"
     list 1
-      item: text "SO-1042" · text "Maria Garcia" · status "Paid" positive
+      item: text "EXP-1042" · text "Ava" · status "Paid" positive
   drawer bottom "Search"
-    field "Search pages, orders, products" search
+    field "Search pages, expenses, trips" search
     list 2
-      item: text "SO-1042" · text "Maria Garcia" · status "Paid" positive
+      item: text "EXP-1042" · text "Ava" · status "Paid" positive
 ```
 
-**Rationale:** Linear opens the palette as a bottom sheet on a phone, where the thumb reaches the input. The recent records sit above the fold of the sheet, so returning to the order left open is one tap.
+**Rationale:** Linear opens the palette as a bottom sheet on a phone, where the thumb reaches the input. The recent records sit above the fold of the sheet, so returning to the expense left open is one tap.
 
 **Cost:** The sheet covers the list it came from, and a phone keyboard leaves room for three rows at most. It answers jumps, not browsing.
 
@@ -1581,22 +1581,22 @@ Never ship the bare sign-out link. An account with no page turns language, sessi
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders from 142 customers, newest first."
+    heading "Expenses"
+    text "268 expenses from 142 spenders, newest first."
   split 1:3
     nav side
       link "Home"
-      link current "Orders"
-      link "Customers"
-      link "Products"
-      link "Invoices"
+      link current "Expenses"
+      link "Spenders"
+      link "Trips"
+      link "Payouts"
       link "Settings"
       link "Help"
-    region "Orders"
-      table 2 "Order" "Customer" "State" "Paid"
-        item: text "SO-1042" · text "Maria Garcia" · status "Paid" positive · text "EUR 125.00"
+    region "Expenses"
+      table 2 "Expense" "Spender" "State" "Paid"
+        item: text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
   footer
     avatar "AM"
     text "Alex Morgan · Operations manager"
@@ -1610,14 +1610,14 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders."
+    heading "Expenses"
+    text "268 expenses."
     action "Alex Morgan"
-  region "Orders"
-    table 2 "Order" "Customer" "State" "Paid"
-      item: text "SO-1042" · text "Maria Garcia" · status "Paid" positive · text "EUR 125.00"
+  region "Expenses"
+    table 2 "Expense" "Spender" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
   popover "Alex Morgan · Operations manager"
     action "Your account"
     action "Your access"
@@ -1639,11 +1639,11 @@ page
   breadcrumb "Home" "Account"
   header
     heading "Your account"
-    text "Alex Morgan · Acme Supply."
+    text "Alex Morgan · Harbor and Pine."
   region "Details"
     fact "Name" "Alex Morgan"
-    fact "Email" "alex@acme-supply.example"
-    fact "Company" "Acme Supply"
+    fact "Email" "alex@harbor-pine.example"
+    fact "Company" "Harbor and Pine"
     fact "Role" "Operations manager"
   region "Manage"
     list 3
@@ -1658,18 +1658,18 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders."
+    heading "Expenses"
+    text "268 expenses."
     action "Alex Morgan"
-  region "Orders"
-    table 2 "Order" "Customer" "State" "Paid"
-      item: text "SO-1042" · text "Maria Garcia" · status "Paid" positive · text "EUR 125.00"
+  region "Expenses"
+    table 2 "Expense" "Spender" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
   popover "Alex Morgan · Operations manager"
-    text "You can view and message orders."
-    text "You can book dispatches."
-    text "Only Finance can issue refunds."
+    text "You can view and message expenses."
+    text "You can book payouts."
+    text "Only Finance can issue reversals."
     text "Only Finance can answer disputes."
     action "Sign out"
 ```
@@ -1682,20 +1682,20 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
+    heading "Expenses"
     text "Nothing here is charged and nothing reaches a bank."
     action "Alex Morgan"
-  region "Orders"
-    table 2 "Order" "Customer" "State" "Paid"
-      item: text "SO-1042" · text "Maria Garcia" · status "Paid" positive · text "EUR 125.00"
+  region "Expenses"
+    table 2 "Expense" "Spender" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
   popover "Act as · development only"
     status "Sandbox" info
-    action "Sam Rivera · Owner"
+    action "Priya Shah · Owner"
     action "Alex Morgan · Operations manager"
     action "Priya Shah · Finance"
-    action "Chris Novak · Warehouse lead"
+    action "Ade Okafor · Finance lead"
 ```
 
 **Rationale:** Seeded personas exist so a developer can stand where each role stands. Naming the deployment and the persona in the menu keeps a screenshot honest about whose eyes saw it.
@@ -1706,13 +1706,13 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders."
-  region "Orders"
-    table 2 "Order" "Customer" "State" "Paid"
-      item: text "SO-1042" · text "Maria Garcia" · status "Paid" positive · text "EUR 125.00"
+    heading "Expenses"
+    text "268 expenses."
+  region "Expenses"
+    table 2 "Expense" "Spender" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
   footer
     text "Alex Morgan · Operations manager"
     action quiet "Sign out"
@@ -1726,7 +1726,7 @@ page
 
 **ID:** `litespec/frontend/patterns/navigation#notification-inbox`
 
-**Question:** Refunds, disputes, invitations, and warehouse incidents all need somebody who was looking elsewhere. The console lists them under Needs attention on Home and nowhere else.
+**Question:** Reversals, disputes, invitations, and cost centre incidents all need somebody who was looking elsewhere. The console lists them under Needs attention on Home and nowhere else.
 
 **Default:** `a-bell-in-the-header-with-a-dropdown-panel`
 
@@ -1747,14 +1747,14 @@ page
   header
     heading "Good afternoon, Alex"
     text "Three things need you today."
-    action primary "New order"
+    action primary "New expense"
   region "Needs attention"
     status "3 to do" caution
     list 3
-      item: text "A dispute was opened on order SO-1041" · text muted "Tom Becker · answers in 5 days" · action "Answer"
+      item: text "A dispute was opened on expense EXP-1041" · text muted "Tom Becker · answers in 5 days" · action "Answer"
 ```
 
-**Rationale:** One list on the first page after sign-in, ordered by what needs doing, with each row carrying the step that deals with it.
+**Rationale:** One list on the first page after sign-in, sorted by what needs doing, with each row carrying the step that deals with it.
 
 **Cost:** Home is one page among many, so a reader working a list all day never sees it. Anything urgent waits for a visit that may not come.
 
@@ -1762,17 +1762,17 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders."
+    heading "Expenses"
+    text "268 expenses."
     action "Notifications · 3 unread"
-  region "Orders"
-    table 2 "Order" "Customer" "State" "Paid"
-      item: text "SO-1042" · text "Maria Garcia" · status "Paid" positive · text "EUR 125.00"
+  region "Expenses"
+    table 2 "Expense" "Spender" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
   popover "Notifications"
     list 3
-      item: text "A dispute was opened on order SO-1041" · text muted "Tom Becker · 2 hours ago" · status "Disputed" critical
+      item: text "A dispute was opened on expense EXP-1041" · text muted "Tom Becker · 2 hours ago" · status "Disputed" critical
     action quiet "Mark all read"
     action quiet "Open inbox"
 ```
@@ -1790,12 +1790,12 @@ page
   breadcrumb "Home" "Inbox"
   header
     heading "Inbox"
-    text "4 unread across refunds, disputes and the team."
+    text "4 unread across reversals, disputes and the team."
     action "Mark all read"
   tabs "All 12" "Unread 4"
     region "Unread"
       list 4
-        item: text "A dispute was opened on order SO-1041" · text muted "Tom Becker · answers in 5 days" · status "Disputed" critical · action "Answer"
+        item: text "A dispute was opened on expense EXP-1041" · text muted "Tom Becker · answers in 5 days" · status "Disputed" critical · action "Answer"
 ```
 
 **Rationale:** Linear treats notifications as a queue with its own page: filter by unread, act, mark read. A support day with dozens of items needs filters rather than a dropdown.
@@ -1817,7 +1817,7 @@ page
       item: text "Disputes" · text muted "Opened, and 2 days before the answer is due" · text "Priya Shah" · action "Edit"
 ```
 
-**Rationale:** Shopify emails the person who can act and leaves the rest in the product. A dispute opened at midnight reaches Finance without anyone polling a bell.
+**Rationale:** Shopify emails the person who can act and leaves the rest in the console. A dispute opened at midnight reaches Finance without anyone polling a bell.
 
 **Cost:** Email is a second inbox with its own read state, so the console has to say what was sent and when. A company that filters mail misses the urgent and the routine together.
 
@@ -1828,18 +1828,18 @@ page
 ```wireframe
 page
   header
-    heading "Orders"
-    text "268 orders."
-  region "Orders"
+    heading "Expenses"
+    text "268 expenses."
+  region "Expenses"
     list 1
-      item: text "SO-1042" · text "Maria Garcia" · status "Paid" positive
+      item: text "EXP-1042" · text "Ava" · status "Paid" positive
   drawer bottom "3 unread"
     list 3
-      item: text "A dispute was opened on order SO-1041" · text muted "Tom Becker · 2 hours ago" · status "Disputed" critical
+      item: text "A dispute was opened on expense EXP-1041" · text muted "Tom Becker · 2 hours ago" · status "Disputed" critical
     action quiet "Mark all read"
 ```
 
-**Rationale:** Linear opens notifications as a bottom sheet on a phone, unread first, where the thumb reaches them. A warehouse lead reads three items between dispatches without opening the menu.
+**Rationale:** Linear opens notifications as a bottom sheet on a phone, unread first, where the thumb reaches them. A finance lead reads three items between payouts without opening the menu.
 
 **Cost:** The sheet covers the list it came from, so acting on an item means opening it full screen. Triage on a phone is read and dismiss, not decide.
 
@@ -1849,16 +1849,16 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders from 142 customers, newest first."
+    heading "Expenses"
+    text "268 expenses from 142 spenders, newest first."
   toolbar
-    field "Order number, name or email" search
+    field "Expense number, name or email" search
     field "State" select = "Any state"
-  region "Orders"
-    table 2 "Order" "Customer" "State" "Paid"
-      item: text "SO-1042" · text "Maria Garcia" · status "Paid" positive · text "EUR 125.00"
+  region "Expenses"
+    table 2 "Expense" "Spender" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
 ```
 
 **Rationale:** Every area already lists what needs doing, so a reader who walks the areas finds everything. No counts to keep, no panel to build, no email to word.
@@ -1877,7 +1877,7 @@ page
 
 **Rationale:** Open the guide for the current page in a side panel. The navigation already carries a help topic per page, so contextual help is a lookup rather than a search. The help page stays as the index behind the panel.
 
-Never ship no help entry: a warehouse lead stuck at the dock with a queue has nowhere else to turn.
+Never ship no help entry: a finance lead stuck at the office with a queue has nowhere else to turn.
 
 **Reviewed for:** Which built guidance entry differs from the wireframe its catalog entry chose? Open the built help surfaces, from sidebar entry to contextual hints, beside the catalog entry recording the chosen option and its reason.
 
@@ -1888,12 +1888,12 @@ page
   breadcrumb "Home" "Help"
   header
     heading "Help"
-    text "Guides for the stock you hold, and the people who answer the rest."
+    text "Guides for the expenses you hold, and the people who answer the rest."
   toolbar
     field "Search the guides" search
   region "Guides"
     list 4
-      item: text "Taking orders" · text muted "Products, variants, prices and the catalog" · action "Open"
+      item: text "Filing expenses" · text muted "Trips, receipts, amounts and the expense list" · action "Open"
   region "Talk to support"
     list 1
       item: text "Contact support" · text muted "The support team answers on business days" · action "Write"
@@ -1907,13 +1907,13 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders."
-  region "Orders"
-    table 2 "Order" "Customer" "State" "Paid"
-      item: text "SO-1042" · text "Maria Garcia" · status "Paid" positive · text "EUR 125.00"
+    heading "Expenses"
+    text "268 expenses."
+  region "Expenses"
+    table 2 "Expense" "Spender" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
   popover "Help"
     action "Search the guides"
     action "Keyboard shortcuts"
@@ -1928,19 +1928,19 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders" "SO-1042"
+  breadcrumb "Home" "Expenses" "EXP-1042"
   header
-    heading "SO-1042"
+    heading "EXP-1042"
     status "Paid" positive
-    text "Maria Garcia · Garcia Interiors · EUR 125.00."
-    action primary "Refund order"
+    text "Ava · Rotterdam client visit · EUR 125.00."
+    action primary "Reversal expense"
   split 2:1
-    region "The order at a glance"
-      fact "Paid by the customer" "EUR 125.00"
+    region "The expense at a glance"
+      fact "Paid by the spender" "EUR 125.00"
       fact "Paid" "8 Oct 2026, 09:34"
     aside
-      card "Refunding this order"
-        text "Check the payment date: this method refunds only within 180 days."
+      card "Reversing this expense"
+        text "Check the payment date: this method reversals only within 180 days."
         text "Past the window, offer credit or record an out-of-band payment."
         action "Open the full guide"
 ```
@@ -1955,18 +1955,18 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every paid order, newest first."
+    heading "Expenses"
+    text "Every paid expense, newest first."
   dialog "Jump to"
-    field "Search pages, orders, products" search = "refund"
+    field "Search pages, expenses, trips" search = "reversal"
     region "Go to"
       list 2
-        item: text "Refunds" · text muted "Pages"
+        item: text "Reversals" · text muted "Pages"
     region "Guides"
       list 3
-        item: text "Refunding an order" · text muted "Guide · Refunds and returns"
+        item: text "Reversing an expense" · text muted "Guide · Reversals and receipts"
 ```
 
 **Rationale:** Linear answers help queries where navigation queries already go: one input searches pages, records, and guides together. A reader who learned Cmd+K needs no second shortcut.
@@ -1979,19 +1979,19 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every paid order, newest first."
+    heading "Expenses"
+    text "Every paid expense, newest first."
   dialog "Contact support"
-    field "Subject" select = "Refunds"
-    field "Order number" text = "SO-1041"
+    field "Subject" select = "Reversals"
+    field "Expense number" text = "EXP-1041"
     field "What happened" textarea
     text "The support team answers on business days."
     action primary "Send message"
 ```
 
-**Rationale:** A form that asks for the order number up front saves one round trip on every support thread. The subject routes the message before a person reads it.
+**Rationale:** A form that asks for the expense number up front saves one round trip on every support thread. The subject routes the message before a person reads it.
 
 **Cost:** A dialog with four fields is a small page inside a modal frame, and on a phone it wants to be a sheet. It also promises an answer without saying when, so the response line has to be honest.
 
@@ -1999,88 +1999,88 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "268 orders."
+    heading "Expenses"
+    text "268 expenses."
   split 1:3
     nav side
       link "Home"
-      link current "Orders"
-      link "Customers"
-      link "Products"
-      link "Invoices"
+      link current "Expenses"
+      link "Spenders"
+      link "Trips"
+      link "Payouts"
       link "Settings"
-    region "Orders"
-      table 2 "Order" "Customer" "State" "Paid"
-        item: text "SO-1042" · text "Maria Garcia" · status "Paid" positive · text "EUR 125.00"
+    region "Expenses"
+      table 2 "Expense" "Spender" "State" "Paid"
+        item: text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
 ```
 
 **Rationale:** Every page is plain enough to need no guide, and support answers the rest by email. Nothing to write, nothing to translate, nothing to keep.
 
-**Cost:** A warehouse lead stuck at the dock with a queue has nowhere to turn inside the product. Never ship this: the guides are also where the refund policy the company answers for is recorded.
+**Cost:** A finance lead stuck at the office with a queue has nowhere to turn inside the trip. Never ship this: the guides are also where the reversal policy the company answers for is recorded.
 
 ### Workspace Switcher
 
 **ID:** `litespec/frontend/patterns/navigation#workspace-switcher`
 
-**Question:** People who run several sites think in sites: one warehouse at a time, switched between often. The console carries a warehouse's sections as tabs on the warehouse page.
+**Question:** People who run several cost centres think in cost centres: one cost centre at a time, switched between often. The console carries a cost centre's sections as tabs on the cost centre page.
 
 **Default:** `a-workspace-switcher-at-the-top-of-the-sidebar`
 
 **Compact:** On a phone the workspaces list as a bottom sheet with the state beside each name. The compact option is `a-workspace-picker-sheet-on-a-phone`.
 
-**Rationale:** Put a workspace switcher at the top of the sidebar. Switching from the Amsterdam warehouse to Rotterdam without visiting the list matches how Vercel switches projects.
+**Rationale:** Put a workspace switcher at the top of the sidebar. Switching from the Amsterdam sales to Rotterdam without visiting the list matches how Vercel switches projects.
 
 The trail sibling menu is the runner-up on record pages four levels deep, where the sidebar context is far away.
 
-Never ship back-to-list as the only path. It costs the most to exactly the companies with the most sites.
+Never ship back-to-list as the only path. It costs the most to exactly the companies with the most cost centres.
 
-**Reviewed for:** Which built warehouse picker breaks from the wireframe its catalog entry chose? Open the built switcher, with recent workspaces first, beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Which built cost centre picker breaks from the wireframe its catalog entry chose? Open the built switcher, with recent workspaces first, beside the catalog entry recording the chosen option and its reason.
 
-#### `warehouse-sections-as-tabs-on-the-warehouse-page`: Warehouse Sections as Tabs on the Warehouse Page
+#### `warehouse-sections-as-tabs-on-the-warehouse-page`: Cost Centre Sections as Tabs on the Cost Centre Page
 
 ```wireframe
 page
-  breadcrumb "Home" "Settings" "Warehouses" "Amsterdam warehouse"
+  breadcrumb "Home" "Settings" "Cost centres" "Amsterdam sales"
   header
-    heading "Amsterdam warehouse"
+    heading "Amsterdam sales"
     status "Active" positive
-    text "Canal Street 12 · 4 bays."
-    action primary "Add stock"
-  tabs "Details" "Stock" "Inbound" "Dispatch" "Money" "Operations" "Orders" "Notes"
-    region "Stock"
-      table 2 "Item" "On hand" "Price" "State"
-        item: text "Oak desk lamp" · text "412 of 500" · text "EUR 45.00" · status "Active" positive
+    text "Amsterdam office · 4 cost centres."
+    action primary "Add budget"
+  tabs "Details" "Budget" "Inbound" "Payout run" "Money" "Operations" "Expenses" "Notes"
+    region "Budget"
+      table 2 "Item" "On hand" "Amount" "State"
+        item: text "EXP-1042" · text "412 of 500" · text "EUR 45.00" · status "Active" positive
 ```
 
-**Rationale:** Eight sections of one warehouse as a tab row under the heading, with the active section in the URL so a pasted link carries it.
+**Rationale:** Eight sections of one cost centre as a tab row under the heading, with the active section in the URL so a pasted link carries it.
 
-**Cost:** Eight tabs overflow a phone and crowd a laptop, and the row says nothing about the other sites. Sections are covered. Switching is not.
+**Cost:** Eight tabs overflow a phone and crowd a laptop, and the row says nothing about the other cost centres. Sections are covered. Switching is not.
 
 #### `a-workspace-switcher-at-the-top-of-the-sidebar`: A Workspace Switcher at the Top of the Sidebar
 
 ```wireframe
 page
-  breadcrumb "Home" "Settings" "Warehouses" "Amsterdam warehouse"
+  breadcrumb "Home" "Settings" "Cost centres" "Amsterdam sales"
   header
-    heading "Amsterdam warehouse"
+    heading "Amsterdam sales"
     status "Active" positive
-    text "Canal Street 12 · 4 bays."
-    action "Switch warehouse"
-    action primary "Add stock"
-  region "Stock"
-    fact "Site" "Amsterdam warehouse"
-    fact "On hand" "412 of 500 on hand"
-  popover "Switch warehouse"
-    field "Search warehouses" search
+    text "Amsterdam office · 4 cost centres."
+    action "Switch cost centre"
+    action primary "Add budget"
+  region "Budget"
+    fact "Cost centre" "Amsterdam sales"
+    fact "On hand" "412 of 500 filed"
+  popover "Switch cost centre"
+    field "Search cost centres" search
     list 3
-      item: text "Amsterdam warehouse" · text muted "Canal Street 12 · 4 bays" · status "Active" positive
+      item: text "Amsterdam sales" · text muted "Amsterdam office · 4 cost centres" · status "Active" positive
 ```
 
-**Rationale:** Vercel switches projects from the top of the sidebar, above the navigation the switch changes. One control moves the whole console from the Amsterdam warehouse to Rotterdam.
+**Rationale:** Vercel switches projects from the top of the sidebar, above the navigation the switch changes. One control moves the whole console from the Amsterdam sales to Rotterdam.
 
-**Cost:** The switcher changes what every entry below it means. It names the site prominently enough that no one reads the wrong warehouse with confidence.
+**Cost:** The switcher changes what every entry below it means. It names the cost centre prominently enough that no one reads the wrong cost centre with confidence.
 
 **Reference:** Vercel
 
@@ -2088,24 +2088,24 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Orders"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Orders"
-    text "Every paid order, newest first."
+    heading "Expenses"
+    text "Every paid expense, newest first."
   dialog "Jump to"
-    field "Search pages, orders, products" search
-    region "Recent warehouses"
+    field "Search pages, expenses, trips" search
+    region "Recent cost centres"
       list 2
-        item: text "Amsterdam warehouse" · text muted "Canal Street 12 · 4 bays" · status "Active" positive
+        item: text "Amsterdam sales" · text muted "Amsterdam office · 4 cost centres" · status "Active" positive
     region "Go to"
       list 2
-        item: text "Orders" · text muted "Pages"
+        item: text "Expenses" · text muted "Pages"
     text muted "Open with Enter."
 ```
 
-**Rationale:** Linear lists recent records before anything is typed, so returning to the site left open is one keypress. Recency matches how warehouse and support work moves between a few sites.
+**Rationale:** Linear lists recent records before anything is typed, so returning to the cost centre left open is one keypress. Recency matches how cost centre and support work moves between a few cost centres.
 
-**Cost:** Recency is personal state on a shared machine, so the next person at the keyboard sees what the last person opened. A renamed site also needs a rule for what its row says.
+**Cost:** Recency is personal state on a shared machine, so the next person at the keyboard sees what the last person opened. A renamed cost centre also needs a rule for what its row says.
 
 **Reference:** Linear
 
@@ -2113,23 +2113,23 @@ page
 
 ```wireframe
 page
-  breadcrumb "Home" "Settings" "Amsterdam warehouse" "Stock"
+  breadcrumb "Home" "Settings" "Amsterdam sales" "Budget"
   header
-    heading "Stock"
-    text "3 product lines · 812 units on hand."
-    action primary "Add stock"
-  region "Stock"
-    table 2 "Item" "On hand" "Price"
-      item: text "Oak desk lamp" · text "412 of 500" · text "EUR 45.00"
-  popover "Amsterdam warehouse"
-    action "Amsterdam warehouse"
-    action "Rotterdam warehouse"
-    action "Utrecht warehouse"
+    heading "Budget"
+    text "3 trip lines · 812 units filed."
+    action primary "Add budget"
+  region "Budget"
+    table 2 "Item" "On hand" "Amount"
+      item: text "EXP-1042" · text "412 of 500" · text "EUR 45.00"
+  popover "Amsterdam sales"
+    action "Amsterdam sales"
+    action "Rotterdam sales"
+    action "Utrecht sales"
 ```
 
-**Rationale:** Notion turns each trail level into a menu of its siblings, so the warehouse level lists the other sites. Switching sits exactly where the current site is named.
+**Rationale:** Notion turns each trail level into a menu of its siblings, so the cost centre level lists the other cost centres. Switching sits exactly where the current cost centre is named.
 
-**Cost:** A trail level that opens a menu is a trail that does not behave like one. Dozens of siblings need a search the trail has no room for. It fits companies with a handful of sites.
+**Cost:** A trail level that opens a menu is a trail that does not behave like one. Dozens of siblings need a search the trail has no room for. It fits companies with a handful of cost centres.
 
 **Reference:** Notion
 
@@ -2138,37 +2138,37 @@ page
 ```wireframe
 page
   header
-    heading "Amsterdam warehouse"
+    heading "Amsterdam sales"
     status "Active" positive
-    text "Canal Street 12 · 4 bays."
-  drawer bottom "Switch warehouse"
+    text "Amsterdam office · 4 cost centres."
+  drawer bottom "Switch cost centre"
     list 3
-      item: text "Amsterdam warehouse" · text muted "Canal Street 12 · 4 bays" · status "Active" positive
+      item: text "Amsterdam sales" · text muted "Amsterdam office · 4 cost centres" · status "Active" positive
 ```
 
-**Rationale:** A bottom sheet lists the sites where the thumb reaches them, with the state beside each name. Switching on a phone costs no more than switching on desktop.
+**Rationale:** A bottom sheet lists the cost centres where the thumb reaches them, with the state beside each name. Switching on a phone costs no more than switching on desktop.
 
-**Cost:** Dozens of sites in a sheet need a search row the sheet barely fits, and the sheet covers the site it came from. Recent sites first would shorten most visits.
+**Cost:** Dozens of cost centres in a sheet need a search row the sheet barely fits, and the sheet covers the cost centre it came from. Recent cost centres first would shorten most visits.
 
-#### `no-switcher-back-to-the-warehouse-list`: No Switcher, Back to the Warehouse List
+#### `no-switcher-back-to-the-warehouse-list`: No Switcher, Back to the Cost Centre List
 
 ```wireframe
 page
-  breadcrumb "Home" "Settings" "Warehouses" "Amsterdam warehouse"
+  breadcrumb "Home" "Settings" "Cost centres" "Amsterdam sales"
   header
-    action quiet "All warehouses"
-    heading "Amsterdam warehouse"
+    action quiet "All cost centres"
+    heading "Amsterdam sales"
     status "Active" positive
-    text "Canal Street 12 · 4 bays."
+    text "Amsterdam office · 4 cost centres."
   region "Details"
-    fact "Site" "Amsterdam warehouse"
-    fact "Bays" "4"
-    fact "Capacity" "40 pallets"
+    fact "Cost centre" "Amsterdam sales"
+    fact "Cost centres" "4"
+    fact "Capacity" "40 expenses"
 ```
 
-**Rationale:** The warehouse list already searches and filters every site, so a second switcher repeats it badly. Back to the list is one click that always works.
+**Rationale:** The cost centre list already searches and filters every cost centre, so a second switcher repeats it badly. Back to the list is one click that always works.
 
-**Cost:** One click each way on every switch, paid dozens of times a day by anyone running two sites. Never ship this as the only path: it costs the most to exactly the companies with the most sites.
+**Cost:** One click each way on every switch, paid dozens of times a day by anyone running two cost centres. Never ship this as the only path: it costs the most to exactly the companies with the most cost centres.
 
 ### Phone Navigation
 
@@ -2184,7 +2184,7 @@ page
 
 The sheet with recent pages above the areas is the runner-up once recents exist, since resuming work beats re-walking the tree.
 
-Never ship the desktop table unchanged on a phone: a warehouse lead pinching across 268 orders is a refusal to design.
+Never ship the desktop table unchanged on a phone: a finance lead pinching across 268 expenses is a refusal to design.
 
 **Reviewed for:** Which built narrow-screen frame differs from the wireframe its catalog entry chose? Open the built phone layout, with its bottom bar or sheet, beside the catalog entry recording the chosen option and its reason.
 
@@ -2199,13 +2199,13 @@ page
   region "Needs attention"
     status "2 to do" caution
     list 1
-      item: text "Close out the March stock count" · text muted "Nothing left to settle." · action "Close out"
-  drawer left "Acme Supply"
+      item: text "Close out the March payout run" · text muted "Nothing left to settle." · action "Close out"
+  drawer left "Harbor and Pine"
     link current "Home"
-    link "Orders"
-    link "Customers"
-    link "Products"
-    link "Invoices"
+    link "Expenses"
+    link "Spenders"
+    link "Trips"
+    link "Payouts"
     link "Reports"
     link "Settings"
     link "Help"
@@ -2214,7 +2214,7 @@ page
 
 **Rationale:** The behavior below the md breakpoint: the same entries slide in over a scrim and close with a control. Nothing about the tree changes between desktop and phone.
 
-**Cost:** The sheet covers the page it came from, and a warehouse lead looking up one order costs one extra tap. Forty lookups a day makes the tap worth designing away.
+**Cost:** The sheet covers the page it came from, and a finance lead looking up one expense costs one extra tap. Forty lookups a day makes the tap worth designing away.
 
 **Reference:** shadcn
 
@@ -2223,24 +2223,24 @@ page
 ```wireframe
 page
   header
-    heading "Orders"
-    text "268 orders."
+    heading "Expenses"
+    text "268 expenses."
   toolbar
-    field "Order number, name or email" search
-  region "Orders"
+    field "Expense number, name or email" search
+  region "Expenses"
     list 2
-      item: text "SO-1042" · text "Maria Garcia" · status "Paid" positive
+      item: text "EXP-1042" · text "Ava" · status "Paid" positive
   footer
     action "Home"
-    action "Orders"
-    action "Customers"
-    action "Invoices"
+    action "Expenses"
+    action "Spenders"
+    action "Payouts"
     action "More"
 ```
 
 **Rationale:** GitHub mobile keeps five destinations under the thumb: four areas and a More that holds the rest. The reader moves between areas without opening anything.
 
-**Cost:** Five slots cannot hold seven areas, so More carries three of them behind a second tap. The bar also fits moving between areas, where the warehouse reader needs one order instead.
+**Cost:** Five slots cannot hold seven areas, so More carries three of them behind a second tap. The bar also fits moving between areas, where the cost centre reader needs one expense instead.
 
 **Reference:** GitHub
 
@@ -2249,25 +2249,25 @@ page
 ```wireframe
 page
   header
-    heading "Orders"
-    text "268 orders."
-  region "Orders"
+    heading "Expenses"
+    text "268 expenses."
+  region "Expenses"
     list 1
-      item: text "SO-1042" · text "Maria Garcia" · status "Paid" positive
+      item: text "EXP-1042" · text "Ava" · status "Paid" positive
   footer
     action "Home"
-    action "Orders"
-    action "Customers"
-    action "Invoices"
+    action "Expenses"
+    action "Spenders"
+    action "Payouts"
     action "More"
   drawer bottom "More"
     list 3
-      item: text "Products" · text muted "93 products"
+      item: text "Trips" · text muted "93 trips"
 ```
 
 **Rationale:** The bar holds the four areas a phone reader visits. The More tab opens the other three as a sheet. Each pattern does the part it fits: visible destinations below, the full tree on demand.
 
-**Cost:** Two navigation patterns on one screen where desktop has one, and Invoices hides behind More on the surface where a refund question arrives. The split has to be watched, not set once.
+**Cost:** Two navigation patterns on one screen where desktop has one, and Payouts hides behind More on the surface where a reversal question arrives. The split has to be watched, not set once.
 
 #### `the-sheet-with-recent-pages-above-the-areas`: The Sheet with Recent Pages Above the Areas
 
@@ -2275,27 +2275,27 @@ page
 page
   header
     action quiet "Open menu"
-    heading "Orders"
-    text "268 orders."
-  region "Orders"
+    heading "Expenses"
+    text "268 expenses."
+  region "Expenses"
     list 1
-      item: text "SO-1042" · text "Maria Garcia" · status "Paid" positive
-  drawer left "Acme Supply"
+      item: text "EXP-1042" · text "Ava" · status "Paid" positive
+  drawer left "Harbor and Pine"
     text "Recent"
-    link "SO-1042 · Maria Garcia"
-    link "Garcia Interiors restock"
+    link "EXP-1042 · Ava"
+    link "Rotterdam client visit"
     link "September statement"
     text "Areas"
     link "Home"
-    link current "Orders"
-    link "Customers"
-    link "Products"
-    link "Invoices"
+    link current "Expenses"
+    link "Spenders"
+    link "Trips"
+    link "Payouts"
     link "Reports"
     link "Settings"
 ```
 
-**Rationale:** Resuming work beats re-walking the tree: three recent pages above the seven areas put the order left open one tap away. The sheet stays one list with two halves.
+**Rationale:** Resuming work beats re-walking the tree: three recent pages above the seven areas put the expense left open one tap away. The sheet stays one list with two halves.
 
 **Cost:** Recents are personal state on a shared device, and a recent with a changed name needs a rule for what its row says. The areas below also start below the fold on a short phone.
 
@@ -2305,18 +2305,18 @@ page
 page
   header
     action quiet "Open menu"
-    heading "Amsterdam warehouse"
+    heading "Amsterdam sales"
     status "Active" positive
-    text "Canal Street 12 · 4 bays."
-  tabs "Details" "Stock" "Dispatch"
-    region "Stock"
+    text "Amsterdam office · 4 cost centres."
+  tabs "Details" "Budget" "Payout run"
+    region "Budget"
       list 2
-        item: text "Oak desk lamp" · text muted "412 of 500 on hand" · text "EUR 45.00" · action "Open"
+        item: text "EXP-1042" · text muted "412 of 500 filed" · text "EUR 45.00" · action "Open"
 ```
 
 **Rationale:** iOS settings switch sibling facets with a segmented control, which fits a phone row where eight tabs cannot. Three facets stay visible without scrolling or menus.
 
-**Cost:** Three segments is the ceiling and the control cannot carry counts, so it fits facets, not areas. Eight warehouse sections still need the tabs or the More menu behind this.
+**Cost:** Three segments is the ceiling and the control cannot carry counts, so it fits facets, not areas. Eight cost centre sections still need the tabs or the More menu behind this.
 
 **Reference:** iOS
 
@@ -2326,13 +2326,13 @@ page
 page
   header
     action quiet "Open menu"
-    heading "Orders"
-    text "268 orders from 142 customers."
-  region "Orders"
-    table 4 "Order" "Customer" "Placed" "State" "Paid"
-      item: text "SO-1042" · text "Maria Garcia" · text "8 Oct 2026, 09:32" · status "Paid" positive · text "EUR 125.00"
+    heading "Expenses"
+    text "268 expenses from 142 spenders."
+  region "Expenses"
+    table 4 "Expense" "Spender" "Filed" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · text "8 Oct 2026, 09:32" · status "Paid" positive · text "EUR 125.00"
 ```
 
 **Rationale:** The desktop table renders as drawn and scrolls sideways in its box. Nothing to design, nothing to maintain, and every column survives.
 
-**Cost:** A warehouse lead pinches across 268 orders to find one. Never ship this: sideways scrolling on a phone is a refusal to design.
+**Cost:** A finance lead pinches across 268 expenses to find one. Never ship this: sideways scrolling on a phone is a refusal to design.

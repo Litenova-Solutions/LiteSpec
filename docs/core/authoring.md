@@ -48,7 +48,7 @@ Every LiteSpec page uses exactly one style, decided by where the page lives.
 | Index | A `README.md` | None | Intent, then navigation groups |
 | Glossary | `docs/reference/glossary.md` | None | H2 groups in alphabetical order, each with one intro sentence, then one H3 heading and definition per term |
 
-A consumer page is a record or one of these styles. Each one opens with the specification metadata block the record schema defines.
+A consumer page is a record or one of these styles. Each one opens with the frontmatter block the record schema defines.
 
 | Page style | Template | Sections, in order |
 |:---|:---|:---|
@@ -146,7 +146,7 @@ A Convention states a default a project may replace:
 **Rationale:** Why this is the default.
 ```
 
-A project that departs from a Standard records an exception of kind `departure` that covers the provision. A project that replaces a Convention names its own convention in its documentation. A Replacement names the local convention or its recording place, not a deviation. A convention with no specific recording place uses `A consumer can replace this default with an explicit local convention.` as its whole Replacement. The [model page](model.md) states the deviation record.
+A project that departs from a Standard records an exception of kind `departure` that covers the provision. A project that replaces a Convention names its own convention in its documentation. A Replacement names the local convention or its recording place, not an exception. A convention with no specific recording place uses `A consumer can replace this default with an explicit local convention.` as its whole Replacement. The [model page](model.md) states the exception record.
 
 A pattern provision carries its question, its default option, its compact behavior, and its rationale, and then its options with their wireframes. [UI patterns](../frontend/patterns.md) states the pattern contract and the wireframe language.
 
@@ -189,7 +189,7 @@ Every provision has the same parts in the same order:
 1. The heading names the provision.
 2. The ID line holds the provision's identity, so a reader copies it from where the provision stands; the heading may change without changing it.
 3. A rule states its `Statement`; a convention states its `Default` and `Replacement`; a pattern states its `Question`, `Default`, `Compact` and `Rationale`.
-4. `Rationale` and `Example` follow.
+4. `Rationale` follows, and `Example` is optional and follows `Rationale` when one clarifies the rule.
 5. The verification line comes last among the fields. `Checked by` marks a provision a tool checks (`checkable`) and starts with the checking command in backticks, then the code the tool reports where the tool emits one, then the scope. `Reviewed for` marks a provision a person judges (`guidance`) and asks the one question a reviewer answers, naming the observable evidence and where to look. Evidence like "verify compliance" says nothing and is refused.
 
 A pattern's options follow its verification line. `litespec-maintain provisions` writes the [provision index](../reference/provisions.md) from these lines; nothing else repeats them.
@@ -668,11 +668,11 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Checked by:** `litespec-maintain provisions --check` exits zero.
 
-### Declare Structured Specification Metadata
+### Declare Structured Frontmatter
 
 **ID:** `litespec/core/authoring#declare-structured-specification-metadata`
 
-**Statement:** A consumer page MUST open with a specification metadata block satisfying the record schema for its declared type.
+**Statement:** A consumer page MUST open with a frontmatter block satisfying the record schema for its declared type.
 
 **Rationale:** The record schema owns the field list of every record type and page style. The block is one JSON object between two lines that hold only `---`, which people read as a header and tools parse as data. The [model page](model.md) states the record types and their homes.
 
@@ -690,13 +690,13 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 ---
 ```
 
-**Checked by:** `litespec consumer` validates each opening specification metadata block against the record schema.
+**Checked by:** `litespec consumer` validates each opening frontmatter block against the record schema.
 
 ### Use One Metadata Carrier
 
 **ID:** `litespec/core/authoring#use-one-metadata-carrier`
 
-**Statement:** A consumer page MUST use its opening specification metadata block as its only metadata carrier.
+**Statement:** A consumer page MUST use its opening frontmatter block as its only metadata carrier.
 
 **Rationale:** Two metadata carriers on one page disagree sooner or later: source links, paths, and evidence drift between the header and the body. One opening block keeps metadata in one place, while the body sections carry the links, paths, and evidence beside what they describe.
 
@@ -748,7 +748,7 @@ The figures below render from the retention schedule at build time.
 
 **Rationale:** Two agents working in parallel mint the same identifier when each writes a file by hand, and the collision surfaces only at merge time. Scaffolding reserves the identifier before any prose exists, so the second author learns the clash at creation and picks another name.
 
-**Example:** `litespec new reaction spending.send-approver-reminder-on-expense-submitted` creates the reaction page with its metadata block and reserved identifier.
+**Example:** `litespec new reaction spending.send-approver-reminder-on-expense-submitted` creates the reaction page with its frontmatter block and reserved identifier.
 
 **Reviewed for:** Which new pages lack a reserved identifier? Look for pages created without `litespec new`.
 
@@ -758,7 +758,7 @@ The figures below render from the retention schedule at build time.
 
 **Statement:** An author MUST rename a record identifier with `litespec rename <old> <new>`, which rewrites every link.
 
-**Rationale:** An identifier rename touches the page, its metadata, and every record that points at it. Rewriting every link in the same command leaves no citation pointing at the old name, so the repository stays resolvable at every commit.
+**Rationale:** An identifier rename touches the page, its frontmatter, and every record that points at it. Rewriting every link in the same command leaves no citation pointing at the old name, so the repository stays resolvable at every commit.
 
 **Example:** `litespec rename use-case/spending.close-run use-case/spending.complete-run` updates the page and every citation together.
 
@@ -842,7 +842,7 @@ The figures below render from the retention schedule at build time.
 
 **Statement:** A consumer MUST record the LiteSpec release it adopts in `reviewedLiteSpecVersion` within `litespec.project.json`.
 
-**Rationale:** A provision can gain force while keeping its ID, so a deviation written against one release could otherwise apply to a rule nobody reread. Recording the adopted release in `reviewedLiteSpecVersion` makes adoption an explicit act and tells every reader which contract the project reviewed.
+**Rationale:** A provision can gain force while keeping its ID, so an exception of kind `departure` written against one release could otherwise apply to a rule nobody reread. Recording the adopted release in `reviewedLiteSpecVersion` makes adoption an explicit act and tells every reader which contract the project reviewed.
 
 **Checked by:** `litespec consumer` fails when `reviewedLiteSpecVersion` differs from the pinned release.
 

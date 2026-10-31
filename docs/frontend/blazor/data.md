@@ -18,7 +18,7 @@ Durable state is what the user made: persisted, versioned, and exported. The exp
 
 **Statement:** A component MUST invoke an Application handler carrying a `Command` or `Query` role suffix rather than compose Domain calls or write storage.
 
-**Rationale:** The handler is the one place a use case exists: its validation, its rules, and its result. A component that composes its own sequence of Domain calls and storage writes creates a second definition that no record names and no test pins down. Routing every use case through a handler keeps the component a caller and the handler the definition.
+**Rationale:** The handler is the one place a use case exists: its validation, its rules, and its result. A component that composes its own sequence of Domain calls and storage writes creates a second definition that no record names and no test pins down. Routing every use case through a handler keeps the component a caller and the handler the definition. This realizes litespec/frontend/data#route-use-cases-through-application for Blazor.
 
 **Reviewed for:** Which components resolve a Domain service or storage adapter instead of invoking an Application handler? Look in the component sources.
 
@@ -28,7 +28,7 @@ Durable state is what the user made: persisted, versioned, and exported. The exp
 
 **Statement:** An aggregate introducing state MUST classify it as durable, device-local, or derived.
 
-**Rationale:** The classification decides what happens to the state: durable state is persisted, versioned, and exported, device-local state is persisted but excluded from export, and derived state is never persisted. Without a declared classification each reader guesses, and a value the user made can end up unpersisted while a computed value ends up stored and stale.
+**Rationale:** The classification decides what happens to the state: durable state is persisted, versioned, and exported, device-local state is persisted but excluded from export, and derived state is never persisted. Without a declared classification each reader guesses, and a value the user made can end up unpersisted while a computed value ends up stored and stale. This realizes litespec/frontend/data#classify-state for Blazor.
 
 **Reviewed for:** Which aggregates introducing state name no durable, device-local, or derived classification on their page? Look on the aggregate pages.
 

@@ -115,7 +115,7 @@ The sub-processor list names every provider that processes personal data for the
 
 **Example:** Claimwick's month-end load harness writes `docs/proof/checks/2026-11-20-month-end-load.json` holding `"check": "month-end-load"`, `"passed": true`, `"value": "99.4 percent acknowledged within two seconds"`, and `"ranOn": "2026-11-20"`, and `requirement/spending.month-end-submissions` names `month-end-load` in its `check`.
 
-**Checked by:** `litespec model check` reads every check result under `paths.checkResults` beside the measured-check results under the test results folder and counts a passing one toward its requirement's measure.
+**Reviewed for:** Which drill or measuring harness runs lack a check result file naming the requirement's `check` under `paths.checkResults`? Look at the harness run records beside the files under `paths.checkResults`.
 
 ### Point Each Operations File at Its Decision
 
