@@ -67,6 +67,133 @@ public sealed class JsonText
     /// <returns>The string text, or null when the value is no string.</returns>
     public string? GetString() => Kind == JsonKind.String ? value : null;
 
+    /// <summary>Gets the object's properties in file order; empty when the value is no object.</summary>
+    public IReadOnlyList<KeyValuePair<string, JsonText>> Properties => properties;
+
+    /// <summary>Writes the value as compact JSON, properties in file order.</summary>
+    /// <returns>The JSON text.</returns>
+    public string ToJson()
+    {
+        var built = new StringBuilder();
+
+        WriteJson(built);
+        return built.ToString();
+    }
+
+    /// <summary>Builds one value, for the YAML reader.</summary>
+    /// <param name="kind">The value kind.</param>
+    /// <param name="line">The 1-based line where the value starts.</param>
+    /// <param name="value">The scalar text.</param>
+    /// <param name="properties">The object's properties, or null.</param>
+    /// <param name="items">The array's items, or null.</param>
+    /// <returns>The value.</returns>
+    internal static JsonText Of(
+        JsonKind kind,
+        int line,
+        string value,
+        List<KeyValuePair<string, JsonText>>? properties = null,
+        List<JsonText>? items = null) =>
+        new JsonText(kind, line, value, properties ?? new List<KeyValuePair<string, JsonText>>(), items ?? new List<JsonText>());
+
+    /// <summary>Appends the value as compact JSON.</summary>
+    /// <param name="built">The text built so far.</param>
+    private void WriteJson(StringBuilder built)
+    {
+        switch (Kind)
+        {
+            case JsonKind.Object:
+                built.Append('{');
+
+                for (var index = 0; index < properties.Count; index++)
+                {
+                    if (index > 0)
+                    {
+                        built.Append(',');
+                    }
+
+                    WriteJsonString(built, properties[index].Key);
+                    built.Append(':');
+                    properties[index].Value.WriteJson(built);
+                }
+
+                built.Append('}');
+                break;
+            case JsonKind.Array:
+                built.Append('[');
+
+                for (var index = 0; index < Items.Count; index++)
+                {
+                    if (index > 0)
+                    {
+                        built.Append(',');
+                    }
+
+                    Items[index].WriteJson(built);
+                }
+
+                built.Append(']');
+                break;
+            case JsonKind.String:
+                WriteJsonString(built, value);
+                break;
+            case JsonKind.Number:
+                built.Append(value);
+                break;
+            case JsonKind.True:
+                built.Append("true");
+                break;
+            case JsonKind.False:
+                built.Append("false");
+                break;
+            default:
+                built.Append("null");
+                break;
+        }
+    }
+
+    /// <summary>Appends one JSON string literal.</summary>
+    /// <param name="built">The text built so far.</param>
+    /// <param name="text">The string to quote.</param>
+    private static void WriteJsonString(StringBuilder built, string text)
+    {
+        built.Append('"');
+
+        foreach (var character in text)
+        {
+            switch (character)
+            {
+                case '"':
+                    built.Append("\\\"");
+                    break;
+                case '\\':
+                    built.Append("\\\\");
+                    break;
+                case '\n':
+                    built.Append("\\n");
+                    break;
+                case '\r':
+                    built.Append("\\r");
+                    break;
+                case '\t':
+                    built.Append("\\t");
+                    break;
+                default:
+                    if (character < ' ')
+                    {
+                        built.Append("\\u").Append(((int)character).ToString("x4", System.Globalization.CultureInfo.InvariantCulture));
+                    }
+                    else
+                    {
+                        built.Append(character);
+                    }
+
+                    break;
+            }
+        }
+
+        built.Append('"');
+    }
+
     /// <summary>
     ///     Parses the text as one JSON value.
     /// </summary>
