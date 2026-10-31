@@ -109,6 +109,30 @@ public sealed class ResearchSourceCheckTests
         Assert.DoesNotContain("source-link-bare", TestModel.Codes(model));
     }
 
+    /// <summary>A reference link whose label shows the URL cites by key and reports no bare link.</summary>
+    /// <proves>litespec/core/intent#record-research-with-read-sources</proves>
+    [Fact]
+    public void Url_As_Reference_Link_Label_Passes()
+    {
+        using var temp = Cli.Temp("checks");
+        var file = Path.Combine(temp.Path, "benchmarks.yaml");
+        var explanationFile = Path.Combine(temp.Path, "benchmarks.md");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record(
+                "research",
+                "research/loan-period-benchmarks",
+                file,
+                1,
+                """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "sources": [{"key": "benchmark-report", "url": "https://example.com/benchmark-report", "readOn": "2026-10-12"}], "question": "How long do others lend?", "conclusion": "Others lend for three weeks."}""",
+                explanationFile,
+                "# Benchmarks\n\n## Answer\n\nOthers lend for three weeks [https://example.com/benchmark-report][benchmark-report].\n"));
+
+        var codes = TestModel.Codes(model);
+        Assert.DoesNotContain("source-link-bare", codes);
+        Assert.DoesNotContain("source-unused", codes);
+    }
+
     /// <summary>A research explanation citing an unknown source key reports.</summary>
     /// <proves>litespec/core/intent#record-research-with-read-sources</proves>
     [Fact]

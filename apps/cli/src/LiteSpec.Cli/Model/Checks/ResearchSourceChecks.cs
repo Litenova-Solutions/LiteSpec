@@ -26,7 +26,12 @@ internal static class ResearchSourceChecks
             var prose = LinkChecks.WithoutCode(explanation);
             var starts = LineStarts(explanation);
 
-            foreach (Match match in BareUrl.Matches(prose))
+            // A reference link cites its source by key even when its label shows the URL,
+            // so labels are blanked, keeping every offset, before bare URLs are read.
+            var unlabelled = ReferenceLink.Replace(prose, link =>
+                "[" + new string(' ', link.Groups["text"].Length) + link.Value[(1 + link.Groups["text"].Length)..]);
+
+            foreach (Match match in BareUrl.Matches(unlabelled))
             {
                 findings.Add(new Finding("source-link-bare", $"Research explanation links '{Identifiers.TrimCitation(match.Value)}' directly; cite a source key instead.", explanationFile, LineOf(starts, match.Index), SubjectOf(record)));
             }
