@@ -5,15 +5,15 @@
   "title": "Export Expenses Unexposed",
   "owner": "claimwick-team",
   "status": "approved",
-  "check": "use-case-unexposed",
+  "check": "use-case-endpoint-missing",
   "subject": [
     "use-case/spending.export-expenses"
   ],
   "endsBy": "2027-06-01",
   "reason": "Export has no endpoint until it has a handler, which waits for the finance file format.",
   "approvedBy": "claimwick-team",
-  "approvedOn": "2026-10-28",
-  "approvedHash": "fa6cd1e9"
+  "approvedOn": "2026-10-31",
+  "approvedHash": "3f153e04"
 }
 ---
 

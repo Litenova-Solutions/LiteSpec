@@ -13,7 +13,7 @@ public sealed class ActCheckTests
     public void Handler_Calling_No_Marked_Method_Reports_Use_Case_Act_Uncalled()
     {
         using var fixture = MarksFixture.Prepare("act");
-        var uncalled = MarksFixture.WithCode(MarksFixture.Check(fixture.Path), "use-case-act-uncalled");
+        var uncalled = MarksFixture.WithCode(MarksFixture.Check(fixture.Path), "use-case-act-missing");
 
         var finding = Assert.Single(uncalled);
         Assert.Equal("use-case/lending.renew-loan", finding.Subject);
@@ -25,7 +25,7 @@ public sealed class ActCheckTests
     public void Handler_Calling_The_Shared_Method_Passes()
     {
         using var fixture = MarksFixture.Prepare("act");
-        var uncalled = MarksFixture.WithCode(MarksFixture.Check(fixture.Path), "use-case-act-uncalled");
+        var uncalled = MarksFixture.WithCode(MarksFixture.Check(fixture.Path), "use-case-act-missing");
 
         Assert.DoesNotContain(uncalled, finding => finding.Subject == "use-case/lending.borrow-copy");
     }
@@ -35,7 +35,7 @@ public sealed class ActCheckTests
     public void Fan_Out_Command_With_No_Changes_Reports_Nothing()
     {
         using var temp = WritePassConsumer();
-        var uncalled = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "use-case-act-uncalled");
+        var uncalled = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "use-case-act-missing");
 
         Assert.DoesNotContain(uncalled, finding => finding.Subject == "use-case/lending.fan-out");
     }
@@ -45,7 +45,7 @@ public sealed class ActCheckTests
     public void Store_Only_Command_Reports_Nothing()
     {
         using var temp = WritePassConsumer();
-        var uncalled = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "use-case-act-uncalled");
+        var uncalled = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "use-case-act-missing");
 
         Assert.DoesNotContain(uncalled, finding => finding.Subject == "use-case/lending.record-scan");
     }
@@ -55,7 +55,7 @@ public sealed class ActCheckTests
     public void Entity_Command_Without_A_Called_Act_Still_Reports()
     {
         using var temp = WritePassConsumer();
-        var uncalled = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "use-case-act-uncalled");
+        var uncalled = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "use-case-act-missing");
 
         var finding = Assert.Single(uncalled);
         Assert.Equal("use-case/lending.borrow-copy", finding.Subject);
@@ -89,7 +89,7 @@ public sealed class ActCheckTests
     public void Listed_Event_The_Shared_Method_Never_Raises_Reports_Act_Event_Unraised()
     {
         using var fixture = MarksFixture.Prepare("act");
-        var unraised = MarksFixture.WithCode(MarksFixture.Check(fixture.Path), "act-event-unraised");
+        var unraised = MarksFixture.WithCode(MarksFixture.Check(fixture.Path), "act-event-unimplemented");
 
         var finding = Assert.Single(unraised);
         Assert.Equal("use-case/lending.renew-loan", finding.Subject);
@@ -101,7 +101,7 @@ public sealed class ActCheckTests
     public void Use_Case_Whose_Shared_Method_Raises_Its_Event_Reports_No_Unraised()
     {
         using var fixture = MarksFixture.Prepare("act");
-        var unraised = MarksFixture.WithCode(MarksFixture.Check(fixture.Path), "act-event-unraised");
+        var unraised = MarksFixture.WithCode(MarksFixture.Check(fixture.Path), "act-event-unimplemented");
 
         Assert.DoesNotContain(unraised, finding => finding.Subject == "use-case/lending.borrow-copy");
     }
@@ -111,7 +111,7 @@ public sealed class ActCheckTests
     public void Use_Case_With_No_Marked_Method_Reports_No_Act_Event_Unraised()
     {
         using var temp = WriteUnmarkedConsumer();
-        var unraised = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "act-event-unraised");
+        var unraised = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "act-event-unimplemented");
 
         Assert.DoesNotContain(unraised, finding => finding.Subject == "use-case/lending.borrow-copy");
     }

@@ -168,7 +168,7 @@ public sealed class NodeFrontendReaderTests
             new CodeModel());
 
         var finding = Assert.Single(read.Findings);
-        Assert.Equal("reader-unavailable", finding.Code);
+        Assert.Equal("reader-missing", finding.Code);
         Assert.Equal(Finding.TypeScriptReader, finding.Reader);
         Assert.False(finding.ReaderIsQualified);
         Assert.Empty(read.Screens);

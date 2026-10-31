@@ -120,7 +120,7 @@ public sealed class RecordNameCheckTests
             TestModel.Record("result", "result/borrow-copy.copy-unavailable", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "loans", "borrow-copy.md"), """{"outcome": "refusal", "code": "lending.copy-unavailable", "meaning": "The copy is out."}"""),
             TestModel.Record("result", "result/borrow-copy.card-expired", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "loans", "borrow-copy.md"), """{"outcome": "refusal", "code": "request.card-expired", "meaning": "The card lapsed."}"""));
 
-        Assert.DoesNotContain("refusal-code-form", TestModel.Codes(model));
+        Assert.DoesNotContain("refusal-code-invalid", TestModel.Codes(model));
     }
 
     /// <proves>litespec/core/behavior#name-each-refusal-code-for-the-state-that-refuses</proves>
@@ -136,7 +136,7 @@ public sealed class RecordNameCheckTests
             TestModel.Record("result", "result/borrow-copy.provider-timeout", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "loans", "borrow-copy.md"), """{"outcome": "refusal", "code": "gateway.provider-timeout", "meaning": "The provider timed out."}"""),
             TestModel.Record("result", "result/borrow-copy.bad-input", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "loans", "borrow-copy.md"), """{"outcome": "refusal", "code": "request.validation-failed", "meaning": "The input fails validation."}"""));
 
-        Assert.DoesNotContain("refusal-code-form", TestModel.Codes(model));
+        Assert.DoesNotContain("refusal-code-invalid", TestModel.Codes(model));
     }
 
     /// <proves>litespec/core/behavior#name-each-refusal-code-for-the-state-that-refuses</proves>
@@ -151,7 +151,7 @@ public sealed class RecordNameCheckTests
             TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "loans", "borrow-copy.md"), """{"kind": "command"}"""),
             TestModel.Record("result", "result/borrow-copy.title-retired", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "loans", "borrow-copy.md"), """{"outcome": "refusal", "code": "catalog.title-retired", "meaning": "The title is retired."}"""));
 
-        Assert.DoesNotContain("refusal-code-form", TestModel.Codes(model));
+        Assert.DoesNotContain("refusal-code-invalid", TestModel.Codes(model));
     }
 
     /// <proves>litespec/core/behavior#name-each-refusal-code-for-the-state-that-refuses</proves>
@@ -165,7 +165,7 @@ public sealed class RecordNameCheckTests
             TestModel.Record("use-case", "use-case/lending.register-copy", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "copies", "register-copy.md"), """{"kind": "command"}"""),
             TestModel.Record("result", "result/register-copy.barcode-taken", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "copies", "register-copy.md"), """{"outcome": "refusal", "code": "uniqueness.copy-barcode-taken", "meaning": "Another copy holds the barcode."}"""));
 
-        Assert.DoesNotContain("refusal-code-form", TestModel.Codes(model));
+        Assert.DoesNotContain("refusal-code-invalid", TestModel.Codes(model));
     }
 
     /// <proves>litespec/core/behavior#name-each-refusal-code-for-the-state-that-refuses</proves>
@@ -179,7 +179,7 @@ public sealed class RecordNameCheckTests
             TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "loans", "borrow-copy.md"), """{"kind": "command"}"""),
             TestModel.Record("result", "result/borrow-copy.locale-unknown", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "loans", "borrow-copy.md"), """{"outcome": "refusal", "code": "shared.locale-unknown", "meaning": "The locale is unknown."}"""));
 
-        Assert.DoesNotContain("refusal-code-form", TestModel.Codes(model));
+        Assert.DoesNotContain("refusal-code-invalid", TestModel.Codes(model));
     }
 
     /// <proves>litespec/core/behavior#name-each-refusal-code-for-the-state-that-refuses</proves>
@@ -193,7 +193,7 @@ public sealed class RecordNameCheckTests
             TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "loans", "borrow-copy.md"), """{"kind": "command"}"""),
             TestModel.Record("result", "result/borrow-copy.copy-invalid", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "loans", "borrow-copy.md"), """{"outcome": "refusal", "code": "lending.copy-invalid", "meaning": "The copy is invalid."}"""));
 
-        var message = Checker.Check(model).Findings.Single(finding => finding.Code == "refusal-code-form").Message;
+        var message = Checker.Check(model).Findings.Single(finding => finding.Code == "refusal-code-invalid").Message;
         Assert.Contains("invalid", message, StringComparison.Ordinal);
     }
 
@@ -208,7 +208,7 @@ public sealed class RecordNameCheckTests
             TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "loans", "borrow-copy.md"), """{"kind": "command"}"""),
             TestModel.Record("result", "result/borrow-copy.copy-on-loan", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "loans", "borrow-copy.md"), """{"outcome": "refusal", "code": "billing.copy-on-loan", "meaning": "The copy is out."}"""));
 
-        var message = Checker.Check(model).Findings.Single(finding => finding.Code == "refusal-code-form").Message;
+        var message = Checker.Check(model).Findings.Single(finding => finding.Code == "refusal-code-invalid").Message;
         Assert.Contains("billing.copy-on-loan", message, StringComparison.Ordinal);
     }
 
@@ -222,7 +222,7 @@ public sealed class RecordNameCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("notification", "notification/lending.loan-due", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "notifications", "loan-due.md"), """{"template": "loan-due-reader", "addresses": ["actor/reader"]}"""));
 
-        Assert.DoesNotContain("template-key-form", TestModel.Codes(model));
+        Assert.DoesNotContain("template-key-invalid", TestModel.Codes(model));
     }
 
     /// <proves>litespec/core/behavior#name-each-template-for-its-subject-event-and-audience</proves>
@@ -235,7 +235,7 @@ public sealed class RecordNameCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("notification", "notification/lending.loan-due", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "notifications", "loan-due.md"), """{"template": "loan-due-reader, loan-due-staff, none (no message)", "addresses": ["actor/reader"]}"""));
 
-        Assert.DoesNotContain("template-key-form", TestModel.Codes(model));
+        Assert.DoesNotContain("template-key-invalid", TestModel.Codes(model));
     }
 
     /// <proves>litespec/core/behavior#name-each-template-for-its-subject-event-and-audience</proves>
@@ -248,7 +248,7 @@ public sealed class RecordNameCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("notification", "notification/lending.loan-due", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "notifications", "loan-due.md"), """{"template": "loan-due", "addresses": ["actor/reader"]}"""));
 
-        var message = Checker.Check(model).Findings.Single(finding => finding.Code == "template-key-form").Message;
+        var message = Checker.Check(model).Findings.Single(finding => finding.Code == "template-key-invalid").Message;
         Assert.Contains("loan-due", message, StringComparison.Ordinal);
     }
 
@@ -291,7 +291,7 @@ public sealed class RecordNameCheckTests
             TestModel.Record("integration-event", "integration-event/loan-borrowed", Path.Combine(temp.Path, "docs", "behavior", "events", "loan-borrowed.md"), """{"direction": "out"}"""),
             TestModel.Record("integration-event", "integration-event/claim-staged", Path.Combine(temp.Path, "docs", "behavior", "events", "claim-staged.md"), """{"direction": "in"}"""));
 
-        Assert.DoesNotContain("integration-event-wording", TestModel.Codes(model));
+        Assert.DoesNotContain("integration-event-name-invalid", TestModel.Codes(model));
     }
 
     /// <proves>litespec/core/behavior#name-published-events-in-the-domains-words</proves>
@@ -304,7 +304,7 @@ public sealed class RecordNameCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("integration-event", "integration-event/refund-staged", Path.Combine(temp.Path, "docs", "behavior", "events", "refund-staged.md"), """{"direction": "out"}"""));
 
-        var message = Checker.Check(model).Findings.Single(finding => finding.Code == "integration-event-wording").Message;
+        var message = Checker.Check(model).Findings.Single(finding => finding.Code == "integration-event-name-invalid").Message;
         Assert.Contains("staged", message, StringComparison.Ordinal);
     }
 

@@ -35,13 +35,13 @@ public static class MarkRules
     private static readonly string[] Codes =
     {
         "mark-missing",
-        "mark-unresolved",
-        "mark-count",
-        "mark-style-mixed",
+        "mark-unknown",
+        "mark-count-invalid",
+        "mark-style-invalid",
         "runtime-value-drift",
         "partial-missing",
         "act-event-undeclared",
-        "act-event-unraised",
+        "act-event-unimplemented",
     };
 
     /// <summary>
@@ -161,7 +161,7 @@ public static class MarkRules
     ///     Decides whether an element's marks violate its kind's count rule: the
     ///     kind takes exactly one mark and the element carries more, or one record
     ///     id appears twice. An element with no marks is no violation: its missing
-    ///     mark is <c>mark-missing</c>, not <c>mark-count</c>. Both hosts call this,
+    ///     mark is <c>mark-missing</c>, not <c>mark-count-invalid</c>. Both hosts call this,
     ///     so the CLI and the analyzer agree on every kind.
     /// </summary>
     /// <param name="kind">The code kind.</param>
@@ -211,11 +211,11 @@ public static class MarkRules
         {
             case "mark-missing":
                 return "LS5001";
-            case "mark-unresolved":
+            case "mark-unknown":
                 return "LS5002";
-            case "mark-count":
+            case "mark-count-invalid":
                 return "LS5003";
-            case "mark-style-mixed":
+            case "mark-style-invalid":
                 return "LS5004";
             case "runtime-value-drift":
                 return "LS5005";
@@ -223,7 +223,7 @@ public static class MarkRules
                 return "LS5006";
             case "act-event-undeclared":
                 return "LS5007";
-            case "act-event-unraised":
+            case "act-event-unimplemented":
                 return "LS5008";
             default:
                 throw new ArgumentException($"Unknown mark finding \"{code}\".", nameof(code));
@@ -245,13 +245,13 @@ public static class MarkRules
         switch (code)
         {
             case "mark-missing":
-            case "mark-unresolved":
-            case "mark-count":
-            case "mark-style-mixed":
+            case "mark-unknown":
+            case "mark-count-invalid":
+            case "mark-style-invalid":
             case "runtime-value-drift":
             case "partial-missing":
             case "act-event-undeclared":
-            case "act-event-unraised":
+            case "act-event-unimplemented":
                 return "S";
             default:
                 throw new ArgumentException($"Unknown mark finding \"{code}\".", nameof(code));

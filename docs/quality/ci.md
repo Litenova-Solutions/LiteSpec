@@ -129,9 +129,9 @@ The supply-chain job groups every check that keeps third-party code safe to ship
 
 **Statement:** The measure job MUST run the check each measured requirement names for its kind.
 
-**Rationale:** Each kind has one tool, as the measured-checks table on this page maps: k6 thresholds for API latency and errors, Lighthouse CI assert for frontend performance and weight, axe in the route suite for accessibility, OpenTelemetry with OpenSLO files compiled by Sloth for availability and latency objectives, and an ASVS 5.0 level with the ZAP baseline, free static analysis, OSV-Scanner, and Gitleaks for security. The tools write their result files under `TestResults/`, the builder reads them the way it reads test runs, and `litespec model check` reports `requirement-unmeasured` for a measured requirement with no check or no passing run. Every tool the table names is free and maintained; CodeQL is used only on public repositories, as `litespec/quality/security#scan-every-pull-request-with-a-free-static-analyzer` states.
+**Rationale:** Each kind has one tool, as the measured-checks table on this page maps: k6 thresholds for API latency and errors, Lighthouse CI assert for frontend performance and weight, axe in the route suite for accessibility, OpenTelemetry with OpenSLO files compiled by Sloth for availability and latency objectives, and an ASVS 5.0 level with the ZAP baseline, free static analysis, OSV-Scanner, and Gitleaks for security. The tools write their result files under `TestResults/`, the builder reads them the way it reads test runs, and `litespec model check` reports `requirement-measure-missing` for a measured requirement with no check or no passing run. Every tool the table names is free and maintained; CodeQL is used only on public repositories, as `litespec/quality/security#scan-every-pull-request-with-a-free-static-analyzer` states.
 
-**Checked by:** `litespec model check` reports `requirement-unmeasured` for a measured requirement with no check or no passing run.
+**Checked by:** `litespec model check` reports `requirement-measure-missing` for a measured requirement with no check or no passing run.
 
 ### Enforce the Supply-Chain Gate
 

@@ -75,7 +75,7 @@ public sealed class CoverageCheckTests
     public void Browser_Use_Case_Without_An_Endpoint_Reports_Use_Case_Unexposed()
     {
         using var fixture = MarksFixture.Prepare("exposed");
-        var findings = MarksFixture.WithCode(MarksFixture.Check(fixture.Path), "use-case-unexposed");
+        var findings = MarksFixture.WithCode(MarksFixture.Check(fixture.Path), "use-case-endpoint-missing");
 
         var finding = Assert.Single(findings);
         Assert.Equal("use-case/lending.borrow-copy", finding.Subject);

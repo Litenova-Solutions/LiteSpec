@@ -90,7 +90,7 @@ The bill of materials the project generates in CI, an SPDX or CycloneDX JSON doc
 
 **Example:** Claimwick's `decision/0005-render-receipts-as-pdf` chooses a PDF library over an HTML-to-PDF browser and admits `nuget:PdfSharp` with layer `Infrastructure`, licence `MIT`, location `in-process`, account owner `none`, failure behavior "the receipt download fails and the expense stays readable", and operating cost `none`.
 
-**Checked by:** `litespec model check` reports `dependency-unadmitted` (tier S) for a direct package in the bill of materials that the manifest does not pin and no decision admits, and `admission-incomplete` (tier G) for an `admits` entry missing any of its six facts.
+**Checked by:** `litespec model check` reports `dependency-undeclared` (tier S) for a direct package in the bill of materials that the manifest does not pin and no decision admits, and `admission-invalid` (tier G) for an `admits` entry missing any of its six facts.
 
 ### Match Every Shipped Package to Its Pin
 
@@ -114,7 +114,7 @@ The bill of materials the project generates in CI, an SPDX or CycloneDX JSON doc
 
 **Example:** Claimwick accepts `MIT`, `Apache-2.0`, and `BSD-3-Clause` in `dependencies.licences`, so a direct package under `AGPL-3.0-only` that no decision admits is reported.
 
-**Checked by:** `litespec model check` reports `dependency-licence-unapproved` (tier S) for a direct package whose licence the project does not accept and no `admits` entry names.
+**Checked by:** `litespec model check` reports `dependency-license-unknown` (tier S) for a direct package whose licence the project does not accept and no `admits` entry names.
 
 ### Keep Frontend Applications Isolated
 

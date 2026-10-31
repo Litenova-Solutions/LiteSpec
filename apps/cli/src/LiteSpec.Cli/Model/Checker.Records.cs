@@ -33,7 +33,7 @@ static partial class Checker
         "staged", "dispatch", "dispatched", "outbox", "handler", "queued", "worker", "job",
     };
 
-    /// <summary>Reports use-case-noun-unknown, refusal-code-form, template-key-form, setting-unit-missing, integration-event-wording.</summary>
+    /// <summary>Reports use-case-noun-unknown, refusal-code-invalid, template-key-invalid, setting-unit-missing, integration-event-name-invalid.</summary>
     private static void CheckRecordNames(ProjectModel model, List<Finding> findings)
     {
         CheckUseCaseNoun(model, findings);
@@ -213,19 +213,19 @@ static partial class Checker
 
             if (dot < 0 || (!prefix.Equals(module, StringComparison.Ordinal) && !modules.Contains(prefix) && !generic.Contains(prefix)))
             {
-                findings.Add(new Finding("refusal-code-form", $"Result '{result.Id}' has code '{code}', which names no module and no generic prefix.", result.File, result.Line, SubjectOf(result)));
+                findings.Add(new Finding("refusal-code-invalid", $"Result '{result.Id}' has code '{code}', which names no module and no generic prefix.", result.File, result.Line, SubjectOf(result)));
             }
 
             if (!IsKebab(rest))
             {
-                findings.Add(new Finding("refusal-code-form", $"Result '{result.Id}' has code '{code}', which is not kebab-case after its prefix.", result.File, result.Line, SubjectOf(result)));
+                findings.Add(new Finding("refusal-code-invalid", $"Result '{result.Id}' has code '{code}', which is not kebab-case after its prefix.", result.File, result.Line, SubjectOf(result)));
             }
 
             var vague = rest.Split('-', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault(word => RefusalBannedWords.Contains(word));
 
             if (vague is not null)
             {
-                findings.Add(new Finding("refusal-code-form", $"Result '{result.Id}' has code '{code}', which uses the vague word '{vague}' instead of naming the state.", result.File, result.Line, SubjectOf(result)));
+                findings.Add(new Finding("refusal-code-invalid", $"Result '{result.Id}' has code '{code}', which uses the vague word '{vague}' instead of naming the state.", result.File, result.Line, SubjectOf(result)));
             }
         }
     }
@@ -300,7 +300,7 @@ static partial class Checker
 
                 if (!names)
                 {
-                    findings.Add(new Finding("template-key-form", $"Notification '{notification.Id}' has template key '{key}', which names no audience the record declares.", notification.File, notification.Line, SubjectOf(notification)));
+                    findings.Add(new Finding("template-key-invalid", $"Notification '{notification.Id}' has template key '{key}', which names no audience the record declares.", notification.File, notification.Line, SubjectOf(notification)));
                 }
             }
         }
@@ -337,7 +337,7 @@ static partial class Checker
 
             if (hit is not null)
             {
-                findings.Add(new Finding("integration-event-wording", $"Integration event '{record.Id}' names the internal word '{hit}' instead of the business fact.", record.File, record.Line, SubjectOf(record)));
+                findings.Add(new Finding("integration-event-name-invalid", $"Integration event '{record.Id}' names the internal word '{hit}' instead of the business fact.", record.File, record.Line, SubjectOf(record)));
             }
         }
     }

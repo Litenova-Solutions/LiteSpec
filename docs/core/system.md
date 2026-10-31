@@ -84,7 +84,7 @@ Each page owns its tables and rules, and this page cites them without copying. A
 
 **Example:** The reimburse-expense handler carries a mark naming `use-case/spending.reimburse-expense`, the `Reimburse` method on the expense root carries the same mark, and the reminder event handler carries a mark naming `reaction/spending.send-approver-reminders-on-expense-submitted`.
 
-**Checked by:** `litespec model check` reports `mark-missing`, `mark-unresolved` and `mark-count` (check level S) for a code element with no mark, a mark naming no record of the type its element takes, or a handler marking other than one record.
+**Checked by:** `litespec model check` reports `mark-missing`, `mark-unknown` and `mark-count-invalid` (check level S) for a code element with no mark, a mark naming no record of the type its element takes, or a handler marking other than one record.
 
 ### Point Every Technical Class up to Its Record or Choice
 
@@ -96,7 +96,7 @@ Each page owns its tables and rules, and this page cites them without copying. A
 
 **Example:** The Claimwick submit-expense validator carries `/// <implements>use-case/spending.submit-expense</implements>`. The receipt PDF renderer carries `/// <follows>decision/0005-render-receipts-as-pdf</follows>`, and the command pipeline's commit step carries `/// <follows>litespec/backend/persistence#commit-each-command-pipeline-once</follows>`.
 
-**Checked by:** `litespec model check` reports `mark-missing` and `mark-unresolved` (check level S), and `dotnet build` reports `LS5001` and `LS5002`, for a technical class with no mark, an `implements` mark naming no Behavior record, or a `follows` mark naming no provision of the carried release, no decision or deviation, a retired record, or a provision on a page the project's stacks do not apply.
+**Checked by:** `litespec model check` reports `mark-missing` and `mark-unknown` (check level S), and `dotnet build` reports `LS5001` and `LS5002`, for a technical class with no mark, an `implements` mark naming no Behavior record, or a `follows` mark naming no provision of the carried release, no decision or deviation, a retired record, or a provision on a page the project's stacks do not apply.
 
 ### Declare Every Edge Between Records
 
@@ -106,7 +106,7 @@ Each page owns its tables and rules, and this page cites them without copying. A
 
 **Rationale:** The declared edges form the effect graph the checks verify: an undeclared edge is the defect, not the mechanism that carries it. The graph holds no cycles except through domain events with a stated end condition. An inline edge states whether it shares the caller's transaction, and atomic consistency spans no async edge. The [behavior page](behavior.md) states the edge fields, and the [layers page](layers.md) states how Implementation is checked against them.
 
-**Checked by:** `litespec model check` emits no `effect-undeclared` or `effect-loop` finding across use cases, reactions, jobs, notifications, and integration events, and reports `effect-unimplemented` (check level A) for a declared edge no code takes.
+**Checked by:** `litespec model check` emits no `effect-undeclared` or `effect-loop-invalid` finding across use cases, reactions, jobs, notifications, and integration events, and reports `effect-unimplemented` (check level A) for a declared edge no code takes.
 
 ### Deliver One Complete Use Case
 

@@ -3,7 +3,7 @@ using LiteSpec.Tests.Support;
 
 namespace LiteSpec.Tests.Model.Checks;
 
-/// <summary>Proves the constituent derivation and the constituent-orphaned check against hand-built models.</summary>
+/// <summary>Proves the constituent derivation and the constituent-parent-missing check against hand-built models.</summary>
 public sealed class ConstituentCheckTests
 {
     /// <proves>litespec/backend/domain#place-every-constituent-type-in-its-aggregates-folder</proves>
@@ -18,7 +18,7 @@ public sealed class ConstituentCheckTests
         AddRoot(model, root, "Loan", "aggregate/lending.loan");
         AddType(model, state, "LoanState", "Library.Domain.Lending.Loans", 3, false);
 
-        Assert.DoesNotContain("constituent-orphaned", TestModel.Codes(model));
+        Assert.DoesNotContain("constituent-parent-missing", TestModel.Codes(model));
 
         Constituents.Compute(model);
 
@@ -38,7 +38,7 @@ public sealed class ConstituentCheckTests
         AddRoot(model, root, "Loan", "aggregate/lending.loan");
         AddType(model, state, "LoanState", "Library.Domain.Lending.Loans.States", 3, false);
 
-        Assert.DoesNotContain("constituent-orphaned", TestModel.Codes(model));
+        Assert.DoesNotContain("constituent-parent-missing", TestModel.Codes(model));
     }
 
     /// <proves>litespec/backend/domain#place-every-constituent-type-in-its-aggregates-folder</proves>
@@ -53,7 +53,7 @@ public sealed class ConstituentCheckTests
 
         var finding = Assert.Single(
             Checker.Check(model).Findings,
-            found => found.Code == "constituent-orphaned");
+            found => found.Code == "constituent-parent-missing");
 
         Assert.Equal(
             "Domain type 'CopyTitle' sits in 'src/Domain/Lending/Copies', which holds no aggregate root and is not the shared kernel.",
@@ -73,7 +73,7 @@ public sealed class ConstituentCheckTests
         var file = Path.Combine(temp.Path, "src", "Domain", "Shared", "Money.cs");
         AddType(model, file, "Money", "Library.Domain.Shared", 4, false);
 
-        Assert.DoesNotContain("constituent-orphaned", TestModel.Codes(model));
+        Assert.DoesNotContain("constituent-parent-missing", TestModel.Codes(model));
 
         Constituents.Compute(model);
 
@@ -90,7 +90,7 @@ public sealed class ConstituentCheckTests
         var file = Path.Combine(temp.Path, "src", "Domain", "Lending", "Copies", "CopyPricer.cs");
         AddType(model, file, "CopyPricer", "Library.Domain.Lending.Copies", 5, true);
 
-        Assert.DoesNotContain("constituent-orphaned", TestModel.Codes(model));
+        Assert.DoesNotContain("constituent-parent-missing", TestModel.Codes(model));
 
         Constituents.Compute(model);
 
@@ -109,7 +109,7 @@ public sealed class ConstituentCheckTests
         AddRoot(model, Path.Combine(folder, "Copy.cs"), "Copy", "aggregate/lending.copy");
         AddType(model, Path.Combine(folder, "LoanState.cs"), "LoanState", "Library.Domain.Lending.Loans", 3, false);
 
-        Assert.Contains("constituent-orphaned", TestModel.Codes(model));
+        Assert.Contains("constituent-parent-missing", TestModel.Codes(model));
     }
 
     /// <proves>litespec/backend/domain#place-every-constituent-type-in-its-aggregates-folder</proves>
@@ -124,7 +124,7 @@ public sealed class ConstituentCheckTests
         var file = Path.Combine(temp.Path, "src", "Domain", "AuditStamp.cs");
         AddType(model, file, "AuditStamp", "Library.Domain", 3, false);
 
-        Assert.DoesNotContain("constituent-orphaned", TestModel.Codes(model));
+        Assert.DoesNotContain("constituent-parent-missing", TestModel.Codes(model));
 
         Constituents.Compute(model);
 

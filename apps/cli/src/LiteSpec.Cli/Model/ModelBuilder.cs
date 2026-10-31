@@ -229,7 +229,7 @@ static partial class ModelBuilder
     /// <summary>
     ///     Keeps a domain event's record only when its mark names an event record.
     ///     A mark naming nothing, or a record of another type, is left for
-    ///     <c>mark-unresolved</c>, with no class-name fallback.
+    ///     <c>mark-unknown</c>, with no class-name fallback.
     /// </summary>
     private static void MatchEvents(ProjectModel model)
     {
@@ -341,7 +341,7 @@ static partial class ModelBuilder
     /// <summary>
     ///     Counts a marked rule exception as declaring its refusal code: the exception
     ///     holds a declaring literal for the code of the refusal result its rule names,
-    ///     so the result link and <c>refusal-not-thrown</c> read the mark.
+    ///     so the result link and <c>refusal-unimplemented</c> read the mark.
     /// </summary>
     private static void MarkDeclaredRefusals(ProjectModel model)
     {

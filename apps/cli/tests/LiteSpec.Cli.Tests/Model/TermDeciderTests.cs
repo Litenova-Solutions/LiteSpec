@@ -18,7 +18,7 @@ public sealed class TermDeciderTests
         var term = Assert.Single(model.Records, record => record.Id == "term/loan");
         Assert.Equal("lending-team", term.Decider);
         Assert.Equal("2030-01-31", term.DecideBy);
-        Assert.DoesNotContain(findings, finding => finding.Code == "draft-without-decider");
+        Assert.DoesNotContain(findings, finding => finding.Code == "decider-missing");
     }
 
     /// <proves>litespec/core/model#keep-one-owner-and-status-on-every-record</proves>
@@ -30,7 +30,7 @@ public sealed class TermDeciderTests
         var model = ModelBuilder.Build(ConsumerConfig.Load(temp.Path));
         var findings = Checker.Check(model).Findings;
 
-        var missing = findings.Where(finding => finding.Code == "draft-without-decider").ToList();
+        var missing = findings.Where(finding => finding.Code == "decider-missing").ToList();
 
         Assert.Equal(2, missing.Count);
         Assert.Contains("Draft 'term/loan' names no decider.", missing.Select(finding => finding.Message));

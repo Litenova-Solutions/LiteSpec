@@ -214,7 +214,7 @@ public sealed class SeverityMatrixTests
                 {
                 }
                 """)],
-            [ProjectFile(), UseCase(), KnownGap("mark-style-mixed", ["use-case/spending.submit-expense"])],
+            [ProjectFile(), UseCase(), KnownGap("mark-style-invalid", ["use-case/spending.submit-expense"])],
             assemblyName: "Shop.Application");
 
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
@@ -236,12 +236,12 @@ public sealed class SeverityMatrixTests
     [Fact(DisplayName = "The hoisted known sets match the store")]
     public void HoistedKnownSetsMatchStore()
     {
-        var store = StoreWith([ProjectFile(), UseCase(), Deviation(["Source.cs"]), KnownGap("mark-style-mixed", ["use-case/spending.submit-expense"])]);
+        var store = StoreWith([ProjectFile(), UseCase(), Deviation(["Source.cs"]), KnownGap("mark-style-invalid", ["use-case/spending.submit-expense"])]);
         var compilation = CSharpCompilation.Create("Shop.Application");
         var context = TraceabilityContext.GetOrCreate(compilation, Layer.Application, store);
 
         var byFile = new Finding("mark-missing", "Missing.", "Source.cs", 1, null);
-        var byGap = new Finding("mark-style-mixed", "Mixed.", "Other.cs", 1, "use-case/spending.submit-expense");
+        var byGap = new Finding("mark-style-invalid", "Mixed.", "Other.cs", 1, "use-case/spending.submit-expense");
         var open = new Finding("mark-missing", "Missing.", "Other.cs", 1, "use-case/spending.submit-expense");
 
         Assert.True(context.IsKnown(byFile));

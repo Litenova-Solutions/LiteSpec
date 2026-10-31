@@ -19,7 +19,7 @@ public sealed class SharedCitationTests
         Assert.Equal(0, result.Status);
     }
 
-    /// <summary>A new-form citation that the carried release lacks exits 1 with reference-unresolved.</summary>
+    /// <summary>A new-form citation that the carried release lacks exits 1 with reference-unknown.</summary>
     /// <proves>litespec/backend/identifiers#resolve-every-identifier-citation</proves>
     [Fact]
     public void Shared_Citation_Without_A_Provision_Reports_Reference_Unresolved()
@@ -31,7 +31,7 @@ public sealed class SharedCitationTests
             ["model", "check", "--root", temp.Path, "--format", "json"],
             environment: new Dictionary<string, string> { ["LITESPEC_HOME"] = home.Path });
         Assert.Equal(1, result.Status);
-        Assert.Contains("reference-unresolved", result.Output);
+        Assert.Contains("reference-unknown", result.Output);
     }
 
     static TempFolder WriteFixtureHome()

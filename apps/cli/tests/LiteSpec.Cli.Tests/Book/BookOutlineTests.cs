@@ -400,7 +400,7 @@ public sealed class BookOutlineTests
             known: new JsonArray(
                 new JsonObject
                 {
-                    ["code"] = "step-unscreened",
+                    ["code"] = "step-screen-missing",
                     ["tier"] = "A",
                     ["message"] = "Step s2 has no screen.",
                     ["subject"] = "use-case/lending.borrow-copy#s2",

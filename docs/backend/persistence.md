@@ -178,7 +178,7 @@ A tool that alters the schema from application startup is not a reviewed step wh
 
 **Example:** The list-expenses query passes its employee scope and page to the repository, while a handler applying `Where` to a `ListAsync` result is reported.
 
-**Checked by:** `litespec model check` reports `query-filters-in-memory` (tier A) for a query handler filtering a repository list in memory.
+**Checked by:** `litespec model check` reports `query-filter-invalid` (tier A) for a query handler filtering a repository list in memory.
 
 ### Assign Document Numbers from a Sequence
 

@@ -9,7 +9,7 @@ namespace LiteSpec.Tests.Model.Checks;
 /// <summary>Proves the dependency checks against the bill of materials and the admitting decisions.</summary>
 public sealed class DependencyCheckTests
 {
-    /// <summary>A direct package with no pin and no admission reports dependency-unadmitted.</summary>
+    /// <summary>A direct package with no pin and no admission reports dependency-undeclared.</summary>
     /// <proves>litespec/workspace/dependencies#approve-new-packages-explicitly</proves>
     [Fact]
     public void Unadmitted_Direct_Package_Reports()
@@ -19,7 +19,7 @@ public sealed class DependencyCheckTests
         Write(temp.Path, "docs/proof/sbom/api.spdx.json", SpdxDoc(("UnknownLib", "1.0.0", "MIT", "pkg:nuget/UnknownLib@1.0.0")));
 
         var check = Cli.Run("model", "check", "--root", temp.Path);
-        var finding = check.Output.Split('\n').Single(candidate => candidate.Contains("dependency-unadmitted"));
+        var finding = check.Output.Split('\n').Single(candidate => candidate.Contains("dependency-undeclared"));
 
         Assert.Equal(1, check.Status);
         Assert.Contains("[S]", finding);
@@ -27,10 +27,10 @@ public sealed class DependencyCheckTests
         Assert.Contains("1.0.0", finding);
         Assert.Contains("MIT", finding);
         Assert.DoesNotContain("dependency-version-drift", check.Output);
-        Assert.DoesNotContain("dependency-licence-unapproved", check.Output);
+        Assert.DoesNotContain("dependency-license-unknown", check.Output);
     }
 
-    /// <summary>A direct package a technical decision admits reports no dependency-unadmitted.</summary>
+    /// <summary>A direct package a technical decision admits reports no dependency-undeclared.</summary>
     /// <proves>litespec/workspace/dependencies#approve-new-packages-explicitly</proves>
     [Fact]
     public void Admitted_Direct_Package_Passes()
@@ -78,11 +78,11 @@ public sealed class DependencyCheckTests
         Assert.Contains("1.0.0", finding);
         Assert.Contains("MIT", finding);
         Assert.Contains("9.50.1", finding);
-        Assert.DoesNotContain("dependency-unadmitted", check.Output);
-        Assert.DoesNotContain("dependency-licence-unapproved", check.Output);
+        Assert.DoesNotContain("dependency-undeclared", check.Output);
+        Assert.DoesNotContain("dependency-license-unknown", check.Output);
     }
 
-    /// <summary>A direct package under a rejected licence reports dependency-licence-unapproved.</summary>
+    /// <summary>A direct package under a rejected licence reports dependency-license-unknown.</summary>
     /// <proves>litespec/workspace/dependencies#accept-every-shipped-package-licence-explicitly</proves>
     [Fact]
     public void Licence_Not_Accepted_Reports()
@@ -92,14 +92,14 @@ public sealed class DependencyCheckTests
         Write(temp.Path, "docs/proof/sbom/api.spdx.json", SpdxDoc(("Marten", "9.50.1", "AGPL-3.0-only", "pkg:nuget/Marten@9.50.1")));
 
         var check = Cli.Run("model", "check", "--root", temp.Path);
-        var finding = check.Output.Split('\n').Single(candidate => candidate.Contains("dependency-licence-unapproved"));
+        var finding = check.Output.Split('\n').Single(candidate => candidate.Contains("dependency-license-unknown"));
 
         Assert.Equal(1, check.Status);
         Assert.Contains("[S]", finding);
         Assert.Contains("nuget:Marten", finding);
         Assert.Contains("9.50.1", finding);
         Assert.Contains("AGPL-3.0-only", finding);
-        Assert.DoesNotContain("dependency-unadmitted", check.Output);
+        Assert.DoesNotContain("dependency-undeclared", check.Output);
         Assert.DoesNotContain("dependency-version-drift", check.Output);
     }
 
@@ -117,7 +117,7 @@ public sealed class DependencyCheckTests
         AssertNoDependencyFindings(check);
     }
 
-    /// <summary>An expression with one identifier rejected reports dependency-licence-unapproved.</summary>
+    /// <summary>An expression with one identifier rejected reports dependency-license-unknown.</summary>
     /// <proves>litespec/workspace/dependencies#accept-every-shipped-package-licence-explicitly</proves>
     [Fact]
     public void Expression_With_One_Licence_Rejected_Reports()
@@ -127,7 +127,7 @@ public sealed class DependencyCheckTests
         Write(temp.Path, "docs/proof/sbom/api.spdx.json", SpdxDoc(("Marten", "9.50.1", "MIT OR GPL-3.0-only", "pkg:nuget/Marten@9.50.1")));
 
         var check = Cli.Run("model", "check", "--root", temp.Path);
-        var finding = check.Output.Split('\n').Single(candidate => candidate.Contains("dependency-licence-unapproved"));
+        var finding = check.Output.Split('\n').Single(candidate => candidate.Contains("dependency-license-unknown"));
 
         Assert.Equal(1, check.Status);
         Assert.Contains("MIT OR GPL-3.0-only", finding);
@@ -149,7 +149,7 @@ public sealed class DependencyCheckTests
         AssertNoDependencyFindings(check);
     }
 
-    /// <summary>An admits entry missing a fact reports admission-incomplete.</summary>
+    /// <summary>An admits entry missing a fact reports admission-invalid.</summary>
     /// <proves>litespec/workspace/dependencies#approve-new-packages-explicitly</proves>
     [Fact]
     public void Admission_Missing_Fact_Reports()
@@ -161,19 +161,19 @@ public sealed class DependencyCheckTests
         WriteFollower(temp.Path);
 
         var check = Cli.Run("model", "check", "--root", temp.Path);
-        var finding = check.Output.Split('\n').Single(candidate => candidate.Contains("admission-incomplete"));
+        var finding = check.Output.Split('\n').Single(candidate => candidate.Contains("admission-invalid"));
 
         Assert.Equal(1, check.Status);
         Assert.Contains("[G]", finding);
         Assert.Contains("decision/0099-admit-extra-package", finding);
         Assert.Contains("nuget:UnknownLib", finding);
         Assert.Contains("operatingCost", finding);
-        Assert.DoesNotContain("dependency-unadmitted", check.Output);
+        Assert.DoesNotContain("dependency-undeclared", check.Output);
         Assert.DoesNotContain("dependency-version-drift", check.Output);
-        Assert.DoesNotContain("dependency-licence-unapproved", check.Output);
+        Assert.DoesNotContain("dependency-license-unknown", check.Output);
     }
 
-    /// <summary>An admits entry naming every fact reports no admission-incomplete.</summary>
+    /// <summary>An admits entry naming every fact reports no admission-invalid.</summary>
     /// <proves>litespec/workspace/dependencies#approve-new-packages-explicitly</proves>
     [Fact]
     public void Complete_Admission_Passes()
@@ -204,7 +204,7 @@ public sealed class DependencyCheckTests
         AssertNoDependencyFindings(check);
     }
 
-    /// <summary>admission-incomplete runs even when the project names no bill of materials.</summary>
+    /// <summary>admission-invalid runs even when the project names no bill of materials.</summary>
     /// <proves>litespec/workspace/dependencies#approve-new-packages-explicitly</proves>
     [Fact]
     public void Admission_Incomplete_Without_Sbom_Reports()
@@ -214,13 +214,13 @@ public sealed class DependencyCheckTests
         WriteFollower(temp.Path);
 
         var check = Cli.Run("model", "check", "--root", temp.Path);
-        var finding = check.Output.Split('\n').Single(candidate => candidate.Contains("admission-incomplete"));
+        var finding = check.Output.Split('\n').Single(candidate => candidate.Contains("admission-invalid"));
 
         Assert.Equal(1, check.Status);
         Assert.Contains("operatingCost", finding);
     }
 
-    /// <summary>A CycloneDX direct package with no pin and no admission reports dependency-unadmitted.</summary>
+    /// <summary>A CycloneDX direct package with no pin and no admission reports dependency-undeclared.</summary>
     /// <proves>litespec/workspace/dependencies#approve-new-packages-explicitly</proves>
     [Fact]
     public void CycloneDx_Unadmitted_Reports()
@@ -230,7 +230,7 @@ public sealed class DependencyCheckTests
         Write(temp.Path, "docs/proof/sbom/api.cdx.json", CycloneDxDoc(("UnknownCdx", "1.0.0", "MIT", false, "pkg:nuget/UnknownCdx@1.0.0")));
 
         var check = Cli.Run("model", "check", "--root", temp.Path);
-        var finding = check.Output.Split('\n').Single(candidate => candidate.Contains("dependency-unadmitted"));
+        var finding = check.Output.Split('\n').Single(candidate => candidate.Contains("dependency-undeclared"));
 
         Assert.Equal(1, check.Status);
         Assert.Contains("nuget:UnknownCdx", finding);
@@ -266,7 +266,7 @@ public sealed class DependencyCheckTests
         AssertNoDependencyFindings(check);
     }
 
-    /// <summary>An npm name in another case than its pin reports dependency-unadmitted.</summary>
+    /// <summary>An npm name in another case than its pin reports dependency-undeclared.</summary>
     /// <proves>litespec/workspace/dependencies#approve-new-packages-explicitly</proves>
     [Fact]
     public void Npm_Pin_Match_Respects_Case_Reports()
@@ -276,7 +276,7 @@ public sealed class DependencyCheckTests
         Write(temp.Path, "docs/proof/sbom/api.spdx.json", SpdxDoc(("React", "19.3.0", "MIT", "pkg:npm/React@19.3.0")));
 
         var check = Cli.Run("model", "check", "--root", temp.Path);
-        var finding = check.Output.Split('\n').Single(candidate => candidate.Contains("dependency-unadmitted"));
+        var finding = check.Output.Split('\n').Single(candidate => candidate.Contains("dependency-undeclared"));
 
         Assert.Equal(1, check.Status);
         Assert.Contains("npm:React", finding);
@@ -298,10 +298,10 @@ public sealed class DependencyCheckTests
 
     static void AssertNoDependencyFindings(CliResult check)
     {
-        Assert.DoesNotContain("dependency-unadmitted", check.Output);
+        Assert.DoesNotContain("dependency-undeclared", check.Output);
         Assert.DoesNotContain("dependency-version-drift", check.Output);
-        Assert.DoesNotContain("dependency-licence-unapproved", check.Output);
-        Assert.DoesNotContain("admission-incomplete", check.Output);
+        Assert.DoesNotContain("dependency-license-unknown", check.Output);
+        Assert.DoesNotContain("admission-invalid", check.Output);
     }
 
     static void ConfigureSbom(string root)

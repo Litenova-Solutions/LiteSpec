@@ -17,7 +17,7 @@ public sealed class DecisionBasisCheckTests
             TestModel.Record("requirement", "requirement/checkout.receipt-on-request", Path.Combine(temp.Path, "checkout.md"), """{"kind": "functional", "statement": "A shopper takes a receipt on request."}"""),
             TestModel.Record("decision", "decision/0002-store-orders-as-documents", TechnicalDecisionFile(config, "0002-store-orders-as-documents"), DecisionJson("requirement/checkout.receipt-on-request")));
 
-        Assert.DoesNotContain("invalid-field", TestModel.Codes(model));
+        Assert.DoesNotContain("field-invalid", TestModel.Codes(model));
     }
 
     /// <proves>litespec/core/model#keep-rules-and-targets-out-of-technical-decisions</proves>
@@ -31,7 +31,7 @@ public sealed class DecisionBasisCheckTests
             TestModel.Record("requirement", "requirement/checkout.receipt-on-request", Path.Combine(temp.Path, "checkout.md"), """{"kind": "functional", "statement": "A shopper takes a receipt on request."}"""),
             TestModel.Record("decision", "decision/0001-receipt-rule", ProductDecisionFile(config), DecisionJson("requirement/checkout.receipt-on-request")));
 
-        Assert.True(Reports(model, "invalid-field", "links basedOn to 'requirement/checkout.receipt-on-request', which is a requirement"));
+        Assert.True(Reports(model, "field-invalid", "links basedOn to 'requirement/checkout.receipt-on-request', which is a requirement"));
     }
 
     /// <proves>litespec/core/model#keep-rules-and-targets-out-of-technical-decisions</proves>
@@ -44,7 +44,7 @@ public sealed class DecisionBasisCheckTests
             TestModel.Record("requirement", "requirement/checkout.receipt-on-request", Path.Combine(temp.Path, "checkout.md"), """{"kind": "functional", "statement": "A shopper takes a receipt on request.", "cites": ["requirement/checkout.two-second-answer"]}"""),
             TestModel.Record("requirement", "requirement/checkout.two-second-answer", Path.Combine(temp.Path, "checkout.md"), """{"kind": "functional", "statement": "Checkout answers within two seconds at peak."}"""));
 
-        Assert.True(Reports(model, "invalid-field", "links cites to 'requirement/checkout.two-second-answer', which is a requirement"));
+        Assert.True(Reports(model, "field-invalid", "links cites to 'requirement/checkout.two-second-answer', which is a requirement"));
     }
 
     /// <proves>litespec/core/model#keep-rules-and-targets-out-of-technical-decisions</proves>
@@ -58,7 +58,7 @@ public sealed class DecisionBasisCheckTests
             TestModel.Record("decision", "decision/0002-store-orders-as-documents", TechnicalDecisionFile(config, "0002-store-orders-as-documents"), """{"status": "approved", "options": [{"name": "Documents", "pros": "Reads stay simple.", "cons": "Queries need an index."}], "choice": "Documents", "reopenedWhen": "Queries pass one hundred a day.", "basedOn": []}"""),
             TestModel.Record("decision", "decision/0003-loan-cache-region", TechnicalDecisionFile(config, "0003-loan-cache-region"), """{"status": "approved", "options": [{"name": "Edge cache", "pros": "Reads stay near the reader.", "cons": "Invalidation lags."}], "choice": "Edge cache", "reopenedWhen": "Reads pass one thousand a day."}"""));
 
-        var basis = Checker.Check(model).Findings.Where(finding => finding.Code == "decision-without-basis").ToList();
+        var basis = Checker.Check(model).Findings.Where(finding => finding.Code == "decision-basis-missing").ToList();
 
         Assert.Equal(2, basis.Count);
         Assert.All(basis, finding => Assert.Contains("names no constraint or requirement in basedOn", finding.Message, StringComparison.Ordinal));
@@ -75,7 +75,7 @@ public sealed class DecisionBasisCheckTests
             TestModel.Record("constraint", "constraint/receipts-stay-in-the-eu", Path.Combine(temp.Path, "retention.md"), """{"authority": "Tax code, article 9.", "kind": "technical", "applies": true, "appliesBecause": "The shop stores receipts."}"""),
             TestModel.Record("decision", "decision/0002-store-orders-as-documents", TechnicalDecisionFile(config, "0002-store-orders-as-documents"), DecisionJson("constraint/receipts-stay-in-the-eu")));
 
-        Assert.DoesNotContain("decision-without-basis", TestModel.Codes(model));
+        Assert.DoesNotContain("decision-basis-missing", TestModel.Codes(model));
     }
 
     /// <proves>litespec/core/model#keep-rules-and-targets-out-of-technical-decisions</proves>
@@ -89,7 +89,7 @@ public sealed class DecisionBasisCheckTests
             TestModel.Record("requirement", "requirement/checkout.receipt-on-request", Path.Combine(temp.Path, "checkout.md"), """{"kind": "functional", "statement": "A shopper takes a receipt on request."}"""),
             TestModel.Record("decision", "decision/0001-receipt-rule", ProductDecisionFile(config), """{"status": "approved", "options": [{"name": "Always", "pros": "Every receipt is provable.", "cons": "Paper piles up."}], "choice": "Always", "reopenedWhen": "Paper costs double.", "decides": ["requirement/checkout.receipt-on-request"], "basedOn": []}"""));
 
-        Assert.DoesNotContain("decision-without-basis", TestModel.Codes(model));
+        Assert.DoesNotContain("decision-basis-missing", TestModel.Codes(model));
     }
 
     /// <proves>litespec/core/model#keep-rules-and-targets-out-of-technical-decisions</proves>
@@ -102,8 +102,8 @@ public sealed class DecisionBasisCheckTests
             config,
             TestModel.Record("decision", "decision/0002-store-orders-as-documents", TechnicalDecisionFile(config, "0002-store-orders-as-documents"), DecisionJson("requirement/checkout.no-such-target")));
 
-        Assert.True(Reports(model, "reference-unresolved", "cites 'requirement/checkout.no-such-target', which no record holds"));
-        Assert.DoesNotContain("invalid-field", TestModel.Codes(model));
+        Assert.True(Reports(model, "reference-unknown", "cites 'requirement/checkout.no-such-target', which no record holds"));
+        Assert.DoesNotContain("field-invalid", TestModel.Codes(model));
     }
 
     /// <summary>An approved technical decision naming the target in basedOn.</summary>

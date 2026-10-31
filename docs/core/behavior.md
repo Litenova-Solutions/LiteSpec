@@ -404,9 +404,9 @@ The specification names only what carries business meaning. Child entities and v
 
 **Statement:** Each entity and each process MUST list every allowed state change with its use case in its Transitions table.
 
-**Rationale:** States without transitions are a list of names with no path between them: a reviewer sees where an aggregate rests but never how it moves. Listing every allowed change with the use case that moves it shows the whole lifecycle as debated rows, and leaves no state reachable only by a path no record names. The `state-unreachable` and `transition-unresolved` checks report a state no transition reaches and a transition naming a missing state or use case.
+**Rationale:** States without transitions are a list of names with no path between them: a reviewer sees where an aggregate rests but never how it moves. Listing every allowed change with the use case that moves it shows the whole lifecycle as debated rows, and leaves no state reachable only by a path no record names. The `state-unreached` and `transition-unknown` checks report a state no transition reaches and a transition naming a missing state or use case.
 
-**Checked by:** `litespec model check` reports `state-unreachable` (tier G) for a state reached by no transition and `transition-unresolved` (tier G) for a transition naming a missing state or use case.
+**Checked by:** `litespec model check` reports `state-unreached` (tier G) for a state reached by no transition and `transition-unknown` (tier G) for a transition naming a missing state or use case.
 
 ### Classify Every Aggregate Data Field
 
@@ -424,11 +424,11 @@ The specification names only what carries business meaning. Child entities and v
 
 **Statement:** Each data class MUST declare its classification, its fields, its erasure position, its basis, its retention period, and the enforcement that carries it out.
 
-**Rationale:** Erasure declared per field drifts: one field keeps a new position while its twin keeps the old one. Declaring the position once per class, with per-field exceptions beside it, keeps one decision in one place. The position is `erase`, `pseudonymise`, `retain`, or `exempt`; the basis is `statute`, `business`, or `engineering`; the period is an ISO duration or `none (on-demand)`; the enforcement is `job/...`, `record-expiry`, `store-ttl`, or `query-filter`. The `erasure-undeclared` check reports a personal or sensitive field with no declared position, and `retention-without-enforcement` reports a class nothing enforces.
+**Rationale:** Erasure declared per field drifts: one field keeps a new position while its twin keeps the old one. Declaring the position once per class, with per-field exceptions beside it, keeps one decision in one place. The position is `erase`, `pseudonymise`, `retain`, or `exempt`; the basis is `statute`, `business`, or `engineering`; the period is an ISO duration or `none (on-demand)`; the enforcement is `job/...`, `record-expiry`, `store-ttl`, or `query-filter`. The `erasure-undeclared` check reports a personal or sensitive field with no declared position, and `retention-enforcement-missing` reports a class nothing enforces.
 
 **Example:** The submitter-contact class declares `personal`, `pseudonymise`, and its approving requirement, while the expense-ledger class declares `internal`, `retain`, a statutory seven years, and the finance expiry job.
 
-**Checked by:** `litespec model check` reports `erasure-undeclared` for a personal or sensitive field with no declared position and `retention-without-enforcement` for a class nothing enforces.
+**Checked by:** `litespec model check` reports `erasure-undeclared` for a personal or sensitive field with no declared position and `retention-enforcement-missing` for a class nothing enforces.
 
 ### Accept Every Retained Personal Data Class in Intent
 
@@ -436,9 +436,9 @@ The specification names only what carries business meaning. Child entities and v
 
 **Statement:** Each personal or sensitive data class kept with `retain` or `exempt` MUST name the Intent requirement or decision accepting it in `acceptedBy`.
 
-**Rationale:** Keeping personal data past erasure is a business choice, not a technical default: the statute or the business accepts it, with the reason on record. Naming that requirement or decision in `acceptedBy` keeps the keeping reviewable where the promise lives. The `risk-without-acceptance` check reports a retained or exempt personal or sensitive class with no Intent acceptance.
+**Rationale:** Keeping personal data past erasure is a business choice, not a technical default: the statute or the business accepts it, with the reason on record. Naming that requirement or decision in `acceptedBy` keeps the keeping reviewable where the promise lives. The `risk-acceptance-missing` check reports a retained or exempt personal or sensitive class with no Intent acceptance.
 
-**Checked by:** `litespec model check` reports `risk-without-acceptance` for a retained or exempt personal or sensitive class with no Intent acceptance.
+**Checked by:** `litespec model check` reports `risk-acceptance-missing` for a retained or exempt personal or sensitive class with no Intent acceptance.
 
 ### Review Every Erasure Exemption Before Its Date
 
@@ -502,11 +502,11 @@ The specification names only what carries business meaning. Child entities and v
 
 **Statement:** A rule whose statement says `not`, `no`, `never`, or `cannot` MUST keep a restricting word in its name: a negation such as `no`, `never`, `not`, `cannot`, `none`, `without`, `unless`, `refused`, or `forbidden`, a limit such as `only`, or a uniqueness `one-...-per-...`.
 
-**Rationale:** A name that drops the negation reads as its own opposite: a rule named `cancel-after-shipment` whose statement says "never" approves what it forbids. A restricting word keeps the name a true sentence a reviewer trusts without opening the statement, and `one-grant-per-account` already says what "an account never holds two grants" says. The `rule-name-negation` check reports a rule whose statement negates while its name keeps no restricting word or uniqueness.
+**Rationale:** A name that drops the negation reads as its own opposite: a rule named `cancel-after-shipment` whose statement says "never" approves what it forbids. A restricting word keeps the name a true sentence a reviewer trusts without opening the statement, and `one-grant-per-account` already says what "an account never holds two grants" says. The `rule-name-invalid` check reports a rule whose statement negates while its name keeps no restricting word or uniqueness.
 
 **Example:** The rule reads `rule/order.cancel-never-after-shipment`.
 
-**Checked by:** `litespec model check` reports `rule-name-negation` for a rule whose statement says `not`, `no`, `never`, or `cannot` while its name keeps no restricting word or uniqueness.
+**Checked by:** `litespec model check` reports `rule-name-invalid` for a rule whose statement says `not`, `no`, `never`, or `cannot` while its name keeps no restricting word or uniqueness.
 
 ### Keep Cross-Aggregate Rules on a Rule Page
 
@@ -534,9 +534,9 @@ The specification names only what carries business meaning. Child entities and v
 
 **Statement:** Each reservation rule MUST name the use case releasing it in `releasedBy`, or `never` with its cost.
 
-**Rationale:** A held claim with no release is a leak: places, funds, or names stay locked past their need, and nobody owns freeing them. Naming the releasing use case states the end of the hold beside its start, and `never` with its cost admits a hold that truly lasts, with the price on record. Persistence claims the added keys and releases the removed ones in the commit that changes the aggregate (`litespec/backend/persistence#claim-a-cross-record-key-at-commit`). The `reservation-without-release` check reports a reservation with no release.
+**Rationale:** A held claim with no release is a leak: places, funds, or names stay locked past their need, and nobody owns freeing them. Naming the releasing use case states the end of the hold beside its start, and `never` with its cost admits a hold that truly lasts, with the price on record. Persistence claims the added keys and releases the removed ones in the commit that changes the aggregate (`litespec/backend/persistence#claim-a-cross-record-key-at-commit`). The `reservation-release-missing` check reports a reservation with no release.
 
-**Checked by:** `litespec model check` reports `reservation-without-release` for a reservation rule without `releasedBy` or `never` with its cost.
+**Checked by:** `litespec model check` reports `reservation-release-missing` for a reservation rule without `releasedBy` or `never` with its cost.
 
 ### Freeze Every Commercial Data Value
 
@@ -564,9 +564,9 @@ The specification names only what carries business meaning. Child entities and v
 
 **Statement:** Each calculation rule MUST be proven by a scenario carrying an examples table.
 
-**Rationale:** A calculation stated only as a sentence hides its edges: reviewers agree on the words while each pictures other numbers. An examples table shows the debated rows, and the scenario proving the rule pins them as checked facts. The `calculation-without-table` check reports a calculation rule with no scenario examples table.
+**Rationale:** A calculation stated only as a sentence hides its edges: reviewers agree on the words while each pictures other numbers. An examples table shows the debated rows, and the scenario proving the rule pins them as checked facts. The `calculation-table-missing` check reports a calculation rule with no scenario examples table.
 
-**Checked by:** `litespec model check` reports `calculation-without-table` for a calculation rule with no scenario examples table.
+**Checked by:** `litespec model check` reports `calculation-table-missing` for a calculation rule with no scenario examples table.
 
 ### State Each Event with Meaning and Carries
 
@@ -620,7 +620,7 @@ The specification names only what carries business meaning. Child entities and v
 
 **Example:** `expense-reimbursement-requested` names the requested reimbursement; `expense-reimbursement-staged` names the staging step and is reported.
 
-**Checked by:** `litespec model check` reports `integration-event-wording` (tier G) for an outbound event named with an internal word.
+**Checked by:** `litespec model check` reports `integration-event-name-invalid` (tier G) for an outbound event named with an internal word.
 
 ### Reach Every Inbound Integration Event Through a Webhook
 
@@ -660,11 +660,11 @@ The specification names only what carries business meaning. Child entities and v
 
 **Statement:** Each use case MUST open with a verb of its own kind: a reading verb for a query, and a changing verb for a command.
 
-**Rationale:** The first word is the first thing a reader trusts. A query named `change-...` or a command named `read-...` makes every listing lie about what the use case may touch, and a reviewer stops reading names at all. The baseline vocabulary gives each verb a kind, a project names its own reading verbs in `queryVerbs`, and its other domain verbs open either kind. The `use-case-verb-kind` check reports a use case whose verb names the other kind.
+**Rationale:** The first word is the first thing a reader trusts. A query named `change-...` or a command named `read-...` makes every listing lie about what the use case may touch, and a reviewer stops reading names at all. The baseline vocabulary gives each verb a kind, a project names its own reading verbs in `queryVerbs`, and its other domain verbs open either kind. The `use-case-verb-invalid` check reports a use case whose verb names the other kind.
 
 **Example:** `use-case/lending.list-loans` is a query and passes; `use-case/lending.read-overdue-count` declared as a command is reported, and so is `use-case/lending.change-copy` declared as a query.
 
-**Checked by:** `litespec model check` reports `use-case-verb-kind` for a query opening with a changing verb or a command opening with a reading verb.
+**Checked by:** `litespec model check` reports `use-case-verb-invalid` for a query opening with a changing verb or a command opening with a reading verb.
 
 ### Name What a Use Case Acts on from the Model
 
@@ -688,7 +688,7 @@ The specification names only what carries business meaning. Child entities and v
 
 **Example:** `use-case/orders.void-order` whose handler calls `Abandon` is reported; the project renames the use case to the domain word, or the method and its event to `Void` and `OrderVoidedEvent`.
 
-**Checked by:** `litespec model check` reports `use-case-verb-method` (tier A) for a command handler calling aggregate methods, none starting with the use-case verb or with `Request`.
+**Checked by:** `litespec model check` reports `use-case-method-drift` (tier A) for a command handler calling aggregate methods, none starting with the use-case verb or with `Request`.
 
 ### Connect Each Use Case to Intent
 
@@ -696,11 +696,11 @@ The specification names only what carries business meaning. Child entities and v
 
 **Statement:** Each use case MUST name a journey step in `serves` or a requirement in `fulfills`.
 
-**Rationale:** A use case serving nothing and fulfilling nothing is behavior nobody asked for: it ships without a promise behind it and stays when the promise changes. Naming a journey step or a requirement ties each behavior to the intent it carries. The `record-orphaned` check reports a use case with neither field, and `step-unserved` reports a journey step no use case serves.
+**Rationale:** A use case serving nothing and fulfilling nothing is behavior nobody asked for: it ships without a promise behind it and stays when the promise changes. Naming a journey step or a requirement ties each behavior to the intent it carries. The `record-link-missing` check reports a use case with neither field, and `step-use-case-missing` reports a journey step no use case serves.
 
 **Example:** The reimburse-expense command serves `journey/submit-and-reimburse#s4` and fulfills `requirement/approval.single-reimbursement`.
 
-**Checked by:** `litespec model check` reports `record-orphaned` for a use case with neither `serves` nor `fulfills`.
+**Checked by:** `litespec model check` reports `record-link-missing` for a use case with neither `serves` nor `fulfills`.
 
 ### Grant Each Use Case Scoped Access
 
@@ -722,7 +722,7 @@ The specification names only what carries business meaning. Child entities and v
 
 **Rationale:** A use case with no named door is reachable from anywhere or nowhere: reviewers cannot tell a public operation from an internal one. Naming the entry points shows how callers arrive at each behavior.
 
-**Checked by:** `litespec model check` reports `reference-unresolved` for a `reachedThrough` entry naming no entry point.
+**Checked by:** `litespec model check` reports `reference-unknown` for a `reachedThrough` entry naming no entry point.
 
 ### Describe Every Use Case Input with Source and Classification
 
@@ -754,7 +754,7 @@ The specification names only what carries business meaning. Child entities and v
 
 **Rationale:** A write no record names is invisible to review: the handler touches a second aggregate, the second aggregate changes under its reviewers, and no diff shows it. Naming every touched aggregate, including `store` aggregates, states the read and write footprint beside the behavior. The `write-undeclared` check reports a write outside `changes`.
 
-**Checked by:** `litespec model check` reports `write-undeclared` for a write outside `changes` and `reference-unresolved` for an unknown aggregate.
+**Checked by:** `litespec model check` reports `write-undeclared` for a write outside `changes` and `reference-unknown` for an unknown aggregate.
 
 ### State the Consistency of Every Use Case
 
@@ -762,11 +762,11 @@ The specification names only what carries business meaning. Child entities and v
 
 **Statement:** Each use case MUST declare its write consistency in `consistency`.
 
-**Rationale:** Consistency left unsaid defaults to hope: a multi-aggregate write is read as atomic until it fails halfway. Declaring the mode states the promise: `atomic` with its `because` rules when `changes` lists more than one aggregate, `per-record` with a receipt per target on best effort, `compensated` with every mutating step naming its compensation. Atomic consistency never spans an `async` edge. The `consistency-unexplained` check reports an atomic multi-aggregate write with no `because`, and `many-aggregates` flags more than one atomic write group as a smell to consider.
+**Rationale:** Consistency left unsaid defaults to hope: a multi-aggregate write is read as atomic until it fails halfway. Declaring the mode states the promise: `atomic` with its `because` rules when `changes` lists more than one aggregate, `per-record` with a receipt per target on best effort, `compensated` with every mutating step naming its compensation. Atomic consistency never spans an `async` edge. The `consistency-cites-missing` check reports an atomic multi-aggregate write with no `because`, and `atomic-group-duplicate` flags more than one atomic write group as a smell to consider.
 
 **Example:** The reimburse-expense command declares atomic consistency because of the reimbursed-once rule, while the self-checkout scan declares per-record consistency across its attempts.
 
-**Checked by:** `litespec model check` reports `consistency-unexplained` for an atomic multi-aggregate write with no `because`, and `many-aggregates` (tier A) for a command saving more than one atomic write group.
+**Checked by:** `litespec model check` reports `consistency-cites-missing` for an atomic multi-aggregate write with no `because`, and `atomic-group-duplicate` (tier A) for a command saving more than one atomic write group.
 
 ### Declare Every Effect with One Verb and Its Timing
 
@@ -778,7 +778,7 @@ The specification names only what carries business meaning. Child entities and v
 
 **Example:** The reimburse-expense command publishes the reimbursed integration event after commit.
 
-**Checked by:** `litespec model check` reports `effect-undeclared` for an edge the records never declared and `effect-before-commit` for a command `sends` or `calls` effect with `inline` timing; `litespec consumer` fails an effect entry without exactly one verb or its timing.
+**Checked by:** `litespec model check` reports `effect-undeclared` for an edge the records never declared and `effect-timing-invalid` for a command `sends` or `calls` effect with `inline` timing; `litespec consumer` fails an effect entry without exactly one verb or its timing.
 
 ### State the Transaction Sharing of Every Inline Call
 
@@ -796,9 +796,9 @@ The specification names only what carries business meaning. Child entities and v
 
 **Statement:** The effect graph MUST hold no cycle except through a domain event carrying its end condition.
 
-**Rationale:** A cycle without an end condition runs until something breaks: a reaction issues a command raising the event triggering the reaction. Forbidding cycles except through a domain event with a stated end condition keeps every loop a loop with an exit. The `effect-loop` check reports a cycle with no stated end.
+**Rationale:** A cycle without an end condition runs until something breaks: a reaction issues a command raising the event triggering the reaction. Forbidding cycles except through a domain event with a stated end condition keeps every loop a loop with an exit. The `effect-loop-invalid` check reports a cycle with no stated end.
 
-**Checked by:** `litespec model check` reports `effect-loop` for a cycle with no stated end condition.
+**Checked by:** `litespec model check` reports `effect-loop-invalid` for a cycle with no stated end condition.
 
 ### Name the Events Each Use Case Raises
 
@@ -818,7 +818,7 @@ The specification names only what carries business meaning. Child entities and v
 
 **Rationale:** A retried call without a stated idempotency runs twice: a double payout, a double loan, a double notice. Declaring the mode of `key`, `state`, or `not-pending`, with its key template and scope, states how repeats collapse; `none` carries the reason repeats cannot happen. The `key` templates `{field}` placeholders over the record's `input` field names, and the `scope` is `tenant`, `account`, `login`, or `global`. A reaction or job key names fields of the triggering event or run window instead, which the record does not list, so its placeholders are not checked. The self-checkout scan keys on `{nonce}` scoped to the login.
 
-**Checked by:** `litespec consumer` fails a use case without an idempotency mode or without the key, scope, or reason its mode needs; `litespec model check` reports `record-shape` for a key with no `{field}` placeholder, a placeholder naming no input field, or a scope outside `tenant`, `account`, `login`, and `global`.
+**Checked by:** `litespec consumer` fails a use case without an idempotency mode or without the key, scope, or reason its mode needs; `litespec model check` reports `record-invalid` for a key with no `{field}` placeholder, a placeholder naming no input field, or a scope outside `tenant`, `account`, `login`, and `global`.
 
 ### State the Audit Position of Every Command
 
@@ -848,9 +848,9 @@ The specification names only what carries business meaning. Child entities and v
 
 **Statement:** Each include group visible to more roles than its sources MUST cite the approved requirement widening it in `wideningBecause`.
 
-**Rationale:** A read showing more than its sources is a quiet widening: roles see figures their own grants never allowed, and no requirement approved the view. Citing the approved requirement in `wideningBecause` keeps the widening a decided choice, and `visibleWhen` states the condition where one narrows it. The `widening-unjustified` check reports a widened group with no cited requirement.
+**Rationale:** A read showing more than its sources is a quiet widening: roles see figures their own grants never allowed, and no requirement approved the view. Citing the approved requirement in `wideningBecause` keeps the widening a decided choice, and `visibleWhen` states the condition where one narrows it. The `widening-cites-missing` check reports a widened group with no cited requirement.
 
-**Checked by:** `litespec model check` reports `widening-unjustified` for a widened include group with no cited requirement.
+**Checked by:** `litespec model check` reports `widening-cites-missing` for a widened include group with no cited requirement.
 
 ### Declare Paging on Every Collection Query
 
@@ -878,11 +878,11 @@ The specification names only what carries business meaning. Child entities and v
 
 **Statement:** Each use case MUST declare its success result and every refusal with its code.
 
-**Rationale:** Callers branch on named endings: success, or one refusal with its stable code. A use case with no named success leaves readers guessing what good looks like, and a refusal without a code leaves each architecture layer reporting the same breach another way. The `use-case-without-success` check reports a use case with no success result, and `result-undeclared` reports a code the records never declared.
+**Rationale:** Callers branch on named endings: success, or one refusal with its stable code. A use case with no named success leaves readers guessing what good looks like, and a refusal without a code leaves each architecture layer reporting the same breach another way. The `use-case-success-missing` check reports a use case with no success result, and `result-undeclared` reports a code the records never declared.
 
 **Example:** The reimburse-expense command declares `reimbursed` with `spending.not-approved` and `spending.already-reimbursed`.
 
-**Checked by:** `litespec model check` reports `use-case-without-success` for a use case with no success result; each refusal entry on the use-case page carries its code.
+**Checked by:** `litespec model check` reports `use-case-success-missing` for a use case with no success result; each refusal entry on the use-case page carries its code.
 
 ### Name Each Refusal Code for the State That Refuses
 
@@ -894,7 +894,7 @@ The specification names only what carries business meaning. Child entities and v
 
 **Example:** `spending.receipt-missing` names the missing receipt; `spending.receipt-invalid` hides the state behind a vague word and is reported.
 
-**Checked by:** `litespec model check` reports `refusal-code-form` (tier A) for a refusal code outside its module, outside kebab-case, or carrying a vague word.
+**Checked by:** `litespec model check` reports `refusal-code-invalid` (tier A) for a refusal code outside its module, outside kebab-case, or carrying a vague word.
 
 ### Order Every Refusal List by Precedence
 
@@ -946,9 +946,9 @@ The specification names only what carries business meaning. Child entities and v
 
 **Statement:** Each scenario MUST name the result it ends in, written or derived.
 
-**Rationale:** A scenario that names no result illustrates behavior without asserting an ending: it reads well and proves nothing. Naming the result ties each example to the ending it walks toward, so every test knows what to assert. The `scenario-result-unresolved` check reports a scenario ending in an unknown result.
+**Rationale:** A scenario that names no result illustrates behavior without asserting an ending: it reads well and proves nothing. Naming the result ties each example to the ending it walks toward, so every test knows what to assert. The `scenario-result-unknown` check reports a scenario ending in an unknown result.
 
-**Checked by:** `litespec consumer` fails a scenario entry without `result`, and `litespec model check` reports `scenario-result-unresolved` for a scenario ending in an unknown result.
+**Checked by:** `litespec consumer` fails a scenario entry without `result`, and `litespec model check` reports `scenario-result-unknown` for a scenario ending in an unknown result.
 
 ### Prove Every Written Result with a Scenario
 
@@ -960,7 +960,7 @@ The specification names only what carries business meaning. Child entities and v
 
 **Example:** The reimburse-expense command declares the `already-reimbursed` refusal, and a scenario walks an approved expense claimed twice to that refusal.
 
-**Checked by:** `litespec model check` reports `result-without-scenario`, tier G for a success result and tier A for a refusal.
+**Checked by:** `litespec model check` reports `result-scenario-missing`, tier G for a success result and tier A for a refusal.
 
 ### Write Every Scenario in Given When Then
 
@@ -1002,11 +1002,11 @@ The specification names only what carries business meaning. Child entities and v
 
 **Statement:** Each reaction MUST name the domain or integration events it answers in `on`.
 
-**Rationale:** A reaction without a trigger never runs or runs whenever its author remembered: reviewers see behavior with no moment attached. Naming the answered events states when the behavior fires, and an `if` condition states when it skips. The `reaction-trigger-unresolved` check reports a trigger naming an unknown event.
+**Rationale:** A reaction without a trigger never runs or runs whenever its author remembered: reviewers see behavior with no moment attached. Naming the answered events states when the behavior fires, and an `if` condition states when it skips. The `reaction-trigger-unknown` check reports a trigger naming an unknown event.
 
 **Example:** The send-due-notice reaction answers the loan loan-borrowed domain event and issues the send-due-notice command.
 
-**Checked by:** `litespec model check` reports `reaction-trigger-unresolved` for a trigger naming an unknown event.
+**Checked by:** `litespec model check` reports `reaction-trigger-unknown` for a trigger naming an unknown event.
 
 ### Issue or Send from Every Reaction
 
@@ -1014,9 +1014,9 @@ The specification names only what carries business meaning. Child entities and v
 
 **Statement:** Each reaction MUST declare its edges in `effects`, with exactly one verb per entry.
 
-**Rationale:** A reaction with no declared edge observes and never acts, while an edge outside `effects` hides behavior the checks never see. Declaring each edge in `effects` with exactly one verb of `issues`, `sends`, `publishes`, or `calls` keeps every consequence of the automation beside its trigger, under one grammar for every record that has edges. The `record-shape` check reports a reaction with no `effects` and a reaction holding top-level `issues` or `sends`.
+**Rationale:** A reaction with no declared edge observes and never acts, while an edge outside `effects` hides behavior the checks never see. Declaring each edge in `effects` with exactly one verb of `issues`, `sends`, `publishes`, or `calls` keeps every consequence of the automation beside its trigger, under one grammar for every record that has edges. The `record-invalid` check reports a reaction with no `effects` and a reaction holding top-level `issues` or `sends`.
 
-**Checked by:** `litespec model check` reports `record-shape` for a reaction with no `effects` and for top-level `issues` or `sends`.
+**Checked by:** `litespec model check` reports `record-invalid` for a reaction with no `effects` and for top-level `issues` or `sends`.
 
 ### Write No Aggregate Directly from a Reaction
 
@@ -1044,11 +1044,11 @@ The specification names only what carries business meaning. Child entities and v
 
 **Statement:** Each reaction MUST be named `<verb>-<what>-on-<fact>`, with a declared verb.
 
-**Rationale:** A reaction runs because something happened, and a name without its trigger hides why it runs: `send-due-notice` could fire on a borrow, a renewal or a reminder job. Naming the act and the fact lets a reader find every consequence of a fact by its name, and keeps two reactions to one fact from colliding. The `reaction-name-form` check reports a reaction name without a declared verb or without `-on-`.
+**Rationale:** A reaction runs because something happened, and a name without its trigger hides why it runs: `send-due-notice` could fire on a borrow, a renewal or a reminder job. Naming the act and the fact lets a reader find every consequence of a fact by its name, and keeps two reactions to one fact from colliding. The `reaction-name-invalid` check reports a reaction name without a declared verb or without `-on-`.
 
 **Example:** `reaction/lending.send-due-notice-on-loan-borrowed` answers `event/loan.loan-borrowed` and issues the notice; `reaction/lending.notify-borrower` is reported.
 
-**Checked by:** `litespec model check` reports `reaction-name-form` for a reaction name without a declared verb or without `-on-`.
+**Checked by:** `litespec model check` reports `reaction-name-invalid` for a reaction name without a declared verb or without `-on-`.
 
 ### State the Failure Handling of Every Reaction
 
@@ -1058,7 +1058,7 @@ The specification names only what carries business meaning. Child entities and v
 
 **Rationale:** A failed automation without handling retries forever or drops silently: notices double-send, holds never clear. Declaring the `onFailure` policy states the failure shape beside the trigger: `retry` is `none`, `next-run`, or a retry object with `maxAttempts`, `initialDelay`, `maxDelay`, and `backoff` of `exponential` or `fixed`; `deadLetter` carries `after` with the action a person takes; `surfacesIn` names the entry point showing the failure and `runbook` the recovery procedure. Delays and `after` are ISO 8601 durations, and prose handling is refused. The same shape serves a job. The idempotency mode, usually `state`, states how repeats collapse.
 
-**Checked by:** `litespec consumer` fails a reaction with `onFailure` outside the retry and dead-letter shape; `litespec model check` reports `record-shape` for prose handling, a missing or malformed retry, and a malformed duration.
+**Checked by:** `litespec consumer` fails a reaction with `onFailure` outside the retry and dead-letter shape; `litespec model check` reports `record-invalid` for prose handling, a missing or malformed retry, and a malformed duration.
 
 ### Point Reaction Scenarios at the Issued Result
 
@@ -1068,7 +1068,7 @@ The specification names only what carries business meaning. Child entities and v
 
 **Rationale:** A reaction scenario ending anywhere else proves another behavior story: it walks the trigger and asserts an ending no issued use case declares. Ending in an issued use case result keeps the scenario a proof of the automation consequence.
 
-**Checked by:** `litespec model check` reports `scenario-result-unresolved` for a reaction scenario ending outside the issued use case results.
+**Checked by:** `litespec model check` reports `scenario-result-unknown` for a reaction scenario ending outside the issued use case results.
 
 ### Declare Every Job with Kind and Structured Schedule
 
@@ -1076,11 +1076,11 @@ The specification names only what carries business meaning. Child entities and v
 
 **Statement:** Each job MUST declare its kind, scope, effects, reads, service level, evidence, and runbook, with a structured schedule when it runs on time.
 
-**Rationale:** A job without a declared scope and promise is a blind run: nobody states what each run selects, what it runs per item, what it guarantees, or where proof lands. Declaring the kind of `scheduled`, `one-off`, or `operator`, the scope with its batch size and lease, the `effects` entries with the aggregates read, the service level citing its requirement, the evidence, and the runbook states the run beside its promise. The schedule is structured with its timezone, never prose. The `schedule-unstructured` check reports a schedule no tool can read, and `record-shape` reports a job holding top-level `issues`.
+**Rationale:** A job without a declared scope and promise is a blind run: nobody states what each run selects, what it runs per item, what it guarantees, or where proof lands. Declaring the kind of `scheduled`, `one-off`, or `operator`, the scope with its batch size and lease, the `effects` entries with the aggregates read, the service level citing its requirement, the evidence, and the runbook states the run beside its promise. The schedule is structured with its timezone, never prose. The `schedule-invalid` check reports a schedule no tool can read, and `record-invalid` reports a job holding top-level `issues`.
 
 **Example:** The expire-lapsed-holds job runs every six hours over open holds past their window, issues one expiry per item, and lands its evidence in the run log.
 
-**Checked by:** `litespec model check` reports `schedule-unstructured` for a schedule no tool can read and `record-shape` for top-level `issues`; `litespec consumer` fails a job without kind, scope, effects, reads, service level, evidence, or runbook.
+**Checked by:** `litespec model check` reports `schedule-invalid` for a schedule no tool can read and `record-invalid` for top-level `issues`; `litespec consumer` fails a job without kind, scope, effects, reads, service level, evidence, or runbook.
 
 ### Name Each Job for the Command It Issues
 
@@ -1088,11 +1088,11 @@ The specification names only what carries business meaning. Child entities and v
 
 **Statement:** Each job MUST start with the verb of a use case it issues.
 
-**Rationale:** A job decides nothing about an item; it selects the next items and issues one command for each. Naming it for that command lets a reader go from the schedule to the behavior in one step, and stops a job named `sweep-` or `process-` from hiding what it changes. The `job-name-form` check reports a job whose first word is not the verb of a use case it issues.
+**Rationale:** A job decides nothing about an item; it selects the next items and issues one command for each. Naming it for that command lets a reader go from the schedule to the behavior in one step, and stops a job named `sweep-` or `process-` from hiding what it changes. The `job-name-invalid` check reports a job whose first word is not the verb of a use case it issues.
 
 **Example:** `job/lending.expire-lapsed-holds` issues `use-case/lending.expire-holds` and passes; `job/lending.sweep-holds` issuing the same use case is reported.
 
-**Checked by:** `litespec model check` reports `job-name-form` for a job whose first word is not the verb of a use case it issues.
+**Checked by:** `litespec model check` reports `job-name-invalid` for a job whose first word is not the verb of a use case it issues.
 
 ### Guard Every Operator Job
 
@@ -1100,9 +1100,9 @@ The specification names only what carries business meaning. Child entities and v
 
 **Statement:** Each operator job MUST state where it runs in `runsWhere` and the guard it runs under.
 
-**Rationale:** Interactive platform work without a guard runs anywhere by anyone: a rehearsal harness touches production, a manual sweep runs twice. Stating where it runs and the guard it runs under keeps operator work inside its fence. The `operator-job-without-guard` check reports an operator job with no guard.
+**Rationale:** Interactive platform work without a guard runs anywhere by anyone: a rehearsal harness touches production, a manual sweep runs twice. Stating where it runs and the guard it runs under keeps operator work inside its fence. The `job-guard-missing` check reports an operator job with no guard.
 
-**Checked by:** `litespec model check` reports `operator-job-without-guard` for an operator job without `runsWhere` or guard.
+**Checked by:** `litespec model check` reports `job-guard-missing` for an operator job without `runsWhere` or guard.
 
 ### Describe Every Notification with Audience Channel and Consent
 
@@ -1110,9 +1110,9 @@ The specification names only what carries business meaning. Child entities and v
 
 **Statement:** Each notification MUST declare its template, addresses, channel, consent, frequency, dedup key, parameters, and locale.
 
-**Rationale:** A message without declared addresses and consent is sent on hope: the wrong actors receive it, the channel ignores consent, repeats annoy. Declaring the template with its parameters and locale, the addresses, the channel, the consent rule, the frequency of `once` or `per-attempt`, and the dedup key states the message beside its promise. Suppression lives on each `sends` edge and in suppression scenarios. The `notification-without-sender` check reports a notification no use case or reaction sends.
+**Rationale:** A message without declared addresses and consent is sent on hope: the wrong actors receive it, the channel ignores consent, repeats annoy. Declaring the template with its parameters and locale, the addresses, the channel, the consent rule, the frequency of `once` or `per-attempt`, and the dedup key states the message beside its promise. Suppression lives on each `sends` edge and in suppression scenarios. The `notification-sender-missing` check reports a notification no use case or reaction sends.
 
-**Checked by:** `litespec model check` reports `notification-without-sender` for a notification no use case or reaction sends; `litespec consumer` fails a notification without its declared fields.
+**Checked by:** `litespec model check` reports `notification-sender-missing` for a notification no use case or reaction sends; `litespec consumer` fails a notification without its declared fields.
 
 ### Keep Notification Templates and the Template Store One Set
 
@@ -1148,7 +1148,7 @@ The specification names only what carries business meaning. Child entities and v
 
 **Example:** `approval-reminder-manager` names the approval, the reminder and the manager audience; `email-change-confirmation` names no audience and is reported.
 
-**Checked by:** `litespec model check` reports `template-key-form` (tier A) for a template key ending in no name the notification declares in `addresses`.
+**Checked by:** `litespec model check` reports `template-key-invalid` (tier A) for a template key ending in no name the notification declares in `addresses`.
 
 ### Claim Every Notification Promise from a Requirement
 
@@ -1166,11 +1166,11 @@ The specification names only what carries business meaning. Child entities and v
 
 **Statement:** Each setting MUST declare its value type, range, unit, setter, and bound behavior, with the requirement behind a commercial, legal, or varying default.
 
-**Rationale:** A default no requirement holds is a figure nobody approved: a price, a fee, a term, or a limit nobody decided. Declaring the value type, the range, the unit, the setter of decider, operator, or tenant, and the bound behavior of `refuse`, `truncate`, or `degrade` states the tunable beside its promise, and a commercial, legal, or tenant-, market-, or date-varying default cites its requirement. The `setting-default-without-requirement` check reports such a default with no cited requirement.
+**Rationale:** A default no requirement holds is a figure nobody approved: a price, a fee, a term, or a limit nobody decided. Declaring the value type, the range, the unit, the setter of decider, operator, or tenant, and the bound behavior of `refuse`, `truncate`, or `degrade` states the tunable beside its promise, and a commercial, legal, or tenant-, market-, or date-varying default cites its requirement. The `setting-requirement-missing` check reports such a default with no cited requirement.
 
 **Example:** The receipt threshold declares money with a decider-set default of EUR 25, refusing an expense above the line with no receipt, behind its requirement.
 
-**Checked by:** `litespec model check` reports `setting-default-without-requirement` for a commercial, legal, or varying default with no cited requirement.
+**Checked by:** `litespec model check` reports `setting-requirement-missing` for a commercial, legal, or varying default with no cited requirement.
 
 ### Name the Use Cases That Read Each Setting
 
@@ -1262,7 +1262,7 @@ The specification names only what carries business meaning. Child entities and v
 
 **Example:** The expense list offers `use-case/spending.list-expenses`, and its route calls `ListExpenses` through the generated client.
 
-**Checked by:** `litespec model check` reports `screen-calls-mismatch` (tier S) for a screen whose `offers` and computed calls differ, naming each use case on one side only.
+**Checked by:** `litespec model check` reports `screen-offers-drift` (tier S) for a screen whose `offers` and computed calls differ, naming each use case on one side only.
 
 ### Serve Only the Steps a Screen's Use Cases Serve
 
@@ -1274,7 +1274,7 @@ The specification names only what carries business meaning. Child entities and v
 
 **Example:** The expense form serves `journey/submit-and-reimburse#s1` because it offers `use-case/spending.submit-expense`, which serves that step.
 
-**Checked by:** `litespec model check` reports `screen-serves-mismatch` (tier G) for a served step no offered use case serves.
+**Checked by:** `litespec model check` reports `screen-serves-drift` (tier G) for a served step no offered use case serves.
 
 ### Give Every Browser Step a Screen
 
@@ -1282,11 +1282,11 @@ The specification names only what carries business meaning. Child entities and v
 
 **Statement:** Every journey step a use case serves through a browser or device entry point MUST be served by at least one screen.
 
-**Rationale:** A step a person achieves in a browser happens on some page. A step no screen serves is either carried by a page nobody recorded or not reachable at all, and the book cannot tell the reader where it happens. The pair sits side by side: `step-unserved` names a step no use case serves, and `step-unscreened` names a step a browser or device use case serves that no screen serves.
+**Rationale:** A step a person achieves in a browser happens on some page. A step no screen serves is either carried by a page nobody recorded or not reachable at all, and the book cannot tell the reader where it happens. The pair sits side by side: `step-use-case-missing` names a step no use case serves, and `step-screen-missing` names a step a browser or device use case serves that no screen serves.
 
 **Example:** `journey/submit-and-reimburse#s1` is served by the expense form.
 
-**Checked by:** `litespec model check` reports `step-unscreened` (tier G) for a step a browser or device use case serves that no screen serves.
+**Checked by:** `litespec model check` reports `step-screen-missing` (tier G) for a step a browser or device use case serves that no screen serves.
 
 ### Show Every Refusal a Screen Can Reach
 
@@ -1298,7 +1298,7 @@ The specification names only what carries business meaning. Child entities and v
 
 **Example:** The expense form offers `use-case/spending.submit-expense`, whose `spending.receipt-missing` refusal has a sentence in the dictionary the Claimwick web frontend names in `refusalDictionary`.
 
-**Checked by:** `litespec model check` reports `result-unshown` (tier A) for a refusal a screen can reach with neither a sentence in its frontend's `refusalDictionary` nor a browser test asserting its code.
+**Checked by:** `litespec model check` reports `refusal-sentence-missing` (tier A) for a refusal a screen can reach with neither a sentence in its frontend's `refusalDictionary` nor a browser test asserting its code.
 
 ### Serve Static Content Through Served Content
 
@@ -1336,9 +1336,9 @@ The specification names only what carries business meaning. Child entities and v
 
 **Statement:** Each data class MUST appear on the retention schedule with its basis, period, enforcement, and intent link where personal or sensitive.
 
-**Rationale:** Retention decided per aggregate scatters: one module erases in days what another keeps for years, and no page shows the whole. Listing every data class on one schedule with its basis, period, enforcement, processors with their forwarding and acceptance, and the conflict rule where keeping and erasing collide states the whole as debated rows. Personal or sensitive keeping cites its Intent requirement. The `retention-without-enforcement` check reports a row nothing enforces.
+**Rationale:** Retention decided per aggregate scatters: one module erases in days what another keeps for years, and no page shows the whole. Listing every data class on one schedule with its basis, period, enforcement, processors with their forwarding and acceptance, and the conflict rule where keeping and erasing collide states the whole as debated rows. Personal or sensitive keeping cites its Intent requirement. The `retention-enforcement-missing` check reports a row nothing enforces.
 
-**Checked by:** `litespec model check` reports `retention-without-enforcement` for a data class nothing enforces.
+**Checked by:** `litespec model check` reports `retention-enforcement-missing` for a data class nothing enforces.
 
 ### Keep Design Choices Out of the Records
 

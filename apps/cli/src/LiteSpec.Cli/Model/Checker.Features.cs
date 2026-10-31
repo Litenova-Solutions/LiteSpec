@@ -21,7 +21,7 @@ static partial class Checker
 
             if (record.Ids("advances").Count == 0)
             {
-                findings.Add(Tiered("feature-without-goal", $"Feature '{record.Id}' advances no goal.", record, model));
+                findings.Add(Tiered("feature-goal-missing", $"Feature '{record.Id}' advances no goal.", record, model));
             }
         }
     }

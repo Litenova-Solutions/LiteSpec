@@ -57,9 +57,9 @@ public sealed class FindingCodesTests
     /// <summary>Each new Intent finding code carries its contracted tier.</summary>
     /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
     [Theory]
-    [InlineData("requirement-uncited", "A")]
-    [InlineData("constraint-uncited", "G")]
-    [InlineData("parent-changed", "A")]
+    [InlineData("requirement-cites-missing", "A")]
+    [InlineData("constraint-unreached", "G")]
+    [InlineData("parent-reopened", "A")]
     public void New_Intent_Codes_Have_Tiers(string code, string tier)
     {
         Assert.Equal(tier, Finding.Tiers[code]);

@@ -148,7 +148,7 @@ The use case is implemented: the builder found its handler through its mark. Two
 
 `dotnet litespec model check` turns gaps into findings with a tier beside each one: `G` checks read records only and always block, `S` checks read code through a stack reader and block where that reader is qualified, and `A` checks advise without blocking. A use case with no handler, a result the code never returns, a link to a record that does not exist, a journey step nothing serves, or a requirement nothing fulfills each becomes a finding. `dotnet litespec consumer` checks the project file and every record's header. Both run in CI, so a gap shows up in the pull request that introduced it.
 
-For example, if the submit-expense page named no success result, `dotnet litespec model check` reports `[G use-case-without-success]` against `docs/behavior/modules/spending/expenses/submit-expense.md`, and the pull request fails until the record names one.
+For example, if the submit-expense page named no success result, `dotnet litespec model check` reports `[G use-case-success-missing]` against `docs/behavior/modules/spending/expenses/submit-expense.md`, and the pull request fails until the record names one.
 
 ## The Provision Identifier
 

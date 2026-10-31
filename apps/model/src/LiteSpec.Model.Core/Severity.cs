@@ -77,7 +77,7 @@ public sealed record Severity(Outcome Outcome, string? Reason)
     }
 
     private static bool IsProofFinding(string code, bool onTest) =>
-        string.Equals(code, "proves-unconfirmed", StringComparison.Ordinal)
-        || string.Equals(code, "use-case-without-scenario", StringComparison.Ordinal)
+        string.Equals(code, "proves-unreached", StringComparison.Ordinal)
+        || string.Equals(code, "use-case-scenario-missing", StringComparison.Ordinal)
         || (onTest && code.StartsWith("mark-", StringComparison.Ordinal));
 }

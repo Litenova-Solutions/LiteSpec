@@ -145,26 +145,26 @@ public sealed class MarkRulesTests
             new[]
             {
                 "mark-missing",
-                "mark-unresolved",
-                "mark-count",
-                "mark-style-mixed",
+                "mark-unknown",
+                "mark-count-invalid",
+                "mark-style-invalid",
                 "runtime-value-drift",
                 "partial-missing",
                 "act-event-undeclared",
-                "act-event-unraised",
+                "act-event-unimplemented",
             },
             MarkRules.FindingCodes);
 
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Theory(DisplayName = "RuleId prints the analyzer rule for every mark finding")]
     [InlineData("mark-missing", "LS5001")]
-    [InlineData("mark-unresolved", "LS5002")]
-    [InlineData("mark-count", "LS5003")]
-    [InlineData("mark-style-mixed", "LS5004")]
+    [InlineData("mark-unknown", "LS5002")]
+    [InlineData("mark-count-invalid", "LS5003")]
+    [InlineData("mark-style-invalid", "LS5004")]
     [InlineData("runtime-value-drift", "LS5005")]
     [InlineData("partial-missing", "LS5006")]
     [InlineData("act-event-undeclared", "LS5007")]
-    [InlineData("act-event-unraised", "LS5008")]
+    [InlineData("act-event-unimplemented", "LS5008")]
     public void RuleIdPrintsExpectedRule(string code, string expected) =>
         Assert.Equal(expected, MarkRules.RuleId(code));
 
@@ -176,13 +176,13 @@ public sealed class MarkRulesTests
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Theory(DisplayName = "Tier holds S for every mark finding")]
     [InlineData("mark-missing")]
-    [InlineData("mark-unresolved")]
-    [InlineData("mark-count")]
-    [InlineData("mark-style-mixed")]
+    [InlineData("mark-unknown")]
+    [InlineData("mark-count-invalid")]
+    [InlineData("mark-style-invalid")]
     [InlineData("runtime-value-drift")]
     [InlineData("partial-missing")]
     [InlineData("act-event-undeclared")]
-    [InlineData("act-event-unraised")]
+    [InlineData("act-event-unimplemented")]
     public void TierHoldsSForMarkFindings(string code) =>
         Assert.Equal("S", MarkRules.Tier(code));
 

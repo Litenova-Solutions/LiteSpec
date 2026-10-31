@@ -39,7 +39,7 @@ public sealed class AdvisoryCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.md"), """{"status": "reviewed", "kind": "command", "consistency": {"mode": "atomic", "because": ["rule/loan.one-open-loan", "rule/copy.one-home-shelf"]}}"""));
 
-        Assert.Contains("many-aggregates", TestModel.Codes(model));
+        Assert.Contains("atomic-group-duplicate", TestModel.Codes(model));
     }
 
     /// <proves>litespec/core/behavior#state-the-consistency-of-every-use-case</proves>
@@ -51,7 +51,7 @@ public sealed class AdvisoryCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.md"), """{"status": "reviewed", "kind": "command", "consistency": {"mode": "atomic", "because": ["rule/loan.one-open-loan"]}}"""));
 
-        Assert.DoesNotContain("many-aggregates", TestModel.Codes(model));
+        Assert.DoesNotContain("atomic-group-duplicate", TestModel.Codes(model));
     }
 
     /// <proves>litespec/core/model#answer-each-question-on-its-record</proves>
@@ -63,7 +63,7 @@ public sealed class AdvisoryCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, "reader.md"), """{"status": "approved", "kind": "person", "questions": [{"question": "May a junior reader place holds?", "decider": "lending-team", "decideBy": "2020-01-01", "ballot": "junior-holds"}]}"""));
 
-        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "question-aged");
+        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "question-expired");
         Assert.Equal("A", finding.Tier);
         Assert.Equal("Question on 'actor/reader' stands past its decide-by date.", finding.Message);
         Assert.Equal("actor/reader", finding.Subject);
@@ -78,7 +78,7 @@ public sealed class AdvisoryCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, "reader.md"), """{"status": "approved", "kind": "person", "questions": [{"question": "May a junior reader place holds?", "decider": "lending-team", "decideBy": "2020-01-01", "ballot": "junior-holds", "recommendation": "Yes, with a guardian."}]}"""));
 
-        Assert.DoesNotContain("question-aged", TestModel.Codes(model));
+        Assert.DoesNotContain("question-expired", TestModel.Codes(model));
     }
 
     /// <proves>litespec/core/model#answer-each-question-on-its-record</proves>
@@ -90,7 +90,7 @@ public sealed class AdvisoryCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, "reader.md"), """{"status": "approved", "kind": "person", "risk": ["money"], "questions": [{"question": "May a junior reader place holds?", "decider": "lending-team", "decideBy": "2020-01-01", "ballot": "junior-holds"}]}"""));
 
-        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "question-aged");
+        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "question-expired");
         Assert.Equal("A", finding.Tier);
         Assert.Equal("Question on 'actor/reader' stands past its decide-by date.", finding.Message);
         Assert.Equal("actor/reader", finding.Subject);
@@ -105,10 +105,10 @@ public sealed class AdvisoryCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, "reader.md"), """{"status": "approved", "kind": "person", "questions": [{"question": "May a junior reader place holds?", "decider": "lending-team", "decideBy": "2020-01-01", "ballot": "junior-holds", "answer": "Yes, with a guardian.", "answeredBy": "lending-team", "answeredOn": "2020-01-02"}]}"""));
 
-        Assert.DoesNotContain("question-aged", TestModel.Codes(model));
+        Assert.DoesNotContain("question-expired", TestModel.Codes(model));
         Assert.DoesNotContain(
             Checker.Check(model).Findings,
-            finding => finding.Code == "record-shape" && finding.Message.Contains("open questions", StringComparison.Ordinal));
+            finding => finding.Code == "record-invalid" && finding.Message.Contains("open questions", StringComparison.Ordinal));
     }
 
     /// <proves>litespec/core/model#answer-each-question-on-its-record</proves>
@@ -120,7 +120,7 @@ public sealed class AdvisoryCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, "reader.md"), """{"status": "approved", "kind": "person", "questions": [{"question": "May a junior reader place holds?", "decideBy": "2035-02-01", "ballot": "junior-holds", "recommendation": "Yes, with a guardian."}]}"""));
 
-        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "draft-without-decider");
+        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "decider-missing");
         Assert.Equal("G", finding.Tier);
         Assert.Equal("Question on 'actor/reader' names no decider.", finding.Message);
         Assert.Equal("actor/reader", finding.Subject);
@@ -135,7 +135,7 @@ public sealed class AdvisoryCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, "reader.md"), """{"status": "approved", "kind": "person", "questions": [{"question": "May a junior reader place holds?", "decider": "lending-team", "ballot": "junior-holds", "recommendation": "Yes, with a guardian."}]}"""));
 
-        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "draft-without-decider");
+        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "decider-missing");
         Assert.Equal("G", finding.Tier);
         Assert.Equal("Question on 'actor/reader' names no decide-by date.", finding.Message);
         Assert.Equal("actor/reader", finding.Subject);
@@ -152,7 +152,7 @@ public sealed class AdvisoryCheckTests
 
         var finding = Assert.Single(
             Checker.Check(model).Findings,
-            found => found.Code == "record-shape" && found.Message.Contains("names no recommendation", StringComparison.Ordinal));
+            found => found.Code == "record-invalid" && found.Message.Contains("names no recommendation", StringComparison.Ordinal));
         Assert.Equal("Question on 'actor/reader' names no recommendation.", finding.Message);
         Assert.Equal("actor/reader", finding.Subject);
     }
@@ -168,7 +168,7 @@ public sealed class AdvisoryCheckTests
 
         Assert.DoesNotContain(
             Checker.Check(model).Findings,
-            finding => finding.Code == "record-shape" && finding.Message.Contains("names no recommendation", StringComparison.Ordinal));
+            finding => finding.Code == "record-invalid" && finding.Message.Contains("names no recommendation", StringComparison.Ordinal));
     }
 
     /// <proves>litespec/core/model#hold-approval-behind-open-questions</proves>
@@ -182,7 +182,7 @@ public sealed class AdvisoryCheckTests
 
         Assert.Contains(
             Checker.Check(model).Findings,
-            finding => finding.Code == "record-shape" && finding.Message.Contains("open questions", StringComparison.Ordinal));
+            finding => finding.Code == "record-invalid" && finding.Message.Contains("open questions", StringComparison.Ordinal));
     }
 
     /// <proves>litespec/core/model#hold-approval-behind-open-questions</proves>
@@ -196,6 +196,6 @@ public sealed class AdvisoryCheckTests
 
         Assert.DoesNotContain(
             Checker.Check(model).Findings,
-            finding => finding.Code == "record-shape" && finding.Message.Contains("open questions", StringComparison.Ordinal));
+            finding => finding.Code == "record-invalid" && finding.Message.Contains("open questions", StringComparison.Ordinal));
     }
 }

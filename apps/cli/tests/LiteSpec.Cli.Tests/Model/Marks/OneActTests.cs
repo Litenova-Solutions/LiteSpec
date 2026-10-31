@@ -4,8 +4,8 @@ namespace LiteSpec.Tests.Model.Marks;
 
 /// <summary>
 ///     Proves each aggregate act takes one use case: a root method with two marks
-///     reports mark-count, and a mark on a reading method, a private method, or a
-///     method with no test attribute reports mark-unresolved.
+///     reports mark-count-invalid, and a mark on a reading method, a private method, or a
+///     method with no test attribute reports mark-unknown.
 /// </summary>
 public sealed class OneActTests
 {
@@ -14,7 +14,7 @@ public sealed class OneActTests
     public void Two_Marks_On_A_Root_Method_Report_Mark_Count()
     {
         using var fixture = MarksFixture.Prepare("act");
-        var counts = MarksFixture.WithCode(MarksFixture.Check(fixture.Path), "mark-count");
+        var counts = MarksFixture.WithCode(MarksFixture.Check(fixture.Path), "mark-count-invalid");
 
         var finding = Assert.Single(counts, found => found.Message.Contains("Loan.Borrow"));
         Assert.Contains("carries 2 marks", finding.Message);
@@ -26,7 +26,7 @@ public sealed class OneActTests
     public void Single_Mark_On_A_Root_Method_Reports_No_Mark_Count()
     {
         using var fixture = MarksFixture.Prepare("clean");
-        var counts = MarksFixture.WithCode(MarksFixture.Check(fixture.Path), "mark-count");
+        var counts = MarksFixture.WithCode(MarksFixture.Check(fixture.Path), "mark-count-invalid");
 
         Assert.Empty(counts);
     }
@@ -36,7 +36,7 @@ public sealed class OneActTests
     public void Marked_Reading_Method_Reports_Mark_Unresolved()
     {
         using var temp = WriteConsumer();
-        var unresolved = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "mark-unresolved");
+        var unresolved = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "mark-unknown");
 
         var finding = Assert.Single(unresolved, found => found.Message.Contains("LoanReader.TotalBorrowed"));
         Assert.Contains("takes no mark", finding.Message);
@@ -48,7 +48,7 @@ public sealed class OneActTests
     public void Unmarked_Reading_Method_Reports_No_Mark_Unresolved()
     {
         using var temp = WriteConsumer();
-        var unresolved = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "mark-unresolved");
+        var unresolved = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "mark-unknown");
 
         Assert.DoesNotContain(unresolved, finding => finding.Message.Contains("OpenCount"));
         Assert.DoesNotContain(unresolved, finding => finding.Message.Contains("Loan.Borrow"));
@@ -59,7 +59,7 @@ public sealed class OneActTests
     public void Marked_Private_Method_Reports_Mark_Unresolved()
     {
         using var temp = WriteConsumer();
-        var unresolved = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "mark-unresolved");
+        var unresolved = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "mark-unknown");
 
         var finding = Assert.Single(unresolved, found => found.Message.Contains("Loan.RecordBorrow"));
         Assert.Contains("takes no mark", finding.Message);
@@ -71,7 +71,7 @@ public sealed class OneActTests
     public void Unmarked_Private_Helper_Reports_No_Mark_Unresolved()
     {
         using var temp = WriteConsumer();
-        var unresolved = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "mark-unresolved");
+        var unresolved = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "mark-unknown");
 
         Assert.DoesNotContain(unresolved, finding => finding.Message.Contains("ApplyBorrow"));
     }
@@ -81,7 +81,7 @@ public sealed class OneActTests
     public void Proves_Without_Test_Attribute_Reports_Mark_Unresolved()
     {
         using var temp = WriteConsumer();
-        var unresolved = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "mark-unresolved");
+        var unresolved = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "mark-unknown");
 
         var finding = Assert.Single(unresolved, found => found.Message.Contains("BadBorrowCopyScenarios"));
         Assert.Contains("takes no mark", finding.Message);
@@ -94,7 +94,7 @@ public sealed class OneActTests
     public void Proves_With_Test_Attribute_Reports_No_Mark_Unresolved()
     {
         using var temp = WriteConsumer();
-        var unresolved = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "mark-unresolved");
+        var unresolved = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "mark-unknown");
 
         Assert.DoesNotContain(unresolved, finding => finding.Message.Contains("GoodBorrowCopyScenarios"));
     }

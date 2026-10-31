@@ -17,7 +17,7 @@ public sealed class RecordShapeCheckTests
             TestModel.Record("event", "event/loan.loan-returned", Path.Combine(temp.Path, "loan.md"), """{"status": "reviewed", "meaning": "A copy was returned.", "carries": []}"""),
             TestModel.Record("reaction", "reaction/lending.return-again", Path.Combine(temp.Path, "again.md"), """{"status": "reviewed", "on": ["event/loan.loan-returned"], "effects": [{"issues": "use-case/lending.return-copy", "timing": "async"}]}"""));
 
-        Assert.Contains("effect-loop", TestModel.Codes(model));
+        Assert.Contains("effect-loop-invalid", TestModel.Codes(model));
     }
 
     /// <proves>litespec/core/behavior#describe-every-notification-with-audience-channel-and-consent</proves>
@@ -30,7 +30,7 @@ public sealed class RecordShapeCheckTests
             TestModel.Record("reaction", "reaction/lending.send-due-notice-on-loan-borrowed", Path.Combine(temp.Path, "notice.md"), """{"status": "reviewed", "on": ["event/loan.loan-borrowed"], "effects": [{"sends": "notification/lending.loan-due"}]}"""),
             TestModel.Record("notification", "notification/lending.loan-due", Path.Combine(temp.Path, "due.md"), """{"status": "reviewed"}"""));
 
-        Assert.DoesNotContain("notification-without-sender", TestModel.Codes(model));
+        Assert.DoesNotContain("notification-sender-missing", TestModel.Codes(model));
     }
 
     /// <proves>litespec/core/behavior#describe-every-notification-with-audience-channel-and-consent</proves>
@@ -43,7 +43,7 @@ public sealed class RecordShapeCheckTests
             TestModel.Record("job", "job/lending.nightly-due-scan", Path.Combine(temp.Path, "scan.md"), """{"status": "reviewed", "kind": "scheduled", "effects": [{"sends": "notification/lending.loan-due", "timing": "async"}]}"""),
             TestModel.Record("notification", "notification/lending.loan-due", Path.Combine(temp.Path, "due.md"), """{"status": "reviewed"}"""));
 
-        Assert.DoesNotContain("notification-without-sender", TestModel.Codes(model));
+        Assert.DoesNotContain("notification-sender-missing", TestModel.Codes(model));
     }
 
     /// <proves>litespec/core/behavior#declare-every-effect-with-one-verb-and-its-timing</proves>
@@ -55,7 +55,7 @@ public sealed class RecordShapeCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("reaction", "reaction/lending.remind-overdue", Path.Combine(temp.Path, "remind.md"), """{"status": "reviewed", "on": ["event/loan.loan-borrowed"], "issues": "use-case/lending.notify-overdue"}"""));
 
-        Assert.True(Reports(model, "record-shape", "top-level issues"));
+        Assert.True(Reports(model, "record-invalid", "top-level issues"));
     }
 
     /// <proves>litespec/core/behavior#declare-every-effect-with-one-verb-and-its-timing</proves>
@@ -67,7 +67,7 @@ public sealed class RecordShapeCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("reaction", "reaction/lending.send-due-notice-on-loan-borrowed", Path.Combine(temp.Path, "notice.md"), """{"status": "reviewed", "on": ["event/loan.loan-borrowed"], "sends": "notification/lending.loan-due"}"""));
 
-        Assert.True(Reports(model, "record-shape", "top-level sends"));
+        Assert.True(Reports(model, "record-invalid", "top-level sends"));
     }
 
     /// <proves>litespec/core/behavior#declare-every-effect-with-one-verb-and-its-timing</proves>
@@ -79,7 +79,7 @@ public sealed class RecordShapeCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("job", "job/lending.nightly-due-scan", Path.Combine(temp.Path, "scan.md"), """{"status": "reviewed", "kind": "scheduled", "issues": ["use-case/lending.mark-due"]}"""));
 
-        Assert.True(Reports(model, "record-shape", "top-level issues"));
+        Assert.True(Reports(model, "record-invalid", "top-level issues"));
     }
 
     /// <proves>litespec/core/behavior#declare-every-effect-with-one-verb-and-its-timing</proves>
@@ -91,7 +91,7 @@ public sealed class RecordShapeCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("reaction", "reaction/lending.remind-overdue", Path.Combine(temp.Path, "remind.md"), """{"status": "reviewed", "on": ["event/loan.loan-borrowed"]}"""));
 
-        Assert.True(Reports(model, "record-shape", "has no effects"));
+        Assert.True(Reports(model, "record-invalid", "has no effects"));
     }
 
     /// <proves>litespec/core/behavior#declare-every-effect-with-one-verb-and-its-timing</proves>
@@ -104,7 +104,7 @@ public sealed class RecordShapeCheckTests
             TestModel.Record("reaction", "reaction/lending.send-due-notice-on-loan-borrowed", Path.Combine(temp.Path, "notice.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "on": ["event/loan.loan-borrowed"], "effects": [{"sends": "notification/lending.loan-due"}]}"""),
             TestModel.Record("notification", "notification/lending.loan-due", Path.Combine(temp.Path, "due.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01"}"""));
 
-        Assert.DoesNotContain("record-shape", TestModel.Codes(model));
+        Assert.DoesNotContain("record-invalid", TestModel.Codes(model));
     }
 
     /// <proves>litespec/core/behavior#name-the-idempotency-of-every-use-case</proves>
@@ -116,8 +116,8 @@ public sealed class RecordShapeCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "kind": "command", "reachedThrough": ["entry-point/library-app"], "input": [{"name": "copyId", "meaning": "The copy."}], "idempotency": {"mode": "key", "key": "loan:{copy}", "scope": "tenant"}}"""));
 
-        Assert.True(Reports(model, "record-shape", "placeholder 'copy' names no input field"));
-        Assert.True(Reports(model, "record-shape", "input fields in scope: copyId"));
+        Assert.True(Reports(model, "record-invalid", "placeholder 'copy' names no input field"));
+        Assert.True(Reports(model, "record-invalid", "input fields in scope: copyId"));
     }
 
     /// <proves>litespec/core/behavior#name-the-idempotency-of-every-use-case</proves>
@@ -129,8 +129,8 @@ public sealed class RecordShapeCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "kind": "command", "reachedThrough": ["entry-point/library-app"], "input": [{"name": "copyId", "meaning": "The copy."}], "idempotency": {"mode": "key", "key": "notice per loan", "scope": "tenant"}}"""));
 
-        Assert.True(Reports(model, "record-shape", "with no {field} placeholder"));
-        Assert.True(Reports(model, "record-shape", "input fields in scope: copyId"));
+        Assert.True(Reports(model, "record-invalid", "with no {field} placeholder"));
+        Assert.True(Reports(model, "record-invalid", "input fields in scope: copyId"));
     }
 
     /// <proves>litespec/core/behavior#name-the-idempotency-of-every-use-case</proves>
@@ -142,7 +142,7 @@ public sealed class RecordShapeCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "kind": "command", "reachedThrough": ["entry-point/library-app"], "idempotency": {"mode": "key", "key": "loan:{copyId}", "scope": "branch"}}"""));
 
-        Assert.True(Reports(model, "record-shape", "tenant, account, login, global"));
+        Assert.True(Reports(model, "record-invalid", "tenant, account, login, global"));
     }
 
     /// <proves>litespec/core/behavior#name-the-idempotency-of-every-use-case</proves>
@@ -154,7 +154,7 @@ public sealed class RecordShapeCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "kind": "command", "reachedThrough": ["entry-point/library-app"], "input": [{"name": "copyId", "meaning": "The copy."}], "idempotency": {"mode": "key", "key": "loan:{copyId}", "scope": "login"}}"""));
 
-        Assert.DoesNotContain("record-shape", TestModel.Codes(model));
+        Assert.DoesNotContain("record-invalid", TestModel.Codes(model));
     }
 
     /// <proves>litespec/core/behavior#name-the-idempotency-of-every-use-case</proves>
@@ -166,7 +166,7 @@ public sealed class RecordShapeCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("reaction", "reaction/lending.send-due-notice-on-loan-borrowed", Path.Combine(temp.Path, "notice.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "on": ["event/loan.loan-borrowed"], "effects": [{"sends": "notification/lending.loan-due"}], "idempotency": {"mode": "key", "key": "notice:{loan}", "scope": "global"}}"""));
 
-        Assert.False(Reports(model, "record-shape", "idempotency key"));
+        Assert.False(Reports(model, "record-invalid", "idempotency key"));
     }
 
     /// <proves>litespec/core/behavior#state-the-failure-handling-of-every-reaction</proves>
@@ -178,7 +178,7 @@ public sealed class RecordShapeCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("reaction", "reaction/lending.send-due-notice-on-loan-borrowed", Path.Combine(temp.Path, "notice.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "on": ["event/loan.loan-borrowed"], "effects": [{"sends": "notification/lending.loan-due"}], "onFailure": "Retry a few times, then give up."}"""));
 
-        Assert.True(Reports(model, "record-shape", "as prose"));
+        Assert.True(Reports(model, "record-invalid", "as prose"));
     }
 
     /// <proves>litespec/core/behavior#state-the-failure-handling-of-every-reaction</proves>
@@ -190,7 +190,7 @@ public sealed class RecordShapeCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("job", "job/lending.nightly-due-scan", Path.Combine(temp.Path, "scan.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "kind": "scheduled", "onFailure": "Retry a few times, then give up."}"""));
 
-        Assert.True(Reports(model, "record-shape", "as prose"));
+        Assert.True(Reports(model, "record-invalid", "as prose"));
     }
 
     /// <proves>litespec/core/behavior#state-the-failure-handling-of-every-reaction</proves>
@@ -202,7 +202,7 @@ public sealed class RecordShapeCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("job", "job/lending.nightly-due-scan", Path.Combine(temp.Path, "scan.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "kind": "scheduled", "onFailure": {"retry": {"maxAttempts": 10, "initialDelay": "5 seconds", "maxDelay": "PT10M", "backoff": "exponential"}}}"""));
 
-        Assert.True(Reports(model, "record-shape", "initialDelay '5 seconds', which is not an ISO 8601 duration"));
+        Assert.True(Reports(model, "record-invalid", "initialDelay '5 seconds', which is not an ISO 8601 duration"));
     }
 
     /// <proves>litespec/core/behavior#state-the-failure-handling-of-every-reaction</proves>
@@ -214,7 +214,7 @@ public sealed class RecordShapeCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("job", "job/lending.nightly-due-scan", Path.Combine(temp.Path, "scan.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "kind": "scheduled", "onFailure": {"retry": "none", "deadLetter": {"after": "7 days", "action": "Replay by hand."}}}"""));
 
-        Assert.True(Reports(model, "record-shape", "after '7 days', which is not an ISO 8601 duration"));
+        Assert.True(Reports(model, "record-invalid", "after '7 days', which is not an ISO 8601 duration"));
     }
 
     /// <proves>litespec/core/behavior#state-the-failure-handling-of-every-reaction</proves>
@@ -226,7 +226,7 @@ public sealed class RecordShapeCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("job", "job/lending.nightly-due-scan", Path.Combine(temp.Path, "scan.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "kind": "scheduled", "onFailure": {"retry": {"maxAttempts": 10, "initialDelay": "PT5S", "maxDelay": "PT10M", "backoff": "linear"}}}"""));
 
-        Assert.True(Reports(model, "record-shape", "exponential, fixed"));
+        Assert.True(Reports(model, "record-invalid", "exponential, fixed"));
     }
 
     /// <proves>litespec/core/behavior#state-the-failure-handling-of-every-reaction</proves>
@@ -238,7 +238,7 @@ public sealed class RecordShapeCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("job", "job/lending.nightly-due-scan", Path.Combine(temp.Path, "scan.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "kind": "scheduled", "onFailure": {"retry": {"initialDelay": "PT5S", "maxDelay": "PT10M", "backoff": "exponential"}}}"""));
 
-        Assert.True(Reports(model, "record-shape", "no positive maxAttempts"));
+        Assert.True(Reports(model, "record-invalid", "no positive maxAttempts"));
     }
 
     /// <proves>litespec/core/behavior#state-the-failure-handling-of-every-reaction</proves>
@@ -250,7 +250,7 @@ public sealed class RecordShapeCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("reaction", "reaction/lending.send-due-notice-on-loan-borrowed", Path.Combine(temp.Path, "notice.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "on": ["event/loan.loan-borrowed"], "effects": [{"sends": "notification/lending.loan-due"}], "onFailure": {"deadLetter": {"after": "P7D", "action": "Replay by hand."}}}"""));
 
-        Assert.True(Reports(model, "record-shape", "onFailure with no retry"));
+        Assert.True(Reports(model, "record-invalid", "onFailure with no retry"));
     }
 
     /// <proves>litespec/core/behavior#state-the-failure-handling-of-every-reaction</proves>
@@ -264,7 +264,7 @@ public sealed class RecordShapeCheckTests
             TestModel.Record("event", "event/loan.loan-borrowed", Path.Combine(temp.Path, "loan.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "meaning": "A copy was lent.", "carries": []}"""),
             TestModel.Record("notification", "notification/lending.loan-due", Path.Combine(temp.Path, "due.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01"}"""));
 
-        Assert.DoesNotContain("record-shape", TestModel.Codes(model));
+        Assert.DoesNotContain("record-invalid", TestModel.Codes(model));
     }
 
     /// <proves>litespec/core/behavior#state-the-failure-handling-of-every-reaction</proves>
@@ -276,7 +276,7 @@ public sealed class RecordShapeCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("job", "job/lending.nightly-due-scan", Path.Combine(temp.Path, "scan.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "kind": "one-off", "onFailure": {"retry": "none"}}"""));
 
-        Assert.DoesNotContain("record-shape", TestModel.Codes(model));
+        Assert.DoesNotContain("record-invalid", TestModel.Codes(model));
     }
 
     /// <proves>litespec/core/intent#state-each-goal-with-its-measure</proves>
@@ -288,7 +288,7 @@ public sealed class RecordShapeCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("goal", "goal/faster-pickup", Path.Combine(temp.Path, "goals.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2027-01-31", "statement": "Readers wait less.", "measure": "Median pickup wait.", "target": "Under two days.", "dueBy": "Pilot launch"}"""));
 
-        Assert.DoesNotContain("record-shape", TestModel.Codes(model));
+        Assert.DoesNotContain("record-invalid", TestModel.Codes(model));
     }
 
     /// <proves>litespec/core/intent#state-each-goal-with-its-measure</proves>
@@ -300,7 +300,7 @@ public sealed class RecordShapeCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("goal", "goal/faster-pickup", Path.Combine(temp.Path, "goals.md"), """{"status": "approved", "statement": "Readers wait less.", "measure": "Median pickup wait.", "target": "Under two days.", "by": "Pilot launch"}"""));
 
-        Assert.True(Reports(model, "record-shape", "has no dueBy"));
+        Assert.True(Reports(model, "record-invalid", "has no dueBy"));
     }
 
     /// <proves>litespec/core/model#use-the-layer-status-vocabulary</proves>
@@ -313,7 +313,7 @@ public sealed class RecordShapeCheckTests
             TestModel.Record("screen", "screen/library-app.loans", Path.Combine(temp.Path, "loans.md"), """{"status": "reviewed", "entryPoint": "entry-point/library-app", "address": "/loans"}"""),
             TestModel.Record("entry-point", "entry-point/library-app", Path.Combine(temp.Path, "entry.md"), """{"status": "reviewed", "kind": "browser"}"""));
 
-        Assert.DoesNotContain("invalid-field", TestModel.Codes(model));
+        Assert.DoesNotContain("field-invalid", TestModel.Codes(model));
     }
 
     /// <proves>litespec/core/model#use-the-layer-status-vocabulary</proves>
@@ -326,8 +326,8 @@ public sealed class RecordShapeCheckTests
             TestModel.Record("screen", "screen/library-app.loans", Path.Combine(temp.Path, "loans.md"), """{"status": "approved", "entryPoint": "entry-point/library-app", "address": "/loans"}"""),
             TestModel.Record("entry-point", "entry-point/library-app", Path.Combine(temp.Path, "entry.md"), """{"status": "reviewed", "kind": "browser"}"""));
 
-        Assert.True(Reports(model, "invalid-field", "has status 'approved'"));
-        Assert.True(Reports(model, "invalid-field", "draft, reviewed or retired"));
+        Assert.True(Reports(model, "field-invalid", "has status 'approved'"));
+        Assert.True(Reports(model, "field-invalid", "draft, reviewed or retired"));
     }
 
     /// <proves>litespec/core/model#use-the-layer-status-vocabulary</proves>
@@ -337,9 +337,9 @@ public sealed class RecordShapeCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("known-gap", "known-gap/loan-screens-uncovered", Path.Combine(temp.Path, "gaps.md"), """{"status": "approved", "check": "record-shape", "subject": ["scenario/no-such-case.no-such-scenario"], "endsBy": "2035-06-01", "reason": "The screens land after the pilot."}"""));
+            TestModel.Record("known-gap", "known-gap/loan-screens-uncovered", Path.Combine(temp.Path, "gaps.md"), """{"status": "approved", "check": "record-invalid", "subject": ["scenario/no-such-case.no-such-scenario"], "endsBy": "2035-06-01", "reason": "The screens land after the pilot."}"""));
 
-        Assert.DoesNotContain("invalid-field", TestModel.Codes(model));
+        Assert.DoesNotContain("field-invalid", TestModel.Codes(model));
     }
 
     /// <proves>litespec/core/model#use-the-layer-status-vocabulary</proves>
@@ -349,10 +349,10 @@ public sealed class RecordShapeCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("known-gap", "known-gap/loan-screens-uncovered", Path.Combine(temp.Path, "gaps.md"), """{"status": "reviewed", "check": "record-shape", "subject": ["scenario/no-such-case.no-such-scenario"], "endsBy": "2035-06-01", "reason": "The screens land after the pilot."}"""));
+            TestModel.Record("known-gap", "known-gap/loan-screens-uncovered", Path.Combine(temp.Path, "gaps.md"), """{"status": "reviewed", "check": "record-invalid", "subject": ["scenario/no-such-case.no-such-scenario"], "endsBy": "2035-06-01", "reason": "The screens land after the pilot."}"""));
 
-        Assert.True(Reports(model, "invalid-field", "has status 'reviewed'"));
-        Assert.True(Reports(model, "invalid-field", "draft, approved or retired"));
+        Assert.True(Reports(model, "field-invalid", "has status 'reviewed'"));
+        Assert.True(Reports(model, "field-invalid", "draft, approved or retired"));
     }
 
     /// <summary>Whether the check reports the code with the text in its message.</summary>

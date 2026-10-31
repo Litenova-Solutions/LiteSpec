@@ -5,7 +5,7 @@ using LiteSpec.Tests.Support;
 
 namespace LiteSpec.Tests.Model;
 
-/// <summary>Proves the check decides severity from the record's own status, and that reader-unavailable blocks under CI.</summary>
+/// <summary>Proves the check decides severity from the record's own status, and that reader-missing blocks under CI.</summary>
 public sealed class DecideTests
 {
     /// <summary>An approved use case under a draft requirement blocks on its own status.</summary>
@@ -43,7 +43,7 @@ public sealed class DecideTests
             ["CI"] = "true",
             ["PATH"] = PathWithoutNode(),
         });
-        var (outcome, _) = OutcomeOf(json.Stdout, "reader-unavailable");
+        var (outcome, _) = OutcomeOf(json.Stdout, "reader-missing");
 
         Assert.Equal(1, json.Status);
         Assert.Equal("blocking", outcome);
@@ -63,7 +63,7 @@ public sealed class DecideTests
             ["CI"] = "",
             ["PATH"] = PathWithoutNode(),
         });
-        var (outcome, _) = OutcomeOf(json.Stdout, "reader-unavailable");
+        var (outcome, _) = OutcomeOf(json.Stdout, "reader-missing");
 
         Assert.Equal(0, json.Status);
         Assert.Equal("reported", outcome);

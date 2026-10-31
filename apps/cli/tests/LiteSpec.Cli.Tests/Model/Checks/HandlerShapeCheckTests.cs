@@ -17,7 +17,7 @@ public sealed class HandlerShapeCheckTests
             "use-case/lending.void-order", "lending", "void-order", "VoidOrder", "command", file,
             AggregateCalls: [new CodeCall("order", "Void", file, 8)]));
 
-        Assert.DoesNotContain("use-case-verb-method", TestModel.Codes(model));
+        Assert.DoesNotContain("use-case-method-drift", TestModel.Codes(model));
     }
 
     /// <proves>litespec/core/behavior#name-a-use-case-for-the-act-its-aggregate-performs</proves>
@@ -32,7 +32,7 @@ public sealed class HandlerShapeCheckTests
             AggregateCalls: [new CodeCall("expense", "RequestPayout", file, 8)]));
         model.Code.AggregateMethods.Add(new AggregateMethod("Expense", "RequestPayout", ["ExpensePayoutRequestedEvent"], file, 3));
 
-        Assert.DoesNotContain("use-case-verb-method", TestModel.Codes(model));
+        Assert.DoesNotContain("use-case-method-drift", TestModel.Codes(model));
     }
 
     /// <proves>litespec/core/behavior#name-a-use-case-for-the-act-its-aggregate-performs</proves>
@@ -47,7 +47,7 @@ public sealed class HandlerShapeCheckTests
             AggregateCalls: [new CodeCall("order", "Abandon", file, 8)]));
         model.Code.AggregateMethods.Add(new AggregateMethod("Order", "Abandon", ["OrderAbandonedEvent"], file, 3));
 
-        var finding = Checker.Check(model).Findings.Single(finding => finding.Code == "use-case-verb-method");
+        var finding = Checker.Check(model).Findings.Single(finding => finding.Code == "use-case-method-drift");
 
         Assert.Contains("void-order", finding.Message, StringComparison.Ordinal);
         Assert.Contains("Abandon", finding.Message, StringComparison.Ordinal);
@@ -65,7 +65,7 @@ public sealed class HandlerShapeCheckTests
             AggregateCalls: [new CodeCall("order", "IsVoidable", file, 8)]));
         model.Code.AggregateMethods.Add(new AggregateMethod("Order", "IsVoidable", [], file, 3));
 
-        Assert.DoesNotContain("use-case-verb-method", TestModel.Codes(model));
+        Assert.DoesNotContain("use-case-method-drift", TestModel.Codes(model));
     }
 
     /// <proves>litespec/core/behavior#name-a-use-case-for-the-act-its-aggregate-performs</proves>
@@ -78,7 +78,7 @@ public sealed class HandlerShapeCheckTests
         model.Code.Handlers.Add(new HandlerInfo(
             "use-case/lending.void-order", "lending", "void-order", "VoidOrder", "command", file));
 
-        Assert.DoesNotContain("use-case-verb-method", TestModel.Codes(model));
+        Assert.DoesNotContain("use-case-method-drift", TestModel.Codes(model));
     }
 
     /// <proves>litespec/backend/dotnet/domain#raise-the-past-tense-of-a-methods-own-verb</proves>
@@ -90,7 +90,7 @@ public sealed class HandlerShapeCheckTests
         model.Code.AggregateMethods.Add(new AggregateMethod(
             "Order", "Abandon", ["OrderAbandonedEvent"], Path.Combine(temp.Path, "Order.cs"), 5));
 
-        Assert.DoesNotContain("event-tense-mismatch", TestModel.Codes(model));
+        Assert.DoesNotContain("event-tense-invalid", TestModel.Codes(model));
     }
 
     /// <proves>litespec/backend/dotnet/domain#raise-the-past-tense-of-a-methods-own-verb</proves>
@@ -102,7 +102,7 @@ public sealed class HandlerShapeCheckTests
         model.Code.AggregateMethods.Add(new AggregateMethod(
             "Order", "Abandon", ["OrderVoidedEvent"], Path.Combine(temp.Path, "Order.cs"), 5));
 
-        var finding = Checker.Check(model).Findings.Single(finding => finding.Code == "event-tense-mismatch");
+        var finding = Checker.Check(model).Findings.Single(finding => finding.Code == "event-tense-invalid");
 
         Assert.Contains("abandoned", finding.Message, StringComparison.Ordinal);
     }
@@ -119,7 +119,7 @@ public sealed class HandlerShapeCheckTests
         model.Code.AggregateMethods.Add(new AggregateMethod(
             "Document", "Write", ["DocumentWrittenEvent"], Path.Combine(temp.Path, "Document.cs"), 5));
 
-        Assert.DoesNotContain("event-tense-mismatch", TestModel.Codes(model));
+        Assert.DoesNotContain("event-tense-invalid", TestModel.Codes(model));
     }
 
     /// <proves>litespec/backend/dotnet/domain#raise-the-past-tense-of-a-methods-own-verb</proves>
@@ -131,7 +131,7 @@ public sealed class HandlerShapeCheckTests
         model.Code.AggregateMethods.Add(new AggregateMethod(
             "Document", "Smite", ["DocumentSmittenEvent"], Path.Combine(temp.Path, "Document.cs"), 5));
 
-        Assert.Contains("event-tense-mismatch", TestModel.Codes(model));
+        Assert.Contains("event-tense-invalid", TestModel.Codes(model));
     }
 
     /// <proves>litespec/backend/dotnet/domain#raise-the-past-tense-of-a-methods-own-verb</proves>
@@ -143,7 +143,7 @@ public sealed class HandlerShapeCheckTests
         model.Code.AggregateMethods.Add(new AggregateMethod(
             "Lead", "Submit", ["LeadSubmittedEvent"], Path.Combine(temp.Path, "Lead.cs"), 5));
 
-        Assert.DoesNotContain("event-tense-mismatch", TestModel.Codes(model));
+        Assert.DoesNotContain("event-tense-invalid", TestModel.Codes(model));
     }
 
     /// <proves>litespec/backend/dotnet/domain#raise-the-past-tense-of-a-methods-own-verb</proves>
@@ -157,7 +157,7 @@ public sealed class HandlerShapeCheckTests
         model.Code.AggregateMethods.Add(new AggregateMethod(
             "Expense", "Withhold", ["ExpenseWithheldEvent"], Path.Combine(temp.Path, "Expense.cs"), 9));
 
-        Assert.DoesNotContain("event-tense-mismatch", TestModel.Codes(model));
+        Assert.DoesNotContain("event-tense-invalid", TestModel.Codes(model));
     }
 
     /// <proves>litespec/backend/dotnet/domain#raise-the-past-tense-of-a-methods-own-verb</proves>
@@ -171,7 +171,7 @@ public sealed class HandlerShapeCheckTests
         model.Code.AggregateMethods.Add(new AggregateMethod(
             "Copy", "Untag", ["CopyUntaggedEvent"], Path.Combine(temp.Path, "Copy.cs"), 9));
 
-        Assert.DoesNotContain("event-tense-mismatch", TestModel.Codes(model));
+        Assert.DoesNotContain("event-tense-invalid", TestModel.Codes(model));
     }
 
     /// <proves>litespec/backend/dotnet/domain#raise-the-past-tense-of-a-methods-own-verb</proves>
@@ -185,7 +185,7 @@ public sealed class HandlerShapeCheckTests
         model.Code.AggregateMethods.Add(new AggregateMethod(
             "Expense", "Resend", ["ExpenseResentEvent"], Path.Combine(temp.Path, "Expense.cs"), 9));
 
-        Assert.DoesNotContain("event-tense-mismatch", TestModel.Codes(model));
+        Assert.DoesNotContain("event-tense-invalid", TestModel.Codes(model));
     }
 
     /// <proves>litespec/backend/dotnet/domain#raise-the-past-tense-of-a-methods-own-verb</proves>
@@ -201,7 +201,7 @@ public sealed class HandlerShapeCheckTests
         model.Code.AggregateMethods.Add(new AggregateMethod(
             "Expense", "CorrectAfterSales", ["ExpenseCorrectedAfterSalesEvent"], Path.Combine(temp.Path, "Expense.cs"), 9));
 
-        Assert.DoesNotContain("event-tense-mismatch", TestModel.Codes(model));
+        Assert.DoesNotContain("event-tense-invalid", TestModel.Codes(model));
     }
 
     /// <proves>litespec/backend/dotnet/domain#raise-the-past-tense-of-a-methods-own-verb</proves>
@@ -217,7 +217,7 @@ public sealed class HandlerShapeCheckTests
         model.Code.AggregateMethods.Add(new AggregateMethod(
             "Expense", "SettleOutsideProcessor", ["ExpenseSettledOutsideProcessorEvent"], Path.Combine(temp.Path, "Expense.cs"), 5));
 
-        Assert.DoesNotContain("event-tense-mismatch", TestModel.Codes(model));
+        Assert.DoesNotContain("event-tense-invalid", TestModel.Codes(model));
     }
 
     /// <proves>litespec/backend/dotnet/domain#raise-the-past-tense-of-a-methods-own-verb</proves>
@@ -233,7 +233,7 @@ public sealed class HandlerShapeCheckTests
         model.Code.AggregateMethods.Add(new AggregateMethod(
             "Copy", "MarkProvisioned", ["CopyProvisionedEvent"], Path.Combine(temp.Path, "Copy.cs"), 5));
 
-        Assert.DoesNotContain("event-tense-mismatch", TestModel.Codes(model));
+        Assert.DoesNotContain("event-tense-invalid", TestModel.Codes(model));
     }
 
     /// <proves>litespec/backend/dotnet/domain#raise-the-past-tense-of-a-methods-own-verb</proves>
@@ -245,7 +245,7 @@ public sealed class HandlerShapeCheckTests
         model.Code.AggregateMethods.Add(new AggregateMethod(
             "Loan", "ChangeDueDate", ["LoanDueDateChangedEvent", "LoanRemindersClearedEvent"], Path.Combine(temp.Path, "Loan.cs"), 5));
 
-        Assert.DoesNotContain("event-tense-mismatch", TestModel.Codes(model));
+        Assert.DoesNotContain("event-tense-invalid", TestModel.Codes(model));
     }
 
     /// <proves>litespec/backend/dotnet/domain#raise-the-past-tense-of-a-methods-own-verb</proves>
@@ -257,7 +257,7 @@ public sealed class HandlerShapeCheckTests
         model.Code.AggregateMethods.Add(new AggregateMethod(
             "Loan", "ChangeDueDate", ["LoanExtendedEvent", "LoanRemindersClearedEvent"], Path.Combine(temp.Path, "Loan.cs"), 5));
 
-        Assert.Equal(2, Checker.Check(model).Findings.Count(finding => finding.Code == "event-tense-mismatch"));
+        Assert.Equal(2, Checker.Check(model).Findings.Count(finding => finding.Code == "event-tense-invalid"));
     }
 
     /// <proves>litespec/backend/dotnet/domain#raise-the-past-tense-of-a-methods-own-verb</proves>
@@ -269,7 +269,7 @@ public sealed class HandlerShapeCheckTests
         model.Code.AggregateMethods.Add(new AggregateMethod(
             "Loan", "MarkOverdue", ["LoanLostEvent"], Path.Combine(temp.Path, "Loan.cs"), 5));
 
-        var finding = Checker.Check(model).Findings.Single(finding => finding.Code == "event-tense-mismatch");
+        var finding = Checker.Check(model).Findings.Single(finding => finding.Code == "event-tense-invalid");
 
         Assert.Contains("overdue", finding.Message, StringComparison.Ordinal);
     }
@@ -283,7 +283,7 @@ public sealed class HandlerShapeCheckTests
         model.Code.AggregateMethods.Add(new AggregateMethod(
             "Policy", "Define", ["PolicySetEvent"], Path.Combine(temp.Path, "Policy.cs"), 5));
 
-        var finding = Checker.Check(model).Findings.Single(finding => finding.Code == "event-tense-mismatch");
+        var finding = Checker.Check(model).Findings.Single(finding => finding.Code == "event-tense-invalid");
 
         Assert.Contains("defined", finding.Message, StringComparison.Ordinal);
     }
@@ -297,7 +297,7 @@ public sealed class HandlerShapeCheckTests
         model.Code.AggregateMethods.Add(new AggregateMethod(
             "Loan", "Request", ["LoanGrantedEvent"], Path.Combine(temp.Path, "Loan.cs"), 5));
 
-        var finding = Checker.Check(model).Findings.Single(finding => finding.Code == "event-tense-mismatch");
+        var finding = Checker.Check(model).Findings.Single(finding => finding.Code == "event-tense-invalid");
 
         Assert.Contains("requested", finding.Message, StringComparison.Ordinal);
     }
@@ -311,7 +311,7 @@ public sealed class HandlerShapeCheckTests
         model.Code.AggregateMethods.Add(new AggregateMethod(
             "Expense", "Cancel", ["ExpenseCanceledEvent"], Path.Combine(temp.Path, "Expense.cs"), 5));
 
-        var finding = Checker.Check(model).Findings.Single(finding => finding.Code == "event-tense-mismatch");
+        var finding = Checker.Check(model).Findings.Single(finding => finding.Code == "event-tense-invalid");
 
         Assert.Contains("cancelled", finding.Message, StringComparison.Ordinal);
     }
@@ -324,7 +324,7 @@ public sealed class HandlerShapeCheckTests
         var model = DriftModel(temp.Path, "VoidOrderCommand", "VoidOrder", "void-order");
         model.Code.Endpoints.Add(new EndpointOperation("VoidOrderByNumber", "use-case/lending.void-order", "", "", Path.Combine(temp.Path, "VoidOrderEndpoint.cs")));
 
-        Assert.DoesNotContain("name-drift-across-layers", TestModel.Codes(model));
+        Assert.DoesNotContain("name-drift", TestModel.Codes(model));
     }
 
     /// <proves>litespec/backend/api#keep-one-name-for-a-use-case-across-layers</proves>
@@ -335,7 +335,7 @@ public sealed class HandlerShapeCheckTests
         var model = DriftModel(temp.Path, "VoidOrderCommand", "VoidOrderByCard", "void-order");
         model.Code.Endpoints.Add(new EndpointOperation("VoidOrderByNumber", "use-case/lending.void-order", "", "", Path.Combine(temp.Path, "VoidOrderEndpoint.cs")));
 
-        Assert.DoesNotContain("name-drift-across-layers", TestModel.Codes(model));
+        Assert.DoesNotContain("name-drift", TestModel.Codes(model));
     }
 
     /// <proves>litespec/backend/api#declare-stable-operation-metadata-in-the-contract</proves>
@@ -356,7 +356,7 @@ public sealed class HandlerShapeCheckTests
         using var temp = Cli.Temp("checks");
         var model = DriftModel(temp.Path, "VoidOrderCommand", "VoidOrder", "void-order");
 
-        Assert.DoesNotContain("name-drift-across-layers", TestModel.Codes(model));
+        Assert.DoesNotContain("name-drift", TestModel.Codes(model));
     }
 
     /// <proves>litespec/backend/api#keep-one-name-for-a-use-case-across-layers</proves>
@@ -366,7 +366,7 @@ public sealed class HandlerShapeCheckTests
         using var temp = Cli.Temp("checks");
         var model = DriftModel(temp.Path, "CancelOrderCommand", "VoidOrder", "void-order");
 
-        var finding = Checker.Check(model).Findings.Single(finding => finding.Code == "name-drift-across-layers");
+        var finding = Checker.Check(model).Findings.Single(finding => finding.Code == "name-drift");
 
         Assert.Contains("CancelOrderCommand", finding.Message, StringComparison.Ordinal);
     }
@@ -378,7 +378,7 @@ public sealed class HandlerShapeCheckTests
         using var temp = Cli.Temp("checks");
         var model = DriftModel(temp.Path, "VoidOrderCommand", "CancelOrder", "void-order");
 
-        var finding = Checker.Check(model).Findings.Single(finding => finding.Code == "name-drift-across-layers");
+        var finding = Checker.Check(model).Findings.Single(finding => finding.Code == "name-drift");
 
         Assert.Contains("CancelOrder", finding.Message, StringComparison.Ordinal);
     }
@@ -390,7 +390,7 @@ public sealed class HandlerShapeCheckTests
         using var temp = Cli.Temp("checks");
         var model = DriftModel(temp.Path, "VoidOrderCommand", "VoidOrder", "cancel-order");
 
-        var finding = Checker.Check(model).Findings.Single(finding => finding.Code == "name-drift-across-layers");
+        var finding = Checker.Check(model).Findings.Single(finding => finding.Code == "name-drift");
 
         Assert.Contains("cancel-order", finding.Message, StringComparison.Ordinal);
     }
@@ -402,7 +402,7 @@ public sealed class HandlerShapeCheckTests
         using var temp = Cli.Temp("checks");
         var model = RouteModel(temp.Path, "command", "POST", "/api/orders/{orderId}/void");
 
-        Assert.DoesNotContain("route-shape", TestModel.Codes(model));
+        Assert.DoesNotContain("route-invalid", TestModel.Codes(model));
     }
 
     /// <proves>litespec/backend/api#shape-command-routes-from-the-aggregate-and-the-verb</proves>
@@ -412,7 +412,7 @@ public sealed class HandlerShapeCheckTests
         using var temp = Cli.Temp("checks");
         var model = RouteModel(temp.Path, "command", "POST", "/api/orders");
 
-        Assert.DoesNotContain("route-shape", TestModel.Codes(model));
+        Assert.DoesNotContain("route-invalid", TestModel.Codes(model));
     }
 
     /// <proves>litespec/backend/api#shape-command-routes-from-the-aggregate-and-the-verb</proves>
@@ -422,7 +422,7 @@ public sealed class HandlerShapeCheckTests
         using var temp = Cli.Temp("checks");
         var model = RouteModel(temp.Path, "command", "PUT", "/api/orders/{orderId}");
 
-        Assert.DoesNotContain("route-shape", TestModel.Codes(model));
+        Assert.DoesNotContain("route-invalid", TestModel.Codes(model));
     }
 
     /// <proves>litespec/backend/api#shape-command-routes-from-the-aggregate-and-the-verb</proves>
@@ -432,7 +432,7 @@ public sealed class HandlerShapeCheckTests
         using var temp = Cli.Temp("checks");
         var model = RouteModel(temp.Path, "command", "POST", "/api/orders/{orderId}/cancel");
 
-        Assert.Contains("route-shape", TestModel.Codes(model));
+        Assert.Contains("route-invalid", TestModel.Codes(model));
     }
 
     /// <proves>litespec/backend/api#shape-command-routes-from-the-aggregate-and-the-verb</proves>
@@ -442,7 +442,7 @@ public sealed class HandlerShapeCheckTests
         using var temp = Cli.Temp("checks");
         var model = RouteModel(temp.Path, "command", "POST", "/api/ledger/{orderId}/void");
 
-        Assert.Contains("route-shape", TestModel.Codes(model));
+        Assert.Contains("route-invalid", TestModel.Codes(model));
     }
 
     /// <proves>litespec/backend/api#shape-command-routes-from-the-aggregate-and-the-verb</proves>
@@ -452,7 +452,7 @@ public sealed class HandlerShapeCheckTests
         using var temp = Cli.Temp("checks");
         var model = RouteModel(temp.Path, "query", "GET", "/api/orders");
 
-        Assert.DoesNotContain("route-shape", TestModel.Codes(model));
+        Assert.DoesNotContain("route-invalid", TestModel.Codes(model));
     }
 
     /// <proves>litespec/backend/api#shape-command-routes-from-the-aggregate-and-the-verb</proves>
@@ -462,7 +462,7 @@ public sealed class HandlerShapeCheckTests
         using var temp = Cli.Temp("checks");
         var model = RouteModel(temp.Path, "query", "GET", "/api/ledger");
 
-        Assert.Contains("route-shape", TestModel.Codes(model));
+        Assert.Contains("route-invalid", TestModel.Codes(model));
     }
 
     /// <proves>litespec/backend/dotnet/naming#name-no-folder-or-type-for-the-absence-of-a-reason</proves>
@@ -476,7 +476,7 @@ public sealed class HandlerShapeCheckTests
             Path.Combine(temp.Path, "src", "App", "Lending", "VoidOrderCommandHandler.cs"),
             "VoidOrderCommandHandler"));
 
-        Assert.DoesNotContain("reasonless-name", TestModel.Codes(model));
+        Assert.DoesNotContain("name-reason-missing", TestModel.Codes(model));
     }
 
     /// <proves>litespec/backend/dotnet/naming#name-no-folder-or-type-for-the-absence-of-a-reason</proves>
@@ -490,7 +490,7 @@ public sealed class HandlerShapeCheckTests
             Path.Combine(temp.Path, "src", "App", "Shared", "VoidOrderCommandHandler.cs"),
             "VoidOrderCommandHandler"));
 
-        Assert.Contains("reasonless-name", TestModel.Codes(model));
+        Assert.Contains("name-reason-missing", TestModel.Codes(model));
     }
 
     /// <proves>litespec/backend/dotnet/naming#name-no-folder-or-type-for-the-absence-of-a-reason</proves>
@@ -504,7 +504,7 @@ public sealed class HandlerShapeCheckTests
             Path.Combine(temp.Path, "src", "App", "Lending", "OrderManager.cs"),
             "OrderManager"));
 
-        var finding = Checker.Check(model).Findings.Single(finding => finding.Code == "reasonless-name");
+        var finding = Checker.Check(model).Findings.Single(finding => finding.Code == "name-reason-missing");
 
         Assert.Contains("OrderManager", finding.Message, StringComparison.Ordinal);
     }
@@ -523,7 +523,7 @@ public sealed class HandlerShapeCheckTests
             Path.Combine(temp.Path, "src", "App", "Shared", "OrderHelper.cs"),
             "OrderHelper"));
 
-        Assert.DoesNotContain("reasonless-name", TestModel.Codes(model));
+        Assert.DoesNotContain("name-reason-missing", TestModel.Codes(model));
     }
 
     /// <proves>litespec/backend/application#build-collaborators-through-the-container</proves>
@@ -536,7 +536,7 @@ public sealed class HandlerShapeCheckTests
         model.Code.Handlers.Add(new HandlerInfo(
             "use-case/lending.void-order", "lending", "void-order", "VoidOrder", "command", file));
 
-        Assert.DoesNotContain("collaborator-holds-repository", TestModel.Codes(model));
+        Assert.DoesNotContain("collaborator-repository-invalid", TestModel.Codes(model));
     }
 
     /// <proves>litespec/backend/application#build-collaborators-through-the-container</proves>
@@ -550,7 +550,7 @@ public sealed class HandlerShapeCheckTests
             "use-case/lending.void-order", "lending", "void-order", "VoidOrder", "command", file,
             Collaborators: [new CodeCollaborator("OrderEraser", file, 7)]));
 
-        var finding = Checker.Check(model).Findings.Single(finding => finding.Code == "collaborator-holds-repository");
+        var finding = Checker.Check(model).Findings.Single(finding => finding.Code == "collaborator-repository-invalid");
 
         Assert.Contains("OrderEraser", finding.Message, StringComparison.Ordinal);
     }
@@ -566,7 +566,7 @@ public sealed class HandlerShapeCheckTests
             "SweepReaction", file, 3, "reaction", null, "reaction/lending.sweep",
             Collaborators: [new CodeCollaborator("OrderEraser", file, 9)]));
 
-        Assert.Contains("collaborator-holds-repository", TestModel.Codes(model));
+        Assert.Contains("collaborator-repository-invalid", TestModel.Codes(model));
     }
 
     /// <proves>litespec/backend/application#read-no-repository-inside-a-loop</proves>
@@ -579,7 +579,7 @@ public sealed class HandlerShapeCheckTests
         model.Code.Handlers.Add(new HandlerInfo(
             "use-case/lending.void-order", "lending", "void-order", "VoidOrder", "command", file));
 
-        Assert.DoesNotContain("repository-read-in-loop", TestModel.Codes(model));
+        Assert.DoesNotContain("repository-read-invalid", TestModel.Codes(model));
     }
 
     /// <proves>litespec/backend/application#read-no-repository-inside-a-loop</proves>
@@ -593,7 +593,7 @@ public sealed class HandlerShapeCheckTests
             "use-case/lending.void-order", "lending", "void-order", "VoidOrder", "command", file,
             LoopReads: [new CodeLoopRead("IOrderRepository", "FindByIdAsync", file, 10)]));
 
-        Assert.Contains("repository-read-in-loop", TestModel.Codes(model));
+        Assert.Contains("repository-read-invalid", TestModel.Codes(model));
     }
 
     /// <proves>litespec/backend/persistence#read-collection-queries-in-the-store-with-paging-and-filters</proves>
@@ -606,7 +606,7 @@ public sealed class HandlerShapeCheckTests
         model.Code.Handlers.Add(new HandlerInfo(
             "use-case/lending.list-loans", "lending", "list-loans", "ListLoans", "query", file));
 
-        Assert.DoesNotContain("query-filters-in-memory", TestModel.Codes(model));
+        Assert.DoesNotContain("query-filter-invalid", TestModel.Codes(model));
     }
 
     /// <proves>litespec/backend/persistence#read-collection-queries-in-the-store-with-paging-and-filters</proves>
@@ -620,7 +620,7 @@ public sealed class HandlerShapeCheckTests
             "use-case/lending.list-loans", "lending", "list-loans", "ListLoans", "query", file,
             MemoryFilters: [new CodeMemoryFilter(file, 9)]));
 
-        Assert.Contains("query-filters-in-memory", TestModel.Codes(model));
+        Assert.Contains("query-filter-invalid", TestModel.Codes(model));
     }
 
     /// <proves>litespec/backend/application#keep-command-handlers-to-load-call-and-stage</proves>
@@ -634,7 +634,7 @@ public sealed class HandlerShapeCheckTests
             "use-case/lending.void-order", "lending", "void-order", "VoidOrder", "command", file,
             DependencyCount: 10));
 
-        Assert.DoesNotContain("dependency-count", TestModel.Codes(model));
+        Assert.DoesNotContain("dependency-count-invalid", TestModel.Codes(model));
     }
 
     /// <proves>litespec/backend/application#keep-command-handlers-to-load-call-and-stage</proves>
@@ -648,7 +648,7 @@ public sealed class HandlerShapeCheckTests
             "use-case/lending.void-order", "lending", "void-order", "VoidOrder", "command", file,
             DependencyCount: 11));
 
-        Assert.Contains("dependency-count", TestModel.Codes(model));
+        Assert.Contains("dependency-count-invalid", TestModel.Codes(model));
     }
 
     /// <proves>litespec/backend/application#keep-command-handlers-to-load-call-and-stage</proves>
@@ -661,7 +661,7 @@ public sealed class HandlerShapeCheckTests
         model.Code.Reactions.Add(new ReactionInfo(
             "SweepReaction", file, 3, "reaction", null, "reaction/lending.sweep", DependencyCount: 12));
 
-        Assert.Contains("dependency-count", TestModel.Codes(model));
+        Assert.Contains("dependency-count-invalid", TestModel.Codes(model));
     }
 
     /// <proves>litespec/backend/application#send-messages-after-commit</proves>
@@ -673,7 +673,7 @@ public sealed class HandlerShapeCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/lending.void-order", Path.Combine(temp.Path, "void.md"), """{"kind": "command", "effects": [{"sends": "notification/lending.voided", "timing": "after-commit"}, {"calls": "external-system/billing#void", "timing": "after-commit"}]}"""));
 
-        Assert.DoesNotContain("effect-before-commit", TestModel.Codes(model));
+        Assert.DoesNotContain("effect-timing-invalid", TestModel.Codes(model));
     }
 
     /// <proves>litespec/backend/application#send-messages-after-commit</proves>
@@ -685,7 +685,7 @@ public sealed class HandlerShapeCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/lending.void-order", Path.Combine(temp.Path, "void.md"), """{"kind": "command", "effects": [{"sends": "notification/lending.voided", "timing": "inline"}]}"""));
 
-        var finding = Checker.Check(model).Findings.Single(finding => finding.Code == "effect-before-commit");
+        var finding = Checker.Check(model).Findings.Single(finding => finding.Code == "effect-timing-invalid");
 
         Assert.Contains("void-order", finding.Message, StringComparison.Ordinal);
         Assert.Contains("notification/lending.voided", finding.Message, StringComparison.Ordinal);
@@ -705,8 +705,8 @@ public sealed class HandlerShapeCheckTests
 
         var (findings, known) = Checker.Check(model);
 
-        Assert.DoesNotContain(findings, finding => finding.Code == "effect-before-commit");
-        Assert.Contains(known, finding => finding.Code == "effect-before-commit");
+        Assert.DoesNotContain(findings, finding => finding.Code == "effect-timing-invalid");
+        Assert.Contains(known, finding => finding.Code == "effect-timing-invalid");
     }
 
     /// <proves>litespec/backend/application#send-messages-after-commit</proves>
@@ -720,7 +720,7 @@ public sealed class HandlerShapeCheckTests
             TestModel.Record("use-case", "use-case/spending.reimburse-expense", Path.Combine(temp.Path, "reimburse.md"), """{"kind": "command", "effects": [{"calls": "external-system/bank#pay", "timing": "inline"}]}"""),
             TestModel.Record("deviation", "deviation/reimburse-expense-inline-call", Path.Combine(temp.Path, "inline.md"), """{"status": "draft", "provision": "litespec/backend/application#call-external-systems-through-their-ports", "reason": "The spender sees the bank's answer at once.", "reviewBy": "2999-01-01", "removeWhen": "The bank answers by message.", "subject": ["use-case/spending.reimburse-expense"]}"""));
 
-        Assert.Contains("effect-before-commit", TestModel.Codes(model));
+        Assert.Contains("effect-timing-invalid", TestModel.Codes(model));
     }
 
     /// <proves>litespec/backend/application#send-messages-after-commit</proves>
@@ -732,7 +732,7 @@ public sealed class HandlerShapeCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/lending.void-order", Path.Combine(temp.Path, "void.md"), """{"kind": "command", "effects": [{"calls": "external-system/billing#void", "timing": "inline"}]}"""));
 
-        var finding = Checker.Check(model).Findings.Single(finding => finding.Code == "effect-before-commit");
+        var finding = Checker.Check(model).Findings.Single(finding => finding.Code == "effect-timing-invalid");
 
         Assert.Contains("void-order", finding.Message, StringComparison.Ordinal);
         Assert.Contains("external-system/billing#void", finding.Message, StringComparison.Ordinal);
@@ -748,7 +748,7 @@ public sealed class HandlerShapeCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/lending.list-loans", Path.Combine(temp.Path, "list.md"), """{"kind": "query", "effects": [{"sends": "notification/lending.listed", "timing": "inline"}]}"""));
 
-        Assert.DoesNotContain("effect-before-commit", TestModel.Codes(model));
+        Assert.DoesNotContain("effect-timing-invalid", TestModel.Codes(model));
     }
 
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>

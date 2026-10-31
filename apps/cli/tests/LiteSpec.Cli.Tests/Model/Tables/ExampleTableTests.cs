@@ -32,11 +32,11 @@ public sealed class ExampleTableTests
     [Fact]
     public void Scenario_Page_Table_Covers_A_Calculation()
     {
-        using var temp = ModelFixture.Prepare("large", "calculation-without-table");
+        using var temp = ModelFixture.Prepare("large", "calculation-table-missing");
         WritePage(temp.Path, "late-fee-scenario.md", CalculationPage);
 
         var check = Cli.Run("model", "check", "--root", temp.Path, "--format", "json");
-        Assert.DoesNotContain("calculation-without-table", check.Output);
+        Assert.DoesNotContain("calculation-table-missing", check.Output);
     }
 
     /// <summary>Front-matter examples win over the table.</summary>

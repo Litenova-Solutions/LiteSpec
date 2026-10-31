@@ -117,7 +117,7 @@ public sealed class BookCommandTests
         Assert.Contains("84 records", result.Output, StringComparison.Ordinal);
     }
 
-    /// <summary>The console line names each unplaced identifier with the failed record-without-parent rule.</summary>
+    /// <summary>The console line names each unplaced identifier with the failed record-parent-missing rule.</summary>
     /// <proves>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</proves>
     [Fact]
     public void Unplaced_Console_Line_Names_The_Failed_Rule()
@@ -129,7 +129,7 @@ public sealed class BookCommandTests
             "--out", temp.Path);
         Assert.Equal(0, result.Status);
 
-        Assert.Contains("record-without-parent", result.Output, StringComparison.Ordinal);
+        Assert.Contains("record-parent-missing", result.Output, StringComparison.Ordinal);
         Assert.Contains("journey/borrowing", result.Output, StringComparison.Ordinal);
     }
 

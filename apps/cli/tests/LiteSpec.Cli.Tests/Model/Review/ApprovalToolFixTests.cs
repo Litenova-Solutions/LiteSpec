@@ -176,7 +176,7 @@ public sealed class ApprovalToolFixTests
 
         var approved = Cli.Run("model", "check", "--root", fixture.Path, "--format", "json");
 
-        Assert.DoesNotContain("transcribed-reviewed", approved.Output);
+        Assert.DoesNotContain("transcription-status-invalid", approved.Output);
 
         ReviewPages.PatchPage(
             BorrowCopy(fixture.Path),
@@ -188,7 +188,7 @@ public sealed class ApprovalToolFixTests
 
         var orphaned = Cli.Run("model", "check", "--root", fixture.Path, "--format", "json");
 
-        Assert.DoesNotContain("transcribed-reviewed", orphaned.Output);
+        Assert.DoesNotContain("transcription-status-invalid", orphaned.Output);
 
         ReviewPages.PatchPage(
             BorrowCopy(fixture.Path),
@@ -201,7 +201,7 @@ public sealed class ApprovalToolFixTests
 
         var draft = Cli.Run("model", "check", "--root", fixture.Path, "--format", "json");
 
-        Assert.Contains("transcribed-reviewed", draft.Output);
+        Assert.Contains("transcription-status-invalid", draft.Output);
         Assert.Contains("use-case/lending.borrow-copy", draft.Output);
     }
 

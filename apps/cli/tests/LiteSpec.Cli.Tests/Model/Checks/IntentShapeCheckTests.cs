@@ -15,7 +15,7 @@ public sealed class IntentShapeCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.md"), """{"kind": "functional", "statement": "A reader holds at most five active loans."}"""));
 
-        Assert.True(Reports(model, "record-shape", "has no rationale."));
+        Assert.True(Reports(model, "record-invalid", "has no rationale."));
     }
 
     /// <proves>litespec/core/intent#state-requirement-kind-and-statement</proves>
@@ -27,7 +27,7 @@ public sealed class IntentShapeCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.md"), """{"kind": "functional", "statement": "A reader holds at most five active loans.", "rationale": "Readers share popular copies.", "setBy": "founder"}"""));
 
-        Assert.True(Reports(model, "invalid-field", "has setBy 'founder'; decider, operator, tenant."));
+        Assert.True(Reports(model, "field-invalid", "has setBy 'founder'; decider, operator, tenant."));
     }
 
     /// <proves>litespec/core/intent#shape-each-decision-page</proves>
@@ -39,7 +39,7 @@ public sealed class IntentShapeCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("decision", "decision/0001-loan-period", Path.Combine(temp.Path, "decisions.md"), """{"status": "approved", "options": [{"name": "Fourteen days", "pros": "Readers finish in time.", "cons": "Popular copies queue."}], "choice": "Fourteen days"}"""));
 
-        Assert.True(Reports(model, "record-shape", "has no reopenedWhen."));
+        Assert.True(Reports(model, "record-invalid", "has no reopenedWhen."));
     }
 
     /// <proves>litespec/core/intent#shape-each-decision-page</proves>
@@ -51,7 +51,7 @@ public sealed class IntentShapeCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("decision", "decision/0001-loan-period", Path.Combine(temp.Path, "decisions.md"), """{"status": "approved", "options": [{"name": "Fourteen days", "pros": "Readers finish in time.", "cons": "Popular copies queue."}], "reopenedWhen": "Queues pass one hundred a day."}"""));
 
-        Assert.True(Reports(model, "record-shape", "has no choice."));
+        Assert.True(Reports(model, "record-invalid", "has no choice."));
     }
 
     /// <proves>litespec/core/intent#shape-each-topic-page</proves>
@@ -63,7 +63,7 @@ public sealed class IntentShapeCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("topic", "topic/borrowing", Path.Combine(temp.Path, "borrowing.md"), """{"status": "approved"}"""));
 
-        Assert.True(Reports(model, "record-shape", "has no reviewBy."));
+        Assert.True(Reports(model, "record-invalid", "has no reviewBy."));
     }
 
     static bool Reports(ProjectModel model, string code, string message) =>

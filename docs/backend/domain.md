@@ -130,7 +130,7 @@ An unapproved expense keeps its state, and the refusal carries the stable code `
 
 **Example:** The reimburse-expense handler calls `Reimburse` on the expense root, and `Reimburse` carries the mark `use-case/spending.reimburse-expense`.
 
-**Checked by:** `litespec model check` reports `use-case-act-uncalled` (tier S) for a command handler changing an entity or process aggregate that calls no root method marked with its use case. The check runs in the CLI only, with no analyzer rule: the handler and the root method sit in different projects, and one compilation sees one project.
+**Checked by:** `litespec model check` reports `use-case-act-missing` (tier S) for a command handler changing an entity or process aggregate that calls no root method marked with its use case. The check runs in the CLI only, with no analyzer rule: the handler and the root method sit in different projects, and one compilation sees one project.
 
 ### Give Each Use Case Its Own Act
 
@@ -142,7 +142,7 @@ An unapproved expense keeps its state, and the refusal carries the stable code `
 
 **Example:** In the Claimwick product, a manager approving an expense and a delegate approving it for an absent manager both record an approval. The expense root offers `Approve` marked `use-case/spending.approve-expense` and `ApproveOnBehalf` marked `use-case/spending.approve-expense-on-behalf`, each raising its own event, and both call a private `RecordApproval`.
 
-**Checked by:** `litespec model check` reports `mark-count` (tier S), and `dotnet build` reports `LS5003`, for a root method carrying more than one use-case mark; `mark-unresolved` and `LS5002` report a mark on a method that changes no state.
+**Checked by:** `litespec model check` reports `mark-count-invalid` (tier S), and `dotnet build` reports `LS5003`, for a root method carrying more than one use-case mark; `mark-unknown` and `LS5002` report a mark on a method that changes no state.
 
 ### Raise the Declared Events from the Marked Act
 
@@ -154,7 +154,7 @@ An unapproved expense keeps its state, and the refusal carries the stable code `
 
 **Example:** `use-case/spending.submit-expense` raises `event/expense.submitted`, and the `Submit` method marked with it raises `ExpenseSubmittedEvent` and nothing else.
 
-**Checked by:** `litespec model check` reports `act-event-undeclared` (tier S) for a marked method raising an event its use case does not list, and `act-event-unraised` (tier S) for a listed event no marked method raises.
+**Checked by:** `litespec model check` reports `act-event-undeclared` (tier S) for a marked method raising an event its use case does not list, and `act-event-unimplemented` (tier S) for a listed event no marked method raises.
 
 ### Keep Child Entities Inside the Aggregate Boundary
 
@@ -274,7 +274,7 @@ The Infrastructure implementation owns that refusal. The command pipeline owns t
 
 **Example:** Claimwick's `ExpenseState` and `IExpenseRepository` sit beside the `Expense` root in `Spending/Expenses/` and carry no mark; the builder lists them as constituents of `aggregate/spending.expense`. `Money` sits in the shared kernel folder `Shared/` and belongs to no aggregate.
 
-**Checked by:** `litespec model check` reports `constituent-orphaned` (tier A) for an unmarked Domain type whose folder holds no aggregate root and is not the shared kernel, and the model output lists each constituent under its aggregate.
+**Checked by:** `litespec model check` reports `constituent-parent-missing` (tier A) for an unmarked Domain type whose folder holds no aggregate root and is not the shared kernel, and the model output lists each constituent under its aggregate.
 
 ### Declare Cross-Record Keys on the Aggregate
 

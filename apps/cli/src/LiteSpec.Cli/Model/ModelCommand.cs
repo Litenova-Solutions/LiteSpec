@@ -769,7 +769,7 @@ static class ModelCommand
             finding.Subject is not null && model.ById.TryGetValue(finding.Subject, out var subject) ? subject.Status : null,
             UnderTestRoot(config, finding.Path),
             phase,
-            (finding.Code == "reader-unavailable" && config.IsContinuousIntegration) || finding.Reader switch
+            (finding.Code == "reader-missing" && config.IsContinuousIntegration) || finding.Reader switch
             {
                 Finding.TypeScriptReader => model.TypeScriptQualified,
                 Finding.RoslynReader => true,

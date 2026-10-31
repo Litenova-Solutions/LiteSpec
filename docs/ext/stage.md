@@ -88,7 +88,7 @@ It switches on no record type: the promotion decision is a core record every pro
 
 **Statement:** A Behavior record with `source: transcribed` MUST stay in `draft` until its `fulfills` or `serves` parent is approved.
 
-**Rationale:** A transcribed record carries what working code does, not what anyone decided, so reviewing it would approve behavior with no promise behind it. Holding it in draft until its requirement or journey parent is approved keeps every reviewed record a carried promise. The `transcribed-reviewed` check reports a transcribed record that reached reviewed early.
+**Rationale:** A transcribed record carries what working code does, not what anyone decided, so reviewing it would approve behavior with no promise behind it. Holding it in draft until its requirement or journey parent is approved keeps every reviewed record a carried promise. The `transcription-status-invalid` check reports a transcribed record that reached reviewed early.
 
 **Reviewed for:** Each transcribed Behavior record stays in draft until its fulfills or serves parent is approved.
 
@@ -98,7 +98,7 @@ It switches on no record type: the promotion decision is a core record every pro
 
 **Statement:** A consumer MUST name the decision ending transcription in `adoption.transcriptionEndsWith`, and carry no transcribed record after that decision is approved.
 
-**Rationale:** Transcription is adoption work with an end: once the named decision is approved, every Behavior record states decided behavior, and any record still marked transcribed is a promise nobody made. Naming the decision in the project file fixes the end where tools read it. The `transcribed-after-adoption` check reports a transcribed record left after the end.
+**Rationale:** Transcription is adoption work with an end: once the named decision is approved, every Behavior record states decided behavior, and any record still marked transcribed is a promise nobody made. Naming the decision in the project file fixes the end where tools read it. The `transcription-expired` check reports a transcribed record left after the end.
 
 **Reviewed for:** The project file names the transcription-ending decision, and no transcribed record remains after its approval.
 

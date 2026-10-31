@@ -64,7 +64,7 @@ public sealed class ProofTargetTests
 
         var findings = MarksFixture.Check(temp.Path);
 
-        foreach (var code in new[] { "mark-missing", "mark-unresolved", "mark-count", "mark-style-mixed" })
+        foreach (var code in new[] { "mark-missing", "mark-unknown", "mark-count-invalid", "mark-style-invalid" })
         {
             Assert.DoesNotContain(
                 MarksFixture.WithCode(findings, code),
@@ -73,25 +73,25 @@ public sealed class ProofTargetTests
     }
 
     /// <proves>litespec/core/model#name-the-lowest-record-each-test-proves</proves>
-    [Theory(DisplayName = "A proof beyond scenario and rule never reports proves-unconfirmed")]
+    [Theory(DisplayName = "A proof beyond scenario and rule never reports proves-unreached")]
     [MemberData(nameof(StandingProofFiles))]
     public void StandingProofNeverReportsProvesUnconfirmed(string file)
     {
         using var temp = MarksFixture.Prepare("proof-targets");
 
-        var unconfirmed = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "proves-unconfirmed");
+        var unconfirmed = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "proves-unreached");
 
         Assert.DoesNotContain(unconfirmed, finding => FileName(finding) == file);
     }
 
     /// <proves>litespec/core/model#name-the-lowest-record-each-test-proves</proves>
-    [Fact(DisplayName = "A test proving a functional requirement reports mark-unresolved")]
+    [Fact(DisplayName = "A test proving a functional requirement reports mark-unknown")]
     public void FunctionalRequirementProofReportsMarkUnresolved()
     {
         using var temp = MarksFixture.Prepare("proof-targets");
 
         var finding = Assert.Single(
-            MarksFixture.WithCode(MarksFixture.Check(temp.Path), "mark-unresolved"),
+            MarksFixture.WithCode(MarksFixture.Check(temp.Path), "mark-unknown"),
             finding => FileName(finding) == "FunctionalProofTests.cs");
 
         Assert.Contains("which is a functional requirement, not a quality requirement.", finding.Message);
@@ -99,13 +99,13 @@ public sealed class ProofTargetTests
     }
 
     /// <proves>litespec/core/model#name-the-lowest-record-each-test-proves</proves>
-    [Fact(DisplayName = "A test proving a product decision reports mark-unresolved")]
+    [Fact(DisplayName = "A test proving a product decision reports mark-unknown")]
     public void ProductDecisionProofReportsMarkUnresolved()
     {
         using var temp = MarksFixture.Prepare("proof-targets");
 
         var finding = Assert.Single(
-            MarksFixture.WithCode(MarksFixture.Check(temp.Path), "mark-unresolved"),
+            MarksFixture.WithCode(MarksFixture.Check(temp.Path), "mark-unknown"),
             finding => FileName(finding) == "ProductDecisionProofTests.cs");
 
         Assert.Contains("which is a product decision, not a technical decision.", finding.Message);
@@ -113,13 +113,13 @@ public sealed class ProofTargetTests
     }
 
     /// <proves>litespec/core/model#name-the-lowest-record-each-test-proves</proves>
-    [Fact(DisplayName = "A test proving an aggregate reports mark-unresolved")]
+    [Fact(DisplayName = "A test proving an aggregate reports mark-unknown")]
     public void AggregateProofReportsMarkUnresolved()
     {
         using var temp = MarksFixture.Prepare("proof-targets");
 
         var finding = Assert.Single(
-            MarksFixture.WithCode(MarksFixture.Check(temp.Path), "mark-unresolved"),
+            MarksFixture.WithCode(MarksFixture.Check(temp.Path), "mark-unknown"),
             finding => FileName(finding) == "AggregateProofTests.cs");
 
         Assert.Contains("which is a aggregate record", finding.Message);
@@ -128,13 +128,13 @@ public sealed class ProofTargetTests
     }
 
     /// <proves>litespec/core/model#name-the-lowest-record-each-test-proves</proves>
-    [Fact(DisplayName = "A test proving an unknown provision reports mark-unresolved")]
+    [Fact(DisplayName = "A test proving an unknown provision reports mark-unknown")]
     public void UnknownProvisionProofReportsMarkUnresolved()
     {
         using var temp = MarksFixture.Prepare("proof-targets");
 
         var finding = Assert.Single(
-            MarksFixture.WithCode(MarksFixture.Check(temp.Path), "mark-unresolved"),
+            MarksFixture.WithCode(MarksFixture.Check(temp.Path), "mark-unknown"),
             finding => FileName(finding) == "UnknownProvisionProofTests.cs");
 
         Assert.Contains("which matches no provision of the carried release.", finding.Message);
@@ -142,13 +142,13 @@ public sealed class ProofTargetTests
     }
 
     /// <proves>litespec/core/model#name-the-lowest-record-each-test-proves</proves>
-    [Fact(DisplayName = "A test proving a provision on an unapplied page reports mark-unresolved")]
+    [Fact(DisplayName = "A test proving a provision on an unapplied page reports mark-unknown")]
     public void UnappliedProvisionProofReportsMarkUnresolved()
     {
         using var temp = MarksFixture.Prepare("proof-targets");
 
         var finding = Assert.Single(
-            MarksFixture.WithCode(MarksFixture.Check(temp.Path), "mark-unresolved"),
+            MarksFixture.WithCode(MarksFixture.Check(temp.Path), "mark-unknown"),
             finding => FileName(finding) == "UnappliedProvisionProofTests.cs");
 
         Assert.Contains("which sits on a page the project's stacks and extensions do not apply.", finding.Message);
@@ -156,12 +156,12 @@ public sealed class ProofTargetTests
     }
 
     /// <proves>litespec/core/model#name-the-lowest-record-each-test-proves</proves>
-    [Fact(DisplayName = "No other mark-unresolved fires in the proof-targets fixture")]
+    [Fact(DisplayName = "No other mark-unknown fires in the proof-targets fixture")]
     public void NoOtherMarkUnresolvedFires()
     {
         using var temp = MarksFixture.Prepare("proof-targets");
 
-        var unresolved = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "mark-unresolved");
+        var unresolved = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "mark-unknown");
 
         Assert.Equal(5, unresolved.Count);
     }

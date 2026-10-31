@@ -130,7 +130,7 @@ static class RecordReader
             else if (!RecordTypes.PageStyles.Contains(type))
             {
                 problems.Add(new Finding(
-                    "invalid-field",
+                    "field-invalid",
                     $"Page type '{type}' is neither a record type nor a page style.",
                     file,
                     LineOf(text, "\"type\""),
@@ -162,7 +162,7 @@ static class RecordReader
                     if (!RecordTypes.All.Contains(entryType ?? ""))
                     {
                         problems.Add(new Finding(
-                            "invalid-field",
+                            "field-invalid",
                             $"Entry type '{entryType ?? "missing"}' is not a record type.",
                             file,
                             line,
@@ -840,7 +840,7 @@ static class RecordReader
         catch (JsonException exception)
         {
             problems.Add(new Finding(
-                "invalid-field", $"The glossary is not JSON: {exception.Message}",
+                "field-invalid", $"The glossary is not JSON: {exception.Message}",
                 config.GlossaryPath, 1, null));
             return;
         }

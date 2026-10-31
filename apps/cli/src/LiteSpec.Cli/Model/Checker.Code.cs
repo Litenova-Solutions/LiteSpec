@@ -696,7 +696,7 @@ static class CodeChecks
                 var called = string.Join(", ", calls.Select(call => call.Method).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal));
 
                 findings.Add(CodeFinding(
-                    "use-case-verb-method",
+                    "use-case-method-drift",
                     $"Handler for '{handler.UseCaseId}' calls '{called}' on its aggregate, none starting with the use-case verb '{verb}'.",
                     first.File,
                     first.Line,
@@ -748,7 +748,7 @@ static class CodeChecks
             foreach (var raised in method.Events.Order(StringComparer.Ordinal))
             {
                 findings.Add(CodeFinding(
-                    "event-tense-mismatch",
+                    "event-tense-invalid",
                     $"Aggregate method '{method.Aggregate}.{method.Method}' raises '{raised}', which does not end with the past tense '{past}' of its verb.",
                     method.File,
                     method.Line,
@@ -806,7 +806,7 @@ static class CodeChecks
                 if (Naming.Kebab(stem) != handler.Name)
                 {
                     findings.Add(CodeFinding(
-                        "name-drift-across-layers",
+                        "name-drift",
                         $"Handler for '{handler.UseCaseId}' handles message '{handler.MessageType}', which does not match the use-case name.",
                         handler.File,
                         handler.Line,
@@ -828,7 +828,7 @@ static class CodeChecks
                 if (!oneNamed && Naming.Kebab(endpoint.Operation) != handler.Name)
                 {
                     findings.Add(CodeFinding(
-                        "name-drift-across-layers",
+                        "name-drift",
                         $"Endpoint for '{handler.UseCaseId}' declares operation id '{endpoint.Operation}', which does not match the use-case name.",
                         endpoint.File,
                         endpoint.Line,
@@ -841,7 +841,7 @@ static class CodeChecks
                 if (Naming.Kebab(action.Operation) == handler.Name && !NamesUseCase(action.Action, handler))
                 {
                     findings.Add(CodeFinding(
-                        "name-drift-across-layers",
+                        "name-drift",
                         $"Command '{handler.UseCaseId}' declares audit action '{action.Action}', which does not match the use-case name.",
                         action.File,
                         action.Line,
@@ -928,7 +928,7 @@ static class CodeChecks
             var detail = exception.Message.Trim().TrimEnd('.');
 
             findings.Add(CodeFinding(
-                "operation-use-case-mismatch",
+                "operation-use-case-drift",
                 $"Contract '{model.Config.Relative(contract)}' could not be read: {(detail.Length > 0 ? detail : "an unknown error")}.",
                 contract,
                 1,
@@ -941,7 +941,7 @@ static class CodeChecks
             if (document.RootElement.ValueKind != JsonValueKind.Object)
             {
                 findings.Add(CodeFinding(
-                    "operation-use-case-mismatch",
+                    "operation-use-case-drift",
                     $"Contract '{model.Config.Relative(contract)}' could not be read: the document is not an object.",
                     contract,
                     1,
@@ -957,7 +957,7 @@ static class CodeChecks
             if (paths.ValueKind != JsonValueKind.Object)
             {
                 findings.Add(CodeFinding(
-                    "operation-use-case-mismatch",
+                    "operation-use-case-drift",
                     $"Contract '{model.Config.Relative(contract)}' could not be read: the 'paths' value is not an object.",
                     contract,
                     1,
@@ -994,7 +994,7 @@ static class CodeChecks
                         if (extension is null)
                         {
                             findings.Add(CodeFinding(
-                                "operation-use-case-mismatch",
+                                "operation-use-case-drift",
                                 $"Operation '{operationId}' carries no x-litespec-use-case; its endpoint implements '{useCase}'.",
                                 contract,
                                 1,
@@ -1003,7 +1003,7 @@ static class CodeChecks
                         else if (!string.Equals(extension, useCase, StringComparison.Ordinal))
                         {
                             findings.Add(CodeFinding(
-                                "operation-use-case-mismatch",
+                                "operation-use-case-drift",
                                 $"Operation '{operationId}' names '{extension}' in x-litespec-use-case, but its endpoint implements '{useCase}'.",
                                 contract,
                                 1,
@@ -1069,7 +1069,7 @@ static class CodeChecks
                 if (last != verb && !collectionPost && !resourceWrite && !methodVerb)
                 {
                     findings.Add(CodeFinding(
-                        "route-shape",
+                        "route-invalid",
                         $"Route '{endpoint.Method} {endpoint.Route}' for '{endpoint.UseCaseId}' ends in '{last}', not the use-case verb '{verb}'.",
                         endpoint.File,
                         endpoint.Line,
@@ -1086,7 +1086,7 @@ static class CodeChecks
                 if (!named)
                 {
                     findings.Add(CodeFinding(
-                        "route-shape",
+                        "route-invalid",
                         $"Route '{endpoint.Method} {endpoint.Route}' for '{endpoint.UseCaseId}' carries no aggregate plural such as '{plural}'.",
                         endpoint.File,
                         endpoint.Line,
@@ -1216,7 +1216,7 @@ static class CodeChecks
                 if (ReasonlessNames.Contains(parts[index]) && reportedFolders.Add(folder))
                 {
                     findings.Add(CodeFinding(
-                        "reasonless-name",
+                        "name-reason-missing",
                         $"Folder '{folder}' carries the reasonless name '{parts[index]}'.",
                         file,
                         1,
@@ -1233,7 +1233,7 @@ static class CodeChecks
             }
 
             findings.Add(CodeFinding(
-                "reasonless-name",
+                "name-reason-missing",
                 $"Type '{type}' carries a reasonless name.",
                 file,
                 line,
@@ -1312,7 +1312,7 @@ static class CodeChecks
             foreach (var collaborator in handler.Collaborators)
             {
                 findings.Add(CodeFinding(
-                    "collaborator-holds-repository",
+                    "collaborator-repository-invalid",
                     $"Handler for '{handler.UseCaseId}' builds '{collaborator.Type}' with 'new', whose constructor takes a repository; register it in the container.",
                     collaborator.File,
                     collaborator.Line,
@@ -1333,7 +1333,7 @@ static class CodeChecks
             foreach (var collaborator in reaction.Collaborators)
             {
                 findings.Add(CodeFinding(
-                    "collaborator-holds-repository",
+                    "collaborator-repository-invalid",
                     $"{kind} '{reaction.Class}' builds '{collaborator.Type}' with 'new', whose constructor takes a repository; register it in the container.",
                     collaborator.File,
                     collaborator.Line,
@@ -1354,7 +1354,7 @@ static class CodeChecks
             foreach (var read in handler.LoopReads)
             {
                 findings.Add(CodeFinding(
-                    "repository-read-in-loop",
+                    "repository-read-invalid",
                     $"Handler for '{handler.UseCaseId}' reads repository '{read.Repository}' inside a loop with '{read.Method}'.",
                     read.File,
                     read.Line,
@@ -1375,7 +1375,7 @@ static class CodeChecks
             foreach (var read in reaction.LoopReads)
             {
                 findings.Add(CodeFinding(
-                    "repository-read-in-loop",
+                    "repository-read-invalid",
                     $"{kind} '{reaction.Class}' reads repository '{read.Repository}' inside a loop with '{read.Method}'.",
                     read.File,
                     read.Line,
@@ -1396,7 +1396,7 @@ static class CodeChecks
             foreach (var filter in handler.MemoryFilters)
             {
                 findings.Add(CodeFinding(
-                    "query-filters-in-memory",
+                    "query-filter-invalid",
                     $"Query handler for '{handler.UseCaseId}' filters a repository list in memory.",
                     filter.File,
                     filter.Line,
@@ -1412,7 +1412,7 @@ static class CodeChecks
             if (handler.DependencyCount > 10)
             {
                 findings.Add(CodeFinding(
-                    "dependency-count",
+                    "dependency-count-invalid",
                     $"Handler for '{handler.UseCaseId}' takes {handler.DependencyCount} constructor dependencies.",
                     handler.File,
                     handler.Line,
@@ -1428,7 +1428,7 @@ static class CodeChecks
                 var kind = reaction.Kind == "job" ? "Job" : "Reaction";
 
                 findings.Add(CodeFinding(
-                    "dependency-count",
+                    "dependency-count-invalid",
                     $"{kind} '{reaction.Class}' takes {reaction.DependencyCount} constructor dependencies.",
                     reaction.File,
                     reaction.Line,
@@ -1465,7 +1465,7 @@ static class CodeChecks
                         && effect.GetString() is { Length: > 0 } target)
                     {
                         findings.Add(CodeFinding(
-                            "effect-before-commit",
+                            "effect-timing-invalid",
                             $"Use case '{useCase.Id}' {verb} '{target}' inline; it runs after the commit from an event handler or a job.",
                             useCase.File,
                             useCase.Line,

@@ -38,7 +38,7 @@ static partial class Checker
             if (result.Field("outcome") == "success")
             {
                 findings.Add(new Finding(
-                    "result-without-scenario",
+                    "result-scenario-missing",
                     $"Result '{result.Id}' is shown by no scenario.",
                     result.File, result.Line, SubjectOf(result))
                 {
@@ -53,7 +53,7 @@ static partial class Checker
                     : $"Result '{result.Id}' is shown by no scenario.";
 
                 findings.Add(new Finding(
-                    "result-without-scenario",
+                    "result-scenario-missing",
                     message,
                     result.File, result.Line, SubjectOf(result)));
             }

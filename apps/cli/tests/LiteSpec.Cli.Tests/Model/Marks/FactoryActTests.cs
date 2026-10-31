@@ -4,7 +4,7 @@ namespace LiteSpec.Tests.Model.Marks;
 
 /// <summary>
 ///     Proves the act check sees static factories: a factory marked with the use
-///     case satisfies it, and an unmarked one reports use-case-act-uncalled.
+///     case satisfies it, and an unmarked one reports use-case-act-missing.
 /// </summary>
 public sealed class FactoryActTests
 {
@@ -13,7 +13,7 @@ public sealed class FactoryActTests
     public void Static_Factory_Marked_With_The_Use_Case_Satisfies_The_Act_Check()
     {
         using var temp = WriteConsumer();
-        var uncalled = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "use-case-act-uncalled");
+        var uncalled = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "use-case-act-missing");
 
         Assert.DoesNotContain(uncalled, finding => finding.Subject == "use-case/lending.submit-order");
     }
@@ -23,7 +23,7 @@ public sealed class FactoryActTests
     public void Static_Factory_Without_The_Mark_Reports_Use_Case_Act_Uncalled()
     {
         using var temp = WriteConsumer();
-        var uncalled = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "use-case-act-uncalled");
+        var uncalled = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "use-case-act-missing");
 
         var finding = Assert.Single(uncalled);
         Assert.Equal("use-case/lending.renew-order", finding.Subject);

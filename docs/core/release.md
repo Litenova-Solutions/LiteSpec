@@ -24,7 +24,7 @@ The security reviewer is the role named in `securityReviewer` in the project fil
 
 ### Single Operator Mode
 
-A project with one operator runs the same flow with the veto window doing the waiting. Questions on tier 3 records auto-approve after `decideBy` plus `vetoWindowDays`, recorded as `answeredBy: auto (veto window)` on the question, while questions on tier 1 records wait for explicit approval, as `litespec/core/model#answer-each-question-on-its-record` states. Every unanswered question past its `decideBy` that cannot auto-approve is reported by the `question-aged` check, so nothing silently blocks.
+A project with one operator runs the same flow with the veto window doing the waiting. Questions on tier 3 records auto-approve after `decideBy` plus `vetoWindowDays`, recorded as `answeredBy: auto (veto window)` on the question, while questions on tier 1 records wait for explicit approval, as `litespec/core/model#answer-each-question-on-its-record` states. Every unanswered question past its `decideBy` that cannot auto-approve is reported by the `question-expired` check, so nothing silently blocks.
 
 ### Batch Review
 
@@ -254,7 +254,7 @@ A consumer adopts one LiteSpec release by installing the `LiteSpec.Cli` tool pac
 
 **Example:** A project file carrying `"securityReviewer": "cara"` routes the queue to Cara until someone else holds the role.
 
-**Checked by:** `litespec model check` reports `record-shape` for a project file without `securityReviewer`.
+**Checked by:** `litespec model check` reports `record-invalid` for a project file without `securityReviewer`.
 
 ### Review the Security Queue Separately from Reviewed
 
@@ -450,7 +450,7 @@ A consumer adopts one LiteSpec release by installing the `LiteSpec.Cli` tool pac
 
 **Statement:** A release MUST settle every open question on a tier 1 record and external claim it depends on, or exclude the affected behavior from every owning record.
 
-**Rationale:** An open question on a tier 1 record or an unverified external claim behind released behavior is a promise with unsettled terms. Settling each one, or excluding the affected behavior from every owning record, keeps the Intent and release records agreeing on what shipped. Questions on tier 3 records auto-approve after the veto window, and the `question-aged` check reports every question that cannot auto-approve, so undecided work stalls no release. `litespec/core/model#answer-each-question-on-its-record` states the question lifecycle.
+**Rationale:** An open question on a tier 1 record or an unverified external claim behind released behavior is a promise with unsettled terms. Settling each one, or excluding the affected behavior from every owning record, keeps the Intent and release records agreeing on what shipped. Questions on tier 3 records auto-approve after the veto window, and the `question-expired` check reports every question that cannot auto-approve, so undecided work stalls no release. `litespec/core/model#answer-each-question-on-its-record` states the question lifecycle.
 
 **Reviewed for:** Which releases depend on an open question on a tier 1 record or external claim without excluding the behavior? Look at the questions and claims beside the owning records.
 

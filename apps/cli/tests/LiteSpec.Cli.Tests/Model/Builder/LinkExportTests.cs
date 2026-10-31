@@ -19,7 +19,7 @@ public sealed class LinkExportTests
             TestModel.Record("goal", "goal/shorter-queues", Path.Combine(temp.Path, "goal.md"), """{"statement": "Readers wait less.", "measure": "Median wait", "target": "Under two days", "dueBy": "2027-01-01"}"""),
             TestModel.Record("feature", "feature/hold-queue", Path.Combine(temp.Path, "feature.md"), """{"lifecycle": "shipped", "solves": ["problem/long-waits"], "advances": ["goal/shorter-queues"]}"""));
 
-        Assert.DoesNotContain(Checker.Check(model).Findings, finding => finding.Code == "invalid-field" && finding.Message.Contains("advances", StringComparison.Ordinal));
+        Assert.DoesNotContain(Checker.Check(model).Findings, finding => finding.Code == "field-invalid" && finding.Message.Contains("advances", StringComparison.Ordinal));
     }
 
     /// <proves>litespec/core/model#write-links-on-the-record-that-points</proves>
@@ -33,7 +33,7 @@ public sealed class LinkExportTests
             TestModel.Record("feature", "feature/hold-queue", Path.Combine(temp.Path, "feature.md"), """{"lifecycle": "shipped", "solves": ["problem/long-waits"], "advances": ["problem/long-waits"]}"""));
 
         Assert.Contains(Checker.Check(model).Findings, finding =>
-            finding.Code == "invalid-field" && finding.Message.Contains("links advances to 'problem/long-waits', which is a problem", StringComparison.Ordinal));
+            finding.Code == "field-invalid" && finding.Message.Contains("links advances to 'problem/long-waits', which is a problem", StringComparison.Ordinal));
     }
 
     /// <proves>litespec/core/behavior#name-the-use-cases-that-read-each-setting</proves>

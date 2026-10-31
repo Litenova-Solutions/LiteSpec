@@ -39,3 +39,7 @@ D3, D5 and C9 name `requirement-uncited`, `constraint-uncited` and `parent-chang
 ## 2026-10-31: Waves 1 to 3 Commit Together
 
 After the wave 1 and 2 fix round, two book tests still fail because `model.md` already carries the topic parent rule and the `cites` Links rows, which the book code learns in wave 3 (`BookOutlineTests.Parent_Rules_Match_The_Model_Page`, `BookViewsTests.Connection_Sentences_Resolve_From_Lexicon_Phrases`). Patching the book now would be redone in wave 3. Wave 3 starts on the same tree, and waves 1 to 3 commit together when the ladder is green.
+
+## 2026-10-31: Finding Codes Are Renamed by Script Before the Wave
+
+The 85 code renames of contracts.md are exact hyphenated tokens, so `w4.codes` renamed 1,570 occurrences in 143 files by a whole-token script (no letter, digit or hyphen may touch a match), moved the 38 broken-overlay fixture folders named after codes, and left heading-slug test data alone. Two approved Claimwick known gaps named renamed codes; they were re-stamped. The rename was committed alone, so wave 4's workers start from a HEAD where every code already follows B8.

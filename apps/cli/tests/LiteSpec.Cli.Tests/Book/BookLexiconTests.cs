@@ -248,7 +248,7 @@ public sealed class BookLexiconTests
         var findings = lexicon.ToJson()["findings"]!.AsObject();
         Assert.Equal(2, findings.Count);
 
-        var shape = findings["record-shape"]!.AsObject();
+        var shape = findings["record-invalid"]!.AsObject();
         Assert.Equal("G", shape["tier"]!.GetValue<string>());
         Assert.Equal("A record fails the shape its type requires.", shape["meaning"]!.GetValue<string>());
         Assert.False(findings.ContainsKey("requirement-removed"));
@@ -264,18 +264,18 @@ public sealed class BookLexiconTests
             .Replace("| Code | Level | Meaning |", "| Code | Level | Meaning | Fix |", StringComparison.Ordinal)
             .Replace("|:---|:---|:---|", "|:---|:---|:---|:---|", StringComparison.Ordinal)
             .Replace(
-                "| `record-shape` | G | A record fails the shape its type requires. |",
-                "| `record-shape` | G | A record fails the shape its type requires. | Write the missing shape. |",
+                "| `record-invalid` | G | A record fails the shape its type requires. |",
+                "| `record-invalid` | G | A record fails the shape its type requires. | Write the missing shape. |",
                 StringComparison.Ordinal)
             .Replace(
-                "| `term-lookalike` | A | Two terms differ only in spelling. |",
-                "| `term-lookalike` | A | Two terms differ only in spelling. | Rename one term. |",
+                "| `term-clash` | A | Two terms differ only in spelling. |",
+                "| `term-clash` | A | Two terms differ only in spelling. | Rename one term. |",
                 StringComparison.Ordinal);
         var lexicon = BookLexicon.Load(WriteHome(temp, ModelPage(), tools, GlossaryPage()));
         var findings = lexicon.ToJson()["findings"]!.AsObject();
         Assert.Equal(2, findings.Count);
 
-        var shape = findings["record-shape"]!.AsObject();
+        var shape = findings["record-invalid"]!.AsObject();
         Assert.Equal("G", shape["tier"]!.GetValue<string>());
         Assert.Equal("A record fails the shape its type requires.", shape["meaning"]!.GetValue<string>());
         Assert.False(findings.ContainsKey("requirement-removed"));
@@ -444,8 +444,8 @@ public sealed class BookLexiconTests
 
         | Code | Level | Meaning |
         |:---|:---|:---|
-        | `record-shape` | G | A record fails the shape its type requires. |
-        | `term-lookalike` | A | Two terms differ only in spelling. |
+        | `record-invalid` | G | A record fails the shape its type requires. |
+        | `term-clash` | A | Two terms differ only in spelling. |
         """;
 
     static string GlossaryPage() =>

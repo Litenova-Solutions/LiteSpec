@@ -54,7 +54,7 @@ static partial class Checker
                 {
                     var subject = mark.RecordId.Length > 0 ? mark.RecordId : null;
 
-                    findings.Add(new Finding("mark-style-mixed", $"{KindName(element.Kind)} '{DisplayName(element)}' writes its mark '{mark.RecordId}' in the {mark.Style.ToProjectValue()} style, but the project declares {model.Config.Marks.ToProjectValue()}.", mark.File, mark.Line, subject));
+                    findings.Add(new Finding("mark-style-invalid", $"{KindName(element.Kind)} '{DisplayName(element)}' writes its mark '{mark.RecordId}' in the {mark.Style.ToProjectValue()} style, but the project declares {model.Config.Marks.ToProjectValue()}.", mark.File, mark.Line, subject));
                 }
             }
 
@@ -69,8 +69,8 @@ static partial class Checker
             if (count.Violated)
             {
                 findings.Add(count.Duplicate is not null
-                    ? new Finding("mark-count", $"{KindName(element.Kind)} '{DisplayName(element)}' names '{count.Duplicate}' twice.", element.File, element.Line, null)
-                    : new Finding("mark-count", $"{KindName(element.Kind)} '{DisplayName(element)}' carries {counted.Count} marks, but its kind takes one.", element.File, element.Line, null));
+                    ? new Finding("mark-count-invalid", $"{KindName(element.Kind)} '{DisplayName(element)}' names '{count.Duplicate}' twice.", element.File, element.Line, null)
+                    : new Finding("mark-count-invalid", $"{KindName(element.Kind)} '{DisplayName(element)}' carries {counted.Count} marks, but its kind takes one.", element.File, element.Line, null));
             }
         }
     }
@@ -92,32 +92,32 @@ static partial class Checker
         }
         else if (!model.ById.TryGetValue(mark.RecordId, out var record))
         {
-            findings.Add(new Finding("mark-unresolved", $"{KindName(element.Kind)} '{DisplayName(element)}' marks '{mark.RecordId}', which matches no record.", mark.File, mark.Line, subject));
+            findings.Add(new Finding("mark-unknown", $"{KindName(element.Kind)} '{DisplayName(element)}' marks '{mark.RecordId}', which matches no record.", mark.File, mark.Line, subject));
         }
         else if (!MarkRules.Accepts(element.Kind, mark.RecordId))
         {
-            findings.Add(new Finding("mark-unresolved", $"{KindName(element.Kind)} '{DisplayName(element)}' marks '{mark.RecordId}', which is a {record.Type} record, not a {ExpectedTypes(element.Kind)} record.", mark.File, mark.Line, subject));
+            findings.Add(new Finding("mark-unknown", $"{KindName(element.Kind)} '{DisplayName(element)}' marks '{mark.RecordId}', which is a {record.Type} record, not a {ExpectedTypes(element.Kind)} record.", mark.File, mark.Line, subject));
         }
         else if (element.Kind == CodeKind.Test && record.Type == "requirement" && record.Field("kind") != "quality")
         {
             var kind = record.Field("kind");
             var what = kind is { Length: > 0 } ? $"a {kind} requirement" : "a requirement with no kind";
 
-            findings.Add(new Finding("mark-unresolved", $"{KindName(element.Kind)} '{DisplayName(element)}' marks '{mark.RecordId}', which is {what}, not a quality requirement.", mark.File, mark.Line, subject));
+            findings.Add(new Finding("mark-unknown", $"{KindName(element.Kind)} '{DisplayName(element)}' marks '{mark.RecordId}', which is {what}, not a quality requirement.", mark.File, mark.Line, subject));
         }
         else if (element.Kind == CodeKind.Test && record.Type == "decision" && !UnderImplementationDecisions(model.Config, record.File))
         {
-            findings.Add(new Finding("mark-unresolved", $"{KindName(element.Kind)} '{DisplayName(element)}' marks '{mark.RecordId}', which is a product decision, not a technical decision.", mark.File, mark.Line, subject));
+            findings.Add(new Finding("mark-unknown", $"{KindName(element.Kind)} '{DisplayName(element)}' marks '{mark.RecordId}', which is a product decision, not a technical decision.", mark.File, mark.Line, subject));
         }
 
         if (FrontendModuleMirror.PathMismatch(model, element, mark) is { } expected)
         {
-            findings.Add(new Finding("mark-unresolved", $"{KindName(element.Kind)} '{DisplayName(element)}' marks '{mark.RecordId}', but its folder mirrors '{expected}'.", mark.File, mark.Line, subject));
+            findings.Add(new Finding("mark-unknown", $"{KindName(element.Kind)} '{DisplayName(element)}' marks '{mark.RecordId}', but its folder mirrors '{expected}'.", mark.File, mark.Line, subject));
         }
 
         if (subject is not null && mark.Verb != MarkRules.Verb(element.Kind))
         {
-            findings.Add(new Finding("mark-unresolved", $"{KindName(element.Kind)} '{DisplayName(element)}' marks '{mark.RecordId}' with the {mark.Verb.ToTagName()} verb, but its kind takes {MarkRules.Verb(element.Kind).ToTagName()}.", mark.File, mark.Line, subject));
+            findings.Add(new Finding("mark-unknown", $"{KindName(element.Kind)} '{DisplayName(element)}' marks '{mark.RecordId}' with the {mark.Verb.ToTagName()} verb, but its kind takes {MarkRules.Verb(element.Kind).ToTagName()}.", mark.File, mark.Line, subject));
         }
     }
 
@@ -142,11 +142,11 @@ static partial class Checker
         {
             if (!model.ById.TryGetValue(id, out var record) || (record.Type != "decision" && record.Type != "deviation"))
             {
-                findings.Add(new Finding("mark-unresolved", $"{name} follows '{id}', which matches no decision or deviation.", mark.File, mark.Line, id));
+                findings.Add(new Finding("mark-unknown", $"{name} follows '{id}', which matches no decision or deviation.", mark.File, mark.Line, id));
             }
             else if (record.Status == "retired")
             {
-                findings.Add(new Finding("mark-unresolved", $"{name} follows '{id}', which is retired.", mark.File, mark.Line, null));
+                findings.Add(new Finding("mark-unknown", $"{name} follows '{id}', which is retired.", mark.File, mark.Line, null));
             }
 
             return;
@@ -156,11 +156,11 @@ static partial class Checker
 
         if (!model.ById.TryGetValue(id, out var other))
         {
-            findings.Add(new Finding("mark-unresolved", $"{name} follows '{id}', which matches no provision, decision, or deviation.", mark.File, mark.Line, subject));
+            findings.Add(new Finding("mark-unknown", $"{name} follows '{id}', which matches no provision, decision, or deviation.", mark.File, mark.Line, subject));
         }
         else
         {
-            findings.Add(new Finding("mark-unresolved", $"{name} follows '{id}', which is a {other.Type} record, not a provision, decision, or deviation.", mark.File, mark.Line, subject));
+            findings.Add(new Finding("mark-unknown", $"{name} follows '{id}', which is a {other.Type} record, not a provision, decision, or deviation.", mark.File, mark.Line, subject));
         }
     }
 
@@ -176,13 +176,13 @@ static partial class Checker
 
         if (!Authoring.Provisions.IsProvisionId(id) || (model.Provisions.Count > 0 && !model.Provisions.Contains(id)))
         {
-            findings.Add(new Finding("mark-unresolved", $"{name} {verb} '{id}', which matches no provision of the carried release.", mark.File, mark.Line, id));
+            findings.Add(new Finding("mark-unknown", $"{name} {verb} '{id}', which matches no provision of the carried release.", mark.File, mark.Line, id));
         }
         else if (model.AppliedPages.Count > 0
             && Authoring.Provisions.Parse(id) is { } parsed
             && !model.AppliedPages.Contains("docs/" + parsed.Page + ".md"))
         {
-            findings.Add(new Finding("mark-unresolved", $"{name} {verb} '{id}', which sits on a page the project's stacks and extensions do not apply.", mark.File, mark.Line, id));
+            findings.Add(new Finding("mark-unknown", $"{name} {verb} '{id}', which sits on a page the project's stacks and extensions do not apply.", mark.File, mark.Line, id));
         }
     }
 
@@ -204,7 +204,7 @@ static partial class Checker
 
                 var subject = mark.RecordId.Length > 0 ? mark.RecordId : null;
 
-                findings.Add(new Finding("mark-unresolved", $"{StrayName(stray)} takes no mark, but marks '{mark.RecordId}'.", mark.File, mark.Line, subject));
+                findings.Add(new Finding("mark-unknown", $"{StrayName(stray)} takes no mark, but marks '{mark.RecordId}'.", mark.File, mark.Line, subject));
             }
         }
     }
@@ -257,7 +257,7 @@ static partial class Checker
 
             if (!followed.Contains(record.Id))
             {
-                findings.Add(new Finding("decision-unfollowed", $"Decision '{record.Id}' is followed by no code element.", record.File, record.Line, SubjectOf(record)));
+                findings.Add(new Finding("decision-unimplemented", $"Decision '{record.Id}' is followed by no code element.", record.File, record.Line, SubjectOf(record)));
             }
         }
     }
@@ -354,7 +354,7 @@ static partial class Checker
 
             if (!called)
             {
-                findings.Add(new Finding("use-case-act-uncalled", $"Handler for '{handler.UseCaseId}' calls no aggregate method marked with the use case.", handler.File, handler.Line, handler.UseCaseId));
+                findings.Add(new Finding("use-case-act-missing", $"Handler for '{handler.UseCaseId}' calls no aggregate method marked with the use case.", handler.File, handler.Line, handler.UseCaseId));
             }
         }
     }
@@ -432,7 +432,7 @@ static partial class Checker
                 }
                 else
                 {
-                    findings.Add(new Finding("act-event-unraised", $"Use case '{useCase.Id}' lists '{decided.EventId}' in raises, which no method marked with the use case raises.", method.File, method.Line, SubjectOf(useCase)));
+                    findings.Add(new Finding("act-event-unimplemented", $"Use case '{useCase.Id}' lists '{decided.EventId}' in raises, which no method marked with the use case raises.", method.File, method.Line, SubjectOf(useCase)));
                 }
             }
         }
@@ -526,7 +526,7 @@ static partial class Checker
                 continue;
             }
 
-            findings.Add(new Finding("use-case-unexposed", $"Use case '{useCase.Id}' is reached through '{entry}', but no endpoint carries its mark.", useCase.File, useCase.Line, SubjectOf(useCase)));
+            findings.Add(new Finding("use-case-endpoint-missing", $"Use case '{useCase.Id}' is reached through '{entry}', but no endpoint carries its mark.", useCase.File, useCase.Line, SubjectOf(useCase)));
         }
     }
 

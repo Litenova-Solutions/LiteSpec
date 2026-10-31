@@ -451,7 +451,7 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **Example:** The submit-expense aggregate raises its submitted fact, and an event handler sends the approver notice after the commit.
 
-**Checked by:** `litespec model check` reports `effect-before-commit` (tier S) for a command use case declaring a `sends` or `calls` effect with `inline` timing.
+**Checked by:** `litespec model check` reports `effect-timing-invalid` (tier S) for a command use case declaring a `sends` or `calls` effect with `inline` timing.
 
 ### Run Heavy Work as a Request Then a Build
 
@@ -475,7 +475,7 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **Example:** The reimburse handler takes its expense repository through its constructor, while a step built with `new` that takes a repository is reported.
 
-**Checked by:** `litespec model check` reports `collaborator-holds-repository` (tier A) for a class built with `new` whose constructor takes a repository, and `dependency-count` (tier A) for a handler, reaction, or job taking more than ten constructor dependencies.
+**Checked by:** `litespec model check` reports `collaborator-repository-invalid` (tier A) for a class built with `new` whose constructor takes a repository, and `dependency-count-invalid` (tier A) for a handler, reaction, or job taking more than ten constructor dependencies.
 
 ### Read No Repository Inside a Loop
 
@@ -487,7 +487,7 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **Example:** The reminder job loads due loans with one scoped query instead of reading each loan inside its loop.
 
-**Checked by:** `litespec model check` reports `repository-read-in-loop` (tier A) for a repository read inside a loop body.
+**Checked by:** `litespec model check` reports `repository-read-invalid` (tier A) for a repository read inside a loop body.
 
 ## Conventions
 

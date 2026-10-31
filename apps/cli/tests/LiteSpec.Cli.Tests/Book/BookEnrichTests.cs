@@ -345,7 +345,7 @@ public sealed class BookEnrichTests
         });
         (model["known"] as JsonArray)!.Add(new JsonObject
         {
-            ["code"] = "step-unscreened",
+            ["code"] = "step-screen-missing",
             ["tier"] = "A",
             ["message"] = "No screen.",
             ["subject"] = "journey/borrowing",

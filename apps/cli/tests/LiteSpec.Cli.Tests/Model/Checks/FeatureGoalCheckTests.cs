@@ -15,7 +15,7 @@ public sealed class FeatureGoalCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("feature", "feature/hold-requests", Path.Combine(temp.Path, "holds.md"), """{"status": "approved", "lifecycle": "planned", "plannedFor": "Pilot launch", "solves": ["problem/hold-delays"], "advances": ["goal/faster-checkout"]}"""));
 
-        Assert.DoesNotContain("feature-without-goal", TestModel.Codes(model));
+        Assert.DoesNotContain("feature-goal-missing", TestModel.Codes(model));
     }
 
     /// <proves>litespec/core/intent#state-each-feature-with-its-lifecycle</proves>
@@ -27,7 +27,7 @@ public sealed class FeatureGoalCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("feature", "feature/hold-requests", Path.Combine(temp.Path, "holds.md"), """{"status": "approved", "lifecycle": "planned", "plannedFor": "Pilot launch", "solves": ["problem/hold-delays"]}"""));
 
-        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "feature-without-goal");
+        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "feature-goal-missing");
         Assert.Equal("A", finding.Tier);
         Assert.Equal("Feature 'feature/hold-requests' advances no goal.", finding.Message);
         Assert.Equal("feature/hold-requests", finding.Subject);
@@ -42,7 +42,7 @@ public sealed class FeatureGoalCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("feature", "feature/hold-requests", Path.Combine(temp.Path, "holds.md"), """{"status": "approved", "lifecycle": "planned", "plannedFor": "Pilot launch", "solves": ["problem/hold-delays"], "risk": ["money"]}"""));
 
-        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "feature-without-goal");
+        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "feature-goal-missing");
         Assert.Equal("G", finding.Tier);
         Assert.Equal("Feature 'feature/hold-requests' advances no goal.", finding.Message);
         Assert.Equal("feature/hold-requests", finding.Subject);
@@ -57,7 +57,7 @@ public sealed class FeatureGoalCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("feature", "feature/hold-requests", Path.Combine(temp.Path, "holds.md"), """{"status": "approved", "lifecycle": "refused", "solves": ["problem/hold-delays"], "refusedBecause": "The desk handles holds by hand."}"""));
 
-        Assert.DoesNotContain("feature-without-goal", TestModel.Codes(model));
+        Assert.DoesNotContain("feature-goal-missing", TestModel.Codes(model));
     }
 
     /// <proves>litespec/core/intent#state-each-feature-with-its-lifecycle</proves>
@@ -69,7 +69,7 @@ public sealed class FeatureGoalCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("feature", "feature/hold-requests", Path.Combine(temp.Path, "holds.md"), """{"status": "retired", "lifecycle": "planned", "plannedFor": "Pilot launch", "solves": ["problem/hold-delays"]}"""));
 
-        Assert.DoesNotContain("feature-without-goal", TestModel.Codes(model));
+        Assert.DoesNotContain("feature-goal-missing", TestModel.Codes(model));
     }
 
     /// <proves>litespec/core/intent#state-each-feature-with-its-lifecycle</proves>
@@ -81,7 +81,7 @@ public sealed class FeatureGoalCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("feature", "feature/hold-requests", Path.Combine(temp.Path, "holds.md"), """{"status": "approved", "lifecycle": "planned", "plannedFor": "Pilot launch", "solves": ["problem/hold-delays"], "advances": ["goal/faster-checkout"], "serves": ["goal/faster-checkout"]}"""));
 
-        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "invalid-field" && found.Message.Contains("names serves", StringComparison.Ordinal));
+        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "field-invalid" && found.Message.Contains("names serves", StringComparison.Ordinal));
         Assert.Equal("Feature 'feature/hold-requests' names serves; a feature advances a goal in advances.", finding.Message);
         Assert.Equal("feature/hold-requests", finding.Subject);
     }

@@ -54,7 +54,7 @@ public sealed class ImplementsLinkTests
         var codes = TestModel.Codes(model);
 
         Assert.DoesNotContain("behavior-unrecorded", codes);
-        Assert.Contains("mark-unresolved", codes);
+        Assert.Contains("mark-unknown", codes);
     }
 
     /// <proves>litespec/core/layers#implement-only-declared-behavior</proves>
@@ -87,7 +87,7 @@ public sealed class ImplementsLinkTests
         var codes = TestModel.Codes(model);
 
         Assert.DoesNotContain("behavior-unrecorded", codes);
-        Assert.Contains("mark-unresolved", codes);
+        Assert.Contains("mark-unknown", codes);
     }
 
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>

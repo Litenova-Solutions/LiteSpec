@@ -13,9 +13,9 @@ public sealed class FrontendMarkCheckTests
         var findings = FrontendMarksFixture.Check(fixture.Path);
 
         Assert.Empty(FrontendMarksFixture.WithCode(findings, "mark-missing"));
-        Assert.Empty(FrontendMarksFixture.WithCode(findings, "mark-unresolved"));
-        Assert.Empty(FrontendMarksFixture.WithCode(findings, "mark-count"));
-        Assert.Empty(FrontendMarksFixture.WithCode(findings, "mark-style-mixed"));
+        Assert.Empty(FrontendMarksFixture.WithCode(findings, "mark-unknown"));
+        Assert.Empty(FrontendMarksFixture.WithCode(findings, "mark-count-invalid"));
+        Assert.Empty(FrontendMarksFixture.WithCode(findings, "mark-style-invalid"));
     }
 
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
@@ -36,7 +36,7 @@ public sealed class FrontendMarkCheckTests
     public void Module_Marking_Another_Use_Case_Reports_Mark_Unresolved()
     {
         using var fixture = FrontendMarksFixture.Prepare("mismatch");
-        var unresolved = FrontendMarksFixture.WithCode(FrontendMarksFixture.Check(fixture.Path), "mark-unresolved");
+        var unresolved = FrontendMarksFixture.WithCode(FrontendMarksFixture.Check(fixture.Path), "mark-unknown");
 
         var finding = Assert.Single(unresolved, found => found.Message.Contains("mirrors"));
         Assert.Contains("use-case/lending.list-loans", finding.Message);
@@ -49,7 +49,7 @@ public sealed class FrontendMarkCheckTests
     public void Module_Marking_No_Use_Case_Reports_Mark_Unresolved()
     {
         using var fixture = FrontendMarksFixture.Prepare("mismatch");
-        var unresolved = FrontendMarksFixture.WithCode(FrontendMarksFixture.Check(fixture.Path), "mark-unresolved");
+        var unresolved = FrontendMarksFixture.WithCode(FrontendMarksFixture.Check(fixture.Path), "mark-unknown");
 
         var finding = Assert.Single(unresolved, found => found.Message.Contains("matches no record"));
         Assert.Contains("use-case/lending.ghost", finding.Message);
@@ -62,12 +62,12 @@ public sealed class FrontendMarkCheckTests
     {
         using var fixture = FrontendMarksFixture.Prepare("style");
         var findings = FrontendMarksFixture.Check(fixture.Path);
-        var mixed = FrontendMarksFixture.WithCode(findings, "mark-style-mixed");
+        var mixed = FrontendMarksFixture.WithCode(findings, "mark-style-invalid");
 
         var finding = Assert.Single(mixed);
         Assert.Contains("BorrowCopyCommandHandler", finding.Message);
         Assert.DoesNotContain("Frontend module", finding.Message);
         Assert.Empty(FrontendMarksFixture.WithCode(findings, "mark-missing"));
-        Assert.Empty(FrontendMarksFixture.WithCode(findings, "mark-unresolved"));
+        Assert.Empty(FrontendMarksFixture.WithCode(findings, "mark-unknown"));
     }
 }

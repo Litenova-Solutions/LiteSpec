@@ -31,7 +31,7 @@ public sealed class ActMethodRaises
 public sealed class ActEventFinding
 {
     /// <summary>Creates the finding.</summary>
-    /// <param name="code">The finding code: <c>act-event-undeclared</c> or <c>act-event-unraised</c>.</param>
+    /// <param name="code">The finding code: <c>act-event-undeclared</c> or <c>act-event-unimplemented</c>.</param>
     /// <param name="method">The index of the method the finding sits on.</param>
     /// <param name="eventId">The event record id.</param>
     /// <exception cref="ArgumentNullException">The code or event id is null.</exception>
@@ -52,7 +52,7 @@ public sealed class ActEventFinding
         EventId = eventId;
     }
 
-    /// <summary>The finding code: <c>act-event-undeclared</c> or <c>act-event-unraised</c>.</summary>
+    /// <summary>The finding code: <c>act-event-undeclared</c> or <c>act-event-unimplemented</c>.</summary>
     public string Code { get; }
 
     /// <summary>The index of the method the finding sits on.</summary>
@@ -71,9 +71,9 @@ public static class ActEvents
     /// <summary>
     ///     Decides one use case's act-event findings: <c>act-event-undeclared</c>
     ///     once per method raising an event the use case does not list, and
-    ///     <c>act-event-unraised</c> once per listed event no marked method raises,
+    ///     <c>act-event-unimplemented</c> once per listed event no marked method raises,
     ///     located on the first marked method. A use case with no marked method
-    ///     yields nothing: that case is <c>use-case-act-uncalled</c> or
+    ///     yields nothing: that case is <c>use-case-act-missing</c> or
     ///     <c>mark-missing</c>.
     /// </summary>
     /// <param name="raises">The event ids the use case lists in raises, in record order.</param>
@@ -131,7 +131,7 @@ public static class ActEvents
         {
             if (reported.Add(id) && !raised.Contains(id))
             {
-                findings.Add(new ActEventFinding("act-event-unraised", 0, id));
+                findings.Add(new ActEventFinding("act-event-unimplemented", 0, id));
             }
         }
 

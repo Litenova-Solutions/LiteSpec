@@ -266,11 +266,11 @@ A screen's computed `calls` name the use cases it reaches, and each use case dec
 
 **Statement:** Every refusal a screen can reach through its computed `calls` MUST be shown as `litespec/core/behavior#show-every-refusal-a-screen-can-reach` states.
 
-**Rationale:** That Behavior provision is the one result obligation for a screen: a sentence in the frontend's refusal dictionary or a browser test asserting the code, checked by `result-unshown`. Stating it again for routes would give one obligation two scopes and two verifications. The screen's computed `calls`, not a route's declared calls, name the refusals in scope, and success results stay proved through their scenarios.
+**Rationale:** That Behavior provision is the one result obligation for a screen: a sentence in the frontend's refusal dictionary or a browser test asserting the code, checked by `refusal-sentence-missing`. Stating it again for routes would give one obligation two scopes and two verifications. The screen's computed `calls`, not a route's declared calls, name the refusals in scope, and success results stay proved through their scenarios.
 
 **Example:** The expense form's screen reaches `spending.receipt-missing` through its computed `calls`, and that refusal has a sentence in the Claimwick web dictionary.
 
-**Checked by:** `litespec model check` reports `result-unshown` (tier A) for a refusal reachable through a screen's computed `calls` with neither a dictionary sentence nor a browser test asserting its code.
+**Checked by:** `litespec model check` reports `refusal-sentence-missing` (tier A) for a refusal reachable through a screen's computed `calls` with neither a dictionary sentence nor a browser test asserting its code.
 
 ### Restrict Styling to Semantic Tokens
 

@@ -79,7 +79,7 @@ The sub-processor list names every provider that processes personal data for the
 
 **Example:** Claimwick's alert rule `submission-acknowledgement-slow` carries `requirement: requirement/spending.month-end-submissions` and `runbook: runbook/slow-submissions` in its labels.
 
-**Checked by:** `litespec model check` reports `alert-unlinked` (tier S) for an alert rule in the files `paths.alerts` names whose `requirement` label is missing or names no quality requirement, or whose `runbook` label is missing or names no runbook.
+**Checked by:** `litespec model check` reports `alert-link-missing` (tier S) for an alert rule in the files `paths.alerts` names whose `requirement` label is missing or names no quality requirement, or whose `runbook` label is missing or names no runbook.
 
 ### Keep Each Alert Threshold to Its Requirement's Measure
 
@@ -103,7 +103,7 @@ The sub-processor list names every provider that processes personal data for the
 
 **Example:** `requirement/spending.month-end-submissions` is named by the alert `submission-acknowledgement-slow` and by the k6 result its `check` names.
 
-**Checked by:** `litespec model check` reports `quality-unalerted` (tier G) for a quality requirement that no alert rule names in its `requirement` label, whose `check` matches no measured-check or check result the model read, and that no open known gap with `check: quality-unalerted` lists in its `subject`.
+**Checked by:** `litespec model check` reports `quality-alert-missing` (tier G) for a quality requirement that no alert rule names in its `requirement` label, whose `check` matches no measured-check or check result the model read, and that no open known gap with `check: quality-alert-missing` lists in its `subject`.
 
 ### Record Each Drill Run as a Check Result
 
@@ -123,11 +123,11 @@ The sub-processor list names every provider that processes personal data for the
 
 **Statement:** Every deployment, proxy, host, and CI workflow file the project lists in `paths.operations` MUST carry a `follows` mark naming the technical decision, deviation, or provision it carries out.
 
-**Rationale:** Operations files hold choices as load-bearing as code: the proxy's security headers, the backup schedule, the gates a pull request passes. Their reason usually lives in a comment that no tool reads, so a retired decision leaves its configuration behind unnoticed. A `follows` mark in the file's own comment syntax is the same link a technical class carries, so `decision-unfollowed` and `mark-unresolved` cover these files too.
+**Rationale:** Operations files hold choices as load-bearing as code: the proxy's security headers, the backup schedule, the gates a pull request passes. Their reason usually lives in a comment that no tool reads, so a retired decision leaves its configuration behind unnoticed. A `follows` mark in the file's own comment syntax is the same link a technical class carries, so `decision-unimplemented` and `mark-unknown` cover these files too.
 
 **Example:** Claimwick's `deploy/Caddyfile` opens with `# <follows>decision/0004-serve-receipts-behind-one-proxy</follows>`.
 
-**Checked by:** `litespec model check` reports `mark-missing` (tier S) for a file in `paths.operations` with no `follows` mark and `mark-unresolved` (tier S) for a mark naming no decision, deviation, or provision, and counts the file toward `decision-unfollowed`.
+**Checked by:** `litespec model check` reports `mark-missing` (tier S) for a file in `paths.operations` with no `follows` mark and `mark-unknown` (tier S) for a mark naming no decision, deviation, or provision, and counts the file toward `decision-unimplemented`.
 
 ### Pass Trace Context in the W3C Format
 

@@ -14,36 +14,36 @@ static partial class Checker
     /// <summary>Every finding code a known gap may name.</summary>
     public static readonly HashSet<string> Codes = new(StringComparer.Ordinal)
     {
-        "record-shape", "invalid-field", "identifier-form", "identifier-duplicate",
-        "use-case-name-clash", "use-case-verb-unknown", "term-lookalike", "statement-vague-word", "use-case-noun-unknown", "refusal-code-form", "template-key-form", "setting-unit-missing", "integration-event-wording", "use-case-verb-kind", "reaction-name-form", "job-name-form", "reference-unresolved", "draft-gate",
-        "owner-unknown", "draft-without-decider", "known-gap-expired", "gap-unknown-check",
-        "rule-name-negation", "use-case-without-success", "scenario-result-unresolved",
-        "refusal-not-thrown", "use-case-unimplemented", "proves-unconfirmed",
-        "size-type-missing", "product-not-singleton",
-        "journey-reach",
-        "use-case-without-scenario", "requirement-unfulfilled",
-        "requirement-uncited", "constraint-uncited",
-        "aggregate-name-clash", "decision-decides-nothing", "decision-unfollowed", "decision-without-basis", "link-unresolved", "operation-use-case-mismatch", "constituent-orphaned", "alert-unlinked", "alert-threshold-drift", "quality-unalerted", "setting-key-missing", "setting-unimplemented", "setting-key-drift", "template-unimplemented", "template-unrecorded", "template-param-drift", "dependency-unadmitted", "dependency-version-drift", "dependency-licence-unapproved", "admission-incomplete", "screen-unimplemented", "screen-calls-mismatch", "screen-serves-mismatch", "step-unscreened", "result-unshown", "reader-unavailable", "proves-duplicated",
-        "behavior-unrecorded", "mark-missing", "mark-unresolved", "mark-count", "mark-style-mixed",
-        "runtime-value-drift", "partial-missing", "act-event-undeclared", "act-event-unraised", "use-case-act-uncalled",
+        "record-invalid", "field-invalid", "identifier-invalid", "identifier-duplicate",
+        "use-case-name-clash", "use-case-verb-unknown", "term-clash", "statement-word-invalid", "use-case-noun-unknown", "refusal-code-invalid", "template-key-invalid", "setting-unit-missing", "integration-event-name-invalid", "use-case-verb-invalid", "reaction-name-invalid", "job-name-invalid", "reference-unknown", "approval-invalid",
+        "owner-unknown", "decider-missing", "known-gap-expired", "gap-finding-unknown",
+        "rule-name-invalid", "use-case-success-missing", "scenario-result-unknown",
+        "refusal-unimplemented", "use-case-unimplemented", "proves-unreached",
+        "size-type-missing", "product-count-invalid",
+        "use-case-journey-missing",
+        "use-case-scenario-missing", "requirement-fulfillment-missing",
+        "requirement-cites-missing", "constraint-unreached",
+        "aggregate-name-clash", "decision-decides-missing", "decision-unimplemented", "decision-basis-missing", "link-unknown", "operation-use-case-drift", "constituent-parent-missing", "alert-link-missing", "alert-threshold-drift", "quality-alert-missing", "setting-key-missing", "setting-unimplemented", "setting-key-drift", "template-unimplemented", "template-unrecorded", "template-param-drift", "dependency-undeclared", "dependency-version-drift", "dependency-license-unknown", "admission-invalid", "screen-unimplemented", "screen-offers-drift", "screen-serves-drift", "step-screen-missing", "refusal-sentence-missing", "reader-missing", "proves-duplicate",
+        "behavior-unrecorded", "mark-missing", "mark-unknown", "mark-count-invalid", "mark-style-invalid",
+        "runtime-value-drift", "partial-missing", "act-event-undeclared", "act-event-unimplemented", "use-case-act-missing",
         "aggregate-unimplemented", "reaction-unimplemented", "job-unimplemented",
-        "external-system-unimplemented", "use-case-unexposed", "effect-unimplemented", "use-case-unreached",
-        "state-unreachable", "transition-unresolved",
-        "erasure-undeclared", "calculation-without-table",
-        "reaction-trigger-unresolved", "requirement-unmeasured",
-        "record-orphaned", "record-without-parent", "feature-without-goal", "result-without-scenario", "step-unserved", "effect-loop", "consistency-unexplained",
-        "query-output-missing", "paging-undeclared", "widening-unjustified",
-        "retention-without-enforcement", "risk-without-acceptance", "exemption-expired",
-        "setting-default-without-requirement", "reservation-without-release",
-        "notification-without-sender", "except-without-fallback", "approval-reopened",
-        "parent-changed",
-        "transcribed-reviewed", "transcribed-after-adoption",
-        "operator-job-without-guard", "schedule-unstructured",
+        "external-system-unimplemented", "use-case-endpoint-missing", "effect-unimplemented", "use-case-unreached",
+        "state-unreached", "transition-unknown",
+        "erasure-undeclared", "calculation-table-missing",
+        "reaction-trigger-unknown", "requirement-measure-missing",
+        "record-link-missing", "record-parent-missing", "feature-goal-missing", "result-scenario-missing", "step-use-case-missing", "effect-loop-invalid", "consistency-cites-missing",
+        "query-output-missing", "paging-undeclared", "widening-cites-missing",
+        "retention-enforcement-missing", "risk-acceptance-missing", "exemption-expired",
+        "setting-requirement-missing", "reservation-release-missing",
+        "notification-sender-missing", "except-fallback-missing", "approval-reopened",
+        "parent-reopened",
+        "transcription-status-invalid", "transcription-expired",
+        "job-guard-missing", "schedule-invalid",
         "write-undeclared", "result-undeclared", "effect-undeclared", "repository-unimplemented",
-        "use-case-verb-method", "event-tense-mismatch", "name-drift-across-layers", "operation-id-duplicate", "route-shape",
-        "reasonless-name", "collaborator-holds-repository", "repository-read-in-loop",
-        "query-filters-in-memory", "dependency-count", "effect-before-commit",
-        "prose-missing", "many-aggregates", "question-aged",
+        "use-case-method-drift", "event-tense-invalid", "name-drift", "operation-id-duplicate", "route-invalid",
+        "name-reason-missing", "collaborator-repository-invalid", "repository-read-invalid",
+        "query-filter-invalid", "dependency-count-invalid", "effect-timing-invalid",
+        "prose-missing", "atomic-group-duplicate", "question-expired",
     };
 
     /// <summary>Requirement kinds that code makes true, so some rule, use case, reaction, job, notification or setting fulfills them.</summary>
@@ -85,7 +85,7 @@ static partial class Checker
         Time("fulfillment", () => CheckFulfilment(model, findings));
         Time("requirement-cited", () => CheckRequirementCited(model, findings));
         Time("constraint-cited", () => CheckConstraintCited(model, findings));
-        Time("parent-changed", () => CheckParentChanged(model, findings));
+        Time("parent-reopened", () => CheckParentChanged(model, findings));
         Time("links", () => CheckLinks(model, findings));
         Time("profile", () => CheckSizeTypes(model, findings));
         Time("reach", () => CheckJourneyReach(model, findings));
@@ -186,7 +186,7 @@ static partial class Checker
 
             if (record.Type.Length == 0)
             {
-                findings.Add(new Finding("record-shape", "The record has no type.", record.File, record.Line, null));
+                findings.Add(new Finding("record-invalid", "The record has no type.", record.File, record.Line, null));
                 continue;
             }
 
@@ -197,17 +197,17 @@ static partial class Checker
 
             if (record.Id.Length == 0)
             {
-                findings.Add(new Finding("record-shape", $"The {record.Type} record has no id.", record.File, record.Line, null));
+                findings.Add(new Finding("record-invalid", $"The {record.Type} record has no id.", record.File, record.Line, null));
             }
 
             if (record.Title.Length == 0)
             {
-                findings.Add(new Finding("record-shape", $"Record '{record.Id}' has no title.", record.File, record.Line, SubjectOf(record)));
+                findings.Add(new Finding("record-invalid", $"Record '{record.Id}' has no title.", record.File, record.Line, SubjectOf(record)));
             }
 
             if (record.Owner is null)
             {
-                findings.Add(new Finding("record-shape", $"Record '{record.Id}' has no owner.", record.File, record.Line, SubjectOf(record)));
+                findings.Add(new Finding("record-invalid", $"Record '{record.Id}' has no owner.", record.File, record.Line, SubjectOf(record)));
             }
             else if (model.Config.HasOwners && !model.Config.Owners.Contains(record.Owner, StringComparer.Ordinal))
             {
@@ -220,18 +220,18 @@ static partial class Checker
 
             if (record.Status is null)
             {
-                findings.Add(new Finding("record-shape", $"Record '{record.Id}' has no status.", record.File, record.Line, SubjectOf(record)));
+                findings.Add(new Finding("record-invalid", $"Record '{record.Id}' has no status.", record.File, record.Line, SubjectOf(record)));
             }
             else if (!ValidStatus(record))
             {
-                findings.Add(new Finding("invalid-field", $"Record '{record.Id}' has status '{record.Status}'; {StatusVocabulary(record)}.", record.File, record.Line, SubjectOf(record)));
+                findings.Add(new Finding("field-invalid", $"Record '{record.Id}' has status '{record.Status}'; {StatusVocabulary(record)}.", record.File, record.Line, SubjectOf(record)));
             }
 
             if (record.Status == "draft")
             {
                 if (record.Decider is null)
                 {
-                    findings.Add(new Finding("draft-without-decider", $"Draft '{record.Id}' names no decider.", record.File, record.Line, SubjectOf(record)));
+                    findings.Add(new Finding("decider-missing", $"Draft '{record.Id}' names no decider.", record.File, record.Line, SubjectOf(record)));
                 }
                 else if (model.Config.HasOwners && !model.Config.Owners.Contains(record.Decider, StringComparer.Ordinal))
                 {
@@ -240,11 +240,11 @@ static partial class Checker
 
                 if (record.DecideBy is null)
                 {
-                    findings.Add(new Finding("draft-without-decider", $"Draft '{record.Id}' names no decide-by date.", record.File, record.Line, SubjectOf(record)));
+                    findings.Add(new Finding("decider-missing", $"Draft '{record.Id}' names no decide-by date.", record.File, record.Line, SubjectOf(record)));
                 }
                 else if (!ValidDate(record.DecideBy))
                 {
-                    findings.Add(new Finding("invalid-field", $"Draft '{record.Id}' has decide-by '{record.DecideBy}', which is not a date.", record.File, record.Line, SubjectOf(record)));
+                    findings.Add(new Finding("field-invalid", $"Draft '{record.Id}' has decide-by '{record.DecideBy}', which is not a date.", record.File, record.Line, SubjectOf(record)));
                 }
             }
 
@@ -305,7 +305,7 @@ static partial class Checker
 
                 if (named is not { Length: > 0 })
                 {
-                    findings.Add(new Finding("draft-without-decider", $"Question on '{record.Id}' names no decider.", record.File, record.Line, SubjectOf(record)));
+                    findings.Add(new Finding("decider-missing", $"Question on '{record.Id}' names no decider.", record.File, record.Line, SubjectOf(record)));
                     decider = true;
                 }
                 else if (model.Config.HasOwners && !model.Config.Owners.Contains(named, StringComparer.Ordinal))
@@ -321,12 +321,12 @@ static partial class Checker
 
                 if (decideBy is not { Length: > 0 })
                 {
-                    findings.Add(new Finding("draft-without-decider", $"Question on '{record.Id}' names no decide-by date.", record.File, record.Line, SubjectOf(record)));
+                    findings.Add(new Finding("decider-missing", $"Question on '{record.Id}' names no decide-by date.", record.File, record.Line, SubjectOf(record)));
                     date = true;
                 }
                 else if (!ValidDate(decideBy))
                 {
-                    findings.Add(new Finding("invalid-field", $"Question on '{record.Id}' has decide-by '{decideBy}', which is not a date.", record.File, record.Line, SubjectOf(record)));
+                    findings.Add(new Finding("field-invalid", $"Question on '{record.Id}' has decide-by '{decideBy}', which is not a date.", record.File, record.Line, SubjectOf(record)));
                     date = true;
                 }
             }
@@ -453,7 +453,7 @@ static partial class Checker
 
                 if (record.Has("serves"))
                 {
-                    findings.Add(new Finding("invalid-field", $"Feature '{record.Id}' names serves; a feature advances a goal in advances.", record.File, record.Line, SubjectOf(record)));
+                    findings.Add(new Finding("field-invalid", $"Feature '{record.Id}' names serves; a feature advances a goal in advances.", record.File, record.Line, SubjectOf(record)));
                 }
 
                 break;
@@ -541,7 +541,7 @@ static partial class Checker
                             || !Identifiers.RefusalCode().IsMatch(code)
                             || Identifiers.RefusalCode().Match(code).Value != code))
                     {
-                        findings.Add(new Finding("invalid-field", $"Result '{record.Id}' has code '{code}', which is not a refusal code.", record.File, record.Line, SubjectOf(record)));
+                        findings.Add(new Finding("field-invalid", $"Result '{record.Id}' has code '{code}', which is not a refusal code.", record.File, record.Line, SubjectOf(record)));
                     }
                 }
 
@@ -568,7 +568,7 @@ static partial class Checker
 
                 if (record.Has("address") == record.Has("host"))
                 {
-                    findings.Add(new Finding("record-shape", $"Screen '{record.Id}' carries exactly one of address and host.", record.File, record.Line, SubjectOf(record)));
+                    findings.Add(new Finding("record-invalid", $"Screen '{record.Id}' carries exactly one of address and host.", record.File, record.Line, SubjectOf(record)));
                 }
 
                 break;
@@ -586,7 +586,7 @@ static partial class Checker
                 if (record.Field("provision") is { } provision
                     && !IsProvisionCitation(provision))
                 {
-                    findings.Add(new Finding("invalid-field", $"Deviation '{record.Id}' names '{provision}', which is not a shared provision.", record.File, record.Line, SubjectOf(record)));
+                    findings.Add(new Finding("field-invalid", $"Deviation '{record.Id}' names '{provision}', which is not a shared provision.", record.File, record.Line, SubjectOf(record)));
                 }
 
                 break;
@@ -599,7 +599,7 @@ static partial class Checker
 
                 if (record.Field("check") is { } check && !Codes.Contains(check))
                 {
-                    findings.Add(new Finding("gap-unknown-check", $"Known gap '{record.Id}' names check '{check}', which no check uses.", record.File, record.Line, SubjectOf(record)));
+                    findings.Add(new Finding("gap-finding-unknown", $"Known gap '{record.Id}' names check '{check}', which no check uses.", record.File, record.Line, SubjectOf(record)));
                 }
 
                 break;
@@ -607,11 +607,11 @@ static partial class Checker
             case "term":
                 if (record.Field("meaning") is not { Length: > 0 })
                 {
-                    findings.Add(new Finding("record-shape", $"Term '{record.Id}' has no meaning.", record.File, record.Line, SubjectOf(record)));
+                    findings.Add(new Finding("record-invalid", $"Term '{record.Id}' has no meaning.", record.File, record.Line, SubjectOf(record)));
                 }
                 else if (record.Field("meaning")!.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries).Length > 25)
                 {
-                    findings.Add(new Finding("invalid-field", $"Term '{record.Id}' has a meaning over 25 words.", record.File, record.Line, SubjectOf(record)));
+                    findings.Add(new Finding("field-invalid", $"Term '{record.Id}' has a meaning over 25 words.", record.File, record.Line, SubjectOf(record)));
                 }
 
                 break;
@@ -652,14 +652,14 @@ static partial class Checker
 
                 if (allowed.Count > 0 && !allowed.Contains(resolved.Type) && !servesRequirement)
                 {
-                    findings.Add(new Finding("invalid-field", $"Record '{record.Id}' links {property.Name} to '{target}', which is a {resolved.Type}.", record.File, record.Line, SubjectOf(record)));
+                    findings.Add(new Finding("field-invalid", $"Record '{record.Id}' links {property.Name} to '{target}', which is a {resolved.Type}.", record.File, record.Line, SubjectOf(record)));
                 }
 
                 // A journey cites the requirements it shows; every other cites names
                 // a goal, problem, feature, constraint, research or decision.
                 if (property.Name == "cites" && resolved.Type == "requirement" && record.Type != "journey")
                 {
-                    findings.Add(new Finding("invalid-field", $"Record '{record.Id}' links cites to '{target}', which is a requirement.", record.File, record.Line, SubjectOf(record)));
+                    findings.Add(new Finding("field-invalid", $"Record '{record.Id}' links cites to '{target}', which is a requirement.", record.File, record.Line, SubjectOf(record)));
                 }
 
                 CheckFragment(model, record, target, baseId, resolved, findings);
@@ -683,7 +683,7 @@ static partial class Checker
                     && model.ById.TryGetValue(id, out var resolved)
                     && resolved.Type != "use-case")
                 {
-                    findings.Add(new Finding("invalid-field", $"Journey '{record.Id}' steps to '{id}', which is a {resolved.Type}.", record.File, record.Line, SubjectOf(record)));
+                    findings.Add(new Finding("field-invalid", $"Journey '{record.Id}' steps to '{id}', which is a {resolved.Type}.", record.File, record.Line, SubjectOf(record)));
                 }
 
                 if (step.TryGetProperty("actor", out var actor)
@@ -692,7 +692,7 @@ static partial class Checker
                     && model.ById.TryGetValue(actorId, out var actorRecord)
                     && actorRecord.Type != "actor")
                 {
-                    findings.Add(new Finding("invalid-field", $"Journey '{record.Id}' names actor '{actorId}', which is a {actorRecord.Type}.", record.File, record.Line, SubjectOf(record)));
+                    findings.Add(new Finding("field-invalid", $"Journey '{record.Id}' names actor '{actorId}', which is a {actorRecord.Type}.", record.File, record.Line, SubjectOf(record)));
                 }
             }
         }
@@ -715,7 +715,7 @@ static partial class Checker
         {
             if (resolved.Type == "journey" && !resolved.StepIds().Contains(target, StringComparer.Ordinal))
             {
-                findings.Add(new Finding("reference-unresolved", $"Record '{record.Id}' serves '{target}', which names no step of the journey.", record.File, record.Line, SubjectOf(record)));
+                findings.Add(new Finding("reference-unknown", $"Record '{record.Id}' serves '{target}', which names no step of the journey.", record.File, record.Line, SubjectOf(record)));
             }
 
             return;
@@ -727,7 +727,7 @@ static partial class Checker
 
             if (!OperationNames(resolved).Contains(operation, StringComparer.Ordinal))
             {
-                findings.Add(new Finding("reference-unresolved", $"Record '{record.Id}' calls '{target}', which names no operation of the system.", record.File, record.Line, SubjectOf(record)));
+                findings.Add(new Finding("reference-unknown", $"Record '{record.Id}' calls '{target}', which names no operation of the system.", record.File, record.Line, SubjectOf(record)));
             }
         }
     }
@@ -755,14 +755,14 @@ static partial class Checker
     {
         if (record.Type != "decision" && record.Ids("replaces").Any())
         {
-            findings.Add(new Finding("invalid-field", $"Record '{record.Id}' carries replaces; only a decision replaces another record.", record.File, record.Line, SubjectOf(record)));
+            findings.Add(new Finding("field-invalid", $"Record '{record.Id}' carries replaces; only a decision replaces another record.", record.File, record.Line, SubjectOf(record)));
         }
 
         foreach (var target in record.Ids("replaces"))
         {
             if (model.ById.TryGetValue(target, out var resolved) && resolved.Type != record.Type)
             {
-                findings.Add(new Finding("invalid-field", $"Record '{record.Id}' replaces '{target}', which is a {resolved.Type}.", record.File, record.Line, SubjectOf(record)));
+                findings.Add(new Finding("field-invalid", $"Record '{record.Id}' replaces '{target}', which is a {resolved.Type}.", record.File, record.Line, SubjectOf(record)));
             }
         }
     }
@@ -789,19 +789,19 @@ static partial class Checker
             if (!Identifiers.TrySplit(record.Id, out var prefix, out var home, out var name))
             {
                 // A home-parented record reports its missing home through
-                // record-without-parent, so identifier-form stays silent here.
+                // record-parent-missing, so identifier-invalid stays silent here.
                 if (ReportsMissingHome(record))
                 {
                     continue;
                 }
 
-                findings.Add(new Finding("identifier-form", $"Identifier '{record.Id}' is not type/name or type/home.name.", record.File, record.Line, SubjectOf(record)));
+                findings.Add(new Finding("identifier-invalid", $"Identifier '{record.Id}' is not type/name or type/home.name.", record.File, record.Line, SubjectOf(record)));
                 continue;
             }
 
             if (prefix != record.Type)
             {
-                findings.Add(new Finding("identifier-form", $"Identifier '{record.Id}' names type {prefix} on a {record.Type} record.", record.File, record.Line, SubjectOf(record)));
+                findings.Add(new Finding("identifier-invalid", $"Identifier '{record.Id}' names type {prefix} on a {record.Type} record.", record.File, record.Line, SubjectOf(record)));
             }
 
             var wantsHome = RecordTypes.WithHome.Contains(record.Type);
@@ -810,12 +810,12 @@ static partial class Checker
             {
                 if (!ReportsMissingHome(record))
                 {
-                    findings.Add(new Finding("identifier-form", $"Identifier '{record.Id}' names no home.", record.File, record.Line, SubjectOf(record)));
+                    findings.Add(new Finding("identifier-invalid", $"Identifier '{record.Id}' names no home.", record.File, record.Line, SubjectOf(record)));
                 }
             }
             else if (!wantsHome && home is not null)
             {
-                findings.Add(new Finding("identifier-form", $"Identifier '{record.Id}' names a home a {record.Type} id has none.", record.File, record.Line, SubjectOf(record)));
+                findings.Add(new Finding("identifier-invalid", $"Identifier '{record.Id}' names a home a {record.Type} id has none.", record.File, record.Line, SubjectOf(record)));
             }
 
             if (record.Type == "requirement" && home is not null)
@@ -825,7 +825,7 @@ static partial class Checker
 
             if (!Identifiers.ValidName(name, record.Type == "decision") || Identifiers.AllDigitsName(name))
             {
-                findings.Add(new Finding("identifier-form", $"Identifier '{record.Id}' breaks the name rules.", record.File, record.Line, SubjectOf(record)));
+                findings.Add(new Finding("identifier-invalid", $"Identifier '{record.Id}' breaks the name rules.", record.File, record.Line, SubjectOf(record)));
             }
 
             if (record.Type == "aggregate" && !recordNames.Add(name))
@@ -861,7 +861,7 @@ static partial class Checker
 
         if (!home.Equals(page, StringComparison.Ordinal))
         {
-            findings.Add(new Finding("identifier-form", $"Requirement '{record.Id}' names topic '{home}', which differs from its page '{page}'.", record.File, record.Line, SubjectOf(record)));
+            findings.Add(new Finding("identifier-invalid", $"Requirement '{record.Id}' names topic '{home}', which differs from its page '{page}'.", record.File, record.Line, SubjectOf(record)));
         }
     }
 
@@ -889,7 +889,7 @@ static partial class Checker
             if ((kind == UseCaseVerbs.VerbKind.Query && declared == "command")
                 || (kind == UseCaseVerbs.VerbKind.Command && declared == "query"))
             {
-                findings.Add(new Finding("use-case-verb-kind", $"Use case '{useCase.Id}' is a {declared} but '{verb}' names a {(kind == UseCaseVerbs.VerbKind.Query ? "query" : "command")}.", useCase.File, useCase.Line, SubjectOf(useCase)));
+                findings.Add(new Finding("use-case-verb-invalid", $"Use case '{useCase.Id}' is a {declared} but '{verb}' names a {(kind == UseCaseVerbs.VerbKind.Query ? "query" : "command")}.", useCase.File, useCase.Line, SubjectOf(useCase)));
             }
         }
     }
@@ -910,7 +910,7 @@ static partial class Checker
                 // <verb>-<what>-on-<fact>: what it does, then the fact it answers.
                 if (!Declares(model.Config, verb) || !name.Contains("-on-", StringComparison.Ordinal))
                 {
-                    findings.Add(new Finding("reaction-name-form", $"Reaction '{record.Id}' is not named <verb>-<what>-on-<fact> with a declared verb.", record.File, record.Line, SubjectOf(record)));
+                    findings.Add(new Finding("reaction-name-invalid", $"Reaction '{record.Id}' is not named <verb>-<what>-on-<fact> with a declared verb.", record.File, record.Line, SubjectOf(record)));
                 }
 
                 continue;
@@ -924,7 +924,7 @@ static partial class Checker
 
             if (issued.Count > 0 && !issued.Contains(verb, StringComparer.Ordinal))
             {
-                findings.Add(new Finding("job-name-form", $"Job '{record.Id}' starts with '{verb}' but issues '{string.Join("', '", issued.Distinct())}'.", record.File, record.Line, SubjectOf(record)));
+                findings.Add(new Finding("job-name-invalid", $"Job '{record.Id}' starts with '{verb}' but issues '{string.Join("', '", issued.Distinct())}'.", record.File, record.Line, SubjectOf(record)));
             }
         }
     }
@@ -979,7 +979,7 @@ static partial class Checker
             {
                 if (!Resolves(model, id))
                 {
-                    findings.Add(new Finding("reference-unresolved", $"Record '{record.Id}' cites '{id}', which no record holds.", record.File, record.Line, SubjectOf(record)));
+                    findings.Add(new Finding("reference-unknown", $"Record '{record.Id}' cites '{id}', which no record holds.", record.File, record.Line, SubjectOf(record)));
                 }
             }
         }
@@ -1068,7 +1068,7 @@ static partial class Checker
         {
             if (!Resolves(model, entry.Key))
             {
-                findings.Add(new Finding("reference-unresolved", $"Citation '{entry.Key}' resolves to no record.", file, entry.Value, subject));
+                findings.Add(new Finding("reference-unknown", $"Citation '{entry.Key}' resolves to no record.", file, entry.Value, subject));
             }
         }
     }
@@ -1103,7 +1103,7 @@ static partial class Checker
         {
             if ((record.Status == "approved" || record.Status == "reviewed") && drafts.Contains(record.Id))
             {
-                findings.Add(new Finding("draft-gate", $"Record '{record.Id}' is {record.Status} while its decision is a draft.", record.File, record.Line, SubjectOf(record)));
+                findings.Add(new Finding("approval-invalid", $"Record '{record.Id}' is {record.Status} while its decision is a draft.", record.File, record.Line, SubjectOf(record)));
             }
         }
 
@@ -1112,7 +1112,7 @@ static partial class Checker
         {
             if (!decision.Ids("decides").Any())
             {
-                findings.Add(new Finding("decision-decides-nothing", $"Decision '{decision.Id}' names nothing it decides.", decision.File, decision.Line, SubjectOf(decision)));
+                findings.Add(new Finding("decision-decides-missing", $"Decision '{decision.Id}' names nothing it decides.", decision.File, decision.Line, SubjectOf(decision)));
             }
         }
 
@@ -1121,7 +1121,7 @@ static partial class Checker
         {
             if (!decision.Ids("basedOn").Any())
             {
-                findings.Add(new Finding("decision-without-basis", $"Decision '{decision.Id}' names no constraint or requirement in basedOn.", decision.File, decision.Line, SubjectOf(decision)));
+                findings.Add(new Finding("decision-basis-missing", $"Decision '{decision.Id}' names no constraint or requirement in basedOn.", decision.File, decision.Line, SubjectOf(decision)));
             }
         }
 
@@ -1160,7 +1160,7 @@ static partial class Checker
 
             if (match.Success)
             {
-                findings.Add(new Finding("rule-name-negation", $"Rule '{rule.Id}' says '{match.Value.ToLowerInvariant()}' but its name keeps no restricting word.", rule.File, rule.Line, SubjectOf(rule)));
+                findings.Add(new Finding("rule-name-invalid", $"Rule '{rule.Id}' says '{match.Value.ToLowerInvariant()}' but its name keeps no restricting word.", rule.File, rule.Line, SubjectOf(rule)));
             }
         }
     }
@@ -1195,7 +1195,7 @@ static partial class Checker
 
             if (!fulfilled.Contains(requirement.Id) && !undelivered && !decided)
             {
-                findings.Add(new Finding("requirement-unfulfilled", $"Requirement '{requirement.Id}' is fulfilled by no rule, use case, reaction, job, notification or setting.", requirement.File, requirement.Line, SubjectOf(requirement)));
+                findings.Add(new Finding("requirement-fulfillment-missing", $"Requirement '{requirement.Id}' is fulfilled by no rule, use case, reaction, job, notification or setting.", requirement.File, requirement.Line, SubjectOf(requirement)));
             }
         }
     }
@@ -1207,7 +1207,7 @@ static partial class Checker
         {
             if (requirement.Ids("cites").Count == 0)
             {
-                findings.Add(Tiered("requirement-uncited", $"Requirement '{requirement.Id}' cites no goal, problem, feature, constraint, research or decision.", requirement, model));
+                findings.Add(Tiered("requirement-cites-missing", $"Requirement '{requirement.Id}' cites no goal, problem, feature, constraint, research or decision.", requirement, model));
             }
         }
     }
@@ -1227,7 +1227,7 @@ static partial class Checker
                 && applies.ValueKind == JsonValueKind.True
                 && !cited.Contains(constraint.Id))
             {
-                findings.Add(new Finding("constraint-uncited", $"Constraint '{constraint.Id}' applies and is cited by no requirement.", constraint.File, constraint.Line, SubjectOf(constraint)));
+                findings.Add(new Finding("constraint-unreached", $"Constraint '{constraint.Id}' applies and is cited by no requirement.", constraint.File, constraint.Line, SubjectOf(constraint)));
             }
         }
     }
@@ -1256,14 +1256,14 @@ static partial class Checker
 
             if (!own.Any(result => result.Field("outcome") == "success"))
             {
-                findings.Add(new Finding("use-case-without-success", $"Use case '{useCase.Id}' has no success result.", useCase.File, useCase.Line, SubjectOf(useCase)));
+                findings.Add(new Finding("use-case-success-missing", $"Use case '{useCase.Id}' has no success result.", useCase.File, useCase.Line, SubjectOf(useCase)));
             }
 
             if (model.Config.Size == "large"
                 && !model.Records.Any(record => record.Type == "scenario"
                     && Identifiers.TrySplit(record.Id, out _, out var scenarioHome, out _) && scenarioHome == name))
             {
-                findings.Add(new Finding("use-case-without-scenario", $"Use case '{useCase.Id}' has no scenario.", useCase.File, useCase.Line, SubjectOf(useCase)));
+                findings.Add(new Finding("use-case-scenario-missing", $"Use case '{useCase.Id}' has no scenario.", useCase.File, useCase.Line, SubjectOf(useCase)));
             }
 
             if (model.Status.TryGetValue(useCase.Id, out var status) && !status.Implemented)
@@ -1288,7 +1288,7 @@ static partial class Checker
 
             if (!ResultBelongsToScenario(model, scenario, result))
             {
-                findings.Add(new Finding("scenario-result-unresolved", $"Scenario '{scenario.Id}' ends in '{resultId}' outside its use case.", scenario.File, scenario.Line, SubjectOf(scenario)));
+                findings.Add(new Finding("scenario-result-unknown", $"Scenario '{scenario.Id}' ends in '{resultId}' outside its use case.", scenario.File, scenario.Line, SubjectOf(scenario)));
             }
         }
 
@@ -1298,7 +1298,7 @@ static partial class Checker
         {
             if (result.Field("code") is { } code && !thrown.Contains(code) && !IsComposedFromLiteral(model, code))
             {
-                findings.Add(new Finding("refusal-not-thrown", $"Result '{result.Id}' names code '{code}', which no code throws.", result.File, result.Line, SubjectOf(result)));
+                findings.Add(new Finding("refusal-unimplemented", $"Result '{result.Id}' names code '{code}', which no code throws.", result.File, result.Line, SubjectOf(result)));
             }
         }
 
@@ -1321,7 +1321,7 @@ static partial class Checker
 
                 if (provesByClaim.TryGetValue((test.Name, claim), out var link) && !link.Confirmed)
                 {
-                    findings.Add(new Finding("proves-unconfirmed", $"Scenario '{test.Name}' claims '{claim}' but carries no step, message or effect that proves it.", test.File, test.Line, claim));
+                    findings.Add(new Finding("proves-unreached", $"Scenario '{test.Name}' claims '{claim}' but carries no step, message or effect that proves it.", test.File, test.Line, claim));
                 }
             }
         }
@@ -1382,7 +1382,7 @@ static partial class Checker
 
                 if (!File.Exists(resolved) && !Directory.Exists(resolved))
                 {
-                    found.Add(new Finding("link-unresolved", $"Link '{target}' resolves to no file.", body.File, body.BodyStartLine + LineOf(starts, match.Index) - 1, body.PageId));
+                    found.Add(new Finding("link-unknown", $"Link '{target}' resolves to no file.", body.File, body.BodyStartLine + LineOf(starts, match.Index) - 1, body.PageId));
                 }
             }
         });
@@ -1436,7 +1436,7 @@ static partial class Checker
 
         if (model.Records.Count(record => record.Type == "product") != 1)
         {
-            findings.Add(new Finding("product-not-singleton", "The project holds no single product record.", declaration, 1, null));
+            findings.Add(new Finding("product-count-invalid", "The project holds no single product record.", declaration, 1, null));
         }
     }
 
@@ -1459,7 +1459,7 @@ static partial class Checker
 
             if (!servesStep)
             {
-                findings.Add(new Finding("journey-reach", $"Use case '{useCase.Id}' sits in no journey.", useCase.File, useCase.Line, SubjectOf(useCase)));
+                findings.Add(new Finding("use-case-journey-missing", $"Use case '{useCase.Id}' sits in no journey.", useCase.File, useCase.Line, SubjectOf(useCase)));
             }
         }
     }
@@ -1572,17 +1572,17 @@ static partial class Checker
             {
                 if (transition.From != RecordReader.Creation && !states.Contains(transition.From))
                 {
-                    findings.Add(new Finding("transition-unresolved", $"Transition on aggregate '{aggregate.Id}' leads from '{transition.From}', which is not a state of the aggregate.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
+                    findings.Add(new Finding("transition-unknown", $"Transition on aggregate '{aggregate.Id}' leads from '{transition.From}', which is not a state of the aggregate.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
                 }
 
                 if (!states.Contains(transition.To))
                 {
-                    findings.Add(new Finding("transition-unresolved", $"Transition on aggregate '{aggregate.Id}' leads to '{transition.To}', which is not a state of the aggregate.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
+                    findings.Add(new Finding("transition-unknown", $"Transition on aggregate '{aggregate.Id}' leads to '{transition.To}', which is not a state of the aggregate.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
                 }
 
                 if (transition.By is not null && !IsUseCase(model, transition.By))
                 {
-                    findings.Add(new Finding("transition-unresolved", $"Transition on aggregate '{aggregate.Id}' is by '{transition.By}', which no use case record holds.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
+                    findings.Add(new Finding("transition-unknown", $"Transition on aggregate '{aggregate.Id}' is by '{transition.By}', which no use case record holds.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
                 }
             }
 
@@ -1593,7 +1593,7 @@ static partial class Checker
             {
                 if (!targets.Contains(state) && !sources.Contains(state))
                 {
-                    findings.Add(new Finding("state-unreachable", $"State '{state}' of aggregate '{aggregate.Id}' is reached by no transition.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
+                    findings.Add(new Finding("state-unreached", $"State '{state}' of aggregate '{aggregate.Id}' is reached by no transition.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
                 }
             }
         }
@@ -1695,7 +1695,7 @@ static partial class Checker
 
             if (!covered)
             {
-                findings.Add(new Finding("calculation-without-table", $"Rule '{rule.Id}' is a calculation with no scenario examples table.", rule.File, rule.Line, SubjectOf(rule)));
+                findings.Add(new Finding("calculation-table-missing", $"Rule '{rule.Id}' is a calculation with no scenario examples table.", rule.File, rule.Line, SubjectOf(rule)));
             }
         }
     }
@@ -1756,11 +1756,11 @@ static partial class Checker
 
             if (check is not { Length: > 0 })
             {
-                findings.Add(new Finding("requirement-unmeasured", $"Requirement '{requirement.Id}' is measured but names no check.", requirement.File, requirement.Line, SubjectOf(requirement)));
+                findings.Add(new Finding("requirement-measure-missing", $"Requirement '{requirement.Id}' is measured but names no check.", requirement.File, requirement.Line, SubjectOf(requirement)));
             }
             else if (!model.Measures.Any(measure => measure.Passed && MeasureMatches(measure, check)))
             {
-                findings.Add(new Finding("requirement-unmeasured", $"Requirement '{requirement.Id}' names check '{check}' with no passing run.", requirement.File, requirement.Line, SubjectOf(requirement)));
+                findings.Add(new Finding("requirement-measure-missing", $"Requirement '{requirement.Id}' names check '{check}' with no passing run.", requirement.File, requirement.Line, SubjectOf(requirement)));
             }
         }
 
@@ -1777,7 +1777,7 @@ static partial class Checker
             && record.Field("statement") is { Length: > 0 } statement
             && NamesNumber(statement)))
         {
-            findings.Add(new Finding("requirement-unmeasured", $"Requirement '{requirement.Id}' names a number with no measure.", requirement.File, requirement.Line, SubjectOf(requirement))
+            findings.Add(new Finding("requirement-measure-missing", $"Requirement '{requirement.Id}' names a number with no measure.", requirement.File, requirement.Line, SubjectOf(requirement))
             {
                 TierOverride = "A",
             });
@@ -1810,7 +1810,7 @@ static partial class Checker
         {
             if ((record.Status == "approved" || record.Status == "reviewed") && HasOpenQuestions(record, model.Config, today))
             {
-                findings.Add(new Finding("record-shape", $"Record '{record.Id}' is {record.Status} with open questions.", record.File, record.Line, SubjectOf(record)));
+                findings.Add(new Finding("record-invalid", $"Record '{record.Id}' is {record.Status} with open questions.", record.File, record.Line, SubjectOf(record)));
             }
 
             CheckQuestionRecommendation(record, findings);
@@ -1840,7 +1840,7 @@ static partial class Checker
         {
             if (!Answered(entry) && Str(entry, "recommendation") is not { Length: > 0 })
             {
-                findings.Add(new Finding("record-shape", $"Question on '{record.Id}' names no recommendation.", record.File, record.Line, SubjectOf(record)));
+                findings.Add(new Finding("record-invalid", $"Question on '{record.Id}' names no recommendation.", record.File, record.Line, SubjectOf(record)));
                 break;
             }
         }
@@ -2015,7 +2015,7 @@ static partial class Checker
     {
         if (record.Field(field) is not { Length: > 0 })
         {
-            findings.Add(new Finding("record-shape", $"Record '{record.Id}' has no {field}.", record.File, record.Line, SubjectOf(record)));
+            findings.Add(new Finding("record-invalid", $"Record '{record.Id}' has no {field}.", record.File, record.Line, SubjectOf(record)));
         }
     }
 
@@ -2036,7 +2036,7 @@ static partial class Checker
                 || meaning.ValueKind != JsonValueKind.String
                 || string.IsNullOrEmpty(meaning.GetString()))
             {
-                findings.Add(new Finding("invalid-field", $"Aggregate '{record.Id}' holds a state without a name and a meaning.", record.File, record.Line, SubjectOf(record)));
+                findings.Add(new Finding("field-invalid", $"Aggregate '{record.Id}' holds a state without a name and a meaning.", record.File, record.Line, SubjectOf(record)));
                 return;
             }
         }
@@ -2046,19 +2046,19 @@ static partial class Checker
     {
         if (!record.Has(field))
         {
-            findings.Add(new Finding("record-shape", $"Record '{record.Id}' has no {field}.", record.File, record.Line, SubjectOf(record)));
+            findings.Add(new Finding("record-invalid", $"Record '{record.Id}' has no {field}.", record.File, record.Line, SubjectOf(record)));
             return;
         }
 
         if (record.Raw.TryGetProperty(field, out var value) && value.ValueKind != JsonValueKind.Array)
         {
-            findings.Add(new Finding("invalid-field", $"Record '{record.Id}' holds {field} as no array.", record.File, record.Line, SubjectOf(record)));
+            findings.Add(new Finding("field-invalid", $"Record '{record.Id}' holds {field} as no array.", record.File, record.Line, SubjectOf(record)));
             return;
         }
 
         if (value.GetArrayLength() < minimum)
         {
-            findings.Add(new Finding("invalid-field", $"Record '{record.Id}' holds an empty {field}.", record.File, record.Line, SubjectOf(record)));
+            findings.Add(new Finding("field-invalid", $"Record '{record.Id}' holds an empty {field}.", record.File, record.Line, SubjectOf(record)));
         }
     }
 
@@ -2070,7 +2070,7 @@ static partial class Checker
         {
             if (minimum > 0 || !record.Has(field))
             {
-                findings.Add(new Finding("record-shape", $"Record '{record.Id}' has no {field}.", record.File, record.Line, SubjectOf(record)));
+                findings.Add(new Finding("record-invalid", $"Record '{record.Id}' has no {field}.", record.File, record.Line, SubjectOf(record)));
             }
 
             return;
@@ -2083,11 +2083,11 @@ static partial class Checker
 
         if (value is null)
         {
-            findings.Add(new Finding("record-shape", $"Record '{record.Id}' has no {field}.", record.File, record.Line, SubjectOf(record)));
+            findings.Add(new Finding("record-invalid", $"Record '{record.Id}' has no {field}.", record.File, record.Line, SubjectOf(record)));
         }
         else if (!values.Contains(value, StringComparer.Ordinal))
         {
-            findings.Add(new Finding("invalid-field", $"Record '{record.Id}' has {field} '{value}'; {string.Join(", ", values)}.", record.File, record.Line, SubjectOf(record)));
+            findings.Add(new Finding("field-invalid", $"Record '{record.Id}' has {field} '{value}'; {string.Join(", ", values)}.", record.File, record.Line, SubjectOf(record)));
         }
     }
 
@@ -2096,7 +2096,7 @@ static partial class Checker
     {
         if (record.Field("setBy") is { } setBy && setBy is not ("decider" or "operator" or "tenant"))
         {
-            findings.Add(new Finding("invalid-field", $"Record '{record.Id}' has setBy '{setBy}'; decider, operator, tenant.", record.File, record.Line, SubjectOf(record)));
+            findings.Add(new Finding("field-invalid", $"Record '{record.Id}' has setBy '{setBy}'; decider, operator, tenant.", record.File, record.Line, SubjectOf(record)));
         }
     }
 
@@ -2104,12 +2104,12 @@ static partial class Checker
     {
         if (!record.Has(field))
         {
-            findings.Add(new Finding("record-shape", $"Record '{record.Id}' has no {field}.", record.File, record.Line, SubjectOf(record)));
+            findings.Add(new Finding("record-invalid", $"Record '{record.Id}' has no {field}.", record.File, record.Line, SubjectOf(record)));
         }
         else if (record.Raw.TryGetProperty(field, out var value)
             && value.ValueKind is not (JsonValueKind.True or JsonValueKind.False))
         {
-            findings.Add(new Finding("invalid-field", $"Record '{record.Id}' holds {field} as no boolean.", record.File, record.Line, SubjectOf(record)));
+            findings.Add(new Finding("field-invalid", $"Record '{record.Id}' holds {field} as no boolean.", record.File, record.Line, SubjectOf(record)));
         }
     }
 
@@ -2119,11 +2119,11 @@ static partial class Checker
 
         if (value is null)
         {
-            findings.Add(new Finding("record-shape", $"Record '{record.Id}' has no {field}.", record.File, record.Line, SubjectOf(record)));
+            findings.Add(new Finding("record-invalid", $"Record '{record.Id}' has no {field}.", record.File, record.Line, SubjectOf(record)));
         }
         else if (!ValidDate(value))
         {
-            findings.Add(new Finding("invalid-field", $"Record '{record.Id}' has {field} '{value}', which is not a date.", record.File, record.Line, SubjectOf(record)));
+            findings.Add(new Finding("field-invalid", $"Record '{record.Id}' has {field} '{value}', which is not a date.", record.File, record.Line, SubjectOf(record)));
         }
     }
 
@@ -2133,11 +2133,11 @@ static partial class Checker
 
         if (value is null)
         {
-            findings.Add(new Finding("record-shape", $"Record '{record.Id}' has no {field}.", record.File, record.Line, SubjectOf(record)));
+            findings.Add(new Finding("record-invalid", $"Record '{record.Id}' has no {field}.", record.File, record.Line, SubjectOf(record)));
         }
         else if (!Regex.IsMatch(value, pattern))
         {
-            findings.Add(new Finding("invalid-field", $"Record '{record.Id}' has {field} '{value}', which is not {shape}.", record.File, record.Line, SubjectOf(record)));
+            findings.Add(new Finding("field-invalid", $"Record '{record.Id}' has {field} '{value}', which is not {shape}.", record.File, record.Line, SubjectOf(record)));
         }
     }
 
@@ -2151,7 +2151,7 @@ static partial class Checker
         {
             if (record.Has(field))
             {
-                findings.Add(new Finding("record-shape", $"{Label(record.Type)} '{record.Id}' holds top-level {field}; declare its edges in effects.", record.File, record.Line, SubjectOf(record)));
+                findings.Add(new Finding("record-invalid", $"{Label(record.Type)} '{record.Id}' holds top-level {field}; declare its edges in effects.", record.File, record.Line, SubjectOf(record)));
             }
         }
     }
@@ -2182,7 +2182,7 @@ static partial class Checker
             && scope.GetString() is { } scopeName
             && !IdempotencyScopes.Contains(scopeName, StringComparer.Ordinal))
         {
-            findings.Add(new Finding("record-shape", $"Record '{record.Id}' holds idempotency scope '{scopeName}'; {string.Join(", ", IdempotencyScopes)}.", record.File, record.Line, SubjectOf(record)));
+            findings.Add(new Finding("record-invalid", $"Record '{record.Id}' holds idempotency scope '{scopeName}'; {string.Join(", ", IdempotencyScopes)}.", record.File, record.Line, SubjectOf(record)));
         }
 
         if (!idempotency.TryGetProperty("key", out var key)
@@ -2204,7 +2204,7 @@ static partial class Checker
 
         if (placeholders.Count == 0)
         {
-            findings.Add(new Finding("record-shape", $"Record '{record.Id}' holds idempotency key '{template}' with no {{field}} placeholder; input fields in scope: {inScope}.", record.File, record.Line, SubjectOf(record)));
+            findings.Add(new Finding("record-invalid", $"Record '{record.Id}' holds idempotency key '{template}' with no {{field}} placeholder; input fields in scope: {inScope}.", record.File, record.Line, SubjectOf(record)));
             return;
         }
 
@@ -2219,7 +2219,7 @@ static partial class Checker
         {
             if (!fields.Contains(name, StringComparer.Ordinal))
             {
-                findings.Add(new Finding("record-shape", $"Record '{record.Id}' holds idempotency key '{template}': placeholder '{name}' names no input field; input fields in scope: {inScope}.", record.File, record.Line, SubjectOf(record)));
+                findings.Add(new Finding("record-invalid", $"Record '{record.Id}' holds idempotency key '{template}': placeholder '{name}' names no input field; input fields in scope: {inScope}.", record.File, record.Line, SubjectOf(record)));
             }
         }
     }
@@ -2264,25 +2264,25 @@ static partial class Checker
 
         if (policy.ValueKind == JsonValueKind.String)
         {
-            findings.Add(new Finding("record-shape", $"Record '{record.Id}' holds onFailure '{policy.GetString()}' as prose; declare retry and deadLetter.", record.File, record.Line, SubjectOf(record)));
+            findings.Add(new Finding("record-invalid", $"Record '{record.Id}' holds onFailure '{policy.GetString()}' as prose; declare retry and deadLetter.", record.File, record.Line, SubjectOf(record)));
             return;
         }
 
         if (policy.ValueKind != JsonValueKind.Object)
         {
-            findings.Add(new Finding("record-shape", $"Record '{record.Id}' holds onFailure as no object.", record.File, record.Line, SubjectOf(record)));
+            findings.Add(new Finding("record-invalid", $"Record '{record.Id}' holds onFailure as no object.", record.File, record.Line, SubjectOf(record)));
             return;
         }
 
         if (!policy.TryGetProperty("retry", out var retry))
         {
-            findings.Add(new Finding("record-shape", $"Record '{record.Id}' holds onFailure with no retry.", record.File, record.Line, SubjectOf(record)));
+            findings.Add(new Finding("record-invalid", $"Record '{record.Id}' holds onFailure with no retry.", record.File, record.Line, SubjectOf(record)));
         }
         else if (retry.ValueKind == JsonValueKind.String)
         {
             if (retry.GetString() is not ("none" or "next-run"))
             {
-                findings.Add(new Finding("record-shape", $"Record '{record.Id}' holds onFailure retry '{retry.GetString()}'; none, next-run or a retry object.", record.File, record.Line, SubjectOf(record)));
+                findings.Add(new Finding("record-invalid", $"Record '{record.Id}' holds onFailure retry '{retry.GetString()}'; none, next-run or a retry object.", record.File, record.Line, SubjectOf(record)));
             }
         }
         else if (retry.ValueKind == JsonValueKind.Object)
@@ -2291,7 +2291,7 @@ static partial class Checker
         }
         else
         {
-            findings.Add(new Finding("record-shape", $"Record '{record.Id}' holds onFailure retry as neither none nor a retry object.", record.File, record.Line, SubjectOf(record)));
+            findings.Add(new Finding("record-invalid", $"Record '{record.Id}' holds onFailure retry as neither none nor a retry object.", record.File, record.Line, SubjectOf(record)));
         }
 
         if (policy.TryGetProperty("deadLetter", out var deadLetter))
@@ -2308,7 +2308,7 @@ static partial class Checker
             || !attempts.TryGetInt32(out var count)
             || count < 1)
         {
-            findings.Add(new Finding("record-shape", $"Record '{record.Id}' holds onFailure retry with no positive maxAttempts.", record.File, record.Line, SubjectOf(record)));
+            findings.Add(new Finding("record-invalid", $"Record '{record.Id}' holds onFailure retry with no positive maxAttempts.", record.File, record.Line, SubjectOf(record)));
         }
 
         CheckPolicyDuration(record, retry, "initialDelay", "onFailure retry initialDelay", findings);
@@ -2318,11 +2318,11 @@ static partial class Checker
             || backoff.ValueKind != JsonValueKind.String
             || backoff.GetString() is not { } shape)
         {
-            findings.Add(new Finding("record-shape", $"Record '{record.Id}' holds onFailure retry with no backoff.", record.File, record.Line, SubjectOf(record)));
+            findings.Add(new Finding("record-invalid", $"Record '{record.Id}' holds onFailure retry with no backoff.", record.File, record.Line, SubjectOf(record)));
         }
         else if (shape is not ("exponential" or "fixed"))
         {
-            findings.Add(new Finding("record-shape", $"Record '{record.Id}' holds onFailure retry backoff '{shape}'; exponential, fixed.", record.File, record.Line, SubjectOf(record)));
+            findings.Add(new Finding("record-invalid", $"Record '{record.Id}' holds onFailure retry backoff '{shape}'; exponential, fixed.", record.File, record.Line, SubjectOf(record)));
         }
     }
 
@@ -2333,11 +2333,11 @@ static partial class Checker
             || value.ValueKind != JsonValueKind.String
             || value.GetString() is not { } text)
         {
-            findings.Add(new Finding("record-shape", $"Record '{record.Id}' holds {where} with no duration.", record.File, record.Line, SubjectOf(record)));
+            findings.Add(new Finding("record-invalid", $"Record '{record.Id}' holds {where} with no duration.", record.File, record.Line, SubjectOf(record)));
         }
         else if (!IsoDuration.IsMatch(text))
         {
-            findings.Add(new Finding("record-shape", $"Record '{record.Id}' holds {where} '{text}', which is not an ISO 8601 duration.", record.File, record.Line, SubjectOf(record)));
+            findings.Add(new Finding("record-invalid", $"Record '{record.Id}' holds {where} '{text}', which is not an ISO 8601 duration.", record.File, record.Line, SubjectOf(record)));
         }
     }
 
@@ -2346,7 +2346,7 @@ static partial class Checker
     {
         if (deadLetter.ValueKind != JsonValueKind.Object)
         {
-            findings.Add(new Finding("record-shape", $"Record '{record.Id}' holds onFailure deadLetter as no object.", record.File, record.Line, SubjectOf(record)));
+            findings.Add(new Finding("record-invalid", $"Record '{record.Id}' holds onFailure deadLetter as no object.", record.File, record.Line, SubjectOf(record)));
             return;
         }
 
@@ -2356,7 +2356,7 @@ static partial class Checker
             || action.ValueKind != JsonValueKind.String
             || action.GetString() is not { Length: > 0 })
         {
-            findings.Add(new Finding("record-shape", $"Record '{record.Id}' holds onFailure deadLetter with no action.", record.File, record.Line, SubjectOf(record)));
+            findings.Add(new Finding("record-invalid", $"Record '{record.Id}' holds onFailure deadLetter with no action.", record.File, record.Line, SubjectOf(record)));
         }
     }
 

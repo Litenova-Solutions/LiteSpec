@@ -43,7 +43,7 @@ Shared provisions keep their published `litespec/<page>#<slug>` form, as stated 
 
 **Example:** `event/expense.submitted` names an event of the expense aggregate.
 
-**Checked by:** `litespec model check` reports `identifier-form` for an identifier outside the form its type uses.
+**Checked by:** `litespec model check` reports `identifier-invalid` for an identifier outside the form its type uses.
 
 ### Name Records with One to Six Words
 
@@ -55,7 +55,7 @@ Shared provisions keep their published `litespec/<page>#<slug>` form, as stated 
 
 **Example:** `decision/0001-receipt-threshold` counts its number as one word.
 
-**Checked by:** `litespec model check` reports `identifier-form` for a name outside one to six lowercase hyphenated words.
+**Checked by:** `litespec model check` reports `identifier-invalid` for a name outside one to six lowercase hyphenated words.
 
 ### Keep Use Case Names Unique Across the Project
 
@@ -107,7 +107,7 @@ Shared provisions keep their published `litespec/<page>#<slug>` form, as stated 
 
 **Rationale:** A citation is a promise that a record exists at the other end. A citation that names nothing sends the reader searching for a record nobody wrote, so the model check fails it.
 
-**Checked by:** `litespec model check` reports `reference-unresolved` for a citation naming no written record.
+**Checked by:** `litespec model check` reports `reference-unknown` for a citation naming no written record.
 
 ### Cite Shared Provisions in Their Published Form
 

@@ -36,7 +36,7 @@ static class DependencyChecks
     };
 
     /// <summary>
-    ///     Runs admission-incomplete, which always runs, and the three bill checks, which stay
+    ///     Runs admission-invalid, which always runs, and the three bill checks, which stay
     ///     silent when the project names no bill of materials in paths.sbom.
     /// </summary>
     public static void Run(ProjectModel model, List<Finding> findings)
@@ -66,7 +66,7 @@ static class DependencyChecks
             if (pin is null && admitted is null)
             {
                 findings.Add(new Finding(
-                    "dependency-unadmitted",
+                    "dependency-undeclared",
                     $"Direct package '{package.Id}' version {VersionText(package.Version)} with licence {LicenceText(package.Licence)} is pinned by no manifest entry and admitted by no decision.",
                     package.File,
                     1,
@@ -86,7 +86,7 @@ static class DependencyChecks
             if (!LicenceAccepted(model.Config.AcceptedLicences, admitted?.Licence, package.Licence))
             {
                 findings.Add(new Finding(
-                    "dependency-licence-unapproved",
+                    "dependency-license-unknown",
                     $"Direct package '{package.Id}' version {VersionText(package.Version)} carries licence {LicenceText(package.Licence)}, which the project does not accept.",
                     package.File,
                     1,
@@ -252,7 +252,7 @@ static class DependencyChecks
                         : "a package with no name";
 
                 findings.Add(new Finding(
-                    "admission-incomplete",
+                    "admission-invalid",
                     $"Decision '{record.Id}' admits {package} with no {string.Join(", ", missing)}.",
                     record.File,
                     record.Line,

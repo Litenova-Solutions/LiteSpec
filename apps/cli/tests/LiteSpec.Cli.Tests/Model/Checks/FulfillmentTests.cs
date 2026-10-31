@@ -22,7 +22,7 @@ public sealed class FulfillmentTests
             TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.md"), """{"kind": "functional", "statement": "A reader holds at most five active loans."}"""),
             TestModel.Record(type, FulfillerId(type), Path.Combine(temp.Path, "fulfiller.md"), """{"fulfills": ["requirement/borrowing.max-active-loans"]}"""));
 
-        Assert.DoesNotContain("requirement-unfulfilled", TestModel.Codes(model));
+        Assert.DoesNotContain("requirement-fulfillment-missing", TestModel.Codes(model));
     }
 
     /// <proves>litespec/core/intent#restrict-requirement-fulfillment-to-behavior</proves>
@@ -35,7 +35,7 @@ public sealed class FulfillmentTests
             TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.md"), """{"kind": "functional", "statement": "A reader holds at most five active loans."}"""),
             TestModel.Record("journey", "journey/borrow-and-return", Path.Combine(temp.Path, "borrow-and-return.md"), """{"actor": ["actor/reader"], "serves": ["goal/faster-pickup"], "steps": [{"id": "s1", "statement": "The reader borrows the copy."}], "cites": ["requirement/borrowing.max-active-loans"]}"""));
 
-        Assert.Contains("requirement-unfulfilled", TestModel.Codes(model));
+        Assert.Contains("requirement-fulfillment-missing", TestModel.Codes(model));
     }
 
     /// <proves>litespec/core/intent#restrict-requirement-fulfillment-to-behavior</proves>
@@ -47,7 +47,7 @@ public sealed class FulfillmentTests
             TestModel.Config(temp.Path),
             TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.md"), """{"kind": "functional", "statement": "A reader holds at most five active loans."}"""));
 
-        Assert.Contains("requirement-unfulfilled", TestModel.Codes(model));
+        Assert.Contains("requirement-fulfillment-missing", TestModel.Codes(model));
     }
 
     /// <proves>litespec/core/intent#restrict-requirement-fulfillment-to-behavior</proves>
@@ -59,7 +59,7 @@ public sealed class FulfillmentTests
             TestModel.Config(temp.Path),
             TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.md"), """{"kind": "functional", "statement": "A reader holds at most five active loans."}"""));
 
-        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "requirement-unfulfilled");
+        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "requirement-fulfillment-missing");
         Assert.Equal("Requirement 'requirement/borrowing.max-active-loans' is fulfilled by no rule, use case, reaction, job, notification or setting.", finding.Message);
         Assert.Equal("requirement/borrowing.max-active-loans", finding.Subject);
     }
@@ -73,7 +73,7 @@ public sealed class FulfillmentTests
             TestModel.Config(temp.Path),
             TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.md"), """{"status": "retired", "kind": "functional", "statement": "A reader holds at most five active loans."}"""));
 
-        Assert.DoesNotContain("requirement-unfulfilled", TestModel.Codes(model));
+        Assert.DoesNotContain("requirement-fulfillment-missing", TestModel.Codes(model));
     }
 
     /// <proves>litespec/core/intent#restrict-requirement-fulfillment-to-behavior</proves>
@@ -86,7 +86,7 @@ public sealed class FulfillmentTests
             TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.md"), """{"kind": "functional", "statement": "A reader holds at most five active loans.", "cites": ["feature/hold-requests"]}"""),
             TestModel.Record("feature", "feature/hold-requests", Path.Combine(temp.Path, "holds.md"), """{"status": "approved", "lifecycle": "planned", "plannedFor": "Pilot launch", "solves": ["problem/hold-delays"]}"""));
 
-        Assert.DoesNotContain("requirement-unfulfilled", TestModel.Codes(model));
+        Assert.DoesNotContain("requirement-fulfillment-missing", TestModel.Codes(model));
     }
 
     /// <summary>A fulfiller id of the type, in identifier form.</summary>

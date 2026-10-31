@@ -1,6 +1,6 @@
 namespace LiteSpec.Model;
 
-/// <summary>The verdict of the mark-count rule for one element's marks.</summary>
+/// <summary>The verdict of the mark-count-invalid rule for one element's marks.</summary>
 public sealed class MarkCount
 {
     /// <summary>Creates the verdict.</summary>

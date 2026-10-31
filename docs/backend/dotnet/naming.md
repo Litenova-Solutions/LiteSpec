@@ -101,7 +101,7 @@ Mapping classes use `ApiMappings` instead of the context-dependent `Mappings` su
 
 **Example:** The declared `Example.Domain/Shared/` folder passes; `Billing/Helpers/` and `OrderManager` outside it are reported.
 
-**Checked by:** `litespec model check` reports `reasonless-name` (tier S) for a folder or type named for the absence of a reason outside the declared shared kernel.
+**Checked by:** `litespec model check` reports `name-reason-missing` (tier S) for a folder or type named for the absence of a reason outside the declared shared kernel.
 
 ## Reference Example
 

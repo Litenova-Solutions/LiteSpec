@@ -99,7 +99,7 @@ sealed class ConsumerConfig
     public IReadOnlyDictionary<string, string> RetiredVerbs { get; private set; } =
         new Dictionary<string, string>(StringComparer.Ordinal);
 
-    /// <summary>Lookalike pairs the term-lookalike check skips, each as "a|b".</summary>
+    /// <summary>Lookalike pairs the term-clash check skips, each as "a|b".</summary>
     public IReadOnlyList<string> LookalikeIgnore { get; private set; } = [];
 
     /// <summary>The past tense of project domain verbs, by verb, beside the baseline table.</summary>
@@ -178,7 +178,7 @@ sealed class ConsumerConfig
     /// <summary>The check phase the project declares.</summary>
     public ProjectPhase Phase { get; private set; } = ProjectPhase.Working;
 
-    /// <summary>Whether the CI environment variable is set, so reader-unavailable blocks.</summary>
+    /// <summary>Whether the CI environment variable is set, so reader-missing blocks.</summary>
     public bool IsContinuousIntegration { get; private set; }
 
     /// <summary>The closed owner list.</summary>

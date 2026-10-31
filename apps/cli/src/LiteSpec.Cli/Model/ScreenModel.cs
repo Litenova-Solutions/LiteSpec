@@ -82,7 +82,7 @@ sealed record ScreenRead(
     /// <summary>The browser tests every frontend reader found.</summary>
     public IReadOnlyList<BrowserTestInfo> BrowserTests { get; init; } = [];
 
-    /// <summary>Findings the readers themselves produced, such as <c>reader-unavailable</c>.</summary>
+    /// <summary>Findings the readers themselves produced, such as <c>reader-missing</c>.</summary>
     public IReadOnlyList<Finding> Findings { get; init; } = [];
 
     /// <summary>Whether the TypeScript reader's handshake matched, so it is qualified.</summary>

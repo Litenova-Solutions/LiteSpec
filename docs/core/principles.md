@@ -62,7 +62,7 @@ Boundaries are where components meet and where future readers orient themselves.
 
 **Example:** A use case names the requirement it fulfills before its handler exists.
 
-**Checked by:** `litespec model check` reports no `record-orphaned` finding on the changed records.
+**Checked by:** `litespec model check` reports no `record-link-missing` finding on the changed records.
 
 ### Take Every Name from the Intent Above It
 
@@ -172,7 +172,7 @@ Boundaries are where components meet and where future readers orient themselves.
 
 **Rationale:** A cycle without an end condition runs until something outside the records stops it, so no reader can state when the work finishes. Routing each cycle through a domain event with a stated end condition names the loop and its exit in the records the graph checks.
 
-**Checked by:** `litespec model check` reports no `effect-loop` finding on the changed records.
+**Checked by:** `litespec model check` reports no `effect-loop-invalid` finding on the changed records.
 
 ### State Transaction Sharing on Every Inline Edge
 
@@ -184,7 +184,7 @@ Boundaries are where components meet and where future readers orient themselves.
 
 **Example:** An inline issues edge states `sharesTransaction: true`, so a failure in the issued use case rolls back the caller.
 
-**Checked by:** `litespec model check` reports no `record-shape` finding on the changed inline edges.
+**Checked by:** `litespec model check` reports no `record-invalid` finding on the changed inline edges.
 
 ### Confine Atomic Consistency to Synchronous Edges
 

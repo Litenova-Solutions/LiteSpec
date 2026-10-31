@@ -3,7 +3,7 @@ using LiteSpec.Model;
 
 namespace LiteSpec.Model.Tests.Marks;
 
-/// <summary>Tests for the shared mark-count rule both hosts call.</summary>
+/// <summary>Tests for the shared mark-count-invalid rule both hosts call.</summary>
 public sealed class MarkCountTests
 {
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>

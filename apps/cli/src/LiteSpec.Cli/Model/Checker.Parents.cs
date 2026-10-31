@@ -80,7 +80,7 @@ static partial class Checker
         if (record.Ids("solves").Count == 0)
         {
             findings.Add(new Finding(
-                "record-without-parent",
+                "record-parent-missing",
                 $"Feature '{record.Id}' names no parent: 'solves' names no problem.",
                 record.File, record.Line, SubjectOf(record)));
         }
@@ -89,7 +89,7 @@ static partial class Checker
     /// <summary>Reports a requirement whose topic holds no topic record.</summary>
     private static void CheckRequirementParent(ProjectModel model, Record record, List<Finding> findings)
     {
-        // A malformed identifier is identifier-form, so the parent check stays silent here.
+        // A malformed identifier is identifier-invalid, so the parent check stays silent here.
         if (!Identifiers.TrySplit(record.Id, out _, out var home, out _) || home is null)
         {
             return;
@@ -98,7 +98,7 @@ static partial class Checker
         if (!model.ById.TryGetValue($"topic/{home}", out var topic) || topic.Type != "topic")
         {
             findings.Add(new Finding(
-                "record-without-parent",
+                "record-parent-missing",
                 $"Requirement '{record.Id}' names no parent: its home '{home}' names no topic.",
                 record.File, record.Line, SubjectOf(record)));
         }
@@ -112,7 +112,7 @@ static partial class Checker
         if (serves.Count == 0)
         {
             findings.Add(new Finding(
-                "record-without-parent",
+                "record-parent-missing",
                 $"Journey '{record.Id}' names no parent: 'serves' names no goal.",
                 record.File, record.Line, SubjectOf(record)));
             return;
@@ -124,14 +124,14 @@ static partial class Checker
             return;
         }
 
-        // A dangling serves target is reference-unresolved, so one defect draws one finding.
+        // A dangling serves target is reference-unknown, so one defect draws one finding.
         if (serves.Any(target => !ServesResolves(model, target)))
         {
             return;
         }
 
         findings.Add(new Finding(
-            "record-without-parent",
+            "record-parent-missing",
             $"Journey '{record.Id}' names no parent: 'serves' names no goal.",
             record.File, record.Line, SubjectOf(record)));
     }
@@ -155,7 +155,7 @@ static partial class Checker
         if (record.Ids("result").Count == 0)
         {
             findings.Add(new Finding(
-                "record-without-parent",
+                "record-parent-missing",
                 $"Scenario '{record.Id}' names no parent: 'result' names no result.",
                 record.File, record.Line, SubjectOf(record)));
             return;
@@ -164,7 +164,7 @@ static partial class Checker
         if (!Identifiers.TrySplit(record.Id, out _, out var home, out _) || home is null)
         {
             findings.Add(new Finding(
-                "record-without-parent",
+                "record-parent-missing",
                 $"Scenario '{record.Id}' names no parent: its identifier names no home.",
                 record.File, record.Line, SubjectOf(record)));
             return;
@@ -173,7 +173,7 @@ static partial class Checker
         if (ModelBuilder.UseCaseOf(model, home) is null)
         {
             findings.Add(new Finding(
-                "record-without-parent",
+                "record-parent-missing",
                 $"Scenario '{record.Id}' names no parent: its home '{home}' names no use case.",
                 record.File, record.Line, SubjectOf(record)));
         }
@@ -187,7 +187,7 @@ static partial class Checker
         if (points.Count == 0)
         {
             findings.Add(new Finding(
-                "record-without-parent",
+                "record-parent-missing",
                 $"Screen '{record.Id}' names no parent: 'entryPoint' names no entry point.",
                 record.File, record.Line, SubjectOf(record)));
             return;
@@ -203,14 +203,14 @@ static partial class Checker
             return;
         }
 
-        // A dangling entry point is reference-unresolved, so one defect draws one finding.
+        // A dangling entry point is reference-unknown, so one defect draws one finding.
         if (points.Any(point => !model.ById.ContainsKey(point)))
         {
             return;
         }
 
         findings.Add(new Finding(
-            "record-without-parent",
+            "record-parent-missing",
             $"Screen '{record.Id}' names no parent: 'entryPoint' '{points[0]}' disagrees with its home '{home}'.",
             record.File, record.Line, SubjectOf(record)));
     }
@@ -221,7 +221,7 @@ static partial class Checker
         if (!Identifiers.TrySplit(record.Id, out _, out var home, out _) || home is null)
         {
             findings.Add(new Finding(
-                "record-without-parent",
+                "record-parent-missing",
                 $"Result '{record.Id}' names no parent: its identifier names no home.",
                 record.File, record.Line, SubjectOf(record)));
             return;
@@ -230,7 +230,7 @@ static partial class Checker
         if (ModelBuilder.UseCaseOf(model, home) is null)
         {
             findings.Add(new Finding(
-                "record-without-parent",
+                "record-parent-missing",
                 $"Result '{record.Id}' names no parent: its home '{home}' names no use case.",
                 record.File, record.Line, SubjectOf(record)));
         }
@@ -252,7 +252,7 @@ static partial class Checker
         if (!Identifiers.TrySplit(record.Id, out _, out var home, out _) || home is null)
         {
             findings.Add(new Finding(
-                "record-without-parent",
+                "record-parent-missing",
                 $"{label} '{record.Id}' names no parent: its identifier names no home.",
                 record.File, record.Line, SubjectOf(record)));
             return;
@@ -264,7 +264,7 @@ static partial class Checker
         }
 
         findings.Add(new Finding(
-            "record-without-parent",
+            "record-parent-missing",
             $"{label} '{record.Id}' names no parent: its home '{home}' names no module.",
             record.File, record.Line, SubjectOf(record)));
     }
@@ -275,7 +275,7 @@ static partial class Checker
         if (!Identifiers.TrySplit(record.Id, out _, out var home, out _) || home is null)
         {
             findings.Add(new Finding(
-                "record-without-parent",
+                "record-parent-missing",
                 $"Rule '{record.Id}' names no parent: its identifier names no home.",
                 record.File, record.Line, SubjectOf(record)));
             return;
@@ -287,7 +287,7 @@ static partial class Checker
         }
 
         findings.Add(new Finding(
-            "record-without-parent",
+            "record-parent-missing",
             $"Rule '{record.Id}' names no parent: its home '{home}' names no module or aggregate.",
             record.File, record.Line, SubjectOf(record)));
     }
@@ -298,7 +298,7 @@ static partial class Checker
         if (!Identifiers.TrySplit(record.Id, out _, out var home, out _) || home is null)
         {
             findings.Add(new Finding(
-                "record-without-parent",
+                "record-parent-missing",
                 $"Event '{record.Id}' names no parent: its identifier names no home.",
                 record.File, record.Line, SubjectOf(record)));
             return;
@@ -307,7 +307,7 @@ static partial class Checker
         if (!aggregates.Contains(home))
         {
             findings.Add(new Finding(
-                "record-without-parent",
+                "record-parent-missing",
                 $"Event '{record.Id}' names no parent: its home '{home}' names no aggregate.",
                 record.File, record.Line, SubjectOf(record)));
         }

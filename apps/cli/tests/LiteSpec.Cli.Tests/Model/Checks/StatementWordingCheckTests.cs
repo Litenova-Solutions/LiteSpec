@@ -34,7 +34,7 @@ public sealed class StatementWordingCheckTests
                 Path.Combine(temp.Path, "tidy.md"),
                 """{"kind": "invariant", "statement": "__STATEMENT__", "governs": []}""".Replace("__STATEMENT__", statement)));
 
-        var findings = Checker.Check(model).Findings.Where(finding => finding.Code == "statement-vague-word").ToList();
+        var findings = Checker.Check(model).Findings.Where(finding => finding.Code == "statement-word-invalid").ToList();
 
         Assert.Contains(findings, finding => finding.Message.Contains($"'{word}'", StringComparison.Ordinal));
     }
@@ -53,7 +53,7 @@ public sealed class StatementWordingCheckTests
                 Path.Combine(temp.Path, "tidy.md"),
                 """{"kind": "invariant", "statement": "The `handle` value stays stored.", "governs": []}"""));
 
-        Assert.DoesNotContain("statement-vague-word", TestModel.Codes(model));
+        Assert.DoesNotContain("statement-word-invalid", TestModel.Codes(model));
     }
 
     /// <proves>litespec/core/authoring#state-what-happens-in-every-behavior-statement</proves>
@@ -70,7 +70,7 @@ public sealed class StatementWordingCheckTests
                 Path.Combine(temp.Path, "grant.md"),
                 """{"kind": "invariant", "statement": "A role never holds manage-member-access.", "governs": []}"""));
 
-        Assert.DoesNotContain("statement-vague-word", TestModel.Codes(model));
+        Assert.DoesNotContain("statement-word-invalid", TestModel.Codes(model));
     }
 
     /// <proves>litespec/core/authoring#state-what-happens-in-every-behavior-statement</proves>
@@ -92,7 +92,7 @@ public sealed class StatementWordingCheckTests
                 Path.Combine(temp.Path, "borrowed.md"),
                 """{"outcome": "success", "meaning": "The clerk manages various queues."}"""));
 
-        var findings = Checker.Check(model).Findings.Where(finding => finding.Code == "statement-vague-word").ToList();
+        var findings = Checker.Check(model).Findings.Where(finding => finding.Code == "statement-word-invalid").ToList();
 
         Assert.Equal(5, findings.Count);
     }

@@ -28,7 +28,7 @@ A route entry is a destination: an `Activity` or fragment class that is a naviga
 
 **Statement:** A consumer selecting this stack MUST NOT apply the floorplan, token, and route-suite contract of the controlled UI pages.
 
-**Rationale:** That contract's floorplan, token, and route-suite checks read TypeScript sources, so they cannot read an Android view written in C#. Applying them to this stack would fail every check for lack of readable input, as `litespec/frontend/blazor/stack#keep-blazor-outside-the-ui-contract` states for Blazor. The mobile and Android pages state the styling, accessibility, and state rules that apply instead, so nothing is left ungoverned. Screen records and route marks still apply on this stack: the .NET reader reads the destination class marks, and the screen, `calls`, and `result-unshown` checks run from those marks.
+**Rationale:** That contract's floorplan, token, and route-suite checks read TypeScript sources, so they cannot read an Android view written in C#. Applying them to this stack would fail every check for lack of readable input, as `litespec/frontend/blazor/stack#keep-blazor-outside-the-ui-contract` states for Blazor. The mobile and Android pages state the styling, accessibility, and state rules that apply instead, so nothing is left ungoverned. Screen records and route marks still apply on this stack: the .NET reader reads the destination class marks, and the screen, `calls`, and `refusal-sentence-missing` checks run from those marks.
 
 **Reviewed for:** The consumer's stack selection and CI jobs apply no floorplan, token, or route-suite check, while its destination classes carry screen marks the .NET reader reads.
 

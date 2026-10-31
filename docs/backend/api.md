@@ -299,7 +299,7 @@ When a typed consumer reads the API, the pinned generator reads the source artif
 
 **Example:** The Claimwick operation `SubmitExpense` carries `"x-litespec-use-case": "use-case/spending.submit-expense"`.
 
-**Checked by:** `litespec model check` reports `operation-use-case-mismatch` (tier S) for an operation in the committed contract whose `x-litespec-use-case` is missing or differs from the use case its endpoint's mark names.
+**Checked by:** `litespec model check` reports `operation-use-case-drift` (tier S) for an operation in the committed contract whose `x-litespec-use-case` is missing or differs from the use case its endpoint's mark names.
 
 ### Commit the Generated Contract Its Consumers Read
 
@@ -407,7 +407,7 @@ An operation requiring a control header declares it as a required parameter, for
 
 **Example:** `use-case/spending.reimburse-expense` travels as `ReimburseExpenseCommand`, operation id `ReimburseExpense`, and audit action `reimburse-expense`; an operation id of `PayExpense` is reported.
 
-**Checked by:** `litespec model check` reports `name-drift-across-layers` (tier A) for a message type, operation id or audit action differing from the use-case name, and `operation-id-duplicate` (tier S) for two endpoints declaring one operation id.
+**Checked by:** `litespec model check` reports `name-drift` (tier A) for a message type, operation id or audit action differing from the use-case name, and `operation-id-duplicate` (tier S) for two endpoints declaring one operation id.
 
 ## Conventions
 
@@ -495,7 +495,7 @@ POST   /api/expenses/{id}/reimburse
 POST   /api/holds/{holdId}/cancel
 ```
 
-**Checked by:** `litespec model check` reports `route-shape` (tier A) for a command route ending outside its verb or carrying no aggregate plural.
+**Checked by:** `litespec model check` reports `route-invalid` (tier A) for a command route ending outside its verb or carrying no aggregate plural.
 
 ### Keep Numeric Transport Types Precise
 

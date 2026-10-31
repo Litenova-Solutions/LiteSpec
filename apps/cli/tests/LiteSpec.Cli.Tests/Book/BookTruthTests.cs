@@ -102,7 +102,7 @@ public sealed class BookTruthTests
 
         var known = Arr(details["journey/borrowing"], "findings");
         Assert.Single(known);
-        Assert.Equal("step-unscreened", Str(known[0]!.AsObject(), "code"));
+        Assert.Equal("step-screen-missing", Str(known[0]!.AsObject(), "code"));
         Assert.True(BoolOf(known[0]!.AsObject()["known"]));
         Assert.Equal("accepted", Str(known[0]!.AsObject(), "outcome"));
         Assert.Equal("The kiosk covers it next quarter.", Str(known[0]!.AsObject(), "reason"));
@@ -125,7 +125,7 @@ public sealed class BookTruthTests
             root["known"] = new JsonArray(
                 new JsonObject
                 {
-                    ["code"] = "step-unscreened",
+                    ["code"] = "step-screen-missing",
                     ["tier"] = "A",
                     ["message"] = "Step s2 has no screen.",
                     ["subject"] = "journey/borrowing",

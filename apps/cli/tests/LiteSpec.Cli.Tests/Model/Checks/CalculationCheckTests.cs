@@ -4,7 +4,7 @@ using LiteSpec.Tests.Support;
 
 namespace LiteSpec.Tests.Model.Checks;
 
-/// <summary>Proves the calculation-without-table check against hand-built models.</summary>
+/// <summary>Proves the calculation-table-missing check against hand-built models.</summary>
 public sealed class CalculationCheckTests
 {
     /// <proves>litespec/core/behavior#tabulate-every-calculation-with-examples</proves>
@@ -22,7 +22,7 @@ public sealed class CalculationCheckTests
                 Path.Combine(temp.Path, "borrow.md"),
                 """{"given": "A copy sits available.", "when": "The reader borrows it.", "then": "The loan is active.", "result": "result/borrow-copy.borrowed"}"""));
 
-        Assert.Contains("calculation-without-table", TestModel.Codes(model));
+        Assert.Contains("calculation-table-missing", TestModel.Codes(model));
     }
 
     /// <proves>litespec/core/behavior#tabulate-every-calculation-with-examples</proves>
@@ -40,7 +40,7 @@ public sealed class CalculationCheckTests
                 Path.Combine(temp.Path, "borrow.md"),
                 """{"given": "A loan stands overdue.", "when": "The fee is totaled.", "then": "The fee matches the table.", "result": "result/borrow-copy.borrowed", "examples": [{"days": 3, "fee": 1.5}]}"""));
 
-        Assert.DoesNotContain("calculation-without-table", TestModel.Codes(model));
+        Assert.DoesNotContain("calculation-table-missing", TestModel.Codes(model));
     }
 
     /// <proves>litespec/core/behavior#tabulate-every-calculation-with-examples</proves>
@@ -68,7 +68,7 @@ public sealed class CalculationCheckTests
                 Path.Combine(folder, "borrow.md"),
                 """{"given": "A loan stands overdue.", "when": "The fee is totaled.", "then": "The fee matches the table.", "result": "result/borrow-copy.borrowed", "examples": [{"days": 3, "fee": 1.5}]}"""));
 
-        Assert.DoesNotContain("calculation-without-table", TestModel.Codes(model));
+        Assert.DoesNotContain("calculation-table-missing", TestModel.Codes(model));
     }
 
     /// <proves>litespec/core/behavior#tabulate-every-calculation-with-examples</proves>
@@ -85,7 +85,7 @@ public sealed class CalculationCheckTests
                 """{"kind": "invariant", "statement": "A loan has one borrower.", "governs": ["use-case/lending.borrow-copy"]}"""),
             TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.md"), """{"kind": "command"}"""));
 
-        Assert.DoesNotContain("calculation-without-table", TestModel.Codes(model));
+        Assert.DoesNotContain("calculation-table-missing", TestModel.Codes(model));
     }
 
     /// <proves>litespec/core/behavior#tabulate-every-calculation-with-examples</proves>
@@ -103,7 +103,7 @@ public sealed class CalculationCheckTests
                 Path.Combine(temp.Path, "borrow.md"),
                 """{"status": "retired", "given": "A loan stands overdue.", "when": "The fee is totaled.", "then": "The fee matches the table.", "result": "result/borrow-copy.borrowed", "examples": [{"days": 3, "fee": 1.5}]}"""));
 
-        Assert.Contains("calculation-without-table", TestModel.Codes(model));
+        Assert.Contains("calculation-table-missing", TestModel.Codes(model));
     }
 
     static Record Rule(string root) =>

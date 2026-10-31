@@ -18,7 +18,7 @@ A route entry is a component that declares an `@page` template. Its screen mark 
 
 **Statement:** A consumer selecting this stack MUST NOT apply the floorplan, token, and route-suite contract of the controlled UI pages.
 
-**Rationale:** That contract's floorplan, token, and route-suite checks read TypeScript sources, so they cannot read a `.razor` component. Applying them to this stack would fail every check for lack of readable input. The Blazor pages state the styling, accessibility, and state rules that apply instead, so nothing is left ungoverned. Screen records and route marks still apply on this stack: the .NET reader reads the `@page` component marks, and the screen, `calls`, and `result-unshown` checks run from those marks.
+**Rationale:** That contract's floorplan, token, and route-suite checks read TypeScript sources, so they cannot read a `.razor` component. Applying them to this stack would fail every check for lack of readable input. The Blazor pages state the styling, accessibility, and state rules that apply instead, so nothing is left ungoverned. Screen records and route marks still apply on this stack: the .NET reader reads the `@page` component marks, and the screen, `calls`, and `refusal-sentence-missing` checks run from those marks.
 
 **Reviewed for:** The consumer's stack selection and CI jobs apply no floorplan, token, or route-suite check, while its `@page` components carry screen marks the .NET reader reads.
 

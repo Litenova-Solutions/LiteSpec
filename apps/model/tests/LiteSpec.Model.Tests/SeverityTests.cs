@@ -8,7 +8,7 @@ public sealed class SeverityTests
     /// <summary>A finding about a retired record stays silent, whatever its tier.</summary>
     /// <proves>litespec/core/model#follow-effective-status-in-code-findings</proves>
     [Theory]
-    [InlineData("record-shape")]
+    [InlineData("record-invalid")]
     [InlineData("use-case-unimplemented")]
     [InlineData("prose-missing")]
     public void Retired_Subject_Stays_Silent(string code)
@@ -46,7 +46,7 @@ public sealed class SeverityTests
     [Fact]
     public void Draft_Subject_Keeps_General_Finding_Blocking()
     {
-        var decided = Severity.Of(At("record-shape", "use-case/lending.list-loans"), "draft", false, "working", true);
+        var decided = Severity.Of(At("record-invalid", "use-case/lending.list-loans"), "draft", false, "working", true);
 
         Assert.Equal(Outcome.Blocking, decided.Outcome);
         Assert.Null(decided.Reason);
@@ -55,8 +55,8 @@ public sealed class SeverityTests
     /// <summary>A proof finding reports with the frozen reason while the phase is frozen.</summary>
     /// <proves>litespec/core/model#hold-proof-findings-while-tests-are-frozen</proves>
     [Theory]
-    [InlineData("proves-unconfirmed")]
-    [InlineData("use-case-without-scenario")]
+    [InlineData("proves-unreached")]
+    [InlineData("use-case-scenario-missing")]
     public void Frozen_Phase_Reports_Proof_Finding(string code)
     {
         var decided = Severity.Of(At(code, "scenario/list-loans.listing"), "reviewed", false, "frozen", true);
@@ -109,7 +109,7 @@ public sealed class SeverityTests
     [Fact]
     public void Draft_Wins_Over_Frozen()
     {
-        var decided = Severity.Of(At("proves-unconfirmed", "scenario/list-loans.listing"), "draft", false, "frozen", true);
+        var decided = Severity.Of(At("proves-unreached", "scenario/list-loans.listing"), "draft", false, "frozen", true);
 
         Assert.Equal(Outcome.Reported, decided.Outcome);
         Assert.Equal("draft", decided.Reason);
@@ -122,7 +122,7 @@ public sealed class SeverityTests
     [InlineData(false)]
     public void General_Finding_Blocks_Under_Any_Reader(bool readerQualified)
     {
-        var decided = Severity.Of(At("record-shape", "use-case/lending.list-loans"), "approved", false, "working", readerQualified);
+        var decided = Severity.Of(At("record-invalid", "use-case/lending.list-loans"), "approved", false, "working", readerQualified);
 
         Assert.Equal(Outcome.Blocking, decided.Outcome);
         Assert.Null(decided.Reason);

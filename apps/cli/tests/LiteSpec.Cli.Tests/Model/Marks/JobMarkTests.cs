@@ -26,7 +26,7 @@ public sealed class JobMarkTests
         Assert.Contains(MarksFixture.WithCode(findings, "job-unimplemented"), finding => finding.Subject == "job/lending.nightly-due-scan");
         Assert.DoesNotContain(MarksFixture.WithCode(findings, "job-unimplemented"), finding => finding.Subject == "job/billing.charge-dues");
         Assert.Empty(MarksFixture.WithCode(findings, "mark-missing"));
-        Assert.Empty(MarksFixture.WithCode(findings, "mark-count"));
+        Assert.Empty(MarksFixture.WithCode(findings, "mark-count-invalid"));
     }
 
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
@@ -49,7 +49,7 @@ public sealed class JobMarkTests
             """);
 
         var findings = MarksFixture.Check(fixture.Path);
-        var counts = MarksFixture.WithCode(findings, "mark-count");
+        var counts = MarksFixture.WithCode(findings, "mark-count-invalid");
 
         var finding = Assert.Single(counts, found => found.Message.Contains("twice"));
         Assert.Contains("ChargeDuesJob", finding.Message);
@@ -106,7 +106,7 @@ public sealed class JobMarkTests
 
         Assert.Contains(MarksFixture.WithCode(findings, "job-unimplemented"), finding => finding.Subject == "job/billing.charge-dues");
 
-        var unresolved = MarksFixture.WithCode(findings, "mark-unresolved");
+        var unresolved = MarksFixture.WithCode(findings, "mark-unknown");
         var stray = Assert.Single(unresolved);
         Assert.Contains("ChargeDuesJob", stray.Message);
         Assert.Contains("takes no mark", stray.Message);

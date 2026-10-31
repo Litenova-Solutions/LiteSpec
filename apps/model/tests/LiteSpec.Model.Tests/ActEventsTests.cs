@@ -41,7 +41,7 @@ public sealed class ActEventsTests
             });
 
         Assert.Equal(
-            new[] { ("act-event-unraised", 0, "event/expense.submitted") },
+            new[] { ("act-event-unimplemented", 0, "event/expense.submitted") },
             Of(findings));
     }
 
@@ -84,7 +84,7 @@ public sealed class ActEventsTests
             });
 
         Assert.Equal(
-            new[] { ("act-event-unraised", 0, "event/expense.approved") },
+            new[] { ("act-event-unimplemented", 0, "event/expense.approved") },
             Of(findings));
     }
 
@@ -97,7 +97,7 @@ public sealed class ActEventsTests
             new[] { new ActMethodRaises(Array.Empty<string>()) });
 
         Assert.Equal(
-            new[] { ("act-event-unraised", 0, "event/expense.submitted") },
+            new[] { ("act-event-unimplemented", 0, "event/expense.submitted") },
             Of(findings));
     }
 

@@ -21,7 +21,7 @@ public sealed class MarkFindingTests
     public void Mark_Naming_No_Record_Reports_Mark_Unresolved()
     {
         using var fixture = MarksFixture.Prepare("unresolved");
-        var unresolved = MarksFixture.WithCode(MarksFixture.Check(fixture.Path), "mark-unresolved");
+        var unresolved = MarksFixture.WithCode(MarksFixture.Check(fixture.Path), "mark-unknown");
 
         var finding = Assert.Single(unresolved, found => found.Message.Contains("matches no record"));
         Assert.Contains("use-case/lending.ghost", finding.Message);
@@ -33,7 +33,7 @@ public sealed class MarkFindingTests
     public void Mark_Naming_A_Record_Of_Another_Type_Reports_Mark_Unresolved()
     {
         using var fixture = MarksFixture.Prepare("unresolved");
-        var unresolved = MarksFixture.WithCode(MarksFixture.Check(fixture.Path), "mark-unresolved");
+        var unresolved = MarksFixture.WithCode(MarksFixture.Check(fixture.Path), "mark-unknown");
 
         var finding = Assert.Single(unresolved, found => found.Message.Contains("not a use-case record"));
         Assert.Contains("rule/loan.copy-available", finding.Message);
@@ -46,7 +46,7 @@ public sealed class MarkFindingTests
     public void Handler_With_Two_Marks_Reports_Mark_Count()
     {
         using var fixture = MarksFixture.Prepare("count");
-        var counts = MarksFixture.WithCode(MarksFixture.Check(fixture.Path), "mark-count");
+        var counts = MarksFixture.WithCode(MarksFixture.Check(fixture.Path), "mark-count-invalid");
 
         var finding = Assert.Single(counts, found => found.Message.Contains("carries 2 marks"));
         Assert.Contains("BorrowCopyCommandHandler", finding.Message);
@@ -57,7 +57,7 @@ public sealed class MarkFindingTests
     public void Port_Naming_One_System_Twice_Reports_Mark_Count()
     {
         using var fixture = MarksFixture.Prepare("count");
-        var counts = MarksFixture.WithCode(MarksFixture.Check(fixture.Path), "mark-count");
+        var counts = MarksFixture.WithCode(MarksFixture.Check(fixture.Path), "mark-count-invalid");
 
         var finding = Assert.Single(counts, found => found.Message.Contains("twice"));
         Assert.Contains("external-system/text-gateway", finding.Message);
@@ -68,7 +68,7 @@ public sealed class MarkFindingTests
     public void Mark_In_The_Undeclared_Style_Reports_Mark_Style_Mixed()
     {
         using var fixture = MarksFixture.Prepare("style");
-        var mixed = MarksFixture.WithCode(MarksFixture.Check(fixture.Path), "mark-style-mixed");
+        var mixed = MarksFixture.WithCode(MarksFixture.Check(fixture.Path), "mark-style-invalid");
 
         var finding = Assert.Single(mixed);
         Assert.Contains("BorrowCopyCommandHandler", finding.Message);

@@ -51,11 +51,11 @@ Three related rules live on other pages:
 
 **Statement:** A browser test that proves a scenario MUST carry a `proves` annotation naming that scenario.
 
-**Rationale:** The annotation, built by the `proves` helper the generated records file exports, names the lowest record the test verifies exactly as a backend test mark does, and a wrong identifier fails the consumer's type check against the generated union, and `litespec model check` reports it as `mark-unresolved` where no type check ran. A title tag claims proof without anything reading it, so the written annotation is the link the builder counts.
+**Rationale:** The annotation, built by the `proves` helper the generated records file exports, names the lowest record the test verifies exactly as a backend test mark does, and a wrong identifier fails the consumer's type check against the generated union, and `litespec model check` reports it as `mark-unknown` where no type check ran. A title tag claims proof without anything reading it, so the written annotation is the link the builder counts.
 
 **Example:** The browser specification at `apps/web/tests/expenses/list-expenses.spec.ts` in the Claimwick example carries `proves("scenario/list-expenses.listing-own-expenses-succeeds")`.
 
-**Checked by:** `litespec model check` reports `mark-unresolved` (tier S) for a `proves` annotation naming no record a test may prove, or naming a journey.
+**Checked by:** `litespec model check` reports `mark-unknown` (tier S) for a `proves` annotation naming no record a test may prove, or naming a journey.
 
 ### Reach a Screen That Offers the Scenario's Use Case
 
@@ -67,7 +67,7 @@ Three related rules live on other pages:
 
 **Example:** The evidence specification opens `/expenses`, the address of `screen/claimwick-app.expense-list`, which offers `use-case/spending.list-expenses`.
 
-**Checked by:** `litespec model check` reports `proves-unconfirmed` (tier S) for a browser test whose `page.goto` targets match no screen offering the claimed scenario's use case.
+**Checked by:** `litespec model check` reports `proves-unreached` (tier S) for a browser test whose `page.goto` targets match no screen offering the claimed scenario's use case.
 
 ### Assert the Result a Scenario Ends In
 
@@ -79,7 +79,7 @@ Three related rules live on other pages:
 
 **Example:** The browser specification for `scenario/list-expenses.listing-own-expenses-succeeds` opens the expense list on `screen/claimwick-app.expense-list` and asserts the expenses table, the listed ending the success result `result/list-expenses.listed` promises.
 
-**Checked by:** `litespec model check` reports `proves-unconfirmed` (tier S) for a browser test reaching the screen whose assertions in the same test hold neither the refusal code nor the success result's declared text or code.
+**Checked by:** `litespec model check` reports `proves-unreached` (tier S) for a browser test reaching the screen whose assertions in the same test hold neither the refusal code nor the success result's declared text or code.
 
 ### Assert Each Declared Refusal by Its Code
 
@@ -103,7 +103,7 @@ Three related rules live on other pages:
 
 **Example:** `scenario/list-expenses.listing-own-expenses-succeeds` is proved by the browser specification at `apps/web/tests/expenses/list-expenses.spec.ts`, the cheapest boundary that shows what a person sees on the expense list. A scenario whose risk is a business outcome alone is proved at the API boundary instead.
 
-**Checked by:** `litespec model check` reports `proves-duplicated` (tier A) for a scenario with `proves` marks on more than one test.
+**Checked by:** `litespec model check` reports `proves-duplicate` (tier A) for a scenario with `proves` marks on more than one test.
 
 ### Name the Journey a Journey Test Walks
 

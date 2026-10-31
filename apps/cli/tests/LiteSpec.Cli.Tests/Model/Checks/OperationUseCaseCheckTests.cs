@@ -19,7 +19,7 @@ public sealed class OperationUseCaseCheckTests
         var check = Cli.Run("model", "check", "--root", temp.Path);
 
         Assert.Equal(0, check.Status);
-        Assert.DoesNotContain("operation-use-case-mismatch", check.Output, StringComparison.Ordinal);
+        Assert.DoesNotContain("operation-use-case-drift", check.Output, StringComparison.Ordinal);
     }
 
     /// <summary>An operation without the extension reports its endpoint's use case.</summary>
@@ -33,7 +33,7 @@ public sealed class OperationUseCaseCheckTests
 
         var check = Cli.Run("model", "check", "--root", temp.Path);
         var mismatch = check.Output.Split('\n').Single(candidate =>
-            candidate.Contains("operation-use-case-mismatch", StringComparison.Ordinal)
+            candidate.Contains("operation-use-case-drift", StringComparison.Ordinal)
             && candidate.Contains("BorrowCopy", StringComparison.Ordinal));
 
         Assert.Equal(1, check.Status);
@@ -53,7 +53,7 @@ public sealed class OperationUseCaseCheckTests
 
         var check = Cli.Run("model", "check", "--root", temp.Path);
         var mismatch = check.Output.Split('\n').Single(candidate =>
-            candidate.Contains("operation-use-case-mismatch", StringComparison.Ordinal)
+            candidate.Contains("operation-use-case-drift", StringComparison.Ordinal)
             && candidate.Contains("BorrowCopy", StringComparison.Ordinal));
 
         Assert.Equal(1, check.Status);
@@ -72,7 +72,7 @@ public sealed class OperationUseCaseCheckTests
         var check = Cli.Run("model", "check", "--root", temp.Path);
 
         Assert.Equal(0, check.Status);
-        Assert.DoesNotContain("operation-use-case-mismatch", check.Output, StringComparison.Ordinal);
+        Assert.DoesNotContain("operation-use-case-drift", check.Output, StringComparison.Ordinal);
     }
 
     /// <summary>A contract path pointing at a missing file reports the path.</summary>
@@ -85,7 +85,7 @@ public sealed class OperationUseCaseCheckTests
 
         var check = Cli.Run("model", "check", "--root", temp.Path);
         var mismatches = check.Output.Split('\n')
-            .Where(candidate => candidate.Contains("operation-use-case-mismatch", StringComparison.Ordinal))
+            .Where(candidate => candidate.Contains("operation-use-case-drift", StringComparison.Ordinal))
             .ToList();
 
         Assert.Equal(1, check.Status);

@@ -78,131 +78,131 @@ Every check has a level. G reads records only and always blocks. S reads code th
 
 | Code | Level | Meaning |
 |:---|:---|:---|
-| `record-shape` | G | A record fails the shape its type requires. |
-| `identifier-form` | G | An identifier breaks the form its type requires, or a requirement topic segment differs from its page name. |
+| `record-invalid` | G | A record fails the shape its type requires. |
+| `identifier-invalid` | G | An identifier breaks the form its type requires, or a requirement topic segment differs from its page name. |
 | `identifier-duplicate` | G | One identifier names two records. |
-| `invalid-field` | G | A field holds a value outside its shape, or a record other than a decision carries `replaces`. |
-| `reference-unresolved` | G | A citation names no written record or shared provision of the installed release. |
-| `link-unresolved` | G | A Markdown link on a record page resolves to no file. |
+| `field-invalid` | G | A field holds a value outside its shape, or a record other than a decision carries `replaces`. |
+| `reference-unknown` | G | A citation names no written record or shared provision of the installed release. |
+| `link-unknown` | G | A Markdown link on a record page resolves to no file. |
 | `owner-unknown` | G | A record names an owner or decider the owners list does not hold, or an owner no team owning its path claims. |
-| `draft-without-decider` | G | A draft or a question entry names no decider or no decide-by date. |
-| `draft-gate` | G | An approved record rests on a draft decision. |
-| `product-not-singleton` | G | The project holds no single product record. |
+| `decider-missing` | G | A draft or a question entry names no decider or no decide-by date. |
+| `approval-invalid` | G | An approved record rests on a draft decision. |
+| `product-count-invalid` | G | The project holds no single product record. |
 | `size-type-missing` | G | The size requires a type the project lacks. |
-| `requirement-unfulfilled` | G | A requirement is fulfilled by no rule, use case, reaction, job, notification or setting, unless it cites a planned, later or refused feature; a quality requirement is also fulfilled by a technical decision naming it in `basedOn`. |
-| `requirement-unmeasured` | G (A for a statement naming a number with no `measure`) | A measured requirement names no check, or its check has no passing run; a statement naming a number with no `measure` reports at level A. |
-| `requirement-uncited` | A (G for tier 1) | A requirement cites no goal, problem, feature, constraint, research or decision. |
-| `constraint-uncited` | G | A constraint with `applies: true` is cited by no requirement. |
-| `decision-decides-nothing` | G | A product decision names nothing it decides. |
-| `journey-reach` | G | A public use case sits in no journey and names no background caller. It runs at large size only. |
-| `state-unreachable` | G | A state is reached by no transition. |
-| `transition-unresolved` | G | A transition names a missing state or use case. |
-| `use-case-without-success` | G | A use case ends with no success result. |
-| `scenario-result-unresolved` | G | A scenario ends in a result outside its own use case and outside the derived results. |
-| `calculation-without-table` | G | A calculation rule has no scenario examples table. |
-| `rule-name-negation` | G | A rule statement negates what its name does not keep. |
+| `requirement-fulfillment-missing` | G | A requirement is fulfilled by no rule, use case, reaction, job, notification or setting, unless it cites a planned, later or refused feature; a quality requirement is also fulfilled by a technical decision naming it in `basedOn`. |
+| `requirement-measure-missing` | G (A for a statement naming a number with no `measure`) | A measured requirement names no check, or its check has no passing run; a statement naming a number with no `measure` reports at level A. |
+| `requirement-cites-missing` | A (G for tier 1) | A requirement cites no goal, problem, feature, constraint, research or decision. |
+| `constraint-unreached` | G | A constraint with `applies: true` is cited by no requirement. |
+| `decision-decides-missing` | G | A product decision names nothing it decides. |
+| `use-case-journey-missing` | G | A public use case sits in no journey and names no background caller. It runs at large size only. |
+| `state-unreached` | G | A state is reached by no transition. |
+| `transition-unknown` | G | A transition names a missing state or use case. |
+| `use-case-success-missing` | G | A use case ends with no success result. |
+| `scenario-result-unknown` | G | A scenario ends in a result outside its own use case and outside the derived results. |
+| `calculation-table-missing` | G | A calculation rule has no scenario examples table. |
+| `rule-name-invalid` | G | A rule statement negates what its name does not keep. |
 | `known-gap-expired` | G | A known gap passed its end date with its check still red. |
-| `gap-unknown-check` | G | A known gap names a check that no check uses. |
+| `gap-finding-unknown` | G | A known gap names a check that no check uses. |
 | `aggregate-name-clash` | G | Two aggregates share one name across the project. |
 | `use-case-name-clash` | G | Two use cases share one name across the project. |
 | `use-case-verb-unknown` | G | A use-case name starts with a verb neither the baseline nor the project vocabulary declares; a retired synonym names its replacement. |
-| `use-case-verb-kind` | G | A query opens with a changing verb, or a command opens with a reading verb. |
-| `reaction-name-form` | G | A reaction name is not `<verb>-<what>-on-<fact>` with a declared verb. |
-| `job-name-form` | G | A job name does not start with the verb of a use case it issues. |
-| `term-lookalike` | A | Two terms differ only in hyphenation, a British or American spelling, or a compound split, and both are in use. |
-| `statement-vague-word` | A | A rule statement, scenario step or result meaning uses a word that hides behaviour, such as `handle`, `process` or `etc.`. |
+| `use-case-verb-invalid` | G | A query opens with a changing verb, or a command opens with a reading verb. |
+| `reaction-name-invalid` | G | A reaction name is not `<verb>-<what>-on-<fact>` with a declared verb. |
+| `job-name-invalid` | G | A job name does not start with the verb of a use case it issues. |
+| `term-clash` | A | Two terms differ only in hyphenation, a British or American spelling, or a compound split, and both are in use. |
+| `statement-word-invalid` | A | A rule statement, scenario step or result meaning uses a word that hides behaviour, such as `handle`, `process` or `etc.`. |
 | `use-case-noun-unknown` | A | The words after a use case's verb name no aggregate, declared aggregate part, or glossary term. |
-| `refusal-code-form` | A | A refusal code is not `<module>.<noun>-<state>` with the record's module or a declared generic prefix, or it uses a banned vague word. |
-| `template-key-form` | A | A notification template key does not end with an audience the record declares. |
+| `refusal-code-invalid` | A | A refusal code is not `<module>.<noun>-<state>` with the record's module or a declared generic prefix, or it uses a banned vague word. |
+| `template-key-invalid` | A | A notification template key does not end with an audience the record declares. |
 | `setting-unit-missing` | A | A setting whose value is a number or a duration declares no `unit`. |
-| `integration-event-wording` | G | An outbound integration event is named with an internal word such as `staged`, `dispatch` or `outbox`. |
-| `reaction-trigger-unresolved` | G | A reaction names a trigger no domain event or integration event carries. |
+| `integration-event-name-invalid` | G | An outbound integration event is named with an internal word such as `staged`, `dispatch` or `outbox`. |
+| `reaction-trigger-unknown` | G | A reaction names a trigger no domain event or integration event carries. |
 | `erasure-undeclared` | G | A personal or sensitive field stands outside a declared erasure position. |
-| `record-orphaned` | G | A Behavior record names neither `serves` nor `fulfills`. |
-| `record-without-parent` | G | A requirement topic names no topic record, a feature solves no problem, a journey serves no goal, a scenario names no result, a screen names no entryPoint, or a rule, event, or module-homed record names an identifier home no record holds. |
-| `feature-without-goal` | A (G for tier 1) | A feature that is not refused advances no goal. |
-| `result-without-scenario` | A (G for success results) | A written result is shown by no scenario. |
-| `step-unserved` | G | A journey step is served by no use case or reaction. Its pair `step-unscreened` names a step a browser or device use case serves that no screen serves. |
-| `effect-loop` | G | The effect graph cycles outside a domain event with a stated end condition. |
-| `consistency-unexplained` | G | An atomic use case changing more than one aggregate names no `because` rule. |
+| `record-link-missing` | G | A Behavior record names neither `serves` nor `fulfills`. |
+| `record-parent-missing` | G | A requirement topic names no topic record, a feature solves no problem, a journey serves no goal, a scenario names no result, a screen names no entryPoint, or a rule, event, or module-homed record names an identifier home no record holds. |
+| `feature-goal-missing` | A (G for tier 1) | A feature that is not refused advances no goal. |
+| `result-scenario-missing` | A (G for success results) | A written result is shown by no scenario. |
+| `step-use-case-missing` | G | A journey step is served by no use case or reaction. Its pair `step-screen-missing` names a step a browser or device use case serves that no screen serves. |
+| `effect-loop-invalid` | G | The effect graph cycles outside a domain event with a stated end condition. |
+| `consistency-cites-missing` | G | An atomic use case changing more than one aggregate names no `because` rule. |
 | `query-output-missing` | G | A query declares no `output`. |
 | `paging-undeclared` | G | A collection query declares no `paging`. |
-| `widening-unjustified` | G | A query group visible beyond its sources names no `wideningBecause` requirement. |
-| `retention-without-enforcement` | G | A data class names no `enforcedBy`. |
-| `risk-without-acceptance` | G | A retained or exempt personal data class names no `acceptedBy` in Intent. |
+| `widening-cites-missing` | G | A query group visible beyond its sources names no `wideningBecause` requirement. |
+| `retention-enforcement-missing` | G | A data class names no `enforcedBy`. |
+| `risk-acceptance-missing` | G | A retained or exempt personal data class names no `acceptedBy` in Intent. |
 | `exemption-expired` | G | An erasure exemption passed its `reviewBy` date. |
-| `setting-default-without-requirement` | G | A commercial, legal, or tenant-varying default fulfills no requirement. |
-| `reservation-without-release` | G | A reservation rule names no `releasedBy`. |
-| `notification-without-sender` | G | A notification is sent by no reaction or use case. |
-| `except-without-fallback` | G | An `except` names no fallback requirement, or the fallback carries its own `except`. |
+| `setting-requirement-missing` | G | A commercial, legal, or tenant-varying default fulfills no requirement. |
+| `reservation-release-missing` | G | A reservation rule names no `releasedBy`. |
+| `notification-sender-missing` | G | A notification is sent by no reaction or use case. |
+| `except-fallback-missing` | G | An `except` names no fallback requirement, or the fallback carries its own `except`. |
 | `approval-reopened` | G | A semantic hash differs from the recorded `approvedHash`. |
-| `parent-changed` | A (G once approved) | A record cites, fulfills or serves a record whose semantic hash changed after the record was last approved. |
-| `transcribed-reviewed` | G | A transcribed record is reviewed while its parent is unapproved. |
-| `transcribed-after-adoption` | G | A transcribed record remains after the adoption decision is approved. |
-| `operator-job-without-guard` | G | An operator job states no `guard`. |
-| `schedule-unstructured` | G | A job schedule is neither an `every` duration nor a `cron` expression. |
+| `parent-reopened` | A (G once approved) | A record cites, fulfills or serves a record whose semantic hash changed after the record was last approved. |
+| `transcription-status-invalid` | G | A transcribed record is reviewed while its parent is unapproved. |
+| `transcription-expired` | G | A transcribed record remains after the adoption decision is approved. |
+| `job-guard-missing` | G | An operator job states no `guard`. |
+| `schedule-invalid` | G | A job schedule is neither an `every` duration nor a `cron` expression. |
 | `behavior-unrecorded` | S | A refusal code in a declaring position, a screen call to no endpoint, an engine step that maps to no use case, or (the frontend case) a route with no screen mark or a mark naming no screen is named by no record. The remedy reads: delete the code, or write its parent record from a requirement, drafting the requirement if none exists. |
 | `mark-missing` | S | A code element the marks table names carries no mark. |
-| `mark-unresolved` | S | A mark names no record, or a record of a type its code element does not take, or sits on an element that takes no mark; or a `follows` mark names no provision of the carried release, no decision or deviation, a retired record, or a provision on a page the project's stacks do not apply. |
-| `decision-unfollowed` | S | A technical decision under `docs/implementation/decisions/` is followed by no code element. |
-| `decision-without-basis` | A | A technical decision names no constraint or requirement in `basedOn`. |
-| `constituent-orphaned` | A | An unmarked Domain type sits in a folder that holds no aggregate root, under no aggregate folder, and outside the shared kernel. |
-| `mark-count` | S | A code element carries more or fewer marks than its kind takes in the marks table, or names one record twice. |
-| `mark-style-mixed` | S | A mark is written in the style the project did not declare. |
+| `mark-unknown` | S | A mark names no record, or a record of a type its code element does not take, or sits on an element that takes no mark; or a `follows` mark names no provision of the carried release, no decision or deviation, a retired record, or a provision on a page the project's stacks do not apply. |
+| `decision-unimplemented` | S | A technical decision under `docs/implementation/decisions/` is followed by no code element. |
+| `decision-basis-missing` | A | A technical decision names no constraint or requirement in `basedOn`. |
+| `constituent-parent-missing` | A | An unmarked Domain type sits in a folder that holds no aggregate root, under no aggregate folder, and outside the shared kernel. |
+| `mark-count-invalid` | S | A code element carries more or fewer marks than its kind takes in the marks table, or names one record twice. |
+| `mark-style-invalid` | S | A mark is written in the style the project did not declare. |
 | `runtime-value-drift` | S | A hand-written event `Classification` or exception `Code` differs from what its record states. |
 | `act-event-undeclared` | S | A root method marked with a use case raises an event the use case does not list in `raises`. |
-| `act-event-unraised` | S | A use case lists an event in `raises` that no root method marked with it raises. |
-| `use-case-act-uncalled` | S | A command handler changing an entity or process aggregate calls no root method marked with its use case. |
+| `act-event-unimplemented` | S | A use case lists an event in `raises` that no root method marked with it raises. |
+| `use-case-act-missing` | S | A command handler changing an entity or process aggregate calls no root method marked with its use case. |
 | `aggregate-unimplemented` | S | No aggregate root carries the mark of an entity or process aggregate. |
 | `repository-unimplemented` | S | An aggregate a use case changes has no Infrastructure repository implementing its domain repository. |
 | `reaction-unimplemented` | S | No event handler carries the reaction mark. |
 | `job-unimplemented` | S | No job host carries the job mark. |
 | `external-system-unimplemented` | S | No port carries the external system mark. |
-| `use-case-unexposed` | S | A use case reached through a `browser` or `api` entry point has no endpoint carrying its mark. |
+| `use-case-endpoint-missing` | S | A use case reached through a `browser` or `api` entry point has no endpoint carrying its mark. |
 | `effect-unimplemented` | A | A declared effect edge is taken by no code. |
 | `use-case-unreached` | A | A use case reached through a browser or device entry point is offered by no screen of that entry point. It reports and does not block: a use case with no screen does not block a check or a release. |
 | `screen-unimplemented` | S | No route carries the screen's mark. |
-| `screen-calls-mismatch` | S | A screen's `offers` differs from the use cases its route reaches through the generated client. |
-| `screen-serves-mismatch` | G | A screen serves a journey step no use case it offers serves. |
-| `step-unscreened` | G | A journey step a browser or device use case serves is served by no screen. Its pair `step-unserved` names a step no use case serves. |
-| `result-unshown` | A | A refusal a screen can reach has neither a dictionary sentence nor a browser test asserting its code. |
-| `reader-unavailable` | S | A frontend reader could not run: Node is absent, its handshake names another protocol, or it failed; the finding names the cause, and that frontend's S findings report instead of blocking. |
+| `screen-offers-drift` | S | A screen's `offers` differs from the use cases its route reaches through the generated client. |
+| `screen-serves-drift` | G | A screen serves a journey step no use case it offers serves. |
+| `step-screen-missing` | G | A journey step a browser or device use case serves is served by no screen. Its pair `step-use-case-missing` names a step no use case serves. |
+| `refusal-sentence-missing` | A | A refusal a screen can reach has neither a dictionary sentence nor a browser test asserting its code. |
+| `reader-missing` | S | A frontend reader could not run: Node is absent, its handshake names another protocol, or it failed; the finding names the cause, and that frontend's S findings report instead of blocking. |
 | `use-case-unimplemented` | S | No code implements the use case and no known gap covers it. |
-| `refusal-not-thrown` | S | A refusal result names a code the code never throws, or a code matching a `refusals.composed` template whose key no code declares. |
-| `proves-duplicated` | A | A scenario carries `proves` marks on more than one test. |
-| `proves-unconfirmed` | S | No proving step of a claimed scenario reaches its use case, no assertion matches its refusal by code, client alias, or HTTP status, and no integration fact drives its use case or rule. The frontend case: a browser test reaches no screen offering the claimed scenario's use case by a `page.goto` literal or template matching the screen's `address`, or no assertion in the same test holds the refusal code or the success result's declared text or code. A step reaches a use case when it belongs to the use case's steps class, calls its generated-client operation, requests its endpoint route through its own helpers, or looks its argument up in a probe table of routes in its steps class. A scenario proves the use case a when step reaches; the use case a given step reaches, when a later when step and then step observe it; or a use case a when step sets off through a declared producer, whose effects issue it or whose event a reaction issuing it reacts to, with an effect asserted. Codes and statuses asserted inside a then step's method count as the scenario's own. |
-| `use-case-without-scenario` | S | A use case has no scenario. It runs at large size only. |
+| `refusal-unimplemented` | S | A refusal result names a code the code never throws, or a code matching a `refusals.composed` template whose key no code declares. |
+| `proves-duplicate` | A | A scenario carries `proves` marks on more than one test. |
+| `proves-unreached` | S | No proving step of a claimed scenario reaches its use case, no assertion matches its refusal by code, client alias, or HTTP status, and no integration fact drives its use case or rule. The frontend case: a browser test reaches no screen offering the claimed scenario's use case by a `page.goto` literal or template matching the screen's `address`, or no assertion in the same test holds the refusal code or the success result's declared text or code. A step reaches a use case when it belongs to the use case's steps class, calls its generated-client operation, requests its endpoint route through its own helpers, or looks its argument up in a probe table of routes in its steps class. A scenario proves the use case a when step reaches; the use case a given step reaches, when a later when step and then step observe it; or a use case a when step sets off through a declared producer, whose effects issue it or whose event a reaction issuing it reacts to, with an effect asserted. Codes and statuses asserted inside a then step's method count as the scenario's own. |
+| `use-case-scenario-missing` | S | A use case has no scenario. It runs at large size only. |
 | `write-undeclared` | S | The code writes an aggregate outside `changes`. |
 | `result-undeclared` | S | The code returns an outcome no result declares. |
 | `effect-undeclared` | S | The code takes an edge no record declares, naming a one-hop helper as `via 'Type.Method'`. |
 | `prose-missing` | A | A use case needing Goal and What Happens prose carries none. |
-| `many-aggregates` | A | One command saves more than one atomic write group. |
-| `question-aged` | A | An unanswered question stands past its `decideBy` date and cannot auto-approve. |
-| `use-case-verb-method` | A | A command handler calls aggregate methods, none starting with the use-case verb. |
-| `event-tense-mismatch` | A | An aggregate method raises an event not ending with the past tense of its verb. |
-| `name-drift-across-layers` | A | A message type, operation id or audit action differs from the use-case name. |
+| `atomic-group-duplicate` | A | One command saves more than one atomic write group. |
+| `question-expired` | A | An unanswered question stands past its `decideBy` date and cannot auto-approve. |
+| `use-case-method-drift` | A | A command handler calls aggregate methods, none starting with the use-case verb. |
+| `event-tense-invalid` | A | An aggregate method raises an event not ending with the past tense of its verb. |
+| `name-drift` | A | A message type, operation id or audit action differs from the use-case name. |
 | `operation-id-duplicate` | S | Two endpoints declare one operation id, which the API document and every generated client refuse. |
-| `operation-use-case-mismatch` | S | An operation in the committed contract `paths.contract` names carries no `x-litespec-use-case`, or names another use case than its endpoint's mark; an unreadable contract reports once. |
-| `alert-unlinked` | S | An alert rule in `paths.alerts` has no `requirement` label naming a quality requirement or no `runbook` label naming a runbook. |
+| `operation-use-case-drift` | S | An operation in the committed contract `paths.contract` names carries no `x-litespec-use-case`, or names another use case than its endpoint's mark; an unreadable contract reports once. |
+| `alert-link-missing` | S | An alert rule in `paths.alerts` has no `requirement` label naming a quality requirement or no `runbook` label naming a runbook. |
 | `alert-threshold-drift` | A | An alert rule's own text carries none of the decimal numbers its requirement's `measure` names. |
-| `quality-unalerted` | G | A quality requirement no alert names, whose `check` matches no measured-check or check result, and no open known gap covers. |
+| `quality-alert-missing` | G | A quality requirement no alert names, whose `check` matches no measured-check or check result, and no open known gap covers. |
 | `setting-key-missing` | G | A setting with `setBy: operator` names no `key`. |
 | `setting-unimplemented` | S | A setting with a `key` is marked by no options class. |
 | `setting-key-drift` | S | A marked options class's `SectionName` and property do not spell the setting's `key`. |
 | `template-unimplemented` | S | A notification declares a `template` key the template store lacks. |
 | `template-unrecorded` | S | The template store holds a key no notification declares. |
 | `template-param-drift` | S | A notification declares a parameter none of its template's texts uses as a placeholder. |
-| `dependency-unadmitted` | S | A direct package in the bill of materials is pinned by no manifest entry and admitted by no decision. |
+| `dependency-undeclared` | S | A direct package in the bill of materials is pinned by no manifest entry and admitted by no decision. |
 | `dependency-version-drift` | S | A direct package ships at a version other than its manifest pin. |
-| `dependency-licence-unapproved` | S | A direct package's licence is not in `dependencies.licences` and no `admits` entry names it. |
-| `admission-incomplete` | G | An `admits` entry misses its layer, licence, location, account owner, failure behavior, or operating cost. |
-| `route-shape` | A | A command route ends outside its verb, or a route carries no aggregate plural. |
-| `reasonless-name` | S | A folder or type is named `Shared`, `Common`, `Helper`, `Manager` or the like outside the declared shared kernel. |
-| `collaborator-holds-repository` | A | A class built with `new` takes a repository in its own constructor. |
-| `repository-read-in-loop` | A | A repository read sits inside a `for`, `foreach` or `while` body. |
-| `query-filters-in-memory` | A | A query handler filters a repository list with LINQ in memory. |
-| `dependency-count` | A | A handler, reaction or job takes more than ten constructor dependencies. |
-| `effect-before-commit` | S | A command use case declares a `sends` or `calls` effect with `inline` timing. |
+| `dependency-license-unknown` | S | A direct package's licence is not in `dependencies.licences` and no `admits` entry names it. |
+| `admission-invalid` | G | An `admits` entry misses its layer, licence, location, account owner, failure behavior, or operating cost. |
+| `route-invalid` | A | A command route ends outside its verb, or a route carries no aggregate plural. |
+| `name-reason-missing` | S | A folder or type is named `Shared`, `Common`, `Helper`, `Manager` or the like outside the declared shared kernel. |
+| `collaborator-repository-invalid` | A | A class built with `new` takes a repository in its own constructor. |
+| `repository-read-invalid` | A | A repository read sits inside a `for`, `foreach` or `while` body. |
+| `query-filter-invalid` | A | A query handler filters a repository list with LINQ in memory. |
+| `dependency-count-invalid` | A | A handler, reaction or job takes more than ten constructor dependencies. |
+| `effect-timing-invalid` | S | A command use case declares a `sends` or `calls` effect with `inline` timing. |
 | `partial-missing` | S | A marked domain event or rule exception is not declared `partial`, so the generator cannot add its runtime value. |
 
 The `render` subcommand writes these generated regions, each fenced by `<!-- generated:<name> -->` and `<!-- /generated:<name> -->`: `history`, `use-case-coverage`, `sub-processors`, `runbook-index`, `rule-map`, `operations-log`, `open-questions`, `journeys`, `glossary`, `deviations`, `census`, `aggregate-map`, `audit-register`, `alert-inventory`, and `counts`.
@@ -333,6 +333,6 @@ litespec model diff main --root ../consumer --format markdown --breaking-only --
 
 ## Underneath
 
-A web frontend is read by a TypeScript reader that ships with the tool as one bundled script: the tool runs it with Node once per build or check, sends one versioned JSON request on standard input, and reads one versioned JSON facts document back, so a consumer installs nothing beyond Node itself. The reader opens with a handshake naming the protocol version, the reader, and the TypeScript and Svelte versions; a version mismatch, an absent Node, or a reader failure produces the single `reader-unavailable` finding for that frontend instead of passing silently. A finding records the reader that produced its facts, and its level takes that reader's qualification: a reader qualifies when its handshake matches; the golden corpus is a test contract for the reader bundle and does not gate a consumer run. The .NET (Roslyn) reader, which reads Blazor and Android frontends, stays qualified. A finding no reader produced, a record finding, is qualified.
+A web frontend is read by a TypeScript reader that ships with the tool as one bundled script: the tool runs it with Node once per build or check, sends one versioned JSON request on standard input, and reads one versioned JSON facts document back, so a consumer installs nothing beyond Node itself. The reader opens with a handshake naming the protocol version, the reader, and the TypeScript and Svelte versions; a version mismatch, an absent Node, or a reader failure produces the single `reader-missing` finding for that frontend instead of passing silently. A finding records the reader that produced its facts, and its level takes that reader's qualification: a reader qualifies when its handshake matches; the golden corpus is a test contract for the reader bundle and does not gate a consumer run. The .NET (Roslyn) reader, which reads Blazor and Android frontends, stays qualified. A finding no reader produced, a record finding, is qualified.
 
 The builder reads `paths`, `shape`, and `stacks` from the consumer's `litespec.project.json`. It reads shared provisions from the release the tool carries, the record owners from the CODEOWNERS file at `.github/CODEOWNERS`, `CODEOWNERS`, or `docs/CODEOWNERS`, and the test run from TRX or JUnit XML files under `paths.testResults`. A git diff base is read through an archive into a temporary folder, which is removed after the diff. Nothing beneath it is separately runnable.

@@ -20,7 +20,7 @@ public sealed class QualityScenarioCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("requirement", "requirement/checkout.two-second-answer", Path.Combine(temp.Path, "checkout.md"), QualityJson(field)));
 
-        Assert.True(Reports(model, "record-shape", $"has no {field}"));
+        Assert.True(Reports(model, "record-invalid", $"has no {field}"));
     }
 
     /// <proves>litespec/core/intent#state-each-quality-requirement-as-a-scenario</proves>
@@ -32,7 +32,7 @@ public sealed class QualityScenarioCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("requirement", "requirement/checkout.two-second-answer", Path.Combine(temp.Path, "checkout.md"), QualityJson()));
 
-        Assert.DoesNotContain("record-shape", TestModel.Codes(model));
+        Assert.DoesNotContain("record-invalid", TestModel.Codes(model));
     }
 
     /// <proves>litespec/core/intent#state-each-quality-requirement-as-a-scenario</proves>
@@ -44,7 +44,7 @@ public sealed class QualityScenarioCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("requirement", "requirement/checkout.receipt-on-request", Path.Combine(temp.Path, "checkout.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "kind": "functional", "statement": "A shopper takes a receipt on request.", "rationale": "Shoppers prove their purchase."}"""));
 
-        Assert.DoesNotContain("record-shape", TestModel.Codes(model));
+        Assert.DoesNotContain("record-invalid", TestModel.Codes(model));
     }
 
     /// <proves>litespec/core/model#keep-rules-and-targets-out-of-technical-decisions</proves>
@@ -58,7 +58,7 @@ public sealed class QualityScenarioCheckTests
             TestModel.Record("requirement", "requirement/checkout.two-second-answer", Path.Combine(temp.Path, "checkout.md"), QualityJson()),
             TestModel.Record("decision", "decision/0002-store-orders-as-documents", TechnicalDecisionFile(config), """{"status": "approved", "options": [{"name": "Documents", "pros": "Reads stay simple.", "cons": "Queries need an index."}], "choice": "Documents", "reopenedWhen": "Queries pass one hundred a day.", "basedOn": ["requirement/checkout.two-second-answer"]}"""));
 
-        Assert.DoesNotContain("requirement-unfulfilled", TestModel.Codes(model));
+        Assert.DoesNotContain("requirement-fulfillment-missing", TestModel.Codes(model));
     }
 
     /// <proves>litespec/core/layers#add-behavior-detail-when-specifying-intent</proves>
@@ -70,7 +70,7 @@ public sealed class QualityScenarioCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("requirement", "requirement/checkout.two-second-answer", Path.Combine(temp.Path, "checkout.md"), QualityJson()));
 
-        Assert.Contains("requirement-unfulfilled", TestModel.Codes(model));
+        Assert.Contains("requirement-fulfillment-missing", TestModel.Codes(model));
     }
 
     /// <proves>litespec/core/model#keep-rules-and-targets-out-of-technical-decisions</proves>
@@ -84,7 +84,7 @@ public sealed class QualityScenarioCheckTests
             TestModel.Record("requirement", "requirement/checkout.two-second-answer", Path.Combine(temp.Path, "checkout.md"), QualityJson()),
             TestModel.Record("decision", "decision/0001-checkout-target", ProductDecisionFile(config), """{"status": "approved", "options": [{"name": "Two seconds", "pros": "Shoppers never wait.", "cons": "Peak load costs more."}], "choice": "Two seconds", "reopenedWhen": "Peak load doubles.", "decides": ["requirement/checkout.two-second-answer"], "basedOn": ["requirement/checkout.two-second-answer"]}"""));
 
-        Assert.Contains("requirement-unfulfilled", TestModel.Codes(model));
+        Assert.Contains("requirement-fulfillment-missing", TestModel.Codes(model));
     }
 
     /// <summary>A quality requirement carrying every scenario field except the missing ones, as a draft.</summary>

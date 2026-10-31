@@ -4,7 +4,7 @@ using LiteSpec.Tests.Support;
 
 namespace LiteSpec.Tests.Model.Checks;
 
-/// <summary>Proves the state-unreachable and transition-unresolved checks against hand-built models.</summary>
+/// <summary>Proves the state-unreached and transition-unknown checks against hand-built models.</summary>
 public sealed class LifecycleCheckTests
 {
     /// <proves>litespec/core/behavior#connect-every-state-through-transitions</proves>
@@ -15,7 +15,7 @@ public sealed class LifecycleCheckTests
         var model = TestModel.Model(TestModel.Config(temp.Path), Loan(temp.Path, """{"from": "Active", "to": "Returned"}"""));
 
         var messages = Checker.Check(model).Findings
-            .Where(finding => finding.Code == "state-unreachable")
+            .Where(finding => finding.Code == "state-unreached")
             .Select(finding => finding.Message)
             .ToList();
 
@@ -30,8 +30,8 @@ public sealed class LifecycleCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(TestModel.Config(temp.Path), Loan(temp.Path));
 
-        Assert.DoesNotContain("state-unreachable", TestModel.Codes(model));
-        Assert.DoesNotContain("transition-unresolved", TestModel.Codes(model));
+        Assert.DoesNotContain("state-unreached", TestModel.Codes(model));
+        Assert.DoesNotContain("transition-unknown", TestModel.Codes(model));
     }
 
     /// <proves>litespec/core/behavior#connect-every-state-through-transitions</proves>
@@ -43,8 +43,8 @@ public sealed class LifecycleCheckTests
             TestModel.Config(temp.Path),
             Loan(temp.Path, """{"from": "Active", "to": "Returned"}""", """{"from": "Returned", "to": "Overdue"}"""));
 
-        Assert.DoesNotContain("state-unreachable", TestModel.Codes(model));
-        Assert.DoesNotContain("transition-unresolved", TestModel.Codes(model));
+        Assert.DoesNotContain("state-unreached", TestModel.Codes(model));
+        Assert.DoesNotContain("transition-unknown", TestModel.Codes(model));
     }
 
     /// <proves>litespec/core/behavior#connect-every-state-through-transitions</proves>
@@ -56,8 +56,8 @@ public sealed class LifecycleCheckTests
             TestModel.Config(temp.Path),
             Loan(temp.Path, """{"from": "Active", "to": "Returned"}""", """{"from": "-", "to": "Overdue"}"""));
 
-        Assert.DoesNotContain("state-unreachable", TestModel.Codes(model));
-        Assert.DoesNotContain("transition-unresolved", TestModel.Codes(model));
+        Assert.DoesNotContain("state-unreached", TestModel.Codes(model));
+        Assert.DoesNotContain("transition-unknown", TestModel.Codes(model));
     }
 
     /// <proves>litespec/core/behavior#connect-every-state-through-transitions</proves>
@@ -67,7 +67,7 @@ public sealed class LifecycleCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(TestModel.Config(temp.Path), Loan(temp.Path, """{"from": "Active", "to": "Vanished"}"""));
 
-        Assert.Contains("transition-unresolved", TestModel.Codes(model));
+        Assert.Contains("transition-unknown", TestModel.Codes(model));
     }
 
     /// <proves>litespec/core/behavior#connect-every-state-through-transitions</proves>
@@ -77,7 +77,7 @@ public sealed class LifecycleCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(TestModel.Config(temp.Path), Loan(temp.Path, """{"from": "Vanished", "to": "Returned"}"""));
 
-        Assert.Contains("transition-unresolved", TestModel.Codes(model));
+        Assert.Contains("transition-unknown", TestModel.Codes(model));
     }
 
     /// <proves>litespec/core/behavior#connect-every-state-through-transitions</proves>
@@ -89,7 +89,7 @@ public sealed class LifecycleCheckTests
             TestModel.Config(temp.Path),
             Loan(temp.Path, """{"from": "Active", "to": "Returned", "by": "use-case/lending.nope"}"""));
 
-        Assert.Contains("transition-unresolved", TestModel.Codes(model));
+        Assert.Contains("transition-unknown", TestModel.Codes(model));
     }
 
     /// <proves>litespec/core/behavior#connect-every-state-through-transitions</proves>
@@ -101,7 +101,7 @@ public sealed class LifecycleCheckTests
             TestModel.Config(temp.Path),
             Loan(temp.Path, """{"from": "Active", "to": "Returned", "by": "aggregate/lending.loan"}"""));
 
-        Assert.Contains("transition-unresolved", TestModel.Codes(model));
+        Assert.Contains("transition-unknown", TestModel.Codes(model));
     }
 
     /// <proves>litespec/core/behavior#connect-every-state-through-transitions</proves>
@@ -114,8 +114,8 @@ public sealed class LifecycleCheckTests
             Loan(temp.Path, """{"from": "Active", "to": "Returned", "by": "use-case/lending.return-copy"}""", """{"from": "Returned", "to": "Overdue"}"""),
             TestModel.Record("use-case", "use-case/lending.return-copy", Path.Combine(temp.Path, "return.md"), """{"kind": "command"}"""));
 
-        Assert.DoesNotContain("transition-unresolved", TestModel.Codes(model));
-        Assert.DoesNotContain("state-unreachable", TestModel.Codes(model));
+        Assert.DoesNotContain("transition-unknown", TestModel.Codes(model));
+        Assert.DoesNotContain("state-unreached", TestModel.Codes(model));
     }
 
     static Record Loan(string root, params string[] transitions)

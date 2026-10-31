@@ -857,7 +857,7 @@ The figures below render from the retention schedule at build time.
 
 **Example:** The notification `send-approvalreminder-confirmation` and the reaction `send-approval-reminder-on-expense-submitted` name one concept with two spellings; the project picks one and renames the other. `send-on-line-notice` beside `send-online-notice` is not reported, since `on` opens no compound.
 
-**Checked by:** `litespec model check` reports `term-lookalike` (tier A) for a joined and hyphenated pair, a British and American spelling pair, or a singular and plural in one home, when both forms occur, except a hyphenated pair opening with a function word.
+**Checked by:** `litespec model check` reports `term-clash` (tier A) for a joined and hyphenated pair, a British and American spelling pair, or a singular and plural in one home, when both forms occur, except a hyphenated pair opening with a function word.
 
 ### State What Happens in Every Behavior Statement
 
@@ -871,7 +871,7 @@ The figures below render from the retention schedule at build time.
 
 **Example:** A scenario step reads "The member borrows the copy" rather than "The member handles the copy".
 
-**Checked by:** `litespec model check` reports `statement-vague-word` (tier A) for a listed vague word in a rule statement, scenario step, or result meaning.
+**Checked by:** `litespec model check` reports `statement-word-invalid` (tier A) for a listed vague word in a rule statement, scenario step, or result meaning.
 
 ## Conventions
 

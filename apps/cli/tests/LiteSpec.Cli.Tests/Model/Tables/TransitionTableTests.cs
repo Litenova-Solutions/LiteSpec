@@ -41,7 +41,7 @@ public sealed class TransitionTableTests
         Assert.Equal(0, check.Status);
     }
 
-    /// <summary>A table row naming a missing use case reports transition-unresolved; By aliases Triggered By.</summary>
+    /// <summary>A table row naming a missing use case reports transition-unknown; By aliases Triggered By.</summary>
     /// <proves>litespec/core/behavior#connect-every-state-through-transitions</proves>
     [Fact]
     public void Transition_By_A_Missing_Use_Case_Reports_Transition_Unresolved()
@@ -52,7 +52,7 @@ public sealed class TransitionTableTests
 
         var check = Cli.Run("model", "check", "--root", temp.Path, "--format", "json");
         Assert.Equal(1, check.Status);
-        Assert.Contains("transition-unresolved", check.Output);
+        Assert.Contains("transition-unknown", check.Output);
     }
 
     /// <summary>Front-matter transitions win over the table.</summary>

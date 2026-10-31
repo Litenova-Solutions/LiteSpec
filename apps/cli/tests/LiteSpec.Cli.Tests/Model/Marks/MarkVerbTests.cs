@@ -13,7 +13,7 @@ public sealed class MarkVerbTests
     public void Proves_On_A_Handler_Reports_Mark_Unresolved()
     {
         using var temp = WriteConsumer();
-        var unresolved = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "mark-unresolved");
+        var unresolved = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "mark-unknown");
 
         var finding = Assert.Single(unresolved, found => found.Message.Contains("BadBorrowCopyCommandHandler"));
         Assert.Equal("use-case/lending.borrow-copy", finding.Subject);
@@ -26,7 +26,7 @@ public sealed class MarkVerbTests
     public void Implements_On_A_Test_Reports_Mark_Unresolved()
     {
         using var temp = WriteConsumer();
-        var unresolved = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "mark-unresolved");
+        var unresolved = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "mark-unknown");
 
         var finding = Assert.Single(unresolved, found => found.Message.Contains("BadBorrowCopyScenarios"));
         Assert.Equal("scenario/borrow-copy.borrowing-succeeds", finding.Subject);
@@ -39,7 +39,7 @@ public sealed class MarkVerbTests
     public void Matching_Verbs_Report_No_Mark_Unresolved()
     {
         using var temp = WriteConsumer();
-        var unresolved = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "mark-unresolved");
+        var unresolved = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "mark-unknown");
 
         Assert.Equal(2, unresolved.Count);
         Assert.DoesNotContain(unresolved, finding => finding.Message.Contains("GoodBorrowCopyCommandHandler"));

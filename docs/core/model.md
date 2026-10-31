@@ -156,7 +156,7 @@ An identifier names its record type first, then the record name, with the owning
 | `known-gap` | `known-gap/<name>` | `known-gap/export-expenses-unimplemented` |
 | `term` | `term/<name>` | `term/expense` |
 
-A screen's `<name>` follows the same one-to-six-word rule as every other name; its `<entry-point>` is the name of the entry point it belongs to. A rule home is an aggregate name or a module name. A use case name is unique across the project, so a result or a scenario cites only that name. An aggregate name is unique across the project, so a rule cites only that name. A requirement's topic segment names its topic, and the topic is its parent by identifier containment, as an aggregate holds its rules. A requirement whose topic segment differs from its page's name is an `identifier-form` finding. A reaction, job, notification, or setting is filed with its module, and an integration event belongs to the published set. A rule name keeps the negation its statement makes. Every identifier citation resolves to a written record.
+A screen's `<name>` follows the same one-to-six-word rule as every other name; its `<entry-point>` is the name of the entry point it belongs to. A rule home is an aggregate name or a module name. A use case name is unique across the project, so a result or a scenario cites only that name. An aggregate name is unique across the project, so a rule cites only that name. A requirement's topic segment names its topic, and the topic is its parent by identifier containment, as an aggregate holds its rules. A requirement whose topic segment differs from its page's name is an `identifier-invalid` finding. A reaction, job, notification, or setting is filed with its module, and an integration event belongs to the published set. A rule name keeps the negation its statement makes. Every identifier citation resolves to a written record.
 
 A journey step id is `journey/<name>#<step-id>`, with step ids `s1`, `s2`, and so on. A derived generic result is `result/<use-case>.forbidden` or `result/<use-case>.invalid-input`. Scenarios can point at derived results. Derived results are never written as records.
 
@@ -352,11 +352,11 @@ An approved or reviewed record carries its approval as data: `approvedBy` names 
 
 ### Questions and Ballots
 
-`questions` carries `question`, `decider`, `decideBy`, `ballot`, and `recommendation`, and once answered `answer`, `answeredBy`, and `answeredOn`. `ballot` is required and groups questions in the inbox, by a decision id or a short topic slug. `recommendation` is required when the record carries no `risk`. A question carries no `tier` and no `risk`; its tier is the tier of the record that carries it. An unanswered question is open, and an open question blocks approval. `draft-without-decider` checks question entries as well as drafts. Only a question auto-approves, after its `decideBy` plus the project veto window, recorded as `answeredBy: auto (veto window)` on the question; no record carries `approvedBy: auto (veto window)`. `review.vetoWindowDays` in `litespec.project.json` is optional and defaults to 7. `question-aged` reports every unanswered question past its `decideBy` that cannot auto-approve, tier 1 included. Each ballot carries a consequences summary rendered from Behavior, marked as context and outside the approval hash, so Intent stays enough to approve. `litespec book` shows the Ballots view, grouping questions by `ballot`, ordered tier 1 first, with each question recommendation and auto-approval date. The [release page](release.md) states the review flow.
+`questions` carries `question`, `decider`, `decideBy`, `ballot`, and `recommendation`, and once answered `answer`, `answeredBy`, and `answeredOn`. `ballot` is required and groups questions in the inbox, by a decision id or a short topic slug. `recommendation` is required when the record carries no `risk`. A question carries no `tier` and no `risk`; its tier is the tier of the record that carries it. An unanswered question is open, and an open question blocks approval. `decider-missing` checks question entries as well as drafts. Only a question auto-approves, after its `decideBy` plus the project veto window, recorded as `answeredBy: auto (veto window)` on the question; no record carries `approvedBy: auto (veto window)`. `review.vetoWindowDays` in `litespec.project.json` is optional and defaults to 7. `question-expired` reports every unanswered question past its `decideBy` that cannot auto-approve, tier 1 included. Each ballot carries a consequences summary rendered from Behavior, marked as context and outside the approval hash, so Intent stays enough to approve. `litespec book` shows the Ballots view, grouping questions by `ballot`, ordered tier 1 first, with each question recommendation and auto-approval date. The [release page](release.md) states the review flow.
 
 ### Transcription Mode
 
-During adoption, a Behavior record written from code carries `source: transcribed`. Such a record can stand as draft, but never as reviewed, until its `fulfills` or `serves` parent is approved. `litespec.project.json` `adoption.transcriptionEndsWith` names the decision that ends the mode. After that decision is approved, `transcribed-after-adoption` fails on any remaining transcribed record.
+During adoption, a Behavior record written from code carries `source: transcribed`. Such a record can stand as draft, but never as reviewed, until its `fulfills` or `serves` parent is approved. `litespec.project.json` `adoption.transcriptionEndsWith` names the decision that ends the mode. After that decision is approved, `transcription-expired` fails on any remaining transcribed record.
 
 ### Size and Stacks
 
@@ -384,7 +384,7 @@ Every check has a level.
 
 A structural parent is any link or containment the Parents table and the Identifiers table name as a record parent: topic containment for a requirement, feature `solves`, journey `serves`, scenario `result`, screen `entryPoint`, and identifier containment. A missing structural parent is level G for every record, drafts included. Every other required link is coverage: level A for a tier 3 record and level G for a tier 1 record.
 
-Qualification is per reader, never global: a finding takes the qualification of the reader that produced its facts. A reader qualifies when its handshake matches; the golden corpus is a test contract for the reader bundle and does not gate a consumer run. The .NET (Roslyn) reader, including the Blazor and Android screens it reads, stays qualified. A finding no reader produced, a record finding, is qualified. A level S finding from an unqualified reader reports without blocking even when another reader in the same project is qualified. A missing or failing reader produces `reader-unavailable` (level S) for that frontend, and that frontend's level S findings report instead of blocking.
+Qualification is per reader, never global: a finding takes the qualification of the reader that produced its facts. A reader qualifies when its handshake matches; the golden corpus is a test contract for the reader bundle and does not gate a consumer run. The .NET (Roslyn) reader, including the Blazor and Android screens it reads, stays qualified. A finding no reader produced, a record finding, is qualified. A level S finding from an unqualified reader reports without blocking even when another reader in the same project is qualified. A missing or failing reader produces `reader-missing` (level S) for that frontend, and that frontend's level S findings report instead of blocking.
 
 `litespec model check` prints the level beside each finding.
 
@@ -412,7 +412,7 @@ Field tables render as tables. Scenarios group under their result. Field names n
 
 **Example:** A decision lives at `docs/intent/decisions/0001-receipt-threshold.md`.
 
-**Checked by:** `litespec model check` reports `record-shape` for a record outside its home.
+**Checked by:** `litespec model check` reports `record-invalid` for a record outside its home.
 
 ### State the Common Fields on Every Record
 
@@ -422,7 +422,7 @@ Field tables render as tables. Scenarios group under their result. Field names n
 
 **Rationale:** Type, identifier, title, owner, and status are the fields every join needs. Without them on every record, the builder cannot connect decisions to requirements, scenarios to results, or records to owners, and the model falls apart into loose pages.
 
-**Checked by:** `litespec model check` reports `record-shape` for a record missing a common field.
+**Checked by:** `litespec model check` reports `record-invalid` for a record missing a common field.
 
 ### Give Every Record One Parent
 
@@ -434,7 +434,7 @@ Field tables render as tables. Scenarios group under their result. Field names n
 
 **Example:** In the Claimwick product, `feature/approval-reminders` names `problem/expenses-wait-weeks` in `solves` as its parent; `requirement/approval.receipt-over-threshold` sits under `topic/approval` through its identifier home; `journey/submit-and-reimburse` names `goal/faster-reimbursement` in `serves`; and `result/submit-expense.submitted` sits under `use-case/spending.submit-expense` through its identifier home.
 
-**Checked by:** `litespec model check` reports `record-without-parent` (level G) for a record whose required parent is missing.
+**Checked by:** `litespec model check` reports `record-parent-missing` (level G) for a record whose required parent is missing.
 
 ### Flag Every Record Whose Parent Changed
 
@@ -446,7 +446,7 @@ Field tables render as tables. Scenarios group under their result. Field names n
 
 **Example:** The decider raises the receipt threshold from EUR 25 to EUR 50, so the requirement statement changes and the builder flags the policy setting and the receipt rule that cite it until an agent updates them.
 
-**Checked by:** `litespec model check` reports `parent-changed` (level A while draft, level G once approved) for a record that cites, fulfills, or serves a changed record and is not yet updated.
+**Checked by:** `litespec model check` reports `parent-reopened` (level A while draft, level G once approved) for a record that cites, fulfills, or serves a changed record and is not yet updated.
 
 ### Use the Layer Status Vocabulary
 
@@ -456,7 +456,7 @@ Field tables render as tables. Scenarios group under their result. Field names n
 
 **Rationale:** Intent and governance records use draft, approved, and retired, while Behavior records use draft, reviewed, and retired. One vocabulary per record layer tells a reader whether a person approved the promise or reviewed the behavior. A Behavior record marked approved claims a decider approval nobody gave.
 
-**Checked by:** `litespec model check` reports `invalid-field` for a status outside the record layer vocabulary.
+**Checked by:** `litespec model check` reports `field-invalid` for a status outside the record layer vocabulary.
 
 ### Hold Approval Behind Open Questions
 
@@ -466,7 +466,7 @@ Field tables render as tables. Scenarios group under their result. Field names n
 
 **Rationale:** An open question names a fact the record still needs, with the decider and the date that will settle it. Approving the record first would claim settled intent while the missing fact can still move it. Answering the question or retiring the record clears the gate. A question that auto-approves after the veto window is answered, not open, so the gate still holds.
 
-**Checked by:** `litespec model check` reports `record-shape` for an approved or reviewed record carrying an open question.
+**Checked by:** `litespec model check` reports `record-invalid` for an approved or reviewed record carrying an open question.
 
 ### Answer Each Question on Its Record
 
@@ -478,7 +478,7 @@ Field tables render as tables. Scenarios group under their result. Field names n
 
 **Example:** Claimwick asks which receipt threshold holds, with the decider, the date, the ballot, and a recommendation of EUR 50; the decider answers EUR 50 on the same record with the answerer and the date.
 
-**Checked by:** `litespec model check` reports `draft-without-decider` for a question missing its decider or date and `question-aged` for every unanswered question past its `decideBy` that cannot auto-approve.
+**Checked by:** `litespec model check` reports `decider-missing` for a question missing its decider or date and `question-expired` for every unanswered question past its `decideBy` that cannot auto-approve.
 
 ### Record Approval as Data
 
@@ -519,7 +519,7 @@ Field tables render as tables. Scenarios group under their result. Field names n
 
 **Rationale:** One writing site keeps a link and its source in one edit: changing the source updates the link in the same change. Links written on the target instead would scatter each relationship across every page it touches. Settled by [decision/0002-parent-for-every-record](../intent/decisions/0002-parent-for-every-record.md) on the evidence in [research/behavior-containment-evidence](../intent/research/behavior-containment-evidence.md), [research/intent-hierarchy-evidence](../intent/research/intent-hierarchy-evidence.md), [research/book-outline-evidence](../intent/research/book-outline-evidence.md), and [research/established-traceability-practice](../intent/research/established-traceability-practice.md).
 
-**Checked by:** `litespec model check` reports `reference-unresolved` for a link whose target no record carries.
+**Checked by:** `litespec model check` reports `reference-unknown` for a link whose target no record carries.
 
 ### Connect Every Use Case to Intent
 
@@ -527,9 +527,9 @@ Field tables render as tables. Scenarios group under their result. Field names n
 
 **Statement:** A use case MUST carry serves, fulfills, or both.
 
-**Rationale:** A use case with no served journey step and no fulfilled requirement answers to nothing above it: no promise explains why it exists. Pointing up with serves or fulfills ties every behavior to the Intent that asks for it. `record-orphaned` fails a use case carrying neither.
+**Rationale:** A use case with no served journey step and no fulfilled requirement answers to nothing above it: no promise explains why it exists. Pointing up with serves or fulfills ties every behavior to the Intent that asks for it. `record-link-missing` fails a use case carrying neither.
 
-**Checked by:** `litespec model check` reports `record-orphaned` for a use case with neither `serves` nor `fulfills`, and `journey-reach` (level G) at large size for a use case that is not background-only and serves no journey step.
+**Checked by:** `litespec model check` reports `record-link-missing` for a use case with neither `serves` nor `fulfills`, and `use-case-journey-missing` (level G) at large size for a use case that is not background-only and serves no journey step.
 
 ### Serve Every Journey Step
 
@@ -537,9 +537,9 @@ Field tables render as tables. Scenarios group under their result. Field names n
 
 **Statement:** Every journey step MUST have a serving use case.
 
-**Rationale:** A step no use case serves promises a moment the product never builds. Use cases point up with serves, so each step id collects the behaviors that carry the walker through it. `step-unserved` fails a step with no serving use case. The pair sits side by side: `step-unserved` names a step no use case serves, and `step-unscreened` names a step a browser or device use case serves that no screen serves.
+**Rationale:** A step no use case serves promises a moment the product never builds. Use cases point up with serves, so each step id collects the behaviors that carry the walker through it. `step-use-case-missing` fails a step with no serving use case. The pair sits side by side: `step-use-case-missing` names a step no use case serves, and `step-screen-missing` names a step a browser or device use case serves that no screen serves.
 
-**Checked by:** `litespec model check` reports `step-unserved` for a journey step with no serving use case, beside `step-unscreened` for a step a browser or device use case serves that no screen serves.
+**Checked by:** `litespec model check` reports `step-use-case-missing` for a journey step with no serving use case, beside `step-screen-missing` for a step a browser or device use case serves that no screen serves.
 
 ### Follow the Authority Order
 
@@ -569,7 +569,7 @@ Field tables render as tables. Scenarios group under their result. Field names n
 
 **Rationale:** Approval means the reasoning behind the record already holds. A record approved behind a draft decision claims settled intent while its foundation can still move. The builder also writes each record effective status: draft when the record, a decision deciding it, or a requirement it fulfills is a draft. A result or a scenario takes its use case effective status. A screen is draft when its entry point, a use case it offers, or a journey it serves is draft.
 
-**Checked by:** `litespec model check` reports `draft-gate` for an approved or reviewed record behind a draft decision.
+**Checked by:** `litespec model check` reports `approval-invalid` for an approved or reviewed record behind a draft decision.
 
 ### Record Accepted Gaps as Known Gaps
 
@@ -597,7 +597,7 @@ Field tables render as tables. Scenarios group under their result. Field names n
 
 The `use-case-unimplemented` check reports without failing until 2027-06-01, and the expenses team answers for closing the gap, which satisfies this provision.
 
-**Checked by:** `litespec model check` reports `record-shape` and `known-gap-expired` for a gap missing its owner, date, or renewal, and `gap-unknown-check` (level G) for a known gap naming a check no check uses.
+**Checked by:** `litespec model check` reports `record-invalid` and `known-gap-expired` for a gap missing its owner, date, or renewal, and `gap-finding-unknown` (level G) for a known gap naming a check no check uses.
 
 ### Apply Guidance Precedence
 
@@ -639,7 +639,7 @@ A deviation that governs code no record describes names those files in `code`, a
 
 **Example:** A draft names its `decider` and `decideBy` date. The three statuses and what each allows: a draft awaits its decider, approved or reviewed holds, and retired means a replacement holds.
 
-**Checked by:** `litespec model check` reports `owner-unknown` and `draft-without-decider` for a page missing its owner or draft decider.
+**Checked by:** `litespec model check` reports `owner-unknown` and `decider-missing` for a page missing its owner or draft decider.
 
 ### Retire Records with Replaces
 
@@ -649,7 +649,7 @@ A deviation that governs code no record describes names those files in `code`, a
 
 **Rationale:** Only decisions keep the past: the retired decision stands beside its replacement so the reasoning stays readable. Every other record changes in place, because retired copies of rules or use cases would fork the intent readers must follow. A rename rewrites every citation in the same change, so no dangling reference survives.
 
-**Checked by:** `litespec model check` reports `invalid-field` for `replaces` outside a decision and `reference-unresolved` for an unknown target.
+**Checked by:** `litespec model check` reports `field-invalid` for `replaces` outside a decision and `reference-unknown` for an unknown target.
 
 ### Name What Every Decision Decides
 
@@ -659,7 +659,7 @@ A deviation that governs code no record describes names those files in `code`, a
 
 **Rationale:** The draft gate and the computed effective status both follow `decides`. A decision that names nothing holds back nothing, so its approval state constrains no record and its draft gate checks nothing. Naming at least one settled record gives the decision something to govern. A technical decision governs the code that follows it instead.
 
-**Checked by:** `litespec model check` reports `decision-decides-nothing` for a product decision with an empty `decides` field.
+**Checked by:** `litespec model check` reports `decision-decides-missing` for a product decision with an empty `decides` field.
 
 ### Record Each Technical Choice as a Decision
 
@@ -671,7 +671,7 @@ A deviation that governs code no record describes names those files in `code`, a
 
 **Example:** Claimwick renders each receipt as a PDF file. `decision/0005-render-receipts-as-pdf` weighs a PDF library against an HTML-to-PDF browser, chooses the PDF library, and names what reopens the choice: receipts no longer needing a downloadable file. The receipt PDF renderer carries `/// <follows>decision/0005-render-receipts-as-pdf</follows>`.
 
-**Checked by:** `litespec model check` reports `decision-unfollowed` (level S) for a technical decision that no code element follows. The check runs in the CLI only, with no analyzer rule: whether any code follows a decision is known only across every project, and one compilation sees one project.
+**Checked by:** `litespec model check` reports `decision-unimplemented` (level S) for a technical decision that no code element follows. The check runs in the CLI only, with no analyzer rule: whether any code follows a decision is known only across every project, and one compilation sees one project.
 
 ### Keep Rules and Targets Out of Technical Decisions
 
@@ -683,7 +683,7 @@ A deviation that governs code no record describes names those files in `code`, a
 
 **Example:** Claimwick keeps each receipt for the tax file because `constraint/tax-receipt-retention` requires it, and answers submissions quickly because `requirement/spending.month-end-submissions` sets the target. `decision/0005-render-receipts-as-pdf` names the constraint in `basedOn`, and `decision/0004-serve-receipts-behind-one-proxy` names the requirement in `basedOn`; neither the seven years nor the two seconds is written in a decision.
 
-**Checked by:** `litespec model check` reports `decision-without-basis` (level A) for a technical decision whose `basedOn` names nothing, and counts a quality requirement as fulfilled when a technical decision names it in `basedOn`.
+**Checked by:** `litespec model check` reports `decision-basis-missing` (level A) for a technical decision whose `basedOn` names nothing, and counts a quality requirement as fulfilled when a technical decision names it in `basedOn`.
 
 ### Resolve Every Page Link
 
@@ -693,7 +693,7 @@ A deviation that governs code no record describes names those files in `code`, a
 
 **Rationale:** A link that points at a moved file or a bare identifier reads as navigation and leads nowhere. Requiring every link to name an existing file by its relative path keeps the documentation clickable at every commit. Identifiers are cited in backticks instead, so the two never confuse.
 
-**Checked by:** `litespec model check` reports `link-unresolved` for a page link naming no file.
+**Checked by:** `litespec model check` reports `link-unknown` for a page link naming no file.
 
 ### Declare Size Stacks and Optional Types
 
@@ -705,7 +705,7 @@ A deviation that governs code no record describes names those files in `code`, a
 
 **Example:** The running Claimwick example declares large with a server shape and two stacks.
 
-**Checked by:** `litespec model check` reports `size-type-missing` and `record-shape` for a project missing its declaration or a required type.
+**Checked by:** `litespec model check` reports `size-type-missing` and `record-invalid` for a project missing its declaration or a required type.
 
 ### Give Every Use Case Its Results
 
@@ -754,7 +754,7 @@ The running Claimwick example carries this in `use-case/spending.submit-expense`
 
 Success names the submitted ending, the refusal carries the code `spending.receipt-missing`, and the scenario pairs one given and when with the success result, which satisfies this provision.
 
-**Checked by:** `litespec model check` reports `use-case-without-success` and `scenario-result-unresolved` for a use case missing its success or a scenario naming no result.
+**Checked by:** `litespec model check` reports `use-case-success-missing` and `scenario-result-unknown` for a use case missing its success or a scenario naming no result.
 
 ### Derive Generic Refusals
 
@@ -786,7 +786,7 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 
 **Rationale:** A Behavior record written around an open question bakes the guess into states, rules, and scenarios. Sending the question up with its decider, its date, its recommendation, and its ballot keeps it owned and dated, while the Behavior record stays draft until the answer lands. A question past its date that cannot auto-approve is reported, so it never silently blocks.
 
-**Checked by:** `litespec model check` reports `question-aged` (level A) for every unanswered question past its `decideBy` that cannot auto-approve.
+**Checked by:** `litespec model check` reports `question-expired` (level A) for every unanswered question past its `decideBy` that cannot auto-approve.
 
 ### Hold Transcribed Records in Draft
 
@@ -794,9 +794,9 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 
 **Statement:** A record with source transcribed MUST NOT stand reviewed while its fulfills or serves parent is unapproved.
 
-**Rationale:** Transcription copies working code into a record during adoption, so the record describes what exists rather than what Intent asked for. Draft holds it visibly unfinished until its fulfills or serves parent is approved. `transcribed-reviewed` fails a transcribed record standing reviewed while its fulfills or serves parent is unapproved.
+**Rationale:** Transcription copies working code into a record during adoption, so the record describes what exists rather than what Intent asked for. Draft holds it visibly unfinished until its fulfills or serves parent is approved. `transcription-status-invalid` fails a transcribed record standing reviewed while its fulfills or serves parent is unapproved.
 
-**Checked by:** `litespec model check` reports `transcribed-reviewed` for a transcribed record standing reviewed while its fulfills or serves parent is unapproved.
+**Checked by:** `litespec model check` reports `transcription-status-invalid` for a transcribed record standing reviewed while its fulfills or serves parent is unapproved.
 
 ### End Transcription at the Named Decision
 
@@ -804,9 +804,9 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 
 **Statement:** Every transcribed record MUST clear before the adoption decision is approved.
 
-**Rationale:** Transcription mode exists to adopt working code, not to write Behavior from code forever. `adoption.transcriptionEndsWith` names the decision that ends the mode, and approving it closes the door: `transcribed-after-adoption` fails on any record still carrying source transcribed. Clearing means the record earns its Intent parent and drops the transcribed mark, or retires with the code it copied.
+**Rationale:** Transcription mode exists to adopt working code, not to write Behavior from code forever. `adoption.transcriptionEndsWith` names the decision that ends the mode, and approving it closes the door: `transcription-expired` fails on any record still carrying source transcribed. Clearing means the record earns its Intent parent and drops the transcribed mark, or retires with the code it copied.
 
-**Checked by:** `litespec model check` reports `transcribed-after-adoption` for a transcribed record after the adoption decision is approved.
+**Checked by:** `litespec model check` reports `transcription-expired` for a transcribed record after the adoption decision is approved.
 
 ### Compute Proof Statuses in the Builder
 
@@ -818,7 +818,7 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 
 **Example:** A use case reads implemented when its handler exists.
 
-**Checked by:** `litespec model check` reports `use-case-unimplemented`, `proves-unconfirmed`, and `refusal-not-thrown` for a use case whose handler, proof, or refusal code is missing.
+**Checked by:** `litespec model check` reports `use-case-unimplemented`, `proves-unreached`, and `refusal-unimplemented` for a use case whose handler, proof, or refusal code is missing.
 
 ### Mark Every Check with Its Level
 
@@ -840,7 +840,7 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 
 **Example:** The Claimwick product declares `"marks": "xml"`, so its submit-expense handler carries a documentation tag naming `use-case/spending.submit-expense`, and an attribute naming the same use case is reported.
 
-**Checked by:** `litespec model check` reports `mark-style-mixed` (level S) for a mark written in the style the project did not declare.
+**Checked by:** `litespec model check` reports `mark-style-invalid` (level S) for a mark written in the style the project did not declare.
 
 ### Follow Effective Status in Code Findings
 
@@ -858,13 +858,13 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 
 **ID:** `litespec/core/model#hold-proof-findings-while-tests-are-frozen`
 
-**Statement:** When `check.phase` is `frozen`, `proves-unconfirmed`, `use-case-without-scenario`, and every mark finding on a test MUST report without blocking.
+**Statement:** When `check.phase` is `frozen`, `proves-unreached`, `use-case-scenario-missing`, and every mark finding on a test MUST report without blocking.
 
 **Rationale:** Before a first release a project can hold its tests still while the code moves faster than tests can follow. Naming that phase in the project file lets every tool respect it the same way, instead of each agent remembering a note: proof findings stay visible, and the build does not fail on tests nobody may change yet. Setting the phase back to `working` makes them block again.
 
-**Example:** With `"check": { "phase": "frozen" }`, `proves-unconfirmed` and `use-case-without-scenario` print with the frozen marker and the check exits zero.
+**Example:** With `"check": { "phase": "frozen" }`, `proves-unreached` and `use-case-scenario-missing` print with the frozen marker and the check exits zero.
 
-**Checked by:** `litespec model check` prints `frozen` beside `proves-unconfirmed`, `use-case-without-scenario`, and every mark finding on a test while `check.phase` is `frozen`, and none of them blocks; `dotnet build` reports `LS4001` and every LS5xxx rule on a test as a warning in the same phase.
+**Checked by:** `litespec model check` prints `frozen` beside `proves-unreached`, `use-case-scenario-missing`, and every mark finding on a test while `check.phase` is `frozen`, and none of them blocks; `dotnet build` reports `LS4001` and every LS5xxx rule on a test as a warning in the same phase.
 
 ### Name the Lowest Record Each Test Proves
 
@@ -876,7 +876,7 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 
 **Example:** In Claimwick, the submit-expense acceptance test proves `scenario/submit-expense.submitting-with-a-receipt-succeeds`; a load test of month-end submissions proves `requirement/spending.month-end-submissions`; a receipt-rendering test proves `decision/0005-render-receipts-as-pdf`; and the layering test that Domain references no persistence package proves `litespec/backend/architecture#point-dependencies-inward`.
 
-**Checked by:** `litespec model check` reports `mark-missing` and `mark-unresolved` (level S) for a test that names no record or a record of a kind a test does not take.
+**Checked by:** `litespec model check` reports `mark-missing` and `mark-unknown` (level S) for a test that names no record or a record of a kind a test does not take.
 
 ### Implement Each Mapped Behavior Record Behind a Mark
 
@@ -888,7 +888,7 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 
 **Example:** `reaction/spending.send-approver-reminders-on-expense-submitted` is reviewed and no event handler carries its mark, so the check reports `reaction-unimplemented` and blocks.
 
-**Checked by:** `litespec model check` reports `aggregate-unimplemented`, `reaction-unimplemented`, `job-unimplemented`, `external-system-unimplemented`, and `use-case-unexposed` (level S) for a record no mark names, where `aggregate-unimplemented` fires only for an entity or process aggregate, and `use-case-unreached` (level A) for a browser use case no screen calls.
+**Checked by:** `litespec model check` reports `aggregate-unimplemented`, `reaction-unimplemented`, `job-unimplemented`, `external-system-unimplemented`, and `use-case-endpoint-missing` (level S) for a record no mark names, where `aggregate-unimplemented` fires only for an entity or process aggregate, and `use-case-unreached` (level A) for a browser use case no screen calls.
 
 ### Record a Project-Wide Lowering as a Deviation
 

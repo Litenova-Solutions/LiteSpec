@@ -77,7 +77,7 @@ public sealed class ErasureCheckTests
             TestModel.Record("aggregate", "aggregate/lending.loan", Path.Combine(temp.Path, "loan.md"), json));
 
         Assert.DoesNotContain("erasure-undeclared", TestModel.Codes(model));
-        Assert.DoesNotContain("retention-without-enforcement", TestModel.Codes(model));
+        Assert.DoesNotContain("retention-enforcement-missing", TestModel.Codes(model));
     }
 
     /// <proves>litespec/core/behavior#declare-every-data-class-with-its-erasure-position</proves>
@@ -113,7 +113,7 @@ public sealed class ErasureCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("aggregate", "aggregate/lending.loan", Path.Combine(temp.Path, "loan.md"), json));
 
-        Assert.Contains("retention-without-enforcement", TestModel.Codes(model));
+        Assert.Contains("retention-enforcement-missing", TestModel.Codes(model));
     }
 
     /// <proves>litespec/core/behavior#accept-every-retained-personal-data-class-in-intent</proves>
@@ -123,7 +123,7 @@ public sealed class ErasureCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(TestModel.Config(temp.Path), Kept(temp.Path, null));
 
-        Assert.Contains("risk-without-acceptance", TestModel.Codes(model));
+        Assert.Contains("risk-acceptance-missing", TestModel.Codes(model));
     }
 
     /// <proves>litespec/core/behavior#accept-every-retained-personal-data-class-in-intent</proves>
@@ -133,7 +133,7 @@ public sealed class ErasureCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(TestModel.Config(temp.Path), Kept(temp.Path, "decision/0001-loan-period"));
 
-        Assert.DoesNotContain("risk-without-acceptance", TestModel.Codes(model));
+        Assert.DoesNotContain("risk-acceptance-missing", TestModel.Codes(model));
     }
 
     /// <proves>litespec/core/behavior#review-every-erasure-exemption-before-its-date</proves>

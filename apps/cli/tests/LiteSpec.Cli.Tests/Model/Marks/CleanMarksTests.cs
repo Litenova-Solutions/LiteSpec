@@ -13,18 +13,18 @@ public sealed class CleanMarksTests
             foreach (var code in new[]
             {
                 "mark-missing",
-                "mark-unresolved",
-                "mark-count",
-                "mark-style-mixed",
+                "mark-unknown",
+                "mark-count-invalid",
+                "mark-style-invalid",
                 "runtime-value-drift",
                 "act-event-undeclared",
-                "act-event-unraised",
-                "use-case-act-uncalled",
+                "act-event-unimplemented",
+                "use-case-act-missing",
                 "aggregate-unimplemented",
                 "reaction-unimplemented",
                 "job-unimplemented",
                 "external-system-unimplemented",
-                "use-case-unexposed",
+                "use-case-endpoint-missing",
                 "effect-unimplemented",
                 "use-case-unreached",
             })
@@ -56,6 +56,6 @@ public sealed class CleanMarksTests
 
         Assert.DoesNotContain(
             findings,
-            finding => finding.Code == "refusal-not-thrown" && finding.Subject == "result/borrow-copy.copy-unavailable");
+            finding => finding.Code == "refusal-unimplemented" && finding.Subject == "result/borrow-copy.copy-unavailable");
     }
 }

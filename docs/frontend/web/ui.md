@@ -172,7 +172,7 @@ Svelte:
 
 **Example:** Claimwick's route suite, named in its web frontend's `routeSuite`, carries `proves("litespec/frontend/web/ui#check-every-route-in-a-browser")`.
 
-**Checked by:** `litespec model check` reports `mark-missing` (tier S) for a test in a frontend's `routeSuite` or `visualGoldens` with no `proves` annotation, and `mark-unresolved` (tier S) for one naming a scenario.
+**Checked by:** `litespec model check` reports `mark-missing` (tier S) for a test in a frontend's `routeSuite` or `visualGoldens` with no `proves` annotation, and `mark-unknown` (tier S) for one naming a scenario.
 
 ### Prove Every Result a Route Calls
 
@@ -184,7 +184,7 @@ Svelte:
 
 **Example:** A browser test on the expense form asserts the `spending.receipt-missing` refusal by its code.
 
-**Reviewed for:** Which refusals a web screen reaches through its computed `calls` lack a dictionary sentence and a browser test asserting the code? Look at the `result-unshown` findings for the frontend.
+**Reviewed for:** Which refusals a web screen reaches through its computed `calls` lack a dictionary sentence and a browser test asserting the code? Look at the `refusal-sentence-missing` findings for the frontend.
 
 ### Restrict CSS Decisions
 

@@ -28,7 +28,7 @@ static partial class Checker
 
     /// <summary>
     ///     A frontend mark naming a use case or screen outside that frontend's
-    ///     own entry points is <c>mark-unresolved</c>: the generated records
+    ///     own entry points is <c>mark-unknown</c>: the generated records
     ///     file of that frontend does not hold the id.
     /// </summary>
     private static void CheckFrontendMarkScope(ProjectModel model, List<Finding> findings)
@@ -63,7 +63,7 @@ static partial class Checker
                 if (!inScope)
                 {
                     findings.Add(new Finding(
-                        "mark-unresolved",
+                        "mark-unknown",
                         $"{KindName(element.Kind)} '{DisplayName(element)}' marks '{mark.RecordId}', which is outside frontend '{frontend.Name}'s entry points.",
                         mark.File, mark.Line, mark.RecordId)
                     {
@@ -81,7 +81,7 @@ static partial class Checker
     ///     The route suite and the visual goldens each frontend names prove UI
     ///     provisions, patterns or quality requirements, never a scenario: a
     ///     test there with no <c>proves</c> annotation is <c>mark-missing</c>,
-    ///     and one naming a scenario is <c>mark-unresolved</c>.
+    ///     and one naming a scenario is <c>mark-unknown</c>.
     /// </summary>
     private static void CheckRouteSuiteMarks(ProjectModel model, List<Finding> findings)
     {
@@ -120,7 +120,7 @@ static partial class Checker
                 foreach (var claim in test.Proves.Where(claim => claim.StartsWith("scenario/", StringComparison.Ordinal)))
                 {
                     findings.Add(new Finding(
-                        "mark-unresolved",
+                        "mark-unknown",
                         $"Browser test '{test.Title}' in frontend '{frontend.Name}'s route suite or visual goldens proves '{claim}', which is a scenario.",
                         test.File, test.Line, claim)
                     {
@@ -247,7 +247,7 @@ static partial class Checker
             var first = routes[0];
 
             findings.Add(new Finding(
-                "screen-calls-mismatch",
+                "screen-offers-drift",
                 $"Screen '{screen.Id}' {string.Join("; ", parts)}.",
                 ScreenFile(model, first.File), first.Line, SubjectOf(screen))
             {
@@ -276,7 +276,7 @@ static partial class Checker
                 if (!servedByOffers.Contains(step))
                 {
                     findings.Add(new Finding(
-                        "screen-serves-mismatch",
+                        "screen-serves-drift",
                         $"Screen '{screen.Id}' serves '{step}', which no use case it offers serves.",
                         screen.File, screen.Line, SubjectOf(screen)));
                 }
@@ -307,7 +307,7 @@ static partial class Checker
                 if (servedByBrowser)
                 {
                     findings.Add(new Finding(
-                        "step-unscreened",
+                        "step-screen-missing",
                         $"Journey step '{step}' is served by a browser or device use case but by no screen.",
                         journey.File, journey.Line, step));
                 }
@@ -357,7 +357,7 @@ static partial class Checker
                         }
 
                         findings.Add(new Finding(
-                            "result-unshown",
+                            "refusal-sentence-missing",
                             $"Refusal '{code}' of '{useCaseId}' can be reached on screen '{screen.Id}' but has no sentence in frontend '{frontend.Name}'s refusal dictionary and no browser test asserting its code.",
                             screen.File, screen.Line, SubjectOf(screen))
                         {
@@ -431,7 +431,7 @@ static partial class Checker
                 if (!ModelBuilder.BrowserConfirm(model, test, claim))
                 {
                     findings.Add(new Finding(
-                        "proves-unconfirmed",
+                        "proves-unreached",
                         $"Browser test '{test.Title}' claims '{claim}' but no goto reaches a screen offering its use case, or no assertion in the same test holds its result.",
                         test.File, test.Line, claim)
                     {
@@ -449,7 +449,7 @@ static partial class Checker
                     if (!claim.StartsWith("litespec/", StringComparison.Ordinal))
                     {
                         findings.Add(new Finding(
-                            "mark-unresolved",
+                            "mark-unknown",
                             $"Browser test '{test.Title}' proves '{claim}', which matches no record a test may prove.",
                             test.File, test.Line, claim.Length > 0 ? claim : null)
                         {
@@ -508,7 +508,7 @@ static partial class Checker
             var extra = tests[1];
 
             findings.Add(new Finding(
-                "proves-duplicated",
+                "proves-duplicate",
                 $"Scenario '{scenario}' carries proves marks on more than one test ({string.Join(", ", tests.Select(test => $"'{test.Test}'"))}).",
                 extra.File, extra.Line, scenario)
             {

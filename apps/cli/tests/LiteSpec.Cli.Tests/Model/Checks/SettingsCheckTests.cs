@@ -158,7 +158,7 @@ public sealed class SettingsCheckTests
         Assert.DoesNotContain("[setting-unimplemented]", check.Output, StringComparison.Ordinal);
         Assert.DoesNotContain("[setting-key-drift]", check.Output, StringComparison.Ordinal);
         Assert.Empty(check.Output.Split('\n').Where(line =>
-            line.Contains("[mark-unresolved]", StringComparison.Ordinal)
+            line.Contains("[mark-unknown]", StringComparison.Ordinal)
             && line.Contains("LendingOptions", StringComparison.Ordinal)));
     }
 
@@ -171,7 +171,7 @@ public sealed class SettingsCheckTests
             "use-case/lending.borrow-copy", "BorrowCopyHelper"));
 
         var check = Cli.Run("model", "check", "--root", temp.Path);
-        var line = FindingLine(check.Output, "mark-unresolved", "BorrowCopyHelper");
+        var line = FindingLine(check.Output, "mark-unknown", "BorrowCopyHelper");
 
         Assert.Equal(1, check.Status);
         Assert.Contains("takes no mark", line, StringComparison.Ordinal);

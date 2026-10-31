@@ -10,7 +10,7 @@ static partial class Checker
         foreach (var orphan in Constituents.Orphans(model))
         {
             findings.Add(new Finding(
-                "constituent-orphaned",
+                "constituent-parent-missing",
                 $"Domain type '{orphan.Name}' sits in '{FolderShown(model, orphan.File)}', which holds no aggregate root and is not the shared kernel.",
                 orphan.File,
                 orphan.Line,

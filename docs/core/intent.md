@@ -91,7 +91,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Rationale:** One product record gives every reader one answer to what the business is, who it serves, and where it stops. The `boundary` and `addresses` focus every later choice; `exclusions` refuses what the product does not become, so tempting expansions meet a written refusal. Two product statements let each plan cite the one it prefers. Summary states what the product is in one place beside the fields.
 
-**Checked by:** `litespec model check` reports no `product-not-singleton` finding, and `litespec consumer` validates the brief fields against the record schema.
+**Checked by:** `litespec model check` reports no `product-count-invalid` finding, and `litespec consumer` validates the brief fields against the record schema.
 
 ### State Each Goal with Its Measure
 
@@ -121,7 +121,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Rationale:** A feature names the problems it solves in `solves` and, unless its lifecycle is refused, the goals it moves in `advances`, so each offer traces to a pain and an outcome. Its `lifecycle` is planned, shipped, later, or refused. A refused feature names the problem it declines in `solves` and keeps its reason in `refusedBecause`, so the team never relitigates the refusal, and a planned feature names its milestone or date in `plannedFor`. Offering states what is in and what is out, so the scope of the offer is written where the lifecycle is. Proposed by [decision/0004-features-advance-goals](../intent/decisions/0004-features-advance-goals.md) on the evidence in [research/intent-hierarchy-evidence](../intent/research/intent-hierarchy-evidence.md), [research/cross-layer-trace-evidence](../intent/research/cross-layer-trace-evidence.md), and [research/established-traceability-practice](../intent/research/established-traceability-practice.md).
 
-**Checked by:** `litespec consumer` fails a feature page missing its lifecycle, Offering, refused reason, or planned milestone or date; `litespec model check` reports `feature-without-goal` for a feature naming no goal.
+**Checked by:** `litespec consumer` fails a feature page missing its lifecycle, Offering, refused reason, or planned milestone or date; `litespec model check` reports `feature-goal-missing` for a feature naming no goal.
 
 ### Answer Every Constraint
 
@@ -201,7 +201,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Rationale:** An identifier lets a Behavior record name the commitment it fulfills and lets the model resolve the name. A commitment written only as prose cannot be traced from Intent to code. The topic segment names the page holding the entry, and the topic is the parent by identifier containment. Proposed by [decision/0003-requirement-origin](../intent/decisions/0003-requirement-origin.md) on the evidence in [research/intent-hierarchy-evidence](../intent/research/intent-hierarchy-evidence.md), [research/cross-layer-trace-evidence](../intent/research/cross-layer-trace-evidence.md), and [research/established-traceability-practice](../intent/research/established-traceability-practice.md).
 
-**Checked by:** `litespec consumer` fails a requirement entry without identifier; `litespec model check` reports `identifier-form` for a topic segment differing from its page.
+**Checked by:** `litespec consumer` fails a requirement entry without identifier; `litespec model check` reports `identifier-invalid` for a topic segment differing from its page.
 
 ### State Requirement Kind and Statement
 
@@ -219,9 +219,9 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Statement:** Each requirement entry MUST name its reasons in `cites`.
 
-**Rationale:** The `cites` list holds any of goal, problem, feature, constraint, research, and decision, in no order of precedence. The topic holding the entry is the parent; the cited reasons are connections that explain why the commitment exists. A requirement that cites nothing reports as `requirement-uncited`, at check level A, or check level G when the requirement carries `risk`.
+**Rationale:** The `cites` list holds any of goal, problem, feature, constraint, research, and decision, in no order of precedence. The topic holding the entry is the parent; the cited reasons are connections that explain why the commitment exists. A requirement that cites nothing reports as `requirement-cites-missing`, at check level A, or check level G when the requirement carries `risk`.
 
-**Checked by:** `litespec model check` reports `requirement-uncited` for a requirement entry naming no reason in `cites`.
+**Checked by:** `litespec model check` reports `requirement-cites-missing` for a requirement entry naming no reason in `cites`.
 
 ### Cite Each Applying Constraint from a Requirement
 
@@ -229,9 +229,9 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Statement:** A requirement MUST cite in `cites` each constraint with `applies: true` that binds it.
 
-**Rationale:** An applying constraint with no citing requirement has no answer the product keeps. Citing it ties the outside rule to the commitments that obey it, and What It Requires lists those commitments back. A constraint with `applies: true` that no requirement cites reports as `constraint-uncited` at check level G.
+**Rationale:** An applying constraint with no citing requirement has no answer the product keeps. Citing it ties the outside rule to the commitments that obey it, and What It Requires lists those commitments back. A constraint with `applies: true` that no requirement cites reports as `constraint-unreached` at check level G.
 
-**Checked by:** `litespec model check` reports `constraint-uncited` for a constraint with `applies: true` that no requirement cites.
+**Checked by:** `litespec model check` reports `constraint-unreached` for a constraint with `applies: true` that no requirement cites.
 
 ### Explain Each Requirement in One Line
 
@@ -251,7 +251,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Rationale:** A number without its measure cannot be checked: the team cannot tell what is counted or when the count holds. The `measure` names what is counted, and `dueBy` names the date or milestone. The schema pairs the two, so a requirement carries both or neither. A requirement carrying `measure` needs a `check` and a passing run, and a statement naming a number with no `measure` reports at check level A.
 
-**Checked by:** `litespec model check` reports `requirement-unmeasured` for a requirement carrying `measure` without `check` or a passing run, and for a statement naming a number with no `measure`.
+**Checked by:** `litespec model check` reports `requirement-measure-missing` for a requirement carrying `measure` without `check` or a passing run, and for a statement naming a number with no `measure`.
 
 ### State Each Quality Requirement as a Scenario
 
@@ -273,7 +273,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Rationale:** The records that fulfill are rule, use case, reaction, job, notification, and setting. A journey names the requirements it shows in `cites`; it never fulfills, so a journey alone never clears an unfulfilled requirement. Behavior points up to the promises it keeps, and each promise traces down to the behavior that keeps it.
 
-**Checked by:** `litespec model check` reports `requirement-unfulfilled` for a requirement no Behavior record fulfills.
+**Checked by:** `litespec model check` reports `requirement-fulfillment-missing` for a requirement no Behavior record fulfills.
 
 ### Order Each Journey Toward One Goal
 
@@ -317,7 +317,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Example:** A reimbursed expense lands in the employee's account, never more than they spent. Except when the payout bank's settlement window has closed for that batch, with `fallback` naming the requirement that has finance repay the employee by other means.
 
-**Checked by:** `litespec model check` reports no `except-without-fallback` finding.
+**Checked by:** `litespec model check` reports no `except-fallback-missing` finding.
 
 ### Write Journey Steps as Sentences with Ids
 

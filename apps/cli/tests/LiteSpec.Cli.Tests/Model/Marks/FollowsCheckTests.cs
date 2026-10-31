@@ -66,13 +66,13 @@ public sealed class FollowsCheckTests
     }
 
     /// <proves>litespec/core/system#point-every-technical-class-up-to-its-record-or-choice</proves>
-    [Fact(DisplayName = "A technical class with only implements decision reports mark-unresolved")]
+    [Fact(DisplayName = "A technical class with only implements decision reports mark-unknown")]
     public void TechnicalClassWithImplementsDecisionReportsMarkUnresolved()
     {
         using var temp = MarksFixture.Prepare("follows");
 
         var finding = Assert.Single(
-            MarksFixture.WithCode(MarksFixture.Check(temp.Path), "mark-unresolved"),
+            MarksFixture.WithCode(MarksFixture.Check(temp.Path), "mark-unknown"),
             finding => FileName(finding) == "LoanDecisionClaim.cs");
 
         Assert.Contains("which is a decision record", finding.Message);
@@ -90,7 +90,7 @@ public sealed class FollowsCheckTests
             MarksFixture.WithCode(findings, "mark-missing"),
             finding => FileName(finding) == "LoanAggregateStore.cs");
         Assert.DoesNotContain(
-            MarksFixture.WithCode(findings, "mark-unresolved"),
+            MarksFixture.WithCode(findings, "mark-unknown"),
             finding => FileName(finding) == "LoanAggregateStore.cs");
 
         var unimplemented = Assert.Single(
@@ -100,75 +100,75 @@ public sealed class FollowsCheckTests
     }
 
     /// <proves>litespec/core/system#point-every-technical-class-up-to-its-record-or-choice</proves>
-    [Fact(DisplayName = "A follows naming an unknown provision reports mark-unresolved")]
+    [Fact(DisplayName = "A follows naming an unknown provision reports mark-unknown")]
     public void UnknownProvisionReportsMarkUnresolved()
     {
         using var temp = MarksFixture.Prepare("follows");
 
         var finding = Assert.Single(
-            MarksFixture.WithCode(MarksFixture.Check(temp.Path), "mark-unresolved"),
+            MarksFixture.WithCode(MarksFixture.Check(temp.Path), "mark-unknown"),
             finding => FileName(finding) == "LoanExporter.cs");
 
         Assert.Contains("which matches no provision of the carried release.", finding.Message);
     }
 
     /// <proves>litespec/core/system#point-every-technical-class-up-to-its-record-or-choice</proves>
-    [Fact(DisplayName = "A follows naming a provision on an unapplied page reports mark-unresolved")]
+    [Fact(DisplayName = "A follows naming a provision on an unapplied page reports mark-unknown")]
     public void UnappliedProvisionReportsMarkUnresolved()
     {
         using var temp = MarksFixture.Prepare("follows");
 
         var finding = Assert.Single(
-            MarksFixture.WithCode(MarksFixture.Check(temp.Path), "mark-unresolved"),
+            MarksFixture.WithCode(MarksFixture.Check(temp.Path), "mark-unknown"),
             finding => FileName(finding) == "LoanArchiver.cs");
 
         Assert.Contains("which sits on a page the project's stacks and extensions do not apply.", finding.Message);
     }
 
     /// <proves>litespec/core/system#point-every-technical-class-up-to-its-record-or-choice</proves>
-    [Fact(DisplayName = "A follows naming an unknown decision reports mark-unresolved")]
+    [Fact(DisplayName = "A follows naming an unknown decision reports mark-unknown")]
     public void UnknownDecisionReportsMarkUnresolved()
     {
         using var temp = MarksFixture.Prepare("follows");
 
         var finding = Assert.Single(
-            MarksFixture.WithCode(MarksFixture.Check(temp.Path), "mark-unresolved"),
+            MarksFixture.WithCode(MarksFixture.Check(temp.Path), "mark-unknown"),
             finding => FileName(finding) == "LoanIndexer.cs");
 
         Assert.Contains("which matches no decision or deviation.", finding.Message);
     }
 
     /// <proves>litespec/core/system#point-every-technical-class-up-to-its-record-or-choice</proves>
-    [Fact(DisplayName = "A follows naming a retired decision reports mark-unresolved")]
+    [Fact(DisplayName = "A follows naming a retired decision reports mark-unknown")]
     public void RetiredDecisionReportsMarkUnresolved()
     {
         using var temp = MarksFixture.Prepare("follows");
 
         var finding = Assert.Single(
-            MarksFixture.WithCode(MarksFixture.Check(temp.Path), "mark-unresolved"),
+            MarksFixture.WithCode(MarksFixture.Check(temp.Path), "mark-unknown"),
             finding => FileName(finding) == "LegacyExporter.cs");
 
         Assert.Contains("which is retired.", finding.Message);
     }
 
     /// <proves>litespec/core/system#point-every-technical-class-up-to-its-record-or-choice</proves>
-    [Fact(DisplayName = "No other mark-unresolved fires in the follows fixture")]
+    [Fact(DisplayName = "No other mark-unknown fires in the follows fixture")]
     public void NoOtherMarkUnresolvedFires()
     {
         using var temp = MarksFixture.Prepare("follows");
 
-        var unresolved = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "mark-unresolved");
+        var unresolved = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "mark-unknown");
 
         Assert.Equal(5, unresolved.Count);
     }
 
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
-    [Fact(DisplayName = "A technical class naming one decision twice reports mark-count")]
+    [Fact(DisplayName = "A technical class naming one decision twice reports mark-count-invalid")]
     public void DuplicateFollowsReportsMarkCount()
     {
         using var temp = MarksFixture.Prepare("follows");
 
-        var counts = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "mark-count");
+        var counts = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "mark-count-invalid");
 
         var finding = Assert.Single(counts);
         Assert.Contains("names 'decision/0002-store-loans-as-documents' twice.", finding.Message);
@@ -176,24 +176,24 @@ public sealed class FollowsCheckTests
     }
 
     /// <proves>litespec/core/model#record-each-technical-choice-as-a-decision</proves>
-    [Fact(DisplayName = "A technical decision no code follows reports decision-unfollowed")]
+    [Fact(DisplayName = "A technical decision no code follows reports decision-unimplemented")]
     public void UnfollowedDecisionReportsDecisionUnfollowed()
     {
         using var temp = MarksFixture.Prepare("follows");
 
-        var unfollowed = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "decision-unfollowed");
+        var unfollowed = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "decision-unimplemented");
 
         var finding = Assert.Single(unfollowed);
         Assert.Equal("Decision 'decision/0003-loan-cache-region' is followed by no code element.", finding.Message);
     }
 
     /// <proves>litespec/core/model#name-what-every-decision-decides</proves>
-    [Fact(DisplayName = "A product decision with no decides reports decision-decides-nothing")]
+    [Fact(DisplayName = "A product decision with no decides reports decision-decides-missing")]
     public void ProductDecisionWithoutDecidesReportsDecidesNothing()
     {
         using var temp = MarksFixture.Prepare("follows");
 
-        var empty = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "decision-decides-nothing");
+        var empty = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "decision-decides-missing");
 
         var finding = Assert.Single(empty);
         Assert.Equal("Decision 'decision/0001-loan-threshold' names nothing it decides.", finding.Message);
@@ -237,9 +237,9 @@ public sealed class FollowsCheckTests
         Assert.Equal(MarkVerb.Follows, mark.Verb);
         Assert.Equal(MarkStyle.Attribute, mark.Style);
         Assert.Empty(MarksFixture.WithCode(findings, "mark-missing"));
-        Assert.Empty(MarksFixture.WithCode(findings, "mark-unresolved"));
-        Assert.Empty(MarksFixture.WithCode(findings, "mark-style-mixed"));
-        Assert.Empty(MarksFixture.WithCode(findings, "decision-unfollowed"));
+        Assert.Empty(MarksFixture.WithCode(findings, "mark-unknown"));
+        Assert.Empty(MarksFixture.WithCode(findings, "mark-style-invalid"));
+        Assert.Empty(MarksFixture.WithCode(findings, "decision-unimplemented"));
     }
 
     static TempFolder WriteAttributeConsumer()

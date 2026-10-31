@@ -115,7 +115,7 @@ public sealed class UseCaseVerbCheckTests
             TestModel.Record("use-case", "use-case/lending.change-copy", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "loans", "change-copy.md"), """{"kind": "query"}"""),
             TestModel.Record("use-case", "use-case/lending.list-copies", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "loans", "list-copies.md"), """{"kind": "command"}"""));
 
-        Assert.Equal(2, TestModel.Codes(model).Count(code => code == "use-case-verb-kind"));
+        Assert.Equal(2, TestModel.Codes(model).Count(code => code == "use-case-verb-invalid"));
     }
 
     /// <proves>litespec/core/behavior#keep-one-kind-per-verb</proves>
@@ -128,7 +128,7 @@ public sealed class UseCaseVerbCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/lending.trace-loan", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "loans", "trace-loan.md"), """{"kind": "command"}"""));
 
-        Assert.Contains("use-case-verb-kind", TestModel.Codes(model));
+        Assert.Contains("use-case-verb-invalid", TestModel.Codes(model));
     }
 
     /// <proves>litespec/core/behavior#name-each-reaction-for-its-act-and-its-trigger</proves>
@@ -142,7 +142,7 @@ public sealed class UseCaseVerbCheckTests
             TestModel.Record("reaction", "reaction/lending.send-due-notice-on-loan-borrowed", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "reactions", "send-due-notice-on-loan-borrowed.md"), """{"on": ["event/loan.loan-borrowed"]}"""),
             TestModel.Record("reaction", "reaction/lending.notify-borrower", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "reactions", "notify-borrower.md"), """{"on": ["event/loan.loan-borrowed"]}"""));
 
-        var form = Checker.Check(model).Findings.Where(finding => finding.Code == "reaction-name-form").ToList();
+        var form = Checker.Check(model).Findings.Where(finding => finding.Code == "reaction-name-invalid").ToList();
 
         Assert.Single(form);
         Assert.Contains("notify-borrower", form[0].Message);
@@ -160,7 +160,7 @@ public sealed class UseCaseVerbCheckTests
             TestModel.Record("job", "job/lending.expire-lapsed-holds", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "jobs", "expire-lapsed-holds.md"), """{"effects": [{"issues": "use-case/lending.expire-holds"}]}"""),
             TestModel.Record("job", "job/lending.sweep-holds", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "jobs", "sweep-holds.md"), """{"effects": [{"issues": "use-case/lending.expire-holds"}]}"""));
 
-        var form = Checker.Check(model).Findings.Where(finding => finding.Code == "job-name-form").ToList();
+        var form = Checker.Check(model).Findings.Where(finding => finding.Code == "job-name-invalid").ToList();
 
         Assert.Single(form);
         Assert.Contains("sweep-holds", form[0].Message);

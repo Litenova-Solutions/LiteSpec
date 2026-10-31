@@ -86,7 +86,7 @@ An actor, role, or external system page carries a Summary section stating what t
 
 **Example:** An employee actor carries `person`, and a payout service carries `system`.
 
-**Checked by:** `litespec model check` reports `record-shape` for an actor without `kind` and `invalid-field` for a kind outside person, organization, and system.
+**Checked by:** `litespec model check` reports `record-invalid` for an actor without `kind` and `field-invalid` for a kind outside person, organization, and system.
 
 ### Record Every Role Hold with Its Scope
 
@@ -114,7 +114,7 @@ An actor, role, or external system page carries a Summary section stating what t
 
 **Example:** A scope of `team` bounds the role to one team, while `platform` bounds it to the whole product.
 
-**Checked by:** `litespec model check` reports `record-shape` for a role without `scope` and `invalid-field` for a scope outside kebab-case form.
+**Checked by:** `litespec model check` reports `record-invalid` for a role without `scope` and `field-invalid` for a scope outside kebab-case form.
 
 ### Grant Permissions Through Roles
 
@@ -126,7 +126,7 @@ An actor, role, or external system page carries a Summary section stating what t
 
 **Example:** `role/employee` allows `permission/submit-expense`, which the submit use case cites in its grant.
 
-**Checked by:** `litespec model check` reports `record-shape` for a role with no `allows` entry.
+**Checked by:** `litespec model check` reports `record-invalid` for a role with no `allows` entry.
 
 ### State Every Permission with Its Meaning
 
@@ -138,7 +138,7 @@ An actor, role, or external system page carries a Summary section stating what t
 
 **Example:** `permission/submit-expense` carries "Submit an expense for approval."
 
-**Checked by:** `litespec model check` reports `record-shape` for a permission without `meaning`.
+**Checked by:** `litespec model check` reports `record-invalid` for a permission without `meaning`.
 
 ### State the Scope of Every Permission
 
@@ -166,7 +166,7 @@ An actor, role, or external system page carries a Summary section stating what t
 "access": { "auth": ["session"], "grant": "permission/manage-copies", "tenant": "own" }
 ```
 
-**Checked by:** `litespec model check` reports `record-shape` for a use case without `access`, `auth`, `grant`, or `tenant`.
+**Checked by:** `litespec model check` reports `record-invalid` for a use case without `access`, `auth`, `grant`, or `tenant`.
 
 ### Authenticate Every Caller Through a Declared Auth Kind
 
@@ -178,7 +178,7 @@ An actor, role, or external system page carries a Summary section stating what t
 
 **Example:** An expense approval names `session`, a self-checkout kiosk names `device`, and a nightly job names `system`.
 
-**Checked by:** `litespec model check` reports `invalid-field` for an `auth` kind outside session, token, device, link, app, anonymous, and system.
+**Checked by:** `litespec model check` reports `field-invalid` for an `auth` kind outside session, token, device, link, app, anonymous, and system.
 
 ### Grant Every Use Case Through a Declared Grant
 
@@ -190,7 +190,7 @@ An actor, role, or external system page carries a Summary section stating what t
 
 **Example:** `permission/manage-copies` for staff work, `self(permission/read-loans)` for a reader reading their own loans, `anonymous` for a public catalog, and `system` for a self-checkout handler acting for the device.
 
-**Checked by:** `litespec model check` reports `invalid-field` for a grant outside permission, self, anonymous, and system, and `reference-unresolved` for a permission no record defines.
+**Checked by:** `litespec model check` reports `field-invalid` for a grant outside permission, self, anonymous, and system, and `reference-unknown` for a permission no record defines.
 
 ### Remove a Target That Must Be the Caller
 
@@ -214,7 +214,7 @@ An actor, role, or external system page carries a Summary section stating what t
 
 **Example:** An expense report names `own`, a staff search across tenants names `cross`, a public catalog names `public`, and a health check names `none`.
 
-**Checked by:** `litespec model check` reports `invalid-field` for a tenant scope outside own, cross, public, and none.
+**Checked by:** `litespec model check` reports `field-invalid` for a tenant scope outside own, cross, public, and none.
 
 ### Derive Generic Refusals from Access and Input
 
@@ -298,7 +298,7 @@ An actor, role, or external system page carries a Summary section stating what t
 
 **Example:** The library app carries `browser`, a kiosk handshake carries `device`, and the nightly export carries `job`.
 
-**Checked by:** `litespec model check` reports `record-shape` for an entry point without `kind` and `invalid-field` for a kind outside browser, api, webhook, device, cli, mcp, served-content, reaction, and job.
+**Checked by:** `litespec model check` reports `record-invalid` for an entry point without `kind` and `field-invalid` for a kind outside browser, api, webhook, device, cli, mcp, served-content, reaction, and job.
 
 ### Describe Every Served Content Entry Point with Its Serving Fields
 
@@ -310,7 +310,7 @@ An actor, role, or external system page carries a Summary section stating what t
 
 **Example:** A terms text carries its path, `text/html`, its cache window, its version rule, and the requirement it fulfills.
 
-**Checked by:** `litespec model check` reports `record-shape` for a served content entry point without path, contentType, cacheControl, versioning, or fulfills.
+**Checked by:** `litespec model check` reports `record-invalid` for a served content entry point without path, contentType, cacheControl, versioning, or fulfills.
 
 ### Name the Actor for Every External System
 
@@ -322,7 +322,7 @@ An actor, role, or external system page carries a Summary section stating what t
 
 **Example:** The text gateway names `actor/reader` as its actor.
 
-**Checked by:** `litespec model check` reports `record-shape` for an external system without `actor`.
+**Checked by:** `litespec model check` reports `record-invalid` for an external system without `actor`.
 
 ### Declare Every Operation on Every External System
 
@@ -334,7 +334,7 @@ An actor, role, or external system page carries a Summary section stating what t
 
 **Example:** A payout bank declares a `settle-batch` operation with its timeout, retry count, and response shape, which the payout effect cites as `calls`.
 
-**Checked by:** `litespec model check` reports `record-shape` for an external system without `operations` and `reference-unresolved` for a `calls` edge naming no declared operation.
+**Checked by:** `litespec model check` reports `record-invalid` for an external system without `operations` and `reference-unknown` for a `calls` edge naming no declared operation.
 
 ### Declare Erasure for Every External System
 
@@ -346,7 +346,7 @@ An actor, role, or external system page carries a Summary section stating what t
 
 **Example:** A payout archive declares `impossible (settled payouts belong to the bank)` with the decision that accepts the limit, plus the sentence employees see.
 
-**Checked by:** `litespec model check` reports `record-shape` for an external system without `erasure` and `reference-unresolved` for an impossible erasure without an Intent decision.
+**Checked by:** `litespec model check` reports `record-invalid` for an external system without `erasure` and `reference-unknown` for an impossible erasure without an Intent decision.
 
 ### Write a Summary on Every Actor and Role Page
 

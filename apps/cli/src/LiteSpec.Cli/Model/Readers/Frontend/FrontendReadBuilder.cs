@@ -100,7 +100,7 @@ static class FrontendReadBuilder
         if (facts.Failure is { } failure)
         {
             findings.Add(new Finding(
-                "reader-unavailable",
+                "reader-missing",
                 $"Frontend '{frontend.Name}' could not be read: {failure}",
                 frontend.Path, 1, null)
             {

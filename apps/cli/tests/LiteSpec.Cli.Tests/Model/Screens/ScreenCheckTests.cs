@@ -64,7 +64,7 @@ public sealed class ScreenCheckTests
         model.Records.Add(Screen("screen/app.loans", "/loans", ["use-case/lending.list-loans"], []));
         AddRoute(model, "screen/app.loans", "/loans", ["use-case/lending.borrow-copy"]);
 
-        var finding = Assert.Single(WithCode(model, "screen-calls-mismatch"));
+        var finding = Assert.Single(WithCode(model, "screen-offers-drift"));
         Assert.Contains("use-case/lending.list-loans", finding.Message);
         Assert.Contains("use-case/lending.borrow-copy", finding.Message);
     }
@@ -78,7 +78,7 @@ public sealed class ScreenCheckTests
         model.Records.Add(Screen("screen/app.loans", "/loans", ["use-case/lending.list-loans"], []));
         AddRoute(model, "screen/app.loans", "/loans", ["use-case/lending.list-loans"]);
 
-        Assert.Empty(WithCode(model, "screen-calls-mismatch"));
+        Assert.Empty(WithCode(model, "screen-offers-drift"));
     }
 
     /// <proves>litespec/core/behavior#serve-only-the-steps-a-screens-use-cases-serve</proves>
@@ -89,7 +89,7 @@ public sealed class ScreenCheckTests
         var model = BaseModel(temp.Path);
         model.Records.Add(Screen("screen/app.loans", "/loans", ["use-case/lending.list-loans"], ["journey/walk#s2"]));
 
-        Assert.Single(WithCode(model, "screen-serves-mismatch"));
+        Assert.Single(WithCode(model, "screen-serves-drift"));
     }
 
     /// <proves>litespec/core/behavior#serve-only-the-steps-a-screens-use-cases-serve</proves>
@@ -100,7 +100,7 @@ public sealed class ScreenCheckTests
         var model = BaseModel(temp.Path);
         model.Records.Add(Screen("screen/app.loans", "/loans", ["use-case/lending.list-loans"], ["journey/walk#s1"]));
 
-        Assert.Empty(WithCode(model, "screen-serves-mismatch"));
+        Assert.Empty(WithCode(model, "screen-serves-drift"));
     }
 
     /// <proves>litespec/core/behavior#give-every-browser-step-a-screen</proves>
@@ -110,7 +110,7 @@ public sealed class ScreenCheckTests
         using var temp = Cli.Temp("screens");
         var model = BaseModel(temp.Path);
 
-        Assert.Single(WithCode(model, "step-unscreened"));
+        Assert.Single(WithCode(model, "step-screen-missing"));
     }
 
     /// <proves>litespec/core/behavior#give-every-browser-step-a-screen</proves>
@@ -121,7 +121,7 @@ public sealed class ScreenCheckTests
         var model = BaseModel(temp.Path);
         model.Records.Add(Screen("screen/app.loans", "/loans", ["use-case/lending.list-loans"], ["journey/walk#s1"]));
 
-        Assert.Empty(WithCode(model, "step-unscreened"));
+        Assert.Empty(WithCode(model, "step-screen-missing"));
     }
 
     /// <proves>litespec/core/behavior#show-every-refusal-a-screen-can-reach</proves>
@@ -133,7 +133,7 @@ public sealed class ScreenCheckTests
         model.Records.Add(Screen("screen/app.loans", "/loans", ["use-case/lending.list-loans"], []));
         AddRoute(model, "screen/app.loans", "/loans", ["use-case/lending.list-loans"]);
 
-        Assert.Single(WithCode(model, "result-unshown"));
+        Assert.Single(WithCode(model, "refusal-sentence-missing"));
     }
 
     /// <proves>litespec/core/behavior#show-every-refusal-a-screen-can-reach</proves>
@@ -146,7 +146,7 @@ public sealed class ScreenCheckTests
         model.Records.Add(Screen("screen/app.loans", "/loans", ["use-case/lending.list-loans"], []));
         AddRoute(model, "screen/app.loans", "/loans", ["use-case/lending.list-loans"]);
 
-        Assert.Empty(WithCode(model, "result-unshown"));
+        Assert.Empty(WithCode(model, "refusal-sentence-missing"));
     }
 
     /// <proves>litespec/core/behavior#show-every-refusal-a-screen-can-reach</proves>
@@ -161,7 +161,7 @@ public sealed class ScreenCheckTests
             "web", "shows the refusal", Path.Combine(temp.Path, "tests", "loans.spec.ts"), 3,
             [], null, [], ["lending.refused"], []));
 
-        Assert.Empty(WithCode(model, "result-unshown"));
+        Assert.Empty(WithCode(model, "refusal-sentence-missing"));
     }
 
     /// <proves>litespec/frontend/testing#prove-each-scenario-at-one-boundary</proves>
@@ -173,7 +173,7 @@ public sealed class ScreenCheckTests
         model.BrowserTests.Add(BrowserProof(temp.Path, "first", "/loans"));
         model.BrowserTests.Add(BrowserProof(temp.Path, "second", "/loans"));
 
-        Assert.Single(WithCode(model, "proves-duplicated"));
+        Assert.Single(WithCode(model, "proves-duplicate"));
     }
 
     /// <proves>litespec/frontend/testing#prove-each-scenario-at-one-boundary</proves>
@@ -184,7 +184,7 @@ public sealed class ScreenCheckTests
         var model = BaseModel(temp.Path);
         model.BrowserTests.Add(BrowserProof(temp.Path, "only", "/loans"));
 
-        Assert.Empty(WithCode(model, "proves-duplicated"));
+        Assert.Empty(WithCode(model, "proves-duplicate"));
     }
 
     /// <proves>litespec/frontend/testing#reach-a-screen-that-offers-the-scenarios-use-case</proves>
@@ -196,7 +196,7 @@ public sealed class ScreenCheckTests
         model.Records.Add(Screen("screen/app.loans", "/loans", ["use-case/lending.list-loans"], []));
         model.BrowserTests.Add(BrowserProof(temp.Path, "stray", "/elsewhere"));
 
-        Assert.Single(WithCode(model, "proves-unconfirmed"));
+        Assert.Single(WithCode(model, "proves-unreached"));
     }
 
     /// <proves>litespec/frontend/testing#assert-the-result-a-scenario-ends-in</proves>
@@ -208,7 +208,7 @@ public sealed class ScreenCheckTests
         model.Records.Add(Screen("screen/app.loans", "/loans", ["use-case/lending.list-loans"], []));
         model.BrowserTests.Add(BrowserProof(temp.Path, "proof", "/loans"));
 
-        Assert.Empty(WithCode(model, "proves-unconfirmed"));
+        Assert.Empty(WithCode(model, "proves-unreached"));
     }
 
     /// <proves>litespec/frontend/web/ui#mark-the-route-suite-and-goldens-with-what-they-prove</proves>
@@ -237,7 +237,7 @@ public sealed class ScreenCheckTests
             ["litespec/frontend/web/ui#check-every-route-in-a-browser"], null, [], [], []));
 
         Assert.Empty(WithCode(model, "mark-missing"));
-        Assert.Empty(WithCode(model, "mark-unresolved"));
+        Assert.Empty(WithCode(model, "mark-unknown"));
     }
 
     /// <proves>litespec/frontend/web/ui#mark-the-route-suite-and-goldens-with-what-they-prove</proves>
@@ -251,7 +251,7 @@ public sealed class ScreenCheckTests
             "web", "every route", Path.Combine(temp.Path, "apps", "web", "tests", "routes", "every-route.spec.ts"), 3,
             ["scenario/list-loans.listing-succeeds"], null, [], [], []));
 
-        Assert.Single(WithCode(model, "mark-unresolved"), found => found.Message.Contains("which is a scenario"));
+        Assert.Single(WithCode(model, "mark-unknown"), found => found.Message.Contains("which is a scenario"));
     }
 
     static void WriteRouteSuiteProject(string root)
@@ -288,7 +288,7 @@ public sealed class ScreenCheckTests
             CodeKind.FrontendModule, "lending/loans/other", null, file, 3,
             [new CodeMark("use-case/lending.other", MarkStyle.Xml, MarkVerb.Implements, file, 3)], InTests: false));
 
-        Assert.Single(WithCode(model, "mark-unresolved"), found => found.Message.Contains("outside frontend 'web's entry points"));
+        Assert.Single(WithCode(model, "mark-unknown"), found => found.Message.Contains("outside frontend 'web's entry points"));
     }
 
     /// <proves>litespec/frontend/web/structure#generate-the-records-file-into-the-frame</proves>
@@ -305,7 +305,7 @@ public sealed class ScreenCheckTests
             CodeKind.FrontendModule, "lending/loans/list-loans", null, file, 3,
             [new CodeMark("use-case/lending.list-loans", MarkStyle.Xml, MarkVerb.Implements, file, 3)], InTests: false));
 
-        Assert.Empty(WithCode(model, "mark-unresolved"));
+        Assert.Empty(WithCode(model, "mark-unknown"));
     }
 
     /// <proves>litespec/frontend/testing#reach-a-screen-that-offers-the-scenarios-use-case</proves>

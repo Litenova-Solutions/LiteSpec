@@ -56,7 +56,7 @@ What each field means and what reads it:
 - `constraints` records whether any outside constraint applies to the project. See the `constraints` object below.
 - `owners` is the closed list of names a record owner comes from. Each entry is a plain name, such as `"shop-team"`, or an object mapping a readable name to its CODEOWNERS handles, such as `{"name": "Shop engineering", "codeowners": ["@shop/team"]}`. The model builder reads the list and reports whether one is declared. See the `owners` entry below.
 - `review` names the review settings: the veto window and the security reviewer. See the `review` object below.
-- `marks` is the mark style: `xml` for documentation tags, `attribute` for generated attributes. The model builder, the analyzers and the source generator read it, and each reports a mark in the other style as `mark-style-mixed`.
+- `marks` is the mark style: `xml` for documentation tags, `attribute` for generated attributes. The model builder, the analyzers and the source generator read it, and each reports a mark in the other style as `mark-style-invalid`.
 - `check` names how the checks treat the project. See the `check` object below.
 - `adoption` names the decision that ends transcription mode. See the `adoption` object below.
 - `refusals` names the codes the derived generic results carry. See the `refusals` object below.
@@ -139,7 +139,7 @@ What each field means and what reads it:
 |:---|:---|:---|:---|
 | `transcriptionEndsWith` | string | yes | none |
 
-`transcriptionEndsWith` names the decision that ends transcription mode, such as `"decision/0084-promote-to-production"`. Before that decision is approved, a Behavior record marked `source: transcribed` may be `draft` but never `reviewed`. After it is approved, any remaining transcribed record fails `transcribed-after-adoption`.
+`transcriptionEndsWith` names the decision that ends transcription mode, such as `"decision/0084-promote-to-production"`. Before that decision is approved, a Behavior record marked `source: transcribed` may be `draft` but never `reviewed`. After it is approved, any remaining transcribed record fails `transcription-expired`.
 
 ### The `refusals` Object
 
@@ -154,8 +154,8 @@ What each field means and what reads it:
 
 - `forbidden` is the code the derived `result/<use-case>.forbidden` carries, derived for a use case whose `access.grant` is a permission.
 - `invalidInput` is the code the derived `result/<use-case>.invalid-input` carries, derived for a use case with any `input` field carrying `rules`.
-- `prefixes` lists the refusal-code prefixes the project shares across modules, such as `shared` for a shared kernel. The `refusal-code-form` check accepts them beside every declared module and the generic `request`, `authorization` and `client` prefixes.
-- `composed` lists the refusal codes the project builds at run time from a key, each a template with one `{key}` placeholder after a prefix and a dot, such as `"uniqueness.{key}-taken"` for the conflict a commit answers when an aggregate loses a uniqueness key. The `refusal-code-form` check accepts the template prefix. The `refusal-not-thrown` check counts a code matching a template as raised when its key is a kebab-case literal in the code, such as the key scope `copy-barcode` on the book aggregate for `uniqueness.copy-barcode-taken`.
+- `prefixes` lists the refusal-code prefixes the project shares across modules, such as `shared` for a shared kernel. The `refusal-code-invalid` check accepts them beside every declared module and the generic `request`, `authorization` and `client` prefixes.
+- `composed` lists the refusal codes the project builds at run time from a key, each a template with one `{key}` placeholder after a prefix and a dot, such as `"uniqueness.{key}-taken"` for the conflict a commit answers when an aggregate loses a uniqueness key. The `refusal-code-invalid` check accepts the template prefix. The `refusal-unimplemented` check counts a code matching a template as raised when its key is a kebab-case literal in the code, such as the key scope `copy-barcode` on the book aggregate for `uniqueness.copy-barcode-taken`.
 - The model builder reads `forbidden` and `invalidInput` when it derives the generic results. When the object is omitted, the defaults apply.
 
 ### The `vocabulary` Object
@@ -166,10 +166,10 @@ Every use-case name starts with a verb from the baseline vocabulary LiteSpec shi
 - `queryVerbs` lists project verbs that open only a query, such as `trace`.
 - `phrasal` lists multi-word verbs counted as one opening, such as `check-in`.
 - `retired` maps more synonyms to their replacement verb, beside the synonyms the baseline retires.
-- `lookalikeIgnore` lists the lookalike pairs the `term-lookalike` check skips, each naming both forms as `"a|b"`, such as `"online|on-line"` for a compound that splits into real words by accident.
-- `pastTense` maps project domain verbs to their past tense, such as `{"reimburse": "reimbursed"}`. A verb with no entry tenses regularly. `litespec model check` reports `event-tense-mismatch` against the baseline table and this map.
+- `lookalikeIgnore` lists the lookalike pairs the `term-clash` check skips, each naming both forms as `"a|b"`, such as `"online|on-line"` for a compound that splits into real words by accident.
+- `pastTense` maps project domain verbs to their past tense, such as `{"reimburse": "reimbursed"}`. A verb with no entry tenses regularly. `litespec model check` reports `event-tense-invalid` against the baseline table and this map.
 
-A project never redefines a baseline verb. `litespec model check` reports `use-case-verb-unknown`, `use-case-verb-kind`, `reaction-name-form` and `job-name-form` against the baseline and these additions.
+A project never redefines a baseline verb. `litespec model check` reports `use-case-verb-unknown`, `use-case-verb-invalid`, `reaction-name-invalid` and `job-name-invalid` against the baseline and these additions.
 
 ### An `owners` Entry
 
@@ -250,7 +250,7 @@ What each field means and what reads it:
 
 - `application`, `domain`, `infrastructure`, `webapi`, and `worker` name the backend projects the model builder reads. A `*` in one segment expands to the first matching folder.
 - `apiSolution` names the API solution the model builder reads. A consumer with no backend omits `apiSolution` and records the decision that it has none.
-- `sharedKernel` names the one folder holding the domain shared kernel, where reasonless names are allowed. When omitted, no folder is exempt and `litespec model check` reports `reasonless-name` for every reasonless folder or type.
+- `sharedKernel` names the one folder holding the domain shared kernel, where reasonless names are allowed. When omitted, no folder is exempt and `litespec model check` reports `name-reason-missing` for every reasonless folder or type.
 - `templateStore` names the one C# file holding the notification template store: its top-level dictionary keys are the template keys, and its texts write parameters as `{{PascalCaseName}}`. When omitted, the template checks stay silent.
 
 ### The `uiPackage` Object
@@ -292,7 +292,7 @@ What each field means and what reads it:
 - `path` is the frontend directory, such as `"apps/web"`. `litespec consumer` reports a frontend whose directory does not exist.
 - `platform` is `react`, `svelte`, `blazor`, or `android`. Every entry declares it, so a frontend outside the controlled UI contract still declares that position instead of omitting the field. A `react` or `svelte` frontend is controlled and requires a `ui` block and the shared package. A `blazor` or `android` frontend is skipped by the controlled UI check.
 - `entryPoint` names the browser or device entry point the frontend serves, such as `"entry-point/claimwick-app"`. The model builder reads the frontend's screens, use cases and records file through it, and `model backfill` drafts the frontend's screens under it. Without it, the entry points its screens name decide, and before any screen exists every browser entry point does.
-- `refusalDictionary` names the file or folder holding that frontend's refusal dictionary: one sentence per refusal code, keyed by the refusal `code`. The model builder reads it for `result-unshown`, so a refusal a screen can reach is shown from that frontend's own words.
+- `refusalDictionary` names the file or folder holding that frontend's refusal dictionary: one sentence per refusal code, keyed by the refusal `code`. The model builder reads it for `refusal-sentence-missing`, so a refusal a screen can reach is shown from that frontend's own words.
 - `routeSuite` names the file or folder holding that frontend's route suite. The model builder reads it for the route-suite `proves` check, so the suite has a named subject instead of a convention.
 - `visualGoldens` names the folder holding that frontend's visual goldens. The model builder reads it for the same check, so a golden outside the named folder proves nothing.
 - `ui` holds `profile`, which is required, and `globalCss`, which is optional. The profile is one of `public-light`, `application-balanced`, or `admin-dense`. The `globalCss` value is the one stylesheet the frontend declares, and it imports the shared package tokens. `litespec ui` checks the profile value and the stylesheet path.

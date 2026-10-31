@@ -47,11 +47,11 @@ A need a lower record layer meets that the upper record layer leaves unstated tr
 
 **Statement:** Behavior that fulfils an Intent record MUST add the states, invariants, refusals, consistency, data classes with erasure positions, freshness, and tenant-scoped access the Intent record leaves unstated.
 
-**Rationale:** Intent promises outcomes in product words, and Behavior turns each promise into the states, invariants, refusals, consistency, data classes with erasure positions, freshness, and tenant-scoped access that keep it. Only Behavior records fulfil a requirement (`litespec/core/intent#restrict-requirement-fulfillment-to-behavior`). Without that detail each implementer guesses the states and the access scope, and two guesses diverge. The checks `requirement-unfulfilled`, `record-orphaned`, `step-unserved`, `erasure-undeclared`, and `setting-default-without-requirement` report the gaps.
+**Rationale:** Intent promises outcomes in product words, and Behavior turns each promise into the states, invariants, refusals, consistency, data classes with erasure positions, freshness, and tenant-scoped access that keep it. Only Behavior records fulfil a requirement (`litespec/core/intent#restrict-requirement-fulfillment-to-behavior`). Without that detail each implementer guesses the states and the access scope, and two guesses diverge. The checks `requirement-fulfillment-missing`, `record-link-missing`, `step-use-case-missing`, `erasure-undeclared`, and `setting-requirement-missing` report the gaps.
 
 **Example:** A reimbursement promise gains a process with Approved and Reimbursed states, a refusal for an expense that is already reimbursed, and atomic consistency over one aggregate.
 
-**Checked by:** `litespec model check` emits no `requirement-unfulfilled`, `record-orphaned`, `step-unserved`, `erasure-undeclared`, or `setting-default-without-requirement` finding across Behavior records.
+**Checked by:** `litespec model check` emits no `requirement-fulfillment-missing`, `record-link-missing`, `step-use-case-missing`, `erasure-undeclared`, or `setting-requirement-missing` finding across Behavior records.
 
 ### Raise Commercial and Observable Figures as Questions
 
@@ -71,11 +71,11 @@ A need a lower record layer meets that the upper record layer leaves unstated tr
 
 **Statement:** Implementation MUST add only the code shapes its stack pages fix and no observable outcome, edge, write, or access grant its Behavior records leave undeclared.
 
-**Rationale:** The stack pages fix the code shapes, so the handler, the repository call, and the published event each have one prescribed form. An observable outcome, edge, write, or access grant outside the records splits the project into approved fiction and unreviewed fact. The checks `behavior-unrecorded`, `write-undeclared`, `result-undeclared`, `effect-undeclared`, and `refusal-not-thrown` report the excess, and analyzer `LS2012` reports a handler that authorizes itself.
+**Rationale:** The stack pages fix the code shapes, so the handler, the repository call, and the published event each have one prescribed form. An observable outcome, edge, write, or access grant outside the records splits the project into approved fiction and unreviewed fact. The checks `behavior-unrecorded`, `write-undeclared`, `result-undeclared`, `effect-undeclared`, and `refusal-unimplemented` report the excess, and analyzer `LS2012` reports a handler that authorizes itself.
 
 **Example:** A handler that returns a code no result declares fails `result-undeclared`; the fix declares the result or removes the code.
 
-**Checked by:** `litespec model check` emits no `behavior-unrecorded`, `write-undeclared`, `result-undeclared`, `effect-undeclared`, or `refusal-not-thrown` finding across the implementation.
+**Checked by:** `litespec model check` emits no `behavior-unrecorded`, `write-undeclared`, `result-undeclared`, `effect-undeclared`, or `refusal-unimplemented` finding across the implementation.
 
 ### Prove Each Scenario Through the Public Boundary
 
@@ -83,9 +83,9 @@ A need a lower record layer meets that the upper record layer leaves unstated tr
 
 **Statement:** Each scenario MUST be proved by one test through the public boundary.
 
-**Rationale:** A scenario is the leaf of the record tree, so one test through the public boundary ties each leaf to running behavior. The checks `use-case-without-scenario` and `proves-unconfirmed` report the missing proof. A proof goes stale when its scenario's semantic hash changes, while rewording prose leaves the proof green.
+**Rationale:** A scenario is the leaf of the record tree, so one test through the public boundary ties each leaf to running behavior. The checks `use-case-scenario-missing` and `proves-unreached` report the missing proof. A proof goes stale when its scenario's semantic hash changes, while rewording prose leaves the proof green.
 
-**Checked by:** `litespec model check` emits no `use-case-without-scenario` or `proves-unconfirmed` finding across scenarios and tests.
+**Checked by:** `litespec model check` emits no `use-case-scenario-missing` or `proves-unreached` finding across scenarios and tests.
 
 ### Raise Open Needs as Draft Questions
 
@@ -117,7 +117,7 @@ A need a lower record layer meets that the upper record layer leaves unstated tr
 
 **Statement:** Each record whose parent record changes MUST be flagged for update, and its review and proof stay stale until an agent updates it.
 
-**Rationale:** A change at the top reaches every record that fulfils or serves the changed parent, so the builder flags each one as parent-changed. Agents update the flagged records, and review and proof follow the update. Without the flag a Behavior record keeps proving a promise nobody makes anymore.
+**Rationale:** A change at the top reaches every record that fulfils or serves the changed parent, so the builder flags each one as parent-reopened. Agents update the flagged records, and review and proof follow the update. Without the flag a Behavior record keeps proving a promise nobody makes anymore.
 
 **Reviewed for:** Which records with a changed parent still show a passing review and proof? Look at the flagged records beside their updated parents.
 
@@ -159,6 +159,6 @@ None.
 
 This informative example demonstrates `litespec/core/layers#flag-records-when-a-parent-record-changes`, `litespec/core/layers#raise-open-needs-as-draft-questions`, `litespec/core/layers#enter-world-facts-as-cited-research-or-constraints`, and `litespec/core/layers#record-changed-provider-behavior-as-observed-research`.
 
-Top-down: the decider answers the ballot with EUR 50 instead of EUR 25 for the receipt threshold. The requirement's statement changes, the builder marks the policy setting and the receipt rule as parent-changed, and an agent updates the setting default and the scenario where an expense without a receipt is refused. The developer reviews one two-line Behavior diff, the test changes, Proof goes green, and the book chapter shows the new promise.
+Top-down: the decider answers the ballot with EUR 50 instead of EUR 25 for the receipt threshold. The requirement's statement changes, the builder marks the policy setting and the receipt rule as parent-reopened, and an agent updates the setting default and the scenario where an expense without a receipt is refused. The developer reviews one two-line Behavior diff, the test changes, Proof goes green, and the book chapter shows the new promise.
 
 Bottom-up: a late reimbursement in production shows the payout bank settles batches every two days instead of daily. An agent records the observed behavior as research, then drafts a change to the settlement-window constraint citing it. The decider sees one ballot item on a tier 1 record, and on approval the per-batch deadline rule and its scenarios follow.

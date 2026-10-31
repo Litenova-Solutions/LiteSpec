@@ -26,7 +26,7 @@ This extension switches on no optional record type: the job, setting, and runboo
 
 **Statement:** A scheduled or one-off job MUST carry its schedule in structured form with its timezone on its job record.
 
-**Rationale:** The job record states when the work runs: `every` or `cron` with its timezone, so tools read the rhythm instead of parsing prose. A schedule kept outside the record runs with no reviewed moment attached, and misfire behavior has no stated time to measure against. `litespec/core/behavior#declare-every-job-with-kind-and-structured-schedule` states the record fields, and the `schedule-unstructured` check reports a schedule no tool can read.
+**Rationale:** The job record states when the work runs: `every` or `cron` with its timezone, so tools read the rhythm instead of parsing prose. A schedule kept outside the record runs with no reviewed moment attached, and misfire behavior has no stated time to measure against. `litespec/core/behavior#declare-every-job-with-kind-and-structured-schedule` states the record fields, and the `schedule-invalid` check reports a schedule no tool can read.
 
 **Reviewed for:** Each scheduled and one-off job record carries a structured schedule with its timezone.
 
@@ -56,7 +56,7 @@ This extension switches on no optional record type: the job, setting, and runboo
 
 **Statement:** An operator job run MUST stay inside its `runsWhere` under its `guard`.
 
-**Rationale:** Operator work is interactive platform work with no aggregate, such as a rehearsal harness, so no model bounds where it runs or who runs it. `runsWhere` names the deployment scope it may touch and the guard names who may run it and when. `litespec/core/behavior#guard-every-operator-job` states the record fields, and the `operator-job-without-guard` check reports an operator job with no guard.
+**Rationale:** Operator work is interactive platform work with no aggregate, such as a rehearsal harness, so no model bounds where it runs or who runs it. `runsWhere` names the deployment scope it may touch and the guard names who may run it and when. `litespec/core/behavior#guard-every-operator-job` states the record fields, and the `job-guard-missing` check reports an operator job with no guard.
 
 **Reviewed for:** Each operator job run stays inside its runsWhere under its guard.
 

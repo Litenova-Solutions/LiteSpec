@@ -30,7 +30,7 @@ static partial class Checker
     /// <summary>Text in backticks, which holds code rather than prose.</summary>
     static readonly Regex BacktickSpan = new("`[^`]*`", RegexOptions.Compiled);
 
-    /// <summary>Reports statement-vague-word.</summary>
+    /// <summary>Reports statement-word-invalid.</summary>
     private static void CheckStatementWording(ProjectModel model, List<Finding> findings)
     {
         foreach (var record in model.Records)
@@ -69,7 +69,7 @@ static partial class Checker
             if (pattern.IsMatch(prose))
             {
                 findings.Add(new Finding(
-                    "statement-vague-word",
+                    "statement-word-invalid",
                     $"{label} '{record.Id}' {field} uses '{word}', which hides behavior.",
                     record.File,
                     record.Line,

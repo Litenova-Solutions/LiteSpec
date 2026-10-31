@@ -3,7 +3,7 @@ using LiteSpec.Tests.Support;
 
 namespace LiteSpec.Tests.Model.Checks;
 
-/// <summary>Proves the term-lookalike check: joined and hyphenated pairs, spelling pairs, and the ignore list.</summary>
+/// <summary>Proves the term-clash check: joined and hyphenated pairs, spelling pairs, and the ignore list.</summary>
 public sealed class TermLookalikeCheckTests
 {
     /// <proves>litespec/core/authoring#review-each-term-for-its-lookalikes</proves>
@@ -17,7 +17,7 @@ public sealed class TermLookalikeCheckTests
             TestModel.Record("notification", "notification/test.send-soldout-notice", Path.Combine(temp.Path, "soldout.md"), """{"template": "soldout"}"""),
             TestModel.Record("reaction", "reaction/test.send-sold-out-notice-on-sale-ended", Path.Combine(temp.Path, "sold-out.md"), """{"on": ["event/sale.sale-ended"]}"""));
 
-        var findings = Checker.Check(model).Findings.Where(finding => finding.Code == "term-lookalike").ToList();
+        var findings = Checker.Check(model).Findings.Where(finding => finding.Code == "term-clash").ToList();
         var finding = Assert.Single(findings);
 
         Assert.Contains("soldout", finding.Message, StringComparison.Ordinal);
@@ -36,7 +36,7 @@ public sealed class TermLookalikeCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("notification", "notification/test.send-soldout-notice", Path.Combine(temp.Path, "soldout.md"), """{"template": "soldout"}"""));
 
-        Assert.DoesNotContain("term-lookalike", TestModel.Codes(model));
+        Assert.DoesNotContain("term-clash", TestModel.Codes(model));
     }
 
     /// <proves>litespec/core/authoring#review-each-term-for-its-lookalikes</proves>
@@ -50,7 +50,7 @@ public sealed class TermLookalikeCheckTests
             TestModel.Record("notification", "notification/test.send-soldout-notice", Path.Combine(temp.Path, "soldout.md"), """{"template": "soldout"}"""),
             TestModel.Record("reaction", "reaction/test.send-sold-out-notice-on-sale-ended", Path.Combine(temp.Path, "sold-out.md"), """{"on": ["event/sale.sale-ended"]}"""));
 
-        Assert.DoesNotContain("term-lookalike", TestModel.Codes(model));
+        Assert.DoesNotContain("term-clash", TestModel.Codes(model));
     }
 
     /// <proves>litespec/core/authoring#review-each-term-for-its-lookalikes</proves>
@@ -64,7 +64,7 @@ public sealed class TermLookalikeCheckTests
             TestModel.Record("rule", "rule/test.colour-check", Path.Combine(temp.Path, "colour.md"), """{"kind": "invariant", "statement": "Each flag carries a colour.", "governs": []}"""),
             TestModel.Record("rule", "rule/test.color-check", Path.Combine(temp.Path, "color.md"), """{"kind": "invariant", "statement": "Each flag carries a color.", "governs": []}"""));
 
-        var findings = Checker.Check(model).Findings.Where(finding => finding.Code == "term-lookalike").ToList();
+        var findings = Checker.Check(model).Findings.Where(finding => finding.Code == "term-clash").ToList();
         var finding = Assert.Single(findings);
 
         Assert.Contains("colour", finding.Message, StringComparison.Ordinal);
@@ -84,7 +84,7 @@ public sealed class TermLookalikeCheckTests
             TestModel.Record("aggregate", "aggregate/test.copy", Path.Combine(temp.Path, "copy.md"), """{"states": []}"""),
             TestModel.Record("aggregate", "aggregate/test.copies", Path.Combine(temp.Path, "copies.md"), """{"states": []}"""));
 
-        var findings = Checker.Check(model).Findings.Where(finding => finding.Code == "term-lookalike").ToList();
+        var findings = Checker.Check(model).Findings.Where(finding => finding.Code == "term-clash").ToList();
         var finding = Assert.Single(findings);
 
         Assert.Contains("copy", finding.Message, StringComparison.Ordinal);
@@ -109,7 +109,7 @@ public sealed class TermLookalikeCheckTests
             TestModel.Record("notification", $"notification/test.send-{split}-notice", Path.Combine(temp.Path, "split.md"), """{"template": "notice"}"""),
             TestModel.Record("notification", $"notification/test.send-{joined}-notice", Path.Combine(temp.Path, "joined.md"), """{"template": "notice"}"""));
 
-        Assert.DoesNotContain("term-lookalike", TestModel.Codes(model));
+        Assert.DoesNotContain("term-clash", TestModel.Codes(model));
     }
 
     /// <proves>litespec/core/authoring#review-each-term-for-its-lookalikes</proves>
@@ -127,7 +127,7 @@ public sealed class TermLookalikeCheckTests
             TestModel.Record("notification", $"notification/test.send-{split}-notice", Path.Combine(temp.Path, "split.md"), """{"template": "notice"}"""),
             TestModel.Record("notification", $"notification/test.send-{joined}-notice", Path.Combine(temp.Path, "joined.md"), """{"template": "notice"}"""));
 
-        var findings = Checker.Check(model).Findings.Where(finding => finding.Code == "term-lookalike").ToList();
+        var findings = Checker.Check(model).Findings.Where(finding => finding.Code == "term-clash").ToList();
         var finding = Assert.Single(findings);
 
         Assert.Contains(joined, finding.Message, StringComparison.Ordinal);
@@ -145,7 +145,7 @@ public sealed class TermLookalikeCheckTests
             TestModel.Record("rule", "rule/test.behaviour-check", Path.Combine(temp.Path, "behaviour.md"), """{"kind": "invariant", "statement": "Each flag carries a behaviour.", "governs": []}"""),
             TestModel.Record("rule", "rule/test.behavior-check", Path.Combine(temp.Path, "behavior.md"), """{"kind": "invariant", "statement": "Each flag carries a behavior.", "governs": []}"""));
 
-        var findings = Checker.Check(model).Findings.Where(finding => finding.Code == "term-lookalike").ToList();
+        var findings = Checker.Check(model).Findings.Where(finding => finding.Code == "term-clash").ToList();
         var finding = Assert.Single(findings);
 
         Assert.Contains("behaviour", finding.Message, StringComparison.Ordinal);

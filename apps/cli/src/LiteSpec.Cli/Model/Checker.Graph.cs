@@ -190,7 +190,7 @@ static partial class Checker
 
             if (record.Ids("serves").Count == 0 && record.Ids("fulfills").Count == 0)
             {
-                findings.Add(new Finding("record-orphaned", $"{Label(record.Type)} '{record.Id}' names neither serves nor fulfills.", record.File, record.Line, SubjectOf(record)));
+                findings.Add(new Finding("record-link-missing", $"{Label(record.Type)} '{record.Id}' names neither serves nor fulfills.", record.File, record.Line, SubjectOf(record)));
             }
         }
     }
@@ -218,7 +218,7 @@ static partial class Checker
             {
                 if (!served.Contains(step))
                 {
-                    findings.Add(new Finding("step-unserved", $"Journey step '{step}' is served by no use case or reaction.", journey.File, journey.Line, step));
+                    findings.Add(new Finding("step-use-case-missing", $"Journey step '{step}' is served by no use case or reaction.", journey.File, journey.Line, step));
                 }
             }
         }
@@ -372,7 +372,7 @@ static partial class Checker
             .Select(id => model.ById[id])
             .First(record => record.Type is "use-case" or "reaction" or "job");
 
-        findings.Add(new Finding("effect-loop", $"Effect loop with no stated end: {key} -> {rotated[0]}.", holder.File, holder.Line, holder.Id));
+        findings.Add(new Finding("effect-loop-invalid", $"Effect loop with no stated end: {key} -> {rotated[0]}.", holder.File, holder.Line, holder.Id));
     }
 
     /// <summary>
@@ -398,7 +398,7 @@ static partial class Checker
 
             if (changes.Count > 1 && BecauseCount(useCase) == 0)
             {
-                findings.Add(new Finding("consistency-unexplained", $"Use case '{useCase.Id}' changes {changes.Count} aggregates atomically with no because rule.", useCase.File, useCase.Line, SubjectOf(useCase)));
+                findings.Add(new Finding("consistency-cites-missing", $"Use case '{useCase.Id}' changes {changes.Count} aggregates atomically with no because rule.", useCase.File, useCase.Line, SubjectOf(useCase)));
             }
         }
     }
@@ -493,7 +493,7 @@ static partial class Checker
             {
                 foreach (var cited in LinkStrings(group.Value, "wideningBecause").Order(StringComparer.Ordinal))
                 {
-                    // An unknown target is left to reference-unresolved.
+                    // An unknown target is left to reference-unknown.
                     if (!model.ById.TryGetValue(cited, out var target))
                     {
                         continue;
@@ -501,7 +501,7 @@ static partial class Checker
 
                     if (target.Type != "requirement" || !LiveApproved(model, target))
                     {
-                        findings.Add(new Finding("widening-unjustified", $"Query '{query.Id}' widens '{group.Name}' through '{cited}', which is no approved requirement.", query.File, query.Line, SubjectOf(query)));
+                        findings.Add(new Finding("widening-cites-missing", $"Query '{query.Id}' widens '{group.Name}' through '{cited}', which is no approved requirement.", query.File, query.Line, SubjectOf(query)));
                     }
                 }
             }
@@ -657,7 +657,7 @@ static partial class Checker
             {
                 if (position.EnforcedBy is not { Length: > 0 })
                 {
-                    findings.Add(new Finding("retention-without-enforcement", $"Data class '{position.Name}' on aggregate '{aggregate.Id}' names no enforcedBy.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
+                    findings.Add(new Finding("retention-enforcement-missing", $"Data class '{position.Name}' on aggregate '{aggregate.Id}' names no enforcedBy.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
                 }
 
                 foreach (var exception in position.Exceptions.OrderBy(entry => entry.Field, StringComparer.Ordinal))
@@ -666,7 +666,7 @@ static partial class Checker
                         && exception.EnforcedBy is not { Length: > 0 }
                         && position.EnforcedBy is not { Length: > 0 })
                     {
-                        findings.Add(new Finding("retention-without-enforcement", $"Field '{exception.Field}' of data class '{position.Name}' on aggregate '{aggregate.Id}' names no enforcedBy.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
+                        findings.Add(new Finding("retention-enforcement-missing", $"Field '{exception.Field}' of data class '{position.Name}' on aggregate '{aggregate.Id}' names no enforcedBy.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
                     }
                 }
             }
@@ -711,13 +711,13 @@ static partial class Checker
     {
         if (acceptedBy.Count == 0)
         {
-            findings.Add(new Finding("risk-without-acceptance", $"{stem} and no acceptedBy in Intent.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
+            findings.Add(new Finding("risk-acceptance-missing", $"{stem} and no acceptedBy in Intent.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
             return;
         }
 
         foreach (var cited in acceptedBy.Order(StringComparer.Ordinal))
         {
-            // An unknown target is left to reference-unresolved.
+            // An unknown target is left to reference-unknown.
             if (!model.ById.TryGetValue(cited, out var target))
             {
                 continue;
@@ -725,7 +725,7 @@ static partial class Checker
 
             if (target.Type is not ("decision" or "requirement"))
             {
-                findings.Add(new Finding("risk-without-acceptance", $"{stem} and acceptedBy '{cited}', which is no Intent record.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
+                findings.Add(new Finding("risk-acceptance-missing", $"{stem} and acceptedBy '{cited}', which is no Intent record.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
             }
         }
     }
@@ -780,7 +780,7 @@ static partial class Checker
 
             if (carries && setting.Ids("fulfills").Count == 0)
             {
-                findings.Add(new Finding("setting-default-without-requirement", $"Setting '{setting.Id}' sets a default with no requirement behind it.", setting.File, setting.Line, SubjectOf(setting)));
+                findings.Add(new Finding("setting-requirement-missing", $"Setting '{setting.Id}' sets a default with no requirement behind it.", setting.File, setting.Line, SubjectOf(setting)));
             }
         }
     }
@@ -793,11 +793,11 @@ static partial class Checker
 
             if (released is not { Length: > 0 })
             {
-                findings.Add(new Finding("reservation-without-release", $"Rule '{rule.Id}' reserves with no releasedBy.", rule.File, rule.Line, SubjectOf(rule)));
+                findings.Add(new Finding("reservation-release-missing", $"Rule '{rule.Id}' reserves with no releasedBy.", rule.File, rule.Line, SubjectOf(rule)));
             }
             else if (released == "never" || (released.StartsWith("never", StringComparison.Ordinal) && !HasCost(released)))
             {
-                findings.Add(new Finding("reservation-without-release", $"Rule '{rule.Id}' names never with no cost.", rule.File, rule.Line, SubjectOf(rule)));
+                findings.Add(new Finding("reservation-release-missing", $"Rule '{rule.Id}' names never with no cost.", rule.File, rule.Line, SubjectOf(rule)));
             }
         }
     }
@@ -830,7 +830,7 @@ static partial class Checker
         {
             if (!sent.Contains(notification.Id))
             {
-                findings.Add(new Finding("notification-without-sender", $"Notification '{notification.Id}' is sent by no reaction or use case.", notification.File, notification.Line, SubjectOf(notification)));
+                findings.Add(new Finding("notification-sender-missing", $"Notification '{notification.Id}' is sent by no reaction or use case.", notification.File, notification.Line, SubjectOf(notification)));
             }
         }
     }
@@ -845,13 +845,13 @@ static partial class Checker
 
                 if (fallbacks.Count == 0)
                 {
-                    findings.Add(new Finding("except-without-fallback", $"Requirement '{requirement.Id}' names an except with no fallback.", requirement.File, requirement.Line, SubjectOf(requirement)));
+                    findings.Add(new Finding("except-fallback-missing", $"Requirement '{requirement.Id}' names an except with no fallback.", requirement.File, requirement.Line, SubjectOf(requirement)));
                     continue;
                 }
 
                 foreach (var cited in fallbacks.Order(StringComparer.Ordinal))
                 {
-                    // An unknown target is left to reference-unresolved.
+                    // An unknown target is left to reference-unknown.
                     if (!model.ById.TryGetValue(cited, out var target))
                     {
                         continue;
@@ -859,7 +859,7 @@ static partial class Checker
 
                     if (target.Type == "requirement" && ExceptEntries(target).Count > 0)
                     {
-                        findings.Add(new Finding("except-without-fallback", $"Requirement '{requirement.Id}' names fallback '{cited}' which carries its own except.", requirement.File, requirement.Line, SubjectOf(requirement)));
+                        findings.Add(new Finding("except-fallback-missing", $"Requirement '{requirement.Id}' names fallback '{cited}' which carries its own except.", requirement.File, requirement.Line, SubjectOf(requirement)));
                     }
                 }
             }
@@ -891,7 +891,7 @@ static partial class Checker
         {
             if (record.ApprovedHash is not { Length: > 0 })
             {
-                findings.Add(new Finding("record-shape", $"Record '{record.Id}' is {record.Status} with no approvedHash.", record.File, record.Line, SubjectOf(record)));
+                findings.Add(new Finding("record-invalid", $"Record '{record.Id}' is {record.Status} with no approvedHash.", record.File, record.Line, SubjectOf(record)));
             }
             else if (SemanticHash(record) != record.ApprovedHash)
             {
@@ -934,7 +934,7 @@ static partial class Checker
                     }
 
                     findings.Add(new Finding(
-                        "parent-changed",
+                        "parent-reopened",
                         $"Record '{record.Id}' {field} '{target}', which changed after approval.",
                         record.File, record.Line, SubjectOf(record))
                     {
@@ -951,7 +951,7 @@ static partial class Checker
             record.Field("source") == "transcribed" && record.Status == "reviewed"))
         {
             // Only an Intent parent that exists can hold the record back; a missing or
-            // dangling parent is record-orphaned or reference-unresolved, never this code.
+            // dangling parent is record-link-missing or reference-unknown, never this code.
             var parents = record.Ids("fulfills").Concat(record.Ids("serves"))
                 .Where(parent => model.ById.ContainsKey(Identifiers.BaseId(parent)))
                 .ToList();
@@ -967,7 +967,7 @@ static partial class Checker
 
             if (open is not null)
             {
-                findings.Add(new Finding("transcribed-reviewed", $"Record '{record.Id}' is reviewed from transcription while '{open}' is not approved.", record.File, record.Line, SubjectOf(record)));
+                findings.Add(new Finding("transcription-status-invalid", $"Record '{record.Id}' is reviewed from transcription while '{open}' is not approved.", record.File, record.Line, SubjectOf(record)));
             }
         }
 
@@ -983,7 +983,7 @@ static partial class Checker
                 .Where(record => record.Field("source") == "transcribed" && record.Status != "retired")
                 .OrderBy(record => record.Id, StringComparer.Ordinal))
             {
-                findings.Add(new Finding("transcribed-after-adoption", $"Record '{record.Id}' is still transcribed after '{endsWith}' ended adoption.", record.File, record.Line, SubjectOf(record)));
+                findings.Add(new Finding("transcription-expired", $"Record '{record.Id}' is still transcribed after '{endsWith}' ended adoption.", record.File, record.Line, SubjectOf(record)));
             }
         }
     }
@@ -1009,12 +1009,12 @@ static partial class Checker
         {
             if (!FieldPresent(job, "runsWhere"))
             {
-                findings.Add(new Finding("operator-job-without-guard", $"Operator job '{job.Id}' states no runsWhere.", job.File, job.Line, SubjectOf(job)));
+                findings.Add(new Finding("job-guard-missing", $"Operator job '{job.Id}' states no runsWhere.", job.File, job.Line, SubjectOf(job)));
             }
 
             if (!FieldPresent(job, "guard"))
             {
-                findings.Add(new Finding("operator-job-without-guard", $"Operator job '{job.Id}' states no guard.", job.File, job.Line, SubjectOf(job)));
+                findings.Add(new Finding("job-guard-missing", $"Operator job '{job.Id}' states no guard.", job.File, job.Line, SubjectOf(job)));
             }
         }
     }
@@ -1046,13 +1046,13 @@ static partial class Checker
             {
                 var missing = !job.Has("schedule");
 
-                findings.Add(new Finding("schedule-unstructured", missing
+                findings.Add(new Finding("schedule-invalid", missing
                     ? $"Job '{job.Id}' runs on time with no structured schedule."
                     : $"Job '{job.Id}' carries a schedule no tool can read.", job.File, job.Line, SubjectOf(job)));
             }
             else if (job.Field("kind") != "scheduled" && job.Has("schedule") && !structured)
             {
-                findings.Add(new Finding("schedule-unstructured", $"Job '{job.Id}' carries a schedule no tool can read.", job.File, job.Line, SubjectOf(job)));
+                findings.Add(new Finding("schedule-invalid", $"Job '{job.Id}' carries a schedule no tool can read.", job.File, job.Line, SubjectOf(job)));
             }
         }
     }
@@ -1176,7 +1176,7 @@ static partial class Checker
         {
             if (ConsistencyMode(useCase) == "atomic" && BecauseCount(useCase) > 1)
             {
-                findings.Add(new Finding("many-aggregates", $"Use case '{useCase.Id}' saves more than one atomic write group; consider splitting.", useCase.File, useCase.Line, SubjectOf(useCase)));
+                findings.Add(new Finding("atomic-group-duplicate", $"Use case '{useCase.Id}' saves more than one atomic write group; consider splitting.", useCase.File, useCase.Line, SubjectOf(useCase)));
             }
         }
     }
@@ -1207,7 +1207,7 @@ static partial class Checker
                     continue;
                 }
 
-                findings.Add(new Finding("question-aged", $"Question on '{record.Id}' stands past its decide-by date.", record.File, record.Line, SubjectOf(record)));
+                findings.Add(new Finding("question-expired", $"Question on '{record.Id}' stands past its decide-by date.", record.File, record.Line, SubjectOf(record)));
                 break;
             }
         }
@@ -1221,7 +1221,7 @@ static partial class Checker
 
             if (triggers.Count == 0)
             {
-                findings.Add(new Finding("reaction-trigger-unresolved", $"Reaction '{reaction.Id}' names no trigger.", reaction.File, reaction.Line, SubjectOf(reaction)));
+                findings.Add(new Finding("reaction-trigger-unknown", $"Reaction '{reaction.Id}' names no trigger.", reaction.File, reaction.Line, SubjectOf(reaction)));
                 continue;
             }
 
@@ -1231,11 +1231,11 @@ static partial class Checker
 
                 if (!model.ById.TryGetValue(baseId, out var resolved))
                 {
-                    findings.Add(new Finding("reaction-trigger-unresolved", $"Reaction '{reaction.Id}' names trigger '{trigger}' which no event holds.", reaction.File, reaction.Line, SubjectOf(reaction)));
+                    findings.Add(new Finding("reaction-trigger-unknown", $"Reaction '{reaction.Id}' names trigger '{trigger}' which no event holds.", reaction.File, reaction.Line, SubjectOf(reaction)));
                 }
                 else if (resolved.Type is not ("event" or "integration-event"))
                 {
-                    findings.Add(new Finding("reaction-trigger-unresolved", $"Reaction '{reaction.Id}' names trigger '{trigger}' which is a {resolved.Type}.", reaction.File, reaction.Line, SubjectOf(reaction)));
+                    findings.Add(new Finding("reaction-trigger-unknown", $"Reaction '{reaction.Id}' names trigger '{trigger}' which is a {resolved.Type}.", reaction.File, reaction.Line, SubjectOf(reaction)));
                 }
             }
         }

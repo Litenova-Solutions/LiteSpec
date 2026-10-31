@@ -90,16 +90,16 @@ public sealed class SeverityCheckTests
     [Fact]
     public void Frozen_Phase_Reports_Proof_Finding_Without_Blocking()
     {
-        using var fixture = ModelFixture.Prepare("small", "proves-unconfirmed");
+        using var fixture = ModelFixture.Prepare("small", "proves-unreached");
         FreezePhase(fixture.Path);
 
         var text = Cli.Run("model", "check", "--root", fixture.Path);
 
         Assert.Contains("[S frozen]", text.Output);
-        Assert.Contains("proves-unconfirmed", text.Output);
+        Assert.Contains("proves-unreached", text.Output);
 
         var json = Cli.Run("model", "check", "--root", fixture.Path, "--format", "json");
-        var (outcome, reason) = OutcomeOf(json.Stdout, "proves-unconfirmed");
+        var (outcome, reason) = OutcomeOf(json.Stdout, "proves-unreached");
 
         Assert.Equal("reported", outcome);
         Assert.Equal("frozen", reason);
@@ -110,15 +110,15 @@ public sealed class SeverityCheckTests
     [Fact]
     public void Working_Phase_Blocks_Proof_Finding()
     {
-        using var fixture = ModelFixture.Prepare("small", "proves-unconfirmed");
+        using var fixture = ModelFixture.Prepare("small", "proves-unreached");
 
         var text = Cli.Run("model", "check", "--root", fixture.Path);
 
         Assert.Equal(1, text.Status);
         Assert.DoesNotContain("[S frozen]", text.Output);
-        Assert.Contains("proves-unconfirmed", text.Output);
+        Assert.Contains("proves-unreached", text.Output);
         var json = Cli.Run("model", "check", "--root", fixture.Path, "--format", "json");
-        var (outcome, reason) = OutcomeOf(json.Stdout, "proves-unconfirmed");
+        var (outcome, reason) = OutcomeOf(json.Stdout, "proves-unreached");
 
         Assert.Equal("blocking", outcome);
         Assert.Null(reason);

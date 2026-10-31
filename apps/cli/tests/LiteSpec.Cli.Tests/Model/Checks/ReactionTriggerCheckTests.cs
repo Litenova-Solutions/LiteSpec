@@ -3,7 +3,7 @@ using LiteSpec.Tests.Support;
 
 namespace LiteSpec.Tests.Model.Checks;
 
-/// <summary>Proves the reaction-trigger-unresolved check against hand-built models.</summary>
+/// <summary>Proves the reaction-trigger-unknown check against hand-built models.</summary>
 public sealed class ReactionTriggerCheckTests
 {
     /// <proves>litespec/core/behavior#trigger-every-reaction-from-a-declared-event</proves>
@@ -15,7 +15,7 @@ public sealed class ReactionTriggerCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("reaction", "reaction/lending.remind-overdue", Path.Combine(temp.Path, "remind.md"), """{"status": "reviewed", "issues": ["use-case/lending.notify-overdue"]}"""));
 
-        Assert.Contains("reaction-trigger-unresolved", TestModel.Codes(model));
+        Assert.Contains("reaction-trigger-unknown", TestModel.Codes(model));
     }
 
     /// <proves>litespec/core/behavior#trigger-every-reaction-from-a-declared-event</proves>
@@ -27,7 +27,7 @@ public sealed class ReactionTriggerCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("reaction", "reaction/lending.remind-overdue", Path.Combine(temp.Path, "remind.md"), """{"status": "reviewed", "on": ["event/loan.no-such-event"], "issues": ["use-case/lending.notify-overdue"]}"""));
 
-        Assert.Contains("reaction-trigger-unresolved", TestModel.Codes(model));
+        Assert.Contains("reaction-trigger-unknown", TestModel.Codes(model));
     }
 
     /// <proves>litespec/core/behavior#trigger-every-reaction-from-a-declared-event</proves>
@@ -40,7 +40,7 @@ public sealed class ReactionTriggerCheckTests
             TestModel.Record("reaction", "reaction/lending.remind-overdue", Path.Combine(temp.Path, "remind.md"), """{"status": "reviewed", "on": ["use-case/lending.borrow-copy"], "issues": ["use-case/lending.notify-overdue"]}"""),
             TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.md"), """{"status": "reviewed", "kind": "command"}"""));
 
-        Assert.Contains("reaction-trigger-unresolved", TestModel.Codes(model));
+        Assert.Contains("reaction-trigger-unknown", TestModel.Codes(model));
     }
 
     /// <proves>litespec/core/behavior#trigger-every-reaction-from-a-declared-event</proves>
@@ -53,7 +53,7 @@ public sealed class ReactionTriggerCheckTests
             TestModel.Record("reaction", "reaction/lending.remind-overdue", Path.Combine(temp.Path, "remind.md"), """{"status": "reviewed", "on": ["event/loan.loan-borrowed"], "issues": ["use-case/lending.notify-overdue"]}"""),
             TestModel.Record("event", "event/loan.loan-borrowed", Path.Combine(temp.Path, "loan.md"), """{"status": "reviewed", "meaning": "A copy was lent.", "carries": []}"""));
 
-        Assert.DoesNotContain("reaction-trigger-unresolved", TestModel.Codes(model));
+        Assert.DoesNotContain("reaction-trigger-unknown", TestModel.Codes(model));
     }
 
     /// <proves>litespec/core/behavior#trigger-every-reaction-from-a-declared-event</proves>
@@ -66,7 +66,7 @@ public sealed class ReactionTriggerCheckTests
             TestModel.Record("reaction", "reaction/lending.remind-overdue", Path.Combine(temp.Path, "remind.md"), """{"status": "reviewed", "on": ["integration-event/loan-exported"], "issues": ["use-case/lending.notify-overdue"]}"""),
             TestModel.Record("integration-event", "integration-event/loan-exported", Path.Combine(temp.Path, "exported.md"), """{"status": "reviewed"}"""));
 
-        Assert.DoesNotContain("reaction-trigger-unresolved", TestModel.Codes(model));
+        Assert.DoesNotContain("reaction-trigger-unknown", TestModel.Codes(model));
     }
 
     /// <proves>litespec/core/behavior#trigger-every-reaction-from-a-declared-event</proves>
@@ -78,6 +78,6 @@ public sealed class ReactionTriggerCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.md"), """{"status": "reviewed", "kind": "command"}"""));
 
-        Assert.DoesNotContain("reaction-trigger-unresolved", TestModel.Codes(model));
+        Assert.DoesNotContain("reaction-trigger-unknown", TestModel.Codes(model));
     }
 }

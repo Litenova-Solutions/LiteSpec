@@ -3,7 +3,7 @@ using LiteSpec.Tests.Support;
 
 namespace LiteSpec.Tests.Model.Checks;
 
-/// <summary>Proves the refusal-not-thrown check reads a code the project composes from a key at run time.</summary>
+/// <summary>Proves the refusal-unimplemented check reads a code the project composes from a key at run time.</summary>
 public sealed class ComposedRefusalTests
 {
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
@@ -14,7 +14,7 @@ public sealed class ComposedRefusalTests
         var model = BarcodeModel(temp.Path);
         model.Code.KeyLiterals.Add("copy-barcode");
 
-        Assert.DoesNotContain("refusal-not-thrown", TestModel.Codes(model));
+        Assert.DoesNotContain("refusal-unimplemented", TestModel.Codes(model));
     }
 
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
@@ -25,7 +25,7 @@ public sealed class ComposedRefusalTests
         var model = BarcodeModel(temp.Path);
         model.Code.KeyLiterals.Add("copy-shelfmark");
 
-        var message = Checker.Check(model).Findings.Single(finding => finding.Code == "refusal-not-thrown").Message;
+        var message = Checker.Check(model).Findings.Single(finding => finding.Code == "refusal-unimplemented").Message;
         Assert.Contains("uniqueness.copy-barcode-taken", message, StringComparison.Ordinal);
     }
 
@@ -37,7 +37,7 @@ public sealed class ComposedRefusalTests
         var model = BarcodeModel(temp.Path, "lending.copy-barcode-taken");
         model.Code.KeyLiterals.Add("copy-barcode");
 
-        Assert.Contains("refusal-not-thrown", TestModel.Codes(model));
+        Assert.Contains("refusal-unimplemented", TestModel.Codes(model));
     }
 
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
