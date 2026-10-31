@@ -2,7 +2,7 @@
 
 ## Intent
 
-Behavior states how the system acts to keep the promises Intent records: the words it uses, the areas it divides into, the things it keeps consistent, the rules that hold, and the behavior it defines with its endings and examples. Agents write these records from Intent, and developers review them before code carries them. The [model page](model.md) states the shared record rules, and the [intent page](intent.md) states the promises Behavior answers to.
+Behavior states how the system acts to keep the promises Intent records: the words it uses, the areas it divides into, the things it keeps consistent, the rules that hold, and the behavior it defines with its endings and examples. Agents write these records from Intent, and developers review them before code carries them. The [model page](model.md) states the shared record rules, the [intent page](intent.md) states the promises Behavior answers to, and the [record language page](language.md) states how each field, value and record name is written.
 
 ## Concepts
 
@@ -104,11 +104,11 @@ An integration event is a published fact crossing the bounded context in CloudEv
 | `trust` | `trigger-only` or `payload`. |
 | `correlation` | How an inbound event is matched, inbound only. |
 | `translates` | The domain event it carries outward, outbound only. |
-| `audience` | The permission reading it, outbound only, optional. |
+| `addresses` | The permission reading it, outbound only, optional. |
 
 ### Use Cases
 
-A use case is one independently testable goal: a page beside its aggregate with one kind. A command changes the product; a query reads without changing. Each use case names the journey steps it serves in `serves`, the requirements it carries in `fulfills`, who calls it in `access`, the entry points reaching it in `reachedThrough`, the aggregates it touches in `changes` and `reads`, the events it raises in `raises`, and how it ends in its results. A use case may carry an optional `risk` from money, door, personal-data, and access, as the [model page](model.md) states.
+A use case is one independently testable goal: a page beside its aggregate with one kind. A command changes the product; a query reads without changing. Each use case names the journey steps it serves in `serves`, the requirements it carries in `fulfills`, who calls it in `access`, the entry points reaching it in `reachedThrough`, the aggregates it touches in `changes` and `reads`, the events it raises in `raises`, and how it ends in its results. A use case may carry an optional `risk` from money, physical-access, personal-data, and access, as the [model page](model.md) states.
 
 | Field | Meaning |
 |:---|:---|
@@ -226,12 +226,12 @@ A job is scheduled, one-off, or operator work running without a request. A sched
 
 ### Notifications
 
-A notification is one person-facing message with its template, audience, and channel. Each `sends` edge carries its own `if` suppression, and suppression scenarios saying the message sends nothing are first class.
+A notification is one person-facing message with its template, addresses, and channel. Each `sends` edge carries its own `if` suppression, and suppression scenarios saying the message sends nothing are first class.
 
 | Field | Meaning |
 |:---|:---|
 | `template`, `params`, `locale` | The template key, its parameters, and where the language comes from. |
-| `audience`, `channel` | The actors addressed and the channels: `email`, `sms`, `push`, `webhook`. |
+| `addresses`, `channel` | The actors addressed and the channels: `email`, `sms`, `push`, `webhook`. |
 | `consent` | The consent rule, such as SMS only with consent. |
 | `frequency`, `dedupKey` | `once` or `per-attempt`, and the dedup template over the trigger payload. |
 | `suppressedWhen` | The suppression condition, optional. |
@@ -246,7 +246,7 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 |:---|:---|
 | `valueType` | `integer`, `duration`, `money`, `boolean`, `text`, or `choice`. |
 | `default`, `range`, `unit` | The value, the min-max or choices, and the unit. |
-| `setBy` | `founder`, `operator`, or `tenant`. |
+| `setBy` | `decider`, `operator`, or `tenant`. |
 | `key` | The configuration path an operator setting binds from, such as `Spending:ApprovalReminderDelay`; required when `setBy` is `operator`. |
 | `atBound` | `refuse`, `truncate`, or `degrade`. |
 | `secret` | Whether the value is secret. |
@@ -323,7 +323,7 @@ The specification names only what carries business meaning. Child entities and v
 | use case, query | one read behind the use case |
 | reaction | one automation answering its trigger |
 | job | one scheduled, one-off, or operator run |
-| notification | one rendered message to its audience |
+| notification | one rendered message to the actors it addresses |
 | setting | one tunable value with its range and setter |
 | result | one ending per result, each refusal with its code |
 | scenario | an executable example proving the scenario |
@@ -594,7 +594,7 @@ The specification names only what carries business meaning. Child entities and v
 
 **Statement:** Each integration event MUST declare its direction, its CloudEvents identity, its payload with classifications, and the trust its readers place in it.
 
-**Rationale:** A published fact without a direction is read both ways: an outbound notice is answered as an order, an inbound claim is trusted as law. The direction, the CloudEvents type, source, and subject, the payload with classifications, and the trust of `trigger-only` or `payload` state what the fact is and how far readers follow it. An inbound event also declares its `correlation`; an outbound event declares its `translates` domain event and its optional `audience`.
+**Rationale:** A published fact without a direction is read both ways: an outbound notice is answered as an order, an inbound claim is trusted as law. The direction, the CloudEvents type, source, and subject, the payload with classifications, and the trust of `trigger-only` or `payload` state what the fact is and how far readers follow it. An inbound event also declares its `correlation`; an outbound event declares its `translates` domain event and its optional `addresses`.
 
 **Checked by:** `litespec consumer` fails an integration event without direction, CloudEvents identity, payload, or trust.
 
@@ -1108,9 +1108,9 @@ The specification names only what carries business meaning. Child entities and v
 
 **ID:** `litespec/core/behavior#describe-every-notification-with-audience-channel-and-consent`
 
-**Statement:** Each notification MUST declare its template, audience, channel, consent, frequency, dedup key, parameters, and locale.
+**Statement:** Each notification MUST declare its template, addresses, channel, consent, frequency, dedup key, parameters, and locale.
 
-**Rationale:** A message without a declared audience and consent is sent on hope: the wrong actors receive it, the channel ignores consent, repeats annoy. Declaring the template with its parameters and locale, the audience, the channel, the consent rule, the frequency of `once` or `per-attempt`, and the dedup key states the message beside its promise. Suppression lives on each `sends` edge and in suppression scenarios. The `notification-without-sender` check reports a notification no use case or reaction sends.
+**Rationale:** A message without declared addresses and consent is sent on hope: the wrong actors receive it, the channel ignores consent, repeats annoy. Declaring the template with its parameters and locale, the addresses, the channel, the consent rule, the frequency of `once` or `per-attempt`, and the dedup key states the message beside its promise. Suppression lives on each `sends` edge and in suppression scenarios. The `notification-without-sender` check reports a notification no use case or reaction sends.
 
 **Checked by:** `litespec model check` reports `notification-without-sender` for a notification no use case or reaction sends; `litespec consumer` fails a notification without its declared fields.
 
@@ -1142,13 +1142,13 @@ The specification names only what carries business meaning. Child entities and v
 
 **ID:** `litespec/core/behavior#name-each-template-for-its-subject-event-and-audience`
 
-**Statement:** Each notification template key MUST read `<subject>-<event>-<audience>`, with the audience the record declares.
+**Statement:** Each notification template key MUST read `<subject>-<event>-<audience>`, with the audience name the record declares in `addresses`.
 
 **Rationale:** A key naming its subject, its event and its audience tells each reader what the message is about and who receives it; a key naming none of the three hides both.
 
 **Example:** `approval-reminder-manager` names the approval, the reminder and the manager audience; `email-change-confirmation` names no audience and is reported.
 
-**Checked by:** `litespec model check` reports `template-key-form` (tier A) for a template key ending in no audience the notification declares.
+**Checked by:** `litespec model check` reports `template-key-form` (tier A) for a template key ending in no name the notification declares in `addresses`.
 
 ### Claim Every Notification Promise from a Requirement
 
@@ -1166,9 +1166,9 @@ The specification names only what carries business meaning. Child entities and v
 
 **Statement:** Each setting MUST declare its value type, range, unit, setter, and bound behavior, with the requirement behind a commercial, legal, or varying default.
 
-**Rationale:** A default no requirement holds is a figure nobody approved: a price, a fee, a term, or a limit nobody decided. Declaring the value type, the range, the unit, the setter of founder, operator, or tenant, and the bound behavior of `refuse`, `truncate`, or `degrade` states the tunable beside its promise, and a commercial, legal, or tenant-, market-, or date-varying default cites its requirement. The `setting-default-without-requirement` check reports such a default with no cited requirement.
+**Rationale:** A default no requirement holds is a figure nobody approved: a price, a fee, a term, or a limit nobody decided. Declaring the value type, the range, the unit, the setter of decider, operator, or tenant, and the bound behavior of `refuse`, `truncate`, or `degrade` states the tunable beside its promise, and a commercial, legal, or tenant-, market-, or date-varying default cites its requirement. The `setting-default-without-requirement` check reports such a default with no cited requirement.
 
-**Example:** The receipt threshold declares money with a founder-set default of EUR 25, refusing an expense above the line with no receipt, behind its requirement.
+**Example:** The receipt threshold declares money with a decider-set default of EUR 25, refusing an expense above the line with no receipt, behind its requirement.
 
 **Checked by:** `litespec model check` reports `setting-default-without-requirement` for a commercial, legal, or varying default with no cited requirement.
 
@@ -1190,7 +1190,7 @@ The specification names only what carries business meaning. Child entities and v
 
 **Statement:** A setting the operator sets MUST name its configuration path in `key`.
 
-**Rationale:** An operator setting reaches the product through configuration, so the record and the configuration meet at one path: the record states the default and the bounds, and the configuration names the value. Without the key, a renamed section silently falls back to a default nobody chose, and no reader can tell which configuration value a promise rests on. A setting a tenant or the founder sets is held as data by an aggregate instead, and names no key.
+**Rationale:** An operator setting reaches the product through configuration, so the record and the configuration meet at one path: the record states the default and the bounds, and the configuration names the value. Without the key, a renamed section silently falls back to a default nobody chose, and no reader can tell which configuration value a promise rests on. A setting a tenant or the decider sets is held as data by an aggregate instead, and names no key.
 
 **Example:** Claimwick's `setting/spending.approval-reminder-delay` is set by the operator and carries `key` `Spending:ApprovalReminderDelay`.
 

@@ -1,6 +1,7 @@
 ---
 {
-  "type": "requirement-page",
+  "type": "topic",
+  "id": "topic/<name>",
   "title": "<Topic display title>",
   "owner": "<owner>",
   "status": "draft",
@@ -17,14 +18,13 @@
       "rationale": "<Why this commitment holds, in one line>",
       "except": [
         {
-          "when": "<Condition in product words, or remove the except block>",
+          "condition": "<Condition in product words, or remove the except block>",
           "fallback": "requirement/<topic>.<name>"
         }
       ],
-      "setBy": "<founder|tenant>",
+      "setBy": "<decider|operator|tenant>",
       "risk": ["<money|door|personal-data|access, or remove this line>"],
-      "features": ["feature/<name>", "or remove this line when basedOn or a deciding decision is the origin"],
-      "basedOn": ["<constraint or research id, or remove this line>"]
+      "cites": ["<goal, problem, feature, constraint, research, or decision id>"]
     },
     {
       "type": "requirement",
@@ -45,20 +45,19 @@
       "evidence": "<Where the passing run is recorded>",
       "except": [
         {
-          "when": "<Condition in product words, or remove the except block>",
+          "condition": "<Condition in product words, or remove the except block>",
           "fallback": "requirement/<topic>.<name>"
         }
       ],
-      "setBy": "<founder|tenant>",
+      "setBy": "<decider|operator|tenant>",
       "risk": ["<money|door|personal-data|access, or remove this line>"],
-      "features": ["feature/<name>", "or remove this line when basedOn or a deciding decision is the origin"],
-      "basedOn": ["<constraint or research id, or remove this line>"]
+      "cites": ["<goal, problem, feature, constraint, research, or decision id>"]
     },
     {
       "type": "requirement",
       "id": "requirement/<topic>.<name>",
-      "title": "<Business display title>",
-      "kind": "business",
+      "title": "<Policy display title>",
+      "kind": "policy",
       "statement": "<The guaranteed value in one sentence>",
       "rationale": "<Why this commitment holds, in one line>",
       "values": [
@@ -69,14 +68,26 @@
       ],
       "except": [
         {
-          "when": "<Condition in product words, or remove the except block>",
+          "condition": "<Condition in product words, or remove the except block>",
           "fallback": "requirement/<topic>.<name>"
         }
       ],
-      "setBy": "<founder|tenant>",
+      "setBy": "<decider|operator|tenant>",
       "risk": ["<money|door|personal-data|access, or remove this line>"],
-      "features": ["feature/<name>", "or remove this line when basedOn or a deciding decision is the origin"],
-      "basedOn": ["<constraint or research id, or remove this line>"]
+      "cites": ["<goal, problem, feature, constraint, research, or decision id>"]
+    }
+  ],
+  "terms": ["term/<term-name>"],
+  "questions": [
+    {
+      "question": "<The open question, or remove the questions block>",
+      "decider": "<owner>",
+      "decideBy": "<YYYY-MM-DD>",
+      "ballot": "<decision-id or topic slug>",
+      "recommendation": "<The recommended answer, or remove this line when the record carries risk>",
+      "answer": "<The answer, set on answer>",
+      "answeredBy": "<The answerer, set on answer>",
+      "answeredOn": "<YYYY-MM-DD, set on answer>"
     }
   ]
 }
@@ -114,7 +125,3 @@ State the confidence in the choice and what would raise it.
 ## Position
 
 Link each decision that sets a choice on this topic, including choices no system carries.
-
-## Refusals
-
-State what was refused with the decision behind each refusal, linking refused features instead of restating them.

@@ -1,10 +1,14 @@
 ---
 {
-  "type": "requirement-page",
+  "type": "topic",
+  "id": "topic/borrowing",
   "title": "Borrowing",
   "owner": "lending-team",
   "status": "approved",
   "reviewBy": "2027-04-01",
+  "approvedBy": "lending-team",
+  "approvedOn": "2026-10-01",
+  "approvedHash": "4984bc41",
   "records": [
     {
       "type": "requirement",
@@ -14,10 +18,13 @@
       "status": "approved",
       "kind": "functional",
       "statement": "A reader holds at most five active loans.",
-      "basedOn": [],
+      "rationale": "Readers borrow enough for a term without starving holds.",
+      "cites": [
+        "decision/0001-loan-period"
+      ],
       "approvedBy": "lending-team",
       "approvedOn": "2026-10-01",
-      "approvedHash": "5de82a4d"
+      "approvedHash": "15bbdc8d"
     },
     {
       "type": "requirement",
@@ -27,10 +34,13 @@
       "status": "approved",
       "kind": "functional",
       "statement": "A loan lasts 21 days.",
-      "basedOn": [],
+      "rationale": "Three weeks lets most readers finish while copies keep moving.",
+      "cites": [
+        "decision/0001-loan-period"
+      ],
       "approvedBy": "lending-team",
       "approvedOn": "2026-10-01",
-      "approvedHash": "5a16abaa"
+      "approvedHash": "ebe802a7"
     },
     {
       "type": "requirement",
@@ -40,10 +50,13 @@
       "status": "approved",
       "kind": "functional",
       "statement": "A ready hold waits seven days.",
-      "basedOn": [],
+      "rationale": "A week gives readers time to reach the desk before the hold lapses.",
+      "cites": [
+        "decision/0001-loan-period"
+      ],
       "approvedBy": "lending-team",
       "approvedOn": "2026-10-01",
-      "approvedHash": "d41032c8"
+      "approvedHash": "d6df92d5"
     },
     {
       "type": "requirement",
@@ -53,10 +66,13 @@
       "status": "approved",
       "kind": "functional",
       "statement": "A copy lives on one home shelf.",
-      "basedOn": [],
+      "rationale": "One home shelf keeps every copy findable.",
+      "cites": [
+        "decision/0001-loan-period"
+      ],
       "approvedBy": "lending-team",
       "approvedOn": "2026-10-01",
-      "approvedHash": "f39ea9be"
+      "approvedHash": "781e9e21"
     }
   ]
 }

@@ -514,4 +514,74 @@ public sealed partial class StandardsValidatorTests
     public void LowercaseWorkflowPasses() => Check(
         root => StandardsFixture.Write(root, "docs/README.md", "# Documentation\n\n## Intent\n\nThe release workflow runs weekly.\n\n" + StandardsFixture.IndexRouting),
         []);
+
+    static readonly string AnalyzerProjectFile = """
+        <Project Sdk="Microsoft.NET.Sdk">
+          <PropertyGroup>
+            <Version>3.0.0</Version>
+          </PropertyGroup>
+        </Project>
+        """ + "\n";
+
+    static readonly string AnalyzerShippedFile = """
+        ; Shipped analyzer releases
+        ; https://github.com/dotnet/roslyn-analyzers/blob/main/src/Microsoft.CodeAnalysis.Analyzers/ReleaseTrackingAnalyzers.Help.md
+
+        ## Release 3.0.0
+
+        ### New Rules
+
+        Rule ID | Category | Severity | Notes
+        --------|----------|----------|-------
+        LS1001 | LiteSpec.Domain | Error | Descriptors
+        """ + "\n";
+
+    static void AnalyzerPinFiles(string root, string pin)
+    {
+        StandardsFixture.Write(root, "litespec.manifest.json", "{\"packages\":{\"nuget\":{\"LiteSpec.Analyzers\":\"" + pin + "\"}}}");
+        StandardsFixture.Write(root, "apps/analyzers/src/LiteSpec.Analyzers/LiteSpec.Analyzers.csproj", AnalyzerProjectFile);
+    }
+
+    static void CiteAnalyzerRule(string root, string rule)
+    {
+        var page = StandardsFixture.TopicPage.Replace(
+            "**Checked by:** `litespec-maintain validate` confirms the topic stays inside its declared boundary.",
+            "**Checked by:** `dotnet build` reports `" + rule + "` for the topic.");
+        StandardsFixture.Write(root, "docs/core/topic.md", page);
+        StandardsFixture.RebuildIndex(root);
+    }
+
+    /// <proves>litespec/core/maintaining#list-every-stack-shape-and-extension-in-the-manifest</proves>
+    [Fact(DisplayName = "analyzer pin behind the analyzer project")]
+    public void AnalyzerPinBehindProject() => Check(
+        root => AnalyzerPinFiles(root, "2.0.0"),
+        ["MANIFEST_ANALYZER_PIN"]);
+
+    /// <proves>litespec/core/maintaining#list-every-stack-shape-and-extension-in-the-manifest</proves>
+    [Fact(DisplayName = "analyzer pin matching the analyzer project")]
+    public void AnalyzerPinMatchingProject() => Check(
+        root => AnalyzerPinFiles(root, "3.0.0"),
+        []);
+
+    /// <proves>litespec/core/maintaining#list-every-stack-shape-and-extension-in-the-manifest</proves>
+    [Fact(DisplayName = "stack page citing a rule the pinned release does not ship")]
+    public void AnalyzerRuleNotShipped() => Check(
+        root =>
+        {
+            AnalyzerPinFiles(root, "3.0.0");
+            StandardsFixture.Write(root, "apps/analyzers/src/LiteSpec.Analyzers/AnalyzerReleases.Shipped.md", AnalyzerShippedFile);
+            CiteAnalyzerRule(root, "LS9999");
+        },
+        ["MANIFEST_ANALYZER_RULE"]);
+
+    /// <proves>litespec/core/maintaining#list-every-stack-shape-and-extension-in-the-manifest</proves>
+    [Fact(DisplayName = "stack page citing a rule the pinned release ships")]
+    public void AnalyzerRuleShipped() => Check(
+        root =>
+        {
+            AnalyzerPinFiles(root, "3.0.0");
+            StandardsFixture.Write(root, "apps/analyzers/src/LiteSpec.Analyzers/AnalyzerReleases.Shipped.md", AnalyzerShippedFile);
+            CiteAnalyzerRule(root, "LS1001");
+        },
+        []);
 }

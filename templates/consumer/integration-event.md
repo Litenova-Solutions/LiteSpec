@@ -18,7 +18,7 @@
       "classification": "<public|internal|personal|sensitive>"
     }
   ],
-  "audience": "<permission/<name> when the direction is out, otherwise remove this line>",
+  "addresses": "<permission/<name> when the direction is out, otherwise remove this line>",
   "trust": "<trigger-only|payload>",
   "correlation": "<How an inbound event is matched, when the direction is in; otherwise remove this line>",
   "translates": "<event/<aggregate>.<past-tense> when the direction is out, otherwise remove this line>",
@@ -28,9 +28,11 @@
       "question": "<The open question, or remove the questions block>",
       "decider": "<owner>",
       "decideBy": "<YYYY-MM-DD>",
-      "recommended": "<The recommended answer>",
       "ballot": "<decision-id or topic slug>",
-      "tier": "<1|3>"
+      "recommendation": "<The recommended answer, or remove this line when the record carries risk>",
+      "answer": "<The answer, set on answer>",
+      "answeredBy": "<The answerer, set on answer>",
+      "answeredOn": "<YYYY-MM-DD, set on answer>"
     }
   ]
 }

@@ -11,7 +11,7 @@ namespace LiteSpec.Model.Tests.Roslyn;
 public sealed class KindReaderJobMarkTests
 {
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
-    [Fact(DisplayName = "A marked plain class in Application or Infrastructure is a job")]
+    [Fact(DisplayName = "A marked plain class in Application, Infrastructure, or Worker is a job")]
     public void MarkedPlainClassIsAJob()
     {
         var type = TestTrees.First<ClassDeclarationSyntax>("""
@@ -26,6 +26,7 @@ public sealed class KindReaderJobMarkTests
 
         Assert.Equal(CodeKind.Job, KindReader.KindOf(type, KindContext.Empty, "Shop.Application"));
         Assert.Equal(CodeKind.Job, KindReader.KindOf(type, KindContext.Empty, "Shop.Infrastructure"));
+        Assert.Equal(CodeKind.Job, KindReader.KindOf(type, KindContext.Empty, "Shop.Worker"));
     }
 
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
@@ -79,7 +80,7 @@ public sealed class KindReaderJobMarkTests
     }
 
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
-    [Fact(DisplayName = "A marked plain class in Application or Infrastructure is a job from its symbol")]
+    [Fact(DisplayName = "A marked plain class in Application, Infrastructure, or Worker is a job from its symbol")]
     public void MarkedPlainClassIsAJobFromSymbol()
     {
         const string code = """
@@ -95,6 +96,7 @@ public sealed class KindReaderJobMarkTests
 
         Assert.Equal(CodeKind.Job, KindReader.KindOf(symbol, KindContext.Empty, "Shop.Application"));
         Assert.Equal(CodeKind.Job, KindReader.KindOf(symbol, KindContext.Empty, "Shop.Infrastructure"));
+        Assert.Equal(CodeKind.Job, KindReader.KindOf(symbol, KindContext.Empty, "Shop.Worker"));
     }
 
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>

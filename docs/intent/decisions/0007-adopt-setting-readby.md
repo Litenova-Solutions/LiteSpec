@@ -10,27 +10,27 @@
   "options": [
     {
       "name": "Adopt readBy, drop sentBy and writes",
-      "for": "Authors already reach for a reader link the schema forbids, while the sender is provable in reverse and the writes list carries no information.",
-      "against": "One consumer cleans two invented fields, and the adopted name reads passively against the verb grammar."
+      "pros": "Authors already reach for a reader link the schema forbids, while the sender is provable in reverse and the writes list carries no information.",
+      "cons": "One consumer cleans two invented fields, and the adopted name reads passively against the verb grammar."
     },
     {
       "name": "Leave all three unstandardized",
-      "for": "No schema, Links table, or provision change is needed.",
-      "against": "Real hierarchy information stays outside the schema and outside every check, exactly how the next overload starts."
+      "pros": "No schema, Links table, or provision change is needed.",
+      "cons": "Real hierarchy information stays outside the schema and outside every check, exactly how the next overload starts."
     },
     {
       "name": "Adopt all three fields",
-      "for": "Every invented edge becomes checked data instead of silent prose.",
-      "against": "A sender link duplicates the reverse proof that already passes on every notification, and an always-empty writes list standardizes nothing."
+      "pros": "Every invented edge becomes checked data instead of silent prose.",
+      "cons": "A sender link duplicates the reverse proof that already passes on every notification, and an always-empty writes list standardizes nothing."
     },
     {
       "name": "Make readBy the setting parent",
-      "for": "A setting nothing reads would then fail the parent rule directly.",
-      "against": "The parent stays the module by identifier, and readBy is a connection that never replaces serves or fulfills."
+      "pros": "A setting nothing reads would then fail the parent rule directly.",
+      "cons": "The parent stays the module by identifier, and readBy is a connection that never replaces serves or fulfills."
     }
   ],
-  "chosen": "Adopt readBy, drop sentBy and writes",
-  "changeWhen": "A setting kind appears whose readers no use case can name.",
+  "choice": "Adopt readBy, drop sentBy and writes",
+  "reopenedWhen": "A setting kind appears whose readers no use case can name.",
   "basedOn": [
     "research/behavior-containment-evidence",
     "research/field-naming-evidence"

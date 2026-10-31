@@ -603,26 +603,25 @@
                                        "title":  "Loan period",
                                        "owner":  "lending-team",
                                        "status":  "approved",
-                                       "decidedOn":  "2026-02-01",
                                        "options":  [
                                                        {
                                                            "name":  "14 days",
-                                                           "for":  "Copies turn over fast for holds.",
-                                                           "against":  "Readers rush through long books."
+                                                           "pros":  "Copies turn over fast for holds.",
+                                                           "cons":  "Readers rush through long books."
                                                        },
                                                        {
                                                            "name":  "21 days",
-                                                           "for":  "Most readers finish in three weeks.",
-                                                           "against":  "Holds wait a week longer."
+                                                           "pros":  "Most readers finish in three weeks.",
+                                                           "cons":  "Holds wait a week longer."
                                                        },
                                                        {
                                                            "name":  "28 days",
-                                                           "for":  "Slow readers keep up.",
-                                                           "against":  "Popular copies sit idle."
+                                                           "pros":  "Slow readers keep up.",
+                                                           "cons":  "Popular copies sit idle."
                                                        }
                                                    ],
-                                       "chosen":  "21 days",
-                                       "changeWhen":  "Reader demand shifts.",
+                                       "choice":  "21 days",
+                                       "reopenedWhen":  "Reader demand shifts.",
                                        "decides":  [
                                                        "requirement/borrowing.loan-period-days"
                                                    ],
@@ -946,50 +945,49 @@
                                        "owner":  "lending-team",
                                        "status":  "approved",
                                        "actor":  "actor/reader",
-                                       "aim":  "Borrow and return a copy.",
                                        "steps":  [
                                                      {
                                                          "id":  "s1",
-                                                         "says":  "The reader registers a new copy.",
+                                                         "statement":  "The reader registers a new copy.",
                                                          "actor":  "actor/reader"
                                                      },
                                                      {
                                                          "id":  "s2",
-                                                         "says":  "The reader borrows an available copy.",
+                                                         "statement":  "The reader borrows an available copy.",
                                                          "actor":  "actor/reader"
                                                      },
                                                      {
                                                          "id":  "s3",
-                                                         "says":  "The reader extends an active loan.",
+                                                         "statement":  "The reader extends an active loan.",
                                                          "actor":  "actor/reader"
                                                      },
                                                      {
                                                          "id":  "s4",
-                                                         "says":  "The reader lists current loans.",
+                                                         "statement":  "The reader lists current loans.",
                                                          "actor":  "actor/reader"
                                                      },
                                                      {
                                                          "id":  "s5",
-                                                         "says":  "The reader returns a borrowed copy.",
+                                                         "statement":  "The reader returns a borrowed copy.",
                                                          "actor":  "actor/reader"
                                                      },
                                                      {
                                                          "id":  "s6",
-                                                         "says":  "The reader places a hold on a loaned copy.",
+                                                         "statement":  "The reader places a hold on a loaned copy.",
                                                          "actor":  "actor/reader"
                                                      },
                                                      {
                                                          "id":  "s7",
-                                                         "says":  "The reader cancels a waiting hold.",
+                                                         "statement":  "The reader cancels a waiting hold.",
                                                          "actor":  "actor/reader"
                                                      },
                                                      {
                                                          "id":  "s8",
-                                                         "says":  "The librarian retires a worn copy.",
+                                                         "statement":  "The librarian retires a worn copy.",
                                                          "actor":  "actor/librarian"
                                                      }
                                                  ],
-                                       "fulfills":  [
+                                       "cites":  [
                                                         "requirement/borrowing.max-active-loans"
                                                     ]
                                    },
@@ -1004,7 +1002,7 @@
                                                     "use-case/lending.cancel-hold",
                                                     "use-case/lending.retire-copy"
                                                 ],
-                                      "fulfills":  [
+                                      "cites":  [
                                                        "requirement/borrowing.max-active-loans"
                                                    ]
                                   }
@@ -1229,14 +1227,37 @@
                                        "owner":  "lending-team",
                                        "status":  "approved",
                                        "boundary":  "The library lends copies to readers and tracks holds.",
-                                       "neverDoes":  [
+                                       "exclusions":  [
                                                          "The product never sells copies.",
                                                          "The product never lends without a reader record."
                                                      ],
-                                       "audience":  [
+                                       "addresses":  [
                                                         "actor/reader",
                                                         "actor/librarian"
                                                     ]
+                                   },
+                        "links":  {
+
+                                  }
+                    },
+                    {
+                        "type":  "topic",
+                        "id":  "topic/borrowing",
+                        "title":  "Borrowing",
+                        "owner":  "lending-team",
+                        "status":  "approved",
+                        "effectiveStatus":  "approved",
+                        "decider":  null,
+                        "decideBy":  null,
+                        "file":  "docs/product/lending/borrowing.md",
+                        "line":  3,
+                        "fields":  {
+                                       "type":  "topic",
+                                       "id":  "topic/borrowing",
+                                       "title":  "Borrowing",
+                                       "owner":  "lending-team",
+                                       "status":  "approved",
+                                       "reviewBy":  "2027-04-01"
                                    },
                         "links":  {
 
@@ -1261,7 +1282,7 @@
                                        "status":  "approved",
                                        "kind":  "functional",
                                        "statement":  "A copy lives on one home shelf.",
-                                       "basedOn":  [
+                                       "cites":  [
 
                                                    ]
                                    },
@@ -1288,7 +1309,7 @@
                                        "status":  "approved",
                                        "kind":  "functional",
                                        "statement":  "A ready hold waits seven days.",
-                                       "basedOn":  [
+                                       "cites":  [
 
                                                    ]
                                    },
@@ -1315,7 +1336,7 @@
                                        "status":  "approved",
                                        "kind":  "functional",
                                        "statement":  "A loan lasts 21 days.",
-                                       "basedOn":  [
+                                       "cites":  [
 
                                                    ]
                                    },
@@ -1342,7 +1363,7 @@
                                        "status":  "approved",
                                        "kind":  "functional",
                                        "statement":  "A reader holds at most five active loans.",
-                                       "basedOn":  [
+                                       "cites":  [
 
                                                    ]
                                    },
@@ -1370,7 +1391,7 @@
                                        "sources":  [
                                                        {
                                                            "url":  "https://example.com/loan-study",
-                                                           "read":  "2026-01-15"
+                                                           "readOn":  "2026-01-15"
                                                        }
                                                    ],
                                        "question":  "How long do city libraries lend?"
@@ -2887,14 +2908,14 @@
                                        "title":  "Due reminder",
                                        "owner":  "lending-team",
                                        "status":  "reviewed",
-                                       "audience":  [
+                                       "addresses":  [
                                                          "actor/reader"
                                                      ],
                                        "channel":  "email",
                                        "template":  "due-reminder"
                                    },
                         "links":  {
-                                      "audience":  [
+                                      "addresses":  [
                                                        "actor/reader"
                                                    ]
                                   }

@@ -484,8 +484,10 @@ public sealed class KindReaderTests
     [InlineData("Application.Abstractions")]
     [InlineData("Infrastructure")]
     [InlineData("WebApi")]
+    [InlineData("Worker")]
     [InlineData("Shop.Application")]
     [InlineData("Shop.WebApi")]
+    [InlineData("Shop.Worker")]
     public void ClassWithMethodInOuterLayerIsTechnical(string project)
     {
         var type = TestTrees.First<ClassDeclarationSyntax>("""

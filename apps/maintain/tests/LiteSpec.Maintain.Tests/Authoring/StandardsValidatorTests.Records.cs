@@ -46,7 +46,7 @@ public sealed partial class StandardsValidatorTests
     /// <proves>litespec/core/maintaining#record-the-reasoning-behind-each-release</proves>
     [Fact(DisplayName = "source without a read date")]
     public void SourceWithoutAReadDate() => Check(
-        root => StandardsFixture.Write(root, "docs/intent/research/sample-study.md", StandardsFixture.ReplaceFirst(StandardsFixture.ResearchPage, ",\n      \"read\": \"2026-10-30\"", "")),
+        root => StandardsFixture.Write(root, "docs/intent/research/sample-study.md", StandardsFixture.ReplaceFirst(StandardsFixture.ResearchPage, ",\n      \"readOn\": \"2026-10-30\"", "")),
         ["RECORD_SOURCE"]);
 
     /// <proves>litespec/core/maintaining#record-the-reasoning-behind-each-release</proves>

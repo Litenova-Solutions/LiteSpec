@@ -388,7 +388,7 @@ static class ReviewQueue
         return waiting;
     }
 
-    /// <summary>Counts the record's open questions: entries that are not auto-approved.</summary>
+    /// <summary>Counts the record's open questions: entries that are neither answered nor auto-approved.</summary>
     public static int OpenQuestionCount(Record record, ConsumerConfig config, DateOnly today)
     {
         if (record.Raw.ValueKind != JsonValueKind.Object
@@ -398,49 +398,29 @@ static class ReviewQueue
             return 0;
         }
 
-        return questions.EnumerateArray().Count(entry => !AutoApproved(entry, record, config, today));
+        return questions.EnumerateArray().Count(entry => !Answered(entry) && !AutoApproved(entry, record, config, today));
     }
 
     /// <summary>
-    ///     The tier of a question entry: its own tier field, else tier 1 when the parent
-    ///     record carries risk, else tier 3.
+    ///     The tier of a question entry: tier 1 when the parent record carries
+    ///     risk, else tier 3. A question carries no tier of its own.
     /// </summary>
-    static int QuestionTier(JsonElement element, Record parent)
-    {
-        if (element.ValueKind == JsonValueKind.Object
-            && element.TryGetProperty("tier", out var tier))
-        {
-            if (tier.ValueKind == JsonValueKind.Number
-                && tier.TryGetInt32(out var number)
-                && number is 1 or 3)
-            {
-                return number;
-            }
+    static int QuestionTier(Record parent) => HasRisk(parent) ? 1 : 3;
 
-            if (tier.ValueKind == JsonValueKind.String
-                && tier.GetString() is { } text)
-            {
-                var folded = text.Trim().ToLowerInvariant();
-
-                if (folded is "1" or "tier-1" or "tier1")
-                {
-                    return 1;
-                }
-
-                if (folded is "3" or "tier-3" or "tier3")
-                {
-                    return 3;
-                }
-            }
-        }
-
-        return HasRisk(parent) ? 1 : 3;
-    }
+    /// <summary>Whether the question entry is answered: it carries an answer or an answerer.</summary>
+    static bool Answered(JsonElement element) =>
+        element.ValueKind == JsonValueKind.Object
+        && ((element.TryGetProperty("answer", out var answer)
+                && answer.ValueKind == JsonValueKind.String
+                && answer.GetString() is { Length: > 0 })
+            || (element.TryGetProperty("answeredBy", out var by)
+                && by.ValueKind == JsonValueKind.String
+                && by.GetString() is { Length: > 0 }));
 
     /// <summary>Whether the question entry carries a recommended answer.</summary>
-    static bool Recommended(JsonElement element) =>
+    static bool HasRecommendation(JsonElement element) =>
         element.ValueKind == JsonValueKind.Object
-        && element.TryGetProperty("recommended", out var value)
+        && element.TryGetProperty("recommendation", out var value)
         && value.ValueKind is not (JsonValueKind.Null or JsonValueKind.Undefined)
         && (value.ValueKind != JsonValueKind.String || value.GetString() is { Length: > 0 })
         && (value.ValueKind != JsonValueKind.Array || value.GetArrayLength() > 0);
@@ -450,8 +430,8 @@ static class ReviewQueue
     ///     answer, past its decide-by date plus the veto window.
     /// </summary>
     static bool AutoApproved(JsonElement element, Record parent, ConsumerConfig config, DateOnly today) =>
-        QuestionTier(element, parent) == 3
-        && Recommended(element)
+        QuestionTier(parent) == 3
+        && HasRecommendation(element)
         && element.ValueKind == JsonValueKind.Object
         && element.TryGetProperty("decideBy", out var value)
         && value.ValueKind == JsonValueKind.String

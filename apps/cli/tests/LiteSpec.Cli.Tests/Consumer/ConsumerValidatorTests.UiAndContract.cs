@@ -84,7 +84,7 @@ public sealed partial class ConsumerValidatorTests
         Assert.Contains("not valid JSON", parsed["problems"]?.ToJsonString() ?? string.Empty, StringComparison.Ordinal);
     }
 
-    /// <proves>litespec/core/intent#record-each-choice-as-a-decision</proves>
+    /// <proves>litespec/core/intent#shape-each-decision-page</proves>
     [Fact(DisplayName = "failing run writes its problems as an array")]
     public void FailingRunWritesItsProblemsAsAnArray()
     {

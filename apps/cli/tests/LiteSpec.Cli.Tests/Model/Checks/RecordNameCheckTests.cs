@@ -220,7 +220,7 @@ public sealed class RecordNameCheckTests
         WriteProject(temp.Path, """{}""");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("notification", "notification/lending.loan-due", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "notifications", "loan-due.md"), """{"template": "loan-due-reader", "audience": ["actor/reader"]}"""));
+            TestModel.Record("notification", "notification/lending.loan-due", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "notifications", "loan-due.md"), """{"template": "loan-due-reader", "addresses": ["actor/reader"]}"""));
 
         Assert.DoesNotContain("template-key-form", TestModel.Codes(model));
     }
@@ -233,7 +233,7 @@ public sealed class RecordNameCheckTests
         WriteProject(temp.Path, """{}""");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("notification", "notification/lending.loan-due", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "notifications", "loan-due.md"), """{"template": "loan-due-reader, loan-due-staff, none (no message)", "audience": ["actor/reader"]}"""));
+            TestModel.Record("notification", "notification/lending.loan-due", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "notifications", "loan-due.md"), """{"template": "loan-due-reader, loan-due-staff, none (no message)", "addresses": ["actor/reader"]}"""));
 
         Assert.DoesNotContain("template-key-form", TestModel.Codes(model));
     }
@@ -246,7 +246,7 @@ public sealed class RecordNameCheckTests
         WriteProject(temp.Path, """{}""");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("notification", "notification/lending.loan-due", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "notifications", "loan-due.md"), """{"template": "loan-due", "audience": ["actor/reader"]}"""));
+            TestModel.Record("notification", "notification/lending.loan-due", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "notifications", "loan-due.md"), """{"template": "loan-due", "addresses": ["actor/reader"]}"""));
 
         var message = Checker.Check(model).Findings.Single(finding => finding.Code == "template-key-form").Message;
         Assert.Contains("loan-due", message, StringComparison.Ordinal);

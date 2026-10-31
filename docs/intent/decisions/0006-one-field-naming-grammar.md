@@ -10,27 +10,27 @@
   "options": [
     {
       "name": "Rename and state the grammar",
-      "for": "The five collisions already produce invalid or misleading data, and a stated grammar lets the validator check the mechanical half on every run.",
-      "against": "Every renamed field moves schema, templates, provisions, checks, and consumer records in one change."
+      "pros": "The five collisions already produce invalid or misleading data, and a stated grammar lets the validator check the mechanical half on every run.",
+      "cons": "Every renamed field moves schema, templates, provisions, checks, and consumer records in one change."
     },
     {
       "name": "Define without renaming",
-      "for": "No record migrates and no citation sweep is needed.",
-      "against": "Definitions fix readers but not search or tooling, and the invalid values keep arriving under the colliding names."
+      "pros": "No record migrates and no citation sweep is needed.",
+      "cons": "Definitions fix readers but not search or tooling, and the invalid values keep arriving under the colliding names."
     },
     {
       "name": "Rename fields but skip the reads-as columns",
-      "for": "The change stays smaller and the Links table keeps its current shape.",
-      "against": "Carriers sharing one verb, such as the three serves rows, stay ambiguous in prose, and book connection labels stay invented."
+      "pros": "The change stays smaller and the Links table keeps its current shape.",
+      "cons": "Carriers sharing one verb, such as the three serves rows, stay ambiguous in prose, and book connection labels stay invented."
     },
     {
       "name": "Adopt external names wholesale",
-      "for": "One outside standard would settle every naming dispute at once.",
-      "against": "No outside standard covers record fields, and external names are kept only where a standard fixes them, such as the published-fact fields."
+      "pros": "One outside standard would settle every naming dispute at once.",
+      "cons": "No outside standard covers record fields, and external names are kept only where a standard fixes them, such as the published-fact fields."
     }
   ],
-  "chosen": "Rename and state the grammar",
-  "changeWhen": "A new field appears that the grammar cannot name.",
+  "choice": "Rename and state the grammar",
+  "reopenedWhen": "A new field appears that the grammar cannot name.",
   "basedOn": [
     "research/field-naming-evidence",
     "research/cross-layer-trace-evidence"
@@ -50,7 +50,7 @@ Each colliding field is renamed to one concept, one name, and one shape: feature
 
 ## Consequences
 
-`litespec/core/model#name-each-field-for-one-concept` states the grammar with its checked mechanical half. `litespec/core/model#write-links-on-the-record-that-points` carries the reads-as columns, and `litespec/core/model#name-book-labels-with-litespec-terms` takes book labels from them.
+`litespec/core/language#name-each-field-by-its-word-class` states the grammar with its checked mechanical half. `litespec/core/model#write-links-on-the-record-that-points` carries the reads-as columns, and `litespec/core/model#name-book-labels-with-litespec-terms` takes book labels from them.
 
 ## Evidence with Confidence
 

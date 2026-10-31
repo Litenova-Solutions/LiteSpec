@@ -318,7 +318,7 @@ public sealed class ScreenCheckTests
         Assert.False(LiteSpec.Model.Readers.FrontendFactsRules.AddressMatches("/loans", "/cards"));
     }
 
-    /// <proves>litespec/core/model#mark-every-check-with-its-tier</proves>
+    /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
     [Fact]
     public void Severity_Uses_The_Producing_Readers_Qualification()
     {

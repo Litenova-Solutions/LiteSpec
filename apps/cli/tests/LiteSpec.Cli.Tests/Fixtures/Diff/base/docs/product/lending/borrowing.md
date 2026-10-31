@@ -1,6 +1,7 @@
 ---
 {
-  "type": "requirement-page",
+  "type": "topic",
+  "id": "topic/borrowing",
   "title": "Borrowing",
   "owner": "lending-team",
   "status": "approved",
@@ -14,7 +15,8 @@
       "status": "approved",
       "kind": "functional",
       "statement": "A reader holds at most five active loans.",
-      "basedOn": []
+      "rationale": "Readers borrow enough for a term without starving holds.",
+      "cites": []
     },
     {
       "type": "requirement",
@@ -24,7 +26,8 @@
       "status": "approved",
       "kind": "functional",
       "statement": "A loan lasts 21 days.",
-      "basedOn": []
+      "rationale": "Three weeks lets most readers finish while copies keep moving.",
+      "cites": []
     },
     {
       "type": "requirement",
@@ -34,9 +37,10 @@
       "status": "approved",
       "kind": "quality",
       "statement": "Search answers quickly.",
+      "rationale": "Slow search sends readers to the desk queue.",
       "measure": "p95 latency",
       "by": "under 200 ms",
-      "basedOn": []
+      "cites": []
     },
     {
       "type": "requirement",
@@ -48,7 +52,8 @@
       "decideBy": "2027-01-01",
       "kind": "functional",
       "statement": "The library keeps quiet hours.",
-      "basedOn": []
+      "rationale": "Readers need guaranteed quiet time to study.",
+      "cites": []
     }
   ]
 }

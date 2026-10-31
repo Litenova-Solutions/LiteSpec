@@ -210,7 +210,7 @@ public sealed partial class StandardsValidatorTests
         },
         [], ["TEMPLATE_INDEX_PATH"]);
 
-    /// <proves>litespec/core/model#name-each-field-for-one-concept</proves>
+    /// <proves>litespec/core/language#name-each-field-by-its-word-class</proves>
     [Fact(DisplayName = "field name carrying two shapes")]
     public void FieldNameCarryingTwoShapes() => Check(
         root =>
@@ -223,7 +223,7 @@ public sealed partial class StandardsValidatorTests
         },
         ["FIELD_NAME_SHAPE"]);
 
-    /// <proves>litespec/core/model#name-each-field-for-one-concept</proves>
+    /// <proves>litespec/core/language#name-each-field-by-its-word-class</proves>
     [Fact(DisplayName = "date field without a By or On name")]
     public void DateFieldWithoutByOrOnName() => Check(
         root =>
@@ -235,7 +235,7 @@ public sealed partial class StandardsValidatorTests
         },
         ["FIELD_NAME_SHAPE"]);
 
-    /// <proves>litespec/core/model#name-each-field-for-one-concept</proves>
+    /// <proves>litespec/core/language#name-each-field-by-its-word-class</proves>
     [Fact(DisplayName = "deadline name holding a plain string")]
     public void DeadlineNameHoldingPlainString() => Check(
         root =>
@@ -247,7 +247,7 @@ public sealed partial class StandardsValidatorTests
         },
         ["FIELD_NAME_SHAPE"]);
 
-    /// <proves>litespec/core/model#name-each-field-for-one-concept</proves>
+    /// <proves>litespec/core/language#name-each-field-by-its-word-class</proves>
     [Fact(DisplayName = "record-type noun holding a list under its singular name")]
     public void RecordTypeNounHoldingListUnderSingularName() => Check(
         root =>
@@ -260,7 +260,7 @@ public sealed partial class StandardsValidatorTests
         },
         ["FIELD_NAME_SHAPE"]);
 
-    /// <proves>litespec/core/model#name-each-field-for-one-concept</proves>
+    /// <proves>litespec/core/language#name-each-field-by-its-word-class</proves>
     [Fact(DisplayName = "shipped schemas carry consistent field names")]
     public void ShippedSchemasCarryConsistentFieldNames()
     {
@@ -273,4 +273,146 @@ public sealed partial class StandardsValidatorTests
 
         Assert.DoesNotContain(result.Diagnostics, diagnostic => diagnostic.Code == "FIELD_NAME_SHAPE");
     }
+
+    static readonly string TemplateGoalSchema =
+        "{\"$defs\":{" +
+        "\"goalPage\":{\"type\":\"object\",\"additionalProperties\":false," +
+        "\"required\":[\"type\",\"id\",\"title\",\"owner\",\"status\",\"decideBy\",\"kind\"]," +
+        "\"properties\":{\"type\":{\"const\":\"goal\"}," +
+        "\"id\":{\"$ref\":\"#/$defs/goalId\"}," +
+        "\"title\":{\"$ref\":\"#/$defs/nonEmptyString\"}," +
+        "\"owner\":{\"$ref\":\"#/$defs/ownerName\"}," +
+        "\"status\":{\"$ref\":\"#/$defs/intentStatus\"}," +
+        "\"decideBy\":{\"$ref\":\"#/$defs/isoDate\"}," +
+        "\"kind\":{\"enum\":[\"a\",\"b\"]}}}," +
+        "\"goalId\":{\"type\":\"string\",\"pattern\":\"^goal/[a-z0-9][a-z0-9-]*$\"}," +
+        "\"nonEmptyString\":{\"type\":\"string\",\"minLength\":1}," +
+        "\"ownerName\":{\"type\":\"string\",\"minLength\":1}," +
+        "\"intentStatus\":{\"type\":\"string\",\"enum\":[\"draft\",\"approved\"]}," +
+        "\"isoDate\":{\"type\":\"string\",\"pattern\":\"^\\\\d{4}-\\\\d{2}-\\\\d{2}$\"}}}";
+
+    static string TemplatePage(string frontmatter) =>
+        "---\n" + frontmatter + "\n---\n\n# <Sample Goal>\n\n## Why It Matters\n\nState why this outcome matters.\n";
+
+    /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
+    [Fact(DisplayName = "consumer template carrying only placeholders")]
+    public void ConsumerTemplateWithPlaceholders() => Check(
+        root =>
+        {
+            StandardsFixture.Write(root, "schemas/record.schema.json", TemplateGoalSchema);
+            StandardsFixture.Write(root, "templates/consumer/goal.md", TemplatePage(
+                "{\"type\":\"goal\",\"id\":\"goal/<name>\",\"title\":\"<Goal display title>\"," +
+                "\"owner\":\"<owner>\",\"status\":\"draft\",\"decideBy\":\"<YYYY-MM-DD>\",\"kind\":\"<a|b>\"}"));
+        },
+        []);
+
+    /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
+    [Fact(DisplayName = "consumer template breaking its record shape")]
+    public void ConsumerTemplateBreakingItsShape() => Check(
+        root =>
+        {
+            StandardsFixture.Write(root, "schemas/record.schema.json", TemplateGoalSchema);
+            StandardsFixture.Write(root, "templates/consumer/goal.md", TemplatePage(
+                "{\"type\":\"goal\",\"id\":\"goal/sample\",\"owner\":\"Sam\"," +
+                "\"status\":\"draft\",\"decideBy\":\"2026-11-30\",\"kind\":\"a\"}"));
+        },
+        ["TEMPLATE_SCHEMA"]);
+
+    /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
+    [Fact(DisplayName = "consumer template with invalid frontmatter")]
+    public void ConsumerTemplateWithInvalidFrontmatter() => Check(
+        root =>
+        {
+            StandardsFixture.Write(root, "schemas/record.schema.json", "{\"$defs\":{}}");
+            StandardsFixture.Write(root, "templates/consumer/goal.md", "---\n{not json}\n---\n\n# Sample\n");
+        },
+        ["TEMPLATE_SCHEMA"]);
+
+    /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
+    [Fact(DisplayName = "consumer template with an unknown record type")]
+    public void ConsumerTemplateWithUnknownType() => Check(
+        root =>
+        {
+            StandardsFixture.Write(root, "schemas/record.schema.json", "{\"$defs\":{\"goalPage\":{\"type\":\"object\"}}}");
+            StandardsFixture.Write(root, "templates/consumer/portal.md", TemplatePage("{\"type\":\"portal\"}"));
+        },
+        ["TEMPLATE_SCHEMA"]);
+
+    /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
+    [Fact(DisplayName = "consumer template dropping a removable placeholder")]
+    public void ConsumerTemplateDroppingRemovablePlaceholder() => Check(
+        root =>
+        {
+            StandardsFixture.Write(root, "schemas/record.schema.json",
+                "{\"$defs\":{" +
+                "\"screenPage\":{\"type\":\"object\",\"additionalProperties\":false," +
+                "\"required\":[\"type\",\"id\"]," +
+                "\"properties\":{\"type\":{\"const\":\"screen\"}," +
+                "\"id\":{\"$ref\":\"#/$defs/nonEmptyString\"}," +
+                "\"address\":{\"$ref\":\"#/$defs/nonEmptyString\"}," +
+                "\"host\":{\"$ref\":\"#/$defs/nonEmptyString\"}}," +
+                "\"oneOf\":[{\"required\":[\"address\"],\"not\":{\"required\":[\"host\"]}}," +
+                "{\"required\":[\"host\"],\"not\":{\"required\":[\"address\"]}}]}," +
+                "\"nonEmptyString\":{\"type\":\"string\",\"minLength\":1}}}");
+            StandardsFixture.Write(root, "templates/consumer/screen.md", TemplatePage(
+                "{\"type\":\"screen\",\"id\":\"screen/sample\"," +
+                "\"address\":\"<Route template, or remove this line and keep host>\"," +
+                "\"host\":\"screen/sample\"}"));
+        },
+        []);
+
+    /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
+    [Fact(DisplayName = "consumer template reading an enum under its shape")]
+    public void ConsumerTemplateReadingEnumUnderItsShape() => Check(
+        root =>
+        {
+            StandardsFixture.Write(root, "schemas/record.schema.json",
+                "{\"$defs\":{" +
+                "\"queryPage\":{\"type\":\"object\",\"additionalProperties\":false," +
+                "\"required\":[\"type\",\"kind\"]," +
+                "\"properties\":{\"type\":{\"const\":\"query\"}," +
+                "\"kind\":{\"enum\":[\"command\",\"query\"]}," +
+                "\"output\":{\"type\":\"object\"}}," +
+                "\"allOf\":[" +
+                "{\"if\":{\"required\":[\"kind\"],\"properties\":{\"kind\":{\"const\":\"query\"}}}," +
+                "\"then\":{\"required\":[\"output\"]}}," +
+                "{\"if\":{\"required\":[\"kind\"],\"properties\":{\"kind\":{\"const\":\"command\"}}}," +
+                "\"then\":{\"not\":{\"required\":[\"output\"]}}}]}}}");
+            StandardsFixture.Write(root, "templates/consumer/query.md", TemplatePage(
+                "{\"type\":\"query\",\"kind\":\"<command|query>\",\"output\":{\"include\":{}}}"));
+        },
+        []);
+
+    /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
+    [Fact(DisplayName = "consumer template carrying a placeholder for a non-string field")]
+    public void ConsumerTemplateWithNonStringPlaceholder() => Check(
+        root =>
+        {
+            StandardsFixture.Write(root, "schemas/record.schema.json",
+                "{\"$defs\":{" +
+                "\"jobPage\":{\"type\":\"object\",\"additionalProperties\":false," +
+                "\"required\":[\"type\",\"batchSize\"]," +
+                "\"properties\":{\"type\":{\"const\":\"job\"}," +
+                "\"batchSize\":{\"type\":\"integer\"}," +
+                "\"retry\":{\"anyOf\":[{\"const\":\"none\"},{\"$ref\":\"#/$defs/retryPolicy\"}]}}}," +
+                "\"retryPolicy\":{\"type\":\"object\",\"additionalProperties\":false," +
+                "\"required\":[\"maxAttempts\"]," +
+                "\"properties\":{\"maxAttempts\":{\"type\":\"integer\",\"minimum\":1}}}}}");
+            StandardsFixture.Write(root, "templates/consumer/job.md", TemplatePage(
+                "{\"type\":\"job\",\"batchSize\":\"<number>\"," +
+                "\"retry\":{\"maxAttempts\":\"<number>\"}}"));
+        },
+        []);
+
+    /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
+    [Fact(DisplayName = "consumer template carrying no record type")]
+    public void ConsumerTemplateWithoutRecordType() => Check(
+        root =>
+        {
+            StandardsFixture.Write(root, "schemas/record.schema.json", "{\"$defs\":{\"goalPage\":{\"type\":\"object\"}}}");
+            StandardsFixture.Write(root, "templates/consumer/design-contract.md", TemplatePage(
+                "{\"kind\":\"design-contract\",\"schemaVersion\":1," +
+                "\"package\":\"@sample/ui\",\"shell\":\"sample\",\"patterns\":[\"list-page\"]}"));
+        },
+        []);
 }

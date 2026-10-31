@@ -12,11 +12,11 @@
   "sources": [
     {
       "path": "docs/core/model.md",
-      "read": "2026-10-30"
+      "readOn": "2026-10-30"
     },
     {
       "path": "docs/tools/book.md",
-      "read": "2026-10-30"
+      "readOn": "2026-10-30"
     }
   ]
 }

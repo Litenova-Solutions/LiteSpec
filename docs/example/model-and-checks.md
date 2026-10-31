@@ -2,28 +2,28 @@
 
 ## Intent
 
-The project model is the computed join between a project's written records and its code, screens, and tests: it proves they agree, and its checks report every gap as a finding with a tier. This page shows that model at work on the Claimwick product, the example product these pages follow, with real output from `litespec model build`, `check`, and `query`: how a known gap (a missing piece the team accepts until an end date) covers the still-missing handler for Export expenses, what the check reports when the Approve expense handler is removed, how the book shows journey detail and the Ballots view, what the diffs show, and which continuous integration jobs run these checks.
+The project model is the computed join between a project's written records and its code, screens, and tests: it proves they agree, and its checks report every gap as a finding with a level. This page shows that model at work on the Claimwick product, the example product these pages follow, with real output from `litespec model build`, `check`, and `query`: how a known gap (a missing piece the team accepts until an end date) covers the still-missing handler for Export expenses, what the check reports when the Approve expense handler is removed, how the book shows journey detail and the Ballots view, what the diffs show, and which continuous integration jobs run these checks.
 
 ## Building the Model
 
 `litespec model build` reads the written records, follows the marks in code and tests, the routes, and the latest test run, and writes `model.json` with every record and its resolved links. [Model Builder](../tools/model.md) states the five subcommands, and [Project Model](../core/model.md) states the records they read. The run below is against the Claimwick example:
 
 ```text
-.model/model.json: 104 records, 9 handlers, 1 screen, 12 scenarios.
+.model/model.json: 105 records, 9 handlers, 1 screen, 12 scenarios.
 ```
 
-The counts name what the builder found: 104 records, 9 handlers, 1 screen, and 12 scenario tests. The 104 records are the page records, the entries on those pages, and the 4 glossary terms. The 12 tests prove 11 of the 12 scenarios: Submit expense is proved twice, once by its acceptance scenario and once by its integration test. The file also adds the computed `implements`, `calls`, and `proves` links, and the computed `implemented`, `verified`, `stale`, and `reachable` state of each record. Implemented and verified come from the builder, never from handwriting, per `litespec/core/model#compute-proof-statuses-in-the-builder`: a use case reads implemented when its handler exists, so deleting a handler flips the state on the next run with no record edit.
+The counts name what the builder found: 105 records, 9 handlers, 1 screen, and 12 scenario tests. The 105 records are the page records, the entries on those pages, the approval topic, and the 4 glossary terms. The 12 tests prove 11 of the 12 scenarios: Submit expense is proved twice, once by its acceptance scenario and once by its integration test. The file also adds the computed `implements`, `calls`, and `proves` links, and the computed `implemented`, `verified`, `stale`, and `reachable` state of each record. Implemented and verified come from the builder, never from handwriting, per `litespec/core/model#compute-proof-statuses-in-the-builder`: a use case reads implemented when its handler exists, so deleting a handler flips the state on the next run with no record edit.
 
 ## Checking the Model
 
-`litespec model check` builds the model in memory and reports every finding with its tier, code, message, path, and line. Against the unchanged example it reports this, and exits zero:
+`litespec model check` builds the model in memory and reports every finding with its level, code, message, path, and line. Against the unchanged example it reports this, and exits zero:
 
 ```text
 docs/behavior/modules/spending/expenses/export-expenses.md:3 [S known use-case-unimplemented] Use case 'use-case/spending.export-expenses' has no handler.
 0 open findings, 1 known.
 ```
 
-The Export expenses use case has no handler, so the `use-case-unimplemented` check fires at tier S, through the stack reader. A finding that an open known gap covers is reported as known and exits zero, so the line carries the `known` marker and the summary counts `0 open findings, 1 known`.
+The Export expenses use case has no handler, so the `use-case-unimplemented` check fires at level S, through the stack reader. A finding that an open known gap covers is reported as known and exits zero, so the line carries the `known` marker and the summary counts `0 open findings, 1 known`.
 
 ## The Known Gap for Export Expenses
 
@@ -134,12 +134,10 @@ The run scanned 44 pages under `docs` and passed: no mannered term, no rejected 
 
 ## The Journey Detail
 
-`litespec book` shows each journey as record detail for product readers: the aim, the observable end, the steps as sentences with server badges for the serving use cases and screens, the requirements with their exceptions and fallbacks inline, and the open questions. Field names render literally. The submit-and-reimburse detail reads:
+`litespec book` shows each journey as record detail for product readers: the observable end, the steps as sentences with server badges for the serving use cases and screens, the requirements with their exceptions and fallbacks inline, and the open questions. Field names never render literally. The submit-and-reimburse detail reads:
 
 ```text
 Submit and Reimburse
-
-An employee submits an expense and receives reimbursement.
 
 Finished when: the employee holds the reimbursement, and the expense
 record shows every step.

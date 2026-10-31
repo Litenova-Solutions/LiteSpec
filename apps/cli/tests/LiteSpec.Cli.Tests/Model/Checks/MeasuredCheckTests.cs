@@ -82,6 +82,46 @@ public sealed class MeasuredCheckTests
         Assert.DoesNotContain("requirement-unmeasured", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/core/intent#state-the-measure-on-a-counted-requirement</proves>
+    [Fact]
+    public void Statement_Naming_Number_Without_Measure_Reports_At_Tier_A()
+    {
+        using var temp = Cli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.md"), """{"kind": "functional", "statement": "A reader holds at most 5 active loans."}"""));
+
+        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "requirement-unmeasured");
+        Assert.Equal("A", finding.Tier);
+        Assert.Equal("Requirement 'requirement/borrowing.max-active-loans' names a number with no measure.", finding.Message);
+        Assert.Equal("requirement/borrowing.max-active-loans", finding.Subject);
+    }
+
+    /// <proves>litespec/core/intent#state-the-measure-on-a-counted-requirement</proves>
+    [Fact]
+    public void Statement_Naming_Number_Words_Without_Measure_Passes()
+    {
+        using var temp = Cli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.md"), """{"kind": "functional", "statement": "A reader holds at most five active loans."}"""));
+
+        Assert.DoesNotContain("requirement-unmeasured", TestModel.Codes(model));
+    }
+
+    /// <proves>litespec/core/intent#state-the-measure-on-a-counted-requirement</proves>
+    [Fact]
+    public void Statement_Naming_Only_A_Citation_Passes()
+    {
+        using var temp = Cli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("requirement", "requirement/borrowing.loan-period-days", Path.Combine(temp.Path, "borrowing.md"), """{"kind": "functional", "statement": "Loans run as decision/0001-loan-period decides.", "cites": ["decision/0001-loan-period"]}"""),
+            TestModel.Record("decision", "decision/0001-loan-period", Path.Combine(temp.Path, "decisions.md"), """{"status": "approved", "options": [{"name": "Fourteen days", "pros": "Readers finish in time.", "cons": "Popular copies queue."}], "choice": "Fourteen days", "reopenedWhen": "Queues pass one hundred a day."}"""));
+
+        Assert.DoesNotContain("requirement-unmeasured", TestModel.Codes(model));
+    }
+
     static Record Measured(string root, string check = "p95<200") =>
         TestModel.Record(
             "requirement",

@@ -114,7 +114,7 @@ The manifest pins the baseline stack, which is the set these standards name. A c
 | Domain.Tests | xUnit v3, assertions, and FsCheck |
 | Application.Tests | xUnit v3, assertions, and NSubstitute |
 | Integration.Tests | xUnit v3, assertions, test host, Testcontainers PostgreSQL, and the Microsoft.Testing.Platform report and coverage extensions |
-| Architecture.Tests | xUnit v3, assertions, and NetArchTest |
+| Architecture.Tests | xUnit v3, assertions, and ArchUnitNET |
 | Acceptance.Tests | xUnit v3, assertions, the behavior runner its extension selects, test host, and the report and coverage extensions |
 
 Test projects reference xUnit v3 and run on Microsoft.Testing.Platform. The consumer `global.json` sets `"test": { "runner": "Microsoft.Testing.Platform" }`, because the .NET 10 `dotnet test` command refuses the VSTest mode for these projects. Domain.Tests carries FsCheck for the property tests that `litespec/backend/dotnet/testing#seed-property-tests-from-example-tables` names and the model-based tests that `litespec/backend/dotnet/testing#generate-model-tests-from-declared-transitions` names.

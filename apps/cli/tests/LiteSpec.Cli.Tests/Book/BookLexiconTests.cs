@@ -167,9 +167,16 @@ public sealed class BookLexiconTests
         Assert.Equal("Lifecycle", lexicon.Fields["lifecycle"]);
         Assert.Equal("Due by", lexicon.Fields["dueBy"]);
         Assert.Equal("Planned for", lexicon.Fields["plannedFor"]);
-        Assert.Equal("Decided on", lexicon.Fields["decidedOn"]);
+        Assert.Equal("Choice", lexicon.Fields["choice"]);
+        Assert.Equal("Reopened when", lexicon.Fields["reopenedWhen"]);
+        Assert.Equal("Pros", lexicon.Fields["pros"]);
+        Assert.Equal("Cons", lexicon.Fields["cons"]);
+        Assert.Equal("Exclusions", lexicon.Fields["exclusions"]);
+        Assert.Equal("Addresses", lexicon.Fields["addresses"]);
+        Assert.Equal("Recommendation", lexicon.Fields["recommendation"]);
+        Assert.Equal("Condition", lexicon.Fields["condition"]);
+        Assert.Equal("Read on", lexicon.Fields["readOn"]);
         Assert.Equal("Authority", lexicon.Fields["authority"]);
-        Assert.Equal("Aim", lexicon.Fields["aim"]);
         Assert.Equal("Conclusion", lexicon.Fields["conclusion"]);
         Assert.Equal("Options", lexicon.Fields["options"]);
 
@@ -178,6 +185,12 @@ public sealed class BookLexiconTests
         Assert.False(lexicon.Fields.ContainsKey("goal"));
         Assert.False(lexicon.Fields.ContainsKey("decided"));
         Assert.False(lexicon.Fields.ContainsKey("category"));
+        Assert.False(lexicon.Fields.ContainsKey("decidedOn"));
+        Assert.False(lexicon.Fields.ContainsKey("chosen"));
+        Assert.False(lexicon.Fields.ContainsKey("changeWhen"));
+        Assert.False(lexicon.Fields.ContainsKey("neverDoes"));
+        Assert.False(lexicon.Fields.ContainsKey("audience"));
+        Assert.False(lexicon.Fields.ContainsKey("aim"));
     }
 
     /// <summary>Each glossary term carries its definition, layer and source; aliases and rejected words stay out.</summary>
@@ -232,6 +245,33 @@ public sealed class BookLexiconTests
     {
         using var temp = Cli.Temp("book-lexicon");
         var lexicon = BookLexicon.Load(WriteHome(temp, ModelPage(), ToolsPage(), GlossaryPage()));
+        var findings = lexicon.ToJson()["findings"]!.AsObject();
+        Assert.Equal(2, findings.Count);
+
+        var shape = findings["record-shape"]!.AsObject();
+        Assert.Equal("G", shape["tier"]!.GetValue<string>());
+        Assert.Equal("A record fails the shape its type requires.", shape["meaning"]!.GetValue<string>());
+        Assert.False(findings.ContainsKey("requirement-removed"));
+    }
+
+    /// <summary>The finding table reads by column name, so an added Fix column never moves it.</summary>
+    /// <proves>litespec/core/model#explain-the-book-from-litespec-definitions</proves>
+    [Fact]
+    public void Findings_Read_By_Column_Name_With_Extra_Columns()
+    {
+        using var temp = Cli.Temp("book-lexicon");
+        var tools = ToolsPage()
+            .Replace("| Code | Level | Meaning |", "| Code | Level | Meaning | Fix |", StringComparison.Ordinal)
+            .Replace("|:---|:---|:---|", "|:---|:---|:---|:---|", StringComparison.Ordinal)
+            .Replace(
+                "| `record-shape` | G | A record fails the shape its type requires. |",
+                "| `record-shape` | G | A record fails the shape its type requires. | Write the missing shape. |",
+                StringComparison.Ordinal)
+            .Replace(
+                "| `term-lookalike` | A | Two terms differ only in spelling. |",
+                "| `term-lookalike` | A | Two terms differ only in spelling. | Rename one term. |",
+                StringComparison.Ordinal);
+        var lexicon = BookLexicon.Load(WriteHome(temp, ModelPage(), tools, GlossaryPage()));
         var findings = lexicon.ToJson()["findings"]!.AsObject();
         Assert.Equal(2, findings.Count);
 
@@ -375,7 +415,7 @@ public sealed class BookLexiconTests
 
         Any risk value makes the record tier 1.
 
-        ### Check Tiers
+        ### Check Levels
 
         Every check has a tier.
 
@@ -402,7 +442,7 @@ public sealed class BookLexiconTests
 
         The finding codes are:
 
-        | Code | Tier | Meaning |
+        | Code | Level | Meaning |
         |:---|:---|:---|
         | `record-shape` | G | A record fails the shape its type requires. |
         | `term-lookalike` | A | Two terms differ only in spelling. |

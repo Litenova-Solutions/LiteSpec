@@ -20,9 +20,11 @@
       "question": "<The open question, or remove the questions block>",
       "decider": "<owner>",
       "decideBy": "<YYYY-MM-DD>",
-      "recommended": "<The recommended answer>",
       "ballot": "<decision-id or topic slug>",
-      "tier": "<1|3>"
+      "recommendation": "<The recommended answer, or remove this line when the record carries risk>",
+      "answer": "<The answer, set on answer>",
+      "answeredBy": "<The answerer, set on answer>",
+      "answeredOn": "<YYYY-MM-DD, set on answer>"
     }
   ]
 }

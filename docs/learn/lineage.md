@@ -38,7 +38,7 @@ LiteSpec borrows its words from established practices: each borrowed concept kee
 
 ## Requirements Engineering
 
-**Takes:** the requirement kinds functional, quality, and business, drawn from BABOK and IREB; the measurable goal with its target, drawn from Volere and product practice; and the fit criterion: every quality requirement carries a measure that a check confirms.
+**Takes:** the requirement kinds functional, quality, and policy, drawn from BABOK and IREB; the measurable goal with its target, drawn from Volere and product practice; and the fit criterion: every quality requirement carries a measure that a check confirms.
 
 **Words:** requirement, goal, measure.
 
@@ -56,9 +56,9 @@ LiteSpec borrows its words from established practices: each borrowed concept kee
 
 **Takes:** one record per significant decision, with its context, the options considered, the choice, and its consequences; a decision is replaced, never edited.
 
-**Words:** decision, with options, chosen, and consequences.
+**Words:** decision, with options, choice, and consequences.
 
-**Differs:** Options are entries with what speaks for and against each, so the review content is structured, not prose. A decision links what it decides and what it replaces, and names what would change it, with the shared draft, approved, and retired statuses of every Intent record. Open questions travel up as drafts with a decider, a date, a recommendation, and a ballot, and each ballot carries a consequences summary rendered from Behavior.
+**Differs:** Options are entries with `pros` and `cons`, so the review content is structured, not prose. A decision links what it decides and what it replaces, and names what would change it, with the shared draft, approved, and retired statuses of every Intent record. Open questions travel up as drafts with a decider, a date, a recommendation, and a ballot, and each ballot carries a consequences summary rendered from Behavior.
 
 ## Role-Based Access Control
 

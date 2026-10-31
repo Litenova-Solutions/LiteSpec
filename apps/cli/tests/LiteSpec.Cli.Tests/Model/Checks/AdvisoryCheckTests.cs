@@ -54,40 +54,121 @@ public sealed class AdvisoryCheckTests
         Assert.DoesNotContain("many-aggregates", TestModel.Codes(model));
     }
 
-    /// <proves>litespec/core/release#approve-tier-3-questions-automatically-after-the-veto-window</proves>
+    /// <proves>litespec/core/model#answer-each-question-on-its-record</proves>
     [Fact]
     public void Tier3_Question_Without_Recommendation_Past_DecideBy_Reports()
     {
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, "reader.md"), """{"status": "approved", "kind": "person", "questions": [{"question": "May a junior reader place holds?", "decider": "lending-team", "decideBy": "2020-01-01"}]}"""));
+            TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, "reader.md"), """{"status": "approved", "kind": "person", "questions": [{"question": "May a junior reader place holds?", "decider": "lending-team", "decideBy": "2020-01-01", "ballot": "junior-holds"}]}"""));
 
-        Assert.Contains("question-aged", TestModel.Codes(model));
+        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "question-aged");
+        Assert.Equal("A", finding.Tier);
+        Assert.Equal("Question on 'actor/reader' stands past its decide-by date.", finding.Message);
+        Assert.Equal("actor/reader", finding.Subject);
     }
 
-    /// <proves>litespec/core/release#approve-tier-3-questions-automatically-after-the-veto-window</proves>
+    /// <proves>litespec/core/model#answer-each-question-on-its-record</proves>
     [Fact]
     public void Tier3_Question_With_Recommendation_Passes()
     {
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, "reader.md"), """{"status": "approved", "kind": "person", "questions": [{"question": "May a junior reader place holds?", "decider": "lending-team", "decideBy": "2020-01-01", "recommended": "Yes, with a guardian."}]}"""));
+            TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, "reader.md"), """{"status": "approved", "kind": "person", "questions": [{"question": "May a junior reader place holds?", "decider": "lending-team", "decideBy": "2020-01-01", "ballot": "junior-holds", "recommendation": "Yes, with a guardian."}]}"""));
 
         Assert.DoesNotContain("question-aged", TestModel.Codes(model));
     }
 
-    /// <proves>litespec/core/release#approve-tier-3-questions-automatically-after-the-veto-window</proves>
+    /// <proves>litespec/core/model#answer-each-question-on-its-record</proves>
     [Fact]
-    public void Tier1_Question_Blocks_Instead_Of_Aging()
+    public void Tier1_Question_Past_DecideBy_Reports()
     {
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, "reader.md"), """{"status": "approved", "kind": "person", "questions": [{"question": "May a junior reader place holds?", "decider": "lending-team", "decideBy": "2020-01-01", "tier": 1}]}"""));
+            TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, "reader.md"), """{"status": "approved", "kind": "person", "risk": ["money"], "questions": [{"question": "May a junior reader place holds?", "decider": "lending-team", "decideBy": "2020-01-01", "ballot": "junior-holds"}]}"""));
+
+        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "question-aged");
+        Assert.Equal("A", finding.Tier);
+        Assert.Equal("Question on 'actor/reader' stands past its decide-by date.", finding.Message);
+        Assert.Equal("actor/reader", finding.Subject);
+    }
+
+    /// <proves>litespec/core/model#answer-each-question-on-its-record</proves>
+    [Fact]
+    public void Answered_Question_Past_DecideBy_Passes()
+    {
+        using var temp = Cli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, "reader.md"), """{"status": "approved", "kind": "person", "questions": [{"question": "May a junior reader place holds?", "decider": "lending-team", "decideBy": "2020-01-01", "ballot": "junior-holds", "answer": "Yes, with a guardian.", "answeredBy": "lending-team", "answeredOn": "2020-01-02"}]}"""));
 
         Assert.DoesNotContain("question-aged", TestModel.Codes(model));
+        Assert.DoesNotContain(
+            Checker.Check(model).Findings,
+            finding => finding.Code == "record-shape" && finding.Message.Contains("open questions", StringComparison.Ordinal));
+    }
+
+    /// <proves>litespec/core/model#answer-each-question-on-its-record</proves>
+    [Fact]
+    public void Question_Without_Decider_Reports_Draft_Without_Decider()
+    {
+        using var temp = Cli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, "reader.md"), """{"status": "approved", "kind": "person", "questions": [{"question": "May a junior reader place holds?", "decideBy": "2035-02-01", "ballot": "junior-holds", "recommendation": "Yes, with a guardian."}]}"""));
+
+        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "draft-without-decider");
+        Assert.Equal("G", finding.Tier);
+        Assert.Equal("Question on 'actor/reader' names no decider.", finding.Message);
+        Assert.Equal("actor/reader", finding.Subject);
+    }
+
+    /// <proves>litespec/core/model#answer-each-question-on-its-record</proves>
+    [Fact]
+    public void Question_Without_DecideBy_Reports_Draft_Without_Decider()
+    {
+        using var temp = Cli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, "reader.md"), """{"status": "approved", "kind": "person", "questions": [{"question": "May a junior reader place holds?", "decider": "lending-team", "ballot": "junior-holds", "recommendation": "Yes, with a guardian."}]}"""));
+
+        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "draft-without-decider");
+        Assert.Equal("G", finding.Tier);
+        Assert.Equal("Question on 'actor/reader' names no decide-by date.", finding.Message);
+        Assert.Equal("actor/reader", finding.Subject);
+    }
+
+    /// <proves>litespec/core/model#answer-each-question-on-its-record</proves>
+    [Fact]
+    public void Tier3_Question_Without_Recommendation_Reports_Record_Shape()
+    {
+        using var temp = Cli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, "reader.md"), """{"status": "approved", "kind": "person", "questions": [{"question": "May a junior reader place holds?", "decider": "lending-team", "decideBy": "2035-02-01", "ballot": "junior-holds"}]}"""));
+
+        var finding = Assert.Single(
+            Checker.Check(model).Findings,
+            found => found.Code == "record-shape" && found.Message.Contains("names no recommendation", StringComparison.Ordinal));
+        Assert.Equal("Question on 'actor/reader' names no recommendation.", finding.Message);
+        Assert.Equal("actor/reader", finding.Subject);
+    }
+
+    /// <proves>litespec/core/model#answer-each-question-on-its-record</proves>
+    [Fact]
+    public void Tier1_Question_Without_Recommendation_Passes_Shape()
+    {
+        using var temp = Cli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, "reader.md"), """{"status": "approved", "kind": "person", "risk": ["money"], "questions": [{"question": "May a junior reader place holds?", "decider": "lending-team", "decideBy": "2035-02-01", "ballot": "junior-holds"}]}"""));
+
+        Assert.DoesNotContain(
+            Checker.Check(model).Findings,
+            finding => finding.Code == "record-shape" && finding.Message.Contains("names no recommendation", StringComparison.Ordinal));
     }
 
     /// <proves>litespec/core/model#hold-approval-behind-open-questions</proves>
@@ -97,7 +178,7 @@ public sealed class AdvisoryCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, "reader.md"), """{"status": "approved", "kind": "person", "questions": [{"question": "May a junior reader place holds?", "decider": "lending-team", "decideBy": "2035-02-01"}]}"""));
+            TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, "reader.md"), """{"status": "approved", "kind": "person", "questions": [{"question": "May a junior reader place holds?", "decider": "lending-team", "decideBy": "2035-02-01", "ballot": "junior-holds", "recommendation": "Yes, with a guardian."}]}"""));
 
         Assert.Contains(
             Checker.Check(model).Findings,
@@ -111,7 +192,7 @@ public sealed class AdvisoryCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, "reader.md"), """{"status": "approved", "kind": "person", "questions": [{"question": "May a junior reader place holds?", "decider": "lending-team", "decideBy": "2020-01-01", "recommended": "Yes, with a guardian."}]}"""));
+            TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, "reader.md"), """{"status": "approved", "kind": "person", "questions": [{"question": "May a junior reader place holds?", "decider": "lending-team", "decideBy": "2020-01-01", "ballot": "junior-holds", "recommendation": "Yes, with a guardian."}]}"""));
 
         Assert.DoesNotContain(
             Checker.Check(model).Findings,

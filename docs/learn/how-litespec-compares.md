@@ -80,9 +80,9 @@ An ADR captures a single architectural decision and its rationale, and the colle
 
 ### Architecture Tests
 
-Architecture tests ([ArchUnit](https://www.archunit.org/), [NetArchTest](https://github.com/BenMorris/NetArchTest)) check whole-codebase structure, from package and layer dependencies to cycles, naming, and sealing, with rules written as test code.
+Architecture tests ([ArchUnit](https://www.archunit.org/), [ArchUnitNET](https://github.com/TNG/ArchUnitNET)) check whole-codebase structure, from package and layer dependencies to cycles, naming, and sealing, with rules written as test code.
 
-ArchUnit is a free, simple, and extensible library for checking Java architecture with any plain Java unit test framework. NetArchTest is a fluent .NET Standard API that enforces architectural rules in unit tests. Both enforce application-specific conventions beyond generic static analysis, and their rules execute as unit tests in the build pipeline. NetArchTest is MIT licensed and NuGet distributed, and ArchUnit covers Java bytecode with a linked .NET port.
+ArchUnit is a free, simple, and extensible library for checking Java architecture with any plain Java unit test framework. ArchUnitNET is a C# library that states architecture rules and asserts them in automated tests. Both enforce application-specific conventions beyond generic static analysis, and their rules execute as unit tests in the build pipeline. ArchUnitNET is Apache 2.0 licensed and NuGet distributed, and ArchUnit covers Java bytecode.
 
 ## Side-by-Side Comparison
 
@@ -126,7 +126,7 @@ LiteSpec is not the right answer everywhere. The points below favor another appr
 - A team with strong conventions to keep can use Agent OS or plain instruction files. Agent OS discovers, deploys, and indexes the team's standards, and instruction files carry whatever the team writes.
 - A team whose agents misuse library APIs can use Tessl tiles. The registry holds library-usage tiles per ecosystem alongside the methodology tile, while LiteSpec pins package versions without teaching API surfaces.
 - A team that wants architecture documentation for readers rather than checks for machines can use ADRs, arc42, and C4. ADRs keep the decision log, arc42 gives the 12-section template, and C4 diagrams the system from context to code.
-- A team with an existing suite that wants behavior or structural checks can add Cucumber, Reqnroll, NetArchTest, or ArchUnit. Cucumber validates plain-text specifications per scenario, Reqnroll automates Given-When-Then scenarios for .NET, and architecture tests enforce structural rules as unit tests.
+- A team with an existing suite that wants behavior or structural checks can add Cucumber, Reqnroll, ArchUnitNET, or ArchUnit. Cucumber validates plain-text specifications per scenario, Reqnroll automates Given-When-Then scenarios for .NET, and architecture tests enforce structural rules as unit tests.
 
 ## Combined Use
 
@@ -134,7 +134,7 @@ LiteSpec acts as the product standard, and the others work inside it.
 
 - With AGENTS.md. A short `AGENTS.md` block points agents at the selection index and raw pages: instruction files carry the pointer, and LiteSpec carries the rules. [Work with Agents](working-with-agents.md) shows the block.
 - With BDD. The manifest pins Reqnroll and LightBDD, and the `bdd` extension states how executable acceptance tests prove LiteSpec scenarios. The [BDD extension](../backend/dotnet/ext/bdd.md) states the provisions, including `litespec/backend/dotnet/ext/bdd#prove-a-scenario-from-every-bdd-scenario`.
-- With architecture tests. The manifest pins `NetArchTest.Rules`, so suite-level structural rules run beside the Roslyn analyzers. The [analyzer reference](../analyzers/README.md) documents the analyzer side.
+- With architecture tests. The manifest pins `ArchUnitNET`, so suite-level structural rules run beside the Roslyn analyzers. The [analyzer reference](../analyzers/README.md) documents the analyzer side.
 - With ADRs, arc42, and C4. A team can keep ADRs as its decision log and cite them from LiteSpec decision records, and draw arc42 or C4 views to present the architecture LiteSpec enforces. One side records for humans, and the other checks for machines.
 - With a per-feature workflow. A team can shape a change with Spec Kit, OpenSpec, Kiro, BMAD, or the Tessl tile, then carry the result into LiteSpec use-case and result records. The workflow handles one change, and LiteSpec holds the product around it.
 
@@ -164,7 +164,7 @@ Every address below was read on 2026-10-21.
 - https://arc42.org/ (2026-10-21).
 - https://c4model.com/ (2026-10-21).
 - https://www.archunit.org/ (2026-10-21).
-- https://github.com/BenMorris/NetArchTest (2026-10-21).
+- https://github.com/TNG/ArchUnitNET (2026-10-31).
 
 ## Next
 

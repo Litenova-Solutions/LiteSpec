@@ -10,27 +10,27 @@
   "options": [
     {
       "name": "Advances for goals, solves for problems",
-      "for": "One verb per meaning ends the three-target split of serves, every live feature already solves exactly one problem, and the goal link is the thin edge the trace needs.",
-      "against": "Features, provisions, checks, and the book must all learn the new verb in one change."
+      "pros": "One verb per meaning ends the three-target split of serves, every live feature already solves exactly one problem, and the goal link is the thin edge the trace needs.",
+      "cons": "Features, provisions, checks, and the book must all learn the new verb in one change."
     },
     {
       "name": "Keep serves for features",
-      "for": "No field renames and no citation sweep are needed.",
-      "against": "Serves keeps three target sets and two meanings, and invalid values already exist where authors must guess which targets a carrier allows."
+      "pros": "No field renames and no citation sweep are needed.",
+      "cons": "Serves keeps three target sets and two meanings, and invalid values already exist where authors must guess which targets a carrier allows."
     },
     {
       "name": "Goals optional for features",
-      "for": "With few goals, forcing one goal per feature risks vague pasted claims that carry less information than the Offering.",
-      "against": "The reader starting at most planned features reaches no goal, and only a handful of live requirements trace to any goal at all."
+      "pros": "With few goals, forcing one goal per feature risks vague pasted claims that carry less information than the Offering.",
+      "cons": "The reader starting at most planned features reaches no goal, and only a handful of live requirements trace to any goal at all."
     },
     {
       "name": "Refused features carry full links",
-      "for": "Every feature follows one uniform link rule with no exemption to state.",
-      "against": "Requiring links on a refusal inverts its meaning; a refusal records why in refusedBecause instead."
+      "pros": "Every feature follows one uniform link rule with no exemption to state.",
+      "cons": "Requiring links on a refusal inverts its meaning; a refusal records why in refusedBecause instead."
     }
   ],
-  "chosen": "Advances for goals, solves for problems",
-  "changeWhen": "A feature kind appears that moves no goal and declines no problem.",
+  "choice": "Advances for goals, solves for problems",
+  "reopenedWhen": "A feature kind appears that moves no goal and declines no problem.",
   "basedOn": [
     "research/intent-hierarchy-evidence",
     "research/cross-layer-trace-evidence",

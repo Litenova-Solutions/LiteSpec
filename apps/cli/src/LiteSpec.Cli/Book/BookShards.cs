@@ -202,7 +202,7 @@ static class BookShards
 
     /// <summary>The statement fields the search excerpt prefers, in order.</summary>
     static readonly IReadOnlyList<string> ExcerptFields =
-        ["statement", "aim", "summary", "question", "conclusion"];
+        ["statement", "summary", "question", "conclusion"];
 
     /// <summary>
     ///     One record's search excerpt: its first statement-like field, else its

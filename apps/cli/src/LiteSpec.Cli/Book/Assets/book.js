@@ -103,7 +103,7 @@ P.reviewed = P.approved;
 P.retired = '<circle cx="12" cy="12" r="9"/><path d="M8 12h8"/>';
 P.shieldq = P.shield;
 P.screen = '<rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/>';
-P["requirement-page"] = P.book; P["architecture-layer"] = P.core; P.frontend = P.screen; P.route = P.link; P.code = '<path d="m8 8-4 4 4 4"/><path d="m16 8 4 4-4 4"/>';
+P.topic = P.book; P["architecture-layer"] = P.core; P.frontend = P.screen; P.route = P.link; P.code = '<path d="m8 8-4 4 4 4"/><path d="m16 8 4 4-4 4"/>';
 P.test = P.flask; P["test-project"] = P.folder; P["test-class"] = P.flask; P.finding = P.alert; P["finding-code"] = P.alert; P["check-tier"] = P.shield; P.layer = P.core;
 P.next = '<path d="M5 12h12"/><path d="m13 6 6 6-6 6"/><path d="M3 5v14"/>';
 P.missing = '<circle cx="12" cy="12" r="9" stroke-dasharray="3 3"/><path d="M12 8v5"/><path d="M12 16h.01"/>';
@@ -264,13 +264,13 @@ function buildLexiconCaches() {
   });
   GL = {};
   Object.keys(LEX.glossary || {}).forEach(function (k) { GL[k] = LEX.glossary[k].definition || ""; });
-  SX = { statuses: lexSection("Statuses"), riskTiers: lexSection("Risk Tiers"), checkTiers: lexSection("Check Tiers"), batch: lexSection("Approval as Data") || lexSection("Questions and Ballots") };
+  SX = { statuses: lexSection("Statuses"), riskTiers: lexSection("Risk Tiers"), checkLevels: lexSection("Check Levels"), batch: lexSection("Approval as Data") || lexSection("Questions and Ballots") };
   EXPLAIN = {
     draft: ["Draft", SX.statuses, lexSectionSource("Statuses", "model.md, Statuses")], approved: ["Approved", SX.statuses, lexSectionSource("Statuses", "model.md, Statuses")], reviewed: ["Reviewed", SX.statuses, lexSectionSource("Statuses", "model.md, Statuses")], retired: ["Retired", SX.statuses, lexSectionSource("Statuses", "model.md, Statuses")],
     inherited: ["Effective status", GL["effective status"], "Glossary"], tier1: ["Risk tiers", SX.riskTiers, lexSectionSource("Risk Tiers", "model.md, Risk Tiers")], transcribed: ["Transcription", GL.transcription, "Glossary"],
     awaiting: ["Verified", GL.verified, "Glossary"], unconfirmed: ["Verified", GL.verified, "Glossary"], unproved: ["Verified", GL.verified, "Glossary"], passing: ["Verified", GL.verified, "Glossary"], failing: ["Verified", GL.verified, "Glossary"], stale: ["Stale", GL.stale, "Glossary"],
     norun: ["Verified", GL.verified, "Glossary"], settled: ["Statuses", SX.statuses, lexSectionSource("Statuses", "model.md, Statuses")], implemented: ["Implemented", GL.implemented, "Glossary"], reachable: ["Reachable", GL.reachable, "Glossary"],
-    G: ["Check tier", SX.checkTiers, lexSectionSource("Check Tiers", "model.md, Check Tiers")], S: ["Check tier", SX.checkTiers, lexSectionSource("Check Tiers", "model.md, Check Tiers")], A: ["Check tier", SX.checkTiers, lexSectionSource("Check Tiers", "model.md, Check Tiers")],
+    G: ["Check level", SX.checkLevels, lexSectionSource("Check Levels", "model.md, Check Levels")], S: ["Check level", SX.checkLevels, lexSectionSource("Check Levels", "model.md, Check Levels")], A: ["Check level", SX.checkLevels, lexSectionSource("Check Levels", "model.md, Check Levels")],
     known: ["Known gap", GL["known gap"], "Glossary"], batch: ["Batch review", SX.batch, "release.md, Batch Review"], finding: ["Finding", GL.finding, "Glossary"], ballot: ["Ballot", GL.ballot, "Glossary"]
   };
 }
@@ -321,9 +321,10 @@ function upOne(id) {
   var t = typeOf(id);
   if (t === "scenario" || t === "result") return REC[parentOf[id]] && isReal(parentOf[id]) ? parentOf[id] : null;
   if (t === "screen") return outs(id, "serves").map(base).filter(function (x) { return REC[x] || NODE[x]; })[0] || outs(id, "offers").filter(function (x) { return REC[x] || NODE[x]; })[0] || null;
-  if (["use-case", "rule", "reaction", "job", "notification", "setting", "journey"].indexOf(t) >= 0) return outs(id, "fulfills").filter(function (x) { return REC[x] || NODE[x]; })[0] || outs(id, "serves").map(base).filter(function (x) { return REC[x] || NODE[x]; })[0] || null;
+  if (["use-case", "rule", "reaction", "job", "notification", "setting"].indexOf(t) >= 0) return outs(id, "fulfills").filter(function (x) { return REC[x] || NODE[x]; })[0] || outs(id, "serves").map(base).filter(function (x) { return REC[x] || NODE[x]; })[0] || null;
+  if (t === "journey") return outs(id, "cites").filter(function (x) { return REC[x] || NODE[x]; })[0] || outs(id, "serves").map(base).filter(function (x) { return REC[x] || NODE[x]; })[0] || null;
   if (t === "decision") return outs(id, "decides").filter(function (x) { return REC[x] || NODE[x]; })[0] || null;
-  if (t === "requirement") return outs(id, "features").filter(function (x) { return REC[x] || NODE[x]; })[0] || outs(id, "basedOn").filter(function (x) { return REC[x] || NODE[x]; })[0] || ins(id, "decides").filter(function (x) { return REC[x] || NODE[x]; })[0] || null;
+  if (t === "requirement") return outs(id, "cites").filter(function (x) { return REC[x] || NODE[x]; })[0] || null;
   if (t === "feature") return outs(id, "advances").filter(function (x) { return REC[x] || NODE[x]; })[0] || outs(id, "solves").filter(function (x) { return REC[x] || NODE[x]; })[0] || null;
   if (t === "event") return ins(id, "raises")[0] || null;
   return null;
@@ -430,7 +431,7 @@ function textHit(id) {
   var t = textCache[id];
   if (t === undefined) {
     var r = REC[base(id)], label = title(id);
-    if (r) { var f = r.fields || {}; t = ((r.title || label) + " " + (f.statement || "") + " " + (f.meaning || "") + " " + (f.summary || "") + " " + (f.aim || "") + " " + (f.given || "") + " " + (f.then || "")).toLowerCase(); }
+    if (r) { var f = r.fields || {}; t = ((r.title || label) + " " + (f.statement || "") + " " + (f.meaning || "") + " " + (f.summary || "") + " " + (f.given || "") + " " + (f.then || "")).toLowerCase(); }
     else t = (label + " " + (SEARCH[base(id)] || "")).toLowerCase();
     textCache[id] = t;
   }
@@ -557,7 +558,7 @@ function ballotItems() {
   if (QUEUE && QUEUE.ballots) {
     return (QUEUE.ballots || []).map(function (x) {
       if (x.q) return x;
-      return { id: base(x.id || x.record || ""), i: x.i !== undefined ? x.i : (x.index || 0), q: { question: x.question || "", tier: x.tier || 3, decider: x.decider || "", decideBy: x.decideBy || null, ballot: x.ballot || null, recommended: x.recommended || "" } };
+      return { id: base(x.id || x.record || ""), i: x.i !== undefined ? x.i : (x.index || 0), q: { question: x.question || "", tier: x.tier || 3, decider: x.decider || "", decideBy: x.decideBy || null, ballot: x.ballot || null, recommendation: x.recommendation || "" } };
     }).filter(function (x) { return x.id && x.q.question; });
   }
   var items = [];
@@ -576,7 +577,7 @@ function ballotsHtml() {
   return keys.map(function (k) {
     var list = by[k].sort(function (a, b) { return (a.q.tier || 3) - (b.q.tier || 3) || String(a.q.decideBy).localeCompare(String(b.q.decideBy)); });
     return '<section class="ballot"><div class="ballot-h">' + ic("ballot", "icon-sm") + "<span>" + esc(cap(ballotName(k))) + '</span><span class="n">' + list.length + "</span></div>" + list.map(function (x) {
-      var done = answered[x.id + "#" + x.i], t = x.q.tier || 3, auto = t === 3 && x.q.recommended && x.q.decideBy ? addDays(x.q.decideBy, VETO) : null;
+      var done = answered[x.id + "#" + x.i], t = x.q.tier || 3, auto = t === 3 && x.q.recommendation && x.q.decideBy ? addDays(x.q.decideBy, VETO) : null;
       return '<button type="button" class="qrow' + (selected === x.id && focusQ === x.i ? " sel" : "") + '" data-q="' + esc(x.id) + "|" + x.i + '"><span class="q">' + esc(x.q.question) + '</span><span class="qm">' + (t === 1 ? '<span class="tierb">T1</span>' : '<span class="tn">Tier 3</span>') + "<span>" + esc(x.q.decider || "") + "</span>" + (x.q.decideBy ? '<span class="due' + (days(x.q.decideBy) < 0 ? " over" : "") + '">by ' + fmtDate(x.q.decideBy) + "</span>" : "") + (auto ? "<span>auto " + fmtDate(auto) + "</span>" : "") + (done ? '<span class="answered">' + ic("approved", "icon-sm") + "Answered</span>" : "") + "<span>" + ic(typeOf(x.id), "icon-sm") + " " + esc(title(x.id)) + "</span></span></button>";
     }).join("") + "</section>";
   }).join("");
@@ -737,7 +738,7 @@ function refs(ids) {
 }
 function inlineRef(id) { var b = base(id); return (REC[b] || NODE[b]) ? '<button type="button" class="iref" data-go="' + esc(b) + '">' + esc(title(b)) + "</button>" : missingRef(b); }
 // Blocks that only list linked records move to the rail, so the page reads as content.
-var LINKS_IN_RAIL = { "based on": 1, "depends on": 1, "governs": 1, "raised by": 1, "fulfilled by": 1, "governed by": 1, "fulfills": 1, "fulfills and serves": 1, "solves and advances": 1, "basedOn": 1, "audience": 1, "actor": 1, "dependsOn": 1, "decides": 1, "raises": 1, "subject": 1, "affects": 1, "replaces": 1, "implements": 1, "calls": 1, "proves": 1, "serves": 1, "advances": 1, "features": 1, "readBy": 1 };
+var LINKS_IN_RAIL = { "based on": 1, "depends on": 1, "governs": 1, "raised by": 1, "fulfilled by": 1, "governed by": 1, "fulfills": 1, "fulfills and serves": 1, "solves and advances": 1, "basedOn": 1, "addresses": 1, "actor": 1, "dependsOn": 1, "decides": 1, "raises": 1, "subject": 1, "affects": 1, "replaces": 1, "implements": 1, "calls": 1, "proves": 1, "serves": 1, "advances": 1, "cites": 1, "readBy": 1 };
 // A field reads with its LiteSpec label; an unknown field renders raw, never invented.
 function fieldLabel(s) { s = String(s); return (LEX.fields || {})[s] || s; }
 function blk(key, heading, inner, count, aside) { if (!inner) return ""; if (count === 0) return ""; var hk = fieldLabel(heading).toLowerCase(); if (heading.indexOf("Points at this: ") === 0 || LINKS_IN_RAIL[heading] || LINKS_IN_RAIL[hk] || LINKS_IN_RAIL[heading.toLowerCase()]) return ""; return '<section class="blk" id="b-' + key + '"><h2>' + esc(fieldLabel(heading)) + (count != null ? ' <span class="n">' + count + "</span>" : "") + (aside ? '<span class="aside">' + aside + "</span>" : "") + "</h2>" + inner + "</section>"; }
@@ -769,8 +770,8 @@ function secList(r) { return (r.sections && r.sections.list) || []; }
 function secIntro(r) { return (r.sections && r.sections.intro) || ""; }
 function secHtml(r, name) { var s = secList(r).filter(function (x) { return x.h === name; })[0]; return s ? s.html || "" : ""; }
 function stripTags(html) { var tmp = document.createElement("div"); tmp.innerHTML = html; return (tmp.textContent || "").replace(/\s+/g, " "); }
-var SKIP = { aggregate: ["Transitions", "Data", "Data Classes", "States"], "use-case": ["Goal"], feature: ["Offering"], actor: ["Summary"], role: ["Summary"], constraint: ["Summary"], "external-system": ["Summary", "Operations"], product: ["Summary", "The Boundary"], runbook: ["Trigger"], journey: ["Steps"] };
-function leadText(r) { var f = r.fields || {}; return String(f.statement || f.summary || f.meaning || f.boundary || f.question || f.reason || f.aim || ""); }
+var SKIP = { aggregate: ["Transitions", "Data", "Data Classes", "States"], "use-case": ["Goal"], feature: ["Offering"], topic: ["Summary"], actor: ["Summary"], role: ["Summary"], constraint: ["Summary"], "external-system": ["Summary", "Operations"], product: ["Summary", "The Boundary"], runbook: ["Trigger"], journey: ["Steps"] };
+function leadText(r) { var f = r.fields || {}; return String(f.statement || f.summary || f.meaning || f.boundary || f.question || f.reason || ""); }
 function bodyBlocks(r) {
   var out = "", skip = SKIP[r.type] || [], lt = leadText(r).slice(0, 40);
   var intro = secIntro(r).trim();
@@ -912,7 +913,7 @@ function factKey(text) {
   if (/^Review by /.test(text)) return "Review by";
   if (/state(s)? never reached|Every state is reached/.test(text)) return "States";
   if (/^applies: /.test(text)) return "Applies";
-  if (/^Tier [GSA]$/.test(text)) return "Check tier";
+  if (/^Tier [GSA]$/.test(text)) return "Check level";
   if (/^(Arrives from outside|Leaves the system)$/.test(text)) return "Direction";
   if (/^Verified|^Not yet verified/.test(text)) return "Verified";
   if (/^(planned|shipped|later|refused)$/i.test(text)) return "State";
@@ -940,11 +941,11 @@ function machineChip(state, text) { var k = state === "passing" ? "good" : state
 function questionsBlock(id) {
   var qs = ((REC[base(id)] || {}).fields || {}).questions || []; if (!qs.length) return "";
   return blk("qs", "questions", qs.map(function (q, i) {
-    var t = q.tier || 3, done = answered[base(id) + "#" + i], auto = t === 3 && q.recommended && q.decideBy ? addDays(q.decideBy, VETO) : null;
+    var t = tierOf(id), done = answered[base(id) + "#" + i], auto = t === 3 && q.recommendation && q.decideBy ? addDays(q.decideBy, VETO) : null;
     var nm = q.ballot ? ballotName(q.ballot) : "";
     return '<div class="qcard' + (t === 1 ? " t1" : "") + (focusQ === i ? " hl" : "") + '" id="q-' + i + '"><div class="qcard-h">' + ic(t === 1 ? "alert" : "question", "icon-sm") + "<b>Tier " + t + "</b>" + (nm ? "<span>&middot; Ballot: " + esc(cap(nm)) + "</span>" : "") + '<span class="grow"></span>' + (q.decideBy ? "<span>" + esc(q.decider || "") + " by " + fmtDate(q.decideBy) + " (" + dateHint(q.decideBy) + ")</span>" : "") + "</div>" +
-      '<div class="qcard-b"><p class="q">' + inline(q.question) + "</p>" + (q.recommended ? '<div class="rec">' + ic("approved", "icon-sm") + "<div><b>Recommended.</b> " + inline(q.recommended) + "</div></div>" : "") + "</div>" +
-      '<div class="qcard-f">' + (done ? '<span class="answered">' + ic("approved", "icon-sm") + (done === "accept" ? "You accepted the recommendation" : "You answered: " + esc(done)) + "</span>" : (q.recommended ? '<button type="button" class="btn" data-ans="' + i + '|accept">Accept recommendation</button>' : "") + '<button type="button" class="btn ol" data-ans="' + i + '|other">Answer differently</button>') + '<span class="grow"></span>' + (auto && !done ? "<span>Approves itself on " + fmtDate(auto) + " unless someone vetoes it</span>" : t === 1 && !done ? "<span>Needs an explicit answer</span>" : "") + "</div></div>";
+      '<div class="qcard-b"><p class="q">' + inline(q.question) + "</p>" + (q.recommendation ? '<div class="rec">' + ic("approved", "icon-sm") + "<div><b>Recommended.</b> " + inline(q.recommendation) + "</div></div>" : "") + "</div>" +
+      '<div class="qcard-f">' + (done ? '<span class="answered">' + ic("approved", "icon-sm") + (done === "accept" ? "You accepted the recommendation" : "You answered: " + esc(done)) + "</span>" : (q.recommendation ? '<button type="button" class="btn" data-ans="' + i + '|accept">Accept recommendation</button>' : "") + '<button type="button" class="btn ol" data-ans="' + i + '|other">Answer differently</button>') + '<span class="grow"></span>' + (auto && !done ? "<span>Auto-approves on " + fmtDate(auto) + "</span>" : t === 1 && !done ? "<span>Needs an explicit answer</span>" : "") + "</div></div>";
   }).join(""), qs.length);
 }
 function findingsBlock(id) {
@@ -960,39 +961,40 @@ function kidsStrip(id) {
 
 // ---------- per-type detail ----------
 var DETAIL = {
-  product: function (id, r) { var f = r.fields || {}; return (introClosed() ? "" : '<div class="intro">' + ic("book") + '<div><b>New here?</b> The outline follows the four record layers. The rail on the right traces each record from its goal down to the code and tests. Hover any mark, type or link for its LiteSpec definition. Every source path opens in the editor.</div><button type="button" class="btn gh ic" data-intro aria-label="Close this">' + ic("close", "icon-sm") + "</button></div>") + metaRow(id) + lead(f.boundary) + blk("never", "neverDoes", '<ul class="never">' + (f.neverDoes || []).map(function (x) { return "<li>" + ic("x", "icon-sm") + "<span>" + esc(x) + "</span></li>"; }).join("") + "</ul>", (f.neverDoes || []).length) + blk("aud", "audience", refs(f.audience)); },
+  product: function (id, r) { var f = r.fields || {}; return (introClosed() ? "" : '<div class="intro">' + ic("book") + '<div><b>New here?</b> The outline follows the four record layers. The rail on the right traces each record from its goal down to the code and tests. Hover any mark, type or link for its LiteSpec definition. Every source path opens in the editor.</div><button type="button" class="btn gh ic" data-intro aria-label="Close this">' + ic("close", "icon-sm") + "</button></div>") + metaRow(id) + lead(f.boundary) + blk("exc", "exclusions", '<ul class="exclusions">' + (f.exclusions || []).map(function (x) { return "<li>" + ic("x", "icon-sm") + "<span>" + esc(x) + "</span></li>"; }).join("") + "</ul>", (f.exclusions || []).length) + blk("aud", "addresses", refs(f.addresses)); },
   goal: function (id, r) { var f = r.fields || {}; return metaRow(id) + lead(f.statement) + blk("m", "measure", '<div class="tiles">' + tile("Measure", esc(f.measure)) + tile("target", esc(f.target), "", true) + tile("dueBy", fmtDate(f.dueBy), dateHint(f.dueBy)) + "</div>") + blk("served", "Points at this: advances", refs(ins(id, "advances").concat(ins(id, "serves")))); },
   problem: function (id, r) { var f = r.fields || {}; return metaRow(id) + lead(f.statement) + blk("aff", "affects", refs(f.affects)); },
-  feature: function (id, r) { var f = r.fields || {}, st = f.lifecycle; return metaRow(id, [badge(cap(st), st === "shipped" ? "good" : st === "refused" ? "bad" : "info")]) + leadHtml(secHtml(r, "Offering")) + "" + blk("links", "solves and advances", kv([["Solves", refs(f.solves)], ["Advances", refs(f.advances)]])) + blk("reqs", "Points at this: features", refs(ins(id, "features")), ins(id, "features").length); },
+  feature: function (id, r) { var f = r.fields || {}, st = f.lifecycle; return metaRow(id, [badge(cap(st), st === "shipped" ? "good" : st === "refused" ? "bad" : "info")]) + leadHtml(secHtml(r, "Offering")) + "" + blk("links", "solves and advances", kv([["Solves", refs(f.solves)], ["Advances", refs(f.advances)]])) + blk("reqs", "Points at this: cites", refs(ins(id, "cites")), ins(id, "cites").length); },
+  topic: function (id, r) { var reqs = kidsByType(id, "requirement"); return metaRow(id) + leadHtml(secHtml(r, "Summary")) + blk("reqs", "Requirements", refs(reqs), reqs.length); },
   requirement: function (id, r) {
     var f = r.fields || {}, ful = uniq(ins(id, "fulfills")), ver = ful.filter(function (x) { return proofState(x) === "passing"; }).length;
     var testRun = (MAN || {}).testRun || {};
     var cov = ful.length ? '<div class="tiles">' + tile("fulfills", ful.length, uniq(ful.map(typeOf)).map(function (t) { return ful.filter(function (x) { return typeOf(x) === t; }).length + " " + (PLURAL[t] || t).toLowerCase(); }).join(", "), true) + (testRun.date ? tile("verified", ver + " of " + ful.length, '<span class="meter" style="display:flex"><i style="width:' + Math.round(ver / ful.length * 100) + '%;background:var(--conv-fg)"></i></span>', true) : tile("verified", xp("norun", "Not known yet"), "no test run is in the model", true)) + "</div>" : callout("bad", "alert", "Nothing in Behavior fulfills this requirement yet.");
-    var exc = (f.except || []).length ? (f.except.map(function (x) { var fb = base(x.fallback), fx = REC[fb]; return '<div class="reqline"><div class="t">' + ic("alert", "icon-sm") + "Except when " + esc(x.when) + '</div><p>Then the fallback holds: ' + inlineRef(x.fallback) + (fx ? ", " + esc(fx.fields.statement || "") : "") + "</p></div>"; }).join("")) : "";
+    var exc = (f.except || []).length ? (f.except.map(function (x) { var fb = base(x.fallback), fx = REC[fb]; return '<div class="reqline"><div class="t">' + ic("alert", "icon-sm") + "Except when " + esc(x.condition) + '</div><p>Then the fallback holds: ' + inlineRef(x.fallback) + (fx ? ", " + esc(fx.fields.statement || "") : "") + "</p></div>"; }).join("")) : "";
     var meas = f.measure ? '<div class="tiles">' + tile("Measure", esc(f.measure)) + (f.target ? tile("target", esc(f.target), "", true) : "") + (f.dueBy ? tile("dueBy", fmtDate(f.dueBy), dateHint(f.dueBy)) : "") + "</div>" + kv([["Check", f.check ? esc(f.check) : ""], ["Runs on", f.runsOn ? esc(f.runsOn) : ""], ["Evidence", f.evidence ? esc(f.evidence) : ""]]) : "";
     var vals = (f.values || []).length ? table(["Value", "Effective from"], f.values.map(function (v) { return [td(esc(v.value)), td(fmtDate(v.effectiveFrom) + " &middot; " + dateHint(v.effectiveFrom), "mut")]; })) : "";
     return metaRow(id, [badge(f.kind, "info"), machineChip(r.machine && r.machine.verified ? "passing" : "awaiting", r.machine && r.machine.verified ? "Verified" : "Not yet verified")]) + lead(f.statement) + "" +
-      blk("exc", "except", exc, (f.except || []).length) + blk("cov", "Points at this: fulfills", cov) + blk("meas", "measure", meas) + blk("vals", "values", vals) + blk("basis", "basedOn", refs(f.basedOn)) + blk("ful", "Points at this: fulfills", refs(ful), ful.length);
+      blk("exc", "except", exc, (f.except || []).length) + blk("cov", "Points at this: fulfills", cov) + blk("meas", "measure", meas) + blk("vals", "values", vals) + blk("cites", "cites", refs(f.cites)) + blk("ful", "Points at this: fulfills", refs(ful), ful.length);
   },
   decision: function (id, r) {
-    var f = r.fields || {}, chosen = f.chosen;
-    var head = chosen ? callout("info", "passing", "<b>Chosen:</b> " + esc(chosen) + (f.decidedOn ? " on " + fmtDate(f.decidedOn) : "")) : callout("warn", "clock", "<b>Not decided yet.</b> " + esc(r.decider || "The decider") + (r.decideBy ? " decides by " + fmtDate(r.decideBy) + " (" + dateHint(r.decideBy) + ")." : "."));
-    var opts = '<div class="opts">' + (f.options || []).map(function (o) { var c = chosen && o.name === chosen; return '<div class="opt' + (c ? " chosen" : "") + '"><h3>' + esc(o.name) + (c ? " " + badge("Chosen", "good") : "") + '</h3><div class="pc"><span class="plus">' + ic("plus", "icon-sm") + "</span><span>" + esc(o["for"]) + '</span><span class="minus">' + ic("minus", "icon-sm") + "</span><span>" + esc(o.against) + "</span></div></div>"; }).join("") + "</div>";
-    return metaRow(id) + head + blk("opts", "options", opts, (f.options || []).length) + (f.changeWhen ? blk("rev", "changeWhen", callout("quiet", "clock", esc(f.changeWhen))) : "") + blk("dec", "decides", refs(f.decides), (f.decides || []).length) + blk("basis", "basedOn", refs(f.basedOn)) + (f.replaces ? blk("rep", "replaces", refs([f.replaces])) : "");
+    var f = r.fields || {}, choice = f.choice;
+    var head = choice ? callout("info", "passing", "<b>Chosen:</b> " + esc(choice) + (f.approvedOn ? " on " + fmtDate(f.approvedOn) : "")) : callout("warn", "clock", "<b>Not decided yet.</b> " + esc(r.decider || "The decider") + (r.decideBy ? " decides by " + fmtDate(r.decideBy) + " (" + dateHint(r.decideBy) + ")." : "."));
+    var opts = '<div class="opts">' + (f.options || []).map(function (o) { var c = choice && o.name === choice; return '<div class="opt' + (c ? " chosen" : "") + '"><h3>' + esc(o.name) + (c ? " " + badge("Chosen", "good") : "") + '</h3><div class="pc"><span class="plus">' + ic("plus", "icon-sm") + "</span><span>" + esc(o.pros) + '</span><span class="minus">' + ic("minus", "icon-sm") + "</span><span>" + esc(o.cons) + "</span></div></div>"; }).join("") + "</div>";
+    return metaRow(id) + head + blk("opts", "options", opts, (f.options || []).length) + (f.reopenedWhen ? blk("rev", "reopenedWhen", callout("quiet", "clock", esc(f.reopenedWhen))) : "") + blk("dec", "decides", refs(f.decides), (f.decides || []).length) + blk("basis", "basedOn", refs(f.basedOn)) + (f.replaces ? blk("rep", "replaces", refs([f.replaces])) : "");
   },
   constraint: function (id, r) { var f = r.fields || {}; return metaRow(id, [badge(f.kind, "info"), badge("applies: " + !!f.applies, f.applies ? "warn" : "")]) + leadHtml(secHtml(r, "Summary")) + blk("src", "authority", callout("quiet", "quote", esc(f.authority))) + ""; },
-  research: function (id, r) { var f = r.fields || {}; return metaRow(id) + lead(f.question) + (f.conclusion ? blk("con", "conclusion", '<div class="prose">' + inline(String(f.conclusion)) + "</div>") : "") + blk("srcs", "Sources", '<ol class="rlist">' + (f.sources || []).map(function (x) { if (x.path) return '<li><span class="code">' + esc(x.path) + "</span>" + (x.title ? " " + esc(x.title) : "") + '<span class="rsub">' + (x.read ? "read " + fmtDate(x.read) : "") + "</span></li>"; var host = ""; try { host = new URL(x.url).host.replace(/^www\./, ""); } catch (e) { host = ""; } return '<li><a href="' + esc(x.url) + '" target="_blank" rel="noopener">' + esc(x.title || x.url.replace(/^https?:\/\/(www\.)?/, "")) + '</a><span class="rsub">' + esc(host) + (x.read ? ", read " + fmtDate(x.read) : "") + "</span></li>"; }).join("") + "</ol>", (f.sources || []).length); },
+  research: function (id, r) { var f = r.fields || {}; return metaRow(id) + lead(f.question) + (f.conclusion ? blk("con", "conclusion", '<div class="prose">' + inline(String(f.conclusion)) + "</div>") : "") + blk("srcs", "Sources", '<ol class="rlist">' + (f.sources || []).map(function (x) { if (x.path) return '<li><span class="code">' + esc(x.path) + "</span>" + (x.title ? " " + esc(x.title) : "") + '<span class="rsub">' + (x.readOn ? "read " + fmtDate(x.readOn) : "") + "</span></li>"; var host = ""; try { host = new URL(x.url).host.replace(/^www\./, ""); } catch (e) { host = ""; } return '<li><a href="' + esc(x.url) + '" target="_blank" rel="noopener">' + esc(x.title || x.url.replace(/^https?:\/\/(www\.)?/, "")) + '</a><span class="rsub">' + esc(host) + (x.readOn ? ", read " + fmtDate(x.readOn) : "") + "</span></li>"; }).join("") + "</ol>", (f.sources || []).length); },
   journey: function (id, r) {
     var f = r.fields || {}, steps = f.steps || [], srv = r.stepServers || {};
     var served = steps.filter(function (s) { return (srv[s.id] || []).length; }).length;
     var stepsH = steps.map(function (s, i) {
       var who = s.actor ? title(s.actor) : "", ini = who.split(/\s+/).map(function (w) { return w[0]; }).join("").slice(0, 2).toUpperCase();
       var by = srv[s.id] || [], scr = (r.stepScreens || {})[s.id] || [], sys = /(reaction|job)$/.test(s.actor || "");
-      return '<div class="chapter-step"><span class="num">' + (i + 1) + '</span><div><div class="says">' + esc(s.says) + "</div>" + (who ? '<div class="who"><span class="avatar">' + esc(ini) + "</span>" + inlineRef(s.actor) + "</div>" : "") + (s.ifItGoesWrong ? '<div class="wrong">' + ic("alert", "icon-sm") + "<span><b>If it goes wrong</b> " + esc(s.ifItGoesWrong) + "</span></div>" : "") + '<div class="srv">' + (by.length ? by.map(serverLine).join("") : '<span class="unserved">' + ic("alert", "icon-sm") + "Nothing serves this step yet</span>") + (scr.length ? '<div class="stepscr">' + ic("screen", "icon-sm") + "<span>screen: " + scr.map(inlineRef).join(", ") + "</span></div>" : sys || !by.length ? "" : '<div class="stepscr none">' + ic("alert", "icon-sm") + "<span>No screen carries this step</span></div>") + "</div></div></div>";
+      return '<div class="chapter-step"><span class="num">' + (i + 1) + '</span><div><div class="statement">' + esc(s.statement) + "</div>" + (who ? '<div class="who"><span class="avatar">' + esc(ini) + "</span>" + inlineRef(s.actor) + "</div>" : "") + (s.failure ? '<div class="wrong">' + ic("alert", "icon-sm") + "<span><b>If it goes wrong</b> " + esc(s.failure) + "</span></div>" : "") + '<div class="srv">' + (by.length ? by.map(serverLine).join("") : '<span class="unserved">' + ic("alert", "icon-sm") + "Nothing serves this step yet</span>") + (scr.length ? '<div class="stepscr">' + ic("screen", "icon-sm") + "<span>screen: " + scr.map(inlineRef).join(", ") + "</span></div>" : sys || !by.length ? "" : '<div class="stepscr none">' + ic("alert", "icon-sm") + "<span>No screen carries this step</span></div>") + "</div></div></div>";
     }).join("");
-    var reqs = (f.fulfills || []).map(function (q) { var x = REC[base(q)]; return '<div class="reqline"><div class="t">' + ic("requirement", "icon-sm") + inlineRef(q) + "</div>" + (x ? "<p>" + esc(x.fields.statement || "") + "</p>" + (((x.fields || {}).except || []).length ? '<div class="exc">' + x.fields.except.map(function (e) { return "<b>Except when</b> " + esc(e.when) + ", " + inlineRef(e.fallback); }).join("<br>") + "</div>" : "") : "") + "</div>"; }).join("");
-    return metaRow(id, ['<span class="mchip' + (served === steps.length ? " good" : " wait") + '">' + ic("journey", "icon-sm") + served + " of " + steps.length + " steps served</span>"]) + lead(f.aim) + (f.finishedWhen ? '<div class="finished">' + ic("passing", "icon-sm") + "<div><b>Finished when</b> " + esc(f.finishedWhen) + "</div></div>" : "") +
-      blk("actor", "actor", refs([f.actor])) + blk("steps", "steps", stepsH, steps.length) + blk("ful", "fulfills", reqs, (f.fulfills || []).length);
+    var reqs = (f.cites || []).map(function (q) { var x = REC[base(q)]; return '<div class="reqline"><div class="t">' + ic("requirement", "icon-sm") + inlineRef(q) + "</div>" + (x ? "<p>" + esc(x.fields.statement || "") + "</p>" + (((x.fields || {}).except || []).length ? '<div class="exc">' + x.fields.except.map(function (e) { return "<b>Except when</b> " + esc(e.condition) + ", " + inlineRef(e.fallback); }).join("<br>") + "</div>" : "") : "") + "</div>"; }).join("");
+    return metaRow(id, ['<span class="mchip' + (served === steps.length ? " good" : " wait") + '">' + ic("journey", "icon-sm") + served + " of " + steps.length + " steps served</span>"]) + (f.finishedWhen ? '<div class="finished">' + ic("passing", "icon-sm") + "<div><b>Finished when</b> " + esc(f.finishedWhen) + "</div></div>" : "") +
+      blk("actor", "actor", refs([f.actor])) + blk("steps", "steps", stepsH, steps.length) + blk("cites", "cites", reqs, (f.cites || []).length);
   },
   actor: function (id, r) { var f = r.fields || {}, h = f.holds || []; return metaRow(id, [badge(f.kind, "info")]) + leadHtml(secHtml(r, "Summary")) + blk("holds", "holds", h.length ? table(["Role", "Scope"], h.map(function (x) { return [td(inlineRef(x.role)), td(badge(cap(x.scope)))]; })) : callout("quiet", "info", "This actor holds no role."), h.length) + blk("walks", "Points at this: actor", refs(ins(id, "actor"))); },
   module: function (id, r) {
@@ -1060,7 +1062,7 @@ var DETAIL = {
     var params = arr(f.params).length ? (typeof arr(f.params)[0] === "string" ? '<div class="fieldchips">' + f.params.map(function (p) { return '<span class="code">' + esc(p) + "</span>"; }).join("") + "</div>" : table(["Parameter", "Meaning", "From"], f.params.map(function (p) { return [td(esc(p.name), "nm"), td(esc(p.meaning)), td(esc(p.source || ""), "mut")]; }))) : "";
     var claims = arr(f.claims).length ? f.claims.map(function (c) { return '<div class="reqline"><div class="t">' + ic("quote", "icon-sm") + esc(c.claim) + "</div>" + (c.requirement ? "<p>Backed by " + inlineRef(c.requirement) + "</p>" : "<p class=\"unserved\">No requirement backs this claim</p>") + "</div>"; }).join("") : "";
     return metaRow(id) + lead(f.meaning) +
-      blk("who", "audience", '<div class="tiles">' + tile("audience", arr(f.audience).map(function (a) { return a.indexOf("/") > 0 ? inlineRef(a) : esc(a); }).join(", ") || esc(f.recipient || "")) + tile("channel", arr(f.channel).map(function (c) { return badge(cap(c)); }).join(" ")) + tile("consent", esc(f.consent || "")) + tile("frequency", esc(f.frequency || "")) + "</div>" + kv([["Template", f.template ? '<span class="code">' + esc(f.template) + "</span>" : ""], ["Language", f.locale ? esc(f.locale) : ""], ["Deduplicated by", f.dedupKey ? '<span class="code">' + esc(f.dedupKey) + "</span>" : ""], ["Suppressed when", f.suppressedWhen ? esc(f.suppressedWhen) : ""], ["Personal data", arr(f.personal).map(esc).join(", ")]])) +
+      blk("who", "addresses", '<div class="tiles">' + tile("addresses", arr(f.addresses).map(function (a) { return a.indexOf("/") > 0 ? inlineRef(a) : esc(a); }).join(", ") || esc(f.recipient || "")) + tile("channel", arr(f.channel).map(function (c) { return badge(cap(c)); }).join(" ")) + tile("consent", esc(f.consent || "")) + tile("frequency", esc(f.frequency || "")) + "</div>" + kv([["Template", f.template ? '<span class="code">' + esc(f.template) + "</span>" : ""], ["Language", f.locale ? esc(f.locale) : ""], ["Deduplicated by", f.dedupKey ? '<span class="code">' + esc(f.dedupKey) + "</span>" : ""], ["Suppressed when", f.suppressedWhen ? esc(f.suppressedWhen) : ""], ["Personal data", arr(f.personal).map(esc).join(", ")]])) +
       blk("params", "params", params, arr(f.params).length) + blk("claims", "claims", claims, arr(f.claims).length) + blk("by", "Points at this: effects.sends", refs(ins(id, "sends"))) + blk("ful", "fulfills and serves", kv([["Fulfills", refs(f.fulfills)], ["Serves", refs(f.serves)]]));
   },
   setting: function (id, r) {
@@ -1123,10 +1125,9 @@ DETAIL.layer = function (id, r) {
   var rows = types.map(function (t) { var first = ids.filter(function (x) { return typeOf(x) === t; }); return [td('<button type="button" class="iref" data-go="' + esc(first[0]) + '">' + ic(t, "icon-sm") + " " + esc(PLURAL[t] || t) + "</button>"), td(String(first.length), "num"), td(esc((((LEX.types || {})[t]) || {}).question || ""))]; });
   return lead(f.question) + (f.writes ? kv([["Written by", esc(f.writes)], ["Reviewed by", esc(f.reviews)]]) : "") + blk("types", "Record types", table(["Type", "Records", "Answers"], rows), types.length);
 };
-DETAIL["requirement-page"] = function (id, r) { return listOf(id); };
 DETAIL["architecture-layer"] = function (id, r) { return lead(GL["architecture layer"]) + listOf(id); };
 DETAIL.folder = listOf; DETAIL.frontend = listOf; DETAIL["test-project"] = listOf; DETAIL["test-class"] = listOf;
-DETAIL["check-tier"] = function (id, r) { return lead(SX.checkTiers) + listOf(id); };
+DETAIL["check-tier"] = function (id, r) { return lead(SX.checkLevels) + listOf(id); };
 DETAIL["finding-code"] = function (id, r) { var f = r.fields || {}; return metaRow(id, [xp(f.tier, badge("Tier " + f.tier, f.tier === "G" ? "bad" : f.tier === "S" ? "warn" : ""))]) + lead(f.meaning) + listOf(id); };
 DETAIL.finding = function (id, r) {
   var f = r.fields || {}, subj = f.subject ? base(f.subject) : null;
@@ -1199,7 +1200,7 @@ function downOf(id) {
   if (t === "product") add(order.filter(function (x) { return typeOf(x) === "goal"; }), "a goal of the product");
   if (t === "goal") add(ins(id, "advances").filter(function (x) { return typeOf(x) === "feature"; }), "serves this goal");
   if (t === "problem") add(ins(id, "solves"), "solves this problem");
-  if (t === "feature") add(ins(id, "features"), "belongs to this feature");
+  if (t === "feature") add(ins(id, "cites"), "cites this feature");
   if (t === "requirement") add(ins(id, "fulfills"), "fulfills this requirement");
   if (t === "journey") { add(ins(id, "serves"), "serves a step"); }
   if (t === "use-case" || t === "reaction" || t === "job") { add(ins(id, "offers"), "offers it"); add(resultsOf(id), "how it ends"); }
@@ -1209,7 +1210,7 @@ function downOf(id) {
   if (t === "aggregate") add(ins(id, "changes"), "changes it");
   return out;
 }
-var GAP = { goal: "No feature serves this goal", feature: "No requirement belongs to this feature" };
+var GAP = { goal: "No feature serves this goal", feature: "No requirement cites this feature" };
 var BAND = { intent: "Intent", behavior: "Behavior", entry: "", governance: "Governance" };
 function bandOf(id) { var t = typeOf(id); if (t === "code" || t === "route") return "Implementation"; if (t === "test") return "Proof"; return BAND[kindOf(id)] || "Behavior"; }
 function traceHtml(id) {
@@ -1251,8 +1252,8 @@ function tvKids(id) {
   if (t === "product") return order.filter(function (x) { return typeOf(x) === "goal"; }).concat(["tv/no-goal"]);
   if (t === "tv/no-goal") return Object.keys(REC).filter(function (x) { return REC[x].type === "feature" && !(((REC[x].fields || {}).advances || []).length); });
   if (t === "goal") return ins(id, "advances").filter(function (x) { return typeOf(x) === "feature"; });
-  if (t === "feature") return ins(id, "features");
-  if (t === "requirement") return ins(id, "fulfills").filter(function (x) { return typeOf(x) === "journey"; });
+  if (t === "feature") return ins(id, "cites");
+  if (t === "requirement") return ins(id, "cites").filter(function (x) { return typeOf(x) === "journey"; });
   return [];
 }
 function tvMeta(id, kids) {
@@ -1260,7 +1261,7 @@ function tvMeta(id, kids) {
   var r = REC[base(id)], t = typeOf(id);
   if (t === "requirement") { var kb = (r || {}).keptBy || {}, parts = Object.keys(kb).map(function (k) { return plural(kb[k], (TYPE[k] || k).toLowerCase()); }); return r ? (parts.length ? "Kept by " + parts.join(", ") : '<span class="gapw">Nothing keeps it</span>') : ""; }
   if (t === "goal") return kids.length ? plural(kids.length, "feature") + (kids.length === 1 ? " serves it" : " serve it") : '<span class="gapw">No feature serves it</span>';
-  if (t === "feature") return kids.length ? plural(kids.length, "requirement") : '<span class="gapw">No requirement belongs to it</span>';
+  if (t === "feature") return kids.length ? plural(kids.length, "requirement") : '<span class="gapw">No requirement cites it</span>';
   if (t === "product") return plural(Math.max(0, kids.length - 1), "goal");
   return "";
 }

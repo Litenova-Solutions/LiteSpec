@@ -2,7 +2,7 @@
 
 ## Intent
 
-This index lists the 45 analyzer rules, one reference page per rule, grouped by the projects each rule runs in. A developer who meets an error opens the page with the same ID to see what the rule reports, where the error sits, and how to fix the code. Each entry carries a 1-line summary of what the rule reports.
+This index lists the 46 analyzer rules, one reference page per rule, grouped by the projects each rule runs in. A developer who meets an error opens the page with the same ID to see what the rule reports, where the error sits, and how to fix the code. Each entry carries a 1-line summary of what the rule reports.
 
 ## Domain Rules
 
@@ -24,7 +24,7 @@ Rules `LS1001` to `LS1013` run in Domain only.
 
 ## Outer-Layer Rules
 
-Rules `LS2001` and `LS2003` to `LS2016` run in Application, Infrastructure, or WebApi, as each page states.
+Rules `LS2001` and `LS2003` to `LS2017` run in Application, Infrastructure, WebApi, or Worker, as each page states.
 
 - [LS2001: Implementation Type Is Not Internal Sealed](ls2001.md): reports an implementation type that is not `internal sealed`.
 - [LS2003: WebApi Uses an MVC Controller](ls2003.md): reports an MVC controller.
@@ -41,10 +41,11 @@ Rules `LS2001` and `LS2003` to `LS2016` run in Application, Infrastructure, or W
 - [LS2014: Command Handler Finds or Creates](ls2014.md): reports a command handler that finds or creates.
 - [LS2015: Command Handler Changes Records in a Loop](ls2015.md): reports a command handler that changes records in a loop.
 - [LS2016: Handler Takes a Pipeline-Owned Collaborator](ls2016.md): reports a handler that takes a pipeline-owned collaborator.
+- [LS2017: LiteSpecLayer Names No Known Layer](ls2017.md): reports a declared layer value that names no known layer.
 
 ## Naming and Style Rules
 
-Rules `LS3001` to `LS3004` run in the five production projects.
+Rules `LS3001` to `LS3004` run in every production project.
 
 - [LS3001: Asynchronous Method Name Lacks Async](ls3001.md): reports an async method name without `Async`.
 - [LS3002: CancellationToken Is Not the Last Parameter](ls3002.md): reports a `CancellationToken` that is misplaced or misnamed.

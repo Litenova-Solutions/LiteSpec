@@ -90,6 +90,10 @@ public sealed class BatchApproveTests
         ReviewPages.DraftPage(LoanPeriod(fixture.Path));
         ReviewPages.DraftEntry(Borrowing(fixture.Path), "requirement/borrowing.loan-period-days");
 
+        var before = ReviewPages.Read(Borrowing(fixture.Path)).Front["records"]!.AsArray()
+            .OfType<JsonObject>()
+            .First(entry => entry["id"]!.GetValue<string>() == "requirement/borrowing.max-active-loans")["approvedHash"]!.GetValue<string>();
+
         var result = Cli.Run(
             "model", "approve", "--root", fixture.Path,
             "--batch", "decision/decision/0001-loan-period", "--by", "lending-team", "--on", "2026-11-20");
@@ -116,7 +120,7 @@ public sealed class BatchApproveTests
             .First(entry => entry["id"]!.GetValue<string>() == "requirement/borrowing.max-active-loans");
 
         Assert.Equal("approved", held["status"]!.GetValue<string>());
-        Assert.Equal("5de82a4d", held["approvedHash"]!.GetValue<string>());
+        Assert.Equal(before, held["approvedHash"]!.GetValue<string>());
     }
 
     /// <summary>A module and type batch approves its tier 3 drafts; a tier 1 rule waits in a batch of its own.</summary>
@@ -169,6 +173,12 @@ public sealed class BatchApproveTests
 
         ReviewPages.DraftEntry(BorrowCopy(fixture.Path), "result/borrow-copy.copy-unavailable");
 
+        var before = ReviewPages.Read(BorrowCopy(fixture.Path)).Front;
+        var pageHash = before["approvedHash"]!.GetValue<string>();
+        var heldHash = before["records"]!.AsArray()
+            .OfType<JsonObject>()
+            .First(entry => entry["id"]!.GetValue<string>() == "result/borrow-copy.borrowed")["approvedHash"]!.GetValue<string>();
+
         var result = Cli.Run(
             "model", "approve", "--root", fixture.Path,
             "--batch", "use-case/lending.borrow-copy", "--by", "lending-team", "--on", "2026-11-20");
@@ -189,8 +199,9 @@ public sealed class BatchApproveTests
             records.First(record => record!["id"]!.GetValue<string>() == "result/borrow-copy.copy-unavailable")!["action"]!.GetValue<string>());
 
         // The held records keep their approval data.
-        Assert.Contains("\"approvedHash\": \"fa5ceb0c\"", File.ReadAllText(BorrowCopy(fixture.Path)));
-        Assert.Contains("\"approvedHash\": \"a1559ff6\"", File.ReadAllText(BorrowCopy(fixture.Path)));
+        var text = File.ReadAllText(BorrowCopy(fixture.Path));
+        Assert.Contains($"\"approvedHash\": \"{pageHash}\"", text);
+        Assert.Contains($"\"approvedHash\": \"{heldHash}\"", text);
     }
 
     /// <summary>A reopened record is re-stamped with its new hash.</summary>
@@ -199,6 +210,10 @@ public sealed class BatchApproveTests
     public void Approve_Reopened_Record_Re_Stamped()
     {
         using var fixture = ModelFixture.Prepare("small");
+
+        var stale = ReviewPages.Read(BorrowCopy(fixture.Path)).Front["records"]!.AsArray()
+            .OfType<JsonObject>()
+            .First(entry => entry["id"]!.GetValue<string>() == "result/borrow-copy.borrowed")["approvedHash"]!.GetValue<string>();
 
         ReviewPages.PatchEntry(
             BorrowCopy(fixture.Path), "result/borrow-copy.borrowed",
@@ -210,7 +225,7 @@ public sealed class BatchApproveTests
 
         Assert.Equal(0, result.Status);
         Assert.Contains("re-stamped", result.Output);
-        Assert.DoesNotContain("a1559ff6", File.ReadAllText(BorrowCopy(fixture.Path)));
+        Assert.DoesNotContain(stale, File.ReadAllText(BorrowCopy(fixture.Path)));
 
         var (front, _) = ReviewPages.Read(BorrowCopy(fixture.Path));
         var entry = front["records"]!.AsArray()

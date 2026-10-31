@@ -104,6 +104,7 @@ public static class Identifiers
     /// <summary>
     ///     Whether the name follows the name rules: one to six lowercase words,
     ///     digits allowed inside a word or as a word, never as the whole name.
+    ///     A decision name opens with its four-digit number.
     /// </summary>
     public static bool ValidName(string name, bool decision)
     {
@@ -116,7 +117,7 @@ public static class Identifiers
 
         if (decision)
         {
-            if (words.Length < 2 || !AllDigits(words[0]))
+            if (words.Length < 2 || words[0].Length != 4 || !AllDigits(words[0]))
             {
                 return false;
             }

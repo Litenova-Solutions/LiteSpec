@@ -399,7 +399,7 @@ public static class KindReader
         IsClassLike(type) && (
             ((HasBaseName(type, "BackgroundService") || HasBaseName(type, "IHostedService"))
                 && HasJobName(type.Identifier.ValueText))
-            || (ProjectMatches(containingProject, "Application", "Application.Abstractions", "Infrastructure")
+            || (ProjectMatches(containingProject, "Application", "Application.Abstractions", "Infrastructure", "Worker")
                 && HasMark(type, JobPrefix)));
 
     private static bool IsJob(INamedTypeSymbol type, string? containingProject)
@@ -422,7 +422,7 @@ public static class KindReader
             return true;
         }
 
-        return ProjectMatches(containingProject, "Application", "Application.Abstractions", "Infrastructure")
+        return ProjectMatches(containingProject, "Application", "Application.Abstractions", "Infrastructure", "Worker")
             && HasMark(type, JobPrefix);
     }
 
@@ -579,7 +579,7 @@ public static class KindReader
         if (type is not ClassDeclarationSyntax
             || type.Parent is TypeDeclarationSyntax
             || containingProject is null
-            || !ProjectMatches(containingProject, "Application", "Application.Abstractions", "Infrastructure", "WebApi"))
+            || !ProjectMatches(containingProject, "Application", "Application.Abstractions", "Infrastructure", "WebApi", "Worker"))
         {
             return false;
         }
@@ -607,7 +607,7 @@ public static class KindReader
             || type.IsRecord
             || type.ContainingType is not null
             || containingProject is null
-            || !ProjectMatches(containingProject, "Application", "Application.Abstractions", "Infrastructure", "WebApi"))
+            || !ProjectMatches(containingProject, "Application", "Application.Abstractions", "Infrastructure", "WebApi", "Worker"))
         {
             return false;
         }

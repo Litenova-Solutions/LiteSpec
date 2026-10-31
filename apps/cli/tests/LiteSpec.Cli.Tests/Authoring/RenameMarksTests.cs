@@ -83,8 +83,8 @@ public sealed class RenameMarksTests
     [Fact]
     public void Rename_Rewrites_A_Requirement_Id_Inside_Proves_Marks_In_Both_Styles()
     {
-        const string oldRequirement = "requirement/borrowing.borrow-latency";
-        const string newRequirement = "requirement/borrowing.borrow-speed";
+        const string oldRequirement = "requirement/performance.borrow-latency";
+        const string newRequirement = "requirement/performance.borrow-speed";
 
         using var temp = Cli.Temp("rename-marks");
         WriteConsumer(temp.Path);
@@ -219,16 +219,16 @@ public sealed class RenameMarksTests
               "title": "Store loans as documents",
               "owner": "lending-team",
               "status": "approved",
-              "decidedOn": "2026-10-01",
-              "chosen": "Documents",
+              "approvedOn": "2026-10-01",
+              "choice": "Documents",
               "options": [
                 {
                   "name": "Documents",
-                  "for": "Loans read as one document",
-                  "against": "Cross-loan queries need an index"
+                  "pros": "Loans read as one document",
+                  "cons": "Cross-loan queries need an index"
                 }
               ],
-              "changeWhen": "Cross-loan queries pass one hundred a day"
+              "reopenedWhen": "Cross-loan queries pass one hundred a day"
             }
             ---
 
@@ -274,17 +274,20 @@ public sealed class RenameMarksTests
         Write(Path.Combine(root, "docs", "intent", "borrowing", "performance.md"), """
             ---
             {
-              "type": "requirement-page",
+              "type": "topic",
+              "id": "topic/performance",
               "title": "Borrowing performance",
               "owner": "lending-team",
               "status": "approved",
+              "reviewBy": "2027-04-01",
               "records": [
                 {
                   "type": "requirement",
-                  "id": "requirement/borrowing.borrow-latency",
+                  "id": "requirement/performance.borrow-latency",
                   "title": "Borrow latency",
                   "kind": "quality",
-                  "statement": "Borrowing completes within two hundred milliseconds at p95."
+                  "statement": "Borrowing completes within two hundred milliseconds at p95.",
+                  "rationale": "Readers leave when borrowing is slow."
                 }
               ]
             }
@@ -329,7 +332,7 @@ public sealed class RenameMarksTests
 
             public sealed class LatencyTests
             {
-                /// <proves>requirement/borrowing.borrow-latency</proves>
+                /// <proves>requirement/performance.borrow-latency</proves>
                 /// <proves>external-system/text-gateway</proves>
                 /// <proves>integration-event/loan-borrowed</proves>
                 [Fact]
@@ -343,7 +346,7 @@ public sealed class RenameMarksTests
 
             public sealed class LatencyAttributeTests
             {
-                [Proves("requirement/borrowing.borrow-latency")]
+                [Proves("requirement/performance.borrow-latency")]
                 [Proves("external-system/text-gateway")]
                 [Proves("integration-event/loan-borrowed")]
                 [Fact]

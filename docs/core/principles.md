@@ -24,7 +24,7 @@ One record derives from another: generic refusals derive from access and input, 
 
 ### Intent Is Enough to Approve
 
-A founder or product person approves Intent without opening Behavior: the ballot and each book chapter carry what the decision needs. Each ballot and chapter carries a consequences summary rendered from Behavior, marked as context and outside what the approval covers. The summary shows refusals in product words, data kept and for how long, and money effects.
+A decider approves Intent without opening Behavior: the ballot and each book chapter carry what the decision needs. Each ballot and chapter carries a consequences summary rendered from Behavior, marked as context and outside what the approval covers. The summary shows refusals in product words, data kept and for how long, and money effects.
 
 ### Declared Edges, Not Mechanism Bans
 
@@ -114,9 +114,9 @@ Boundaries are where components meet and where future readers orient themselves.
 
 **Statement:** A consumer MUST raise what a lower record layer needs, and the upper record layer does not state, as a draft question with a decider and a date.
 
-**Rationale:** A need that travels up as a draft question reaches the person who decides it, with a date that keeps it visible. A need filled in quietly at the lower record layer becomes an undecided promise that later readers trust. A draft past its date that no rule auto-approves is reported as a known gap with its owner.
+**Rationale:** A need that travels up as a draft question reaches the person who decides it, with a date that keeps it visible. A need filled in quietly at the lower record layer becomes an undecided promise that later readers trust. The [model page](model.md) states how an aged question is reported (`litespec/core/model#answer-each-question-on-its-record`).
 
-**Example:** A use case that needs a price its requirements do not state raises a draft question with the founder as decider and a decideBy date.
+**Example:** A use case that needs a price its requirements do not state raises a draft question with a named decider and a decideBy date.
 
 **Reviewed for:** Which needs from a lower record layer lack a draft question with a decider and a date? Look at the open questions beside the records that need them.
 

@@ -25,15 +25,16 @@ The semantic fields per record type are:
 
 | Type | Fields feeding the hash |
 |:---|:---|
-| `product` | `boundary`, `neverDoes`, `audience` |
+| `product` | `boundary`, `exclusions`, `addresses` |
 | `goal` | `statement`, `measure`, `target`, `dueBy` |
 | `problem` | `affects`, `statement` |
 | `feature` | `lifecycle`, `refusedBecause`, `solves`, `advances`, `plannedFor` |
-| `requirement` | `kind`, `statement`, `values`, `measure`, `dueBy`, `features`, `basedOn`, `except`, `setBy`, `risk` |
+| `topic` | `reviewBy` |
+| `requirement` | `kind`, `statement`, `values`, `measure`, `dueBy`, `cites`, `except`, `setBy`, `risk` |
 | `constraint` | `authority`, `kind`, `applies`, `appliesBecause` |
-| `decision` | `options`, `changeWhen`, `decidedOn`, `chosen`, `decides` |
+| `decision` | `options`, `reopenedWhen`, `choice`, `decides` |
 | `research` | `sources`, `question`, `conclusion` |
-| `journey` | `actor`, `serves`, `aim`, `finishedWhen`, `steps`, `fulfills` |
+| `journey` | `actor`, `serves`, `finishedWhen`, `steps`, `cites` |
 | `actor` | `kind` |
 | `term` | `term`, `meaning`, `layer`, `aliases` |
 | `module` | `dependsOn` |
@@ -43,10 +44,10 @@ The semantic fields per record type are:
 | `result` | `outcome`, `code`, `meaning`, `recorded`, `codes` |
 | `scenario` | `given`, `when`, `then`, `result`, `examples` |
 | `event` | `meaning`, `carries` |
-| `integration-event` | `direction`, `eventType`, `subject`, `payload`, `audience`, `trust`, `correlation`, `translates` |
+| `integration-event` | `direction`, `eventType`, `subject`, `payload`, `addresses`, `trust`, `correlation`, `translates` |
 | `reaction` | `on`, `if`, `effects`, `forEach`, `reads`, `fulfills`, `serves`, `idempotency`, `onFailure`, `onExhausted` |
 | `job` | `kind`, `schedule`, `scope`, `batchSize`, `lease`, `effects`, `reads`, `serviceLevel`, `evidence`, `runbook`, `runsWhere`, `guard`, `cursor`, `fulfills`, `serves`, `onFailure`, `idempotency` |
-| `notification` | `template`, `audience`, `channel`, `consent`, `frequency`, `dedupKey`, `params`, `locale`, `suppressedWhen`, `claims`, `fulfills`, `sender` |
+| `notification` | `template`, `addresses`, `channel`, `consent`, `frequency`, `dedupKey`, `params`, `locale`, `suppressedWhen`, `claims`, `fulfills`, `sender` |
 | `setting` | `valueType`, `default`, `range`, `unit`, `setBy`, `atBound`, `secret`, `meaning`, `runbook`, `fulfills`, `readBy` |
 | `role` | `scope`, `allows` |
 | `permission` | `meaning` |

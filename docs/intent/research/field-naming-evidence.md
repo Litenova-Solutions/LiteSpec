@@ -12,19 +12,19 @@
   "sources": [
     {
       "path": "schemas/record.schema.json",
-      "read": "2026-10-30"
+      "readOn": "2026-10-30"
     },
     {
       "path": "schemas/glossary.schema.json",
-      "read": "2026-10-30"
+      "readOn": "2026-10-30"
     },
     {
       "path": "templates/consumer/glossary.json",
-      "read": "2026-10-30"
+      "readOn": "2026-10-30"
     },
     {
       "path": "docs/core/model.md",
-      "read": "2026-10-30"
+      "readOn": "2026-10-30"
     }
   ]
 }
@@ -34,7 +34,7 @@
 
 ## Answer
 
-This record distils the field naming investigation of 2026-10-30 into the claims this release relies on. LiteSpec counts below come from a scan of 434 files under `docs/`, `schemas/`, `templates/`, and `examples/`; consumer counts were measured over the largest consumer's built model at `D:/Personal-Projects/Nighthall/.model/model.json` on 2026-10-30.
+This record distils the field naming investigation of 2026-10-30 into the claims this release relies on. LiteSpec counts below come from a scan of 434 files under `docs/`, `schemas/`, `templates/`, and `examples/`; consumer counts were measured over the largest consumer's built model on 2026-10-30.
 
 The field set is mostly systematic. All 37 page types share one header (`type`, `id`, `title`, `owner`, `status`, `decider`, `decideBy`, `terms`, plus approval fields on record-bearing types). Links are present-tense verbs, plural when they hold arrays, and `fulfills`, `governs`, `solves`, `decides`, and `basedOn` each carry one meaning everywhere. Every field name in both schemas is camelCase or a single lowercase word, and multiword names follow a readable suffix grammar: `<verb>By` deadlines, `<verb>On` event dates, `<verb>When` conditions, and `<verb>Because` justifications. Confidence is high: the inventory was parsed from the schemas programmatically.
 

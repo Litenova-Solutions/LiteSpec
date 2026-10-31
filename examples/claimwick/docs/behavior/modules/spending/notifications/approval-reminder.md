@@ -6,7 +6,7 @@
   "owner": "claimwick-team",
   "status": "reviewed",
   "template": "approval-reminder-manager",
-  "audience": [
+  "addresses": [
     "actor/manager"
   ],
   "channel": [
@@ -22,7 +22,7 @@
   ],
   "approvedBy": "claimwick-team",
   "approvedOn": "2026-10-01",
-  "approvedHash": "a4618487"
+  "approvedHash": "4d983f49"
 }
 ---
 

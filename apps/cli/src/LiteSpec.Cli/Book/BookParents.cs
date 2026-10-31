@@ -11,7 +11,7 @@ sealed record BookParentRule(string Type, IReadOnlyList<string> ParentTypes, str
 
 /// <summary>
 ///     The parent of every record: the product parents each root type, a feature follows its
-///     first solves entry, a requirement follows its origin precedence, and containment follows
+///     first solves entry, a requirement follows its topic home, and containment follows
 ///     the identifier home. No product field is written.
 /// </summary>
 /// <follows>litespec/core/model#organize-the-book-by-the-record-layers</follows>
@@ -39,7 +39,8 @@ static class BookParents
             ["deviation"] = new("deviation", ["product"], "the product"),
             ["known-gap"] = new("known-gap", ["product"], "the product"),
             ["feature"] = new("feature", ["problem"], "`solves`, first entry"),
-            ["requirement"] = new("requirement", ["feature", "constraint", "research", "decision"], "`features`, first entry; else `basedOn`, first entry; else a decision naming it in `decides`"),
+            ["topic"] = new("topic", ["product"], "the product"),
+            ["requirement"] = new("requirement", ["topic"], "identifier home"),
             ["journey"] = new("journey", ["goal"], "`serves`"),
             ["aggregate"] = new("aggregate", ["module"], "identifier home"),
             ["use-case"] = new("use-case", ["aggregate", "module"], "the aggregate holding its page; else identifier home"),
@@ -82,7 +83,7 @@ static class BookParents
         public Dictionary<string, string> AggregatesByName { get; } = new(StringComparer.Ordinal);
         public Dictionary<string, string> ModulesByName { get; } = new(StringComparer.Ordinal);
         public Dictionary<string, string> EntryPointsByName { get; } = new(StringComparer.Ordinal);
-        public Dictionary<string, string> DecidedBy { get; } = new(StringComparer.Ordinal);
+        public Dictionary<string, string> TopicsByName { get; } = new(StringComparer.Ordinal);
     }
 
     static ParentIndex BuildIndex(JsonObject model)
@@ -132,23 +133,9 @@ static class BookParents
             {
                 index.EntryPointsByName.TryAdd(name, pair.Key);
             }
-        }
-
-        // Decisions in identifier order, so the first decision wins when several name one record.
-        var decisions = index.ById.Values
-            .Where(record => string.Equals(StrProp(record, "type"), "decision", StringComparison.Ordinal))
-            .OrderBy(record => StrProp(record, "id") ?? "", StringComparer.Ordinal);
-        foreach (var decision in decisions)
-        {
-            var id = StrProp(decision, "id");
-            if (id is not { Length: > 0 })
+            else if (string.Equals(type, "topic", StringComparison.Ordinal))
             {
-                continue;
-            }
-
-            foreach (var target in AllLinks(decision, "decides"))
-            {
-                index.DecidedBy.TryAdd(target, id);
+                index.TopicsByName.TryAdd(name, pair.Key);
             }
         }
 
@@ -167,9 +154,9 @@ static class BookParents
         string? parent = type switch
         {
             "product" => null,
-            "goal" or "problem" or "constraint" or "research" or "decision" or "actor" or "term" or "module" or "role" or "permission" or "entry-point" or "external-system" or "runbook" or "integration-event" or "deviation" or "known-gap" => index.ProductId,
+            "goal" or "problem" or "constraint" or "research" or "decision" or "topic" or "actor" or "term" or "module" or "role" or "permission" or "entry-point" or "external-system" or "runbook" or "integration-event" or "deviation" or "known-gap" => index.ProductId,
             "feature" => LinkParent(index, FirstLink(record, "solves")),
-            "requirement" => RequirementParent(index, record, id),
+            "requirement" => TopicParent(index, id),
             "journey" => LinkParent(index, FirstLink(record, "serves")),
             "aggregate" => ModuleParent(index, id),
             "use-case" => UseCaseParent(index, record, id),
@@ -189,20 +176,14 @@ static class BookParents
     static string? LinkParent(ParentIndex index, string? target) =>
         target is { Length: > 0 } && index.ById.ContainsKey(target) ? target : null;
 
-    static string? RequirementParent(ParentIndex index, JsonObject record, string id)
+    static string? TopicParent(ParentIndex index, string id)
     {
-        // Precedence: the carrying features, then the basedOn ground, then the deciding decision.
-        if (FirstLink(record, "features") is { } feature && index.ById.ContainsKey(feature))
+        if (!Identifiers.TrySplit(id, out _, out var home, out _) || home is not { Length: > 0 })
         {
-            return feature;
+            return null;
         }
 
-        if (FirstLink(record, "basedOn") is { } basis && index.ById.ContainsKey(basis))
-        {
-            return basis;
-        }
-
-        return index.DecidedBy.TryGetValue(id, out var decision) && index.ById.ContainsKey(decision) ? decision : null;
+        return index.TopicsByName.TryGetValue(home, out var topic) ? topic : null;
     }
 
     static string? ModuleParent(ParentIndex index, string id)
@@ -309,33 +290,6 @@ static class BookParents
         }
 
         return null;
-    }
-
-    static List<string> AllLinks(JsonObject record, string name)
-    {
-        var found = new List<string>();
-        CollectLinks(record["links"] as JsonObject, name, found);
-        CollectLinks(record["fields"] as JsonObject, name, found);
-        return found;
-    }
-
-    static void CollectLinks(JsonObject? obj, string name, List<string> found)
-    {
-        var node = obj?[name];
-        if (node is JsonValue scalar && scalar.TryGetValue<string>(out var text) && text is { Length: > 0 })
-        {
-            found.Add(text);
-        }
-        else if (node is JsonArray items)
-        {
-            foreach (var item in items)
-            {
-                if (item is JsonValue element && element.TryGetValue<string>(out var value) && value is { Length: > 0 })
-                {
-                    found.Add(value);
-                }
-            }
-        }
     }
 
     static string? FirstString(JsonNode? node)

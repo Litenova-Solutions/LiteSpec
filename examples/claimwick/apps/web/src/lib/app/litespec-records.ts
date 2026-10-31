@@ -458,7 +458,7 @@ export type ProofTargetId =
   | "requirement/approval.no-self-approval"
   | "requirement/approval.receipt-over-threshold"
   | "requirement/approval.single-reimbursement"
-  | "requirement/spending.month-end-submissions"
+  | "requirement/approval.month-end-submissions"
   | "rule/expense.approved-before-reimbursement"
   | "rule/expense.approver-is-not-submitter"
   | "rule/expense.decided-from-submitted"

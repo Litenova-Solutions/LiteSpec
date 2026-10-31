@@ -41,7 +41,7 @@ public sealed class OperationsCheckTests
     public void Alert_Without_Requirement_Label_Reports()
     {
         using var temp = ModelFixture.Prepare("small");
-        WriteWatchedSetup(temp.Path, AlertPassing.Replace("requirement: requirement/borrowing.list-loans-latency", "requirement:"));
+        WriteWatchedSetup(temp.Path, AlertPassing.Replace("requirement: requirement/performance.list-loans-latency", "requirement:"));
 
         var check = Cli.Run("model", "check", "--root", temp.Path);
         var unlinked = check.Output.Split('\n').Single(candidate =>
@@ -59,7 +59,7 @@ public sealed class OperationsCheckTests
     public void Alert_Naming_No_Requirement_Reports()
     {
         using var temp = ModelFixture.Prepare("small");
-        WriteWatchedSetup(temp.Path, AlertPassing.Replace("requirement/borrowing.list-loans-latency", "requirement/borrowing.no-such-thing"));
+        WriteWatchedSetup(temp.Path, AlertPassing.Replace("requirement/performance.list-loans-latency", "requirement/performance.no-such-thing"));
 
         var check = Cli.Run("model", "check", "--root", temp.Path);
         var unlinked = check.Output.Split('\n').Single(candidate =>
@@ -67,7 +67,7 @@ public sealed class OperationsCheckTests
 
         Assert.Equal(1, check.Status);
         Assert.Contains("[S]", unlinked, StringComparison.Ordinal);
-        Assert.Contains("requirement/borrowing.no-such-thing", unlinked, StringComparison.Ordinal);
+        Assert.Contains("requirement/performance.no-such-thing", unlinked, StringComparison.Ordinal);
         Assert.Contains("matches no record", unlinked, StringComparison.Ordinal);
     }
 
@@ -77,7 +77,7 @@ public sealed class OperationsCheckTests
     public void Alert_Naming_A_Functional_Requirement_Reports()
     {
         using var temp = ModelFixture.Prepare("small");
-        WriteWatchedSetup(temp.Path, AlertPassing.Replace("requirement/borrowing.list-loans-latency", "requirement/borrowing.max-active-loans"));
+        WriteWatchedSetup(temp.Path, AlertPassing.Replace("requirement/performance.list-loans-latency", "requirement/borrowing.max-active-loans"));
 
         var check = Cli.Run("model", "check", "--root", temp.Path);
         var unlinked = check.Output.Split('\n').Single(candidate =>
@@ -167,7 +167,7 @@ public sealed class OperationsCheckTests
         Assert.Equal(0, check.Status);
         Assert.Contains("[A]", drift, StringComparison.Ordinal);
         Assert.Contains("listing-latency-high", drift, StringComparison.Ordinal);
-        Assert.Contains("requirement/borrowing.list-loans-latency", drift, StringComparison.Ordinal);
+        Assert.Contains("requirement/performance.list-loans-latency", drift, StringComparison.Ordinal);
     }
 
     /// <summary>A quality requirement named by an alert reports nothing, even with no passing run.</summary>
@@ -243,7 +243,7 @@ public sealed class OperationsCheckTests
 
         Assert.Equal(1, check.Status);
         Assert.Contains("[G]", unalerted, StringComparison.Ordinal);
-        Assert.Contains("requirement/borrowing.list-loans-latency", unalerted, StringComparison.Ordinal);
+        Assert.Contains("requirement/performance.list-loans-latency", unalerted, StringComparison.Ordinal);
     }
 
     /// <summary>A passing check result counts toward its requirement's measure.</summary>
@@ -259,9 +259,12 @@ public sealed class OperationsCheckTests
         SetPaths(temp.Path, checkResults: CheckResultsDir);
 
         var check = Cli.Run("model", "check", "--root", temp.Path);
+        var unmeasured = check.Output.Split('\n').Where(candidate =>
+            candidate.Contains("requirement-unmeasured", StringComparison.Ordinal));
 
         Assert.Equal(0, check.Status);
-        Assert.DoesNotContain("requirement-unmeasured", check.Output, StringComparison.Ordinal);
+        Assert.All(unmeasured, line =>
+            Assert.DoesNotContain("requirement/performance.list-loans-latency", line, StringComparison.Ordinal));
     }
 
     /// <summary>A failing check result leaves its requirement unmeasured but watched.</summary>
@@ -369,7 +372,7 @@ public sealed class OperationsCheckTests
 
         Assert.Equal(0, render.Status);
         Assert.Contains("| Requirement | Alert | Runbook | Severity | File |", limits, StringComparison.Ordinal);
-        Assert.Contains("requirement/borrowing.list-loans-latency", limits, StringComparison.Ordinal);
+        Assert.Contains("requirement/performance.list-loans-latency", limits, StringComparison.Ordinal);
         Assert.Contains("listing-latency-high", limits, StringComparison.Ordinal);
         Assert.Contains("runbook/slow-listings", limits, StringComparison.Ordinal);
         Assert.Contains("page", limits, StringComparison.Ordinal);
@@ -434,15 +437,18 @@ public sealed class OperationsCheckTests
     const string RequirementPage = """
         ---
         {
-          "type": "requirement-page",
+          "type": "topic",
+          "id": "topic/performance",
           "title": "Performance",
           "owner": "lending-team",
-          "status": "approved",
+          "status": "draft",
+          "decider": "lending-team",
+          "decideBy": "2027-02-01",
           "reviewBy": "2027-04-01",
           "records": [
             {
               "type": "requirement",
-              "id": "requirement/borrowing.list-loans-latency",
+              "id": "requirement/performance.list-loans-latency",
               "title": "List loans latency",
               "status": "draft",
               "decider": "lending-team",
@@ -499,7 +505,7 @@ public sealed class OperationsCheckTests
         Listings answer within 300 milliseconds again.
         """;
 
-    // The product decision that decides the latency requirement, its origin.
+    // The product decision that decides the latency requirement.
     const string OriginPage = """
         ---
         {
@@ -513,13 +519,13 @@ public sealed class OperationsCheckTests
           "options": [
             {
               "name": "Answer within 300 milliseconds",
-              "for": "Readers list loans without waiting at term start.",
-              "against": "The listing needs an index."
+              "pros": "Readers list loans without waiting at term start.",
+              "cons": "The listing needs an index."
             }
           ],
-          "changeWhen": "Term start load changes.",
+          "reopenedWhen": "Term start load changes.",
           "decides": [
-            "requirement/borrowing.list-loans-latency"
+            "requirement/performance.list-loans-latency"
           ]
         }
         ---
@@ -552,13 +558,13 @@ public sealed class OperationsCheckTests
           "options": [
             {
               "name": "Search index",
-              "for": "Listings read from one warm index.",
-              "against": "The index needs warming after deploys."
+              "pros": "Listings read from one warm index.",
+              "cons": "The index needs warming after deploys."
             }
           ],
-          "changeWhen": "Listing load changes shape.",
+          "reopenedWhen": "Listing load changes shape.",
           "basedOn": [
-            "requirement/borrowing.list-loans-latency"
+            "requirement/performance.list-loans-latency"
           ]
         }
         ---
@@ -591,11 +597,11 @@ public sealed class OperationsCheckTests
           "options": [
             {
               "name": "Search index",
-              "for": "Listings read from one warm index.",
-              "against": "The index needs warming after deploys."
+              "pros": "Listings read from one warm index.",
+              "cons": "The index needs warming after deploys."
             }
           ],
-          "changeWhen": "Listing load changes shape.",
+          "reopenedWhen": "Listing load changes shape.",
           "basedOn": [
             "requirement/borrowing.max-active-loans"
           ]
@@ -625,7 +631,7 @@ public sealed class OperationsCheckTests
                 expr: histogram_quantile(0.99, rate(list_loans_seconds_bucket[5m])) > 0.3
                 for: 2m
                 labels:
-                  requirement: requirement/borrowing.list-loans-latency
+                  requirement: requirement/performance.list-loans-latency
                   runbook: runbook/slow-listings
                   severity: page
                 annotations:
@@ -644,7 +650,7 @@ public sealed class OperationsCheckTests
                 expr: histogram_quantile(0.99, rate(list_loans_seconds_bucket[5m])) > 0.3
                 for: 2m
                 labels:
-                  requirement: requirement/borrowing.list-loans-latency
+                  requirement: requirement/performance.list-loans-latency
                   runbook: runbook/slow-listings
                   severity: page
         """;
@@ -687,7 +693,7 @@ public sealed class OperationsCheckTests
           "decideBy": "2027-02-01",
           "check": "quality-unalerted",
           "subject": [
-            "requirement/borrowing.list-loans-latency"
+            "requirement/performance.list-loans-latency"
           ],
           "endsBy": "2027-06-01",
           "reason": "The listing alert ships with the search index."

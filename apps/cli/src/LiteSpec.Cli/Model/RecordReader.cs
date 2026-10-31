@@ -870,6 +870,8 @@ static class RecordReader
                     Title = StringField(term, "term") ?? "",
                     Owner = StringField(term, "owner"),
                     Status = StringField(term, "status"),
+                    Decider = StringField(term, "decider"),
+                    DecideBy = StringField(term, "decideBy"),
                     ApprovedBy = StringField(term, "approvedBy"),
                     ApprovedOn = StringField(term, "approvedOn"),
                     ApprovedHash = StringField(term, "approvedHash"),

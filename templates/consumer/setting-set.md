@@ -15,7 +15,7 @@
       "default": "<value>",
       "range": "<min..max or choices>",
       "unit": "<unit>",
-      "setBy": "<founder|operator|tenant>",
+      "setBy": "<decider|operator|tenant>",
       "atBound": "<refuse|truncate|degrade>",
       "secret": false,
       "fulfills": ["requirement/<topic>.<name>"],

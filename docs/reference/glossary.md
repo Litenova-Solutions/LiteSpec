@@ -162,35 +162,35 @@ Layer: Behavior.
 
 Source: LiteSpec.
 
-### Aim
+### Approval
 
-The goal of one journey in one sentence, beside the goal record it serves.
+The recorded decision that a record holds, naming who approved it, when, and over which content.
 
-Layer: Intent.
+Layer: Intent or Behavior.
 
 Source: LiteSpec.
 
 ### Ballot
 
-One named group of open questions the inbox shows together, by a decision id or a short topic slug.
+The questions a decider answers together.
 
 Layer: Intent or Behavior.
 
 Source: LiteSpec.
+
+### Behavior
+
+The record layer stating how the system keeps the promises Intent states.
+
+Source: LiteSpec.
+
+Rejected: behaviour, the British spelling.
 
 ### Bounded Context
 
 The boundary inside which one domain model and one glossary hold.
 
 Source: DDD.
-
-### Business Requirement
-
-One requirement stating a business rule or value, with effective dates where the value changes over time.
-
-Layer: Intent.
-
-Source: BABOK and IREB.
 
 ### Calculation
 
@@ -199,6 +199,14 @@ One rule stating how a value is derived, proven by a scenario with an examples t
 Layer: Behavior.
 
 Source: the Business Rules Group.
+
+### Cites
+
+The reason link a record carries to the records behind it.
+
+Layer: Intent or Behavior.
+
+Source: LiteSpec.
 
 ### Command
 
@@ -258,6 +266,16 @@ Layer: Behavior.
 
 Source: LiteSpec.
 
+### Decider
+
+The owner a question names to answer it.
+
+Layer: Intent or Behavior.
+
+Source: LiteSpec.
+
+Rejected: founder as a role word, which names one decider a project may name instead of the role that answers.
+
 ### Decision
 
 One dated choice with options weighed, evidence cited, and a decider named.
@@ -265,8 +283,6 @@ One dated choice with options weighed, evidence cited, and a decider named.
 Layer: Intent.
 
 Source: decision records.
-
-Rejected: product decision, which hides that every LiteSpec decision is a product decision.
 
 ### Deviation
 
@@ -388,6 +404,12 @@ Layer: Behavior.
 
 Source: DDD.
 
+### Intent
+
+The record layer stating why the product exists and what it promises.
+
+Source: LiteSpec.
+
 ### Invariant
 
 One rule that holds at every observable moment.
@@ -406,7 +428,7 @@ Source: LiteSpec.
 
 ### Journey
 
-The ordered steps by which an actor reaches one goal, stated in its aim and linked to the goal record it serves. Steps name no use case; each serving use case points up with serves.
+The ordered steps by which one actor reaches one goal, linked to the goal record it serves and citing the requirements it shows. Steps name no use case; each serving use case points up with serves.
 
 Layer: Intent.
 
@@ -446,19 +468,11 @@ Source: DDD.
 
 ### Notification
 
-One person-facing message with its audience, channel, consent, and claims.
+One person-facing message with its addresses, channel, consent, and claims.
 
 Layer: Behavior.
 
 Source: LiteSpec.
-
-### Origin
-
-The feature that carries one requirement, the constraint or research it is based on, or the decision that decides it.
-
-Layer: Intent.
-
-Source: IREB.
 
 ### Outcome
 
@@ -475,6 +489,14 @@ One allowed action from the shared closed list.
 Layer: Behavior.
 
 Source: RBAC.
+
+### Policy Requirement
+
+One requirement stating a policy the business holds, with effective dates where the value changes over time.
+
+Layer: Intent.
+
+Source: LiteSpec.
 
 ### Precondition
 
@@ -507,6 +529,16 @@ The software capability offered to users, with its boundary and exclusions.
 Layer: Intent.
 
 Source: plain English.
+
+### Pseudonymize
+
+One erasure position that keeps personal data personal while replacing direct identifiers.
+
+Layer: Behavior.
+
+Source: the GDPR.
+
+Rejected: pseudonymise, the British spelling.
 
 ### Quality Requirement
 
@@ -568,7 +600,7 @@ Source: LiteSpec.
 
 ### Requirement
 
-One behavior the product shows or one guarantee it keeps. An exception names its fallback requirement; a tenant-set value is not an exception. Its origin is the feature that carries it, a constraint or research it is based on, or a decision that decides it.
+One behavior the product shows or one guarantee it keeps. An exception names its fallback requirement; a tenant-set value is not an exception. Its cites names the goals, problems, features, constraints, research, and decisions behind it.
 
 Layer: Intent.
 
@@ -596,7 +628,7 @@ Source: the Result pattern.
 
 ### Retention Schedule
 
-The one page mapping each data class to its basis, period, enforcement, and intent.
+The one page mapping each data class to its basis, period, enforcement, and cites.
 
 Layer: Behavior.
 
@@ -646,7 +678,7 @@ Source: LiteSpec.
 
 ### Setting
 
-One named bound or default the product runs within, with its setter and its behavior at the bound. The use cases that read it are named in `readBy`.
+One named bound or default the product runs within, with its setter and its behavior at the bound. The use cases that read it name it in `reads`.
 
 Layer: Behavior.
 
@@ -690,9 +722,17 @@ Layer: Intent or Behavior.
 
 Source: arc42; DDD's ubiquitous language.
 
+### Topic
+
+One requirement container holding the requirements that share one story.
+
+Layer: Intent.
+
+Source: LiteSpec.
+
 ### Transcription
 
-One Behavior record written from code during adoption, marked source transcribed until its Intent parent is approved.
+One Behavior record written from code during adoption, marked provenance transcribed until its Intent parent is approved.
 
 Layer: Behavior.
 
@@ -762,9 +802,9 @@ The append-only store that holds audit records, kept separate from logs and doma
 
 Source: NIST SP 800-53.
 
-### Check Tier
+### Check Level
 
-One of the three check depths: G reads records only and always blocks, S reads code through a stack reader, A reports and never blocks.
+One of the three check levels: G reads records only and always blocks, S reads code through a stack reader, A reports and never blocks.
 
 Source: LiteSpec.
 
@@ -854,6 +894,12 @@ One issue litespec-maintain validate reports about standards material.
 
 Source: LiteSpec.
 
+### Documentation Layer
+
+One depth of documentation, from a first working result down to the mechanism a command runs.
+
+Source: Diataxis.
+
 ### Effective Status
 
 The status of a record after draft intent above it is taken into account: draft when it, a deciding decision, or a fulfilled requirement is draft.
@@ -863,6 +909,12 @@ Source: LiteSpec.
 ### Engineering System
 
 One connected set of decisions, specifications, standards, verification, and release practices.
+
+Source: LiteSpec.
+
+### Exercised
+
+The computed state of a journey step that a scenario shows.
 
 Source: LiteSpec.
 
@@ -880,7 +932,7 @@ Source: LiteSpec.
 
 ### Finding
 
-One issue litespec model check or litespec consumer reports, with its tier, code, message, path, and line.
+One issue litespec model check or litespec consumer reports, with its level, code, message, path, and line.
 
 Source: LiteSpec.
 
@@ -908,11 +960,13 @@ One page routing readers to the pages of its section.
 
 Source: LiteSpec.
 
-### Layer
+### License
 
-One depth of documentation, from a first working result down to the mechanism a command runs.
+One SPDX identifier naming the terms a shipped package carries.
 
-Source: Diataxis.
+Source: SPDX.
+
+Rejected: licence and licences, the British spellings.
 
 ### LiteSpec
 
@@ -933,6 +987,12 @@ The one written link from a code element or a test to the record it serves, hold
 Source: LiteSpec.
 
 Rejected: anchor and tag, which name the link by one of its forms.
+
+### Met
+
+The computed state of a requirement everything fulfilling it proves.
+
+Source: LiteSpec.
 
 ### Normative
 
@@ -1004,6 +1064,12 @@ Layer: Behavior.
 
 Source: LiteSpec.
 
+### Record Layer
+
+One of the four homes of records: Intent, Behavior, Implementation, or Proof.
+
+Source: LiteSpec.
+
 ### Record-Driven Delivery
 
 Delivery where approved records select work and define completion.
@@ -1022,9 +1088,9 @@ One page of exact values a reader looks up.
 
 Source: Diataxis.
 
-### Requirement Page
+### Risk Tier
 
-One business-intent page carrying requirement entries.
+The risk class of a record: tier 1 when the record carries risk, tier 3 when it carries none.
 
 Source: LiteSpec.
 
@@ -1114,9 +1180,9 @@ One provider processing personal data for the product.
 
 Source: the GDPR.
 
-### Topic
+### Tested
 
-One page owning provisions for one subject.
+A passing test carrying an assertion.
 
 Source: LiteSpec.
 
@@ -1134,13 +1200,13 @@ Source: LiteSpec.
 
 ### Verified
 
-The computed state of a use case every scenario proves, or of a requirement everything fulfilling it proves.
+The computed state of a use case every scenario proves.
 
 Source: LiteSpec.
 
 ### Veto Window
 
-The days after decideBy in which a tier-3 recommendation auto-approves unless vetoed.
+The days after decideBy in which a tier-3 recommendation auto-approves.
 
 Source: LiteSpec.
 

@@ -20,13 +20,13 @@ An extension is a conditional standards bundle a project selects when its criter
 
 Guidance overlaps by design: a project deviation narrows a shared provision, an extension replaces a baseline default, and a stack page refines its area page. The precedence order decides which one wins: the project deviation first, then the extension, then the deeper page, then the shallower page. A deeper page is one that sits further down the documentation tree, such as a stack page under its area page. The most local approved decision wins, and the broader baseline fills only the gaps it leaves.
 
-### Founder Decisions and Agent Drafts
+### Decider Decisions and Agent Drafts
 
-Agents write every page below the founder's decisions: the founder decides Intent, and agents draft the records that carry those decisions down through Behavior. The Specify translation rule forbids agents from deciding commercial and market figures on their own: a price, fee, rate, term, market, payer, personal-data retention period, observable freshness, or tenant, market, or date dependent default or figure. Each of those stays a draft question with a decider and a date. The [Intent page](intent.md) states the Specify boundary.
+Agents write every page below the decider's decisions: the decider decides Intent, and agents draft the records that carry those decisions down through Behavior. The Specify translation rule forbids agents from deciding the figures the decider sets on their own; the [model page](model.md) holds the one list of those figures. Each of those stays a draft question with a decider and a date. The [Intent page](intent.md) states the Specify boundary.
 
 ### Ballots and Questions
 
-A ballot groups open questions for one decision, by decision identifier or short topic slug, each with a recommended answer. Tier-1 questions need explicit approval, while tier-3 questions with a recommendation auto-approve after the veto window the project record sets. A draft past its date that cannot auto-approve is reported as a known gap with its owner, so nothing silently blocks.
+A ballot groups open questions for one decision, by decision identifier or short topic slug, each with a recommendation. The [model page](model.md) states the one question lifecycle: which questions auto-approve and how an aged question is reported (`litespec/core/model#answer-each-question-on-its-record`).
 
 ### Transcription Mode
 
@@ -40,15 +40,15 @@ Some changes reach beyond an ordinary implementation edit: they alter project bo
 
 A running project takes new intent through this one sequence. Other pages link to this sequence instead of stating their own order.
 
-1. Scaffold Intent. Load the records the change touches with `dotnet litespec model query <id>`, add the requirement and the journey step, and open a ballot for every undecided figure, such as a price, a term, a retention period, or a date-dependent default. A tier 1 question waits for its named approver, and a tier 3 question with a recommendation auto-approves after the veto window.
+1. Scaffold Intent. Load the records the change touches with `dotnet litespec model query <id>`, add the requirement and the journey step, and open a ballot for every undecided figure, such as a price, a term, a retention period, or a date-dependent default. A question on a tier 1 record waits for its named decider, and a question with a recommendation follows the auto-approval rule the [model page](model.md) states (`litespec/core/model#answer-each-question-on-its-record`).
 2. Specify Behavior. Scaffold the use case, its results, and its scenarios with `dotnet litespec new <type> <id>`, `dotnet litespec new result <use-case-id> <name>`, and `dotnet litespec new scenario <use-case-id> <name>`, naming the rules, access, aggregates, consistency, and effects the use case carries.
 3. Validate the records. Run `dotnet litespec consumer` and fix every finding before code moves.
 4. Choose patterns and scaffold screens. Build the pattern Default and record it with `source: recommended`, and wait for an owner only when the route departs from the Default or no Default exists. Scaffold each screen with `dotnet litespec new screen <entry-point>.<name>`.
 5. Implement. Build the Domain change, the handler, the endpoint, the persistence, and the frontend, in that layer order, with `dotnet build` for the backend code. Approval gate: approval lands before this step adds a package, a schema migration, an authentication change, a public API change, production data work, a release, spending, or an outside call that changes state.
 6. Write proofs from Then. Write one test for each scenario through the public boundary, taking every expected value only from the scenario Then. Refusals and calculations also run against the example rows held back from the agent that wrote the code, and the suites in the next step run the proofs.
 7. Run the gates and the model commands in order. Run the boundary-selected gates and the test suites first, then `dotnet litespec model build`, then `dotnet litespec model check`, then `dotnet litespec model render`.
-8. Diff, clear, and batch-approve. Run `dotnet litespec model diff <base> --intent` for the founder review and `dotnet litespec model diff <base> --behavior` for the developer review and the security queue, where `<base>` in a consumer is the consumer default branch, such as `main`, unless it names a consumer folder or another git revision the review names. Clear the security queue, answer the ballots, then approve with `dotnet litespec model review` and `dotnet litespec model approve --batch <selector>`. Batch approval before a final test run is draft review only: the release gate re-reads `verified` after that final run.
-9. Write the release record. Create the release record for the immutable artifact and pass the release gate: green G checks, every tier 1 draft answered, every scenario verified, and green S checks where the reader is qualified.
+8. Diff, clear, and batch-approve. Run `dotnet litespec model diff <base> --intent` for the decider review and `dotnet litespec model diff <base> --behavior` for the developer review and the security queue, where `<base>` in a consumer is the consumer default branch, such as `main`, unless it names a consumer folder or another git revision the review names. Clear the security queue, answer the ballots, then approve with `dotnet litespec model review` and `dotnet litespec model approve --batch <selector>`. Batch approval before a final test run is draft review only: the release gate re-reads `verified` after that final run.
+9. Write the release record. Create the release record for the immutable artifact and pass the release gate: green check level G checks, every tier 1 draft answered, every scenario verified, and green check level S checks where the reader is qualified.
 
 ## Standards
 
@@ -176,9 +176,9 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **ID:** `litespec/core/agent#write-pages-below-decided-intent`
 
-**Statement:** An agent MUST write every page below the founder's decisions.
+**Statement:** An agent MUST write every page below the decider's decisions.
 
-**Rationale:** The founder decides Intent, and everything below those decisions is drafting: Behavior records, code, and tests that carry the decisions down. An agent that invents promises writes commitments nobody approved, while an agent that waits for dictation wastes the review the founder gives to drafts. Writing below decided Intent keeps authorship with the agent and decisions with the founder.
+**Rationale:** The decider decides Intent, and everything below those decisions is drafting: Behavior records, code, and tests that carry the decisions down. An agent that invents promises writes commitments nobody approved, while an agent that waits for dictation wastes the review the decider gives to drafts. Writing below decided Intent keeps authorship with the agent and decisions with the decider.
 
 **Example:** Given an approved requirement for expense reimbursement, an agent drafts the use case, its scenarios, and the handler without asking what the promise means.
 
@@ -188,25 +188,25 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **ID:** `litespec/core/agent#escalate-decisions-that-specify-forbids`
 
-**Statement:** An agent MUST NOT decide a price, fee, rate, term, market, payer, personal-data retention period, observable freshness, or tenant, market, or date dependent default or figure.
+**Statement:** An agent MUST NOT decide a figure the decider sets.
 
-**Rationale:** The Specify translation rule reserves commercial and market figures for Intent, because each one binds the product to buyers, markets, or law. An agent that picks a figure silently decides what only the founder approves. Each undecided figure becomes a draft question with a decider, a date, and a recommended answer.
+**Rationale:** The Specify translation rule reserves the figures the decider sets for Intent, because each one binds the product to buyers, markets, or law; the [model page](model.md) holds the one list of those figures. An agent that picks a figure silently decides what only the decider approves. Each undecided figure becomes a draft question with a decider, a date, and a recommendation.
 
-**Example:** A setting needs a default queue cap; the agent drafts the question with a recommended value instead of writing the default into the record.
+**Example:** A setting needs a default queue cap; the agent drafts the question with a recommendation instead of writing the default into the record.
 
-**Reviewed for:** Each commercial or market figure the change needs sits in a draft question, not in an agent-written decision.
+**Reviewed for:** Each figure the decider sets that the change needs sits in a draft question, not in an agent-written decision.
 
 ### Raise Questions in Ballots with Recommendations
 
 **ID:** `litespec/core/agent#raise-questions-in-ballots-with-recommendations`
 
-**Statement:** An agent MUST raise each open question in a ballot with a recommended answer.
+**Statement:** An agent MUST raise each open question in a ballot with a recommendation.
 
-**Rationale:** A question without a recommendation asks the founder to research from nothing, while a recommendation gives a default to accept or correct. Grouping questions in ballots by decision or topic lets each decider answer one set at a time. Tier-1 questions wait for explicit approval, and tier-3 questions auto-approve after the veto window, so the ballot carries both without blocking either.
+**Rationale:** A question without a recommendation asks the decider to research from nothing, while a recommendation gives a default to accept or correct. Grouping questions in ballots by decision or topic lets each decider answer one set at a time. The [model page](model.md) states which questions wait for explicit approval and which auto-approve (`litespec/core/model#answer-each-question-on-its-record`).
 
-**Example:** Two approval questions land in the "Approval terms" ballot, each with a recommended answer and a due date.
+**Example:** Two approval questions land in the "Approval terms" ballot, each with a recommendation and a due date.
 
-**Reviewed for:** Each open question sits in a ballot with a recommended answer.
+**Reviewed for:** Each open question sits in a ballot with a recommendation.
 
 ### Mark Transcribed Records During Adoption
 
@@ -226,7 +226,7 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **Statement:** An agent MUST report its findings as advice instead of recording approval or review.
 
-**Rationale:** Approval and review belong to people: the founder approves Intent, developers review Behavior, and the security reviewer clears tier-1 access and data. An agent that records approval spends authority it was never given. Advice with evidence lets each reviewer decide faster without moving the decision to the agent.
+**Rationale:** Approval and review belong to people: the decider approves Intent, developers review Behavior, and the security reviewer clears tier 1 access and data. An agent that records approval spends authority it was never given. Advice with evidence lets each reviewer decide faster without moving the decision to the agent.
 
 **Reviewed for:** The agent output records findings as advice, with approval and review left to people.
 
@@ -282,4 +282,4 @@ A running project takes new intent through this one sequence. Other pages link t
 
 This informative example demonstrates `litespec/core/agent#select-task-context`, `litespec/core/agent#load-applicable-extensions`, `litespec/core/agent#raise-questions-in-ballots-with-recommendations`, and `litespec/core/agent#inspect-local-examples-after-standards`.
 
-A command-handler change for `use-case/spending.submit-expense` queries the model for its use case, reads the generated agent context, and loads the selected extensions whose boundary the change touches. It then reads the neighboring handler for local names and shapes. Open figures go to a ballot with recommended answers. It leaves unrelated frontend and container guidance unread.
+A command-handler change for `use-case/spending.submit-expense` queries the model for its use case, reads the generated agent context, and loads the selected extensions whose boundary the change touches. It then reads the neighboring handler for local names and shapes. Open figures go to a ballot with recommendations. It leaves unrelated frontend and container guidance unread.

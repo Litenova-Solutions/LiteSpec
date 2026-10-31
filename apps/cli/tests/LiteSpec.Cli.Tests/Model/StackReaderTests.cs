@@ -10,8 +10,8 @@ public sealed class StackReaderTests
     /// <summary><c>model build</c> on the fixture prints the counts its contents hold.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Theory]
-    [InlineData("small", 72, 7, 0, 0)]
-    [InlineData("large", 93, 7, 1, 9)]
+    [InlineData("small", 73, 7, 0, 0)]
+    [InlineData("large", 94, 7, 1, 9)]
     public void Build_Prints_Fixture_Counts(string fixture, int records, int handlers, int screens, int scenarios)
     {
         using var temp = ModelFixture.Prepare(fixture);
@@ -139,6 +139,51 @@ public sealed class StackReaderTests
         Assert.False(status.GetProperty("use-case/lending.return-copy").GetProperty("verified").GetBoolean());
     }
 
+    /// <summary>A Playwright result verifies the browser-only use case and exercises its journey step.</summary>
+    /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
+    [Fact]
+    public void Playwright_Results_Verify_The_Browser_Only_Use_Case()
+    {
+        using var temp = ModelFixture.Prepare("large");
+
+        File.WriteAllText(
+            Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "loans", "review-loans.md"),
+            ReviewLoansPage);
+        File.WriteAllText(
+            Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "loans", "review-loans-browser-scenario.md"),
+            ReviewLoansScenarioPage);
+        File.WriteAllText(
+            Path.Combine(temp.Path, "docs", "behavior", "screens", "library-app.loan-review.md"),
+            LoanReviewScreenPage);
+
+        var specsFolder = Path.Combine(temp.Path, "apps", "catalog", "tests");
+        Directory.CreateDirectory(specsFolder);
+        File.WriteAllText(Path.Combine(specsFolder, "loans.spec.ts"), LoansSpec);
+
+        var resultsFolder = Path.Combine(temp.Path, "TestResults");
+        Directory.CreateDirectory(resultsFolder);
+        File.Copy(Cli.Fixture("Model/junit/browser.xml"), Path.Combine(resultsFolder, "browser.xml"));
+
+        var output = Path.Combine(temp.Path, ".model", "model.json");
+        var built = Cli.Run("model", "build", "--root", temp.Path, "--out", output);
+        Assert.Equal(0, built.Status);
+
+        using var document = JsonDocument.Parse(File.ReadAllText(output));
+        var root = document.RootElement;
+        var run = root.GetProperty("testRun");
+
+        Assert.Equal(1, run.GetProperty("total").GetInt32());
+        Assert.Equal(1, run.GetProperty("passed").GetInt32());
+        Assert.Equal(0, run.GetProperty("failed").GetInt32());
+
+        var status = root.GetProperty("status");
+
+        Assert.True(status.GetProperty("use-case/lending.review-loans").GetProperty("verified").GetBoolean());
+        Assert.Contains(
+            "journey/borrow-and-return#s4",
+            root.GetProperty("exercisedSteps").EnumerateArray().Select(step => step.GetString()));
+    }
+
     const string BorrowScenarioPage = """
         ---
         {
@@ -215,5 +260,97 @@ public sealed class StackReaderTests
                 when => new ReturnCopySteps().ReturnACopy("loan-1"),
                 then => new ReturnCopySteps().TheLoanIsReturned());
         }
+        """;
+
+    const string ReviewLoansPage = """
+        ---
+        {
+          "type": "use-case",
+          "id": "use-case/lending.review-loans",
+          "title": "Review loans",
+          "owner": "lending-team",
+          "status": "reviewed",
+          "kind": "query",
+          "access": {
+            "auth": [
+              "session"
+            ],
+            "grant": "permission/read-loans",
+            "tenant": "own"
+          },
+          "reachedThrough": [
+            "entry-point/library-app"
+          ],
+          "serves": [
+            "journey/borrow-and-return#s4"
+          ],
+          "records": [
+            {
+              "type": "result",
+              "id": "result/review-loans.reviewed",
+              "title": "Reviewed",
+              "owner": "lending-team",
+              "outcome": "success",
+              "meaning": "The loans are listed."
+            }
+          ]
+        }
+        ---
+
+        # Review loans
+
+        A reader reviews their own loans.
+        """;
+
+    const string ReviewLoansScenarioPage = """
+        ---
+        {
+          "type": "scenario",
+          "id": "scenario/review-loans.reviewing-loans-succeeds",
+          "title": "Reviewing loans succeeds",
+          "owner": "lending-team",
+          "status": "reviewed",
+          "given": "Loans stand active on the reader.",
+          "when": "The reader reviews their loans.",
+          "result": "result/review-loans.reviewed",
+          "then": "The loans are listed."
+        }
+        ---
+
+        # Reviewing loans succeeds
+
+        A reader reviews their loans.
+        """;
+
+    const string LoanReviewScreenPage = """
+        ---
+        {
+          "type": "screen",
+          "id": "screen/library-app.loan-review",
+          "title": "Loan review",
+          "owner": "lending-team",
+          "status": "reviewed",
+          "entryPoint": "entry-point/library-app",
+          "address": "/loans",
+          "offers": ["use-case/lending.review-loans"]
+        }
+        ---
+
+        # Loan review
+
+        ## Summary
+
+        A reader reviews their loans.
+        """;
+
+    const string LoansSpec = """
+        import { test, expect } from '@playwright/test';
+
+        test.describe('loans list', () => {
+          test('lists the loans', proves("scenario/review-loans.reviewing-loans-succeeds"), async ({ page }) => {
+            await page.goto('/loans');
+            await expect(page.getByText('Loans')).toBeVisible();
+          });
+        });
         """;
 }

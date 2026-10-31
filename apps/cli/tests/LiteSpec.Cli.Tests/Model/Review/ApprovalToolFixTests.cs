@@ -3,7 +3,7 @@ using LiteSpec.Tests.Support;
 
 namespace LiteSpec.Tests.Model.Review;
 
-/// <summary>Proves the four approval tool fixes: screen layer, reaction and job scenario stamps, decision date, and transcribed reporting.</summary>
+/// <summary>Proves the approval tool fixes: screen layer, reaction and job scenario stamps, decision approval data, and transcribed reporting.</summary>
 /// <follows>litespec/core/release#approve-drafts-in-bounded-batches</follows>
 public sealed class ApprovalToolFixTests
 {
@@ -140,15 +140,14 @@ public sealed class ApprovalToolFixTests
         Assert.True(scenario["approvedHash"]!.GetValue<string>().Length == 8);
     }
 
-    /// <summary>Approving a decision writes decidedOn beside the chosen option it names.</summary>
+    /// <summary>Approving a decision writes approval data and no decidedOn.</summary>
     /// <proves>litespec/core/release#approve-drafts-in-bounded-batches</proves>
     [Fact]
-    public void Approve_Decision_Batch_Writes_DecidedOn()
+    public void Approve_Decision_Batch_Writes_Approval_Without_DecidedOn()
     {
         using var fixture = ModelFixture.Prepare("small");
 
         ReviewPages.DraftPage(LoanPeriod(fixture.Path));
-        ReviewPages.PatchPage(LoanPeriod(fixture.Path), front => front.Remove("decidedOn"));
 
         var result = Cli.Run(
             "model", "approve", "--root", fixture.Path,
@@ -159,11 +158,11 @@ public sealed class ApprovalToolFixTests
         var (front, _) = ReviewPages.Read(LoanPeriod(fixture.Path));
 
         Assert.Equal("approved", front["status"]!.GetValue<string>());
-        Assert.Equal("2026-11-20", front["decidedOn"]!.GetValue<string>());
-        Assert.Equal("21 days", front["chosen"]!.GetValue<string>());
+        Assert.Equal("21 days", front["choice"]!.GetValue<string>());
         Assert.Equal("lending-team", front["approvedBy"]!.GetValue<string>());
         Assert.Equal("2026-11-20", front["approvedOn"]!.GetValue<string>());
         Assert.True(front["approvedHash"]!.GetValue<string>().Length == 8);
+        Assert.False(front.ContainsKey("decidedOn"));
     }
 
     /// <summary>Transcribed-reviewed fires only while the Intent parent it rests on is unapproved.</summary>
@@ -213,34 +212,30 @@ public sealed class ApprovalToolFixTests
     {
         using var temp = Cli.Temp("review");
         var config = LiteSpec.Tests.Model.Checks.TestModel.Config(temp.Path);
-        var faster = LiteSpec.Tests.Model.Checks.TestModel.Record("journey", "journey/borrow-and-return", Path.Combine(temp.Path, "borrow.md"), """{"serves": ["goal/faster-pickup"], "aim": "Borrow a copy."}""");
-        var wider = LiteSpec.Tests.Model.Checks.TestModel.Record("journey", "journey/join-the-library", Path.Combine(temp.Path, "join.md"), """{"serves": ["goal/more-readers"], "aim": "Join the library."}""");
+        var faster = LiteSpec.Tests.Model.Checks.TestModel.Record("journey", "journey/borrow-and-return", Path.Combine(temp.Path, "borrow.md"), """{"serves": ["goal/faster-pickup"]}""");
+        var wider = LiteSpec.Tests.Model.Checks.TestModel.Record("journey", "journey/join-the-library", Path.Combine(temp.Path, "join.md"), """{"serves": ["goal/more-readers"]}""");
         var model = LiteSpec.Tests.Model.Checks.TestModel.Model(config, faster, wider);
 
         Assert.Equal("faster-pickup", LiteSpec.Model.ReviewQueue.ModuleOf(model, faster));
         Assert.Equal("more-readers", LiteSpec.Model.ReviewQueue.ModuleOf(model, wider));
     }
 
-    /// <summary>A decision that names no chosen option is not decided, so its batch is refused.</summary>
-    /// <proves>litespec/core/intent#record-each-choice-as-a-decision</proves>
+    /// <summary>A decision that names no choice is not decided, so its batch is refused.</summary>
+    /// <proves>litespec/core/intent#shape-each-decision-page</proves>
     [Fact]
-    public void Approve_Decision_Without_Chosen_Is_Refused()
+    public void Approve_Decision_Without_Choice_Is_Refused()
     {
         using var fixture = ModelFixture.Prepare("small");
 
         ReviewPages.DraftPage(LoanPeriod(fixture.Path));
-        ReviewPages.PatchPage(LoanPeriod(fixture.Path), front =>
-        {
-            front.Remove("decidedOn");
-            front.Remove("chosen");
-        });
+        ReviewPages.PatchPage(LoanPeriod(fixture.Path), front => front.Remove("choice"));
 
         var result = Cli.Run(
             "model", "approve", "--root", fixture.Path,
             "--batch", "decision/decision/0001-loan-period", "--by", "lending-team", "--on", "2026-11-20");
 
         Assert.Equal(1, result.Status);
-        Assert.Contains("names no chosen option", result.Output, StringComparison.Ordinal);
+        Assert.Contains("names no choice", result.Output, StringComparison.Ordinal);
         Assert.Equal("draft", ReviewPages.Read(LoanPeriod(fixture.Path)).Front["status"]!.GetValue<string>());
     }
 

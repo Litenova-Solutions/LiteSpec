@@ -25,6 +25,8 @@ public sealed class PartialBatchTests
                 ["question"] = question,
                 ["decider"] = "lending-team",
                 ["decideBy"] = "2027-06-01",
+                ["ballot"] = "extension-approval",
+                ["recommendation"] = "Approve the extension as written.",
             }));
 
     static JsonObject ManifestJson(string root) =>

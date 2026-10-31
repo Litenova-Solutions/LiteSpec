@@ -1,0 +1,59 @@
+
+<section class="slide" data-layer="review">
+  <div class="eyebrow">Review &middot; proposal</div>
+  <h2>A Simpler Intent Hierarchy, Shown with Lantern</h2>
+  <p class="sub">Keep all eleven record types: each answers a distinct question. Change where requirements hang and how they name their reasons, and fix four names. A proposal for discussion, not the current standard.</p>
+  <div class="content">
+  <div class="row r2">
+  <div style="display:flex;flex-direction:column;gap:8px">
+    <div class="card"><p class="t">Today</p><pre class="fm" style="font-size:11.5px;border:0;padding:4px 0;background:transparent">product/lantern
+├─ goal ── journey <span class="c">(serves)</span>
+├─ problem ── feature <span class="c">(solves)</span>
+│            └─ requirement <span class="c">(features[0], else</span>
+│                <span class="c">basedOn[0], else a deciding decision)</span>
+├─ constraint, research, decision, actor, term
+└─ requirement page: <span class="c">a container, not a record</span></pre></div>
+    <div class="card intent"><p class="t">Proposed</p><pre class="fm" style="font-size:11.5px;border:0;padding:4px 0;background:transparent">product/lantern
+├─ goal ── journey <span class="c">(serves)</span>
+├─ problem ── feature <span class="c">(solves)</span>
+├─ topic booking.checkout ── requirement <span class="c">(contained)</span>
+│     basedOn: <span class="c">any reason: goal, problem, feature,</span>
+│              <span class="c">constraint, research, decision</span>
+├─ constraint, research, decision, actor, term</pre></div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:8px">
+    <table class="tight">
+      <thead><tr><th>Change</th><th>Why</th><th>Findings</th></tr></thead>
+      <tbody>
+        <tr><td>Topic page is the parent of its requirements, like an aggregate holds its rules</td><td>Authors already write by page; the identifier <code>requirement/booking.x</code> already names it</td><td>16, 13</td></tr>
+        <tr><td>One <code>basedOn</code> list of reasons, goals allowed</td><td>No precedence rule; goal to requirement becomes possible</td><td>37</td></tr>
+        <tr><td>Reasons checked as coverage, blocking for tier 1</td><td>Scale traceability to risk</td><td>16</td></tr>
+        <tr><td>Only Behavior fulfils a requirement</td><td>A journey cannot complete its own promise</td><td>15</td></tr>
+        <tr><td>What It Requires is generated; an applying constraint must be cited</td><td>The answer is written once and checked</td><td>36</td></tr>
+        <tr><td>Rename <code>business</code> to <code>policy</code></td><td>Standard meaning of business requirement</td><td>35</td></tr>
+        <tr><td>One container suffix; one word for area and topic</td><td>Matches <code>setting-set</code>, <code>rule-set</code></td><td>49</td></tr>
+        <tr><td>Drop Refusals, system journeys and <code>aim</code></td><td>Each duplicates another record or field</td><td>40, 41, 47</td></tr>
+      </tbody>
+    </table>
+    <p class="small">For Lantern the change is small: <code>docs/intent/booking/checkout.md</code> becomes a record with an identifier; its six entries keep their identifiers; <code>features</code> on each entry moves into <code>basedOn</code>.</p>
+  </div>
+  </div>
+  </div>
+</section>
+
+<section class="slide" data-layer="review">
+  <div class="eyebrow">Review</div>
+  <h2>Recommendations for the Intent Layer</h2>
+  <p class="sub">Ordered by what unblocks the most. Each step removes a class of findings rather than one finding.</p>
+  <div class="content">
+  <div class="row r3">
+    <div class="card red"><p class="t">1. Fix the two defects Lantern exposed</p><p class="d">Draft glossary terms always fail <code>draft-without-decider</code>; a journey alone clears <code>requirement-unfulfilled</code>. Both are small code changes with a test. Findings 14, 15.</p></div>
+    <div class="card red"><p class="t">2. Close the mechanism gaps</p><p class="d">Implement or demote: parent-changed flagging, aged questions becoming known gaps, the statement-number rule of <code>requirement-unmeasured</code>. Findings 1, 6, 10.</p></div>
+    <div class="card red"><p class="t">3. Settle the question lifecycle</p><p class="d">Required fields (ballot; recommended on tier 3), a question status, the answer step, the veto, and whether records ever auto-approve. Findings 2, 4, 5, 7, 23, 24.</p></div>
+    <div class="card amber"><p class="t">4. Simplify the hierarchy</p><p class="d">The proposal on the previous slide: topic as parent, one list of reasons, generated constraint answers, four renames. Findings 16, 35 to 41, 47, 49.</p></div>
+    <div class="card amber"><p class="t">5. Explain before prescribing</p><p class="d">Add the questions table and the write-when and skip-when notes to <code>intent.md</code>; define decider, record layer, risk class and check tier in the glossary. Findings 12, 19, 31, 38.</p></div>
+    <div class="card blue"><p class="t">6. Make schema, template and page agree</p><p class="d">Validate templates in CI; document the quality fields; one approval date on decisions; owner and status on requirement pages; approve decisions 0001 to 0009. Findings 3, 11, 17, 33, 46.</p></div>
+  </div>
+  <div class="card"><p class="t">Method and limits</p><p class="d">Read on 30 October 2026: <code>docs/core/intent.md</code>, <code>layers.md</code>, <code>model.md</code>, the schemas, the Intent templates, <code>docs/intent/</code>, and the checker code for every cited finding code. The Lantern example was written as a consumer project and run through <code>litespec consumer</code> (PASS) and <code>litespec model check</code> (27 findings) with the CLI built from branch <code>v3</code>. The outside comparison used GitHub Spec Kit, OpenSpec, Kiro, the opportunity solution tree, impact mapping, ISO/IEC/IEEE 29148 and Volere. Lantern's names, figures and laws are invented for teaching.</p></div>
+  </div>
+</section>

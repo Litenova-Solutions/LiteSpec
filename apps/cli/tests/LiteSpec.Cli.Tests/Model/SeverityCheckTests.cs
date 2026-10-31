@@ -1,10 +1,11 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using LiteSpec.Model;
 using LiteSpec.Tests.Support;
 
 namespace LiteSpec.Tests.Model;
 
-/// <summary>Proves check findings follow the record status and the project phase.</summary>
+/// <summary>Proves check findings follow the record's own status and the project phase.</summary>
 public sealed class SeverityCheckTests
 {
     /// <summary>An S finding on a draft use case reports with draft and exits 0.</summary>
@@ -53,7 +54,7 @@ public sealed class SeverityCheckTests
     }
 
     /// <summary>An S finding no reader produced blocks under a project with only web stacks.</summary>
-    /// <proves>litespec/core/model#mark-every-check-with-its-tier</proves>
+    /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
     [Fact]
     public void Record_Finding_Under_Only_Web_Stacks_Blocks()
     {
@@ -66,6 +67,19 @@ public sealed class SeverityCheckTests
         Assert.Equal(1, json.Status);
         Assert.Equal("blocking", outcome);
         Assert.Null(reason);
+    }
+
+    /// <summary>Every code a known gap may name has a tier, so an unknown code fails the build.</summary>
+    /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
+    [Fact]
+    public void Every_Checker_Code_Has_A_Tier()
+    {
+        var missing = Checker.Codes
+            .Where(code => !Finding.Tiers.ContainsKey(code))
+            .OrderBy(code => code, StringComparer.Ordinal)
+            .ToList();
+
+        Assert.Empty(missing);
     }
 
     /// <summary>

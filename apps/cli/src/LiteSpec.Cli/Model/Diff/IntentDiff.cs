@@ -109,7 +109,7 @@ sealed class IntentDiff
     /// <summary>The family a record type belongs to.</summary>
     public static string FamilyOf(string type) => type switch
     {
-        "product" or "goal" or "problem" or "feature" or "constraint"
+        "product" or "goal" or "problem" or "feature" or "topic" or "constraint"
             or "research" or "decision" or "requirement" or "journey" => "goals-requirements",
         "module" or "aggregate" or "rule" or "event" or "integration-event" or "use-case"
             or "result" or "scenario" or "reaction" or "job" or "notification" or "setting" => "domain",
@@ -131,7 +131,7 @@ sealed class IntentDiff
     /// </summary>
     public static string ViewOf(Record record) => record.Type switch
     {
-        "product" or "goal" or "problem" or "feature" or "requirement"
+        "product" or "goal" or "problem" or "feature" or "topic" or "requirement"
             or "constraint" or "decision" or "research" or "journey" or "actor" => "intent",
         "module" or "aggregate" or "rule" or "event" or "integration-event" or "use-case"
             or "result" or "scenario" or "reaction" or "job" or "notification" or "setting"

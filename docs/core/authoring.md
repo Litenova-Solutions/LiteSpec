@@ -2,7 +2,7 @@
 
 ## Intent
 
-Every page in LiteSpec and in a project built with it shares one shape: a fixed page style, testable rules called provisions, stable identifiers for those rules, and a table naming the evidence each rule needs. This page states that shape, the few prose rules the validators enforce, and how each release carries the complete contract. One shared shape lets readers learn pages once and lets validators check every page the same way.
+Every page in LiteSpec and in a project built with it shares one shape: a fixed page style, testable rules called provisions, stable identifiers for those rules, and a table naming the evidence each rule needs. This page states that shape, the prose rules for LiteSpec pages that the validators enforce, and how each release carries the complete contract, while the [Record Language](language.md) page states the grammar for everything a project writes. One shared shape lets readers learn pages once and lets validators check every page the same way.
 
 ## Concepts
 
@@ -13,6 +13,8 @@ Standards state required boundaries, and Conventions state replaceable defaults.
 `AGENTS.md` and a consumer's project agents file project the provisions an agent needs for that workspace. A projection cites the provision it projects and adds no obligation of its own. When a projection and its provision disagree, the provision wins.
 
 `CONTRIBUTING.md` owns the contribution workflow. `CHANGELOG.md` describes the current release.
+
+The [Record Language](language.md) page owns the grammar for everything a project writes: field names, values, record names, finding codes, and tool names.
 
 ### Documentation Layers
 
@@ -57,7 +59,7 @@ A consumer page is a record or one of these styles. Each one opens with the spec
 | constraint | `templates/consumer/constraint.md` | Summary, What It Requires |
 | research | `templates/consumer/research.md` | Answer, optional Notes on Sources |
 | decision | `templates/consumer/decision.md` | Context, Decision, Consequences, optional Evidence with Confidence |
-| requirement-page | `templates/consumer/requirement-page.md` | Summary, The Situation, What We Do, Why It Is Better, Example, Costs and Risks, How Sure We Are, Position, Refusals |
+| topic | `templates/consumer/topic.md` | Summary, The Situation, What We Do, Why It Is Better, Example, Costs and Risks, How Sure We Are, Position |
 | journey | `templates/consumer/journey.md` | Example, optional Before It Starts, Between the Steps |
 | module | `templates/consumer/module.md` | optional Example, optional Known Limits, optional Notes |
 | aggregate | `templates/consumer/aggregate.md` | Transitions, Data, optional Example, optional Known Limits, optional Notes |
@@ -165,7 +167,7 @@ The heading carries no identifier text. A renamed heading renames the ID, so the
 
 ### Record Identifiers
 
-A consumer record identifier is `type/home.name` in kebab-case: the type names the record kind, and `home.name` names the module or set that owns it. The [model page](model.md) states the form each type uses, and the [identifier page](../backend/identifiers.md) states the name rules, the checks, and how citations resolve.
+A consumer record identifier is `type/home.name` in kebab-case: the type names the record kind, and `home.name` names the module or set that owns it. The [model page](model.md) states the form each type uses, and the [identifier page](../backend/identifiers.md) states the name rules, the checks, and how citations resolve. The [Record Language](language.md) page states the name form each record type uses.
 
 ### Provision Layout
 

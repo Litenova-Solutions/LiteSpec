@@ -42,7 +42,7 @@ Aggregate transitions and data, and scenario examples, may be written as Markdow
 The eight subcommands share one reader:
 
 - `build` writes `model.json` under `.model/` in the consumer root, unless `--out` names another file. That folder holds generated output, and the consumer ignores it in Git. The file carries the build's check result as `findings` and `known`.
-- `check` builds the model in memory and reports every finding with its tier, code, message, path, and line. With `--staged` it reports only the findings in the staged scope: the records on pages changed in the git index, their direct links in both directions, and the records staged code implements. A finding is in scope when its path is staged or its subject is. Outside a git repository, or when git is unavailable, `--staged` exits 2.
+- `check` builds the model in memory and reports every finding with its level, code, message, path, and line. With `--staged` it reports only the findings in the staged scope: the records on pages changed in the git index, their direct links in both directions, and the records staged code implements. A finding is in scope when its path is staged or its subject is. Outside a git repository, or when git is unavailable, `--staged` exits 2.
 - `render` rewrites the fenced generated regions and touches no text outside them.
 - `query` prints one record with its links in both directions. Agents use it to load a record's context.
 - `names` prints the per-module names inventory: the verbs in use with counts, the nouns after the verb, reaction facts, events, refusal codes, notification template keys, and setting names, with the lookalike groups. Agents read it without rendering the book.
@@ -74,23 +74,25 @@ Every reason except `refusal-path-added` fires only on approved or reviewed reco
 
 A finding that an open known gap covers is reported as known and exits zero. The gap covers the finding when its `check` equals the finding code, its `subject` lists the finding's subject, the gap is not retired, and its end date has not passed. A gap on a use case also covers the findings about the scenarios and results it holds. An expired known gap fails the check.
 
-Every check has a tier. G reads records only and always blocks. S reads code through a stack reader: it blocks where the reader that produced the finding is qualified, and reports otherwise. Qualification is per reader: a reader qualifies when its handshake matches; the golden corpus is a test contract for the reader bundle and does not gate a consumer run. The .NET (Roslyn) reader, including Blazor and Android screens, stays qualified. A finding no reader produced, a record finding, is qualified. A is advisory: it reports and never blocks. An S finding about a draft record reports without blocking and prints `draft`, and while `check.phase` is `frozen` a proof finding reports without blocking and prints `frozen`. A structural parent is any link or containment the Parents table and the Identifiers table on the [model page](../core/model.md) name as a record's parent (requirement origin, feature `solves`, journey `serves`, scenario `result`, identifier containment, `entryPoint`); a missing structural parent is tier G for every record, drafts included. Every other required link is coverage: tier A for a tier 3 record and tier G for a tier 1 record. The finding codes are:
+Every check has a level. G reads records only and always blocks. S reads code through a stack reader: it blocks where the reader that produced the finding is qualified, and reports otherwise. Qualification is per reader: a reader qualifies when its handshake matches; the golden corpus is a test contract for the reader bundle and does not gate a consumer run. The .NET (Roslyn) reader, including Blazor and Android screens, stays qualified. A finding no reader produced, a record finding, is qualified. A is advisory: it reports and never blocks. An S finding about a draft record reports without blocking and prints `draft`, and while `check.phase` is `frozen` a proof finding reports without blocking and prints `frozen`. A structural parent is any link or containment the Parents table and the Identifiers table on the [model page](../core/model.md) name as a record's parent (topic containment for a requirement, feature `solves`, journey `serves`, scenario `result`, screen `entryPoint`, and identifier containment); a missing structural parent is level G for every record, drafts included. Every other required link is coverage: level A for a tier 3 record and level G for a tier 1 record. The finding codes are:
 
-| Code | Tier | Meaning |
+| Code | Level | Meaning |
 |:---|:---|:---|
 | `record-shape` | G | A record fails the shape its type requires. |
-| `identifier-form` | G | An identifier breaks the form its type requires. |
+| `identifier-form` | G | An identifier breaks the form its type requires, or a requirement topic segment differs from its page name. |
 | `identifier-duplicate` | G | One identifier names two records. |
 | `invalid-field` | G | A field holds a value outside its shape, or a record other than a decision carries `replaces`. |
 | `reference-unresolved` | G | A citation names no written record or shared provision of the installed release. |
 | `link-unresolved` | G | A Markdown link on a record page resolves to no file. |
 | `owner-unknown` | G | A record names an owner or decider the owners list does not hold, or an owner no team owning its path claims. |
-| `draft-without-decider` | G | A draft names no decider or no decide-by date. |
+| `draft-without-decider` | G | A draft or a question entry names no decider or no decide-by date. |
 | `draft-gate` | G | An approved record rests on a draft decision. |
 | `product-not-singleton` | G | The project holds no single product record. |
 | `size-type-missing` | G | The size requires a type the project lacks. |
-| `requirement-unfulfilled` | G | A requirement is fulfilled by no rule, use case or journey, and a quality requirement also by no technical decision naming it in `basedOn`. |
-| `requirement-unmeasured` | G | A measured requirement names no check, or its check has no passing run. |
+| `requirement-unfulfilled` | G | A requirement is fulfilled by no rule, use case, reaction, job, notification or setting, unless it cites a planned, later or refused feature; a quality requirement is also fulfilled by a technical decision naming it in `basedOn`. |
+| `requirement-unmeasured` | G (A for a statement naming a number with no `measure`) | A measured requirement names no check, or its check has no passing run; a statement naming a number with no `measure` reports at level A. |
+| `requirement-uncited` | A (G for tier 1) | A requirement cites no goal, problem, feature, constraint, research or decision. |
+| `constraint-uncited` | G | A constraint with `applies: true` is cited by no requirement. |
 | `decision-decides-nothing` | G | A product decision names nothing it decides. |
 | `journey-reach` | G | A public use case sits in no journey and names no background caller. It runs at large size only. |
 | `state-unreachable` | G | A state is reached by no transition. |
@@ -117,7 +119,7 @@ Every check has a tier. G reads records only and always blocks. S reads code thr
 | `reaction-trigger-unresolved` | G | A reaction names a trigger no domain event or integration event carries. |
 | `erasure-undeclared` | G | A personal or sensitive field stands outside a declared erasure position. |
 | `record-orphaned` | G | A Behavior record names neither `serves` nor `fulfills`. |
-| `record-without-parent` | G | A requirement names no feature, basedOn or deciding decision, a feature solves no problem, a journey serves no goal, a scenario names no result, a screen names no entryPoint, or a rule, event, or module-homed record names an identifier home no record holds. |
+| `record-without-parent` | G | A requirement topic names no topic record, a feature solves no problem, a journey serves no goal, a scenario names no result, a screen names no entryPoint, or a rule, event, or module-homed record names an identifier home no record holds. |
 | `feature-without-goal` | A (G for tier 1) | A feature that is not refused advances no goal. |
 | `result-without-scenario` | A (G for success results) | A written result is shown by no scenario. |
 | `step-unserved` | G | A journey step is served by no use case or reaction. Its pair `step-unscreened` names a step a browser or device use case serves that no screen serves. |
@@ -134,6 +136,7 @@ Every check has a tier. G reads records only and always blocks. S reads code thr
 | `notification-without-sender` | G | A notification is sent by no reaction or use case. |
 | `except-without-fallback` | G | An `except` names no fallback requirement, or the fallback carries its own `except`. |
 | `approval-reopened` | G | A semantic hash differs from the recorded `approvedHash`. |
+| `parent-changed` | A (G once approved) | A record cites, fulfills or serves a record whose semantic hash changed after the record was last approved. |
 | `transcribed-reviewed` | G | A transcribed record is reviewed while its parent is unapproved. |
 | `transcribed-after-adoption` | G | A transcribed record remains after the adoption decision is approved. |
 | `operator-job-without-guard` | G | An operator job states no `guard`. |
@@ -174,7 +177,7 @@ Every check has a tier. G reads records only and always blocks. S reads code thr
 | `effect-undeclared` | S | The code takes an edge no record declares, naming a one-hop helper as `via 'Type.Method'`. |
 | `prose-missing` | A | A use case needing Goal and What Happens prose carries none. |
 | `many-aggregates` | A | One command saves more than one atomic write group. |
-| `question-aged` | A | A question stands past its `decideBy` date. |
+| `question-aged` | A | An unanswered question stands past its `decideBy` date and cannot auto-approve. |
 | `use-case-verb-method` | A | A command handler calls aggregate methods, none starting with the use-case verb. |
 | `event-tense-mismatch` | A | An aggregate method raises an event not ending with the past tense of its verb. |
 | `name-drift-across-layers` | A | A message type, operation id or audit action differs from the use-case name. |
@@ -330,6 +333,6 @@ litespec model diff main --root ../consumer --format markdown --breaking-only --
 
 ## Underneath
 
-A web frontend is read by a TypeScript reader that ships with the tool as one bundled script: the tool runs it with Node once per build or check, sends one versioned JSON request on standard input, and reads one versioned JSON facts document back, so a consumer installs nothing beyond Node itself. The reader opens with a handshake naming the protocol version, the reader, and the TypeScript and Svelte versions; a version mismatch, an absent Node, or a reader failure produces the single `reader-unavailable` finding for that frontend instead of passing silently. A finding records the reader that produced its facts, and its tier takes that reader's qualification: a reader qualifies when its handshake matches; the golden corpus is a test contract for the reader bundle and does not gate a consumer run. The .NET (Roslyn) reader, which reads Blazor and Android frontends, stays qualified. A finding no reader produced, a record finding, is qualified.
+A web frontend is read by a TypeScript reader that ships with the tool as one bundled script: the tool runs it with Node once per build or check, sends one versioned JSON request on standard input, and reads one versioned JSON facts document back, so a consumer installs nothing beyond Node itself. The reader opens with a handshake naming the protocol version, the reader, and the TypeScript and Svelte versions; a version mismatch, an absent Node, or a reader failure produces the single `reader-unavailable` finding for that frontend instead of passing silently. A finding records the reader that produced its facts, and its level takes that reader's qualification: a reader qualifies when its handshake matches; the golden corpus is a test contract for the reader bundle and does not gate a consumer run. The .NET (Roslyn) reader, which reads Blazor and Android frontends, stays qualified. A finding no reader produced, a record finding, is qualified.
 
 The builder reads `paths`, `shape`, and `stacks` from the consumer's `litespec.project.json`. It reads shared provisions from the release the tool carries, the record owners from the CODEOWNERS file at `.github/CODEOWNERS`, `CODEOWNERS`, or `docs/CODEOWNERS`, and the test run from TRX or JUnit XML files under `paths.testResults`. A git diff base is read through an archive into a temporary folder, which is removed after the diff. Nothing beneath it is separately runnable.

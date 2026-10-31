@@ -10,27 +10,27 @@
   "options": [
     {
       "name": "One parent for every record",
-      "for": "Every serious tool stores the link on one side, computes the inverse, and enforces at most one parent, while identifier containment in the largest consumer already resolves everywhere it is used.",
-      "against": "Authors must write the missing origins, and the book must stop inventing groupings where no parent exists yet."
+      "pros": "Every serious tool stores the link on one side, computes the inverse, and enforces at most one parent, while identifier containment in the largest consumer already resolves everywhere it is used.",
+      "cons": "Authors must write the missing origins, and the book must stop inventing groupings where no parent exists yet."
     },
     {
       "name": "Parents only below the requirements",
-      "for": "The checker is already dense there and every enforced check passes.",
-      "against": "It leaves the measured top gaps in place: most requirements name no origin, no check reads a feature goal or a journey goal, and the book invents Intent groupings."
+      "pros": "The checker is already dense there and every enforced check passes.",
+      "cons": "It leaves the measured top gaps in place: most requirements name no origin, no check reads a feature goal or a journey goal, and the book invents Intent groupings."
     },
     {
       "name": "Advisory parents at tier A",
-      "for": "Existing projects are not blocked on day one, and staged promotion matches the skeptic evidence on training and theatre.",
-      "against": "Regulated practice gates the chain rather than advising it, and a link rule the builder cannot check rots exactly as the skeptic sources describe."
+      "pros": "Existing projects are not blocked on day one, and staged promotion matches the skeptic evidence on training and theatre.",
+      "cons": "Regulated practice gates the chain rather than advising it, and a link rule the builder cannot check rots exactly as the skeptic sources describe."
     },
     {
       "name": "Down-pointing parent lists",
-      "for": "A goal or feature page reads top down without following reverse links.",
-      "against": "It breaks the one-written-parent rule every reviewed tool keeps, invites circular definitions, and contradicts the provision that a link lives on the record that points."
+      "pros": "A goal or feature page reads top down without following reverse links.",
+      "cons": "It breaks the one-written-parent rule every reviewed tool keeps, invites circular definitions, and contradicts the provision that a link lives on the record that points."
     }
   ],
-  "chosen": "One parent for every record",
-  "changeWhen": "A record type appears whose placement no identifier, link, or layer list can state.",
+  "choice": "One parent for every record",
+  "reopenedWhen": "A record type appears whose placement no identifier, link, or layer list can state.",
   "basedOn": [
     "research/behavior-containment-evidence",
     "research/intent-hierarchy-evidence",

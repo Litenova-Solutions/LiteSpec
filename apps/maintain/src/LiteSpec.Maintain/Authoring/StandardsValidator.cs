@@ -71,6 +71,8 @@ static partial class StandardsValidator
         "INDEX_CONTAINS_PROCEDURE",
         "INDEX_INTENT",
         "LINK_BROKEN",
+        "MANIFEST_ANALYZER_PIN",
+        "MANIFEST_ANALYZER_RULE",
         "MANIFEST_ANCHOR",
         "MANIFEST_DUPLICATE_PATH",
         "MANIFEST_JSON",
@@ -125,6 +127,7 @@ static partial class StandardsValidator
         "VERIFY_TEMPLATED_EVIDENCE",
 
         "TEMPLATE_INDEX_PATH",
+        "TEMPLATE_SCHEMA",
 
         "INDEX_MISSING_ROUTING",
         "LAYER_UNLISTED",
@@ -220,6 +223,7 @@ static partial class StandardsValidator
         CheckLinks(resolved, current, Add);
         var provisionsByPage = parsedPages.ToDictionary(page => page.Relative, page => page.Parsed.Provisions, StringComparer.Ordinal);
         CheckManifest(resolved, Add, activeIds, provisionsByPage);
+        CheckAnalyzerRelease(resolved, parsedPages, Add);
         CheckRecords(resolved, parsedPages, Add);
 
         // The provision index is derived. A stale page would send a reader to the wrong
@@ -251,6 +255,7 @@ static partial class StandardsValidator
         // it targets. A renamed template leaves a row pointing at nothing, and that row
         // reads exactly like a correct one. (litespec/core/principles#keep-one-authored-source)
         CheckTemplateIndex(resolved, Add);
+        CheckConsumerTemplates(resolved, Add);
 
         // A reader who cannot tell a tutorial from a reference opens both and trusts
         // neither, so the documentation root names each class before it links to one.

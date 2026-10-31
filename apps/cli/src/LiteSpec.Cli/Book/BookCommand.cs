@@ -396,11 +396,11 @@ static class BookCommand
                         ["q"] = new JsonObject
                         {
                             ["question"] = text,
-                            ["tier"] = BookModel.TierOf(question, entry),
+                            ["tier"] = BookModel.TierOf(entry),
                             ["decider"] = StringOrNull(StrProp(question, "decider")),
                             ["decideBy"] = StringOrNull(StrProp(question, "decideBy")),
                             ["ballot"] = StringOrNull(StrProp(question, "ballot")),
-                            ["recommended"] = StringOrNull(StrProp(question, "recommended")),
+                            ["recommendation"] = StringOrNull(StrProp(question, "recommendation")),
                         },
                     });
                 }

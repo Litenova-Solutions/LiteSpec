@@ -27,13 +27,13 @@ static class Approver
     ///     <c>approvedHash</c> and <c>source</c>), canonicalized and hashed to eight hex
     ///     characters. Page prose bodies and rendered consequences summaries never feed
     ///     the hash, so rewording prose reopens no approval. The semantic fields per
-    ///     record type include: product (boundary, neverDoes, audience); goal
+    ///     record type include: product (boundary, exclusions, addresses); goal
     ///     (statement, measure, target, dueBy); problem (affects, statement); feature
     ///     (lifecycle, refusedBecause, solves, advances, plannedFor); requirement (kind,
-    ///     statement, values, measure, dueBy, features, basedOn, except, setBy, risk);
+    ///     statement, rationale, values, measure, dueBy, cites, except, setBy, risk);
     ///     constraint (authority, kind, applies, appliesBecause); decision (options,
-    ///     changeWhen, decidedOn, chosen, decides); research (sources, question,
-    ///     conclusion); journey (actor, serves, aim, finishedWhen, steps, fulfills); actor (kind); term (term, meaning, layer, aliases); module
+    ///     reopenedWhen, choice, decides); research (sources, question,
+    ///     conclusion); topic (reviewBy); journey (actor, serves, cites, finishedWhen, steps); actor (kind); term (term, meaning, layer, aliases); module
     ///     (dependsOn); aggregate (kind, states, transitions, data, dataClasses, steps,
     ///     exits, finishedWhen, driver, cursor, owner); rule (kind, statement, governs,
     ///     refusal, releasedBy, frozenWhen, historyLink, computedBy); use-case (kind,
@@ -41,12 +41,12 @@ static class Approver
     ///     builtAsynchronously, changes, reads, consistency, effects, raises,
     ///     idempotency, audit, risk); result (outcome, code, meaning, recorded, codes);
     ///     scenario (given, when, then, result, examples); event (meaning, carries);
-    ///     integration-event (direction, eventType, source, subject, payload, audience,
+    ///     integration-event (direction, eventType, source, subject, payload, addresses,
     ///     trust, correlation, translates); reaction (on, if, issues, sends, forEach,
     ///     reads, fulfills, serves, idempotency, onFailure, onExhausted); job (kind,
     ///     schedule, scope, batchSize, lease, issues, reads, serviceLevel, evidence,
     ///     runbook, runsWhere, guard, cursor, fulfills, serves, onFailure,
-    ///     idempotency); notification (template, audience, channel, consent, frequency,
+    ///     idempotency); notification (template, addresses, channel, consent, frequency,
     ///     dedupKey, params, locale, suppressedWhen, claims, fulfills, sender); setting
     ///     (valueType, default, range, unit, setBy, atBound, secret, meaning, runbook,
     ///     fulfills, readBy); role (scope, allows); permission (meaning); entry-point (kind,
@@ -83,7 +83,9 @@ static class Approver
     }
 
     /// <summary>
-    ///     Stamps each record: approvedBy and approvedOn when missing, and approvedHash always.
+    ///     Stamps each record: a draft takes its layer status, reviewed for behavior
+    ///     and approved otherwise, and the approver, the date and the semantic hash
+    ///     are always written, so re-approval carries the new approver and date.
     ///     Returns the records stamped and the ids no written record holds.
     /// </summary>
     public static (IReadOnlyList<Record> Stamped, IReadOnlyList<string> Missing) Approve(
@@ -104,6 +106,8 @@ static class Approver
                 continue;
             }
 
+            var pageBefore = (node as JsonObject)?.DeepClone() as JsonObject;
+
             foreach (var record in group)
             {
                 if (Find(node, record.Id) is not JsonObject target)
@@ -112,19 +116,18 @@ static class Approver
                     continue;
                 }
 
-                if (target["approvedBy"] is null)
+                if (record.Status == "draft")
                 {
-                    target["approvedBy"] = by ?? record.Decider ?? record.Owner ?? "unknown";
+                    target["status"] = ReviewQueue.LayerOf(record) == "behavior" ? "reviewed" : "approved";
                 }
 
-                if (target["approvedOn"] is null)
-                {
-                    target["approvedOn"] = on;
-                }
-
-                target["approvedHash"] = StampedHash(record, target, on);
+                target["approvedBy"] = by ?? record.Decider ?? record.Owner ?? "unknown";
+                target["approvedOn"] = on;
+                target["approvedHash"] = SemanticHash(record);
                 stamped.Add(record);
             }
+
+            KeepInheritedStatus(pageBefore, node as JsonObject, group.Select(record => record.Id).ToHashSet(StringComparer.Ordinal));
 
             var serialized = node.ToJsonString(Write);
             File.WriteAllText(group.Key, json ? serialized + "\n" : head + serialized + tail);
@@ -132,61 +135,6 @@ static class Approver
 
         return (stamped, missing);
     }
-
-    /// <summary>
-    ///     The hash an approval writes: an approved decision records its decision date in
-    ///     decidedOn when the author wrote none, and the hash covers the fields as written.
-    /// </summary>
-    /// <follows>litespec/core/intent#record-each-choice-as-a-decision</follows>
-    static string StampedHash(Record record, JsonObject target, string on)
-    {
-        if (record.Type != "decision" || target["decidedOn"] is not null)
-        {
-            return SemanticHash(record);
-        }
-
-        target["decidedOn"] = on;
-
-        using var written = JsonDocument.Parse(target.ToJsonString());
-        return Checker.SemanticHash(written.RootElement);
-    }
-
-    /// <summary>
-    ///     The record fields as the stamp writes them: a decision with no decidedOn
-    ///     gains the approval date, so the hash covers the fields as written.
-    /// </summary>
-    public static JsonElement StampedRaw(Record record, string on)
-    {
-        if (record.Type != "decision"
-            || record.Raw.ValueKind != JsonValueKind.Object
-            || HasDecidedOn(record))
-        {
-            return record.Raw;
-        }
-
-        if (JsonNode.Parse(record.Raw.GetRawText()) is not JsonObject written)
-        {
-            return record.Raw;
-        }
-
-        written["decidedOn"] = on;
-
-        using var document = JsonDocument.Parse(written.ToJsonString());
-        return document.RootElement.Clone();
-    }
-
-    /// <summary>
-    ///     The hash the stamp writes for the record: a decision with no decidedOn
-    ///     gains the approval date first, so the manifest, the memory and the file agree.
-    /// </summary>
-    public static string StampedHashFor(Record record, string on) =>
-        Checker.SemanticHash(StampedRaw(record, on));
-
-    /// <summary>Whether the decision already carries its decision date.</summary>
-    static bool HasDecidedOn(Record record) =>
-        record.Raw.ValueKind == JsonValueKind.Object
-        && record.Raw.TryGetProperty("decidedOn", out var current)
-        && current.ValueKind is not (JsonValueKind.Null or JsonValueKind.Undefined);
 
     /// <summary>One batch stamp: the record with the status and approval it takes.</summary>
     /// <param name="Record">The record to stamp.</param>
@@ -226,9 +174,7 @@ static class Approver
                 target["status"] = stamp.Status;
                 target["approvedBy"] = stamp.By;
                 target["approvedOn"] = stamp.On;
-                target["approvedHash"] = stamp.Status == "approved"
-                    ? StampedHash(stamp.Record, target, stamp.On)
-                    : SemanticHash(stamp.Record);
+                target["approvedHash"] = SemanticHash(stamp.Record);
                 stamped.Add(stamp.Record);
             }
 

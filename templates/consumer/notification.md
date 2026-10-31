@@ -8,7 +8,7 @@
   "decider": "<owner>",
   "decideBy": "<YYYY-MM-DD>",
   "template": "<template key>",
-  "audience": ["actor/<name>"],
+  "addresses": ["actor/<name>"],
   "channel": ["<email|sms|push|webhook>"],
   "consent": "<The rule, such as SMS only with consent>",
   "frequency": "<once|per-attempt>",
@@ -30,9 +30,11 @@
       "question": "<The open question, or remove the questions block>",
       "decider": "<owner>",
       "decideBy": "<YYYY-MM-DD>",
-      "recommended": "<The recommended answer>",
       "ballot": "<decision-id or topic slug>",
-      "tier": "<1|3>"
+      "recommendation": "<The recommended answer, or remove this line when the record carries risk>",
+      "answer": "<The answer, set on answer>",
+      "answeredBy": "<The answerer, set on answer>",
+      "answeredOn": "<YYYY-MM-DD, set on answer>"
     }
   ]
 }
@@ -41,7 +43,7 @@
 
 ## Summary
 
-State what this message tells its audience and when it is sent, in one sentence.
+State what this message tells its addresses and when it is sent, in one sentence.
 
 ## Example
 

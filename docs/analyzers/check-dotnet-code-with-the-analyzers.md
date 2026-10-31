@@ -2,7 +2,7 @@
 
 ## Purpose
 
-The LiteSpec Roslyn analyzers report breaks in LiteSpec .NET rules as compiler errors on every build, so a team sees each break in the editor instead of finding it in review. This guide installs the analyzer package once for the 5 backend projects and their tests, shows how to read and fix the first errors, and records a deviation for a deliberate departure. Each step names the standard it satisfies, and the guide adds no rule of its own.
+The LiteSpec Roslyn analyzers report breaks in LiteSpec .NET rules as compiler errors on every build, so a team sees each break in the editor instead of finding it in review. This guide installs the analyzer package once for the backend projects and their tests, shows how to read and fix the first errors, and records a deviation for a deliberate departure. Each step names the standard it satisfies, and the guide adds no rule of its own.
 
 ## Prerequisites
 
@@ -10,7 +10,7 @@ Start with:
 
 - The .NET 9.0.300 SDK, or Visual Studio 17.14 or later, whose compiler the analyzer package targets.
 - A solution with the five application projects that [the .NET architecture page](../backend/dotnet/architecture.md#use-five-application-projects) requires: Domain, Application.Abstractions, Application, Infrastructure, and WebApi.
-- One shared build file that all five projects import, such as `apps/api/Directory.Build.props`, with central package management enabled as [the .NET configuration page](../backend/dotnet/config.md#centralize-nuget-versions) describes.
+- One shared build file that every application project imports, such as `apps/api/Directory.Build.props`, with central package management enabled as [the .NET configuration page](../backend/dotnet/config.md#centralize-nuget-versions) describes.
 
 ## Procedure
 
@@ -34,7 +34,7 @@ and omit `Version` from the `PackageReference`. Never add a second copy in a pro
 
 ### 2. Confirm Each Project Layer
 
-Each rule runs only in the layers its provision covers, and the analyzers read the layer from the assembly name suffix. `Shop.Domain` resolves as Domain, `Shop.Application.Abstractions` as Application.Abstractions, and the same suffix rule maps Application, Infrastructure, and WebApi. Test projects resolve as Test: `Shop.Domain.Tests` and any assembly ending in `.Tests` or `.Test`. An assembly whose name carries no layer suffix is not analyzed. The resolver checks the two-part `Application.Abstractions` suffix before `Application`, so `Shop.Application.Abstractions` never resolves as Application.
+Each rule runs only in the layers its provision covers, and the analyzers read the layer from the assembly name suffix. `Shop.Domain` resolves as Domain, `Shop.Application.Abstractions` as Application.Abstractions, and the same suffix rule maps Application, Infrastructure, WebApi, and Worker. Test projects resolve as Test: `Shop.Domain.Tests` and any assembly ending in `.Tests` or `.Test`. An assembly whose name carries no layer suffix is not analyzed. The resolver checks the two-part `Application.Abstractions` suffix before `Application`, so `Shop.Application.Abstractions` never resolves as Application.
 
 When a project name does not end in a layer name, set the layer in its project file:
 
@@ -44,7 +44,7 @@ When a project name does not end in a layer name, set the layer in its project f
 </PropertyGroup>
 ```
 
-The values are `Domain`, `Application.Abstractions`, `Application`, `Infrastructure`, `WebApi`, `Test`, and `None`. Set `None` to opt a project out, for example a Worker. The package ships a props file that exposes `LiteSpecLayer` to the compiler, so no extra wiring is needed. This step implements `litespec/backend/dotnet/architecture#use-five-application-projects`.
+The values are `Domain`, `Application.Abstractions`, `Application`, `Infrastructure`, `WebApi`, `Worker`, `Test`, and `None`. A value naming no known layer reports `LS2017`. Set `None` to opt a project out. The package ships a props file that exposes `LiteSpecLayer` to the compiler, so no extra wiring is needed. This step implements `litespec/backend/dotnet/architecture#use-five-application-projects`.
 
 ### 3. Build and Read the First Diagnostics
 

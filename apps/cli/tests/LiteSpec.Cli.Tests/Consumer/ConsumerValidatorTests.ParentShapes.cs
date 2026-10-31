@@ -5,15 +5,15 @@ namespace LiteSpec.Tests.Consumer;
 public sealed partial class ConsumerValidatorTests
 {
     /// <proves>litespec/core/intent#order-each-journey-toward-one-goal</proves>
-    [Fact(DisplayName = "journey carrying its aim and goal serves")]
-    public void JourneyCarryingItsAimAndGoalServes()
+    [Fact(DisplayName = "journey carrying its steps and goal serves")]
+    public void JourneyCarryingItsStepsAndGoalServes()
     {
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.WriteFile(
             folder.Path,
             "docs/product/journeys/submit-and-reimburse.md",
             ConsumerFixture.Page(
-                ConsumerFixture.Meta("""{"type":"journey","id":"journey/submit-and-reimburse","title":"Submit and Reimburse","owner":"fixture","status":"approved","actor":"actor/customer","serves":["goal/faster-delivery"],"aim":"The customer is reimbursed.","finishedWhen":"The customer holds the reimbursement.","steps":[{"id":"s1","says":"The customer submits the order.","actor":"actor/customer"}],"fulfills":["requirement/pricing.flat-fee"],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}"""),
+                ConsumerFixture.Meta("""{"type":"journey","id":"journey/submit-and-reimburse","title":"Submit and Reimburse","owner":"fixture","status":"approved","actor":"actor/customer","serves":["goal/faster-delivery"],"finishedWhen":"The customer holds the reimbursement.","steps":[{"id":"s1","statement":"The customer submits the order.","actor":"actor/customer"}],"cites":["requirement/pricing.flat-fee"],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}"""),
                 "# Submit and Reimburse\n\n## Example\n\nAlex submits a claim on Monday and is reimbursed by Friday.\n\n## Between the Steps\n\nThe shop hands the claim to payment.\n"));
         AssertClean(RunConsumer(folder.Path));
     }
@@ -27,7 +27,7 @@ public sealed partial class ConsumerValidatorTests
             folder.Path,
             "docs/product/journeys/submit-and-reimburse.md",
             ConsumerFixture.Page(
-                ConsumerFixture.Meta("""{"type":"journey","id":"journey/submit-and-reimburse","title":"Submit and Reimburse","owner":"fixture","status":"approved","actor":"actor/customer","serves":["goal/faster-delivery"],"aim":"The customer is reimbursed.","goal":"The customer is reimbursed.","finishedWhen":"The customer holds the reimbursement.","steps":[{"id":"s1","says":"The customer submits the order.","actor":"actor/customer"}],"fulfills":["requirement/pricing.flat-fee"],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}"""),
+                ConsumerFixture.Meta("""{"type":"journey","id":"journey/submit-and-reimburse","title":"Submit and Reimburse","owner":"fixture","status":"approved","actor":"actor/customer","serves":["goal/faster-delivery"],"goal":"The customer is reimbursed.","finishedWhen":"The customer holds the reimbursement.","steps":[{"id":"s1","statement":"The customer submits the order.","actor":"actor/customer"}],"cites":["requirement/pricing.flat-fee"],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}"""),
                 "# Submit and Reimburse\n\n## Example\n\nAlex submits a claim on Monday and is reimbursed by Friday.\n\n## Between the Steps\n\nThe shop hands the claim to payment.\n"));
         AssertProblem(RunConsumer(folder.Path), "unknown property 'goal'");
     }

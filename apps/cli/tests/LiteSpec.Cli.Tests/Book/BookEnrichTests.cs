@@ -143,7 +143,6 @@ public sealed class BookEnrichTests
     {
         var details = DetailsOf(LoadFixture("Book/review.json"));
         var kept = Obj(details["requirement/borrowing.max-wait"], "keptBy");
-        Assert.Equal(1, kept["journey"]?.GetValue<int>());
         Assert.Equal(1, kept["use-case"]?.GetValue<int>());
         Assert.Equal(1, kept["reaction"]?.GetValue<int>());
         Assert.Equal(1, kept["notification"]?.GetValue<int>());

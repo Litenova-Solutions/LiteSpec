@@ -16,13 +16,13 @@ Write each layer from the layer above it: Intent states the promises, Behavior s
 
 Declare every edge between use cases, reactions, jobs, notifications, integration events, and external systems. An undeclared edge is the defect.
 
-Send Intent changes to the founder, Behavior changes to developers, and access widenings, new outside calls, and new personal-data flows to the security reviewer. Tier-1 questions need explicit approval, and tier-3 questions auto-approve after the veto window.
+Send Intent changes to the decider, Behavior changes to developers, and access widenings, new outside calls, and new personal-data flows to the security reviewer. Tier-1 questions need explicit approval, and tier-3 questions auto-approve after the veto window.
 
 A project Deviation record overrides a Standard only when it names the provision ID, with reason and review date. (litespec/core/agent#apply-guidance-precedence)
 
 An explicit project convention can replace a baseline Convention when local documentation cites its ID. (litespec/core/agent#apply-guidance-precedence)
 
-Read `docs/intent/brief.md` and the affected requirement pages before changing behavior that touches price, money, markets, customers, or terms. (litespec/core/intent#keep-intent-in-its-homes)
+Read `docs/intent/brief.md` and the affected topic pages before changing behavior that touches price, money, markets, customers, or terms. (litespec/core/intent#keep-intent-in-its-homes)
 
 Draft a product decision for any changed business choice, and leave its approval to the accountable person. Research outside `docs/` is source material, never authority. (litespec/core/intent#name-the-person-who-approved-a-decision, litespec/core/intent#treat-generated-research-as-source-material)
 

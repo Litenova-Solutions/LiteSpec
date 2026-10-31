@@ -5,21 +5,20 @@
   "title": "Render Receipts as PDF",
   "owner": "claimwick-team",
   "status": "approved",
-  "decidedOn": "2026-09-15",
   "options": [
     {
       "name": "PDF library",
-      "for": "Receipts download as files finance keeps.",
-      "against": "A new package to admit and update."
+      "pros": "Receipts download as files finance keeps.",
+      "cons": "A new package to admit and update."
     },
     {
       "name": "HTML to PDF browser",
-      "for": "No new package lands.",
-      "against": "Rendering differs per browser and prints poorly."
+      "pros": "No new package lands.",
+      "cons": "Rendering differs per browser and prints poorly."
     }
   ],
-  "chosen": "PDF library",
-  "changeWhen": "Receipts stop needing a downloadable file, or the library stops fitting.",
+  "choice": "PDF library",
+  "reopenedWhen": "Receipts stop needing a downloadable file, or the library stops fitting.",
   "basedOn": [
     "constraint/tax-receipt-retention"
   ],
@@ -36,7 +35,7 @@
   ],
   "approvedBy": "claimwick-team",
   "approvedOn": "2026-10-01",
-  "approvedHash": "561a6378"
+  "approvedHash": "f179da6a"
 }
 ---
 

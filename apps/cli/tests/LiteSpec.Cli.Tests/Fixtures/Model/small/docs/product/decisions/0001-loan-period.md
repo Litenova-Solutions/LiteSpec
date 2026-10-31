@@ -5,26 +5,25 @@
   "title": "Loan period",
   "owner": "lending-team",
   "status": "approved",
-  "decidedOn": "2026-02-01",
   "options": [
     {
       "name": "14 days",
-      "for": "Copies turn over fast for holds.",
-      "against": "Readers rush through long books."
+      "pros": "Copies turn over fast for holds.",
+      "cons": "Readers rush through long books."
     },
     {
       "name": "21 days",
-      "for": "Most readers finish in three weeks.",
-      "against": "Holds wait a week longer."
+      "pros": "Most readers finish in three weeks.",
+      "cons": "Holds wait a week longer."
     },
     {
       "name": "28 days",
-      "for": "Slow readers keep up.",
-      "against": "Popular copies sit idle."
+      "pros": "Slow readers keep up.",
+      "cons": "Popular copies sit idle."
     }
   ],
-  "chosen": "21 days",
-  "changeWhen": "Reader demand shifts.",
+  "choice": "21 days",
+  "reopenedWhen": "Reader demand shifts.",
   "decides": [
     "requirement/borrowing.max-active-loans",
     "requirement/borrowing.loan-period-days",
@@ -34,7 +33,7 @@
   "basedOn": [],
   "approvedBy": "lending-team",
   "approvedOn": "2026-10-01",
-  "approvedHash": "8218157b"
+  "approvedHash": "1c363de5"
 }
 ---
 

@@ -8,11 +8,11 @@
   "options": [
     {
       "name": "Nightly file",
-      "for": "The old program reads files",
-      "against": "Exports lag a day"
+      "pros": "The old program reads files",
+      "cons": "Exports lag a day"
     }
   ],
-  "changeWhen": "The old program is switched off"
+  "reopenedWhen": "The old program is switched off"
 }
 ---
 

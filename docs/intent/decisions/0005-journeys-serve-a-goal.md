@@ -10,27 +10,27 @@
   "options": [
     {
       "name": "A journey serves one goal record",
-      "for": "The journey is the only Intent record that means goal with prose, and both story mapping and impact mapping make the spine a link the book can follow.",
-      "against": "Every journey sentence must be mapped by hand to a goal record, because no mechanical mapping exists."
+      "pros": "The journey is the only Intent record that means goal with prose, and both story mapping and impact mapping make the spine a link the book can follow.",
+      "cons": "Every journey sentence must be mapped by hand to a goal record, because no mechanical mapping exists."
     },
     {
       "name": "Keep the goal a sentence only",
-      "for": "A founder approves a journey chapter with no field names and no other page to open.",
-      "against": "The book cannot roll steps up to a goal at all, so the top-down edge stays missing by design."
+      "pros": "A founder approves a journey chapter with no field names and no other page to open.",
+      "cons": "The book cannot roll steps up to a goal at all, so the top-down edge stays missing by design."
     },
     {
       "name": "Replace the sentence with the link",
-      "for": "One field holds the whole goal fact with nothing to keep in sync.",
-      "against": "It demotes the sentence the founder approves, and a goal link carries less information than the sentences it would replace."
+      "pros": "One field holds the whole goal fact with nothing to keep in sync.",
+      "cons": "It demotes the sentence the founder approves, and a goal link carries less information than the sentences it would replace."
     },
     {
       "name": "Allow several goals per journey",
-      "for": "A walk can serve a staff outcome and a system promise at once.",
-      "against": "Both spine methods say one spine, and the singular shape states the rule instead of hiding it in a one-element list."
+      "pros": "A walk can serve a staff outcome and a system promise at once.",
+      "cons": "Both spine methods say one spine, and the singular shape states the rule instead of hiding it in a one-element list."
     }
   ],
-  "chosen": "A journey serves one goal record",
-  "changeWhen": "A journey kind appears that walks toward no goal record.",
+  "choice": "A journey serves one goal record",
+  "reopenedWhen": "A journey kind appears that walks toward no goal record.",
   "basedOn": [
     "research/intent-hierarchy-evidence",
     "research/cross-layer-trace-evidence",

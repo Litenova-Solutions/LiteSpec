@@ -30,7 +30,7 @@
       "status": "baseline",
       "paths": ["src/components/button.tsx"],
       "digest": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
-      "dependencies": ["@base-ui/react", "class-variance-authority", "cn"]
+      "dependencies": ["@base-ui/react", "class-variance-authority", "clsx","tailwind-merge"]
     },
     {
       "name": "skeleton",

@@ -10,11 +10,11 @@
   "options": [
     {
       "name": "Documents",
-      "for": "Reads stay simple",
-      "against": "Queries need an index"
+      "pros": "Reads stay simple",
+      "cons": "Queries need an index"
     }
   ],
-  "changeWhen": "Queries pass one hundred a day",
+  "reopenedWhen": "Queries pass one hundred a day",
   "basedOn": [
     "requirement/borrowing.borrow-latency"
   ]

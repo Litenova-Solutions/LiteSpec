@@ -10,7 +10,7 @@ LiteSpec is a system for building software from approved written records: the re
 
 Litenova Solutions authors LiteSpec and uses it as the engineering system for its own software. Another technical team can adopt the same system: the pages state the rules, and this context explains the defaults behind them.
 
-One technical founder currently operates Litenova Solutions, so LiteSpec assumes technical contributors rather than separate departments. One person can hold product, domain, architecture, implementation, testing, release, and operations responsibilities at the same time. The system names each responsibility instead: a decision owner, an implementation owner, and an operations owner identify who answers for what, and one person can hold all three.
+One person currently operates Litenova Solutions as its technical contributor, so LiteSpec assumes technical contributors rather than separate departments. One person can hold product, domain, architecture, implementation, testing, release, and operations responsibilities at the same time. The system names each responsibility instead: a decision owner, an implementation owner, and an operations owner identify who answers for what, and one person can hold all three.
 
 Agents perform a substantial part of the engineering work. An agent can inspect repositories, propose designs, edit authorized artifacts, run tools, and collect evidence. An agent never owns unresolved product policy, legal judgment, financial decisions, or risk acceptance; those stay with accountable people.
 
@@ -84,7 +84,7 @@ Each page owns its tables and rules, and this page cites them without copying. A
 
 **Example:** The reimburse-expense handler carries a mark naming `use-case/spending.reimburse-expense`, the `Reimburse` method on the expense root carries the same mark, and the reminder event handler carries a mark naming `reaction/spending.send-approver-reminders-on-expense-submitted`.
 
-**Checked by:** `litespec model check` reports `mark-missing`, `mark-unresolved` and `mark-count` (tier S) for a code element with no mark, a mark naming no record of the type its element takes, or a handler marking other than one record.
+**Checked by:** `litespec model check` reports `mark-missing`, `mark-unresolved` and `mark-count` (check level S) for a code element with no mark, a mark naming no record of the type its element takes, or a handler marking other than one record.
 
 ### Point Every Technical Class up to Its Record or Choice
 
@@ -96,7 +96,7 @@ Each page owns its tables and rules, and this page cites them without copying. A
 
 **Example:** The Claimwick submit-expense validator carries `/// <implements>use-case/spending.submit-expense</implements>`. The receipt PDF renderer carries `/// <follows>decision/0005-render-receipts-as-pdf</follows>`, and the command pipeline's commit step carries `/// <follows>litespec/backend/persistence#commit-each-command-pipeline-once</follows>`.
 
-**Checked by:** `litespec model check` reports `mark-missing` and `mark-unresolved` (tier S), and `dotnet build` reports `LS5001` and `LS5002`, for a technical class with no mark, an `implements` mark naming no Behavior record, or a `follows` mark naming no provision of the carried release, no decision or deviation, a retired record, or a provision on a page the project's stacks do not apply.
+**Checked by:** `litespec model check` reports `mark-missing` and `mark-unresolved` (check level S), and `dotnet build` reports `LS5001` and `LS5002`, for a technical class with no mark, an `implements` mark naming no Behavior record, or a `follows` mark naming no provision of the carried release, no decision or deviation, a retired record, or a provision on a page the project's stacks do not apply.
 
 ### Declare Every Edge Between Records
 
@@ -106,7 +106,7 @@ Each page owns its tables and rules, and this page cites them without copying. A
 
 **Rationale:** The declared edges form the effect graph the checks verify: an undeclared edge is the defect, not the mechanism that carries it. The graph holds no cycles except through domain events with a stated end condition. An inline edge states whether it shares the caller's transaction, and atomic consistency spans no async edge. The [behavior page](behavior.md) states the edge fields, and the [layers page](layers.md) states how Implementation is checked against them.
 
-**Checked by:** `litespec model check` emits no `effect-undeclared` or `effect-loop` finding across use cases, reactions, jobs, notifications, and integration events, and reports `effect-unimplemented` (tier A) for a declared edge no code takes.
+**Checked by:** `litespec model check` emits no `effect-undeclared` or `effect-loop` finding across use cases, reactions, jobs, notifications, and integration events, and reports `effect-unimplemented` (check level A) for a declared edge no code takes.
 
 ### Deliver One Complete Use Case
 
@@ -175,12 +175,12 @@ docs/
       decided-in-days.md
     journeys/
       submit-and-reimburse.md
+    actors/
+      employee.md
     constraints/
       tax-receipt-retention.md
   behavior/
     README.md
-    actors/
-      employee.md
     roles/
       approver.md
     permissions.md
@@ -216,7 +216,7 @@ docs/
   glossary.json
 ```
 
-`product/` holds the brief, the journeys, and the business intent: one topic page per area with its requirements, and the product decisions, goals, problems, features, and constraints behind them. `behavior/` holds the actors, roles, permissions, entry points, external systems, rules, and modules.
+`product/` holds the brief, the journeys, the actors, and the business intent: one topic page per area with its requirements, and the product decisions, goals, problems, features, and constraints behind them. Actors are Intent records, so they live with Intent as the [model page](model.md) states. `behavior/` holds the roles, permissions, entry points, external systems, rules, and modules.
 
 `operations/` holds the limits, the secret inventory, and the operations log. `runbooks/`, `deviations/`, and `known-gaps/` hold their records. `ui/` holds the first UI decision or guide. `glossary.json` holds the term records.
 

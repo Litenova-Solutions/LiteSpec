@@ -95,7 +95,8 @@ public sealed class MarkPresenceAnalyzer : TraceabilityAnalyzer
     ///     state-changing methods, domain events and rule exceptions; Application
     ///     checks handlers, event handlers, jobs, and technical classes;
     ///     Infrastructure checks adapters, jobs, and technical classes; WebApi
-    ///     checks endpoints and technical classes; test projects check tests.
+    ///     checks endpoints and technical classes; Worker checks jobs and
+    ///     technical classes; test projects check tests.
     ///     Ports and domain services are recognized only by their mark, so no
     ///     layer checks their absence.
     /// </summary>
@@ -115,6 +116,8 @@ public sealed class MarkPresenceAnalyzer : TraceabilityAnalyzer
                 return kind is CodeKind.Adapter or CodeKind.Job or CodeKind.Technical;
             case Layer.WebApi:
                 return kind is CodeKind.Endpoint or CodeKind.Technical;
+            case Layer.Worker:
+                return kind is CodeKind.Job or CodeKind.Technical;
             case Layer.Test:
                 return kind == CodeKind.Test;
             default:

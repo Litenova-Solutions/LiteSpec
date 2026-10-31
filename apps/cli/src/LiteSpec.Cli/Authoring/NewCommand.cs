@@ -21,15 +21,16 @@ static partial class NewCommand
         Creates one record page from the template for its type, with the opening
         specification metadata block already filled. It reserves the identifier
         before any prose exists, so two authors working in parallel never mint
-        the same identifier twice. <type> is the record type, such as reaction,
+        the same identifier twice. <type> is the record type, such as topic,
         use-case, or decision. <id> is the home.name part of the identifier, such
         as lending.notify-reader; the full identifier is <type>/<id>. The page is
-        written at the home its type owns: a reaction under modules/<module>/
-        reactions/, a job under modules/<module>/jobs/, a notification under
-        modules/<module>/notifications/, a decision under the decisions folder.
-        A use-case page starts under reads/ beside its module; move the file
-        beside its aggregate once the use case names one. The command refuses
-        an identifier a record already carries.
+        written at the home its type owns: a topic under docs/intent/, a reaction
+        under modules/<module>/reactions/, a job under modules/<module>/jobs/,
+        a notification under modules/<module>/notifications/, a decision under
+        the decisions folder. A use-case page starts under reads/ beside its
+        module; move the file beside its aggregate once the use case names one.
+        A topic page starts directly under docs/intent/; move it into its area
+        folder. The command refuses an identifier a record already carries.
 
         new result and new scenario append one entry to a use-case page's
         frontmatter records instead of scaffolding a page. The entry lands in
@@ -46,7 +47,7 @@ static partial class NewCommand
         to its owning list page's frontmatter records instead of scaffolding a
         page. <page-id> is the page's consumer-relative path, because list
         pages carry no record identifier. The type must belong on the page: a
-        requirement on a requirement page, a rule on a rule-set page, a
+        requirement on a topic page, a rule on a rule-set page, a
         permission on the permission list, a setting on a setting set. The
         entry id is <type>/<home>.<name> from the page's home, or
         permission/<name>; the home is the page's existing entries' home, else

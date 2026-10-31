@@ -26,7 +26,7 @@ static partial class ConsumerValidator
         ["constraint"] = ["Summary", "What It Requires"],
         ["research"] = ["Answer"],
         ["decision"] = ["Context", "Decision", "Consequences"],
-        ["requirement-page"] = ["Summary", "The Situation", "What We Do", "Why It Is Better", "Example", "Costs and Risks", "How Sure We Are", "Position", "Refusals"],
+        ["topic"] = ["Summary", "The Situation", "What We Do", "Why It Is Better", "Example", "Costs and Risks", "How Sure We Are", "Position"],
         ["journey"] = ["Example", "Between the Steps"],
         ["aggregate"] = ["Transitions", "Data"],
         ["use-case"] = ["Goal"],

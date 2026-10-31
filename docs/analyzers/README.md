@@ -2,7 +2,7 @@
 
 ## Intent
 
-The Analyzers section explains the LiteSpec.Analyzers package, which checks .NET server code against the LiteSpec standard while the compiler runs and reports each break as an error in the editor and the build. The package checks project boundaries, modeling in Domain, the project that holds the business rules, naming across the 5 application projects, and traceability from code to records in every layer, with one assertion rule in test projects, reporting 45 errors, one per rule, with a link from each error to the standard it enforces. A backend developer uses these pages to install the package once and to clear each finding by fixing the code it names.
+The Analyzers section explains the LiteSpec.Analyzers package, which checks .NET server code against the LiteSpec standard while the compiler runs and reports each break as an error in the editor and the build. The package checks project boundaries, modeling in Domain, the project that holds the business rules, naming across the application projects, and traceability from code to records in every layer, with one assertion rule in test projects, reporting 46 errors, one per rule, with a link from each error to the standard it enforces. A backend developer uses these pages to install the package once and to clear each finding by fixing the code it names.
 
 ## How the Pages Fit Together
 
@@ -21,11 +21,12 @@ First, the analyzers work out the project layer from the `LiteSpecLayer` MSBuild
 | `Shop.Application` | Application |
 | `Shop.Infrastructure` | Infrastructure |
 | `Shop.WebApi` | WebApi |
+| `Shop.Worker` | Worker |
 | `Shop.Domain.Tests` | Test |
 
 Any other assembly name opts the project out, and so does an explicit `LiteSpecLayer` value of `None`. No rule runs in an opted-out project.
 
-Second, a rule registers only in the layers its provision covers. Domain rules run in Domain. `LS2001` runs in Application, Infrastructure, and WebApi. `LS2004`, `LS2005`, and `LS2007` to `LS2016` run in Application and Infrastructure. `LS2003` and `LS2006` run in WebApi. Style rules run in the five production projects. `LS4001` runs in test projects. `LS5001` to `LS5004` run in every layer, checking the kinds each layer holds. `LS5005` to `LS5008` run in Domain. `LS5009` and `LS5010` run in Application, Infrastructure, and WebApi. `LS5011` runs in every layer, where the generator writes the registry. The analyzers skip generated code.
+Second, a rule registers only in the layers its provision covers. Domain rules run in Domain. `LS2001` runs in Application, Infrastructure, WebApi, and Worker. `LS2004`, `LS2005`, and `LS2007` to `LS2016` run in Application, Infrastructure, and Worker. `LS2003` and `LS2006` run in WebApi. `LS2017` reports an unknown declared value in any project. Style rules run in every production project. `LS4001` runs in test projects. `LS5001` to `LS5004` run in every layer, checking the kinds each layer holds. `LS5005` to `LS5008` run in Domain. `LS5009` and `LS5010` run in Application, Infrastructure, and WebApi. `LS5011` runs in every layer, where the generator writes the registry. `LS5012` runs in Domain, Application, Infrastructure, and WebApi, where the generator writes role entries. The analyzers skip generated code.
 
 Third, most rules decide as the compiler reads each declaration. Rules `LS1003`, `LS1004`, and `LS3004` decide at the end of compilation, after every type is known.
 
@@ -104,4 +105,4 @@ The analyzer does not check that a `Guid` inside an identifier is a version 7 va
 ## Pages in This Section
 
 - [Check .NET Code with the Analyzers](check-dotnet-code-with-the-analyzers.md): install the package once, read the first findings, keep them as build errors, and lower one only where a deviation allows it.
-- [Analyzer rules overview](rules/README.md): find the reference page for each of the 45 rules, grouped by layer.
+- [Analyzer rules overview](rules/README.md): find the reference page for each of the 46 rules, grouped by layer.

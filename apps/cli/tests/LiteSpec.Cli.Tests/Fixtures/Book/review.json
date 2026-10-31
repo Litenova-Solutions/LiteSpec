@@ -20,10 +20,10 @@
                                        "owner":  "lending-team",
                                        "status":  "approved",
                                        "boundary":  "Lending for one branch.",
-                                       "neverDoes":  [
+                                       "exclusions":  [
                                                          "Sell books."
                                                      ],
-                                       "audience":  [
+                                       "addresses":  [
                                                         "actor/member"
                                                     ]
                                    },
@@ -139,7 +139,6 @@
                                                              "question":  "Must the kiosk serve members without cards?",
                                                              "decider":  "Ada",
                                                              "decideBy":  "2026-10-30",
-                                                             "tier":  1,
                                                              "ballot":  "desk-queue"
                                                          }
                                                      ]
@@ -200,7 +199,7 @@
                                        "sources":  [
                                                        {
                                                            "url":  "https://example.com/survey",
-                                                           "read":  "2026-09-30"
+                                                           "readOn":  "2026-09-30"
                                                        }
                                                    ]
                                    },
@@ -225,21 +224,20 @@
                                        "title":  "Self Checkout Kiosk",
                                        "owner":  "lending-team",
                                        "status":  "approved",
-                                       "decidedOn":  "2026-10-01",
                                        "options":  [
                                                        {
                                                            "name":  "Kiosk",
-                                                           "for":  "Short queues",
-                                                           "against":  "Hardware cost"
+                                                           "pros":  "Short queues",
+                                                           "cons":  "Hardware cost"
                                                        },
                                                        {
                                                            "name":  "More desks",
-                                                           "for":  "No hardware",
-                                                           "against":  "Staff cost"
+                                                           "pros":  "No hardware",
+                                                           "cons":  "Staff cost"
                                                        }
                                                    ],
-                                       "chosen":  "Kiosk",
-                                       "changeWhen":  "Queues persist.",
+                                       "choice":  "Kiosk",
+                                       "reopenedWhen":  "Queues persist.",
                                        "decides":  [
                                                        "feature/self-checkout"
                                                    ],
@@ -254,6 +252,29 @@
                                       "basedOn":  [
                                                       "research/member-survey"
                                                   ]
+                                  }
+                    },
+                    {
+                        "type":  "topic",
+                        "id":  "topic/borrowing",
+                        "title":  "Borrowing",
+                        "owner":  "lending-team",
+                        "status":  "approved",
+                        "effectiveStatus":  "approved",
+                        "decider":  null,
+                        "decideBy":  null,
+                        "file":  "docs/product/borrowing.md",
+                        "line":  3,
+                        "fields":  {
+                                       "type":  "topic",
+                                       "id":  "topic/borrowing",
+                                       "title":  "Borrowing",
+                                       "owner":  "lending-team",
+                                       "status":  "approved",
+                                       "reviewBy":  "2027-04-01"
+                                   },
+                        "links":  {
+
                                   }
                     },
                     {
@@ -283,7 +304,7 @@
                                        "check":  "k6 desk-wait p(95)\u003c120",
                                        "runsOn":  "nightly",
                                        "evidence":  "https://example.com/runs/desk-wait",
-                                       "features":  [
+                                       "cites":  [
                                                        "feature/self-checkout"
                                                    ],
                                        "questions":  [
@@ -291,13 +312,13 @@
                                                              "question":  "Do kiosk users count toward the wait?",
                                                              "decider":  "Ada",
                                                              "decideBy":  "2026-11-01",
-                                                             "recommended":  "Count kiosk users separately.",
+                                                             "recommendation":  "Count kiosk users separately.",
                                                              "ballot":  "desk-queue"
                                                          }
                                                      ]
                                    },
                         "links":  {
-                                      "features":  [
+                                      "cites":  [
                                                       "feature/self-checkout"
                                                   ]
                                   }
@@ -321,12 +342,12 @@
                                        "status":  "approved",
                                        "kind":  "functional",
                                        "statement":  "Every copy has one home shelf.",
-                                       "features":  [
+                                       "cites":  [
                                                        "feature/self-checkout"
                                                    ]
                                    },
                         "links":  {
-                                      "features":  [
+                                      "cites":  [
                                                       "feature/self-checkout"
                                                   ]
                                   }
@@ -348,7 +369,7 @@
                                        "title":  "Late Fee",
                                        "owner":  "lending-team",
                                        "status":  "approved",
-                                       "kind":  "business",
+                                       "kind":  "policy",
                                        "statement":  "Late fees fund new copies.",
                                        "values":  [
                                                       {
@@ -356,12 +377,12 @@
                                                           "effectiveFrom":  "2026-01-01"
                                                       }
                                                   ],
-                                       "features":  [
+                                       "cites":  [
                                                        "feature/self-checkout"
                                                    ]
                                    },
                         "links":  {
-                                      "features":  [
+                                      "cites":  [
                                                       "feature/self-checkout"
                                                   ]
                                   }
@@ -384,21 +405,20 @@
                                        "owner":  "lending-team",
                                        "status":  "approved",
                                        "actor":  "actor/member",
-                                       "aim":  "Borrow before closing",
                                        "steps":  [
                                                      {
                                                          "id":  "s1",
-                                                         "says":  "The member borrows a copy before closing.",
+                                                         "statement":  "The member borrows a copy before closing.",
                                                          "actor":  "actor/member"
                                                      },
                                                      {
                                                          "id":  "s2",
-                                                         "says":  "The member returns the copy.",
+                                                         "statement":  "The member returns the copy.",
                                                          "actor":  "actor/member",
-                                                         "ifItGoesWrong":  "The desk renews the loan."
+                                                         "failure":  "The desk renews the loan."
                                                      }
                                                  ],
-                                       "fulfills":  [
+                                       "cites":  [
                                                         "requirement/borrowing.max-wait"
                                                     ],
                                        "finishedWhen":  "The member leaves the desk with the copy before closing."
@@ -407,7 +427,7 @@
                                       "actor":  [
                                                     "actor/member"
                                                 ],
-                                      "fulfills":  [
+                                      "cites":  [
                                                        "requirement/borrowing.max-wait"
                                                    ]
                                   }
@@ -739,7 +759,7 @@
                                        "title":  "Due Reminder",
                                        "owner":  "lending-team",
                                        "status":  "reviewed",
-                                       "audience":  [
+                                       "addresses":  [
                                                         "actor/member"
                                                     ],
                                        "channel":  "email",
@@ -749,7 +769,7 @@
                                                     ]
                                    },
                         "links":  {
-                                      "audience":  [
+                                      "addresses":  [
                                                        "actor/member"
                                                    ],
                                       "fulfills":  [

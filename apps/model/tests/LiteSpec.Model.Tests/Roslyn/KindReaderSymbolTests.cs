@@ -310,6 +310,7 @@ public sealed class KindReaderSymbolTests
 
         Assert.Equal(CodeKind.Technical, KindReader.KindOf(symbol, KindContext.Empty, "Shop.Application"));
         Assert.Equal(CodeKind.Technical, KindReader.KindOf(symbol, KindContext.Empty, "Shop.Infrastructure"));
+        Assert.Equal(CodeKind.Technical, KindReader.KindOf(symbol, KindContext.Empty, "Shop.Worker"));
         Assert.Null(KindReader.KindOf(symbol, KindContext.Empty, "Shop.Domain"));
         Assert.Null(KindReader.KindOf(symbol, KindContext.Empty));
     }

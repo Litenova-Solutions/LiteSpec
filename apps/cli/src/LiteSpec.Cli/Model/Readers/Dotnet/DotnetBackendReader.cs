@@ -42,6 +42,7 @@ sealed class DotnetBackendReader : IBackendReader
             config.DomainRoot,
             config.WebApiRoot,
             config.InfrastructureRoot,
+            config.WorkerRoot,
         };
         var bases = new Dictionary<string, List<string>>(StringComparer.Ordinal);
         var ports = new HashSet<string>(StringComparer.Ordinal);
@@ -261,6 +262,11 @@ sealed class DotnetBackendReader : IBackendReader
             return FolderName(config.InfrastructureRoot);
         }
 
+        if (IsUnder(config.WorkerRoot, file))
+        {
+            return FolderName(config.WorkerRoot);
+        }
+
         return null;
     }
 
@@ -284,7 +290,7 @@ sealed class DotnetBackendReader : IBackendReader
 
         var files = new List<string>();
 
-        foreach (var root in new[] { config.ApplicationRoot, config.ApplicationRoot + ".Abstractions", config.DomainRoot, config.WebApiRoot, config.InfrastructureRoot })
+        foreach (var root in new[] { config.ApplicationRoot, config.ApplicationRoot + ".Abstractions", config.DomainRoot, config.WebApiRoot, config.InfrastructureRoot, config.WorkerRoot })
         {
             files.AddRange(SourceTree.Files(root, ".cs"));
         }
@@ -1406,7 +1412,7 @@ sealed class DotnetBackendReader : IBackendReader
     {
         var holders = new HashSet<string>(StringComparer.Ordinal);
 
-        foreach (var root in new[] { config.ApplicationRoot, config.ApplicationRoot + ".Abstractions", config.DomainRoot, config.WebApiRoot, config.InfrastructureRoot })
+        foreach (var root in new[] { config.ApplicationRoot, config.ApplicationRoot + ".Abstractions", config.DomainRoot, config.WebApiRoot, config.InfrastructureRoot, config.WorkerRoot })
         {
             foreach (var file in SourceTree.Files(root, ".cs"))
             {
@@ -2085,7 +2091,7 @@ sealed class DotnetBackendReader : IBackendReader
     {
         var files = new List<string>();
 
-        foreach (var root in new[] { config.ApplicationRoot, config.ApplicationRoot + ".Abstractions", config.DomainRoot, config.WebApiRoot, config.InfrastructureRoot })
+        foreach (var root in new[] { config.ApplicationRoot, config.ApplicationRoot + ".Abstractions", config.DomainRoot, config.WebApiRoot, config.InfrastructureRoot, config.WorkerRoot })
         {
             files.AddRange(SourceTree.Files(root, ".cs"));
         }

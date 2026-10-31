@@ -10,27 +10,27 @@
   "options": [
     {
       "name": "Origin in feature, basedOn, or decides",
-      "for": "Established practice treats a requirement without a stated origin as incomplete, and the three sources answer different questions: which offer carries it, which fact grounds it, and which choice settles it.",
-      "against": "Authors must anchor most existing requirements, and list order becomes meaningful because the first entry is the parent."
+      "pros": "Established practice treats a requirement without a stated origin as incomplete, and the three sources answer different questions: which offer carries it, which fact grounds it, and which choice settles it.",
+      "cons": "Authors must anchor most existing requirements, and list order becomes meaningful because the first entry is the parent."
     },
     {
       "name": "Feature only",
-      "for": "One uniform rule covers every requirement with no precedence to learn.",
-      "against": "It falsifies constraint-born requirements, contradicts the field meaning the Links table states, and the evidence rejects a feature parent specifically."
+      "pros": "One uniform rule covers every requirement with no precedence to learn.",
+      "cons": "It falsifies constraint-born requirements, contradicts the field meaning the Links table states, and the evidence rejects a feature parent specifically."
     },
     {
       "name": "Keep origin optional",
-      "for": "No author writes anything new and no approved record needs re-approval.",
-      "against": "Most requirements stay unanchored, both standards call that orphaned, and the chain from a goal to a test keeps breaking at the top."
+      "pros": "No author writes anything new and no approved record needs re-approval.",
+      "cons": "Most requirements stay unanchored, both standards call that orphaned, and the chain from a goal to a test keeps breaking at the top."
     },
     {
       "name": "Group under the requirement page",
-      "for": "Every requirement already sits on a page, so placement needs no new field.",
-      "against": "A page style is not a record type, and file grouping hides the origin gap completely because every requirement looks parented."
+      "pros": "Every requirement already sits on a page, so placement needs no new field.",
+      "cons": "A page style is not a record type, and file grouping hides the origin gap completely because every requirement looks parented."
     }
   ],
-  "chosen": "Origin in feature, basedOn, or decides",
-  "changeWhen": "A requirement kind appears that no offer carries, no fact grounds, and no choice settles.",
+  "choice": "Origin in feature, basedOn, or decides",
+  "reopenedWhen": "A requirement kind appears that no offer carries, no fact grounds, and no choice settles.",
   "basedOn": [
     "research/intent-hierarchy-evidence",
     "research/cross-layer-trace-evidence",

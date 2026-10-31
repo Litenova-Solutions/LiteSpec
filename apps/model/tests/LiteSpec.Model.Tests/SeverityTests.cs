@@ -2,7 +2,7 @@ using LiteSpec.Model;
 
 namespace LiteSpec.Model.Tests;
 
-/// <summary>Proves one finding's severity follows the record status, the phase and the reader.</summary>
+/// <summary>Proves one finding's severity follows the record's own status, the phase and the reader.</summary>
 public sealed class SeverityTests
 {
     /// <summary>A finding about a retired record stays silent, whatever its tier.</summary>
@@ -20,7 +20,7 @@ public sealed class SeverityTests
     }
 
     /// <summary>An advisory finding reports, even about a live record under a qualified reader.</summary>
-    /// <proves>litespec/core/model#mark-every-check-with-its-tier</proves>
+    /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
     [Fact]
     public void Advisory_Finding_Reports_And_Never_Blocks()
     {
@@ -42,7 +42,7 @@ public sealed class SeverityTests
     }
 
     /// <summary>A G finding about a draft record still blocks.</summary>
-    /// <proves>litespec/core/model#mark-every-check-with-its-tier</proves>
+    /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
     [Fact]
     public void Draft_Subject_Keeps_General_Finding_Blocking()
     {
@@ -79,7 +79,7 @@ public sealed class SeverityTests
     }
 
     /// <summary>An S finding reports under an unqualified reader, and blocks under a qualified one.</summary>
-    /// <proves>litespec/core/model#mark-every-check-with-its-tier</proves>
+    /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
     [Theory]
     [InlineData(true, Outcome.Blocking)]
     [InlineData(false, Outcome.Reported)]
@@ -116,7 +116,7 @@ public sealed class SeverityTests
     }
 
     /// <summary>A live G finding blocks under any reader.</summary>
-    /// <proves>litespec/core/model#mark-every-check-with-its-tier</proves>
+    /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
     [Theory]
     [InlineData(true)]
     [InlineData(false)]

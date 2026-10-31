@@ -76,7 +76,7 @@ public sealed class BookCommandTests
 
         var totals = manifest["totals"]!.AsObject();
         var total = totals.Sum(pair => pair.Value!.GetValue<int>());
-        Assert.Equal(83, total);
+        Assert.Equal(84, total);
 
         var layers = manifest["layers"]!.AsArray();
         Assert.Equal(
@@ -114,7 +114,7 @@ public sealed class BookCommandTests
         }
 
         Assert.True(manifest["generatedOn"]!.GetValue<string>().Length > 0);
-        Assert.Contains("83 records", result.Output, StringComparison.Ordinal);
+        Assert.Contains("84 records", result.Output, StringComparison.Ordinal);
     }
 
     /// <summary>The console line names each unplaced identifier with the failed record-without-parent rule.</summary>

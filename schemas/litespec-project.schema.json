@@ -80,6 +80,10 @@
               "description": "The WebApi project the model builder reads. Defaults to apps/api/src/*.WebApi.",
               "$ref": "#/$defs/projectPath"
             },
+            "worker": {
+              "description": "The Worker project the model builder reads. Defaults to apps/api/src/*.Worker.",
+              "$ref": "#/$defs/projectPath"
+            },
             "apiSolution": {
               "description": "Path to the API solution. A consumer with no backend omits it and records the decision that it has none.",
               "$ref": "#/$defs/projectPath"

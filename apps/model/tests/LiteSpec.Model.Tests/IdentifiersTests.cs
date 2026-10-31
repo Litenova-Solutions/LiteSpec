@@ -40,4 +40,17 @@ public sealed class IdentifiersTests
 
         Assert.Equal(expected, pattern.IsMatch(sample));
     }
+
+    /// <summary>A decision name opens with its four-digit number.</summary>
+    /// <proves>litespec/backend/identifiers#follow-the-identifier-form-of-each-record-type</proves>
+    [Theory]
+    [InlineData("0001-loan-period", true, true)]
+    [InlineData("01-loan-period", true, false)]
+    [InlineData("00001-loan-period", true, false)]
+    [InlineData("loan-period", true, false)]
+    [InlineData("borrow-copy", false, true)]
+    public void Decision_Name_Opens_With_Four_Digits(string name, bool decision, bool expected)
+    {
+        Assert.Equal(expected, Identifiers.ValidName(name, decision));
+    }
 }

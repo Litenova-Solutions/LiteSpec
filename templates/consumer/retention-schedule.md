@@ -6,7 +6,7 @@
   "status": "draft",
   "decider": "<owner>",
   "decideBy": "<YYYY-MM-DD>",
-  "records": [
+  "rows": [
     {
       "dataClass": "<class>",
       "aggregates": ["aggregate/<module>.<name>"],

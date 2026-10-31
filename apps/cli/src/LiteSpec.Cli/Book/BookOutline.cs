@@ -32,7 +32,7 @@ static class BookOutline
     /// <summary>The layer keys in outline order.</summary>
     public static readonly IReadOnlyList<string> LayerKeys = ["intent", "behavior", "implementation", "proof", "governance", "glossary"];
 
-    static readonly IReadOnlyList<string> IntentTopOrder = ["goal", "problem", "constraint", "research", "decision", "actor"];
+    static readonly IReadOnlyList<string> IntentTopOrder = ["goal", "problem", "topic", "constraint", "research", "decision", "actor"];
     static readonly IReadOnlyList<string> ModuleChildOrder = ["aggregate", "rule", "use-case", "reaction", "job", "notification", "setting"];
     static readonly IReadOnlyList<string> AggregateChildOrder = ["rule", "use-case", "event"];
     static readonly IReadOnlyList<string> BehaviorListOrder = ["role", "permission", "entry-point", "external-system", "runbook", "integration-event"];
@@ -467,7 +467,7 @@ static class BookOutline
             "term" => "glossary",
             "deviation" or "known-gap" => "governance",
             "decision" => IsTechnical(record) ? "implementation" : "intent",
-            "product" or "goal" or "problem" or "feature" or "requirement" or "constraint" or "research" or "journey" or "actor" => "intent",
+            "product" or "goal" or "problem" or "feature" or "topic" or "requirement" or "constraint" or "research" or "journey" or "actor" => "intent",
             "module" or "aggregate" or "rule" or "use-case" or "result" or "scenario" or "event" or "integration-event" or "reaction" or "job" or "notification" or "setting" or "role" or "permission" or "entry-point" or "screen" or "external-system" or "runbook" => "behavior",
             _ => "intent",
         };

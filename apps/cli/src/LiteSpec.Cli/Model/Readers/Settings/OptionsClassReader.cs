@@ -33,7 +33,7 @@ static class OptionsClassReader
     {
         var files = new List<string>();
 
-        foreach (var root in new[] { config.ApplicationRoot, config.ApplicationRoot + ".Abstractions", config.DomainRoot, config.WebApiRoot, config.InfrastructureRoot })
+        foreach (var root in new[] { config.ApplicationRoot, config.ApplicationRoot + ".Abstractions", config.DomainRoot, config.WebApiRoot, config.InfrastructureRoot, config.WorkerRoot })
         {
             files.AddRange(SourceTree.Files(root, ".cs"));
         }

@@ -15,10 +15,10 @@
       "default": 5,
       "range": "1 to 20",
       "unit": "loans",
-      "setBy": "founder",
+      "setBy": "decider",
       "approvedBy": "lending-team",
       "approvedOn": "2026-10-01",
-      "approvedHash": "415e99ce"
+      "approvedHash": "ff4bbb31"
     }
   ]
 }

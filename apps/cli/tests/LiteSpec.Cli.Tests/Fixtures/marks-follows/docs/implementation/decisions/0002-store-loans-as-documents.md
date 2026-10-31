@@ -10,11 +10,11 @@
   "options": [
     {
       "name": "Documents",
-      "for": "Loans read as one document",
-      "against": "Cross-loan queries need an index"
+      "pros": "Loans read as one document",
+      "cons": "Cross-loan queries need an index"
     }
   ],
-  "changeWhen": "Cross-loan queries pass one hundred a day"
+  "reopenedWhen": "Cross-loan queries pass one hundred a day"
 }
 ---
 

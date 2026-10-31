@@ -1,0 +1,17 @@
+
+<section class="slide" data-layer="review">
+  <div class="eyebrow">Review</div>
+  <h2>Recommendations for the Behavior Layer</h2>
+  <p class="sub">Most Behavior findings are one pattern: the page, the schema, the template and the checker each hold their own copy of a rule, and the copies have drifted. Fix the pattern, not each instance.</p>
+  <div class="content">
+  <div class="row r3">
+    <div class="card red"><p class="t">1. Make the checks follow the Links table</p><p class="d">requirement-unfulfilled, step-unserved and record-orphaned each read a different set of record types; the audience link is rejected. One link-target table, keyed by record type, drives all of them. Findings 2, 3, 12, 13, 14.</p></div>
+    <div class="card red"><p class="t">2. Schema first, then provisions</p><p class="d">Where a provision says "consumer fails", the schema must require the field. Generate the "Checked by" lists from the schema so they cannot drift. Findings 4, 8, 18, 29, 30, 31.</p></div>
+    <div class="card red"><p class="t">3. One home for each structured fact</p><p class="d">Transitions and data in frontmatter, rendered as tables by the book; the retention schedule generated from data classes; one onFailure shape; suppression in one place. Findings 1, 5, 6, 9.</p></div>
+    <div class="card amber"><p class="t">4. Close the open semantics</p><p class="d">Where derived refusals sit in precedence; whether cross tenant scope raises the risk tier; glossary status per layer; a module for platform settings; advisory freshness with its authority. Findings 7, 10, 11, 27, 28.</p></div>
+    <div class="card amber"><p class="t">5. Split the page</p><p class="d">1387 lines and 94 provisions. Split by folder home: domain model, use cases, automation, edges and screens, privacy and retention. Move obligations out of Concepts. Findings 16, 17, 35.</p></div>
+    <div class="card blue"><p class="t">6. Fix the vocabulary</p><p class="d">Rename the minority meanings of source, calls and owner; one reach vocabulary; document either and manage; make every Reviewed for a question. Findings 15, 20, 21, 22, 23, 24.</p></div>
+  </div>
+  <div class="card"><p class="t">Method and limits</p><p class="d">Read on 30 October 2026: <code>docs/core/behavior.md</code>, <code>model.md</code>, <code>layers.md</code>, <code>access.md</code>, <code>system.md</code>, <code>schemas/record.schema.json</code>, the Behavior templates, and <code>apps/cli</code> and <code>apps/model</code> for every cited finding code; every code cited on the Behavior page exists. The CLI and tests were not run. Provision counts on the standards slides are generated from the page headings.</p></div>
+  </div>
+</section>

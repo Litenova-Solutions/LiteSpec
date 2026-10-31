@@ -9,57 +9,56 @@
   "serves": [
     "goal/decided-in-days"
   ],
-  "aim": "Submit an expense and receive reimbursement.",
   "finishedWhen": "The employee holds the reimbursement, and the personal data of old expenses is erased past retention.",
   "steps": [
     {
       "id": "s1",
-      "says": "The employee submits the expense with its amount and currency.",
+      "statement": "The employee submits the expense with its amount and currency.",
       "actor": "actor/employee"
     },
     {
       "id": "s2",
-      "says": "The employee attaches the receipt to the expense.",
+      "statement": "The employee attaches the receipt to the expense.",
       "actor": "actor/employee"
     },
     {
       "id": "s3",
-      "says": "The manager approves or rejects the expense within five business days.",
+      "statement": "The manager approves or rejects the expense within five business days.",
       "actor": "actor/manager",
-      "ifItGoesWrong": "The expense waits past three business days, and the approver is reminded."
+      "failure": "The expense waits past three business days, and the approver is reminded."
     },
     {
       "id": "s4",
-      "says": "Finance reimburses the approved expense.",
+      "statement": "Finance reimburses the approved expense.",
       "actor": "actor/finance"
     },
     {
       "id": "s5",
-      "says": "The employee watches each expense in their own list.",
+      "statement": "The employee watches each expense in their own list.",
       "actor": "actor/employee"
     },
     {
       "id": "s6",
-      "says": "The manager sets the receipt threshold for the policy.",
+      "statement": "The manager sets the receipt threshold for the policy.",
       "actor": "actor/manager"
     },
     {
       "id": "s7",
-      "says": "Finance exports the approved expenses in one batch.",
+      "statement": "Finance exports the approved expenses in one batch.",
       "actor": "actor/finance"
     },
     {
       "id": "s8",
-      "says": "Finance erases the personal data of expenses past retention.",
+      "statement": "Finance erases the personal data of expenses past retention.",
       "actor": "actor/finance"
     }
   ],
-  "fulfills": [
+  "cites": [
     "requirement/approval.decided-within-five-days"
   ],
   "approvedBy": "claimwick-team",
   "approvedOn": "2026-10-01",
-  "approvedHash": "52f35271"
+  "approvedHash": "70b2f9ee"
 }
 ---
 

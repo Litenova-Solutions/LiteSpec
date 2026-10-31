@@ -609,10 +609,12 @@ static partial class ModelBuilder
 
         foreach (var test in model.BrowserTests)
         {
+            var passing = model.TestRun?.PassingOfTitle(test.Title);
+
             foreach (var claim in test.Proves)
             {
                 model.Proves.Add(new ProvesLink(
-                    test.Title, claim, BrowserConfirm(model, test, claim), null, Indirect(model, claim)));
+                    test.Title, claim, BrowserConfirm(model, test, claim), passing, Indirect(model, claim)));
             }
         }
 
@@ -1383,7 +1385,7 @@ static partial class ModelBuilder
         foreach (var requirement in model.Records.Where(record => record.Type == "requirement"))
         {
             var fulfillers = model.Records
-                .Where(record => record.Type is "rule" or "use-case" or "journey"
+                .Where(record => record.Type is "rule" or "use-case" or "reaction" or "job" or "notification" or "setting"
                     && record.Ids("fulfills").Contains(requirement.Id, StringComparer.Ordinal))
                 .ToList();
 
@@ -1405,28 +1407,10 @@ static partial class ModelBuilder
     private static bool FulfillerVerified(ProjectModel model, Record fulfiller) => fulfiller.Type switch
     {
         "use-case" => model.Status.TryGetValue(fulfiller.Id, out var status) && status.Verified,
-        "rule" => model.Proves.Any(link => link.Claim == fulfiller.Id && link.Confirmed && link.Passing == true),
-        "journey" => JourneyVerified(model, fulfiller),
+        "rule" or "reaction" or "job" or "notification" or "setting"
+            => model.Proves.Any(link => link.Claim == fulfiller.Id && link.Confirmed && link.Passing == true),
         _ => false,
     };
-
-    private static bool JourneyVerified(ProjectModel model, Record journey)
-    {
-        var steps = journey.StepIds().ToHashSet(StringComparer.Ordinal);
-
-        if (steps.Count == 0)
-        {
-            return false;
-        }
-
-        var serving = model.Records
-            .Where(record => record.Type == "use-case"
-                && record.Ids("serves").Any(steps.Contains))
-            .ToList();
-
-        return serving.Count > 0
-            && serving.All(record => model.Status.TryGetValue(record.Id, out var status) && status.Verified);
-    }
 
     /// <summary>Whether a measure result answers the requirement's check.</summary>
     private static bool CheckMatches(string check, MeasureResult measure) =>

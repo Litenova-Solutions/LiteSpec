@@ -82,7 +82,7 @@ public sealed class BatchApprovalAgreementTests
         Assert.Contains("2 records approved, 0 held.", reactionResult.Output);
     }
 
-    /// <summary>Approving a decision writes one hash to the manifest and the file: the hash covers the decidedOn it stamps.</summary>
+    /// <summary>Approving a decision writes one hash to the manifest and the file, and no decidedOn.</summary>
     /// <proves>litespec/core/release#approve-drafts-in-bounded-batches</proves>
     [Fact]
     public void Approve_Decision_Batch_Manifest_Hash_Matches_File()
@@ -90,7 +90,6 @@ public sealed class BatchApprovalAgreementTests
         using var fixture = ModelFixture.Prepare("small");
 
         ReviewPages.DraftPage(LoanPeriod(fixture.Path));
-        ReviewPages.PatchPage(LoanPeriod(fixture.Path), front => front.Remove("decidedOn"));
 
         var result = Cli.Run(
             "model", "approve", "--root", fixture.Path,
@@ -100,7 +99,7 @@ public sealed class BatchApprovalAgreementTests
 
         var (front, _) = ReviewPages.Read(LoanPeriod(fixture.Path));
 
-        Assert.Equal("2026-11-20", front["decidedOn"]!.GetValue<string>());
+        Assert.False(front.ContainsKey("decidedOn"));
         Assert.Equal(
             ReviewPages.SemanticHash("decision", "decision/0001-loan-period", front),
             front["approvedHash"]!.GetValue<string>());

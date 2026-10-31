@@ -129,7 +129,7 @@ public sealed class LinkExportTests
               "default": 21,
               "range": "7..60",
               "unit": "days",
-              "setBy": "founder",
+              "setBy": "decider",
               "readBy": ["use-case/lending.register-copy"]
             }
           ]

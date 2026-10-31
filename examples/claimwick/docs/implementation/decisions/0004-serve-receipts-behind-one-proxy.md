@@ -10,18 +10,18 @@
   "options": [
     {
       "name": "One Caddy proxy",
-      "for": "Receipts share one hardened entry point.",
-      "against": "The proxy is one more service to run."
+      "pros": "Receipts share one hardened entry point.",
+      "cons": "The proxy is one more service to run."
     },
     {
       "name": "Direct object links",
-      "for": "Nothing new to run.",
-      "against": "Each client fetches receipts its own way."
+      "pros": "Nothing new to run.",
+      "cons": "Each client fetches receipts its own way."
     }
   ],
-  "changeWhen": "Receipt traffic outgrows one proxy.",
+  "reopenedWhen": "Receipt traffic outgrows one proxy.",
   "basedOn": [
-    "requirement/spending.month-end-submissions"
+    "requirement/approval.month-end-submissions"
   ]
 }
 ---

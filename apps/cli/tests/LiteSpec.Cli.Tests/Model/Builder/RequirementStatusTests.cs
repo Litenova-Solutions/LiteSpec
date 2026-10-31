@@ -15,9 +15,9 @@ public sealed class RequirementStatusTests
         using var temp = ModelFixture.Prepare("small");
         Write(temp.Path, "docs/behavior/modules/lending/loans/borrow-copy-proof-scenario.md", ScenarioPage);
         Write(temp.Path, "apps/api/tests/Library.Acceptance.Tests/JUnit/JUnitScenarios.cs", ScenariosFile);
-        Write(temp.Path, "docs/product/lending/performance.md", RequirementPage);
-        Write(temp.Path, "docs/product/journeys/borrow-and-return.md", JourneyPage);
-        Fulfill(temp.Path, "requirement/borrowing.borrow-latency", "requirement/borrowing.borrow-errors");
+        Write(temp.Path, "docs/intent/lending/performance.md", RequirementPage);
+        Write(temp.Path, "docs/intent/journeys/borrow-and-return.md", JourneyPage);
+        Fulfill(temp.Path, "requirement/performance.borrow-latency", "requirement/performance.borrow-errors", "requirement/performance.borrow-journey");
 
         var results = Path.Combine(temp.Path, "TestResults");
         Directory.CreateDirectory(results);
@@ -29,11 +29,11 @@ public sealed class RequirementStatusTests
 
         Assert.True(root.GetProperty("status").GetProperty("use-case/lending.borrow-copy").GetProperty("verified").GetBoolean());
 
-        var latency = root.GetProperty("requirementStatus").GetProperty("requirement/borrowing.borrow-latency");
+        var latency = root.GetProperty("requirementStatus").GetProperty("requirement/performance.borrow-latency");
         Assert.True(latency.GetProperty("verified").GetBoolean());
         Assert.True(latency.GetProperty("measurePassed").GetBoolean());
 
-        var errors = root.GetProperty("requirementStatus").GetProperty("requirement/borrowing.borrow-errors");
+        var errors = root.GetProperty("requirementStatus").GetProperty("requirement/performance.borrow-errors");
         Assert.False(errors.GetProperty("verified").GetBoolean());
         Assert.False(errors.GetProperty("measurePassed").GetBoolean());
 
@@ -41,7 +41,7 @@ public sealed class RequirementStatusTests
         Assert.False(loans.GetProperty("verified").GetBoolean());
         Assert.Equal(JsonValueKind.Null, loans.GetProperty("measurePassed").ValueKind);
 
-        var journey = root.GetProperty("requirementStatus").GetProperty("requirement/borrowing.borrow-journey");
+        var journey = root.GetProperty("requirementStatus").GetProperty("requirement/performance.borrow-journey");
         Assert.True(journey.GetProperty("verified").GetBoolean());
         Assert.Equal(JsonValueKind.Null, journey.GetProperty("measurePassed").ValueKind);
     }
@@ -113,7 +113,8 @@ public sealed class RequirementStatusTests
     const string RequirementPage = """
         ---
         {
-          "type": "requirement-page",
+          "type": "topic",
+          "id": "topic/performance",
           "title": "Borrowing performance",
           "owner": "lending-team",
           "status": "approved",
@@ -121,43 +122,48 @@ public sealed class RequirementStatusTests
           "records": [
             {
               "type": "requirement",
-              "id": "requirement/borrowing.borrow-latency",
+              "id": "requirement/performance.borrow-latency",
               "title": "Borrow latency",
               "owner": "lending-team",
               "status": "approved",
               "kind": "quality",
               "statement": "Borrowing answers fast.",
+              "rationale": "Readers leave when borrowing is slow.",
               "stimulus": "One hundred readers borrow in the first hour of the term.",
               "environment": "Normal operation, the catalog index warm.",
               "response": "Each borrow is recorded and confirmed.",
               "measure": "p95 latency of borrowing",
               "dueBy": "2026-12-01",
-              "check": "k6 http_req_duration p(95)<200"
+              "check": "k6 http_req_duration p(95)<200",
+              "cites": ["goal/more-borrowing"]
             },
             {
               "type": "requirement",
-              "id": "requirement/borrowing.borrow-errors",
+              "id": "requirement/performance.borrow-errors",
               "title": "Borrow errors",
               "owner": "lending-team",
               "status": "approved",
               "kind": "quality",
               "statement": "Borrowing rarely fails.",
+              "rationale": "Readers trust borrowing that rarely fails.",
               "stimulus": "One hundred readers borrow in the first hour of the term.",
               "environment": "Normal operation, the catalog index warm.",
               "response": "Each borrow either completes or reports its refusal.",
               "measure": "failed borrows",
               "dueBy": "2026-12-01",
-              "check": "k6 http_req_failed rate<0.05"
+              "check": "k6 http_req_failed rate<0.05",
+              "cites": ["goal/more-borrowing"]
             },
             {
               "type": "requirement",
-              "id": "requirement/borrowing.borrow-journey",
+              "id": "requirement/performance.borrow-journey",
               "title": "Borrow journey",
               "owner": "lending-team",
               "status": "approved",
               "kind": "functional",
               "statement": "A reader borrows through the app.",
-              "basedOn": []
+              "rationale": "Readers borrow from home.",
+              "cites": ["goal/more-borrowing"]
             }
           ]
         }
@@ -180,17 +186,16 @@ public sealed class RequirementStatusTests
           "serves": [
             "goal/more-borrowing"
           ],
-          "aim": "Borrow a copy.",
           "finishedWhen": "The reader holds the copy.",
           "steps": [
             {
               "id": "s1",
-              "says": "The reader borrows the copy from the shelf.",
+              "statement": "The reader borrows the copy from the shelf.",
               "actor": "actor/reader"
             }
           ],
-          "fulfills": [
-            "requirement/borrowing.borrow-journey"
+          "cites": [
+            "requirement/performance.borrow-journey"
           ]
         }
         ---

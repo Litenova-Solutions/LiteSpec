@@ -35,7 +35,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "requires an H2 'Summary'");
     }
 
-    /// <proves>litespec/core/intent#shape-each-requirement-page</proves>
+    /// <proves>litespec/core/intent#shape-each-topic-page</proves>
     [Fact(DisplayName = "requirement page that omits its example")]
     public void RequirementPageThatOmitsItsExample()
     {
@@ -44,7 +44,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "requires an H2 'Example'");
     }
 
-    /// <proves>litespec/core/intent#shape-each-requirement-page</proves>
+    /// <proves>litespec/core/intent#shape-each-topic-page</proves>
     [Fact(DisplayName = "requirement page that omits its position")]
     public void RequirementPageThatOmitsItsPosition()
     {
@@ -53,7 +53,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "requires an H2 'Position'");
     }
 
-    /// <proves>litespec/core/intent#record-each-choice-as-a-decision</proves>
+    /// <proves>litespec/core/intent#shape-each-decision-page</proves>
     [Fact(DisplayName = "decision that omits its decision")]
     public void DecisionThatOmitsItsDecision()
     {
@@ -62,7 +62,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "requires an H2 'Decision'");
     }
 
-    /// <proves>litespec/core/intent#record-each-choice-as-a-decision</proves>
+    /// <proves>litespec/core/intent#shape-each-decision-page</proves>
     [Fact(DisplayName = "decision that omits its consequences")]
     public void DecisionThatOmitsItsConsequences()
     {
@@ -71,7 +71,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "requires an H2 'Consequences'");
     }
 
-    /// <proves>litespec/core/intent#record-each-choice-as-a-decision</proves>
+    /// <proves>litespec/core/intent#shape-each-decision-page</proves>
     [Fact(DisplayName = "decision without an options section")]
     public void DecisionWithoutAnOptionsSection()
     {
@@ -206,7 +206,7 @@ public sealed partial class ConsumerValidatorTests
             folder.Path,
             "docs/research/delivery-benchmarks.md",
             ConsumerFixture.Page(
-                ConsumerFixture.Meta("""{"type":"research","id":"research/delivery-benchmarks","title":"Delivery Benchmarks","owner":"fixture","status":"approved","question":"How fast do rivals deliver?","conclusion":"Rivals deliver in two days.","sources":[{"url":"https://example.com/benchmarks","read":"2026-01-01"}],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}"""),
+                ConsumerFixture.Meta("""{"type":"research","id":"research/delivery-benchmarks","title":"Delivery Benchmarks","owner":"fixture","status":"approved","question":"How fast do rivals deliver?","conclusion":"Rivals deliver in two days.","sources":[{"url":"https://example.com/benchmarks","readOn":"2026-01-01"}],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}"""),
                 "# Delivery Benchmarks\n"));
         AssertProblem(RunConsumer(folder.Path), "requires an H2 'Answer'");
     }
@@ -220,7 +220,7 @@ public sealed partial class ConsumerValidatorTests
             folder.Path,
             "docs/product/journeys/submit-and-reimburse.md",
             ConsumerFixture.Page(
-                ConsumerFixture.Meta("""{"type":"journey","id":"journey/submit-and-reimburse","title":"Submit and Reimburse","owner":"fixture","status":"approved","actor":"actor/customer","serves":["goal/faster-delivery"],"aim":"The customer is reimbursed.","finishedWhen":"The customer holds the reimbursement.","steps":[{"id":"s1","says":"The customer submits the order.","actor":"actor/customer"}],"fulfills":["requirement/pricing.flat-fee"],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}"""),
+                ConsumerFixture.Meta("""{"type":"journey","id":"journey/submit-and-reimburse","title":"Submit and Reimburse","owner":"fixture","status":"approved","actor":"actor/customer","serves":["goal/faster-delivery"],"finishedWhen":"The customer holds the reimbursement.","steps":[{"id":"s1","statement":"The customer submits the order.","actor":"actor/customer"}],"cites":["requirement/pricing.flat-fee"],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}"""),
                 "# Submit and Reimburse\n\n## Between the Steps\n\nThe shop hands the claim to payment.\n"));
         AssertProblem(RunConsumer(folder.Path), "requires an H2 'Example'");
     }
@@ -234,7 +234,7 @@ public sealed partial class ConsumerValidatorTests
             folder.Path,
             "docs/product/journeys/submit-and-reimburse.md",
             ConsumerFixture.Page(
-                ConsumerFixture.Meta("""{"type":"journey","id":"journey/submit-and-reimburse","title":"Submit and Reimburse","owner":"fixture","status":"approved","actor":"actor/customer","serves":["goal/faster-delivery"],"aim":"The customer is reimbursed.","finishedWhen":"The customer holds the reimbursement.","steps":[{"id":"s1","says":"The customer submits the order.","actor":"actor/customer"}],"fulfills":["requirement/pricing.flat-fee"],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}"""),
+                ConsumerFixture.Meta("""{"type":"journey","id":"journey/submit-and-reimburse","title":"Submit and Reimburse","owner":"fixture","status":"approved","actor":"actor/customer","serves":["goal/faster-delivery"],"finishedWhen":"The customer holds the reimbursement.","steps":[{"id":"s1","statement":"The customer submits the order.","actor":"actor/customer"}],"cites":["requirement/pricing.flat-fee"],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}"""),
                 "# Submit and Reimburse\n\n## Example\n\nAlex submits a claim on Monday and is reimbursed by Friday.\n"));
         AssertProblem(RunConsumer(folder.Path), "requires an H2 'Between the Steps'");
     }
@@ -407,7 +407,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "must use Title Case");
     }
 
-    /// <proves>litespec/core/intent#shape-each-requirement-page</proves>
+    /// <proves>litespec/core/intent#shape-each-topic-page</proves>
     [Fact(DisplayName = "example longer than the bound")]
     public void ExampleLongerThanTheBound()
     {
@@ -420,7 +420,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "over the 120 word bound");
     }
 
-    /// <proves>litespec/core/intent#shape-each-requirement-page</proves>
+    /// <proves>litespec/core/intent#shape-each-topic-page</proves>
     [Fact(DisplayName = "example bound below forty")]
     public void ExampleBoundBelowForty()
     {
@@ -429,7 +429,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "exampleWordLimit '20' is below 40");
     }
 
-    /// <proves>litespec/core/intent#shape-each-requirement-page</proves>
+    /// <proves>litespec/core/intent#shape-each-topic-page</proves>
     [Fact(DisplayName = "example bound the project raises")]
     public void ExampleBoundTheProjectRaises()
     {

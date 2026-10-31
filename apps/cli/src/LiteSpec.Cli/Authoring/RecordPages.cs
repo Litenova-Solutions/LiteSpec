@@ -14,7 +14,7 @@ static class RecordPages
     /// <summary>Record types that own a page <c>litespec new</c> can scaffold.</summary>
     public static readonly HashSet<string> PageTypes = new(StringComparer.Ordinal)
     {
-        "product", "goal", "problem", "feature", "constraint", "research",
+        "product", "goal", "problem", "feature", "topic", "constraint", "research",
         "decision", "journey", "actor", "module", "aggregate", "use-case",
         "reaction", "job", "notification", "role", "external-system",
         "runbook", "deviation", "known-gap",
@@ -23,7 +23,7 @@ static class RecordPages
     /// <summary>Where an entry type lives, for the refusal message.</summary>
     public static readonly Dictionary<string, string> EntryHomes = new(StringComparer.Ordinal)
     {
-        ["requirement"] = "a requirement page under docs/intent/",
+        ["requirement"] = "a topic page under docs/intent/",
         ["rule"] = "its aggregate page, or a rule page under docs/behavior/rules/ for a cross-aggregate rule",
         ["result"] = "its use-case page",
         ["scenario"] = "its use-case or reaction page",
@@ -54,7 +54,8 @@ static class RecordPages
     /// <summary>
     ///     The absolute path of the page a record owns. A use-case page starts
     ///     under <c>reads/</c> beside its module; the author moves the file beside
-    ///     its aggregate once the use case names one.
+    ///     its aggregate once the use case names one. A topic page starts
+    ///     directly under <c>intent/</c>; the author moves it into its area folder.
     /// </summary>
     public static string PagePath(ConsumerConfig config, string type, string? home, string name)
     {
@@ -67,6 +68,7 @@ static class RecordPages
             "goal" => Path.Combine(docs, "intent", "goals", $"{name}.md"),
             "problem" => Path.Combine(docs, "intent", "problems", $"{name}.md"),
             "feature" => Path.Combine(docs, "intent", "features", $"{name}.md"),
+            "topic" => Path.Combine(docs, "intent", $"{name}.md"),
             "constraint" => Path.Combine(docs, "intent", "constraints", $"{name}.md"),
             "research" => Path.Combine(docs, "intent", "research", $"{name}.md"),
             "decision" => Path.Combine(docs, "intent", "decisions", $"{name}.md"),

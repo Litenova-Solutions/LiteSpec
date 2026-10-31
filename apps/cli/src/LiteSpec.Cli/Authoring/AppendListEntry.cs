@@ -163,7 +163,7 @@ static class AppendListEntry
     /// <summary>The page style owning the entry type, or null for an unknown type.</summary>
     static string? PageOf(string entryType) => entryType switch
     {
-        "requirement" => "requirement-page",
+        "requirement" => "topic",
         "rule" => "rule-set",
         "permission" => "permission-list",
         "setting" => "setting-set",
@@ -173,7 +173,7 @@ static class AppendListEntry
     /// <summary>Where the entry type belongs, for the refusal message, or null for an unknown type.</summary>
     static string? OwnerOf(string entryType) => entryType switch
     {
-        "requirement" => "a requirement page",
+        "requirement" => "a topic page",
         "rule" => "a rule-set page",
         "permission" => "the permission list",
         "setting" => "a setting set",
@@ -271,6 +271,7 @@ static class AppendListEntry
             $"\"title\": \"{AppendEntry.Escape(title)}\"",
             "\"kind\": \"functional\"",
             "\"statement\": \"<The commitment in one sentence>\"",
+            "\"rationale\": \"<Why this commitment holds, in one sentence>\"",
         ],
         "rule" =>
         [
@@ -294,7 +295,7 @@ static class AppendListEntry
             $"\"id\": \"{AppendEntry.Escape(id)}\"",
             $"\"title\": \"{AppendEntry.Escape(title)}\"",
             "\"valueType\": \"integer\"",
-            "\"setBy\": \"founder\"",
+            "\"setBy\": \"decider\"",
         ],
     };
 }

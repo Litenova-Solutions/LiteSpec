@@ -25,26 +25,27 @@ public enum Outcome
 public sealed record Severity(Outcome Outcome, string? Reason)
 {
     /// <summary>
-    ///     Decides one finding's severity: silent about a retired record, reported for
-    ///     tier A, reported for tier S about a draft record or, while the phase is
-    ///     frozen, for a proof finding, reported for tier S under an unqualified
-    ///     reader, and blocking otherwise. Known gaps and deviations are set aside
-    ///     before, in Suppression.Partition.
+    ///     Decides one finding's severity from the record's own status: silent about
+    ///     a retired record, reported for tier A, reported for tier S about a draft
+    ///     record or, while the phase is frozen, for a proof finding, reported for
+    ///     tier S under an unqualified reader, and blocking otherwise. An inherited
+    ///     draft shows as a label in the book, never here. Known gaps and deviations
+    ///     are set aside before, in Suppression.Partition.
     /// </summary>
     /// <param name="finding">The finding.</param>
-    /// <param name="subjectEffectiveStatus">The effective status of the finding's subject, or null when it names no record.</param>
+    /// <param name="subjectOwnStatus">The own status of the finding's subject, or null when it names no record.</param>
     /// <param name="onTest">Whether the finding's path lies under a test root.</param>
     /// <param name="phase">The project phase: working or frozen.</param>
     /// <param name="readerQualified">Whether the reader that produced the finding is qualified.</param>
     /// <returns>The decided severity.</returns>
     public static Severity Of(
         Finding finding,
-        string? subjectEffectiveStatus,
+        string? subjectOwnStatus,
         bool onTest,
         string phase,
         bool readerQualified)
     {
-        if (string.Equals(subjectEffectiveStatus, "retired", StringComparison.Ordinal))
+        if (string.Equals(subjectOwnStatus, "retired", StringComparison.Ordinal))
         {
             return new Severity(Outcome.Silent, null);
         }
@@ -56,7 +57,7 @@ public sealed record Severity(Outcome Outcome, string? Reason)
 
         if (string.Equals(finding.Tier, "S", StringComparison.Ordinal))
         {
-            if (string.Equals(subjectEffectiveStatus, "draft", StringComparison.Ordinal))
+            if (string.Equals(subjectOwnStatus, "draft", StringComparison.Ordinal))
             {
                 return new Severity(Outcome.Reported, "draft");
             }

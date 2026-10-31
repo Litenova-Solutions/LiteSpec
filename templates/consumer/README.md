@@ -4,7 +4,7 @@
 
 These files are starting points for consumer records. `litespec init` copies the project setup files to their targets and writes the local tool manifest; copy only the record files the current work needs, replace every `<placeholder>` and every `__NAME__` placeholder before committing, and remove any optional line left unused. A section whose starter text opens with `Optional.` may be removed when it has nothing to say; every other section is required. `litespec init` fills `__PROJECT__` in `litespec.project.json` and the `## LiteSpec` block in `AGENTS.md`, and lists the placeholders it leaves, and `litespec consumer` refuses a project file that still holds one. The other JSON templates carry working example values; adjust them to the project.
 
-A page record carries its type, identifier, title, owner, and status in JSON frontmatter, with the body sections its template shows. An entry record sits in its page frontmatter. Requirements sit on a requirement page. Rules and events sit on an aggregate page, and results and scenarios on a use case page. Permissions and entry points sit on their list pages, and settings on a setting-set page. Retention rows sit on the retention schedule. Terms live in the glossary at `docs/glossary.json` instead of on a page.
+A page record carries its type, identifier, title, owner, and status in JSON frontmatter, with the body sections its template shows. An entry record sits in its page frontmatter. Requirements sit on a topic page. Rules and events sit on an aggregate page, and results and scenarios on a use case page. Permissions and entry points sit on their list pages, and settings on a setting-set page. Retention rows sit on the retention schedule. Terms live in the glossary at `docs/glossary.json` instead of on a page.
 
 ## Project Setup
 
@@ -19,14 +19,14 @@ A page record carries its type, identifier, title, owner, and status in JSON fro
 
 | Template | Target | Purpose |
 |:---|:---|:---|
-| `product-brief.md` | `docs/intent/brief.md` | Defines the product boundary, what it never does, and its audience. |
+| `product-brief.md` | `docs/intent/brief.md` | Defines the product boundary, its exclusions, and the actors it addresses. |
 | `goal.md` | `docs/intent/goals/<name>.md` | States one measurable outcome the product serves. |
 | `constraint.md` | `docs/intent/constraints/<name>.md` | Records one outside rule and whether it applies. |
 | `research.md` | `docs/intent/research/<name>.md` | Records one outside fact that informs a choice. |
 | `decision.md` | `docs/intent/decisions/<number>-<name>.md` | Records one dated choice with its options and evidence. A technical decision lives under `docs/implementation/decisions/` instead. |
 | `problem.md` | `docs/intent/problems/<name>.md` | Records one pain someone has today. |
 | `feature.md` | `docs/intent/features/<name>.md` | Records what is offered against a problem. |
-| `actor.md` | `docs/behavior/actors/<name>.md` | Records one person, organization, or system. |
+| `actor.md` | `docs/intent/actors/<name>.md` | Records one person, organization, or system. |
 | `role.md` | `docs/behavior/access/roles/<name>.md` | Records one named set of permissions at a scope. |
 | `external-system.md` | `docs/behavior/external-systems/<name>.md` | Records one outside system, its operations, what crosses its boundary, and its failure and erasure behavior. |
 | `journey.md` | `docs/intent/journeys/<name>.md` | Records the ordered steps an actor takes toward one goal. |
@@ -47,7 +47,7 @@ A page record carries its type, identifier, title, owner, and status in JSON fro
 
 | Template | Target | Purpose |
 |:---|:---|:---|
-| `requirement-page.md` | `docs/intent/<area>/<topic>.md` | States one area of business intent, with its requirement entries. |
+| `topic.md` | `docs/intent/<area>/<topic>.md` | States one area of business intent as a topic record, with its requirement entries. |
 | `permission-list.md` | `docs/behavior/access/permissions.md` | Holds the permission entries roles allow. |
 | `entry-point-list.md` | `docs/behavior/access/entry-points.md` | Holds the entry point entries use cases are reached through. |
 | `setting-set.md` | `docs/behavior/modules/<module>/settings.md` | Holds the setting entries a module runs with. |

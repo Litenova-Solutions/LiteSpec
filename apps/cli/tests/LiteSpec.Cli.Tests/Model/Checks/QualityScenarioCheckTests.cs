@@ -42,7 +42,7 @@ public sealed class QualityScenarioCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("requirement", "requirement/checkout.receipt-on-request", Path.Combine(temp.Path, "checkout.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "kind": "functional", "statement": "A shopper takes a receipt on request."}"""));
+            TestModel.Record("requirement", "requirement/checkout.receipt-on-request", Path.Combine(temp.Path, "checkout.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "kind": "functional", "statement": "A shopper takes a receipt on request.", "rationale": "Shoppers prove their purchase."}"""));
 
         Assert.DoesNotContain("record-shape", TestModel.Codes(model));
     }
@@ -56,7 +56,7 @@ public sealed class QualityScenarioCheckTests
         var model = TestModel.Model(
             config,
             TestModel.Record("requirement", "requirement/checkout.two-second-answer", Path.Combine(temp.Path, "checkout.md"), QualityJson()),
-            TestModel.Record("decision", "decision/0002-store-orders-as-documents", TechnicalDecisionFile(config), """{"status": "approved", "decidedOn": "2026-02-01", "options": [{"name": "Documents", "for": "Reads stay simple.", "against": "Queries need an index."}], "chosen": "Documents", "changeWhen": "Queries pass one hundred a day.", "basedOn": ["requirement/checkout.two-second-answer"]}"""));
+            TestModel.Record("decision", "decision/0002-store-orders-as-documents", TechnicalDecisionFile(config), """{"status": "approved", "options": [{"name": "Documents", "pros": "Reads stay simple.", "cons": "Queries need an index."}], "choice": "Documents", "reopenedWhen": "Queries pass one hundred a day.", "basedOn": ["requirement/checkout.two-second-answer"]}"""));
 
         Assert.DoesNotContain("requirement-unfulfilled", TestModel.Codes(model));
     }
@@ -82,7 +82,7 @@ public sealed class QualityScenarioCheckTests
         var model = TestModel.Model(
             config,
             TestModel.Record("requirement", "requirement/checkout.two-second-answer", Path.Combine(temp.Path, "checkout.md"), QualityJson()),
-            TestModel.Record("decision", "decision/0001-checkout-target", ProductDecisionFile(config), """{"status": "approved", "decidedOn": "2026-02-01", "options": [{"name": "Two seconds", "for": "Shoppers never wait.", "against": "Peak load costs more."}], "chosen": "Two seconds", "changeWhen": "Peak load doubles.", "decides": ["requirement/checkout.two-second-answer"], "basedOn": ["requirement/checkout.two-second-answer"]}"""));
+            TestModel.Record("decision", "decision/0001-checkout-target", ProductDecisionFile(config), """{"status": "approved", "options": [{"name": "Two seconds", "pros": "Shoppers never wait.", "cons": "Peak load costs more."}], "choice": "Two seconds", "reopenedWhen": "Peak load doubles.", "decides": ["requirement/checkout.two-second-answer"], "basedOn": ["requirement/checkout.two-second-answer"]}"""));
 
         Assert.Contains("requirement-unfulfilled", TestModel.Codes(model));
     }
@@ -97,6 +97,7 @@ public sealed class QualityScenarioCheckTests
             ["decideBy"] = "2035-06-01",
             ["kind"] = "quality",
             ["statement"] = "Checkout answers within two seconds at peak.",
+            ["rationale"] = "The sale crowds the checkout.",
             ["stimulus"] = "One thousand shoppers check out in the last hour of the sale.",
             ["environment"] = "Normal operation, one application instance down.",
             ["response"] = "Each checkout is stored and acknowledged.",

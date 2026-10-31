@@ -50,7 +50,7 @@ static partial class Renderer
     {
         "history", "use-case-coverage", "sub-processors", "runbook-index", "rule-map",
         "operations-log", "open-questions", "journeys", "glossary", "deviations", "census",
-        "aggregate-map", "audit-register", "alert-inventory", "counts",
+        "aggregate-map", "audit-register", "alert-inventory", "counts", "what-it-requires",
     };
 
     /// <summary>One region fence: its name and the offset where it opens.</summary>
@@ -78,6 +78,7 @@ static partial class Renderer
             "audit-register" => AuditRegister(model),
             "alert-inventory" => AlertInventory(model, file),
             "counts" => Counts(model),
+            "what-it-requires" => WhatItRequires(model, file),
             _ => null,
         };
 
@@ -337,7 +338,7 @@ static partial class Renderer
         {
             var name = Path.GetFileNameWithoutExtension(journey.File);
 
-            lines.Add($"- [{name}]({RelativeLink(file, journey.File)}): {journey.Field("aim") ?? ""}");
+            lines.Add($"- [{name}]({RelativeLink(file, journey.File)}): {journey.Field("finishedWhen") ?? ""}");
         }
 
         return string.Join('\n', lines);
@@ -531,7 +532,7 @@ static partial class Renderer
 
         var lines = new List<string>
         {
-            "| Decision | Status | Decided |",
+            "| Decision | Status | Approved |",
             "|:---|:---|:---|",
         };
 
@@ -540,7 +541,40 @@ static partial class Renderer
                          && record.Ids("decides").Any(carried.Contains))
                      .OrderBy(record => record.Id, StringComparer.Ordinal))
         {
-            lines.Add($"| `{decision.Id}` | {decision.Status ?? ""} | {decision.Field("decidedOn") ?? ""} |");
+            lines.Add($"| `{decision.Id}` | {decision.Status ?? ""} | {decision.ApprovedOn ?? ""} |");
+        }
+
+        return string.Join('\n', lines);
+    }
+
+    private static string WhatItRequires(ProjectModel model, string file)
+    {
+        var constraint = model.Records
+            .FirstOrDefault(record => record.Type == "constraint"
+                && string.Equals(record.File, file, StringComparison.Ordinal)
+                && !record.IsEntry);
+
+        if (constraint is null)
+        {
+            return "None.";
+        }
+
+        var citing = model.Records
+            .Where(record => record.Type == "requirement"
+                && record.Ids("cites").Contains(constraint.Id, StringComparer.Ordinal))
+            .OrderBy(record => record.Id, StringComparer.Ordinal)
+            .ToList();
+
+        if (citing.Count == 0)
+        {
+            return "None.";
+        }
+
+        var lines = new List<string>();
+
+        foreach (var requirement in citing)
+        {
+            lines.Add($"- [`{requirement.Id}`]({RelativeLink(file, requirement.File)}): {Cell(requirement.Title)}");
         }
 
         return string.Join('\n', lines);

@@ -35,6 +35,7 @@ internal static class LayerResolver
             case "APPLICATION": return Layer.Application;
             case "INFRASTRUCTURE": return Layer.Infrastructure;
             case "WEBAPI": return Layer.WebApi;
+            case "WORKER": return Layer.Worker;
             case "TEST": return Layer.Test;
             case "TESTS": return Layer.Test;
             default: return Layer.None;
@@ -50,6 +51,7 @@ internal static class LayerResolver
         if (EndsWithSegment(assemblyName, "Application")) return Layer.Application;
         if (EndsWithSegment(assemblyName, "Infrastructure")) return Layer.Infrastructure;
         if (EndsWithSegment(assemblyName, "WebApi")) return Layer.WebApi;
+        if (EndsWithSegment(assemblyName, "Worker")) return Layer.Worker;
         return Layer.None;
     }
 

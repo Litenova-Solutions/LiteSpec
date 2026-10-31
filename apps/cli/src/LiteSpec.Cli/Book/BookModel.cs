@@ -193,7 +193,7 @@ static class BookModel
     /// <summary>The navigation layers, in display order.</summary>
     public static readonly IReadOnlyList<BookLayer> Layers =
     [
-        new("Why", ["product", "goal", "constraint", "research", "decision", "requirement"]),
+        new("Why", ["product", "goal", "constraint", "research", "decision", "topic", "requirement"]),
         new("Problems and Features", ["problem", "feature"]),
         new("People", ["actor", "role", "permission"]),
         new("Journeys", ["journey"]),
@@ -212,6 +212,7 @@ static class BookModel
             ["constraint"] = ("Constraint", "Constraints"),
             ["research"] = ("Research", "Research"),
             ["decision"] = ("Decision", "Decisions"),
+            ["topic"] = ("Topic", "Topics"),
             ["requirement"] = ("Requirement", "Requirements"),
             ["problem"] = ("Problem", "Problems"),
             ["feature"] = ("Feature", "Features"),
@@ -250,7 +251,7 @@ static class BookModel
         ("affects", "Affects"),
         ("solves", "Solves"),
         ("serves", "Serves"),
-        ("feature", "Feature"),
+        ("cites", "Cites"),
         ("fulfills", "Fulfills"),
         ("governs", "Governs"),
         ("computedBy", "Computed By"),
@@ -286,7 +287,7 @@ static class BookModel
             ["affects"] = "Problems Affecting This",
             ["solves"] = "Solved By",
             ["serves"] = "Served By",
-            ["feature"] = "Requirements",
+            ["cites"] = "Cited By",
             ["fulfills"] = "Fulfilled By",
             ["except"] = "Excepted By",
             ["fallback"] = "Fallback For",
@@ -857,7 +858,7 @@ static class BookModel
             }
 
             Add("Requirement", requirementId);
-            var feature = FirstLink(requirement, "feature");
+            var feature = FirstCitedOfType(index, requirement, "feature");
             Add("Feature", feature);
             if (feature is not null && index.ById.TryGetValue(feature, out var featureRecord))
             {
@@ -911,7 +912,7 @@ static class BookModel
         }
         else if (type == "requirement")
         {
-            var feature = FirstLink(record, "feature");
+            var feature = FirstCitedOfType(index, record, "feature");
             Add("Feature", feature);
             if (feature is not null && index.ById.TryGetValue(feature, out var featureRecord))
             {
@@ -994,7 +995,7 @@ static class BookModel
         {
             var featureId = BookRender.StrProp(feature, "id") ?? "";
             var requirements = (index.ByType.TryGetValue("requirement", out var required) ? required : [])
-                .Where(requirement => LinksOf(requirement, "feature").Contains(featureId))
+                .Where(requirement => LinksOf(requirement, "cites").Contains(featureId))
                 .OrderBy(requirement => SortTitle(requirement), BookRender.LocaleComparer)
                 .ToList();
             features.Add(new GoalFeature(feature, requirements));
@@ -1034,6 +1035,20 @@ static class BookModel
         foreach (var target in links)
         {
             if (target is JsonValue scalar && scalar.TryGetValue<string>(out var id) && id is { Length: > 0 })
+            {
+                return id;
+            }
+        }
+
+        return null;
+    }
+
+    /// <summary>The first cited record of one type, or null when the record cites none.</summary>
+    static string? FirstCitedOfType(BookIndex index, JsonObject record, string type)
+    {
+        foreach (var id in LinksOf(record, "cites"))
+        {
+            if (index.ById.TryGetValue(id, out var cited) && BookRender.StrProp(cited, "type") == type)
             {
                 return id;
             }
@@ -1187,9 +1202,9 @@ static class BookModel
                         BookRender.Str(question["question"]),
                         BookRender.StrProp(question, "decider"),
                         BookRender.StrProp(question, "decideBy"),
-                        BookRender.StrProp(question, "recommended"),
+                        BookRender.StrProp(question, "recommendation"),
                         BookRender.StrProp(question, "ballot"),
-                        TierOf(question, record)));
+                        TierOf(record)));
                 }
             }
         }
@@ -1197,21 +1212,8 @@ static class BookModel
         return questions;
     }
 
-    /// <summary>One question's tier: its own tier, else 1 when its record carries risk, else 3.</summary>
-    public static int TierOf(JsonObject question, JsonObject record)
-    {
-        if (question["tier"] is JsonValue scalar && scalar.TryGetValue<int>(out var tier) && (tier == 1 || tier == 3))
-        {
-            return tier;
-        }
-
-        if (question["tier"] is JsonValue words && words.TryGetValue<string>(out var text) && int.TryParse(text, out var parsed) && (parsed == 1 || parsed == 3))
-        {
-            return parsed;
-        }
-
-        return HasRisk(record) ? 1 : 3;
-    }
+    /// <summary>One question's tier: 1 when its record carries risk, else 3.</summary>
+    public static int TierOf(JsonObject record) => HasRisk(record) ? 1 : 3;
 
     /// <summary>Whether a record carries any risk value.</summary>
     public static bool HasRisk(JsonObject record) =>
@@ -1368,10 +1370,10 @@ static class BookModel
             .ToList();
     }
 
-    /// <summary>The requirements one journey fulfils, in title order.</summary>
+    /// <summary>The requirements one journey shows, in title order.</summary>
     public static IReadOnlyList<JsonObject> JourneyRequirements(BookIndex index, JsonObject journey)
     {
-        var ids = LinksOf(journey, "fulfills");
+        var ids = LinksOf(journey, "cites");
         return ids
             .Select(id => index.ById.GetValueOrDefault(id))
             .OfType<JsonObject>()

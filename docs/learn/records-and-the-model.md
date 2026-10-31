@@ -20,7 +20,7 @@ Every record answers one layer's question, and each layer is written from the la
 
 | Layer | Question | Writes | Reviews | Records |
 |:--|:--|:--|:--|:--|
-| Intent | Why build it, and what do we promise? | Agents draft, the finance lead decides | The finance lead and product people | Product, goal, problem, feature, requirement, constraint, decision, research, journey, actor, term |
+| Intent | Why build it, and what do we promise? | Agents draft, the finance lead decides | The finance lead and product people | Product, goal, problem, feature, topic, requirement, constraint, decision, research, journey, actor, term |
 | Behavior | How does the system behave to keep the promises? | Agents | Developers; the security reviewer for access, outside calls, and personal-data flows | Module, aggregate, rule, event, integration event, use case, result, scenario, reaction, job, notification, setting, role, permission, entry point, external system, runbook, term |
 | Implementation | How is it built? | Agents | Tier S checks; developers sample | Code only |
 | Proof | How do we know it holds? | The builder | Tier G and tier S checks | Tests, check results, computed statuses, the rendered book |
@@ -35,7 +35,7 @@ The record types follow the questions a team asks, from why down to how:
 
 | Question | Record types |
 |:---|:---|
-| Why does this product exist, and within which outside rules? | Product, goal, constraint, research, decision, requirement |
+| Why does this product exist, and within which outside rules? | Product, goal, constraint, research, decision, topic, requirement |
 | What does it offer, and for which pain? | Problem, feature |
 | Who acts, and what may they do? | Actor, role, permission |
 | How is it reached, and what outside systems does it meet? | Journey, entry point, external system |
@@ -71,7 +71,7 @@ Every Intent and governance record carries `draft`, `approved`, or `retired`. Ev
 
 Approval is data. An approved or reviewed record carries who approved it, on which date, and the semantic hash the builder wrote over the statements, results, output names, rules, and steps. Prose bodies sit outside the hash, so rewording prose never reopens approval, while a changed semantic hash does.
 
-Some records need a person and some do not. A requirement or Behavior record may carry `risk` from `money`, `door`, `personal-data`, and `access`. Any value makes the record tier 1, which needs explicit approval or review. A record with no risk is tier 3. A tier-3 draft question that carries a recommendation auto-approves after its decide-by date plus the project's veto window (`review.vetoWindowDays` in `litespec.project.json`, 7 days by default), recorded as approved by the veto window. Questions group into ballots, so each ballot is one inbox of related decisions. A draft past its date that cannot auto-approve is reported as a known gap with its owner; it never silently blocks.
+Some records need a person and some do not. A requirement or Behavior record may carry `risk` from `money`, `physical-access`, `personal-data`, and `access`. Any value makes the record tier 1, which needs explicit approval or review. A record with no risk is tier 3. A tier-3 draft question that carries a recommendation auto-approves after its decide-by date plus the project's veto window (`review.vetoWindowDays` in `litespec.project.json`, 7 days by default), recorded as `answeredBy: auto (veto window)` on the question. Questions group into ballots, so each ballot is one inbox of related decisions. An unanswered question past its date that cannot auto-approve is reported by the `question-aged` check; it never silently blocks.
 
 Intent flows one way, from constraint down to scenario: constraint outranks product, product outranks requirement, requirement outranks rule, rule outranks use case, use case outranks result, and result outranks scenario. When code and an approved record disagree where Intent has spoken, the spec wins. Where Intent is silent, working code is evidence for a question, never a defect to delete and never a source to transcribe silently.
 

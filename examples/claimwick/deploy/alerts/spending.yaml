@@ -9,7 +9,7 @@ groups:
         expr: sum(rate(submission_ack_seconds_bucket{le="2"}[5m])) / sum(rate(submission_ack_seconds_count[5m])) < 0.99
         for: 2m
         labels:
-          requirement: requirement/spending.month-end-submissions
+          requirement: requirement/approval.month-end-submissions
           runbook: runbook/slow-submissions
           severity: page
         annotations:

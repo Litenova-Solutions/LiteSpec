@@ -36,11 +36,11 @@ public sealed class SettingsCheckTests
 
     /// <proves>litespec/core/behavior#name-the-configuration-key-of-every-operator-setting</proves>
     [Fact]
-    public void Founder_Setting_Without_Key_Passes()
+    public void Decider_Setting_Without_Key_Passes()
     {
         using var temp = ModelFixture.Prepare("small");
         Write(temp.Path, "docs/behavior/modules/lending/settings/max-renewals.md", SettingPage(
-            "setting/lending.max-renewals", "Max renewals", "founder", null));
+            "setting/lending.max-renewals", "Max renewals", "decider", null));
 
         var check = Cli.Run("model", "check", "--root", temp.Path);
 
@@ -387,7 +387,7 @@ public sealed class SettingsCheckTests
             + "  \"owner\": \"lending-team\",\n"
             + "  \"status\": \"reviewed\",\n"
             + "  \"template\": \"" + template + "\",\n"
-            + "  \"audience\": [\n    \"actor/reader\"\n  ],\n"
+            + "  \"addresses\": [\n    \"actor/reader\"\n  ],\n"
             + "  \"channel\": [\n    \"email\"\n  ],\n"
             + "  \"consent\": \"Readers accept notices at signup.\",\n"
             + "  \"frequency\": \"once\"" + paramsJson + ",\n"

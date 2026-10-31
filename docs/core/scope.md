@@ -24,7 +24,7 @@ Some architectures fall outside what LiteSpec supports: microservices, multiple 
 
 ### Review and Adoption Settings
 
-The project record carries its review settings under `review`: the veto window in days and the name of the security reviewer. Tier-3 questions with a recommendation auto-approve after the veto window, while tier-1 questions wait for explicit approval. A project that transcribes Behavior from working code names the ending decision under `adoption`, and points `paths.behaviorDocs` at the folder holding its Behavior records.
+The project record carries its review settings under `review`: the veto window in days and the name of the security reviewer. Questions on tier 3 records with a recommendation auto-approve after the veto window, while questions on tier 1 records wait for explicit approval, as `litespec/core/model#answer-each-question-on-its-record` states. A project that transcribes Behavior from working code names the ending decision under `adoption`, and points `paths.behaviorDocs` at the folder holding its Behavior records.
 
 ### What Claiming Conformance Means
 
@@ -151,9 +151,9 @@ The diagram shows the three project choices and what each decides.
 
 **ID:** `litespec/core/scope#record-the-review-configuration`
 
-**Statement:** A consumer MUST record `review.vetoWindowDays` and `review.securityReviewer` in `litespec.project.json`.
+**Statement:** A consumer MUST record `review.securityReviewer` in `litespec.project.json`.
 
-**Rationale:** The veto window sets how long a tier-3 question waits before auto-approval, with seven days as the default, so every recommendation carries its own deadline. The security reviewer clears access widenings, new outside calls, and new personal-data flows apart from ordinary review. Recording both names the people and the pace before any ballot opens.
+**Rationale:** The security reviewer clears access widenings, new outside calls, and new personal-data flows apart from ordinary review. The veto window is optional: a project that omits `review.vetoWindowDays` uses 7 days, so every recommendation carries its own deadline. `litespec/core/model#answer-each-question-on-its-record` states how the window settles questions on tier 3 records.
 
 **Example:**
 
@@ -161,7 +161,7 @@ The diagram shows the three project choices and what each decides.
 { "review": { "vetoWindowDays": 7, "securityReviewer": "__OWNER__" } }
 ```
 
-**Checked by:** `litespec consumer` rejects a project record without `review.vetoWindowDays` or `review.securityReviewer`.
+**Checked by:** `litespec consumer` rejects a project record without `review.securityReviewer`.
 
 ### Record the Transcription Endpoint
 

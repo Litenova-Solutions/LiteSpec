@@ -8,7 +8,7 @@ namespace LiteSpec.Model;
 /// <summary>
 ///     Every model check: schema, identifiers, citations, gates, proof, reach, graph and tiers.
 /// </summary>
-/// <follows>litespec/core/model#mark-every-check-with-its-tier</follows>
+/// <follows>litespec/core/model#mark-every-check-with-its-level</follows>
 static partial class Checker
 {
     /// <summary>Every finding code a known gap may name.</summary>
@@ -22,9 +22,10 @@ static partial class Checker
         "size-type-missing", "product-not-singleton",
         "journey-reach",
         "use-case-without-scenario", "requirement-unfulfilled",
+        "requirement-uncited", "constraint-uncited",
         "aggregate-name-clash", "decision-decides-nothing", "decision-unfollowed", "decision-without-basis", "link-unresolved", "operation-use-case-mismatch", "constituent-orphaned", "alert-unlinked", "alert-threshold-drift", "quality-unalerted", "setting-key-missing", "setting-unimplemented", "setting-key-drift", "template-unimplemented", "template-unrecorded", "template-param-drift", "dependency-unadmitted", "dependency-version-drift", "dependency-licence-unapproved", "admission-incomplete", "screen-unimplemented", "screen-calls-mismatch", "screen-serves-mismatch", "step-unscreened", "result-unshown", "reader-unavailable", "proves-duplicated",
         "behavior-unrecorded", "mark-missing", "mark-unresolved", "mark-count", "mark-style-mixed",
-        "runtime-value-drift", "act-event-undeclared", "act-event-unraised", "use-case-act-uncalled",
+        "runtime-value-drift", "partial-missing", "act-event-undeclared", "act-event-unraised", "use-case-act-uncalled",
         "aggregate-unimplemented", "reaction-unimplemented", "job-unimplemented",
         "external-system-unimplemented", "use-case-unexposed", "effect-unimplemented", "use-case-unreached",
         "state-unreachable", "transition-unresolved",
@@ -35,6 +36,7 @@ static partial class Checker
         "retention-without-enforcement", "risk-without-acceptance", "exemption-expired",
         "setting-default-without-requirement", "reservation-without-release",
         "notification-without-sender", "except-without-fallback", "approval-reopened",
+        "parent-changed",
         "transcribed-reviewed", "transcribed-after-adoption",
         "operator-job-without-guard", "schedule-unstructured",
         "write-undeclared", "result-undeclared", "effect-undeclared", "repository-unimplemented",
@@ -44,10 +46,10 @@ static partial class Checker
         "prose-missing", "many-aggregates", "question-aged",
     };
 
-    /// <summary>Requirement kinds that code makes true, so some rule, use case or journey fulfills them.</summary>
+    /// <summary>Requirement kinds that code makes true, so some rule, use case, reaction, job, notification or setting fulfills them.</summary>
     private static readonly HashSet<string> FulfilledKinds = new(StringComparer.Ordinal)
     {
-        "functional", "quality", "business",
+        "functional", "quality", "policy",
     };
 
     /// <summary>Feature lifecycles under which a requirement is not yet, or never, made true by code.</summary>
@@ -81,6 +83,9 @@ static partial class Checker
         Time("proof", () => CheckProof(model, findings));
         Time("result-scenarios", () => CheckResultWithoutScenario(model, findings));
         Time("fulfillment", () => CheckFulfilment(model, findings));
+        Time("requirement-cited", () => CheckRequirementCited(model, findings));
+        Time("constraint-cited", () => CheckConstraintCited(model, findings));
+        Time("parent-changed", () => CheckParentChanged(model, findings));
         Time("links", () => CheckLinks(model, findings));
         Time("profile", () => CheckSizeTypes(model, findings));
         Time("reach", () => CheckJourneyReach(model, findings));
@@ -243,6 +248,7 @@ static partial class Checker
                 }
             }
 
+            CheckQuestionDeciders(record, model, findings);
             CheckTypeFields(model, record, findings);
             CheckReplaces(model, record, findings);
         }
@@ -280,14 +286,83 @@ static partial class Checker
             : "draft, approved or retired";
     }
 
+    /// <summary>Reports a question entry naming no decider or no decide-by date.</summary>
+    private static void CheckQuestionDeciders(Record record, ProjectModel model, List<Finding> findings)
+    {
+        if (record.Status == "retired")
+        {
+            return;
+        }
+
+        var decider = false;
+        var date = false;
+
+        foreach (var entry in QuestionEntries(record))
+        {
+            if (!decider)
+            {
+                var named = Str(entry, "decider");
+
+                if (named is not { Length: > 0 })
+                {
+                    findings.Add(new Finding("draft-without-decider", $"Question on '{record.Id}' names no decider.", record.File, record.Line, SubjectOf(record)));
+                    decider = true;
+                }
+                else if (model.Config.HasOwners && !model.Config.Owners.Contains(named, StringComparer.Ordinal))
+                {
+                    findings.Add(new Finding("owner-unknown", $"Question on '{record.Id}' names decider '{named}', which the owner list does not hold.", record.File, record.Line, SubjectOf(record)));
+                    decider = true;
+                }
+            }
+
+            if (!date)
+            {
+                var decideBy = Str(entry, "decideBy");
+
+                if (decideBy is not { Length: > 0 })
+                {
+                    findings.Add(new Finding("draft-without-decider", $"Question on '{record.Id}' names no decide-by date.", record.File, record.Line, SubjectOf(record)));
+                    date = true;
+                }
+                else if (!ValidDate(decideBy))
+                {
+                    findings.Add(new Finding("invalid-field", $"Question on '{record.Id}' has decide-by '{decideBy}', which is not a date.", record.File, record.Line, SubjectOf(record)));
+                    date = true;
+                }
+            }
+
+            if (decider && date)
+            {
+                break;
+            }
+        }
+    }
+
+    /// <summary>The record's question entries: objects in its questions array.</summary>
+    private static IReadOnlyList<JsonElement> QuestionEntries(Record record)
+    {
+        if (record.Raw.ValueKind == JsonValueKind.Object
+            && record.Raw.TryGetProperty("questions", out var questions)
+            && questions.ValueKind == JsonValueKind.Array)
+        {
+            return questions.EnumerateArray().Where(entry => entry.ValueKind == JsonValueKind.Object).ToList();
+        }
+
+        return [];
+    }
+
+    /// <summary>Whether the question entry is answered: it carries an answer or an answerer.</summary>
+    private static bool Answered(JsonElement entry) =>
+        Str(entry, "answer") is { Length: > 0 } || Str(entry, "answeredBy") is { Length: > 0 };
+
     private static void CheckTypeFields(ProjectModel model, Record record, List<Finding> findings)
     {
         switch (record.Type)
         {
             case "product":
                 RequireString(record, "boundary", findings);
-                RequireArray(record, "neverDoes", 0, findings);
-                RequireIds(record, "audience", 1, findings);
+                RequireArray(record, "exclusions", 0, findings);
+                RequireIds(record, "addresses", 1, findings);
                 break;
 
             case "goal":
@@ -299,7 +374,7 @@ static partial class Checker
 
             case "constraint":
                 RequireString(record, "authority", findings);
-                RequireEnum(record, "kind", ["technical", "organizational", "convention"], findings);
+                RequireEnum(record, "kind", ["technical", "organizational", "convention", "legal"], findings);
                 RequireBoolean(record, "applies", findings);
                 RequireString(record, "appliesBecause", findings);
                 break;
@@ -312,21 +387,26 @@ static partial class Checker
 
             case "decision":
                 RequireArray(record, "options", 1, findings);
-                RequireString(record, "changeWhen", findings);
+                RequireString(record, "reopenedWhen", findings);
 
                 if (record.Status == "approved")
                 {
-                    RequireDate(record, "decidedOn", findings);
-                    RequireString(record, "chosen", findings);
+                    RequireString(record, "choice", findings);
                 }
 
                 break;
 
-            case "requirement":
-                RequireEnum(record, "kind", ["functional", "quality", "business"], findings);
-                RequireString(record, "statement", findings);
+            case "topic":
+                RequireDate(record, "reviewBy", findings);
+                break;
 
-                if (record.Field("kind") == "business")
+            case "requirement":
+                RequireEnum(record, "kind", ["functional", "quality", "policy"], findings);
+                RequireString(record, "statement", findings);
+                RequireString(record, "rationale", findings);
+                CheckSetBy(record, findings);
+
+                if (record.Field("kind") == "policy")
                 {
                     RequireArray(record, "values", 1, findings);
                 }
@@ -393,7 +473,6 @@ static partial class Checker
 
             case "journey":
                 RequireIds(record, "actor", 1, findings);
-                RequireString(record, "aim", findings);
                 RequireIds(record, "serves", 1, findings);
                 RequireArray(record, "steps", 1, findings);
                 break;
@@ -439,6 +518,10 @@ static partial class Checker
                 CheckLegacyEdges(record, ["issues"], findings);
                 CheckIdempotency(record, findings);
                 CheckFailurePolicy(record, findings);
+                break;
+
+            case "setting":
+                CheckSetBy(record, findings);
                 break;
 
             case "external-system":
@@ -570,6 +653,13 @@ static partial class Checker
                 if (allowed.Count > 0 && !allowed.Contains(resolved.Type) && !servesRequirement)
                 {
                     findings.Add(new Finding("invalid-field", $"Record '{record.Id}' links {property.Name} to '{target}', which is a {resolved.Type}.", record.File, record.Line, SubjectOf(record)));
+                }
+
+                // A journey cites the requirements it shows; every other cites names
+                // a goal, problem, feature, constraint, research or decision.
+                if (property.Name == "cites" && resolved.Type == "requirement" && record.Type != "journey")
+                {
+                    findings.Add(new Finding("invalid-field", $"Record '{record.Id}' links cites to '{target}', which is a requirement.", record.File, record.Line, SubjectOf(record)));
                 }
 
                 CheckFragment(model, record, target, baseId, resolved, findings);
@@ -728,6 +818,11 @@ static partial class Checker
                 findings.Add(new Finding("identifier-form", $"Identifier '{record.Id}' names a home a {record.Type} id has none.", record.File, record.Line, SubjectOf(record)));
             }
 
+            if (record.Type == "requirement" && home is not null)
+            {
+                CheckRequirementTopic(record, home, findings);
+            }
+
             if (!Identifiers.ValidName(name, record.Type == "decision") || Identifiers.AllDigitsName(name))
             {
                 findings.Add(new Finding("identifier-form", $"Identifier '{record.Id}' breaks the name rules.", record.File, record.Line, SubjectOf(record)));
@@ -756,6 +851,17 @@ static partial class Checker
             {
                 findings.Add(new Finding("use-case-name-clash", $"Use-case name '{clash.Key}' is used twice; result and scenario homes cannot resolve.", record.File, record.Line, SubjectOf(record)));
             }
+        }
+    }
+
+    /// <summary>Reports a requirement whose topic segment differs from its page's name.</summary>
+    private static void CheckRequirementTopic(Record record, string home, List<Finding> findings)
+    {
+        var page = Path.GetFileNameWithoutExtension(record.File);
+
+        if (!home.Equals(page, StringComparison.Ordinal))
+        {
+            findings.Add(new Finding("identifier-form", $"Requirement '{record.Id}' names topic '{home}', which differs from its page '{page}'.", record.File, record.Line, SubjectOf(record)));
         }
     }
 
@@ -986,12 +1092,10 @@ static partial class Checker
     {
         var today = DateOnly.FromDateTime(DateTime.UtcNow);
 
-        // A tier-3 draft with a recommendation past its decide-by date plus the veto
-        // window counts as auto-approved. A tier-1 draft is never auto-approved, so it blocks.
+        // No record auto-approves: only a question does, after its decide-by date
+        // plus the veto window. Every draft decision holds what it decides.
         var drafts = model.Records
-            .Where(record => record.Type == "decision"
-                && record.Status == "draft"
-                && !AutoApproved(record.Raw, record, model.Config, today))
+            .Where(record => record.Type == "decision" && record.Status == "draft")
             .SelectMany(decision => decision.Ids("decides"))
             .ToHashSet(StringComparer.Ordinal);
 
@@ -1064,7 +1168,7 @@ static partial class Checker
     private static void CheckFulfilment(ProjectModel model, List<Finding> findings)
     {
         var fulfilled = model.Records
-            .Where(record => record.Type is "rule" or "use-case" or "journey")
+            .Where(record => record.Type is "rule" or "use-case" or "reaction" or "job" or "notification" or "setting")
             .SelectMany(record => record.Ids("fulfills"))
             .ToHashSet(StringComparer.Ordinal);
 
@@ -1080,9 +1184,10 @@ static partial class Checker
                 continue;
             }
 
-            var undelivered = requirement.Ids("features").Any(id =>
-                model.ById.TryGetValue(id, out var feature)
-                && UndeliveredStates.Contains(feature.Field("lifecycle") ?? ""));
+            var undelivered = requirement.Ids("cites").Any(id =>
+                model.ById.TryGetValue(id, out var cited)
+                && cited.Type == "feature"
+                && UndeliveredStates.Contains(cited.Field("lifecycle") ?? ""));
 
             // A quality requirement is also fulfilled when a technical decision serves
             // it: the decision names it in basedOn instead of a rule or use case.
@@ -1090,7 +1195,39 @@ static partial class Checker
 
             if (!fulfilled.Contains(requirement.Id) && !undelivered && !decided)
             {
-                findings.Add(new Finding("requirement-unfulfilled", $"Requirement '{requirement.Id}' is fulfilled by no rule, use case or journey.", requirement.File, requirement.Line, SubjectOf(requirement)));
+                findings.Add(new Finding("requirement-unfulfilled", $"Requirement '{requirement.Id}' is fulfilled by no rule, use case, reaction, job, notification or setting.", requirement.File, requirement.Line, SubjectOf(requirement)));
+            }
+        }
+    }
+
+    /// <summary>Reports a requirement naming no reason in cites: tier A, tier G when it carries risk.</summary>
+    private static void CheckRequirementCited(ProjectModel model, List<Finding> findings)
+    {
+        foreach (var requirement in model.Records.Where(record => record.Type == "requirement" && record.Status != "retired"))
+        {
+            if (requirement.Ids("cites").Count == 0)
+            {
+                findings.Add(Tiered("requirement-uncited", $"Requirement '{requirement.Id}' cites no goal, problem, feature, constraint, research or decision.", requirement, model));
+            }
+        }
+    }
+
+    /// <summary>Reports an applying constraint no requirement cites.</summary>
+    private static void CheckConstraintCited(ProjectModel model, List<Finding> findings)
+    {
+        var cited = model.Records
+            .Where(record => record.Type == "requirement" && record.Status != "retired")
+            .SelectMany(record => record.Ids("cites"))
+            .ToHashSet(StringComparer.Ordinal);
+
+        foreach (var constraint in model.Records.Where(record => record.Type == "constraint" && record.Status != "retired"))
+        {
+            if (constraint.Raw.ValueKind == JsonValueKind.Object
+                && constraint.Raw.TryGetProperty("applies", out var applies)
+                && applies.ValueKind == JsonValueKind.True
+                && !cited.Contains(constraint.Id))
+            {
+                findings.Add(new Finding("constraint-uncited", $"Constraint '{constraint.Id}' applies and is cited by no requirement.", constraint.File, constraint.Line, SubjectOf(constraint)));
             }
         }
     }
@@ -1626,7 +1763,39 @@ static partial class Checker
                 findings.Add(new Finding("requirement-unmeasured", $"Requirement '{requirement.Id}' names check '{check}' with no passing run.", requirement.File, requirement.Line, SubjectOf(requirement)));
             }
         }
+
+        CheckNumberedStatement(model, findings);
     }
+
+    /// <summary>Reports a statement naming a number with no measure, at tier A.</summary>
+    private static void CheckNumberedStatement(ProjectModel model, List<Finding> findings)
+    {
+        foreach (var requirement in model.Records.Where(record =>
+            record.Type == "requirement"
+            && record.Status != "retired"
+            && record.Field("measure") is not { Length: > 0 }
+            && record.Field("statement") is { Length: > 0 } statement
+            && NamesNumber(statement)))
+        {
+            findings.Add(new Finding("requirement-unmeasured", $"Requirement '{requirement.Id}' names a number with no measure.", requirement.File, requirement.Line, SubjectOf(requirement))
+            {
+                TierOverride = "A",
+            });
+        }
+    }
+
+    /// <summary>Whether the statement names a number: a digit outside any record citation.</summary>
+    private static bool NamesNumber(string statement)
+    {
+        var prose = Identifiers.Citation.Replace(statement, " ");
+        prose = Identifiers.SharedCitation().Replace(prose, " ");
+        prose = StepFragment().Replace(prose, " ");
+
+        return prose.Any(char.IsDigit);
+    }
+
+    [GeneratedRegex(@"#[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*")]
+    private static partial Regex StepFragment();
 
     /// <summary>Whether the tool result is the requirement's check: the check alone, or the tool and the check.</summary>
     private static bool MeasureMatches(MeasureResult measure, string check) =>
@@ -1643,18 +1812,39 @@ static partial class Checker
             {
                 findings.Add(new Finding("record-shape", $"Record '{record.Id}' is {record.Status} with open questions.", record.File, record.Line, SubjectOf(record)));
             }
+
+            CheckQuestionRecommendation(record, findings);
         }
     }
 
     /// <summary>
-    ///     Whether the record carries open questions: entries that are not
-    ///     auto-approved. An auto-approved question is closed, not open.
+    ///     Whether the record carries open questions: entries that are neither
+    ///     answered nor auto-approved. An answered or auto-approved question is
+    ///     closed, not open.
     /// </summary>
     private static bool HasOpenQuestions(Record record, ConsumerConfig config, DateOnly today) =>
         record.Raw.ValueKind == JsonValueKind.Object
         && record.Raw.TryGetProperty("questions", out var value)
         && value.ValueKind == JsonValueKind.Array
-        && value.EnumerateArray().Any(entry => !AutoApproved(entry, record, config, today));
+        && value.EnumerateArray().Any(entry => !Answered(entry) && !AutoApproved(entry, record, config, today));
+
+    /// <summary>Reports an open question naming no recommendation on a record carrying no risk.</summary>
+    private static void CheckQuestionRecommendation(Record record, List<Finding> findings)
+    {
+        if (record.Status == "retired" || record.Derived || HasRisk(record))
+        {
+            return;
+        }
+
+        foreach (var entry in QuestionEntries(record))
+        {
+            if (!Answered(entry) && Str(entry, "recommendation") is not { Length: > 0 })
+            {
+                findings.Add(new Finding("record-shape", $"Question on '{record.Id}' names no recommendation.", record.File, record.Line, SubjectOf(record)));
+                break;
+            }
+        }
+    }
 
     /// <summary>One CODEOWNERS line: the paths it owns and the owners it names.</summary>
     sealed record CodeownerRule(Regex Matcher, IReadOnlyList<string> Owners);
@@ -1898,6 +2088,15 @@ static partial class Checker
         else if (!values.Contains(value, StringComparer.Ordinal))
         {
             findings.Add(new Finding("invalid-field", $"Record '{record.Id}' has {field} '{value}'; {string.Join(", ", values)}.", record.File, record.Line, SubjectOf(record)));
+        }
+    }
+
+    /// <summary>Reports a setBy outside the decider, operator and tenant who sets the value.</summary>
+    private static void CheckSetBy(Record record, List<Finding> findings)
+    {
+        if (record.Field("setBy") is { } setBy && setBy is not ("decider" or "operator" or "tenant"))
+        {
+            findings.Add(new Finding("invalid-field", $"Record '{record.Id}' has setBy '{setBy}'; decider, operator, tenant.", record.File, record.Line, SubjectOf(record)));
         }
     }
 

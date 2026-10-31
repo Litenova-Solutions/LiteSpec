@@ -12,10 +12,10 @@ LiteSpec work moves through four record layers. Each record layer answers one qu
 
 | Record layer | Question | Writes | Reviews |
 |:--|:--|:--|:--|
-| Intent | Why build it, and what do we promise? | Agents draft, the founder decides | The founder and product people |
+| Intent | Why build it, and what do we promise? | Agents draft, the decider decides | The decider and product people |
 | Behavior | How does the system behave to keep the promises? | Agents | Developers; the security reviewer for access, outside calls, and personal-data flows |
-| Implementation | How is it built? | Agents | S-tier checks; developers sample |
-| Proof | How do we know it holds? | The builder | G-tier and S-tier checks |
+| Implementation | How is it built? | Agents | Check level S; developers sample |
+| Proof | How do we know it holds? | The builder | Check levels G and S |
 
 The [intent page](intent.md) states the Intent records, and the [behavior page](behavior.md) states the Behavior records. Implementation holds code only, and Proof holds tests, check results, computed statuses, and the rendered book. Governance records, `deviation` and `known-gap`, attach to any record layer.
 
@@ -25,7 +25,7 @@ Three rules join the record layers. Specify translates Intent into Behavior: it 
 
 ### Questions and World Facts
 
-A need a lower record layer meets that the upper record layer leaves unstated travels up as a draft question. The question carries the question itself, a decider, a decide-by date, a recommendation, a ballot group, and a tier. A fact learned from the world enters Intent as research or a constraint that cites its source and date. A change at the top marks every record whose parent changed, agents update those records, and review and proof follow.
+A need a lower record layer meets that the upper record layer leaves unstated travels up as a draft question. The question carries the question itself, a decider, a decide-by date, a recommendation, and a ballot group. The [model page](model.md) states the one question lifecycle (`litespec/core/model#answer-each-question-on-its-record`). A fact learned from the world enters Intent as research or a constraint that cites its source and date. A change at the top marks every record whose parent changed, agents update those records, and review and proof follow.
 
 ## Standards
 
@@ -47,7 +47,7 @@ A need a lower record layer meets that the upper record layer leaves unstated tr
 
 **Statement:** Behavior that fulfils an Intent record MUST add the states, invariants, refusals, consistency, data classes with erasure positions, freshness, and tenant-scoped access the Intent record leaves unstated.
 
-**Rationale:** Intent promises outcomes in product words, and Behavior turns each promise into the states, invariants, refusals, consistency, data classes with erasure positions, freshness, and tenant-scoped access that keep it. Without that detail each implementer guesses the states and the access scope, and two guesses diverge. The checks `requirement-unfulfilled`, `record-orphaned`, `step-unserved`, `erasure-undeclared`, and `setting-default-without-requirement` report the gaps.
+**Rationale:** Intent promises outcomes in product words, and Behavior turns each promise into the states, invariants, refusals, consistency, data classes with erasure positions, freshness, and tenant-scoped access that keep it. Only Behavior records fulfil a requirement (`litespec/core/intent#restrict-requirement-fulfillment-to-behavior`). Without that detail each implementer guesses the states and the access scope, and two guesses diverge. The checks `requirement-unfulfilled`, `record-orphaned`, `step-unserved`, `erasure-undeclared`, and `setting-default-without-requirement` report the gaps.
 
 **Example:** A reimbursement promise gains a process with Approved and Reimbursed states, a refusal for an expense that is already reimbursed, and atomic consistency over one aggregate.
 
@@ -57,13 +57,13 @@ A need a lower record layer meets that the upper record layer leaves unstated tr
 
 **ID:** `litespec/core/layers#raise-commercial-and-observable-figures-as-questions`
 
-**Statement:** An agent that meets a price, fee, rate, term, market, payer, personal-data retention period, person-observable freshness, or tenant-varying, market-varying, or date-varying default or figure MUST raise it as a draft question instead of deciding it.
+**Statement:** An agent that meets a figure the decider sets MUST raise it as a draft question instead of deciding it.
 
-**Rationale:** Prices, fees, rates, terms, markets, payers, retention periods, observable freshness, and tenant-varying, market-varying, or date-varying defaults and figures are business choices, and only an accountable person makes them. An agent that decided one would bury a commitment in a Behavior record nobody approved. Each open figure becomes a draft question with a decider and a decide-by date.
+**Rationale:** The [model page](model.md) holds the one list of figures the decider sets. Each figure is a business choice, and only an accountable person makes it. An agent that decided one would bury a commitment in a Behavior record nobody approved. Each open figure becomes a draft question with a decider and a decide-by date.
 
 **Example:** A receipt threshold of EUR 25 goes to the ballot as a draft question with a recommendation instead of entering the setting silently.
 
-**Reviewed for:** Which prices, fees, rates, terms, markets, payers, retention periods, or observable figures did Behavior decide without a draft question? Look at the settings and rules the change adds, beside the question list.
+**Reviewed for:** Which figures the decider sets did Behavior decide without a draft question? Look at the settings and rules the change adds, beside the question list and the list of decider figures on the model page.
 
 ### Implement Only Declared Behavior
 
@@ -93,9 +93,9 @@ A need a lower record layer meets that the upper record layer leaves unstated tr
 
 **Statement:** A need a lower record layer meets that the upper record layer leaves unstated MUST travel up as a draft question carrying a decider and a decide-by date.
 
-**Rationale:** The lower record layer does not decide what the upper record layer left unstated, so the need travels up with its context instead of turning into a guess. The question carries a recommendation, a ballot group, and a tier. Tier 1 needs explicit approval or review, while a tier-3 draft carrying a recommendation auto-approves after its decide-by date plus the veto window, recorded as approved by the veto window. A draft past its decide-by date without auto-approval is reported as a known gap with its owner, and it blocks nothing silently.
+**Rationale:** The lower record layer does not decide what the upper record layer left unstated, so the need travels up with its context instead of turning into a guess. The question carries a recommendation and a ballot group. The [model page](model.md) states the one question lifecycle: which questions auto-approve and how an aged question is reported (`litespec/core/model#answer-each-question-on-its-record`).
 
-**Example:** A missing reimbursement policy becomes a ballot item due 2026-11-01 with the founder as decider.
+**Example:** A missing reimbursement policy becomes a ballot item due 2026-11-01 with a named decider.
 
 **Reviewed for:** Which unstated needs lack a draft question with a decider and a decide-by date? Look at the added records from a lower record layer, beside the ballot inbox.
 
@@ -159,6 +159,6 @@ None.
 
 This informative example demonstrates `litespec/core/layers#flag-records-when-a-parent-record-changes`, `litespec/core/layers#raise-open-needs-as-draft-questions`, `litespec/core/layers#enter-world-facts-as-cited-research-or-constraints`, and `litespec/core/layers#record-changed-provider-behavior-as-observed-research`.
 
-Top-down: the founder answers the ballot with EUR 50 instead of EUR 25 for the receipt threshold. The requirement's statement changes, the builder marks the policy setting and the receipt rule as parent-changed, and an agent updates the setting default and the scenario where an expense without a receipt is refused. The developer reviews one two-line Behavior diff, the test changes, Proof goes green, and the book chapter shows the new promise.
+Top-down: the decider answers the ballot with EUR 50 instead of EUR 25 for the receipt threshold. The requirement's statement changes, the builder marks the policy setting and the receipt rule as parent-changed, and an agent updates the setting default and the scenario where an expense without a receipt is refused. The developer reviews one two-line Behavior diff, the test changes, Proof goes green, and the book chapter shows the new promise.
 
-Bottom-up: a late reimbursement in production shows the payout bank settles batches every two days instead of daily. An agent records the observed behavior as research, then drafts a change to the settlement-window constraint citing it. The founder sees one tier-1 ballot item, and on approval the per-batch deadline rule and its scenarios follow.
+Bottom-up: a late reimbursement in production shows the payout bank settles batches every two days instead of daily. An agent records the observed behavior as research, then drafts a change to the settlement-window constraint citing it. The decider sees one ballot item on a tier 1 record, and on approval the per-batch deadline rule and its scenarios follow.

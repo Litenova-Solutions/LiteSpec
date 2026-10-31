@@ -121,6 +121,9 @@ sealed class ConsumerConfig
     /// <summary>The adapters.</summary>
     public string InfrastructureRoot { get; private set; } = "";
 
+    /// <summary>The background worker.</summary>
+    public string WorkerRoot { get; private set; } = "";
+
     /// <summary>The declared shared-kernel folder, or empty when the project declares none.</summary>
     public string SharedKernel { get; private set; } = "";
 
@@ -174,6 +177,9 @@ sealed class ConsumerConfig
 
     /// <summary>The check phase the project declares.</summary>
     public ProjectPhase Phase { get; private set; } = ProjectPhase.Working;
+
+    /// <summary>Whether the CI environment variable is set, so reader-unavailable blocks.</summary>
+    public bool IsContinuousIntegration { get; private set; }
 
     /// <summary>The closed owner list.</summary>
     public IReadOnlyList<string> Owners { get; private set; } = [];
@@ -233,6 +239,7 @@ sealed class ConsumerConfig
         config.DomainRoot = Resolve(config.Root, ReadString(dotnet, "domain", "apps/api/src/*.Domain"));
         config.WebApiRoot = Resolve(config.Root, ReadString(dotnet, "webapi", "apps/api/src/*.WebApi"));
         config.InfrastructureRoot = Resolve(config.Root, ReadString(dotnet, "infrastructure", "apps/api/src/*.Infrastructure"));
+        config.WorkerRoot = Resolve(config.Root, ReadString(dotnet, "worker", "apps/api/src/*.Worker"));
 
         if (dotnet is not null
             && dotnet.Value.TryGetProperty("sharedKernel", out var kernel)
@@ -440,6 +447,8 @@ sealed class ConsumerConfig
         {
             config.TranscriptionEndsWith = decision;
         }
+
+        config.IsContinuousIntegration = Environment.GetEnvironmentVariable("CI") is { Length: > 0 };
 
         return config;
     }

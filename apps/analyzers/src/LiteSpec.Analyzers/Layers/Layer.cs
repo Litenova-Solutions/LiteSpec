@@ -13,6 +13,7 @@ internal enum Layer
     Application,
     Infrastructure,
     WebApi,
+    Worker,
     /// <summary>A test project, named <c>*.Tests</c> or declared with <c>LiteSpecLayer=Test</c>.</summary>
     Test,
 }

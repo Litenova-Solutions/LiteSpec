@@ -15,14 +15,14 @@
       "default": "EUR 25",
       "range": "EUR 0 to EUR 500",
       "unit": "EUR",
-      "setBy": "founder",
+      "setBy": "decider",
       "atBound": "refuse",
       "fulfills": [
         "requirement/approval.receipt-over-threshold"
       ],
       "approvedBy": "claimwick-team",
       "approvedOn": "2026-10-01",
-      "approvedHash": "806421bb"
+      "approvedHash": "86fda04a"
     },
     {
       "type": "setting",

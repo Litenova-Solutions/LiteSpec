@@ -16,7 +16,8 @@ public sealed class NewEntryTests
     const string RequirementText = """
         ---
         {
-          "type": "requirement-page",
+          "type": "topic",
+          "id": "topic/approval",
           "title": "Approval",
           "owner": "fixture",
           "status": "draft",
@@ -29,7 +30,8 @@ public sealed class NewEntryTests
               "id": "requirement/approval.no-self-approval",
               "title": "No self approval",
               "kind": "functional",
-              "statement": "Nobody approves their own expense."
+              "statement": "Nobody approves their own expense.",
+              "rationale": "Self approval invites fraud."
             }
           ]
         }
@@ -98,7 +100,7 @@ public sealed class NewEntryTests
               "id": "setting/spending.receipt-threshold",
               "title": "Receipt Threshold",
               "valueType": "money",
-              "setBy": "founder"
+              "setBy": "decider"
             }
           ]
         }
@@ -125,6 +127,7 @@ public sealed class NewEntryTests
         var inserted = AssertSingleInsertion(before, after, "\"id\": \"requirement/approval.decided-within-five-days\"");
         Assert.Contains("\"kind\": \"functional\"", inserted);
         Assert.Contains("\"statement\": \"<The commitment in one sentence>\"", inserted);
+        Assert.Contains("\"rationale\": \"<Why this commitment holds, in one sentence>\"", inserted);
 
         var existing = after.IndexOf("requirement/approval.no-self-approval", StringComparison.Ordinal);
         var added = after.IndexOf("requirement/approval.decided-within-five-days", StringComparison.Ordinal);
@@ -191,7 +194,7 @@ public sealed class NewEntryTests
         var after = File.ReadAllText(page);
         var inserted = AssertSingleInsertion(before, after, "\"id\": \"setting/spending.approval-reminder-delay\"");
         Assert.Contains("\"valueType\": \"integer\"", inserted);
-        Assert.Contains("\"setBy\": \"founder\"", inserted);
+        Assert.Contains("\"setBy\": \"decider\"", inserted);
     }
 
     /// <proves>litespec/core/authoring#scaffold-pages-and-reserve-identifiers</proves>
@@ -268,7 +271,7 @@ public sealed class NewEntryTests
     {
         using var consumer = Consumer();
         const string relative = "docs/intent/spending/fees.md";
-        WritePage(consumer.Path, relative, "requirement-page", "Fees");
+        WritePage(consumer.Path, relative, "topic", "Fees");
 
         var result = Cli.Run(
             "new", "entry", relative, "requirement", "late-fee-cap",

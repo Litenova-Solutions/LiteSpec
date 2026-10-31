@@ -12,23 +12,23 @@
   "sources": [
     {
       "url": "https://peps.python.org/pep-0001/",
-      "read": "2026-10-30"
+      "readOn": "2026-10-30"
     },
     {
       "url": "https://raw.githubusercontent.com/rust-lang/rfcs/master/0000-template.md",
-      "read": "2026-10-30"
+      "readOn": "2026-10-30"
     },
     {
       "url": "https://raw.githubusercontent.com/kubernetes/enhancements/master/keps/0000-kep-template/README.md",
-      "read": "2026-10-30"
+      "readOn": "2026-10-30"
     },
     {
       "url": "https://adr.github.io/madr/",
-      "read": "2026-10-30"
+      "readOn": "2026-10-30"
     },
     {
       "url": "https://www.rfc-editor.org/rfc/rfc6855.txt",
-      "read": "2026-10-30"
+      "readOn": "2026-10-30"
     }
   ]
 }

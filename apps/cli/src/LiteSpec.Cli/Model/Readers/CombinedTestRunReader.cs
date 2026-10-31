@@ -36,6 +36,14 @@ sealed class CombinedTestRunReader(params ITestRunReader[] readers) : ITestRunRe
                 }
             }
 
+            foreach (var (title, outcome) in run.OutcomeByTitle)
+            {
+                if (!merged.OutcomeByTitle.TryGetValue(title, out var kept) || kept != "Failed")
+                {
+                    merged.OutcomeByTitle[title] = outcome;
+                }
+            }
+
             merged.Total += run.Total;
             merged.Passed += run.Passed;
             merged.Failed += run.Failed;

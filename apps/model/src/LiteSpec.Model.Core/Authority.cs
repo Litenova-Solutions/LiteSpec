@@ -35,7 +35,7 @@ public static class Authority
 
         var effective = new Dictionary<string, string>(StringComparer.Ordinal);
 
-        foreach (var record in records.Where(record => record.Type is "product" or "goal" or "problem" or "feature" or "requirement" or "constraint" or "decision" or "research" or "actor" or "module" or "role" or "permission" or "external-system" or "event" or "integration-event" or "aggregate" or "runbook" or "deviation" or "known-gap" or "term"))
+        foreach (var record in records.Where(record => record.Type is "product" or "goal" or "problem" or "feature" or "topic" or "requirement" or "constraint" or "decision" or "research" or "actor" or "module" or "role" or "permission" or "external-system" or "event" or "integration-event" or "aggregate" or "runbook" or "deviation" or "known-gap" or "term"))
         {
             effective[record.Id] = Own(record);
         }

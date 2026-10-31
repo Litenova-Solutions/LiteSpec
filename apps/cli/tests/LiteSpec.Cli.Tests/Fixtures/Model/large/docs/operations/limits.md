@@ -15,13 +15,13 @@
       "default": 5,
       "range": "1 to 20",
       "unit": "loans",
-      "setBy": "founder",
+      "setBy": "decider",
       "fulfills": [
         "requirement/borrowing.max-active-loans"
       ],
       "approvedBy": "lending-team",
       "approvedOn": "2026-10-01",
-      "approvedHash": "19e6bb03"
+      "approvedHash": "f3c23375"
     }
   ]
 }

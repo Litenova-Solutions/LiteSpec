@@ -6,7 +6,7 @@ namespace LiteSpec.Model;
 /// <summary>
 ///     The <c>litespec model</c> command: build, check, render and query a consumer's project model.
 /// </summary>
-/// <follows>litespec/core/model#mark-every-check-with-its-tier</follows>
+/// <follows>litespec/core/model#mark-every-check-with-its-level</follows>
 static class ModelCommand
 {
     public const string Usage = """
@@ -766,10 +766,10 @@ static class ModelCommand
     static Severity Decide(ProjectModel model, ConsumerConfig config, Finding finding, string phase) =>
         Severity.Of(
             finding,
-            finding.Subject is not null && model.EffectiveStatus.TryGetValue(finding.Subject, out var status) ? status : null,
+            finding.Subject is not null && model.ById.TryGetValue(finding.Subject, out var subject) ? subject.Status : null,
             UnderTestRoot(config, finding.Path),
             phase,
-            finding.Reader switch
+            (finding.Code == "reader-unavailable" && config.IsContinuousIntegration) || finding.Reader switch
             {
                 Finding.TypeScriptReader => model.TypeScriptQualified,
                 Finding.RoslynReader => true,

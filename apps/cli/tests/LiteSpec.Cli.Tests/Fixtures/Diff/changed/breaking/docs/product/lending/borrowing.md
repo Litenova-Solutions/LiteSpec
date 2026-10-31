@@ -1,6 +1,7 @@
 ---
 {
-  "type": "requirement-page",
+  "type": "topic",
+  "id": "topic/borrowing",
   "title": "Borrowing",
   "owner": "lending-team",
   "status": "approved",
@@ -14,7 +15,8 @@
       "status": "approved",
       "kind": "functional",
       "statement": "A reader holds at most three active loans.",
-      "basedOn": []
+      "rationale": "Readers borrow enough for a term without starving holds.",
+      "cites": []
     },
     {
       "type": "requirement",
@@ -24,9 +26,10 @@
       "status": "approved",
       "kind": "quality",
       "statement": "Search answers quickly.",
+      "rationale": "Slow search sends readers to the desk queue.",
       "measure": "p99 latency",
       "by": "under 200 ms",
-      "basedOn": []
+      "cites": []
     }
   ]
 }

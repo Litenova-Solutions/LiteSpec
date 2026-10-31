@@ -10,27 +10,27 @@
   "options": [
     {
       "name": "Consumer homes under docs/intent",
-      "for": "Comparable projects keep rationale in numbered records beside the normative text while the specification stays the only normative surface, and the consumer research and decision shapes already exist with an exercised example.",
-      "against": "The maintainer validator and the site each need a record pass before the records publish and check."
+      "pros": "Comparable projects keep rationale in numbered records beside the normative text while the specification stays the only normative surface, and the consumer research and decision shapes already exist with an exercised example.",
+      "cons": "The maintainer validator and the site each need a record pass before the records publish and check."
     },
     {
       "name": "A root records folder",
-      "for": "Reasoning stays visibly separate from the documented contract.",
-      "against": "No site ingestion and no authoring precedent cover a root folder, and the maintainer validator would still walk its pages as stray Markdown."
+      "pros": "Reasoning stays visibly separate from the documented contract.",
+      "cons": "No site ingestion and no authoring precedent cover a root folder, and the maintainer validator would still walk its pages as stray Markdown."
     },
     {
       "name": "Stay in .agents",
-      "for": "No contract, validator, or site change is needed.",
-      "against": "Working folders are ignored by git, so the reasoning is neither tracked nor referenced, and no later change can cite it."
+      "pros": "No contract, validator, or site change is needed.",
+      "cons": "Working folders are ignored by git, so the reasoning is neither tracked nor referenced, and no later change can cite it."
     },
     {
       "name": "docs/reference",
-      "for": "The reasoning sits beside the other exact material readers consult.",
-      "against": "The reference style states exact values and owns no records, so record pages would break the area contract."
+      "pros": "The reasoning sits beside the other exact material readers consult.",
+      "cons": "The reference style states exact values and owns no records, so record pages would break the area contract."
     }
   ],
-  "chosen": "Consumer homes under docs/intent",
-  "changeWhen": "LiteSpec stops publishing provisions as its specification.",
+  "choice": "Consumer homes under docs/intent",
+  "reopenedWhen": "LiteSpec stops publishing provisions as its specification.",
   "basedOn": [
     "research/comparable-rationale-practice",
     "research/established-traceability-practice"

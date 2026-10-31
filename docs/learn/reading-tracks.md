@@ -15,7 +15,7 @@ A reviewer who reads Behavior first meets behavior with no reason. A reviewer wh
 Follow one journey from its goal to its proof. Product readers take this track through the journey detail, which shows the journey without field names or JSON. Read in this order:
 
 1. The goal the journey serves, and the requirements that fulfill it, with their statements and each `except` with its fallback inline.
-2. The journey page: its goal, its `finishedWhen`, its steps as product sentences, and what each step's `ifItGoesWrong` says the person experiences.
+2. The journey page: its goal, its `finishedWhen`, its steps as product sentences, and what each step's `failure` says the person experiences.
 3. Each step's serving use cases: one line of goal each, with the Then clauses of their scenarios as context.
 4. The consequences box as context: new refusals in product words, data kept and for how long, and money effects.
 5. The open questions on the journey and its requirements, grouped in their ballots.
@@ -51,7 +51,8 @@ Every record uses the same structural words: the record types, the links between
 | constraint | An outside rule that binds everything below it. |
 | research | Evidence that informs, never decides. |
 | decision | A settled choice, replaced never edited. |
-| requirement | One functional, quality, or business obligation, with its exceptions and fallback. |
+| topic | The requirements that share one story. |
+| requirement | One functional, quality, or policy obligation, with its exceptions and fallback. |
 | journey | Ordered product sentences toward one goal, each with an id. |
 | term | One glossary word with its meaning, layer, and aliases. |
 | module | One part of the domain. |
@@ -64,7 +65,7 @@ Every record uses the same structural words: the record types, the links between
 | scenario | One example in given, when, then that proves a result. |
 | reaction | When an event fires, issue a use case or send a notification. |
 | job | Scheduled, one-off, or operator work that issues use cases. |
-| notification | One person-facing message with its audience, channel, and consent. |
+| notification | One person-facing message with its addresses, channel, and consent. |
 | setting | One tunable with its default, range, setter, and bound behavior. |
 | actor | One person, organization, or system that acts. |
 | role | One set of permissions held at a scope. |
@@ -85,6 +86,7 @@ Every record uses the same structural words: the record types, the links between
 | serves | The journey serves this goal; the use case, reaction, job, or screen serves this journey step. |
 | fulfills | This record answers the requirement it names. |
 | basedOn | The evidence or record this one builds on. |
+| cites | The records behind this requirement or journey. |
 | decides | The decision settles this record. |
 | replaces | The decision overturns this earlier decision. |
 | governs | The rule binds this use case or aggregate. |
@@ -113,7 +115,7 @@ Every record uses the same structural words: the record types, the links between
 | reachable | A transition leads into the state. |
 | command, query | The two use case kinds: change, ask. |
 | invariant, precondition, calculation, cross-aggregate, atomicity, reservation, commercial-data, default | The eight rule kinds. |
-| functional, quality, business | The three requirement kinds: behavior, measure, terms and dates. |
+| functional, quality, policy | The three requirement kinds: behavior, measure, terms and dates. |
 | success, refusal | The two result outcomes: it worked, or it ended with a code. |
 | scheduled, one-off, operator | The three job kinds. |
 | inline, after-commit, async | The three effect timings. |

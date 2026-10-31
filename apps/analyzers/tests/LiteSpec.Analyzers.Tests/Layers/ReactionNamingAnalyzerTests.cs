@@ -76,6 +76,19 @@ public sealed class ReactionNamingAnalyzerTests
             """, assemblyName: "Shop.Application");
 
     /// <proves>litespec/workspace/naming#use-architectural-suffixes</proves>
+    [Fact(DisplayName = "LS2007 reports a job without a job name in Worker")]
+    public Task ReportsAJobWithoutAJobNameInWorker() =>
+        Verify.AnalyzerAsync<ReactionNamingAnalyzer>("""
+            namespace Shop.Orders;
+
+            public abstract class BackgroundService { }
+
+            internal sealed class {|LS2007:ReminderLoop|} : BackgroundService
+            {
+            }
+            """, assemblyName: "Shop.Worker");
+
+    /// <proves>litespec/workspace/naming#use-architectural-suffixes</proves>
     [Fact(DisplayName = "LS2007 ignores a bare hosted service without a job name")]
     public Task IgnoresABareHostedServiceWithoutAJobName() =>
         Verify.AnalyzerAsync<ReactionNamingAnalyzer>("""

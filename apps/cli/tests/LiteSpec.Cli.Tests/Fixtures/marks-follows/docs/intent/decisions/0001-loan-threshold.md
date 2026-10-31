@@ -10,11 +10,11 @@
   "options": [
     {
       "name": "Five open loans",
-      "for": "Readers borrow more",
-      "against": "Late returns grow"
+      "pros": "Readers borrow more",
+      "cons": "Late returns grow"
     }
   ],
-  "changeWhen": "Late returns pass five percent"
+  "reopenedWhen": "Late returns pass five percent"
 }
 ---
 

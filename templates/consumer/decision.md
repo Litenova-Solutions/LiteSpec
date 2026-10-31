@@ -1,23 +1,25 @@
 ---
 {
   "type": "decision",
-  "id": "decision/<number>-<name>",
+  "id": "decision/<four-digit number>-<name>",
   "title": "<Decision display title>",
   "owner": "<owner>",
   "status": "draft",
   "decider": "<owner>",
   "decideBy": "<YYYY-MM-DD>",
-  "decidedOn": "<YYYY-MM-DD, set on approval>",
+  "approvedBy": "<The approving decider, set on approval>",
+  "approvedOn": "<YYYY-MM-DD, set on approval>",
+  "approvedHash": "<The semantic hash, set on approval>",
   "options": [
     {
       "name": "<one option>",
-      "for": "<What speaks for this option>",
-      "against": "<What speaks against this option>"
+      "pros": "<What speaks for this option>",
+      "cons": "<What speaks against this option>"
     }
   ],
-  "chosen": "<The selected option name, set on approval>",
-  "changeWhen": "<The measurable condition that reopens this decision>",
-  "decides": ["<requirement, feature, rule, or constraint-applicability id>"],
+  "choice": "<The selected option name, set on approval>",
+  "reopenedWhen": "<The measurable condition that reopens this decision>",
+  "decides": ["<requirement, feature, rule, constraint, permission, role, actor, deviation, entry-point, setting, or decision id>"],
   "basedOn": ["<constraint or research id; a technical decision also names the requirements it serves>"],
   "replaces": "<decision id, or remove this line>",
   "terms": ["term/<term-name>"],
@@ -26,9 +28,11 @@
       "question": "<The open question, or remove the questions block>",
       "decider": "<owner>",
       "decideBy": "<YYYY-MM-DD>",
-      "recommended": "<The recommended answer>",
       "ballot": "<decision-id or topic slug>",
-      "tier": "<1|3>"
+      "recommendation": "<The recommended answer, or remove this line when the record carries risk>",
+      "answer": "<The answer, set on answer>",
+      "answeredBy": "<The answerer, set on answer>",
+      "answeredOn": "<YYYY-MM-DD, set on answer>"
     }
   ]
 }

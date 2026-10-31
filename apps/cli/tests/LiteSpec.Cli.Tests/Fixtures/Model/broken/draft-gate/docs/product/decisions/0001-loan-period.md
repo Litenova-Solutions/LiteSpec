@@ -8,21 +8,21 @@
   "options": [
     {
       "name": "14 days",
-      "for": "Copies turn over fast for holds.",
-      "against": "Readers rush through long books."
+      "pros": "Copies turn over fast for holds.",
+      "cons": "Readers rush through long books."
     },
     {
       "name": "21 days",
-      "for": "Most readers finish in three weeks.",
-      "against": "Holds wait a week longer."
+      "pros": "Most readers finish in three weeks.",
+      "cons": "Holds wait a week longer."
     },
     {
       "name": "28 days",
-      "for": "Slow readers keep up.",
-      "against": "Popular copies sit idle."
+      "pros": "Slow readers keep up.",
+      "cons": "Popular copies sit idle."
     }
   ],
-  "changeWhen": "Reader demand shifts.",
+  "reopenedWhen": "Reader demand shifts.",
   "decides": [
     "requirement/borrowing.loan-period-days"
   ],

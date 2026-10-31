@@ -55,6 +55,7 @@ One product worked end to end, from its first record to a passing check.
 - [Access](core/access.md): the actors, roles, permissions, access each use case declares, entry points, and external systems.
 - [Agent Operating Protocol](core/agent.md): how agents select context, write below decided Intent, raise questions, and report completion.
 - [Authoring Standard](core/authoring.md): page styles, provision contracts, identifiers, and prose style; what `litespec-maintain validate` checks.
+- [Record Language](core/language.md): the grammar for everything a project writes: field names, values, record names, finding codes, and tool names.
 - [Maintaining the Standards](core/maintaining.md): the maintainer manual for provision lifecycle, renames, citations, and releases.
 - [Product Release](core/release.md): who reviews each diff, how tiers and the veto window work, which checks each boundary runs, and what the release record lists.
 

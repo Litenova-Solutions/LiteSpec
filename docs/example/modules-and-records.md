@@ -582,7 +582,7 @@ This job carries the approval reminders feature down the tree: the feature promi
 
 ## The Notifications
 
-A notification is one person-facing message with its audience, channel, consent, and claims. The approver reminder lives at `docs/behavior/modules/spending/notifications/approver-reminder.md`, names its audience and channel with the consent rule, and claims each promise it makes from a requirement, which applies `litespec/core/behavior#describe-every-notification-with-audience-channel-and-consent` and `litespec/core/behavior#claim-every-notification-promise-from-a-requirement`.
+A notification is one person-facing message with its addresses, channel, consent, and claims. The approver reminder lives at `docs/behavior/modules/spending/notifications/approver-reminder.md`, names its addresses and channel with the consent rule, and claims each promise it makes from a requirement, which applies `litespec/core/behavior#describe-every-notification-with-audience-channel-and-consent` and `litespec/core/behavior#claim-every-notification-promise-from-a-requirement`.
 
 ```json
 {
@@ -592,7 +592,7 @@ A notification is one person-facing message with its audience, channel, consent,
   "owner": "claimwick-team",
   "status": "reviewed",
   "template": "approver-reminder",
-  "audience": ["actor/manager"],
+  "addresses": ["actor/manager"],
   "channel": ["email"],
   "consent": "Managers receive reminders as part of the approver role.",
   "frequency": "per-attempt",
@@ -646,7 +646,7 @@ A setting is one tunable with its value type, default, range, unit, setter, and 
       "default": "P3D",
       "range": "P1D..P5D",
       "unit": "days",
-      "setBy": "founder",
+      "setBy": "decider",
       "atBound": "refuse",
       "secret": false,
       "meaning": "Submitted expenses wait this long before the first reminder.",
@@ -656,7 +656,7 @@ A setting is one tunable with its value type, default, range, unit, setter, and 
 }
 ```
 
-The threshold default is the 25 EUR the decision set, and a manager may move it inside the range through the set-threshold use case; a value outside the range is refused. The reminder delay is founder-set, so the nightly job reads a value no operator changes.
+The threshold default is the 25 EUR the decision set, and a manager may move it inside the range through the set-threshold use case; a value outside the range is refused. The reminder delay is decider-set, so the nightly job reads a value no operator changes.
 
 ## The Query
 

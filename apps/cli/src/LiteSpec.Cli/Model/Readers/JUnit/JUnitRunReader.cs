@@ -65,6 +65,12 @@ sealed class JUnitRunReader : ITestRunReader
 
                 run.OutcomeByTest[testName] = outcome;
 
+                if (TestRun.BrowserTitleOf(classname, name) is { } title
+                    && (!run.OutcomeByTitle.TryGetValue(title, out var keptTitle) || keptTitle != "Failed"))
+                {
+                    run.OutcomeByTitle[title] = outcome;
+                }
+
                 foreach (var method in NamesOf(testName))
                 {
                     if (!run.OutcomeByMethod.TryGetValue(method, out var kept) || kept != "Failed")

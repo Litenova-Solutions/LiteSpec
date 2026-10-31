@@ -8,12 +8,13 @@ public sealed class ParentCheckTests
 {
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
-    public void Requirement_With_BasedOn_Passes()
+    public void Requirement_With_Topic_Passes()
     {
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.md"), """{"kind": "functional", "statement": "A reader holds at most five active loans.", "basedOn": ["constraint/library-keeps-records"]}"""),
+            TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.md"), """{"kind": "functional", "statement": "A reader holds at most five active loans.", "cites": ["constraint/library-keeps-records"]}"""),
+            TestModel.Record("topic", "topic/borrowing", Path.Combine(temp.Path, "borrowing.md"), """{"status": "approved", "reviewBy": "2027-01-01"}"""),
             TestModel.Record("constraint", "constraint/library-keeps-records", Path.Combine(temp.Path, "charter.md"), """{"authority": "Library charter.", "kind": "organizational", "applies": true, "appliesBecause": "The library keeps records."}"""));
 
         Assert.DoesNotContain("record-without-parent", TestModel.Codes(model));
@@ -21,20 +22,7 @@ public sealed class ParentCheckTests
 
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
-    public void Requirement_With_Deciding_Decision_Passes()
-    {
-        using var temp = Cli.Temp("checks");
-        var model = TestModel.Model(
-            TestModel.Config(temp.Path),
-            TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.md"), """{"kind": "functional", "statement": "A reader holds at most five active loans."}"""),
-            TestModel.Record("decision", "decision/0001-loan-period", Path.Combine(temp.Path, "decisions.md"), """{"status": "approved", "decidedOn": "2026-02-01", "options": [{"name": "Five loans", "for": "Shelves stay full.", "against": "Readers queue."}], "chosen": "Five loans", "changeWhen": "Holds pass one hundred a day.", "decides": ["requirement/borrowing.max-active-loans"]}"""));
-
-        Assert.DoesNotContain("record-without-parent", TestModel.Codes(model));
-    }
-
-    /// <proves>litespec/core/model#give-every-record-one-parent</proves>
-    [Fact]
-    public void Requirement_Without_Origin_Reports_At_Tier_G()
+    public void Requirement_Without_Topic_Reports_At_Tier_G()
     {
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
@@ -43,13 +31,13 @@ public sealed class ParentCheckTests
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-without-parent");
         Assert.Equal("G", finding.Tier);
-        Assert.Equal("Requirement 'requirement/borrowing.max-active-loans' names no parent: it names no feature, basedOn or deciding decision.", finding.Message);
+        Assert.Equal("Requirement 'requirement/borrowing.max-active-loans' names no parent: its home 'borrowing' names no topic.", finding.Message);
         Assert.Equal("requirement/borrowing.max-active-loans", finding.Subject);
     }
 
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
-    public void Draft_Requirement_Without_Origin_Reports()
+    public void Draft_Requirement_Without_Topic_Reports()
     {
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
@@ -58,47 +46,67 @@ public sealed class ParentCheckTests
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-without-parent");
         Assert.Equal("G", finding.Tier);
-        Assert.Equal("Requirement 'requirement/borrowing.max-active-loans' names no parent: it names no feature, basedOn or deciding decision.", finding.Message);
+        Assert.Equal("Requirement 'requirement/borrowing.max-active-loans' names no parent: its home 'borrowing' names no topic.", finding.Message);
         Assert.Equal("requirement/borrowing.max-active-loans", finding.Subject);
     }
 
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
-    public void Requirement_Naming_Draft_Feature_Passes()
+    public void Requirement_With_Another_Topic_Reports()
     {
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.md"), """{"kind": "functional", "statement": "A reader holds at most five active loans.", "features": ["feature/hold-queue"]}"""),
-            TestModel.Record("feature", "feature/hold-queue", Path.Combine(temp.Path, "holds.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "lifecycle": "planned", "plannedFor": "Pilot launch", "solves": ["problem/overdue-loans-pile-up"]}"""));
+            TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.md"), """{"kind": "functional", "statement": "A reader holds at most five active loans."}"""),
+            TestModel.Record("topic", "topic/checkout", Path.Combine(temp.Path, "checkout.md"), """{"status": "approved", "reviewBy": "2027-01-01"}"""));
 
-        Assert.DoesNotContain("record-without-parent", TestModel.Codes(model));
+        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-without-parent");
+        Assert.Equal("G", finding.Tier);
+        Assert.Equal("Requirement 'requirement/borrowing.max-active-loans' names no parent: its home 'borrowing' names no topic.", finding.Message);
+        Assert.Equal("requirement/borrowing.max-active-loans", finding.Subject);
     }
 
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
-    public void Requirement_With_Features_Passes()
+    public void Requirement_With_Dangling_Cites_Reports_Unresolved()
     {
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.md"), """{"kind": "functional", "statement": "A reader holds at most five active loans.", "features": ["feature/hold-queue"]}"""),
-            TestModel.Record("feature", "feature/hold-queue", Path.Combine(temp.Path, "holds.md"), """{"status": "approved", "lifecycle": "shipped", "solves": ["problem/overdue-loans-pile-up"]}"""));
-
-        Assert.DoesNotContain("record-without-parent", TestModel.Codes(model));
-    }
-
-    /// <proves>litespec/core/model#give-every-record-one-parent</proves>
-    [Fact]
-    public void Requirement_With_Dangling_Features_Stays_Silent()
-    {
-        using var temp = Cli.Temp("checks");
-        var model = TestModel.Model(
-            TestModel.Config(temp.Path),
-            TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.md"), """{"kind": "functional", "statement": "A reader holds at most five active loans.", "features": ["feature/no-such-feature"]}"""));
+            TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.md"), """{"kind": "functional", "statement": "A reader holds at most five active loans.", "cites": ["feature/no-such-feature"]}"""),
+            TestModel.Record("topic", "topic/borrowing", Path.Combine(temp.Path, "borrowing.md"), """{"status": "approved", "reviewBy": "2027-01-01"}"""));
 
         Assert.DoesNotContain("record-without-parent", TestModel.Codes(model));
         Assert.Contains("reference-unresolved", TestModel.Codes(model));
+    }
+
+    /// <proves>litespec/core/intent#identify-every-requirement</proves>
+    [Fact]
+    public void Requirement_Topic_Segment_Differs_From_Page_Reports()
+    {
+        using var temp = Cli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "checkout.md"), """{"kind": "functional", "statement": "A reader holds at most five active loans."}"""),
+            TestModel.Record("topic", "topic/borrowing", Path.Combine(temp.Path, "borrowing.md"), """{"status": "approved", "reviewBy": "2027-01-01"}"""));
+
+        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "identifier-form");
+        Assert.Equal("G", finding.Tier);
+        Assert.Equal("Requirement 'requirement/borrowing.max-active-loans' names topic 'borrowing', which differs from its page 'checkout'.", finding.Message);
+        Assert.Equal("requirement/borrowing.max-active-loans", finding.Subject);
+    }
+
+    /// <proves>litespec/core/intent#identify-every-requirement</proves>
+    [Fact]
+    public void Requirement_Topic_Segment_Matching_Page_Passes()
+    {
+        using var temp = Cli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.md"), """{"kind": "functional", "statement": "A reader holds at most five active loans."}"""),
+            TestModel.Record("topic", "topic/borrowing", Path.Combine(temp.Path, "borrowing.md"), """{"status": "approved", "reviewBy": "2027-01-01"}"""));
+
+        Assert.DoesNotContain("identifier-form", TestModel.Codes(model));
     }
 
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
@@ -135,7 +143,7 @@ public sealed class ParentCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("journey", "journey/borrow-and-return", Path.Combine(temp.Path, "borrow.md"), """{"actor": ["actor/reader"], "aim": "Borrow and return a copy.", "serves": ["goal/faster-pickup"], "steps": [{"id": "s1", "says": "The reader borrows the copy."}]}"""),
+            TestModel.Record("journey", "journey/borrow-and-return", Path.Combine(temp.Path, "borrow.md"), """{"actor": ["actor/reader"], "serves": ["goal/faster-pickup"], "steps": [{"id": "s1", "statement": "The reader borrows the copy."}]}"""),
             TestModel.Record("goal", "goal/faster-pickup", Path.Combine(temp.Path, "goals.md"), """{"statement": "Readers wait less.", "measure": "Median pickup wait.", "target": "Under two days.", "dueBy": "Pilot launch"}"""));
 
         Assert.DoesNotContain("record-without-parent", TestModel.Codes(model));
@@ -148,8 +156,8 @@ public sealed class ParentCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("journey", "journey/borrow-and-return", Path.Combine(temp.Path, "borrow.md"), """{"actor": ["actor/reader"], "aim": "Borrow and return a copy.", "serves": ["journey/renew-loan#s1"], "steps": [{"id": "s1", "says": "The reader borrows the copy."}]}"""),
-            TestModel.Record("journey", "journey/renew-loan", Path.Combine(temp.Path, "renew.md"), """{"actor": ["actor/reader"], "aim": "Renew a loan.", "serves": ["goal/faster-pickup"], "steps": [{"id": "s1", "says": "The reader renews the loan."}]}"""),
+            TestModel.Record("journey", "journey/borrow-and-return", Path.Combine(temp.Path, "borrow.md"), """{"actor": ["actor/reader"], "serves": ["journey/renew-loan#s1"], "steps": [{"id": "s1", "statement": "The reader borrows the copy."}]}"""),
+            TestModel.Record("journey", "journey/renew-loan", Path.Combine(temp.Path, "renew.md"), """{"actor": ["actor/reader"], "serves": ["goal/faster-pickup"], "steps": [{"id": "s1", "statement": "The reader renews the loan."}]}"""),
             TestModel.Record("goal", "goal/faster-pickup", Path.Combine(temp.Path, "goals.md"), """{"statement": "Readers wait less.", "measure": "Median pickup wait.", "target": "Under two days.", "dueBy": "Pilot launch"}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-without-parent");
@@ -165,7 +173,7 @@ public sealed class ParentCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("journey", "journey/borrow-and-return", Path.Combine(temp.Path, "borrow.md"), """{"actor": ["actor/reader"], "aim": "Borrow and return a copy.", "steps": [{"id": "s1", "says": "The reader borrows the copy."}]}"""));
+            TestModel.Record("journey", "journey/borrow-and-return", Path.Combine(temp.Path, "borrow.md"), """{"actor": ["actor/reader"], "steps": [{"id": "s1", "statement": "The reader borrows the copy."}]}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-without-parent");
         Assert.Equal("G", finding.Tier);
@@ -180,7 +188,7 @@ public sealed class ParentCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("journey", "journey/borrow-and-return", Path.Combine(temp.Path, "borrow.md"), """{"actor": ["actor/reader"], "aim": "Borrow and return a copy.", "serves": ["goal/no-such-goal"], "steps": [{"id": "s1", "says": "The reader borrows the copy."}]}"""));
+            TestModel.Record("journey", "journey/borrow-and-return", Path.Combine(temp.Path, "borrow.md"), """{"actor": ["actor/reader"], "serves": ["goal/no-such-goal"], "steps": [{"id": "s1", "statement": "The reader borrows the copy."}]}"""));
 
         Assert.DoesNotContain("record-without-parent", TestModel.Codes(model));
         Assert.Contains("reference-unresolved", TestModel.Codes(model));
@@ -530,8 +538,7 @@ public sealed class ParentCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("requirement", "requirement/max-active-loans", Path.Combine(temp.Path, "borrowing.md"), """{"kind": "functional", "statement": "A reader holds at most five active loans.", "features": ["feature/hold-queue"]}"""),
-            TestModel.Record("feature", "feature/hold-queue", Path.Combine(temp.Path, "holds.md"), """{"status": "approved", "lifecycle": "shipped", "solves": ["problem/overdue-loans-pile-up"]}"""));
+            TestModel.Record("requirement", "requirement/max-active-loans", Path.Combine(temp.Path, "borrowing.md"), """{"kind": "functional", "statement": "A reader holds at most five active loans."}"""));
 
         Assert.Contains("identifier-form", TestModel.Codes(model));
         Assert.DoesNotContain("record-without-parent", TestModel.Codes(model));

@@ -10,11 +10,11 @@
   "options": [
     {
       "name": "One region",
-      "for": "Eviction stays simple",
-      "against": "Hot loans evict cold ones"
+      "pros": "Eviction stays simple",
+      "cons": "Hot loans evict cold ones"
     }
   ],
-  "changeWhen": "Cache misses pass one percent"
+  "reopenedWhen": "Cache misses pass one percent"
 }
 ---
 

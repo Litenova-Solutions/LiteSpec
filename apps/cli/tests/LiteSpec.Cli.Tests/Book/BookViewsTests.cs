@@ -88,7 +88,7 @@ public sealed class BookViewsTests
 
         // Spot placements across the parent rules.
         Assert.Equal("problem/slow-desk-queues", Str(details["feature/self-checkout"], "parent"));
-        Assert.Equal("feature/self-checkout", Str(details["requirement/borrowing.max-wait"], "parent"));
+        Assert.Equal("topic/borrowing", Str(details["requirement/borrowing.max-wait"], "parent"));
         Assert.Equal("aggregate/lending.loan", Str(details["use-case/lending.borrow-copy"], "parent"));
         Assert.Equal("aggregate/lending.loan", Str(details["use-case/lending.return-copy"], "parent"));
         Assert.Equal("use-case/lending.borrow-copy", Str(details["result/borrow-copy.borrowed"], "parent"));
@@ -292,7 +292,7 @@ public sealed class BookViewsTests
         Assert.True(HasEdge(
             Arr(details["requirement/borrowing.max-wait"], "out"),
             "feature/self-checkout",
-            "requirement.features"));
+            "requirement.cites"));
         Assert.True(HasEdge(
             Arr(details["feature/self-checkout"], "out"),
             "goal/faster-borrowing",
@@ -318,7 +318,8 @@ public sealed class BookViewsTests
         Assert.Equal(("serves", "is served by"), Phrases(links, "serves", "use-case"));
         Assert.Equal(("serves", "is served by"), Phrases(links, "serves", "journey"));
         Assert.Equal(("advances", "is advanced by"), Phrases(links, "advances", "feature"));
-        Assert.Equal(("is carried by", "carries"), Phrases(links, "features", "requirement"));
+        Assert.Equal(("cites", "is cited by"), Phrases(links, "cites", "requirement"));
+        Assert.Equal(("cites", "is cited by"), Phrases(links, "cites", "journey"));
         Assert.Equal(("fulfills", "is fulfilled by"), Phrases(links, "fulfills", "use-case"));
         Assert.Equal(("solves", "is solved by"), Phrases(links, "solves", "feature"));
         Assert.Equal(("is walked by", "walks"), Phrases(links, "actor", "journey"));
@@ -327,7 +328,8 @@ public sealed class BookViewsTests
         // Each edge key below joins to its row by the field after the carrier prefix.
         Assert.True(HasEdge(Arr(details["use-case/lending.borrow-copy"], "out"), "journey/borrowing", "use-case.serves"));
         Assert.True(HasEdge(Arr(details["feature/self-checkout"], "out"), "goal/faster-borrowing", "feature.advances"));
-        Assert.True(HasEdge(Arr(details["requirement/borrowing.max-wait"], "out"), "feature/self-checkout", "requirement.features"));
+        Assert.True(HasEdge(Arr(details["requirement/borrowing.max-wait"], "out"), "feature/self-checkout", "requirement.cites"));
+        Assert.True(HasEdge(Arr(details["journey/borrowing"], "out"), "requirement/borrowing.max-wait", "journey.cites"));
         Assert.True(HasEdge(Arr(details["rule/loan.one-loan-per-copy"], "out"), "use-case/lending.borrow-copy", "rule.governs"));
         Assert.True(HasEdge(Arr(details["decision/self-checkout-kiosk"], "out"), "feature/self-checkout", "decision.decides"));
         Assert.True(HasEdge(Arr(details["reaction/lending.send-due-reminder"], "out"), "event/loan.loan-due", "reaction.on"));
@@ -337,7 +339,8 @@ public sealed class BookViewsTests
         {
             ("use-case.serves", "use-case"),
             ("feature.advances", "feature"),
-            ("requirement.features", "requirement"),
+            ("requirement.cites", "requirement"),
+            ("journey.cites", "journey"),
             ("rule.governs", "rule"),
             ("decision.decides", "decision"),
             ("reaction.on", "reaction"),
@@ -373,7 +376,7 @@ public sealed class BookViewsTests
             "requirement/borrowing.late-fee",
         })
         {
-            Assert.True(HasEdge(Arr(details["feature/self-checkout"], "in"), id, "requirement.features"));
+            Assert.True(HasEdge(Arr(details["feature/self-checkout"], "in"), id, "requirement.cites"));
         }
 
         Assert.True(BoolOf(Obj(details["requirement/borrowing.copy-shelf-home"], "machine")["verified"]));
@@ -468,8 +471,8 @@ public sealed class BookViewsTests
         Assert.False(BoolOf(machine["verified"]));
         Assert.Equal(false, machine["measurePassed"]?.GetValue<bool>());
         var kept = Obj(measured, "keptBy");
-        Assert.Equal(4, kept.Count);
-        Assert.Equal(1, kept["journey"]?.GetValue<int>());
+        Assert.Equal(3, kept.Count);
+        Assert.Null(kept["journey"]);
 
         var manifest = ReadShard(Path.Combine(data, "manifest.js"), "manifest");
         Assert.Equal("2026-10-20", manifest["testRun"]!.AsObject()["date"]!.GetValue<string>());
@@ -478,7 +481,7 @@ public sealed class BookViewsTests
         Assert.True(BoolOf(Obj(fulfilled, "machine")["verified"]));
     }
 
-    /// <summary>A reaction detail carries its trigger events and what it sends; a notification carries its audience and channel.</summary>
+    /// <summary>A reaction detail carries its trigger events and what it sends; a notification carries its addresses and channel.</summary>
     /// <proves>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</proves>
     [Fact]
     public void Reaction_And_Notification_Details_Carry_Trigger_And_Audience()
@@ -495,11 +498,11 @@ public sealed class BookViewsTests
         var notification = details["notification/lending.due-reminder"];
         var fields = Obj(notification, "fields");
         Assert.Equal("email", Str(fields, "channel"));
-        Assert.True(HasString(Arr(fields, "audience"), "actor/member"));
+        Assert.True(HasString(Arr(fields, "addresses"), "actor/member"));
         Assert.True(HasEdge(Arr(notification, "in"), "reaction/lending.send-due-reminder", "reaction.sends"));
     }
 
-    /// <summary>A journey detail carries its chapter: aim, steps, serving, promises and outcomes.</summary>
+    /// <summary>A journey detail carries its chapter: steps, serving, promises and outcomes.</summary>
     /// <proves>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</proves>
     [Fact]
     public void Journey_Detail_Carries_Its_Chapter()
@@ -510,13 +513,13 @@ public sealed class BookViewsTests
         var details = ReadRecords(Path.Combine(temp.Path, "data"));
         var journey = details["journey/borrowing"];
         var fields = Obj(journey, "fields");
-        Assert.Equal("Borrow before closing", Str(fields, "aim"));
+        Assert.Null(fields["aim"]);
         Assert.Equal("actor/member", Str(fields, "actor"));
         Assert.Equal("The member leaves the desk with the copy before closing.", Str(fields, "finishedWhen"));
         var steps = Arr(fields, "steps");
         Assert.Equal(2, steps.Count);
-        Assert.Equal("The member borrows a copy before closing.", Str(steps[0]!.AsObject(), "says"));
-        Assert.Equal("The desk renews the loan.", Str(steps[1]!.AsObject(), "ifItGoesWrong"));
+        Assert.Equal("The member borrows a copy before closing.", Str(steps[0]!.AsObject(), "statement"));
+        Assert.Equal("The desk renews the loan.", Str(steps[1]!.AsObject(), "failure"));
 
         var servers = Obj(journey, "stepServers");
         Assert.True(HasString(servers["s1"] as JsonArray ?? new JsonArray(), "use-case/lending.borrow-copy"));
@@ -524,17 +527,17 @@ public sealed class BookViewsTests
         Assert.Empty(Obj(journey, "stepScreens")["s1"] as JsonArray ?? new JsonArray());
         Assert.Empty(Arr(journey, "exercised"));
 
-        Assert.True(HasEdge(Arr(journey, "out"), "requirement/borrowing.max-wait", "journey.fulfills"));
+        Assert.True(HasEdge(Arr(journey, "out"), "requirement/borrowing.max-wait", "journey.cites"));
         Assert.True(HasEdge(Arr(journey, "out"), "actor/member", "journey.actor"));
         Assert.True(HasEdge(Arr(journey, "in"), "use-case/lending.borrow-copy", "use-case.serves"));
 
         var questions = Arr(Obj(details["requirement/borrowing.max-wait"], "fields"), "questions");
         Assert.Single(questions);
         Assert.Equal("Do kiosk users count toward the wait?", Str(questions[0]!.AsObject(), "question"));
-        Assert.Equal("Count kiosk users separately.", Str(questions[0]!.AsObject(), "recommended"));
+        Assert.Equal("Count kiosk users separately.", Str(questions[0]!.AsObject(), "recommendation"));
     }
 
-    /// <summary>Ballots carry the tier, decide-by date and ballot each ordering needs, tier 1 first.</summary>
+    /// <summary>Ballots carry the tier, decide-by date and ballot each ordering needs.</summary>
     /// <proves>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</proves>
     [Fact]
     public void Ballots_Carry_Tier_DecideBy_And_Ballot_For_Ordering()
@@ -549,18 +552,18 @@ public sealed class BookViewsTests
         var tiered = ballots.Single(entry => Str(Obj(entry, "q"), "question") == "Must the kiosk serve members without cards?");
         Assert.Equal("feature/self-checkout", Str(tiered, "id"));
         Assert.Equal(0, tiered["i"]?.GetValue<int>());
-        Assert.Equal(1, Obj(tiered, "q")["tier"]?.GetValue<int>());
+        Assert.Equal(3, Obj(tiered, "q")["tier"]?.GetValue<int>());
         Assert.Equal("Ada", Str(Obj(tiered, "q"), "decider"));
         Assert.Equal("2026-10-30", Str(Obj(tiered, "q"), "decideBy"));
         Assert.Equal("desk-queue", Str(Obj(tiered, "q"), "ballot"));
-        Assert.Null(Obj(tiered, "q")["recommended"]);
+        Assert.Null(Obj(tiered, "q")["recommendation"]);
 
         var sampled = ballots.Single(entry => Str(Obj(entry, "q"), "question") == "Do kiosk users count toward the wait?");
         Assert.Equal("requirement/borrowing.max-wait", Str(sampled, "id"));
         Assert.Equal(3, Obj(sampled, "q")["tier"]?.GetValue<int>());
         Assert.Equal("2026-11-01", Str(Obj(sampled, "q"), "decideBy"));
         Assert.Equal("desk-queue", Str(Obj(sampled, "q"), "ballot"));
-        Assert.Equal("Count kiosk users separately.", Str(Obj(sampled, "q"), "recommended"));
+        Assert.Equal("Count kiosk users separately.", Str(Obj(sampled, "q"), "recommendation"));
 
         Assert.Equal(7, queue["review"]!.AsObject()["vetoWindowDays"]!.GetValue<int>());
     }
@@ -593,7 +596,7 @@ public sealed class BookViewsTests
         Assert.True(HasEdge(Arr(details["journey/borrowing"], "in"), "use-case/lending.borrow-copy", "use-case.serves"));
     }
 
-    /// <summary>The search shards cover statements, summaries, aims and body heads for every record.</summary>
+    /// <summary>The search shards cover statements, summaries and body heads for every record.</summary>
     /// <proves>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</proves>
     [Fact]
     public void Search_Shards_Cover_Statements_And_Body_Heads()
@@ -615,7 +618,7 @@ public sealed class BookViewsTests
         Assert.Equal("requirement", wait[2]);
         Assert.Equal("A member waits less than two minutes at the desk.", wait[3]);
         Assert.Equal("One copy lent to one member.", rows.Single(row => row[0] == "aggregate/lending.loan")[3]);
-        Assert.Equal("Borrow before closing", rows.Single(row => row[0] == "journey/borrowing")[3]);
+        Assert.Equal("", rows.Single(row => row[0] == "journey/borrowing")[3]);
         Assert.Contains(
             "Members scan and go",
             rows.Single(row => row[0] == "feature/self-checkout")[3],
@@ -735,7 +738,7 @@ public sealed class BookViewsTests
             Str(Obj(details["result/borrow-copy.copy-unavailable"], "fields"), "code"));
     }
 
-    /// <summary>Trace bands walk goal to behavior through incoming advances, carried features, kept-by counts and fulfilling edges.</summary>
+    /// <summary>Trace bands walk goal to behavior through incoming advances, citing requirements, kept-by counts and fulfilling edges.</summary>
     /// <proves>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</proves>
     [Fact]
     public void Trace_Bands_Read_From_Edges_And_KeptBy()
@@ -753,11 +756,10 @@ public sealed class BookViewsTests
             "requirement/borrowing.late-fee",
         })
         {
-            Assert.True(HasEdge(Arr(details["feature/self-checkout"], "in"), id, "requirement.features"));
+            Assert.True(HasEdge(Arr(details["feature/self-checkout"], "in"), id, "requirement.cites"));
         }
 
         var kept = Obj(details["requirement/borrowing.max-wait"], "keptBy");
-        Assert.Equal(1, kept["journey"]?.GetValue<int>());
         Assert.Equal(1, kept["use-case"]?.GetValue<int>());
         Assert.Equal(1, kept["reaction"]?.GetValue<int>());
         Assert.Equal(1, kept["notification"]?.GetValue<int>());
@@ -766,7 +768,7 @@ public sealed class BookViewsTests
             .Where(edge => (Str(edge, "key") ?? "").EndsWith("fulfills", StringComparison.Ordinal))
             .Select(edge => Str(edge, "id"))
             .ToList();
-        Assert.Equal(4, fulfilling.Count);
+        Assert.Equal(3, fulfilling.Count);
         Assert.True(HasEdge(Arr(details["journey/borrowing"], "in"), "use-case/lending.borrow-copy", "use-case.serves"));
     }
 

@@ -37,7 +37,7 @@ static class ConsumerFixture
     [
         new("docs/product/brief.md",
             """
-            {"type":"product","id":"product/fixture","title":"Fixture Shop","owner":"fixture","status":"approved","boundary":"The shop sells printed books to readers.","neverDoes":["The shop never sells ebooks."],"audience":["actor/customer"],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}
+            {"type":"product","id":"product/fixture","title":"Fixture Shop","owner":"fixture","status":"approved","boundary":"The shop sells printed books to readers.","exclusions":["The shop never sells ebooks."],"addresses":["actor/customer"],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}
             """,
             """
             # Fixture Shop
@@ -49,7 +49,7 @@ static class ConsumerFixture
             """),
         new("docs/product/pricing.md",
             """
-            {"type":"requirement-page","id":"pricing","title":"Pricing","owner":"fixture","status":"approved","reviewBy":"2027-04-01","records":[{"type":"requirement","id":"requirement/pricing.flat-fee","title":"Flat fee","owner":"fixture","status":"approved","kind":"business","statement":"Every order carries a flat fee of one euro.","rationale":"One fee keeps every receipt readable.","values":[{"value":"EUR 1.00","effectiveFrom":"2026-01-01"}],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}]}
+            {"type":"topic","id":"topic/pricing","title":"Pricing","owner":"fixture","status":"approved","reviewBy":"2027-04-01","approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000","records":[{"type":"requirement","id":"requirement/pricing.flat-fee","title":"Flat fee","owner":"fixture","status":"approved","kind":"policy","statement":"Every order carries a flat fee of one euro.","rationale":"One fee keeps every receipt readable.","values":[{"value":"EUR 1.00","effectiveFrom":"2026-01-01"}],"cites":["decision/0001-launch"],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}]}
             """,
             """
             # Pricing
@@ -86,14 +86,10 @@ static class ConsumerFixture
 
             The shop holds the flat fee until delivery costs move.
 
-            ## Refusals
-
-            The shop refuses a percentage fee on every order.
-
             """),
         new("docs/product/decisions/0001-launch.md",
             """
-            {"type":"decision","id":"decision/0001-launch","title":"Launch with a flat fee","owner":"fixture","status":"approved","decidedOn":"2026-01-01","options":[{"name":"Flat fee","for":"Every receipt shows the same fee line.","against":"Large orders pay too little for delivery."},{"name":"Percentage","for":"Large orders carry their delivery cost.","against":"Every receipt needs its own math."}],"chosen":"Flat fee","changeWhen":"The fee changes when delivery costs move.","decides":["requirement/pricing.flat-fee"],"basedOn":[],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}
+            {"type":"decision","id":"decision/0001-launch","title":"Launch with a flat fee","owner":"fixture","status":"approved","options":[{"name":"Flat fee","pros":"Every receipt shows the same fee line.","cons":"Large orders pay too little for delivery."},{"name":"Percentage","pros":"Large orders carry their delivery cost.","cons":"Every receipt needs its own math."}],"choice":"Flat fee","reopenedWhen":"The fee changes when delivery costs move.","decides":["requirement/pricing.flat-fee"],"basedOn":[],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}
             """,
             """
             # Launch with a Flat Fee

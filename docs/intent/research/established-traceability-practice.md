@@ -12,87 +12,87 @@
   "sources": [
     {
       "url": "https://technav.ieee.org/topic/requirements-management/",
-      "read": "2026-10-30"
+      "readOn": "2026-10-30"
     },
     {
       "url": "https://technav.ieee.org/topic/technical-requirements/",
-      "read": "2026-10-30"
+      "readOn": "2026-10-30"
     },
     {
       "url": "https://www.betterask.erni/the-need-for-requirements-traceability-within-development-projects/",
-      "read": "2026-10-30"
+      "readOn": "2026-10-30"
     },
     {
       "url": "https://www.jamasoftware.com/requirements-management-guide/aerospace-and-defense/do-178c",
-      "read": "2026-10-30"
+      "readOn": "2026-10-30"
     },
     {
       "url": "https://www.jamasoftware.com/legacy/requirements-management-guide/requirements-traceability/bidirectional-traceability/",
-      "read": "2026-10-30"
+      "readOn": "2026-10-30"
     },
     {
       "url": "https://help.jamasoftware.com/ah/en/manage-content/coverage-and-traceability/relationships/relationship-status-indicator.html",
-      "read": "2026-10-30"
+      "readOn": "2026-10-30"
     },
     {
       "url": "https://help.jamasoftware.com/ah/en/manage-content/coverage-and-traceability/relationships/clear-suspect-links.html",
-      "read": "2026-10-30"
+      "readOn": "2026-10-30"
     },
     {
       "url": "https://help.jamasoftware.com/ah/en/manage-content/coverage-and-traceability/live-trace-explorer/modify-a-tile-in-the-diagram.html",
-      "read": "2026-10-30"
+      "readOn": "2026-10-30"
     },
     {
       "url": "https://www.vector.com/en/business-unit/code-testing-and-verification/standards-and-compliance/functional-safety-industry-standards/",
-      "read": "2026-10-30"
+      "readOn": "2026-10-30"
     },
     {
       "url": "https://link.springer.com/article/10.1007/s10664-014-9314-z",
-      "read": "2026-10-30"
+      "readOn": "2026-10-30"
     },
     {
       "url": "http://wer.inf.puc-rio.br/WERpapers/artigos/artigos_WER09/werneck.pdf",
-      "read": "2026-10-30"
+      "readOn": "2026-10-30"
     },
     {
       "url": "https://learn.microsoft.com/en-us/azure/devops/boards/queries/link-type-reference?view=azure-devops",
-      "read": "2026-10-30"
+      "readOn": "2026-10-30"
     },
     {
       "url": "https://blogs.sw.siemens.com/polarion/links-between-work-items-and-their-intended-meaning/",
-      "read": "2026-10-30"
+      "readOn": "2026-10-30"
     },
     {
       "url": "https://blogs.sw.siemens.com/polarion/interconnecting-your-engineering-elements/",
-      "read": "2026-10-30"
+      "readOn": "2026-10-30"
     },
     {
       "url": "https://linear.app/docs/parent-and-sub-issues",
-      "read": "2026-10-30"
+      "readOn": "2026-10-30"
     },
     {
       "url": "https://www.modernanalyst.com/Careers/InterviewQuestions/tabid/128/ID/6793/What-is-Impact-Mapping.aspx",
-      "read": "2026-10-30"
+      "readOn": "2026-10-30"
     },
     {
       "url": "https://www.prodpad.com/glossary/opportunity-solution-tree/",
-      "read": "2026-10-30"
+      "readOn": "2026-10-30"
     },
     {
       "url": "https://visual-paradigm.com/cn/guide/agile-software-development/what-is-user-story/",
-      "read": "2026-10-30"
+      "readOn": "2026-10-30"
     },
     {
       "url": "https://qa.whatmatters.com/faqs/okrs-objectives-key-results-explanation-examples",
-      "read": "2026-10-30"
+      "readOn": "2026-10-30"
     },
     {
       "url": "https://www.adammhoward.com/solavirtusinvicta/2013/10/27/traceability-matrix-myth-tricks",
-      "read": "2026-10-30"
+      "readOn": "2026-10-30"
     },
     {
       "url": "https://nkdagility.com/resources/blog/rethinking-product-backlog-navigating-through-the-weeds-of-complexity/",
-      "read": "2026-10-30"
+      "readOn": "2026-10-30"
     }
   ]
 }

@@ -10,27 +10,27 @@
   "options": [
     {
       "name": "A conclusion field plus dated sources",
-      "for": "One sentence as data enters the approval hash, renders in the book, and gives every citing decision a stable takeaway to point at.",
-      "against": "Every research record gains a field to write, and approved records need re-approval because the new field is semantic."
+      "pros": "One sentence as data enters the approval hash, renders in the book, and gives every citing decision a stable takeaway to point at.",
+      "cons": "Every research record gains a field to write, and approved records need re-approval because the new field is semantic."
     },
     {
       "name": "A Conclusion body section",
-      "for": "No schema, checker, or approval change is needed.",
-      "against": "Seven invented heading names show the drift a section codifies, and prose stays outside the approval hash and cannot be cited as data."
+      "pros": "No schema, checker, or approval change is needed.",
+      "cons": "Seven invented heading names show the drift a section codifies, and prose stays outside the approval hash and cannot be cited as data."
     },
     {
       "name": "A record-level confidence field",
-      "for": "One comparable value summarizes how far to trust each record.",
-      "against": "One value falsifies multi-claim records, so confidence stays in Answer, claim by claim."
+      "pros": "One comparable value summarizes how far to trust each record.",
+      "cons": "One value falsifies multi-claim records, so confidence stays in Answer, claim by claim."
     },
     {
       "name": "Leave research as question plus Answer",
-      "for": "No author writes anything new and no approval reopens.",
-      "against": "An approved record finding stays editable without reopening approval, and the book renders pages whose takeaway no field states."
+      "pros": "No author writes anything new and no approval reopens.",
+      "cons": "An approved record finding stays editable without reopening approval, and the book renders pages whose takeaway no field states."
     }
   ],
-  "chosen": "A conclusion field plus dated sources",
-  "changeWhen": "A research kind appears whose takeaway one sentence cannot state.",
+  "choice": "A conclusion field plus dated sources",
+  "reopenedWhen": "A research kind appears whose takeaway one sentence cannot state.",
   "basedOn": [
     "research/research-conclusion-evidence"
   ]

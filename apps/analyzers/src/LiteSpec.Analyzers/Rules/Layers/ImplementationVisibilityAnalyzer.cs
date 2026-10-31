@@ -16,7 +16,7 @@ public sealed class ImplementationVisibilityAnalyzer : LayerAnalyzer
         ImmutableArray.Create(Descriptors.LS2001);
 
     private protected override bool AppliesTo(Layer layer) =>
-        layer == Layer.Application || layer == Layer.Infrastructure || layer == Layer.WebApi;
+        layer == Layer.Application || layer == Layer.Infrastructure || layer == Layer.WebApi || layer == Layer.Worker;
 
     private protected override void Register(CompilationStartAnalysisContext context) =>
         context.RegisterSymbolAction(Analyze, SymbolKind.NamedType);

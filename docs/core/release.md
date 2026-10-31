@@ -12,7 +12,7 @@ Each change flows from the builder through checks into three review views: the I
 
 ### Intent Review
 
-Product people review the Intent diff and answer its ballots. Tier 1 questions call for explicit approval from the decider, while tier 3 questions auto-approve after the veto window with the recommendation recorded. Each ballot carries a consequences summary rendered from Behavior as context, outside the approval hash, so Intent stays enough to approve.
+Product people review the Intent diff and answer its ballots. Questions on tier 1 records call for explicit approval from the decider, while questions on tier 3 records auto-approve after the veto window with the recommendation recorded as the answer, as `litespec/core/model#answer-each-question-on-its-record` states. Each ballot carries a consequences summary rendered from Behavior as context, outside the approval hash, so Intent stays enough to approve.
 
 ### Behavior Review
 
@@ -24,19 +24,19 @@ The security reviewer is the role named in `securityReviewer` in the project fil
 
 ### Single Operator Mode
 
-A project with one operator runs the same flow with the veto window doing the waiting. Tier 3 questions auto-approve after `decideBy` plus `vetoWindowDays`, recorded as auto, while tier 1 questions wait for explicit approval. Drafts past their date that cannot auto-approve are reported as known gaps with owners, so nothing silently blocks.
+A project with one operator runs the same flow with the veto window doing the waiting. Questions on tier 3 records auto-approve after `decideBy` plus `vetoWindowDays`, recorded as `answeredBy: auto (veto window)` on the question, while questions on tier 1 records wait for explicit approval, as `litespec/core/model#answer-each-question-on-its-record` states. Every unanswered question past its `decideBy` that cannot auto-approve is reported by the `question-aged` check, so nothing silently blocks.
 
 ### Batch Review
 
 A project with thousands of drafts is reviewed in batches, never record by record. `litespec model review` computes the review queue from the model: every draft and every reopened record, with its decider, tier, `decideBy`, effective status, the drafts awaiting it, and its evidence (scenario proofs and open findings), grouped into batches. A result or a scenario takes the tier of its use case. A batch is one use case with its results and scenarios, one decision with the records it decides, or the tier 3 drafts of one module and one record type. A reopened record carrying a `risk` value, an `access` grant, or requirement `values` is marked `fullReRead`, because the hash says only that its promise moved, not which part.
 
-`litespec model approve --batch` approves one batch in one operation: it promotes each draft, Intent and governance records to approved and Behavior records to reviewed, stamps its approval data, re-stamps each reopened record in the batch, and writes a batch manifest under `docs/proof/approvals/`. A record already approved with an unchanged hash is listed in the manifest and left as it is. The manifest is generated evidence, never a record. A batch is refused whole when one guard fails. Approving a batch is not shipping it: the release gate still asks for passing tier 1 scenarios and a cleared security queue. No record auto-approves: the veto window decides tier 3 questions only, because a question carries a recommendation awaiting a veto, while a record is a promise that carries a person's name.
+`litespec model approve --batch` approves one batch in one operation: it promotes each draft, Intent and governance records to approved and Behavior records to reviewed, stamps its approval data, re-stamps each reopened record in the batch, and writes a batch manifest under `docs/proof/approvals/`. A record already approved with an unchanged hash is listed in the manifest and left as it is. The manifest is generated evidence, never a record. A batch is refused whole when one guard fails. Approving a batch is not shipping it: the release gate still asks for passing tier 1 scenarios and a cleared security queue. No record auto-approves: only a question auto-approves after its `decideBy` plus the veto window, as `litespec/core/model#answer-each-question-on-its-record` states, because a question carries a recommendation the window can settle, while a record is a promise that carries a person's name.
 
 The second review of a tier 1 batch is a reading recorded beside the approval, never the approval itself. In a project with one person, an independent agent review whose report the manifest cites stands as that reading, while the approval stays the person's. The report is a page in the `review-report` style under `docs/proof/reviews/`.
 
 ### The Release Gate
 
-The gate admits a release when its G checks are green, its tier 1 drafts are answered, its scenarios are verified, and its S checks are green where the reader is qualified. G checks read records only and block always, S checks read code through a stack reader and block where that reader is qualified, and A checks report without blocking. The [model page](model.md) states the check tiers, and the boundary table below states which checks each changed boundary selects.
+The gate admits a release when its G checks are green, its questions on tier 1 records are answered, its scenarios are verified, and its S checks are green where the reader is qualified. G checks read records only and block always, S checks read code through a stack reader and block where that reader is qualified, and A checks report without blocking. The [model page](model.md) states the check levels, and the boundary table below states which checks each changed boundary selects.
 
 ### Agents Advise
 
@@ -96,7 +96,7 @@ A consumer adopts one LiteSpec release by installing the `LiteSpec.Cli` tool pac
 
 **Rationale:** The Intent diff shows the change in product words with its consequences as context, and ballots group the questions by decider with their recommendations. Reviewing there keeps the business decision with the people who own it, instead of scattering it across Behavior pages they never open.
 
-**Example:** A threshold change shows one product sentence plus the affected promises, and the founder approves it in the Approval terms ballot.
+**Example:** A threshold change shows one product sentence plus the affected promises, and the decider approves it in the Approval terms ballot.
 
 **Reviewed for:** Which Intent changes shipped without product review of the Intent diff and ballots? Look at the Intent diff and ballot decisions beside each change.
 
@@ -118,7 +118,7 @@ A consumer adopts one LiteSpec release by installing the `LiteSpec.Cli` tool pac
 
 **Statement:** A tier 1 Behavior change MUST show passing scenarios and an advisory agent review before it ships.
 
-**Rationale:** Tier 1 records carry money, door, personal data, or access risk, so one passing suite is not enough on its own. Passing scenarios prove the behavior through the public boundary, and the advisory agent review checks the records a tired reviewer skips, with both recorded beside the change.
+**Rationale:** Tier 1 records carry money, physical-access, personal data, or access risk, so one passing suite is not enough on its own. Passing scenarios prove the behavior through the public boundary, and the advisory agent review checks the records a tired reviewer skips, with both recorded beside the change.
 
 **Example:** A cross tenant search ships only after its scenarios pass and the agent advice on its grant is recorded.
 
@@ -252,7 +252,7 @@ A consumer adopts one LiteSpec release by installing the `LiteSpec.Cli` tool pac
 
 **Rationale:** The security queue calls for one owner who answers for cross access, new outside calls, and new personal or sensitive data classes. Naming the role in the project file tells every diff where to route the queue, instead of leaving tier 1 access waiting for whoever notices it.
 
-**Example:** A project file carrying `"securityReviewer": "founder"` routes the queue to the founder until someone else holds the role.
+**Example:** A project file carrying `"securityReviewer": "cara"` routes the queue to Cara until someone else holds the role.
 
 **Checked by:** `litespec model check` reports `record-shape` for a project file without `securityReviewer`.
 
@@ -267,30 +267,6 @@ A consumer adopts one LiteSpec release by installing the `LiteSpec.Cli` tool pac
 **Example:** A reviewed staff search with cross scope waits in the queue until the security reviewer accepts the grant.
 
 **Reviewed for:** Which cross, calls, or data class changes shipped without a recorded security decision? Look at the security queue beside the Behavior diff.
-
-### Approve Tier 3 Questions Automatically After the Veto Window
-
-**ID:** `litespec/core/release#approve-tier-3-questions-automatically-after-the-veto-window`
-
-**Statement:** A tier 3 draft question with a recommendation MUST auto-approve after its decideBy plus the veto window.
-
-**Rationale:** Tier 3 questions carry no listed risk, so waiting for an absent decider blocks routine work for no safety gain. Auto-approval after the veto window records the recommendation as the decision with `auto (veto window)` as the approver, so the window rather than silence decides.
-
-**Example:** A tier 3 wording question with a recommendation and a decideBy of 2026-11-01 approves itself after the project veto window passes.
-
-**Reviewed for:** Which tier 3 questions past the veto window lack an auto decision? Look at the ballots with their decideBy dates and approvers.
-
-### Report Aged Drafts as Known Gaps with Owners
-
-**ID:** `litespec/core/release#report-aged-drafts-as-known-gaps-with-owners`
-
-**Statement:** A draft past its decideBy that cannot auto-approve MUST appear as a known gap with its owner.
-
-**Rationale:** A draft past its date is work the project has not decided, and leaving it as a draft lets it block silently. Reporting it as a known gap with its owner keeps the undecided work visible with someone answering for it, while the release gate counts it instead of stalling on it.
-
-**Example:** A tier 1 fee question past its date shows as a known gap owned by the founder until the ballot is answered.
-
-**Reviewed for:** Which drafts past decideBy lack a known gap with an owner? Look at the drafts beside the known gaps.
 
 ### Verify Connected Journeys
 
@@ -386,13 +362,13 @@ A consumer adopts one LiteSpec release by installing the `LiteSpec.Cli` tool pac
 
 **ID:** `litespec/core/release#meet-release-readiness-gates`
 
-**Statement:** A release MUST show green G checks, answered tier 1 drafts, verified scenarios, and green S checks where the reader is qualified.
+**Statement:** A release MUST show green G checks, answered questions on tier 1 records, verified scenarios, and green S checks where the reader is qualified.
 
-**Rationale:** The four parts prove the four risks are closed: G checks prove the record graph holds, answered tier 1 drafts prove no high-risk question is open, verified scenarios prove each behavior through the public boundary, and S checks prove the code matches the records where a qualified reader exists. A release missing any part ships with that risk unjudged.
+**Rationale:** The four parts prove the four risks are closed: G checks prove the record graph holds, answered questions on tier 1 records prove no high-risk question is open, verified scenarios prove each behavior through the public boundary, and S checks prove the code matches the records where a qualified reader exists. A release missing any part ships with that risk unjudged.
 
-**Example:** A reimbursement release shows green G checks, no open tier 1 ballots, every scenario verified, and green S checks on the .NET reader.
+**Example:** A reimbursement release shows green G checks, no open questions on tier 1 records, every scenario verified, and green S checks on the .NET reader.
 
-**Reviewed for:** Which releases lack green G checks, answered tier 1 drafts, verified scenarios, or qualified S results? Look at the gate evidence beside the release.
+**Reviewed for:** Which releases lack green G checks, answered questions on tier 1 records, verified scenarios, or qualified S results? Look at the gate evidence beside the release.
 
 ### Advise Without Gating as an Agent
 
@@ -472,11 +448,11 @@ A consumer adopts one LiteSpec release by installing the `LiteSpec.Cli` tool pac
 
 **ID:** `litespec/core/release#resolve-release-blockers`
 
-**Statement:** A release MUST settle every open tier 1 question and external claim it depends on, or exclude the affected behavior from every owning record.
+**Statement:** A release MUST settle every open question on a tier 1 record and external claim it depends on, or exclude the affected behavior from every owning record.
 
-**Rationale:** An open tier 1 question or an unverified external claim behind released behavior is a promise with unsettled terms. Settling each one, or excluding the affected behavior from every owning record, keeps the Intent and release records agreeing on what shipped. Tier 3 questions auto-approve or stand as known gaps, so they stall no release.
+**Rationale:** An open question on a tier 1 record or an unverified external claim behind released behavior is a promise with unsettled terms. Settling each one, or excluding the affected behavior from every owning record, keeps the Intent and release records agreeing on what shipped. Questions on tier 3 records auto-approve after the veto window, and the `question-aged` check reports every question that cannot auto-approve, so undecided work stalls no release. `litespec/core/model#answer-each-question-on-its-record` states the question lifecycle.
 
-**Reviewed for:** Which releases depend on an open tier 1 question or external claim without excluding the behavior? Look at the questions and claims beside the owning records.
+**Reviewed for:** Which releases depend on an open question on a tier 1 record or external claim without excluding the behavior? Look at the questions and claims beside the owning records.
 
 ### Report Verification Exactly
 
@@ -604,4 +580,4 @@ A reimbursement release includes verified submit, approve, and reimburse use cas
 
 This informative example demonstrates `litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots`, `litespec/core/release#review-behavior-changes-through-the-behavior-diff`, and `litespec/core/release#review-the-security-queue-separately-from-reviewed`.
 
-A threshold change shows one Intent sentence in the founder ballot, a two-line Behavior diff for sampling, and no security queue item, so it releases after the ballot and the sample pass.
+A threshold change shows one Intent sentence in the decider ballot, a two-line Behavior diff for sampling, and no security queue item, so it releases after the ballot and the sample pass.

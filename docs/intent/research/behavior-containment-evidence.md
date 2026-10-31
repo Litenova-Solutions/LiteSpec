@@ -12,19 +12,19 @@
   "sources": [
     {
       "path": "docs/core/model.md",
-      "read": "2026-10-30"
+      "readOn": "2026-10-30"
     },
     {
       "path": "docs/core/behavior.md",
-      "read": "2026-10-30"
+      "readOn": "2026-10-30"
     },
     {
       "path": "docs/core/access.md",
-      "read": "2026-10-30"
+      "readOn": "2026-10-30"
     },
     {
       "path": "schemas/record.schema.json",
-      "read": "2026-10-30"
+      "readOn": "2026-10-30"
     }
   ]
 }
@@ -34,7 +34,7 @@
 
 ## Answer
 
-This record distils the Behavior layer containment investigation of 2026-10-30 into the claims this release relies on. Counts below were measured over the largest consumer's built model at `D:/Personal-Projects/Nighthall/.model/model.json` on 2026-10-30, holding 21,548 records.
+This record distils the Behavior layer containment investigation of 2026-10-30 into the claims this release relies on. Counts below were measured over the largest consumer's built model on 2026-10-30, holding 21,548 records.
 
 Containment by identifier holds everywhere it is defined. Zero of 181 aggregates, zero of 1,272 use cases, and zero of 256 reactions, 73 jobs, 107 notifications, and 76 settings name a missing module. Zero of 380 screens name a missing entry point, and the screen identifier agrees with its `entryPoint` field 380 of 380 times. Name-only parentage also resolves everywhere: all 5,413 written results, 6,517 scenarios, 806 events, and 2,296 rules resolve their named parent, guarded by the project-wide name uniqueness checks. There is no dangling-container problem to fix. Confidence is high: every count is a direct measurement over the built model.
 

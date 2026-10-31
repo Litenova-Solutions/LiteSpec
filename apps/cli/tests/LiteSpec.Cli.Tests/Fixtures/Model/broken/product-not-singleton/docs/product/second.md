@@ -6,10 +6,10 @@
   "owner": "lending-team",
   "status": "approved",
   "boundary": "The second library lends copies to readers.",
-  "neverDoes": [
+  "exclusions": [
     "The product never sells copies."
   ],
-  "audience": [
+  "addresses": [
     "actor/reader",
     "actor/librarian"
   ]

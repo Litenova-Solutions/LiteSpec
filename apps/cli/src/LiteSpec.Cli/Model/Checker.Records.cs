@@ -276,7 +276,7 @@ static partial class Checker
 
             var accepted = new HashSet<string>(TemplateAudienceAliases, StringComparer.Ordinal);
 
-            foreach (var audience in notification.Ids("audience"))
+            foreach (var audience in notification.Ids("addresses"))
             {
                 accepted.Add(audience);
 

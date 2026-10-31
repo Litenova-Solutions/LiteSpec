@@ -235,7 +235,7 @@ static class StandardsFixture
           "sources": [
             {
               "url": "https://example.com/sample",
-              "read": "2026-10-30"
+              "readOn": "2026-10-30"
             }
           ]
         }
@@ -266,12 +266,12 @@ static class StandardsFixture
           "options": [
             {
               "name": "Keep the sample",
-              "for": "The sample is small.",
-              "against": "The sample is narrow."
+              "pros": "The sample is small.",
+              "cons": "The sample is narrow."
             }
           ],
-          "chosen": "Keep the sample",
-          "changeWhen": "A larger sample disagrees.",
+          "choice": "Keep the sample",
+          "reopenedWhen": "A larger sample disagrees.",
           "basedOn": ["research/sample-study"]
         }
         ---

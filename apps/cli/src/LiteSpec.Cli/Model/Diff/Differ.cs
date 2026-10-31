@@ -35,8 +35,8 @@ static class Differ
     /// <summary>One parsed data class: its classification and erasure position.</summary>
     sealed record DataClassValue(string? Classification, string? OnErasure);
 
-    /// <summary>One parsed journey step: its sentence, actor and fallback.</summary>
-    sealed record JourneyStep(string Says, string? Actor, string? IfItGoesWrong);
+    /// <summary>One parsed journey step: its statement, actor and failure.</summary>
+    sealed record JourneyStep(string Statement, string? Actor, string? Failure);
 
     /// <summary>Diffs the base model against the head model.</summary>
     public static IntentDiff Diff(
@@ -358,7 +358,7 @@ static class Differ
 
         return steps
             .OrderBy(step => step.Key, StringComparer.Ordinal)
-            .Select(step => $"Step {step.Key}: \"{step.Value.Says}\".")
+            .Select(step => $"Step {step.Key}: \"{step.Value.Statement}\".")
             .ToList();
     }
 
@@ -509,33 +509,32 @@ static class Differ
             return;
         }
 
-        foreach (var when in oldExcept.Keys.Where(when => !newExcept.ContainsKey(when))
-                     .OrderBy(when => when, StringComparer.Ordinal))
+        foreach (var condition in oldExcept.Keys.Where(condition => !newExcept.ContainsKey(condition))
+                     .OrderBy(condition => condition, StringComparer.Ordinal))
         {
-            details.Add($"Exception removed: \"{when}\".");
+            details.Add($"Exception removed: \"{condition}\".");
         }
 
-        foreach (var when in newExcept.Keys.Where(when => !oldExcept.ContainsKey(when))
-                     .OrderBy(when => when, StringComparer.Ordinal))
+        foreach (var condition in newExcept.Keys.Where(condition => !oldExcept.ContainsKey(condition))
+                     .OrderBy(condition => condition, StringComparer.Ordinal))
         {
-            details.Add($"Exception added: \"{when}\", falling back to {newExcept[when]}.");
+            details.Add($"Exception added: \"{condition}\", falling back to {newExcept[condition]}.");
         }
 
-        foreach (var when in oldExcept.Keys.Where(newExcept.ContainsKey)
-                     .OrderBy(when => when, StringComparer.Ordinal))
+        foreach (var condition in oldExcept.Keys.Where(newExcept.ContainsKey)
+                     .OrderBy(condition => condition, StringComparer.Ordinal))
         {
-            if (!string.Equals(oldExcept[when], newExcept[when], StringComparison.Ordinal))
+            if (!string.Equals(oldExcept[condition], newExcept[condition], StringComparison.Ordinal))
             {
-                details.Add($"Exception \"{when}\" now falls back to {newExcept[when]} (was: {oldExcept[when]}).");
+                details.Add($"Exception \"{condition}\" now falls back to {newExcept[condition]} (was: {oldExcept[condition]}).");
             }
         }
     }
 
     static void CompareJourney(Record before, Record after, List<string> details)
     {
-        var handled = new HashSet<string>(StringComparer.Ordinal) { "aim", "finishedWhen", "steps" };
+        var handled = new HashSet<string>(StringComparer.Ordinal) { "finishedWhen", "steps" };
 
-        CompareValue("Aim", Field(before, "aim"), Field(after, "aim"), details);
         CompareValue("Finished when", Field(before, "finishedWhen"), Field(after, "finishedWhen"), details);
         CompareJourneySteps(before, after, details);
         CompareFields(before, after, details, handled);
@@ -555,13 +554,13 @@ static class Differ
         foreach (var id in oldSteps.Keys.Where(id => !newSteps.ContainsKey(id))
                      .OrderBy(id => id, StringComparer.Ordinal))
         {
-            details.Add($"Step {id} removed: \"{oldSteps[id].Says}\".");
+            details.Add($"Step {id} removed: \"{oldSteps[id].Statement}\".");
         }
 
         foreach (var id in newSteps.Keys.Where(id => !oldSteps.ContainsKey(id))
                      .OrderBy(id => id, StringComparer.Ordinal))
         {
-            details.Add($"Step {id} added: \"{newSteps[id].Says}\".");
+            details.Add($"Step {id} added: \"{newSteps[id].Statement}\".");
         }
 
         foreach (var id in oldSteps.Keys.Where(newSteps.ContainsKey)
@@ -570,9 +569,9 @@ static class Differ
             var oldStep = oldSteps[id];
             var newStep = newSteps[id];
 
-            if (!string.Equals(oldStep.Says, newStep.Says, StringComparison.Ordinal))
+            if (!string.Equals(oldStep.Statement, newStep.Statement, StringComparison.Ordinal))
             {
-                details.Add($"Step {id} changed: \"{newStep.Says}\" (was: \"{oldStep.Says}\").");
+                details.Add($"Step {id} changed: \"{newStep.Statement}\" (was: \"{oldStep.Statement}\").");
             }
 
             if (!string.Equals(oldStep.Actor, newStep.Actor, StringComparison.Ordinal))
@@ -580,23 +579,22 @@ static class Differ
                 details.Add($"Step {id} actor changed from {oldStep.Actor ?? "none"} to {newStep.Actor ?? "none"}.");
             }
 
-            if (!string.Equals(oldStep.IfItGoesWrong, newStep.IfItGoesWrong, StringComparison.Ordinal))
+            if (!string.Equals(oldStep.Failure, newStep.Failure, StringComparison.Ordinal))
             {
-                details.Add(oldStep.IfItGoesWrong is null
-                    ? $"Step {id} gained a fallback: \"{newStep.IfItGoesWrong}\"."
-                    : newStep.IfItGoesWrong is null
-                        ? $"Step {id} lost its fallback."
-                        : $"Step {id} fallback changed: \"{newStep.IfItGoesWrong}\" (was: \"{oldStep.IfItGoesWrong}\").");
+                details.Add(oldStep.Failure is null
+                    ? $"Step {id} gained a failure: \"{newStep.Failure}\"."
+                    : newStep.Failure is null
+                        ? $"Step {id} lost its failure."
+                        : $"Step {id} failure changed: \"{newStep.Failure}\" (was: \"{oldStep.Failure}\").");
             }
         }
     }
 
     static void CompareDecision(Record before, Record after, List<string> details)
     {
-        var handled = new HashSet<string>(StringComparer.Ordinal) { "chosen", "decidedOn", "options" };
+        var handled = new HashSet<string>(StringComparer.Ordinal) { "choice", "options" };
 
-        CompareValue("Chosen", Field(before, "chosen"), Field(after, "chosen"), details);
-        CompareValue("Decided on", Field(before, "decidedOn"), Field(after, "decidedOn"), details);
+        CompareValue("Choice", Field(before, "choice"), Field(after, "choice"), details);
         CompareDecisionOptions(before, after, details);
         CompareFields(before, after, details, handled);
     }
@@ -667,10 +665,13 @@ static class Differ
             var oldEntry = oldQuestions[question];
             var newEntry = newQuestions[question];
 
-            CompareQuestionField(question, "recommended", oldEntry, newEntry, details);
+            CompareQuestionField(question, "recommendation", oldEntry, newEntry, details);
             CompareQuestionField(question, "decideBy", oldEntry, newEntry, details);
             CompareQuestionField(question, "decider", oldEntry, newEntry, details);
             CompareQuestionField(question, "ballot", oldEntry, newEntry, details);
+            CompareQuestionField(question, "answer", oldEntry, newEntry, details);
+            CompareQuestionField(question, "answeredBy", oldEntry, newEntry, details);
+            CompareQuestionField(question, "answeredOn", oldEntry, newEntry, details);
         }
     }
 
@@ -1469,15 +1470,15 @@ static class Differ
             }
 
             steps[StringOf(entry, "id") ?? "none"] = new JourneyStep(
-                StringOf(entry, "says") ?? "",
+                StringOf(entry, "statement") ?? "",
                 StringOf(entry, "actor"),
-                StringOf(entry, "ifItGoesWrong"));
+                StringOf(entry, "failure"));
         }
 
         return steps;
     }
 
-    /// <summary>One fallback per exception, keyed by its when condition.</summary>
+    /// <summary>One fallback per exception, keyed by its condition.</summary>
     static Dictionary<string, string>? ExceptEntries(Record record)
     {
         if (Field(record, "except") is not { } value)
@@ -1499,7 +1500,7 @@ static class Differ
                 return null;
             }
 
-            except[StringOf(entry, "when") ?? "none"] = StringOf(entry, "fallback") ?? "none";
+            except[StringOf(entry, "condition") ?? "none"] = StringOf(entry, "fallback") ?? "none";
         }
 
         return except;

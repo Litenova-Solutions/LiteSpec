@@ -41,10 +41,10 @@ public sealed class DecisionBasisCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("requirement", "requirement/checkout.receipt-on-request", Path.Combine(temp.Path, "checkout.md"), """{"kind": "functional", "statement": "A shopper takes a receipt on request.", "basedOn": ["requirement/checkout.two-second-answer"]}"""),
+            TestModel.Record("requirement", "requirement/checkout.receipt-on-request", Path.Combine(temp.Path, "checkout.md"), """{"kind": "functional", "statement": "A shopper takes a receipt on request.", "cites": ["requirement/checkout.two-second-answer"]}"""),
             TestModel.Record("requirement", "requirement/checkout.two-second-answer", Path.Combine(temp.Path, "checkout.md"), """{"kind": "functional", "statement": "Checkout answers within two seconds at peak."}"""));
 
-        Assert.True(Reports(model, "invalid-field", "links basedOn to 'requirement/checkout.two-second-answer', which is a requirement"));
+        Assert.True(Reports(model, "invalid-field", "links cites to 'requirement/checkout.two-second-answer', which is a requirement"));
     }
 
     /// <proves>litespec/core/model#keep-rules-and-targets-out-of-technical-decisions</proves>
@@ -55,8 +55,8 @@ public sealed class DecisionBasisCheckTests
         var config = TestModel.Config(temp.Path);
         var model = TestModel.Model(
             config,
-            TestModel.Record("decision", "decision/0002-store-orders-as-documents", TechnicalDecisionFile(config, "0002-store-orders-as-documents"), """{"status": "approved", "decidedOn": "2026-02-01", "options": [{"name": "Documents", "for": "Reads stay simple.", "against": "Queries need an index."}], "chosen": "Documents", "changeWhen": "Queries pass one hundred a day.", "basedOn": []}"""),
-            TestModel.Record("decision", "decision/0003-loan-cache-region", TechnicalDecisionFile(config, "0003-loan-cache-region"), """{"status": "approved", "decidedOn": "2026-02-01", "options": [{"name": "Edge cache", "for": "Reads stay near the reader.", "against": "Invalidation lags."}], "chosen": "Edge cache", "changeWhen": "Reads pass one thousand a day."}"""));
+            TestModel.Record("decision", "decision/0002-store-orders-as-documents", TechnicalDecisionFile(config, "0002-store-orders-as-documents"), """{"status": "approved", "options": [{"name": "Documents", "pros": "Reads stay simple.", "cons": "Queries need an index."}], "choice": "Documents", "reopenedWhen": "Queries pass one hundred a day.", "basedOn": []}"""),
+            TestModel.Record("decision", "decision/0003-loan-cache-region", TechnicalDecisionFile(config, "0003-loan-cache-region"), """{"status": "approved", "options": [{"name": "Edge cache", "pros": "Reads stay near the reader.", "cons": "Invalidation lags."}], "choice": "Edge cache", "reopenedWhen": "Reads pass one thousand a day."}"""));
 
         var basis = Checker.Check(model).Findings.Where(finding => finding.Code == "decision-without-basis").ToList();
 
@@ -87,7 +87,7 @@ public sealed class DecisionBasisCheckTests
         var model = TestModel.Model(
             config,
             TestModel.Record("requirement", "requirement/checkout.receipt-on-request", Path.Combine(temp.Path, "checkout.md"), """{"kind": "functional", "statement": "A shopper takes a receipt on request."}"""),
-            TestModel.Record("decision", "decision/0001-receipt-rule", ProductDecisionFile(config), """{"status": "approved", "decidedOn": "2026-02-01", "options": [{"name": "Always", "for": "Every receipt is provable.", "against": "Paper piles up."}], "chosen": "Always", "changeWhen": "Paper costs double.", "decides": ["requirement/checkout.receipt-on-request"], "basedOn": []}"""));
+            TestModel.Record("decision", "decision/0001-receipt-rule", ProductDecisionFile(config), """{"status": "approved", "options": [{"name": "Always", "pros": "Every receipt is provable.", "cons": "Paper piles up."}], "choice": "Always", "reopenedWhen": "Paper costs double.", "decides": ["requirement/checkout.receipt-on-request"], "basedOn": []}"""));
 
         Assert.DoesNotContain("decision-without-basis", TestModel.Codes(model));
     }
@@ -108,7 +108,7 @@ public sealed class DecisionBasisCheckTests
 
     /// <summary>An approved technical decision naming the target in basedOn.</summary>
     static string DecisionJson(string basedOn) =>
-        "{\"status\": \"approved\", \"decided\": \"2026-02-01\", \"options\": [{\"name\": \"Documents\", \"for\": \"Reads stay simple.\", \"against\": \"Queries need an index.\"}], \"chosen\": \"Documents\", \"changeWhen\": \"Queries pass one hundred a day.\", \"basedOn\": [\"" + basedOn + "\"]}";
+        "{\"status\": \"approved\", \"options\": [{\"name\": \"Documents\", \"pros\": \"Reads stay simple.\", \"cons\": \"Queries need an index.\"}], \"choice\": \"Documents\", \"reopenedWhen\": \"Queries pass one hundred a day.\", \"basedOn\": [\"" + basedOn + "\"]}";
 
     /// <summary>A decision file under the implementation decisions folder, so the check reads it as technical.</summary>
     static string TechnicalDecisionFile(ConsumerConfig config, string name) =>

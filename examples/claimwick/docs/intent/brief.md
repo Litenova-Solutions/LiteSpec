@@ -6,18 +6,18 @@
   "owner": "claimwick-team",
   "status": "approved",
   "boundary": "Claimwick submits, approves, and reimburses work expenses with receipts.",
-  "neverDoes": [
+  "exclusions": [
     "The product never pays an expense twice.",
     "The product never approves without a manager."
   ],
-  "audience": [
+  "addresses": [
     "actor/employee",
     "actor/manager",
     "actor/finance"
   ],
   "approvedBy": "claimwick-team",
   "approvedOn": "2026-10-01",
-  "approvedHash": "8bf49696"
+  "approvedHash": "ddf1cf50"
 }
 ---
 

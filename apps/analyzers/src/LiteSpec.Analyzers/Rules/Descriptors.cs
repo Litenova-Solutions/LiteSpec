@@ -27,6 +27,7 @@ internal static class Descriptors
     private static readonly Provision DomainDocumentation = Provision.Of("backend/dotnet/domain", "document-every-public-domain-contract");
     private static readonly Provision TypedIdentifiers = Provision.Of("backend/dotnet/domain", "use-strongly-typed-version-7-identifiers");
     private static readonly Provision InternalImplementations = Provision.Of("backend/dotnet/architecture", "keep-implementation-types-internal");
+    private static readonly Provision ApplicationProjects = Provision.Of("backend/dotnet/architecture", "use-five-application-projects");
     private static readonly Provision NoControllers = Provision.Of("backend/dotnet/api", "exclude-mvc-controllers-from-the-stack");
     private static readonly Provision RepositoryWrites = Provision.Of("backend/dotnet/persistence", "stage-aggregate-writes-through-repositories");
     private static readonly Provision AsyncNames = Provision.Of("backend/dotnet/naming", "name-asynchronous-methods-completely");
@@ -192,6 +193,11 @@ internal static class Descriptors
         "Handler takes a pipeline-owned collaborator",
         "Handler '{0}' takes '{1}', which the pipeline owns",
         "A command or query handler takes no pipeline-owned collaborator through its constructor; the unit of work, idempotency store, outbox, and uniqueness claim service belong to the pipeline.");
+
+    public static readonly DiagnosticDescriptor LS2017 = Create("LS2017", LayersCategory, ApplicationProjects,
+        "LiteSpecLayer names no known layer",
+        "'{0}' names no known layer; use Domain, Application.Abstractions, Application, Infrastructure, WebApi, Worker, Test, or None",
+        "The LiteSpecLayer property names one of the known application projects, Test, or None to opt out.");
 
     public static readonly DiagnosticDescriptor LS3001 = Create("LS3001", StyleCategory, AsyncNames,
         "Asynchronous method name lacks Async",

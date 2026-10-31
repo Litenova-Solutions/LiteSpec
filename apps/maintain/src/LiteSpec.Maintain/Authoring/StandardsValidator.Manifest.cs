@@ -578,4 +578,169 @@ static partial class StandardsValidator
             search = close + 1;
         }
     }
+
+    // The manifest pins the analyzer package a consumer installs, so the pin names
+    // the release the stack pages promise. A pin behind the project ships none of
+    // the rules the pages cite, and a citation of a rule the pinned release does
+    // not ship promises a check the consumer never runs.
+    static void CheckAnalyzerRelease(string root, List<ParsedPage> parsedPages, Action<string, int, string, string> add)
+    {
+        var pin = ReadAnalyzerPin(root);
+        if (pin is null)
+        {
+            return;
+        }
+
+        var projectVersion = ReadAnalyzerProjectVersion(root);
+        if (projectVersion is not null && pin != projectVersion)
+        {
+            add("litespec.manifest.json", 1, "MANIFEST_ANALYZER_PIN", $"analyzer pin '{pin}' differs from analyzer project version '{projectVersion}'");
+        }
+
+        var shipped = ReadShippedAnalyzerRules(root, pin);
+        if (shipped is null)
+        {
+            return;
+        }
+
+        foreach (var page in parsedPages)
+        {
+            var prose = string.Join('\n', page.Reader.Lines.Select((line, index) =>
+                page.Reader.FencedLines.Contains(index + 1) || page.Reader.GeneratedLines.Contains(index + 1) ? "" : line));
+            foreach (Match match in AnalyzerRulePattern().Matches(prose))
+            {
+                if (!shipped.Contains(match.Value))
+                {
+                    add(page.Relative, LineNumber(prose, match.Index), "MANIFEST_ANALYZER_RULE", $"'{match.Value}' is cited but the pinned analyzer release '{pin}' does not ship it");
+                }
+            }
+        }
+    }
+
+    static string? ReadAnalyzerPin(string root)
+    {
+        var manifestFile = JoinRoot(root, "litespec.manifest.json");
+        if (!File.Exists(manifestFile))
+        {
+            return null;
+        }
+
+        try
+        {
+            var manifest = JsonNode.Parse(TrimBom(ReadText(manifestFile))) as JsonObject;
+            var packages = manifest?["packages"] as JsonObject;
+            var nuget = packages?["nuget"] as JsonObject;
+            return JsonString(nuget?["LiteSpec.Analyzers"]);
+        }
+        catch (Exception)
+        {
+            return null;
+        }
+    }
+
+    static string? ReadAnalyzerProjectVersion(string root)
+    {
+        var projectFile = JoinRoot(root, "apps/analyzers/src/LiteSpec.Analyzers/LiteSpec.Analyzers.csproj");
+        if (!File.Exists(projectFile))
+        {
+            return null;
+        }
+
+        var match = AnalyzerVersionPattern().Match(ReadText(projectFile));
+        return match.Success ? match.Groups[1].Value.Trim() : null;
+    }
+
+    // A shipped release lists its new rules and its removals, so the pinned
+    // release ships every new rule at or before its version minus every removal
+    // at or before it. A version that parses compares numerically; anything else
+    // matches only its own release heading.
+    static HashSet<string>? ReadShippedAnalyzerRules(string root, string pin)
+    {
+        var shippedFile = JoinRoot(root, "apps/analyzers/src/LiteSpec.Analyzers/AnalyzerReleases.Shipped.md");
+        if (!File.Exists(shippedFile))
+        {
+            return null;
+        }
+
+        var added = new Dictionary<string, HashSet<string>>(StringComparer.Ordinal);
+        var removed = new Dictionary<string, HashSet<string>>(StringComparer.Ordinal);
+        var current = "";
+        var mode = "";
+        foreach (var line in SplitLines(ReadText(shippedFile)))
+        {
+            var release = AnalyzerReleasePattern().Match(line);
+            if (release.Success)
+            {
+                current = release.Groups[1].Value.Trim();
+                mode = "";
+                continue;
+            }
+
+            if (line.StartsWith("### New Rules", StringComparison.Ordinal))
+            {
+                mode = "new";
+                continue;
+            }
+
+            if (line.StartsWith("### Removed Rules", StringComparison.Ordinal))
+            {
+                mode = "removed";
+                continue;
+            }
+
+            if (current.Length == 0 || mode.Length == 0)
+            {
+                continue;
+            }
+
+            var row = AnalyzerRuleRowPattern().Match(line);
+            if (row.Success)
+            {
+                var table = mode == "new" ? added : removed;
+                if (!table.TryGetValue(current, out var rules))
+                {
+                    table[current] = rules = new HashSet<string>(StringComparer.Ordinal);
+                }
+
+                rules.Add(row.Groups[1].Value);
+            }
+        }
+
+        var shipped = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var (version, rules) in added)
+        {
+            if (ReleaseAtOrBefore(version, pin))
+            {
+                shipped.UnionWith(rules);
+            }
+        }
+
+        foreach (var (version, rules) in removed)
+        {
+            if (ReleaseAtOrBefore(version, pin))
+            {
+                shipped.ExceptWith(rules);
+            }
+        }
+
+        return shipped;
+    }
+
+    static bool ReleaseAtOrBefore(string release, string pin)
+    {
+        if (System.Version.TryParse(release, out var releaseVersion) && System.Version.TryParse(pin, out var pinVersion))
+        {
+            return releaseVersion <= pinVersion;
+        }
+
+        return release == pin;
+    }
+
+    [GeneratedRegex(@"\bLS\d{4}\b")] private static partial Regex AnalyzerRulePattern();
+
+    [GeneratedRegex(@"<Version>([^<]+)</Version>")] private static partial Regex AnalyzerVersionPattern();
+
+    [GeneratedRegex(@"^## Release (\S+)")] private static partial Regex AnalyzerReleasePattern();
+
+    [GeneratedRegex(@"^(LS\d{4})\s*\|")] private static partial Regex AnalyzerRuleRowPattern();
 }

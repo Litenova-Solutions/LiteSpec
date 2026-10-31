@@ -12,19 +12,19 @@
   "sources": [
     {
       "path": "docs/tools/model.md",
-      "read": "2026-10-30"
+      "readOn": "2026-10-30"
     },
     {
       "path": "apps/cli/src/LiteSpec.Cli/Model/Checker.cs",
-      "read": "2026-10-30"
+      "readOn": "2026-10-30"
     },
     {
       "path": "apps/model/src/LiteSpec.Model.Core/Finding.cs",
-      "read": "2026-10-30"
+      "readOn": "2026-10-30"
     },
     {
       "path": "apps/model/src/LiteSpec.Model.Core/Suppression.cs",
-      "read": "2026-10-30"
+      "readOn": "2026-10-30"
     }
   ]
 }
@@ -34,7 +34,7 @@
 
 ## Answer
 
-This record distils the check coverage investigation of 2026-10-30 into the claims this release relies on. Counts below were read from the `findings` and `known` arrays of the largest consumer's built model at `D:/Personal-Projects/Nighthall/.model/model.json` on 2026-10-30 (2,711 open, 328 known), and gap counts were measured over the same file. A code counts here when its predicate is the existence, resolution, target type, or reachability of a written link, containment by identifier or folder, the reverse orphan direction of such a link, or a computed trace.
+This record distils the check coverage investigation of 2026-10-30 into the claims this release relies on. Counts below were read from the `findings` and `known` arrays of the largest consumer's built model on 2026-10-30 (2,711 open, 328 known), and gap counts were measured over the same file. A code counts here when its predicate is the existence, resolution, target type, or reachability of a written link, containment by identifier or folder, the reverse orphan direction of such a link, or a computed trace.
 
 Below a requirement the checker is dense. Resolution is fully covered: dangling record citations, body Markdown links, link target types, identifier homes, and step and operation fragments each have a tier G code, and all read clean. Requirement and journey checks cover fulfillment (105 known, none open), measurement, reach, state reachability, and transitions. Containment checks cover success results, scenario results, calculation tables, and reaction triggers, all clean. Orphan checks cover the five Behavior types with neither parent, unserved steps, screened steps (91 known), screen serve mismatches, and effect loops, all clean at open. Data and governance checks cover consistency rules, widening justification (6 open), erasure, retention, risk acceptance, setting defaults, reservation releases, notification senders, exception fallbacks, transcribed review, gap registry names, and quality alerts. The code, screen, store, and operations traces are equally dense: marks and their resolution, followed decisions (8 open unfollowed, 15 advisory without basis), unimplemented aggregates (21 open), reactions, jobs, and external systems, unexposed use cases (60 open), unimplemented use cases (8 open), declared effects taken by no dispatch (412 advisory), undeclared writes and effects and events, uncalled aggregate methods (165 open), screen routes and calls, unreached use cases (182 advisory), unshown refusals (911 advisory), unconfirmed and duplicated proofs (90 with 50 known, 237 advisory), unthrown refusals, contract mismatches, alerts, settings, templates, and dependencies.
 

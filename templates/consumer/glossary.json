@@ -5,7 +5,7 @@
     {
       "id": "term/<name>",
       "term": "<English label>",
-      "meaning": "<Meaning in at most 25 words>",
+      "meaning": "<A noun phrase starting with A, An or The, at most 25 words>",
       "layer": "<intent|behavior>",
       "aliases": ["<established synonym, or remove this line>"],
       "labels": {
@@ -29,7 +29,9 @@
         }
       ],
       "owner": "<owner>",
-      "status": "draft"
+      "status": "draft",
+      "decider": "<owner>",
+      "decideBy": "<YYYY-MM-DD>"
     }
   ],
   "mannered": [

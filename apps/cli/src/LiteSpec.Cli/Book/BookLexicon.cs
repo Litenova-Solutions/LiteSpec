@@ -250,7 +250,7 @@ sealed class BookLexicon
     /// <summary>The model-page sections the book explains from, in display order.</summary>
     static readonly IReadOnlyList<string> SectionHeadings =
     [
-        "Statuses", "Approval as Data", "Risk Tiers", "Check Tiers", "Transcription Mode", "Questions and Ballots",
+        "Statuses", "Approval as Data", "Risk Tiers", "Check Levels", "Transcription Mode", "Questions and Ballots",
     ];
 
     /// <summary>Reads the carried page's lines, failing with the file when it cannot be read.</summary>
@@ -310,6 +310,57 @@ sealed class BookLexicon
     {
         cell = cell.Trim();
         return cell.Length >= 2 && cell.StartsWith('`') && cell.EndsWith('`') ? cell[1..^1] : cell;
+    }
+
+    /// <summary>The first table holding every named column, with each column's position and its rows; extra columns are ignored.</summary>
+    static (IReadOnlyDictionary<string, int> Positions, List<string[]> Rows) NamedTable(
+        string file, IReadOnlyList<string> body, string[] names, string what)
+    {
+        for (var i = 0; i < body.Count; i++)
+        {
+            if (!IsTableLine(body[i]))
+            {
+                continue;
+            }
+
+            var header = Cells(body[i]);
+            var positions = new Dictionary<string, int>(StringComparer.Ordinal);
+            for (var c = 0; c < header.Length; c++)
+            {
+                positions.TryAdd(header[c], c);
+            }
+
+            if (!names.All(positions.ContainsKey))
+            {
+                continue;
+            }
+
+            if (i + 1 >= body.Count || !IsSeparator(body[i + 1]))
+            {
+                throw new BookLexiconException(file, $"'{file}' {what} lost its table shape.");
+            }
+
+            var rows = new List<string[]>();
+            for (var j = i + 2; j < body.Count && IsTableLine(body[j]); j++)
+            {
+                var row = Cells(body[j]);
+                if (row.Length != header.Length)
+                {
+                    throw new BookLexiconException(file, $"'{file}' {what} lost its table shape.");
+                }
+
+                rows.Add(row);
+            }
+
+            if (rows.Count == 0)
+            {
+                throw new BookLexiconException(file, $"'{file}' {what} holds no rows.");
+            }
+
+            return (positions, rows);
+        }
+
+        throw new BookLexiconException(file, $"'{file}' holds no {what} table.");
     }
 
     /// <summary>The first table with the header, failing with the file when none holds rows.</summary>
@@ -580,16 +631,17 @@ sealed class BookLexicon
         return sections;
     }
 
-    /// <summary>The finding-code table: tier and meaning per code.</summary>
+    /// <summary>The finding-code table: check level and meaning per code, read by column name.</summary>
     static Dictionary<string, LexiconFinding> ParseFindings(string file, string[] lines)
     {
         var findings = new Dictionary<string, LexiconFinding>(StringComparer.Ordinal);
-        foreach (var row in TableRows(file, lines, ["Code", "Tier", "Meaning"], "finding-code"))
+        var (positions, rows) = NamedTable(file, lines, ["Code", "Level", "Meaning"], "finding-code");
+        foreach (var row in rows)
         {
-            var code = StripCode(row[0]);
+            var code = StripCode(row[positions["Code"]]);
             if (!findings.ContainsKey(code))
             {
-                findings[code] = new LexiconFinding(row[1], row[2]);
+                findings[code] = new LexiconFinding(row[positions["Level"]], row[positions["Meaning"]]);
             }
         }
 
@@ -652,20 +704,20 @@ sealed class BookLexicon
     static readonly IReadOnlyDictionary<string, string> FieldLabels =
         new Dictionary<string, string>(StringComparer.Ordinal)
         {
-            ["boundary"] = "Boundary", ["neverDoes"] = "Never does", ["audience"] = "Audience",
+            ["boundary"] = "Boundary", ["exclusions"] = "Exclusions", ["addresses"] = "Addresses",
             ["source"] = "Source", ["authority"] = "Authority", ["applies"] = "Applies", ["appliesBecause"] = "Why it applies",
-            ["question"] = "Question", ["sources"] = "Sources", ["conclusion"] = "Conclusion",
-            ["decidedOn"] = "Decided on", ["options"] = "Options", ["chosen"] = "Chosen", ["changeWhen"] = "Change when",
+            ["question"] = "Question", ["sources"] = "Sources", ["readOn"] = "Read on", ["conclusion"] = "Conclusion",
+            ["options"] = "Options", ["choice"] = "Choice", ["pros"] = "Pros", ["cons"] = "Cons", ["reopenedWhen"] = "Reopened when",
             ["kind"] = "Kind", ["statement"] = "Statement", ["rationale"] = "Rationale",
             ["measure"] = "Measure", ["target"] = "Target", ["dueBy"] = "Due by", ["plannedFor"] = "Planned for", ["values"] = "Values",
             ["conditions"] = "Conditions", ["check"] = "Check", ["runsOn"] = "Runs on", ["evidence"] = "Evidence",
-            ["except"] = "Except", ["fallback"] = "Fallback", ["setBy"] = "Set by", ["risk"] = "Risk",
+            ["except"] = "Except", ["condition"] = "Condition", ["fallback"] = "Fallback", ["setBy"] = "Set by", ["risk"] = "Risk",
             ["lifecycle"] = "Lifecycle", ["refusedBecause"] = "Why refused",
             ["scope"] = "Scope", ["code"] = "Code", ["codes"] = "Codes", ["meaning"] = "Meaning", ["recorded"] = "Recorded",
-            ["aim"] = "Aim", ["finishedWhen"] = "Finished when", ["actor"] = "Actor", ["dependsOn"] = "Depends on",
+            ["finishedWhen"] = "Finished when", ["actor"] = "Actor", ["dependsOn"] = "Depends on",
             ["summary"] = "Summary", ["states"] = "States", ["transitions"] = "Transitions", ["data"] = "Data",
             ["dataClasses"] = "Data classes", ["steps"] = "Steps", ["exits"] = "Exits", ["driver"] = "Driver", ["cursor"] = "Cursor",
-            ["refusal"] = "Refusal", ["questions"] = "Open questions",
+            ["refusal"] = "Refusal", ["questions"] = "Open questions", ["recommendation"] = "Recommendation",
             ["input"] = "Input", ["output"] = "Output", ["paging"] = "Paging", ["builtAsynchronously"] = "Built asynchronously",
             ["changes"] = "Changes", ["reads"] = "Reads", ["consistency"] = "Consistency", ["effects"] = "Effects",
             ["idempotency"] = "Idempotency", ["audit"] = "Audit", ["access"] = "Access", ["computedBy"] = "Computed by",

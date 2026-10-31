@@ -17,11 +17,6 @@ static partial class Checker
     /// <summary>Reports a record whose required parent is missing, at most one finding per record.</summary>
     private static void CheckMissingParent(ProjectModel model, List<Finding> findings)
     {
-        var decided = model.Records
-            .Where(record => record.Type == "decision")
-            .SelectMany(decision => decision.Ids("decides"))
-            .ToHashSet(StringComparer.Ordinal);
-
         var aggregates = new HashSet<string>(StringComparer.Ordinal);
 
         foreach (var aggregate in model.Records.Where(record => record.Type == "aggregate"))
@@ -45,7 +40,7 @@ static partial class Checker
                     CheckFeatureParent(record, findings);
                     break;
                 case "requirement":
-                    CheckRequirementParent(record, decided, findings);
+                    CheckRequirementParent(model, record, findings);
                     break;
                 case "journey":
                     CheckJourneyParent(model, record, findings);
@@ -91,20 +86,22 @@ static partial class Checker
         }
     }
 
-    /// <summary>Reports a requirement naming no feature, basedOn or deciding decision.</summary>
-    private static void CheckRequirementParent(Record record, HashSet<string> decided, List<Finding> findings)
+    /// <summary>Reports a requirement whose topic holds no topic record.</summary>
+    private static void CheckRequirementParent(ProjectModel model, Record record, List<Finding> findings)
     {
-        if (record.Ids("features").Count > 0
-            || record.Ids("basedOn").Count > 0
-            || decided.Contains(record.Id))
+        // A malformed identifier is identifier-form, so the parent check stays silent here.
+        if (!Identifiers.TrySplit(record.Id, out _, out var home, out _) || home is null)
         {
             return;
         }
 
-        findings.Add(new Finding(
-            "record-without-parent",
-            $"Requirement '{record.Id}' names no parent: it names no feature, basedOn or deciding decision.",
-            record.File, record.Line, SubjectOf(record)));
+        if (!model.ById.TryGetValue($"topic/{home}", out var topic) || topic.Type != "topic")
+        {
+            findings.Add(new Finding(
+                "record-without-parent",
+                $"Requirement '{record.Id}' names no parent: its home '{home}' names no topic.",
+                record.File, record.Line, SubjectOf(record)));
+        }
     }
 
     /// <summary>Reports a journey serving no goal.</summary>

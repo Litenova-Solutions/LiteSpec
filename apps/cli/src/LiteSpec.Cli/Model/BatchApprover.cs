@@ -52,8 +52,7 @@ static class BatchApprover
     ///     leaves out, the guard failures, and the tier 3 sample. A module and type batch
     ///     holds each record its record guards fail and approves the rest, and fails whole
     ///     only when no approver is named or no record passes; any other batch fails whole
-    ///     when one guard fails. When the approval date is passed, each changed record
-    ///     carries the hash the stamp writes.
+    ///     when one guard fails.
     /// </summary>
     public static BatchPlan Plan(
         ProjectModel model,
@@ -81,7 +80,7 @@ static class BatchApprover
             ? members.Where(record => ReviewQueue.TierOf(model, record) == 1).ToList()
             : new List<Record>();
         var approvals = members.Except(leftOut).ToList();
-        var ordered = approvals.Select(record => Describe(model, record, findings, on)).ToList();
+        var ordered = approvals.Select(record => Describe(model, record, findings)).ToList();
         var changed = ordered
             .Where(action => action.Action is "promoted" or "re-stamped")
             .ToList();
@@ -227,7 +226,7 @@ static class BatchApprover
     }
 
     /// <summary>Describes one member's approval: its action, target status, and evidence.</summary>
-    static BatchAction Describe(ProjectModel model, Record record, IReadOnlyDictionary<string, int> findings, string? on)
+    static BatchAction Describe(ProjectModel model, Record record, IReadOnlyDictionary<string, int> findings)
     {
         var action = record.Status == "draft"
             ? "promoted"
@@ -240,9 +239,7 @@ static class BatchApprover
             record,
             action,
             target,
-            on is not null && action is "promoted" or "re-stamped"
-                ? Approver.StampedHashFor(record, on)
-                : Checker.SemanticHash(record),
+            Checker.SemanticHash(record),
             ReviewQueue.TierOf(model, record),
             ReviewQueue.ScenariosOf(model, record),
             findings.TryGetValue(record.Id, out var count) ? count : 0,
@@ -305,10 +302,10 @@ static class BatchApprover
                 failures.Add((action.Record.Id, "has open questions"));
             }
 
-            // An approved decision states the option it chose; a decision with none is not decided.
-            if (action.Record.Type == "decision" && action.Record.Field("chosen") is not { Length: > 0 })
+            // An approved decision states its choice; a decision with none is not decided.
+            if (action.Record.Type == "decision" && action.Record.Field("choice") is not { Length: > 0 })
             {
-                failures.Add((action.Record.Id, "names no chosen option"));
+                failures.Add((action.Record.Id, "names no choice"));
             }
         }
 
@@ -558,9 +555,7 @@ static class BatchApprover
                     type = action.Record.Type,
                     tier = action.Tier,
                     action = action.Action,
-                    hash = action.Action is "promoted" or "re-stamped"
-                        ? Approver.StampedHashFor(action.Record, on)
-                        : action.Hash,
+                    hash = action.Hash,
                     scenarios = new
                     {
                         total = action.Scenarios.Total,
@@ -612,13 +607,13 @@ static class BatchApprover
                 DecideBy = record.DecideBy,
                 ApprovedBy = by ?? record.Decider ?? record.Owner ?? "unknown",
                 ApprovedOn = on,
-                ApprovedHash = Approver.StampedHashFor(record, on),
+                ApprovedHash = Checker.SemanticHash(record),
                 Derived = record.Derived,
                 File = record.File,
                 Line = record.Line,
                 IsEntry = record.IsEntry,
                 PageId = record.PageId,
-                Raw = Approver.StampedRaw(record, on),
+                Raw = record.Raw,
             };
 
             model.Records[index] = updated;

@@ -8,23 +8,23 @@
   "decider": "LiteSpec maintainer",
   "decideBy": "2026-11-30",
   "question": "Which Intent links does LiteSpec require and check, and what does the largest consumer show while they stay optional?",
-  "conclusion": "Above the requirements, LiteSpec's hierarchy is rationale prose rather than required or checked links, and in NightHall 719 of 928 requirements name no origin while every enforced Intent check passes.",
+  "conclusion": "Above the requirements, LiteSpec's hierarchy is rationale prose rather than required or checked links, and in the largest consumer 719 of 928 requirements name no origin while every enforced Intent check passes.",
   "sources": [
     {
       "path": "docs/core/intent.md",
-      "read": "2026-10-30"
+      "readOn": "2026-10-30"
     },
     {
       "path": "docs/core/model.md",
-      "read": "2026-10-30"
+      "readOn": "2026-10-30"
     },
     {
       "path": "docs/tools/model.md",
-      "read": "2026-10-30"
+      "readOn": "2026-10-30"
     },
     {
       "path": "schemas/record.schema.json",
-      "read": "2026-10-30"
+      "readOn": "2026-10-30"
     }
   ]
 }
@@ -34,7 +34,7 @@
 
 ## Answer
 
-This record distils the Intent layer hierarchy investigation of 2026-10-30 into the claims this release relies on. Counts below were measured over the largest consumer's built model at `D:/Personal-Projects/Nighthall/.model/model.json` on 2026-10-30, holding 21,548 records.
+This record distils the Intent layer hierarchy investigation of 2026-10-30 into the claims this release relies on. Counts below were measured over the largest consumer's built model on 2026-10-30, holding 21,548 records.
 
 Only four Intent links are required by schema, stated as obligations, and enforced by a check at the same time: `product.audience`, `journey.actor`, a requirement `except` entry to its `fallback`, and `decision.decides` on product decisions, the last by provision plus check despite an optional schema. Every other link above the requirements is optional in the schema, mentioned only in provision Rationale, and unchecked. One layer down LiteSpec already accepts the every-record-points-up principle: a use case with neither `serves` nor `fulfills` fails `record-orphaned` at tier G. The principle was simply never applied inside Intent. Confidence is high: each cell was read from the schema, the provision text, and the check table.
 

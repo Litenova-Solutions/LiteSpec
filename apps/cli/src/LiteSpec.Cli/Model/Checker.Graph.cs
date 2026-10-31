@@ -113,7 +113,7 @@ static partial class Checker
     ///     A coverage finding graded by risk: tier G when the record is tier 1,
     ///     else the code's own tier.
     /// </summary>
-    /// <follows>litespec/core/model#mark-every-check-with-its-tier</follows>
+    /// <follows>litespec/core/model#mark-every-check-with-its-level</follows>
     private static Finding Tiered(string code, string message, Record record, ProjectModel model) =>
         new(code, message, record.File, record.Line, SubjectOf(record))
         {
@@ -121,45 +121,16 @@ static partial class Checker
         };
 
     /// <summary>
-    ///     The tier of a question entry or a draft: its own tier field, else tier 1
-    ///     when the parent record carries risk, else tier 3.
+    ///     The tier of a question entry: tier 1 when the record carrying it
+    ///     carries risk, else tier 3. A question carries no tier of its own.
     /// </summary>
-    private static int TierOf(JsonElement element, Record? parent)
-    {
-        if (element.ValueKind == JsonValueKind.Object
-            && element.TryGetProperty("tier", out var tier))
-        {
-            if (tier.ValueKind == JsonValueKind.Number
-                && tier.TryGetInt32(out var number)
-                && number is 1 or 3)
-            {
-                return number;
-            }
+    private static int TierOf(Record? parent) =>
+        parent is not null && HasRisk(parent) ? 1 : 3;
 
-            if (tier.ValueKind == JsonValueKind.String
-                && tier.GetString() is { } text)
-            {
-                var folded = text.Trim().ToLowerInvariant();
-
-                if (folded is "1" or "tier-1" or "tier1")
-                {
-                    return 1;
-                }
-
-                if (folded is "3" or "tier-3" or "tier3")
-                {
-                    return 3;
-                }
-            }
-        }
-
-        return parent is not null && HasRisk(parent) ? 1 : 3;
-    }
-
-    /// <summary>Whether the question entry or draft carries a recommended answer.</summary>
-    private static bool Recommended(JsonElement element) =>
+    /// <summary>Whether the question entry carries a recommended answer.</summary>
+    private static bool HasRecommendation(JsonElement element) =>
         element.ValueKind == JsonValueKind.Object
-        && element.TryGetProperty("recommended", out var value)
+        && element.TryGetProperty("recommendation", out var value)
         && value.ValueKind is not (JsonValueKind.Null or JsonValueKind.Undefined)
         && (value.ValueKind != JsonValueKind.String || value.GetString() is { Length: > 0 })
         && (value.ValueKind != JsonValueKind.Array || value.GetArrayLength() > 0);
@@ -193,12 +164,13 @@ static partial class Checker
     }
 
     /// <summary>
-    ///     Whether the question entry or draft counts as auto-approved: tier 3 with a
+    ///     Whether the question entry counts as auto-approved: tier 3 with a
     ///     recommended answer, past its decide-by date plus the veto window.
+    ///     Only a question auto-approves; no record does.
     /// </summary>
     private static bool AutoApproved(JsonElement element, Record? parent, ConsumerConfig config, DateOnly today) =>
-        TierOf(element, parent) == 3
-        && Recommended(element)
+        TierOf(parent) == 3
+        && HasRecommendation(element)
         && DecideDay(element, out var decideBy)
         && today > decideBy.AddDays(config.VetoWindowDays);
 
@@ -928,6 +900,51 @@ static partial class Checker
         }
     }
 
+    /// <summary>
+    ///     Reports a record citing, fulfilling or serving a record that changed
+    ///     after its approval: tier A while the record is a draft, tier G once
+    ///     approved. The flag stands until the changed record is re-approved.
+    /// </summary>
+    private static void CheckParentChanged(ProjectModel model, List<Finding> findings)
+    {
+        var changed = model.Records
+            .Where(record => !record.Derived
+                && record.Status is "approved" or "reviewed"
+                && record.ApprovedHash is { Length: > 0 }
+                && SemanticHash(record) != record.ApprovedHash)
+            .Select(record => record.Id)
+            .ToHashSet(StringComparer.Ordinal);
+
+        if (changed.Count == 0)
+        {
+            return;
+        }
+
+        foreach (var record in model.Records.Where(record => !record.Derived && record.Status != "retired"))
+        {
+            foreach (var field in new[] { "cites", "fulfills", "serves" })
+            {
+                foreach (var target in record.Ids(field).Order(StringComparer.Ordinal))
+                {
+                    var baseId = Identifiers.BaseId(target);
+
+                    if (baseId == record.Id || !changed.Contains(baseId))
+                    {
+                        continue;
+                    }
+
+                    findings.Add(new Finding(
+                        "parent-changed",
+                        $"Record '{record.Id}' {field} '{target}', which changed after approval.",
+                        record.File, record.Line, SubjectOf(record))
+                    {
+                        TierOverride = record.Status == "draft" ? "A" : "G",
+                    });
+                }
+            }
+        }
+    }
+
     private static void CheckTranscribed(ProjectModel model, List<Finding> findings)
     {
         foreach (var record in model.Records.Where(record =>
@@ -1170,33 +1187,28 @@ static partial class Checker
 
         foreach (var record in model.Records.Where(record => record.Status != "retired"))
         {
-            if (record.Raw.ValueKind == JsonValueKind.Object
-                && record.Raw.TryGetProperty("questions", out var questions)
-                && questions.ValueKind == JsonValueKind.Array)
+            if (record.Raw.ValueKind != JsonValueKind.Object
+                || !record.Raw.TryGetProperty("questions", out var questions)
+                || questions.ValueKind != JsonValueKind.Array)
             {
-                foreach (var entry in questions.EnumerateArray())
-                {
-                    // A tier-1 question blocks instead of aging, and an auto-approved
-                    // tier-3 question with a recommendation is closed, not open.
-                    if (TierOf(entry, record) == 1
-                        || AutoApproved(entry, record, model.Config, today)
-                        || (TierOf(entry, record) == 3 && Recommended(entry))
-                        || !AgedPast(entry, today))
-                    {
-                        continue;
-                    }
-
-                    findings.Add(new Finding("question-aged", $"Question on '{record.Id}' stands past its decide-by date.", record.File, record.Line, SubjectOf(record)));
-                    break;
-                }
+                continue;
             }
 
-            if (record.Status == "draft"
-                && TierOf(record.Raw, record) == 3
-                && !Recommended(record.Raw)
-                && AgedPast(record.Raw, today))
+            foreach (var entry in questions.EnumerateArray())
             {
-                findings.Add(new Finding("question-aged", $"Draft '{record.Id}' stands past its decide-by date.", record.File, record.Line, SubjectOf(record)));
+                // An answered question is closed. A tier-3 question with a
+                // recommendation auto-approves past the veto window, so it never
+                // ages; every other unanswered question past its decide-by date
+                // reports, tier 1 included.
+                if (Answered(entry)
+                    || (TierOf(record) == 3 && HasRecommendation(entry))
+                    || !AgedPast(entry, today))
+                {
+                    continue;
+                }
+
+                findings.Add(new Finding("question-aged", $"Question on '{record.Id}' stands past its decide-by date.", record.File, record.Line, SubjectOf(record)));
+                break;
             }
         }
     }

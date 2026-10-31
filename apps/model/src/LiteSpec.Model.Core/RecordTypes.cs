@@ -12,7 +12,7 @@ public static class RecordTypes
     public static readonly HashSet<string> All = new HashSet<string>(StringComparer.Ordinal)
     {
         "product", "goal", "constraint", "research", "decision", "requirement", "problem",
-        "feature", "actor", "role", "permission", "journey", "module",
+        "feature", "topic", "actor", "role", "permission", "journey", "module",
         "aggregate", "rule", "use-case", "result", "scenario", "event", "integration-event",
         "reaction", "job", "notification", "setting",
         "entry-point", "screen", "external-system", "runbook", "deviation", "known-gap", "term",
@@ -27,8 +27,8 @@ public static class RecordTypes
         {
             ["product"] = "intent", ["goal"] = "intent", ["constraint"] = "intent",
             ["research"] = "intent", ["decision"] = "intent", ["requirement"] = "intent",
-            ["problem"] = "intent", ["feature"] = "intent", ["actor"] = "intent",
-            ["journey"] = "intent", ["term"] = "intent",
+            ["problem"] = "intent", ["feature"] = "intent", ["topic"] = "intent",
+            ["actor"] = "intent", ["journey"] = "intent", ["term"] = "intent",
             ["module"] = "behavior", ["aggregate"] = "behavior", ["rule"] = "behavior",
             ["use-case"] = "behavior", ["result"] = "behavior", ["scenario"] = "behavior",
             ["event"] = "behavior", ["integration-event"] = "behavior", ["reaction"] = "behavior",
@@ -41,8 +41,7 @@ public static class RecordTypes
     /// <summary>Page styles: templates a page may carry instead of a record.</summary>
     public static readonly HashSet<string> PageStyles = new HashSet<string>(StringComparer.Ordinal)
     {
-        "requirement-page", "permission-list", "entry-point-list", "setting-set",
-        "retention-schedule",
+        "permission-list", "entry-point-list", "setting-set", "retention-schedule",
         "rule-set", "index", "tutorial", "how-to", "reference", "command",
         "configuration", "glossary", "example-cast", "review-report",
     };
@@ -84,10 +83,10 @@ public static class RecordTypes
         new Dictionary<string, HashSet<string>>(StringComparer.Ordinal)
         {
             ["decides"] = new HashSet<string>(),
-            ["features"] = new HashSet<string> { "feature" },
+            ["cites"] = new HashSet<string> { "goal", "problem", "feature", "constraint", "research", "decision", "requirement" },
             ["basedOn"] = new HashSet<string> { "constraint", "research" },
             ["affects"] = new HashSet<string> { "actor" },
-            ["audience"] = new HashSet<string> { "actor" },
+            ["addresses"] = new HashSet<string> { "actor", "permission" },
             ["solves"] = new HashSet<string> { "problem" },
             ["advances"] = new HashSet<string> { "goal" },
             ["serves"] = new HashSet<string> { "goal", "journey" },

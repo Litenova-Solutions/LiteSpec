@@ -12,15 +12,15 @@
   "sources": [
     {
       "path": "docs/core/model.md",
-      "read": "2026-10-30"
+      "readOn": "2026-10-30"
     },
     {
       "path": "apps/model/src/LiteSpec.Model.Core/RecordTypes.cs",
-      "read": "2026-10-30"
+      "readOn": "2026-10-30"
     },
     {
       "path": "docs/tools/model.md",
-      "read": "2026-10-30"
+      "readOn": "2026-10-30"
     }
   ]
 }
@@ -30,7 +30,7 @@
 
 ## Answer
 
-This record distils the cross-layer trace investigation of 2026-10-30 into the claims this release relies on. Counts below were measured over the largest consumer's built model at `D:/Personal-Projects/Nighthall/.model/model.json` on 2026-10-30, holding 21,548 records, of which 20,943 read draft.
+This record distils the cross-layer trace investigation of 2026-10-30 into the claims this release relies on. Counts below were measured over the largest consumer's built model on 2026-10-30, holding 21,548 records, of which 20,943 read draft.
 
 Read top down, the chain breaks at the top, not at the bottom. Goal to feature: 12 of 111 features name a goal in `serves`, and all 8 goals are served, but 28 of 40 non-refused features serve no goal. Feature to problem: 40 of 40 non-refused features name `solves`, the one strong Intent hop, already required and checked. Feature to requirement: 23 of 111 features are named by any requirement, and 872 of 928 requirements name no feature, by design. Requirement to Behavior: 763 of 925 live requirements are fulfilled in the checker's sense, 53 are exempt as undelivered, 10 quality requirements are served by a technical decision, and 105 are unfulfilled, all covered by a known gap, so a reader of open findings alone sees no break. Journey to requirement: 112 of 112 journeys carry `fulfills` over 571 distinct requirements, complete but unchecked. Use case to result: 1,272 of 1,272 have a success result. Result to scenario: 3,083 of 5,413 written results have a scenario; 2,330, mostly refusals, have none. Scenario to test: 5,426 of 6,517 scenarios have a confirmed `proves` link, but every link has a null passing state, the model's test run is null, and zero of 1,272 use cases read verified. Use case to code: 1,266 of 1,272 use cases are implemented. Screen to use case: 380 of 380 screens have `offers` equal to computed `calls`.
 

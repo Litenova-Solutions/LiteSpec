@@ -7,7 +7,7 @@ namespace LiteSpec.Tests.Model;
 public sealed class ModelBuildFindingsTests
 {
     /// <summary>The built model carries findings and known at its top level, in the shape the check writes.</summary>
-    /// <proves>litespec/core/model#mark-every-check-with-its-tier</proves>
+    /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
     [Fact]
     public void Build_Writes_Findings_And_Known_Into_The_Model()
     {

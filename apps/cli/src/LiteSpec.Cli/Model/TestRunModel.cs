@@ -1,6 +1,7 @@
 namespace LiteSpec.Model;
 
 /// <summary>The latest test run, read from result files.</summary>
+/// <follows>litespec/core/model#compute-proof-statuses-in-the-builder</follows>
 sealed class TestRun
 {
     /// <summary>The files read, relative to the root.</summary>
@@ -16,10 +17,76 @@ sealed class TestRun
     /// </summary>
     public Dictionary<string, string> OutcomeByMethod { get; } = new(StringComparer.Ordinal);
 
+    /// <summary>
+    ///     Outcome by browser test title, exactly as the test declares it. A Playwright
+    ///     result answers to the bare title of its test, without any describe chain or
+    ///     project prefix, so a scenario proved in the browser can be passing.
+    /// </summary>
+    public Dictionary<string, string> OutcomeByTitle { get; } = new(StringComparer.Ordinal);
+
     public int Total { get; set; }
     public int Passed { get; set; }
     public int Failed { get; set; }
 
     /// <summary>The run date, yyyy-MM-dd, or null when no result file names one.</summary>
     public string? Date { get; set; }
+
+    /// <summary>
+    ///     Whether the browser test with the title passed in this run: true when its
+    ///     outcome is Passed, false when it ran and did not pass, null when the run
+    ///     holds no outcome for the title.
+    /// </summary>
+    public bool? PassingOfTitle(string title) =>
+        OutcomeByTitle.TryGetValue(title, out var outcome) ? outcome == "Passed" : null;
+
+    /// <summary>
+    ///     The browser title a JUnit case answers to, or null when it is no browser
+    ///     case: its class names no test file and its name carries no describe chain.
+    ///     Playwright writes the test file as the class and the title, with any
+    ///     describe chain and any project prefix, as the name, so "lists the
+    ///     expenses", "expenses list › lists the expenses" and
+    ///     "[chromium] expenses list › lists the expenses" all answer to
+    ///     "lists the expenses".
+    /// </summary>
+    public static string? BrowserTitleOf(string classname, string name)
+    {
+        if (name.Length == 0)
+        {
+            return null;
+        }
+
+        if (!name.Contains(" › ", StringComparison.Ordinal) && !TestFile(classname))
+        {
+            return null;
+        }
+
+        var text = name;
+
+        if (text.StartsWith("[", StringComparison.Ordinal))
+        {
+            var close = text.IndexOf(']');
+
+            if (close > 0 && close + 1 < text.Length && text[close + 1] == ' ')
+            {
+                text = text[(close + 1)..].TrimStart();
+            }
+        }
+
+        var chain = text.LastIndexOf(" › ", StringComparison.Ordinal);
+        var title = chain >= 0 ? text[(chain + 3)..] : text;
+
+        return title.Length > 0 ? title : null;
+    }
+
+    /// <summary>Whether the JUnit class names a Playwright test file: a path or a JavaScript file.</summary>
+    private static bool TestFile(string classname) =>
+        classname.Contains('/') || classname.Contains('\\')
+        || classname.EndsWith(".ts", StringComparison.OrdinalIgnoreCase)
+        || classname.EndsWith(".tsx", StringComparison.OrdinalIgnoreCase)
+        || classname.EndsWith(".js", StringComparison.OrdinalIgnoreCase)
+        || classname.EndsWith(".jsx", StringComparison.OrdinalIgnoreCase)
+        || classname.EndsWith(".mjs", StringComparison.OrdinalIgnoreCase)
+        || classname.EndsWith(".cjs", StringComparison.OrdinalIgnoreCase)
+        || classname.EndsWith(".mts", StringComparison.OrdinalIgnoreCase)
+        || classname.EndsWith(".cts", StringComparison.OrdinalIgnoreCase);
 }

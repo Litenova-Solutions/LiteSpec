@@ -48,6 +48,9 @@ public sealed record Finding(string Code, string Message, string Path, int Line,
             ["size-type-missing"] = "G",
             ["requirement-unfulfilled"] = "G",
             ["requirement-unmeasured"] = "G",
+            ["requirement-uncited"] = "A",
+            ["constraint-uncited"] = "G",
+            ["parent-changed"] = "A",
             ["decision-decides-nothing"] = "G",
             ["journey-reach"] = "G",
             ["state-unreachable"] = "G",
@@ -162,7 +165,4 @@ public sealed record Finding(string Code, string Message, string Path, int Line,
 
     /// <summary>The finding tier: G blocks, S blocks where qualified, A reports.</summary>
     public string Tier => TierOverride ?? (Tiers.TryGetValue(Code, out var tier) ? tier : "G");
-
-    /// <summary>Whether the finding blocks the check under a qualified or unqualified reader.</summary>
-    public bool Blocks(bool readerQualified) => Tier == "G" || (Tier == "S" && readerQualified);
 }

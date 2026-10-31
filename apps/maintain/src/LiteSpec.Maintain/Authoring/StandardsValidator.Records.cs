@@ -187,7 +187,7 @@ static partial class StandardsValidator
                     continue;
                 }
 
-                var read = JsonString(entry["read"]);
+                var read = JsonString(entry["readOn"]);
                 if (read is null || read.Length == 0)
                 {
                     add(page.Relative, 1, "RECORD_SOURCE", $"source {index + 1} has no read date");

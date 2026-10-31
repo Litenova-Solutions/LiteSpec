@@ -10,27 +10,27 @@
   "options": [
     {
       "name": "Rebuild the generator from exported parents",
-      "for": "One exported parent per record ends file-path parents, silent coin tosses, and invented nodes in a single mechanism the checker already proves.",
-      "against": "The generator, its outline fixtures, and the book page contract are all rewritten at once."
+      "pros": "One exported parent per record ends file-path parents, silent coin tosses, and invented nodes in a single mechanism the checker already proves.",
+      "cons": "The generator, its outline fixtures, and the book page contract are all rewritten at once."
     },
     {
       "name": "Patch the current outline",
-      "for": "Smaller diffs land sooner and existing fixtures keep passing.",
-      "against": "The defects are structural: file parents, first-match placement, invented groupings, and two deleted layers cannot be patched one by one."
+      "pros": "Smaller diffs land sooner and existing fixtures keep passing.",
+      "cons": "The defects are structural: file parents, first-match placement, invented groupings, and two deleted layers cannot be patched one by one."
     },
     {
       "name": "Keep file-grouped requirements",
-      "for": "Placement matches authoring and needs no new field.",
-      "against": "A page style is not a record type, and the grouping breaks the outline and label provisions at once."
+      "pros": "Placement matches authoring and needs no new field.",
+      "cons": "A page style is not a record type, and the grouping breaks the outline and label provisions at once."
     },
     {
       "name": "Keep the stray sweep",
-      "for": "No record ever goes unplaced, so the book always renders complete.",
-      "against": "Unplaced records are promoted to roots beside modules, which hides misplacement instead of reporting it as a finding."
+      "pros": "No record ever goes unplaced, so the book always renders complete.",
+      "cons": "Unplaced records are promoted to roots beside modules, which hides misplacement instead of reporting it as a finding."
     }
   ],
-  "chosen": "Rebuild the generator from exported parents",
-  "changeWhen": "The approved mockup is replaced by a newer approved shape.",
+  "choice": "Rebuild the generator from exported parents",
+  "reopenedWhen": "The approved mockup is replaced by a newer approved shape.",
   "basedOn": [
     "research/book-outline-evidence",
     "research/behavior-containment-evidence",

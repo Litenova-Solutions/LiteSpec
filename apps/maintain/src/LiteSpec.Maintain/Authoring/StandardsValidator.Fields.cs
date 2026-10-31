@@ -11,9 +11,9 @@ static partial class StandardsValidator
     // author who has learned a field on one record has learned it on them all.
     // The names below are the declared exceptions beside the provision; every
     // other field follows the rule.
-    // (litespec/core/model#name-each-field-for-one-concept)
-    static readonly HashSet<string> SameShapeExceptions = new(["audience", "code", "subject"], StringComparer.Ordinal);
-    static readonly HashSet<string> IsoDateNameExceptions = new(["effectiveFrom", "read"], StringComparer.Ordinal);
+    // (litespec/core/language#name-each-field-by-its-word-class)
+    static readonly HashSet<string> SameShapeExceptions = new(["addresses", "code", "subject"], StringComparer.Ordinal);
+    static readonly HashSet<string> IsoDateNameExceptions = new(["effectiveFrom"], StringComparer.Ordinal);
     static readonly HashSet<string> DateOrMilestoneFields = new(["dueBy"], StringComparer.Ordinal);
 
     // The entry records the records array carries. Nested object defs stay out
@@ -118,7 +118,7 @@ static partial class StandardsValidator
 
             if (shapeB is not null)
             {
-                add(relative, 1, "FIELD_NAME_SHAPE", $"field `{field}` holds {shapeA} in {defA} and {shapeB} in {defB}; rename one concept or record the exception in litespec/core/model#name-each-field-for-one-concept");
+                add(relative, 1, "FIELD_NAME_SHAPE", $"field `{field}` holds {shapeA} in {defA} and {shapeB} in {defB}; rename one concept or record the exception in litespec/core/language#name-each-field-by-its-word-class");
             }
         }
 

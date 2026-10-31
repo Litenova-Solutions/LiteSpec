@@ -1,11 +1,13 @@
 ---
 {
-  "type": "requirement-page",
+  "type": "topic",
+  "id": "topic/borrowing",
   "title": "Borrowing performance",
   "owner": "lending-team",
   "status": "draft",
   "decider": "lending-team",
   "decideBy": "2030-01-31",
+  "reviewBy": "2030-01-31",
   "records": [
     {
       "type": "requirement",
@@ -13,6 +15,7 @@
       "title": "Borrow latency",
       "kind": "quality",
       "statement": "Borrowing completes within two hundred milliseconds at p95.",
+      "rationale": "Borrowing must feel instant at the desk.",
       "stimulus": "Readers borrow during the first hour of term.",
       "environment": "Normal operation with a warm catalog index.",
       "response": "Each borrow is recorded and confirmed.",
@@ -25,7 +28,8 @@
       "title": "Borrow form",
       "kind": "functional",
       "statement": "A reader borrows an available copy through the app.",
-      "basedOn": []
+      "rationale": "Members borrow from the app without visiting the desk.",
+      "cites": []
     }
   ]
 }

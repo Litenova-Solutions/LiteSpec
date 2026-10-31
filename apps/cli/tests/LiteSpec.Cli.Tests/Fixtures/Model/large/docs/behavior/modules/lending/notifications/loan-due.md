@@ -6,7 +6,7 @@
   "owner": "lending-team",
   "status": "reviewed",
   "template": "loan-due-reader",
-  "audience": [
+  "addresses": [
     "actor/reader"
   ],
   "channel": [
@@ -20,7 +20,7 @@
   ],
   "approvedBy": "lending-team",
   "approvedOn": "2026-10-01",
-  "approvedHash": "2ab61ded"
+  "approvedHash": "de71c95b"
 }
 ---
 

@@ -10,11 +10,11 @@
   "options": [
     {
       "name": "Five loans",
-      "for": "Readers borrow enough for a term",
-      "against": "Popular copies wait longer"
+      "pros": "Readers borrow enough for a term",
+      "cons": "Popular copies wait longer"
     }
   ],
-  "changeWhen": "Holds pass one hundred a day",
+  "reopenedWhen": "Holds pass one hundred a day",
   "decides": [
     "requirement/borrowing.borrow-form"
   ]

@@ -1,6 +1,7 @@
 ---
 {
-  "type": "requirement-page",
+  "type": "topic",
+  "id": "topic/approval",
   "title": "Approval",
   "owner": "claimwick-team",
   "status": "approved",
@@ -15,15 +16,13 @@
       "kind": "functional",
       "statement": "Each submitted expense is decided within five business days.",
       "rationale": "Late decisions stall employees and payouts.",
-      "features": [
-        "feature/approval-reminders"
-      ],
-      "basedOn": [
+      "cites": [
+        "feature/approval-reminders",
         "research/approval-time-benchmarks"
       ],
       "approvedBy": "claimwick-team",
       "approvedOn": "2026-10-01",
-      "approvedHash": "9373db66"
+      "approvedHash": "872f16f8"
     },
     {
       "type": "requirement",
@@ -34,15 +33,13 @@
       "kind": "functional",
       "statement": "An expense above the receipt threshold carries a receipt.",
       "rationale": "Proof above the line keeps the tax file defensible.",
-      "features": [
-        "feature/approval-reminders"
-      ],
-      "basedOn": [
+      "cites": [
+        "feature/approval-reminders",
         "constraint/tax-receipt-retention"
       ],
       "approvedBy": "claimwick-team",
       "approvedOn": "2026-10-01",
-      "approvedHash": "9b20e81d"
+      "approvedHash": "b35134d6"
     },
     {
       "type": "requirement",
@@ -53,13 +50,12 @@
       "kind": "functional",
       "statement": "Nobody approves their own expense.",
       "rationale": "A second pair of eyes keeps approvals honest.",
-      "features": [
+      "cites": [
         "feature/approval-reminders"
       ],
-      "basedOn": [],
       "approvedBy": "claimwick-team",
       "approvedOn": "2026-10-01",
-      "approvedHash": "d8ffe64a"
+      "approvedHash": "247a6973"
     },
     {
       "type": "requirement",
@@ -70,13 +66,12 @@
       "kind": "functional",
       "statement": "An approved expense is reimbursed at most once.",
       "rationale": "A double payment is hard to take back.",
-      "features": [
+      "cites": [
         "feature/approval-reminders"
       ],
-      "basedOn": [],
       "approvedBy": "claimwick-team",
       "approvedOn": "2026-10-01",
-      "approvedHash": "58c39652"
+      "approvedHash": "73e4e092"
     },
     {
       "type": "requirement",
@@ -87,16 +82,16 @@
       "kind": "functional",
       "statement": "The personal data of a decided expense is erased after its retention.",
       "rationale": "Past its need, personal data is a risk with no use.",
-      "basedOn": [
+      "cites": [
         "constraint/tax-receipt-retention"
       ],
       "approvedBy": "claimwick-team",
       "approvedOn": "2026-10-01",
-      "approvedHash": "d94fb08d"
+      "approvedHash": "fa8b649f"
     },
     {
       "type": "requirement",
-      "id": "requirement/spending.month-end-submissions",
+      "id": "requirement/approval.month-end-submissions",
       "title": "Month-end submissions",
       "status": "draft",
       "decider": "claimwick-team",
@@ -110,11 +105,14 @@
       "measure": "Share of submissions acknowledged within two seconds: at least 99 percent",
       "dueBy": "Pilot launch",
       "check": "month-end-load",
-      "features": [
+      "cites": [
         "feature/approval-reminders"
       ]
     }
-  ]
+  ],
+  "approvedBy": "claimwick-team",
+  "approvedOn": "2026-10-01",
+  "approvedHash": "4984bc41"
 }
 ---
 
@@ -151,7 +149,3 @@ The decision in decision/0001-receipt-threshold sets the threshold, and research
 ## Position
 
 Approval is the heart of Claimwick: submit, decide, reimburse, then export.
-
-## Refusals
-
-Expenses above the threshold with no receipt are refused. Self-approval is refused. A second reimbursement of one expense is refused.

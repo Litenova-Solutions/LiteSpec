@@ -73,6 +73,23 @@ public sealed class AuthorityTests
         Assert.Equal("approved", effective["use-case/lending.borrow-copy"]);
     }
 
+    /// <summary>A topic takes its own status, like every other Intent record.</summary>
+    /// <proves>litespec/core/model#hold-approval-behind-draft-decisions</proves>
+    [Fact]
+    public void Topic_Takes_Its_Own_Status()
+    {
+        IReadOnlyList<IRecordFacts> records = new IRecordFacts[]
+        {
+            new FakeRecord("topic", "topic/borrowing", "approved"),
+            new FakeRecord("topic", "topic/holds", "draft"),
+        };
+
+        var effective = Authority.EffectiveStatus(records, _ => null);
+
+        Assert.Equal("approved", effective["topic/borrowing"]);
+        Assert.Equal("draft", effective["topic/holds"]);
+    }
+
     /// <summary>A draft screen is draft.</summary>
     /// <proves>litespec/core/model#hold-approval-behind-draft-decisions</proves>
     [Fact]

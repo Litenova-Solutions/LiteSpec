@@ -1,10 +1,14 @@
 ---
 {
-  "type": "requirement-page",
+  "type": "topic",
+  "id": "topic/borrowing",
   "title": "Borrowing",
   "owner": "lending-team",
   "status": "approved",
   "reviewBy": "2027-04-01",
+  "approvedBy": "lending-team",
+  "approvedOn": "2026-10-01",
+  "approvedHash": "4984bc41",
   "records": [
     {
       "type": "requirement",
@@ -14,12 +18,14 @@
       "status": "approved",
       "kind": "functional",
       "statement": "A reader holds at most five active loans.",
-      "basedOn": [
-        "research/loan-period-benchmarks"
+      "rationale": "Readers borrow enough for a term without starving holds.",
+      "cites": [
+        "research/loan-period-benchmarks",
+        "constraint/library-privacy-law"
       ],
       "approvedBy": "lending-team",
       "approvedOn": "2026-10-01",
-      "approvedHash": "737e39a3"
+      "approvedHash": "96150778"
     },
     {
       "type": "requirement",
@@ -29,12 +35,13 @@
       "status": "approved",
       "kind": "functional",
       "statement": "A loan lasts 21 days.",
-      "basedOn": [
+      "rationale": "Three weeks lets most readers finish while copies keep moving.",
+      "cites": [
         "research/loan-period-benchmarks"
       ],
       "approvedBy": "lending-team",
       "approvedOn": "2026-10-01",
-      "approvedHash": "71b278cc"
+      "approvedHash": "bad36586"
     },
     {
       "type": "requirement",
@@ -44,12 +51,13 @@
       "status": "approved",
       "kind": "functional",
       "statement": "A ready hold waits seven days.",
-      "basedOn": [
+      "rationale": "A week gives readers time to reach the desk before the hold lapses.",
+      "cites": [
         "research/loan-period-benchmarks"
       ],
       "approvedBy": "lending-team",
       "approvedOn": "2026-10-01",
-      "approvedHash": "e5593684"
+      "approvedHash": "2ee75d8b"
     },
     {
       "type": "requirement",
@@ -59,12 +67,13 @@
       "status": "approved",
       "kind": "functional",
       "statement": "A copy lives on one home shelf.",
-      "basedOn": [
+      "rationale": "One home shelf keeps every copy findable.",
+      "cites": [
         "research/loan-period-benchmarks"
       ],
       "approvedBy": "lending-team",
       "approvedOn": "2026-10-01",
-      "approvedHash": "e9872fe9"
+      "approvedHash": "607a26c2"
     }
   ]
 }

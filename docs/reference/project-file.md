@@ -113,7 +113,7 @@ This object is included once the project states which outside constraints apply 
 
 What each field means and what reads it:
 
-- `vetoWindowDays` is the days after `decideBy` in which a tier-3 draft question carrying `recommended` auto-approves unless vetoed, recorded as `approvedBy: auto (veto window)`. The model builder reads it when it reports aged questions, and the book reads it for the auto-approval date in the Ballots view.
+- `vetoWindowDays` is the days after `decideBy` in which a question on a tier 3 record carrying `recommendation` auto-approves, recorded as `answeredBy: auto (veto window)` on the question, as `litespec/core/model#answer-each-question-on-its-record` states. The model builder reads it when it reports aged questions, and the book reads it for the auto-approval date in the Ballots view.
 - `securityReviewer` is the owner name holding the security reviewer role. The behavior diff lists the security queue for this reviewer: changes widening access tenant scope to cross, new `calls` effects, and new personal or sensitive data classes. `litespec model check` reports a name the owners list does not hold.
 - `sampleShare` is the share of a tier 3 batch that `litespec model approve --batch` samples, drawn from the records with the lowest semantic hashes and at least one record. The batch manifest records the sample.
 
@@ -131,7 +131,7 @@ What each field means and what reads it:
 |:---|:---|:---|:---|
 | `phase` | string | no | `"working"` |
 
-`phase` is `working` or `frozen`. In `frozen` the project holds its tests still while the code moves: `litespec model check` reports proof findings without blocking and marks them `frozen`, and the analyzers report them as warnings. In `working` they block as their tier states.
+`phase` is `working` or `frozen`. In `frozen` the project holds its tests still while the code moves: `litespec model check` reports proof findings without blocking and marks them `frozen`, and the analyzers report them as warnings. In `working` they block as their level states.
 
 ### The `adoption` Object
 
@@ -218,7 +218,7 @@ What each field means and what reads it:
 - `glossaryScan` holds glob patterns that name the non-Markdown surfaces the vocabulary reaches: source, interface copy, the API contract, and acceptance tests. Each pattern matches repository-relative paths and matches at least one file, or `litespec consumer` reports that the check over that surface did not run.
 - `unstructuredDocs` lists the paths whose Markdown is navigation or prose rather than specification.
 - `behaviorDocs` and `uiDocs` name the behavior and UI documentation roots. Both are required.
-- `records` maps a record type to its home folder where it differs from the default the model states. Keys come from the closed list `product`, `goal`, `constraint`, `research`, `decision`, `requirement`, `problem`, `feature`, `actor`, `role`, `permission`, `journey`, `module`, `aggregate`, `rule`, `use-case`, `result`, `scenario`, `event`, `entry-point`, `external-system`, `reaction`, `job`, `notification`, `setting`, `integration-event`, `runbook`, `deviation`, `known-gap`, and `term`.
+- `records` maps a record type to its home folder where it differs from the default the model states. Keys come from the closed list `product`, `goal`, `constraint`, `research`, `decision`, `topic`, `requirement`, `problem`, `feature`, `actor`, `role`, `permission`, `journey`, `module`, `aggregate`, `rule`, `use-case`, `result`, `scenario`, `event`, `entry-point`, `external-system`, `reaction`, `job`, `notification`, `setting`, `integration-event`, `runbook`, `deviation`, `known-gap`, and `term`.
 - `testRoots` lists the directories that hold automated test source. The model builder reads scenarios from these roots.
 - `testResults` names where the latest test run results live, so passing and failing proof is read from them.
 - `contract` names the committed OpenAPI document, so `litespec model check` compares each operation's `x-litespec-use-case` with its endpoint's mark.
@@ -241,13 +241,14 @@ What each field means and what reads it:
 | `domain` | string | no | `apps/api/src/*.Domain` |
 | `infrastructure` | string | no | `apps/api/src/*.Infrastructure` |
 | `webapi` | string | no | `apps/api/src/*.WebApi` |
+| `worker` | string | no | `apps/api/src/*.Worker` |
 | `apiSolution` | string | no | none |
 | `sharedKernel` | string | no | none |
 | `templateStore` | string | no | none |
 
 What each field means and what reads it:
 
-- `application`, `domain`, `infrastructure`, and `webapi` name the backend projects the model builder reads. A `*` in one segment expands to the first matching folder.
+- `application`, `domain`, `infrastructure`, `webapi`, and `worker` name the backend projects the model builder reads. A `*` in one segment expands to the first matching folder.
 - `apiSolution` names the API solution the model builder reads. A consumer with no backend omits `apiSolution` and records the decision that it has none.
 - `sharedKernel` names the one folder holding the domain shared kernel, where reasonless names are allowed. When omitted, no folder is exempt and `litespec model check` reports `reasonless-name` for every reasonless folder or type.
 - `templateStore` names the one C# file holding the notification template store: its top-level dictionary keys are the template keys, and its texts write parameters as `{{PascalCaseName}}`. When omitted, the template checks stay silent.

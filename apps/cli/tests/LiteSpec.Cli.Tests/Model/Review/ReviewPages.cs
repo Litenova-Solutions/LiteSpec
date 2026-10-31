@@ -118,6 +118,8 @@ static class ReviewPages
                 ["question"] = question,
                 ["decider"] = "lending-team",
                 ["decideBy"] = "2027-06-01",
+                ["ballot"] = "split-approval",
+                ["recommendation"] = "Approve the split as written.",
             }));
 
     /// <summary>Sets the project's review sample share.</summary>

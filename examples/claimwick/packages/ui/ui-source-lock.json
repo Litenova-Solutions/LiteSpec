@@ -35,7 +35,8 @@
       "dependencies": [
         "bits-ui",
         "class-variance-authority",
-        "cn"
+        "clsx",
+        "tailwind-merge"
       ]
     },
     {

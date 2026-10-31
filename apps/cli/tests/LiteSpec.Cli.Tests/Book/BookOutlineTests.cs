@@ -165,78 +165,26 @@ public sealed class BookOutlineTests
     {
         var model = Model(
             Record("product", "product/library", "Library", "approved"),
-            Record("feature", "feature/orphan", "Orphan", "draft"),
-            Record(
-                "requirement",
-                "requirement/borrowing.orphan-need",
-                "Orphan Need",
-                "draft",
-                new JsonObject { ["features"] = Links("feature/orphan") }));
+            Record("aggregate", "aggregate/missing.loan", "Loan", "reviewed"),
+            Record("rule", "rule/loan.one-loan-per-copy", "One Loan Per Copy", "reviewed"));
 
         var outline = BookOutline.Build(model);
 
-        Assert.Equal("feature/orphan", outline.ParentOf["requirement/borrowing.orphan-need"]);
-        Assert.Contains("feature/orphan", outline.Unplaced);
-        Assert.Contains("requirement/borrowing.orphan-need", outline.Unplaced);
-        Assert.Null(Find(outline.Layers, "feature/orphan"));
-        Assert.Null(Find(outline.Layers, "requirement/borrowing.orphan-need"));
+        Assert.Equal("aggregate/missing.loan", outline.ParentOf["rule/loan.one-loan-per-copy"]);
+        Assert.Contains("aggregate/missing.loan", outline.Unplaced);
+        Assert.Contains("rule/loan.one-loan-per-copy", outline.Unplaced);
+        Assert.Null(Find(outline.Layers, "aggregate/missing.loan"));
+        Assert.Null(Find(outline.Layers, "rule/loan.one-loan-per-copy"));
     }
 
-    /// <summary>A requirement follows features before basedOn before the deciding decision.</summary>
+    /// <summary>A requirement parents its topic by identifier home; its cites never move it.</summary>
     /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Fact]
-    public void Requirement_Uses_Features_Before_BasedOn_Before_Decides()
+    public void Requirement_Parents_Its_Topic_By_Identifier_Home()
     {
-        var carried = Model(
+        var model = Model(
             Record("product", "product/library", "Library", "approved"),
-            Record("problem", "problem/slow-queues", "Slow Queues", "approved"),
-            Record(
-                "feature",
-                "feature/self-checkout",
-                "Self Checkout",
-                "approved",
-                new JsonObject { ["solves"] = Links("problem/slow-queues") }),
-            Record("constraint", "constraint/retention", "Retention", "approved"),
-            Record(
-                "requirement",
-                "requirement/borrowing.max-wait",
-                "Max Wait",
-                "approved",
-                new JsonObject
-                {
-                    ["features"] = Links("feature/self-checkout"),
-                    ["basedOn"] = Links("constraint/retention"),
-                }));
-
-        Assert.Equal("feature/self-checkout", BookParents.ParentOf(carried, "requirement/borrowing.max-wait"));
-
-        var grounded = Model(
-            Record("product", "product/library", "Library", "approved"),
-            Record("constraint", "constraint/retention", "Retention", "approved"),
-            Record(
-                "requirement",
-                "requirement/borrowing.max-wait",
-                "Max Wait",
-                "approved",
-                new JsonObject { ["basedOn"] = Links("constraint/retention") }));
-
-        Assert.Equal("constraint/retention", BookParents.ParentOf(grounded, "requirement/borrowing.max-wait"));
-
-        var decided = Model(
-            Record("product", "product/library", "Library", "approved"),
-            Record(
-                "decision",
-                "decision/0001-kiosk",
-                "Kiosk",
-                "approved",
-                new JsonObject { ["decides"] = Links("requirement/borrowing.max-wait") },
-                file: "docs/intent/decisions/0001-kiosk.md"),
-            Record("requirement", "requirement/borrowing.max-wait", "Max Wait", "approved"));
-
-        Assert.Equal("decision/0001-kiosk", BookParents.ParentOf(decided, "requirement/borrowing.max-wait"));
-
-        var singular = Model(
-            Record("product", "product/library", "Library", "approved"),
+            Record("topic", "topic/borrowing", "Borrowing", "approved"),
             Record("problem", "problem/slow-queues", "Slow Queues", "approved"),
             Record(
                 "feature",
@@ -249,10 +197,28 @@ public sealed class BookOutlineTests
                 "requirement/borrowing.max-wait",
                 "Max Wait",
                 "approved",
-                new JsonObject { ["feature"] = Links("feature/self-checkout") }));
+                new JsonObject { ["cites"] = Links("feature/self-checkout") }));
 
-        Assert.Null(BookParents.ParentOf(singular, "requirement/borrowing.max-wait"));
-        Assert.Contains("requirement/borrowing.max-wait", BookOutline.Build(singular).Unplaced);
+        Assert.Equal("product/library", BookParents.ParentOf(model, "topic/borrowing"));
+        Assert.Equal("topic/borrowing", BookParents.ParentOf(model, "requirement/borrowing.max-wait"));
+
+        var outline = BookOutline.Build(model);
+        Assert.DoesNotContain("requirement/borrowing.max-wait", outline.Unplaced);
+        var topic = Find(outline.Layers, "topic/borrowing");
+        Assert.NotNull(topic);
+        Assert.True(topic!.Children.Any(child => string.Equals(child.Id, "requirement/borrowing.max-wait", StringComparison.Ordinal)));
+
+        var missing = Model(
+            Record("product", "product/library", "Library", "approved"),
+            Record(
+                "requirement",
+                "requirement/borrowing.max-wait",
+                "Max Wait",
+                "approved",
+                new JsonObject { ["cites"] = Links("feature/self-checkout") }));
+
+        Assert.Null(BookParents.ParentOf(missing, "requirement/borrowing.max-wait"));
+        Assert.Contains("requirement/borrowing.max-wait", BookOutline.Build(missing).Unplaced);
     }
 
     /// <summary>A scenario parents only under the result it shows; a missing one is reported, never defaulted to the use case.</summary>
@@ -534,12 +500,14 @@ public sealed class BookOutlineTests
         var model = Model(
             Record("product", "product/library", "Library", "approved"),
             Record("goal", "goal/faster-borrowing", "Faster Borrowing", "approved"),
+            Record("topic", "topic/borrowing", "Borrowing", "approved"),
             Record("module", "module/lending", "Lending", "reviewed"),
             Record("term", "term/loan", "Loan", "approved"),
             Record("deviation", "deviation/kiosk-cache", "Kiosk Cache", "approved"));
 
         Assert.Null(BookParents.ParentOf(model, "product/library"));
         Assert.Equal("product/library", BookParents.ParentOf(model, "goal/faster-borrowing"));
+        Assert.Equal("product/library", BookParents.ParentOf(model, "topic/borrowing"));
         Assert.Equal("product/library", BookParents.ParentOf(model, "module/lending"));
         Assert.Equal("product/library", BookParents.ParentOf(model, "term/loan"));
         Assert.Equal("product/library", BookParents.ParentOf(model, "deviation/kiosk-cache"));

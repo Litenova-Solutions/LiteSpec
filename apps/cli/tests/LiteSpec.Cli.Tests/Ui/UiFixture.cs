@@ -312,7 +312,7 @@ sealed class UiFixture : IDisposable
             ((JsonObject)sourceLock["preset"]!)["base"] = "bits-ui";
             sourceLock["registry"] = new JsonObject { ["name"] = "shadcn-svelte", ["url"] = "https://shadcn-svelte.com/registry" };
             ((JsonObject)((JsonArray)sourceLock["components"]!)[0]!)["dependencies"] =
-                new JsonArray("bits-ui", "class-variance-authority", "cn");
+                new JsonArray("bits-ui", "class-variance-authority", "clsx", "tailwind-merge");
         });
         WriteJson(ComponentsFile, new JsonObject
         {
