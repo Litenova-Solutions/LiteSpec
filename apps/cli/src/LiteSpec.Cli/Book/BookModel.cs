@@ -394,10 +394,13 @@ static class BookModel
             list.Add(record);
         }
 
-        // OrderBy is stable, so equal titles keep their file order.
+        // Ordinal title order with the id as tie-break, so the order is the same on every machine.
         foreach (var type in index.ByType.Keys.ToList())
         {
-            index.ByType[type] = index.ByType[type].OrderBy(SortTitle, BookRender.LocaleComparer).ToList();
+            index.ByType[type] = index.ByType[type]
+                .OrderBy(record => SortTitle(record), BookRender.OrdinalComparer)
+                .ThenBy(record => BookRender.StrProp(record, "id") ?? "", StringComparer.Ordinal)
+                .ToList();
         }
 
         foreach (var record in records.OfType<JsonObject>())
@@ -961,7 +964,8 @@ static class BookModel
         }
 
         return serving
-            .OrderBy(record => SortTitle(record), BookRender.LocaleComparer)
+            .OrderBy(record => SortTitle(record), BookRender.OrdinalComparer)
+            .ThenBy(record => BookRender.StrProp(record, "id") ?? "", StringComparer.Ordinal)
             .ToList();
     }
 
@@ -996,7 +1000,8 @@ static class BookModel
         }
 
         return serving
-            .OrderBy(record => SortTitle(record), BookRender.LocaleComparer)
+            .OrderBy(record => SortTitle(record), BookRender.OrdinalComparer)
+            .ThenBy(record => BookRender.StrProp(record, "id") ?? "", StringComparer.Ordinal)
             .ToList();
     }
 
@@ -1024,7 +1029,8 @@ static class BookModel
         }
 
         return serving
-            .OrderBy(record => SortTitle(record), BookRender.LocaleComparer)
+            .OrderBy(record => SortTitle(record), BookRender.OrdinalComparer)
+            .ThenBy(record => BookRender.StrProp(record, "id") ?? "", StringComparer.Ordinal)
             .ToList();
     }
 
@@ -1035,7 +1041,8 @@ static class BookModel
         return ids
             .Select(id => index.ById.GetValueOrDefault(id))
             .OfType<JsonObject>()
-            .OrderBy(record => SortTitle(record), BookRender.LocaleComparer)
+            .OrderBy(record => SortTitle(record), BookRender.OrdinalComparer)
+            .ThenBy(record => BookRender.StrProp(record, "id") ?? "", StringComparer.Ordinal)
             .ToList();
     }
 }

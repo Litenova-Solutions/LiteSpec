@@ -19,6 +19,27 @@
       "meaning": "The reader gave up the hold."
     }
   ],
+  "transitions": [
+    {
+      "from": "-",
+      "to": "Waiting",
+      "by": "use-case/lending.place-hold"
+    },
+    {
+      "from": "Waiting",
+      "to": "Ready"
+    },
+    {
+      "from": "Waiting",
+      "to": "Canceled",
+      "by": "use-case/lending.cancel-hold"
+    },
+    {
+      "from": "Ready",
+      "to": "Canceled",
+      "by": "use-case/lending.cancel-hold"
+    }
+  ],
   "records": [
     {
       "type": "rule",
@@ -93,7 +114,7 @@
   ],
   "approvedBy": "lending-team",
   "approvedOn": "2026-10-01",
-  "approvedHash": "6a776403"
+  "approvedHash": "38d2550f"
 }
 ---
 

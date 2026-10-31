@@ -50,6 +50,20 @@ public sealed class ModelApproveDryRunTests
         Assert.Equal(before, File.ReadAllText(BorrowCopy(fixture.Path)));
     }
 
+    /// <summary>An all dry run omits the record whose hash differs, as the all run stamps only records with no hash.</summary>
+    /// <proves>litespec/core/model#record-approval-as-data</proves>
+    [Fact]
+    public void Approve_All_Dry_Run_Omits_Reopened_Records()
+    {
+        using var fixture = ModelFixture.Prepare("large", "approval-reopened");
+        var result = Cli.Run("model", "approve", "--root", fixture.Path, "--all", "--dry-run");
+
+        Assert.Equal(0, result.Status);
+        Assert.DoesNotContain("result/borrow-copy.borrowed", result.Output);
+        Assert.DoesNotContain("approvedHash differs", result.Output);
+        Assert.Contains("0 records would be stamped, 0 would be reopened", result.Output);
+    }
+
     /// <summary>A dry run on a clean fixture lists nothing.</summary>
     /// <proves>litespec/core/model#record-approval-as-data</proves>
     [Fact]

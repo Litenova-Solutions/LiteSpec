@@ -19,19 +19,46 @@ public sealed class LifecycleCheckTests
             .Select(finding => finding.Message)
             .ToList();
 
-        Assert.Single(messages);
-        Assert.Contains("Overdue", messages[0]);
+        Assert.Equal(2, messages.Count);
+        Assert.Contains(messages, message => message.Contains("Active", StringComparison.Ordinal));
+        Assert.Contains(messages, message => message.Contains("Overdue", StringComparison.Ordinal));
     }
 
     /// <proves>litespec/core/domain-model#connect-every-state-through-transitions</proves>
     [Fact]
-    public void Aggregate_Without_Transitions_Passes()
+    public void Aggregate_Without_Transitions_Reports_Every_State_Unreachable()
     {
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(TestModel.Config(temp.Path), Loan(temp.Path));
 
-        Assert.DoesNotContain("state-unreached", TestModel.Codes(model));
+        var messages = Checker.Check(model).Findings
+            .Where(finding => finding.Code == "state-unreached")
+            .Select(finding => finding.Message)
+            .ToList();
+
+        Assert.Equal(3, messages.Count);
+        Assert.Contains(messages, message => message.Contains("Active", StringComparison.Ordinal));
+        Assert.Contains(messages, message => message.Contains("Overdue", StringComparison.Ordinal));
+        Assert.Contains(messages, message => message.Contains("Returned", StringComparison.Ordinal));
         Assert.DoesNotContain("transition-unknown", TestModel.Codes(model));
+    }
+
+    /// <proves>litespec/core/domain-model#connect-every-state-through-transitions</proves>
+    [Fact]
+    public void Source_Only_State_Reports_State_Unreachable()
+    {
+        using var temp = Cli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            Loan(temp.Path, """{"from": "-", "to": "Active"}""", """{"from": "Active", "to": "Returned"}""", """{"from": "Overdue", "to": "Returned"}"""));
+
+        var messages = Checker.Check(model).Findings
+            .Where(finding => finding.Code == "state-unreached")
+            .Select(finding => finding.Message)
+            .ToList();
+
+        Assert.Single(messages);
+        Assert.Contains("Overdue", messages[0]);
     }
 
     /// <proves>litespec/core/domain-model#connect-every-state-through-transitions</proves>
@@ -41,7 +68,7 @@ public sealed class LifecycleCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            Loan(temp.Path, """{"from": "Active", "to": "Returned"}""", """{"from": "Returned", "to": "Overdue"}"""));
+            Loan(temp.Path, """{"from": "-", "to": "Active"}""", """{"from": "Active", "to": "Returned"}""", """{"from": "Returned", "to": "Overdue"}"""));
 
         Assert.DoesNotContain("state-unreached", TestModel.Codes(model));
         Assert.DoesNotContain("transition-unknown", TestModel.Codes(model));
@@ -54,7 +81,7 @@ public sealed class LifecycleCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            Loan(temp.Path, """{"from": "Active", "to": "Returned"}""", """{"from": "-", "to": "Overdue"}"""));
+            Loan(temp.Path, """{"from": "-", "to": "Active"}""", """{"from": "Active", "to": "Returned"}""", """{"from": "-", "to": "Overdue"}"""));
 
         Assert.DoesNotContain("state-unreached", TestModel.Codes(model));
         Assert.DoesNotContain("transition-unknown", TestModel.Codes(model));
@@ -111,7 +138,7 @@ public sealed class LifecycleCheckTests
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            Loan(temp.Path, """{"from": "Active", "to": "Returned", "by": "use-case/lending.return-copy"}""", """{"from": "Returned", "to": "Overdue"}"""),
+            Loan(temp.Path, """{"from": "-", "to": "Active"}""", """{"from": "Active", "to": "Returned", "by": "use-case/lending.return-copy"}""", """{"from": "Returned", "to": "Overdue"}"""),
             TestModel.Record("use-case", "use-case/lending.return-copy", Path.Combine(temp.Path, "return.md"), """{"kind": "command"}"""));
 
         Assert.DoesNotContain("transition-unknown", TestModel.Codes(model));

@@ -14,7 +14,10 @@ namespace LiteSpec.Model.Readers.Dotnet;
 sealed class DotnetScenarioReader : IScenarioReader
 {
     /// <summary>Reads every scenario, test method and comment under the test roots.</summary>
-    public TestRead Read(ConsumerConfig config)
+    public TestRead Read(ConsumerConfig config) => ReadWithProblems(config).Tests;
+
+    /// <summary>Reads every scenario under the test roots, with one problem per file that could not be read or parsed.</summary>
+    public ScenarioRead ReadWithProblems(ConsumerConfig config)
     {
         var files = new List<string>();
 
@@ -27,6 +30,7 @@ sealed class DotnetScenarioReader : IScenarioReader
         var comments = new List<CodeComment>();
         var elements = new List<MarkedElement>();
         var strays = new List<StrayMark>();
+        var problems = new List<Finding>();
         var gate = new object();
         var stepCalls = new System.Collections.Concurrent.ConcurrentDictionary<string, IReadOnlySet<string>>(StringComparer.Ordinal);
         var probes = new System.Collections.Concurrent.ConcurrentDictionary<string, IReadOnlyDictionary<string, string>>(StringComparer.Ordinal);
@@ -34,10 +38,10 @@ sealed class DotnetScenarioReader : IScenarioReader
 
         System.Threading.Tasks.Parallel.ForEach(
             files,
-            () => (Scenarios: new List<ScenarioInfo>(), Comments: new List<CodeComment>(), Elements: new List<MarkedElement>(), Strays: new List<StrayMark>()),
+            () => (Scenarios: new List<ScenarioInfo>(), Comments: new List<CodeComment>(), Elements: new List<MarkedElement>(), Strays: new List<StrayMark>(), Problems: new List<Finding>()),
             (file, _, local) =>
             {
-                ReadFile(file, local.Scenarios, local.Comments, local.Elements, local.Strays, stepCalls, probes, stepFacts);
+                ReadFile(file, local.Scenarios, local.Comments, local.Elements, local.Strays, local.Problems, stepCalls, probes, stepFacts);
 
                 return local;
             },
@@ -49,10 +53,18 @@ sealed class DotnetScenarioReader : IScenarioReader
                     comments.AddRange(local.Comments);
                     elements.AddRange(local.Elements);
                     strays.AddRange(local.Strays);
+                    problems.AddRange(local.Problems);
                 }
             });
 
-        return new TestRead(
+        problems.Sort((left, right) =>
+        {
+            var file = string.Compare(left.Path, right.Path, StringComparison.Ordinal);
+
+            return file != 0 ? file : left.Line.CompareTo(right.Line);
+        });
+
+        var tests = new TestRead(
             [.. scenarios
                 .OrderBy(scenario => scenario.File, StringComparer.Ordinal)
                 .ThenBy(scenario => scenario.Line)],
@@ -74,7 +86,12 @@ sealed class DotnetScenarioReader : IScenarioReader
             ProbeRoutes = probes,
             StepFacts = stepFacts,
         };
+
+        return new ScenarioRead(tests, problems);
     }
+
+    /// <summary>Reads scenarios through the scenario reader interface, with their problems.</summary>
+    ScenarioRead IScenarioReader.Read(ConsumerConfig config) => ReadWithProblems(config);
 
     private static void ReadFile(
         string file,
@@ -82,6 +99,7 @@ sealed class DotnetScenarioReader : IScenarioReader
         List<CodeComment> comments,
         List<MarkedElement> elements,
         List<StrayMark> strays,
+        List<Finding> problems,
         System.Collections.Concurrent.ConcurrentDictionary<string, IReadOnlySet<string>> stepCalls,
         System.Collections.Concurrent.ConcurrentDictionary<string, IReadOnlyDictionary<string, string>> probes,
         System.Collections.Concurrent.ConcurrentDictionary<string, StepFacts> stepFacts)
@@ -92,8 +110,38 @@ sealed class DotnetScenarioReader : IScenarioReader
         {
             tree = CSharpSyntaxTree.ParseText(File.ReadAllText(file), new CSharpParseOptions(LanguageVersion.Preview), file);
         }
-        catch (IOException)
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
         {
+            problems.Add(new Finding(
+                "reader-missing",
+                $"Test source file '{file}' could not be read: {exception.Message}",
+                file,
+                1,
+                null)
+            {
+                Reader = Finding.RoslynReader,
+                ReaderIsQualified = true,
+            });
+
+            return;
+        }
+
+        var parseError = tree.GetDiagnostics()
+            .FirstOrDefault(diagnostic => diagnostic.Severity == Microsoft.CodeAnalysis.DiagnosticSeverity.Error);
+
+        if (parseError is not null)
+        {
+            problems.Add(new Finding(
+                "reader-missing",
+                $"Test source file '{file}' could not be parsed: {parseError.GetMessage()}",
+                file,
+                1,
+                null)
+            {
+                Reader = Finding.RoslynReader,
+                ReaderIsQualified = true,
+            });
+
             return;
         }
 

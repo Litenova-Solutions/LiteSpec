@@ -42,6 +42,9 @@ sealed class ConsumerConfig
     /// <summary>The consumer root.</summary>
     public string Root { get; }
 
+    /// <summary>Configuration problems found while loading, such as a declared stack root with no folder.</summary>
+    public IReadOnlyList<Finding> Problems { get; private set; } = [];
+
     /// <summary>Where written records live.</summary>
     public IReadOnlyList<string> RecordRoots { get; private set; } = [];
 
@@ -227,22 +230,53 @@ sealed class ConsumerConfig
                 ? dotnetConfig
                 : (JsonElement?)null;
 
+        var problems = new List<Finding>();
+
+        string DeclaredRoot(string field, string fallback)
+        {
+            if (dotnet is not null
+                && dotnet.Value.TryGetProperty(field, out var value)
+                && value.ValueKind == JsonValueKind.String
+                && value.GetString() is { Length: > 0 } pattern)
+            {
+                var resolved = Resolve(config.Root, pattern);
+
+                if (!Directory.Exists(resolved))
+                {
+                    problems.Add(new Finding(
+                        "reader-missing",
+                        $"Stack root '{field}' declared as '{pattern}' resolves to '{resolved}', which does not exist; source under that root was not read.",
+                        resolved,
+                        1,
+                        null)
+                    {
+                        Reader = Finding.RoslynReader,
+                        ReaderIsQualified = true,
+                    });
+                }
+
+                return resolved;
+            }
+
+            return Resolve(config.Root, fallback);
+        }
+
         // Records live under the documentation roots that paths.docs names.
         config.RecordRoots = ReadRoots(config.Root, paths, "docs", ["docs"]);
         config.GlossaryPath = Combine(config.Root, ReadString(paths, "glossary", "docs/glossary.json"));
         config.BehaviorDocs = Combine(config.Root, ReadString(paths, "behaviorDocs", "docs/behavior"));
-        config.ApplicationRoot = Resolve(config.Root, ReadString(dotnet, "application", "apps/api/src/*.Application"));
-        config.DomainRoot = Resolve(config.Root, ReadString(dotnet, "domain", "apps/api/src/*.Domain"));
-        config.WebApiRoot = Resolve(config.Root, ReadString(dotnet, "webapi", "apps/api/src/*.WebApi"));
-        config.InfrastructureRoot = Resolve(config.Root, ReadString(dotnet, "infrastructure", "apps/api/src/*.Infrastructure"));
-        config.WorkerRoot = Resolve(config.Root, ReadString(dotnet, "worker", "apps/api/src/*.Worker"));
+        config.ApplicationRoot = DeclaredRoot("application", "apps/api/src/*.Application");
+        config.DomainRoot = DeclaredRoot("domain", "apps/api/src/*.Domain");
+        config.WebApiRoot = DeclaredRoot("webapi", "apps/api/src/*.WebApi");
+        config.InfrastructureRoot = DeclaredRoot("infrastructure", "apps/api/src/*.Infrastructure");
+        config.WorkerRoot = DeclaredRoot("worker", "apps/api/src/*.Worker");
 
         if (dotnet is not null
             && dotnet.Value.TryGetProperty("sharedKernel", out var kernel)
             && kernel.ValueKind == JsonValueKind.String
             && kernel.GetString() is { Length: > 0 } kernelPath)
         {
-            config.SharedKernel = Resolve(config.Root, kernelPath);
+            config.SharedKernel = DeclaredRoot("sharedKernel", kernelPath);
         }
 
         if (dotnet is not null
@@ -445,6 +479,7 @@ sealed class ConsumerConfig
         }
 
         config.IsContinuousIntegration = Environment.GetEnvironmentVariable("CI") is { Length: > 0 };
+        config.Problems = problems;
 
         return config;
     }

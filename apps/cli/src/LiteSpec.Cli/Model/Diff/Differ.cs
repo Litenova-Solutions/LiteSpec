@@ -804,7 +804,7 @@ static class Differ
             return null;
         }
 
-        return value.Value.EnumerateArray().Select(Canonical).ToHashSet(StringComparer.Ordinal);
+        return value.Value.EnumerateArray().Select(CanonicalJson.Canonical).ToHashSet(StringComparer.Ordinal);
     }
 
     static void CompareAggregate(
@@ -1337,26 +1337,8 @@ static class Differ
         return JsonEquals(left.Value, right.Value);
     }
 
-    static bool JsonEquals(JsonElement left, JsonElement right)
-    {
-        if (left.ValueKind != right.ValueKind)
-        {
-            return false;
-        }
-
-        return left.ValueKind switch
-        {
-            JsonValueKind.Object => left.EnumerateObject().Count() == right.EnumerateObject().Count()
-                && left.EnumerateObject().All(property =>
-                    right.TryGetProperty(property.Name, out var other)
-                    && JsonEquals(property.Value, other)),
-            JsonValueKind.Array => left.GetArrayLength() == right.GetArrayLength()
-                && left.EnumerateArray().Zip(right.EnumerateArray()).All(pair => JsonEquals(pair.First, pair.Second)),
-            JsonValueKind.String => left.GetString() == right.GetString(),
-            JsonValueKind.Number => left.GetRawText() == right.GetRawText(),
-            _ => true,
-        };
-    }
+    static bool JsonEquals(JsonElement left, JsonElement right) =>
+        string.Equals(CanonicalJson.Canonical(left), CanonicalJson.Canonical(right), StringComparison.Ordinal);
 
     /// <summary>
     ///     One entry per transition, keyed by its from, to and use case id and
@@ -1774,22 +1756,6 @@ static class Differ
 
         return questions;
     }
-
-    /// <summary>One canonical string per JSON value, with object keys sorted.</summary>
-    static string Canonical(JsonElement value) => value.ValueKind switch
-    {
-        JsonValueKind.Object => "{" + string.Join(
-            ",",
-            value.EnumerateObject()
-                .OrderBy(property => property.Name, StringComparer.Ordinal)
-                .Select(property => $"{JsonSerializer.Serialize(property.Name)}:{Canonical(property.Value)}")) + "}",
-        JsonValueKind.Array => "[" + string.Join(",", value.EnumerateArray().Select(Canonical)) + "]",
-        JsonValueKind.String => JsonSerializer.Serialize(value.GetString()),
-        JsonValueKind.Number => value.GetRawText(),
-        JsonValueKind.True => "true",
-        JsonValueKind.False => "false",
-        _ => "null",
-    };
 
     /// <summary>
     ///     The security queue: use cases widened to tenant scope cross, new calls

@@ -14,8 +14,159 @@ namespace LiteSpec.Model.Readers.Dotnet;
 /// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
 sealed class DotnetBackendReader : IBackendReader
 {
-    /// <summary>The interfaces whose mark names an external system: the only ports a call counts on.</summary>
-    private static HashSet<string> externalPorts = new(StringComparer.Ordinal);
+    /// <summary>One type declaration the reader found, with its namespace-qualified name.</summary>
+    private sealed record DeclaredType(string Qualified, string Namespace, string File);
+
+    /// <summary>
+    ///     The cross-file names one read collects, keyed by namespace-qualified type name
+    ///     including the containing type for a nested type, so two types with the same
+    ///     simple name in different namespaces never share a kind, a helper or a port.
+    ///     The marked ports of the read live here, so no read shares mutable static state.
+    /// </summary>
+    private sealed class QualifiedKinds(IReadOnlyDictionary<string, List<DeclaredType>> bySimple)
+    {
+        /// <summary>Every declared type by simple name, each with its qualified name.</summary>
+        public IReadOnlyDictionary<string, List<DeclaredType>> BySimple { get; } = bySimple;
+
+        /// <summary>Resolved base names by namespace-qualified type name.</summary>
+        public Dictionary<string, List<string>> Bases { get; } = new(StringComparer.Ordinal);
+
+        /// <summary>Namespace-qualified names of interfaces carrying an external-system mark.</summary>
+        public HashSet<string> MarkedPorts { get; } = new(StringComparer.Ordinal);
+
+        /// <summary>Namespace-qualified names of technical classes found through another partial part.</summary>
+        public HashSet<string> TechnicalClasses { get; } = new(StringComparer.Ordinal);
+
+        /// <summary>Namespace-qualified names of known aggregate roots.</summary>
+        public HashSet<string> AggregateRoots { get; private set; } = new(StringComparer.Ordinal);
+
+        /// <summary>Namespace-qualified names of known domain exceptions.</summary>
+        public HashSet<string> DomainExceptions { get; private set; } = new(StringComparer.Ordinal);
+
+        /// <summary>Namespace-qualified names of types known to carry <c>ICommandHandler</c>.</summary>
+        public HashSet<string> CommandHandlers { get; private set; } = new(StringComparer.Ordinal);
+
+        /// <summary>Namespace-qualified names of types known to carry <c>IQueryHandler</c>.</summary>
+        public HashSet<string> QueryHandlers { get; private set; } = new(StringComparer.Ordinal);
+
+        /// <summary>Namespace-qualified names of types known to carry an event-handler contract.</summary>
+        public HashSet<string> EventHandlers { get; private set; } = new(StringComparer.Ordinal);
+
+        /// <summary>Namespace-qualified names of types known to be job hosts.</summary>
+        public HashSet<string> JobHosts { get; private set; } = new(StringComparer.Ordinal);
+
+        /// <summary>Namespace-qualified names of types known to carry <c>IDomainEvent</c>.</summary>
+        public HashSet<string> DomainEvents { get; private set; } = new(StringComparer.Ordinal);
+
+        /// <summary>Closes the collected base names over inheritance.</summary>
+        public void Complete()
+        {
+            AggregateRoots = Fixpoint(Bases, parents => parents.Any(parent =>
+                SimpleName(parent).StartsWith("AggregateRoot", StringComparison.Ordinal)));
+            DomainExceptions = Fixpoint(Bases, parents => parents.Any(parent =>
+                SimpleName(parent) == "DomainException"));
+            CommandHandlers = Fixpoint(Bases, parents => parents.Any(parent =>
+                SimpleName(parent) == "ICommandHandler"));
+            QueryHandlers = Fixpoint(Bases, parents => parents.Any(parent =>
+                SimpleName(parent) == "IQueryHandler"));
+            EventHandlers = Fixpoint(Bases, parents => parents.Any(parent =>
+                SimpleName(parent) == "IEventHandler" || SimpleName(parent) == "IDomainEventReaction"));
+            JobHosts = Fixpoint(Bases, parents => parents.Any(parent =>
+                SimpleName(parent) == "BackgroundService" || SimpleName(parent) == "IHostedService"));
+            DomainEvents = Fixpoint(Bases, parents => parents.Any(parent =>
+                SimpleName(parent) == "IDomainEvent"));
+        }
+
+        /// <summary>
+        ///     The resolved base names of one declaration: each base name resolved to the
+        ///     namespace-qualified name of the declared type it names, or the simple name
+        ///     it was written with when no declared type carries it.
+        /// </summary>
+        public IReadOnlyList<string> ResolvedBases(TypeDeclarationSyntax declared) =>
+            declared.BaseList is null
+                ? []
+                : [.. declared.BaseList.Types.Select(baseType => ResolveName(declared, SimpleName(KindOf(BaseName(baseType.Type)))))];
+
+        /// <summary>
+        ///     Resolves a simple type name written in one scope to the namespace-qualified
+        ///     name of the declared type it names: the one in the scope's namespace wins,
+        ///     then the one in the scope's file, then the only candidate. An ambiguous or
+        ///     undeclared name stays simple, so it matches no qualified name of another type.
+        /// </summary>
+        public string ResolveName(SyntaxNode scope, string simple)
+        {
+            if (simple.Length == 0 || !BySimple.TryGetValue(simple, out var candidates))
+            {
+                return simple;
+            }
+
+            if (candidates.Count == 1)
+            {
+                return candidates[0].Qualified;
+            }
+
+            var space = NamespaceOfNode(scope);
+
+            foreach (var candidate in candidates)
+            {
+                if (string.Equals(candidate.Namespace, space, StringComparison.Ordinal))
+                {
+                    return candidate.Qualified;
+                }
+            }
+
+            foreach (var candidate in candidates)
+            {
+                if (string.Equals(candidate.File, scope.SyntaxTree.FilePath, StringComparison.Ordinal))
+                {
+                    return candidate.Qualified;
+                }
+            }
+
+            return simple;
+        }
+
+        /// <summary>Whether the simple receiver type written in the scope names a marked port of this read.</summary>
+        public bool IsExternalPort(SyntaxNode scope, string simple) =>
+            MarkedPorts.Contains(ResolveName(scope, simple));
+
+        /// <summary>The namespace holding a syntax node, or empty in the global namespace.</summary>
+        private static string NamespaceOfNode(SyntaxNode node)
+        {
+            for (var current = node; current is not null; current = current.Parent)
+            {
+                if (current is BaseNamespaceDeclarationSyntax space)
+                {
+                    return space.Name.ToString();
+                }
+            }
+
+            return "";
+        }
+    }
+
+    /// <summary>The namespace-qualified name of a type, including each containing type.</summary>
+    private static string QualifiedNameOf(TypeDeclarationSyntax declared)
+    {
+        var parts = new List<string>();
+
+        for (var node = declared.Parent; node is not null; node = node.Parent)
+        {
+            if (node is TypeDeclarationSyntax containing)
+            {
+                parts.Add(containing.Identifier.ValueText);
+            }
+            else if (node is BaseNamespaceDeclarationSyntax space)
+            {
+                parts.Add(space.Name.ToString());
+            }
+        }
+
+        parts.Reverse();
+        parts.Add(declared.Identifier.ValueText);
+
+        return string.Join(".", parts);
+    }
 
     /// <summary>A kebab-case literal, the shape of a key a composed refusal code is built from.</summary>
     private static readonly System.Text.RegularExpressions.Regex KeyLiteralShape = new(
@@ -33,7 +184,8 @@ sealed class DotnetBackendReader : IBackendReader
     ///     Domain that declare a method, so a partial part without a method reads
     ///     through its name. Collected once per read, from the parsed file cache.
     /// </summary>
-    private static KindContext KindsOf(ConsumerConfig config, IReadOnlyDictionary<string, SyntaxTree> trees)
+    private static (KindContext Context, QualifiedKinds Qualified) KindsOf(
+        ConsumerConfig config, IReadOnlyDictionary<string, SyntaxTree> trees)
     {
         var backends = new[]
         {
@@ -44,9 +196,8 @@ sealed class DotnetBackendReader : IBackendReader
             config.InfrastructureRoot,
             config.WorkerRoot,
         };
-        var bases = new Dictionary<string, List<string>>(StringComparer.Ordinal);
-        var ports = new HashSet<string>(StringComparer.Ordinal);
-        var technical = new HashSet<string>(StringComparer.Ordinal);
+        var bySimple = new Dictionary<string, List<DeclaredType>>(StringComparer.Ordinal);
+        var declaredTypes = new List<(TypeDeclarationSyntax Declared, string Qualified, bool PortRoot, bool TechnicalRoot, string File)>();
 
         foreach (var root in backends)
         {
@@ -64,54 +215,70 @@ sealed class DotnetBackendReader : IBackendReader
 
                 foreach (var declared in tree.GetRoot().DescendantNodes().OfType<TypeDeclarationSyntax>())
                 {
-                    var name = declared.Identifier.ValueText;
+                    var qualified = QualifiedNameOf(declared);
+                    var simple = declared.Identifier.ValueText;
 
-                    if (!bases.TryGetValue(name, out var known))
+                    if (!bySimple.TryGetValue(simple, out var candidates))
                     {
-                        known = [];
-                        bases[name] = known;
+                        candidates = [];
+                        bySimple[simple] = candidates;
                     }
 
-                    if (declared.BaseList is not null)
-                    {
-                        foreach (var baseType in declared.BaseList.Types)
-                        {
-                            var face = SimpleName(KindOf(BaseName(baseType.Type)));
-
-                            if (face.Length > 0 && !known.Contains(face, StringComparer.Ordinal))
-                            {
-                                known.Add(face);
-                            }
-                        }
-                    }
-
-                    if (portRoot
-                        && declared is InterfaceDeclarationSyntax faceType
-                        && MarkReader.Read(faceType).Any(mark =>
-                            mark.RecordId.StartsWith("external-system/", StringComparison.Ordinal)))
-                    {
-                        ports.Add(name);
-                    }
-
-                    if (technicalRoot && IsTechnicalCandidate(file, declared))
-                    {
-                        technical.Add(name);
-                    }
+                    candidates.Add(new DeclaredType(qualified, NamespaceOf(declared), file));
+                    declaredTypes.Add((declared, qualified, portRoot, technicalRoot, file));
                 }
             }
         }
 
-        return new KindContext(
-            Fixpoint(bases, parents => parents.Any(parent =>
-                parent.StartsWith("AggregateRoot", StringComparison.Ordinal))),
-            Fixpoint(bases, parents => parents.Contains("DomainException")),
-            ports,
-            Fixpoint(bases, parents => parents.Contains("ICommandHandler")),
-            Fixpoint(bases, parents => parents.Contains("IQueryHandler")),
-            Fixpoint(bases, parents => parents.Contains("IEventHandler") || parents.Contains("IDomainEventReaction")),
-            Fixpoint(bases, parents => parents.Contains("BackgroundService") || parents.Contains("IHostedService")),
-            Fixpoint(bases, parents => parents.Contains("IDomainEvent")),
-            technical);
+        var qualifiedKinds = new QualifiedKinds(bySimple);
+
+        foreach (var (declared, qualified, portRoot, technicalRoot, file) in declaredTypes)
+        {
+            if (!qualifiedKinds.Bases.TryGetValue(qualified, out var known))
+            {
+                known = [];
+                qualifiedKinds.Bases[qualified] = known;
+            }
+
+            foreach (var face in qualifiedKinds.ResolvedBases(declared))
+            {
+                if (face.Length > 0 && !known.Contains(face, StringComparer.Ordinal))
+                {
+                    known.Add(face);
+                }
+            }
+
+            if (portRoot
+                && declared is InterfaceDeclarationSyntax faceType
+                && MarkReader.Read(faceType).Any(mark =>
+                    mark.RecordId.StartsWith("external-system/", StringComparison.Ordinal)))
+            {
+                qualifiedKinds.MarkedPorts.Add(qualified);
+            }
+
+            if (technicalRoot && IsTechnicalCandidate(file, declared))
+            {
+                qualifiedKinds.TechnicalClasses.Add(qualified);
+            }
+        }
+
+        qualifiedKinds.Complete();
+
+        static HashSet<string> SimpleNames(HashSet<string> qualified) =>
+            [.. qualified.Select(name => SimpleName(name))];
+
+        var context = new KindContext(
+            SimpleNames(qualifiedKinds.AggregateRoots),
+            SimpleNames(qualifiedKinds.DomainExceptions),
+            SimpleNames(qualifiedKinds.MarkedPorts),
+            SimpleNames(qualifiedKinds.CommandHandlers),
+            SimpleNames(qualifiedKinds.QueryHandlers),
+            SimpleNames(qualifiedKinds.EventHandlers),
+            SimpleNames(qualifiedKinds.JobHosts),
+            SimpleNames(qualifiedKinds.DomainEvents),
+            SimpleNames(qualifiedKinds.TechnicalClasses));
+
+        return (context, qualifiedKinds);
     }
 
     /// <summary>
@@ -284,7 +451,19 @@ sealed class DotnetBackendReader : IBackendReader
     /// </summary>
     /// <param name="config">The consumer configuration naming the source roots.</param>
     /// <param name="onParsed">Invoked with each file after it parses, or null for no callback.</param>
-    public CodeModel Read(ConsumerConfig config, Action<string>? onParsed)
+    public CodeModel Read(ConsumerConfig config, Action<string>? onParsed) =>
+        ReadWithProblems(config, onParsed).Code;
+
+    /// <summary>Reads the backend through the backend reader interface, with its problems.</summary>
+    BackendRead IBackendReader.Read(ConsumerConfig config) => ReadWithProblems(config, onParsed: null);
+
+    /// <summary>Reads every configured source root, with one problem per file that could not be read or parsed.</summary>
+    /// <param name="config">The consumer configuration naming the source roots.</param>
+    /// <returns>The code model and the reader problems.</returns>
+    public BackendRead ReadWithProblems(ConsumerConfig config) => ReadWithProblems(config, onParsed: null);
+
+    /// <summary>Reads every configured source root, with its problems and a parse callback.</summary>
+    private BackendRead ReadWithProblems(ConsumerConfig config, Action<string>? onParsed)
     {
         var model = new CodeModel();
 
@@ -295,11 +474,10 @@ sealed class DotnetBackendReader : IBackendReader
             files.AddRange(SourceTree.Files(root, ".cs"));
         }
 
-        var trees = ParseTrees(files, onParsed);
-        var context = KindsOf(config, trees);
+        var (trees, problems) = ParseTrees(files, onParsed);
+        var (context, qualified) = KindsOf(config, trees);
 
-        externalPorts = new HashSet<string>(context.MarkedPorts, StringComparer.Ordinal);
-        var helpers = IndexHelpers(config, trees);
+        var helpers = IndexHelpers(config, trees, qualified);
         var aggregateRoots = new HashSet<string>(context.AggregateRoots, StringComparer.Ordinal);
         var holders = RepositoryHoldersOf(config, trees);
 
@@ -313,7 +491,7 @@ sealed class DotnetBackendReader : IBackendReader
             {
                 if (trees.TryGetValue(file, out var tree))
                 {
-                    ReadFile(config, file, tree, local, context, helpers, aggregateRoots, holders);
+                    ReadFile(config, file, tree, local, context, qualified, helpers, aggregateRoots, holders);
                 }
 
                 return local;
@@ -396,21 +574,32 @@ sealed class DotnetBackendReader : IBackendReader
             .ThenBy(entry => entry.Interface, StringComparer.Ordinal)
             .ToList());
 
-        return model;
+        problems.Sort((left, right) =>
+        {
+            var file = string.Compare(left.Path, right.Path, StringComparison.Ordinal);
+
+            return file != 0 ? file : left.Line.CompareTo(right.Line);
+        });
+
+        return new BackendRead(model, problems);
     }
 
     /// <summary>
     ///     Parses every file once, in parallel, into a cache from file path to
-    ///     syntax tree. A file that cannot be read is left out.
+    ///     syntax tree. A file that cannot be read or parsed is left out and
+    ///     reported as one <c>reader-missing</c> problem naming the file.
     /// </summary>
-    private static IReadOnlyDictionary<string, SyntaxTree> ParseTrees(IReadOnlyList<string> files, Action<string>? onParsed)
+    private static (IReadOnlyDictionary<string, SyntaxTree> Trees, List<Finding> Problems) ParseTrees(
+        IReadOnlyList<string> files, Action<string>? onParsed)
     {
         var trees = new Dictionary<string, SyntaxTree>(files.Count, StringComparer.Ordinal);
+        var problems = new List<Finding>();
         var gate = new object();
 
         System.Threading.Tasks.Parallel.ForEach(
             files,
-            file =>
+            () => new List<Finding>(),
+            (file, _, local) =>
             {
                 SyntaxTree tree;
 
@@ -418,9 +607,39 @@ sealed class DotnetBackendReader : IBackendReader
                 {
                     tree = CSharpSyntaxTree.ParseText(SourceTree.Read(file), new CSharpParseOptions(LanguageVersion.Preview), file);
                 }
-                catch (IOException)
+                catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
                 {
-                    return;
+                    local.Add(new Finding(
+                        "reader-missing",
+                        $"Backend source file '{file}' could not be read: {exception.Message}",
+                        file,
+                        1,
+                        null)
+                    {
+                        Reader = Finding.RoslynReader,
+                        ReaderIsQualified = true,
+                    });
+
+                    return local;
+                }
+
+                var parseError = tree.GetDiagnostics()
+                    .FirstOrDefault(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error);
+
+                if (parseError is not null)
+                {
+                    local.Add(new Finding(
+                        "reader-missing",
+                        $"Backend source file '{file}' could not be parsed: {parseError.GetMessage()}",
+                        file,
+                        1,
+                        null)
+                    {
+                        Reader = Finding.RoslynReader,
+                        ReaderIsQualified = true,
+                    });
+
+                    return local;
                 }
 
                 lock (gate)
@@ -429,9 +648,18 @@ sealed class DotnetBackendReader : IBackendReader
                 }
 
                 onParsed?.Invoke(file);
+
+                return local;
+            },
+            local =>
+            {
+                lock (gate)
+                {
+                    problems.AddRange(local);
+                }
             });
 
-        return trees;
+        return (trees, problems);
     }
 
     private static void ReadFile(
@@ -440,19 +668,21 @@ sealed class DotnetBackendReader : IBackendReader
         SyntaxTree tree,
         CodeModel model,
         KindContext context,
+        QualifiedKinds qualified,
         Dictionary<string, List<HelperMethod>> helpers,
         HashSet<string> aggregateRoots,
         HashSet<string> holders)
     {
         var root = tree.GetRoot();
         var classes = root.DescendantNodes().OfType<BaseTypeDeclarationSyntax>().ToList();
-        var elements = MarkFacts.Read(tree, context, ProjectOf(config, file));
+        var readElements = MarkFacts.Read(tree, context, ProjectOf(config, file));
         var types = root.DescendantNodes().OfType<TypeDeclarationSyntax>()
             .ToDictionary(type => type.Identifier.Span, type => type);
         var methods = root.DescendantNodes().OfType<MethodDeclarationSyntax>()
             .ToDictionary(method => method.Identifier.Span, method => method);
+        var elements = CorrectElements(readElements, types, methods, qualified);
 
-        ReadElements(file, tree, elements, types, methods, model, helpers, aggregateRoots, holders, context);
+        ReadElements(file, tree, elements, types, methods, model, helpers, aggregateRoots, holders, qualified);
         ReadAggregateMethods(file, tree, elements, types, model);
         ReadAuditActions(file, tree, classes, model);
         ReadDomainTypes(config, file, tree, model);
@@ -498,6 +728,159 @@ sealed class DotnetBackendReader : IBackendReader
             }
         }
 
+    }
+
+    /// <summary>
+    ///     Corrects the kinds the shared kind reader assigned from simple names, using the
+    ///     namespace-qualified names of this read: a kind that only a same-named type in
+    ///     another namespace would give this type is dropped, and an aggregate method of
+    ///     a type that is no aggregate root loses its kind.
+    /// </summary>
+    private static IReadOnlyList<MarkableElement> CorrectElements(
+        IReadOnlyList<MarkableElement> elements,
+        IReadOnlyDictionary<TextSpan, TypeDeclarationSyntax> types,
+        IReadOnlyDictionary<TextSpan, MethodDeclarationSyntax> methods,
+        QualifiedKinds qualified)
+    {
+        var corrected = new List<MarkableElement>(elements.Count);
+
+        foreach (var element in elements)
+        {
+            CodeKind? kind = element.Kind;
+
+            if (element.IsType && types.TryGetValue(element.Span, out var declared))
+            {
+                kind = CorrectKind(declared, element.Kind, qualified);
+            }
+            else if (!element.IsType
+                && element.Kind == CodeKind.AggregateMethod
+                && methods.TryGetValue(element.Span, out var method)
+                && method.Parent is TypeDeclarationSyntax parent
+                && CorrectKind(parent, CodeKind.AggregateRoot, qualified) != CodeKind.AggregateRoot)
+            {
+                kind = null;
+            }
+
+            corrected.Add(kind == element.Kind
+                ? element
+                : new MarkableElement(element.Name, element.IsType, kind, element.Marks, element.Line, element.Span));
+        }
+
+        return corrected;
+    }
+
+    /// <summary>
+    ///     The kind of one type from its namespace-qualified bases, following the shared
+    ///     kind reader's order for the kinds a cross-file name can carry. Kinds that no
+    ///     cross-file name carries keep the kind the shared reader assigned.
+    /// </summary>
+    private static CodeKind? CorrectKind(TypeDeclarationSyntax declared, CodeKind? kind, QualifiedKinds qualified)
+    {
+        var qualifiedName = QualifiedNameOf(declared);
+        var resolved = qualified.ResolvedBases(declared);
+        var simpleBases = resolved.Select(SimpleName).ToHashSet(StringComparer.Ordinal);
+        var otherPart = declared.BaseList is null
+            && declared.Parent is not TypeDeclarationSyntax
+            && declared.Modifiers.Any(modifier => modifier.IsKind(SyntaxKind.PartialKeyword));
+
+        if (resolved.Any(parent => SimpleName(parent).StartsWith("AggregateRoot", StringComparison.Ordinal))
+            || resolved.Any(parent => qualified.AggregateRoots.Contains(parent))
+            || (otherPart && qualified.AggregateRoots.Contains(qualifiedName)))
+        {
+            return CodeKind.AggregateRoot;
+        }
+
+        if (declared is not InterfaceDeclarationSyntax && simpleBases.Contains("IDomainEvent"))
+        {
+            return CodeKind.DomainEvent;
+        }
+
+        if (!declared.Modifiers.Any(modifier => modifier.IsKind(SyntaxKind.AbstractKeyword))
+            && ((otherPart && qualified.DomainExceptions.Contains(qualifiedName))
+                || resolved.Any(parent =>
+                    SimpleName(parent) == "DomainException" || qualified.DomainExceptions.Contains(parent))))
+        {
+            return CodeKind.RuleException;
+        }
+
+        if (IsClassLike(declared)
+            && (simpleBases.Contains("ICommandHandler") || simpleBases.Contains("IQueryHandler")))
+        {
+            return CodeKind.Handler;
+        }
+
+        if (IsClassLike(declared)
+            && (simpleBases.Contains("IEventHandler") || simpleBases.Contains("IDomainEventReaction")))
+        {
+            return CodeKind.EventHandler;
+        }
+
+        if (kind == CodeKind.Job
+            && IsClassLike(declared)
+            && (((simpleBases.Contains("BackgroundService") || simpleBases.Contains("IHostedService"))
+                    && HasJobName(declared.Identifier.ValueText))
+                || MarkReader.Read(declared).Any(mark =>
+                    mark.RecordId.StartsWith("job/", StringComparison.Ordinal))))
+        {
+            return CodeKind.Job;
+        }
+
+        if (kind is CodeKind.AggregateRoot or CodeKind.RuleException or CodeKind.Handler
+            or CodeKind.EventHandler or CodeKind.DomainEvent or CodeKind.Job or CodeKind.Adapter)
+        {
+            if (declared is not InterfaceDeclarationSyntax
+                && ((otherPart && qualified.DomainEvents.Contains(qualifiedName))
+                    || resolved.Any(parent => qualified.DomainEvents.Contains(parent))))
+            {
+                return CodeKind.DomainEvent;
+            }
+
+            if (IsClassLike(declared)
+                && ((otherPart
+                        && (qualified.CommandHandlers.Contains(qualifiedName)
+                            || qualified.QueryHandlers.Contains(qualifiedName)))
+                    || resolved.Any(parent =>
+                        qualified.CommandHandlers.Contains(parent) || qualified.QueryHandlers.Contains(parent))))
+            {
+                return CodeKind.Handler;
+            }
+
+            if (IsClassLike(declared)
+                && ((otherPart && qualified.EventHandlers.Contains(qualifiedName))
+                    || resolved.Any(parent => qualified.EventHandlers.Contains(parent))))
+            {
+                return CodeKind.EventHandler;
+            }
+
+            if (IsClassLike(declared)
+                && HasJobName(declared.Identifier.ValueText)
+                && ((otherPart && qualified.JobHosts.Contains(qualifiedName))
+                    || resolved.Any(parent => qualified.JobHosts.Contains(parent))))
+            {
+                return CodeKind.Job;
+            }
+
+            if (kind == CodeKind.Adapter
+                && IsClassLike(declared)
+                && resolved.Any(parent => qualified.MarkedPorts.Contains(parent)))
+            {
+                return CodeKind.Adapter;
+            }
+
+            return null;
+        }
+
+        if (kind == CodeKind.Technical
+            && otherPart
+            && !qualified.TechnicalClasses.Contains(qualifiedName)
+            && !declared.Members.OfType<MethodDeclarationSyntax>().Any()
+            && !MarkReader.Read(declared).Any(mark =>
+                mark.RecordId.StartsWith("setting/", StringComparison.Ordinal)))
+        {
+            return null;
+        }
+
+        return kind;
     }
 
     /// <summary>
@@ -704,7 +1087,7 @@ sealed class DotnetBackendReader : IBackendReader
         Dictionary<string, List<HelperMethod>> helpers,
         HashSet<string> aggregateRoots,
         HashSet<string> holders,
-        KindContext context)
+        QualifiedKinds qualified)
     {
         foreach (var element in elements)
         {
@@ -737,13 +1120,13 @@ sealed class DotnetBackendReader : IBackendReader
                 switch (kind)
                 {
                     case CodeKind.Handler:
-                        ReadHandler(file, tree, declared, marks, model, helpers, aggregateRoots, holders, context);
+                        ReadHandler(file, tree, declared, marks, model, helpers, aggregateRoots, holders, qualified);
                         break;
                     case CodeKind.EventHandler:
-                        ReadReaction(file, tree, declared, marks, model, helpers, holders);
+                        ReadReaction(file, tree, declared, marks, model, helpers, holders, qualified);
                         break;
                     case CodeKind.Job:
-                        ReadJob(file, tree, declared, marks, model, helpers, holders);
+                        ReadJob(file, tree, declared, marks, model, helpers, holders, qualified);
                         break;
                     case CodeKind.DomainEvent:
                         model.Events.Add(new DomainEventInfo(
@@ -848,19 +1231,20 @@ sealed class DotnetBackendReader : IBackendReader
         Dictionary<string, List<HelperMethod>> helpers,
         HashSet<string> aggregateRoots,
         HashSet<string> holders,
-        KindContext context)
+        QualifiedKinds qualified)
     {
         var useCase = SingleMark(marks, "use-case/") ?? "";
 
         Identifiers.TrySplit(useCase, out _, out var home, out var name);
 
         var message = MessageTypeOf(declared);
-        var handlesQuery = ImplementsFace(declared, "IQueryHandler") || context.QueryHandlers.Contains(declared.Identifier.ValueText);
-        var handlesCommand = ImplementsFace(declared, "ICommandHandler") || context.CommandHandlers.Contains(declared.Identifier.ValueText);
+        var qualifiedName = QualifiedNameOf(declared);
+        var handlesQuery = ImplementsFace(declared, "IQueryHandler") || qualified.QueryHandlers.Contains(qualifiedName);
+        var handlesCommand = ImplementsFace(declared, "ICommandHandler") || qualified.CommandHandlers.Contains(qualifiedName);
         var kind = handlesQuery && !handlesCommand
             ? "query"
             : "command";
-        var details = HandlerDetailsOf(declared, tree, file, helpers, aggregateRoots, holders, kind == "query");
+        var details = HandlerDetailsOf(declared, tree, file, helpers, aggregateRoots, holders, kind == "query", qualified);
 
         model.Handlers.Add(new HandlerInfo(
             useCase,
@@ -894,7 +1278,8 @@ sealed class DotnetBackendReader : IBackendReader
         IReadOnlyList<CodeMark> marks,
         CodeModel model,
         Dictionary<string, List<HelperMethod>> helpers,
-        HashSet<string> holders)
+        HashSet<string> holders,
+        QualifiedKinds qualified)
     {
         model.Reactions.Add(new ReactionInfo(
             declared.Identifier.ValueText,
@@ -905,7 +1290,7 @@ sealed class DotnetBackendReader : IBackendReader
             RepositoriesOf(declared, tree, file),
             RefusalsOf(declared, tree, file),
             ThrownOf(declared, tree, file),
-            DispatchesOf(declared, tree, file, helpers),
+            DispatchesOf(declared, tree, file, helpers, qualified),
             DependencyCountOf(declared),
             CollaboratorsOf(declared, tree, file, holders),
             LoopReadsOf(declared, tree, file)));
@@ -919,7 +1304,8 @@ sealed class DotnetBackendReader : IBackendReader
         IReadOnlyList<CodeMark> marks,
         CodeModel model,
         Dictionary<string, List<HelperMethod>> helpers,
-        HashSet<string> holders)
+        HashSet<string> holders,
+        QualifiedKinds qualified)
     {
         model.Jobs.Add(new JobInfo(
             declared.Identifier.ValueText,
@@ -930,7 +1316,7 @@ sealed class DotnetBackendReader : IBackendReader
             RepositoriesOf(declared, tree, file),
             RefusalsOf(declared, tree, file),
             ThrownOf(declared, tree, file),
-            DispatchesOf(declared, tree, file, helpers),
+            DispatchesOf(declared, tree, file, helpers, qualified),
             DependencyCountOf(declared),
             CollaboratorsOf(declared, tree, file, holders),
             LoopReadsOf(declared, tree, file)));
@@ -1290,7 +1676,8 @@ sealed class DotnetBackendReader : IBackendReader
         Dictionary<string, List<HelperMethod>> helpers,
         HashSet<string> aggregateRoots,
         HashSet<string> holders,
-        bool isQuery)
+        bool isQuery,
+        QualifiedKinds qualified)
     {
         return new ClassDetails(
             declared.Identifier.ValueText,
@@ -1298,7 +1685,7 @@ sealed class DotnetBackendReader : IBackendReader
             RepositoriesOf(declared, tree, file),
             RefusalsOf(declared, tree, file),
             ThrownOf(declared, tree, file),
-            DispatchesOf(declared, tree, file, helpers),
+            DispatchesOf(declared, tree, file, helpers, qualified),
             MessageTypeOf(declared),
             DependencyCountOf(declared),
             AggregateCallsOf(declared, tree, file, aggregateRoots),
@@ -1946,7 +2333,8 @@ sealed class DotnetBackendReader : IBackendReader
         string Type,
         string Method,
         Dictionary<string, string> Parameters,
-        List<(string Receiver, CodeDispatch Dispatch)> Dispatches);
+        List<(string Receiver, CodeDispatch Dispatch)> Dispatches,
+        string QualifiedType = "");
 
     /// <summary>
     ///     The dispatch calls a class makes: commands through <c>ICommandMediator</c>, events
@@ -1957,7 +2345,8 @@ sealed class DotnetBackendReader : IBackendReader
         BaseTypeDeclarationSyntax declared,
         SyntaxTree tree,
         string file,
-        Dictionary<string, List<HelperMethod>> helpers)
+        Dictionary<string, List<HelperMethod>> helpers,
+        QualifiedKinds qualified)
     {
         var receivers = ReceiverTypes(declared);
 
@@ -1966,10 +2355,10 @@ sealed class DotnetBackendReader : IBackendReader
             return [];
         }
 
-        var found = ScanDispatches(declared, receivers, tree, file)
+        var found = ScanDispatches(declared, receivers, tree, file, qualified)
             .Select(entry => entry.Dispatch)
             .ToList();
-        found.AddRange(HelperDispatches(declared, tree, file, receivers, helpers));
+        found.AddRange(HelperDispatches(declared, tree, file, receivers, helpers, qualified));
 
         found.Sort((left, right) =>
         {
@@ -1999,7 +2388,8 @@ sealed class DotnetBackendReader : IBackendReader
         SyntaxNode scope,
         Dictionary<string, string> receivers,
         SyntaxTree tree,
-        string file)
+        string file,
+        QualifiedKinds qualified)
     {
         var found = new List<(string Receiver, CodeDispatch Dispatch)>();
 
@@ -2054,7 +2444,7 @@ sealed class DotnetBackendReader : IBackendReader
                     found.Add((receiver, new CodeDispatch("sends", sends.Target, sends.Detail, file, line)));
                 }
             }
-            else if (!ExcludedReceiver(kind) && externalPorts.Contains(kind))
+            else if (!ExcludedReceiver(kind) && qualified.IsExternalPort(scope, kind))
             {
                 found.Add((receiver, new CodeDispatch("calls", method, kind, file, line)));
             }
@@ -2075,14 +2465,14 @@ sealed class DotnetBackendReader : IBackendReader
         || kind.EndsWith("Sender", StringComparison.Ordinal);
 
     /// <summary>Whether a held receiver kind can carry a dispatch the checks read.</summary>
-    private static bool DispatchCapable(string type)
+    private static bool DispatchCapable(string type, SyntaxNode scope, QualifiedKinds qualified)
     {
         var kind = KindOf(type);
 
         return kind == "ICommandMediator"
             || EmitsThrough(kind)
             || SendsThrough(kind)
-            || (!ExcludedReceiver(kind) && externalPorts.Contains(kind));
+            || (!ExcludedReceiver(kind) && qualified.IsExternalPort(scope, kind));
     }
 
     /// <summary>The receiver kind: the simple type name without its generic arguments.</summary>
@@ -2090,12 +2480,14 @@ sealed class DotnetBackendReader : IBackendReader
         type.Contains('<') ? type[..type.IndexOf('<')] : type;
 
     /// <summary>
-    ///     Every helper method the configured source roots declare, by <c>Type.Method</c>,
-    ///     each under its declaring type and under every interface it implements, so a call
-    ///     through a held interface resolves to the method behind it. A method without
-    ///     parameters, or one making no dispatch, is indexed as nothing to attribute.
+    ///     Every helper method the configured source roots declare, by namespace-qualified
+    ///     <c>Type.Method</c>, each under its declaring type and under every interface it
+    ///     implements, so a call through a held interface resolves to the method behind it.
+    ///     A method without parameters, or one making no dispatch, is indexed as nothing
+    ///     to attribute.
     /// </summary>
-    private static Dictionary<string, List<HelperMethod>> IndexHelpers(ConsumerConfig config, IReadOnlyDictionary<string, SyntaxTree> trees)
+    private static Dictionary<string, List<HelperMethod>> IndexHelpers(
+        ConsumerConfig config, IReadOnlyDictionary<string, SyntaxTree> trees, QualifiedKinds qualified)
     {
         var files = new List<string>();
 
@@ -2114,7 +2506,7 @@ sealed class DotnetBackendReader : IBackendReader
             {
                 if (trees.TryGetValue(file, out var tree))
                 {
-                    CollectHelpers(file, tree, local);
+                    CollectHelpers(file, tree, local, qualified);
                 }
 
                 return local;
@@ -2125,7 +2517,7 @@ sealed class DotnetBackendReader : IBackendReader
                 {
                     foreach (var (helper, aliases) in local)
                     {
-                        foreach (var key in aliases.Prepend($"{helper.Type}.{helper.Method}"))
+                        foreach (var key in aliases.Prepend($"{helper.QualifiedType}.{helper.Method}"))
                         {
                             if (!merged.TryGetValue(key, out var overloads))
                             {
@@ -2143,7 +2535,8 @@ sealed class DotnetBackendReader : IBackendReader
     }
 
     /// <summary>Collects the dispatching helper methods one cached tree declares.</summary>
-    private static void CollectHelpers(string file, SyntaxTree tree, List<(HelperMethod Helper, List<string> Aliases)> into)
+    private static void CollectHelpers(
+        string file, SyntaxTree tree, List<(HelperMethod Helper, List<string> Aliases)> into, QualifiedKinds qualified)
     {
         foreach (var declared in tree.GetRoot().DescendantNodes().OfType<BaseTypeDeclarationSyntax>())
         {
@@ -2158,6 +2551,7 @@ sealed class DotnetBackendReader : IBackendReader
             var aliases = interfaces
                 .Select(face => KindOf(face))
                 .Where(face => face.Length > 0)
+                .Select(face => qualified.ResolveName(typed, face))
                 .Distinct(StringComparer.Ordinal)
                 .ToList();
 
@@ -2185,7 +2579,7 @@ sealed class DotnetBackendReader : IBackendReader
                     continue;
                 }
 
-                var dispatches = ScanDispatches(scope, parameters, tree, file);
+                var dispatches = ScanDispatches(scope, parameters, tree, file, qualified);
 
                 if (dispatches.Count == 0)
                 {
@@ -2193,7 +2587,9 @@ sealed class DotnetBackendReader : IBackendReader
                 }
 
                 into.Add((
-                    new HelperMethod(declared.Identifier.ValueText, method.Identifier.ValueText, parameters, dispatches),
+                    new HelperMethod(
+                        declared.Identifier.ValueText, method.Identifier.ValueText, parameters, dispatches,
+                        QualifiedNameOf(typed)),
                     aliases.Select(face => $"{face}.{method.Identifier.ValueText}").ToList()));
             }
         }
@@ -2211,7 +2607,8 @@ sealed class DotnetBackendReader : IBackendReader
         SyntaxTree tree,
         string file,
         Dictionary<string, string> receivers,
-        Dictionary<string, List<HelperMethod>> helpers)
+        Dictionary<string, List<HelperMethod>> helpers,
+        QualifiedKinds qualified)
     {
         if (helpers.Count == 0)
         {
@@ -2219,7 +2616,7 @@ sealed class DotnetBackendReader : IBackendReader
         }
 
         var held = receivers
-            .Where(entry => DispatchCapable(entry.Value))
+            .Where(entry => DispatchCapable(entry.Value, declared, qualified))
             .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
 
         if (held.Count == 0)
@@ -2245,7 +2642,8 @@ sealed class DotnetBackendReader : IBackendReader
             }
 
             if (CalleeOf(invocation, declared, receivers) is not { } callee
-                || !helpers.TryGetValue($"{callee.Type}.{callee.Method}", out var overloads))
+                || !(helpers.TryGetValue($"{qualified.ResolveName(declared, callee.Type)}.{callee.Method}", out var overloads)
+                    || helpers.TryGetValue($"{callee.Type}.{callee.Method}", out overloads)))
             {
                 continue;
             }

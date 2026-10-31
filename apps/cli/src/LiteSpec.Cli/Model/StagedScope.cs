@@ -40,7 +40,10 @@ static class StagedScope
             return (null, $"Cannot read the git index: {Detail(diff, "git diff failed")}.");
         }
 
-        return (BuildScope(model, AbsolutePaths(top.Stdout.Trim(), diff.Stdout)), "");
+        var staged = AbsolutePaths(top.Stdout.Trim(), diff.Stdout);
+        staged.RemoveWhere(path => IsToolOutput(model, path));
+
+        return (BuildScope(model, staged), "");
     }
 
     /// <summary>
@@ -83,8 +86,21 @@ static class StagedScope
         var files = AbsolutePaths(toplevel, diff.Stdout);
 
         files.UnionWith(AbsolutePaths(toplevel, untracked.Stdout));
+        files.RemoveWhere(path => IsToolOutput(model, path));
 
         return (BuildScope(model, files), "");
+    }
+
+    /// <summary>
+    ///     Whether the path lies under the <c>.model</c> folder the tool writes while it builds,
+    ///     such as the frontend reader's fact cache: a file the check itself wrote is not a change
+    ///     anyone made, so it never widens the scope.
+    /// </summary>
+    static bool IsToolOutput(ProjectModel model, string path)
+    {
+        var output = Path.GetFullPath(Path.Combine(model.Config.Root, ".model")) + Path.DirectorySeparatorChar;
+
+        return path.StartsWith(output, StringComparison.OrdinalIgnoreCase);
     }
 
     /// <summary>The NUL-separated git paths as absolute paths under the repository top.</summary>

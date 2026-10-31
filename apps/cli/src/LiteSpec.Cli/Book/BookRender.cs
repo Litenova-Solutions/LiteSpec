@@ -1,4 +1,3 @@
-using System.Globalization;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
@@ -8,23 +7,79 @@ namespace LiteSpec.Book;
 
 /// <summary>
 ///     Shared values for the book generator: HTML escaping, JSON string coercion,
-///     truthiness and locale comparison, plus the record reads the writers need.
+///     truthiness and ordinal comparison, plus the record reads the writers need.
 /// </summary>
 /// <follows>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</follows>
 static class BookRender
 {
-    /// <summary>
-    ///     The English collation the generator sorts with, backed by the "en" culture.
-    /// </summary>
-    public static readonly CompareInfo Locale = CultureInfo.GetCultureInfo("en").CompareInfo;
-
     static readonly JsonSerializerOptions CompactJson = new() { Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping };
 
-    /// <summary>Compares two strings with English collation.</summary>
-    public static int LocaleCompare(string left, string right) => Locale.Compare(left, right, CompareOptions.None);
+    /// <summary>Compares two strings by code point, so the order is the same on every machine.</summary>
+    public static int OrdinalCompare(string left, string right) => string.CompareOrdinal(left, right);
 
-    /// <summary>An <see cref="IComparer{T}"/> that compares strings with <see cref="LocaleCompare"/>.</summary>
-    public static IComparer<string> LocaleComparer { get; } = Comparer<string>.Create(LocaleCompare);
+    /// <summary>An <see cref="IComparer{T}"/> that compares strings with <see cref="OrdinalCompare"/>.</summary>
+    public static IComparer<string> OrdinalComparer { get; } = Comparer<string>.Create(OrdinalCompare);
+
+    /// <summary>
+    ///     Whether a value may render as a link target. Allowed targets are
+    ///     <c>http:</c>, <c>https:</c> and <c>mailto:</c> links, in-page
+    ///     fragments, relative paths with no scheme and no network host, and
+    ///     links in the configured editor scheme. Every other value renders
+    ///     as plain text.
+    /// </summary>
+    /// <param name="value">The candidate link target, from record data.</param>
+    /// <param name="editorScheme">The scheme of the configured editor template, without the colon, or null.</param>
+    public static bool IsSafeHref(string? value, string? editorScheme = null)
+    {
+        if (string.IsNullOrEmpty(value))
+        {
+            return false;
+        }
+
+        var target = value.Trim();
+
+        if (target.Length == 0 || target.Any(character => character < ' ' || character == '\u007f'))
+        {
+            return false;
+        }
+
+        if (target.StartsWith('#'))
+        {
+            return true;
+        }
+
+        var colon = target.IndexOf(':');
+        var schemeEnd = colon;
+
+        if (schemeEnd > 0)
+        {
+            for (var index = 0; index < schemeEnd; index++)
+            {
+                var character = target[index];
+
+                if (!(character is >= 'a' and <= 'z' or >= 'A' and <= 'Z' or >= '0' and <= '9' or '+' or '-' or '.')
+                    || (index == 0 && character is >= '0' and <= '9'))
+                {
+                    schemeEnd = -1;
+                    break;
+                }
+            }
+        }
+
+        if (schemeEnd > 0)
+        {
+            var scheme = target[..schemeEnd];
+
+            return string.Equals(scheme, "http", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(scheme, "https", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(scheme, "mailto", StringComparison.OrdinalIgnoreCase)
+                || (editorScheme is { Length: > 0 }
+                    && string.Equals(scheme, editorScheme, StringComparison.OrdinalIgnoreCase));
+        }
+
+        return !target.StartsWith("//", StringComparison.Ordinal)
+            && !target.StartsWith("\\\\", StringComparison.Ordinal);
+    }
 
     /// <summary>
     ///     Coerces a value to its display string: missing values become the empty string,

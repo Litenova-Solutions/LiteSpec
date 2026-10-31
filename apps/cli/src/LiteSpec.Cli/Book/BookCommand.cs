@@ -23,7 +23,7 @@ static class BookCommand
         + "  --editor <template>  The editor link template with {root}, {path} and {line}, or \"none\" to suppress links. Defaults to vscode://file/{root}/{path}:{line}.\n"
         + "  --help               Print this text and exit.\n"
         + "\n"
-        + "Exit codes: 0 written, 1 unreadable input, a broken carried page, or unwritable output, 2 usage error.\n";
+        + "Exit codes: 0 written, 1 unreadable input or unwritable output, 2 usage error, a missing carried release, or a missing or broken lexicon page.\n";
 
     /// <summary>The default editor link template, with its three placeholders.</summary>
     public const string DefaultEditor = "vscode://file/{root}/{path}:{line}";
@@ -71,7 +71,7 @@ static class BookCommand
         catch (Exception exception)
         {
             Console.Error.Write($"Cannot find the carried LiteSpec release: {exception.Message}\n");
-            return 1;
+            return 2;
         }
 
         BookLexicon lexicon;
@@ -82,7 +82,7 @@ static class BookCommand
         catch (BookLexiconException exception)
         {
             Console.Error.Write($"Cannot load the book words from '{exception.File}': {exception.Message}\n");
-            return 1;
+            return 2;
         }
 
         var root = ResolveRoot(parsed.Root, parsed.Model!);

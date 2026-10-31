@@ -575,7 +575,7 @@ public sealed class NewAppendTests
         var parsed = CliArgs.Parse(
             [.. args, "--root", consumer.Path],
             [],
-            ["--root", "--home", "--code", "--outcome", "--result"],
+            ["--root", "--code", "--outcome", "--result"],
             maxPositionals: 3);
         Assert.Null(parsed.Error);
         return AppendEntry.Run(parsed);

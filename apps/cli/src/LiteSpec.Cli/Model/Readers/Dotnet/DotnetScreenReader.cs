@@ -6,6 +6,12 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace LiteSpec.Model.Readers.Dotnet;
 
+/// <summary>What the .NET screen read found: route facts and one problem per file it could not read or parse.</summary>
+/// <param name="Routes">The route entries.</param>
+/// <param name="Problems">One <c>reader-missing</c> finding per unreadable or unparsable file.</param>
+/// <follows>litespec/frontend/structure#mark-each-route-with-its-screen</follows>
+sealed record DotnetScreenRead(IReadOnlyList<RouteFact> Routes, IReadOnlyList<Finding> Problems);
+
 /// <summary>
 ///     Reads the route entries of a Blazor or Android frontend: every Blazor component
 ///     carrying an <c>@page</c> template, and every Android destination activity or
@@ -21,22 +27,49 @@ static partial class DotnetScreenReader
     /// <summary>Reads every route entry of the frontend, in file, line and address order.</summary>
     /// <param name="frontend">The frontend to read.</param>
     /// <returns>One route fact per Blazor template or Android destination.</returns>
-    public static IReadOnlyList<RouteFact> Read(FrontendConfig frontend)
+    public static IReadOnlyList<RouteFact> Read(FrontendConfig frontend) => ReadWithProblems(frontend).Routes;
+
+    /// <summary>Reads every route entry of the frontend, with one problem per file that could not be read or parsed.</summary>
+    /// <param name="frontend">The frontend to read.</param>
+    /// <returns>The route facts and the reader problems.</returns>
+    public static DotnetScreenRead ReadWithProblems(FrontendConfig frontend)
     {
-        if (frontend.Platform.Equals("android", StringComparison.Ordinal))
-        {
-            return ReadAndroid(frontend);
-        }
+        var problems = new List<Finding>();
+        var reported = new HashSet<string>(StringComparer.Ordinal);
 
-        if (frontend.Platform.Equals("blazor", StringComparison.Ordinal))
-        {
-            return ReadBlazor(frontend);
-        }
+        var routes = frontend.Platform.Equals("android", StringComparison.Ordinal)
+            ? ReadAndroid(frontend, problems, reported)
+            : frontend.Platform.Equals("blazor", StringComparison.Ordinal)
+                ? ReadBlazor(frontend, problems, reported)
+                : [];
 
-        return [];
+        problems.Sort((left, right) =>
+        {
+            var file = string.Compare(left.Path, right.Path, StringComparison.Ordinal);
+
+            return file != 0 ? file : left.Line.CompareTo(right.Line);
+        });
+
+        return new DotnetScreenRead(routes, problems);
     }
 
-    private static IReadOnlyList<RouteFact> ReadBlazor(FrontendConfig frontend)
+    /// <summary>Adds one <c>reader-missing</c> problem for the file, when none was added for it yet.</summary>
+    private static void AddProblem(List<Finding> problems, HashSet<string> reported, string file, string message)
+    {
+        if (!reported.Add(file))
+        {
+            return;
+        }
+
+        problems.Add(new Finding("reader-missing", message, file, 1, null)
+        {
+            Reader = Finding.RoslynReader,
+            ReaderIsQualified = true,
+        });
+    }
+
+    private static IReadOnlyList<RouteFact> ReadBlazor(
+        FrontendConfig frontend, List<Finding> problems, HashSet<string> reported)
     {
         var found = new List<RouteFact>();
 
@@ -48,16 +81,18 @@ static partial class DotnetScreenReader
             {
                 text = SourceTree.Read(file);
             }
-            catch (IOException)
+            catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
             {
+                AddProblem(problems, reported, file, $"Screen file '{file}' could not be read: {exception.Message}");
+
                 continue;
             }
 
             var relative = Relative(frontend, file);
             var blocks = CodeBlocks(text);
             var masked = Masked(text, blocks);
-            var marks = ComponentMarks(file, text, blocks);
-            var calls = ComponentCalls(relative, file, text, blocks);
+            var marks = ComponentMarks(file, text, blocks, problems, reported);
+            var calls = ComponentCalls(relative, file, text, blocks, problems, reported);
 
             foreach (Match directive in PageDirective().Matches(masked))
             {
@@ -83,7 +118,8 @@ static partial class DotnetScreenReader
             .ThenBy(route => route.Address, StringComparer.Ordinal)];
     }
 
-    private static IReadOnlyList<RouteFact> ReadAndroid(FrontendConfig frontend)
+    private static IReadOnlyList<RouteFact> ReadAndroid(
+        FrontendConfig frontend, List<Finding> problems, HashSet<string> reported)
     {
         var found = new List<RouteFact>();
 
@@ -96,8 +132,20 @@ static partial class DotnetScreenReader
                 tree = CSharpSyntaxTree.ParseText(
                     SourceTree.Read(file), new CSharpParseOptions(LanguageVersion.Preview), file);
             }
-            catch (IOException)
+            catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
             {
+                AddProblem(problems, reported, file, $"Screen file '{file}' could not be read: {exception.Message}");
+
+                continue;
+            }
+
+            var parseError = tree.GetDiagnostics()
+                .FirstOrDefault(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error);
+
+            if (parseError is not null)
+            {
+                AddProblem(problems, reported, file, $"Screen file '{file}' could not be parsed: {parseError.GetMessage()}");
+
                 continue;
             }
 
@@ -167,7 +215,8 @@ static partial class DotnetScreenReader
     ///     <c>.razor.cs</c> file exists, else from the marks in the <c>@code</c> blocks,
     ///     read through the shared mark parser.
     /// </summary>
-    private static IReadOnlyList<ScreenMark> ComponentMarks(string file, string text, IReadOnlyList<CodeBlock> blocks)
+    private static IReadOnlyList<ScreenMark> ComponentMarks(
+        string file, string text, IReadOnlyList<CodeBlock> blocks, List<Finding> problems, HashSet<string> reported)
     {
         var behind = file + ".cs";
 
@@ -180,8 +229,20 @@ static partial class DotnetScreenReader
                 tree = CSharpSyntaxTree.ParseText(
                     SourceTree.Read(behind), new CSharpParseOptions(LanguageVersion.Preview), behind);
             }
-            catch (IOException)
+            catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
             {
+                AddProblem(problems, reported, behind, $"Screen file '{behind}' could not be read: {exception.Message}");
+
+                return [];
+            }
+
+            var parseError = tree.GetDiagnostics()
+                .FirstOrDefault(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error);
+
+            if (parseError is not null)
+            {
+                AddProblem(problems, reported, behind, $"Screen file '{behind}' could not be parsed: {parseError.GetMessage()}");
+
                 return [];
             }
 
@@ -231,7 +292,8 @@ static partial class DotnetScreenReader
     ///     class, from each <c>@code</c> block, and from the inline markup expressions.
     /// </summary>
     private static IReadOnlyList<CallFact> ComponentCalls(
-        string relative, string file, string text, IReadOnlyList<CodeBlock> blocks)
+        string relative, string file, string text, IReadOnlyList<CodeBlock> blocks,
+        List<Finding> problems, HashSet<string> reported)
     {
         var clients = new HashSet<string>(StringComparer.Ordinal);
         var found = new List<CallFact>();
@@ -245,10 +307,23 @@ static partial class DotnetScreenReader
             {
                 behindTree = CSharpSyntaxTree.ParseText(
                     SourceTree.Read(behind), new CSharpParseOptions(LanguageVersion.Preview), behind);
-                component = ComponentClass(behindTree.GetRoot(), Path.GetFileNameWithoutExtension(file));
+
+                var parseError = behindTree.GetDiagnostics()
+                    .FirstOrDefault(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error);
+
+                if (parseError is not null)
+                {
+                    AddProblem(problems, reported, behind, $"Screen file '{behind}' could not be parsed: {parseError.GetMessage()}");
+                    behindTree = null;
+                }
+                else
+                {
+                    component = ComponentClass(behindTree.GetRoot(), Path.GetFileNameWithoutExtension(file));
+                }
             }
-            catch (IOException)
+            catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
             {
+                AddProblem(problems, reported, behind, $"Screen file '{behind}' could not be read: {exception.Message}");
                 behindTree = null;
             }
         }

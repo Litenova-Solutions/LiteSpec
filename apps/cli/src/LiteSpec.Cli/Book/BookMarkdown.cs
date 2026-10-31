@@ -239,14 +239,15 @@ static class BookMarkdown
         escaped = MdLink.Replace(escaped, match =>
         {
             var label = Parts(match.Groups[1].Value);
-            links.Add($"<a href=\"{match.Groups[2].Value}\">{label}</a>");
+            var href = match.Groups[2].Value;
+            links.Add(BookRender.IsSafeHref(href) ? $"<a href=\"{href}\">{label}</a>" : label);
             return $"\u0000L{links.Count - 1}\u0000";
         });
         escaped = RawUrl.Replace(escaped, match =>
         {
             var url = match.Value.TrimEnd('.', ',', ';', ':', '!', '?', ')');
             var tail = match.Value[url.Length..];
-            links.Add($"<a href=\"{url}\">{url}</a>{tail}");
+            links.Add(BookRender.IsSafeHref(url) ? $"<a href=\"{url}\">{url}</a>{tail}" : match.Value);
             return $"\u0000L{links.Count - 1}\u0000";
         });
 
@@ -258,7 +259,7 @@ static class BookMarkdown
             escaped = RecordId.Replace(escaped, match =>
             {
                 var target = linkRecord(match.Groups[1].Value);
-                if (target is null)
+                if (target is null || !BookRender.IsSafeHref(target.Value.Href))
                 {
                     return match.Value;
                 }

@@ -33,7 +33,7 @@ public sealed class OperationUseCaseCheckTests
 
         var check = Cli.Run("model", "check", "--root", temp.Path);
         var mismatch = check.Output.Split('\n').Single(candidate =>
-            candidate.Contains("operation-use-case-drift", StringComparison.Ordinal)
+            candidate.Contains("[operation-use-case-drift]", StringComparison.Ordinal)
             && candidate.Contains("BorrowCopy", StringComparison.Ordinal));
 
         Assert.Equal(1, check.Status);
@@ -53,7 +53,7 @@ public sealed class OperationUseCaseCheckTests
 
         var check = Cli.Run("model", "check", "--root", temp.Path);
         var mismatch = check.Output.Split('\n').Single(candidate =>
-            candidate.Contains("operation-use-case-drift", StringComparison.Ordinal)
+            candidate.Contains("[operation-use-case-drift]", StringComparison.Ordinal)
             && candidate.Contains("BorrowCopy", StringComparison.Ordinal));
 
         Assert.Equal(1, check.Status);
@@ -85,7 +85,7 @@ public sealed class OperationUseCaseCheckTests
 
         var check = Cli.Run("model", "check", "--root", temp.Path);
         var mismatches = check.Output.Split('\n')
-            .Where(candidate => candidate.Contains("operation-use-case-drift", StringComparison.Ordinal))
+            .Where(candidate => candidate.Contains("[operation-use-case-drift]", StringComparison.Ordinal))
             .ToList();
 
         Assert.Equal(1, check.Status);

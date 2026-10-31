@@ -82,6 +82,10 @@ static partial class ConsumerValidator
             Console.Error.WriteLine(missing.Message);
             return 2;
         }
+        catch (Exception exception)
+        {
+            return LastResort.Report(exception, parsed.Json, Console.Out, Console.Error);
+        }
     }
 
     /// <summary>

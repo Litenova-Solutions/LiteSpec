@@ -159,7 +159,7 @@ public sealed class ModelStagedTests
 
         Assert.Equal(0, staged.Status);
         Assert.Contains("Staged scope: 0 files, 0 records.", staged.Output);
-        Assert.Contains("0 findings, 0 known.", staged.Output);
+        Assert.Contains("0 findings, 0 blocking, 0 known.", staged.Output);
 
         var full = Cli.Run("model", "check", "--root", fixture.Path, "--format", "json");
 
@@ -223,6 +223,24 @@ public sealed class ModelStagedTests
             $"{since.Output}\ngit status after the check:\n{RunGit(fixture.Path, "status", "--porcelain", "--untracked-files=all")}");
         Assert.Equal(0, since.Status);
         Assert.Contains("write-undeclared", since.Output);
+    }
+
+    /// <summary>Files the tool writes under <c>.model</c> while it builds never widen the since scope.</summary>
+    /// <proves>litespec/core/release#run-consistency-checks</proves>
+    [Fact]
+    public void Check_Since_Ignores_The_Tool_Output_Folder()
+    {
+        using var fixture = ModelFixture.Prepare("large", "write-undeclared");
+
+        CommitAll(fixture.Path);
+
+        var cache = Path.Combine(fixture.Path, ".model", "frontend-facts");
+        Directory.CreateDirectory(cache);
+        File.WriteAllText(Path.Combine(cache, "svelte-cached.json"), "{}");
+
+        var since = Cli.Run("model", "check", "--root", fixture.Path, "--since", "HEAD");
+
+        Assert.Contains("Since HEAD: 0 files, 0 records.", since.Output);
     }
 
     /// <summary>A since check with an unknown revision explains itself and exits 2.</summary>

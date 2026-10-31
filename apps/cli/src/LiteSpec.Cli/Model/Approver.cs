@@ -21,39 +21,10 @@ static class Approver
 
     /// <summary>
     ///     Computes the approval hash over the record's semantic frontmatter fields.
-    ///     The hash covers every written field except identity, workflow and approval
-    ///     data (<c>type</c>, <c>id</c>, <c>title</c>, <c>owner</c>, <c>status</c>,
-    ///     <c>decider</c>, <c>decideBy</c>, <c>approvedBy</c>, <c>approvedOn</c>,
-    ///     <c>approvedHash</c> and <c>provenance</c>), canonicalized and hashed to eight hex
-    ///     characters. Page prose bodies and rendered consequences summaries never feed
-    ///     the hash, so rewording prose reopens no approval. The semantic fields per
-    ///     record type include: product (boundary, exclusions, addresses); goal
-    ///     (statement, measure, target, dueBy); problem (affects, statement); feature
-    ///     (lifecycle, refusedBecause, solves, advances, plannedFor); requirement (kind,
-    ///     statement, rationale, values, measure, dueBy, cites, except, setBy, risk);
-    ///     constraint (authority, kind, applies, appliesBecause); decision (options,
-    ///     reopenedWhen, choice, decides); research (sources, question,
-    ///     conclusion); topic (reviewBy); journey (actor, serves, cites, finishedWhen, steps); actor (kind); term (term, meaning, layer, aliases); module
-    ///     (dependsOn); aggregate (kind, states, transitions, data, dataClasses, steps,
-    ///     exits, finishedWhen, drivenBy, cursor, owner); rule (kind, statement, governs,
-    ///     binds, refusal, releasedBy, frozenWhen, history, computedBy); use-case (kind,
-    ///     serves, fulfills, access, reachedThrough, input, output, background, paging,
-    ///     builtAsynchronously, changes, reads, consistency, effects, raises,
-    ///     idempotency, audit, risk); result (outcome, code, meaning, recorded, codes);
-    ///     scenario (given, when, then, result, examples, exercises); event (meaning, carries);
-    ///     integration-event (direction, eventType, source, subject, payload, dataschema,
-    ///     addresses, trust, correlation, translates); reaction (triggeredBy, skippedWhen,
-    ///     effects, reads, changes, fulfills, serves, idempotency, onFailure, risk);
-    ///     job (kind, schedule, selection, batchSize, lease, cursor, runbook, runsWhere,
-    ///     guard, serviceLevel, evidence, effects, reads, changes, fulfills, serves,
-    ///     idempotency, onFailure, risk); notification (template, addresses, channel, consent, frequency,
-    ///     dedupKey, params, locale, suppressedWhen, claims, fulfills, sender); setting
-    ///     (valueType, default, range, unit, setBy, atBound, secret, meaning, runbook,
-    ///     fulfills); role (scope, allows); permission (meaning); entry-point (kind,
-    ///     auth, path, contentType, cacheControl, versioning, fulfills, protocol);
-    ///     external-system (actor, operations, erasure, acceptedBy); runbook (trigger,
-    ///     steps); exception (kind, covers, subject, paths, reason, expiresOn);
-    ///     plus questions, terms and replaces where a record carries them.
+    ///     Every written field feeds the hash except the fields the exclusion set
+    ///     <c>ApprovalExcluded</c> on <c>Checker</c> names, canonicalized and hashed
+    ///     to eight hex characters. Page prose bodies and rendered consequences
+    ///     summaries never feed the hash, so rewording prose reopens no approval.
     /// </summary>
     public static string SemanticHash(Record record) => Checker.SemanticHash(record);
 

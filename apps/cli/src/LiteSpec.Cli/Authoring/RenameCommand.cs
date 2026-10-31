@@ -32,7 +32,7 @@ static partial class RenameCommand
     /// <summary>Runs the command and returns its exit code.</summary>
     public static int Run(string[] args)
     {
-        var parsed = CliArgs.Parse(args, [], ["--root", "--home"], maxPositionals: 2);
+        var parsed = CliArgs.Parse(args, [], ["--root"], maxPositionals: 2);
 
         if (parsed.Help)
         {
@@ -82,11 +82,11 @@ static partial class RenameCommand
 
         try
         {
-            root = Path.GetFullPath(parsed.Value("--root") ?? parsed.Value("--home") ?? Directory.GetCurrentDirectory());
+            root = Path.GetFullPath(parsed.Value("--root") ?? Directory.GetCurrentDirectory());
         }
         catch (Exception exception) when (exception is ArgumentException or NotSupportedException or PathTooLongException)
         {
-            Console.Error.WriteLine($"Invalid root '{parsed.Value("--root") ?? parsed.Value("--home")}': {exception.Message}");
+            Console.Error.WriteLine($"Invalid root '{parsed.Value("--root")}': {exception.Message}");
             Console.Error.WriteLine(Usage);
             return 2;
         }

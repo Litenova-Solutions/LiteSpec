@@ -19,6 +19,27 @@
       "meaning": "The loan passed its due date."
     }
   ],
+  "transitions": [
+    {
+      "from": "-",
+      "to": "Active",
+      "by": "use-case/lending.borrow-copy"
+    },
+    {
+      "from": "Active",
+      "to": "Overdue"
+    },
+    {
+      "from": "Active",
+      "to": "Returned",
+      "by": "use-case/lending.return-copy"
+    },
+    {
+      "from": "Overdue",
+      "to": "Returned",
+      "by": "use-case/lending.return-copy"
+    }
+  ],
   "data": [
     {
       "name": "borrower-email",
@@ -170,8 +191,8 @@
     }
   ],
   "approvedBy": "lending-team",
-  "approvedOn": "2026-10-31",
-  "approvedHash": "4f2b25db"
+  "approvedOn": "2026-10-01",
+  "approvedHash": "b15c5180"
 }
 ---
 

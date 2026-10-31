@@ -35,16 +35,21 @@ sealed class DotnetFrontendReader(FrontendConfig frontend) : IFrontendReader
     /// <summary>Reads this frontend's route entries and their screen marks.</summary>
     public ScreenRead Read(ConsumerConfig config, CodeModel code)
     {
+        var screenRead = DotnetScreenReader.ReadWithProblems(frontend);
         var facts = new FrontendFacts(
             frontend.Name,
             Finding.RoslynReader,
             Qualified: true,
             Failure: null,
             Modules: [],
-            Routes: DotnetScreenReader.Read(frontend),
+            Routes: screenRead.Routes,
             Tests: [],
             Diagnostics: []);
 
-        return FrontendReadBuilder.Build(config, frontend, facts, code);
+        var built = FrontendReadBuilder.Build(config, frontend, facts, code);
+
+        return screenRead.Problems.Count == 0
+            ? built
+            : built with { Findings = [.. built.Findings, .. screenRead.Problems] };
     }
 }

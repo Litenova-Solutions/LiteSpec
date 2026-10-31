@@ -27,7 +27,7 @@ public sealed class ClaimwickExampleTests
         AssertPasses(result);
         // 17 long-standing known findings plus the 9 use-case-unverified findings the
         // no-test-run gap exception holds: the example ships code and proofs but no run.
-        Assert.Contains("0 findings, 26 known.", result.Output);
+        Assert.Contains("0 findings, 0 blocking, 26 known.", result.Output);
     }
 
     static void AssertPasses(CliResult result) => Assert.True(result.Status == 0, result.Output);

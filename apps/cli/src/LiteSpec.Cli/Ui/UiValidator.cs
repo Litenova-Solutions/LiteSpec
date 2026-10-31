@@ -81,54 +81,61 @@ static partial class UiValidator
             return 2;
         }
 
-        var report = Validate(root);
-        if (parsed.Json)
+        try
         {
-            CliJson.Write(report.ToJson());
-            return report.ExitCode;
-        }
-
-        Console.WriteLine($"Consumer: {report.Consumer}");
-        Console.WriteLine(report.SharedPackage is null
-            ? "Shared UI package: none declared"
-            : $"Shared UI package: {Show(report.SharedPackage.NameFound, report.SharedPackage.Name)} at {Show(report.SharedPackage.PathFound, report.SharedPackage.Path)}");
-        Console.WriteLine($"Controlled frontends: {report.ControlledFrontends}");
-        if (report.SkippedFrontends.Count > 0)
-        {
-            Console.WriteLine($"Skipped frontends: {string.Join(", ", report.SkippedFrontends.Select(SkippedText))}");
-        }
-
-        if (report.Problems.Count > 0)
-        {
-            Console.WriteLine($"\nFAIL ({report.Problems.Count} problem(s)):");
-            foreach (var item in report.Problems)
+            var report = Validate(root);
+            if (parsed.Json)
             {
-                Console.WriteLine($"  - {item}");
+                CliJson.Write(report.ToJson());
+                return report.ExitCode;
             }
 
+            Console.WriteLine($"Consumer: {report.Consumer}");
+            Console.WriteLine(report.SharedPackage is null
+                ? "Shared UI package: none declared"
+                : $"Shared UI package: {Show(report.SharedPackage.NameFound, report.SharedPackage.Name)} at {Show(report.SharedPackage.PathFound, report.SharedPackage.Path)}");
+            Console.WriteLine($"Controlled frontends: {report.ControlledFrontends}");
+            if (report.SkippedFrontends.Count > 0)
+            {
+                Console.WriteLine($"Skipped frontends: {string.Join(", ", report.SkippedFrontends.Select(SkippedText))}");
+            }
+
+            if (report.Problems.Count > 0)
+            {
+                Console.WriteLine($"\nFAIL ({report.Problems.Count} problem(s)):");
+                foreach (var item in report.Problems)
+                {
+                    Console.WriteLine($"  - {item}");
+                }
+
+                return report.ExitCode;
+            }
+
+            if (!report.HasPackage)
+            {
+                // A silent skip reads as conformance. Naming the frontends and the platform
+                // each one declared makes the skipped scope visible in the output that a
+                // reviewer reads. (litespec/frontend/ui#record-a-frontend-outside-the-controlled-contract)
+                Console.WriteLine("PASS: no controlled web frontend is present.");
+                if (report.Frontends.Count > 0)
+                {
+                    Console.WriteLine($"Skipped frontends: {string.Join(", ", report.Frontends.Select(DeclaredText))}");
+                }
+                else
+                {
+                    Console.WriteLine("Skipped frontends: none; the project declares no frontend.");
+                }
+
+                return report.ExitCode;
+            }
+
+            Console.WriteLine("\nPASS: the shared package, its source lock, its design contract, its stylesheets, each frontend boundary, and each route suite are valid.");
             return report.ExitCode;
         }
-
-        if (!report.HasPackage)
+        catch (Exception exception)
         {
-            // A silent skip reads as conformance. Naming the frontends and the platform
-            // each one declared makes the skipped scope visible in the output that a
-            // reviewer reads. (litespec/frontend/ui#record-a-frontend-outside-the-controlled-contract)
-            Console.WriteLine("PASS: no controlled web frontend is present.");
-            if (report.Frontends.Count > 0)
-            {
-                Console.WriteLine($"Skipped frontends: {string.Join(", ", report.Frontends.Select(DeclaredText))}");
-            }
-            else
-            {
-                Console.WriteLine("Skipped frontends: none; the project declares no frontend.");
-            }
-
-            return report.ExitCode;
+            return LastResort.Report(exception, parsed.Json, Console.Out, Console.Error);
         }
-
-        Console.WriteLine("\nPASS: the shared package, its source lock, its design contract, its stylesheets, each frontend boundary, and each route suite are valid.");
-        return report.ExitCode;
     }
 
     /// <summary>

@@ -23,12 +23,17 @@ static partial class ModelBuilder
         var read = Timed("records", () => RecordReader.Read(config));
 
         model.Problems.AddRange(read.Problems);
+        model.Problems.AddRange(config.Problems);
         model.Records.AddRange(read.Records);
         model.Bodies.AddRange(read.Bodies);
         model.Provisions = read.Provisions;
-        model.AppliedPages = AppliedPagesOf(config);
+        model.AppliedPages = AppliedPagesOf(config, model.Problems);
         var stacks = StackReaders.For(config);
-        model.Code = Timed("code", () => stacks.Backend.Read(config));
+        model.Problems.AddRange(stacks.Problems);
+        var backendRead = Timed("code", () => stacks.Backend.Read(config));
+
+        model.Code = backendRead.Code;
+        model.Problems.AddRange(backendRead.Problems);
 
         var screens = Timed("screens", () => ReadScreens(config, stacks, model.Code));
 
@@ -38,8 +43,10 @@ static partial class ModelBuilder
         model.Problems.AddRange(screens.Findings);
         model.TypeScriptQualified = screens.TypeScriptQualified;
 
-        var tests = Timed("tests", () => stacks.Scenarios.Read(config));
+        var scenarioRead = Timed("tests", () => stacks.Scenarios.Read(config));
+        var tests = scenarioRead.Tests;
 
+        model.Problems.AddRange(scenarioRead.Problems);
         model.Tests.AddRange(tests.Scenarios);
         model.Code.Elements.AddRange(tests.Elements);
         model.Code.StrayMarks.AddRange(tests.StrayMarks);
@@ -49,6 +56,7 @@ static partial class ModelBuilder
         model.TestComments.AddRange(tests.Comments);
         model.TestRun = Timed("testrun", () => stacks.TestRuns.Read(config));
         model.Ledger = ProofLedger.Load(config);
+        model.Problems.AddRange(model.Ledger.Problems);
 
         var coverage = Timed("coverage", () => CoverageReader.Read(config));
 
@@ -90,14 +98,26 @@ static partial class ModelBuilder
     /// <summary>
     ///     The standard pages the project's stacks and extensions apply, through the
     ///     shared stack layout. Empty when the carried release or its manifest cannot
-    ///     be read, so a provision check falls back to existence only.
+    ///     be read, so a provision check falls back to existence only; that failure
+    ///     is reported as a <c>reader-missing</c> problem naming the manifest.
     /// </summary>
-    private static IReadOnlySet<string> AppliedPagesOf(ConsumerConfig config)
+    private static IReadOnlySet<string> AppliedPagesOf(ConsumerConfig config, List<Finding> problems)
     {
         var home = LiteSpecHome.Root;
 
         if (home is null)
         {
+            problems.Add(new Finding(
+                "reader-missing",
+                $"The LiteSpec manifest '{LiteSpecHome.ManifestFile}' could not be read: no LiteSpec release was found; the applied pages were not read.",
+                Path.Combine(config.Root, LiteSpecHome.ManifestFile),
+                1,
+                null)
+            {
+                Reader = Finding.RoslynReader,
+                ReaderIsQualified = true,
+            });
+
             return new HashSet<string>(StringComparer.Ordinal);
         }
 
@@ -105,6 +125,17 @@ static partial class ModelBuilder
 
         if (!File.Exists(manifestFile))
         {
+            problems.Add(new Finding(
+                "reader-missing",
+                $"The LiteSpec manifest '{manifestFile}' could not be read: the file does not exist; the applied pages were not read.",
+                manifestFile,
+                1,
+                null)
+            {
+                Reader = Finding.RoslynReader,
+                ReaderIsQualified = true,
+            });
+
             return new HashSet<string>(StringComparer.Ordinal);
         }
 
@@ -112,6 +143,17 @@ static partial class ModelBuilder
         {
             if (System.Text.Json.Nodes.JsonNode.Parse(File.ReadAllText(manifestFile)) is not System.Text.Json.Nodes.JsonObject manifest)
             {
+                problems.Add(new Finding(
+                    "reader-missing",
+                    $"The LiteSpec manifest '{manifestFile}' could not be read: its root is not a JSON object; the applied pages were not read.",
+                    manifestFile,
+                    1,
+                    null)
+                {
+                    Reader = Finding.RoslynReader,
+                    ReaderIsQualified = true,
+                });
+
                 return new HashSet<string>(StringComparer.Ordinal);
             }
 
@@ -121,6 +163,17 @@ static partial class ModelBuilder
         }
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or System.Text.Json.JsonException)
         {
+            problems.Add(new Finding(
+                "reader-missing",
+                $"The LiteSpec manifest '{manifestFile}' could not be read: {exception.Message}; the applied pages were not read.",
+                manifestFile,
+                1,
+                null)
+            {
+                Reader = Finding.RoslynReader,
+                ReaderIsQualified = true,
+            });
+
             return new HashSet<string>(StringComparer.Ordinal);
         }
     }
@@ -1483,8 +1536,10 @@ static partial class ModelBuilder
 
                     if (transition.TryGetProperty("from", out var from)
                         && from.ValueKind == JsonValueKind.String
-                        && from.GetString() is { Length: > 0 } start)
+                        && from.GetString() is { Length: > 0 } start
+                        && start != RecordReader.Creation)
                     {
+                        // A creation leaves no state: "-" marks that the instance did not exist yet.
                         left.Add(start);
                     }
 

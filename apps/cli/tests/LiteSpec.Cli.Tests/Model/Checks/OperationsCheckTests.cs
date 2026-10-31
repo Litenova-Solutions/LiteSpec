@@ -47,7 +47,7 @@ public sealed class OperationsCheckTests
 
         var check = Cli.Run("model", "check", "--root", temp.Path);
         var unlinked = check.Output.Split('\n').Single(candidate =>
-            candidate.Contains("alert-link-missing", StringComparison.Ordinal));
+            candidate.Contains("[alert-link-missing]", StringComparison.Ordinal));
 
         Assert.Equal(1, check.Status);
         Assert.Contains("[S]", unlinked, StringComparison.Ordinal);
@@ -65,7 +65,7 @@ public sealed class OperationsCheckTests
 
         var check = Cli.Run("model", "check", "--root", temp.Path);
         var unlinked = check.Output.Split('\n').Single(candidate =>
-            candidate.Contains("alert-link-missing", StringComparison.Ordinal));
+            candidate.Contains("[alert-link-missing]", StringComparison.Ordinal));
 
         Assert.Equal(1, check.Status);
         Assert.Contains("[S]", unlinked, StringComparison.Ordinal);
@@ -83,7 +83,7 @@ public sealed class OperationsCheckTests
 
         var check = Cli.Run("model", "check", "--root", temp.Path);
         var unlinked = check.Output.Split('\n').Single(candidate =>
-            candidate.Contains("alert-link-missing", StringComparison.Ordinal));
+            candidate.Contains("[alert-link-missing]", StringComparison.Ordinal));
 
         Assert.Equal(1, check.Status);
         Assert.Contains("not a quality requirement", unlinked, StringComparison.Ordinal);
@@ -99,7 +99,7 @@ public sealed class OperationsCheckTests
 
         var check = Cli.Run("model", "check", "--root", temp.Path);
         var unlinked = check.Output.Split('\n').Single(candidate =>
-            candidate.Contains("alert-link-missing", StringComparison.Ordinal));
+            candidate.Contains("[alert-link-missing]", StringComparison.Ordinal));
 
         Assert.Equal(1, check.Status);
         Assert.Contains("[S]", unlinked, StringComparison.Ordinal);
@@ -117,7 +117,7 @@ public sealed class OperationsCheckTests
 
         var check = Cli.Run("model", "check", "--root", temp.Path);
         var unlinked = check.Output.Split('\n').Single(candidate =>
-            candidate.Contains("alert-link-missing", StringComparison.Ordinal));
+            candidate.Contains("[alert-link-missing]", StringComparison.Ordinal));
 
         Assert.Equal(1, check.Status);
         Assert.Contains("runbook/no-such-runbook", unlinked, StringComparison.Ordinal);
@@ -134,7 +134,7 @@ public sealed class OperationsCheckTests
 
         var check = Cli.Run("model", "check", "--root", temp.Path);
         var unlinked = check.Output.Split('\n').Single(candidate =>
-            candidate.Contains("alert-link-missing", StringComparison.Ordinal));
+            candidate.Contains("[alert-link-missing]", StringComparison.Ordinal));
 
         Assert.Equal(1, check.Status);
         Assert.Contains("not a runbook", unlinked, StringComparison.Ordinal);
@@ -164,7 +164,7 @@ public sealed class OperationsCheckTests
 
         var check = Cli.Run("model", "check", "--root", temp.Path);
         var drift = check.Output.Split('\n').Single(candidate =>
-            candidate.Contains("alert-threshold-drift", StringComparison.Ordinal));
+            candidate.Contains("[alert-threshold-drift]", StringComparison.Ordinal));
 
         Assert.Equal(0, check.Status);
         Assert.Contains("[A]", drift, StringComparison.Ordinal);
@@ -241,7 +241,7 @@ public sealed class OperationsCheckTests
 
         var check = Cli.Run("model", "check", "--root", temp.Path);
         var unalerted = check.Output.Split('\n').Single(candidate =>
-            candidate.Contains("quality-alert-missing", StringComparison.Ordinal));
+            candidate.Contains("[quality-alert-missing]", StringComparison.Ordinal));
 
         Assert.Equal(1, check.Status);
         Assert.Contains("[G]", unalerted, StringComparison.Ordinal);
@@ -262,7 +262,7 @@ public sealed class OperationsCheckTests
 
         var check = Cli.Run("model", "check", "--root", temp.Path);
         var unmeasured = check.Output.Split('\n').Where(candidate =>
-            candidate.Contains("requirement-measure-missing", StringComparison.Ordinal));
+            candidate.Contains("[requirement-measure-missing]", StringComparison.Ordinal));
 
         Assert.Equal(0, check.Status);
         Assert.All(unmeasured, line =>
@@ -318,7 +318,7 @@ public sealed class OperationsCheckTests
 
         var check = Cli.Run("model", "check", "--root", temp.Path);
         var missing = check.Output.Split('\n').Single(candidate =>
-            candidate.Contains("mark-missing", StringComparison.Ordinal));
+            candidate.Contains("[mark-missing]", StringComparison.Ordinal));
 
         Assert.Equal(1, check.Status);
         Assert.Contains("[S]", missing, StringComparison.Ordinal);
@@ -338,7 +338,7 @@ public sealed class OperationsCheckTests
 
         var check = Cli.Run("model", "check", "--root", temp.Path);
         var unresolved = check.Output.Split('\n').Single(candidate =>
-            candidate.Contains("mark-unknown", StringComparison.Ordinal));
+            candidate.Contains("[mark-unknown]", StringComparison.Ordinal));
 
         Assert.Equal(1, check.Status);
         Assert.Contains("[S]", unresolved, StringComparison.Ordinal);

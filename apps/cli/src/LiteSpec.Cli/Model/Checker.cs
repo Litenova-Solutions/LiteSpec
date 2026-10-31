@@ -1766,11 +1766,6 @@ static partial class Checker
             var states = StateNames(aggregate);
             var transitions = TransitionsOf(aggregate);
 
-            if (transitions.Count == 0)
-            {
-                continue;
-            }
-
             foreach (var transition in transitions)
             {
                 if (transition.From != RecordReader.Creation && !states.Contains(transition.From))
@@ -1790,11 +1785,10 @@ static partial class Checker
             }
 
             var targets = transitions.Select(transition => transition.To).ToHashSet(StringComparer.Ordinal);
-            var sources = transitions.Select(transition => transition.From).ToHashSet(StringComparer.Ordinal);
 
             foreach (var state in states.Order(StringComparer.Ordinal))
             {
-                if (!targets.Contains(state) && !sources.Contains(state))
+                if (!targets.Contains(state))
                 {
                     findings.Add(new Finding("state-unreached", $"Aggregate '{aggregate.Id}' holds state '{state}' that no transition reaches.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
                 }

@@ -13,7 +13,7 @@ namespace LiteSpec.Model;
 static partial class Checker
 {
     /// <summary>Fields the semantic hash skips: identity, workflow and approval data.</summary>
-    private static readonly HashSet<string> ApprovalExcluded = new(StringComparer.Ordinal)
+    internal static readonly HashSet<string> ApprovalExcluded = new(StringComparer.Ordinal)
     {
         "type", "id", "title", "owner", "status", "decider", "decideBy",
         "approvedBy", "approvedOn", "approvedHash", "provenance",
@@ -37,70 +37,11 @@ static partial class Checker
     {
         var built = new StringBuilder();
 
-        CanonicalInto(raw, built, true);
+        CanonicalJson.WriteTopLevel(raw, built, ApprovalExcluded);
 
         var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(built.ToString()));
 
         return Convert.ToHexString(bytes)[..8].ToLowerInvariant();
-    }
-
-    private static void CanonicalInto(JsonElement value, StringBuilder built, bool top)
-    {
-        switch (value.ValueKind)
-        {
-            case JsonValueKind.Object:
-                built.Append('{');
-
-                var first = true;
-
-                foreach (var property in value.EnumerateObject().OrderBy(entry => entry.Name, StringComparer.Ordinal))
-                {
-                    if (top && ApprovalExcluded.Contains(property.Name))
-                    {
-                        continue;
-                    }
-
-                    if (!first)
-                    {
-                        built.Append(',');
-                    }
-
-                    first = false;
-                    built.Append(JsonSerializer.Serialize(property.Name));
-                    built.Append(':');
-                    CanonicalInto(property.Value, built, false);
-                }
-
-                built.Append('}');
-                break;
-
-            case JsonValueKind.Array:
-                built.Append('[');
-
-                var head = true;
-
-                foreach (var entry in value.EnumerateArray())
-                {
-                    if (!head)
-                    {
-                        built.Append(',');
-                    }
-
-                    head = false;
-                    CanonicalInto(entry, built, false);
-                }
-
-                built.Append(']');
-                break;
-
-            case JsonValueKind.String:
-                built.Append(JsonSerializer.Serialize(value.GetString()));
-                break;
-
-            default:
-                built.Append(value.GetRawText());
-                break;
-        }
     }
 
     /// <summary>Whether the record carries any risk, which makes it tier 1.</summary>

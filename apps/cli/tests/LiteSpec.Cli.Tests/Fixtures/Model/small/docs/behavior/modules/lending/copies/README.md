@@ -19,6 +19,26 @@
       "meaning": "The copy left lending."
     }
   ],
+  "transitions": [
+    {
+      "from": "-",
+      "to": "Available",
+      "by": "use-case/lending.register-copy"
+    },
+    {
+      "from": "Available",
+      "to": "OnLoan"
+    },
+    {
+      "from": "OnLoan",
+      "to": "Available"
+    },
+    {
+      "from": "Available",
+      "to": "Retired",
+      "by": "use-case/lending.retire-copy"
+    }
+  ],
   "records": [
     {
       "type": "rule",
@@ -71,7 +91,7 @@
   ],
   "approvedBy": "lending-team",
   "approvedOn": "2026-10-01",
-  "approvedHash": "37e6fe37"
+  "approvedHash": "2e4a8abe"
 }
 ---
 

@@ -12,14 +12,13 @@ static class ModelCommand
     public const string Usage = """
         Usage:
           litespec model build --root <consumer> [--out model.json]
-          litespec model check --root <consumer> [--format json] [--staged] [--release] [--since <ref>]
+          litespec model check --root <consumer> [--format json] [--staged] [--release] [--since <ref>] [--level <levels>]
           litespec model render --root <consumer>
           litespec model query --root <consumer> <id>
           litespec model names [--root <consumer>] [--format text|json]
           litespec model review --root <consumer> [--decider <owner>] [--tier 1|3] [--module <module>] [--type <type>] [--format json]
           litespec model approve --root <consumer> (<id>... | --all) [--by <owner>] [--on <YYYY-MM-DD>] [--dry-run]
           litespec model approve --root <consumer> --batch <selector> [--batch <selector>...] [--batches <file>] --by <owner> [--second-reviewer <owner>|agent] [--review-report <file>] [--on <YYYY-MM-DD>] [--dry-run]
-          litespec model backfill --root <consumer> [<module>] [--dry-run]
           litespec model diff <base> --root <consumer> [--format text|markdown|json] [--intent|--behavior] [--fail-on breaking] [--breaking-only]
           litespec model --help
 
@@ -42,21 +41,19 @@ static class ModelCommand
                 "diff" => ["--breaking-only", "--intent", "--behavior"],
                 "approve" => ["--all", "--dry-run"],
                 "check" => ["--staged", "--release"],
-                "backfill" => ["--dry-run"],
                 _ => [],
             },
             command switch
             {
                 "diff" => ["--root", "--out", "--format", "--fail-on"],
                 "approve" => ["--root", "--by", "--on", "--batch", "--batches", "--second-reviewer", "--review-report"],
-                "backfill" => ["--root"],
                 "review" => ["--root", "--out", "--format", "--decider", "--tier", "--module", "--type"],
-                "check" => ["--root", "--out", "--format", "--since"],
+                "check" => ["--root", "--out", "--format", "--since", "--level"],
                 _ => ["--root", "--out", "--format"],
             },
             maxPositionals: command switch
             {
-                "query" or "diff" or "backfill" => 1,
+                "query" or "diff" => 1,
                 "approve" => int.MaxValue,
                 _ => 0,
             });
@@ -159,6 +156,15 @@ static class ModelCommand
 
                 case "check":
                 {
+                    var (levelFilter, levelError) = ParseLevels(parsed.Value("--level"));
+
+                    if (levelError is not null)
+                    {
+                        Console.Error.WriteLine(levelError);
+                        Console.Error.WriteLine(Usage);
+                        return 2;
+                    }
+
                     var model = ModelBuilder.Build(config);
                     var (findings, known) = Checker.Check(model);
 
@@ -209,6 +215,9 @@ static class ModelCommand
                     var shownKnown = known
                         .Where(gap => Decide(model, config, gap, release).Outcome != Outcome.Silent)
                         .ToList();
+                    var displayed = levelFilter is null
+                        ? shown
+                        : shown.Where(entry => levelFilter.Contains(entry.Finding.Tier)).ToList();
 
                     if (json)
                     {
@@ -240,7 +249,7 @@ static class ModelCommand
                             payload["changedRecords"] = since.RecordIds.Count;
                         }
 
-                        payload["findings"] = shown.Select(entry => AsJson(config, entry.Finding, entry.Severity)).ToList();
+                        payload["findings"] = displayed.Select(entry => AsJson(config, entry.Finding, entry.Severity)).ToList();
                         payload["known"] = shownKnown.Select(gap => AsKnownJson(config, gap)).ToList();
 
                         Console.WriteLine(JsonSerializer.Serialize(payload, CliJson.Options));
@@ -257,9 +266,13 @@ static class ModelCommand
                             Console.WriteLine($"Since {sinceRef}: {since.ChangedFiles} files, {since.RecordIds.Count} records.");
                         }
 
-                        foreach (var entry in shown)
+                        // Each finding prints once. The open blocking findings come first, so the lines
+                        // that fail the run lead the output however many advisory findings follow.
+                        var blocking = displayed.Where(entry => entry.Severity.Outcome == Outcome.Blocking).ToList();
+
+                        foreach (var entry in blocking.Concat(displayed.Where(entry => entry.Severity.Outcome != Outcome.Blocking)))
                         {
-                            Console.WriteLine($"{config.Relative(entry.Finding.Path)}:{entry.Finding.Line} [{TierLabel(entry.Finding, entry.Severity)}] [{entry.Finding.Code}] {entry.Finding.Message}");
+                            Console.WriteLine(FindingLine(config, entry.Finding, entry.Severity));
                         }
 
                         foreach (var gap in shownKnown)
@@ -267,7 +280,23 @@ static class ModelCommand
                             Console.WriteLine($"{config.Relative(gap.Path)}:{gap.Line} [known {gap.Tier}] [{gap.Code}] {gap.Message}");
                         }
 
-                        Console.WriteLine($"{shown.Count} findings, {shownKnown.Count} known.");
+                        if (displayed.Count > 0)
+                        {
+                            Console.WriteLine();
+                            Console.WriteLine("Findings by code:");
+
+                            foreach (var group in displayed
+                                .GroupBy(entry => (entry.Finding.Code, entry.Finding.Tier))
+                                .Select(group => (group.Key.Code, group.Key.Tier, Count: group.Count()))
+                                .OrderBy(group => LevelRank(group.Tier))
+                                .ThenByDescending(group => group.Count)
+                                .ThenBy(group => group.Code, StringComparer.Ordinal))
+                            {
+                                Console.WriteLine($"  {group.Count,6}  {group.Code} (level {group.Tier})");
+                            }
+                        }
+
+                        Console.WriteLine($"{displayed.Count} findings, {blocking.Count} blocking, {shownKnown.Count} known.");
                     }
 
                     return shown.Any(entry => entry.Severity.Outcome == Outcome.Blocking) ? 1 : 0;
@@ -368,10 +397,7 @@ static class ModelCommand
 
                     if (parsed.Has("--dry-run"))
                     {
-                        var planned = all
-                            ? written.Where(record => record.Status is "approved" or "reviewed").ToList()
-                            : targets;
-                        var dry = Approver.DryRun(planned);
+                        var dry = Approver.DryRun(targets);
 
                         foreach (var (record, reason) in dry)
                         {
@@ -407,26 +433,6 @@ static class ModelCommand
 
                     Console.WriteLine($"{stamped.Count} records approved.");
                     return unknown.Count + missing.Count > 0 ? 1 : 0;
-                }
-
-                case "backfill":
-                {
-                    var model = ModelBuilder.Build(config);
-                    var (lines, unknownModule) = Backfill.Run(
-                        model, parsed.Positionals.FirstOrDefault(), parsed.Has("--dry-run"));
-
-                    if (unknownModule)
-                    {
-                        Console.Error.WriteLine($"No use-case, reaction or job records in module '{parsed.Positionals[0]}'.");
-                        return 1;
-                    }
-
-                    foreach (var line in lines)
-                    {
-                        Console.WriteLine(line);
-                    }
-
-                    return 0;
                 }
 
                 case "query":
@@ -832,6 +838,48 @@ static class ModelCommand
             && finding.Subject is not null
             && model.ById.TryGetValue(Identifiers.BaseId(finding.Subject), out var subject)
             && ReviewQueue.HasRisk(subject));
+
+    /// <summary>
+    ///     Parses a <c>--level</c> value into its level set: a comma-separated
+    ///     subset of <c>G</c>, <c>S</c> and <c>A</c>, or null when the option is
+    ///     absent. Any other value is a usage error naming the value.
+    /// </summary>
+    static (HashSet<string>? Levels, string? Error) ParseLevels(string? value)
+    {
+        if (value is null)
+        {
+            return (null, null);
+        }
+
+        var levels = new HashSet<string>(StringComparer.Ordinal);
+
+        foreach (var part in value.Split(','))
+        {
+            var level = part.Trim();
+
+            if (level is not ("G" or "S" or "A"))
+            {
+                return (null, $"Unknown level '{level}'; use a comma-separated subset of G, S, A.");
+            }
+
+            levels.Add(level);
+        }
+
+        return (levels, null);
+    }
+
+    /// <summary>One finding's printed line: its path, line, level, code and message.</summary>
+    static string FindingLine(ConsumerConfig config, Finding finding, Severity severity) =>
+        $"{config.Relative(finding.Path)}:{finding.Line} [{TierLabel(finding, severity)}] [{finding.Code}] {finding.Message}";
+
+    /// <summary>The sort rank of a level: G first, then S, then A.</summary>
+    static int LevelRank(string level) => level switch
+    {
+        "G" => 0,
+        "S" => 1,
+        "A" => 2,
+        _ => 3,
+    };
 
     /// <summary>The printed tier: the tier plus the reason a reported finding does not block.</summary>
     static string TierLabel(Finding finding, Severity severity) =>

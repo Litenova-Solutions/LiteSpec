@@ -13,6 +13,7 @@ public sealed class ReachabilityTests
     public void Transitions_Mark_Entered_And_Starting_States_Reachable()
     {
         using var temp = ModelFixture.Prepare("small");
+        ModelFixture.RemoveTransitions(temp.Path, "loans");
         AddTransitions(temp.Path);
 
         using var document = Build(temp.Path);
@@ -29,6 +30,7 @@ public sealed class ReachabilityTests
     public void Aggregate_Without_Transitions_Reaches_No_State()
     {
         using var temp = ModelFixture.Prepare("small");
+        ModelFixture.RemoveTransitions(temp.Path, "loans");
 
         using var document = Build(temp.Path);
         var states = document.RootElement.GetProperty("reachableStates").GetProperty("aggregate/lending.loan");

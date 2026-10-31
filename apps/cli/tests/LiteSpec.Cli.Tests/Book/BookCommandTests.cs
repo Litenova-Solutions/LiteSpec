@@ -268,10 +268,10 @@ public sealed class BookCommandTests
         Assert.Contains("missing.json", result.Output, StringComparison.Ordinal);
     }
 
-    /// <summary>A carried LiteSpec page that lost its shape exits 1 and names the file.</summary>
+    /// <summary>A carried LiteSpec page that lost its shape exits 2 and names the file.</summary>
     /// <proves>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</proves>
     [Fact]
-    public void Broken_Carried_Page_Exits_1_Naming_The_File()
+    public void Broken_Carried_Page_Exits_2_Naming_The_File()
     {
         using var temp = Cli.Temp("book");
         using var home = Cli.Temp("book-home");
@@ -279,8 +279,22 @@ public sealed class BookCommandTests
         var result = Cli.Run(
             new[] { "book", "--model", Cli.Fixture("Book/model.json"), "--out", temp.Path },
             environment: new Dictionary<string, string> { ["LITESPEC_HOME"] = home.Path });
-        Assert.Equal(1, result.Status);
+        Assert.Equal(2, result.Status);
         Assert.Contains("model.md", result.Output, StringComparison.Ordinal);
+    }
+
+    /// <summary>A missing carried LiteSpec release exits 2, like every other command.</summary>
+    /// <proves>litespec/core/release#review-intent-changes-through-the-intent-diff-and-ballots</proves>
+    [Fact]
+    public void Missing_Carried_Release_Exits_2()
+    {
+        using var temp = Cli.Temp("book");
+        using var home = Cli.Temp("book-no-home");
+        var result = Cli.Run(
+            new[] { "book", "--model", Cli.Fixture("Book/model.json"), "--out", temp.Path },
+            environment: new Dictionary<string, string> { ["LITESPEC_HOME"] = home.Path });
+        Assert.Equal(2, result.Status);
+        Assert.Contains("Cannot find the carried LiteSpec release", result.Output, StringComparison.Ordinal);
     }
 
     static JsonObject ReadShard(string path, string key)

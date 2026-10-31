@@ -702,13 +702,28 @@ function shownOutline() {
 function editorTemplate() { return MAN ? MAN.editor : null; }
 function consumerRoot() { return (MAN && MAN.roots && MAN.roots.consumer) || ""; }
 function litespecRoot() { return (MAN && MAN.roots && MAN.roots.litespec) || ""; }
+function editorScheme() { var t = editorTemplate(); if (!t || t === "none") return null; var m = /^([A-Za-z][A-Za-z0-9+.-]*):/.exec(String(t).trim()); return m ? m[1].toLowerCase() : null; }
+function safeHref(value) {
+  if (value === null || value === undefined) return null;
+  var text = String(value).trim();
+  if (!text || /[\u0000-\u001f\u007f]/.test(text)) return null;
+  if (text.charAt(0) === "#") return text;
+  var scheme = /^([A-Za-z][A-Za-z0-9+.-]*):/.exec(text);
+  if (scheme) {
+    var name = scheme[1].toLowerCase();
+    return (name === "http" || name === "https" || name === "mailto" || name === editorScheme()) ? text : null;
+  }
+  if (text.indexOf("//") === 0 || text.indexOf("\\\\") === 0) return null;
+  return text;
+}
+function linkOrText(value) { var href = safeHref(value); return href ? '<a href="' + esc(href) + '">' + esc(value) + "</a>" : esc(value); }
 function editorHref(root, path, line) {
   var t = editorTemplate();
   if (!t || t === "none" || !path) return null;
   var href = String(t).split("{root}").join(root || "").split("{path}").join(path);
   if (line) href = href.split("{line}").join(String(line));
   else href = href.replace(/:{line}/g, "").split("{line}").join("");
-  return href;
+  return safeHref(href);
 }
 function lsHref(path) { return editorHref(litespecRoot(), path, null); }
 function provisionLink(p) { var m = /^litespec\/(.+)#(.+)$/.exec(String(p || "")); if (!m) return '<span class="code">' + esc(p) + "</span>"; var href = lsHref("docs/" + m[1] + ".md"); return href ? '<a class="code" href="' + esc(href) + '" title="Open the provision in LiteSpec">' + esc(p) + "</a>" : '<span class="code">' + esc(p) + "</span>"; }
@@ -757,7 +772,11 @@ function inline(s) {
   out = out.replace(/(^|[\s(])(https?:\/\/[^\s<)]+)/g, function (m, pre, url) { return pre + "[" + url.replace(/^https?:\/\/(www\.)?/, "") + "](" + url + ")"; });
   out = out.replace(/`([^`]+)`/g, function (m, c) { var id = base(c.replace(/&amp;/g, "&")); if (REC[id] || NODE[id]) return inlineRef(id); return "<code>" + c + "</code>"; });
   out = out.replace(/\*\*([^*]+)\*\*/g, "<b>$1</b>").replace(/(^|[^*])\*([^*]+)\*/g, "$1<em>$2</em>");
-  return out.replace(/\[([^\]]+)\]\((https?:[^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>').replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, function (m, text, href) {
+  return out.replace(/\[([^\]]+)\]\((https?:[^)\s]+)\)/g, function (m, text, href) {
+    var direct = safeHref(href);
+    return direct ? '<a href="' + esc(direct) + '" target="_blank" rel="noopener">' + text + "</a>" : text;
+  }).replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, function (m, text, href) {
+    if (/^[A-Za-z][A-Za-z0-9+.-]*:/.test(href)) { var external = safeHref(href); return external ? '<a href="' + esc(external) + '" target="_blank" rel="noopener">' + text + "</a>" : text; }
     if (!curSrc || !curSrc.path) return text;
     var target = srcHref({ path: resolvePath(curSrc.path, href.split("#")[0]), line: null, litespec: curSrc.litespec });
     return target ? '<a href="' + esc(target) + '" title="Open ' + esc(href) + ' in the editor">' + text + "</a>" : text;
@@ -796,7 +815,7 @@ function whyHtml(r) {
   return parts.length ? '<div class="whyb">' + parts.map(function (p) { return '<div class="whyr"><span class="whyk">' + esc(p[0]) + '</span><div class="whyv prose">' + p[1] + "</div></div>"; }).join("") + "</div>" : "";
 }
 function lead(text) { return text ? '<p class="lead">' + inline(String(text)) + "</p>" : ""; }
-function jump(items) { items = items.filter(function (x) { return x[2]; }); return items.length > 2 ? '<nav class="jump" aria-label="On this record">' + items.map(function (x) { return '<a href="#b-' + x[0] + '">' + esc(fieldLabel(x[1])) + (typeof x[2] === "number" ? " <span>" + x[2] + "</span>" : "") + "</a>"; }).join("") + "</nav>" : ""; }
+function jump(items) { items = items.filter(function (x) { return x[2]; }); return items.length > 2 ? '<nav class="jump" aria-label="On this record">' + items.map(function (x) { var href = safeHref("#b-" + x[0]); return href ? '<a href="' + esc(href) + '">' + esc(fieldLabel(x[1])) + (typeof x[2] === "number" ? " <span>" + x[2] + "</span>" : "") + "</a>" : ""; }).join("") + "</nav>" : ""; }
 // Children of the outline stand in where the mockup read embedded lists.
 function kidsByType(id, t) { return (kidsOf[base(id)] || []).filter(function (x) { return typeOf(x) === t; }); }
 function descByType(id, t, maxDepth) {
@@ -1047,7 +1066,7 @@ var DETAIL = {
     return metaRow(id, [testedChip(r)]) + head + blk("opts", "options", opts, (f.options || []).length) + (f.reopenedWhen ? blk("rev", "reopenedWhen", callout("quiet", "clock", esc(f.reopenedWhen))) : "") + blk("dec", "decides", refs(f.decides), (f.decides || []).length) + blk("basis", "basedOn", refs(f.basedOn)) + (f.replaces ? blk("rep", "replaces", refs([f.replaces])) : "");
   },
   constraint: function (id, r) { var f = r.fields || {}; return metaRow(id, [badge(f.kind, "info"), badge("applies: " + !!f.applies, f.applies ? "warn" : "")]) + leadHtml(secHtml(r, "Summary")) + blk("src", "authority", callout("quiet", "quote", esc(f.authority))) + ""; },
-  research: function (id, r) { var f = r.fields || {}; return metaRow(id) + lead(f.question) + (f.conclusion ? blk("con", "conclusion", '<div class="prose">' + inline(String(f.conclusion)) + "</div>") : "") + blk("srcs", "Sources", '<ol class="rlist">' + (f.sources || []).map(function (x) { if (x.path) return '<li><span class="code">' + esc(x.path) + "</span>" + (x.title ? " " + esc(x.title) : "") + '<span class="rsub">' + (x.readOn ? "read " + fmtDate(x.readOn) : "") + "</span></li>"; var host = ""; try { host = new URL(x.url).host.replace(/^www\./, ""); } catch (e) { host = ""; } return '<li><a href="' + esc(x.url) + '" target="_blank" rel="noopener">' + esc(x.title || x.url.replace(/^https?:\/\/(www\.)?/, "")) + '</a><span class="rsub">' + esc(host) + (x.readOn ? ", read " + fmtDate(x.readOn) : "") + "</span></li>"; }).join("") + "</ol>", (f.sources || []).length); },
+  research: function (id, r) { var f = r.fields || {}; return metaRow(id) + lead(f.question) + (f.conclusion ? blk("con", "conclusion", '<div class="prose">' + inline(String(f.conclusion)) + "</div>") : "") + blk("srcs", "Sources", '<ol class="rlist">' + (f.sources || []).map(function (x) { if (x.path) return '<li><span class="code">' + esc(x.path) + "</span>" + (x.title ? " " + esc(x.title) : "") + '<span class="rsub">' + (x.readOn ? "read " + fmtDate(x.readOn) : "") + "</span></li>"; var host = ""; try { host = new URL(x.url).host.replace(/^www\./, ""); } catch (e) { host = ""; } var href = safeHref(x.url); var label = esc(x.title || String(x.url || "").replace(/^https?:\/\/(www\.)?/, "")); return '<li>' + (href ? '<a href="' + esc(href) + '" target="_blank" rel="noopener">' + label + "</a>" : label) + '<span class="rsub">' + esc(host) + (x.readOn ? ", read " + fmtDate(x.readOn) : "") + "</span></li>"; }).join("") + "</ol>", (f.sources || []).length); },
   journey: function (id, r) {
     var f = r.fields || {}, steps = f.steps || [], srv = r.stepServers || {};
     var served = steps.filter(function (s) { return (srv[s.id] || []).length; }).length;
@@ -1140,7 +1159,7 @@ var DETAIL = {
   "integration-event": function (id, r) {
     var f = r.fields || {};
     return metaRow(id, [badge(f.direction === "in" ? "Arrives from outside" : "Leaves the system", f.direction === "in" ? "info" : "warn"), testedChip(r)]) + lead("About " + (f.subject || "")) +
-      blk("id", "eventType", kv([["Event type", '<span class="code">' + esc(f.eventType) + "</span>"], ["Translates", f.translates ? inlineRef(f.translates) : ""], ["Trust", f.trust ? esc(f.trust) : ""], ["Correlation", f.correlation ? esc(f.correlation) : ""], ["Dataschema", f.dataschema ? '<a href="' + esc(f.dataschema) + '">' + esc(f.dataschema) + "</a>" : ""]])) +
+      blk("id", "eventType", kv([["Event type", '<span class="code">' + esc(f.eventType) + "</span>"], ["Translates", f.translates ? inlineRef(f.translates) : ""], ["Trust", f.trust ? esc(f.trust) : ""], ["Correlation", f.correlation ? esc(f.correlation) : ""], ["Dataschema", f.dataschema ? linkOrText(f.dataschema) : ""]])) +
       blk("pay", "payload", table(["Name", "Type", "Meaning", "Classification"], (f.payload || []).map(function (p) { return [td(esc(p.name), "nm"), td(typedFieldHtml(p)), td(esc(p.meaning)), td(clsBadge(p.classification))]; })), (f.payload || []).length) +
       blk("pub", "Points at this: effects.emits", refs(ins(id, "emits"))) + blk("trig", "Points at this: triggeredBy.event", refs(ins(id, "triggeredBy.event")));
   },

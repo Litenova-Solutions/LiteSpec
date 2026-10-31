@@ -122,11 +122,11 @@ static partial class AppendEntry
 
         try
         {
-            root = Path.GetFullPath(parsed.Value("--root") ?? parsed.Value("--home") ?? Directory.GetCurrentDirectory());
+            root = Path.GetFullPath(parsed.Value("--root") ?? Directory.GetCurrentDirectory());
         }
         catch (Exception exception) when (exception is ArgumentException or NotSupportedException or PathTooLongException)
         {
-            Console.Error.WriteLine($"Invalid root '{parsed.Value("--root") ?? parsed.Value("--home")}': {exception.Message}");
+            Console.Error.WriteLine($"Invalid root '{parsed.Value("--root")}': {exception.Message}");
             Console.Error.WriteLine(NewCommand.Usage);
             return 2;
         }

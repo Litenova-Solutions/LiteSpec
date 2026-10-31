@@ -20,10 +20,17 @@ sealed class ProofLedger
 {
     private readonly Dictionary<string, ProofEntry> entries;
 
-    private ProofLedger(Dictionary<string, ProofEntry> entries) => this.entries = entries;
+    private ProofLedger(Dictionary<string, ProofEntry> entries, IReadOnlyList<Finding> problems)
+    {
+        this.entries = entries;
+        Problems = problems;
+    }
 
     /// <summary>Whether a build recorded a new proof since the ledger was read.</summary>
     public bool Changed { get; private set; }
+
+    /// <summary>The problem a ledger that does not parse reports, empty when the ledger reads.</summary>
+    public IReadOnlyList<Finding> Problems { get; }
 
     /// <summary>The recorded proofs, by scenario id.</summary>
     public IReadOnlyDictionary<string, ProofEntry> Entries => entries;
@@ -33,9 +40,13 @@ sealed class ProofLedger
         Path.Combine(config.RecordRoots.FirstOrDefault() ?? Path.Combine(config.Root, "docs"), "proof", "proofs.json");
 
     /// <summary>A ledger with no recorded proof.</summary>
-    public static ProofLedger Empty() => new(new Dictionary<string, ProofEntry>(StringComparer.Ordinal));
+    public static ProofLedger Empty() => new(new Dictionary<string, ProofEntry>(StringComparer.Ordinal), []);
 
-    /// <summary>Reads the ledger, or an empty one when the file is missing or unreadable.</summary>
+    /// <summary>
+    ///     Reads the ledger, or an empty one when the file is missing. A ledger
+    ///     that does not parse reads empty and reports a model problem, so a
+    ///     damaged ledger never counts as a ledger with no proof.
+    /// </summary>
     public static ProofLedger Load(ConsumerConfig config)
     {
         var entries = new Dictionary<string, ProofEntry>(StringComparer.Ordinal);
@@ -43,7 +54,7 @@ sealed class ProofLedger
 
         if (!File.Exists(path))
         {
-            return new ProofLedger(entries);
+            return new ProofLedger(entries, []);
         }
 
         try
@@ -70,12 +81,14 @@ sealed class ProofLedger
                 entries[property.Name] = new ProofEntry(scenario, test, run);
             }
         }
-        catch (Exception exception) when (exception is JsonException or IOException or InvalidOperationException)
+        catch (Exception exception) when (exception is JsonException or IOException or UnauthorizedAccessException or InvalidOperationException)
         {
-            entries.Clear();
+            return new ProofLedger(
+                new Dictionary<string, ProofEntry>(StringComparer.Ordinal),
+                [new Finding("record-invalid", $"Proof ledger '{path}' does not parse, so no proof in it counts.", path, 1, null)]);
         }
 
-        return new ProofLedger(entries);
+        return new ProofLedger(entries, []);
     }
 
     /// <summary>
@@ -102,9 +115,11 @@ sealed class ProofLedger
     }
 
     /// <summary>
-    ///     The hash of the proving test files: the contents of every test file holding a
-    ///     confirmed proof of the scenario, in path order, so a test change stales the
-    ///     proof until a newer passing run is read. A missing file hashes as empty.
+    ///     The hash of the proving test files: each file's path relative to the
+    ///     project root with <c>/</c> separators and its text with line endings
+    ///     normalised to <c>\n</c>, in path order, so a test change stales the
+    ///     proof until a newer passing run is read and a checkout on another
+    ///     machine hashes the same. A missing file hashes as empty.
     /// </summary>
     public static string TestHashOf(ProjectModel model, string scenario)
     {
@@ -139,12 +154,19 @@ sealed class ProofLedger
         foreach (var file in files)
         {
             var full = Path.IsPathRooted(file) ? file : Path.Combine(model.Config.Root, file);
+            var relative = Path.GetRelativePath(model.Config.Root, full)
+                .Replace(Path.DirectorySeparatorChar, '/')
+                .Replace(Path.AltDirectorySeparatorChar, '/');
 
-            hasher.AppendData(Encoding.UTF8.GetBytes(full + "\n"));
+            hasher.AppendData(Encoding.UTF8.GetBytes(relative + "\n"));
 
             if (File.Exists(full))
             {
-                hasher.AppendData(File.ReadAllBytes(full));
+                var text = File.ReadAllText(full)
+                    .Replace("\r\n", "\n", StringComparison.Ordinal)
+                    .Replace("\r", "\n", StringComparison.Ordinal);
+
+                hasher.AppendData(Encoding.UTF8.GetBytes(text));
             }
         }
 

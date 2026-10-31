@@ -48,7 +48,11 @@ static class DependencyChecks
             return;
         }
 
-        var packages = SbomReader.Read(model.Config);
+        var sbom = SbomReader.Read(model.Config);
+
+        findings.AddRange(sbom.Problems);
+
+        var packages = sbom.Packages;
 
         if (packages.Count == 0)
         {

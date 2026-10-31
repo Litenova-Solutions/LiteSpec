@@ -1,0 +1,8 @@
+{
+  "stacks": ["dotnet"],
+  "stackConfig": {
+    "dotnet": {
+      "application": "src/Library.Application"
+    }
+  }
+}

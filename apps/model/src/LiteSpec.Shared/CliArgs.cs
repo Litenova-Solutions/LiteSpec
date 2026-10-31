@@ -3,11 +3,22 @@ namespace LiteSpec;
 /// <summary>
 ///     The parsed arguments of one command. An option takes its value as
 ///     <c>--name value</c> or <c>--name=value</c>; a flag stands alone. Anything
-///     the command does not declare is a usage error.
+///     the command does not declare is a usage error, as are a repeated option
+///     and an empty value for <c>--root</c>, <c>--model</c>, <c>--out</c> or
+///     <c>--editor</c>. A usage error is reported before <c>--help</c> is
+///     honoured. The repeatable options are <c>--batch</c> and
+///     <c>--batches</c>: <c>model approve</c> collects every batch from the
+///     raw arguments, so a repeated batch option is not an error.
 /// </summary>
 /// <follows>litespec/core/authoring#run-repeatable-authoring-checks</follows>
 public sealed class CliArgs
 {
+    /// <summary>Options whose empty value is a usage error.</summary>
+    static readonly HashSet<string> NonEmptyOptions = new(StringComparer.Ordinal) { "--root", "--model", "--out", "--editor" };
+
+    /// <summary>Options a command collects repeatedly from the raw arguments.</summary>
+    static readonly HashSet<string> RepeatableOptions = new(StringComparer.Ordinal) { "--batch", "--batches" };
+
     readonly Dictionary<string, string> values = new(StringComparer.Ordinal);
     readonly HashSet<string> flags = new(StringComparer.Ordinal);
 
@@ -29,6 +40,7 @@ public sealed class CliArgs
         var result = new CliArgs();
         var knownFlags = flagNames.ToHashSet(StringComparer.Ordinal);
         var knownOptions = optionNames.ToHashSet(StringComparer.Ordinal);
+        var seenOptions = new HashSet<string>(StringComparer.Ordinal);
 
         for (var index = 0; index < args.Length; index++)
         {
@@ -60,13 +72,32 @@ public sealed class CliArgs
             }
             else if (knownOptions.Contains(name))
             {
+                if (!seenOptions.Add(name) && !RepeatableOptions.Contains(name))
+                {
+                    result.Error ??= $"Option {name} is repeated.";
+                }
+
                 if (equals > 0)
                 {
-                    result.values[name] = arg[(equals + 1)..];
+                    var value = arg[(equals + 1)..];
+
+                    if (value.Length == 0 && NonEmptyOptions.Contains(name))
+                    {
+                        result.Error ??= $"Option {name} needs a value.";
+                    }
+
+                    result.values[name] = value;
                 }
                 else if (index + 1 < args.Length && !args[index + 1].StartsWith("--", StringComparison.Ordinal))
                 {
-                    result.values[name] = args[++index];
+                    var value = args[++index];
+
+                    if (value.Length == 0 && NonEmptyOptions.Contains(name))
+                    {
+                        result.Error ??= $"Option {name} needs a value.";
+                    }
+
+                    result.values[name] = value;
                 }
                 else
                 {
@@ -77,6 +108,11 @@ public sealed class CliArgs
             {
                 result.Error ??= $"Unknown option '{arg}'.";
             }
+        }
+
+        if (result.Error is not null)
+        {
+            result.Help = false;
         }
 
         return result;

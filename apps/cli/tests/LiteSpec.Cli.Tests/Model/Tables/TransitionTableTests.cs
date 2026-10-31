@@ -13,6 +13,7 @@ public sealed class TransitionTableTests
     public void Transitions_Table_Writes_Fields_And_Marks_States_Reachable()
     {
         using var temp = ModelFixture.Prepare("small");
+        ModelFixture.RemoveTransitions(temp.Path, "loans");
         AppendTable(temp.Path, TransitionsTable);
         RestampAggregate(temp.Path, MergedTransitions);
 
@@ -20,7 +21,7 @@ public sealed class TransitionTableTests
         var transitions = Record(document, "aggregate/lending.loan")
             .GetProperty("fields").GetProperty("transitions").EnumerateArray().ToList();
 
-        Assert.Equal(3, transitions.Count);
+        Assert.Equal(4, transitions.Count);
         Assert.Equal("Active", transitions[0].GetProperty("from").GetString());
         Assert.Equal("Overdue", transitions[0].GetProperty("to").GetString());
         Assert.Equal("use-case/lending.extend-loan", transitions[0].GetProperty("by").GetString());
@@ -30,6 +31,9 @@ public sealed class TransitionTableTests
         Assert.Equal("Active", transitions[2].GetProperty("from").GetString());
         Assert.Equal("Returned", transitions[2].GetProperty("to").GetString());
         Assert.Equal("use-case/lending.return-copy", transitions[2].GetProperty("by").GetString());
+        Assert.Equal("-", transitions[3].GetProperty("from").GetString());
+        Assert.Equal("Active", transitions[3].GetProperty("to").GetString());
+        Assert.Equal("use-case/lending.borrow-copy", transitions[3].GetProperty("by").GetString());
 
         var states = document.RootElement.GetProperty("reachableStates").GetProperty("aggregate/lending.loan");
 
@@ -47,6 +51,7 @@ public sealed class TransitionTableTests
     public void Transition_By_A_Missing_Use_Case_Reports_Transition_Unknown()
     {
         using var temp = ModelFixture.Prepare("small");
+        ModelFixture.RemoveTransitions(temp.Path, "loans");
         AppendTable(temp.Path, DanglingTable);
         RestampAggregate(temp.Path, MergedDangling);
 
@@ -61,6 +66,7 @@ public sealed class TransitionTableTests
     public void Front_Matter_Transitions_Win_Over_The_Table()
     {
         using var temp = ModelFixture.Prepare("small");
+        ModelFixture.RemoveTransitions(temp.Path, "loans");
         AddFrontMatterTransitions(temp.Path);
         AppendTable(temp.Path, TransitionsTable);
 
@@ -80,6 +86,7 @@ public sealed class TransitionTableTests
     public void Table_Disagreeing_With_Front_Matter_Reports_Table_Drift()
     {
         using var temp = ModelFixture.Prepare("small");
+        ModelFixture.RemoveTransitions(temp.Path, "loans");
         AddFrontMatterTransitions(temp.Path);
         AppendTable(temp.Path, TransitionsTable);
 
@@ -94,6 +101,7 @@ public sealed class TransitionTableTests
     public void Render_Writes_The_Transitions_Table_From_Frontmatter()
     {
         using var temp = ModelFixture.Prepare("small");
+        ModelFixture.RemoveTransitions(temp.Path, "loans");
         AddFrontMatterTransitions(temp.Path);
         AppendRegion(temp.Path);
 
@@ -196,6 +204,7 @@ public sealed class TransitionTableTests
         | Active | Overdue | use-case/lending.extend-loan |
         | Overdue | Returned | use-case/lending.return-copy |
         | Active | Returned | use-case/lending.return-copy |
+        |  | Active | use-case/lending.borrow-copy |
         """;
 
     const string DanglingTable = """
@@ -208,7 +217,7 @@ public sealed class TransitionTableTests
         """;
 
     /// <summary>The transitions TransitionsTable merges into the loan aggregate.</summary>
-    const string MergedTransitions = """[{ "from": "Active", "to": "Overdue", "by": "use-case/lending.extend-loan" }, { "from": "Overdue", "to": "Returned", "by": "use-case/lending.return-copy" }, { "from": "Active", "to": "Returned", "by": "use-case/lending.return-copy" }]""";
+    const string MergedTransitions = """[{ "from": "Active", "to": "Overdue", "by": "use-case/lending.extend-loan" }, { "from": "Overdue", "to": "Returned", "by": "use-case/lending.return-copy" }, { "from": "Active", "to": "Returned", "by": "use-case/lending.return-copy" }, { "from": "-", "to": "Active", "by": "use-case/lending.borrow-copy" }]""";
 
     /// <summary>The transitions DanglingTable merges into the loan aggregate.</summary>
     const string MergedDangling = """[{ "from": "Active", "to": "Returned", "by": "use-case/lending.nope" }]""";

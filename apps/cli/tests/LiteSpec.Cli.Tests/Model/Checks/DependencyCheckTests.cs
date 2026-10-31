@@ -19,7 +19,7 @@ public sealed class DependencyCheckTests
         Write(temp.Path, "docs/proof/sbom/api.spdx.json", SpdxDoc(("UnknownLib", "1.0.0", "MIT", "pkg:nuget/UnknownLib@1.0.0")));
 
         var check = Cli.Run("model", "check", "--root", temp.Path);
-        var finding = check.Output.Split('\n').Single(candidate => candidate.Contains("dependency-undeclared"));
+        var finding = check.Output.Split('\n').Single(candidate => candidate.Contains("[dependency-undeclared]"));
 
         Assert.Equal(1, check.Status);
         Assert.Contains("[S]", finding);
@@ -70,7 +70,7 @@ public sealed class DependencyCheckTests
         Write(temp.Path, "docs/proof/sbom/api.spdx.json", SpdxDoc(("Marten", "1.0.0", "MIT", "pkg:nuget/Marten@1.0.0")));
 
         var check = Cli.Run("model", "check", "--root", temp.Path);
-        var finding = check.Output.Split('\n').Single(candidate => candidate.Contains("dependency-version-drift"));
+        var finding = check.Output.Split('\n').Single(candidate => candidate.Contains("[dependency-version-drift]"));
 
         Assert.Equal(1, check.Status);
         Assert.Contains("[S]", finding);
@@ -92,7 +92,7 @@ public sealed class DependencyCheckTests
         Write(temp.Path, "docs/proof/sbom/api.spdx.json", SpdxDoc(("Marten", "9.50.1", "AGPL-3.0-only", "pkg:nuget/Marten@9.50.1")));
 
         var check = Cli.Run("model", "check", "--root", temp.Path);
-        var finding = check.Output.Split('\n').Single(candidate => candidate.Contains("dependency-license-unknown"));
+        var finding = check.Output.Split('\n').Single(candidate => candidate.Contains("[dependency-license-unknown]"));
 
         Assert.Equal(1, check.Status);
         Assert.Contains("[S]", finding);
@@ -127,7 +127,7 @@ public sealed class DependencyCheckTests
         Write(temp.Path, "docs/proof/sbom/api.spdx.json", SpdxDoc(("Marten", "9.50.1", "MIT OR GPL-3.0-only", "pkg:nuget/Marten@9.50.1")));
 
         var check = Cli.Run("model", "check", "--root", temp.Path);
-        var finding = check.Output.Split('\n').Single(candidate => candidate.Contains("dependency-license-unknown"));
+        var finding = check.Output.Split('\n').Single(candidate => candidate.Contains("[dependency-license-unknown]"));
 
         Assert.Equal(1, check.Status);
         Assert.Contains("MIT OR GPL-3.0-only", finding);
@@ -161,7 +161,7 @@ public sealed class DependencyCheckTests
         WriteFollower(temp.Path);
 
         var check = Cli.Run("model", "check", "--root", temp.Path);
-        var finding = check.Output.Split('\n').Single(candidate => candidate.Contains("admission-invalid"));
+        var finding = check.Output.Split('\n').Single(candidate => candidate.Contains("[admission-invalid]"));
 
         Assert.Equal(1, check.Status);
         Assert.Contains("[G]", finding);
@@ -204,6 +204,76 @@ public sealed class DependencyCheckTests
         AssertNoDependencyFindings(check);
     }
 
+    /// <summary>A configured bill of materials path that does not exist reports reader-missing naming the path.</summary>
+    /// <proves>litespec/workspace/dependencies#match-every-shipped-package-to-its-pin</proves>
+    [Fact]
+    public void Configured_Sbom_Missing_Reports_Reader_Missing()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        ConfigureSbomPath(temp.Path, "docs/proof/sbom/missing.json");
+
+        var check = Cli.Run("model", "check", "--root", temp.Path);
+        var finding = check.Output.Split('\n').Single(candidate => candidate.Contains("[reader-missing]"));
+
+        Assert.Equal(1, check.Status);
+        Assert.Contains("[S]", finding);
+        Assert.Contains("missing.json", finding);
+        AssertNoDependencyFindings(check);
+    }
+
+    /// <summary>A configured bill of materials that is not JSON reports reader-missing naming the file.</summary>
+    /// <proves>litespec/workspace/dependencies#match-every-shipped-package-to-its-pin</proves>
+    [Fact]
+    public void Configured_Sbom_Unparsable_Reports_Reader_Missing()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        ConfigureSbom(temp.Path);
+        Write(temp.Path, "docs/proof/sbom/broken.json", "not json");
+
+        var check = Cli.Run("model", "check", "--root", temp.Path);
+        var finding = check.Output.Split('\n').Single(candidate => candidate.Contains("[reader-missing]"));
+
+        Assert.Equal(1, check.Status);
+        Assert.Contains("broken.json", finding);
+        AssertNoDependencyFindings(check);
+    }
+
+    /// <summary>A configured bill of materials that is neither SPDX nor CycloneDX reports reader-missing naming the file.</summary>
+    /// <proves>litespec/workspace/dependencies#match-every-shipped-package-to-its-pin</proves>
+    [Fact]
+    public void Configured_Sbom_Neither_Format_Reports_Reader_Missing()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        ConfigureSbom(temp.Path);
+        Write(temp.Path, "docs/proof/sbom/other.json", """{"name": "not a bill of materials"}""");
+
+        var check = Cli.Run("model", "check", "--root", temp.Path);
+        var finding = check.Output.Split('\n').Single(candidate => candidate.Contains("[reader-missing]"));
+
+        Assert.Equal(1, check.Status);
+        Assert.Contains("other.json", finding);
+        Assert.Contains("neither", finding);
+        AssertNoDependencyFindings(check);
+    }
+
+    /// <summary>A configured bill of materials that yields no packages reports reader-missing naming the file.</summary>
+    /// <proves>litespec/workspace/dependencies#match-every-shipped-package-to-its-pin</proves>
+    [Fact]
+    public void Configured_Sbom_With_No_Packages_Reports_Reader_Missing()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        ConfigureSbom(temp.Path);
+        Write(temp.Path, "docs/proof/sbom/empty.spdx.json", SpdxDoc());
+
+        var check = Cli.Run("model", "check", "--root", temp.Path);
+        var finding = check.Output.Split('\n').Single(candidate => candidate.Contains("[reader-missing]"));
+
+        Assert.Equal(1, check.Status);
+        Assert.Contains("empty.spdx.json", finding);
+        Assert.Contains("yields no packages", finding);
+        AssertNoDependencyFindings(check);
+    }
+
     /// <summary>admission-invalid runs even when the project names no bill of materials.</summary>
     /// <proves>litespec/workspace/dependencies#approve-new-packages-explicitly</proves>
     [Fact]
@@ -214,7 +284,7 @@ public sealed class DependencyCheckTests
         WriteFollower(temp.Path);
 
         var check = Cli.Run("model", "check", "--root", temp.Path);
-        var finding = check.Output.Split('\n').Single(candidate => candidate.Contains("admission-invalid"));
+        var finding = check.Output.Split('\n').Single(candidate => candidate.Contains("[admission-invalid]"));
 
         Assert.Equal(1, check.Status);
         Assert.Contains("operatingCost", finding);
@@ -230,7 +300,7 @@ public sealed class DependencyCheckTests
         Write(temp.Path, "docs/proof/sbom/api.cdx.json", CycloneDxDoc(("UnknownCdx", "1.0.0", "MIT", false, "pkg:nuget/UnknownCdx@1.0.0")));
 
         var check = Cli.Run("model", "check", "--root", temp.Path);
-        var finding = check.Output.Split('\n').Single(candidate => candidate.Contains("dependency-undeclared"));
+        var finding = check.Output.Split('\n').Single(candidate => candidate.Contains("[dependency-undeclared]"));
 
         Assert.Equal(1, check.Status);
         Assert.Contains("nuget:UnknownCdx", finding);
@@ -276,7 +346,7 @@ public sealed class DependencyCheckTests
         Write(temp.Path, "docs/proof/sbom/api.spdx.json", SpdxDoc(("React", "19.3.0", "MIT", "pkg:npm/React@19.3.0")));
 
         var check = Cli.Run("model", "check", "--root", temp.Path);
-        var finding = check.Output.Split('\n').Single(candidate => candidate.Contains("dependency-undeclared"));
+        var finding = check.Output.Split('\n').Single(candidate => candidate.Contains("[dependency-undeclared]"));
 
         Assert.Equal(1, check.Status);
         Assert.Contains("npm:React", finding);
@@ -310,6 +380,15 @@ public sealed class DependencyCheckTests
         var node = JsonNode.Parse(File.ReadAllText(file))!.AsObject();
         node["paths"]!.AsObject()["sbom"] = new JsonArray("docs/proof/sbom");
         node["dependencies"] = new JsonObject { ["licenses"] = new JsonArray("MIT", "Apache-2.0") };
+        File.WriteAllText(file, node.ToJsonString(new JsonSerializerOptions { WriteIndented = true }));
+    }
+
+    static void ConfigureSbomPath(string root, string sbom)
+    {
+        ConfigureSbom(root);
+        var file = Path.Combine(root, "litespec.project.json");
+        var node = JsonNode.Parse(File.ReadAllText(file))!.AsObject();
+        node["paths"]!.AsObject()["sbom"] = new JsonArray(sbom);
         File.WriteAllText(file, node.ToJsonString(new JsonSerializerOptions { WriteIndented = true }));
     }
 

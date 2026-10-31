@@ -86,6 +86,14 @@ static class RecordReader
         return new RecordRead(records, bodies, ReadProvisions(), problems);
     }
 
+    /// <summary>Whether the page opens with a frontmatter fence line, so a parse failure drops a record.</summary>
+    private static bool HasFrontmatterFence(string text)
+    {
+        var firstLine = text.Split('\n')[0].TrimEnd('\r');
+
+        return string.Equals(firstLine, "---", StringComparison.Ordinal);
+    }
+
     private static void ReadPage(
         ConsumerConfig config,
         string file,
@@ -95,8 +103,18 @@ static class RecordReader
     {
         var text = SourceTree.Read(file);
 
-        if (!Frontmatter.TryParse(text, out var parsed, out _))
+        if (!Frontmatter.TryParse(text, out var parsed, out var parseError))
         {
+            if (HasFrontmatterFence(text))
+            {
+                problems.Add(new Finding(
+                    "record-invalid",
+                    $"Record page '{file}' could not be read: {parseError}",
+                    file,
+                    1,
+                    null));
+            }
+
             bodies.Add(new PageBody(file, text, 1, null));
             return;
         }

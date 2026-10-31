@@ -68,7 +68,7 @@ static partial class NewCommand
     /// <summary>Runs the command and returns its exit code.</summary>
     public static int Run(string[] args)
     {
-        var parsed = CliArgs.Parse(args, [], ["--root", "--home", "--code", "--outcome", "--result"], maxPositionals: 4);
+        var parsed = CliArgs.Parse(args, [], ["--root", "--code", "--outcome", "--result"], maxPositionals: 4);
 
         if (parsed.Help)
         {
@@ -147,11 +147,11 @@ static partial class NewCommand
 
         try
         {
-            root = Path.GetFullPath(parsed.Value("--root") ?? parsed.Value("--home") ?? Directory.GetCurrentDirectory());
+            root = Path.GetFullPath(parsed.Value("--root") ?? Directory.GetCurrentDirectory());
         }
         catch (Exception exception) when (exception is ArgumentException or NotSupportedException or PathTooLongException)
         {
-            Console.Error.WriteLine($"Invalid root '{parsed.Value("--root") ?? parsed.Value("--home")}': {exception.Message}");
+            Console.Error.WriteLine($"Invalid root '{parsed.Value("--root")}': {exception.Message}");
             Console.Error.WriteLine(Usage);
             return 2;
         }
