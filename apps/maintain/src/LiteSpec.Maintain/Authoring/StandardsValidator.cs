@@ -68,7 +68,9 @@ static partial class StandardsValidator
         "ID_LINE_MISSING",
         "ID_LINE_MISMATCH",
         "ID_PAGE_FILENAME",
+        "ID_REMOVED_STILL_PRESENT",
         "ID_REMOVED_UNRECORDED",
+        "ID_RENAME_TARGET_MISSING",
         "ID_UNKNOWN_REFERENCE",
         "INDEX_CONTAINS_PROCEDURE",
         "INDEX_INTENT",
@@ -501,8 +503,8 @@ static partial class StandardsValidator
         return result;
     }
 
-    // Sorts with English collation so diagnostics order identically on every machine.
-    static readonly StringComparer SortOrder = StringComparer.Create(CultureInfo.GetCultureInfo("en"), ignoreCase: false);
+    // Sorts ordinally so diagnostics order identically on every machine.
+    static readonly StringComparer SortOrder = StringComparer.Ordinal;
 
     static bool IsCurrentStandardsMaterial(string relative)
     {

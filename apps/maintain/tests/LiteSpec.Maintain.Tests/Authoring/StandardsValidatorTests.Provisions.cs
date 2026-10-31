@@ -122,6 +122,25 @@ public sealed partial class StandardsValidatorTests
         new HashSet<string>(StringComparer.Ordinal) { "litespec/core/topic#vanished-rule" });
 
     /// <proves>litespec/core/maintaining#list-every-removed-and-renamed-provision</proves>
+    [Fact(DisplayName = "removed ID that still exists in the current pages")]
+    public void RemovedIdStillPresent() => Check(
+        root => StandardsFixture.Write(root, "CHANGELOG.md", "# Changelog\n\n## v3.0.0\n\n### Removed and Renamed Provisions\n\n| Removed or Renamed ID | Replacement |\n|:---|:---|\n| `litespec/core/topic#keep-the-topic-bounded` | `litespec/core/topic#use-the-default-location` |\n"),
+        ["ID_REMOVED_STILL_PRESENT"]);
+
+    /// <proves>litespec/core/maintaining#list-every-removed-and-renamed-provision</proves>
+    [Fact(DisplayName = "rename target that does not exist in the current pages")]
+    public void RenameTargetMissing() => Check(
+        root => StandardsFixture.Write(root, "CHANGELOG.md", "# Changelog\n\n## v3.0.0\n\n### Removed and Renamed Provisions\n\n| Removed or Renamed ID | Replacement |\n|:---|:---|\n| `litespec/core/topic#vanished-rule` | `litespec/core/topic#missing-rule` |\n"),
+        ["ID_RENAME_TARGET_MISSING"]);
+
+    /// <proves>litespec/core/maintaining#list-every-removed-and-renamed-provision</proves>
+    [Fact(DisplayName = "rename row in the current release that resolves in both directions")]
+    public void RenameRowResolvesInBothDirections() => Check(
+        root => StandardsFixture.Write(root, "CHANGELOG.md", "# Changelog\n\n## v3.0.0\n\n### Removed and Renamed Provisions\n\n| Removed or Renamed ID | Replacement |\n|:---|:---|\n| `litespec/core/topic#vanished-rule` | `litespec/core/topic#keep-the-topic-bounded` |\n"),
+        [],
+        ["ID_REMOVED_STILL_PRESENT", "ID_RENAME_TARGET_MISSING"]);
+
+    /// <proves>litespec/core/maintaining#list-every-removed-and-renamed-provision</proves>
     [Fact(DisplayName = "released ID recorded under an older release")]
     public void RemovedProvisionRecordedUnderOlderRelease() => Check(
         root => StandardsFixture.Write(root, "CHANGELOG.md", "# Changelog\n\n## v3.0.0\n\n### Layers\n\n- Nothing removed.\n\n## v2.0.0\n\n### Removed and Renamed Provisions\n\n| Removed or Renamed ID | Replacement |\n|:---|:---|\n| `litespec/core/topic#vanished-rule` | removed |\n"),

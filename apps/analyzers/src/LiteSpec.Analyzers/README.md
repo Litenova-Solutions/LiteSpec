@@ -26,7 +26,7 @@ To name the layer yourself, set `LiteSpecLayer` in the project file:
 </PropertyGroup>
 ```
 
-The values are `Domain`, `Application.Abstractions`, `Application`, `Infrastructure`, `WebApi`, `Worker`, `Test`, and `None`. `None` turns the analyzers off for that project.
+The values are `Domain`, `Application.Abstractions`, `Application`, `Infrastructure`, `WebApi`, `Worker`, `Test`, and `None`. `None` turns the whole package off for that project: no analyzer rule runs, and the generator writes no source and reports no diagnostic. An assembly name with no layer suffix opts the project out in the same way. A declared value that names no known layer still reports `LS2017`.
 
 ## Rules
 
@@ -74,8 +74,8 @@ The values are `Domain`, `Application.Abstractions`, `Application`, `Infrastruct
 | LS5006 | Domain | A marked domain event or rule exception that is not `partial` | [Declare marked events and exceptions as partial types](https://litespec.dev/3.0.0/backend/dotnet/stack/#declare-marked-events-and-exceptions-as-partial-types) |
 | LS5007 | Domain | A marked method raising an event its use case does not list | [Raise the declared events from the marked act](https://litespec.dev/3.0.0/backend/domain/#raise-the-declared-events-from-the-marked-act) |
 | LS5008 | Domain | A listed event no method marked with its use case raises | [Raise the declared events from the marked act](https://litespec.dev/3.0.0/backend/domain/#raise-the-declared-events-from-the-marked-act) |
-| LS5009 | Application, Infrastructure, WebApi | Two permission records generating one constant name | [Generate runtime values from the records](https://litespec.dev/3.0.0/backend/dotnet/stack/#generate-runtime-values-from-the-records) |
-| LS5010 | Application, Infrastructure, WebApi | A permission record whose name opens with an undeclared verb | [State the scope of every permission](https://litespec.dev/3.0.0/core/access/#state-the-scope-of-every-permission) |
+| LS5009 | Domain, Application, Infrastructure, WebApi | Two permission records generating one constant name | [Generate runtime values from the records](https://litespec.dev/3.0.0/backend/dotnet/stack/#generate-runtime-values-from-the-records) |
+| LS5010 | Domain, Application, Infrastructure, WebApi | A permission record whose name opens with an undeclared verb | [State the scope of every permission](https://litespec.dev/3.0.0/core/access/#state-the-scope-of-every-permission) |
 | LS5011 | Every layer | A message two marked handlers serve with different use cases | [Point code and tests up to records](https://litespec.dev/3.0.0/core/system/#point-code-and-tests-up-to-records) |
 | LS5012 | Domain, Application, Infrastructure, WebApi | A role allowing a permission no record declares | [Generate the registry, permissions, and roles from the records](https://litespec.dev/3.0.0/backend/dotnet/stack/#generate-the-registry-permissions-and-roles-from-the-records) |
 

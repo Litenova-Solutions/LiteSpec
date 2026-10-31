@@ -1003,16 +1003,32 @@ static partial class StandardsValidator
     // highest release tag is either active now or listed under Removed and
     // Renamed Provisions in the pending changelog section, with the ID that
     // carries its rule or as removed. Without git history there is nothing
-    // released to compare against, so the check stays quiet.
+    // released to compare against, so that direction stays quiet. The table
+    // itself is checked in both directions in every run: a listed ID must be
+    // gone from the current pages, and a named replacement must be present.
     static void CheckRemovedProvisions(string root, HashSet<string> activeIds, HashSet<string>? releasedIds, Action<string, int, string, string> add)
     {
+        var (rows, line) = ParseChangelogRenameRows(root);
+        foreach (var row in rows)
+        {
+            if (activeIds.Contains(row.Removed))
+            {
+                add("CHANGELOG.md", row.Line, "ID_REMOVED_STILL_PRESENT", $"provision ID '{row.Removed}' is listed under Removed and Renamed Provisions but still exists in the current pages");
+            }
+
+            if (row.Replacement is string replacement && !activeIds.Contains(replacement))
+            {
+                add("CHANGELOG.md", row.Line, "ID_RENAME_TARGET_MISSING", $"replacement provision ID '{replacement}' for '{row.Removed}' does not exist in the current pages");
+            }
+        }
+
         var released = releasedIds ?? TryCollectReleasedIds(root);
         if (released is null)
         {
             return;
         }
 
-        var (recorded, line) = ParseChangelogRemovals(root);
+        var recorded = new HashSet<string>(rows.Select(row => row.Removed), StringComparer.Ordinal);
         foreach (var id in released.OrderBy(candidate => candidate, StringComparer.Ordinal))
         {
             if (!activeIds.Contains(id) && !recorded.Contains(id))
@@ -1170,13 +1186,18 @@ static partial class StandardsValidator
         }
     }
 
-    static (HashSet<string> Removed, int Line) ParseChangelogRemovals(string root)
+    // The rows of the Removed and Renamed Provisions table in the current
+    // release section (the first ## section): each row's removed or renamed ID,
+    // its replacement ID or null for `removed`, and its 1-based line. The
+    // heading line stands in for the table when a caller reports on the table
+    // as a whole.
+    static (List<(string Removed, string? Replacement, int Line)> Rows, int Line) ParseChangelogRenameRows(string root)
     {
-        var removed = new HashSet<string>(StringComparer.Ordinal);
+        var rows = new List<(string Removed, string? Replacement, int Line)>();
         var file = JoinRoot(root, "CHANGELOG.md");
         if (!File.Exists(file))
         {
-            return (removed, 1);
+            return (rows, 1);
         }
 
         var lines = SplitLines(ReadText(file));
@@ -1192,7 +1213,7 @@ static partial class StandardsValidator
 
         if (section == 0)
         {
-            return (removed, 1);
+            return (rows, 1);
         }
 
         var heading = 0;
@@ -1212,7 +1233,7 @@ static partial class StandardsValidator
 
         if (heading == 0)
         {
-            return (removed, section);
+            return (rows, section);
         }
 
         for (var index = heading; index < lines.Length; index++)
@@ -1223,16 +1244,16 @@ static partial class StandardsValidator
                 break;
             }
 
-            foreach (var span in InlineCodes(line))
+            var codes = InlineCodes(line);
+            if (codes.Count == 0 || !Provisions.IsProvisionId(codes[0]))
             {
-                if (Provisions.IsProvisionId(span))
-                {
-                    removed.Add(span);
-                    break;
-                }
+                continue;
             }
+
+            var replacement = codes.Count > 1 && Provisions.IsProvisionId(codes[1]) ? codes[1] : null;
+            rows.Add((codes[0], replacement, index + 1));
         }
 
-        return (removed, heading);
+        return (rows, heading);
     }
 }

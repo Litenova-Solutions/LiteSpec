@@ -40,6 +40,26 @@ public sealed partial class StandardsValidatorTests
     }
 
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
+    [Fact(DisplayName = "schema file that does not parse")]
+    public void SchemaFileThatDoesNotParse() => Check(
+        root =>
+        {
+            StandardsFixture.Write(root, "litespec.manifest.json", "{\"version\":\"2.0.0\"}");
+            StandardsFixture.Write(root, "schemas/record.schema.json", "{");
+        },
+        ["SCHEMA_JSON"]);
+
+    /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
+    [Fact(DisplayName = "schema with no $id")]
+    public void SchemaWithNoId() => Check(
+        root =>
+        {
+            StandardsFixture.Write(root, "litespec.manifest.json", "{\"version\":\"2.0.0\"}");
+            StandardsFixture.Write(root, "schemas/record.schema.json", "{\"type\":\"object\"}");
+        },
+        ["SCHEMA_ID"]);
+
+    /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
     [Fact(DisplayName = "invalid schema consumer")]
     public void InvalidSchemaConsumer() => Check(
         root =>

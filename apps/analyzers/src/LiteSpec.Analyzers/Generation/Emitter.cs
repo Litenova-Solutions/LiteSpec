@@ -21,7 +21,7 @@ namespace LiteSpec.Analyzers.Generation;
 /// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
 internal static class Emitter
 {
-    /// <summary>Writes every source the inputs call for, or nothing without a usable project file or with no records and no marks.</summary>
+    /// <summary>Writes every source the inputs call for, or nothing without a usable project file, with no records and no marks, or in an opted-out project.</summary>
     /// <param name="context">The source production context.</param>
     /// <param name="records">The record facts.</param>
     /// <param name="types">The marked types.</param>
@@ -32,6 +32,11 @@ internal static class Emitter
         ImmutableArray<MarkedType> types,
         HostModel host)
     {
+        if (host.Layer == Layer.None)
+        {
+            return;
+        }
+
         if (!records.Valid)
         {
             return;

@@ -495,18 +495,23 @@ static partial class StandardsValidator
         {
             var name = Path.GetFileName(file);
             var relative = $"schemas/{name}";
+            var expected = $"{SchemaHome}{version}/schemas/{name}";
             string? id;
             try
             {
                 id = JsonNode.Parse(TrimBom(ReadText(file)))?["$id"] is JsonValue value && value.TryGetValue<string>(out var text) ? text : null;
             }
-            catch (Exception)
+            catch (Exception exception)
             {
+                add(relative, 1, "SCHEMA_JSON", exception.Message);
                 continue;
             }
 
-            var expected = $"{SchemaHome}{version}/schemas/{name}";
-            if (id is not null && id != expected)
+            if (id is null)
+            {
+                add(relative, 1, "SCHEMA_ID", $"schema has no $id; it must be '{expected}'");
+            }
+            else if (id != expected)
             {
                 add(relative, 1, "SCHEMA_ID", $"schema $id '{id}' must be '{expected}'");
             }

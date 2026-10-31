@@ -309,7 +309,9 @@ public sealed partial class StandardsValidatorTests
             "ID_LINE_MISSING",
             "ID_LINE_MISMATCH",
             "ID_PAGE_FILENAME",
+            "ID_REMOVED_STILL_PRESENT",
             "ID_REMOVED_UNRECORDED",
+            "ID_RENAME_TARGET_MISSING",
             "ID_UNKNOWN_REFERENCE",
             "INDEX_CONTAINS_PROCEDURE",
             "INDEX_INTENT",
@@ -379,5 +381,23 @@ public sealed partial class StandardsValidatorTests
         {
             Assert.Contains(code, covered);
         }
+    }
+
+    /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
+    [Fact(DisplayName = "diagnostics sort ordinally")]
+    public void DiagnosticsSortOrdinally()
+    {
+        using var temp = Cli.Temp("standards");
+        StandardsFixture.Base(temp.Path);
+        StandardsFixture.Write(temp.Path, "docs/reference/B.md", StandardsFixture.ReferencePage);
+        StandardsFixture.Write(temp.Path, "docs/reference/aB.md", StandardsFixture.ReferencePage);
+
+        var result = StandardsValidator.Validate(temp.Path);
+        var relatives = result.Diagnostics
+            .Where(diagnostic => diagnostic.Code == "ID_PAGE_FILENAME")
+            .Select(diagnostic => diagnostic.Relative)
+            .ToList();
+
+        Assert.Equal(["docs/reference/B.md", "docs/reference/aB.md"], relatives);
     }
 }
