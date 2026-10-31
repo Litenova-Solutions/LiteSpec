@@ -1,3 +1,5 @@
+using LiteSpec.Tests.Support;
+
 namespace LiteSpec.Tests.Model.Marks;
 
 /// <summary>Proves the record-side traceability findings against the marks fixtures.</summary>
@@ -9,6 +11,27 @@ public sealed class CoverageCheckTests
     {
         using var fixture = MarksFixture.Prepare("unimplemented");
         var findings = MarksFixture.WithCode(MarksFixture.Check(fixture.Path), "aggregate-unimplemented");
+
+        var finding = Assert.Single(findings);
+        Assert.Equal("aggregate/lending.loan", finding.Subject);
+    }
+
+    /// <proves>litespec/core/model#implement-each-mapped-behavior-record-behind-a-mark</proves>
+    [Fact]
+    public void Store_Aggregate_Without_A_Root_Reports_Nothing()
+    {
+        using var temp = WriteKindConsumer();
+        var findings = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "aggregate-unimplemented");
+
+        Assert.DoesNotContain(findings, finding => finding.Subject == "aggregate/lending.outbox");
+    }
+
+    /// <proves>litespec/core/model#implement-each-mapped-behavior-record-behind-a-mark</proves>
+    [Fact]
+    public void Entity_Aggregate_Without_A_Root_Still_Reports()
+    {
+        using var temp = WriteKindConsumer();
+        var findings = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "aggregate-unimplemented");
 
         var finding = Assert.Single(findings);
         Assert.Equal("aggregate/lending.loan", finding.Subject);
@@ -81,5 +104,107 @@ public sealed class CoverageCheckTests
         var finding = Assert.Single(findings);
         Assert.Equal("use-case/lending.borrow-copy", finding.Subject);
         Assert.Contains("issues use-case/lending.register-copy", finding.Message);
+    }
+
+    /// <summary>Writes a consumer where an entity and a store aggregate each have no root in code.</summary>
+    static TempFolder WriteKindConsumer()
+    {
+        var temp = Cli.Temp("marks");
+
+        try
+        {
+            Write(temp.Path, "litespec.project.json", """
+                {
+                  "project": {
+                    "name": "Marks Fixture"
+                  },
+                  "size": "small",
+                  "shape": "server",
+                  "stacks": [
+                    "dotnet"
+                  ],
+                  "reviewedLiteSpecVersion": "3.0.0",
+                  "owners": [
+                    "lending-team"
+                  ],
+                  "paths": {
+                    "docs": "docs",
+                    "behaviorDocs": "docs/behavior",
+                    "glossary": "docs/glossary.json",
+                    "testRoots": [
+                      "apps/api/tests"
+                    ],
+                    "frontends": []
+                  },
+                  "stackConfig": {
+                    "dotnet": {
+                      "application": "apps/api/src/Library.Application",
+                      "domain": "apps/api/src/Library.Domain",
+                      "webapi": "apps/api/src/Library.WebApi",
+                      "infrastructure": "apps/api/src/Library.Infrastructure"
+                    }
+                  }
+                }
+                """);
+            Write(temp.Path, "docs/glossary.json", """
+                {
+                  "schemaVersion": 2,
+                  "terms": [],
+                  "mannered": []
+                }
+                """);
+            Write(temp.Path, "docs/behavior/modules/lending/loans/README.md", """
+                ---
+                {
+                  "type": "aggregate",
+                  "id": "aggregate/lending.loan",
+                  "title": "Loan",
+                  "owner": "lending-team",
+                  "status": "reviewed",
+                  "kind": "entity",
+                  "states": [
+                    {
+                      "name": "Active",
+                      "meaning": "The loan is open."
+                    }
+                  ]
+                }
+                ---
+
+                # Loan
+
+                A loan lends one copy to one reader.
+                """);
+            Write(temp.Path, "docs/behavior/modules/lending/outbox/README.md", """
+                ---
+                {
+                  "type": "aggregate",
+                  "id": "aggregate/lending.outbox",
+                  "title": "Outbox",
+                  "owner": "lending-team",
+                  "status": "reviewed",
+                  "kind": "store"
+                }
+                ---
+
+                # Outbox
+
+                The lending-owned table of scans awaiting dispatch.
+                """);
+
+            return temp;
+        }
+        catch
+        {
+            temp.Dispose();
+            throw;
+        }
+    }
+
+    static void Write(string root, string relative, string text)
+    {
+        var destination = Path.Combine(root, relative);
+        Directory.CreateDirectory(Path.GetDirectoryName(destination)!);
+        File.WriteAllText(destination, text);
     }
 }

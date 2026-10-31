@@ -343,6 +343,11 @@ static partial class Checker
                 continue;
             }
 
+            if (!ChangesGuardedAggregate(model, useCase))
+            {
+                continue;
+            }
+
             var called = (handler.AggregateCalls ?? [])
                 .Concat(handler.FactoryCalls ?? [])
                 .Any(call => ActCarries(model, roots, call, handler.UseCaseId));
@@ -353,6 +358,18 @@ static partial class Checker
             }
         }
     }
+
+    /// <summary>
+    ///     Whether the use case changes an entity or process aggregate: one
+    ///     <c>changes</c> entry naming an aggregate whose kind is not
+    ///     <c>store</c>. An aggregate with no declared kind is an entity; a
+    ///     pass issuing other commands lists nothing in <c>changes</c>.
+    /// </summary>
+    private static bool ChangesGuardedAggregate(ProjectModel model, Record useCase) =>
+        useCase.Ids("changes").Any(id =>
+            !model.ById.TryGetValue(id, out var changed)
+            || changed.Type != "aggregate"
+            || changed.Field("kind") is not "store");
 
     /// <summary>
     ///     Whether an aggregate call reaches the use case's act: the called method name
@@ -451,6 +468,11 @@ static partial class Checker
             };
 
             if (code is null)
+            {
+                continue;
+            }
+
+            if (record.Type == "aggregate" && record.Field("kind") == "store")
             {
                 continue;
             }

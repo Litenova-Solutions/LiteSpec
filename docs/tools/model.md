@@ -149,8 +149,8 @@ Every check has a tier. G reads records only and always blocks. S reads code thr
 | `runtime-value-drift` | S | A hand-written event `Classification` or exception `Code` differs from what its record states. |
 | `act-event-undeclared` | S | A root method marked with a use case raises an event the use case does not list in `raises`. |
 | `act-event-unraised` | S | A use case lists an event in `raises` that no root method marked with it raises. |
-| `use-case-act-uncalled` | S | A command handler calls no root method marked with its use case. |
-| `aggregate-unimplemented` | S | No aggregate root carries the aggregate mark. |
+| `use-case-act-uncalled` | S | A command handler changing an entity or process aggregate calls no root method marked with its use case. |
+| `aggregate-unimplemented` | S | No aggregate root carries the mark of an entity or process aggregate. |
 | `repository-unimplemented` | S | An aggregate a use case changes has no Infrastructure repository implementing its domain repository. |
 | `reaction-unimplemented` | S | No event handler carries the reaction mark. |
 | `job-unimplemented` | S | No job host carries the job mark. |

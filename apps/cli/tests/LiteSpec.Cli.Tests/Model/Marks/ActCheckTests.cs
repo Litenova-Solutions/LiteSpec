@@ -30,6 +30,37 @@ public sealed class ActCheckTests
         Assert.DoesNotContain(uncalled, finding => finding.Subject == "use-case/lending.borrow-copy");
     }
 
+    /// <proves>litespec/backend/domain#call-the-marked-act-from-each-command-handler</proves>
+    [Fact]
+    public void Fan_Out_Command_With_No_Changes_Reports_Nothing()
+    {
+        using var temp = WritePassConsumer();
+        var uncalled = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "use-case-act-uncalled");
+
+        Assert.DoesNotContain(uncalled, finding => finding.Subject == "use-case/lending.fan-out");
+    }
+
+    /// <proves>litespec/backend/domain#call-the-marked-act-from-each-command-handler</proves>
+    [Fact]
+    public void Store_Only_Command_Reports_Nothing()
+    {
+        using var temp = WritePassConsumer();
+        var uncalled = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "use-case-act-uncalled");
+
+        Assert.DoesNotContain(uncalled, finding => finding.Subject == "use-case/lending.record-scan");
+    }
+
+    /// <proves>litespec/backend/domain#call-the-marked-act-from-each-command-handler</proves>
+    [Fact]
+    public void Entity_Command_Without_A_Called_Act_Still_Reports()
+    {
+        using var temp = WritePassConsumer();
+        var uncalled = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "use-case-act-uncalled");
+
+        var finding = Assert.Single(uncalled);
+        Assert.Equal("use-case/lending.borrow-copy", finding.Subject);
+    }
+
     /// <proves>litespec/backend/domain#raise-the-declared-events-from-the-marked-act</proves>
     [Fact]
     public void Shared_Method_Raising_An_Unlisted_Event_Reports_Act_Event_Undeclared()
@@ -94,6 +125,258 @@ public sealed class ActCheckTests
 
         var finding = Assert.Single(missing);
         Assert.Contains("Loan.Borrow", finding.Message);
+    }
+
+    /// <summary>Writes a consumer where an entity command, a fan-out with no changes, and a store-only command each have a handler calling nothing.</summary>
+    static TempFolder WritePassConsumer()
+    {
+        var temp = Cli.Temp("marks");
+
+        try
+        {
+            Write(temp.Path, "litespec.project.json", """
+                {
+                  "project": {
+                    "name": "Marks Fixture"
+                  },
+                  "size": "small",
+                  "shape": "server",
+                  "stacks": [
+                    "dotnet"
+                  ],
+                  "reviewedLiteSpecVersion": "3.0.0",
+                  "owners": [
+                    "lending-team"
+                  ],
+                  "paths": {
+                    "docs": "docs",
+                    "behaviorDocs": "docs/behavior",
+                    "glossary": "docs/glossary.json",
+                    "testRoots": [
+                      "apps/api/tests"
+                    ],
+                    "frontends": []
+                  },
+                  "stackConfig": {
+                    "dotnet": {
+                      "application": "apps/api/src/Library.Application",
+                      "domain": "apps/api/src/Library.Domain",
+                      "webapi": "apps/api/src/Library.WebApi",
+                      "infrastructure": "apps/api/src/Library.Infrastructure"
+                    }
+                  },
+                  "vocabulary": {
+                    "verbs": [
+                      "borrow",
+                      "fan",
+                      "record"
+                    ]
+                  }
+                }
+                """);
+            Write(temp.Path, "docs/glossary.json", """
+                {
+                  "schemaVersion": 2,
+                  "terms": [],
+                  "mannered": []
+                }
+                """);
+            Write(temp.Path, "docs/behavior/modules/lending/loans/README.md", """
+                ---
+                {
+                  "type": "aggregate",
+                  "id": "aggregate/lending.loan",
+                  "title": "Loan",
+                  "owner": "lending-team",
+                  "status": "reviewed",
+                  "kind": "entity",
+                  "states": [
+                    {
+                      "name": "Active",
+                      "meaning": "The loan is open."
+                    }
+                  ]
+                }
+                ---
+
+                # Loan
+
+                A loan lends one copy to one reader.
+                """);
+            Write(temp.Path, "docs/behavior/modules/lending/outbox/README.md", """
+                ---
+                {
+                  "type": "aggregate",
+                  "id": "aggregate/lending.outbox",
+                  "title": "Outbox",
+                  "owner": "lending-team",
+                  "status": "reviewed",
+                  "kind": "store"
+                }
+                ---
+
+                # Outbox
+
+                The lending-owned table of scans awaiting dispatch.
+                """);
+            Write(temp.Path, "docs/behavior/modules/lending/loans/borrow-copy.md", """
+                ---
+                {
+                  "type": "use-case",
+                  "id": "use-case/lending.borrow-copy",
+                  "title": "Borrow copy",
+                  "owner": "lending-team",
+                  "status": "reviewed",
+                  "kind": "command",
+                  "changes": [
+                    "aggregate/lending.loan"
+                  ],
+                  "records": [
+                    {
+                      "type": "result",
+                      "id": "result/borrow-copy.borrowed",
+                      "title": "Borrowed",
+                      "owner": "lending-team",
+                      "outcome": "success",
+                      "meaning": "The copy is lent."
+                    }
+                  ]
+                }
+                ---
+
+                # Borrow copy
+
+                A reader borrows an available copy.
+                """);
+            Write(temp.Path, "docs/behavior/modules/lending/loans/fan-out.md", """
+                ---
+                {
+                  "type": "use-case",
+                  "id": "use-case/lending.fan-out",
+                  "title": "Fan out",
+                  "owner": "lending-team",
+                  "status": "reviewed",
+                  "kind": "command",
+                  "effects": [
+                    {
+                      "issues": "use-case/lending.borrow-copy",
+                      "timing": "after-commit"
+                    }
+                  ],
+                  "records": [
+                    {
+                      "type": "result",
+                      "id": "result/fan-out.fanned-out",
+                      "title": "Fanned out",
+                      "owner": "lending-team",
+                      "outcome": "success",
+                      "meaning": "One command per record is issued."
+                    }
+                  ]
+                }
+                ---
+
+                # Fan out
+
+                A pass issues one borrow command per record.
+                """);
+            Write(temp.Path, "docs/behavior/modules/lending/outbox/record-scan.md", """
+                ---
+                {
+                  "type": "use-case",
+                  "id": "use-case/lending.record-scan",
+                  "title": "Record scan",
+                  "owner": "lending-team",
+                  "status": "reviewed",
+                  "kind": "command",
+                  "changes": [
+                    "aggregate/lending.outbox"
+                  ],
+                  "records": [
+                    {
+                      "type": "result",
+                      "id": "result/record-scan.recorded",
+                      "title": "Recorded",
+                      "owner": "lending-team",
+                      "outcome": "success",
+                      "meaning": "The scan is recorded."
+                    }
+                  ]
+                }
+                ---
+
+                # Record scan
+
+                A kiosk records each scan attempt.
+                """);
+            Write(temp.Path, "apps/api/src/Library.Application/Lending/Loans/BorrowCopy/BorrowCopyCommand.cs", """
+                namespace Library.Application.Lending.Loans.BorrowCopy;
+
+                public sealed record BorrowCopyCommand(Guid CopyId);
+
+                public sealed record BorrowCopyCommandResult(Guid CopyId);
+                """);
+            Write(temp.Path, "apps/api/src/Library.Application/Lending/Loans/BorrowCopy/BorrowCopyCommandHandler.cs", """
+                namespace Library.Application.Lending.Loans.BorrowCopy;
+
+                /// <implements>use-case/lending.borrow-copy</implements>
+                public sealed class BorrowCopyCommandHandler
+                    : ICommandHandler<BorrowCopyCommand, BorrowCopyCommandResult>
+                {
+                    public Task<BorrowCopyCommandResult> HandleAsync(BorrowCopyCommand command, CancellationToken cancellationToken)
+                    {
+                        return Task.FromResult(new BorrowCopyCommandResult(command.CopyId));
+                    }
+                }
+                """);
+            Write(temp.Path, "apps/api/src/Library.Application/Lending/Loans/FanOut/FanOutCommand.cs", """
+                namespace Library.Application.Lending.Loans.FanOut;
+
+                public sealed record FanOutCommand;
+
+                public sealed record FanOutCommandResult(int Issued);
+                """);
+            Write(temp.Path, "apps/api/src/Library.Application/Lending/Loans/FanOut/FanOutCommandHandler.cs", """
+                namespace Library.Application.Lending.Loans.FanOut;
+
+                /// <implements>use-case/lending.fan-out</implements>
+                public sealed class FanOutCommandHandler
+                    : ICommandHandler<FanOutCommand, FanOutCommandResult>
+                {
+                    public Task<FanOutCommandResult> HandleAsync(FanOutCommand command, CancellationToken cancellationToken)
+                    {
+                        return Task.FromResult(new FanOutCommandResult(0));
+                    }
+                }
+                """);
+            Write(temp.Path, "apps/api/src/Library.Application/Lending/Outbox/RecordScan/RecordScanCommand.cs", """
+                namespace Library.Application.Lending.Outbox.RecordScan;
+
+                public sealed record RecordScanCommand(string Barcode);
+
+                public sealed record RecordScanCommandResult(string Barcode);
+                """);
+            Write(temp.Path, "apps/api/src/Library.Application/Lending/Outbox/RecordScan/RecordScanCommandHandler.cs", """
+                namespace Library.Application.Lending.Outbox.RecordScan;
+
+                /// <implements>use-case/lending.record-scan</implements>
+                public sealed class RecordScanCommandHandler
+                    : ICommandHandler<RecordScanCommand, RecordScanCommandResult>
+                {
+                    public Task<RecordScanCommandResult> HandleAsync(RecordScanCommand command, CancellationToken cancellationToken)
+                    {
+                        return Task.FromResult(new RecordScanCommandResult(command.Barcode));
+                    }
+                }
+                """);
+
+            return temp;
+        }
+        catch
+        {
+            temp.Dispose();
+            throw;
+        }
     }
 
     /// <summary>Writes a consumer where the raising method carries no mark, so the use case has no marked method.</summary>

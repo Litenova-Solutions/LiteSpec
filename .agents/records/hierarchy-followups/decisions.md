@@ -27,3 +27,7 @@ A locked Claude worktree (`.claude/worktrees/layer-presentations`, branch `workt
 ## 2026-10-30: The Refused Reading of `solves` Lives in the Row's Description
 
 The conformance fix put "(refused: declines)" inside the `solves` row's phrase cells, which the book reads as one phrase each (contracts Section 1), and the book test caught it. The phrase cells read `solves` and `is solved by`; the row's Points at text states that a refused feature names the problem it declines. Rendering "declines" for a refused feature would need a second phrase pair keyed by lifecycle, which the Links table does not model; that is recorded as a follow-up, not invented in the client.
+
+## 2026-10-31: Two Code Checks Follow the Aggregate Kinds
+
+Eight NightHall slices asked the same two questions independently. Should a `kind: store` aggregate need an aggregate root? Should a command that only issues other commands call an act? LiteSpec defines a store as state no aggregate invariant guards, with a named owner, so it has no root; and an act is the method that changes a guarded aggregate. `aggregate-unimplemented` now skips store aggregates, and `use-case-act-uncalled` applies only to a command whose use case changes an entity or process aggregate. Both follow the definitions LiteSpec already states; neither weakens a check on an aggregate that has a root.
