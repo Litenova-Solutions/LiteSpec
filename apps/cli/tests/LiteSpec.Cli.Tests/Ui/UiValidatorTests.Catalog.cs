@@ -49,7 +49,7 @@ public sealed partial class UiValidatorTests
     {
         using var fixture = UiFixture.Create();
         File.WriteAllText(fixture.DesignFile,
-            File.ReadAllText(fixture.DesignFile).Replace("patterns:\n  - list-page\n  - entity-page", "patterns: []", StringComparison.Ordinal));
+            File.ReadAllText(fixture.DesignFile).Replace("\r\n", "\n", StringComparison.Ordinal).Replace("patterns:\n  - list-page\n  - entity-page", "patterns: []", StringComparison.Ordinal));
         UiFixture.AssertProblem(fixture.Run(), "array has fewer than 1 items");
     }
 

@@ -516,8 +516,9 @@ public sealed class NewAppendTests
     {
         // Lines, not characters: a new entry shares its opening lines with its neighbour,
         // and a character scan would cut the insertion mid-line.
-        var old = before.Split('\n');
-        var grown = after.Split('\n');
+        // A CRLF checkout gives the fixture CRLF line ends; the tool writes LF.
+        var old = before.Replace("\r\n", "\n", StringComparison.Ordinal).Split('\n');
+        var grown = after.Replace("\r\n", "\n", StringComparison.Ordinal).Split('\n');
         var prefix = 0;
 
         while (prefix < old.Length && prefix < grown.Length && old[prefix] == grown[prefix])
