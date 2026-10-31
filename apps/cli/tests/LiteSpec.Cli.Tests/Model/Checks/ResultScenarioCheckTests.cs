@@ -73,15 +73,30 @@ public sealed class ResultScenarioCheckTests
 
     /// <proves>litespec/core/model#give-every-use-case-its-results</proves>
     [Fact]
-    public void Automation_Scenario_Naming_The_Runs_Use_Case_Result_Passes()
+    public void Reaction_Scenario_Naming_The_Runs_Use_Case_Result_Passes()
     {
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/spending.submit-expense", Path.Combine(temp.Path, "submit.md"), """{"kind": "command"}"""),
             TestModel.Record("result", "result/submit-expense.submitted", Path.Combine(temp.Path, "submit.md"), """{"outcome": "success", "meaning": "The expense is submitted."}"""),
-            TestModel.Record("automation", "automation/spending.email-clerk-on-expense-submitted", Path.Combine(temp.Path, "notify.md"), """{"triggeredBy": {"event": "event/spending.expense-submitted"}, "effects": [{"runs": "use-case/spending.submit-expense"}]}"""),
-            Entry("scenario", "scenario/submit-expense.clerk-emailed-on-submission", Path.Combine(temp.Path, "notify.md"), """{"given": "An expense was submitted.", "when": "The clerk is emailed.", "then": "The clerk holds the submitted expense.", "result": "result/submit-expense.submitted"}""", "automation/spending.email-clerk-on-expense-submitted"));
+            TestModel.Record("reaction", "reaction/spending.email-clerk-on-expense-submitted", Path.Combine(temp.Path, "notify.md"), """{"triggeredBy": ["event/spending.expense-submitted"], "effects": [{"runs": "use-case/spending.submit-expense"}]}"""),
+            Entry("scenario", "scenario/submit-expense.clerk-emailed-on-submission", Path.Combine(temp.Path, "notify.md"), """{"given": "An expense was submitted.", "when": "The clerk is emailed.", "then": "The clerk holds the submitted expense.", "result": "result/submit-expense.submitted"}""", "reaction/spending.email-clerk-on-expense-submitted"));
+
+        Assert.DoesNotContain("result-scenario-missing", TestModel.Codes(model));
+    }
+
+    /// <proves>litespec/core/model#give-every-use-case-its-results</proves>
+    [Fact]
+    public void Job_Scenario_Naming_The_Runs_Use_Case_Result_Passes()
+    {
+        using var temp = Cli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("use-case", "use-case/spending.submit-expense", Path.Combine(temp.Path, "submit.md"), """{"kind": "command"}"""),
+            TestModel.Record("result", "result/submit-expense.submitted", Path.Combine(temp.Path, "submit.md"), """{"outcome": "success", "meaning": "The expense is submitted."}"""),
+            TestModel.Record("job", "job/spending.submit-due-expenses", Path.Combine(temp.Path, "submit-due.md"), """{"kind": "scheduled", "schedule": {"every": "P1D"}, "effects": [{"runs": "use-case/spending.submit-expense"}]}"""),
+            Entry("scenario", "scenario/submit-expense.due-expenses-submitted-by-job", Path.Combine(temp.Path, "submit-due.md"), """{"given": "Due expenses wait.", "when": "The job submits them.", "then": "The expenses are submitted.", "result": "result/submit-expense.submitted"}""", "job/spending.submit-due-expenses"));
 
         Assert.DoesNotContain("result-scenario-missing", TestModel.Codes(model));
     }

@@ -3,18 +3,18 @@ using LiteSpec.Tests.Support;
 
 namespace LiteSpec.Tests.Model.Review;
 
-/// <summary>Proves the approval tool fixes: screen layer, automation scenario stamps, decision approval data, and transcribed reporting.</summary>
+/// <summary>Proves the approval tool fixes: screen layer, reaction and job scenario stamps, decision approval data, and transcribed reporting.</summary>
 /// <follows>litespec/core/release#approve-drafts-in-bounded-batches</follows>
 public sealed class ApprovalToolFixTests
 {
     static string Screen(string root) => ReviewPages.Page(
         root, "docs", "behavior", "screens", "library-app.loans.md");
 
-    static string EventAutomation(string root) => ReviewPages.Page(
-        root, "docs", "behavior", "modules", "lending", "automations", "send-due-notice-on-loan-borrowed.md");
+    static string Reaction(string root) => ReviewPages.Page(
+        root, "docs", "behavior", "modules", "lending", "reactions", "send-due-notice-on-loan-borrowed.md");
 
-    static string ScheduledAutomation(string root) => ReviewPages.Page(
-        root, "docs", "behavior", "modules", "lending", "automations", "nightly-due-scan.md");
+    static string Job(string root) => ReviewPages.Page(
+        root, "docs", "behavior", "modules", "lending", "jobs", "nightly-due-scan.md");
 
     static string LoanPeriod(string root) => ReviewPages.Page(
         root, "docs", "product", "decisions", "0001-loan-period.md");
@@ -60,14 +60,14 @@ public sealed class ApprovalToolFixTests
         Assert.True(front["approvedHash"]!.GetValue<string>().Length == 8);
     }
 
-    /// <summary>An event automation batch holds the scenarios on its page, each stamped with its own approval data.</summary>
+    /// <summary>A reaction batch holds the scenarios on its page, each stamped with its own approval data.</summary>
     /// <proves>litespec/core/release#approve-drafts-in-bounded-batches</proves>
     [Fact]
-    public void Approve_Event_Automation_Batch_Stamps_Page_Scenarios()
+    public void Approve_Reaction_Batch_Stamps_Page_Scenarios()
     {
         using var fixture = ModelFixture.Prepare("large");
 
-        ReviewPages.AppendEntry(EventAutomation(fixture.Path), new JsonObject
+        ReviewPages.AppendEntry(Reaction(fixture.Path), new JsonObject
         {
             ["type"] = "scenario",
             ["id"] = "scenario/borrow-copy.due-notice-sent-on-borrow",
@@ -78,16 +78,16 @@ public sealed class ApprovalToolFixTests
             ["then"] = "The reader receives a due notice.",
             ["result"] = "result/borrow-copy.borrowed",
         });
-        ReviewPages.DraftPage(EventAutomation(fixture.Path));
+        ReviewPages.DraftPage(Reaction(fixture.Path));
 
         var result = Cli.Run(
             "model", "approve", "--root", fixture.Path,
-            "--batch", "automation/lending.send-due-notice-on-loan-borrowed", "--by", "lending-team", "--on", "2026-11-20");
+            "--batch", "reaction/lending.send-due-notice-on-loan-borrowed", "--by", "lending-team", "--on", "2026-11-20");
 
         Assert.Equal(0, result.Status);
         Assert.Contains("2 records approved, 0 held.", result.Output);
 
-        var (front, _) = ReviewPages.Read(EventAutomation(fixture.Path));
+        var (front, _) = ReviewPages.Read(Reaction(fixture.Path));
 
         Assert.Equal("reviewed", front["status"]!.GetValue<string>());
 
@@ -100,14 +100,14 @@ public sealed class ApprovalToolFixTests
         Assert.True(scenario["approvedHash"]!.GetValue<string>().Length == 8);
     }
 
-    /// <summary>A scheduled automation batch holds the scenarios on its page, each stamped with its own approval data.</summary>
+    /// <summary>A job batch holds the scenarios on its page, each stamped with its own approval data.</summary>
     /// <proves>litespec/core/release#approve-drafts-in-bounded-batches</proves>
     [Fact]
-    public void Approve_Scheduled_Automation_Batch_Stamps_Page_Scenarios()
+    public void Approve_Job_Batch_Stamps_Page_Scenarios()
     {
         using var fixture = ModelFixture.Prepare("large");
 
-        ReviewPages.AppendEntry(ScheduledAutomation(fixture.Path), new JsonObject
+        ReviewPages.AppendEntry(Job(fixture.Path), new JsonObject
         {
             ["type"] = "scenario",
             ["id"] = "scenario/borrow-copy.due-scan-marks-overdue-loan",
@@ -118,16 +118,16 @@ public sealed class ApprovalToolFixTests
             ["then"] = "The loan is marked overdue.",
             ["result"] = "result/borrow-copy.borrowed",
         });
-        ReviewPages.DraftPage(ScheduledAutomation(fixture.Path));
+        ReviewPages.DraftPage(Job(fixture.Path));
 
         var result = Cli.Run(
             "model", "approve", "--root", fixture.Path,
-            "--batch", "automation/lending.nightly-due-scan", "--by", "lending-team", "--on", "2026-11-20");
+            "--batch", "job/lending.nightly-due-scan", "--by", "lending-team", "--on", "2026-11-20");
 
         Assert.Equal(0, result.Status);
         Assert.Contains("2 records approved, 0 held.", result.Output);
 
-        var (front, _) = ReviewPages.Read(ScheduledAutomation(fixture.Path));
+        var (front, _) = ReviewPages.Read(Job(fixture.Path));
 
         Assert.Equal("reviewed", front["status"]!.GetValue<string>());
 

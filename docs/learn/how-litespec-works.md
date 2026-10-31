@@ -23,7 +23,7 @@ The diagram below shows how the four parts connect, with each layer written from
 
 ## A Use Case from Record to Code
 
-Claimwick lets employees submit work expenses with receipts. In LiteSpec, that behavior is a use case: one command or query with its access, results, and scenarios. Automations that answer events or run on a schedule, person-facing messages, and tunables are their own record types beside it.
+Claimwick lets employees submit work expenses with receipts. In LiteSpec, that behavior is a use case: one command or query with its access, results, and scenarios. Reactions that answer events, jobs that run on a schedule or by hand, person-facing messages, and tunables are their own record types beside it.
 
 ### 1. the Written Record
 

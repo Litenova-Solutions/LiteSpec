@@ -17,7 +17,7 @@ The product speaks one business language inside one deployment boundary, as the 
 
 ### Glossary
 
-The glossary is the project ubiquitous language: the one word or phrase the project uses for each concept, with its meaning. Each term carries `layer`: intent for business words, behavior for design words such as aggregate, refusal, and automation, and implementation for design words that live in code, such as a read model. Each term lists in `aliases` the established synonyms its readers know, so industry readers find LiteSpec own words: a refusal is a rejection or error, an automation is a policy, a saga is a process manager, a compensation is an undo. The `rejected` list still bars the synonyms the project refuses, as the [authoring page](authoring.md) states. A term carries the status vocabulary of its record layer, as the [model page](model.md) states.
+The glossary is the project ubiquitous language: the one word or phrase the project uses for each concept, with its meaning. Each term carries `layer`: intent for business words, behavior for design words such as aggregate, refusal, reaction, and job, and implementation for design words that live in code, such as a read model. Each term lists in `aliases` the established synonyms its readers know, so industry readers find LiteSpec own words: a refusal is a rejection or error, a reaction is a policy, a saga is a process manager, a compensation is an undo. The `rejected` list still bars the synonyms the project refuses, as the [authoring page](authoring.md) states. A term carries the status vocabulary of its record layer, as the [model page](model.md) states.
 
 | Field | Meaning |
 |:---|:---|
@@ -50,7 +50,7 @@ Transitions and data live in frontmatter, in `transitions` and `data`. The Trans
 | `onErasure` | `erase`, `pseudonymize`, `anonymize`, `retain`, or `exempt`. |
 | `basis` | `statute`, `business`, or `engineering`. |
 | `period` | The retention period as an ISO duration, or `{ "mode": "none", "reason": "..." }`. |
-| `enforcedBy` | `automation/...`, `record-expiry`, `store-ttl`, or `query-filter`. |
+| `enforcedBy` | `reaction/...`, `job/...`, `record-expiry`, `store-ttl`, or `query-filter`. |
 | `reach` | `own-tenant`, `subject-wide`, or `platform-wide`. |
 | `exceptions` | Per-field erasure positions differing from the class. |
 | `reason`, `reviewBy`, `acceptedBy` | The reason and review date of an exemption, and the Intent record accepting retained or exempt personal data. |
@@ -64,7 +64,7 @@ A saga is an aggregate that coordinates work across aggregates: a refund, a resa
 | `steps` | Ordered `{ id, runs, compensation, guard }` entries; `runs` names `use-case/...`; `compensation` is `{ "mode": "use-case", "useCase": "use-case/..." }` or `{ "mode": "none", "reason": "..." }`; `guard` is optional. |
 | `exits` | `{ name, trigger, then }` entries; the name is a past participle or adjective; a trigger is a condition, a `decision by <actor>`, or a `due <duration>`. |
 | `finishedWhen` | The observable end, in one sentence. |
-| `drivenBy` | `{ "automation": "automation/<...>" }` or `{ "person": "<actor or role id>", "runbook": "runbook/<...>", "dueWithin": "<ISO duration>" }` entries. |
+| `drivenBy` | `{ "job": "job/<...>" }`, `{ "reaction": "reaction/<...>" }`, or `{ "person": "<actor or role id>", "runbook": "runbook/<...>", "dueWithin": "<ISO duration>" }` entries. |
 | `cursor` | Where resume state lives. |
 
 ### Rules
@@ -203,9 +203,9 @@ A domain event is an immutable statement that a business fact completed, named i
 
 **Statement:** Each saga MUST name its exits with their triggers, its `finishedWhen`, and its `drivenBy`.
 
-**Rationale:** A saga with no named end runs until someone notices: a hold waits forever, an erasure sits half done. Exits with triggers name every way out, each a past participle or adjective, as `litespec/core/language#name-each-record-by-its-types-name-form` states. `finishedWhen` names the observable end in one sentence, and `drivenBy` names what moves the saga: `{ "automation": "automation/<...>" }` or `{ "person": "<actor or role id>", "runbook": "runbook/<...>", "dueWithin": "<ISO duration>" }`. A driven saga also names its `cursor`, where resume state lives.
+**Rationale:** A saga with no named end runs until someone notices: a hold waits forever, an erasure sits half done. Exits with triggers name every way out, each a past participle or adjective, as `litespec/core/language#name-each-record-by-its-types-name-form` states. `finishedWhen` names the observable end in one sentence, and `drivenBy` names what moves the saga: `{ "job": "job/<...>" }`, `{ "reaction": "reaction/<...>" }`, or `{ "person": "<actor or role id>", "runbook": "runbook/<...>", "dueWithin": "<ISO duration>" }`. A driven saga also names its `cursor`, where resume state lives.
 
-**Example:** The return saga exits as cancelled on reader decision and as lapsed at the pickup window, finishes when collected, cancelled, or lapsed, and is driven by the completion automation and the librarian.
+**Example:** The return saga exits as cancelled on reader decision and as lapsed at the pickup window, finishes when collected, cancelled, or lapsed, and is driven by the completion job and the librarian.
 
 **Checked by:** `litespec consumer` fails a saga page without exits carrying names and triggers, `finishedWhen`, and `drivenBy`.
 
@@ -321,7 +321,7 @@ A domain event is an immutable statement that a business fact completed, named i
 
 **Statement:** Each event MUST state its meaning and the facts it carries.
 
-**Rationale:** An event without a meaning is a name every automation interprets alone; facts without a carries list are reconstructed from code at each automation. Stating both on the entry lets each automation trust what happened and what arrived with it.
+**Rationale:** An event without a meaning is a name every reaction interprets alone; facts without a carries list are reconstructed from code at each reaction. Stating both on the entry lets each reaction trust what happened and what arrived with it.
 
 **Checked by:** `litespec consumer` fails an event entry without `meaning` or `carries`.
 

@@ -35,7 +35,7 @@
       "onErasure": "pseudonymize",
       "basis": "business",
       "period": "P7Y",
-      "enforcedBy": "automation/spending.erase-expired-personal-data",
+      "enforcedBy": "job/spending.erase-expired-personal-data",
       "purpose": "Link each expense to the employee who submitted it.",
       "acceptedBy": "requirement/approval.erase-after-retention"
     },
@@ -245,7 +245,7 @@
   ],
   "approvedBy": "claimwick-team",
   "approvedOn": "2026-10-31",
-  "approvedHash": "741f1d7b"
+  "approvedHash": "bb9138d2"
 }
 ---
 

@@ -89,7 +89,7 @@ public sealed class BookLexiconTests
         var lexicon = BookLexicon.Load(WriteHome(temp, ModelPage(), ToolsPage(), GlossaryPage()));
         var serves = lexicon.Links.Where(link => link.Field == "serves").ToList();
         Assert.Equal(2, serves.Count);
-        Assert.Equal(new List<string> { "use-case", "automation" }, serves[0].Carriers.ToList());
+        Assert.Equal(new List<string> { "use-case", "reaction", "job" }, serves[0].Carriers.ToList());
         Assert.Equal(new List<string> { "journey" }, serves[1].Carriers.ToList());
 
         Assert.True(lexicon.TryPhrase("serves", "journey", out var forward, out var inverse));
@@ -201,7 +201,8 @@ public sealed class BookLexiconTests
         Assert.Equal("Runs", lexicon.Fields["runs"]);
         Assert.Equal("Emits", lexicon.Fields["emits"]);
         Assert.Equal("Driven by", lexicon.Fields["drivenBy"]);
-        Assert.Equal("Automation", lexicon.Fields["automation"]);
+        Assert.Equal("Reaction", lexicon.Fields["reaction"]);
+        Assert.Equal("Job", lexicon.Fields["job"]);
         Assert.Equal("Person", lexicon.Fields["person"]);
         Assert.Equal("Due within", lexicon.Fields["dueWithin"]);
         Assert.Equal("Binds", lexicon.Fields["binds"]);
@@ -271,6 +272,7 @@ public sealed class BookLexiconTests
         Assert.False(lexicon.Fields.ContainsKey("issues"));
         Assert.False(lexicon.Fields.ContainsKey("publishes"));
         Assert.False(lexicon.Fields.ContainsKey("driver"));
+        Assert.False(lexicon.Fields.ContainsKey("automation"));
         Assert.False(lexicon.Fields.ContainsKey("removeWhen"));
         Assert.False(lexicon.Fields.ContainsKey("endsBy"));
     }
@@ -463,7 +465,8 @@ public sealed class BookLexiconTests
         | `requirement` | intent | What does the product guarantee? |
         | `journey` | intent | Which steps reach one goal? |
         | `use-case` | behavior | Which use cases exist? |
-        | `automation` | behavior | Which work runs on its own? |
+        | `reaction` | behavior | Which work answers an event? |
+        | `job` | behavior | Which work runs on a schedule or by hand? |
         | `screen` | behavior | Which page does a person see? |
         | `external-system` | behavior | Which outside system exchanges what? |
 
@@ -474,9 +477,9 @@ public sealed class BookLexiconTests
         | Field | Written on | Points at | Reads as | Read back as |
         |:---|:---|:---|:---|:---|
         | `solves` | feature | Problems | solves | is solved by |
-        | `serves` | use case, automation | Journey steps | serves | is served by |
+        | `serves` | use case, reaction, job | Journey steps | serves | is served by |
         | `serves` | journey | The goal it walks toward | serves | is served by |
-        | `effects` | use case, automation | Use cases, notifications, integration events, operations | effects | is effected by |
+        | `effects` | use case, reaction, job | Use cases, notifications, integration events, operations | effects | is effected by |
         | `transitions.by` | aggregate | The use case that moves the transition | is moved by | moves |
         | `access.grant` | use case | A permission | is granted through | grants |
         | `actor` | journey, external system | The actor walking; the actor acted as | is walked by / acts as | walks / is acted as by |

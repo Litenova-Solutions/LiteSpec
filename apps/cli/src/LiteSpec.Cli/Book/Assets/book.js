@@ -92,7 +92,8 @@ P.expand = '<path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/>';
 P.collapse = '<path d="m7 20 5-5 5 5"/><path d="m7 4 5 5 5-5"/>';
 P.target = '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/>';
 P.close = '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>';
-P.automation = '<path d="M4 12h4l3-8 4 16 3-8h2"/><circle cx="20" cy="12" r="1.5"/>';
+P.reaction = '<path d="M4 12h4l3-8 4 16 3-8h2"/><circle cx="20" cy="12" r="1.5"/>';
+P.job = P.clock;
 P.notification = '<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"/>';
 P.setting = '<path d="M4 6h10"/><path d="M18 6h2"/><circle cx="16" cy="6" r="2"/><path d="M4 12h4"/><path d="M12 12h8"/><circle cx="10" cy="12" r="2"/><path d="M4 18h12"/><path d="M20 18h0"/><circle cx="18" cy="18" r="2"/>';
 P["integration-event"] = '<path d="M4 12h3l3-8 4 16 3-8h3"/><path d="M2 20h20"/>';
@@ -320,7 +321,7 @@ function upOne(id) {
   var t = typeOf(id);
   if (t === "scenario" || t === "result") return REC[parentOf[id]] && isReal(parentOf[id]) ? parentOf[id] : null;
   if (t === "screen") return outs(id, "serves").map(base).filter(function (x) { return REC[x] || NODE[x]; })[0] || outs(id, "offers").filter(function (x) { return REC[x] || NODE[x]; })[0] || null;
-  if (["use-case", "rule", "automation", "notification", "setting"].indexOf(t) >= 0) return outs(id, "fulfills").filter(function (x) { return REC[x] || NODE[x]; })[0] || outs(id, "serves").map(base).filter(function (x) { return REC[x] || NODE[x]; })[0] || null;
+  if (["use-case", "rule", "reaction", "job", "notification", "setting"].indexOf(t) >= 0) return outs(id, "fulfills").filter(function (x) { return REC[x] || NODE[x]; })[0] || outs(id, "serves").map(base).filter(function (x) { return REC[x] || NODE[x]; })[0] || null;
   if (t === "journey") return outs(id, "cites").filter(function (x) { return REC[x] || NODE[x]; })[0] || outs(id, "serves").map(base).filter(function (x) { return REC[x] || NODE[x]; })[0] || null;
   if (t === "decision") return outs(id, "decides").filter(function (x) { return REC[x] || NODE[x]; })[0] || null;
   if (t === "requirement") return outs(id, "cites").filter(function (x) { return REC[x] || NODE[x]; })[0] || null;
@@ -365,7 +366,7 @@ function openQs(id) { var r = REC[base(id)]; return r ? ((r.fields || {}).questi
 function proofState(id) {
   var r = REC[base(id)]; if (!r) return null;
   if (r.proof) return r.proof.state;
-  if (r.type === "use-case" || r.type === "automation") {
+  if (r.type === "use-case" || r.type === "reaction" || r.type === "job") {
     var sc = (scenariosOf(base(id)) || []).filter(function (s) { return REC[s] && REC[s].proof; }).map(function (s) { return REC[s].proof.state; });
     if (sc.indexOf("failing") >= 0) return "failing";
     if (r.machine && r.machine.verified) return "passing";
@@ -924,14 +925,14 @@ function dataTouched(f) {
 }
 function drivenByBlock(f) {
   var d = f.drivenBy; if (!d) return "";
-  if (d.automation) return blk("drv", "drivenBy", refs([d.automation]));
+  if (d.job) return blk("drv", "drivenBy", refs([d.job]));
+  if (d.reaction) return blk("drv", "drivenBy", refs([d.reaction]));
   return blk("drv", "drivenBy", kv([["Person", d.person ? inlineRef(d.person) : ""], ["Runbook", d.runbook ? inlineRef(d.runbook) : ""], ["Due within", d.dueWithin ? duration(d.dueWithin) : ""]]));
 }
 function triggeredByHtml(t) {
   if (!t) return "";
-  if (t.event) return '<div class="flowline">' + (Array.isArray(t.event) ? t.event.map(inlineRef).join(" ") : inlineRef(t.event)) + "</div>";
-  if (t.schedule) return '<div class="tiles">' + tile("schedule", t.schedule.every ? "Every " + duration(t.schedule.every) : t.schedule.cron ? '<span class="code">' + esc(t.schedule.cron) + "</span>" : t.schedule.at === "startup" ? "At startup" : "") + "</div>";
-  if (t.manual) return '<div class="tiles">' + tile("manual", "Runs by hand") + "</div>";
+  if (Array.isArray(t)) return t.length ? '<div class="flowline">' + t.map(inlineRef).join(" ") + "</div>" : "";
+  if (typeof t === "string") return '<div class="flowline">' + inlineRef(t) + "</div>";
   return "";
 }
 function typedFieldHtml(x) {
@@ -1052,7 +1053,7 @@ var DETAIL = {
     var served = steps.filter(function (s) { return (srv[s.id] || []).length; }).length;
     var stepsH = steps.map(function (s, i) {
       var who = s.actor ? title(s.actor) : "", ini = who.split(/\s+/).map(function (w) { return w[0]; }).join("").slice(0, 2).toUpperCase();
-      var by = srv[s.id] || [], scr = (r.stepScreens || {})[s.id] || [], sys = /(automation)$/.test(s.actor || "");
+      var by = srv[s.id] || [], scr = (r.stepScreens || {})[s.id] || [], sys = /(reaction|job)$/.test(s.actor || "");
       return '<div class="chapter-step"><span class="num">' + (i + 1) + '</span><div><div class="statement">' + esc(s.statement) + "</div>" + (who ? '<div class="who"><span class="avatar">' + esc(ini) + "</span>" + inlineRef(s.actor) + "</div>" : "") + (s.failure ? '<div class="wrong">' + ic("alert", "icon-sm") + "<span><b>Failure</b> " + esc(s.failure) + "</span></div>" : "") + '<div class="srv">' + (by.length ? by.map(serverLine).join("") : '<span class="unserved">' + ic("alert", "icon-sm") + "Nothing serves this step yet</span>") + (scr.length ? '<div class="stepscr">' + ic("screen", "icon-sm") + "<span>screen: " + scr.map(inlineRef).join(", ") + "</span></div>" : sys || !by.length ? "" : '<div class="stepscr none">' + ic("alert", "icon-sm") + "<span>No screen carries this step</span></div>") + "</div></div></div>";
     }).join("");
     var reqs = (f.cites || []).map(function (q) { var x = REC[base(q)]; return '<div class="reqline"><div class="t">' + ic("requirement", "icon-sm") + inlineRef(q) + "</div>" + (x ? "<p>" + esc(x.fields.statement || "") + "</p>" + (((x.fields || {}).except || []).length ? '<div class="exc">' + x.fields.except.map(function (e) { return "<b>Except</b> " + esc(e.condition) + ", " + inlineRef(e.fallback); }).join("<br>") + "</div>" : "") : "") + "</div>"; }).join("");
@@ -1061,8 +1062,8 @@ var DETAIL = {
   },
   actor: function (id, r) { var f = r.fields || {}, h = f.holds || []; return metaRow(id, [badge(f.kind, "info")]) + leadHtml(secHtml(r, "Summary")) + blk("holds", "holds", h.length ? table(["Role", "Scope"], h.map(function (x) { return [td(inlineRef(x.role)), td(badge(cap(x.scope)))]; })) : callout("quiet", "info", "This actor holds no role."), h.length) + blk("walks", "Points at this: actor", refs(ins(id, "actor"))); },
   module: function (id, r) {
-    var f = r.fields || {}, all = descByType(id, "aggregate", 6).concat(descByType(id, "use-case", 6), descByType(id, "rule", 6), descByType(id, "event", 6), descByType(id, "automation", 6), descByType(id, "notification", 6), descByType(id, "setting", 6)), cnt = function (t) { return all.filter(function (x) { return typeOf(x) === t; }).length; };
-    return metaRow(id) + lead(f.summary) + (all.length ? blk("size", "Records", '<div class="tiles">' + ["aggregate", "use-case", "rule", "event", "automation", "notification", "setting"].map(function (t) { return cnt(t) ? tile(PLURAL[t], cnt(t), "", true) : ""; }).join("") + "</div>") : "") + blk("dep", "dependsOn", refs(f.dependsOn), (f.dependsOn || []).length);
+    var f = r.fields || {}, all = descByType(id, "aggregate", 6).concat(descByType(id, "use-case", 6), descByType(id, "rule", 6), descByType(id, "event", 6), descByType(id, "reaction", 6), descByType(id, "job", 6), descByType(id, "notification", 6), descByType(id, "setting", 6)), cnt = function (t) { return all.filter(function (x) { return typeOf(x) === t; }).length; };
+    return metaRow(id) + lead(f.summary) + (all.length ? blk("size", "Records", '<div class="tiles">' + ["aggregate", "use-case", "rule", "event", "reaction", "job", "notification", "setting"].map(function (t) { return cnt(t) ? tile(PLURAL[t], cnt(t), "", true) : ""; }).join("") + "</div>") : "") + blk("dep", "dependsOn", refs(f.dependsOn), (f.dependsOn || []).length);
   },
   aggregate: function (id, r) {
     var f = r.fields || {}, reach = r.reachable || [], tr = f.transitions || [], starts = {};
@@ -1109,13 +1110,18 @@ var DETAIL = {
       blk("in", "input", inputT, (f.input || []).length) + blk("out", "output", out + paging) + effectsBlock(f) + blk("res", "Results", resH, res.length) + scenarioBlock(id, scs) +
       blk("rules", "Points at this: governs", refs(ins(id, "governs")), ins(id, "governs").length) + blk("raises", "Raises", refs(f.raises), (f.raises || []).length) + blk("ful", "fulfills and serves", kv([["Fulfills", refs(f.fulfills)], ["Serves", refs(f.serves)]]));
   },
-  automation: function (id, r) {
-    var f = r.fields || {}, t = f.triggeredBy || {};
-    var kind = t.event ? "event" : t.schedule ? "schedule" : t.manual ? "manual" : "automation";
-    var run = (kind === "schedule" || kind === "manual") ? blk("run", "schedule", '<div class="tiles">' + (f.guard ? tile("guard", esc(f.guard)) : "") + (f.batchSize ? tile("batchSize", f.batchSize, "", true) : "") + (f.lease ? tile("lease", typeof f.lease === "string" ? esc(f.lease) : esc(f.lease.name) + " for " + duration(f.lease.duration)) : "") + (f.runsWhere ? tile("runsWhere", esc(f.runsWhere)) : "") + (f.cursor ? tile("cursor", esc(typeof f.cursor === "string" ? f.cursor : (f.cursor.name || ""))) : "") + idemBlock(f) + "</div>" + kv([["Selection", f.selection ? esc(f.selection) : ""], ["Service level", f.serviceLevel ? esc(f.serviceLevel) : ""], ["Evidence", f.evidence ? esc(f.evidence) : ""], ["Runbook", f.runbook ? inlineRef(f.runbook) : ""]])) : blk("guar", "idempotency", '<div class="tiles">' + idemBlock(f) + "</div>");
-    return metaRow(id, [badge(cap(kind), "info")]) + (secHtml(r, "Goal") ? leadHtml(secHtml(r, "Goal")) : lead(f.summary)) +
-      blk("trig", "triggeredBy", triggeredByHtml(t) + (f.skippedWhen ? '<div class="cond">Skipped when ' + esc(f.skippedWhen) + "</div>" : "")) +
-      effectsBlock(f) + run + failureBlock(f) + blk("data", "data", dataTouched(f)) + blk("ful", "fulfills and serves", kv([["Fulfills", refs(f.fulfills)], ["Serves", refs(f.serves)]]));
+  reaction: function (id, r) {
+    var f = r.fields || {};
+    return metaRow(id, [badge("Reaction", "info")]) + (secHtml(r, "Goal") ? leadHtml(secHtml(r, "Goal")) : lead(f.summary)) +
+      blk("trig", "triggeredBy", triggeredByHtml(f.triggeredBy) + (f.skippedWhen ? '<div class="cond">Skipped when ' + esc(f.skippedWhen) + "</div>" : "")) +
+      effectsBlock(f) + blk("guar", "idempotency", '<div class="tiles">' + idemBlock(f) + "</div>") + failureBlock(f) + blk("data", "data", dataTouched(f)) + blk("ful", "fulfills and serves", kv([["Fulfills", refs(f.fulfills)], ["Serves", refs(f.serves)]]));
+  },
+  job: function (id, r) {
+    var f = r.fields || {}, s = f.schedule || null;
+    var when = f.kind === "manual" ? tile("manual", "Runs by hand") : s ? tile("schedule", s.every ? "Every " + duration(s.every) : s.cron ? '<span class="code">' + esc(s.cron) + "</span>" : s.at === "startup" ? "At startup" : "") : "";
+    return metaRow(id, [badge(cap(f.kind || "job"), "info")]) + (secHtml(r, "Goal") ? leadHtml(secHtml(r, "Goal")) : lead(f.summary)) +
+      blk("run", "schedule", '<div class="tiles">' + when + (f.guard ? tile("guard", esc(f.guard)) : "") + (f.batchSize ? tile("batchSize", f.batchSize, "", true) : "") + (f.lease ? tile("lease", typeof f.lease === "string" ? esc(f.lease) : esc(f.lease.name) + " for " + duration(f.lease.duration)) : "") + (f.runsWhere ? tile("runsWhere", esc(f.runsWhere)) : "") + (f.cursor ? tile("cursor", esc(typeof f.cursor === "string" ? f.cursor : (f.cursor.name || ""))) : "") + idemBlock(f) + "</div>" + kv([["Selection", f.selection ? esc(f.selection) : ""], ["Service level", f.serviceLevel ? esc(f.serviceLevel) : ""], ["Evidence", f.evidence ? esc(f.evidence) : ""], ["Runbook", f.runbook ? inlineRef(f.runbook) : ""]])) +
+      effectsBlock(f) + failureBlock(f) + blk("data", "data", dataTouched(f)) + blk("ful", "fulfills and serves", kv([["Fulfills", refs(f.fulfills)], ["Serves", refs(f.serves)]]));
   },
   notification: function (id, r) {
     var f = r.fields || {}, arr = function (v) { return Array.isArray(v) ? v : v ? [v] : []; };
@@ -1262,7 +1268,7 @@ function downOf(id) {
   if (t === "feature") add(ins(id, "cites"), "cites this feature");
   if (t === "requirement") add(ins(id, "fulfills"), "fulfills this requirement");
   if (t === "journey") { add(ins(id, "serves"), "serves a step"); }
-  if (t === "use-case" || t === "automation") { add(ins(id, "offers"), "offers it"); add(resultsOf(id), "how it ends"); }
+  if (t === "use-case" || t === "reaction" || t === "job") { add(ins(id, "offers"), "offers it"); add(resultsOf(id), "how it ends"); }
   if (t === "result") add(shownByOf(id), "shows this result");
   if (t === "scenario" || t === "rule") add(r ? r.provedBy : null, "proves a scenario of it");
   if (t === "screen") add(r ? r.implementedBy : null, "implements it");
@@ -1275,7 +1281,7 @@ function bandOf(id) { var t = typeOf(id); if (t === "code" || t === "route") ret
 function traceHtml(id) {
   var up = traceOf(id).filter(function (x) { return x !== id; }), seen = {}, rows = [], gaps = [];
   // Above a use case, results and scenarios are walked through but not listed, so the trace reaches code and tests without the detail.
-  var quiet = ["use-case", "automation", "result", "scenario", "rule"].indexOf(typeOf(id)) < 0;
+  var quiet = ["use-case", "reaction", "job", "result", "scenario", "rule"].indexOf(typeOf(id)) < 0;
   up.forEach(function (x) { seen[x] = 1; rows.push({ id: x, depth: 0, phrase: "" }); });
   seen[id] = 1; rows.push({ id: id, depth: 0, phrase: "", here: true });
   (function walk(x, depth) {
@@ -1339,7 +1345,7 @@ function intentTreeHtml() {
 }
 
 // ---------- implementation and proof: links to the mark and the test, or a plain statement that none was found ----------
-var KIND_WORD = { handler: "Handler", endpoint: "Endpoint", "aggregate-root": "Aggregate root", "aggregate-method": "Aggregate method", automation: "Automation", port: "Port", adapter: "Adapter", event: "Event class", "rule-exception": "Refusal exception", result: "Result code", "domain-service": "Domain service", route: "Route" };
+var KIND_WORD = { handler: "Handler", endpoint: "Endpoint", "aggregate-root": "Aggregate root", "aggregate-method": "Aggregate method", automation: "Automation", reaction: "Reaction", job: "Job", port: "Port", adapter: "Adapter", event: "Event class", "rule-exception": "Refusal exception", result: "Result code", "domain-service": "Domain service", route: "Route" };
 function fileLink(path, line, label) {
   var href = editorHref(consumerRoot(), path, line || null);
   var body = '<span class="fn">' + esc(label || String(path).split("/").pop()) + "</span>" + '<span class="fp">' + esc(String(path).split("/").slice(0, -1).join("/")).replace(/\//g, "/<wbr>") + (line ? ":" + line : "") + "</span>";
@@ -1356,7 +1362,7 @@ function proofHtml(id) {
   var r = REC[base(id)]; if (!r || !r.expect || !r.expect.proof) return "";
   var hasRun = !!(((MAN || {}).testRun || {}).date);
   var s = '<section class="ip"><h3>' + ic("flask", "icon-sm") + '<span data-explain="awaiting">Proof</span>';
-  if (r.type === "use-case" || r.type === "automation") {
+  if (r.type === "use-case" || r.type === "reaction" || r.type === "job") {
     var sc = scenariosOf(id).filter(function (x) { return REC[base(x)]; }), none = sc.filter(function (x) { return !((REC[base(x)] || {}).tests || []).length; });
     s += '<span class="n">' + (sc.length - none.length) + " of " + sc.length + "</span></h3>";
     if (!sc.length) return s + '<p class="ipnone">' + ic("missing", "icon-sm") + "This use case has no scenarios, so nothing can prove it.</p></section>";
@@ -1370,7 +1376,7 @@ function proofHtml(id) {
   if (!ts.length) return s + '<p class="ipnone">' + ic("missing", "icon-sm") + "No test proves this " + esc(typeName(r.type).toLowerCase()) + ".</p></section>";
   return s + ts.map(function (t) { return '<div class="ipi"><span class="ipk">' + (t.browser ? "Browser test" : "Test") + (t.confirmed ? "" : ", not confirmed") + "</span>" + fileLink(t.path || t.file, t.line, t.name) + "</div>"; }).join("") + (hasRun ? "" : '<p class="ipsum">No test run is in the model.</p>') + "</section>";
 }
-function lacks(id) { var r = REC[base(id)]; if (!r) return ""; if (typeof r.lacks === "string") return r.lacks; if (!r.expect) return ""; var miss = []; if (r.expect.impl && !(r.impl || []).length) miss.push("not implemented"); if (r.expect.proof) { if (r.type === "use-case" || r.type === "automation") { var sc = scenariosOf(id).filter(function (x) { return REC[base(x)]; }); if (!sc.length || sc.some(function (x) { return !((REC[base(x)] || {}).tests || []).length; })) miss.push("scenarios not tested"); } else if (!(r.tests || []).length) miss.push("not tested"); } return miss.join(", "); }
+function lacks(id) { var r = REC[base(id)]; if (!r) return ""; if (typeof r.lacks === "string") return r.lacks; if (!r.expect) return ""; var miss = []; if (r.expect.impl && !(r.impl || []).length) miss.push("not implemented"); if (r.expect.proof) { if (r.type === "use-case" || r.type === "reaction" || r.type === "job") { var sc = scenariosOf(id).filter(function (x) { return REC[base(x)]; }); if (!sc.length || sc.some(function (x) { return !((REC[base(x)] || {}).tests || []).length; })) miss.push("scenarios not tested"); } else if (!(r.tests || []).length) miss.push("not tested"); } return miss.join(", "); }
 
 // ---------- findings on the record ----------
 function browserReached(r) { return ((r.fields || {}).reachedThrough || []).some(function (x) { return (kidsOf[base(x)] || []).some(function (k) { return typeOf(k) === "screen"; }); }); }
@@ -1482,7 +1488,7 @@ function preloadFor(id) {
     var r = REC[id];
     if (!r) return;
     var t = r.type, ids = [];
-    var depth = t === "use-case" ? 2 : (t === "automation" || t === "aggregate" || t === "result" ? 1 : 0);
+    var depth = t === "use-case" ? 2 : (t === "reaction" || t === "job" || t === "aggregate" || t === "result" ? 1 : 0);
     if (depth) {
       var seen = {};
       (function walk(x, d) {

@@ -5,13 +5,13 @@ using System.Text.Json.Nodes;
 namespace LiteSpec.Model;
 
 /// <summary>
-///     Backfills Behavior drafts from code during adoption: for each use case and
-///     automation a handler folder or an anchor tag places, it reads the repositories,
-///     dispatches and refusal codes the code model already holds and drafts the missing
-///     frontmatter. A use case gains changes or reads, effects entries and refusal results;
-///     an automation gains reads and effects entries. Every touched record is marked
-///     transcribed. Existing entries are never removed or rewritten; only missing entries
-///     are appended.
+///     Backfills Behavior drafts from code during adoption: for each use case,
+///     reaction and job a handler folder or an anchor tag places, it reads the
+///     repositories, dispatches and refusal codes the code model already holds and
+///     drafts the missing frontmatter. A use case gains changes or reads, effects
+///     entries and refusal results; a reaction or job gains reads and effects entries.
+///     Every touched record is marked transcribed. Existing entries are never removed
+///     or rewritten; only missing entries are appended.
 /// </summary>
 /// <follows>litespec/core/agent#mark-transcribed-records-during-adoption</follows>
 static class Backfill
@@ -38,11 +38,16 @@ static class Backfill
             Changes.Count + Reads.Count + Effects.Count + Results.Count > 0;
     }
 
+    /// <summary>One reaction or job the code places: the repositories it takes and the dispatches it makes.</summary>
+    sealed record PlacedWork(
+        IReadOnlyList<CodeRepository>? Repositories,
+        IReadOnlyList<CodeDispatch>? Dispatches);
+
     /// <summary>The code facts and record indexes one backfill run resolves against.</summary>
     sealed class Facts
     {
         public Dictionary<string, List<HandlerInfo>> HandlersByUseCase { get; } = new(StringComparer.Ordinal);
-        public Dictionary<string, List<AutomationInfo>> AutomationsByRecord { get; } = new(StringComparer.Ordinal);
+        public Dictionary<string, List<PlacedWork>> PlacedByRecord { get; } = new(StringComparer.Ordinal);
         public Dictionary<string, HashSet<string>> Declaring { get; } = new(StringComparer.Ordinal);
         public List<Record> Aggregates { get; } = [];
         public List<Record> UseCases { get; } = [];
@@ -60,7 +65,7 @@ static class Backfill
         ProjectModel model, string? module, bool dryRun)
     {
         var targets = model.Records
-            .Where(record => record.Type is "use-case" or "automation"
+            .Where(record => record.Type is "use-case" or "reaction" or "job"
                 && !record.Derived
                 && record.Status != "retired"
                 && (module is null || HomeOf(record.Id) == module))
@@ -273,7 +278,7 @@ static class Backfill
     static string HomeOf(string id) =>
         Identifiers.TrySplit(id, out _, out var home, out _) && home is not null ? home : "";
 
-    /// <summary>Collects the handler, automation and record indexes one run resolves against.</summary>
+    /// <summary>Collects the handler, reaction, job and record indexes one run resolves against.</summary>
     static Facts BuildFacts(ProjectModel model)
     {
         var facts = new Facts();
@@ -289,20 +294,20 @@ static class Backfill
             placed.Add(handler);
         }
 
-        foreach (var automation in model.Code.Automations)
+        foreach (var reaction in model.Code.Reactions)
         {
-            if (automation.RecordId is null)
+            if (reaction.RecordId is not null)
             {
-                continue;
+                AddPlaced(facts, reaction.RecordId, reaction.Repositories, reaction.Dispatches);
             }
+        }
 
-            if (!facts.AutomationsByRecord.TryGetValue(automation.RecordId, out var placed))
+        foreach (var job in model.Code.Jobs)
+        {
+            if (job.RecordId is not null)
             {
-                placed = [];
-                facts.AutomationsByRecord[automation.RecordId] = placed;
+                AddPlaced(facts, job.RecordId, job.Repositories, job.Dispatches);
             }
-
-            placed.Add(automation);
         }
 
         foreach (var literal in model.Code.Literals)
@@ -336,6 +341,22 @@ static class Backfill
         return facts;
     }
 
+    /// <summary>Indexes one reaction or job under the record its mark names.</summary>
+    static void AddPlaced(
+        Facts facts,
+        string recordId,
+        IReadOnlyList<CodeRepository>? repositories,
+        IReadOnlyList<CodeDispatch>? dispatches)
+    {
+        if (!facts.PlacedByRecord.TryGetValue(recordId, out var placed))
+        {
+            placed = [];
+            facts.PlacedByRecord[recordId] = placed;
+        }
+
+        placed.Add(new PlacedWork(repositories, dispatches));
+    }
+
     /// <summary>Plans the missing entries for one record, or an empty plan when code places none there.</summary>
     static RecordPlan PlanFor(ProjectModel model, Facts facts, Record record)
     {
@@ -344,12 +365,12 @@ static class Backfill
             return PlanUseCase(model, facts, record);
         }
 
-        if (!facts.AutomationsByRecord.TryGetValue(record.Id, out var placed))
+        if (!facts.PlacedByRecord.TryGetValue(record.Id, out var placed))
         {
             return Empty(record);
         }
 
-        return PlanAutomation(facts, record, placed);
+        return PlanReactionJob(facts, record, placed);
     }
 
     static RecordPlan Empty(Record record) =>
@@ -429,7 +450,7 @@ static class Backfill
         return Finish(record, changes, reads, effects, results);
     }
 
-    static RecordPlan PlanAutomation(Facts facts, Record record, List<AutomationInfo> placed)
+    static RecordPlan PlanReactionJob(Facts facts, Record record, List<PlacedWork> placed)
     {
         var reads = MissingReads(facts, record, placed);
         var module = HomeOf(record.Id);
@@ -454,10 +475,10 @@ static class Backfill
         return Finish(record, [], reads, effects, []);
     }
 
-    /// <summary>Aggregate ids the code takes that the automation declares in neither changes nor reads.</summary>
-    static List<string> MissingReads(Facts facts, Record record, List<AutomationInfo> placed)
+    /// <summary>Aggregate ids the code takes that the reaction or job declares in neither changes nor reads.</summary>
+    static List<string> MissingReads(Facts facts, Record record, List<PlacedWork> placed)
     {
-        // An automation never writes an aggregate directly: it writes through the
+        // A reaction or job never writes an aggregate directly: it writes through the
         // use cases it runs, so every repository it takes is a read.
         var module = HomeOf(record.Id);
         var declared = new HashSet<string>(record.Ids("reads"), StringComparer.Ordinal);
@@ -565,7 +586,7 @@ static class Backfill
     static bool HasEdges(Record record) =>
         record.Type switch
         {
-            "use-case" or "automation" => DeclaredEffects(record).Count > 0,
+            "use-case" or "reaction" or "job" => DeclaredEffects(record).Count > 0,
             _ => false,
         };
 
@@ -593,7 +614,7 @@ static class Backfill
             .ThenBy(dispatch => dispatch.Target, StringComparer.Ordinal)
             .ToList();
 
-    /// <summary>Every edge a use case or automation declares in its effects entries, as verb and target pairs.</summary>
+    /// <summary>Every edge a use case, reaction or job declares in its effects entries, as verb and target pairs.</summary>
     static HashSet<(string Verb, string Target)> DeclaredEffects(Record useCase)
     {
         var edges = new HashSet<(string Verb, string Target)>();

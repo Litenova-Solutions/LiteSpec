@@ -286,18 +286,35 @@ sealed class ProjectModel
 
             writer.WriteEndArray();
 
-            writer.WriteStartArray("automations");
+            writer.WriteStartArray("reactions");
 
-            foreach (var automation in Code.Automations)
+            foreach (var reaction in Code.Reactions)
             {
                 writer.WriteStartObject();
-                writer.WriteString("class", automation.Class);
-                writer.WriteString("path", Config.Relative(automation.File));
-                WriteNullable(writer, "useCase", automation.UseCaseId);
-                writer.WriteNumber("line", automation.Line);
-                writer.WriteNumber("dependencyCount", automation.DependencyCount);
-                WriteCollaborators(writer, automation.Collaborators);
-                WriteLoopReads(writer, automation.LoopReads);
+                writer.WriteString("class", reaction.Class);
+                writer.WriteString("path", Config.Relative(reaction.File));
+                WriteNullable(writer, "useCase", reaction.UseCaseId);
+                writer.WriteNumber("line", reaction.Line);
+                writer.WriteNumber("dependencyCount", reaction.DependencyCount);
+                WriteCollaborators(writer, reaction.Collaborators);
+                WriteLoopReads(writer, reaction.LoopReads);
+                writer.WriteEndObject();
+            }
+
+            writer.WriteEndArray();
+
+            writer.WriteStartArray("jobs");
+
+            foreach (var job in Code.Jobs)
+            {
+                writer.WriteStartObject();
+                writer.WriteString("class", job.Class);
+                writer.WriteString("path", Config.Relative(job.File));
+                WriteNullable(writer, "useCase", job.UseCaseId);
+                writer.WriteNumber("line", job.Line);
+                writer.WriteNumber("dependencyCount", job.DependencyCount);
+                WriteCollaborators(writer, job.Collaborators);
+                WriteLoopReads(writer, job.LoopReads);
                 writer.WriteEndObject();
             }
 
@@ -802,7 +819,7 @@ sealed class ProjectModel
         return text.StartsWith("# ", StringComparison.Ordinal) || text == "#";
     }
 
-    /// <summary>Writes the collaborators an automation builds with <c>new</c>.</summary>
+    /// <summary>Writes the collaborators a reaction or job builds with <c>new</c>.</summary>
     private void WriteCollaborators(Utf8JsonWriter writer, IReadOnlyList<CodeCollaborator>? collaborators)
     {
         writer.WriteStartArray("collaborators");
@@ -819,7 +836,7 @@ sealed class ProjectModel
         writer.WriteEndArray();
     }
 
-    /// <summary>Writes the repository reads an automation makes inside a loop.</summary>
+    /// <summary>Writes the repository reads a reaction or job makes inside a loop.</summary>
     private void WriteLoopReads(Utf8JsonWriter writer, IReadOnlyList<CodeLoopRead>? reads)
     {
         writer.WriteStartArray("loopReads");

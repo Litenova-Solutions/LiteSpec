@@ -72,7 +72,8 @@ A consumer page is a record or one of these styles. Each one opens with the spec
 | entry-point-list | `templates/consumer/entry-point-list.md` | Entries only |
 | screen | `templates/consumer/screen.md` | Summary |
 | setting-set | `templates/consumer/setting-set.md` | Entries only |
-| automation | `templates/consumer/automation.md` | Summary, optional Example, optional Notes |
+| reaction | `templates/consumer/reaction.md` | Summary, optional Example, optional Notes |
+| job | `templates/consumer/job.md` | Summary, optional Example, optional Notes |
 | notification | `templates/consumer/notification.md` | Summary, optional Example, optional Notes |
 | integration-event | `templates/consumer/integration-event.md` | Summary, optional Notes |
 | retention-schedule | `templates/consumer/retention-schedule.md` | Entries only |
@@ -601,7 +602,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Rationale:** The type names the record kind and `home.name` names the owning module or set, so an identifier resolves with no lookup table. One grammar for every record kind keeps identifiers writable by hand and checkable by tool. The [model page](model.md) states the form each type uses, and the [identifier page](../backend/identifiers.md) states the name rules and checks.
 
-**Example:** `automation/spending.send-approver-reminder-on-expense-submitted` is an automation owned by the spending module, and `journey/submit-and-reimburse#s2` is the second step of a journey.
+**Example:** `reaction/spending.send-approver-reminder-on-expense-submitted` is a reaction owned by the spending module, and `journey/submit-and-reimburse#s2` is the second step of a journey.
 
 **Checked by:** `litespec consumer` fails a record identifier outside the declared grammar.
 
@@ -747,7 +748,7 @@ The figures below render from the retention schedule at build time.
 
 **Rationale:** Two agents working in parallel mint the same identifier when each writes a file by hand, and the collision surfaces only at merge time. Scaffolding reserves the identifier before any prose exists, so the second author learns the clash at creation and picks another name.
 
-**Example:** `litespec new automation spending.send-approver-reminder-on-expense-submitted` creates the automation page with its metadata block and reserved identifier.
+**Example:** `litespec new reaction spending.send-approver-reminder-on-expense-submitted` creates the reaction page with its metadata block and reserved identifier.
 
 **Reviewed for:** Which new pages lack a reserved identifier? Look for pages created without `litespec new`.
 
@@ -853,7 +854,7 @@ The figures below render from the retention schedule at build time.
 
 **Rationale:** Two spellings of one concept split every search and every listing, and a reader cannot tell whether they name one concept or two. One spelling per concept keeps each term defined once and checked once. A hyphenated pair whose first part is a function word is two words side by side, not one compound split in two, so the check skips it: `a`, `an`, `as`, `at`, `by`, `in`, `of`, `on`, `or`, `to`, and `with`.
 
-**Example:** The notification `send-approvalreminder-confirmation` and the automation `send-approval-reminder-on-expense-submitted` name one concept with two spellings; the project picks one and renames the other. `send-on-line-notice` beside `send-online-notice` is not reported, since `on` opens no compound.
+**Example:** The notification `send-approvalreminder-confirmation` and the reaction `send-approval-reminder-on-expense-submitted` name one concept with two spellings; the project picks one and renames the other. `send-on-line-notice` beside `send-online-notice` is not reported, since `on` opens no compound.
 
 **Checked by:** `litespec model check` reports `term-clash` (level A) for a joined and hyphenated pair, a British and American spelling pair, or a singular and plural in one home, when both forms occur, except a hyphenated pair opening with a function word.
 

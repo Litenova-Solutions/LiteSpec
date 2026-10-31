@@ -189,16 +189,16 @@ public sealed class CodeCheckTests
 
     /// <proves>litespec/core/layers#implement-only-declared-behavior</proves>
     [Fact]
-    public void Automation_Dispatching_Against_Runs_Passes()
+    public void Reaction_Dispatching_Against_Runs_Passes()
     {
         using var temp = Cli.Temp("checks");
-        var file = Path.Combine(temp.Path, "LoanBorrowedAutomation.cs");
+        var file = Path.Combine(temp.Path, "LoanBorrowedReaction.cs");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.md"), """{"status": "reviewed", "kind": "command"}"""),
-            TestModel.Record("automation", "automation/lending.notify-on-borrow", Path.Combine(temp.Path, "notify.md"), """{"status": "reviewed", "triggeredBy": {"event": "event/loan.loan-borrowed"}, "runs": ["use-case/lending.borrow-copy"]}"""));
-        model.Code.Automations.Add(new AutomationInfo(
-            "LoanBorrowedAutomation", file, 3, null, "automation/lending.notify-on-borrow",
+            TestModel.Record("reaction", "reaction/lending.notify-on-borrow", Path.Combine(temp.Path, "notify.md"), """{"status": "reviewed", "triggeredBy": ["event/loan.loan-borrowed"], "runs": ["use-case/lending.borrow-copy"]}"""));
+        model.Code.Reactions.Add(new ReactionInfo(
+            "LoanBorrowedReaction", file, 3, null, "reaction/lending.notify-on-borrow",
             Dispatches: [new CodeDispatch("runs", "BorrowCopyCommand", "", file, 9)]));
 
         Assert.DoesNotContain("effect-undeclared", TestModel.Codes(model));
@@ -206,16 +206,16 @@ public sealed class CodeCheckTests
 
     /// <proves>litespec/core/layers#implement-only-declared-behavior</proves>
     [Fact]
-    public void Automation_Dispatching_Against_An_Effects_Entry_Passes()
+    public void Reaction_Dispatching_Against_An_Effects_Entry_Passes()
     {
         using var temp = Cli.Temp("checks");
-        var file = Path.Combine(temp.Path, "LoanBorrowedAutomation.cs");
+        var file = Path.Combine(temp.Path, "LoanBorrowedReaction.cs");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.md"), """{"status": "reviewed", "kind": "command"}"""),
-            TestModel.Record("automation", "automation/lending.notify-on-borrow", Path.Combine(temp.Path, "notify.md"), """{"status": "reviewed", "triggeredBy": {"event": "event/loan.loan-borrowed"}, "effects": [{"runs": "use-case/lending.borrow-copy"}]}"""));
-        model.Code.Automations.Add(new AutomationInfo(
-            "LoanBorrowedAutomation", file, 3, null, "automation/lending.notify-on-borrow",
+            TestModel.Record("reaction", "reaction/lending.notify-on-borrow", Path.Combine(temp.Path, "notify.md"), """{"status": "reviewed", "triggeredBy": ["event/loan.loan-borrowed"], "effects": [{"runs": "use-case/lending.borrow-copy"}]}"""));
+        model.Code.Reactions.Add(new ReactionInfo(
+            "LoanBorrowedReaction", file, 3, null, "reaction/lending.notify-on-borrow",
             Dispatches: [new CodeDispatch("runs", "BorrowCopyCommand", "", file, 9)]));
 
         Assert.DoesNotContain("effect-undeclared", TestModel.Codes(model));
@@ -223,16 +223,16 @@ public sealed class CodeCheckTests
 
     /// <proves>litespec/core/layers#implement-only-declared-behavior</proves>
     [Fact]
-    public void Untagged_Automation_In_A_Use_Case_Folder_Answers_To_The_Use_Case_Effects()
+    public void Untagged_Reaction_In_A_Use_Case_Folder_Answers_To_The_Use_Case_Effects()
     {
         using var temp = Cli.Temp("checks");
-        var file = Path.Combine(temp.Path, "BorrowCopyOnRequestAutomation.cs");
+        var file = Path.Combine(temp.Path, "BorrowCopyOnRequestReaction.cs");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.md"), """{"status": "reviewed", "kind": "command"}"""),
             TestModel.Record("use-case", "use-case/lending.purge-loans", Path.Combine(temp.Path, "purge.md"), """{"status": "reviewed", "kind": "command"}"""));
-        model.Code.Automations.Add(new AutomationInfo(
-            "BorrowCopyOnRequestAutomation", file, 3, "use-case/lending.borrow-copy",
+        model.Code.Reactions.Add(new ReactionInfo(
+            "BorrowCopyOnRequestReaction", file, 3, "use-case/lending.borrow-copy",
             Dispatches: [new CodeDispatch("runs", "BorrowCopyCommand", "", file, 9), new CodeDispatch("runs", "PurgeLoansCommand", "", file, 12)]));
 
         var undeclared = Checker.Check(model).Findings.Where(finding => finding.Code == "effect-undeclared").ToList();
@@ -243,15 +243,15 @@ public sealed class CodeCheckTests
 
     /// <proves>litespec/core/layers#implement-only-declared-behavior</proves>
     [Fact]
-    public void Automation_Calling_A_Declared_Operation_Passes()
+    public void Reaction_Calling_A_Declared_Operation_Passes()
     {
         using var temp = Cli.Temp("checks");
-        var file = Path.Combine(temp.Path, "PushPassOnLoanAutomation.cs");
+        var file = Path.Combine(temp.Path, "PushPassOnLoanReaction.cs");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("automation", "automation/lending.push-pass-on-loan", Path.Combine(temp.Path, "push.md"), """{"status": "reviewed", "triggeredBy": {"event": "event/loan.loan-borrowed"}, "effects": [{"calls": "external-system/wallet#push"}]}"""));
-        model.Code.Automations.Add(new AutomationInfo(
-            "PushPassOnLoanAutomation", file, 3, null, "automation/lending.push-pass-on-loan",
+            TestModel.Record("reaction", "reaction/lending.push-pass-on-loan", Path.Combine(temp.Path, "push.md"), """{"status": "reviewed", "triggeredBy": ["event/loan.loan-borrowed"], "effects": [{"calls": "external-system/wallet#push"}]}"""));
+        model.Code.Reactions.Add(new ReactionInfo(
+            "PushPassOnLoanReaction", file, 3, null, "reaction/lending.push-pass-on-loan",
             Dispatches: [new CodeDispatch("calls", "PushAsync", "IWalletPasses", file, 9)]));
 
         Assert.DoesNotContain("effect-undeclared", TestModel.Codes(model));

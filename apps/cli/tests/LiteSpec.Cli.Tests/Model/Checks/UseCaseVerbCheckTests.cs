@@ -4,7 +4,7 @@ using LiteSpec.Tests.Support;
 
 namespace LiteSpec.Tests.Model.Checks;
 
-/// <summary>Proves the naming checks: the baseline and project verbs, one kind per verb, and the automation name forms.</summary>
+/// <summary>Proves the naming checks: the baseline and project verbs, one kind per verb, and the reaction and job name forms.</summary>
 public sealed class UseCaseVerbCheckTests
 {
     /// <proves>litespec/core/use-cases#start-every-use-case-with-a-declared-verb</proves>
@@ -131,36 +131,36 @@ public sealed class UseCaseVerbCheckTests
         Assert.Contains("use-case-verb-invalid", TestModel.Codes(model));
     }
 
-    /// <proves>litespec/core/automation#name-each-automation-for-its-act-and-its-trigger</proves>
+    /// <proves>litespec/core/automation#name-each-reaction-for-its-act-and-its-trigger</proves>
     [Fact]
-    public void Event_Automation_Named_For_Its_Act_And_Trigger_Passes()
+    public void Reaction_Named_For_Its_Act_And_Trigger_Passes()
     {
         using var temp = Cli.Temp("checks");
         WriteProject(temp.Path);
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("automation", "automation/lending.send-due-notice-on-loan-borrowed", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "automations", "send-due-notice-on-loan-borrowed.md"), """{"triggeredBy": {"event": "event/loan.loan-borrowed"}}"""),
-            TestModel.Record("automation", "automation/lending.notify-borrower", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "automations", "notify-borrower.md"), """{"triggeredBy": {"event": "event/loan.loan-borrowed"}}"""));
+            TestModel.Record("reaction", "reaction/lending.send-due-notice-on-loan-borrowed", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "reactions", "send-due-notice-on-loan-borrowed.md"), """{"triggeredBy": ["event/loan.loan-borrowed"]}"""),
+            TestModel.Record("reaction", "reaction/lending.notify-borrower", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "reactions", "notify-borrower.md"), """{"triggeredBy": ["event/loan.loan-borrowed"]}"""));
 
-        var form = Checker.Check(model).Findings.Where(finding => finding.Code == "automation-name-invalid").ToList();
+        var form = Checker.Check(model).Findings.Where(finding => finding.Code == "reaction-name-invalid").ToList();
 
         Assert.Single(form);
         Assert.Contains("notify-borrower", form[0].Message);
     }
 
-    /// <proves>litespec/core/automation#name-each-automation-for-its-act-and-its-trigger</proves>
+    /// <proves>litespec/core/automation#name-each-job-for-the-use-case-it-runs</proves>
     [Fact]
-    public void Scheduled_Automation_Carries_The_Verb_Of_The_Use_Case_It_Runs()
+    public void Job_Carries_The_Verb_Of_The_Use_Case_It_Runs()
     {
         using var temp = Cli.Temp("checks");
         WriteProject(temp.Path);
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/lending.expire-holds", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "holds", "expire-holds.md"), """{"kind": "command"}"""),
-            TestModel.Record("automation", "automation/lending.expire-lapsed-holds", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "automations", "expire-lapsed-holds.md"), """{"triggeredBy": {"schedule": {"every": "PT1H"}}, "effects": [{"runs": "use-case/lending.expire-holds"}]}"""),
-            TestModel.Record("automation", "automation/lending.sweep-holds", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "automations", "sweep-holds.md"), """{"triggeredBy": {"schedule": {"every": "PT1H"}}, "effects": [{"runs": "use-case/lending.expire-holds"}]}"""));
+            TestModel.Record("job", "job/lending.expire-lapsed-holds", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "jobs", "expire-lapsed-holds.md"), """{"kind": "scheduled", "schedule": {"every": "PT1H"}, "effects": [{"runs": "use-case/lending.expire-holds"}]}"""),
+            TestModel.Record("job", "job/lending.sweep-holds", Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "jobs", "sweep-holds.md"), """{"kind": "scheduled", "schedule": {"every": "PT1H"}, "effects": [{"runs": "use-case/lending.expire-holds"}]}"""));
 
-        var form = Checker.Check(model).Findings.Where(finding => finding.Code == "automation-name-invalid").ToList();
+        var form = Checker.Check(model).Findings.Where(finding => finding.Code == "job-name-invalid").ToList();
 
         Assert.Single(form);
         Assert.Contains("sweep-holds", form[0].Message);

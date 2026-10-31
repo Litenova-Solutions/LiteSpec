@@ -6,7 +6,7 @@ A specification is a tree, and no reader reads the whole tree at once. This page
 
 ## Why Before How
 
-Read Intent before Behavior. Start at the product: the brief, the goals, the problems, the features, the constraints, the decisions, and the requirements. Then read Behavior: the modules, the aggregates with their states, transitions, data classes, and rules, the use cases with their results and scenarios, and the automations, notifications, and settings around them. Each record names what sits above it, which is why it exists, and what sits below it, which is how it is fulfilled.
+Read Intent before Behavior. Start at the product: the brief, the goals, the problems, the features, the constraints, the decisions, and the requirements. Then read Behavior: the modules, the aggregates with their states, transitions, data classes, and rules, the use cases with their results and scenarios, and the reactions, jobs, notifications, and settings around them. Each record names what sits above it, which is why it exists, and what sits below it, which is how it is fulfilled.
 
 A reviewer who reads Behavior first meets behavior with no reason. A reviewer who reads Intent first meets each use case as the answer to a requirement, and each requirement as the answer to a problem or goal.
 
@@ -31,7 +31,7 @@ Follow one module from its aggregates to its proof. Developers take this track t
 2. Each aggregate: its kind, its states with their meanings, its transitions, its data classes with their erasure positions, and its classified data.
 3. The rules that govern the aggregates, and the domain and integration events they raise and translate.
 4. Each use case with its access, consistency, effects, results, and scenarios.
-5. The automations, notifications, and settings that surround the use cases, and the retention row that schedules each data class.
+5. The reactions, jobs, notifications, and settings that surround the use cases, and the retention row that schedules each data class.
 6. The proof: the tests the model links to each scenario.
 
 For example, the spending module holds the expense aggregate with its states and transitions, the rules that govern it, and use cases such as Submit expense. When every scenario in the module is proven, the module holds.
@@ -63,7 +63,8 @@ Every record uses the same structural words: the record types, the links between
 | use case | One command or query. |
 | result | One way a use case ends: success, or refusal with a code. |
 | scenario | One example in given, when, then that proves a result. |
-| automation | Event, scheduled, or manual work that runs use cases. |
+| reaction | Event work that runs use cases. |
+| job | Scheduled, one-off, or manual work that runs use cases. |
 | notification | One person-facing message with its addresses, channel, and consent. |
 | setting | One tunable with its default, range, setter, and bound behavior. |
 | actor | One person, organization, or system that acts. |
@@ -90,11 +91,11 @@ Every record uses the same structural words: the record types, the links between
 | access | The grant and tenant scope this use case declares. |
 | reachedThrough | Readers reach the use case through this entry point. |
 | raises | The use case raises this event. |
-| runs | This automation or effect runs this use case. |
-| sends | This automation or effect sends this notification. |
+| runs | This reaction, job, or effect runs this use case. |
+| sends | This reaction, job, or effect sends this notification. |
 | emits | This effect emits this integration event. |
 | calls | This effect calls this external-system operation. |
-| triggeredBy | The event, schedule, or manual start this automation answers. |
+| triggeredBy | The events this reaction answers. |
 | holds | The actor carries this role at a scope. |
 | allows | The role grants this permission. |
 
@@ -114,7 +115,7 @@ Every record uses the same structural words: the record types, the links between
 | invariant, precondition, calculation, cross-aggregate, atomicity, reservation, commercial-data, default | The eight rule kinds. |
 | functional, quality, policy | The three requirement kinds: behavior, measure, terms and dates. |
 | success, refusal | The two result outcomes: it worked, or it ended with a code. |
-| event, schedule, manual | The three automation triggers. |
+| scheduled, one-off, manual | The three job kinds. |
 | inline, after-commit, async | The three effect timings. |
 | atomic, per-record, compensated | The three consistency modes. |
 | planned, shipped, later, refused | The four feature states. |

@@ -115,7 +115,7 @@ Every provision identifier present in v2.0.0 and gone now, with the identifier t
 | `litespec/core/domain#state-each-rule-with-its-kind` | `litespec/core/domain-model#state-each-rule-with-its-kind` |
 | `litespec/core/domain#state-every-module-dependency` | `litespec/core/domain-model#state-every-module-dependency` |
 | `litespec/core/domain#tabulate-every-calculation-with-examples` | `litespec/core/domain-model#tabulate-every-calculation-with-examples` |
-| `litespec/core/domain#trigger-every-reaction` | `litespec/core/automation#trigger-every-automation-from-its-declared-trigger` |
+| `litespec/core/domain#trigger-every-reaction` | `litespec/core/automation#trigger-every-reaction-from-its-declared-events` |
 | `litespec/core/domain#write-every-scenario-in-given-when-then` | `litespec/core/use-cases#write-every-scenario-in-given-when-then` |
 | `litespec/core/model#approve-intent-above-the-review-line` | `litespec/core/model#approve-tier-1-records-by-a-person` |
 | `litespec/core/model#cover-every-public-use-case-from-a-journey` | `litespec/core/model#connect-every-use-case-to-intent` |

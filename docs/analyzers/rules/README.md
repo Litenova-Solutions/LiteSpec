@@ -31,7 +31,7 @@ Rules `LS2001` and `LS2003` to `LS2017` run in Application, Infrastructure, WebA
 - [LS2004: Command Handler Writes Through a Document Session](ls2004.md): reports a command handler that writes through a session.
 - [LS2005: Handler Name Lacks Its Command or Query Suffix](ls2005.md): reports a handler whose name lacks its command or query suffix.
 - [LS2006: Endpoint Name Lacks Its Suffix](ls2006.md): reports an endpoint whose name does not end in `Endpoint`.
-- [LS2007: Automation Name Hides Its Kind](ls2007.md): reports an automation whose name hides its kind.
+- [LS2007: Reaction or Job Name Hides Its Kind](ls2007.md): reports a reaction or job whose name hides its kind.
 - [LS2008: Event Handler Sits Outside Its Fact Folder](ls2008.md): reports an event handler outside its `On{Fact}` folder.
 - [LS2009: Result Part Not Named After Its Result](ls2009.md): reports a result part not named after its result.
 - [LS2010: Repository Variable Not Named After Its Interface](ls2010.md): reports a repository variable not named after its interface.

@@ -7,8 +7,8 @@ namespace LiteSpec.Tests.Model.Review;
 /// <follows>litespec/core/release#approve-drafts-in-bounded-batches</follows>
 public sealed class BatchApprovalAgreementTests
 {
-    static string Automation(string root) => ReviewPages.Page(
-        root, "docs", "behavior", "modules", "lending", "automations", "send-due-notice-on-loan-borrowed.md");
+    static string Reaction(string root) => ReviewPages.Page(
+        root, "docs", "behavior", "modules", "lending", "reactions", "send-due-notice-on-loan-borrowed.md");
 
     static string BorrowCopy(string root) => ReviewPages.Page(
         root, "docs", "behavior", "modules", "lending", "loans", "borrow-copy.md");
@@ -16,14 +16,14 @@ public sealed class BatchApprovalAgreementTests
     static string LoanPeriod(string root) => ReviewPages.Page(
         root, "docs", "product", "decisions", "0001-loan-period.md");
 
-    /// <summary>A use-case batch leaves a scenario on an automation page alone, and the automation batch stamps it.</summary>
+    /// <summary>A use-case batch leaves a scenario on a reaction page alone, and the reaction batch stamps it.</summary>
     /// <proves>litespec/core/release#approve-drafts-in-bounded-batches</proves>
     [Fact]
-    public void Approve_Use_Case_Batch_Leaves_Automation_Page_Scenarios()
+    public void Approve_Use_Case_Batch_Leaves_Reaction_Page_Scenarios()
     {
         using var fixture = ModelFixture.Prepare("large");
 
-        ReviewPages.AppendEntry(Automation(fixture.Path), new JsonObject
+        ReviewPages.AppendEntry(Reaction(fixture.Path), new JsonObject
         {
             ["type"] = "scenario",
             ["id"] = "scenario/borrow-copy.due-notice-sent-on-borrow",
@@ -34,7 +34,7 @@ public sealed class BatchApprovalAgreementTests
             ["then"] = "The reader receives a due notice.",
             ["result"] = "result/borrow-copy.borrowed",
         });
-        ReviewPages.DraftPage(Automation(fixture.Path));
+        ReviewPages.DraftPage(Reaction(fixture.Path));
         ReviewPages.DraftPage(BorrowCopy(fixture.Path));
 
         var queue = Cli.Run("model", "review", "--root", fixture.Path, "--format", "json");
@@ -49,7 +49,7 @@ public sealed class BatchApprovalAgreementTests
             .ToList();
 
         Assert.Single(holding);
-        Assert.Equal("automation/lending.send-due-notice-on-loan-borrowed", holding[0]);
+        Assert.Equal("reaction/lending.send-due-notice-on-loan-borrowed", holding[0]);
 
         var useCase = Cli.Run(
             "model", "approve", "--root", fixture.Path,
@@ -66,20 +66,20 @@ public sealed class BatchApprovalAgreementTests
 
         Assert.DoesNotContain("scenario/borrow-copy.due-notice-sent-on-borrow", ids);
 
-        var (page, _) = ReviewPages.Read(Automation(fixture.Path));
-        var scenario = page["records"]!.AsArray()
+        var (reaction, _) = ReviewPages.Read(Reaction(fixture.Path));
+        var scenario = reaction["records"]!.AsArray()
             .OfType<JsonObject>()
             .First(entry => entry["id"]!.GetValue<string>() == "scenario/borrow-copy.due-notice-sent-on-borrow");
 
         Assert.Null(scenario["approvedBy"]);
         Assert.Null(scenario["approvedHash"]);
 
-        var automationResult = Cli.Run(
+        var reactionResult = Cli.Run(
             "model", "approve", "--root", fixture.Path,
-            "--batch", "automation/lending.send-due-notice-on-loan-borrowed", "--by", "lending-team", "--on", "2026-11-20");
+            "--batch", "reaction/lending.send-due-notice-on-loan-borrowed", "--by", "lending-team", "--on", "2026-11-20");
 
-        Assert.Equal(0, automationResult.Status);
-        Assert.Contains("2 records approved, 0 held.", automationResult.Output);
+        Assert.Equal(0, reactionResult.Status);
+        Assert.Contains("2 records approved, 0 held.", reactionResult.Output);
     }
 
     /// <summary>Approving a decision writes one hash to the manifest and the file, and no decidedOn.</summary>

@@ -717,7 +717,7 @@ sealed class BookLexicon
             ["finishedWhen"] = "Finished when", ["actor"] = "Actor", ["dependsOn"] = "Depends on",
             ["summary"] = "Summary", ["states"] = "States", ["transitions"] = "Transitions", ["data"] = "Data",
             ["dataClasses"] = "Data classes", ["steps"] = "Steps", ["exits"] = "Exits", ["drivenBy"] = "Driven by", ["cursor"] = "Cursor",
-            ["automation"] = "Automation", ["person"] = "Person", ["dueWithin"] = "Due within", ["binds"] = "Binds", ["compensation"] = "Compensation",
+            ["reaction"] = "Reaction", ["job"] = "Job", ["person"] = "Person", ["dueWithin"] = "Due within", ["binds"] = "Binds", ["compensation"] = "Compensation",
             ["refusal"] = "Refusal", ["questions"] = "Questions", ["recommendation"] = "Recommendation",
             ["input"] = "Input", ["output"] = "Output", ["origin"] = "Origin", ["paging"] = "Paging", ["builtAsynchronously"] = "Built asynchronously",
             ["changes"] = "Changes", ["reads"] = "Reads", ["consistency"] = "Consistency", ["effects"] = "Effects",

@@ -2,7 +2,7 @@
 
 ## Purpose
 
-A behavior module gathers one business area's glossary terms, aggregates, rules, use cases, automations, notifications, settings, events, and permissions into pages that the model builder, the tool that checks the project, reads. This tutorial works through one kind of page at a time, using the spending module of the Claimwick product as the worked example. Each step names the standard it satisfies, and the tutorial adds no rule of its own.
+A behavior module gathers one business area's glossary terms, aggregates, rules, use cases, reactions, jobs, notifications, settings, events, and permissions into pages that the model builder, the tool that checks the project, reads. This tutorial works through one kind of page at a time, using the spending module of the Claimwick product as the worked example. Each step names the standard it satisfies, and the tutorial adds no rule of its own.
 
 ## Prerequisites
 
@@ -78,7 +78,7 @@ A behavior module gathers one business area's glossary terms, aggregates, rules,
     | Data class | Classification | Fields | On erasure | Enforced by |
     |:---|:---|:---|:---|:---|
     | `expense-money` | internal | amount, state | retain for 7 years by statute | record-expiry |
-    | `submitter` | personal | employee | erase on approved request | `automation/spending.erase-expired-personal-data` |
+    | `submitter` | personal | employee | erase on approved request | `job/spending.erase-expired-personal-data` |
 
     | Name | Meaning | Data Class | Classification |
     |:---|:---|:---|:---|
@@ -143,16 +143,16 @@ A behavior module gathers one business area's glossary terms, aggregates, rules,
     | `event/expense.reimbursed` | An expense was reimbursed. | `expenseId`, `amount`, `currency`, `reimbursedAt` |
 
     A fact that leaves the product is an integration event with a direction, a CloudEvents type and source, and a payload. Reimbursing emits `integration-event/payout.requested`, which translates `event/expense.reimbursed` for the payout bank. The use case declares it in `effects` with `emits`. This satisfies `litespec/core/edges#describe-every-integration-event-for-its-direction` and `litespec/core/edges#publish-every-outbound-integration-event-from-effects`.
-14. Write the automations, notifications, and settings as their own records. Work that answers an event is an automation: it names the event in `triggeredBy` and runs its use cases through `effects`, and it never writes an aggregate directly. This satisfies `litespec/core/automation#trigger-every-automation-from-its-declared-trigger`, `litespec/core/automation#declare-every-automation-edge-in-effects`, and `litespec/core/automation#write-no-aggregate-directly-from-an-automation`. File each automation with the module whose records it changes, and run it in a dedicated handler. This satisfies `litespec/core/automation#file-every-automation-with-the-module-it-changes` and `litespec/backend/dotnet/application#run-event-automations-in-dedicated-handlers`.
+14. Write the reactions, jobs, notifications, and settings as their own records. Work that answers an event is a reaction: it names the events in `triggeredBy` and runs its use cases through `effects`, and it never writes an aggregate directly. Work that runs on a schedule or by hand is a job: it names its `kind` with its `schedule`, `selection`, and `guard`, and it never writes an aggregate directly either. This satisfies `litespec/core/automation#trigger-every-reaction-from-its-declared-events`, `litespec/core/automation#run-every-job-from-its-declared-kind`, `litespec/core/automation#declare-every-reaction-and-job-edge-in-effects`, and `litespec/core/automation#write-no-aggregate-directly-from-a-reaction-or-job`. File each reaction and job with the module whose records it changes, and run each reaction in a dedicated handler. This satisfies `litespec/core/automation#file-every-reaction-and-job-with-the-module-it-changes` and `litespec/backend/dotnet/application#run-reactions-in-dedicated-handlers`.
 
     | Record | Shape |
     |:---|:---|
-    | `automation/spending.notify-on-reimbursement` | On `event/expense.reimbursed`, sends `notification/spending.reimbursement-received`. |
-    | `automation/spending.send-approver-reminders` | Scheduled nightly; runs `use-case/spending.send-approver-reminder` per waiting expense. |
+    | `reaction/spending.notify-on-reimbursement` | On `event/expense.reimbursed`, sends `notification/spending.reimbursement-received`. |
+    | `job/spending.send-approver-reminders` | Scheduled nightly; runs `use-case/spending.send-approver-reminder` per waiting expense. |
     | `notification/spending.approver-reminder` | Email to the manager with the expense and its waiting time. |
     | `setting/spending.receipt-threshold` | Money, default EUR 25, set by the operator, refuses at the bound. |
 
-    Declare every automation with its trigger; a manual automation also states where it runs and its guard. This satisfies `litespec/core/automation#trigger-every-automation-from-its-declared-trigger` and `litespec/core/automation#guard-every-manual-automation`. Describe every notification with its addresses, channel, and consent, and claim each promise it makes from a requirement. This satisfies `litespec/core/edges#describe-every-notification-with-audience-channel-and-consent` and `litespec/core/edges#claim-every-notification-promise-from-a-requirement`. Hold every commercial, legal, or varying setting default to a requirement, and keep model invariants in rules. This satisfies `litespec/core/use-cases#hold-every-setting-default-to-a-requirement` and `litespec/core/domain-model#keep-model-invariants-in-rules`.
+    Declare every reaction with the events it answers and every job with its kind; a manual job also states where it runs and its guard. This satisfies `litespec/core/automation#trigger-every-reaction-from-its-declared-events`, `litespec/core/automation#run-every-job-from-its-declared-kind`, and `litespec/core/automation#guard-every-manual-job`. Describe every notification with its addresses, channel, and consent, and claim each promise it makes from a requirement. This satisfies `litespec/core/edges#describe-every-notification-with-audience-channel-and-consent` and `litespec/core/edges#claim-every-notification-promise-from-a-requirement`. Hold every commercial, legal, or varying setting default to a requirement, and keep model invariants in rules. This satisfies `litespec/core/use-cases#hold-every-setting-default-to-a-requirement` and `litespec/core/domain-model#keep-model-invariants-in-rules`.
 15. Name the entry points and the external systems. Give each entry point its kind: the expenses app is a browser, the payout bank callback is a webhook. This satisfies `litespec/core/access#name-every-entry-point-with-its-kind`. Declare every operation on the payout bank with its timeout, retries, and response, and route erasure through an operation. This satisfies `litespec/core/access#declare-every-operation-on-every-external-system` and `litespec/core/access#declare-erasure-for-every-external-system`. Schedule every data class for retention with its basis, period, enforcement, and Intent acceptance. This satisfies `litespec/core/privacy#schedule-every-data-class-for-retention`.
 16. Keep one transaction per command. One handler stages the aggregates its use case owns and lets the pipeline commit once, with the consistency the record declares. This satisfies `litespec/backend/application#dispatch-only-declared-effect-edges` and `litespec/backend/persistence#commit-each-command-pipeline-once`.
 17. Map the model to folders. Mirror the module, aggregate, and use case path in every layer. This satisfies `litespec/backend/architecture#organize-every-layer-by-module-and-use-case`.
@@ -181,6 +181,6 @@ A behavior module gathers one business area's glossary terms, aggregates, rules,
 
 ## What You Built
 
-- One module with its terms, aggregates, data classes, rules, use cases, results, scenarios, events, automations, notifications, settings, and permissions.
+- One module with its terms, aggregates, data classes, rules, use cases, results, scenarios, events, reactions, jobs, notifications, settings, and permissions.
 - Every identifier is person-chosen, every citation resolves, and every edge between records is declared.
 - Every scenario is proved by a passing test or owned by a gap exception.

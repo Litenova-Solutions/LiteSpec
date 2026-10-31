@@ -8,7 +8,7 @@ namespace LiteSpec.Model;
 
 /// <summary>
 ///     The record-graph and advisory checks: orphans, steps, loops, queries,
-///     erasure, approval, transcription, automations, prose and aged questions.
+///     erasure, approval, transcription, reactions, jobs, prose and aged questions.
 /// </summary>
 static partial class Checker
 {
@@ -199,7 +199,8 @@ static partial class Checker
     private static string Label(string type) => type switch
     {
         "use-case" => "Use case",
-        "automation" => "Automation",
+        "reaction" => "Reaction",
+        "job" => "Job",
         "notification" => "Notification",
         "setting" => "Setting",
         _ => "Record",
@@ -239,8 +240,8 @@ static partial class Checker
     }
 
     /// <summary>
-    ///     The declared effect edges: use-case effects and raises, automation event
-    ///     triggers reversed into event edges with the automation effects.
+    ///     The declared effect edges: use-case effects and raises, reaction triggers
+    ///     reversed into event edges with the reaction effects, and job effects.
     /// </summary>
     private static Dictionary<string, List<string>> EffectGraph(ProjectModel model)
     {
@@ -284,9 +285,9 @@ static partial class Checker
                     Edge(record.Id, raised);
                 }
             }
-            else if (record.Type == "automation")
+            else if (record.Type == "reaction")
             {
-                foreach (var trigger in AutomationEventTriggers(record))
+                foreach (var trigger in ReactionEventTriggers(record))
                 {
                     var baseId = Identifiers.BaseId(trigger);
 
@@ -297,6 +298,16 @@ static partial class Checker
                     }
                 }
 
+                foreach (var entry in EffectEntries(record))
+                {
+                    if (EffectTarget(entry) is { } target)
+                    {
+                        Edge(record.Id, target);
+                    }
+                }
+            }
+            else if (record.Type == "job")
+            {
                 foreach (var entry in EffectEntries(record))
                 {
                     if (EffectTarget(entry) is { } target)
@@ -360,50 +371,24 @@ static partial class Checker
 
         var holder = rotated
             .Select(id => model.ById[id])
-            .First(record => record.Type is "use-case" or "automation");
+            .First(record => record.Type is "use-case" or "reaction" or "job");
 
         findings.Add(new Finding("effect-loop-invalid", $"{Label(holder.Type)} '{holder.Id}' holds an effect loop with no stated end: {key} -> {rotated[0]}.", holder.File, holder.Line, holder.Id));
     }
 
     /// <summary>
-    ///     Whether the loop is allowed: it passes through a domain event, and an
-    ///     automation in the loop states its skip condition as the end condition.
+    ///     Whether the loop is allowed: it passes through a domain event, and a
+    ///     reaction in the loop states its skip condition as the end condition.
     /// </summary>
     private static bool LoopExempt(ProjectModel model, IReadOnlyList<string> rotated) =>
         rotated.Any(id => model.ById.TryGetValue(id, out var record) && record.Type == "event")
         && rotated.Any(id => model.ById.TryGetValue(id, out var record)
-            && record.Type == "automation"
+            && record.Type == "reaction"
             && record.Field("skippedWhen") is { Length: > 0 });
 
-    /// <summary>The automation event triggers: the events its triggeredBy names, one id or a list.</summary>
-    private static IReadOnlyList<string> AutomationEventTriggers(Record record)
-    {
-        if (record.Raw.ValueKind != JsonValueKind.Object
-            || !record.Raw.TryGetProperty("triggeredBy", out var triggered)
-            || triggered.ValueKind != JsonValueKind.Object
-            || !triggered.TryGetProperty("event", out var trigger))
-        {
-            return [];
-        }
-
-        if (trigger.ValueKind == JsonValueKind.String && trigger.GetString() is { Length: > 0 } id)
-        {
-            return [id];
-        }
-
-        if (trigger.ValueKind == JsonValueKind.Array)
-        {
-            return
-            [
-                .. trigger.EnumerateArray()
-                            .Where(entry => entry.ValueKind == JsonValueKind.String)
-                            .Select(entry => entry.GetString()!)
-                            .Where(id => id.Length > 0),
-            ];
-        }
-
-        return [];
-    }
+    /// <summary>The reaction event triggers: the events its triggeredBy names, one id or a list.</summary>
+    private static IReadOnlyList<string> ReactionEventTriggers(Record record) =>
+        record.Ids("triggeredBy").Where(id => id.Length > 0).ToList();
 
     private static void CheckConsistency(ProjectModel model, List<Finding> findings)
     {
@@ -951,7 +936,7 @@ static partial class Checker
         var sent = new HashSet<string>(StringComparer.Ordinal);
 
         foreach (var holder in model.Records.Where(record =>
-            record.Type is "use-case" or "automation" && record.Status != "retired"))
+            record.Type is "use-case" or "reaction" or "job" && record.Status != "retired"))
         {
             foreach (var entry in EffectEntries(holder))
             {
@@ -966,7 +951,7 @@ static partial class Checker
         {
             if (!sent.Contains(notification.Id))
             {
-                findings.Add(new Finding("notification-sender-missing", $"Notification '{notification.Id}' is sent by no automation or use case.", notification.File, notification.Line, SubjectOf(notification)));
+                findings.Add(new Finding("notification-sender-missing", $"Notification '{notification.Id}' is sent by no reaction, job or use case.", notification.File, notification.Line, SubjectOf(notification)));
             }
         }
     }
@@ -1139,30 +1124,13 @@ static partial class Checker
             : model.ById[baseId].Status is "approved" or "reviewed";
     }
 
-    /// <summary>Scheduled and manual fields, allowed only with a schedule or manual trigger.</summary>
-    private static readonly string[] ScheduledFields =
-        ["runbook", "runsWhere", "guard", "cursor", "selection", "lease", "batchSize"];
-
-    private static void CheckAutomationGuard(ProjectModel model, List<Finding> findings)
+    private static void CheckJobGuard(ProjectModel model, List<Finding> findings)
     {
-        foreach (var automation in model.Records.Where(record => record.Type == "automation"))
+        foreach (var job in model.Records.Where(record => record.Type == "job" && record.Field("kind") == "manual"))
         {
-            var trigger = AutomationTrigger(automation);
-
-            if (trigger == "manual" && !FieldPresent(automation, "guard"))
+            if (!FieldPresent(job, "guard"))
             {
-                findings.Add(new Finding("automation-guard-missing", $"Automation '{automation.Id}' is a manual automation with no guard.", automation.File, automation.Line, SubjectOf(automation)));
-            }
-
-            if (trigger == "event")
-            {
-                foreach (var field in ScheduledFields)
-                {
-                    if (FieldPresent(automation, field))
-                    {
-                        findings.Add(new Finding("field-invalid", $"Automation '{automation.Id}' holds {field} with an event trigger.", automation.File, automation.Line, SubjectOf(automation)));
-                    }
-                }
+                findings.Add(new Finding("job-guard-missing", $"Job '{job.Id}' is a manual job with no guard.", job.File, job.Line, SubjectOf(job)));
             }
         }
     }
@@ -1186,38 +1154,28 @@ static partial class Checker
 
     private static void CheckSchedule(ProjectModel model, List<Finding> findings)
     {
-        foreach (var automation in model.Records.Where(record => record.Type == "automation"))
+        foreach (var job in model.Records.Where(record => record.Type == "job"))
         {
-            var trigger = AutomationTrigger(automation);
-            var structured = StructuredSchedule(automation);
+            var structured = StructuredSchedule(job);
 
-            if (trigger == "schedule" && !structured)
+            if (job.Field("kind") == "scheduled" && !structured)
             {
-                var missing = !HasTriggeredSchedule(automation);
+                var missing = !job.Has("schedule");
 
                 findings.Add(new Finding("schedule-invalid", missing
-                    ? $"Automation '{automation.Id}' runs on time with no structured schedule."
-                    : $"Automation '{automation.Id}' carries a schedule no tool can read.", automation.File, automation.Line, SubjectOf(automation)));
+                    ? $"Job '{job.Id}' runs on time with no structured schedule."
+                    : $"Job '{job.Id}' carries a schedule no tool can read.", job.File, job.Line, SubjectOf(job)));
             }
-            else if (trigger != "schedule" && HasTriggeredSchedule(automation) && !structured)
+            else if (job.Field("kind") != "scheduled" && job.Has("schedule") && !structured)
             {
-                findings.Add(new Finding("schedule-invalid", $"Automation '{automation.Id}' carries a schedule no tool can read.", automation.File, automation.Line, SubjectOf(automation)));
+                findings.Add(new Finding("schedule-invalid", $"Job '{job.Id}' carries a schedule no tool can read.", job.File, job.Line, SubjectOf(job)));
             }
         }
     }
 
-    /// <summary>Whether the automation carries a triggeredBy schedule.</summary>
-    private static bool HasTriggeredSchedule(Record automation) =>
-        automation.Raw.ValueKind == JsonValueKind.Object
-        && automation.Raw.TryGetProperty("triggeredBy", out var triggered)
-        && triggered.ValueKind == JsonValueKind.Object
-        && triggered.TryGetProperty("schedule", out _);
-
-    private static bool StructuredSchedule(Record automation) =>
-        automation.Raw.ValueKind == JsonValueKind.Object
-        && automation.Raw.TryGetProperty("triggeredBy", out var triggered)
-        && triggered.ValueKind == JsonValueKind.Object
-        && triggered.TryGetProperty("schedule", out var schedule)
+    private static bool StructuredSchedule(Record job) =>
+        job.Raw.ValueKind == JsonValueKind.Object
+        && job.Raw.TryGetProperty("schedule", out var schedule)
         && schedule.ValueKind == JsonValueKind.Object
         && (Str(schedule, "every") is { Length: > 0 } || Str(schedule, "cron") is { Length: > 0 } || Str(schedule, "at") == "startup");
 
@@ -1371,27 +1329,15 @@ static partial class Checker
         }
     }
 
-    private static void CheckAutomationTrigger(ProjectModel model, List<Finding> findings)
+    private static void CheckReactionTrigger(ProjectModel model, List<Finding> findings)
     {
-        foreach (var automation in model.Records.Where(record => record.Type == "automation"))
+        foreach (var reaction in model.Records.Where(record => record.Type == "reaction"))
         {
-            var triggers = AutomationEventTriggers(automation);
-            var kind = AutomationTrigger(automation);
-
-            if (kind is null)
-            {
-                findings.Add(new Finding("automation-trigger-unknown", $"Automation '{automation.Id}' names no single trigger.", automation.File, automation.Line, SubjectOf(automation)));
-                continue;
-            }
-
-            if (kind != "event")
-            {
-                continue;
-            }
+            var triggers = ReactionEventTriggers(reaction);
 
             if (triggers.Count == 0)
             {
-                findings.Add(new Finding("automation-trigger-unknown", $"Automation '{automation.Id}' names no trigger.", automation.File, automation.Line, SubjectOf(automation)));
+                findings.Add(new Finding("reaction-trigger-unknown", $"Reaction '{reaction.Id}' names no trigger.", reaction.File, reaction.Line, SubjectOf(reaction)));
                 continue;
             }
 
@@ -1401,11 +1347,11 @@ static partial class Checker
 
                 if (!model.ById.TryGetValue(baseId, out var resolved))
                 {
-                    findings.Add(new Finding("automation-trigger-unknown", $"Automation '{automation.Id}' names trigger '{trigger}' which no event holds.", automation.File, automation.Line, SubjectOf(automation)));
+                    findings.Add(new Finding("reaction-trigger-unknown", $"Reaction '{reaction.Id}' names trigger '{trigger}' which no event holds.", reaction.File, reaction.Line, SubjectOf(reaction)));
                 }
                 else if (resolved.Type is not ("event" or "integration-event"))
                 {
-                    findings.Add(new Finding("automation-trigger-unknown", $"Automation '{automation.Id}' names trigger '{trigger}' which is a {resolved.Type}.", automation.File, automation.Line, SubjectOf(automation)));
+                    findings.Add(new Finding("reaction-trigger-unknown", $"Reaction '{reaction.Id}' names trigger '{trigger}' which is a {resolved.Type}.", reaction.File, reaction.Line, SubjectOf(reaction)));
                 }
             }
         }
@@ -1525,7 +1471,7 @@ static partial class Checker
         findings.Add(new Finding("field-invalid", $"Aggregate '{aggregate.Id}' holds step '{id}' with compensation mode '{mode}' outside none, use-case.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
     }
 
-    /// <summary>Reports a saga driver naming no automation or no person runbook.</summary>
+    /// <summary>Reports a saga driver naming no job, reaction or person runbook.</summary>
     private static void CheckSagaDriver(ProjectModel model, Record aggregate, List<Finding> findings)
     {
         if (aggregate.Raw.ValueKind != JsonValueKind.Object
@@ -1537,7 +1483,7 @@ static partial class Checker
 
         var kinds = new List<string>();
 
-        foreach (var kind in new[] { "automation", "person" })
+        foreach (var kind in new[] { "job", "reaction", "person" })
         {
             if (driven.TryGetProperty(kind, out var value)
                 && value.ValueKind == JsonValueKind.String
@@ -1549,19 +1495,19 @@ static partial class Checker
 
         if (kinds.Count != 1)
         {
-            findings.Add(new Finding("field-invalid", $"Aggregate '{aggregate.Id}' holds a drivenBy naming no single automation or person.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
+            findings.Add(new Finding("field-invalid", $"Aggregate '{aggregate.Id}' holds a drivenBy naming no single job, reaction or person.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
             return;
         }
 
-        if (kinds[0] == "automation")
+        if (kinds[0] is "job" or "reaction")
         {
-            var id = driven.GetProperty("automation").GetString()!;
+            var id = driven.GetProperty(kinds[0]).GetString()!;
 
             if (!model.ById.TryGetValue(id, out var target))
             {
                 findings.Add(new Finding("reference-unknown", $"Aggregate '{aggregate.Id}' is driven by '{id}', which no record holds.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
             }
-            else if (target.Type != "automation")
+            else if (target.Type != kinds[0])
             {
                 findings.Add(new Finding("field-invalid", $"Aggregate '{aggregate.Id}' is driven by '{id}', which is a {target.Type}.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
             }
@@ -1740,7 +1686,7 @@ static partial class Checker
         }
     }
 
-    /// <summary>The record's effect entries: objects in its effects array. An automation entry without timing reads as async.</summary>
+    /// <summary>The record's effect entries: objects in its effects array. A reaction or job entry without timing reads as async.</summary>
     private static IReadOnlyList<JsonElement> EffectEntries(Record record)
     {
         if (record.Raw.ValueKind == JsonValueKind.Object

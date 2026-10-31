@@ -15,7 +15,7 @@ public sealed class TermLookalikeCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("notification", "notification/test.send-soldout-notice", Path.Combine(temp.Path, "soldout.md"), """{"template": "soldout"}"""),
-            TestModel.Record("automation", "automation/test.send-sold-out-notice-on-sale-ended", Path.Combine(temp.Path, "sold-out.md"), """{"triggeredBy": {"event": "event/sale.sale-ended"}}"""));
+            TestModel.Record("reaction", "reaction/test.send-sold-out-notice-on-sale-ended", Path.Combine(temp.Path, "sold-out.md"), """{"triggeredBy": ["event/sale.sale-ended"]}"""));
 
         var findings = Checker.Check(model).Findings.Where(finding => finding.Code == "term-clash").ToList();
         var finding = Assert.Single(findings);
@@ -23,7 +23,7 @@ public sealed class TermLookalikeCheckTests
         Assert.Contains("soldout", finding.Message, StringComparison.Ordinal);
         Assert.Contains("sold-out", finding.Message, StringComparison.Ordinal);
         Assert.Contains("notification/test.send-soldout-notice", finding.Message, StringComparison.Ordinal);
-        Assert.Contains("automation/test.send-sold-out-notice-on-sale-ended", finding.Message, StringComparison.Ordinal);
+        Assert.Contains("reaction/test.send-sold-out-notice-on-sale-ended", finding.Message, StringComparison.Ordinal);
     }
 
     /// <proves>litespec/core/authoring#review-each-term-for-its-lookalikes</proves>
@@ -48,7 +48,7 @@ public sealed class TermLookalikeCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("notification", "notification/test.send-soldout-notice", Path.Combine(temp.Path, "soldout.md"), """{"template": "soldout"}"""),
-            TestModel.Record("automation", "automation/test.send-sold-out-notice-on-sale-ended", Path.Combine(temp.Path, "sold-out.md"), """{"triggeredBy": {"event": "event/sale.sale-ended"}}"""));
+            TestModel.Record("reaction", "reaction/test.send-sold-out-notice-on-sale-ended", Path.Combine(temp.Path, "sold-out.md"), """{"triggeredBy": ["event/sale.sale-ended"]}"""));
 
         Assert.DoesNotContain("term-clash", TestModel.Codes(model));
     }

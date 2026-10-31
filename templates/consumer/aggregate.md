@@ -25,7 +25,7 @@
       "basis": "<statute|business|engineering>",
       "purpose": "<The purpose the data is kept for>",
       "period": "<ISO 8601 duration, or replace this value with { mode: none, reason: <the data stays until its subject asks> } when the data is held on demand>",
-      "enforcedBy": "<automation/<module>.<name>|record-expiry|store-ttl|query-filter>",
+      "enforcedBy": "<reaction/<module>.<name>|job/<module>.<name>|record-expiry|store-ttl|query-filter>",
       "reason": "<the product keeps this data beyond erasure, when exempt, otherwise remove this line>",
       "reviewBy": "<Date when exempt, otherwise remove this line>",
       "acceptedBy": "<Decision or requirement id when personal or sensitive with retain or exempt, otherwise remove this line>",
@@ -60,7 +60,7 @@
   "finishedWhen": "<the saga reached one of its exits>",
   "drivenBy": [
     {
-      "automation": "<automation/<module>.<name>; replace this entry with { person: <actor/<name> or role/<name>>, runbook: <runbook/<name>>, dueWithin: <ISO 8601 duration> } when a person drives the saga>"
+      "job": "<job/<module>.<name>; replace this entry with { reaction: <reaction/<module>.<name>> } when a reaction drives the saga, or with { person: <actor/<name> or role/<name>>, runbook: <runbook/<name>>, dueWithin: <ISO 8601 duration> } when a person drives the saga>"
     }
   ],
   "records": [

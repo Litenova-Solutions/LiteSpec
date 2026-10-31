@@ -8,7 +8,7 @@ Privacy and Retention states how the product handles personal data: the data cla
 
 ### Retention Schedule
 
-The retention schedule is one page listing every data class with its purpose, basis, period, enforcement, and the requirement behind personal or sensitive keeping. It states the time limits of a record of processing; the deleting automation and the evidence are LiteSpec extensions to that record. The project's counsel confirms the wording. Processors and conflicts sit on the row: where the data forwards, and which demand wins when keeping for audit and erasing for the subject collide, with who records the exception. The rows render from the data classes as a generated region.
+The retention schedule is one page listing every data class with its purpose, basis, period, enforcement, and the requirement behind personal or sensitive keeping. It states the time limits of a record of processing; the deleting job and the evidence are LiteSpec extensions to that record. The project's counsel confirms the wording. Processors and conflicts sit on the row: where the data forwards, and which demand wins when keeping for audit and erasing for the subject collide, with who records the exception. The rows render from the data classes as a generated region.
 
 | Field | Meaning |
 |:---|:---|
@@ -37,9 +37,9 @@ The retention schedule is one page listing every data class with its purpose, ba
 
 **Statement:** Each data class MUST declare its classification, its fields, its purpose, its erasure position, its basis, its retention period, and the enforcement that carries it out.
 
-**Rationale:** Erasure declared per field drifts: one field keeps a new position while its twin keeps the old one. Declaring the position once per class, with per-field exceptions beside it, keeps one decision in one place. The position is `erase`, `pseudonymize`, `anonymize`, `retain`, or `exempt`; the basis is `statute`, `business`, or `engineering`; the period is an ISO 8601 duration or `{ "mode": "none", "reason": "..." }`; the enforcement is `automation/...`, `record-expiry`, `store-ttl`, or `query-filter`. A pseudonymized class stays personal with its basis, and an anonymized class can no longer identify anyone. The `erasure-undeclared` check reports a personal or sensitive field with no declared position, and `retention-enforcement-missing` reports a class nothing enforces.
+**Rationale:** Erasure declared per field drifts: one field keeps a new position while its twin keeps the old one. Declaring the position once per class, with per-field exceptions beside it, keeps one decision in one place. The position is `erase`, `pseudonymize`, `anonymize`, `retain`, or `exempt`; the basis is `statute`, `business`, or `engineering`; the period is an ISO 8601 duration or `{ "mode": "none", "reason": "..." }`; the enforcement is `reaction/...`, `job/...`, `record-expiry`, `store-ttl`, or `query-filter`. A pseudonymized class stays personal with its basis, and an anonymized class can no longer identify anyone. The `erasure-undeclared` check reports a personal or sensitive field with no declared position, and `retention-enforcement-missing` reports a class nothing enforces.
 
-**Example:** The submitter-contact class declares `personal`, `pseudonymize`, its purpose, and its approving requirement, while the expense-ledger class declares `internal`, `retain`, a statutory seven years, and the finance expiry automation.
+**Example:** The submitter-contact class declares `personal`, `pseudonymize`, its purpose, and its approving requirement, while the expense-ledger class declares `internal`, `retain`, a statutory seven years, and the finance expiry job.
 
 **Checked by:** `litespec model check` reports `erasure-undeclared` for a personal or sensitive field with no declared position and `retention-enforcement-missing` for a class nothing enforces.
 

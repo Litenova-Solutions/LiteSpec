@@ -14,7 +14,7 @@ In the Claimwick product, `use-case/spending.submit-expense` stages the new expe
 
 ### Consistency Modes
 
-Each use-case record declares one consistency mode, and persistence honors it. `atomic` commits everything the handler staged in one unit of work. `per-record` lets an automation run one command per record, and each command commits alone with the cursor resuming the rest. `compensated` commits each step in its own command, and a failure runs the compensation the step declares. Every mode still commits once per command pipeline; the mode decides how work splits across commands.
+Each use-case record declares one consistency mode, and persistence honors it. `atomic` commits everything the handler staged in one unit of work. `per-record` lets a job run one command per record, and each command commits alone with the cursor resuming the rest. `compensated` commits each step in its own command, and a failure runs the compensation the step declares. Every mode still commits once per command pipeline; the mode decides how work splits across commands.
 
 ### Provider-Neutral and Provider-Specific Rules
 
@@ -56,7 +56,7 @@ The manifest pins both providers' packages, because the extension is part of thi
 
 **Statement:** Exactly one global command post-handler MUST commit the session for a command pipeline.
 
-**Rationale:** One commit point makes the transaction boundary visible: everything the handler staged succeeds or fails together, and a failed command leaves the session uncommitted. If handlers or repositories committed, a later failure in the same pipeline leaves a partial write behind. Handlers, repositories, validators, automations, and endpoints commit nothing. A declared consistency mode other than `atomic` splits work across commands; each command still commits once.
+**Rationale:** One commit point makes the transaction boundary visible: everything the handler staged succeeds or fails together, and a failed command leaves the session uncommitted. If handlers or repositories committed, a later failure in the same pipeline leaves a partial write behind. Handlers, repositories, validators, reactions, jobs, and endpoints commit nothing. A declared consistency mode other than `atomic` splits work across commands; each command still commits once.
 
 **Example:** In the Claimwick product, `use-case/spending.submit-expense` stages the expense through its Domain repository, and one post-handler commits once after the handler returns:
 
@@ -66,9 +66,9 @@ post-handler collects the pending events
 post-handler commits the session once
 ```
 
-A failed submission leaves the session uncommitted, so no partial expense is stored. Handlers, repositories, validators, automations, and endpoints commit nothing.
+A failed submission leaves the session uncommitted, so no partial expense is stored. Handlers, repositories, validators, reactions, jobs, and endpoints commit nothing.
 
-**Reviewed for:** Which pipelines commit outside one command post-handler, or which handlers, repositories, validators, automations, or endpoints commit? Look at the commit calls in each pipeline.
+**Reviewed for:** Which pipelines commit outside one command post-handler, or which handlers, repositories, validators, reactions, jobs, or endpoints commit? Look at the commit calls in each pipeline.
 
 ### Honor the Declared Consistency Mode
 
@@ -76,9 +76,9 @@ A failed submission leaves the session uncommitted, so no partial expense is sto
 
 **Statement:** Persistence MUST commit a command exactly as its use-case record's `consistency` mode states.
 
-**Rationale:** `atomic` commits everything the handler staged in one unit of work, citing the rule in `cites` when `changes` names more than one aggregate. `per-record` commits each record's command alone, with the automation resuming from its cursor after a failure. `compensated` commits each step alone, and a failure runs the compensation the step declares. A second commit in one command splits one unit of work across two transactions, so the failure between them leaves a partial write.
+**Rationale:** `atomic` commits everything the handler staged in one unit of work, citing the rule in `cites` when `changes` names more than one aggregate. `per-record` commits each record's command alone, with the job resuming from its cursor after a failure. `compensated` commits each step alone, and a failure runs the compensation the step declares. A second commit in one command splits one unit of work across two transactions, so the failure between them leaves a partial write.
 
-**Example:** The erase-expired-data automation commits each expense alone under `per-record`; the submit-expense command commits its staged aggregates together under `atomic`.
+**Example:** The erase-expired-data job commits each expense alone under `per-record`; the submit-expense command commits its staged aggregates together under `atomic`.
 
 **Reviewed for:** Which commands commit outside their record's `consistency` mode? Look at each commit beside the record's mode.
 

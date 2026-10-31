@@ -2,7 +2,7 @@
 
 ## Intent
 
-The backend is a modular monolith of five parts: Domain holds business rules, Application coordinates use cases, Application.Abstractions holds the contracts that more than one module names, Infrastructure holds technical adapters, and WebApi hosts HTTP. A use case is one command or query with its access, results, and scenarios, and an automation answers an event by running a command or sending a notification. This page states those parts, the direction their references point, and how modules and use cases organize every layer; a team building the backend reads it before the layer pages, which state what each part owns.
+The backend is a modular monolith of five parts: Domain holds business rules, Application coordinates use cases, Application.Abstractions holds the contracts that more than one module names, Infrastructure holds technical adapters, and WebApi hosts HTTP. A use case is one command or query with its access, results, and scenarios, a reaction answers an event by running a command or sending a notification, and a job runs work on a schedule or by hand. This page states those parts, the direction their references point, and how modules and use cases organize every layer; a team building the backend reads it before the layer pages, which state what each part owns.
 
 ## Concepts
 
@@ -22,15 +22,15 @@ Part boundaries are not deployment boundaries: the parts deploy together as one 
 
 ### Modules and Use Cases
 
-A [module](../reference/glossary.md) is one business area organizing language, records, use cases, and ownership. A [use case](../reference/glossary.md) is one command or query with its access, results, and scenarios. An [automation](../reference/glossary.md) runs work without a request: on an event, on a schedule, or by hand. Every layer uses the same module names and orders its folders as module, then aggregate, then layer detail, so a reader moves from a Domain aggregate to its handler, its domain repository, and its endpoint without a map.
+A [module](../reference/glossary.md) is one business area organizing language, records, use cases, and ownership. A [use case](../reference/glossary.md) is one command or query with its access, results, and scenarios. A [reaction](../reference/glossary.md) answers an event without a request, and a [job](../reference/glossary.md) runs work on a schedule or by hand. Every layer uses the same module names and orders its folders as module, then aggregate, then layer detail, so a reader moves from a Domain aggregate to its handler, its domain repository, and its endpoint without a map.
 
 ### Commands and Queries
 
-CQRS separates the command and query models inside the one Application part: a command mutates one aggregate through its domain repository, while a query projects read results without loading an aggregate and without writing. A use case whose record declares `consistency: atomic` over several aggregates is the declared exception, naming each aggregate it changes. An automation answers its trigger by running a command or sending a notification, running one command per item in its selection when scheduled or manual; it never travels the command pipeline itself. Publishing a post, for example, runs a `PublishPostCommand` through the handler and the domain repository, while reading a post runs a query that projects the stored data directly to its result.
+CQRS separates the command and query models inside the one Application part: a command mutates one aggregate through its domain repository, while a query projects read results without loading an aggregate and without writing. A use case whose record declares `consistency: atomic` over several aggregates is the declared exception, naming each aggregate it changes. A reaction answers its trigger by running a command or sending a notification, and a scheduled or manual job runs one command per item in its selection; neither travels the command pipeline itself. Publishing a post, for example, runs a `PublishPostCommand` through the handler and the domain repository, while reading a post runs a query that projects the stored data directly to its result.
 
 ### From Records to Code
 
-Behavior records map onto code one way: each code element carries a mark naming the record it serves, under `litespec/core/system#point-code-and-tests-up-to-records`, and the folders mirror the records so a reader finds the code. Automations, notifications, settings, and integration events map onto the code shapes the layer pages state. Nothing above Implementation is computed from code: code points up to the record it serves, and an undeclared edge or outcome is the defect.
+Behavior records map onto code one way: each code element carries a mark naming the record it serves, under `litespec/core/system#point-code-and-tests-up-to-records`, and the folders mirror the records so a reader finds the code. Reactions, jobs, notifications, settings, and integration events map onto the code shapes the layer pages state. Nothing above Implementation is computed from code: code points up to the record it serves, and an undeclared edge or outcome is the defect.
 
 ## Standards
 
@@ -64,7 +64,7 @@ Behavior records map onto code one way: each code element carries a mark naming 
 
 **Statement:** An application MUST place commands, queries, results, validators, handlers, event handler classes, and module-owned ports in one Application part, and cross-module contracts in Application.Abstractions, or in Application where the project merges them under `litespec/backend/architecture#use-five-application-parts`.
 
-**Rationale:** Commands, queries, and automations coordinate the same use cases, so splitting them into Write, Read, Contracts, and event-handler parts buys unused deployment boundaries at the cost of a dependency every use case crosses. Event handlers live in Application `On{Fact}` folders of the aggregate whose records they change, under `litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle`. The separation this backend keeps is the one [Fowler describes as CQRS](https://www.martinfowler.com/bliki/CQRS.html): separate command and query models inside one Application part, with cross-module contracts in Application.Abstractions.
+**Rationale:** Commands, queries, reactions, and jobs coordinate the same use cases, so splitting them into Write, Read, Contracts, and event-handler parts buys unused deployment boundaries at the cost of a dependency every use case crosses. Event handlers live in Application `On{Fact}` folders of the aggregate whose records they change, under `litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle`. The separation this backend keeps is the one [Fowler describes as CQRS](https://www.martinfowler.com/bliki/CQRS.html): separate command and query models inside one Application part, with cross-module contracts in Application.Abstractions.
 
 **Reviewed for:** Which messages, handlers, event handler classes, or ports sit outside the Application part, or which cross-module contracts sit outside the shared contracts part and the merged Application? Look at the Application part beside the shared contracts.
 
@@ -268,4 +268,4 @@ Publishing a post follows this direction:
 2. Application loads the post through its domain repository.
 3. Domain publishing enforces publication rules and raises the post-published event.
 4. Infrastructure stages and commits the post through the command pipeline.
-5. One event handler class answers the event through the automation its record declares under `litespec/backend/application#keep-event-automation-implementations-explicit`, carrying one mark naming that record.
+5. One event handler class answers the event through the reaction its record declares under `litespec/backend/application#keep-reaction-implementations-explicit`, carrying one mark naming that record.

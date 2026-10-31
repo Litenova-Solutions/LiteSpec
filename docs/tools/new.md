@@ -17,7 +17,7 @@ litespec new entry <page-id> <type> <name> [--root <path>]
 
 This command creates one record page from the template for its type, with the opening specification metadata block already filled. It reserves the identifier before any prose exists, so two authors working in parallel never mint the same identifier twice. The second author learns the clash at creation and picks another name.
 
-`<type>` is the record type or page style, such as `automation`, `use-case`, or `decision`. `<id>` is the `home.name` part of the identifier, such as `spending.send-approver-reminder-on-expense-submitted`; the command composes the full identifier as `<type>/<id>`. The page is written at the home its type owns: an automation under `modules/<module>/automations/`, a notification under `modules/<module>/notifications/`, a decision under the decisions folder. A use-case page starts under `reads/` beside its module; move the file beside its aggregate once the use case names one. The command refuses an identifier a record already carries.
+`<type>` is the record type or page style, such as `reaction`, `job`, `use-case`, or `decision`. `<id>` is the `home.name` part of the identifier, such as `spending.send-approver-reminder-on-expense-submitted`; the command composes the full identifier as `<type>/<id>`. The page is written at the home its type owns: a reaction under `modules/<module>/reactions/`, a job under `modules/<module>/jobs/`, a notification under `modules/<module>/notifications/`, a decision under the decisions folder. A use-case page starts under `reads/` beside its module; move the file beside its aggregate once the use case names one. The command refuses an identifier a record already carries.
 
 Run it before writing any new record, as `litespec/core/authoring#scaffold-pages-and-reserve-identifiers` states. Validate the new page before committing it.
 
@@ -57,10 +57,10 @@ A release record starts from `templates/consumer/release-record.md`: copy it to 
 
 ## Examples
 
-Scaffold an automation and reserve its identifier:
+Scaffold a reaction and reserve its identifier:
 
 ```bash
-litespec new automation spending.send-approver-reminder-on-expense-submitted
+litespec new reaction spending.send-approver-reminder-on-expense-submitted
 ```
 
 Scaffold a use case in the orders module:

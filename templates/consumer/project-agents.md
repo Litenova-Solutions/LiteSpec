@@ -14,7 +14,7 @@ Query the model builder for the records a task touches, with their links and the
 
 Write each layer from the layer above it: Intent states the promises, Behavior states how the system keeps them, Implementation is code only, and Proof shows the checks. Never compute a record from code.
 
-Declare every edge between use cases, automations, notifications, integration events, and external systems. An undeclared edge is the defect.
+Declare every edge between use cases, reactions, jobs, notifications, integration events, and external systems. An undeclared edge is the defect.
 
 Send Intent changes to the decider, Behavior changes to developers, and access widenings, new outside calls, and new personal-data flows to the security reviewer. Tier-1 questions need explicit approval, and tier-3 questions auto-approve after the veto window.
 

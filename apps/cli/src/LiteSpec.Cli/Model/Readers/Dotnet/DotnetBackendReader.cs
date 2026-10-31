@@ -323,7 +323,8 @@ sealed class DotnetBackendReader : IBackendReader
                 lock (gate)
                 {
                     merged.Handlers.AddRange(local.Handlers);
-                    merged.Automations.AddRange(local.Automations);
+                    merged.Reactions.AddRange(local.Reactions);
+                    merged.Jobs.AddRange(local.Jobs);
                     merged.Events.AddRange(local.Events);
                     merged.Elements.AddRange(local.Elements);
                     merged.StrayMarks.AddRange(local.StrayMarks);
@@ -351,10 +352,14 @@ sealed class DotnetBackendReader : IBackendReader
             .ThenBy(stray => stray.Line)
             .ThenBy(stray => stray.Class, StringComparer.Ordinal)
             .ThenBy(stray => stray.Member ?? "", StringComparer.Ordinal));
-        model.Automations.AddRange(merged.Automations
-            .OrderBy(automation => automation.File, StringComparer.Ordinal)
-            .ThenBy(automation => automation.Line)
-            .ThenBy(automation => automation.Class, StringComparer.Ordinal));
+        model.Reactions.AddRange(merged.Reactions
+            .OrderBy(reaction => reaction.File, StringComparer.Ordinal)
+            .ThenBy(reaction => reaction.Line)
+            .ThenBy(reaction => reaction.Class, StringComparer.Ordinal));
+        model.Jobs.AddRange(merged.Jobs
+            .OrderBy(job => job.File, StringComparer.Ordinal)
+            .ThenBy(job => job.Line)
+            .ThenBy(job => job.Class, StringComparer.Ordinal));
         model.Events.AddRange(merged.Events
             .OrderBy(domainEvent => domainEvent.File, StringComparer.Ordinal)
             .ThenBy(domainEvent => domainEvent.Line)
@@ -686,7 +691,7 @@ sealed class DotnetBackendReader : IBackendReader
 
     /// <summary>
     ///     Reads every recognized element of one file into the model: the element itself
-    ///     with its marks, and the handler, automation, event or endpoint row its kind owns.
+    ///     with its marks, and the handler, reaction, job, event or endpoint row its kind owns.
     ///     Every record link comes from a mark the element carries.
     /// </summary>
     private static void ReadElements(
@@ -735,8 +740,10 @@ sealed class DotnetBackendReader : IBackendReader
                         ReadHandler(file, tree, declared, marks, model, helpers, aggregateRoots, holders, context);
                         break;
                     case CodeKind.EventHandler:
+                        ReadReaction(file, tree, declared, marks, model, helpers, holders);
+                        break;
                     case CodeKind.Job:
-                        ReadAutomation(file, tree, declared, marks, model, helpers, holders);
+                        ReadJob(file, tree, declared, marks, model, helpers, holders);
                         break;
                     case CodeKind.DomainEvent:
                         model.Events.Add(new DomainEventInfo(
@@ -831,27 +838,6 @@ sealed class DotnetBackendReader : IBackendReader
         return found;
     }
 
-    /// <summary>The one automation mark the element carries, or null when it carries none or several.</summary>
-    private static string? SingleAutomationMark(IReadOnlyList<CodeMark> marks)
-    {
-        string? found = null;
-
-        foreach (var mark in marks)
-        {
-            if (mark.RecordId.StartsWith("automation/", StringComparison.Ordinal))
-            {
-                if (found is not null)
-                {
-                    return null;
-                }
-
-                found = mark.RecordId;
-            }
-        }
-
-        return found;
-    }
-
     /// <summary>Reads one handler: its use case from its one use-case mark, its shape from its class.</summary>
     private static void ReadHandler(
         string file,
@@ -900,8 +886,8 @@ sealed class DotnetBackendReader : IBackendReader
         });
     }
 
-    /// <summary>Reads one event handler or job host: its automation mark, and a use-case mark when one sits beside it.</summary>
-    private static void ReadAutomation(
+    /// <summary>Reads one event handler: its reaction mark, and a use-case mark when one sits beside it.</summary>
+    private static void ReadReaction(
         string file,
         SyntaxTree tree,
         TypeDeclarationSyntax declared,
@@ -910,12 +896,37 @@ sealed class DotnetBackendReader : IBackendReader
         Dictionary<string, List<HelperMethod>> helpers,
         HashSet<string> holders)
     {
-        model.Automations.Add(new AutomationInfo(
+        model.Reactions.Add(new ReactionInfo(
             declared.Identifier.ValueText,
             file,
             tree.GetLineSpan(declared.Span).StartLinePosition.Line + 1,
             SingleMark(marks, "use-case/"),
-            SingleAutomationMark(marks),
+            SingleMark(marks, "reaction/"),
+            RepositoriesOf(declared, tree, file),
+            RefusalsOf(declared, tree, file),
+            ThrownOf(declared, tree, file),
+            DispatchesOf(declared, tree, file, helpers),
+            DependencyCountOf(declared),
+            CollaboratorsOf(declared, tree, file, holders),
+            LoopReadsOf(declared, tree, file)));
+    }
+
+    /// <summary>Reads one job host: its job mark, and a use-case mark when one sits beside it.</summary>
+    private static void ReadJob(
+        string file,
+        SyntaxTree tree,
+        TypeDeclarationSyntax declared,
+        IReadOnlyList<CodeMark> marks,
+        CodeModel model,
+        Dictionary<string, List<HelperMethod>> helpers,
+        HashSet<string> holders)
+    {
+        model.Jobs.Add(new JobInfo(
+            declared.Identifier.ValueText,
+            file,
+            tree.GetLineSpan(declared.Span).StartLinePosition.Line + 1,
+            SingleMark(marks, "use-case/"),
+            SingleMark(marks, "job/"),
             RepositoriesOf(declared, tree, file),
             RefusalsOf(declared, tree, file),
             ThrownOf(declared, tree, file),

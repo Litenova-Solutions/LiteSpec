@@ -28,10 +28,10 @@ public enum CodeKind
     /// </summary>
     Handler = 4,
 
-    /// <summary>An event handler, marked with one <c>automation/</c> record.</summary>
+    /// <summary>An event handler, marked with one <c>reaction/</c> record.</summary>
     EventHandler = 5,
 
-    /// <summary>A job host, marked with one <c>automation/</c> record.</summary>
+    /// <summary>A job host, marked with one <c>job/</c> record.</summary>
     Job = 6,
 
     /// <summary>

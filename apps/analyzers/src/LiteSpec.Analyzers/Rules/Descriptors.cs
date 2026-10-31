@@ -145,9 +145,9 @@ internal static class Descriptors
         "An endpoint is named {UseCase}Endpoint, so the model builder discovers each endpoint from its file name.");
 
     public static readonly DiagnosticDescriptor LS2007 = Create("LS2007", LayersCategory, RoleSuffixes,
-        "Automation name hides its kind",
+        "Reaction or job name hides its kind",
         "'{0}' is a {1} and must be named '{2}'",
-        "An event automation is named {Action}On{Fact}Handler, and a scheduled automation *Job, *Worker, or *Recurring*, so the model builder discovers each automation by name.");
+        "A reaction is named {Action}On{Fact}Handler, and a job *Job, *Worker, or *Recurring*, so the model builder discovers each reaction or job by name.");
 
     public static readonly DiagnosticDescriptor LS2008 = Create("LS2008", LayersCategory, EventHandlerFolders,
         "Event handler sits outside its fact folder",
@@ -186,8 +186,8 @@ internal static class Descriptors
 
     public static readonly DiagnosticDescriptor LS2015 = Create("LS2015", LayersCategory, PerRecordWork,
         "Command handler changes records in a loop",
-        "Command handler '{0}' calls '{1}' in a loop; an automation runs one command per record",
-        "A command handler never changes records in a loop; work over many records is an automation that runs one command per record, each in its own unit of work.");
+        "Command handler '{0}' calls '{1}' in a loop; a job runs one command per record",
+        "A command handler never changes records in a loop; work over many records is a job that runs one command per record, each in its own unit of work.");
 
     public static readonly DiagnosticDescriptor LS2016 = Create("LS2016", LayersCategory, UniquenessOutOfHandlers,
         "Handler takes a pipeline-owned collaborator",

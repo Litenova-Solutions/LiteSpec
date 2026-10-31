@@ -150,7 +150,7 @@ An unapproved expense keeps its state, and the refusal carries the stable code `
 
 **Statement:** The root methods marked with a use case MUST together raise exactly the events that use case lists in `raises`.
 
-**Rationale:** The use case record states the facts its act leaves behind, and automations subscribe to those facts. A marked method that raises an event the record does not list starts a consequence nobody reviewed, and a listed event that no marked method raises is a promise the code does not keep.
+**Rationale:** The use case record states the facts its act leaves behind, and reactions subscribe to those facts. A marked method that raises an event the record does not list starts a consequence nobody reviewed, and a listed event that no marked method raises is a promise the code does not keep.
 
 **Example:** `use-case/spending.submit-expense` raises `event/expense.submitted`, and the `Submit` method marked with it raises `ExpenseSubmittedEvent` and nothing else.
 
@@ -294,7 +294,7 @@ The Infrastructure implementation owns that refusal. The command pipeline owns t
 
 **Statement:** A domain event MUST be immutable and carry business data only.
 
-**Rationale:** A domain event records a completed fact for automations to consume. Its name states the aggregate and the completed fact, following `litespec/workspace/naming#anchor-aggregate-owned-types-on-the-aggregate-root` and `litespec/workspace/naming#use-architectural-suffixes`, so a reader knows which aggregate raised the fact without opening the file. The event carries business data only: typed identifiers and the values its automations need, with no aggregate, session, service, mutable collection, or thrown error, because any of those would couple automations to the raising aggregate. Envelope identity, such as message identity and causation identity, lives on the published integration event that carries the fact outside the process. That integration event names the domain event in `translates`.
+**Rationale:** A domain event records a completed fact for reactions to consume. Its name states the aggregate and the completed fact, following `litespec/workspace/naming#anchor-aggregate-owned-types-on-the-aggregate-root` and `litespec/workspace/naming#use-architectural-suffixes`, so a reader knows which aggregate raised the fact without opening the file. The event carries business data only: typed identifiers and the values its reactions need, with no aggregate, session, service, mutable collection, or thrown error, because any of those would couple reactions to the raising aggregate. Envelope identity, such as message identity and causation identity, lives on the published integration event that carries the fact outside the process. That integration event names the domain event in `translates`.
 
 **Reviewed for:** Which domain events mutate, misname their aggregate or fact, or carry more than business data? Look at each domain event.
 

@@ -386,7 +386,7 @@ public sealed class BookOutlineTests
                 {
                     ["code"] = "use-case-unimplemented",
                     ["tier"] = "G",
-                    ["message"] = "Use case 'use-case/lending.borrow-copy' has no handler or automation.",
+                    ["message"] = "Use case 'use-case/lending.borrow-copy' has no handler, reaction or job.",
                     ["subject"] = "use-case/lending.borrow-copy",
                     ["path"] = "docs/borrow-copy.md",
                     ["line"] = 3,
@@ -416,7 +416,7 @@ public sealed class BookOutlineTests
         Assert.NotNull(open);
         Assert.Equal("finding", open!.Kind);
         Assert.Equal("finding", open.Type);
-        Assert.Equal("Use case 'use-case/lending.borrow-copy' has no handler or automation.", open.Label);
+        Assert.Equal("Use case 'use-case/lending.borrow-copy' has no handler, reaction or job.", open.Label);
         var accepted = useCase.Children.SingleOrDefault(child => string.Equals(child.Id, "finding/3", StringComparison.Ordinal));
         Assert.NotNull(accepted);
         Assert.Equal("finding", accepted!.Kind);
@@ -453,27 +453,30 @@ public sealed class BookOutlineTests
         Assert.True(loan!.Children.Any(child => string.Equals(child.Id, "use-case/lending.borrow-copy", StringComparison.Ordinal)));
     }
 
-    /// <summary>An automation parents its module by identifier home and sorts with the module children.</summary>
+    /// <summary>A reaction and a job parent their module by identifier home and sort with the module children.</summary>
     /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Fact]
-    public void Automation_Parents_Its_Module_By_Identifier_Home()
+    public void Reactions_And_Jobs_Parent_Their_Module_By_Identifier_Home()
     {
         var model = Model(
             Record("product", "product/library", "Library", "approved"),
             Record("module", "module/lending", "Lending", "reviewed"),
             Record("aggregate", "aggregate/lending.loan", "Loan", "reviewed"),
             Record("use-case", "use-case/lending.borrow-copy", "Borrow Copy", "reviewed", aggregate: "aggregate/lending.loan"),
-            Record("automation", "automation/lending.send-due-reminder-on-loan-due", "Send Due Reminder", "reviewed"),
+            Record("reaction", "reaction/lending.send-due-reminder-on-loan-due", "Send Due Reminder", "reviewed"),
+            Record("job", "job/lending.send-overdue-notices", "Send Overdue Notices", "reviewed"),
             Record("notification", "notification/lending.due-reminder", "Due Reminder", "reviewed"));
 
-        Assert.Equal("module/lending", BookParents.ParentOf(model, "automation/lending.send-due-reminder-on-loan-due"));
+        Assert.Equal("module/lending", BookParents.ParentOf(model, "reaction/lending.send-due-reminder-on-loan-due"));
+        Assert.Equal("module/lending", BookParents.ParentOf(model, "job/lending.send-overdue-notices"));
 
         var outline = BookOutline.Build(model);
-        Assert.DoesNotContain("automation/lending.send-due-reminder-on-loan-due", outline.Unplaced);
+        Assert.DoesNotContain("reaction/lending.send-due-reminder-on-loan-due", outline.Unplaced);
+        Assert.DoesNotContain("job/lending.send-overdue-notices", outline.Unplaced);
         var module = Find(outline.Layers, "module/lending");
         Assert.NotNull(module);
         Assert.Equal(
-            new[] { "aggregate", "automation", "notification" },
+            new[] { "aggregate", "reaction", "job", "notification" },
             module!.Children
                 .Where(child => string.Equals(child.Kind, "record", StringComparison.Ordinal))
                 .Select(child => child.Type)

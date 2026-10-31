@@ -3,12 +3,12 @@ using LiteSpec.Analyzers.Tests.Support;
 
 namespace LiteSpec.Analyzers.Tests.Layers;
 
-/// <summary>Tests for LS2007, automation names.</summary>
+/// <summary>Tests for LS2007, reaction and job names.</summary>
 public sealed class AutomationNamingAnalyzerTests
 {
     /// <proves>litespec/workspace/naming#use-architectural-suffixes</proves>
-    [Fact(DisplayName = "LS2007 reports an event automation without an automation name")]
-    public Task ReportsAnEventAutomationWithoutAnAutomationName() =>
+    [Fact(DisplayName = "LS2007 reports a reaction without a reaction name")]
+    public Task ReportsAReactionWithoutAReactionName() =>
         Verify.AnalyzerAsync<AutomationNamingAnalyzer>("""
             namespace Shop.Orders;
 
@@ -37,8 +37,8 @@ public sealed class AutomationNamingAnalyzerTests
             """, assemblyName: "Shop.Application");
 
     /// <proves>litespec/workspace/naming#use-architectural-suffixes</proves>
-    [Fact(DisplayName = "LS2007 reports an event automation without an automation name on either contract")]
-    public Task ReportsAnEventAutomationWithoutAnAutomationNameOnEitherContract() =>
+    [Fact(DisplayName = "LS2007 reports a reaction without a reaction name on either contract")]
+    public Task ReportsAReactionWithoutAReactionNameOnEitherContract() =>
         Verify.AnalyzerAsync<AutomationNamingAnalyzer>("""
             namespace Shop.Orders;
 
@@ -63,8 +63,8 @@ public sealed class AutomationNamingAnalyzerTests
             """, assemblyName: "Shop.Application");
 
     /// <proves>litespec/workspace/naming#use-architectural-suffixes</proves>
-    [Fact(DisplayName = "LS2007 reports a scheduled automation without an automation name")]
-    public Task ReportsAScheduledAutomationWithoutAnAutomationName() =>
+    [Fact(DisplayName = "LS2007 reports a job without a job name")]
+    public Task ReportsAJobWithoutAJobName() =>
         Verify.AnalyzerAsync<AutomationNamingAnalyzer>("""
             namespace Shop.Orders;
 
@@ -76,8 +76,8 @@ public sealed class AutomationNamingAnalyzerTests
             """, assemblyName: "Shop.Application");
 
     /// <proves>litespec/workspace/naming#use-architectural-suffixes</proves>
-    [Fact(DisplayName = "LS2007 reports a scheduled automation without an automation name in Worker")]
-    public Task ReportsAScheduledAutomationWithoutAnAutomationNameInWorker() =>
+    [Fact(DisplayName = "LS2007 reports a job without a job name in Worker")]
+    public Task ReportsAJobWithoutAJobNameInWorker() =>
         Verify.AnalyzerAsync<AutomationNamingAnalyzer>("""
             namespace Shop.Orders;
 
@@ -89,8 +89,8 @@ public sealed class AutomationNamingAnalyzerTests
             """, assemblyName: "Shop.Worker");
 
     /// <proves>litespec/workspace/naming#use-architectural-suffixes</proves>
-    [Fact(DisplayName = "LS2007 ignores a bare hosted service without an automation name")]
-    public Task IgnoresABareHostedServiceWithoutAnAutomationName() =>
+    [Fact(DisplayName = "LS2007 ignores a bare hosted service without a job name")]
+    public Task IgnoresABareHostedServiceWithoutAJobName() =>
         Verify.AnalyzerAsync<AutomationNamingAnalyzer>("""
             namespace Shop.Orders;
 
@@ -146,7 +146,7 @@ public sealed class AutomationNamingAnalyzerTests
             """, assemblyName: "Shop.Application");
 
     /// <proves>litespec/workspace/naming#use-architectural-suffixes</proves>
-    [Fact(DisplayName = "LS2007 ignores a class that is neither event automation nor scheduled automation")]
+    [Fact(DisplayName = "LS2007 ignores a class that is neither reaction nor job")]
     public Task IgnoresAnOrdinaryClass() =>
         Verify.AnalyzerAsync<AutomationNamingAnalyzer>("""
             namespace Shop.Orders;
@@ -157,8 +157,8 @@ public sealed class AutomationNamingAnalyzerTests
             """, assemblyName: "Shop.Application");
 
     /// <proves>litespec/workspace/naming#use-architectural-suffixes</proves>
-    [Fact(DisplayName = "LS2007 ignores an automation outside Application and Infrastructure")]
-    public Task IgnoresAnAutomationOutsideItsLayers() =>
+    [Fact(DisplayName = "LS2007 ignores a reaction outside Application and Infrastructure")]
+    public Task IgnoresAReactionOutsideItsLayers() =>
         Verify.AnalyzerAsync<AutomationNamingAnalyzer>("""
             namespace Shop.Orders;
 

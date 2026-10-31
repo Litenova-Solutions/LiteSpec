@@ -48,7 +48,7 @@ public static class Identifiers
     /// <summary>A refusal code in identifier form: module and name in kebab-case.</summary>
     public static Regex RefusalCode() => RefusalCodeRegex;
 
-    /// <summary>A written anchor on an automation.</summary>
+    /// <summary>A written anchor on a reaction or job.</summary>
     public static Regex ImplementsTag() => ImplementsTagRegex;
 
     /// <summary>A test's claim of the scenario or rule it proves.</summary>

@@ -17,7 +17,8 @@
     { "$ref": "#/$defs/modulePage" },
     { "$ref": "#/$defs/aggregatePage" },
     { "$ref": "#/$defs/useCasePage" },
-    { "$ref": "#/$defs/automationPage" },
+    { "$ref": "#/$defs/reactionPage" },
+    { "$ref": "#/$defs/jobPage" },
     { "$ref": "#/$defs/notificationPage" },
     { "$ref": "#/$defs/externalSystemPage" },
     { "$ref": "#/$defs/integrationEventPage" },
@@ -146,9 +147,13 @@
       "type": "string",
       "pattern": "^external-system/[a-z0-9][a-z0-9-]*#[a-z0-9][a-z0-9-]*$"
     },
-    "automationId": {
+    "reactionId": {
       "type": "string",
-      "pattern": "^automation/[a-z0-9][a-z0-9-]*\\.[a-z0-9][a-z0-9-]*$"
+      "pattern": "^reaction/[a-z0-9][a-z0-9-]*\\.[a-z0-9][a-z0-9-]*$"
+    },
+    "jobId": {
+      "type": "string",
+      "pattern": "^job/[a-z0-9][a-z0-9-]*\\.[a-z0-9][a-z0-9-]*$"
     },
     "notificationId": {
       "type": "string",
@@ -592,7 +597,7 @@
         }
       ]
     },
-    "automationEffectEntry": {
+    "triggeredEffectEntry": {
       "type": "object",
       "additionalProperties": false,
       "properties": {
@@ -710,7 +715,8 @@
     },
     "enforcedByValue": {
       "anyOf": [
-        { "$ref": "#/$defs/automationId" },
+        { "$ref": "#/$defs/reactionId" },
+        { "$ref": "#/$defs/jobId" },
         { "enum": ["record-expiry", "store-ttl", "query-filter"] }
       ]
     },
@@ -844,12 +850,20 @@
         "then": { "$ref": "#/$defs/nonEmptyString" }
       }
     },
-    "drivenByAutomation": {
+    "drivenByJob": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["automation"],
+      "required": ["job"],
       "properties": {
-        "automation": { "$ref": "#/$defs/automationId" }
+        "job": { "$ref": "#/$defs/jobId" }
+      }
+    },
+    "drivenByReaction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["reaction"],
+      "properties": {
+        "reaction": { "$ref": "#/$defs/reactionId" }
       }
     },
     "drivenByPerson": {
@@ -869,7 +883,8 @@
     },
     "drivenByValue": {
       "anyOf": [
-        { "$ref": "#/$defs/drivenByAutomation" },
+        { "$ref": "#/$defs/drivenByJob" },
+        { "$ref": "#/$defs/drivenByReaction" },
         { "$ref": "#/$defs/drivenByPerson" }
       ]
     },
@@ -898,42 +913,17 @@
         { "not": { "required": ["cron", "at"] } }
       ]
     },
-    "automationTriggerEvent": {
+    "reactionTriggerEvent": {
       "anyOf": [
         { "$ref": "#/$defs/eventId" },
         { "$ref": "#/$defs/integrationEventId" }
       ]
     },
-    "automationTriggeredBy": {
-      "type": "object",
-      "additionalProperties": false,
-      "properties": {
-        "event": {
-          "anyOf": [
-            { "$ref": "#/$defs/automationTriggerEvent" },
-            {
-              "type": "array",
-              "minItems": 1,
-              "uniqueItems": true,
-              "items": { "$ref": "#/$defs/automationTriggerEvent" }
-            }
-          ]
-        },
-        "schedule": { "$ref": "#/$defs/scheduleObject" },
-        "manual": { "const": true }
-      },
-      "allOf": [
-        {
-          "anyOf": [
-            { "required": ["event"] },
-            { "required": ["schedule"] },
-            { "required": ["manual"] }
-          ]
-        },
-        { "not": { "required": ["event", "schedule"] } },
-        { "not": { "required": ["event", "manual"] } },
-        { "not": { "required": ["schedule", "manual"] } }
-      ]
+    "reactionTriggeredBy": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/reactionTriggerEvent" }
     },
     "contractValueType": {
       "enum": ["text", "integer", "decimal", "money", "boolean", "date", "date-time", "duration", "email", "choice", "id"]
@@ -2410,13 +2400,13 @@
         }
       ]
     },
-    "automationPage": {
+    "reactionPage": {
       "type": "object",
       "additionalProperties": false,
       "required": ["type", "id", "title", "owner", "status", "triggeredBy", "effects"],
       "properties": {
-        "type": { "const": "automation" },
-        "id": { "$ref": "#/$defs/automationId" },
+        "type": { "const": "reaction" },
+        "id": { "$ref": "#/$defs/reactionId" },
         "title": { "$ref": "#/$defs/nonEmptyString" },
         "owner": { "$ref": "#/$defs/ownerName" },
         "status": { "$ref": "#/$defs/behaviorStatus" },
@@ -2428,23 +2418,75 @@
         "terms": { "$ref": "#/$defs/termIdArray" },
         "questions": { "$ref": "#/$defs/questionsArray" },
         "records": { "$ref": "#/$defs/recordsArray" },
-        "triggeredBy": { "$ref": "#/$defs/automationTriggeredBy" },
+        "triggeredBy": { "$ref": "#/$defs/reactionTriggeredBy" },
         "skippedWhen": { "$ref": "#/$defs/nonEmptyString" },
         "effects": {
           "type": "array",
           "minItems": 1,
           "uniqueItems": true,
-          "items": { "$ref": "#/$defs/automationEffectEntry" }
+          "items": { "$ref": "#/$defs/triggeredEffectEntry" }
         },
+        "fulfills": { "$ref": "#/$defs/requirementIdArray" },
+        "serves": { "$ref": "#/$defs/journeyStepIdArray" },
+        "onFailure": { "$ref": "#/$defs/onFailureValue" },
+        "idempotency": { "$ref": "#/$defs/idempotencyObject" },
+        "reads": { "$ref": "#/$defs/aggregateIdArray" },
+        "changes": { "$ref": "#/$defs/aggregateIdArray" },
+        "risk": { "$ref": "#/$defs/riskArray" },
+        "provenance": { "$ref": "#/$defs/transcribedProvenance" }
+      },
+      "allOf": [
+        {
+          "if": {
+            "required": ["status"],
+            "properties": { "status": { "const": "draft" } }
+          },
+          "then": { "required": ["decider", "decideBy"] }
+        },
+        {
+          "if": {
+            "required": ["status"],
+            "properties": { "status": { "const": "reviewed" } }
+          },
+          "then": { "required": ["approvedBy", "approvedOn", "approvedHash"] }
+        }
+      ]
+    },
+    "jobPage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "id", "title", "owner", "status", "kind", "effects"],
+      "properties": {
+        "type": { "const": "job" },
+        "id": { "$ref": "#/$defs/jobId" },
+        "title": { "$ref": "#/$defs/nonEmptyString" },
+        "owner": { "$ref": "#/$defs/ownerName" },
+        "status": { "$ref": "#/$defs/behaviorStatus" },
+        "decider": { "$ref": "#/$defs/ownerName" },
+        "decideBy": { "$ref": "#/$defs/isoDate" },
+        "approvedBy": { "$ref": "#/$defs/ownerName" },
+        "approvedOn": { "$ref": "#/$defs/isoDate" },
+        "approvedHash": { "$ref": "#/$defs/nonEmptyString" },
+        "terms": { "$ref": "#/$defs/termIdArray" },
+        "questions": { "$ref": "#/$defs/questionsArray" },
+        "records": { "$ref": "#/$defs/recordsArray" },
+        "kind": { "enum": ["scheduled", "one-off", "manual"] },
+        "schedule": { "$ref": "#/$defs/scheduleObject" },
+        "selection": { "$ref": "#/$defs/nonEmptyString" },
+        "batchSize": { "type": "integer" },
+        "lease": { "$ref": "#/$defs/leaseObject" },
+        "cursor": { "$ref": "#/$defs/nonEmptyString" },
         "runbook": { "$ref": "#/$defs/runbookId" },
         "runsWhere": { "$ref": "#/$defs/nonEmptyString" },
         "guard": { "$ref": "#/$defs/nonEmptyString" },
-        "cursor": { "$ref": "#/$defs/nonEmptyString" },
-        "selection": { "$ref": "#/$defs/nonEmptyString" },
-        "lease": { "$ref": "#/$defs/leaseObject" },
-        "batchSize": { "type": "integer" },
         "serviceLevel": { "$ref": "#/$defs/nonEmptyString" },
         "evidence": { "$ref": "#/$defs/nonEmptyString" },
+        "effects": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/triggeredEffectEntry" }
+        },
         "fulfills": { "$ref": "#/$defs/requirementIdArray" },
         "serves": { "$ref": "#/$defs/journeyStepIdArray" },
         "onFailure": { "$ref": "#/$defs/onFailureValue" },
@@ -2471,35 +2513,27 @@
         },
         {
           "if": {
-            "required": ["triggeredBy"],
-            "properties": {
-              "triggeredBy": { "required": ["event"] }
-            }
+            "required": ["kind"],
+            "properties": { "kind": { "const": "scheduled" } }
           },
-          "then": {
-            "not": {
-              "anyOf": [
-                { "required": ["runbook"] },
-                { "required": ["runsWhere"] },
-                { "required": ["guard"] },
-                { "required": ["cursor"] },
-                { "required": ["selection"] },
-                { "required": ["lease"] },
-                { "required": ["batchSize"] },
-                { "required": ["serviceLevel"] },
-                { "required": ["evidence"] }
-              ]
-            }
-          }
+          "then": { "required": ["schedule"] }
         },
         {
           "if": {
-            "required": ["triggeredBy"],
-            "properties": {
-              "triggeredBy": { "required": ["manual"] }
-            }
+            "required": ["kind"],
+            "properties": { "kind": { "const": "one-off" } }
           },
-          "then": { "required": ["guard"] }
+          "then": { "not": { "required": ["schedule"] } }
+        },
+        {
+          "if": {
+            "required": ["kind"],
+            "properties": { "kind": { "const": "manual" } }
+          },
+          "then": {
+            "required": ["guard"],
+            "not": { "required": ["schedule"] }
+          }
         }
       ]
     },

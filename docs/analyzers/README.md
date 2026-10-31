@@ -91,7 +91,7 @@ Other name-based checks work the same way:
 - A command handler is any class whose name ends in `CommandHandler` or that implements an interface named `ICommandHandler`.
 - A query handler is any class that implements an interface named `IQueryHandler`.
 - An endpoint is any class that implements an interface named `IEndpoint`.
-- An event handler is any class that implements an interface named `IEventHandler` or `IDomainEventReaction`. A scheduled automation is any class that derives from a class named `BackgroundService` or implements an interface named `IHostedService`.
+- An event handler is any class that implements an interface named `IEventHandler` or `IDomainEventReaction`. A job is any class that derives from a class named `BackgroundService` or implements an interface named `IHostedService`.
 - An event handler handles the event its `IEventHandler<TEvent>` type argument names.
 - A use-case result is any type whose name ends in `QueryResult` or `CommandResult`.
 - A repository variable is any parameter, field, or local typed as an interface named `I{Name}Repository`.

@@ -22,12 +22,12 @@ static class BookEnrich
 
     static readonly HashSet<string> StepServerTypes = new(StringComparer.Ordinal)
     {
-        "use-case", "automation", "notification", "screen",
+        "use-case", "reaction", "job", "notification", "screen",
     };
 
     static readonly HashSet<string> ImplExpected = new(StringComparer.Ordinal)
     {
-        "aggregate", "automation", "external-system", "use-case", "screen",
+        "aggregate", "reaction", "job", "external-system", "use-case", "screen",
     };
 
     static readonly HashSet<string> ProofExpected = new(StringComparer.Ordinal)
@@ -56,7 +56,7 @@ static class BookEnrich
         var handlers = CodeByKey(model, "handlers", "useCase");
         var endpoints = CodeByKey(model, "endpoints", "useCase");
         var methods = CodeByKey(model, "aggregateMethods", "aggregate");
-        var automationsByPath = CodeByPath(model, "automations");
+        var runnersByPath = CodeByPaths(model, ["automations", "reactions", "jobs"]);
 
         var details = new Dictionary<string, JsonObject>(StringComparer.Ordinal);
         var order = new List<string>();
@@ -84,7 +84,7 @@ static class BookEnrich
                 AddRoute(detail, routeEntry, calls);
             }
 
-            var impl = ImplFor(index, handlers, endpoints, methods, automationsByPath, routeEntry, id, type);
+            var impl = ImplFor(index, handlers, endpoints, methods, runnersByPath, routeEntry, id, type);
             detail["impl"] = impl;
             detail["tests"] = TestList(tests.TryGetValue(id, out var ownTests) ? ownTests : []);
             var expect = ExpectFor(record, type);
@@ -576,16 +576,19 @@ static class BookEnrich
         return byKey;
     }
 
-    /// <summary>Maps each automation path to its code entry, the first one winning.</summary>
-    static Dictionary<string, JsonObject> CodeByPath(JsonObject model, string array)
+    /// <summary>Maps each reaction and job class path to its code entry, the first one winning.</summary>
+    static Dictionary<string, JsonObject> CodeByPaths(JsonObject model, string[] arrays)
     {
         var byPath = new Dictionary<string, JsonObject>(StringComparer.Ordinal);
         var code = model["code"] as JsonObject;
-        foreach (var entry in code?[array] as JsonArray ?? [])
+        foreach (var array in arrays)
         {
-            if (entry is JsonObject obj && !string.IsNullOrEmpty(BookRender.StrProp(obj, "path")))
+            foreach (var entry in code?[array] as JsonArray ?? [])
             {
-                byPath.TryAdd(BookRender.StrProp(obj, "path")!, obj);
+                if (entry is JsonObject obj && !string.IsNullOrEmpty(BookRender.StrProp(obj, "path")))
+                {
+                    byPath.TryAdd(BookRender.StrProp(obj, "path")!, obj);
+                }
             }
         }
 
@@ -822,7 +825,7 @@ static class BookEnrich
 
     /// <summary>
     ///     The code implementing one record: handler, endpoint and aggregate method
-    ///     entries with their model lines, automation entries with theirs, and
+    ///     entries with their model lines, reaction and job entries with theirs, and
     ///     every other implements link with a null line at the file head.
     /// </summary>
     static JsonArray ImplFor(
@@ -830,7 +833,7 @@ static class BookEnrich
         Dictionary<string, List<JsonObject>> handlers,
         Dictionary<string, List<JsonObject>> endpoints,
         Dictionary<string, List<JsonObject>> methods,
-        Dictionary<string, JsonObject> automationsByPath,
+        Dictionary<string, JsonObject> runnersByPath,
         JsonObject? routeEntry,
         string id,
         string type)
@@ -893,9 +896,9 @@ static class BookEnrich
                 continue;
             }
 
-            if (kind == "automation" && automationsByPath.TryGetValue(path, out var automation))
+            if (kind is "automation" or "reaction" or "job" && runnersByPath.TryGetValue(path, out var runner))
             {
-                Add(kind, path, IntProp(automation, "line"));
+                Add(kind, path, IntProp(runner, "line"));
             }
             else
             {

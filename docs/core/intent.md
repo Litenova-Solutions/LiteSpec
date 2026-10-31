@@ -51,13 +51,13 @@ Approved requirements carry `approvedBy`, `approvedOn`, and the builder-written 
 
 A journey carries `actor`, `serves`, `finishedWhen`, ordered `steps`, and `cites`. `serves` names the goal record. `finishedWhen` states the observable end in one sentence. Each step carries its `id` (`s1`, `s2`, and so on) and its product sentence in `statement`, names the walking actor only at a handoff, and carries its failure text in `failure` where the walk can fail. A step id reads `journey/<name>#s1`.
 
-Steps name no use case. Use cases and automations point up with `serves`, naming the steps they serve. The book shows each journey as record detail: `finishedWhen`, the steps as sentences with `failure`, the requirements it cites with their statements and their `except` and fallback inline, the serving use case goals, the Then clauses of their scenarios as context, a consequences box as context, and the open questions. Field names never render literally in journey detail.
+Steps name no use case. Use cases, reactions, and jobs point up with `serves`, naming the steps they serve. The book shows each journey as record detail: `finishedWhen`, the steps as sentences with `failure`, the requirements it cites with their statements and their `except` and fallback inline, the serving use case goals, the Then clauses of their scenarios as context, a consequences box as context, and the open questions. Field names never render literally in journey detail.
 
 A journey walks one actor toward one goal. A step names another actor only at a handoff, and a walk with several goals splits into several journeys.
 
 ### Staff Journeys
 
-Journeys are not only employee walks. A staff journey walks a staff actor, such as finance exporting the approved batch, through the same shape of serves, `finishedWhen`, and steps. A scheduled promise is a requirement that an automation fulfills, not a journey. Staff steps read as product sentences too, so the decider approves them the same way.
+Journeys are not only employee walks. A staff journey walks a staff actor, such as finance exporting the approved batch, through the same shape of serves, `finishedWhen`, and steps. A scheduled promise is a requirement that a job fulfills, not a journey. Staff steps read as product sentences too, so the decider approves them the same way.
 
 ### Questions and Ballots
 
@@ -271,7 +271,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Statement:** A requirement MUST be fulfilled only from Behavior records.
 
-**Rationale:** The records that fulfill are rule, use case, automation, notification, and setting. A journey names the requirements it shows in `cites`; it never fulfills, so a journey alone never clears an unfulfilled requirement. Behavior points up to the promises it keeps, and each promise traces down to the behavior that keeps it.
+**Rationale:** The records that fulfill are rule, use case, reaction, job, notification, and setting. A journey names the requirements it shows in `cites`; it never fulfills, so a journey alone never clears an unfulfilled requirement. Behavior points up to the promises it keeps, and each promise traces down to the behavior that keeps it.
 
 **Checked by:** `litespec model check` reports `requirement-fulfillment-missing` for a requirement no Behavior record fulfills.
 
@@ -281,7 +281,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Statement:** A journey MUST walk one actor toward one goal through ordered steps, naming the goal record in `serves` and carrying Example and Between the Steps.
 
-**Rationale:** A journey names its `actor`, its goal record in `serves`, its `finishedWhen`, and its ordered `steps`. One actor means a step names another actor only at a handoff; one goal means a walk with several goals splits into several journeys. The order shows how the steps join toward the goal, so a step that fits nowhere is visible. The journey names in `cites` the requirements it carries, and the use cases and automations that serve each step point up with `serves`. Between the Steps holds branch order only. Proposed by [decision/0005-journeys-serve-a-goal](../intent/decisions/0005-journeys-serve-a-goal.md) on the evidence in [research/intent-hierarchy-evidence](../intent/research/intent-hierarchy-evidence.md), [research/cross-layer-trace-evidence](../intent/research/cross-layer-trace-evidence.md), and [research/established-traceability-practice](../intent/research/established-traceability-practice.md).
+**Rationale:** A journey names its `actor`, its goal record in `serves`, its `finishedWhen`, and its ordered `steps`. One actor means a step names another actor only at a handoff; one goal means a walk with several goals splits into several journeys. The order shows how the steps join toward the goal, so a step that fits nowhere is visible. The journey names in `cites` the requirements it carries, and the use cases, reactions, and jobs that serve each step point up with `serves`. Between the Steps holds branch order only. Proposed by [decision/0005-journeys-serve-a-goal](../intent/decisions/0005-journeys-serve-a-goal.md) on the evidence in [research/intent-hierarchy-evidence](../intent/research/intent-hierarchy-evidence.md), [research/cross-layer-trace-evidence](../intent/research/cross-layer-trace-evidence.md), and [research/established-traceability-practice](../intent/research/established-traceability-practice.md).
 
 **Example:** The largest consumer held a 21-step journey with five actors, from creating the organizer to closing the books. Split by goal, it is four journeys: set up and sell an event; buy a ticket; admit the crowd; close the night.
 
@@ -325,7 +325,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Statement:** Each journey step MUST carry its `id` and its product sentence in `statement`, and name no use case.
 
-**Rationale:** A step written as a product sentence reads in journey detail with no Behavior knowledge: the decider approves what a person experiences, not which handler runs. The `id` (`s1`, `s2`, and so on) gives Behavior a stable target: use cases and automations point up with `serves` to `journey/<name>#s1`. A step that names its use case drags Behavior into Intent and breaks the journey detail every time Behavior renames. The actor and the failure text are optional: a step names the walking actor only at a handoff, and carries `failure` where the walk can fail.
+**Rationale:** A step written as a product sentence reads in journey detail with no Behavior knowledge: the decider approves what a person experiences, not which handler runs. The `id` (`s1`, `s2`, and so on) gives Behavior a stable target: use cases, reactions, and jobs point up with `serves` to `journey/<name>#s1`. A step that names its use case drags Behavior into Intent and breaks the journey detail every time Behavior renames. The actor and the failure text are optional: a step names the walking actor only at a handoff, and carries `failure` where the walk can fail.
 
 **Example:** Step `s4` states `Finance reimburses the approved expense.` in `statement` and names no use case; `use-case/spending.reimburse-expense` names `journey/submit-and-reimburse#s4` in `serves`.
 

@@ -85,7 +85,7 @@ public sealed class FindingMessageFormatTests
             "mark-missing", "mark-style-invalid", "mark-count-invalid", "mark-unknown", "mark-folder-drift",
             "decision-unimplemented", "runtime-value-drift", "use-case-act-missing",
             "act-event-undeclared", "act-event-unimplemented", "aggregate-unimplemented",
-            "automation-unimplemented", "external-system-unimplemented",
+            "reaction-unimplemented", "job-unimplemented", "external-system-unimplemented",
             "use-case-endpoint-missing", "effect-unimplemented", "use-case-unreached",
         };
 

@@ -128,7 +128,7 @@ public sealed class LinkExportTests
         Assert.Empty(ModelBuilder.TargetsOf(Element("""{"mode": "impossible", "reason": "the processor keeps no erasure call"}""")));
     }
 
-    /// <proves>litespec/core/automation#declare-every-automation-edge-in-effects</proves>
+    /// <proves>litespec/core/model#write-links-on-the-record-that-points</proves>
     /// <proves>litespec/core/domain-model#state-each-saga-step-with-its-compensation</proves>
     [Fact]
     public void Wave6_Effects_Triggers_And_Steps_Export_Their_Ids_As_Links()

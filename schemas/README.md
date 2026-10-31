@@ -42,7 +42,7 @@ The shared evaluator lives in `apps/model/src/LiteSpec.Shared/Schemas/JsonSchema
 
 ### Record Schema
 
-`record.schema.json` owns the frontmatter of every consumer record page: 36 page shapes from product brief through aggregate, use case, automation, notification, setting, screen, and integration event to reference, each with its entry records for requirements, permissions, rules, events, results, scenarios, entry points, and settings. `litespec consumer` validates each page frontmatter through it and then checks the body sections the schema cannot see.
+`record.schema.json` owns the frontmatter of every consumer record page: 37 page shapes from product brief through aggregate, use case, reaction, job, notification, setting, screen, and integration event to reference, each with its entry records for requirements, permissions, rules, events, results, scenarios, entry points, and settings. `litespec consumer` validates each page frontmatter through it and then checks the body sections the schema cannot see.
 
 ### Language Schema
 

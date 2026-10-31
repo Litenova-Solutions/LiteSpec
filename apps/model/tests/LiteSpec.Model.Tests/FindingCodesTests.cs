@@ -84,10 +84,12 @@ public sealed class FindingCodesTests
     /// <summary>Each new Behavior finding code carries its contracted tier.</summary>
     /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
     [Theory]
-    [InlineData("automation-name-invalid", "G")]
-    [InlineData("automation-trigger-unknown", "G")]
-    [InlineData("automation-guard-missing", "G")]
-    [InlineData("automation-unimplemented", "S")]
+    [InlineData("reaction-name-invalid", "G")]
+    [InlineData("job-name-invalid", "G")]
+    [InlineData("reaction-trigger-unknown", "G")]
+    [InlineData("job-guard-missing", "G")]
+    [InlineData("reaction-unimplemented", "S")]
+    [InlineData("job-unimplemented", "S")]
     [InlineData("atomic-group-drift", "G")]
     [InlineData("atomic-group-invalid", "A")]
     public void New_Behavior_Codes_Have_Tiers(string code, string tier)

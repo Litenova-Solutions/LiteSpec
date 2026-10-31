@@ -2,7 +2,7 @@
 
 ## Intent
 
-The spending module is the Claimwick example's one business area: it turns product intent into operations by organizing the business state the company tracks, the rules that bind it, who may act on it, and the messages, work, and tunables around it. This page shows each piece as the project writes it: the module record, 4 aggregates for expenses, receipts, the policy store, and the export-request store with their states, transitions, data classes, and data, the rules that bind them, the access chain of actors, roles, permissions, and entry points with the outside system for payouts, the Submit expense and List expenses use cases with their results and scenarios, and the automations, notifications, setting, integration event, and retention row around them.
+The spending module is the Claimwick example's one business area: it turns product intent into operations by organizing the business state the company tracks, the rules that bind it, who may act on it, and the messages, work, and tunables around it. This page shows each piece as the project writes it: the module record, 4 aggregates for expenses, receipts, the policy store, and the export-request store with their states, transitions, data classes, and data, the rules that bind them, the access chain of actors, roles, permissions, and entry points with the outside system for payouts, the Submit expense and List expenses use cases with their results and scenarios, and the reaction, jobs, notifications, setting, integration event, and retention row around them.
 
 ## The Spending Module
 
@@ -33,7 +33,7 @@ An aggregate is one unit of business state that stays consistent and changes in 
 | `aggregate/spending.policy` | `docs/behavior/modules/spending/policies/README.md` | store | None |
 | `aggregate/spending.export-request` | `docs/behavior/modules/spending/export-requests/README.md` | store | None |
 
-An expense is one work cost an employee submitted. A receipt is proof of payment attached to an expense. The policy is a store: it holds the current receipt threshold value, names the spending settings store as its owner, and carries no states, because no invariant guards the stored value. The setting record below declares the threshold default and bounds. The store names its owner, which applies `litespec/core/domain-model#name-the-owner-of-every-store`. The export-request store holds each export request with the file the export automation built for it, and names the spending module as its owner. Each expense state carries its meaning: Submitted waits for a decision, Approved and Refused record a manager decision, and Reimbursed records the finance payout.
+An expense is one work cost an employee submitted. A receipt is proof of payment attached to an expense. The policy is a store: it holds the current receipt threshold value, names the spending settings store as its owner, and carries no states, because no invariant guards the stored value. The setting record below declares the threshold default and bounds. The store names its owner, which applies `litespec/core/domain-model#name-the-owner-of-every-store`. The export-request store holds each export request with the file the export job built for it, and names the spending module as its owner. Each expense state carries its meaning: Submitted waits for a decision, Approved and Refused record a manager decision, and Reimbursed records the finance payout.
 
 ## Expense Transitions and Data
 
@@ -50,7 +50,7 @@ The data classes group fields by their shared fate on erasure, which applies `li
 | Data class | Classification | Fields | Purpose | On erasure | Enforced by |
 |:--|:--|:--|:--|:--|:--|
 | `expense-money` | internal | amount, state, approver, receipt | Decide each expense and keep the tax file defensible. | retain for 7 years by statute | record-expiry |
-| `submitter` | personal | employee | Link each expense to its submitter. | erase on approved request | `automation/spending.erase-expired-personal-data` |
+| `submitter` | personal | employee | Link each expense to its submitter. | erase on approved request | `job/spending.erase-expired-personal-data` |
 
 The Data table names each field the aggregate holds with its meaning, data class, and classification, which applies `litespec/core/privacy#classify-every-aggregate-data-field`.
 
@@ -61,7 +61,7 @@ The Data table names each field the aggregate holds with its meaning, data class
 | receipt | The proof of payment, when one is attached. | expense-money | internal |
 | state | The lifecycle state of the expense. | expense-money | internal |
 
-The employee field is personal data in the `submitter` class, so the erase automation and the erasure use case cover it, and the retention schedule below schedules it. The receipt aggregate carries its own data class for the filed receipt; the policy store holds one internal field, the current threshold value.
+The employee field is personal data in the `submitter` class, so the erase job and the erasure use case cover it, and the retention schedule below schedules it. The receipt aggregate carries its own data class for the filed receipt; the policy store holds one internal field, the current threshold value.
 
 ## The Full Expense Record
 
@@ -116,7 +116,7 @@ The expense page below shows the full shape, with its states, data classes, and 
         "mode": "none",
         "reason": "erasure happens on approved request"
       },
-      "enforcedBy": "automation/spending.erase-expired-personal-data",
+      "enforcedBy": "job/spending.erase-expired-personal-data",
       "reach": "own-tenant"
     }
   ],
@@ -295,7 +295,7 @@ An entry point is one way people or systems reach the product. Claimwick lists 1
 |:--|:--|:--|
 | `entry-point/claimwick-app` | browser | session |
 
-Employees reach spending through the expenses app, and every spending use case but the reminder command names it in `reachedThrough`. The reminder command runs from the nightly reminder automation instead, so it names no entry point.
+Employees reach spending through the expenses app, and every spending use case but the reminder command names it in `reachedThrough`. The reminder command runs from the nightly reminder job instead, so it names no entry point.
 
 ## The External System
 
@@ -358,7 +358,7 @@ Spending keeps 10 use cases: 9 commands and 1 query. Each one is a command or a 
 | `use-case/spending.send-approver-reminder` | command | `journey/submit-and-reimburse#s2` | system | None | None | sends `notification/spending.approver-reminder` async |
 | `use-case/spending.list-expenses` | query | `journey/submit-and-reimburse#s4` | `self(permission/list-expenses)` | None | None | None |
 
-Set-receipt-threshold fulfills the receipt requirement, and erase-personal-data fulfills the erasure requirement, so every use case answers Intent through `serves` or `fulfills`. Reimburse carries `money` risk and erase carries `personal-data` risk, so both are tier 1 and need explicit review. The reminder command runs under the system grant from the reminder automation: no person runs it. The export command records its request in the export-request store, and the build automation below builds the file, which applies `litespec/backend/application#run-heavy-work-as-a-request-then-a-build`.
+Set-receipt-threshold fulfills the receipt requirement, and erase-personal-data fulfills the erasure requirement, so every use case answers Intent through `serves` or `fulfills`. Reimburse carries `money` risk and erase carries `personal-data` risk, so both are tier 1 and need explicit review. The reminder command runs under the system grant from the reminder job: no person runs it. The export command records its request in the export-request store, and the build job below builds the file, which applies `litespec/backend/application#run-heavy-work-as-a-request-then-a-build`.
 
 ## One Use Case Tying Them Together
 
@@ -485,20 +485,20 @@ Submit expense is a command: an employee submits a work expense with a receipt t
 
 The record ends in named results, which applies `litespec/core/model#give-every-use-case-its-results`: one success and one refusal, and the refusal carries the stable code `spending.receipt-missing`. The generic forbidden and invalid-input results are derived from the access grant and the input rules and never written. The scenarios prove the success and the refusal in given, when, then, which applies `litespec/core/use-cases#write-every-scenario-in-given-when-then`. The receipt rule governs this use case, the employee role allows its permission, and the journey's first step is served by it. Its Goal section states the actor intent in one sentence, its What Happens section walks the behavior in order, and its Example section follows Ava submitting her train fare. (Example blocks in these pages omit the approval data the builder writes, except where shown.)
 
-## The Automations
+## Reactions and Jobs
 
-An automation answers an event, keeps a schedule, or runs by hand through the edges its `effects` declare. When an expense is reimbursed, Claimwick notifies the employee. The notification automation lives at `docs/behavior/modules/spending/automations/notify-employee-on-reimbursement.md`, filed with the spending module whose notification it sends. Its `triggeredBy` names the domain event, which applies `litespec/core/automation#trigger-every-automation-from-its-declared-trigger`, and it declares its `sends` edge in `effects` and writes no aggregate, which applies `litespec/core/automation#declare-every-automation-edge-in-effects`.
+A reaction answers an event and a job keeps a schedule or runs by hand, each through the edges its `effects` declare. When an expense is reimbursed, Claimwick notifies the employee. The notification reaction lives at `docs/behavior/modules/spending/reactions/notify-employee-on-reimbursement.md`, filed with the spending module whose notification it sends, which applies `litespec/core/model#write-every-record-in-its-home`, and its name follows the reaction name form, which applies `litespec/core/language#name-each-record-by-its-types-name-form`. Its `triggeredBy` lists the domain event, and it declares its `sends` edge in `effects` and writes no aggregate.
 
 ```json
 {
-  "type": "automation",
-  "id": "automation/spending.notify-employee-on-reimbursement",
+  "type": "reaction",
+  "id": "reaction/spending.notify-employee-on-reimbursement",
   "title": "Notify Employee on Reimbursement",
   "owner": "claimwick-team",
   "status": "reviewed",
-  "triggeredBy": {
-    "event": "event/expense.reimbursed"
-  },
+  "triggeredBy": [
+    "event/expense.reimbursed"
+  ],
   "effects": [
     {
       "sends": "notification/spending.reimbursement-received"
@@ -529,27 +529,26 @@ An automation answers an event, keeps a schedule, or runs by hand through the ed
 }
 ```
 
-The entry omits `timing`, so it reads as `async`. The automation serves the journey's last step: the employee sees the reimbursement land because the message says so. Its failure handling retries five times one minute apart before dead-lettering, and repeated firings collapse by state, so the employee is told once.
+The entry omits `timing`, so it reads as `async`. The reaction serves the journey's last step: the employee sees the reimbursement land because the message says so. Its failure handling retries five times one minute apart before dead-lettering, and repeated firings collapse by state, so the employee is told once.
 
-Claimwick keeps 3 scheduled automations beside it. The reminder automation runs nightly and runs the reminder command once per waiting expense. It lives at `docs/behavior/modules/spending/automations/send-approver-reminders-on-expense-submitted.md`, declares its schedule trigger, and states its selection, lease, and runbook, which applies `litespec/core/automation#trigger-every-automation-from-its-declared-trigger`.
+Claimwick keeps 3 scheduled jobs beside it. The reminder job runs nightly and runs the reminder command once per waiting expense. It lives at `docs/behavior/modules/spending/jobs/send-approver-reminders.md`, which applies `litespec/core/model#write-every-record-in-its-home`, and its name carries the verb of the command it runs, which applies `litespec/core/language#name-each-record-by-its-types-name-form`. Its `kind` is `scheduled` with a nightly `schedule`, and it states its selection, lease, and runbook.
 
 ```json
 {
-  "type": "automation",
-  "id": "automation/spending.send-approver-reminders-on-expense-submitted",
-  "title": "Send Approver Reminders on Expense Submitted",
+  "type": "job",
+  "id": "job/spending.send-approver-reminders",
+  "title": "Send Approver Reminders",
   "owner": "claimwick-team",
   "status": "reviewed",
-  "triggeredBy": {
-    "schedule": {
-      "cron": "0 6 * * *",
-      "timezone": "Europe/Amsterdam"
-    }
+  "kind": "scheduled",
+  "schedule": {
+    "cron": "0 6 * * *",
+    "timezone": "Europe/Amsterdam"
   },
   "selection": "Submitted expenses waiting past three business days without a decision.",
   "batchSize": 200,
   "lease": {
-    "name": "send-approver-reminders-on-expense-submitted",
+    "name": "send-approver-reminders",
     "duration": "PT15M"
   },
   "effects": [
@@ -585,7 +584,7 @@ Claimwick keeps 3 scheduled automations beside it. The reminder automation runs 
 }
 ```
 
-This automation carries the approval reminders feature down the tree: the feature promises reminders past three days, the five-day requirement bounds them, and the nightly schedule fires them. The second automation, `automation/spending.erase-expired-personal-data`, runs weekly and runs `use-case/spending.erase-personal-data` once per decided expense with an approved erasure request, enforcing the `submitter` data class. The third automation, `automation/spending.build-expense-exports`, runs every five minutes and builds one file per requested export, storing each file beside its request, which applies `litespec/backend/application#issue-per-record-work-from-an-automation`.
+This job carries the approval reminders feature down the tree: the feature promises reminders past three days, the five-day requirement bounds them, and the nightly schedule fires them. The second job, `job/spending.erase-expired-personal-data`, runs weekly and runs `use-case/spending.erase-personal-data` once per decided expense with an approved erasure request, enforcing the `submitter` data class. The third job, `job/spending.build-expense-exports`, runs every five minutes and builds one file per requested export, storing each file beside its request, which applies `litespec/backend/application#run-heavy-work-as-a-request-then-a-build`.
 
 ## The Notifications
 
@@ -618,7 +617,7 @@ A notification is one person-facing message with its addresses, channel, consent
 }
 ```
 
-The reminder command's `sends` edge carries its own suppression: when the expense was decided overnight, the command sends nothing, and a suppression scenario proves the quiet path. The second notification, `notification/spending.reimbursement-received`, tells the employee once by email that the money is on its way, sent by the automation above.
+The reminder command's `sends` edge carries its own suppression: when the expense was decided overnight, the command sends nothing, and a suppression scenario proves the quiet path. The second notification, `notification/spending.reimbursement-received`, tells the employee once by email that the money is on its way, sent by the reaction above.
 
 ## The Settings
 
@@ -663,7 +662,7 @@ A setting is one tunable with its value type, default, range, unit, setter, and 
 }
 ```
 
-The threshold default is the 25 EUR the decision set, and a manager may move it inside the range through the set-threshold use case; a value outside the range is refused. The reminder delay is decider-set, so the nightly automation reads a value no operator changes.
+The threshold default is the 25 EUR the decision set, and a manager may move it inside the range through the set-threshold use case; a value outside the range is refused. The reminder delay is decider-set, so the nightly job reads a value no operator changes.
 
 ## The Query
 
@@ -806,7 +805,7 @@ The retention schedule at `docs/behavior/retention-schedule.md` schedules every 
     "mode": "none",
     "reason": "erasure happens on approved request"
   },
-  "enforcedBy": "automation/spending.erase-expired-personal-data",
+  "enforcedBy": "job/spending.erase-expired-personal-data",
   "cites": "requirement/approval.erasure-on-request",
   "processors": [
     {

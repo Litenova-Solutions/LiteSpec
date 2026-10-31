@@ -1,102 +1,102 @@
-# Scheduled Automations
+# Scheduled Jobs
 
 ## Intent
 
-Scheduled automations start work from a timetable instead of from a request, such as nightly statements, delayed reminders, and calendar-based billing. This page states how a project records each schedule on an automation record with its trigger, selection, lease, and run use cases, and runs it in a Worker with leases that survive restarts and overlapping replicas. A team applies it for recurring, delayed, or calendar-based work, so each occurrence runs once even when a replica fails mid-run.
+Scheduled jobs start work from a timetable instead of from a request, such as nightly statements, delayed reminders, and calendar-based billing. This page states how a project records each schedule on a job record with its kind, schedule, selection, lease, and run use cases, and runs it in a Worker with leases that survive restarts and overlapping replicas. A team applies it for recurring, delayed, or calendar-based work, so each occurrence runs once even when a replica fails mid-run.
 
 ## Activation
 
 Activation scope: `local`.
 
-Applicable specification kinds: `automation`, `use-case`, `journey`.
+Applicable specification kinds: `job`, `use-case`, `journey`.
 
-The consumer enables `jobs` for recurring, delayed, or calendar-based work. Each schedule lives on an automation record with a `schedule` or `manual` trigger, as the [automation page](../core/automation.md) states. Selecting it activates `litespec/backend/architecture#declare-the-execution-host-for-work-that-outlives-a-request`: the project declares the execution host that runs the scheduler.
+The consumer enables `jobs` for recurring, delayed, or calendar-based work. Each schedule lives on a job record with its `kind`, `schedule`, and run fields, as the [automation page](../core/automation.md) states. Selecting it activates `litespec/backend/architecture#declare-the-execution-host-for-work-that-outlives-a-request`: the project declares the execution host that runs the scheduler.
 
 ## Baseline Relationship
 
 This extension replaces no baseline provision.
 
-This extension switches on no optional record type: the automation, setting, and runbook records belong to the core. Schedules bound their retention with setting records and operators recover through runbook records.
+This extension switches on no optional record type: the job, setting, and runbook records belong to the core. Schedules bound their retention with setting records and operators recover through runbook records.
 
 ## Standards
 
-### Carry the Schedule on the Automation Record
+### Carry the Schedule on the Job Record
 
-**ID:** `litespec/ext/jobs#carry-the-schedule-on-the-automation-record`
+**ID:** `litespec/ext/jobs#carry-the-schedule-on-the-job-record`
 
-**Statement:** A scheduled automation MUST carry its schedule in structured form with its timezone on its automation record.
+**Statement:** A scheduled job MUST carry its schedule in structured form with its timezone on its job record.
 
-**Rationale:** The automation record states when the work runs: `every` or `cron` with its timezone, so tools read the rhythm instead of parsing prose. A schedule kept outside the record runs with no reviewed moment attached, and misfire behavior has no stated time to measure against. The [automation page](../core/automation.md) states the record fields, and the `schedule-invalid` check reports a schedule no tool can read.
+**Rationale:** The job record states when the work runs: `every` or `cron` with its timezone, so tools read the rhythm instead of parsing prose. A schedule kept outside the record runs with no reviewed moment attached, and misfire behavior has no stated time to measure against. The [automation page](../core/automation.md) states the record fields, and the `schedule-invalid` check reports a schedule no tool can read.
 
-**Checked by:** `litespec model check` reports `schedule-invalid` (level G) for an automation schedule that is neither an `every` duration nor a `cron` expression; each scheduled automation record states its timezone.
+**Checked by:** `litespec model check` reports `schedule-invalid` (level G) for a job schedule that is neither an `every` duration nor a `cron` expression; each scheduled job record states its timezone.
 
 ### Run One Command per Item in Selection
 
 **ID:** `litespec/ext/jobs#run-one-command-per-item-in-selection`
 
-**Statement:** An automation MUST run one command per item in its `selection` within its `batchSize`, each in its own unit of work.
+**Statement:** A job MUST run one command per item in its `selection` within its `batchSize`, each in its own unit of work.
 
-**Rationale:** The selection states what each run selects, the batch size bounds how many items one batch takes, and `runs` names the command run per item. Each item runs as one command in its own unit of work, as `litespec/backend/application#issue-per-record-work-from-an-automation` requires: a failed item replays without replaying its batch.
+**Rationale:** The selection states what each run selects, the batch size bounds how many items one batch takes, and `runs` names the command run per item. Each item runs as one command in its own unit of work, as `litespec/backend/application#issue-per-record-work-from-a-job` requires: a failed item replays without replaying its batch.
 
-**Reviewed for:** Each automation run runs one command per item in its selection within its batch size, each in its own unit of work.
+**Reviewed for:** Each job run runs one command per item in its selection within its batch size, each in its own unit of work.
 
 ### Resume Driven Work Through the Cursor
 
 **ID:** `litespec/ext/jobs#resume-driven-work-through-the-cursor`
 
-**Statement:** An automation driving a saga MUST name where resume state lives in its `cursor`.
+**Statement:** A job driving a saga MUST name where resume state lives in its `cursor`.
 
 **Rationale:** A batch that fails halfway resumes instead of restarting: the cursor holds where the run stopped, beside the saga state it drives. Without it, the next run replays finished items or skips unfinished ones, and a scenario covering the remainder resumes has no stated position to assert.
 
-**Reviewed for:** Each automation driving a saga names its resume position in its cursor, with a scenario covering the remainder after a halfway failure.
+**Reviewed for:** Each job driving a saga names its resume position in its cursor, with a scenario covering the remainder after a halfway failure.
 
-### Run Manual Automations Under Their Guard
+### Run Manual Jobs Under Their Guard
 
-**ID:** `litespec/ext/jobs#run-manual-automations-under-their-guard`
+**ID:** `litespec/ext/jobs#run-manual-jobs-under-their-guard`
 
-**Statement:** A manual automation run MUST stay inside its `runsWhere` under its `guard`.
+**Statement:** A manual job run MUST stay inside its `runsWhere` under its `guard`.
 
-**Rationale:** Manual work is interactive platform work with no aggregate, such as a rehearsal harness, so no model bounds where it runs or who runs it. `runsWhere` names the deployment scope it may touch and the guard names who may run it and when. The [automation page](../core/automation.md) states the record fields, and the `automation-guard-missing` check reports a manual automation with no guard.
+**Rationale:** Manual work is interactive platform work with no aggregate, such as a rehearsal harness, so no model bounds where it runs or who runs it. `runsWhere` names the deployment scope it may touch and the guard names who may run it and when. The [automation page](../core/automation.md) states the record fields, and the `job-guard-missing` check reports a manual job with no guard.
 
-**Checked by:** `litespec model check` reports `automation-guard-missing` (level G) for a manual automation with no `guard`; each manual run stays inside its `runsWhere`.
+**Checked by:** `litespec model check` reports `job-guard-missing` (level G) for a manual job with no `guard`; each manual run stays inside its `runsWhere`.
 
-### Run Scheduled Automations in Worker
+### Run Scheduled Jobs in Worker
 
-**ID:** `litespec/ext/jobs#run-scheduled-automations-in-worker`
+**ID:** `litespec/ext/jobs#run-scheduled-jobs-in-worker`
 
-**Statement:** A scheduled automation MUST run in Worker outside WebApi request handling.
+**Statement:** A scheduled job MUST run in Worker outside WebApi request handling.
 
 **Rationale:** Scheduled work runs in a Worker, outside WebApi request handling. The Worker owns the schedule's lifetime and shuts its replicas down in a controlled order. Request handling has neither a scheduler nor a shutdown order for background work.
 
-**Reviewed for:** Worker sources hold every scheduled automation, and WebApi request handling holds none.
+**Reviewed for:** Worker sources hold every scheduled job, and WebApi request handling holds none.
 
-### Observe Automation Cancellation
+### Observe Job Cancellation
 
-**ID:** `litespec/ext/jobs#observe-automation-cancellation`
+**ID:** `litespec/ext/jobs#observe-job-cancellation`
 
-**Statement:** A scheduled automation MUST observe cancellation.
+**Statement:** A scheduled job MUST observe cancellation.
 
-**Rationale:** Each automation observes cancellation, so an occurrence ends its current step instead of running past the moment its owner asked it to stop.
+**Rationale:** Each job observes cancellation, so an occurrence ends its current step instead of running past the moment its owner asked it to stop.
 
-**Reviewed for:** Each automation handler threads cancellation into its waits and stops its current step when cancellation fires.
+**Reviewed for:** Each job handler threads cancellation into its waits and stops its current step when cancellation fires.
 
-### Bound Automation Duration
+### Bound Job Duration
 
-**ID:** `litespec/ext/jobs#bound-automation-duration`
+**ID:** `litespec/ext/jobs#bound-job-duration`
 
-**Statement:** A scheduled automation MUST complete within a bounded duration.
+**Statement:** A scheduled job MUST complete within a bounded duration.
 
-**Rationale:** Each automation bounds its duration, so a Worker stops without stranding work it can no longer watch.
+**Rationale:** Each job bounds its duration, so a Worker stops without stranding work it can no longer watch.
 
-**Reviewed for:** Each automation handler carries a duration bound, and the occurrence store shows completions inside it.
+**Reviewed for:** Each job handler carries a duration bound, and the occurrence store shows completions inside it.
 
-### Stop Automations During Graceful Shutdown
+### Stop Jobs During Graceful Shutdown
 
-**ID:** `litespec/ext/jobs#stop-automations-during-graceful-shutdown`
+**ID:** `litespec/ext/jobs#stop-jobs-during-graceful-shutdown`
 
-**Statement:** A scheduled automation MUST stop accepting new work during graceful shutdown.
+**Statement:** A scheduled job MUST stop accepting new work during graceful shutdown.
 
-**Rationale:** Each automation stops accepting new work during graceful shutdown. An unbounded automation turns every deploy into a wait for work that never ends.
+**Rationale:** Each job stops accepting new work during graceful shutdown. An unbounded job turns every deploy into a wait for work that never ends.
 
 **Reviewed for:** The Worker shutdown path stops schedule polling before it drains running occurrences.
 
@@ -104,9 +104,9 @@ This extension switches on no optional record type: the automation, setting, and
 
 **ID:** `litespec/ext/jobs#store-execution-leases`
 
-**Statement:** A scheduled-automation store MUST record lease owner, expiry, and fencing value in PostgreSQL.
+**Statement:** A scheduled-job store MUST record lease owner, expiry, and fencing value in PostgreSQL.
 
-**Rationale:** Each planned occurrence carries a lease with its owner, expiry, and fencing value in PostgreSQL. The lease names the one replica that may complete that occurrence. The `lease` field on the automation record names the lock each run claims. The outbox extension cites this definition for its own claims.
+**Rationale:** Each planned occurrence carries a lease with its owner, expiry, and fencing value in PostgreSQL. The lease names the one replica that may complete that occurrence. The `lease` field on the job record names the lock each run claims. The outbox extension cites this definition for its own claims.
 
 **Reviewed for:** The lease rows in PostgreSQL carry owner, expiry, and fencing value for each occurrence.
 
@@ -124,7 +124,7 @@ This extension switches on no optional record type: the automation, setting, and
 
 **ID:** `litespec/ext/jobs#prevent-duplicate-completion`
 
-**Statement:** A scheduled-automation lease MUST prevent two replicas from completing the same occurrence.
+**Statement:** A scheduled-job lease MUST prevent two replicas from completing the same occurrence.
 
 **Rationale:** Overlapping replicas must not complete the same occurrence twice. The lease admits one completion per occurrence. Two completions would bill, notify, or reconcile the same planned work twice.
 
@@ -134,7 +134,7 @@ This extension switches on no optional record type: the automation, setting, and
 
 **ID:** `litespec/ext/jobs#generate-monotonic-fencing-values`
 
-**Statement:** A scheduled-automation store MUST generate each fencing value monotonically per occurrence.
+**Statement:** A scheduled-job store MUST generate each fencing value monotonically per occurrence.
 
 **Rationale:** Each fencing value rises monotonically per occurrence, so a later claim always presents a higher value than an earlier one. A Worker that lost its lease presents a stale value, and `litespec/ext/jobs#restrict-completion-by-fencing-value` refuses completion on a stale value.
 
@@ -144,7 +144,7 @@ This extension switches on no optional record type: the automation, setting, and
 
 **ID:** `litespec/ext/jobs#scope-occurrences-and-leases-by-tenant`
 
-**Statement:** A scheduled-automation occurrence and its lease MUST carry tenant scope when the product isolates tenants.
+**Statement:** A scheduled-job occurrence and its lease MUST carry tenant scope when the product isolates tenants.
 
 **Rationale:** Products that isolate tenants scope each occurrence and its lease to one tenant. One tenant's schedules then never trigger, block, or expose another tenant's work. Unscoped leases would let a replica mix tenants inside one occurrence.
 
@@ -154,27 +154,27 @@ This extension switches on no optional record type: the automation, setting, and
 
 **ID:** `litespec/ext/jobs#dispatch-application-behavior`
 
-**Statement:** A scheduled automation MUST dispatch an Application Command or approved Application port.
+**Statement:** A scheduled job MUST dispatch an Application Command or approved Application port.
 
-**Rationale:** The automation record names the use cases it runs, and the use case boundary lives in Application. Each automation therefore dispatches an Application Command or an approved Application port. The schedule stays a trigger while the behavior stays owned.
+**Rationale:** The job record names the use cases it runs, and the use case boundary lives in Application. Each job therefore dispatches an Application Command or an approved Application port. The schedule stays a trigger while the behavior stays owned.
 
-**Reviewed for:** Each automation handler calls an Application Command or an approved Application port.
+**Reviewed for:** Each job handler calls an Application Command or an approved Application port.
 
 ### Exclude Direct Storage and HTTP Execution
 
 **ID:** `litespec/ext/jobs#exclude-direct-storage-and-http-execution`
 
-**Statement:** A scheduled automation MUST NOT mutate a Marten session or DbContext directly, bypass Domain behavior, or call WebApi endpoints.
+**Statement:** A scheduled job MUST NOT mutate a Marten session or DbContext directly, bypass Domain behavior, or call WebApi endpoints.
 
-**Rationale:** An automation that mutates a Marten session or DbContext directly, bypasses Domain behavior, or calls WebApi endpoints skips the command boundary. That boundary carries authorization, transaction, and validation the automation would then lack. Automations enter through Commands like every other caller.
+**Rationale:** A job that mutates a Marten session or DbContext directly, bypasses Domain behavior, or calls WebApi endpoints skips the command boundary. That boundary carries authorization, transaction, and validation the job would then lack. Jobs enter through Commands like every other caller.
 
-**Reviewed for:** Automation sources mutate no Marten session or DbContext and call no WebApi endpoint.
+**Reviewed for:** Job sources mutate no Marten session or DbContext and call no WebApi endpoint.
 
-### Bound Automation Retries
+### Bound Job Retries
 
-**ID:** `litespec/ext/jobs#bound-automation-retries`
+**ID:** `litespec/ext/jobs#bound-job-retries`
 
-**Statement:** A scheduled automation MUST use bounded attempts, cancellation-aware backoff, and a poison state for permanent failure.
+**Statement:** A scheduled job MUST use bounded attempts, cancellation-aware backoff, and a poison state for permanent failure.
 
 **Rationale:** Bounded attempts with cancellation-aware backoff cap what one failed occurrence consumes. A poison state parks the permanently failing occurrence instead of retrying it forever. Without the bound, one poison occurrence eats the Worker's whole capacity.
 
@@ -184,11 +184,11 @@ This extension switches on no optional record type: the automation, setting, and
 
 **ID:** `litespec/ext/jobs#tolerate-duplicate-execution`
 
-**Statement:** A scheduled automation Command and side effect MUST tolerate duplicate execution after lease or process failure.
+**Statement:** A scheduled job Command and side effect MUST tolerate duplicate execution after lease or process failure.
 
-**Rationale:** A lease or process failure can replay an automation whose completion stayed uncertain. The automation Command and its side effects tolerate that duplicate execution. Work that assumes exactly-once breaks on the first uncertain failure.
+**Rationale:** A lease or process failure can replay a job whose completion stayed uncertain. The job Command and its side effects tolerate that duplicate execution. Work that assumes exactly-once breaks on the first uncertain failure.
 
-**Reviewed for:** Automation Commands and side effects show one accepted effect after a replayed occurrence.
+**Reviewed for:** Job Commands and side effects show one accepted effect after a replayed occurrence.
 
 ### Treat Unavailable Schedule Stores as Outages
 
@@ -204,7 +204,7 @@ This extension switches on no optional record type: the automation, setting, and
 
 **ID:** `litespec/ext/jobs#persist-occurrence-recovery-points`
 
-**Statement:** A scheduled-automation store MUST persist each occurrence's last scheduled, started, and completed time.
+**Statement:** A scheduled-job store MUST persist each occurrence's last scheduled, started, and completed time.
 
 **Rationale:** Last scheduled, started, and completed times persist per occurrence. After a restart, those points separate missed work from completed work. Memory alone cannot make that split, because the restart wipes it.
 
@@ -214,7 +214,7 @@ This extension switches on no optional record type: the automation, setting, and
 
 **ID:** `litespec/ext/jobs#define-misfire-recovery`
 
-**Statement:** A scheduled-automation specification MUST define skipped, once-replayed, or interval-replayed behavior for missed occurrences.
+**Statement:** A scheduled-job specification MUST define skipped, once-replayed, or interval-replayed behavior for missed occurrences.
 
 **Rationale:** Downtime and delay leave occurrences past their time. The specification states whether each missed occurrence is skipped, replayed once, or replayed per interval. The choice controls the business effect: a skipped reminder stays silent while a replayed one arrives late.
 
@@ -224,7 +224,7 @@ This extension switches on no optional record type: the automation, setting, and
 
 **ID:** `litespec/ext/jobs#provide-operational-recovery-procedures`
 
-**Statement:** A scheduled-automation owner MUST provide Runbook records for inspection, manual replay, and disable.
+**Statement:** A scheduled-job owner MUST provide Runbook records for inspection, manual replay, and disable.
 
 **Rationale:** Stalled, failed, or unsafe schedules need controlled operator actions: inspection, manual replay, and disable. Runbook records carry those procedures. An operator without them improvises against the store during the incident.
 
@@ -238,7 +238,7 @@ Each procedure names the interface that performs it. A procedure that says "disa
 
 **ID:** `litespec/ext/jobs#derive-stable-occurrence-identity`
 
-**Statement:** A scheduled-automation store MUST derive each occurrence identity from its schedule ID and scheduled instant.
+**Statement:** A scheduled-job store MUST derive each occurrence identity from its schedule ID and scheduled instant.
 
 **Rationale:** Schedule ID plus scheduled instant gives each planned time one stable identity across retries and replicas. Retries of one occurrence then share their idempotency scope, and two replicas recognize the same occurrence.
 
@@ -248,7 +248,7 @@ Each procedure names the interface that performs it. A procedure that says "disa
 
 **ID:** `litespec/ext/jobs#remove-occurrences-past-retention`
 
-**Statement:** A scheduled-automation store MUST remove occurrences older than the schedule's retention setting record.
+**Statement:** A scheduled-job store MUST remove occurrences older than the schedule's retention setting record.
 
 **Rationale:** Occurrences older than the retention setting record leave the store so the key space stays bounded.
 
@@ -262,7 +262,7 @@ The key space grows with the schedule's frequency and its retention. A per-secon
 
 **ID:** `litespec/ext/jobs#persist-occurrence-state`
 
-**Statement:** A scheduled-automation store MUST persist scheduled, processing, completed, and dead-letter state with safe execution details.
+**Statement:** A scheduled-job store MUST persist scheduled, processing, completed, and dead-letter state with safe execution details.
 
 **Rationale:** Scheduled, processing, completed, and dead-letter states persist with attempt, lease, start, completion, and safe error data. The persisted state tells operators and recovery code where each occurrence stands. A store without states cannot separate work in flight from work never started.
 
@@ -272,7 +272,7 @@ The key space grows with the schedule's frequency and its retention. A per-secon
 
 **ID:** `litespec/ext/jobs#scope-command-idempotency-by-occurrence`
 
-**Statement:** A scheduled automation MUST use its occurrence identity as the command idempotency scope.
+**Statement:** A scheduled job MUST use its occurrence identity as the command idempotency scope.
 
 **Rationale:** The occurrence identity scopes the command idempotency key. Every retry of one occurrence then replays the same scheduled business action. A key scoped any wider would merge separate occurrences into one.
 
@@ -302,9 +302,9 @@ The key space grows with the schedule's frequency and its retention. A per-secon
 
 **ID:** `litespec/ext/jobs#prefer-utc-schedules`
 
-**Statement:** A scheduled automation MUST use a UTC schedule unless its specification names a business-local time requirement and its IANA time zone.
+**Statement:** A scheduled job MUST use a UTC schedule unless its specification names a business-local time requirement and its IANA time zone.
 
-**Rationale:** A local schedule runs twice on one date each year and skips an hour on another. A daylight-saving transition does that to a wall clock. That behavior is correct for an automation whose meaning is local, such as a nightly statement at 9 AM for a reader. It is a defect for every other automation. Naming the time zone in the specification makes the transition behavior reviewable.
+**Rationale:** A local schedule runs twice on one date each year and skips an hour on another. A daylight-saving transition does that to a wall clock. That behavior is correct for a job whose meaning is local, such as a nightly statement at 9 AM for a reader. It is a defect for every other job. Naming the time zone in the specification makes the transition behavior reviewable.
 
 **Reviewed for:** Each schedule states UTC or names a business-local time requirement with its IANA time zone.
 
@@ -322,21 +322,21 @@ The key space grows with the schedule's frequency and its retention. A per-secon
 
 **ID:** `litespec/ext/jobs#test-time-transitions`
 
-**Statement:** A scheduled-automation test MUST use an injected clock and representative time-zone transitions.
+**Statement:** A scheduled-job test MUST use an injected clock and representative time-zone transitions.
 
 **Rationale:** An injected clock lets tests move time to any transition on demand. Representative time-zone transitions then run deterministically instead of once a year in production. Tests on the real clock can only wait for the transition to arrive.
 
-**Reviewed for:** Automation tests inject the clock and cover representative time-zone transitions.
+**Reviewed for:** Job tests inject the clock and cover representative time-zone transitions.
 
 ### Exclude Machine-Local Time
 
 **ID:** `litespec/ext/jobs#exclude-machine-local-time`
 
-**Statement:** Scheduled-automation production code MUST NOT depend on machine-local time.
+**Statement:** Scheduled-job production code MUST NOT depend on machine-local time.
 
 **Rationale:** Machine-local time follows each host's configuration. Production code that reads it schedules differently on a developer machine, in staging, and in production. Schedules read their time from the injected clock and the declared zone instead.
 
-**Reviewed for:** Production automation sources read no machine-local clock.
+**Reviewed for:** Production job sources read no machine-local clock.
 
 ## Conventions
 
@@ -344,13 +344,13 @@ The key space grows with the schedule's frequency and its retention. A per-secon
 
 **ID:** `litespec/ext/jobs#place-handlers-with-owned-behavior`
 
-**Default:** Create one automation handler under the module that owns its behavior.
+**Default:** Create one job handler under the module that owns its behavior.
 
-**Replacement:** A project keeps automation handlers in one shared automations folder.
+**Replacement:** A project keeps job handlers in one shared jobs folder.
 
-**Rationale:** One automation handler lives under the module that owns its behavior. The module owns both the business action and what its schedule means. A handlers folder far from the behavior separates each schedule from its reason.
+**Rationale:** One job handler lives under the module that owns its behavior. The module owns both the business action and what its schedule means. A handlers folder far from the behavior separates each schedule from its reason.
 
-**Reviewed for:** Each automation handler sits under the module that owns its behavior, or the project keeps its handlers in one shared automations folder.
+**Reviewed for:** Each job handler sits under the module that owns its behavior, or the project keeps its handlers in one shared jobs folder.
 
 ### Use Execution Scopes
 

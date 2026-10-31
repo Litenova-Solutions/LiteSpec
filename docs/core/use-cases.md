@@ -71,7 +71,7 @@ A use-case name starts with a verb, and each verb keeps one meaning and one kind
 | `issue`, `void` | command | A document or credential. |
 | `retire`, `restore` | command | The end of a record's life, and its return inside the restore window. |
 | `cancel` | command | An intention or booking that will not happen. |
-| `expire` | command | What time ended; started by an automation. |
+| `expire` | command | What time ended; started by a job. |
 | `record` | command | Something that happened outside the system: a provider answer, a delivery result, a scan. |
 | `send` | command | A message to a person. |
 | `post`, `reverse` | command | A ledger transaction and its correction. |
@@ -79,7 +79,7 @@ A use-case name starts with a verb, and each verb keeps one meaning and one kind
 
 The baseline vocabulary retires these synonyms: `get`, `fetch`, `lookup` and `count` become `read`; `browse` becomes `list`; `find` becomes `search`; `update`, `edit`, `modify`, `revise`, `set`, `adjust`, `configure` and `rename` become `change`; `define`, `compose`, `save` and `new` become `create`; `delete` becomes `remove`; `notify`, `remind` and `email` become `send`; `suggest` and `ask` become `answer`; `mark`, `note` and `log` become `record`; `end` becomes `close`; `finish` becomes `complete`; `abandon` becomes `cancel`; `lapse` becomes `expire`; `clone` and `copy` become `duplicate`; `replay` becomes `retry`; `recheck` becomes `verify`; `archive` becomes `retire`; `reject` and `deny` become `refuse`; `unpublish` and `hide` become `withdraw`.
 
-An automation is named for its trigger, as the [Automation page](automation.md) states.
+A reaction is named for its trigger and a job for the use case it runs, as the [Automation page](automation.md) states.
 
 ### Results and Refusals
 
@@ -126,7 +126,7 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **Statement:** Each use case MUST declare one kind: command or query.
 
-**Rationale:** The kind decides what the use case is allowed to touch: a command changes, a query reads. A use case with no kind leaves each reader to allow it everything, and the checks no shape to confirm. When-X-do-Y behavior and work without a request are automation records, as the [Automation page](automation.md) states.
+**Rationale:** The kind decides what the use case is allowed to touch: a command changes, a query reads. A use case with no kind leaves each reader to allow it everything, and the checks no shape to confirm. When-X-do-Y behavior and work without a request are reaction and job records, as the [Automation page](automation.md) states.
 
 **Checked by:** `litespec consumer` fails a use-case page without `kind` or with an unknown kind.
 
@@ -271,7 +271,7 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **Statement:** Each effect entry MUST carry exactly one verb and its timing.
 
-**Rationale:** An edge no record declares is the defect: hidden calls between use cases, automations, notifications, integration events, and external systems. Declaring each edge with exactly one verb of `runs`, `sends`, `emits`, or `calls`, with its timing of `inline`, `after-commit`, or `async`, and its failure handling states every coupling as data. Timing is required on every use-case effect. On a command, a `sends` or `calls` effect carries `after-commit` or `async` timing, and an event handler runs the consequence after the commit. The `effect-undeclared` check reports an edge the records never declared.
+**Rationale:** An edge no record declares is the defect: hidden calls between use cases, reactions, jobs, notifications, integration events, and external systems. Declaring each edge with exactly one verb of `runs`, `sends`, `emits`, or `calls`, with its timing of `inline`, `after-commit`, or `async`, and its failure handling states every coupling as data. Timing is required on every use-case effect. On a command, a `sends` or `calls` effect carries `after-commit` or `async` timing, and an event handler runs the consequence after the commit. The `effect-undeclared` check reports an edge the records never declared.
 
 **Example:** The reimburse-expense command emits the reimbursed integration event after commit.
 
@@ -293,7 +293,7 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **Statement:** The effect graph MUST hold no cycle except through a domain event carrying its end condition.
 
-**Rationale:** A cycle without an end condition runs until something breaks: an automation runs a use case raising the event triggering the automation. Forbidding cycles except through a domain event with a stated end condition keeps every loop a loop with an exit. The `effect-loop-invalid` check reports a cycle with no stated end.
+**Rationale:** A cycle without an end condition runs until something breaks: a reaction runs a use case raising the event triggering the reaction. Forbidding cycles except through a domain event with a stated end condition keeps every loop a loop with an exit. The `effect-loop-invalid` check reports a cycle with no stated end.
 
 **Checked by:** `litespec model check` reports `effect-loop-invalid` for a cycle with no stated end condition.
 
@@ -303,7 +303,7 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **Statement:** Each use case MUST name the domain events it raises in `raises`.
 
-**Rationale:** An event raised but unnamed leaves automations waiting: downstream behavior answers a fact no behavior admits raising. Naming the raised events ties each fact to the behavior announcing it.
+**Rationale:** An event raised but unnamed leaves reactions waiting: downstream behavior answers a fact no behavior admits raising. Naming the raised events ties each fact to the behavior announcing it.
 
 **Reviewed for:** Which use cases raise domain events that `raises` does not name? Look at `raises` beside each use-case page.
 
@@ -313,7 +313,7 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **Statement:** Each use case MUST declare its idempotency mode with the key, scope, or reason that mode needs.
 
-**Rationale:** A retried call without a stated idempotency runs twice: a double payout, a double loan, a double notice. Declaring the mode of `key`, `state`, or `not-pending`, with its key template and scope, states how repeats collapse; `none` carries the reason repeats cannot happen. The `key` templates `{field}` placeholders over the record's `input` field names, and the `scope` is `tenant`, `account`, `login`, or `global`. An automation key names fields of the triggering event or run window instead, which the record does not list, so its placeholders are not checked. The self-checkout scan keys on `{nonce}` scoped to the login.
+**Rationale:** A retried call without a stated idempotency runs twice: a double payout, a double loan, a double notice. Declaring the mode of `key`, `state`, or `not-pending`, with its key template and scope, states how repeats collapse; `none` carries the reason repeats cannot happen. The `key` templates `{field}` placeholders over the record's `input` field names, and the `scope` is `tenant`, `account`, `login`, or `global`. A reaction key names fields of the triggering event and a job key names fields of its run window instead, which the record does not list, so its placeholders are not checked. The self-checkout scan keys on `{nonce}` scoped to the login.
 
 **Checked by:** `litespec consumer` fails a use case without an idempotency mode or without the key, scope, or reason its mode needs; `litespec model check` reports `record-invalid` for a key with no `{field}` placeholder, a placeholder naming no input field, or a scope outside `tenant`, `account`, `login`, and `global`.
 

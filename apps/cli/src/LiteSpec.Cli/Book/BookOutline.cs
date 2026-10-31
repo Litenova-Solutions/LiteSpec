@@ -33,7 +33,7 @@ static class BookOutline
     public static readonly IReadOnlyList<string> LayerKeys = ["intent", "behavior", "implementation", "proof", "governance", "glossary"];
 
     static readonly IReadOnlyList<string> IntentTopOrder = ["goal", "problem", "topic", "constraint", "research", "decision", "actor"];
-    static readonly IReadOnlyList<string> ModuleChildOrder = ["aggregate", "rule", "use-case", "automation", "notification", "setting"];
+    static readonly IReadOnlyList<string> ModuleChildOrder = ["aggregate", "rule", "use-case", "reaction", "job", "notification", "setting"];
     static readonly IReadOnlyList<string> AggregateChildOrder = ["rule", "use-case", "event"];
     static readonly IReadOnlyList<string> BehaviorListOrder = ["role", "permission", "entry-point", "external-system", "runbook", "integration-event"];
     static readonly IReadOnlyList<string> GovernanceOrder = ["exception"];
@@ -224,8 +224,8 @@ static class BookOutline
             }
         }
 
-        // Automation entries name no record: their use case is the served use case, not the
-        // automation, so their files attach through their implements links below.
+        // Reaction and job entries name no record: their use case is the served use case,
+        // not the reaction or job, so their files attach through their implements links below.
         var links = model["links"] as JsonObject;
         foreach (var entry in links?["implements"] as JsonArray ?? [])
         {
@@ -468,7 +468,7 @@ static class BookOutline
             "exception" => "governance",
             "decision" => IsTechnical(record) ? "implementation" : "intent",
             "product" or "goal" or "problem" or "feature" or "topic" or "requirement" or "constraint" or "research" or "journey" or "actor" => "intent",
-            "module" or "aggregate" or "rule" or "use-case" or "result" or "scenario" or "event" or "integration-event" or "automation" or "notification" or "setting" or "role" or "permission" or "entry-point" or "screen" or "external-system" or "runbook" => "behavior",
+            "module" or "aggregate" or "rule" or "use-case" or "result" or "scenario" or "event" or "integration-event" or "reaction" or "job" or "notification" or "setting" or "role" or "permission" or "entry-point" or "screen" or "external-system" or "runbook" => "behavior",
             _ => "intent",
         };
 

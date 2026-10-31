@@ -74,7 +74,7 @@ A polymorphic transport model mirrors a Domain discriminated union (`litespec/ba
 
 The transport name drops the Domain union's aggregate prefix, such as `OrderFulfillmentOutcome`, while its discriminator string keeps the Domain union's stable case code unchanged.
 
-**Checked by:** `dotnet build` reports `LS2005` for a handler missing its command or query suffix, `LS2006` for an endpoint missing its suffix, and `LS2007` for an automation whose name hides its trigger kind, in the dotnet stack; each other type name in `apps/api/src` and each frontend file name carries the suffix its role assigns in the Role Suffixes table.
+**Checked by:** `dotnet build` reports `LS2005` for a handler missing its command or query suffix, `LS2006` for an endpoint missing its suffix, and `LS2007` for a reaction or job whose name hides its kind, in the dotnet stack; each other type name in `apps/api/src` and each frontend file name carries the suffix its role assigns in the Role Suffixes table.
 
 ### Name Result Parts After Their Result
 

@@ -8,26 +8,26 @@ public sealed class RecordShapeCheckTests
 {
     /// <proves>litespec/core/use-cases#keep-the-effect-graph-free-of-cycles</proves>
     [Fact]
-    public void Automation_Effects_Runs_Edge_Feeds_Effect_Loop()
+    public void Reaction_Effects_Runs_Edge_Feeds_Effect_Loop()
     {
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/lending.return-copy", Path.Combine(temp.Path, "return.md"), """{"status": "reviewed", "kind": "command", "raises": ["event/loan.loan-returned"]}"""),
             TestModel.Record("event", "event/loan.loan-returned", Path.Combine(temp.Path, "loan.md"), """{"status": "reviewed", "meaning": "A copy was returned.", "carries": []}"""),
-            TestModel.Record("automation", "automation/lending.return-again-on-loan-returned", Path.Combine(temp.Path, "again.md"), """{"status": "reviewed", "triggeredBy": {"event": "event/loan.loan-returned"}, "effects": [{"runs": "use-case/lending.return-copy", "timing": "async"}]}"""));
+            TestModel.Record("reaction", "reaction/lending.return-again-on-loan-returned", Path.Combine(temp.Path, "again.md"), """{"status": "reviewed", "triggeredBy": ["event/loan.loan-returned"], "effects": [{"runs": "use-case/lending.return-copy", "timing": "async"}]}"""));
 
         Assert.Contains("effect-loop-invalid", TestModel.Codes(model));
     }
 
     /// <proves>litespec/core/edges#describe-every-notification-with-audience-channel-and-consent</proves>
     [Fact]
-    public void Automation_Effects_Sends_Edge_Satisfies_Notification_Sender()
+    public void Reaction_Effects_Sends_Edge_Satisfies_Notification_Sender()
     {
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("automation", "automation/lending.send-due-notice-on-loan-borrowed", Path.Combine(temp.Path, "notice.md"), """{"status": "reviewed", "triggeredBy": {"event": "event/loan.loan-borrowed"}, "effects": [{"sends": "notification/lending.loan-due"}]}"""),
+            TestModel.Record("reaction", "reaction/lending.send-due-notice-on-loan-borrowed", Path.Combine(temp.Path, "notice.md"), """{"status": "reviewed", "triggeredBy": ["event/loan.loan-borrowed"], "effects": [{"sends": "notification/lending.loan-due"}]}"""),
             TestModel.Record("notification", "notification/lending.loan-due", Path.Combine(temp.Path, "due.md"), """{"status": "reviewed"}"""));
 
         Assert.DoesNotContain("notification-sender-missing", TestModel.Codes(model));
@@ -35,12 +35,12 @@ public sealed class RecordShapeCheckTests
 
     /// <proves>litespec/core/edges#describe-every-notification-with-audience-channel-and-consent</proves>
     [Fact]
-    public void Scheduled_Automation_Effects_Sends_Edge_Satisfies_Notification_Sender()
+    public void Scheduled_Job_Effects_Sends_Edge_Satisfies_Notification_Sender()
     {
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("automation", "automation/lending.scan-due", Path.Combine(temp.Path, "scan.md"), """{"status": "reviewed", "triggeredBy": {"schedule": {"every": "PT1H"}}, "effects": [{"sends": "notification/lending.loan-due", "timing": "async"}]}"""),
+            TestModel.Record("job", "job/lending.scan-due", Path.Combine(temp.Path, "scan.md"), """{"status": "reviewed", "kind": "scheduled", "schedule": {"every": "PT1H"}, "effects": [{"sends": "notification/lending.loan-due", "timing": "async"}]}"""),
             TestModel.Record("notification", "notification/lending.loan-due", Path.Combine(temp.Path, "due.md"), """{"status": "reviewed"}"""));
 
         Assert.DoesNotContain("notification-sender-missing", TestModel.Codes(model));
@@ -48,60 +48,60 @@ public sealed class RecordShapeCheckTests
 
     /// <proves>litespec/core/use-cases#declare-every-effect-with-one-verb-and-its-timing</proves>
     [Fact]
-    public void Automation_With_Top_Level_Runs_Reports_Record_Shape()
+    public void Reaction_With_Top_Level_Runs_Reports_Record_Shape()
     {
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("automation", "automation/lending.remind-overdue-on-loan-due", Path.Combine(temp.Path, "remind.md"), """{"status": "reviewed", "triggeredBy": {"event": "event/loan.loan-borrowed"}, "runs": "use-case/lending.notify-overdue"}"""));
+            TestModel.Record("reaction", "reaction/lending.remind-overdue-on-loan-due", Path.Combine(temp.Path, "remind.md"), """{"status": "reviewed", "triggeredBy": ["event/loan.loan-borrowed"], "runs": "use-case/lending.notify-overdue"}"""));
 
         Assert.True(Reports(model, "record-invalid", "top-level runs"));
     }
 
     /// <proves>litespec/core/use-cases#declare-every-effect-with-one-verb-and-its-timing</proves>
     [Fact]
-    public void Automation_With_Top_Level_Sends_Reports_Record_Shape()
+    public void Reaction_With_Top_Level_Sends_Reports_Record_Shape()
     {
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("automation", "automation/lending.send-due-notice-on-loan-borrowed", Path.Combine(temp.Path, "notice.md"), """{"status": "reviewed", "triggeredBy": {"event": "event/loan.loan-borrowed"}, "sends": "notification/lending.loan-due"}"""));
+            TestModel.Record("reaction", "reaction/lending.send-due-notice-on-loan-borrowed", Path.Combine(temp.Path, "notice.md"), """{"status": "reviewed", "triggeredBy": ["event/loan.loan-borrowed"], "sends": "notification/lending.loan-due"}"""));
 
         Assert.True(Reports(model, "record-invalid", "top-level sends"));
     }
 
     /// <proves>litespec/core/use-cases#declare-every-effect-with-one-verb-and-its-timing</proves>
     [Fact]
-    public void Scheduled_Automation_With_Top_Level_Runs_Reports_Record_Shape()
+    public void Scheduled_Job_With_Top_Level_Runs_Reports_Record_Shape()
     {
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("automation", "automation/lending.scan-due", Path.Combine(temp.Path, "scan.md"), """{"status": "reviewed", "triggeredBy": {"schedule": {"every": "PT1H"}}, "runs": ["use-case/lending.mark-due"]}"""));
+            TestModel.Record("job", "job/lending.scan-due", Path.Combine(temp.Path, "scan.md"), """{"status": "reviewed", "kind": "scheduled", "schedule": {"every": "PT1H"}, "runs": ["use-case/lending.mark-due"]}"""));
 
         Assert.True(Reports(model, "record-invalid", "top-level runs"));
     }
 
     /// <proves>litespec/core/use-cases#declare-every-effect-with-one-verb-and-its-timing</proves>
     [Fact]
-    public void Automation_Without_Effects_Reports_Record_Shape()
+    public void Reaction_Without_Effects_Reports_Record_Shape()
     {
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("automation", "automation/lending.remind-overdue-on-loan-due", Path.Combine(temp.Path, "remind.md"), """{"status": "reviewed", "triggeredBy": {"event": "event/loan.loan-borrowed"}}"""));
+            TestModel.Record("reaction", "reaction/lending.remind-overdue-on-loan-due", Path.Combine(temp.Path, "remind.md"), """{"status": "reviewed", "triggeredBy": ["event/loan.loan-borrowed"]}"""));
 
         Assert.True(Reports(model, "record-invalid", "has no effects"));
     }
 
     /// <proves>litespec/core/use-cases#declare-every-effect-with-one-verb-and-its-timing</proves>
     [Fact]
-    public void Automation_Effects_Without_Timing_Pass_Shape()
+    public void Reaction_Effects_Without_Timing_Pass_Shape()
     {
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("automation", "automation/lending.send-due-notice-on-loan-borrowed", Path.Combine(temp.Path, "notice.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "triggeredBy": {"event": "event/loan.loan-borrowed"}, "effects": [{"sends": "notification/lending.loan-due"}]}"""),
+            TestModel.Record("reaction", "reaction/lending.send-due-notice-on-loan-borrowed", Path.Combine(temp.Path, "notice.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "triggeredBy": ["event/loan.loan-borrowed"], "effects": [{"sends": "notification/lending.loan-due"}]}"""),
             TestModel.Record("event", "event/loan.loan-borrowed", Path.Combine(temp.Path, "loan.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "meaning": "A copy was lent.", "carries": []}"""),
             TestModel.Record("notification", "notification/lending.loan-due", Path.Combine(temp.Path, "due.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01"}"""));
 
@@ -160,175 +160,175 @@ public sealed class RecordShapeCheckTests
 
     /// <proves>litespec/core/use-cases#name-the-idempotency-of-every-use-case</proves>
     [Fact]
-    public void Automation_Key_Names_Event_Fields_Unchecked()
+    public void Reaction_Key_Names_Event_Fields_Unchecked()
     {
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("automation", "automation/lending.send-due-notice-on-loan-borrowed", Path.Combine(temp.Path, "notice.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "triggeredBy": {"event": "event/loan.loan-borrowed"}, "effects": [{"sends": "notification/lending.loan-due"}], "idempotency": {"mode": "key", "key": "notice:{loan}", "scope": "global"}}"""));
+            TestModel.Record("reaction", "reaction/lending.send-due-notice-on-loan-borrowed", Path.Combine(temp.Path, "notice.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "triggeredBy": ["event/loan.loan-borrowed"], "effects": [{"sends": "notification/lending.loan-due"}], "idempotency": {"mode": "key", "key": "notice:{loan}", "scope": "global"}}"""));
 
         Assert.False(Reports(model, "record-invalid", "idempotency key"));
     }
 
-    /// <proves>litespec/core/automation#state-the-failure-handling-of-every-automation</proves>
+    /// <proves>litespec/core/automation#state-the-failure-handling-of-every-reaction-and-job</proves>
     [Fact]
-    public void Automation_Prose_OnFailure_Reports()
+    public void Reaction_Prose_OnFailure_Reports()
     {
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("automation", "automation/lending.send-due-notice-on-loan-borrowed", Path.Combine(temp.Path, "notice.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "triggeredBy": {"event": "event/loan.loan-borrowed"}, "effects": [{"sends": "notification/lending.loan-due"}], "onFailure": "Retry a few times, then give up."}"""));
+            TestModel.Record("reaction", "reaction/lending.send-due-notice-on-loan-borrowed", Path.Combine(temp.Path, "notice.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "triggeredBy": ["event/loan.loan-borrowed"], "effects": [{"sends": "notification/lending.loan-due"}], "onFailure": "Retry a few times, then give up."}"""));
 
         Assert.True(Reports(model, "record-invalid", "as prose"));
     }
 
-    /// <proves>litespec/core/automation#state-the-failure-handling-of-every-automation</proves>
+    /// <proves>litespec/core/automation#state-the-failure-handling-of-every-reaction-and-job</proves>
     [Fact]
-    public void Scheduled_Automation_Prose_OnFailure_Reports()
+    public void Scheduled_Job_Prose_OnFailure_Reports()
     {
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("automation", "automation/lending.scan-due", Path.Combine(temp.Path, "scan.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "triggeredBy": {"schedule": {"every": "PT1H"}}, "onFailure": "Retry a few times, then give up."}"""));
+            TestModel.Record("job", "job/lending.scan-due", Path.Combine(temp.Path, "scan.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "kind": "scheduled", "schedule": {"every": "PT1H"}, "onFailure": "Retry a few times, then give up."}"""));
 
         Assert.True(Reports(model, "record-invalid", "as prose"));
     }
 
-    /// <proves>litespec/core/automation#state-the-failure-handling-of-every-automation</proves>
+    /// <proves>litespec/core/automation#state-the-failure-handling-of-every-reaction-and-job</proves>
     [Fact]
     public void Missing_Mode_Reports()
     {
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("automation", "automation/lending.send-due-notice-on-loan-borrowed", Path.Combine(temp.Path, "notice.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "triggeredBy": {"event": "event/loan.loan-borrowed"}, "effects": [{"sends": "notification/lending.loan-due"}], "onFailure": {}}"""));
+            TestModel.Record("reaction", "reaction/lending.send-due-notice-on-loan-borrowed", Path.Combine(temp.Path, "notice.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "triggeredBy": ["event/loan.loan-borrowed"], "effects": [{"sends": "notification/lending.loan-due"}], "onFailure": {}}"""));
 
         Assert.True(Reports(model, "record-invalid", "onFailure with no mode"));
     }
 
-    /// <proves>litespec/core/automation#state-the-failure-handling-of-every-automation</proves>
+    /// <proves>litespec/core/automation#state-the-failure-handling-of-every-reaction-and-job</proves>
     [Fact]
     public void Unknown_Mode_Reports()
     {
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("automation", "automation/lending.scan-due", Path.Combine(temp.Path, "scan.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "triggeredBy": {"schedule": {"every": "PT1H"}}, "onFailure": {"mode": "give-up"}}"""));
+            TestModel.Record("job", "job/lending.scan-due", Path.Combine(temp.Path, "scan.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "kind": "scheduled", "schedule": {"every": "PT1H"}, "onFailure": {"mode": "give-up"}}"""));
 
         Assert.True(Reports(model, "record-invalid", "mode 'give-up' outside retry, skip-and-log, discard"));
     }
 
-    /// <proves>litespec/core/automation#state-the-failure-handling-of-every-automation</proves>
+    /// <proves>litespec/core/automation#state-the-failure-handling-of-every-reaction-and-job</proves>
     [Fact]
     public void Malformed_Retry_Delay_Reports()
     {
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("automation", "automation/lending.scan-due", Path.Combine(temp.Path, "scan.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "triggeredBy": {"schedule": {"every": "PT1H"}}, "onFailure": {"mode": "retry", "retry": {"maxAttempts": 5, "initialDelay": "5 seconds", "maxDelay": "PT5M", "backoff": "exponential"}, "then": "dead-letter"}}"""));
+            TestModel.Record("job", "job/lending.scan-due", Path.Combine(temp.Path, "scan.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "kind": "scheduled", "schedule": {"every": "PT1H"}, "onFailure": {"mode": "retry", "retry": {"maxAttempts": 5, "initialDelay": "5 seconds", "maxDelay": "PT5M", "backoff": "exponential"}, "then": "dead-letter"}}"""));
 
         Assert.True(Reports(model, "record-invalid", "initialDelay '5 seconds', which is not an ISO 8601 duration"));
     }
 
-    /// <proves>litespec/core/automation#state-the-failure-handling-of-every-automation</proves>
+    /// <proves>litespec/core/automation#state-the-failure-handling-of-every-reaction-and-job</proves>
     [Fact]
     public void Missing_InitialDelay_Reports()
     {
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("automation", "automation/lending.scan-due", Path.Combine(temp.Path, "scan.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "triggeredBy": {"schedule": {"every": "PT1H"}}, "onFailure": {"mode": "retry", "retry": {"maxAttempts": 5}, "then": "dead-letter"}}"""));
+            TestModel.Record("job", "job/lending.scan-due", Path.Combine(temp.Path, "scan.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "kind": "scheduled", "schedule": {"every": "PT1H"}, "onFailure": {"mode": "retry", "retry": {"maxAttempts": 5}, "then": "dead-letter"}}"""));
 
         Assert.True(Reports(model, "record-invalid", "retry initialDelay with no duration"));
     }
 
-    /// <proves>litespec/core/automation#state-the-failure-handling-of-every-automation</proves>
+    /// <proves>litespec/core/automation#state-the-failure-handling-of-every-reaction-and-job</proves>
     [Fact]
     public void Missing_MaxAttempts_Reports()
     {
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("automation", "automation/lending.scan-due", Path.Combine(temp.Path, "scan.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "triggeredBy": {"schedule": {"every": "PT1H"}}, "onFailure": {"mode": "retry", "retry": {"initialDelay": "PT1M", "maxDelay": "PT5M", "backoff": "exponential"}, "then": "dead-letter"}}"""));
+            TestModel.Record("job", "job/lending.scan-due", Path.Combine(temp.Path, "scan.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "kind": "scheduled", "schedule": {"every": "PT1H"}, "onFailure": {"mode": "retry", "retry": {"initialDelay": "PT1M", "maxDelay": "PT5M", "backoff": "exponential"}, "then": "dead-letter"}}"""));
 
         Assert.True(Reports(model, "record-invalid", "no positive maxAttempts"));
     }
 
-    /// <proves>litespec/core/automation#state-the-failure-handling-of-every-automation</proves>
+    /// <proves>litespec/core/automation#state-the-failure-handling-of-every-reaction-and-job</proves>
     [Fact]
     public void Missing_Retry_Reports()
     {
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("automation", "automation/lending.send-due-notice-on-loan-borrowed", Path.Combine(temp.Path, "notice.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "triggeredBy": {"event": "event/loan.loan-borrowed"}, "effects": [{"sends": "notification/lending.loan-due"}], "onFailure": {"mode": "retry", "then": "dead-letter"}}"""));
+            TestModel.Record("reaction", "reaction/lending.send-due-notice-on-loan-borrowed", Path.Combine(temp.Path, "notice.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "triggeredBy": ["event/loan.loan-borrowed"], "effects": [{"sends": "notification/lending.loan-due"}], "onFailure": {"mode": "retry", "then": "dead-letter"}}"""));
 
         Assert.True(Reports(model, "record-invalid", "onFailure with no retry"));
     }
 
-    /// <proves>litespec/core/automation#state-the-failure-handling-of-every-automation</proves>
+    /// <proves>litespec/core/automation#state-the-failure-handling-of-every-reaction-and-job</proves>
     [Fact]
     public void Missing_Then_Reports()
     {
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("automation", "automation/lending.scan-due", Path.Combine(temp.Path, "scan.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "triggeredBy": {"schedule": {"every": "PT1H"}}, "onFailure": {"mode": "retry", "retry": {"maxAttempts": 5, "initialDelay": "PT1M", "maxDelay": "PT5M", "backoff": "exponential"}}}"""));
+            TestModel.Record("job", "job/lending.scan-due", Path.Combine(temp.Path, "scan.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "kind": "scheduled", "schedule": {"every": "PT1H"}, "onFailure": {"mode": "retry", "retry": {"maxAttempts": 5, "initialDelay": "PT1M", "maxDelay": "PT5M", "backoff": "exponential"}}}"""));
 
         Assert.True(Reports(model, "record-invalid", "retry with no then"));
     }
 
-    /// <proves>litespec/core/automation#state-the-failure-handling-of-every-automation</proves>
+    /// <proves>litespec/core/automation#state-the-failure-handling-of-every-reaction-and-job</proves>
     [Fact]
     public void Unknown_Then_Reports()
     {
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("automation", "automation/lending.scan-due", Path.Combine(temp.Path, "scan.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "triggeredBy": {"schedule": {"every": "PT1H"}}, "onFailure": {"mode": "retry", "retry": {"maxAttempts": 5, "initialDelay": "PT1M", "maxDelay": "PT5M", "backoff": "exponential"}, "then": "requeue"}}"""));
+            TestModel.Record("job", "job/lending.scan-due", Path.Combine(temp.Path, "scan.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "kind": "scheduled", "schedule": {"every": "PT1H"}, "onFailure": {"mode": "retry", "retry": {"maxAttempts": 5, "initialDelay": "PT1M", "maxDelay": "PT5M", "backoff": "exponential"}, "then": "requeue"}}"""));
 
         Assert.True(Reports(model, "record-invalid", "then 'requeue' outside dead-letter"));
     }
 
-    /// <proves>litespec/core/automation#state-the-failure-handling-of-every-automation</proves>
+    /// <proves>litespec/core/automation#state-the-failure-handling-of-every-reaction-and-job</proves>
     [Fact]
     public void Structured_OnFailure_Passes_Shape()
     {
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("automation", "automation/lending.send-due-notice-on-loan-borrowed", Path.Combine(temp.Path, "notice.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "triggeredBy": {"event": "event/loan.loan-borrowed"}, "effects": [{"sends": "notification/lending.loan-due"}], "onFailure": {"mode": "retry", "retry": {"maxAttempts": 10, "initialDelay": "PT5S", "maxDelay": "PT1M", "backoff": "exponential"}, "then": "dead-letter"}}"""),
+            TestModel.Record("reaction", "reaction/lending.send-due-notice-on-loan-borrowed", Path.Combine(temp.Path, "notice.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "triggeredBy": ["event/loan.loan-borrowed"], "effects": [{"sends": "notification/lending.loan-due"}], "onFailure": {"mode": "retry", "retry": {"maxAttempts": 10, "initialDelay": "PT5S", "maxDelay": "PT1M", "backoff": "exponential"}, "then": "dead-letter"}}"""),
             TestModel.Record("event", "event/loan.loan-borrowed", Path.Combine(temp.Path, "loan.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "meaning": "A copy was lent.", "carries": []}"""),
             TestModel.Record("notification", "notification/lending.loan-due", Path.Combine(temp.Path, "due.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01"}"""));
 
         Assert.DoesNotContain("record-invalid", TestModel.Codes(model));
     }
 
-    /// <proves>litespec/core/automation#state-the-failure-handling-of-every-automation</proves>
+    /// <proves>litespec/core/automation#state-the-failure-handling-of-every-reaction-and-job</proves>
     [Fact]
     public void Skip_And_Log_Passes_Shape()
     {
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("automation", "automation/lending.scan-due", Path.Combine(temp.Path, "scan.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "triggeredBy": {"manual": true}, "guard": "An operator starts the scan.", "effects": [{"runs": "use-case/lending.mark-due", "timing": "async"}], "onFailure": {"mode": "skip-and-log"}}"""));
+            TestModel.Record("job", "job/lending.scan-due", Path.Combine(temp.Path, "scan.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "kind": "manual", "guard": "An operator starts the scan.", "effects": [{"runs": "use-case/lending.mark-due", "timing": "async"}], "onFailure": {"mode": "skip-and-log"}}"""));
 
         Assert.DoesNotContain("record-invalid", TestModel.Codes(model));
     }
 
-    /// <proves>litespec/core/automation#state-the-failure-handling-of-every-automation</proves>
+    /// <proves>litespec/core/automation#state-the-failure-handling-of-every-reaction-and-job</proves>
     [Fact]
     public void Discard_Passes_Shape()
     {
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("automation", "automation/lending.scan-due", Path.Combine(temp.Path, "scan.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "triggeredBy": {"manual": true}, "guard": "An operator starts the scan.", "effects": [{"runs": "use-case/lending.mark-due", "timing": "async"}], "onFailure": {"mode": "discard"}}"""));
+            TestModel.Record("job", "job/lending.scan-due", Path.Combine(temp.Path, "scan.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "kind": "manual", "guard": "An operator starts the scan.", "effects": [{"runs": "use-case/lending.mark-due", "timing": "async"}], "onFailure": {"mode": "discard"}}"""));
 
         Assert.DoesNotContain("record-invalid", TestModel.Codes(model));
     }
 
-    /// <proves>litespec/core/automation#state-the-failure-handling-of-every-automation</proves>
+    /// <proves>litespec/core/automation#state-the-failure-handling-of-every-reaction-and-job</proves>
     [Fact]
     public void Effect_Prose_OnFailure_Reports()
     {
@@ -340,7 +340,7 @@ public sealed class RecordShapeCheckTests
         Assert.True(Reports(model, "record-invalid", "effect onFailure 'retry (5, PT1M) then dead-letter' as prose"));
     }
 
-    /// <proves>litespec/core/automation#state-the-failure-handling-of-every-automation</proves>
+    /// <proves>litespec/core/automation#state-the-failure-handling-of-every-reaction-and-job</proves>
     [Fact]
     public void Effect_Retry_Without_Attempts_Reports()
     {
@@ -352,7 +352,7 @@ public sealed class RecordShapeCheckTests
         Assert.True(Reports(model, "record-invalid", "effect onFailure retry with no positive maxAttempts"));
     }
 
-    /// <proves>litespec/core/automation#state-the-failure-handling-of-every-automation</proves>
+    /// <proves>litespec/core/automation#state-the-failure-handling-of-every-reaction-and-job</proves>
     [Fact]
     public void Effect_Structured_OnFailure_Passes_Shape()
     {

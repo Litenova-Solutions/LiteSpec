@@ -36,24 +36,36 @@ public sealed class FailLoudTests
 
     /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
-    public void Automation_In_Worker_Is_Discovered()
+    public void Job_In_Worker_Is_Discovered()
     {
         using var temp = Cli.Temp("fail-loud");
         WriteProject(temp.Path);
         WriteSource(temp.Path, "Worker", "RemindOverdueBorrowersWorker.cs", """
             namespace Library.Worker.Lending.Loans;
 
-            /// <implements>automation/lending.remind-overdue-borrowers</implements>
+            /// <implements>job/lending.remind-overdue-borrowers</implements>
             public sealed class RemindOverdueBorrowersWorker : BackgroundService
             {
                 protected override Task ExecuteAsync(CancellationToken stoppingToken) => Task.CompletedTask;
             }
             """);
 
-        var automation = Assert.Single(new DotnetBackendReader().Read(ConsumerConfig.Load(temp.Path)).Automations);
+        var job = Assert.Single(new DotnetBackendReader().Read(ConsumerConfig.Load(temp.Path)).Jobs);
 
-        Assert.Equal("RemindOverdueBorrowersWorker", automation.Class);
-        Assert.Equal("automation/lending.remind-overdue-borrowers", automation.RecordId);
+        Assert.Equal("RemindOverdueBorrowersWorker", job.Class);
+        Assert.Equal("job/lending.remind-overdue-borrowers", job.RecordId);
+    }
+
+    /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
+    [Fact]
+    public void Job_Trigger_Steps_Are_Read_From_Proof()
+    {
+        using var temp = Cli.Temp("fail-loud");
+        File.WriteAllText(
+            Path.Combine(temp.Path, "litespec.project.json"),
+            """{"stacks": ["dotnet"], "proof": {"jobTriggerSteps": ["ClockSteps"]}}""");
+
+        Assert.Equal(["ClockSteps"], ConsumerConfig.Load(temp.Path).JobTriggerSteps);
     }
 
     /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>

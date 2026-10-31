@@ -130,7 +130,7 @@ public sealed class BookContentTests
         }
     }
 
-    /// <summary>The client renders each wave-6 shape in LiteSpec words: automation triggers, saga steps and drivers, typed fields, binds, exercises and background.</summary>
+    /// <summary>The client renders each wave-6 shape in LiteSpec words: reaction and job triggers, saga steps and drivers, typed fields, binds, exercises and background.</summary>
     /// <proves>litespec/core/model#name-book-labels-with-litespec-terms</proves>
     [Fact]
     public void Client_Renders_Wave6_Shapes_With_LiteSpec_Terms()
@@ -145,7 +145,8 @@ public sealed class BookContentTests
             "function triggeredByHtml",
             "function drivenByBlock",
             "function typedFieldHtml",
-            "automation: function",
+            "reaction: function",
+            "job: function",
         })
         {
             Assert.Contains(renderer, script, StringComparison.Ordinal);
@@ -157,6 +158,8 @@ public sealed class BookContentTests
             "emits: [\"Emits\"",
             "Skipped when",
             "Runs by hand",
+            "d.reaction",
+            "d.job",
             "blk(\"exer\", \"exercises\"",
             "blk(\"bg\", \"background\"",
             "blk(\"binds\", \"binds\"",
@@ -168,7 +171,7 @@ public sealed class BookContentTests
         }
     }
 
-    /// <summary>The client holds none of the replaced wave-6 renderings: reaction and job details, old effect verbs, drivers and step whens.</summary>
+    /// <summary>The client holds none of the replaced automation renderings: the automation detail, old trigger objects, old effect verbs, drivers and step whens.</summary>
     /// <proves>litespec/core/model#name-book-labels-with-litespec-terms</proves>
     [Fact]
     public void Client_Holds_None_Of_The_Replaced_Wave6_Strings()
@@ -180,8 +183,12 @@ public sealed class BookContentTests
         var script = File.ReadAllText(Path.Combine(Out(temp), "assets", "book.js"));
         foreach (var removed in new[]
         {
-            "reaction: function",
-            "job: function",
+            "automation: function",
+            "P.automation",
+            "d.automation",
+            "if (t.event)",
+            "if (t.schedule)",
+            "if (t.manual)",
             "issues: [\"Issues\"",
             "publishes: [\"Publishes\"",
             "blk(\"on\", \"on\"",
@@ -189,8 +196,6 @@ public sealed class BookContentTests
             "s.when",
             "e[\"if\"]",
             "reaction: \"Reaction handler\"",
-            "\"reaction\"",
-            "\"job\"",
         })
         {
             Assert.DoesNotContain(removed, script, StringComparison.Ordinal);

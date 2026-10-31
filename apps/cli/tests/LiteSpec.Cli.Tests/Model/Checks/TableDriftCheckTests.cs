@@ -118,7 +118,7 @@ public sealed class TableDriftCheckTests
         + "      \"covers\": [\"aggregate/lending.loan\"],\n"
         + "      \"basis\": \"business\",\n"
         + $"      \"period\": \"{period}\",\n"
-        + "      \"enforcedBy\": \"automation/lending.expiry-sweep\"\n"
+        + "      \"enforcedBy\": \"job/lending.expiry-sweep\"\n"
         + "    }\n"
         + "  ]\n"
         + "}\n"
@@ -128,5 +128,5 @@ public sealed class TableDriftCheckTests
 
     /// <summary>A retention body table holding the loans row with a seven-year period.</summary>
     static string RetentionBody() =>
-        "# Retention\n\n| Data Class | Covers | Basis | Period | Enforced By |\n| --- | --- | --- | --- | --- |\n| loans | aggregate/lending.loan | business | P7Y | automation/lending.expiry-sweep |\n";
+        "# Retention\n\n| Data Class | Covers | Basis | Period | Enforced By |\n| --- | --- | --- | --- | --- |\n| loans | aggregate/lending.loan | business | P7Y | job/lending.expiry-sweep |\n";
 }

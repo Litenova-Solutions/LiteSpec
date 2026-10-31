@@ -45,8 +45,8 @@ The semantic fields per record type are:
 | `scenario` | `given`, `when`, `then`, `result`, `examples` |
 | `event` | `meaning`, `carries` |
 | `integration-event` | `direction`, `eventType`, `subject`, `payload`, `addresses`, `trust`, `correlation`, `translates` |
-| `reaction` | `on`, `if`, `effects`, `forEach`, `reads`, `fulfills`, `serves`, `idempotency`, `onFailure`, `onExhausted` |
-| `job` | `kind`, `schedule`, `selection`, `batchSize`, `lease`, `effects`, `reads`, `serviceLevel`, `evidence`, `runbook`, `runsWhere`, `guard`, `cursor`, `fulfills`, `serves`, `onFailure`, `idempotency` |
+| `reaction` | `triggeredBy`, `skippedWhen`, `effects`, `reads`, `changes`, `fulfills`, `serves`, `idempotency`, `onFailure`, `risk` |
+| `job` | `kind`, `schedule`, `selection`, `batchSize`, `lease`, `effects`, `reads`, `changes`, `serviceLevel`, `evidence`, `runbook`, `runsWhere`, `guard`, `cursor`, `fulfills`, `serves`, `onFailure`, `idempotency`, `risk` |
 | `notification` | `template`, `addresses`, `channel`, `consent`, `frequency`, `dedupKey`, `params`, `locale`, `suppressedWhen`, `claims`, `fulfills`, `sender` |
 | `setting` | `valueType`, `default`, `range`, `unit`, `setBy`, `atBound`, `secret`, `meaning`, `runbook`, `fulfills` |
 | `role` | `scope`, `allows` |

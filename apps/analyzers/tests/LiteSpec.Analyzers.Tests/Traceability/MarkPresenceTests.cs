@@ -175,8 +175,8 @@ public sealed class MarkPresenceTests
             assemblyName: "Shop.WebApi");
 
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
-    [Fact(DisplayName = "LS5001 reports a scheduled automation without a mark")]
-    public Task ReportsAScheduledAutomationWithoutAMark() =>
+    [Fact(DisplayName = "LS5001 reports a job without a mark")]
+    public Task ReportsAJobWithoutAMark() =>
         Verify.AnalyzerWithRecordsAsync<MarkPresenceAnalyzer>(
             [("Source.cs", """
                 using System.Threading;
@@ -196,7 +196,44 @@ public sealed class MarkPresenceTests
                     public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
                 }
                 """)],
-            [ProjectFile(), Automation()],
+            [ProjectFile(), Job()],
+            assemblyName: "Shop.Application");
+
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
+    [Fact(DisplayName = "LS5001 reports an event handler without a mark")]
+    public Task ReportsAnEventHandlerWithoutAMark() =>
+        Verify.AnalyzerWithRecordsAsync<MarkPresenceAnalyzer>(
+            [("Source.cs", """
+                namespace Claimwick.Spending;
+
+                public interface IEventHandler<TEvent>;
+
+                public sealed class OrderPlacedEvent;
+
+                internal sealed class {|LS5001:NotifySubscribersOnOrderPlacedHandler|} : IEventHandler<OrderPlacedEvent>
+                {
+                }
+                """)],
+            [ProjectFile(), Reaction()],
+            assemblyName: "Shop.Application");
+
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
+    [Fact(DisplayName = "LS5001 accepts an event handler with a reaction mark")]
+    public Task AcceptsAnEventHandlerWithAMark() =>
+        Verify.AnalyzerWithRecordsAsync<MarkPresenceAnalyzer>(
+            [("Source.cs", """
+                namespace Claimwick.Spending;
+
+                public interface IEventHandler<TEvent>;
+
+                public sealed class OrderPlacedEvent;
+
+                /// <implements>reaction/spending.notify-subscribers-on-order-placed</implements>
+                internal sealed class NotifySubscribersOnOrderPlacedHandler : IEventHandler<OrderPlacedEvent>
+                {
+                }
+                """)],
+            [ProjectFile(), Reaction()],
             assemblyName: "Shop.Application");
 
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>

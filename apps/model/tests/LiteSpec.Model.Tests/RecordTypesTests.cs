@@ -6,7 +6,7 @@ using LiteSpec.Model;
 
 namespace LiteSpec.Model.Tests;
 
-/// <summary>Proves the topic, automation and exception record types and the link verbs are registered.</summary>
+/// <summary>Proves the topic, reaction, job and exception record types and the link verbs are registered.</summary>
 public sealed class RecordTypesTests
 {
     /// <summary>The topic is an Intent record type, and the requirement page style is gone.</summary>
@@ -39,16 +39,18 @@ public sealed class RecordTypesTests
         Assert.False(RecordTypes.LinkTargets.ContainsKey("audience"));
     }
 
-    /// <summary>The automation is a Behavior record type with a home, and reaction and job are gone.</summary>
+    /// <summary>The reaction and the job are Behavior record types with a home, and automation is gone.</summary>
     /// <proves>litespec/core/model#write-every-record-in-its-home</proves>
     [Fact]
-    public void Automation_Is_A_Behavior_Record_Type()
+    public void Reactions_And_Jobs_Are_Behavior_Record_Types()
     {
-        Assert.Contains("automation", RecordTypes.All);
-        Assert.Equal("behavior", RecordTypes.LayerByType["automation"]);
-        Assert.Contains("automation", RecordTypes.WithHome);
-        Assert.DoesNotContain("reaction", RecordTypes.All);
-        Assert.DoesNotContain("job", RecordTypes.All);
+        Assert.Contains("reaction", RecordTypes.All);
+        Assert.Equal("behavior", RecordTypes.LayerByType["reaction"]);
+        Assert.Contains("reaction", RecordTypes.WithHome);
+        Assert.Contains("job", RecordTypes.All);
+        Assert.Equal("behavior", RecordTypes.LayerByType["job"]);
+        Assert.Contains("job", RecordTypes.WithHome);
+        Assert.DoesNotContain("automation", RecordTypes.All);
     }
 
     /// <summary>The exception is a Governance record type, and deviation and known gap are gone.</summary>
@@ -75,7 +77,7 @@ public sealed class RecordTypesTests
         Assert.False(RecordTypes.LinkTargets.ContainsKey("publishes"));
     }
 
-    /// <summary>The automation trigger links the events that set it off, and the old trigger is gone.</summary>
+    /// <summary>The reaction trigger links the events that set it off, and the old trigger is gone.</summary>
     /// <proves>litespec/core/model#write-links-on-the-record-that-points</proves>
     [Fact]
     public void TriggeredBy_Links_Events()
@@ -94,7 +96,9 @@ public sealed class RecordTypesTests
         Assert.Empty(RecordTypes.LinkTargets["freshness"]);
         Assert.True(RecordTypes.LinkTargets["erasure"].SetEquals(
             new[] { "external-system", "integration-event" }));
-        Assert.True(RecordTypes.LinkTargets["enforcedBy"].SetEquals(new[] { "automation" }));
+        Assert.True(RecordTypes.LinkTargets["enforcedBy"].SetEquals(new[] { "reaction", "job" }));
+        Assert.True(RecordTypes.LinkTargets["dataClasses"].SetEquals(
+            new[] { "reaction", "job", "decision", "requirement" }));
     }
 
     /// <summary>The link sets match the Written on columns of the Links table.</summary>

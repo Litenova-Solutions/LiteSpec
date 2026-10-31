@@ -4,7 +4,7 @@ using LiteSpec.Tests.Support;
 
 namespace LiteSpec.Tests.Model.Readers;
 
-/// <summary>Proves the backend reader recognizes handlers, automations and events through a base class or an intermediate interface.</summary>
+/// <summary>Proves the backend reader recognizes handlers, reactions, jobs and events through a base class or an intermediate interface.</summary>
 public sealed class DotnetTransitiveKindTests
 {
     /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
@@ -79,7 +79,7 @@ public sealed class DotnetTransitiveKindTests
 
     /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
-    public void Event_Handler_Through_Base_Class_Links_Its_Automation()
+    public void Event_Handler_Through_Base_Class_Links_Its_Reaction()
     {
         using var temp = Cli.Temp("reader-transitive");
         WriteProject(temp.Path);
@@ -93,22 +93,22 @@ public sealed class DotnetTransitiveKindTests
         WriteSource(temp.Path, "App", "SendDueNoticeOnLoanBorrowedHandler.cs", """
             namespace Library.Application.Lending.Loans.OnLoanBorrowed;
 
-            /// <implements>automation/lending.notify-on-borrow</implements>
+            /// <implements>reaction/lending.notify-on-borrow</implements>
             public sealed class SendDueNoticeOnLoanBorrowedHandler : LoanBorrowedReactionBase
             {
                 public Task Handle(LoanBorrowedEvent domainEvent) => Task.CompletedTask;
             }
             """);
 
-        var automation = Read(temp.Path).Automations.Single(found => found.Class == "SendDueNoticeOnLoanBorrowedHandler");
+        var reaction = Read(temp.Path).Reactions.Single(found => found.Class == "SendDueNoticeOnLoanBorrowedHandler");
 
-        Assert.Equal("automation/lending.notify-on-borrow", automation.RecordId);
-        Assert.Null(automation.UseCaseId);
+        Assert.Equal("reaction/lending.notify-on-borrow", reaction.RecordId);
+        Assert.Null(reaction.UseCaseId);
     }
 
     /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
-    public void Job_Host_Through_BackgroundService_Base_Links_Its_Automation()
+    public void Job_Host_Through_BackgroundService_Base_Links_Its_Job()
     {
         using var temp = Cli.Temp("reader-transitive");
         WriteProject(temp.Path);
@@ -122,17 +122,17 @@ public sealed class DotnetTransitiveKindTests
         WriteSource(temp.Path, "App", "NightlyScanJob.cs", """
             namespace Library.Application.Lending.Loans.NightlyScan;
 
-            /// <implements>automation/lending.nightly-scan</implements>
+            /// <implements>job/lending.nightly-scan</implements>
             public sealed class NightlyScanJob : ScanServiceBase
             {
                 protected override Task ExecuteAsync(CancellationToken stoppingToken) => Task.CompletedTask;
             }
             """);
 
-        var job = Assert.Single(Read(temp.Path).Automations);
+        var job = Assert.Single(Read(temp.Path).Jobs);
 
         Assert.Equal("NightlyScanJob", job.Class);
-        Assert.Equal("automation/lending.nightly-scan", job.RecordId);
+        Assert.Equal("job/lending.nightly-scan", job.RecordId);
     }
 
     /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>

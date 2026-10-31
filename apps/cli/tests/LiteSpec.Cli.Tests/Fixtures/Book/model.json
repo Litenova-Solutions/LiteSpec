@@ -2831,26 +2831,25 @@
                                   }
                     },
                     {
-                        "type":  "automation",
-                        "id":  "automation/lending.send-overdue-notices",
+                        "type":  "job",
+                        "id":  "job/lending.send-overdue-notices",
                         "title":  "Send overdue notices",
                         "owner":  "lending-team",
                         "status":  "reviewed",
                         "effectiveStatus":  null,
                         "decider":  null,
                         "decideBy":  null,
-                        "file":  "docs/behavior/modules/lending/automations/send-overdue-notices.md",
+                        "file":  "docs/behavior/modules/lending/jobs/send-overdue-notices.md",
                         "line":  3,
                         "fields":  {
-                                       "type":  "automation",
-                                       "id":  "automation/lending.send-overdue-notices",
+                                       "type":  "job",
+                                       "id":  "job/lending.send-overdue-notices",
                                        "title":  "Send overdue notices",
                                        "owner":  "lending-team",
                                        "status":  "reviewed",
-                                       "triggeredBy":  {
-                                                      "schedule":  {
-                                                                   "cron":  "0 6 * * *"
-                                                               }
+                                       "kind":  "scheduled",
+                                       "schedule":  {
+                                                      "cron":  "0 6 * * *"
                                                   },
                                        "effects":  [
                                                       {
@@ -2898,25 +2897,25 @@
                                   }
                     },
                     {
-                        "type":  "automation",
-                        "id":  "automation/lending.send-due-reminder-on-loan-borrowed",
+                        "type":  "reaction",
+                        "id":  "reaction/lending.send-due-reminder-on-loan-borrowed",
                         "title":  "Send due reminder",
                         "owner":  "lending-team",
                         "status":  "reviewed",
                         "effectiveStatus":  null,
                         "decider":  null,
                         "decideBy":  null,
-                        "file":  "docs/behavior/modules/lending/automations/send-due-reminder-on-loan-borrowed.md",
+                        "file":  "docs/behavior/modules/lending/reactions/send-due-reminder-on-loan-borrowed.md",
                         "line":  3,
                         "fields":  {
-                                       "type":  "automation",
-                                       "id":  "automation/lending.send-due-reminder-on-loan-borrowed",
+                                       "type":  "reaction",
+                                       "id":  "reaction/lending.send-due-reminder-on-loan-borrowed",
                                        "title":  "Send due reminder",
                                        "owner":  "lending-team",
                                        "status":  "reviewed",
-                                       "triggeredBy":  {
-                                                      "event":  "event/loan.loan-borrowed"
-                                                  },
+                                       "triggeredBy":  [
+                                                         "event/loan.loan-borrowed"
+                                                     ],
                                        "effects":  [
                                                       {
                                                           "sends":  "notification/lending.due-reminder"
@@ -3004,7 +3003,10 @@
                                       "path":  "apps/api/src/Library.Application/Lending/Loans/ReturnCopy/ReturnCopyCommandHandler.cs"
                                   }
                               ],
-                 "automations":  [
+                 "reactions":  [
+
+                               ],
+                 "jobs":  [
 
                                ],
                  "codes":  [

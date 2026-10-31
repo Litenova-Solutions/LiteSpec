@@ -50,25 +50,25 @@ This extension switches on no optional record type: integration events, settings
 
 **Reviewed for:** Each delivery specification documents guarantee, downstream boundary, duplicate behavior, retry horizon, recovery owner, record owner, and status.
 
-### Exclude Manually Repeatable Automations
+### Exclude Manually Repeatable Reactions and Jobs
 
-**ID:** `litespec/ext/outbox#exclude-manually-repeatable-automations`
+**ID:** `litespec/ext/outbox#exclude-manually-repeatable-reactions-and-jobs`
 
-**Statement:** A project MUST NOT activate outbox for an automation whose loss the operators accept and which they can repeat manually.
+**Statement:** A project MUST NOT activate outbox for a reaction or job whose loss the operators accept and which they can repeat manually.
 
-**Rationale:** Outbox storage, dispatch, retries, and replay exist to prevent loss; an automation whose loss the operators accept and can repeat by hand needs none of that machinery. The automation's `onFailure` states its handling, and the use case page records the accepted gap.
+**Rationale:** Outbox storage, dispatch, retries, and replay exist to prevent loss; a reaction or job whose loss the operators accept and can repeat by hand needs none of that machinery. The reaction's or job's `onFailure` states its handling, and the use case page records the accepted gap.
 
-**Reviewed for:** Automations whose loss the operators accept and can repeat manually carry no outbox records.
+**Reviewed for:** Reactions and jobs whose loss the operators accept and can repeat manually carry no outbox records.
 
-### Emit Excluded Automations After Commit
+### Emit Excluded Reactions and Jobs After Commit
 
-**ID:** `litespec/ext/outbox#emit-excluded-automations-after-commit`
+**ID:** `litespec/ext/outbox#emit-excluded-reactions-and-jobs-after-commit`
 
-**Statement:** An automation the outbox excludes MUST emit after its commit succeeds without staging an outbox record.
+**Statement:** A reaction or job the outbox excludes MUST emit after its commit succeeds without staging an outbox record.
 
-**Rationale:** Without an outbox record, nothing survives a crash between the commit and the emit, so the automation emits immediately after its commit succeeds and accepts the gap. Emitting before the commit risks worse: the automation fires for a change the database then rolls back.
+**Rationale:** Without an outbox record, nothing survives a crash between the commit and the emit, so the reaction or job emits immediately after its commit succeeds and accepts the gap. Emitting before the commit risks worse: it fires for a change the database then rolls back.
 
-**Reviewed for:** Excluded automations emit after commit success with no staged outbox record.
+**Reviewed for:** Excluded reactions and jobs emit after commit success with no staged outbox record.
 
 ### Stage Messages with Business Work
 

@@ -14,7 +14,7 @@ The five Behavior pages hold the records; this page holds the overview, the mapp
 |:---|:---|
 | [Domain Model](domain-model.md) | Modules, glossary, aggregates, rules, and domain events. |
 | [Use Cases](use-cases.md) | Commands, queries, results, scenarios, and settings. |
-| [Automation](automation.md) | Automations. |
+| [Automation](automation.md) | Reactions and jobs. |
 | [Edges and Screens](edges.md) | Integration events, notifications, entry points, screens, and external systems. |
 | [Privacy and Retention](privacy.md) | Data classes and the retention schedule. |
 
@@ -34,8 +34,8 @@ The specification names only what carries business meaning. Child entities and v
 | rule, invariant | an invariant checked on every change |
 | rule, precondition | a guard the behavior passes before it runs |
 | rule, calculation | a pure computation on the aggregate or its values |
-| rule, cross-aggregate | a stored constraint, or an automation reaching eventual consistency |
-| rule, precondition spanning aggregates | a synchronous read of the guarding aggregate named in `reads`, with `consistency: atomic` and the guarding rule in `cites`; use a stored constraint only when the guard is a single stored value, and an automation only when eventual consistency is acceptable |
+| rule, cross-aggregate | a stored constraint, or a reaction or job reaching eventual consistency |
+| rule, precondition spanning aggregates | a synchronous read of the guarding aggregate named in `reads`, with `consistency: atomic` and the guarding rule in `cites`; use a stored constraint only when the guard is a single stored value, and a reaction or job only when eventual consistency is acceptable |
 | rule, atomicity | one atomic write group across the aggregates it binds |
 | rule, reservation | a held claim with its release |
 | rule, commercial-data | a frozen commercial value with its history |
@@ -44,9 +44,10 @@ The specification names only what carries business meaning. Child entities and v
 | integration event | a published fact in CloudEvents form |
 | use case, command | one handler behind the use case |
 | use case, query | one read behind the use case |
-| automation, event | one automation answering its trigger |
-| automation, schedule | one automation running on its schedule |
-| automation, manual | one automation a person runs |
+| reaction | one reaction answering its events |
+| job, scheduled | one job running on its schedule |
+| job, one-off | one job running once |
+| job, manual | one job a person runs |
 | notification | one rendered message to the actors it addresses |
 | setting | one tunable value with its range and setter |
 | result | one ending per result, each refusal with its code |

@@ -702,8 +702,8 @@
                                   }
                     },
                     {
-                        "type":  "automation",
-                        "id":  "automation/lending.send-due-reminder-on-loan-due",
+                        "type":  "reaction",
+                        "id":  "reaction/lending.send-due-reminder-on-loan-due",
                         "title":  "Send Due Reminder",
                         "owner":  "lending-team",
                         "status":  "reviewed",
@@ -711,17 +711,17 @@
                         "decider":  null,
                         "decideBy":  null,
                         "aggregate":  "aggregate/lending.loan",
-                        "file":  "docs/behavior/modules/lending/automations/send-due-reminder-on-loan-due.md",
+                        "file":  "docs/behavior/modules/lending/reactions/send-due-reminder-on-loan-due.md",
                         "line":  3,
                         "fields":  {
-                                       "type":  "automation",
-                                       "id":  "automation/lending.send-due-reminder-on-loan-due",
+                                       "type":  "reaction",
+                                       "id":  "reaction/lending.send-due-reminder-on-loan-due",
                                        "title":  "Send Due Reminder",
                                        "owner":  "lending-team",
                                        "status":  "reviewed",
-                                       "triggeredBy":  {
-                                                      "event":  "event/loan.loan-due"
-                                                  },
+                                       "triggeredBy":  [
+                                                        "event/loan.loan-due"
+                                                    ],
                                        "effects":  [
                                                       {
                                                           "sends":  "notification/lending.due-reminder"
@@ -1249,26 +1249,25 @@
                                   }
                     },
                     {
-                        "type":  "automation",
-                        "id":  "automation/lending.send-overdue-notices",
+                        "type":  "job",
+                        "id":  "job/lending.send-overdue-notices",
                         "title":  "Send Overdue Notices",
                         "owner":  "lending-team",
                         "status":  "reviewed",
                         "effectiveStatus":  "approved",
                         "decider":  null,
                         "decideBy":  null,
-                        "file":  "docs/behavior/modules/lending/automations/send-overdue-notices.md",
+                        "file":  "docs/behavior/modules/lending/jobs/send-overdue-notices.md",
                         "line":  3,
                         "fields":  {
-                                       "type":  "automation",
-                                       "id":  "automation/lending.send-overdue-notices",
+                                       "type":  "job",
+                                       "id":  "job/lending.send-overdue-notices",
                                        "title":  "Send Overdue Notices",
                                        "owner":  "lending-team",
                                        "status":  "reviewed",
-                                       "triggeredBy":  {
-                                                      "schedule":  {
-                                                                   "cron":  "0 6 * * *"
-                                                               }
+                                       "kind":  "scheduled",
+                                       "schedule":  {
+                                                      "cron":  "0 6 * * *"
                                                   },
                                        "effects":  [
                                                       {
@@ -1350,7 +1349,10 @@
                  "handlers":  [
 
                               ],
-                 "automations":  [
+                 "reactions":  [
+
+                               ],
+                 "jobs":  [
 
                                ],
                  "codes":  [

@@ -94,15 +94,15 @@ public sealed class MarkFolderDriftTests
         using var temp = Cli.Temp("marks");
         var model = DriftModel(temp.Path);
         var file = LayerFile(temp.Path, "Application", "Lending", "Jobs", "SendRemindersJob.cs");
-        model.Code.Elements.Add(Element(CodeKind.Job, "SendRemindersJob", file, "automation/billing.send-reminders"));
+        model.Code.Elements.Add(Element(CodeKind.Job, "SendRemindersJob", file, "job/billing.send-reminders"));
 
         var drifts = MarksFixture.WithCode(Checker.Check(model).Findings, "mark-folder-drift");
 
         var finding = Assert.Single(drifts);
         Assert.StartsWith("Job 'SendRemindersJob'", finding.Message);
         Assert.Contains("module folder 'Lending'", finding.Message);
-        Assert.Contains("automation/billing.send-reminders", finding.Message);
-        Assert.Equal("automation/billing.send-reminders", finding.Subject);
+        Assert.Contains("job/billing.send-reminders", finding.Message);
+        Assert.Equal("job/billing.send-reminders", finding.Subject);
     }
 
     /// <proves>litespec/backend/architecture#organize-every-layer-by-module-and-use-case</proves>
@@ -239,7 +239,7 @@ public sealed class MarkFolderDriftTests
         model.Records.Add(Rec("use-case", "use-case/booking.release-hold", root, """{"status": "reviewed", "kind": "command"}"""));
         model.Records.Add(Rec("use-case", "use-case/billing.raise-invoice", root, """{"status": "reviewed", "kind": "command"}"""));
         model.Records.Add(Rec("aggregate", "aggregate/billing.invoice", root, """{"status": "reviewed"}"""));
-        model.Records.Add(Rec("automation", "automation/billing.send-reminders", root, """{"status": "reviewed"}"""));
+        model.Records.Add(Rec("job", "job/billing.send-reminders", root, """{"status": "reviewed"}"""));
 
         return model;
     }

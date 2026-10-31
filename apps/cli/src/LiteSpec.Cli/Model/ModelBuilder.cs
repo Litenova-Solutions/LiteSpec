@@ -325,8 +325,8 @@ static partial class ModelBuilder
     private static string? LinkKind(CodeKind kind) => kind switch
     {
         CodeKind.Handler => "handler",
-        CodeKind.EventHandler => "automation",
-        CodeKind.Job => "automation",
+        CodeKind.EventHandler => "reaction",
+        CodeKind.Job => "job",
         CodeKind.Endpoint => "endpoint",
         CodeKind.DomainEvent => "event",
         CodeKind.AggregateRoot => "aggregate-root",
@@ -519,9 +519,9 @@ static partial class ModelBuilder
             ? value[5..^1]
             : value;
 
-    /// <summary>Whether the use case runs in the background: an automation runs it.</summary>
+    /// <summary>Whether the use case runs in the background: a reaction or job runs it.</summary>
     public static bool BackgroundOnly(ProjectModel model, Record useCase) =>
-        model.Records.Any(record => record.Type == "automation"
+        model.Records.Any(record => record.Type is "reaction" or "job"
             && record.EdgeIds("runs").Contains(useCase.Id, StringComparer.Ordinal));
 
     /// <summary>The aggregate whose folder holds the use case's page.</summary>
@@ -811,7 +811,7 @@ static partial class ModelBuilder
         {
             if (BackgroundOnly(model, useCase))
             {
-                // The trigger may arrive through an entry the model does not link to the automation, such as a
+                // The trigger may arrive through an entry the model does not link to the reaction, such as a
                 // processor webhook, so any when step sets it off; the assertion is what ties the proof to it.
                 var setOff = Triggers(model, test, useCase) || test.Steps.Any(step => step.Phase == "when");
                 var asserted = refusal is null ? AssertsEffect(model, test) : Asserts(model, test, refusal) || AssertsEffect(model, test);
@@ -1159,19 +1159,19 @@ static partial class ModelBuilder
     }
 
 
-    /// <summary>The events that set a background use case off: the trigger event of each automation running it.</summary>
+    /// <summary>The events that set a background use case off: the triggeredBy of each reaction running it.</summary>
     private static HashSet<string> TriggerEvents(ProjectModel model, Record useCase)
     {
         var trigger = new HashSet<string>(StringComparer.Ordinal);
 
-        foreach (var automation in model.Records.Where(record => record.Type == "automation"))
+        foreach (var reaction in model.Records.Where(record => record.Type == "reaction"))
         {
-            if (!automation.EdgeIds("runs").Contains(useCase.Id, StringComparer.Ordinal))
+            if (!reaction.EdgeIds("runs").Contains(useCase.Id, StringComparer.Ordinal))
             {
                 continue;
             }
 
-            foreach (var id in TriggeredEvents(automation))
+            foreach (var id in reaction.Ids("triggeredBy"))
             {
                 if (model.ById.TryGetValue(id, out var target)
                     && target.Type is "event" or "integration-event")
@@ -1184,46 +1184,10 @@ static partial class ModelBuilder
         return trigger;
     }
 
-    /// <summary>The event ids an automation's trigger names, or empty for a schedule or manual trigger.</summary>
-    private static IReadOnlyList<string> TriggeredEvents(Record automation)
-    {
-        if (automation.Raw.ValueKind != JsonValueKind.Object
-            || !automation.Raw.TryGetProperty("triggeredBy", out var trigger)
-            || trigger.ValueKind != JsonValueKind.Object
-            || !trigger.TryGetProperty("event", out var raised))
-        {
-            return [];
-        }
-
-        if (raised.ValueKind == JsonValueKind.String && raised.GetString() is { } single)
-        {
-            return [single];
-        }
-
-        if (raised.ValueKind == JsonValueKind.Array)
-        {
-            return
-            [
-                .. raised.EnumerateArray()
-                          .Where(entry => entry.ValueKind == JsonValueKind.String)
-                          .Select(entry => entry.GetString()!),
-            ];
-        }
-
-        return [];
-    }
-
-    /// <summary>Whether the automation runs on a schedule or by hand rather than on an event.</summary>
-    private static bool RunsOffEvent(Record automation) =>
-        automation.Raw.ValueKind == JsonValueKind.Object
-        && automation.Raw.TryGetProperty("triggeredBy", out var trigger)
-        && trigger.ValueKind == JsonValueKind.Object
-        && (trigger.TryGetProperty("schedule", out _) || trigger.TryGetProperty("manual", out _));
-
     /// <summary>
     ///     Whether a when step sets the use case off from upstream: it drives a declared producer, a use case
-    ///     that raises an event an automation running the use case reacts to or whose own effects run it, or it
-    ///     is a step of a declared automation trigger.
+    ///     that raises an event a reaction running the use case reacts to or whose own effects run it, or it
+    ///     is a step of a declared job trigger.
     /// </summary>
     private static bool Triggers(ProjectModel model, ScenarioInfo test, Record useCase)
     {
@@ -1245,21 +1209,20 @@ static partial class ModelBuilder
             }
         }
 
-        var scheduled = model.Records.Any(record => record.Type == "automation"
-            && record.EdgeIds("runs").Contains(useCase.Id, StringComparer.Ordinal)
-            && RunsOffEvent(record));
+        var jobs = model.Records.Any(record => record.Type == "job"
+            && record.EdgeIds("runs").Contains(useCase.Id, StringComparer.Ordinal));
 
-        return scheduled && test.Steps.Any(step =>
+        return jobs && test.Steps.Any(step =>
             step.Phase == "when"
-            && model.Config.AutomationTriggerSteps.Any(trigger =>
+            && model.Config.JobTriggerSteps.Any(trigger =>
                 string.Equals(step.ReceiverType, trigger, StringComparison.Ordinal)
                 || string.Equals(step.Receiver, trigger.EndsWith("Steps", StringComparison.Ordinal) ? trigger[..^"Steps".Length] : trigger, StringComparison.OrdinalIgnoreCase)));
     }
 
     /// <summary>
     ///     Whether a then step asserts an effect rather than only the outcome of a request: a step of a class
-    ///     named in <c>proof.outcomeOnlySteps</c> states that a call succeeded or was refused, which an
-    ///     automation does not answer, so it proves nothing about what the use case did.
+    ///     named in <c>proof.outcomeOnlySteps</c> states that a call succeeded or was refused, which a job or
+    ///     a reaction does not answer, so it proves nothing about what the use case did.
     /// </summary>
     private static bool AssertsEffect(ProjectModel model, ScenarioInfo test) =>
         test.Steps.Any(step =>
@@ -1311,7 +1274,7 @@ static partial class ModelBuilder
 
         foreach (var link in model.Implements)
         {
-            if (link.Kind is "handler" or "automation")
+            if (link.Kind is "handler" or "reaction" or "job")
             {
                 implemented.Add(link.To);
             }
@@ -1462,7 +1425,7 @@ static partial class ModelBuilder
         foreach (var requirement in model.Records.Where(record => record.Type == "requirement"))
         {
             var fulfillers = model.Records
-                .Where(record => record.Type is "rule" or "use-case" or "automation" or "notification" or "setting"
+                .Where(record => record.Type is "rule" or "use-case" or "reaction" or "job" or "notification" or "setting"
                     && record.Ids("fulfills").Contains(requirement.Id, StringComparer.Ordinal))
                 .ToList();
 
@@ -1484,7 +1447,7 @@ static partial class ModelBuilder
     private static bool FulfillerVerified(ProjectModel model, Record fulfiller) => fulfiller.Type switch
     {
         "use-case" => model.Status.TryGetValue(fulfiller.Id, out var status) && status.Verified,
-        "rule" or "automation" or "notification" or "setting"
+        "rule" or "reaction" or "job" or "notification" or "setting"
             => model.Proves.Any(link => link.Claim == fulfiller.Id && link.Confirmed && link.Passing == true),
         _ => false,
     };

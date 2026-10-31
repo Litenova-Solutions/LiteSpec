@@ -1521,7 +1521,7 @@ static class Differ
         return names;
     }
 
-    /// <summary>Every saga driver as one id: its automation, or the person driving it.</summary>
+    /// <summary>Every saga driver as one id: its job or reaction, or the person driving it.</summary>
     static IReadOnlyList<string> DriverNames(JsonElement value)
     {
         var entries = value.ValueKind == JsonValueKind.Array
@@ -1532,7 +1532,7 @@ static class Differ
         foreach (var entry in entries)
         {
             if (entry.ValueKind == JsonValueKind.Object
-                && (StringOf(entry, "automation") ?? StringOf(entry, "person")) is { } name)
+                && (StringOf(entry, "job") ?? StringOf(entry, "reaction") ?? StringOf(entry, "person")) is { } name)
             {
                 names.Add(name);
             }

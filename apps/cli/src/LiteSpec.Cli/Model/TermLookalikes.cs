@@ -121,10 +121,16 @@ static class TermLookalikes
             records.TryAdd(SimpleName(handler.Class), record);
         }
 
-        foreach (var automation in model.Code.Automations)
+        foreach (var reaction in model.Code.Reactions)
         {
-            model.ById.TryGetValue(automation.RecordId ?? automation.UseCaseId ?? "", out var record);
-            records.TryAdd(SimpleName(automation.Class), record);
+            model.ById.TryGetValue(reaction.RecordId ?? reaction.UseCaseId ?? "", out var record);
+            records.TryAdd(SimpleName(reaction.Class), record);
+        }
+
+        foreach (var job in model.Code.Jobs)
+        {
+            model.ById.TryGetValue(job.RecordId ?? job.UseCaseId ?? "", out var record);
+            records.TryAdd(SimpleName(job.Class), record);
         }
 
         foreach (var domainEvent in model.Code.Events)
@@ -149,17 +155,33 @@ static class TermLookalikes
             }
         }
 
-        foreach (var automation in model.Code.Automations)
+        foreach (var reaction in model.Code.Reactions)
         {
-            var at = At(records.GetValueOrDefault(SimpleName(automation.Class)), automation.File, automation.Line);
-            Collect(TypeWords(automation.Class), at, words, splits);
+            var at = At(records.GetValueOrDefault(SimpleName(reaction.Class)), reaction.File, reaction.Line);
+            Collect(TypeWords(reaction.Class), at, words, splits);
 
-            foreach (var thrown in automation.Thrown ?? [])
+            foreach (var thrown in reaction.Thrown ?? [])
             {
                 Collect(TypeWords(thrown.Type), at, words, splits);
             }
 
-            foreach (var repository in automation.Repositories ?? [])
+            foreach (var repository in reaction.Repositories ?? [])
+            {
+                Collect(TypeWords(repository.Interface), at, words, splits);
+            }
+        }
+
+        foreach (var job in model.Code.Jobs)
+        {
+            var at = At(records.GetValueOrDefault(SimpleName(job.Class)), job.File, job.Line);
+            Collect(TypeWords(job.Class), at, words, splits);
+
+            foreach (var thrown in job.Thrown ?? [])
+            {
+                Collect(TypeWords(thrown.Type), at, words, splits);
+            }
+
+            foreach (var repository in job.Repositories ?? [])
             {
                 Collect(TypeWords(repository.Interface), at, words, splits);
             }

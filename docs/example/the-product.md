@@ -91,7 +91,7 @@ A feature record states what the product offers against a problem, with its life
 }
 ```
 
-The body below the block holds one Offering section: the reminder names the expense and its waiting time, and expenses decided in time never trigger one. The feature is the thread this example follows down the tree: the requirements below name it in their `cites` links, and the reminder automation and notification in [Modules and Records](modules-and-records.md) carry it out.
+The body below the block holds one Offering section: the reminder names the expense and its waiting time, and expenses decided in time never trigger one. The feature is the thread this example follows down the tree: the requirements below name it in their `cites` links, and the reminder job and notification in [Modules and Records](modules-and-records.md) carry it out.
 
 ## The Requirements
 
@@ -313,4 +313,4 @@ A journey record holds product sentences with ids toward one goal for one actor.
 
 The 4 steps run from submission to reimbursement in product words: the employee submits, the manager decides, finance reimburses, and the employee sees the money land. Steps name no use case: each use case points up to the steps it serves, so Submit expense serves `journey/submit-and-reimburse#s1` and Approve expense serves `#s2`. The page body holds an Example section following Ava, Ben, and Cara through one week, a Before It Starts section with the state preconditions, and a Between the Steps section with the failure branches.
 
-Next, [Modules and Records](modules-and-records.md) specifies this intent into the spending module: its aggregates, rules, access chain, use cases, and the automations, notifications, and setting around them.
+Next, [Modules and Records](modules-and-records.md) specifies this intent into the spending module: its aggregates, rules, access chain, use cases, and the reaction, jobs, notifications, and setting around them.

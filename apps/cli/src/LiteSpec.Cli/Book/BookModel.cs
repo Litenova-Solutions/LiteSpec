@@ -44,7 +44,7 @@ sealed record WhyLink(string Label, string Id);
 
 /// <summary>One review batch for the queue shard: the selector, kind, tier and queued record ids.</summary>
 /// <param name="Selector">The batch selector.</param>
-/// <param name="Kind">The batch kind: use-case, automation, decision, record, or module-type.</param>
+/// <param name="Kind">The batch kind: use-case, reaction, job, decision, record, or module-type.</param>
 /// <param name="Tier">The batch tier: 1 when any record is tier 1, else 3.</param>
 /// <param name="Deciders">The distinct deciders, sorted.</param>
 /// <param name="DecideBy">The earliest decide-by date, or null.</param>
@@ -155,7 +155,7 @@ static class BookModel
         new("Problems and Features", ["problem", "feature"]),
         new("People", ["actor", "role", "permission"]),
         new("Journeys", ["journey"]),
-        new("How the Business Works", ["module", "aggregate", "rule", "use-case", "result", "scenario", "event", "integration-event", "automation", "notification", "setting"]),
+        new("How the Business Works", ["module", "aggregate", "rule", "use-case", "result", "scenario", "event", "integration-event", "reaction", "job", "notification", "setting"]),
         new("Entry Points", ["entry-point", "external-system"]),
         new("Running It", ["runbook"]),
         new("How We Build", ["exception"]),
@@ -186,7 +186,8 @@ static class BookModel
             ["scenario"] = ("Scenario", "Scenarios"),
             ["event"] = ("Event", "Events"),
             ["integration-event"] = ("Integration event", "Integration events"),
-            ["automation"] = ("Automation", "Automations"),
+            ["reaction"] = ("Reaction", "Reactions"),
+            ["job"] = ("Job", "Jobs"),
             ["notification"] = ("Notification", "Notifications"),
             ["setting"] = ("Setting", "Settings"),
             ["entry-point"] = ("Entry point", "Entry points"),
@@ -964,7 +965,7 @@ static class BookModel
             .ToList();
     }
 
-    /// <summary>Every record serving one journey step id, of any type: use cases, automations, screens and the rest.</summary>
+    /// <summary>Every record serving one journey step id, of any type: use cases, reactions, jobs, screens and the rest.</summary>
     public static IReadOnlyList<JsonObject> ServingRecords(BookIndex index, string stepId)
     {
         var serving = new List<JsonObject>();

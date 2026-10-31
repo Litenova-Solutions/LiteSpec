@@ -36,7 +36,7 @@ public static class KindReader
 
     private const string SettingPrefix = "setting/";
 
-    private const string AutomationPrefix = "automation/";
+    private const string JobPrefix = "job/";
 
     private static readonly HashSet<string> TestAttributeNames = new HashSet<string>(StringComparer.Ordinal)
     {
@@ -400,7 +400,7 @@ public static class KindReader
             ((HasBaseName(type, "BackgroundService") || HasBaseName(type, "IHostedService"))
                 && HasJobName(type.Identifier.ValueText))
             || (ProjectMatches(containingProject, "Application", "Application.Abstractions", "Infrastructure", "Worker")
-                && HasMark(type, AutomationPrefix)));
+                && HasMark(type, JobPrefix)));
 
     private static bool IsJob(INamedTypeSymbol type, string? containingProject)
     {
@@ -423,7 +423,7 @@ public static class KindReader
         }
 
         return ProjectMatches(containingProject, "Application", "Application.Abstractions", "Infrastructure", "Worker")
-            && HasMark(type, AutomationPrefix);
+            && HasMark(type, JobPrefix);
     }
 
     private static bool HasJobName(string name) =>

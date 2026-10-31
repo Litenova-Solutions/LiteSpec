@@ -3,7 +3,7 @@ using LiteSpec.Tests.Support;
 
 namespace LiteSpec.Tests.Book;
 
-/// <summary>Proves the book says only true things about proof, steps and checks: never-run proof, automation serving, walked steps and embedded findings.</summary>
+/// <summary>Proves the book says only true things about proof, steps and checks: never-run proof, reaction serving, walked steps and embedded findings.</summary>
 public sealed class BookTruthTests
 {
     /// <summary>A model with no test run carries a null run and the not-run proof state on every scenario and rule, with machine truth kept.</summary>
@@ -41,29 +41,29 @@ public sealed class BookTruthTests
         Assert.Null(borrow["proof"]);
     }
 
-    /// <summary>A journey step served only by an automation lists the automation as its server and no screen.</summary>
+    /// <summary>A journey step served only by a reaction lists the reaction as its server and no screen.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
-    public void Journey_Step_Served_Only_By_An_Automation_Reads_As_Automation()
+    public void Journey_Step_Served_Only_By_A_Reaction_Reads_As_Reaction()
     {
         using var temp = Cli.Temp("book-truth");
-        var automationId = "";
+        var reactionId = "";
         var model = WriteReviewModel(temp, root =>
         {
-            var automation = Records(root).First(record => Text(record["type"]) == "automation");
-            automationId = Text(automation["id"]);
-            ((JsonObject)automation["fields"]!)["serves"] = new JsonArray("journey/borrowing#s2");
+            var reaction = Records(root).First(record => Text(record["type"]) == "reaction");
+            reactionId = Text(reaction["id"]);
+            ((JsonObject)reaction["fields"]!)["serves"] = new JsonArray("journey/borrowing#s2");
         });
-        Assert.True(automationId.Length > 0, "The fixture holds no automation.");
+        Assert.True(reactionId.Length > 0, "The fixture holds no reaction.");
         var result = Cli.Run("book", "--model", model, "--out", Out(temp));
         Assert.Equal(0, result.Status);
 
         var journey = ReadRecords(Path.Combine(Out(temp), "data"))["journey/borrowing"];
         var servers = Obj(journey, "stepServers");
         Assert.True(HasString(servers["s1"] as JsonArray ?? new JsonArray(), "use-case/lending.borrow-copy"));
-        Assert.True(HasString(servers["s2"] as JsonArray ?? new JsonArray(), automationId));
+        Assert.True(HasString(servers["s2"] as JsonArray ?? new JsonArray(), reactionId));
         Assert.Empty(Obj(journey, "stepScreens")["s2"] as JsonArray ?? new JsonArray());
-        Assert.True(HasEdge(Arr(journey, "in"), automationId, "automation.serves"));
+        Assert.True(HasEdge(Arr(journey, "in"), reactionId, "reaction.serves"));
     }
 
     /// <summary>A journey step a passing test walked lists as exercised; the step no passing test walked does not.</summary>
@@ -98,7 +98,7 @@ public sealed class BookTruthTests
         var finding = open[0]!.AsObject();
         Assert.Equal("use-case-unimplemented", Str(finding, "code"));
         Assert.Equal("G", Str(finding, "tier"));
-        Assert.Contains("has no handler or automation", Str(finding, "message") ?? "", StringComparison.Ordinal);
+        Assert.Contains("has no handler, reaction or job", Str(finding, "message") ?? "", StringComparison.Ordinal);
         Assert.False(BoolOf(finding["known"]));
         Assert.Equal("docs/behavior/modules/lending/loans/return-copy.md", Str(finding, "path"));
         Assert.Equal(3, finding["line"]?.GetValue<int>());
@@ -120,7 +120,7 @@ public sealed class BookTruthTests
                 {
                     ["code"] = "use-case-unimplemented",
                     ["tier"] = "G",
-                    ["message"] = "Use case 'use-case/lending.return-copy' has no handler or automation.",
+                    ["message"] = "Use case 'use-case/lending.return-copy' has no handler, reaction or job.",
                     ["subject"] = "use-case/lending.return-copy",
                     ["path"] = "docs/behavior/modules/lending/loans/return-copy.md",
                     ["line"] = 3,

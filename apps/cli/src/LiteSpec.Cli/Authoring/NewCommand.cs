@@ -24,8 +24,8 @@ static partial class NewCommand
         the same identifier twice. <type> is the record type, such as topic,
         use-case, or decision. <id> is the home.name part of the identifier, such
         as lending.notify-reader; the full identifier is <type>/<id>. The page is
-        written at the home its type owns: a topic under docs/intent/, an automation
-        under modules/<module>/automations/,
+        written at the home its type owns: a topic under docs/intent/, a reaction
+        under modules/<module>/reactions/, a job under modules/<module>/jobs/,
         a notification under modules/<module>/notifications/, a decision under
         the decisions folder. A use-case page starts under reads/ beside its
         module; move the file beside its aggregate once the use case names one.

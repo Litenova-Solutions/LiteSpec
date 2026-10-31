@@ -33,7 +33,8 @@ A page record carries its type, identifier, title, owner, and status in JSON fro
 | `module.md` | `docs/behavior/modules/<module>/README.md` | Defines one business area and its boundaries. |
 | `aggregate.md` | `docs/behavior/modules/<module>/<aggregate>/README.md` | Defines one aggregate, with its kind, states, data classes, and its rule and event entries. |
 | `use-case.md` | `docs/behavior/modules/<module>/<aggregate>/<use-case>.md` | Defines one command or query, with its result and scenario entries. |
-| `automation.md` | `docs/behavior/modules/<module>/automations/<name>.md` | Defines one automation an event, a schedule, or a person triggers. |
+| `reaction.md` | `docs/behavior/modules/<module>/reactions/<name>.md` | Defines one reaction an event triggers. |
+| `job.md` | `docs/behavior/modules/<module>/jobs/<name>.md` | Defines one scheduled, one-off, or manual job. |
 | `notification.md` | `docs/behavior/modules/<module>/notifications/<name>.md` | Defines one person-facing message and its claims. |
 | `integration-event.md` | `docs/behavior/integration-events/<name>.md` | Defines one published or consumed integration event. |
 | `screen.md` | `docs/behavior/screens/<entry-point>.<name>.md` | Records one page a person sees through an entry point, what it offers, and the steps it serves. |

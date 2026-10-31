@@ -33,13 +33,13 @@ public sealed class DotnetOneHopDispatchTests
     {
         using var temp = Cli.Temp("onehop");
         WriteProject(temp.Path);
-        WriteApp(temp.Path, Path.Combine("Lending", "Loans", "OnLoanBorrowed", "PublishEventOnLoanBorrowedHandler.cs"), PublisherAutomation);
+        WriteApp(temp.Path, Path.Combine("Lending", "Loans", "OnLoanBorrowed", "PublishEventOnLoanBorrowedHandler.cs"), PublisherReaction);
         WriteApp(temp.Path, Path.Combine("Lending", "Loans", "OnLoanBorrowed", "LoanEventRelay.cs"), PublisherHelper);
 
-        var automation = Assert.Single(
-            new DotnetBackendReader().Read(ConsumerConfig.Load(temp.Path)).Automations,
+        var reaction = Assert.Single(
+            new DotnetBackendReader().Read(ConsumerConfig.Load(temp.Path)).Reactions,
             found => found.Class == "PublishEventOnLoanBorrowedHandler");
-        var dispatch = Assert.Single(automation.Dispatches!);
+        var dispatch = Assert.Single(reaction.Dispatches!);
 
         Assert.Equal("emits", dispatch.Verb);
         Assert.Equal("LoanBorrowedEvent", dispatch.Target);
@@ -191,7 +191,7 @@ public sealed class DotnetOneHopDispatchTests
         }
         """;
 
-    const string PublisherAutomation = """
+    const string PublisherReaction = """
         namespace Library.Application.Lending.Loans.OnLoanBorrowed;
 
         public sealed class PublishEventOnLoanBorrowedHandler(IEventPublisher events) : IEventHandler<LoanBorrowedEvent>

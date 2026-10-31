@@ -16,9 +16,9 @@ LiteSpec borrows its words from established practices: each borrowed concept kee
 
 **Takes:** the policy: whenever something happens, do something in response.
 
-**Words:** automation, with `triggeredBy`, `runs` or `sends`, and `onFailure`.
+**Words:** reaction, with `triggeredBy`, `runs` or `sends`, and `onFailure`; job, with `kind`, `schedule`, and `runs`.
 
-**Differs:** An automation is its own record, not a use case kind: it names the event it answers in `triggeredBy`, runs its use cases through `effects`, and never writes an aggregate directly. It is proven by scenarios like any other record, and its trigger names the event in words the builder reads.
+**Differs:** A reaction is its own record, not a use case kind: it names the events it answers in `triggeredBy`, runs its use cases through `effects`, and never writes an aggregate directly. A job carries scheduled and manual work the same way, with its `kind` and `schedule`. Each is proven by scenarios like any other record, and each names its trigger in words the builder reads.
 
 ## CQRS
 

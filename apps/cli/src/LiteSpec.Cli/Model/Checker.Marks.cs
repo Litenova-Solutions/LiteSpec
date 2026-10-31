@@ -87,7 +87,7 @@ static partial class Checker
         kind is not (CodeKind.FrontendModule or CodeKind.FrontendRoute or CodeKind.BrowserTest);
 
     /// <summary>
-    ///     Reports every backend mark naming a use case, automation or aggregate outside
+    ///     Reports every backend mark naming a use case, reaction, job or aggregate outside
     ///     the module folder it sits in, and every handler or endpoint mark naming a use
     ///     case outside the use-case folder it sits in. A copied handler keeps its old mark;
     ///     the folder already says what the mark should be. A mark naming no record, a
@@ -113,7 +113,7 @@ static partial class Checker
                 }
 
                 if (!Identifiers.TrySplit(mark.RecordId, out var prefix, out var home, out var name)
-                    || prefix is not ("use-case" or "automation" or "aggregate")
+                    || prefix is not ("use-case" or "reaction" or "job" or "aggregate")
                     || home is not { Length: > 0 })
                 {
                     continue;
@@ -620,7 +620,8 @@ static partial class Checker
             var code = record.Type switch
             {
                 "aggregate" => "aggregate-unimplemented",
-                "automation" => "automation-unimplemented",
+                "reaction" => "reaction-unimplemented",
+                "job" => "job-unimplemented",
                 "external-system" => "external-system-unimplemented",
                 _ => null,
             };
@@ -635,33 +636,25 @@ static partial class Checker
                 continue;
             }
 
-            if (record.Type == "automation")
-            {
-                var carried = model.Code.Elements.Any(candidate =>
-                    candidate.Kind is CodeKind.EventHandler or CodeKind.Job
-                    && candidate.Marks.Any(mark => mark.Verb != MarkVerb.Follows && mark.RecordId == record.Id));
-
-                if (!carried)
-                {
-                    findings.Add(new Finding(code, $"Automation '{record.Id}' has no event handler or job host carrying its mark.", record.File, record.Line, SubjectOf(record)));
-                }
-
-                continue;
-            }
-
             var kind = record.Type switch
             {
                 "aggregate" => CodeKind.AggregateRoot,
+                "reaction" => CodeKind.EventHandler,
+                "job" => CodeKind.Job,
                 _ => CodeKind.Port,
             };
             var label = record.Type switch
             {
                 "aggregate" => "Aggregate",
+                "reaction" => "Reaction",
+                "job" => "Job",
                 _ => "External system",
             };
             var element = record.Type switch
             {
                 "aggregate" => "aggregate root",
+                "reaction" => "event handler",
+                "job" => "job host",
                 _ => "port",
             };
 
@@ -700,7 +693,7 @@ static partial class Checker
     {
         foreach (var record in model.Records)
         {
-            if (record.Type is not ("use-case" or "automation"))
+            if (record.Type is not ("use-case" or "reaction" or "job"))
             {
                 continue;
             }
@@ -721,18 +714,23 @@ static partial class Checker
                 dispatches.AddRange(model.Code.Handlers
                     .Where(handler => handler.UseCaseId == record.Id)
                     .SelectMany(handler => handler.Dispatches ?? []));
-                dispatches.AddRange(model.Code.Automations
-                    .Where(automation => automation.UseCaseId == record.Id)
-                    .SelectMany(automation => automation.Dispatches ?? []));
+                dispatches.AddRange(CodeChecks.Hosts(model)
+                    .Where(host => host.UseCaseId == record.Id)
+                    .SelectMany(host => host.Dispatches ?? []));
             }
             else
             {
-                dispatches.AddRange(model.Code.Automations
-                    .Where(automation => automation.RecordId == record.Id)
-                    .SelectMany(automation => automation.Dispatches ?? []));
+                dispatches.AddRange(CodeChecks.Hosts(model)
+                    .Where(host => host.RecordId == record.Id)
+                    .SelectMany(host => host.Dispatches ?? []));
             }
 
-            var label = record.Type == "use-case" ? "Use case" : "Automation";
+            var label = record.Type switch
+            {
+                "use-case" => "Use case",
+                "reaction" => "Reaction",
+                _ => "Job",
+            };
 
             foreach (var edge in edges)
             {

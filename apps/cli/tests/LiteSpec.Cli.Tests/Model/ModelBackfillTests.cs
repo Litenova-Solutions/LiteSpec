@@ -153,10 +153,10 @@ public sealed class ModelBackfillTests
         Assert.DoesNotContain("\"effects\"", File.ReadAllText(BorrowCopy(fixture.Path)));
     }
 
-    /// <summary>Backfill drafts an automation's reads from its constructor repositories.</summary>
+    /// <summary>Backfill drafts a reaction's reads from its constructor repositories.</summary>
     /// <proves>litespec/core/agent#mark-transcribed-records-during-adoption</proves>
     [Fact]
-    public void Backfill_Backfills_Automation_Reads()
+    public void Backfill_Backfills_Reaction_Reads()
     {
         using var fixture = ModelFixture.Prepare("large");
 
@@ -170,7 +170,7 @@ public sealed class ModelBackfillTests
             """
             namespace Library.Application.Lending.Loans.OnLoanBorrowed;
 
-            /// <implements>automation/lending.send-due-notice-on-loan-borrowed</implements>
+            /// <implements>reaction/lending.send-due-notice-on-loan-borrowed</implements>
             public sealed class SendDueNoticeOnLoanBorrowedHandler(IHoldRepository holds) : IEventHandler<LoanBorrowedEvent>
             {
                 public Task Handle() => Task.CompletedTask;
@@ -184,16 +184,16 @@ public sealed class ModelBackfillTests
 
         var text = File.ReadAllText(Page(
             fixture.Path, "docs", "behavior", "modules", "lending",
-            "automations", "send-due-notice-on-loan-borrowed.md"));
+            "reactions", "send-due-notice-on-loan-borrowed.md"));
 
         Assert.Contains("aggregate/lending.hold", text);
         Assert.Contains("\"source\": \"transcribed\"", text);
     }
 
-    /// <summary>Backfill drafts an automation's runs from its dispatched commands.</summary>
+    /// <summary>Backfill drafts a job's runs from its dispatched commands.</summary>
     /// <proves>litespec/core/agent#mark-transcribed-records-during-adoption</proves>
     [Fact]
-    public void Backfill_Backfills_Automation_Runs()
+    public void Backfill_Backfills_Job_Runs()
     {
         using var fixture = ModelFixture.Prepare("large");
 
@@ -204,7 +204,7 @@ public sealed class ModelBackfillTests
             """
             namespace Library.Application.Lending.Loans;
 
-            /// <implements>automation/lending.nightly-due-scan</implements>
+            /// <implements>job/lending.nightly-due-scan</implements>
             public sealed class NightlyDueScanJob(ICommandMediator mediator) : BackgroundService
             {
                 protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -221,7 +221,7 @@ public sealed class ModelBackfillTests
 
         var text = File.ReadAllText(Page(
             fixture.Path, "docs", "behavior", "modules", "lending",
-            "automations", "nightly-due-scan.md"));
+            "jobs", "nightly-due-scan.md"));
 
         Assert.Contains("use-case/lending.extend-loan", text);
         Assert.Contains("\"source\": \"transcribed\"", text);

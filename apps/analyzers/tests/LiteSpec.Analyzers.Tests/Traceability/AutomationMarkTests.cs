@@ -4,17 +4,17 @@ using static LiteSpec.Analyzers.Tests.Support.TraceabilityFixtures;
 
 namespace LiteSpec.Analyzers.Tests.Traceability;
 
-/// <summary>Tests that a plain class carrying an automation mark is an automation host: marked it is silent, unmarked it needs a mark, and two marks count.</summary>
+/// <summary>Tests that a plain class carrying a job mark is a job host: marked it is silent, unmarked it needs a mark, and two marks count.</summary>
 public sealed class AutomationMarkTests
 {
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
-    [Fact(DisplayName = "LS5001 accepts a plain class carrying its automation mark")]
+    [Fact(DisplayName = "LS5001 accepts a plain class carrying its job mark")]
     public Task AcceptsAMarkedPlainClass() =>
         Verify.AnalyzerWithRecordsAsync<MarkPresenceAnalyzer>(
             [("Source.cs", """
                 namespace Shop.Billing;
 
-                /// <implements>automation/billing.charge-dues</implements>
+                /// <implements>job/billing.charge-dues</implements>
                 public sealed class ChargeDuesJob
                 {
                     public void Run()
@@ -22,7 +22,7 @@ public sealed class AutomationMarkTests
                     }
                 }
                 """)],
-            [ProjectFile(), Automation("automation/billing.charge-dues", "Charge dues")],
+            [ProjectFile(), Job("job/billing.charge-dues", "Charge dues")],
             assemblyName: "Shop.Infrastructure");
 
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
@@ -39,17 +39,17 @@ public sealed class AutomationMarkTests
                     }
                 }
                 """)],
-            [ProjectFile(), Automation("automation/billing.charge-dues", "Charge dues")],
+            [ProjectFile(), Job("job/billing.charge-dues", "Charge dues")],
             assemblyName: "Shop.Infrastructure");
 
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
-    [Fact(DisplayName = "LS5001 ignores a marked class in Domain, which is no automation")]
+    [Fact(DisplayName = "LS5001 ignores a marked class in Domain, which is no job")]
     public Task IgnoresAMarkedClassInDomain() =>
         Verify.AnalyzerWithRecordsAsync<MarkPresenceAnalyzer>(
             [("Source.cs", """
                 namespace Shop.Billing;
 
-                /// <implements>automation/billing.charge-dues</implements>
+                /// <implements>job/billing.charge-dues</implements>
                 public sealed class ChargeDuesJob
                 {
                     public void Run()
@@ -57,17 +57,17 @@ public sealed class AutomationMarkTests
                     }
                 }
                 """)],
-            [ProjectFile(), Automation("automation/billing.charge-dues", "Charge dues")],
+            [ProjectFile(), Job("job/billing.charge-dues", "Charge dues")],
             assemblyName: "Shop.Domain");
 
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
-    [Fact(DisplayName = "LS5002 accepts one automation mark on a plain class")]
-    public Task AcceptsOneAutomationMark() =>
+    [Fact(DisplayName = "LS5002 accepts one job mark on a plain class")]
+    public Task AcceptsOneJobMark() =>
         Verify.AnalyzerWithRecordsAsync<MarkLinkAnalyzer>(
             [("Source.cs", """
                 namespace Shop.Billing;
 
-                /// <implements>automation/billing.charge-dues</implements>
+                /// <implements>job/billing.charge-dues</implements>
                 public sealed class ChargeDuesJob
                 {
                     public void Run()
@@ -75,18 +75,18 @@ public sealed class AutomationMarkTests
                     }
                 }
                 """)],
-            [ProjectFile(), Automation("automation/billing.charge-dues", "Charge dues")],
+            [ProjectFile(), Job("job/billing.charge-dues", "Charge dues")],
             assemblyName: "Shop.Infrastructure");
 
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
-    [Fact(DisplayName = "LS5003 reports a plain class carrying two automation marks")]
-    public Task ReportsTwoAutomationMarks() =>
+    [Fact(DisplayName = "LS5003 reports a plain class carrying two job marks")]
+    public Task ReportsTwoJobMarks() =>
         Verify.AnalyzerWithRecordsAsync<MarkLinkAnalyzer>(
             [("Source.cs", """
                 namespace Shop.Billing;
 
-                /// <implements>automation/billing.charge-dues</implements>
-                /// <implements>automation/billing.charge-dues</implements>
+                /// <implements>job/billing.charge-dues</implements>
+                /// <implements>job/billing.charge-dues</implements>
                 internal sealed class {|LS5003:ChargeDuesJob|}
                 {
                     public void Run()
@@ -94,17 +94,17 @@ public sealed class AutomationMarkTests
                     }
                 }
                 """)],
-            [ProjectFile(), Automation("automation/billing.charge-dues", "Charge dues")],
+            [ProjectFile(), Job("job/billing.charge-dues", "Charge dues")],
             assemblyName: "Shop.Infrastructure");
 
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
-    [Fact(DisplayName = "LS5002 reports an automation mark on a class in Domain, which takes no mark")]
-    public Task ReportsAnAutomationMarkInDomain() =>
+    [Fact(DisplayName = "LS5002 reports a job mark on a class in Domain, which takes no mark")]
+    public Task ReportsAJobMarkInDomain() =>
         Verify.AnalyzerWithRecordsAsync<MarkLinkAnalyzer>(
             [("Source.cs", """
                 namespace Shop.Billing;
 
-                /// <implements>{|LS5002:automation/billing.charge-dues|}</implements>
+                /// <implements>{|LS5002:job/billing.charge-dues|}</implements>
                 public sealed class ChargeDuesJob
                 {
                     public void Run()
@@ -112,6 +112,6 @@ public sealed class AutomationMarkTests
                     }
                 }
                 """)],
-            [ProjectFile(), Automation("automation/billing.charge-dues", "Charge dues")],
+            [ProjectFile(), Job("job/billing.charge-dues", "Charge dues")],
             assemblyName: "Shop.Domain");
 }

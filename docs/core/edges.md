@@ -80,7 +80,7 @@ An external system is one system outside the bounded context the product exchang
 
 **ID:** `litespec/core/edges#publish-every-outbound-integration-event-from-effects`
 
-**Statement:** Each use case or automation emitting an integration event MUST declare it in its effects as `emits`.
+**Statement:** Each use case, reaction, or job emitting an integration event MUST declare it in its effects as `emits`.
 
 **Rationale:** An emitted fact no edge declares is a hidden coupling: downstream readers depend on a promise the records never made, and the promise breaks without a diff. Declaring each emission as an `emits` effect states the coupling beside the behavior causing it. The `effect-undeclared` check reports an emitted event no record declares.
 
@@ -116,9 +116,9 @@ An external system is one system outside the bounded context the product exchang
 
 **Statement:** Each notification MUST declare its template, addresses, channel, consent, frequency, dedup key, parameters, and locale.
 
-**Rationale:** A message without declared addresses and consent is sent on hope: the wrong actors receive it, the channel ignores consent, repeats annoy. Declaring the template with its parameters and locale, the addresses, the channel, the consent rule, the frequency of `once` or `per-attempt`, and the dedup key states the message beside its promise. Suppression lives on the notification in `suppressedWhen`, and suppression scenarios show the message sending nothing. The `notification-sender-missing` check reports a notification no use case or automation sends.
+**Rationale:** A message without declared addresses and consent is sent on hope: the wrong actors receive it, the channel ignores consent, repeats annoy. Declaring the template with its parameters and locale, the addresses, the channel, the consent rule, the frequency of `once` or `per-attempt`, and the dedup key states the message beside its promise. Suppression lives on the notification in `suppressedWhen`, and suppression scenarios show the message sending nothing. The `notification-sender-missing` check reports a notification no use case, reaction, or job sends.
 
-**Checked by:** `litespec model check` reports `notification-sender-missing` for a notification no use case or automation sends; `litespec consumer` fails a notification without its declared fields.
+**Checked by:** `litespec model check` reports `notification-sender-missing` for a notification no use case, reaction, or job sends; `litespec consumer` fails a notification without its declared fields.
 
 ### Keep Notification Templates and the Template Store One Set
 

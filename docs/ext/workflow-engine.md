@@ -2,7 +2,7 @@
 
 ## Intent
 
-Some sagas run on a workflow engine instead of automations, with steps, timers, and retries the engine owns. This page states how each engine step maps onto exactly one use case with its compensation. A project selects it for each saga aggregate an engine carries.
+Some sagas run on a workflow engine instead of reactions and jobs, with steps, timers, and retries the engine owns. This page states how each engine step maps onto exactly one use case with its compensation. A project selects it for each saga aggregate an engine carries.
 
 ## Activation
 
@@ -10,7 +10,7 @@ Activation scope: `local`.
 
 Applicable specification kinds: `aggregate`.
 
-A project selects `workflow-engine` for a saga aggregate when a workflow engine carries it. A saga driven by automations does not select it.
+A project selects `workflow-engine` for a saga aggregate when a workflow engine carries it. A saga driven by reactions or jobs does not select it.
 
 ## Baseline Relationship
 
@@ -26,9 +26,9 @@ A carried saga sets `carriedBy: workflow`, maps each engine step to exactly one 
 
 **Statement:** A saga carried by a workflow engine MUST set `carriedBy: workflow`.
 
-**Rationale:** A reader meeting a saga asks first what moves it: automations or an engine. The carrier marker answers that question on the aggregate itself, so nobody hunts the engine console for a saga automations drive.
+**Rationale:** A reader meeting a saga asks first what moves it: reactions, jobs, or an engine. The carrier marker answers that question on the aggregate itself, so nobody hunts the engine console for a saga reactions and jobs drive.
 
-**Example:** The hold aggregate sets `carriedBy: workflow` while the loan aggregate stays automation-driven.
+**Example:** The hold aggregate sets `carriedBy: workflow` while the loan aggregate stays driven by reactions and jobs.
 
 **Reviewed for:** The engine-carried aggregates set carriedBy workflow on their aggregate records.
 

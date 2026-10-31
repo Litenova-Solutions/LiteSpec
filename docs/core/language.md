@@ -84,8 +84,8 @@ Each record type takes the name form its row gives, in the word class of what th
 | rule | the assertion, keeping its negation word | `order.checkout-commits-with-holds`, `expense.approver-is-not-submitter` |
 | event | `<aggregate>.<past participle>` | `order.placed` |
 | integration event | `<aggregate>-<past participle>` | `order-placed` |
-| automation, event trigger | `<verb>-<what>-on-<fact>` | `issue-credit-note-on-refund-succeeded` |
-| automation, schedule or manual | `<verb>-<what>`, with the verb of the use case it runs | `expire-lapsed-ticket-resales` |
+| reaction | `<verb>-<what>-on-<fact>` | `issue-credit-note-on-refund-succeeded` |
+| job | `<verb>-<what>`, with the verb of the use case it runs | `expire-lapsed-ticket-resales` |
 | saga step | verb first | `hold-place`, `refund-buyer` |
 | saga exit, aggregate state | past participle or adjective | `withdrawn`, `Listed` |
 | notification | `<subject>-<event>` noun phrase | `order-confirmation` |

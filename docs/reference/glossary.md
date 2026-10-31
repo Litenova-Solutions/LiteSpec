@@ -186,9 +186,7 @@ Source: LiteSpec.
 
 ### Automation
 
-One record stating work that runs without a request: on an event, on a schedule, or by hand.
-
-Layer: Behavior.
+The work that runs without a request, stated as reactions and jobs.
 
 Source: LiteSpec.
 
@@ -314,7 +312,7 @@ Source: DDD.
 
 ### Effect
 
-One declared edge from a use case or automation to a command, a notification, an integration event, or an outside call.
+One declared edge from a use case, a reaction, or a job to a command, a notification, an integration event, or an outside call.
 
 Layer: Behavior.
 
@@ -445,6 +443,14 @@ One rule that holds at every observable moment.
 Layer: Behavior.
 
 Source: DDD.
+
+### Job
+
+One record stating work that runs on a schedule, once, or by hand.
+
+Layer: Behavior.
+
+Source: LiteSpec.
 
 ### Journey
 
@@ -591,6 +597,14 @@ Source: CQRS.
 One need traveling up from a lower layer, with a decider, a date, and a recommendation.
 
 Layer: Intent or Behavior.
+
+Source: LiteSpec.
+
+### Reaction
+
+One record stating work that runs when a domain or integration event arrives.
+
+Layer: Behavior.
 
 Source: LiteSpec.
 
@@ -778,7 +792,7 @@ Source: LiteSpec.
 
 ### Trigger
 
-The event, schedule, or manual run that starts an automation.
+The event that starts a reaction, or the schedule or manual run that starts a job.
 
 Layer: Behavior.
 
@@ -840,13 +854,13 @@ Source: NIST SP 800-53.
 
 ### Background Caller
 
-The automation whose `runs` edge names a background-only use case.
+The reaction or job whose `runs` edge names a background-only use case.
 
 Source: LiteSpec.
 
 ### Background-Only
 
-The computed state of a use case an automation runs, needing no journey to walk it.
+The computed state of a use case a reaction or job runs, needing no journey to walk it.
 
 Source: LiteSpec.
 

@@ -48,6 +48,45 @@ static class CodeChecks
     private static Finding CodeFinding(string code, string message, string path, int line, string? subject) =>
         new(code, message, path, line, subject);
 
+    /// <summary>One event handler or job host row: the holder ids with the shape the checks read.</summary>
+    internal sealed record HostRow(
+        string Class,
+        string File,
+        int Line,
+        string? RecordId,
+        string? UseCaseId,
+        IReadOnlyList<CodeRepository>? Repositories,
+        IReadOnlyList<CodeRefusal>? Refusals,
+        IReadOnlyList<CodeThrown>? Thrown,
+        IReadOnlyList<CodeDispatch>? Dispatches,
+        int DependencyCount,
+        IReadOnlyList<CodeCollaborator>? Collaborators,
+        IReadOnlyList<CodeLoopRead>? LoopReads);
+
+    /// <summary>Every event handler and job host as one row each, reactions then jobs.</summary>
+    internal static IReadOnlyList<HostRow> Hosts(ProjectModel model)
+    {
+        var hosts = new List<HostRow>(model.Code.Reactions.Count + model.Code.Jobs.Count);
+
+        foreach (var reaction in model.Code.Reactions)
+        {
+            hosts.Add(new HostRow(
+                reaction.Class, reaction.File, reaction.Line, reaction.RecordId, reaction.UseCaseId,
+                reaction.Repositories, reaction.Refusals, reaction.Thrown, reaction.Dispatches,
+                reaction.DependencyCount, reaction.Collaborators, reaction.LoopReads));
+        }
+
+        foreach (var job in model.Code.Jobs)
+        {
+            hosts.Add(new HostRow(
+                job.Class, job.File, job.Line, job.RecordId, job.UseCaseId,
+                job.Repositories, job.Refusals, job.Thrown, job.Dispatches,
+                job.DependencyCount, job.Collaborators, job.LoopReads));
+        }
+
+        return hosts;
+    }
+
     private static void CheckWriteUndeclared(ProjectModel model, List<Finding> findings)
     {
         foreach (var handler in model.Code.Handlers)
@@ -76,25 +115,26 @@ static class CodeChecks
             }
         }
 
-        foreach (var automation in model.Code.Automations)
+        foreach (var host in Hosts(model))
         {
-            if (automation.Repositories is not { Count: > 0 }
-                || automation.RecordId is null
-                || !model.ById.TryGetValue(automation.RecordId, out var record)
-                || record.Type != "automation")
+            if (host.Repositories is not { Count: > 0 }
+                || host.RecordId is null
+                || !model.ById.TryGetValue(host.RecordId, out var record)
+                || record.Type is not ("reaction" or "job"))
             {
                 continue;
             }
 
+            var kind = record.Type == "job" ? "Job" : "Reaction";
             var declared = new HashSet<string>(record.Ids("reads"), StringComparer.Ordinal);
 
-            foreach (var repository in automation.Repositories)
+            foreach (var repository in host.Repositories)
             {
                 if (!RepositoryDeclared(model, repository.Interface, declared))
                 {
                     findings.Add(CodeFinding(
                         "write-undeclared",
-                        $"Automation '{record.Id}' takes repository '{repository.Interface}', whose aggregate is outside its reads.",
+                        $"{kind} '{record.Id}' takes repository '{repository.Interface}', whose aggregate is outside its reads.",
                         repository.File,
                         repository.Line,
                         record.Id));
@@ -224,11 +264,11 @@ static class CodeChecks
             }
         }
 
-        foreach (var automation in model.Code.Automations)
+        foreach (var host in Hosts(model))
         {
-            if (automation.RecordId is null
-                || !model.ById.TryGetValue(automation.RecordId, out var record)
-                || record.Type != "automation")
+            if (host.RecordId is null
+                || !model.ById.TryGetValue(host.RecordId, out var record)
+                || record.Type is not ("reaction" or "job"))
             {
                 continue;
             }
@@ -247,13 +287,15 @@ static class CodeChecks
                 declared.UnionWith(DeclaredCodes(model, useCase, refusals));
             }
 
-            foreach (var (code, file, line) in ProducedCodes(automation.Refusals, automation.Thrown, declaring))
+            var label = record.Type == "job" ? "Job" : "Reaction";
+
+            foreach (var (code, file, line) in ProducedCodes(host.Refusals, host.Thrown, declaring))
             {
                 if (!declared.Contains(code))
                 {
                     findings.Add(CodeFinding(
                         "result-undeclared",
-                        $"Automation '{record.Id}' produces '{code}', which its runs use cases declare none of.",
+                        $"{label} '{record.Id}' produces '{code}', which its runs use cases declare none of.",
                         file,
                         line,
                         record.Id));
@@ -408,7 +450,7 @@ static class CodeChecks
             .Select(entry => (entry.Key, entry.Value.File, entry.Value.Line))];
     }
 
-    /// <summary>The use cases an automation runs.</summary>
+    /// <summary>The use cases a reaction or job runs.</summary>
     private static List<Record> RunsUseCases(ProjectModel model, Record record)
     {
         var found = new List<Record>();
@@ -451,25 +493,30 @@ static class CodeChecks
             }
         }
 
-        foreach (var automation in model.Code.Automations)
+        foreach (var host in Hosts(model))
         {
-            if (automation.Dispatches is not { Count: > 0 }
-                || (automation.RecordId ?? automation.UseCaseId) is not { } holderId
+            if (host.Dispatches is not { Count: > 0 }
+                || (host.RecordId ?? host.UseCaseId) is not { } holderId
                 || !model.ById.TryGetValue(holderId, out var record)
-                || record.Type is not ("automation" or "use-case"))
+                || record.Type is not ("reaction" or "job" or "use-case"))
             {
                 continue;
             }
 
-            // An automation inside a use-case folder with no tag of its own belongs to that use case,
+            // A reaction inside a use-case folder with no tag of its own belongs to that use case,
             // so its dispatches answer to the use case's effects.
-            // Running the use case it sits with is the automation's own trigger, not an edge.
+            // Running the use case it sits with is the reaction's own trigger, not an edge.
             var edges = record.Type == "use-case"
                 ? [.. UseCaseEdges(record), ("runs", record.Id)]
                 : HolderEdges(record);
-            var kind = record.Type == "use-case" ? "Use case" : "Automation";
+            var kind = record.Type switch
+            {
+                "use-case" => "Use case",
+                "reaction" => "Reaction",
+                _ => "Job",
+            };
 
-            foreach (var dispatch in automation.Dispatches)
+            foreach (var dispatch in host.Dispatches)
             {
                 if (!EdgeDeclared(model, edges, dispatch))
                 {
@@ -492,14 +539,15 @@ static class CodeChecks
     private static string ViaText(CodeDispatch dispatch) =>
         dispatch.Via is { Length: > 0 } via ? $" via '{via}'" : "";
 
-    /// <summary>The title and identifier an automation finding names: the holder record when known, else the class.</summary>
-    private static (string Title, string Id) HolderTitle(AutomationInfo automation, string? holder) =>
+    /// <summary>The title and identifier a reaction or job finding names: the holder record when known, else the class.</summary>
+    private static (string Title, string Id) HolderTitle(HostRow host, string? holder) =>
         holder switch
         {
             not null when holder.StartsWith("use-case/", StringComparison.Ordinal) => ("Use case", holder),
-            not null when holder.StartsWith("automation/", StringComparison.Ordinal) => ("Automation", holder),
-            not null => ("Automation", holder),
-            null => ("Automation", automation.Class),
+            not null when holder.StartsWith("reaction/", StringComparison.Ordinal) => ("Reaction", holder),
+            not null when holder.StartsWith("job/", StringComparison.Ordinal) => ("Job", holder),
+            not null => ("Reaction", holder),
+            null => ("Reaction", host.Class),
         };
 
     /// <summary>Every edge a use case declares in its effects entries.</summary>
@@ -535,7 +583,7 @@ static class CodeChecks
         return edges;
     }
 
-    /// <summary>Every edge an automation declares: its runs, sends, emits and calls.</summary>
+    /// <summary>Every edge a reaction or job declares: its runs, sends, emits and calls.</summary>
     internal static List<(string Verb, string Target)> HolderEdges(Record record)
     {
         var edges = new List<(string Verb, string Target)>();
@@ -1172,9 +1220,9 @@ static class CodeChecks
             files.Add(handler.File);
         }
 
-        foreach (var automation in model.Code.Automations)
+        foreach (var host in Hosts(model))
         {
-            files.Add(automation.File);
+            files.Add(host.File);
         }
 
         foreach (var domainEvent in model.Code.Events)
@@ -1277,9 +1325,9 @@ static class CodeChecks
             Add(handler.Class, handler.File, handler.Line);
         }
 
-        foreach (var automation in model.Code.Automations)
+        foreach (var host in Hosts(model))
         {
-            Add(automation.Class, automation.File, automation.Line);
+            Add(host.Class, host.File, host.Line);
         }
 
         foreach (var domainEvent in model.Code.Events)
@@ -1318,17 +1366,17 @@ static class CodeChecks
             }
         }
 
-        foreach (var automation in model.Code.Automations)
+        foreach (var host in Hosts(model))
         {
-            if (automation.Collaborators is null)
+            if (host.Collaborators is null)
             {
                 continue;
             }
 
-            var holder = automation.RecordId ?? automation.UseCaseId;
-            var (kind, id) = HolderTitle(automation, holder);
+            var holder = host.RecordId ?? host.UseCaseId;
+            var (kind, id) = HolderTitle(host, holder);
 
-            foreach (var collaborator in automation.Collaborators)
+            foreach (var collaborator in host.Collaborators)
             {
                 findings.Add(CodeFinding(
                     "collaborator-repository-invalid",
@@ -1360,17 +1408,17 @@ static class CodeChecks
             }
         }
 
-        foreach (var automation in model.Code.Automations)
+        foreach (var host in Hosts(model))
         {
-            if (automation.LoopReads is null)
+            if (host.LoopReads is null)
             {
                 continue;
             }
 
-            var holder = automation.RecordId ?? automation.UseCaseId;
-            var (kind, id) = HolderTitle(automation, holder);
+            var holder = host.RecordId ?? host.UseCaseId;
+            var (kind, id) = HolderTitle(host, holder);
 
-            foreach (var read in automation.LoopReads)
+            foreach (var read in host.LoopReads)
             {
                 findings.Add(CodeFinding(
                     "repository-read-invalid",
@@ -1418,18 +1466,18 @@ static class CodeChecks
             }
         }
 
-        foreach (var automation in model.Code.Automations)
+        foreach (var host in Hosts(model))
         {
-            if (automation.DependencyCount > 10)
+            if (host.DependencyCount > 10)
             {
-                var holder = automation.RecordId ?? automation.UseCaseId;
-                var (kind, id) = HolderTitle(automation, holder);
+                var holder = host.RecordId ?? host.UseCaseId;
+                var (kind, id) = HolderTitle(host, holder);
 
                 findings.Add(CodeFinding(
                     "dependency-count-invalid",
-                    $"{kind} '{id}' takes {automation.DependencyCount} constructor dependencies.",
-                    automation.File,
-                    automation.Line,
+                    $"{kind} '{id}' takes {host.DependencyCount} constructor dependencies.",
+                    host.File,
+                    host.Line,
                     holder));
             }
         }

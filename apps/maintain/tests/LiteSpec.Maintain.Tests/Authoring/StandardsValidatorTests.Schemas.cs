@@ -391,13 +391,14 @@ public sealed partial class StandardsValidatorTests
         []);
 
     /// <proves>litespec/core/language#name-each-field-by-its-word-class</proves>
-    [Fact(DisplayName = "automation and saga fields sharing their word classes")]
-    public void AutomationAndSagaFieldsSharingWordClasses() => Check(
+    [Fact(DisplayName = "reaction, job and saga fields sharing their word classes")]
+    public void ReactionJobAndSagaFieldsSharingWordClasses() => Check(
         root =>
         {
             StandardsFixture.Write(root, "schemas/record.schema.json",
                 "{\"$defs\":{" +
-                "\"automationPage\":{\"type\":\"object\",\"properties\":{\"triggeredBy\":{\"type\":\"object\"},\"skippedWhen\":{\"$ref\":\"#/$defs/nonEmptyString\"}}}," +
+                "\"reactionPage\":{\"type\":\"object\",\"properties\":{\"triggeredBy\":{\"type\":\"array\",\"items\":{\"type\":\"string\"}},\"skippedWhen\":{\"$ref\":\"#/$defs/nonEmptyString\"}}}," +
+                "\"jobPage\":{\"type\":\"object\",\"properties\":{\"kind\":{\"enum\":[\"scheduled\",\"one-off\",\"manual\"]},\"guard\":{\"$ref\":\"#/$defs/nonEmptyString\"}}}," +
                 "\"aggregatePage\":{\"type\":\"object\",\"properties\":{\"drivenBy\":{\"type\":\"array\",\"items\":{\"type\":\"object\"}}}}," +
                 "\"ruleEntry\":{\"type\":\"object\",\"properties\":{\"binds\":{\"type\":\"array\",\"items\":{\"$ref\":\"#/$defs/aggregateId\"}}}}," +
                 "\"scenarioEntry\":{\"type\":\"object\",\"properties\":{\"exercises\":{\"type\":\"array\",\"items\":{\"$ref\":\"#/$defs/ruleId\"}}}}," +
@@ -576,24 +577,45 @@ public sealed partial class StandardsValidatorTests
         []);
 
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
-    [Fact(DisplayName = "consumer template carrying an automation identifier")]
-    public void ConsumerTemplateWithAutomationId() => Check(
+    [Fact(DisplayName = "consumer template carrying a reaction identifier")]
+    public void ConsumerTemplateWithReactionId() => Check(
         root =>
         {
             StandardsFixture.Write(root, "schemas/record.schema.json",
                 "{\"$defs\":{" +
-                "\"automationPage\":{\"type\":\"object\",\"additionalProperties\":false," +
+                "\"reactionPage\":{\"type\":\"object\",\"additionalProperties\":false," +
                 "\"required\":[\"type\",\"id\",\"title\",\"triggeredBy\"]," +
-                "\"properties\":{\"type\":{\"const\":\"automation\"}," +
-                "\"id\":{\"$ref\":\"#/$defs/automationId\"}," +
+                "\"properties\":{\"type\":{\"const\":\"reaction\"}," +
+                "\"id\":{\"$ref\":\"#/$defs/reactionId\"}," +
                 "\"title\":{\"$ref\":\"#/$defs/nonEmptyString\"}," +
-                "\"triggeredBy\":{\"$ref\":\"#/$defs/automationTriggeredBy\"}}}," +
-                "\"automationId\":{\"type\":\"string\",\"pattern\":\"^automation/[a-z0-9][a-z0-9-]*\\\\.[a-z0-9][a-z0-9-]*$\"}," +
-                "\"automationTriggeredBy\":{\"type\":\"object\"}," +
+                "\"triggeredBy\":{\"$ref\":\"#/$defs/reactionTriggeredBy\"}}}," +
+                "\"reactionId\":{\"type\":\"string\",\"pattern\":\"^reaction/[a-z0-9][a-z0-9-]*\\\\.[a-z0-9][a-z0-9-]*$\"}," +
+                "\"reactionTriggeredBy\":{\"type\":\"object\"}," +
                 "\"nonEmptyString\":{\"type\":\"string\",\"minLength\":1}}}");
-            StandardsFixture.Write(root, "templates/consumer/automation.md", TemplatePage(
-                "{\"type\":\"automation\",\"id\":\"automation/<module>.<name>\",\"title\":\"<Automation display title>\"," +
+            StandardsFixture.Write(root, "templates/consumer/reaction.md", TemplatePage(
+                "{\"type\":\"reaction\",\"id\":\"reaction/<module>.<name>\",\"title\":\"<Reaction display title>\"," +
                 "\"triggeredBy\":{}}"));
+        },
+        []);
+
+    /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
+    [Fact(DisplayName = "consumer template carrying a job identifier")]
+    public void ConsumerTemplateWithJobId() => Check(
+        root =>
+        {
+            StandardsFixture.Write(root, "schemas/record.schema.json",
+                "{\"$defs\":{" +
+                "\"jobPage\":{\"type\":\"object\",\"additionalProperties\":false," +
+                "\"required\":[\"type\",\"id\",\"title\",\"kind\"]," +
+                "\"properties\":{\"type\":{\"const\":\"job\"}," +
+                "\"id\":{\"$ref\":\"#/$defs/jobId\"}," +
+                "\"title\":{\"$ref\":\"#/$defs/nonEmptyString\"}," +
+                "\"kind\":{\"enum\":[\"scheduled\",\"one-off\",\"manual\"]}}}," +
+                "\"jobId\":{\"type\":\"string\",\"pattern\":\"^job/[a-z0-9][a-z0-9-]*\\\\.[a-z0-9][a-z0-9-]*$\"}," +
+                "\"nonEmptyString\":{\"type\":\"string\",\"minLength\":1}}}");
+            StandardsFixture.Write(root, "templates/consumer/job.md", TemplatePage(
+                "{\"type\":\"job\",\"id\":\"job/<module>.<name>\",\"title\":\"<Job display title>\"," +
+                "\"kind\":\"<scheduled|one-off|manual>\"}"));
         },
         []);
 

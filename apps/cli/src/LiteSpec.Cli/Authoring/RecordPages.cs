@@ -16,7 +16,7 @@ static class RecordPages
     {
         "product", "goal", "problem", "feature", "topic", "constraint", "research",
         "decision", "journey", "actor", "module", "aggregate", "use-case",
-        "automation", "notification", "role", "external-system",
+        "reaction", "job", "notification", "role", "external-system",
         "runbook", "exception",
     };
 
@@ -26,7 +26,7 @@ static class RecordPages
         ["requirement"] = "a topic page under docs/intent/",
         ["rule"] = "its aggregate page, or a rule page under docs/behavior/rules/ for a cross-aggregate rule",
         ["result"] = "its use-case page",
-        ["scenario"] = "its use-case or automation page",
+        ["scenario"] = "its use-case, reaction or job page",
         ["event"] = "its aggregate page",
         ["integration-event"] = "one page per event under docs/behavior/integration-events/",
         ["setting"] = "its module page, or a setting-set page",
@@ -77,7 +77,8 @@ static class RecordPages
             "module" => Path.Combine(behavior, "modules", name, "README.md"),
             "aggregate" => Path.Combine(behavior, "modules", home!, name, "README.md"),
             "use-case" => Path.Combine(behavior, "modules", home!, "reads", $"{name}.md"),
-            "automation" => Path.Combine(behavior, "modules", home!, "automations", $"{name}.md"),
+            "reaction" => Path.Combine(behavior, "modules", home!, "reactions", $"{name}.md"),
+            "job" => Path.Combine(behavior, "modules", home!, "jobs", $"{name}.md"),
             "notification" => Path.Combine(behavior, "modules", home!, "notifications", $"{name}.md"),
             "role" => Path.Combine(behavior, "access", "roles", $"{name}.md"),
             "integration-event" => Path.Combine(behavior, "integration-events", $"{name}.md"),

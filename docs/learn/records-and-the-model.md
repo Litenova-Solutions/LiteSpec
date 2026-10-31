@@ -21,7 +21,7 @@ Every record answers one layer's question, and each layer is written from the la
 | Layer | Question | Writes | Reviews | Records |
 |:--|:--|:--|:--|:--|
 | Intent | Why build it, and what do we promise? | Agents draft, the finance lead decides | The finance lead and product people | Product, goal, problem, feature, topic, requirement, constraint, decision, research, journey, actor, term |
-| Behavior | How does the system behave to keep the promises? | Agents | Developers; the security queue for access, outside calls, and personal-data flows | Module, aggregate, rule, event, integration event, use case, result, scenario, automation, notification, setting, role, permission, entry point, external system, runbook, term |
+| Behavior | How does the system behave to keep the promises? | Agents | Developers; the security queue for access, outside calls, and personal-data flows | Module, aggregate, rule, event, integration event, use case, result, scenario, reaction, job, notification, setting, role, permission, entry point, external system, runbook, term |
 | Implementation | How is it built? | Agents | Check level S; developers sample | Code only |
 | Proof | How do we know it holds? | The builder | level G and level S checks | Tests, check results, computed statuses, the rendered book |
 
@@ -39,13 +39,13 @@ The record types follow the questions a team asks, from why down to how:
 | What does it offer, and for which pain? | Problem, feature |
 | Who acts, and what may they do? | Actor, role, permission |
 | How is it reached, and what outside systems does it meet? | Journey, entry point, external system |
-| How does the business behave? | Module, aggregate, rule, event, integration event, use case, result, scenario, automation, notification, setting |
+| How does the business behave? | Module, aggregate, rule, event, integration event, use case, result, scenario, reaction, job, notification, setting |
 | How is it run? | Runbook, retention schedule |
 | How is it built and spoken about? | Exception, term |
 
 A small project keeps the rows the [model page](../core/model.md) marks small. A large project also keeps problems, features, journeys, and scenarios, which tie the product story to proven examples. Constraints and research switch on separately, and runbooks join when the product first goes into production.
 
-Each type has one home in the repository. Intent lives under `docs/intent/`, with research beside it under `docs/intent/research/`. Behavior lives under `docs/behavior/`: a module's aggregates and use cases under `docs/behavior/modules/<module>/`, its automations and notifications in matching subfolders, its settings on a settings page, cross-aggregate rules under `docs/behavior/rules/`, the retention schedule at `docs/behavior/retention-schedule.md`, and access records under `docs/behavior/access/`. Exceptions live under `docs/governance/exceptions/`. The [model page](../core/model.md) lists every home, and the `templates/consumer/` folder of the LiteSpec release holds a starting file for each type.
+Each type has one home in the repository. Intent lives under `docs/intent/`, with research beside it under `docs/intent/research/`. Behavior lives under `docs/behavior/`: a module's aggregates and use cases under `docs/behavior/modules/<module>/`, its reactions, jobs, and notifications in matching subfolders, its settings on a settings page, cross-aggregate rules under `docs/behavior/rules/`, the retention schedule at `docs/behavior/retention-schedule.md`, and access records under `docs/behavior/access/`. Exceptions live under `docs/governance/exceptions/`. The [model page](../core/model.md) lists every home, and the `templates/consumer/` folder of the LiteSpec release holds a starting file for each type.
 
 ## Links Between Records
 
@@ -59,7 +59,7 @@ Records join through fields on the record that points. In the Claimwick example,
 
 Read it as a chain: `actor/employee` holds `role/employee`, the role allows `permission/submit-expense` among others, and `use-case/spending.submit-expense` declares that permission as its grant and a tenant scope of its own. Access reads as one chain from actor to use case, exactly as the [access page](../core/access.md) states.
 
-Behavior also connects upward and sideways. A use case serves journey steps and fulfills requirements, so every use case answers Intent. An automation names its trigger in `triggeredBy` and the use cases it runs. A use case names every edge it causes in `effects`: `runs` for a command, `sends` for a notification, `emits` for an integration event, and `calls` for an external-system operation, each with its timing. An undeclared edge is the defect the checks report.
+Behavior also connects upward and sideways. A use case serves journey steps and fulfills requirements, so every use case answers Intent. A reaction names the events it answers in `triggeredBy`, a job names its `kind` and `schedule`, and each names the use cases it runs. A use case names every edge it causes in `effects`: `runs` for a command, `sends` for a notification, `emits` for an integration event, and `calls` for an external-system operation, each with its timing. An undeclared edge is the defect the checks report.
 
 ## Ownership and Approval
 
@@ -98,7 +98,7 @@ You never write whether a use case is implemented or verified. The model builder
 
 `litespec model build` reads the records and follows the marks by which code and tests point up to them: the mark each code element carries and the proves mark each test carries. For each use case it finds:
 
-- The handler or automation class that **implements** it, from its mark.
+- The handler, reaction, or job class that **implements** it, from its mark.
 - The screens that **call** it, from the frontend's generated API client.
 - The tests that **prove** each scenario, from the tests that claim them and the latest test run.
 

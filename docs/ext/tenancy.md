@@ -2,7 +2,7 @@
 
 ## Intent
 
-Multitenancy lets independent customer organizations share one deployment while each keeps isolated data and policy. This page states how the product resolves tenant identity from trusted context, isolates each tenant's data and policy across authorization, storage, caches, automations, exports, diagnostics, and recovery, and records the operations that cross tenant lines. A project selects it when separate customers require isolated data or policy in one deployment, because a tenant column without these obligations leaks one customer's data to another.
+Multitenancy lets independent customer organizations share one deployment while each keeps isolated data and policy. This page states how the product resolves tenant identity from trusted context, isolates each tenant's data and policy across authorization, storage, caches, reactions, jobs, exports, diagnostics, and recovery, and records the operations that cross tenant lines. A project selects it when separate customers require isolated data or policy in one deployment, because a tenant column without these obligations leaks one customer's data to another.
 
 ## Activation
 
@@ -116,11 +116,11 @@ It switches on no record type: tenant scope applies to records every project req
 
 **ID:** `litespec/ext/tenancy#scope-tenant-owned-records`
 
-**Statement:** Every tenant-owned document, query, unique constraint, cache key, outbox record, automation, export, and object-storage path MUST include tenant scope.
+**Statement:** Every tenant-owned document, query, unique constraint, cache key, outbox record, reaction, job, export, and object-storage path MUST include tenant scope.
 
-**Rationale:** Documents, queries, unique constraints, cache keys, outbox records, automations, exports, and object-storage paths each form a boundary where tenants meet. Leaving tenant scope out of any one of them discloses or mixes customer data through exactly that gap.
+**Rationale:** Documents, queries, unique constraints, cache keys, outbox records, reactions, jobs, exports, and object-storage paths each form a boundary where tenants meet. Leaving tenant scope out of any one of them discloses or mixes customer data through exactly that gap.
 
-**Reviewed for:** The documents, queries, constraints, cache keys, outbox records, automations, exports, and storage paths in code each carry tenant scope.
+**Reviewed for:** The documents, queries, constraints, cache keys, outbox records, reactions, jobs, exports, and storage paths in code each carry tenant scope.
 
 ### Apply Cross-Tenant Disclosure Policy
 

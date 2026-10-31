@@ -79,7 +79,7 @@ public sealed class BehaviorUnrecordedTests
         var file = Path.Combine(temp.Path, "GhostReaction.cs");
         model.Code.Elements.Add(new MarkedElement(
             CodeKind.EventHandler, "GhostReaction", null, file, 3,
-            [new CodeMark("automation/lending.nope", MarkStyle.Xml, MarkVerb.Implements, file, 2)],
+            [new CodeMark("reaction/lending.nope", MarkStyle.Xml, MarkVerb.Implements, file, 2)],
             InTests: false));
 
         var codes = TestModel.Codes(model);
@@ -104,13 +104,13 @@ public sealed class BehaviorUnrecordedTests
 
     /// <proves>litespec/core/layers#implement-only-declared-behavior</proves>
     [Fact]
-    public void Automation_With_A_Matching_Tag_Passes()
+    public void Reaction_With_A_Matching_Tag_Passes()
     {
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/lending.ghost", Path.Combine(temp.Path, "ghost.md"), """{"kind": "command"}"""));
-        model.Code.Automations.Add(new AutomationInfo(
+        model.Code.Reactions.Add(new ReactionInfo(
             "GhostReaction", Path.Combine(temp.Path, "GhostReaction.cs"), 3, "use-case/lending.ghost"));
 
         Assert.DoesNotContain("behavior-unrecorded", TestModel.Codes(model));

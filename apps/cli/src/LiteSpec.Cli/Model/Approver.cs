@@ -42,10 +42,11 @@ static class Approver
     ///     idempotency, audit, risk); result (outcome, code, meaning, recorded, codes);
     ///     scenario (given, when, then, result, examples, exercises); event (meaning, carries);
     ///     integration-event (direction, eventType, source, subject, payload, dataschema,
-    ///     addresses, trust, correlation, translates); automation (triggeredBy, skippedWhen,
-    ///     effects, runbook, runsWhere, guard, cursor, selection, lease, batchSize,
-    ///     serviceLevel, evidence, fulfills, serves, onFailure, idempotency, reads, changes);
-    ///     notification (template, addresses, channel, consent, frequency,
+    ///     addresses, trust, correlation, translates); reaction (triggeredBy, skippedWhen,
+    ///     effects, reads, changes, fulfills, serves, idempotency, onFailure, risk);
+    ///     job (kind, schedule, selection, batchSize, lease, cursor, runbook, runsWhere,
+    ///     guard, serviceLevel, evidence, effects, reads, changes, fulfills, serves,
+    ///     idempotency, onFailure, risk); notification (template, addresses, channel, consent, frequency,
     ///     dedupKey, params, locale, suppressedWhen, claims, fulfills, sender); setting
     ///     (valueType, default, range, unit, setBy, atBound, secret, meaning, runbook,
     ///     fulfills); role (scope, allows); permission (meaning); entry-point (kind,

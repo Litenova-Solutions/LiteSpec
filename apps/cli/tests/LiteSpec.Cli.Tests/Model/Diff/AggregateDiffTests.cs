@@ -52,21 +52,21 @@ public sealed class AggregateDiffTests
             """
             {"kind": "saga",
              "exits": ["refunded", "abandoned"],
-             "drivenBy": [{"automation": "automation/lending.refund-expired-holds"}]}
+             "drivenBy": [{"job": "job/lending.refund-expired-holds"}]}
             """);
         var after = TestModel.Record(
             "aggregate", "aggregate/lending.refund", Path.Combine(temp.Path, "refund.md"),
             """
             {"kind": "saga",
              "exits": ["refunded", "escalated"],
-             "drivenBy": [{"automation": "automation/lending.refund-on-request"}]}
+             "drivenBy": [{"job": "job/lending.refund-on-request"}]}
             """);
 
         var details = DetailsOf(temp.Path, before, after);
 
         Assert.Contains("Exit removed: abandoned.", details);
         Assert.Contains("Exit added: escalated.", details);
-        Assert.Contains("Driven by changed from automation/lending.refund-expired-holds to automation/lending.refund-on-request.", details);
+        Assert.Contains("Driven by changed from job/lending.refund-expired-holds to job/lending.refund-on-request.", details);
     }
 
     /// <summary>A data class purpose change prints the purpose line beside the other class lines.</summary>
