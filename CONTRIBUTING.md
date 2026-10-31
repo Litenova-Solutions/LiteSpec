@@ -27,7 +27,7 @@ Follow the [authoring standard](docs/core/authoring.md) for every standards page
 
 ## Local Setup
 
-1. Install the .NET 10 SDK. The command line and the analyzers build on it, and [Directory.Build.props](Directory.Build.props) targets `net10.0`. [global.json](global.json) selects the test runner and pins no SDK.
+1. Install the .NET 10 SDK. The command line and the analyzers build on it, and [Directory.Build.props](Directory.Build.props) targets `net10.0`. [global.json](global.json) pins the SDK version and selects the test runner.
 2. Install Node 24 and pnpm 11 only when you change the site. The exact pins live in [apps/site/package.json](apps/site/package.json) and under `stack` in [litespec.manifest.json](litespec.manifest.json).
 3. Run every command in this page from the repository root.
 4. Read `git status` before you start, and leave unrelated work alone.
@@ -144,7 +144,7 @@ Each release states its complete contract. Add no compatibility guarantee, migra
 
 To prepare a release:
 
-1. Name the version in [litespec.manifest.json](litespec.manifest.json), in the topmost [CHANGELOG.md](CHANGELOG.md) entry, in `reviewedLiteSpecVersion` in [templates/consumer/litespec.project.json](templates/consumer/litespec.project.json), and in `<Version>` in [apps/cli/src/LiteSpec.Cli/LiteSpec.Cli.csproj](apps/cli/src/LiteSpec.Cli/LiteSpec.Cli.csproj) and [apps/analyzers/src/LiteSpec.Analyzers/LiteSpec.Analyzers.csproj](apps/analyzers/src/LiteSpec.Analyzers/LiteSpec.Analyzers.csproj). Every schema `$id` names the release under `https://litespec.dev/<version>/schemas/`. `ReleaseVersionTests` fails while any of these disagree.
+1. Name the version in [litespec.manifest.json](litespec.manifest.json), in the topmost [CHANGELOG.md](CHANGELOG.md) entry, in `reviewedLiteSpecVersion` in [templates/consumer/litespec.project.json](templates/consumer/litespec.project.json), and in `<Version>` in [apps/cli/src/LiteSpec.Cli/LiteSpec.Cli.csproj](apps/cli/src/LiteSpec.Cli/LiteSpec.Cli.csproj) and [apps/analyzers/src/LiteSpec.Analyzers/LiteSpec.Analyzers.csproj](apps/analyzers/src/LiteSpec.Analyzers/LiteSpec.Analyzers.csproj). Every schema `$id` names the release under `https://litespec.dev/<version>/schemas/`. `ReleaseVersionTests` checks every versioned reference and fails while any of them disagree: each schema `$id`, each template and example `$schema`, `PACKAGE.md`, `README.md`, `CONTRIBUTING.md`, the pages under `docs/`, and the files under `.github/`, alongside the manifest, the changelog, the consumer template, and both package versions above.
 2. Move the rows of `AnalyzerReleases.Unshipped.md` under a `## Release <version>` heading in `AnalyzerReleases.Shipped.md`.
 3. Merge to `main`, then push the tag `v<version>` on that commit. The highest git tag is the current release, as [docs/core/maintaining.md](docs/core/maintaining.md) states.
 

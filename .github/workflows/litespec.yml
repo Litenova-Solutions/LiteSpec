@@ -25,11 +25,13 @@ jobs:
     steps:
       - name: Check out the repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
 
       - name: Set up the .NET SDK
         uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
-          dotnet-version: 10.0.x
+          global-json-file: global.json
 
       # The CLI runs the frontend reader as a Node bundle, so the bundle exists before
       # the tests that call it and before the pack that ships it beside the tool.
@@ -69,8 +71,53 @@ jobs:
       - name: Validate the LiteSpec repository
         run: dotnet run --project apps/maintain/src/LiteSpec.Maintain --no-build -- validate
 
-      - name: Check whitespace errors
-        run: git diff --check
+      # On a fresh checkout `git diff --check` has no change to examine, so
+      # compare the change itself: the pull request against its base, or the
+      # pushed commit against its parent when it has one.
+      - name: Check whitespace errors in the change
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
+            git fetch --no-tags origin "$BASE_REF"
+            git diff --check "origin/$BASE_REF...HEAD"
+          elif [ "$GITHUB_EVENT_NAME" = "push" ] && git rev-parse --verify HEAD~1 >/dev/null 2>&1; then
+            git diff --check HEAD~1 HEAD
+          fi
+
+  cli-windows:
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up the .NET SDK
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          global-json-file: global.json
+
+      # The CLI runs the frontend reader as a Node bundle, so the bundle exists before
+      # the tests that call it and before the pack that ships it beside the tool.
+      - name: Configure Node.js for the frontend reader
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "24.22.0"
+          package-manager-cache: false
+
+      - name: Install pnpm for the frontend reader
+        run: npm install --global pnpm@11.28.5
+
+      - name: Build the frontend reader bundle
+        run: |
+          pnpm --dir apps/cli/fe-reader install --frozen-lockfile
+          pnpm --dir apps/cli/fe-reader build
+
+      - name: Build the CLI and the analyzers
+        run: dotnet build LiteSpec.slnx
+
+      - name: Run the CLI and analyzer test suites
+        run: dotnet test --solution LiteSpec.slnx
 
   site:
     runs-on: ubuntu-24.04
