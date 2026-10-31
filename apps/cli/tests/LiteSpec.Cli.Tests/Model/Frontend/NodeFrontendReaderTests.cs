@@ -106,7 +106,7 @@ public sealed class NodeFrontendReaderTests
         Assert.Empty(web.Tests);
     }
 
-    /// <proves>litespec/core/behavior#match-a-screens-offers-to-its-calls</proves>
+    /// <proves>litespec/core/edges#match-a-screens-offers-to-its-calls</proves>
     [Fact]
     public void Calls_Map_A_Client_Export_Through_A_PascalCase_WithName()
     {
@@ -121,7 +121,7 @@ public sealed class NodeFrontendReaderTests
         Assert.Empty(read.Findings);
     }
 
-    /// <proves>litespec/core/behavior#match-a-screens-offers-to-its-calls</proves>
+    /// <proves>litespec/core/edges#match-a-screens-offers-to-its-calls</proves>
     [Fact]
     public void Calls_Map_Through_The_Endpoints_WithName_Operation()
     {
@@ -136,7 +136,7 @@ public sealed class NodeFrontendReaderTests
         Assert.Empty(read.Findings);
     }
 
-    /// <proves>litespec/core/behavior#match-a-screens-offers-to-its-calls</proves>
+    /// <proves>litespec/core/edges#match-a-screens-offers-to-its-calls</proves>
     [Fact]
     public void Call_Two_Endpoints_Map_To_Different_Use_Cases_Is_A_Diagnostic()
     {
@@ -155,7 +155,7 @@ public sealed class NodeFrontendReaderTests
         Assert.Contains("different use cases", finding.Message);
     }
 
-    /// <proves>litespec/core/behavior#give-every-page-its-screen-record</proves>
+    /// <proves>litespec/core/edges#give-every-page-its-screen-record</proves>
     [Fact]
     public void Failed_Facts_Become_One_Reader_Unavailable_Finding()
     {

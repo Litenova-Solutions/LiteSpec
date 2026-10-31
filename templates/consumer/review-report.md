@@ -1,7 +1,7 @@
 ---
 {
   "type": "review-report",
-  "title": "<Review report display title>",
+  "title": "<Review Report Display Title>",
   "owner": "<owner>",
   "reviewedOn": "<YYYY-MM-DD>",
   "reviewer": "<owner or agent>",

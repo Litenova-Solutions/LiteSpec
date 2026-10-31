@@ -1,7 +1,7 @@
 ---
 {
   "type": "configuration",
-  "title": "<Configuration title>",
+  "title": "<Configuration Title>",
   "owner": "<owner>",
   "status": "draft",
   "decider": "<owner>",

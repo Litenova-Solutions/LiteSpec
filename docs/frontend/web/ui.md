@@ -178,7 +178,7 @@ Svelte:
 
 **ID:** `litespec/frontend/web/ui#prove-every-result-a-route-calls`
 
-**Statement:** Every refusal a web screen can reach through its computed `calls` MUST be shown as `litespec/core/behavior#show-every-refusal-a-screen-can-reach` states.
+**Statement:** Every refusal a web screen can reach through its computed `calls` MUST be shown as `litespec/core/edges#show-every-refusal-a-screen-can-reach` states.
 
 **Rationale:** That Behavior provision is the one result obligation for a screen, on the web stacks as on every stack: a sentence in the frontend's refusal dictionary or a browser test asserting the code. The screen's computed `calls` name the refusals in scope, so no route-level restatement adds a second scope or verification. This realizes litespec/frontend/ui#prove-every-result-a-route-calls by pointing at the same obligation.
 

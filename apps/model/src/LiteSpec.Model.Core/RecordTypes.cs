@@ -124,6 +124,33 @@ public static class RecordTypes
             ["values"] = new HashSet<string>(),
         };
 
+    /// <summary>
+    ///     The record types that fulfill a requirement, in message order: the Written on
+    ///     column of the fulfills row of the Links table. The fulfillment check reads this table.
+    /// </summary>
+    public static readonly IReadOnlyList<string> FulfillingTypes = new string[]
+    {
+        "rule", "use-case", "reaction", "job", "notification", "setting",
+    };
+
+    /// <summary>
+    ///     The record types that serve a journey step, in message order: the Written on
+    ///     column of the serves row for journey steps. The step check reads this table.
+    /// </summary>
+    public static readonly IReadOnlyList<string> StepServingTypes = new string[]
+    {
+        "use-case", "reaction", "job",
+    };
+
+    /// <summary>
+    ///     The record types that link up with serves or fulfills, in message order:
+    ///     every fulfilling type except a rule. The orphan check reads this table.
+    /// </summary>
+    public static readonly IReadOnlyList<string> UpLinkedTypes = new string[]
+    {
+        "use-case", "reaction", "job", "notification", "setting",
+    };
+
     /// <summary>Fields that hold links but are read from nested objects.</summary>
     public static readonly HashSet<string> NestedLinkFields = new HashSet<string>(StringComparer.Ordinal)
     {

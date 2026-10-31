@@ -51,7 +51,12 @@ One product worked end to end, from its first record to a passing check.
 - [Engineering Principles](core/principles.md): the rules of thumb for choices no narrower rule covers.
 - [Project Model](core/model.md): the four layers, the record types, their links, statuses, approval, questions, checks, and the book and diffs.
 - [Intent Layer](core/intent.md): where a consumer states why it exists and what it promises, and what Intent never holds.
-- [Behavior Records](core/behavior.md): how the system behaves to keep the promises: modules, aggregates, rules, events, use cases, reactions, jobs, notifications, and settings.
+- [Behavior Records](core/behavior.md): the overview of the five Behavior pages and the mapping from records to design.
+- [Domain Model](core/domain-model.md): the modules, glossary, aggregates, rules, and domain events inside the bounded context.
+- [Use Cases](core/use-cases.md): the commands, queries, results, scenarios, and settings.
+- [Automation](core/automation.md): the reactions and jobs that run without a request.
+- [Edges and Screens](core/edges.md): the integration events, notifications, entry points, screens, and external systems.
+- [Privacy and Retention](core/privacy.md): the data classes and the retention schedule.
 - [Access](core/access.md): the actors, roles, permissions, access each use case declares, entry points, and external systems.
 - [Agent Operating Protocol](core/agent.md): how agents select context, write below decided Intent, raise questions, and report completion.
 - [Authoring Standard](core/authoring.md): page styles, provision contracts, identifiers, and prose style; what `litespec-maintain validate` checks.

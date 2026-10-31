@@ -353,6 +353,20 @@ public sealed partial class StandardsValidatorTests
         ["FIELD_NAME_SHAPE"]);
 
     /// <proves>litespec/core/language#name-each-field-by-its-word-class</proves>
+    [Fact(DisplayName = "mode objects sharing one shape across pages")]
+    public void ModeObjectsSharingOneShapeAcrossPages() => Check(
+        root =>
+        {
+            StandardsFixture.Write(root, "schemas/record.schema.json",
+                "{\"$defs\":{" +
+                "\"alphaPage\":{\"type\":\"object\",\"properties\":{\"freshness\":{\"$ref\":\"#/$defs/freshness\"}}}," +
+                "\"betaPage\":{\"type\":\"object\",\"properties\":{\"freshness\":{\"$ref\":\"#/$defs/boundedFreshness\"}}}," +
+                "\"freshness\":{\"type\":\"object\",\"required\":[\"mode\"],\"properties\":{\"mode\":{\"enum\":[\"immediate\",\"snapshot\"]}}}," +
+                "\"boundedFreshness\":{\"type\":\"object\",\"required\":[\"mode\",\"within\"],\"properties\":{\"mode\":{\"enum\":[\"bounded\"]},\"within\":{\"type\":\"string\"}}}}}");
+        },
+        []);
+
+    /// <proves>litespec/core/language#name-each-field-by-its-word-class</proves>
     [Fact(DisplayName = "shipped schemas carry consistent field names")]
     public void ShippedSchemasCarryConsistentFieldNames()
     {
@@ -493,6 +507,30 @@ public sealed partial class StandardsValidatorTests
             StandardsFixture.Write(root, "templates/consumer/job.md", TemplatePage(
                 "{\"type\":\"job\",\"batchSize\":\"<number>\"," +
                 "\"retry\":{\"maxAttempts\":\"<number>\"}}"));
+        },
+        []);
+
+    /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
+    [Fact(DisplayName = "consumer template carrying a mode object")]
+    public void ConsumerTemplateCarryingModeObject() => Check(
+        root =>
+        {
+            StandardsFixture.Write(root, "schemas/record.schema.json",
+                "{\"$defs\":{" +
+                "\"useCasePage\":{\"type\":\"object\",\"additionalProperties\":false," +
+                "\"required\":[\"type\",\"freshness\"]," +
+                "\"properties\":{\"type\":{\"const\":\"use-case\"}," +
+                "\"freshness\":{\"$ref\":\"#/$defs/freshness\"}}}," +
+                "\"freshness\":{\"type\":\"object\",\"additionalProperties\":false," +
+                "\"required\":[\"mode\"]," +
+                "\"properties\":{\"mode\":{\"enum\":[\"immediate\",\"bounded\"]}," +
+                "\"within\":{\"$ref\":\"#/$defs/isoDuration\"}}," +
+                "\"allOf\":[{\"if\":{\"required\":[\"mode\"],\"properties\":{\"mode\":{\"const\":\"bounded\"}}}," +
+                "\"then\":{\"required\":[\"within\"]}}]}," +
+                "\"isoDuration\":{\"type\":\"string\",\"pattern\":\"^P.+\"}}}");
+            StandardsFixture.Write(root, "templates/consumer/use-case.md", TemplatePage(
+                "{\"type\":\"use-case\"," +
+                "\"freshness\":{\"mode\":\"bounded\",\"within\":\"<ISO 8601 duration>\"}}"));
         },
         []);
 

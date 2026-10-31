@@ -2,19 +2,19 @@
 {
   "type": "goal",
   "id": "goal/<name>",
-  "title": "<Goal display title>",
+  "title": "<Goal Display Title>",
   "owner": "<owner>",
   "status": "draft",
   "decider": "<owner>",
   "decideBy": "<YYYY-MM-DD>",
-  "statement": "<The measurable outcome in one sentence>",
-  "measure": "<What is counted>",
+  "statement": "<The outcome holds in the world in one sentence.>",
+  "measure": "<The count that proves the target>",
   "target": "<The value that counts as met>",
   "dueBy": "<The date or milestone>",
   "terms": ["term/<term-name>"],
   "questions": [
     {
-      "question": "<The open question, or remove the questions block>",
+      "question": "<Which question stays open? remove the questions block when none does.>",
       "decider": "<owner>",
       "decideBy": "<YYYY-MM-DD>",
       "ballot": "<decision-id or topic slug>",

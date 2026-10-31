@@ -8,7 +8,7 @@ namespace LiteSpec.Tests.Model.Builder;
 public sealed class ReachabilityTests
 {
     /// <summary>Entered states reach, and so does the state the lifecycle starts from.</summary>
-    /// <proves>litespec/core/behavior#connect-every-state-through-transitions</proves>
+    /// <proves>litespec/core/domain-model#connect-every-state-through-transitions</proves>
     [Fact]
     public void Transitions_Mark_Entered_And_Starting_States_Reachable()
     {
@@ -24,7 +24,7 @@ public sealed class ReachabilityTests
     }
 
     /// <summary>An aggregate without transitions reaches no state.</summary>
-    /// <proves>litespec/core/behavior#connect-every-state-through-transitions</proves>
+    /// <proves>litespec/core/domain-model#connect-every-state-through-transitions</proves>
     [Fact]
     public void Aggregate_Without_Transitions_Reaches_No_State()
     {

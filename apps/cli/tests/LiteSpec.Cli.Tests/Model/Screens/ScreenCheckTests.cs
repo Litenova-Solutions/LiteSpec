@@ -8,7 +8,7 @@ namespace LiteSpec.Tests.Model.Screens;
 /// <summary>Proves the screen checks over hand-built models: each rule with a passing and a failing case.</summary>
 public sealed class ScreenCheckTests
 {
-    /// <proves>litespec/core/behavior#give-every-page-its-screen-record</proves>
+    /// <proves>litespec/core/edges#give-every-page-its-screen-record</proves>
     [Fact]
     public void Screen_With_No_Route_Reports_Screen_Unimplemented()
     {
@@ -19,7 +19,7 @@ public sealed class ScreenCheckTests
         Assert.Single(WithCode(model, "screen-unimplemented"));
     }
 
-    /// <proves>litespec/core/behavior#give-every-page-its-screen-record</proves>
+    /// <proves>litespec/core/edges#give-every-page-its-screen-record</proves>
     [Fact]
     public void Screen_With_A_Marked_Route_Reports_No_Screen_Unimplemented()
     {
@@ -32,7 +32,7 @@ public sealed class ScreenCheckTests
         Assert.Empty(WithCode(model, "behavior-unrecorded"));
     }
 
-    /// <proves>litespec/core/behavior#give-every-page-its-screen-record</proves>
+    /// <proves>litespec/core/edges#give-every-page-its-screen-record</proves>
     [Fact]
     public void Route_With_No_Mark_Reports_Behavior_Unrecorded()
     {
@@ -44,7 +44,7 @@ public sealed class ScreenCheckTests
         Assert.Equal(Finding.TypeScriptReader, finding.Reader);
     }
 
-    /// <proves>litespec/core/behavior#give-every-page-its-screen-record</proves>
+    /// <proves>litespec/core/edges#give-every-page-its-screen-record</proves>
     [Fact]
     public void Route_Marking_No_Screen_Reports_Behavior_Unrecorded()
     {
@@ -55,7 +55,7 @@ public sealed class ScreenCheckTests
         Assert.Single(WithCode(model, "behavior-unrecorded"), found => found.Message.Contains("names no screen"));
     }
 
-    /// <proves>litespec/core/behavior#match-a-screens-offers-to-its-calls</proves>
+    /// <proves>litespec/core/edges#match-a-screens-offers-to-its-calls</proves>
     [Fact]
     public void Offers_Differing_From_Calls_Report_Screen_Calls_Mismatch()
     {
@@ -69,7 +69,7 @@ public sealed class ScreenCheckTests
         Assert.Contains("use-case/lending.borrow-copy", finding.Message);
     }
 
-    /// <proves>litespec/core/behavior#match-a-screens-offers-to-its-calls</proves>
+    /// <proves>litespec/core/edges#match-a-screens-offers-to-its-calls</proves>
     [Fact]
     public void Offers_Equal_To_Calls_Report_No_Screen_Calls_Mismatch()
     {
@@ -81,7 +81,7 @@ public sealed class ScreenCheckTests
         Assert.Empty(WithCode(model, "screen-offers-drift"));
     }
 
-    /// <proves>litespec/core/behavior#serve-only-the-steps-a-screens-use-cases-serve</proves>
+    /// <proves>litespec/core/edges#serve-only-the-steps-a-screens-use-cases-serve</proves>
     [Fact]
     public void Screen_Serving_A_Step_Its_Offers_Do_Not_Serve_Reports_Mismatch()
     {
@@ -92,7 +92,7 @@ public sealed class ScreenCheckTests
         Assert.Single(WithCode(model, "screen-serves-drift"));
     }
 
-    /// <proves>litespec/core/behavior#serve-only-the-steps-a-screens-use-cases-serve</proves>
+    /// <proves>litespec/core/edges#serve-only-the-steps-a-screens-use-cases-serve</proves>
     [Fact]
     public void Screen_Serving_A_Step_Its_Offers_Serve_Reports_No_Mismatch()
     {
@@ -103,7 +103,7 @@ public sealed class ScreenCheckTests
         Assert.Empty(WithCode(model, "screen-serves-drift"));
     }
 
-    /// <proves>litespec/core/behavior#give-every-browser-step-a-screen</proves>
+    /// <proves>litespec/core/edges#give-every-browser-step-a-screen</proves>
     [Fact]
     public void Browser_Step_With_No_Screen_Reports_Step_Unscreened()
     {
@@ -113,7 +113,7 @@ public sealed class ScreenCheckTests
         Assert.Single(WithCode(model, "step-screen-missing"));
     }
 
-    /// <proves>litespec/core/behavior#give-every-browser-step-a-screen</proves>
+    /// <proves>litespec/core/edges#give-every-browser-step-a-screen</proves>
     [Fact]
     public void Browser_Step_With_A_Screen_Reports_No_Step_Unscreened()
     {
@@ -124,7 +124,7 @@ public sealed class ScreenCheckTests
         Assert.Empty(WithCode(model, "step-screen-missing"));
     }
 
-    /// <proves>litespec/core/behavior#show-every-refusal-a-screen-can-reach</proves>
+    /// <proves>litespec/core/edges#show-every-refusal-a-screen-can-reach</proves>
     [Fact]
     public void Reachable_Refusal_With_No_Sentence_Or_Assert_Reports_Result_Unshown()
     {
@@ -136,7 +136,7 @@ public sealed class ScreenCheckTests
         Assert.Single(WithCode(model, "refusal-sentence-missing"));
     }
 
-    /// <proves>litespec/core/behavior#show-every-refusal-a-screen-can-reach</proves>
+    /// <proves>litespec/core/edges#show-every-refusal-a-screen-can-reach</proves>
     [Fact]
     public void Reachable_Refusal_With_A_Dictionary_Sentence_Reports_No_Result_Unshown()
     {
@@ -149,7 +149,7 @@ public sealed class ScreenCheckTests
         Assert.Empty(WithCode(model, "refusal-sentence-missing"));
     }
 
-    /// <proves>litespec/core/behavior#show-every-refusal-a-screen-can-reach</proves>
+    /// <proves>litespec/core/edges#show-every-refusal-a-screen-can-reach</proves>
     [Fact]
     public void Reachable_Refusal_With_An_Asserting_Browser_Test_Reports_No_Result_Unshown()
     {

@@ -2,19 +2,19 @@
 {
   "type": "deviation",
   "id": "deviation/<name>",
-  "title": "<Deviation display title>",
+  "title": "<Deviation Display Title>",
   "owner": "<owner>",
   "status": "draft",
   "decider": "<owner>",
   "decideBy": "<YYYY-MM-DD>",
   "provision": "litespec/<page>#<slug>",
-  "reason": "<Why this departure is needed>",
+  "reason": "<the release needs this departure>",
   "reviewBy": "<YYYY-MM-DD>",
-  "removeWhen": "<The condition that ends this deviation>",
+  "removeWhen": "<the deviation ends and the provision applies again>",
   "terms": ["term/<term-name>"],
   "questions": [
     {
-      "question": "<The open question, or remove the questions block>",
+      "question": "<Which question stays open? remove the questions block when none does.>",
       "decider": "<owner>",
       "decideBy": "<YYYY-MM-DD>",
       "ballot": "<decision-id or topic slug>",

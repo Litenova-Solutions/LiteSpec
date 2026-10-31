@@ -180,8 +180,8 @@ static class RecordReader
         bodies.Add(new PageBody(file, parsed.Body, parsed.BodyStartLine, pageId));
     }
 
-    /// <summary>One Markdown table and the heading above it.</summary>
-    sealed record MarkdownTable(
+    /// <summary>One handwritten Markdown table and the heading above it.</summary>
+    internal sealed record MarkdownTable(
         IReadOnlyList<string> Headers,
         IReadOnlyList<IReadOnlyList<string>> Rows,
         string Heading);
@@ -192,7 +192,9 @@ static class RecordReader
 
     /// <summary>
     ///     The page element with table fields added: transitions and data on an
-    ///     aggregate, examples on a scenario. A front-matter field wins over a table.
+    ///     aggregate, examples on a scenario. A front-matter field wins over a table,
+    ///     and a table that disagrees with one reports table-drift instead of
+    ///     merging. Tables inside generated regions are tool output and never lift.
     /// </summary>
     private static JsonElement PatchedPage(JsonElement element, IReadOnlyList<MarkdownTable> tables)
     {
@@ -301,8 +303,8 @@ static class RecordReader
         return [];
     }
 
-    /// <summary>Every From and To row of every transitions table, in order; By aliases Triggered By.</summary>
-    private static IReadOnlyList<(string From, string To, string? By)> TransitionsOf(
+    /// <summary>Every From and To row of every handwritten transitions table, in order; By aliases Triggered By.</summary>
+    internal static IReadOnlyList<(string From, string To, string? By)> TransitionsOf(
         IReadOnlyList<MarkdownTable> tables)
     {
         var rows = new List<(string From, string To, string? By)>();
@@ -355,8 +357,8 @@ static class RecordReader
         return rows;
     }
 
-    /// <summary>Every named row of every data table, in order.</summary>
-    private static IReadOnlyList<(string Name, string Meaning, string Classification)> DataOf(
+    /// <summary>Every named row of every handwritten data table, in order.</summary>
+    internal static IReadOnlyList<(string Name, string Meaning, string Classification)> DataOf(
         IReadOnlyList<MarkdownTable> tables)
     {
         var rows = new List<(string Name, string Meaning, string Classification)>();
@@ -536,13 +538,14 @@ static class RecordReader
         || text.Equals("none", StringComparison.OrdinalIgnoreCase)
         || text.Equals("none.", StringComparison.OrdinalIgnoreCase);
 
-    /// <summary>Every Markdown table outside fenced code, each with the heading above it.</summary>
-    private static IReadOnlyList<MarkdownTable> TablesOf(string body)
+    /// <summary>Every handwritten Markdown table outside fenced code and generated regions, each with the heading above it.</summary>
+    internal static IReadOnlyList<MarkdownTable> TablesOf(string body)
     {
         var lines = body.Replace("\r\n", "\n").Replace('\r', '\n').Split('\n');
         var tables = new List<MarkdownTable>();
         var heading = "";
         var inFence = false;
+        var inGenerated = false;
         var index = 0;
 
         while (index < lines.Length)
@@ -559,6 +562,26 @@ static class RecordReader
             }
 
             if (inFence)
+            {
+                index++;
+                continue;
+            }
+
+            if (trimmed.StartsWith("<!-- generated:", StringComparison.Ordinal))
+            {
+                inGenerated = true;
+                index++;
+                continue;
+            }
+
+            if (trimmed.StartsWith("<!-- /generated:", StringComparison.Ordinal))
+            {
+                inGenerated = false;
+                index++;
+                continue;
+            }
+
+            if (inGenerated)
             {
                 index++;
                 continue;

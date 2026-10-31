@@ -17,6 +17,9 @@ static partial class ConsumerValidator
     // to find. An absent section is a question the page never answered, which reads
     // exactly like a question with no answer. Types with no entry carry their
     // content in frontmatter or hold optional sections only, and keep free body prose.
+    // An aggregate carries its Transitions and Data in frontmatter with generated
+    // regions for reading, so it names no required section. A use case carries Goal
+    // and What Happens only when significant, which the section check below decides.
     static readonly Dictionary<string, string[]> RequiredSections = new(StringComparer.Ordinal)
     {
         ["product"] = ["Summary"],
@@ -28,8 +31,6 @@ static partial class ConsumerValidator
         ["decision"] = ["Context", "Decision", "Consequences"],
         ["topic"] = ["Summary", "The Situation", "What We Do", "Why It Is Better", "Example", "Costs and Risks", "How Sure We Are", "Position"],
         ["journey"] = ["Example", "Between the Steps"],
-        ["aggregate"] = ["Transitions", "Data"],
-        ["use-case"] = ["Goal"],
         ["rule-set"] = ["Summary"],
         ["actor"] = ["Summary"],
         ["role"] = ["Summary"],
@@ -130,6 +131,7 @@ static partial class ConsumerValidator
         }
 
         var schemaWatch = System.Diagnostics.Stopwatch.StartNew();
+        var refusalHomes = new System.Collections.Concurrent.ConcurrentDictionary<string, byte>(StringComparer.Ordinal);
 
         Parallel.For(0, count, index =>
         {
@@ -148,6 +150,11 @@ static partial class ConsumerValidator
 
             isPage[index] = true;
             metas[index] = meta;
+
+            foreach (var home in RefusalHomes(meta))
+            {
+                refusalHomes.TryAdd(home, 0);
+            }
 
             // Frontmatter is validated through the shared schema module against the
             // record schema, so the schema is the one statement of every record shape.
@@ -181,7 +188,7 @@ static partial class ConsumerValidator
 
             var type = PropString(meta as JsonObject, "type");
             var required = type is not null && RequiredSections.TryGetValue(type, out var names) ? names : Array.Empty<string>();
-            var bodies = SectionBodies(lines, required.Append("What Happens").Append("Example"));
+            var bodies = SectionBodies(lines, required.Append("Goal").Append("What Happens").Append("Example"));
 
             foreach (var name in required)
             {
@@ -191,13 +198,19 @@ static partial class ConsumerValidator
                 }
             }
 
-            // A query reads what a command or reaction wrote, so it states its
-            // goal and no behavior. A command or reaction states what happens.
-            if (type == "use-case"
-                && PropString(meta as JsonObject, "kind") is "command" or "reaction"
-                && bodies["What Happens"] is null)
+            // Goal and What Happens agree with the model check: only a significant
+            // use case carries them, and a query states its goal and no behavior.
+            if (type == "use-case" && SignificantUseCase(meta as JsonObject, refusalHomes))
             {
-                errors.Add($"{relative}: type 'use-case' requires an H2 'What Happens'");
+                if (bodies["Goal"] is null)
+                {
+                    errors.Add($"{relative}: type 'use-case' requires an H2 'Goal'");
+                }
+
+                if (PropString(meta as JsonObject, "kind") != "query" && bodies["What Happens"] is null)
+                {
+                    errors.Add($"{relative}: type 'use-case' requires an H2 'What Happens'");
+                }
             }
 
             // The Example section stays a narrative, not a second specification: it
@@ -235,6 +248,103 @@ static partial class ConsumerValidator
                 run.Err(problem);
             }
         }
+    }
+
+    /// <summary>
+    ///     Whether the use-case page needs Goal and What Happens prose, mirroring the
+    ///     model check: it changes more than one aggregate, refuses beyond the generic
+    ///     refusals, carries risk, or issues inline effects. A retired use case needs none.
+    /// </summary>
+    static bool SignificantUseCase(JsonObject? meta, System.Collections.Concurrent.ConcurrentDictionary<string, byte> refusalHomes)
+    {
+        if (meta is null || PropString(meta, "status") == "retired")
+        {
+            return false;
+        }
+
+        if (IdCount(meta, "changes") > 1 || HasRisk(meta))
+        {
+            return true;
+        }
+
+        if (meta.TryGetPropertyValue("effects", out var effects) && effects is JsonArray entries)
+        {
+            foreach (var entry in entries)
+            {
+                if (entry is JsonObject edge
+                    && PropString(edge, "timing") is { } timing
+                    && timing.Equals("inline", StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+            }
+        }
+
+        return PropString(meta, "id") is { } id
+            && Identifiers.TrySplit(id, out _, out _, out var name)
+            && refusalHomes.ContainsKey(name);
+    }
+
+    /// <summary>One id or id array as a count: a single id counts one.</summary>
+    static int IdCount(JsonObject meta, string key)
+    {
+        if (!meta.TryGetPropertyValue(key, out var value))
+        {
+            return 0;
+        }
+
+        if (value is JsonArray array)
+        {
+            return array.Count;
+        }
+
+        return AsString(value) is { Length: > 0 } ? 1 : 0;
+    }
+
+    /// <summary>Whether the page carries any risk, which makes its record tier 1.</summary>
+    static bool HasRisk(JsonObject meta)
+    {
+        if (!meta.TryGetPropertyValue("risk", out var risk))
+        {
+            return false;
+        }
+
+        if (risk is JsonArray array)
+        {
+            return array.Count > 0;
+        }
+
+        return AsString(risk) is { Length: > 0 };
+    }
+
+    /// <summary>Every refusal-result home the page's records name, each a use-case own name.</summary>
+    static IReadOnlyList<string> RefusalHomes(JsonNode? meta)
+    {
+        if (meta is not JsonObject page
+            || !page.TryGetPropertyValue("records", out var records)
+            || records is not JsonArray entries)
+        {
+            return [];
+        }
+
+        var homes = new List<string>();
+
+        foreach (var entry in entries)
+        {
+            if (entry is not JsonObject record
+                || PropString(record, "type") != "result"
+                || PropString(record, "outcome") != "refusal"
+                || PropString(record, "id") is not { } id
+                || !Identifiers.TrySplit(id, out _, out var home, out _)
+                || home is null)
+            {
+                continue;
+            }
+
+            homes.Add(home);
+        }
+
+        return homes;
     }
 
     /// <summary>

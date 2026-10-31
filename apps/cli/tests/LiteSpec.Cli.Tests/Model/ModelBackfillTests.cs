@@ -228,7 +228,7 @@ public sealed class ModelBackfillTests
     }
 
     /// <summary>Backfill on a clean fixture drafts only the unmarked route's screen and still prints the table.</summary>
-    /// <proves>litespec/core/behavior#give-every-page-its-screen-record</proves>
+    /// <proves>litespec/core/edges#give-every-page-its-screen-record</proves>
     [Fact]
     public void Backfill_On_Clean_Fixture_Drafts_The_Unmarked_Route_Screen()
     {
@@ -246,7 +246,7 @@ public sealed class ModelBackfillTests
     }
 
     /// <summary>Two unmarked routes ending in one segment draft two screens on two pages, named from their whole address.</summary>
-    /// <proves>litespec/core/behavior#give-every-page-its-screen-record</proves>
+    /// <proves>litespec/core/edges#give-every-page-its-screen-record</proves>
     [Fact]
     public void Backfill_Names_Each_Screen_From_Its_Whole_Address()
     {

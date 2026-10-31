@@ -6,7 +6,7 @@ namespace LiteSpec.Tests.Model.Checks;
 /// <summary>Proves the advisory checks and the open-questions shape rule against hand-built models.</summary>
 public sealed class AdvisoryCheckTests
 {
-    /// <proves>litespec/core/behavior#write-prose-on-significant-use-cases</proves>
+    /// <proves>litespec/core/use-cases#write-prose-on-significant-use-cases</proves>
     [Fact]
     public void Significant_Use_Case_Without_Goal_Reports()
     {
@@ -18,7 +18,7 @@ public sealed class AdvisoryCheckTests
         Assert.Contains("prose-missing", TestModel.Codes(model));
     }
 
-    /// <proves>litespec/core/behavior#write-prose-on-significant-use-cases</proves>
+    /// <proves>litespec/core/use-cases#write-prose-on-significant-use-cases</proves>
     [Fact]
     public void Trivial_Use_Case_Passes()
     {
@@ -30,7 +30,7 @@ public sealed class AdvisoryCheckTests
         Assert.DoesNotContain("prose-missing", TestModel.Codes(model));
     }
 
-    /// <proves>litespec/core/behavior#state-the-consistency-of-every-use-case</proves>
+    /// <proves>litespec/core/use-cases#state-the-consistency-of-every-use-case</proves>
     [Fact]
     public void Atomic_With_Two_Cites_Rules_Reports()
     {
@@ -42,7 +42,7 @@ public sealed class AdvisoryCheckTests
         Assert.Contains("atomic-group-duplicate", TestModel.Codes(model));
     }
 
-    /// <proves>litespec/core/behavior#state-the-consistency-of-every-use-case</proves>
+    /// <proves>litespec/core/use-cases#state-the-consistency-of-every-use-case</proves>
     [Fact]
     public void Atomic_With_One_Cites_Rule_Passes()
     {

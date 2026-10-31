@@ -28,6 +28,14 @@
   "changes": [
     "aggregate/spending.expense"
   ],
+  "idempotency": {
+    "mode": "none",
+    "reason": "the first payment moves the expense to reimbursed, so the aggregate refuses a second payment"
+  },
+  "audit": {
+    "level": "none",
+    "target": "no audit trail; the example stores no audit entry"
+  },
   "risk": [
     "money"
   ],
@@ -111,8 +119,8 @@
     }
   ],
   "approvedBy": "claimwick-team",
-  "approvedOn": "2026-10-01",
-  "approvedHash": "9096a3ce"
+  "approvedOn": "2026-10-31",
+  "approvedHash": "c487c811"
 }
 ---
 

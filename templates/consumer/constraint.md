@@ -2,7 +2,7 @@
 {
   "type": "constraint",
   "id": "constraint/<name>",
-  "title": "<Constraint display title>",
+  "title": "<Constraint Display Title>",
   "owner": "<owner>",
   "status": "draft",
   "decider": "<owner>",
@@ -10,11 +10,11 @@
   "authority": "<URL or document>",
   "kind": "<technical|organizational|convention|legal>",
   "applies": true,
-  "appliesBecause": "<Why this constraint applies in one sentence>",
+  "appliesBecause": "<the authority that binds this product>",
   "terms": ["term/<term-name>"],
   "questions": [
     {
-      "question": "<The open question, or remove the questions block>",
+      "question": "<Which question stays open? remove the questions block when none does.>",
       "decider": "<owner>",
       "decideBy": "<YYYY-MM-DD>",
       "ballot": "<decision-id or topic slug>",

@@ -2,7 +2,7 @@
 {
   "type": "reference",
   "id": "release/<YYYY-MM-DD>",
-  "title": "<Release display title>",
+  "title": "<Release Display Title>",
   "owner": "<owner>",
   "status": "draft",
   "decider": "<owner>",

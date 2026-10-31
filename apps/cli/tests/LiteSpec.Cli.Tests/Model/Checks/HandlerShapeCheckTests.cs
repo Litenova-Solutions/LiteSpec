@@ -6,7 +6,7 @@ namespace LiteSpec.Tests.Model.Checks;
 /// <summary>Proves the handler shape checks: the use-case verb against the aggregate method, event tense, names across layers, route shape, reasonless names, collaborators, loop reads, memory filters, dependency counts and inline effects.</summary>
 public sealed class HandlerShapeCheckTests
 {
-    /// <proves>litespec/core/behavior#name-a-use-case-for-the-act-its-aggregate-performs</proves>
+    /// <proves>litespec/core/use-cases#name-a-use-case-for-the-act-its-aggregate-performs</proves>
     [Fact]
     public void Handler_Calling_Its_Verb_Passes()
     {
@@ -20,7 +20,7 @@ public sealed class HandlerShapeCheckTests
         Assert.DoesNotContain("use-case-method-drift", TestModel.Codes(model));
     }
 
-    /// <proves>litespec/core/behavior#name-a-use-case-for-the-act-its-aggregate-performs</proves>
+    /// <proves>litespec/core/use-cases#name-a-use-case-for-the-act-its-aggregate-performs</proves>
     [Fact]
     public void Handler_Recording_A_Request_Passes()
     {
@@ -35,7 +35,7 @@ public sealed class HandlerShapeCheckTests
         Assert.DoesNotContain("use-case-method-drift", TestModel.Codes(model));
     }
 
-    /// <proves>litespec/core/behavior#name-a-use-case-for-the-act-its-aggregate-performs</proves>
+    /// <proves>litespec/core/use-cases#name-a-use-case-for-the-act-its-aggregate-performs</proves>
     [Fact]
     public void Handler_Calling_Another_Verb_Reports()
     {
@@ -53,7 +53,7 @@ public sealed class HandlerShapeCheckTests
         Assert.Contains("Abandon", finding.Message, StringComparison.Ordinal);
     }
 
-    /// <proves>litespec/core/behavior#name-a-use-case-for-the-act-its-aggregate-performs</proves>
+    /// <proves>litespec/core/use-cases#name-a-use-case-for-the-act-its-aggregate-performs</proves>
     [Fact]
     public void Handler_Calling_Only_A_Reading_Method_Is_Not_Reported()
     {
@@ -68,7 +68,7 @@ public sealed class HandlerShapeCheckTests
         Assert.DoesNotContain("use-case-method-drift", TestModel.Codes(model));
     }
 
-    /// <proves>litespec/core/behavior#name-a-use-case-for-the-act-its-aggregate-performs</proves>
+    /// <proves>litespec/core/use-cases#name-a-use-case-for-the-act-its-aggregate-performs</proves>
     [Fact]
     public void Handler_Calling_No_Aggregate_Method_Is_Not_Reported()
     {

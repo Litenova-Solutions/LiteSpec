@@ -2,7 +2,7 @@
 {
   "type": "feature",
   "id": "feature/<name>",
-  "title": "<Feature display title>",
+  "title": "<Feature Display Title>",
   "owner": "<owner>",
   "status": "draft",
   "decider": "<owner>",
@@ -10,12 +10,12 @@
   "lifecycle": "<planned|shipped|later|refused>",
   "solves": ["problem/<name>, or the problem this feature declines, when refused"],
   "advances": ["goal/<name>", "or remove this line when the lifecycle is refused"],
-  "refusedBecause": "<reason, when refused; remove this line otherwise>",
+  "refusedBecause": "<the cost outweighs the demand, when refused; remove this line otherwise>",
   "plannedFor": "<The milestone or date, when planned; remove this line otherwise>",
   "terms": ["term/<term-name>"],
   "questions": [
     {
-      "question": "<The open question, or remove the questions block>",
+      "question": "<Which question stays open? remove the questions block when none does.>",
       "decider": "<owner>",
       "decideBy": "<YYYY-MM-DD>",
       "ballot": "<decision-id or topic slug>",

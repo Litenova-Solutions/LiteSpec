@@ -9,7 +9,7 @@ namespace LiteSpec.Tests.Model.Builder;
 /// <summary>Proves each screen call keeps the operation that reached its use case.</summary>
 public sealed class CallsLinkTests
 {
-    /// <proves>litespec/core/behavior#match-a-screens-offers-to-its-calls</proves>
+    /// <proves>litespec/core/edges#match-a-screens-offers-to-its-calls</proves>
     [Fact]
     public void Screen_Reaching_Two_Use_Cases_Through_Two_Operations_Names_Each_Operation()
     {
@@ -72,7 +72,7 @@ public sealed class CallsLinkTests
         Assert.Contains(("use-case/lending.borrow-copy", "borrowCopy"), links);
     }
 
-    /// <proves>litespec/core/behavior#match-a-screens-offers-to-its-calls</proves>
+    /// <proves>litespec/core/edges#match-a-screens-offers-to-its-calls</proves>
     [Fact]
     public void Use_Case_Reached_Through_Two_Operations_Gets_One_Link_Per_Operation()
     {
@@ -96,7 +96,7 @@ public sealed class CallsLinkTests
             model.Calls.Select(link => link.Operation).Order(StringComparer.Ordinal).ToList());
     }
 
-    /// <proves>litespec/core/behavior#match-a-screens-offers-to-its-calls</proves>
+    /// <proves>litespec/core/edges#match-a-screens-offers-to-its-calls</proves>
     [Fact]
     public void Use_Case_With_Unknown_Operation_Keeps_An_Empty_Operation()
     {

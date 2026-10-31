@@ -2,21 +2,21 @@
 {
   "type": "job",
   "id": "job/<module>.<name>",
-  "title": "<Job display title>",
+  "title": "<Job Display Title>",
   "owner": "<owner>",
   "status": "draft",
   "decider": "<owner>",
   "decideBy": "<YYYY-MM-DD>",
   "kind": "<scheduled|one-off|operator>",
   "schedule": {
-    "every": "<ISO duration, or replace this line with a cron expression line>",
+    "every": "<ISO 8601 duration, or replace this line with a cron expression line>",
     "timezone": "<IANA timezone>"
   },
-  "selection": "<What each run selects>",
+  "selection": "<The records each run selects>",
   "batchSize": "<number>",
   "lease": {
     "name": "<lock>",
-    "duration": "<ISO duration>"
+    "duration": "<ISO 8601 duration>"
   },
   "effects": [
     {
@@ -26,11 +26,11 @@
   ],
   "reads": ["aggregate/<module>.<name>"],
   "serviceLevel": "<The promise, citing a requirement>",
-  "evidence": "<Where proof of a run lands>",
+  "evidence": "<The record that holds the proof of a run>",
   "runbook": "runbook/<name>",
   "runsWhere": "<Deployment scope, or external:<timer>>",
-  "guard": "<Guard when the kind is operator, otherwise remove this line>",
-  "cursor": "<Where resume state lives when driving a process, otherwise remove this line>",
+  "guard": "<the operator may start this run, when the kind is operator, otherwise remove this line>",
+  "cursor": "<The store that holds the resume state when driving a process, otherwise remove this line>",
   "fulfills": ["requirement/<topic>.<name>"],
   "serves": ["journey/<name>#<step-id>"],
   "onFailure": {
@@ -45,18 +45,17 @@
       "action": "<What a person does>"
     }
   },
-  "onExhausted": "<What happens when retries run out, or remove this line>",
   "idempotency": {
     "mode": "<key|state|not-pending|none>",
     "key": "<Key template of {field} placeholders over the input field names, when the mode is key, otherwise remove this line>",
     "scope": "<tenant|account|login|global when the mode is key, otherwise remove this line>",
-    "reason": "<Reason when the mode is none, otherwise remove this line>"
+    "reason": "<replays stay harmless without a key, when the mode is none, otherwise remove this line>"
   },
   "risk": ["<money|door|personal-data|access, or remove this line>"],
   "terms": ["term/<term-name>"],
   "questions": [
     {
-      "question": "<The open question, or remove the questions block>",
+      "question": "<Which question stays open? remove the questions block when none does.>",
       "decider": "<owner>",
       "decideBy": "<YYYY-MM-DD>",
       "ballot": "<decision-id or topic slug>",

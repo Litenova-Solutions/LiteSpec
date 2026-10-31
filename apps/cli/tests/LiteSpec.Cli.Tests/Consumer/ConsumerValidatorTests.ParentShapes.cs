@@ -60,7 +60,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "unknown property 'state'");
     }
 
-    /// <proves>litespec/core/behavior#derive-generic-refusals-instead-of-writing-them</proves>
+    /// <proves>litespec/core/use-cases#derive-generic-refusals-instead-of-writing-them</proves>
     [Fact(DisplayName = "scenario ending in a derived generic refusal")]
     public void ScenarioEndingInADerivedGenericRefusal()
     {
@@ -69,7 +69,7 @@ public sealed partial class ConsumerValidatorTests
         AssertClean(RunConsumer(folder.Path));
     }
 
-    /// <proves>litespec/core/behavior#derive-generic-refusals-instead-of-writing-them</proves>
+    /// <proves>litespec/core/use-cases#derive-generic-refusals-instead-of-writing-them</proves>
     [Fact(DisplayName = "scenario ending in a module-prefixed derived refusal")]
     public void ScenarioEndingInAModulePrefixedDerivedRefusal()
     {

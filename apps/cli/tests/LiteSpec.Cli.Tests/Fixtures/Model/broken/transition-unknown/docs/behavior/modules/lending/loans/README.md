@@ -36,7 +36,7 @@
       ],
       "onErasure": "erase",
       "basis": "business",
-      "period": "Until the loan closes plus 30 days.",
+      "period": "P30D",
       "enforcedBy": "record-expiry"
     }
   ],
@@ -130,7 +130,7 @@
   ],
   "approvedBy": "lending-team",
   "approvedOn": "2026-10-01",
-  "approvedHash": "9f1f5ed7",
+  "approvedHash": "5e2b5366",
   "transitions": [
     {
       "from": "Active",

@@ -28,6 +28,14 @@
   "changes": [
     "aggregate/spending.expense"
   ],
+  "idempotency": {
+    "mode": "none",
+    "reason": "a repeat attaches the same receipt to the same submitted expense, leaving the same receipt attached"
+  },
+  "audit": {
+    "level": "none",
+    "target": "no audit trail; the example stores no audit entry"
+  },
   "records": [
     {
       "type": "result",
@@ -82,8 +90,8 @@
     }
   ],
   "approvedBy": "claimwick-team",
-  "approvedOn": "2026-10-01",
-  "approvedHash": "b8a39d13"
+  "approvedOn": "2026-10-31",
+  "approvedHash": "ff8c140e"
 }
 ---
 

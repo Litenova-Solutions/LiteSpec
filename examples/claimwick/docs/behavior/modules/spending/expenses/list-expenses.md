@@ -36,11 +36,14 @@
         "reads": [
           "aggregate/spending.expense"
         ],
-        "freshness": "immediate"
+        "freshness": {
+          "mode": "immediate"
+        }
       }
     }
   },
   "paging": {
+    "mode": "pages",
     "order": "Submission time, newest first.",
     "cursor": "The submission time and identity of the last row.",
     "defaultLimit": 25,
@@ -49,6 +52,10 @@
   "reads": [
     "aggregate/spending.expense"
   ],
+  "idempotency": {
+    "mode": "none",
+    "reason": "the query reads expenses without changing them"
+  },
   "records": [
     {
       "type": "result",
@@ -78,7 +85,7 @@
   ],
   "approvedBy": "claimwick-team",
   "approvedOn": "2026-10-31",
-  "approvedHash": "c9273836"
+  "approvedHash": "9be3e077"
 }
 ---
 

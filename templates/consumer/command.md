@@ -1,14 +1,14 @@
 ---
 {
   "type": "command",
-  "title": "<Command title>",
+  "title": "<Command Title>",
   "owner": "<owner>",
   "status": "draft",
   "decider": "<owner>",
   "decideBy": "<YYYY-MM-DD>"
 }
 ---
-# <Command title>
+# <Command Title>
 
 ## Name
 

@@ -6,6 +6,7 @@
   "owner": "claimwick-team",
   "status": "reviewed",
   "summary": "An expense is one work cost an employee submitted.",
+  "kind": "entity",
   "states": [
     {
       "name": "Submitted",
@@ -241,7 +242,7 @@
   ],
   "approvedBy": "claimwick-team",
   "approvedOn": "2026-10-31",
-  "approvedHash": "e5377a30"
+  "approvedHash": "9f19cfe1"
 }
 ---
 

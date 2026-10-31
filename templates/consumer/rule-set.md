@@ -1,7 +1,7 @@
 ---
 {
   "type": "rule-set",
-  "title": "<Rule set display title>",
+  "title": "<Rule Set Display Title>",
   "owner": "<owner>",
   "status": "draft",
   "decider": "<owner>",
@@ -10,9 +10,9 @@
     {
       "type": "rule",
       "id": "rule/<home>.<name>",
-      "title": "<Rule display title>",
+      "title": "<Rule Display Title>",
       "kind": "cross-aggregate",
-      "statement": "<The rule in one sentence>",
+      "statement": "<The records keep the rule in one sentence.>",
       "governs": ["<aggregate or use-case id>"],
       "refusal": "<result id or refusal code, or remove this line>",
       "basedOn": ["<constraint or research id, or remove this line>"],

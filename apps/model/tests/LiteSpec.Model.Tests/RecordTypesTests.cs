@@ -1,3 +1,7 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using LiteSpec.Model;
 
 namespace LiteSpec.Model.Tests;
@@ -33,5 +37,103 @@ public sealed class RecordTypesTests
         Assert.True(RecordTypes.LinkTargets["addresses"].SetEquals(
             new[] { "actor", "permission" }));
         Assert.False(RecordTypes.LinkTargets.ContainsKey("audience"));
+    }
+
+    /// <summary>The link sets match the Written on columns of the Links table.</summary>
+    /// <proves>litespec/core/model#write-links-on-the-record-that-points</proves>
+    [Fact]
+    public void Link_Sets_Match_The_Links_Table()
+    {
+        var rows = LinksRows(File.ReadAllText(Path.Combine(FindRepository(), "docs", "core", "model.md")));
+
+        var fulfills = rows.Where(row => row.Field == "fulfills").ToList();
+        Assert.Single(fulfills);
+        Assert.Equal(
+            WritersOf(fulfills[0]),
+            RecordTypes.FulfillingTypes.OrderBy(type => type, StringComparer.Ordinal).ToList());
+
+        var steps = rows
+            .Where(row => row.Field == "serves"
+                && row.PointsAt.Contains("journey step", StringComparison.OrdinalIgnoreCase)
+                && !row.WrittenOn.Contains("screen", StringComparison.OrdinalIgnoreCase))
+            .ToList();
+        Assert.Single(steps);
+        Assert.Equal(
+            WritersOf(steps[0]),
+            RecordTypes.StepServingTypes.OrderBy(type => type, StringComparer.Ordinal).ToList());
+
+        var linked = RecordTypes.FulfillingTypes
+            .Concat(RecordTypes.StepServingTypes)
+            .Distinct(StringComparer.Ordinal)
+            .Where(type => type != "rule")
+            .OrderBy(type => type, StringComparer.Ordinal)
+            .ToList();
+        Assert.Equal(linked, RecordTypes.UpLinkedTypes.OrderBy(type => type, StringComparer.Ordinal).ToList());
+    }
+
+    /// <summary>One Links table row: the field, who writes it, and what it points at.</summary>
+    sealed record LinksRow(string Field, string WrittenOn, string PointsAt);
+
+    /// <summary>Every row of the Links table on the model page.</summary>
+    static IReadOnlyList<LinksRow> LinksRows(string page)
+    {
+        var rows = new List<LinksRow>();
+        var inTable = false;
+
+        foreach (var line in page.Replace("\r\n", "\n").Split('\n'))
+        {
+            if (!inTable)
+            {
+                if (line.StartsWith("| Field | Written on |", StringComparison.Ordinal))
+                {
+                    inTable = true;
+                }
+
+                continue;
+            }
+
+            if (!line.StartsWith('|'))
+            {
+                break;
+            }
+
+            if (line.StartsWith("|:"))
+            {
+                continue;
+            }
+
+            var cells = line.Trim().Trim('|').Split('|').Select(cell => cell.Trim()).ToList();
+
+            if (cells.Count >= 5)
+            {
+                rows.Add(new LinksRow(cells[0].Trim('`'), cells[1], cells[2]));
+            }
+        }
+
+        return rows;
+    }
+
+    /// <summary>One Written on cell as record types: commas split, spaces become hyphens.</summary>
+    static IReadOnlyList<string> WritersOf(LinksRow row) =>
+        row.WrittenOn.Split(',')
+            .Select(part => part.Trim())
+            .Select(part => part.StartsWith("and ", StringComparison.OrdinalIgnoreCase) ? part[4..].TrimStart() : part)
+            .Where(part => part.Length > 0)
+            .Select(part => part.Replace(' ', '-').ToLowerInvariant())
+            .OrderBy(type => type, StringComparer.Ordinal)
+            .ToList();
+
+    /// <summary>The LiteSpec repository root, found above the test binary.</summary>
+    static string FindRepository()
+    {
+        for (var folder = new DirectoryInfo(AppContext.BaseDirectory); folder is not null; folder = folder.Parent)
+        {
+            if (File.Exists(Path.Combine(folder.FullName, "litespec.manifest.json")))
+            {
+                return folder.FullName;
+            }
+        }
+
+        throw new InvalidOperationException("The test binary sits outside a LiteSpec checkout.");
     }
 }

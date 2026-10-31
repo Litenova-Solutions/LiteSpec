@@ -2,13 +2,13 @@
 {
   "type": "reaction",
   "id": "reaction/<module>.<name>",
-  "title": "<Reaction display title>",
+  "title": "<Reaction Display Title>",
   "owner": "<owner>",
   "status": "draft",
   "decider": "<owner>",
   "decideBy": "<YYYY-MM-DD>",
   "on": ["<event/<aggregate>.<past-tense> or integration-event/<name>>"],
-  "if": "<Skip condition in domain words, or remove this line>",
+  "if": "<the trigger needs no run, or remove this line>",
   "effects": [
     {
       "issues": "<use-case/<module>.<name>, or replace this key with sends, publishes, or calls>",
@@ -23,7 +23,7 @@
     "mode": "<key|state|not-pending|none>",
     "key": "<Key template of {field} placeholders over the input field names, when the mode is key, otherwise remove this line>",
     "scope": "<tenant|account|login|global when the mode is key, otherwise remove this line>",
-    "reason": "<Reason when the mode is none, otherwise remove this line>"
+    "reason": "<replays stay harmless without a key, when the mode is none, otherwise remove this line>"
   },
   "onFailure": {
     "retry": {
@@ -37,15 +37,14 @@
       "action": "<What a person does>"
     }
   },
-  "onExhausted": "<What happens when retries run out, or remove this line>",
   "risk": ["<money|door|personal-data|access, or remove this line>"],
   "records": [
     {
       "type": "scenario",
       "id": "scenario/<use-case>.<name>",
-      "title": "<Scenario display title>",
+      "title": "<Scenario Display Title>",
       "given": "<The starting state>",
-      "when": "<What triggers the reaction>",
+      "when": "<The trigger fires the reaction>",
       "then": "<The observable result>",
       "result": "result/<use-case>.<name>"
     }
@@ -53,7 +52,7 @@
   "terms": ["term/<term-name>"],
   "questions": [
     {
-      "question": "<The open question, or remove the questions block>",
+      "question": "<Which question stays open? remove the questions block when none does.>",
       "decider": "<owner>",
       "decideBy": "<YYYY-MM-DD>",
       "ballot": "<decision-id or topic slug>",

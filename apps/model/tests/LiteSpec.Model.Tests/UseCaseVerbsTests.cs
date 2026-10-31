@@ -6,7 +6,7 @@ namespace LiteSpec.Model.Tests;
 public sealed class UseCaseVerbsTests
 {
     /// <summary>The baseline reading verbs name a query.</summary>
-    /// <proves>litespec/core/behavior#keep-one-kind-per-verb</proves>
+    /// <proves>litespec/core/use-cases#keep-one-kind-per-verb</proves>
     [Theory]
     [InlineData("read")]
     [InlineData("list")]
@@ -19,7 +19,7 @@ public sealed class UseCaseVerbsTests
     }
 
     /// <summary>The baseline changing verbs name a command.</summary>
-    /// <proves>litespec/core/behavior#keep-one-kind-per-verb</proves>
+    /// <proves>litespec/core/use-cases#keep-one-kind-per-verb</proves>
     [Theory]
     [InlineData("create")]
     [InlineData("add")]
@@ -35,7 +35,7 @@ public sealed class UseCaseVerbsTests
     }
 
     /// <summary>The model-written text verbs serve either kind.</summary>
-    /// <proves>litespec/core/behavior#keep-one-kind-per-verb</proves>
+    /// <proves>litespec/core/use-cases#keep-one-kind-per-verb</proves>
     [Theory]
     [InlineData("answer")]
     [InlineData("draft")]
@@ -47,7 +47,7 @@ public sealed class UseCaseVerbsTests
     }
 
     /// <summary>A project verb in query verbs names a query.</summary>
-    /// <proves>litespec/core/behavior#keep-one-kind-per-verb</proves>
+    /// <proves>litespec/core/use-cases#keep-one-kind-per-verb</proves>
     [Fact]
     public void Project_Query_Verb_Names_A_Query()
     {
@@ -55,7 +55,7 @@ public sealed class UseCaseVerbsTests
     }
 
     /// <summary>A project verb outside query verbs names either, never a query or a command.</summary>
-    /// <proves>litespec/core/behavior#keep-one-kind-per-verb</proves>
+    /// <proves>litespec/core/use-cases#keep-one-kind-per-verb</proves>
     [Fact]
     public void Project_Verb_Outside_Query_Verbs_Names_Either()
     {
@@ -63,7 +63,7 @@ public sealed class UseCaseVerbsTests
     }
 
     /// <summary>The baseline decides the kind even when a project query verb repeats it.</summary>
-    /// <proves>litespec/core/behavior#keep-one-kind-per-verb</proves>
+    /// <proves>litespec/core/use-cases#keep-one-kind-per-verb</proves>
     [Fact]
     public void Baseline_Wins_Over_Project_Query_Verbs()
     {
@@ -71,7 +71,7 @@ public sealed class UseCaseVerbsTests
     }
 
     /// <summary>The opening word of a name is its verb.</summary>
-    /// <proves>litespec/core/behavior#keep-one-kind-per-verb</proves>
+    /// <proves>litespec/core/use-cases#keep-one-kind-per-verb</proves>
     [Theory]
     [InlineData("submit-expense", "submit")]
     [InlineData("read", "read")]
@@ -81,7 +81,7 @@ public sealed class UseCaseVerbsTests
     }
 
     /// <summary>A phrasal verb counts as one opening.</summary>
-    /// <proves>litespec/core/behavior#keep-one-kind-per-verb</proves>
+    /// <proves>litespec/core/use-cases#keep-one-kind-per-verb</proves>
     [Fact]
     public void Verb_Of_Returns_The_Phrasal_Verb()
     {
@@ -89,7 +89,7 @@ public sealed class UseCaseVerbsTests
     }
 
     /// <summary>Without the phrasal entry the opening word is the verb.</summary>
-    /// <proves>litespec/core/behavior#keep-one-kind-per-verb</proves>
+    /// <proves>litespec/core/use-cases#keep-one-kind-per-verb</proves>
     [Fact]
     public void Verb_Of_Returns_The_First_Word_Without_The_Phrasal_Entry()
     {
@@ -97,7 +97,7 @@ public sealed class UseCaseVerbsTests
     }
 
     /// <summary>A baseline verb of any kind counts as declared.</summary>
-    /// <proves>litespec/core/behavior#start-every-use-case-with-a-declared-verb</proves>
+    /// <proves>litespec/core/use-cases#start-every-use-case-with-a-declared-verb</proves>
     [Theory]
     [InlineData("read")]
     [InlineData("create")]
@@ -108,7 +108,7 @@ public sealed class UseCaseVerbsTests
     }
 
     /// <summary>A project verb, query verb or phrasal verb counts as declared.</summary>
-    /// <proves>litespec/core/behavior#start-every-use-case-with-a-declared-verb</proves>
+    /// <proves>litespec/core/use-cases#start-every-use-case-with-a-declared-verb</proves>
     [Fact]
     public void Project_Additions_Are_Declared()
     {
@@ -118,7 +118,7 @@ public sealed class UseCaseVerbsTests
     }
 
     /// <summary>An unknown verb and a retired synonym count as undeclared.</summary>
-    /// <proves>litespec/core/behavior#start-every-use-case-with-a-declared-verb</proves>
+    /// <proves>litespec/core/use-cases#start-every-use-case-with-a-declared-verb</proves>
     [Theory]
     [InlineData("frobnicate")]
     [InlineData("get")]
@@ -128,7 +128,7 @@ public sealed class UseCaseVerbsTests
     }
 
     /// <summary>Each retired synonym names the verb that replaces it.</summary>
-    /// <proves>litespec/core/behavior#start-every-use-case-with-a-declared-verb</proves>
+    /// <proves>litespec/core/use-cases#start-every-use-case-with-a-declared-verb</proves>
     [Theory]
     [InlineData("get", "read")]
     [InlineData("delete", "remove")]

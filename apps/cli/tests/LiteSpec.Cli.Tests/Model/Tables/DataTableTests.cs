@@ -7,7 +7,7 @@ namespace LiteSpec.Tests.Model.Tables;
 public sealed class DataTableTests
 {
     /// <summary>A data table writes fields, lowercasing classifications.</summary>
-    /// <proves>litespec/core/behavior#classify-every-aggregate-data-field</proves>
+    /// <proves>litespec/core/privacy#classify-every-aggregate-data-field</proves>
     [Fact]
     public void Data_Table_Writes_Fields()
     {
@@ -28,7 +28,7 @@ public sealed class DataTableTests
     }
 
     /// <summary>A personal row from the table reports erasure-undeclared.</summary>
-    /// <proves>litespec/core/behavior#declare-every-data-class-with-its-erasure-position</proves>
+    /// <proves>litespec/core/privacy#declare-every-data-class-with-its-erasure-position</proves>
     [Fact]
     public void Personal_Data_Table_Reports_Erasure_Undeclared()
     {
@@ -41,7 +41,7 @@ public sealed class DataTableTests
     }
 
     /// <summary>Front-matter data wins over the table.</summary>
-    /// <proves>litespec/core/behavior#classify-every-aggregate-data-field</proves>
+    /// <proves>litespec/core/privacy#classify-every-aggregate-data-field</proves>
     [Fact]
     public void Front_Matter_Data_Wins_Over_The_Table()
     {
@@ -58,10 +58,62 @@ public sealed class DataTableTests
         Assert.Equal("public", data[0].GetProperty("classification").GetString());
     }
 
+    /// <summary>A table disagreeing with frontmatter reports table-drift instead of merging.</summary>
+    /// <proves>litespec/core/privacy#classify-every-aggregate-data-field</proves>
+    [Fact]
+    public void Table_Disagreeing_With_Front_Matter_Reports_Table_Drift()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        AddFrontMatterData(temp.Path);
+        AppendTable(temp.Path, DataTable);
+
+        var check = Cli.Run("model", "check", "--root", temp.Path, "--format", "json");
+        Assert.Equal(1, check.Status);
+        Assert.Contains("table-drift", check.Output);
+    }
+
+    /// <summary>Render writes the data table from frontmatter into its region.</summary>
+    /// <proves>litespec/core/privacy#classify-every-aggregate-data-field</proves>
+    [Fact]
+    public void Render_Writes_The_Data_Table_From_Frontmatter()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        AddFrontMatterData(temp.Path);
+        AppendRegion(temp.Path);
+
+        var render = Cli.Run("model", "render", "--root", temp.Path);
+        Assert.Equal(0, render.Status);
+
+        var page = Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "holds", "README.md");
+
+        Assert.Contains(
+            """
+            <!-- generated:data -->
+            | Name | Meaning | Data Class | Classification |
+            |:---|:---|:---|:---|
+            | shelf | The home shelf. |  | public |
+            <!-- /generated:data -->
+            """,
+            File.ReadAllText(page));
+    }
+
     static void AppendTable(string root, string table)
     {
         var page = Path.Combine(root, "docs", "behavior", "modules", "lending", "holds", "README.md");
         File.AppendAllText(page, table);
+    }
+
+    static void AppendRegion(string root)
+    {
+        var page = Path.Combine(root, "docs", "behavior", "modules", "lending", "holds", "README.md");
+        File.AppendAllText(page, """
+
+            ## Data
+
+            <!-- generated:data -->
+            placeholder
+            <!-- /generated:data -->
+            """);
     }
 
     static void AddFrontMatterData(string root)

@@ -15,7 +15,7 @@
       "rejected": [
         {
           "word": "<rejected word>",
-          "reason": "<Why it is wrong here>",
+          "reason": "<readers take it for another term>",
           "scope": "<path scope, or remove this line>",
           "except": ["<compound that reuses the word, or remove this line>"]
         }

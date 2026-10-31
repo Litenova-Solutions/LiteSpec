@@ -34,11 +34,11 @@ This extension switches on `setting`: the expiry of each cache is a setting reco
 
 **ID:** `litespec/ext/cache#record-accepted-cache-staleness`
 
-**Statement:** A cached query MUST state its accepted staleness as `freshness: bounded` with its duration.
+**Statement:** A cached query MUST state its accepted staleness as a `freshness` object with `mode` of `bounded` and its duration in `within`.
 
-**Rationale:** Accepted staleness is the contract each reader relies on: it states how stale a read may be before it counts as a defect. The served query states it as `freshness: bounded` with its duration on its output, so the cache and the query share one bound that is reviewed with the use case.
+**Rationale:** Accepted staleness is the contract each reader relies on: it states how stale a read may be before it counts as a defect. The served query states it as `{"mode": "bounded", "within": "PT5M"}` on its output, so the cache and the query share one bound that is reviewed with the use case.
 
-**Reviewed for:** Which cached queries lack `freshness: bounded` with its duration on their output? Look at the served query beside each cache.
+**Reviewed for:** Which cached queries lack a bounded freshness object with its duration on their output? Look at the served query beside each cache.
 
 ### Remove Unjustified Caches
 

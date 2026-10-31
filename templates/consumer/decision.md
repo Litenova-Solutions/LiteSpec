@@ -2,7 +2,7 @@
 {
   "type": "decision",
   "id": "decision/<four-digit number>-<name>",
-  "title": "<Decision display title>",
+  "title": "<Decision Display Title>",
   "owner": "<owner>",
   "status": "draft",
   "decider": "<owner>",
@@ -13,19 +13,19 @@
   "options": [
     {
       "name": "<one option>",
-      "pros": "<What speaks for this option>",
-      "cons": "<What speaks against this option>"
+      "pros": "<The case for this option>",
+      "cons": "<The case against this option>"
     }
   ],
   "choice": "<The selected option name, set on approval>",
-  "reopenedWhen": "<The measurable condition that reopens this decision>",
+  "reopenedWhen": "<the measure crosses its threshold>",
   "decides": ["<requirement, feature, rule, constraint, permission, role, actor, deviation, entry-point, setting, or decision id>"],
   "basedOn": ["<constraint or research id; a technical decision also names the requirements it serves>"],
   "replaces": "<decision id, or remove this line>",
   "terms": ["term/<term-name>"],
   "questions": [
     {
-      "question": "<The open question, or remove the questions block>",
+      "question": "<Which question stays open? remove the questions block when none does.>",
       "decider": "<owner>",
       "decideBy": "<YYYY-MM-DD>",
       "ballot": "<decision-id or topic slug>",

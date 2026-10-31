@@ -1,7 +1,7 @@
 ---
 {
   "type": "permission-list",
-  "title": "<Permissions display title>",
+  "title": "<Permissions Display Title>",
   "owner": "<owner>",
   "status": "draft",
   "decider": "<owner>",
@@ -10,8 +10,8 @@
     {
       "type": "permission",
       "id": "permission/<name>",
-      "title": "<Permission display title>",
-      "meaning": "<What this permission allows in one sentence>",
+      "title": "<Permission Display Title>",
+      "meaning": "<The action this permission allows in one sentence>",
       "scope": "<scope, such as platform, tenant or self>",
       "group": "<group, or remove this line>"
     }

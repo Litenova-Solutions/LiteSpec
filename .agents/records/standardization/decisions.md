@@ -47,3 +47,11 @@ The 85 code renames of contracts.md are exact hyphenated tokens, so `w4.codes` r
 ## 2026-10-31: Part D Pages Land with Part I
 
 Part D's page items (D4, D5) edit the Behavior pages that Part I (wave 6) rewrites for automations, sagas, doors and typed inputs. Wave 5 splits `behavior.md` into its five pages (D5) and lands Part D's code and schema items with the mini-language objects (D12); the remaining Part D page items join wave 6, so each Behavior page is rewritten once.
+
+## 2026-10-31: Every Use Case Declares Idempotency, Queries Included
+
+`w5.schema` made `idempotency` required on every use case, following the provision Name the Idempotency of Every Use Case ("Each use case MUST declare its idempotency mode"), which D2 asks the schema to back. A query declares `mode: none` with its reason. The Claimwick example gained the field on every use case, and its commands an audit position, from what its code does.
+
+## 2026-10-31: Pattern Option Names Keep the Pattern Page's Spelling
+
+The B6 rewrite title-cased the option names in the UI pattern catalog template. A catalog option must match its LiteSpec pattern page exactly, and the Title Case rule (B3) covers record titles only, so the names went back to the pattern pages' spelling.

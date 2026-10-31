@@ -430,9 +430,6 @@ static partial class StandardsValidator
         ["standardsProvisionId"] = "litespec/core/topic#keep-the-topic-bounded",
         ["genericRecordId"] = "sample/entry",
         ["grantValue"] = "permission/sample",
-        ["freshnessValue"] = "immediate",
-        ["erasureValue"] = "call sample-operation",
-        ["onFailurePolicy"] = "skip-and-log",
         ["configurationKey"] = "Sample:Key",
     };
 

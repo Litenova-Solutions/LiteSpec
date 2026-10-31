@@ -49,7 +49,7 @@ One `automation` record replaces reaction and job, with `triggeredBy` of `event`
 
 ## Consequences
 
-`litespec/core/behavior#declare-the-kind-of-every-aggregate` carries the saga and entity kinds, `litespec/core/behavior#give-each-entry-point-a-kind` carries doors only, and `litespec/core/behavior#state-the-consistency-of-every-use-case` carries bound atomicity. `litespec/core/access#authenticate-every-caller-through-a-declared-auth-kind` keeps auth on the door, and `litespec/core/access#grant-every-use-case-through-a-declared-grant` keeps the grant on the use case.
+`litespec/core/domain-model#declare-the-kind-of-every-aggregate` carries the saga and entity kinds, `litespec/core/edges#give-each-entry-point-a-kind` carries doors only, and `litespec/core/use-cases#state-the-consistency-of-every-use-case` carries bound atomicity. `litespec/core/access#authenticate-every-caller-through-a-declared-auth-kind` keeps auth on the door, and `litespec/core/access#grant-every-use-case-through-a-declared-grant` keeps the grant on the use case.
 
 ## Evidence with Confidence
 

@@ -48,13 +48,13 @@ A carried process sets `carriedBy: workflow`, maps each engine step to exactly o
 
 **ID:** `litespec/ext/workflow-engine#state-each-step-compensation`
 
-**Statement:** Each mapped engine step MUST name its compensation or `none` with the reason.
+**Statement:** Each mapped engine step MUST name its compensation as a use-case object or a none object with the reason.
 
-**Rationale:** Engines fail mid-process: a step times out, a worker crashes, a saga aborts. The compensation is the step's undo, and a step with no undo says so with the reason, so recovery follows the record instead of improvising.
+**Rationale:** Engines fail mid-process: a step times out, a worker crashes, a saga aborts. The compensation is the step's undo as `{"mode": "use-case", "useCase": "use-case/..."}`, and a step with no undo says so as `{"mode": "none", "reason": "..."}`, so recovery follows the record instead of improvising.
 
-**Example:** The step `cancel-hold` names `use-case/lending.place-hold` as its compensation, while `borrow-copy` names `none` because the copy has left the shelf.
+**Example:** The step `cancel-hold` names `{"mode": "use-case", "useCase": "use-case/lending.place-hold"}` as its compensation, while `borrow-copy` names `{"mode": "none", "reason": "the copy has left the shelf"}`.
 
-**Reviewed for:** Each mapped step names its compensation or none with the reason beside the map.
+**Reviewed for:** Which mapped steps lack a compensation object naming its use case or its reason? Look at the map beside the process.
 
 ### Reject Unmapped Engine Steps
 

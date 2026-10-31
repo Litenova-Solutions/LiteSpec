@@ -1,14 +1,14 @@
 ---
 {
   "type": "tutorial",
-  "title": "<Tutorial title>",
+  "title": "<Tutorial Title>",
   "owner": "<owner>",
   "status": "draft",
   "decider": "<owner>",
   "decideBy": "<YYYY-MM-DD>"
 }
 ---
-# <Tutorial title>
+# <Tutorial Title>
 
 ## Purpose
 

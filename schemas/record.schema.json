@@ -260,6 +260,7 @@
     },
     "entryPointIdArray": {
       "type": "array",
+      "minItems": 1,
       "uniqueItems": true,
       "items": { "$ref": "#/$defs/entryPointId" }
     },
@@ -420,8 +421,30 @@
       }
     },
     "freshnessValue": {
-      "type": "string",
-      "pattern": "^(immediate|snapshot|advisory|bounded \\(.+\\))$"
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode"],
+      "properties": {
+        "mode": { "enum": ["immediate", "snapshot", "bounded", "advisory"] },
+        "within": { "$ref": "#/$defs/isoDuration" },
+        "authority": { "$ref": "#/$defs/genericRecordId" }
+      },
+      "allOf": [
+        {
+          "if": {
+            "required": ["mode"],
+            "properties": { "mode": { "const": "bounded" } }
+          },
+          "then": { "required": ["within"] }
+        },
+        {
+          "if": {
+            "required": ["mode"],
+            "properties": { "mode": { "const": "advisory" } }
+          },
+          "then": { "required": ["authority"] }
+        }
+      ]
     },
     "outputField": {
       "type": "object",
@@ -470,8 +493,9 @@
     "pagingObject": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["order", "defaultLimit", "maxLimit"],
+      "required": ["mode", "order", "defaultLimit", "maxLimit"],
       "properties": {
+        "mode": { "const": "pages" },
         "order": { "$ref": "#/$defs/nonEmptyString" },
         "cursor": { "$ref": "#/$defs/nonEmptyString" },
         "offset": { "$ref": "#/$defs/nonEmptyString" },
@@ -484,8 +508,13 @@
       ]
     },
     "pagingNone": {
-      "type": "string",
-      "pattern": "^none \\(.+\\)$"
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode", "reason"],
+      "properties": {
+        "mode": { "const": "none" },
+        "reason": { "$ref": "#/$defs/nonEmptyString" }
+      }
     },
     "pagingValue": {
       "anyOf": [
@@ -502,9 +531,33 @@
         "cites": { "$ref": "#/$defs/ruleIdArray" }
       }
     },
+    "effectRetry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["maxAttempts", "backoff"],
+      "properties": {
+        "maxAttempts": { "type": "integer", "minimum": 1 },
+        "backoff": { "$ref": "#/$defs/isoDuration" }
+      }
+    },
     "onFailurePolicy": {
-      "type": "string",
-      "pattern": "^(retry \\(.+\\) then dead-letter|skip-and-log|discard)$"
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode"],
+      "properties": {
+        "mode": { "enum": ["retry", "skip-and-log", "discard"] },
+        "retry": { "$ref": "#/$defs/effectRetry" },
+        "then": { "const": "dead-letter" }
+      },
+      "allOf": [
+        {
+          "if": {
+            "required": ["mode"],
+            "properties": { "mode": { "const": "retry" } }
+          },
+          "then": { "required": ["retry", "then"] }
+        }
+      ]
     },
     "effectEntry": {
       "type": "object",
@@ -642,7 +695,7 @@
             "required": ["mode"],
             "properties": { "mode": { "const": "key" } }
           },
-          "then": { "required": ["key"] }
+          "then": { "required": ["key", "scope"] }
         },
         {
           "if": {
@@ -714,7 +767,7 @@
         },
         "onErasure": { "$ref": "#/$defs/erasurePosition" },
         "basis": { "enum": ["statute", "business", "engineering"] },
-        "period": { "$ref": "#/$defs/nonEmptyString" },
+        "period": { "$ref": "#/$defs/periodValue" },
         "enforcedBy": { "$ref": "#/$defs/enforcedByValue" },
         "reason": { "$ref": "#/$defs/nonEmptyString" },
         "reviewBy": { "$ref": "#/$defs/isoDate" },
@@ -726,12 +779,71 @@
           "uniqueItems": true,
           "items": { "$ref": "#/$defs/dataClassException" }
         }
-      }
+      },
+      "allOf": [
+        {
+          "if": {
+            "required": ["onErasure"],
+            "properties": { "onErasure": { "const": "exempt" } }
+          },
+          "then": { "required": ["reason", "reviewBy"] }
+        }
+      ]
     },
     "compensationValue": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode"],
+      "properties": {
+        "mode": { "enum": ["none", "use-case"] },
+        "reason": { "$ref": "#/$defs/nonEmptyString" },
+        "useCase": { "$ref": "#/$defs/useCaseId" }
+      },
+      "allOf": [
+        {
+          "if": {
+            "required": ["mode"],
+            "properties": { "mode": { "const": "none" } }
+          },
+          "then": { "required": ["reason"] }
+        },
+        {
+          "if": {
+            "required": ["mode"],
+            "properties": { "mode": { "const": "use-case" } }
+          },
+          "then": { "required": ["useCase"] }
+        }
+      ]
+    },
+    "periodNone": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode", "reason"],
+      "properties": {
+        "mode": { "const": "none" },
+        "reason": { "$ref": "#/$defs/nonEmptyString" }
+      }
+    },
+    "periodValue": {
+      "anyOf": [
+        { "$ref": "#/$defs/isoDuration" },
+        { "$ref": "#/$defs/periodNone" }
+      ]
+    },
+    "releasedByNever": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode", "reason"],
+      "properties": {
+        "mode": { "const": "never" },
+        "reason": { "$ref": "#/$defs/nonEmptyString" }
+      }
+    },
+    "releasedByValue": {
       "anyOf": [
         { "$ref": "#/$defs/useCaseId" },
-        { "type": "string", "pattern": "^none \\(.+\\)$" }
+        { "$ref": "#/$defs/releasedByNever" }
       ]
     },
     "processStep": {
@@ -814,25 +926,49 @@
     "externalOperation": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["name", "direction"],
+      "required": ["name", "direction", "timeout", "onTimeout", "response", "cache"],
       "properties": {
         "name": { "$ref": "#/$defs/nonEmptyString" },
         "direction": { "enum": ["out", "in"] },
         "timeout": { "$ref": "#/$defs/nonEmptyString" },
         "onTimeout": { "$ref": "#/$defs/nonEmptyString" },
-        "retries": {
-          "anyOf": [
-            { "type": "integer", "minimum": 0 },
-            { "$ref": "#/$defs/nonEmptyString" }
-          ]
-        },
         "response": { "$ref": "#/$defs/nonEmptyString" },
         "cache": { "$ref": "#/$defs/nonEmptyString" }
       }
     },
     "erasureValue": {
-      "type": "string",
-      "pattern": "^(call .+|via integration-event/[a-z0-9][a-z0-9-]*|impossible \\(.+\\))$"
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode"],
+      "properties": {
+        "mode": { "enum": ["call", "event", "impossible"] },
+        "operation": { "$ref": "#/$defs/externalOperationRef" },
+        "event": { "$ref": "#/$defs/integrationEventId" },
+        "reason": { "$ref": "#/$defs/nonEmptyString" }
+      },
+      "allOf": [
+        {
+          "if": {
+            "required": ["mode"],
+            "properties": { "mode": { "const": "call" } }
+          },
+          "then": { "required": ["operation"] }
+        },
+        {
+          "if": {
+            "required": ["mode"],
+            "properties": { "mode": { "const": "event" } }
+          },
+          "then": { "required": ["event"] }
+        },
+        {
+          "if": {
+            "required": ["mode"],
+            "properties": { "mode": { "const": "impossible" } }
+          },
+          "then": { "required": ["reason"] }
+        }
+      ]
     },
     "retentionProcessor": {
       "type": "object",
@@ -840,7 +976,7 @@
       "required": ["system", "forwarding", "acceptedBy"],
       "properties": {
         "system": { "$ref": "#/$defs/externalSystemId" },
-        "forwarding": { "$ref": "#/$defs/nonEmptyString" },
+        "forwarding": { "$ref": "#/$defs/erasureValue" },
         "acceptedBy": { "$ref": "#/$defs/acceptedByValue" }
       }
     },
@@ -857,7 +993,7 @@
           "items": { "$ref": "#/$defs/aggregateId" }
         },
         "basis": { "enum": ["statute", "business", "engineering"] },
-        "period": { "$ref": "#/$defs/nonEmptyString" },
+        "period": { "$ref": "#/$defs/periodValue" },
         "enforcedBy": { "$ref": "#/$defs/enforcedByValue" },
         "cites": { "$ref": "#/$defs/requirementId" },
         "processors": {
@@ -1150,12 +1286,7 @@
         "refusal": { "$ref": "#/$defs/refusalValue" },
         "basedOn": { "$ref": "#/$defs/basedOnArray" },
         "fulfills": { "$ref": "#/$defs/requirementIdArray" },
-        "releasedBy": {
-          "anyOf": [
-            { "$ref": "#/$defs/useCaseId" },
-            { "type": "string", "pattern": "^never \\(.+\\)$" }
-          ]
-        },
+        "releasedBy": { "$ref": "#/$defs/releasedByValue" },
         "frozenWhen": { "$ref": "#/$defs/nonEmptyString" },
         "history": { "$ref": "#/$defs/nonEmptyString" },
         "risk": { "$ref": "#/$defs/riskArray" },
@@ -1937,7 +2068,7 @@
     "aggregatePage": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["type", "id", "title", "owner", "status"],
+      "required": ["type", "id", "title", "owner", "status", "kind"],
       "properties": {
         "type": { "const": "aggregate" },
         "id": { "$ref": "#/$defs/aggregateId" },
@@ -1953,7 +2084,7 @@
         "questions": { "$ref": "#/$defs/questionsArray" },
         "records": { "$ref": "#/$defs/recordsArray" },
         "summary": { "$ref": "#/$defs/nonEmptyString" },
-        "kind": { "enum": ["entity", "process", "store"], "default": "entity" },
+        "kind": { "enum": ["entity", "process", "store"] },
         "parts": {
           "description": "The kebab-case names of the child entities and value objects inside the aggregate that use cases act on.",
           "type": "array",
@@ -2024,7 +2155,7 @@
             "required": ["kind"],
             "properties": { "kind": { "const": "store" } }
           },
-          "then": {},
+          "then": { "not": { "required": ["states"] } },
           "else": { "required": ["states"] }
         },
         {
@@ -2060,7 +2191,7 @@
     "useCasePage": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["type", "id", "title", "owner", "status", "kind", "access"],
+      "required": ["type", "id", "title", "owner", "status", "kind", "access", "reachedThrough", "idempotency"],
       "properties": {
         "type": { "const": "use-case" },
         "id": { "$ref": "#/$defs/useCaseId" },
@@ -2140,6 +2271,7 @@
             "properties": { "kind": { "const": "command" } }
           },
           "then": {
+            "required": ["audit"],
             "properties": { "output": { "$ref": "#/$defs/commandOutput" } }
           }
         }
@@ -2211,7 +2343,7 @@
     "jobPage": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["type", "id", "title", "owner", "status", "kind"],
+      "required": ["type", "id", "title", "owner", "status", "kind", "selection", "effects", "reads", "serviceLevel", "evidence", "runbook"],
       "properties": {
         "type": { "const": "job" },
         "id": { "$ref": "#/$defs/jobId" },
@@ -2286,7 +2418,7 @@
     "notificationPage": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["type", "id", "title", "owner", "status", "template", "addresses", "channel"],
+      "required": ["type", "id", "title", "owner", "status", "template", "addresses", "channel", "consent", "frequency", "dedupKey", "params", "locale"],
       "properties": {
         "type": { "const": "notification" },
         "id": { "$ref": "#/$defs/notificationId" },

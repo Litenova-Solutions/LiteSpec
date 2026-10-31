@@ -2,17 +2,17 @@
 {
   "type": "problem",
   "id": "problem/<name>",
-  "title": "<Problem display title>",
+  "title": "<Problem Display Title>",
   "owner": "<owner>",
   "status": "draft",
   "decider": "<owner>",
   "decideBy": "<YYYY-MM-DD>",
-  "statement": "<The pain in one sentence>",
+  "statement": "<The pain bites today in one sentence.>",
   "affects": ["actor/<name>"],
   "terms": ["term/<term-name>"],
   "questions": [
     {
-      "question": "<The open question, or remove the questions block>",
+      "question": "<Which question stays open? remove the questions block when none does.>",
       "decider": "<owner>",
       "decideBy": "<YYYY-MM-DD>",
       "ballot": "<decision-id or topic slug>",

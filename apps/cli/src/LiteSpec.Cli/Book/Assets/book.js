@@ -852,9 +852,51 @@ function effectsBlock(f) {
   return blk("eff", "effects", '<div class="effects">' + list.map(function (e) {
     var k = Object.keys(VERB).filter(function (x) { return e[x]; })[0]; if (!k) return "";
     var tgt = e[k], op = String(tgt).split("#")[1];
-    var cond = [e["if"] ? "Only if " + e["if"] : "", e.forEach ? "For " + e.forEach : "", e.onFailure ? "On failure: " + e.onFailure : "", e.sharesTransaction !== undefined ? (String(e.sharesTransaction) === "true" ? "In the same transaction" : "In its own transaction") : ""].filter(Boolean).join(" &middot; ");
+    var cond = [e["if"] ? "Only if " + e["if"] : "", e.forEach ? "For " + e.forEach : "", e.onFailure ? edgeFailureText(e.onFailure) : "", e.sharesTransaction !== undefined ? (String(e.sharesTransaction) === "true" ? "In the same transaction" : "In its own transaction") : ""].filter(Boolean).join(" &middot; ");
     return '<div class="eff' + (k === "calls" ? " calls" : "") + '"><span class="verb">' + ic(VERB[k][1], "icon-sm") + VERB[k][0] + "</span><span>" + inlineRef(tgt) + (op ? ' <span class="tn" style="font-family:var(--sans)">' + esc(op.replace(/-/g, " ")) + "</span>" : "") + (cond ? '<span class="cond">' + cond + "</span>" : "") + "</span>" + (e.timing ? badge(cap(e.timing), e.timing === "inline" ? "info" : "") : "") + "</div>";
   }).join("") + "</div>", list.length);
+}
+// One wave-5 value in LiteSpec words: the mode names the case, the reason completes "because ...".
+function modeWord(m) { return String(m || "").replace(/-/g, " "); }
+function opRef(op) { var b = base(op), tail = String(op || "").split("#")[1]; return inlineRef(b) + (tail ? ' <span class="tn" style="font-family:var(--sans)">' + esc(tail.replace(/-/g, " ")) + "</span>" : ""); }
+function freshnessNote(g) {
+  var f = g.freshness; if (!f) return "";
+  if (f.mode === "bounded") return "fresh within " + duration(f.within);
+  if (f.mode === "advisory") return "advisory, authoritative value in " + inlineRef(f.authority);
+  return esc(cap(modeWord(f.mode)));
+}
+function pagingHtml(p) {
+  if (!p) return "";
+  if (p.mode === "none") return kv([["Paging", "None" + (p.reason ? ", because " + esc(p.reason) : "")]]);
+  return kv([["Order", esc(p.order)], ["Paging", esc(p.offset || p.cursor)], ["Page size", p.defaultLimit + " by default, at most " + p.maxLimit]]);
+}
+function compensationHtml(c) {
+  if (!c) return "";
+  if (c.mode === "use-case") return inlineRef(c.useCase);
+  return "None" + (c.reason ? ", because " + esc(c.reason) : "");
+}
+function periodSuffix(p) {
+  if (!p) return "";
+  if (typeof p === "string") return " after " + duration(p);
+  return ", None" + (p.reason ? ", because " + esc(p.reason) : "");
+}
+function releasedByHtml(r) {
+  if (!r) return "";
+  if (typeof r === "string") return inlineRef(r);
+  return "Never" + (r.reason ? ", because " + esc(r.reason) : "");
+}
+function erasureHtml(e) {
+  if (!e) return "";
+  if (e.mode === "call") return "Calls " + opRef(e.operation);
+  if (e.mode === "event") return "Forwards through " + inlineRef(e.event);
+  return "Impossible" + (e.reason ? ", because " + esc(e.reason) : "");
+}
+function edgeFailureText(o) {
+  if (!o) return "";
+  if (o.mode === "retry") { var r = o.retry || {}; return "On failure: " + plural(r.maxAttempts || 0, "attempt") + (r.backoff ? ", " + duration(r.backoff) + " backoff" : "") + (o.then ? ", then " + esc(o.then) : ""); }
+  if (o.mode === "skip-and-log") return "On failure: skips and logs";
+  if (o.mode === "discard") return "On failure: discards";
+  return "On failure: " + esc(modeWord(o.mode));
 }
 function idemBlock(f) {
   var i = f.idempotency; if (!i) return "";
@@ -863,6 +905,7 @@ function idemBlock(f) {
 }
 function failureBlock(f) {
   var o = f.onFailure; if (!o) return "";
+  if (o.mode) return blk("fail", "onFailure", '<div class="tiles">' + tile("mode", esc(cap(modeWord(o.mode)))) + (o.retry ? tile("retry", plural(o.retry.maxAttempts || 0, "attempt") + (o.retry.backoff ? ", " + duration(o.retry.backoff) + " backoff" : "")) : "") + (o.then ? tile("then", esc(o.then)) : "") + "</div>");
   var r = o.retry, retry = typeof r === "string" ? (r === "none" ? "No retry" : r === "next-run" ? "Retried at the next run" : esc(r)) : r ? plural(r.maxAttempts, "attempt") + ", " + esc(r.backoff || "") + " backoff from " + duration(r.initialDelay) + " up to " + duration(r.maxDelay) : "";
   return blk("fail", "onFailure", '<div class="tiles">' + tile("retry", retry) + (o.deadLetter ? tile("deadLetter", "After " + duration(o.deadLetter.after), esc(o.deadLetter.action)) : "") + (o.surfacesIn ? tile("surfacesIn", esc(o.surfacesIn)) : "") + (o.runbook ? tile("runbook", inlineRef(o.runbook)) : "") + "</div>");
 }
@@ -1007,8 +1050,8 @@ var DETAIL = {
     var states = (f.states || []).length ? '<div class="states">' + f.states.map(function (s) { var b = starts[s.name] ? badge("created as", "info") : reach.length && reach.indexOf(s.name) < 0 ? badge("not reachable", "bad") : ""; return '<div class="stc"><div class="n">' + esc(s.name) + b + "</div><p>" + esc(s.meaning) + "</p></div>"; }).join("") + "</div>" : "";
     var froms = []; tr.forEach(function (t) { if (froms.indexOf(t.from) < 0) froms.push(t.from); });
     var flow = tr.length ? '<div class="flow">' + froms.map(function (fr) { var tos = uniq(tr.filter(function (t) { return t.from === fr; }).map(function (t) { return t.to; })); return '<div class="flow-g"><div class="from' + (fr === "-" ? " start" : "") + '">' + (fr === "-" ? "Created as" : esc(fr)) + "</div><div>" + tos.map(function (to) { return '<div class="tr"><span class="arrow">' + ic("arrow", "icon-sm") + '</span><span class="to">' + esc(to) + '</span><span class="by">' + tr.filter(function (t) { return t.from === fr && t.to === to; }).map(function (t) { return t.by ? inlineRef(t.by) : '<span class="tn">no use case named</span>'; }).join("") + "</span></div>"; }).join("") + "</div></div>"; }).join("") + "</div>" : "";
-    var steps = (f.steps || []).length ? '<ol class="steps">' + f.steps.map(function (s) { return "<li><div><b>" + esc(cap(s.name.replace(/-/g, " "))) + "</b>" + (s.when ? '<div class="who">when ' + esc(s.when) + "</div>" : "") + '<div class="who">Compensation: ' + esc(s.compensation) + "</div></div><span></span></li>"; }).join("") + "</ol>" + ((f.exits || []).length ? table(["Exit", "When", "Then"], f.exits.map(function (x) { return [td(esc(cap(x.name)), "nm"), td(esc(x.trigger)), td(esc(x.then))]; })) : "") : "";
-    var classes = (f.dataClasses || []).length ? table(["Class", "Fields", "On erasure"], f.dataClasses.map(function (c) { return [td("<b>" + esc(cap(c.name.replace(/-/g, " "))) + "</b><div style=\"margin-top:4px\">" + clsBadge(c.classification) + "</div>"), td('<div class="fieldchips">' + (c.fields || []).map(function (x) { return '<span class="code">' + esc(x) + "</span>"; }).join("") + "</div>"), td('<div class="erase"><b>' + esc(cap(c.onErasure)) + "</b>" + (c.period ? " after " + esc(c.period) : "") + "</div>" + (c.basis || c.reason ? '<div class="tn" style="font-family:var(--sans);margin-top:3px">' + esc(c.basis || c.reason) + "</div>" : "") + (c.reviewBy ? '<div class="tn" style="font-family:var(--sans)">review by ' + fmtDate(c.reviewBy) + "</div>" : ""))]; })) : "";
+    var steps = (f.steps || []).length ? '<ol class="steps">' + f.steps.map(function (s) { return "<li><div><b>" + esc(cap(s.name.replace(/-/g, " "))) + "</b>" + (s.when ? '<div class="who">when ' + esc(s.when) + "</div>" : "") + '<div class="who">Compensation: ' + compensationHtml(s.compensation) + "</div></div><span></span></li>"; }).join("") + "</ol>" + ((f.exits || []).length ? table(["Exit", "When", "Then"], f.exits.map(function (x) { return [td(esc(cap(x.name)), "nm"), td(esc(x.trigger)), td(esc(x.then))]; })) : "") : "";
+    var classes = (f.dataClasses || []).length ? table(["Class", "Fields", "On erasure"], f.dataClasses.map(function (c) { return [td("<b>" + esc(cap(c.name.replace(/-/g, " "))) + "</b><div style=\"margin-top:4px\">" + clsBadge(c.classification) + "</div>"), td('<div class="fieldchips">' + (c.fields || []).map(function (x) { return '<span class="code">' + esc(x) + "</span>"; }).join("") + "</div>"), td('<div class="erase"><b>' + esc(cap(c.onErasure)) + "</b>" + periodSuffix(c.period) + "</div>" + (c.basis || c.reason ? '<div class="tn" style="font-family:var(--sans);margin-top:3px">' + esc(c.basis || c.reason) + "</div>" : "") + (c.reviewBy ? '<div class="tn" style="font-family:var(--sans)">review by ' + fmtDate(c.reviewBy) + "</div>" : ""))]; })) : "";
     var data = (f.data || []).length ? table(["Field", "Meaning", "Class"], f.data.map(function (d) { return [td(esc(d.name), "nm"), td(esc(d.meaning)), td(clsBadge(d.classification))]; })) : "";
     var rules = rulesOf(id).filter(function (x) { return REC[base(x)]; });
     var rl = rules.length ? table(["Rule", "Kind", "Refusal"], rules.map(function (x) { var q = REC[base(x)], rf = refusalOf(x); return [td(inlineRef(x) + '<div class="tn" style="font-family:var(--sans);font-size:13px;margin-top:2px">' + esc((q.fields || {}).statement) + "</div>"), td(badge(cap((q.fields || {}).kind))), td(rf.info && rf.info.code ? '<span class="code">' + esc(rf.info.code) + "</span>" : rf.id ? inlineRef(rf.id) : '<span class="tn">none</span>')]; })) : "";
@@ -1025,7 +1068,7 @@ var DETAIL = {
     return metaRow(id, [badge(f.kind, "info"), machineChip(r.proof ? r.proof.state : null)]) + lead(f.statement) +
       blk("ref", "refusal", rf.info ? resultCards([{ title: rf.info.title, outcome: "refusal", code: rf.info.code, meaning: rf.info.meaning }]) : rf.id ? refs([rf.id]) : callout("quiet", "info", "This rule names no refusal; it holds by construction.")) +
       blk("gov", "Governs", refs(f.governs), (f.governs || []).length) + blk("ful", "Fulfills", refs(f.fulfills)) + blk("basis", "basedOn", refs(f.basedOn)) +
-      blk("more", "reads, releasedBy, frozenWhen", kv([["Reads", refs(f.reads)], ["Released by", f.releasedBy ? inlineRef(f.releasedBy) : ""], ["Frozen when", f.frozenWhen ? esc(f.frozenWhen) : ""]]));
+      blk("more", "reads, releasedBy, frozenWhen", kv([["Reads", refs(f.reads)], ["Released by", releasedByHtml(f.releasedBy)], ["Frozen when", f.frozenWhen ? esc(f.frozenWhen) : ""]]));
   },
   event: function (id, r) { var f = r.fields || {}; return metaRow(id) + lead(f.meaning) + blk("carry", "carries", '<div class="fieldchips">' + (f.carries || []).map(function (c) { return '<span class="code">' + esc(c) + "</span>"; }).join("") + "</div>", (f.carries || []).length) + blk("by", "Points at this: raises", refs(ins(id, "raises"))) + blk("trig", "Points at this: on", refs(ins(id, "on"))) + blk("tr", "Points at this: translates", refs(ins(id, "translates"))); },
   "use-case": function (id, r) {
@@ -1033,9 +1076,9 @@ var DETAIL = {
     var okR = res.filter(function (x) { return x.outcome === "success"; }), noR = res.filter(function (x) { return x.outcome !== "success"; });
     var inputT = (f.input || []).length ? table(["Field", "Meaning", "Rules"], f.input.map(function (x) { return [td(esc(x.name) + (x.classification ? '<div style="margin-top:4px">' + clsBadge(x.classification) + "</div>" : ""), "nm"), td(esc(x.meaning) + (x.origin ? '<div class="tn" style="font-family:var(--sans);margin-top:3px">from ' + esc(x.origin) + "</div>" : "")), td(bullets(x.rules))]; })) : "";
     var out = "";
-    if (f.output && f.output.include) out = Object.keys(f.output.include).map(function (k) { var g = f.output.include[k]; return '<div class="sub">' + esc(cap(k)) + " " + clsBadge(g.classification || "internal") + (g.freshness ? ' <span class="tn" style="font-family:var(--sans)">fresh within ' + esc(g.freshness) + "</span>" : "") + "</div>" + table(["Field", "Meaning"], (g.fields || []).map(function (x) { return [td(esc(x.name), "nm"), td(esc(x.meaning))]; })); }).join("");
+    if (f.output && f.output.include) out = Object.keys(f.output.include).map(function (k) { var g = f.output.include[k]; return '<div class="sub">' + esc(cap(k)) + " " + clsBadge(g.classification || "internal") + (g.freshness ? ' <span class="tn" style="font-family:var(--sans)">' + freshnessNote(g) + "</span>" : "") + "</div>" + table(["Field", "Meaning"], (g.fields || []).map(function (x) { return [td(esc(x.name), "nm"), td(esc(x.meaning))]; })); }).join("");
     else if (Array.isArray(f.output) && f.output.length) out = table(["Field", "Meaning"], f.output.map(function (x) { return [td(esc(x.name), "nm"), td(esc(x.meaning))]; }));
-    var paging = typeof f.paging === "object" ? kv([["Order", esc(f.paging.order)], ["Paging", esc(f.paging.offset)], ["Page size", f.paging.defaultLimit + " by default, at most " + f.paging.maxLimit]]) : f.paging ? kv([["Paging", esc(f.paging)]]) : "";
+    var paging = pagingHtml(f.paging);
     var audit = f.audit ? (f.audit.exempt ? callout("quiet", "info", "<b>Not audited.</b> " + esc(f.audit.exempt)) : callout("info", "book", "<b>Audited</b> against " + esc(f.audit.target || "") + ". " + esc(f.audit.level || ""))) : "";
     var resH = (okR.length ? '<div class="sub">Outcome: Success</div>' + resultCards(okR) : "") + (noR.length ? '<div class="sub">Outcome: Refusal</div>' + resultCards(noR) : "");
     var ps = proofState(id);
@@ -1080,8 +1123,8 @@ var DETAIL = {
   },
   "external-system": function (id, r) {
     var f = r.fields || {};
-    var ops = (f.operations || []).length ? table(["Operation", "Timeout", "When it times out", "Retries"], f.operations.map(function (o) { return [td(esc(o.name.replace(/-/g, " ")) + '<div style="margin-top:4px">' + badge(o.direction === "in" ? "Inbound" : "Outbound", o.direction === "in" ? "info" : "warn") + "</div>" + (o.response ? '<div class="tn" style="font-family:var(--sans);margin-top:4px;white-space:normal">' + esc(o.response) + "</div>" : "")), td(duration(o.timeout)), td(esc(o.onTimeout)), td(esc(o.retries))]; })) : "";
-    return metaRow(id) + leadHtml(secHtml(r, "Summary")) + blk("as", "actor", refs([f.actor])) + blk("ops", "operations", ops, (f.operations || []).length) + (f.erasure ? blk("er", "erasure", callout("quiet", "lock", esc(f.erasure))) : "") + blk("by", "Points at this: effects.calls", refs(ins(id, "calls")));
+    var ops = (f.operations || []).length ? table(["Operation", "Timeout", "When it times out"], f.operations.map(function (o) { return [td(esc(o.name.replace(/-/g, " ")) + '<div style="margin-top:4px">' + badge(o.direction === "in" ? "Inbound" : "Outbound", o.direction === "in" ? "info" : "warn") + "</div>" + (o.response ? '<div class="tn" style="font-family:var(--sans);margin-top:4px;white-space:normal">' + esc(o.response) + "</div>" : "")), td(duration(o.timeout)), td(esc(o.onTimeout))]; })) : "";
+    return metaRow(id) + leadHtml(secHtml(r, "Summary")) + blk("as", "actor", refs([f.actor])) + blk("ops", "operations", ops, (f.operations || []).length) + (f.erasure ? blk("er", "erasure", callout("quiet", "lock", erasureHtml(f.erasure))) : "") + blk("by", "Points at this: effects.calls", refs(ins(id, "calls")));
   },
   role: function (id, r) { var f = r.fields || {}, al = f.allows || []; return metaRow(id, [badge("Scope: " + cap(f.scope), "info")]) + leadHtml(secHtml(r, "Summary")) + blk("allows", "allows", al.length ? table(["Permission", "Meaning"], al.map(function (p) { return [td(inlineRef(p)), td(esc(REC[base(p)] ? (REC[base(p)].fields || {}).meaning : ""))]; })) : "", al.length) + blk("held", "Points at this: holds", refs(ins(id, "holds"))); },
   permission: function (id, r) { var u = ins(id, "grant"); return metaRow(id) + lead((r.fields || {}).meaning) + blk("by", "Points at this: allows", refs(ins(id, "allows"))) + blk("need", "Points at this: access.grant", refs(u), u.length); },

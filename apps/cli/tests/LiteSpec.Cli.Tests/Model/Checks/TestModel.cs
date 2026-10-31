@@ -46,6 +46,10 @@ static class TestModel
         return model;
     }
 
+    /// <summary>A page body of the file, kept for table reads.</summary>
+    public static PageBody Body(string file, string body) =>
+        new PageBody(file, body, 1, null);
+
     /// <summary>The codes of the findings the check reports.</summary>
     public static List<string> Codes(ProjectModel model) =>
         Checker.Check(model).Findings.Select(finding => finding.Code).ToList();

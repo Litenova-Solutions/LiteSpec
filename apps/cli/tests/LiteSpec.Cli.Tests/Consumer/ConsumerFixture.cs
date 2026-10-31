@@ -167,27 +167,31 @@ static class ConsumerFixture
             """),
         new("docs/behavior/modules/orders/order-claims/README.md",
             """
-            {"type":"aggregate","id":"aggregate/orders.order-claim","title":"Order claim","owner":"fixture","status":"reviewed","states":[{"name":"Draft","meaning":"The claim is open for changes."},{"name":"Canceled","meaning":"The customer canceled the claim."}],"records":[{"type":"rule","id":"rule/order-claim.cancel-before-shipment-only","title":"Cancel before shipment only","owner":"fixture","status":"reviewed","kind":"precondition","statement":"A customer cancels an order claim only before its shipment leaves.","governs":["use-case/orders.cancel-order"],"refusal":"result/cancel-order.cancel-refused","basedOn":[],"fulfills":["requirement/pricing.flat-fee"],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"},{"type":"event","id":"event/order-claim.order-canceled","title":"Order canceled","owner":"fixture","status":"reviewed","meaning":"An order claim was canceled.","carries":["orderId"],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}
+            {"type":"aggregate","id":"aggregate/orders.order-claim","title":"Order claim","owner":"fixture","status":"reviewed","kind":"entity","states":[{"name":"Draft","meaning":"The claim is open for changes."},{"name":"Canceled","meaning":"The customer canceled the claim."}],"transitions":[{"from":"Draft","to":"Canceled","by":"use-case/orders.cancel-order"}],"data":[{"name":"orderId","meaning":"The order this claim states.","classification":"internal"}],"records":[{"type":"rule","id":"rule/order-claim.cancel-before-shipment-only","title":"Cancel before shipment only","owner":"fixture","status":"reviewed","kind":"precondition","statement":"A customer cancels an order claim only before its shipment leaves.","governs":["use-case/orders.cancel-order"],"refusal":"result/cancel-order.cancel-refused","basedOn":[],"fulfills":["requirement/pricing.flat-fee"],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"},{"type":"event","id":"event/order-claim.order-canceled","title":"Order canceled","owner":"fixture","status":"reviewed","meaning":"An order claim was canceled.","carries":["orderId"],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}
             """,
             """
             # Order Claim
 
             ## Transitions
 
+            <!-- generated:transitions -->
             | From | To | Triggered By |
             |:---|:---|:---|
-            | Draft | Canceled | Cancel order |
+            | Draft | Canceled | use-case/orders.cancel-order |
+            <!-- /generated:transitions -->
 
             ## Data
 
-            | Name | Meaning | Classification |
-            |:---|:---|:---|
-            | orderId | The order this claim states. | internal |
+            <!-- generated:data -->
+            | Name | Meaning | Data Class | Classification |
+            |:---|:---|:---|:---|
+            | orderId | The order this claim states. |  | internal |
+            <!-- /generated:data -->
 
             """),
         new("docs/behavior/modules/orders/cancel-order.md",
             """
-            {"type":"use-case","id":"use-case/orders.cancel-order","title":"Cancel order","owner":"fixture","status":"reviewed","kind":"command","access":{"auth":["session"],"grant":"permission/cancel-order","tenant":"own"},"reachedThrough":["entry-point/web"],"raises":["event/order-claim.order-canceled"],"fulfills":["requirement/pricing.flat-fee"],"records":[{"type":"result","id":"result/cancel-order.order-canceled","title":"Order canceled","owner":"fixture","outcome":"success","meaning":"The order claim was canceled.","approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"},{"type":"result","id":"result/cancel-order.cancel-refused","title":"Cancel refused","owner":"fixture","outcome":"refusal","code":"orders.cancel-refused","meaning":"The shipment already left, so the cancel is refused.","approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}
+            {"type":"use-case","id":"use-case/orders.cancel-order","title":"Cancel order","owner":"fixture","status":"reviewed","kind":"command","access":{"auth":["session"],"grant":"permission/cancel-order","tenant":"own"},"reachedThrough":["entry-point/web"],"idempotency":{"mode":"key","key":"{orderId}","scope":"tenant"},"audit":{"level":"required","target":"order claim"},"raises":["event/order-claim.order-canceled"],"fulfills":["requirement/pricing.flat-fee"],"records":[{"type":"result","id":"result/cancel-order.order-canceled","title":"Order canceled","owner":"fixture","outcome":"success","meaning":"The order claim was canceled.","approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"},{"type":"result","id":"result/cancel-order.cancel-refused","title":"Cancel refused","owner":"fixture","outcome":"refusal","code":"orders.cancel-refused","meaning":"The shipment already left, so the cancel is refused.","approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}
             """,
             """
             # Cancel Order

@@ -32,7 +32,7 @@ Refusals that follow from access and input call for no written result. A call wi
 
 ### Tenant Scope and Cross Tenant Access
 
-`own` keeps the call inside the caller tenant, `public` opens it beyond tenant boundaries, `none` states the call touches no tenant data, and `cross` reaches across tenants. A call that reads or writes another tenant carries the highest access risk, so `cross` makes its use case tier 1. The Behavior diff lists every `cross` change in the security queue, where the security reviewer reads it separately from reviewed status.
+`own` keeps the call inside the caller tenant, `public` opens it beyond tenant boundaries, `none` states the call touches no tenant data, and `cross` reaches across tenants. A call that reads or writes another tenant carries the highest access risk, so the Behavior diff lists every `cross` change in the security queue, where the security reviewer reads it separately from reviewed status. Cross scope raises no tier: the queue carries the review, and the tier follows the risk values the record carries.
 
 ### Entitlements
 
@@ -228,17 +228,17 @@ An actor, role, or external system page carries a Summary section stating what t
 
 **Reviewed for:** Which use case pages write a forbidden or invalid input result? Look at the results on each use case page beside the derived names.
 
-### Review Cross Tenant Access as Tier 1
+### Route Cross Tenant Access Through the Security Queue
 
-**ID:** `litespec/core/access#review-cross-tenant-access-as-tier-1`
+**ID:** `litespec/core/access#route-cross-tenant-access-through-the-security-queue`
 
-**Statement:** A use case with cross tenant scope MUST carry tier 1 review through the security queue.
+**Statement:** A use case with cross tenant scope MUST pass through the security queue at its own tier.
 
-**Rationale:** Work that reaches across tenants can read or write data that belongs to another tenant, which is the highest access risk a grant carries. Tier 1 review through the security queue puts that grant before the security reviewer separately from reviewed status, so no cross grant ships on a developer sample alone.
+**Rationale:** Work that reaches across tenants can read or write data that belongs to another tenant, which is the highest access risk a grant carries. The security queue puts that grant before the security reviewer separately from reviewed status, so no cross grant ships on a developer sample alone. Cross scope raises no tier: the tier follows the risk values the record carries, and the queue carries the review.
 
-**Example:** A staff search with `tenant: cross` appears in the security queue of the Behavior diff until the security reviewer accepts it.
+**Example:** A staff search with `tenant: cross` appears in the security queue of the Behavior diff until the security reviewer accepts it. It keeps the tier its risk values give it.
 
-**Reviewed for:** Which cross grants shipped without security review? Look at the security queue in the Behavior diff.
+**Reviewed for:** Which cross grants shipped without security review, or gained a tier from cross scope alone? Look at the security queue in the Behavior diff.
 
 ### Cite the Setting or Plan Behind Every Entitlement
 
@@ -344,7 +344,7 @@ An actor, role, or external system page carries a Summary section stating what t
 
 **Rationale:** Personal data sent outside stays outside unless some operation or event removes it, so the erasure declaration states the call, the integration event, or why removal is impossible. An impossible erasure cites the Intent decision that accepts the limit, so the gap reads as an accepted decision rather than a missed edge.
 
-**Example:** A payout archive declares `impossible (settled payouts belong to the bank)` with the decision that accepts the limit, plus the sentence employees see.
+**Example:** A payout archive declares `{"mode": "impossible", "reason": "settled payouts belong to the bank"}` with the decision that accepts the limit, plus the sentence employees see.
 
 **Checked by:** `litespec model check` reports `record-invalid` for an external system without `erasure` and `reference-unknown` for an impossible erasure without an Intent decision.
 

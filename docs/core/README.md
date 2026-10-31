@@ -11,7 +11,12 @@ The Core pages state what every LiteSpec project shares: the principles, the rec
 - [Record Language](language.md): the grammar for every field name, value, record name, finding code, and tool name a project writes or reads.
 - [Layers](layers.md): the four record layers and the translation rules between them.
 - [Intent](intent.md): where a project states its business intent and in what form.
-- [Behavior](behavior.md): the modules, aggregates, rules, events, use cases, reactions, jobs, and scenarios inside the bounded context.
+- [Behavior](behavior.md): the overview of the five Behavior pages and the mapping from records to design.
+- [Domain Model](domain-model.md): the modules, glossary, aggregates, rules, and domain events inside the bounded context.
+- [Use Cases](use-cases.md): the commands, queries, results, scenarios, and settings.
+- [Automation](automation.md): the reactions and jobs that run without a request.
+- [Edges and Screens](edges.md): the integration events, notifications, entry points, screens, and external systems.
+- [Privacy and Retention](privacy.md): the data classes and the retention schedule.
 - [Access](access.md): the actors, roles, permissions, entry points, and external systems that govern who may do what and how it is reached.
 - [System](system.md): what LiteSpec coordinates and the parts it combines.
 - [Release](release.md): what a release ships and what its evidence shows.

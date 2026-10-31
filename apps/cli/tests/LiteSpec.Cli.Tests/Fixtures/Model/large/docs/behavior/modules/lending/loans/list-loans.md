@@ -36,11 +36,14 @@
         "reads": [
           "aggregate/lending.loan"
         ],
-        "freshness": "immediate"
+        "freshness": {
+          "mode": "immediate"
+        }
       }
     }
   },
   "paging": {
+    "mode": "pages",
     "order": "Due date, earliest first.",
     "cursor": "The due date and loan identity of the last row.",
     "defaultLimit": 25,
@@ -75,7 +78,7 @@
   ],
   "approvedBy": "lending-team",
   "approvedOn": "2026-10-31",
-  "approvedHash": "80d7e40e"
+  "approvedHash": "6f52c3a2"
 }
 ---
 

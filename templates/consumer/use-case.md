@@ -2,7 +2,7 @@
 {
   "type": "use-case",
   "id": "use-case/<module>.<name>",
-  "title": "<Use case display title>",
+  "title": "<Use Case Display Title>",
   "owner": "<owner>",
   "status": "draft",
   "decider": "<owner>",
@@ -19,7 +19,7 @@
   "input": [
     {
       "name": "<field>",
-      "meaning": "<What this field means>",
+      "meaning": "<The meaning of this field>",
       "rules": ["<The shape each value obeys>"],
       "origin": "<caller|claim|derived>",
       "classification": "<public|internal|personal|sensitive>"
@@ -31,19 +31,24 @@
         "fields": [
           {
             "name": "<field>",
-            "meaning": "<What this field means>"
+            "meaning": "<The meaning of this field>"
           }
         ],
         "classification": "<public|internal|personal|sensitive>",
         "reads": ["aggregate/<module>.<name>"],
-        "freshness": "<immediate|snapshot|bounded (<duration>)|advisory>",
-        "visibleWhen": "<Condition, or remove this line>",
+        "freshness": {
+          "mode": "<immediate|snapshot|bounded|advisory>",
+          "within": "<ISO 8601 duration the snapshot stays fresh, when the mode is bounded; otherwise remove this line>",
+          "authority": "<record id that holds the authoritative value, when the mode is advisory; otherwise remove this line>"
+        },
+        "visibleWhen": "<the reader sees this group, or remove this line>",
         "cites": "<requirement/<topic>.<name>, or remove this line>"
       }
     }
   },
   "paging": {
-    "order": "<Field and direction; replace the whole paging object with none (<reason>) when the query returns one object>",
+    "mode": "pages",
+    "order": "<Field and direction; replace the whole paging object with { mode: none, reason: <the query returns one object> } when the query returns one object>",
     "cursor": "<Cursor field, or replace this line with an offset field>",
     "defaultLimit": "<number>",
     "maxLimit": "<number>"
@@ -60,14 +65,28 @@
       "issues": "<use-case/<module>.<name>>",
       "timing": "<inline|after-commit|async>",
       "sharesTransaction": "<true or false when the timing is inline, otherwise remove this line>",
-      "onFailure": "<retry (<attempts>, <backoff>) then dead-letter|skip-and-log|discard>",
+      "onFailure": {
+        "mode": "<retry|skip-and-log|discard>",
+        "retry": {
+          "maxAttempts": "<number of attempts when the mode is retry; remove the retry object otherwise>",
+          "backoff": "<ISO 8601 duration between attempts>"
+        },
+        "then": "<dead-letter, when the mode is retry, otherwise remove this line>"
+      },
       "before": "<Another entry target with its reason, or remove this line>",
       "forEach": "<Scope, or remove this line>"
     },
     {
       "sends": "<notification/<module>.<name>, or replace this key with publishes or calls>",
       "timing": "<after-commit|async>",
-      "onFailure": "<retry (<attempts>, <backoff>) then dead-letter|skip-and-log|discard>",
+      "onFailure": {
+        "mode": "<retry|skip-and-log|discard>",
+        "retry": {
+          "maxAttempts": "<number of attempts when the mode is retry; remove the retry object otherwise>",
+          "backoff": "<ISO 8601 duration between attempts>"
+        },
+        "then": "<dead-letter, when the mode is retry, otherwise remove this line>"
+      },
       "before": "<Another entry target with its reason, or remove this line>",
       "forEach": "<Scope, or remove this line>"
     }
@@ -77,7 +96,7 @@
     "mode": "<key|state|not-pending|none>",
     "key": "<Key template of {field} placeholders over the input field names, when the mode is key, otherwise remove this line>",
     "scope": "<tenant|account|login|global when the mode is key, otherwise remove this line>",
-    "reason": "<Reason when the mode is none, otherwise remove this line>"
+    "reason": "<replays stay harmless without a key, when the mode is none, otherwise remove this line>"
   },
   "audit": {
     "level": "<required|optional|none; replace this whole audit object with { exempt: <justification> } when exempt>",
@@ -88,7 +107,7 @@
     {
       "type": "result",
       "id": "result/<use-case>.<name> (the use case's own name)",
-      "title": "<Success display title>",
+      "title": "<Success Display Title>",
       "outcome": "success",
       "meaning": "<The observable result in one sentence>",
       "codes": ["<Recorded code, or remove this line>"]
@@ -96,18 +115,18 @@
     {
       "type": "result",
       "id": "result/<use-case>.<name> (the use case's own name)",
-      "title": "<Refusal display title>",
+      "title": "<Refusal Display Title>",
       "outcome": "refusal",
       "code": "<module>.<reason; never write the generic forbidden or invalid-input refusals, which the builder derives as result/<use-case>.forbidden and result/<use-case>.invalid-input>",
-      "meaning": "<What the caller sees in one sentence; list refusals in precedence order, first match wins>",
+      "meaning": "<The message the caller sees in one sentence; refusals run in precedence order and the first match wins>",
       "recorded": "<true when the attempt is stored, otherwise remove this line>"
     },
     {
       "type": "scenario",
       "id": "scenario/<use-case>.<name> (the use case's own name)",
-      "title": "<Scenario display title>",
+      "title": "<Scenario Display Title>",
       "given": "<The starting state>",
-      "when": "<What the actor does>",
+      "when": "<The actor performs the act>",
       "then": "<The observable result>",
       "result": "result/<use-case>.<name> (the use case's own name)",
       "examples": [
@@ -120,7 +139,7 @@
   "terms": ["term/<term-name>"],
   "questions": [
     {
-      "question": "<The open question, or remove the questions block>",
+      "question": "<Which question stays open? remove the questions block when none does.>",
       "decider": "<owner>",
       "decideBy": "<YYYY-MM-DD>",
       "ballot": "<decision-id or topic slug>",

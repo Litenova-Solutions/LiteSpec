@@ -38,7 +38,7 @@ public sealed class LinkExportTests
             finding.Code == "field-invalid" && finding.Message.Contains("links advances to 'problem/long-waits', which is a problem", StringComparison.Ordinal));
     }
 
-    /// <proves>litespec/core/behavior#name-the-settings-each-use-case-reads</proves>
+    /// <proves>litespec/core/use-cases#name-the-settings-each-use-case-reads</proves>
     [Fact]
     public void Use_Case_Reads_Setting_Is_Exported_As_A_Link()
     {
@@ -102,6 +102,37 @@ public sealed class LinkExportTests
         using var document = JsonDocument.Parse(model.ToJson());
 
         Assert.Equal(0, document.RootElement.GetProperty("links").GetProperty("follows").GetArrayLength());
+    }
+
+    /// <proves>litespec/core/domain-model#state-each-process-step-with-its-compensation</proves>
+    [Fact]
+    public void Wave5_Objects_Export_Their_Ids_As_Links()
+    {
+        Assert.Equal(
+            ["use-case/lending.release-hold"],
+            ModelBuilder.TargetsOf(Element("""{"mode": "use-case", "useCase": "use-case/lending.release-hold"}""")));
+        Assert.Equal(
+            ["use-case/lending.release-hold"],
+            ModelBuilder.TargetsOf(Element("""{"name": "place", "compensation": {"mode": "use-case", "useCase": "use-case/lending.release-hold"}}""")));
+        Assert.Equal(
+            ["aggregate/lending.loan"],
+            ModelBuilder.TargetsOf(Element("""{"mode": "advisory", "authority": "aggregate/lending.loan"}""")));
+        Assert.Equal(
+            ["external-system/payout-bank#void"],
+            ModelBuilder.TargetsOf(Element("""{"mode": "call", "operation": "external-system/payout-bank#void"}""")));
+        Assert.Equal(
+            ["integration-event/payout-voided"],
+            ModelBuilder.TargetsOf(Element("""{"mode": "event", "event": "integration-event/payout-voided"}""")));
+        Assert.Empty(ModelBuilder.TargetsOf(Element("""{"mode": "none", "reason": "money has moved"}""")));
+        Assert.Empty(ModelBuilder.TargetsOf(Element("""{"mode": "never", "reason": "the hold never releases"}""")));
+        Assert.Empty(ModelBuilder.TargetsOf(Element("""{"mode": "impossible", "reason": "the processor keeps no erasure call"}""")));
+    }
+
+    static JsonElement Element(string json)
+    {
+        using var document = JsonDocument.Parse(json);
+
+        return document.RootElement.Clone();
     }
 
     static JsonDocument Build(string root)

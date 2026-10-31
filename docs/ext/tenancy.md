@@ -86,7 +86,7 @@ It switches on no record type: tenant scope applies to records every project req
 
 **Statement:** Every use case in a multi-tenant product MUST declare its tenant scope as own, cross, public, or none in `access`.
 
-**Rationale:** The tenant scope bounds which tenant data the call may touch: own stays inside the caller tenant, cross reaches across tenants, public works beyond tenant boundaries, and none touches no tenant data. Without the scope, a read inside one tenant and a read across all tenants look the same. `litespec/core/access#scope-every-grant-to-its-tenant-reach` states the values, and `litespec/core/access#review-cross-tenant-access-as-tier-1` routes cross scope to the security queue.
+**Rationale:** The tenant scope bounds which tenant data the call may touch: own stays inside the caller tenant, cross reaches across tenants, public works beyond tenant boundaries, and none touches no tenant data. Without the scope, a read inside one tenant and a read across all tenants look the same. `litespec/core/access#scope-every-grant-to-its-tenant-reach` states the values, and `litespec/core/access#route-cross-tenant-access-through-the-security-queue` routes cross scope to the security queue.
 
 **Example:** An expense report declares `own`, a finance search across companies declares `cross`, a public catalog declares `public`, and a health check declares `none`.
 
@@ -216,15 +216,15 @@ It switches on no record type: tenant scope applies to records every project req
 
 **Reviewed for:** Each delegation proves an allowed call and a refused call with scenarios.
 
-### Review Delegated Cross-Tenant Grants as Tier 1
+### Review Delegated Cross-Tenant Grants Through the Security Queue
 
-**ID:** `litespec/ext/tenancy#review-delegated-cross-tenant-grants-as-tier-1`
+**ID:** `litespec/ext/tenancy#review-delegated-cross-tenant-grants-through-the-security-queue`
 
-**Statement:** A use case acting under delegation across tenants MUST carry tier 1 review through the security queue.
+**Statement:** A use case acting under delegation across tenants MUST pass through the security queue at its own tier.
 
-**Rationale:** A delegated call reads or writes data that belongs to another tenant, which is the highest access risk a grant carries. Tier 1 review through the security queue puts that grant before the security reviewer separately from reviewed status, so no delegated cross-tenant act ships on a developer sample alone. `litespec/core/access#review-cross-tenant-access-as-tier-1` routes every cross-tenant use case there.
+**Rationale:** A delegated call reads or writes data that belongs to another tenant, which is the highest access risk a grant carries. The security queue puts that grant before the security reviewer separately from reviewed status, so no delegated cross-tenant act ships on a developer sample alone. Cross scope raises no tier: the tier follows the risk values the record carries. `litespec/core/access#route-cross-tenant-access-through-the-security-queue` routes every cross-tenant use case there.
 
-**Reviewed for:** Each use case acting under delegation across tenants carries tier 1 review through the security queue.
+**Reviewed for:** Which delegated cross-tenant grants shipped without security review, or gained a tier from cross scope alone? Look at the security queue in the Behavior diff.
 
 ## Conventions
 

@@ -15,16 +15,12 @@
     "requirement/borrowing.loan-period-days"
   ],
   "onFailure": {
+    "mode": "retry",
     "retry": {
       "maxAttempts": 10,
-      "initialDelay": "5 seconds",
-      "maxDelay": "PT10M",
-      "backoff": "exponential"
+      "backoff": "5 seconds"
     },
-    "deadLetter": {
-      "after": "7 days",
-      "action": "Replay by hand."
-    }
+    "then": "dead-letter"
   }
 }
 ---

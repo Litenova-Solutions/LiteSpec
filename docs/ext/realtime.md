@@ -74,11 +74,11 @@ Selecting `realtime` switches on the notification and setting record types: each
 
 **ID:** `litespec/ext/realtime#declare-realtime-freshness`
 
-**Statement:** A query served over realtime MUST declare `freshness` `immediate` or `advisory` on its output.
+**Statement:** A query served over realtime MUST declare a `freshness` object with `mode` of `immediate` or `advisory` on its output.
 
-**Rationale:** A realtime channel delivers an update seconds after the change, so the served query promises `immediate` freshness; where the pushed value still awaits a later decision, it promises `advisory` and names the authority that decides. Without the declared freshness, a reader cannot tell whether the live value is final or provisional.
+**Rationale:** A realtime channel delivers an update seconds after the change, so the served query promises `{"mode": "immediate"}`; where the pushed value still awaits a later decision, it promises `{"mode": "advisory", "authority": "<record id>"}` naming the record that holds the authoritative value. Without the declared freshness, a reader cannot tell whether the live value is final or provisional.
 
-**Reviewed for:** Which realtime-served queries lack `immediate` or `advisory` freshness on their output? Look at the served query beside the realtime use case.
+**Reviewed for:** Which realtime-served queries lack an immediate or advisory freshness object on their output? Look at the served query beside the realtime use case.
 
 ### Authenticate and Authorize Subscriptions
 

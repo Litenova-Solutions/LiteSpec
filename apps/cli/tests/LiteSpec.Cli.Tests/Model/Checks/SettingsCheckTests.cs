@@ -6,7 +6,7 @@ namespace LiteSpec.Tests.Model.Checks;
 /// <summary>Proves the setting-key and template-store checks against fixture projects.</summary>
 public sealed class SettingsCheckTests
 {
-    /// <proves>litespec/core/behavior#name-the-configuration-key-of-every-operator-setting</proves>
+    /// <proves>litespec/core/use-cases#name-the-configuration-key-of-every-operator-setting</proves>
     [Fact]
     public void Operator_Setting_Without_Key_Reports()
     {
@@ -21,7 +21,7 @@ public sealed class SettingsCheckTests
         Assert.Contains("[G]", line, StringComparison.Ordinal);
     }
 
-    /// <proves>litespec/core/behavior#name-the-configuration-key-of-every-operator-setting</proves>
+    /// <proves>litespec/core/use-cases#name-the-configuration-key-of-every-operator-setting</proves>
     [Fact]
     public void Operator_Setting_With_Key_Passes()
     {
@@ -34,7 +34,7 @@ public sealed class SettingsCheckTests
         Assert.DoesNotContain("[setting-key-missing]", check.Output, StringComparison.Ordinal);
     }
 
-    /// <proves>litespec/core/behavior#name-the-configuration-key-of-every-operator-setting</proves>
+    /// <proves>litespec/core/use-cases#name-the-configuration-key-of-every-operator-setting</proves>
     [Fact]
     public void Decider_Setting_Without_Key_Passes()
     {
@@ -47,7 +47,7 @@ public sealed class SettingsCheckTests
         Assert.DoesNotContain("[setting-key-missing]", check.Output, StringComparison.Ordinal);
     }
 
-    /// <proves>litespec/core/behavior#bind-every-keyed-setting-in-one-marked-options-class</proves>
+    /// <proves>litespec/core/use-cases#bind-every-keyed-setting-in-one-marked-options-class</proves>
     [Fact]
     public void Keyed_Setting_Without_Options_Class_Reports()
     {
@@ -62,7 +62,7 @@ public sealed class SettingsCheckTests
         Assert.Contains("[S]", line, StringComparison.Ordinal);
     }
 
-    /// <proves>litespec/core/behavior#bind-every-keyed-setting-in-one-marked-options-class</proves>
+    /// <proves>litespec/core/use-cases#bind-every-keyed-setting-in-one-marked-options-class</proves>
     [Fact]
     public void Keyed_Setting_With_Marked_Options_Class_Passes()
     {
@@ -78,7 +78,7 @@ public sealed class SettingsCheckTests
         Assert.DoesNotContain("[setting-key-drift]", check.Output, StringComparison.Ordinal);
     }
 
-    /// <proves>litespec/core/behavior#bind-every-keyed-setting-in-one-marked-options-class</proves>
+    /// <proves>litespec/core/use-cases#bind-every-keyed-setting-in-one-marked-options-class</proves>
     [Fact]
     public void Options_Class_With_Wrong_Section_Reports()
     {
@@ -95,7 +95,7 @@ public sealed class SettingsCheckTests
         Assert.Contains("[S]", line, StringComparison.Ordinal);
     }
 
-    /// <proves>litespec/core/behavior#bind-every-keyed-setting-in-one-marked-options-class</proves>
+    /// <proves>litespec/core/use-cases#bind-every-keyed-setting-in-one-marked-options-class</proves>
     [Fact]
     public void Options_Class_With_Missing_Property_Reports()
     {
@@ -112,7 +112,7 @@ public sealed class SettingsCheckTests
         Assert.Contains("[S]", line, StringComparison.Ordinal);
     }
 
-    /// <proves>litespec/core/behavior#bind-every-keyed-setting-in-one-marked-options-class</proves>
+    /// <proves>litespec/core/use-cases#bind-every-keyed-setting-in-one-marked-options-class</proves>
     [Fact]
     public void Options_Class_Spelling_Key_Passes()
     {
@@ -127,7 +127,7 @@ public sealed class SettingsCheckTests
         Assert.DoesNotContain("[setting-key-drift]", check.Output, StringComparison.Ordinal);
     }
 
-    /// <proves>litespec/core/behavior#bind-every-keyed-setting-in-one-marked-options-class</proves>
+    /// <proves>litespec/core/use-cases#bind-every-keyed-setting-in-one-marked-options-class</proves>
     [Fact]
     public void Nested_Section_Spelling_Key_Passes()
     {
@@ -177,7 +177,7 @@ public sealed class SettingsCheckTests
         Assert.Contains("takes no mark", line, StringComparison.Ordinal);
     }
 
-    /// <proves>litespec/core/behavior#keep-notification-templates-and-the-template-store-one-set</proves>
+    /// <proves>litespec/core/edges#keep-notification-templates-and-the-template-store-one-set</proves>
     [Fact]
     public void Declared_Template_Missing_From_Store_Reports()
     {
@@ -195,7 +195,7 @@ public sealed class SettingsCheckTests
         Assert.Contains("[S]", line, StringComparison.Ordinal);
     }
 
-    /// <proves>litespec/core/behavior#keep-notification-templates-and-the-template-store-one-set</proves>
+    /// <proves>litespec/core/edges#keep-notification-templates-and-the-template-store-one-set</proves>
     [Fact]
     public void Declared_Template_Held_By_Store_Passes()
     {
@@ -212,7 +212,7 @@ public sealed class SettingsCheckTests
         Assert.DoesNotContain("[template-unrecorded]", check.Output, StringComparison.Ordinal);
     }
 
-    /// <proves>litespec/core/behavior#keep-notification-templates-and-the-template-store-one-set</proves>
+    /// <proves>litespec/core/edges#keep-notification-templates-and-the-template-store-one-set</proves>
     [Fact]
     public void Missing_Template_Store_File_Reports()
     {
@@ -228,7 +228,7 @@ public sealed class SettingsCheckTests
         Assert.Contains("[S]", line, StringComparison.Ordinal);
     }
 
-    /// <proves>litespec/core/behavior#keep-notification-templates-and-the-template-store-one-set</proves>
+    /// <proves>litespec/core/edges#keep-notification-templates-and-the-template-store-one-set</proves>
     [Fact]
     public void Template_Checks_Skipped_Without_Store()
     {
@@ -243,7 +243,7 @@ public sealed class SettingsCheckTests
         Assert.DoesNotContain("[template-param-drift]", check.Output, StringComparison.Ordinal);
     }
 
-    /// <proves>litespec/core/behavior#keep-notification-templates-and-the-template-store-one-set</proves>
+    /// <proves>litespec/core/edges#keep-notification-templates-and-the-template-store-one-set</proves>
     [Fact]
     public void Stored_Key_Without_Notification_Reports()
     {
@@ -262,7 +262,7 @@ public sealed class SettingsCheckTests
         Assert.Contains("[S]", line, StringComparison.Ordinal);
     }
 
-    /// <proves>litespec/core/behavior#keep-notification-templates-and-the-template-store-one-set</proves>
+    /// <proves>litespec/core/edges#keep-notification-templates-and-the-template-store-one-set</proves>
     [Fact]
     public void Stored_Keys_Matching_Notifications_Pass()
     {
@@ -279,7 +279,7 @@ public sealed class SettingsCheckTests
         Assert.DoesNotContain("[template-unimplemented]", check.Output, StringComparison.Ordinal);
     }
 
-    /// <proves>litespec/core/behavior#use-every-declared-template-parameter</proves>
+    /// <proves>litespec/core/edges#use-every-declared-template-parameter</proves>
     [Fact]
     public void Unused_Parameter_Reports()
     {
@@ -297,7 +297,7 @@ public sealed class SettingsCheckTests
         Assert.Contains("[S]", line, StringComparison.Ordinal);
     }
 
-    /// <proves>litespec/core/behavior#use-every-declared-template-parameter</proves>
+    /// <proves>litespec/core/edges#use-every-declared-template-parameter</proves>
     [Fact]
     public void Used_Parameters_Pass()
     {
@@ -313,7 +313,7 @@ public sealed class SettingsCheckTests
         Assert.DoesNotContain("[template-param-drift]", check.Output, StringComparison.Ordinal);
     }
 
-    /// <proves>litespec/core/behavior#use-every-declared-template-parameter</proves>
+    /// <proves>litespec/core/edges#use-every-declared-template-parameter</proves>
     [Fact]
     public void Template_None_Skips_Template_Checks()
     {

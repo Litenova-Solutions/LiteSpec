@@ -25,6 +25,10 @@
   "reads": [
     "aggregate/spending.expense"
   ],
+  "idempotency": {
+    "mode": "none",
+    "reason": "the query reads approved expenses without changing them"
+  },
   "output": {
     "include": {
       "file": {
@@ -38,11 +42,16 @@
         "reads": [
           "aggregate/spending.expense"
         ],
-        "freshness": "immediate"
+        "freshness": {
+          "mode": "immediate"
+        }
       }
     }
   },
-  "paging": "none (one file holds every approved expense of the period)",
+  "paging": {
+    "mode": "none",
+    "reason": "one file holds every approved expense of the period"
+  },
   "records": [
     {
       "type": "result",
@@ -98,7 +107,7 @@
   ],
   "approvedBy": "claimwick-team",
   "approvedOn": "2026-10-31",
-  "approvedHash": "7fd19e99"
+  "approvedHash": "3a1cba69"
 }
 ---
 # Export Expenses

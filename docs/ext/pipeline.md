@@ -98,9 +98,9 @@ An ingest job lists its `steps` in run order, names its closed `dropReasons` set
 
 **Statement:** Each query reading ingested data MUST state the freshness its readers observe.
 
-**Rationale:** Ingested data lags: the buffer, the batch window, and the enrich calls all take time. The query states what its readers observe, bounded or advisory, so a stale price reads as declared behavior instead of a defect.
+**Rationale:** Ingested data lags: the buffer, the batch window, and the enrich calls all take time. The query states what its readers observe, a bounded object with its window or an advisory object with its authority, so a stale price reads as declared behavior instead of a defect.
 
-**Example:** The catalog search query states `bounded (PT15M)`, matching the ingest job's quarter-hour window.
+**Example:** The catalog search query states `{"mode": "bounded", "within": "PT15M"}`, matching the ingest job's quarter-hour window.
 
 **Reviewed for:** The queries over ingested data state the freshness their readers observe.
 

@@ -1,7 +1,7 @@
 namespace LiteSpec.Model;
 
 /// <summary>The result check: every written result is shown by a scenario.</summary>
-/// <follows>litespec/core/behavior#prove-every-written-result-with-a-scenario</follows>
+/// <follows>litespec/core/use-cases#prove-every-written-result-with-a-scenario</follows>
 static partial class Checker
 {
     /// <summary>Reports a written result shown by no scenario.</summary>

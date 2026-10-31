@@ -79,7 +79,7 @@ The suite discovers its routes from the application route definition rather than
 
 ### Result Proof
 
-A screen's computed `calls` name the use cases it reaches, and each use case declares its results. The one result obligation for a screen is `litespec/core/behavior#show-every-refusal-a-screen-can-reach`: every refusal a screen can reach through its computed `calls` has a dictionary sentence or a browser test asserting its code. Success results are proved through their scenarios as [Frontend Testing](testing.md) states.
+A screen's computed `calls` name the use cases it reaches, and each use case declares its results. The one result obligation for a screen is `litespec/core/edges#show-every-refusal-a-screen-can-reach`: every refusal a screen can reach through its computed `calls` has a dictionary sentence or a browser test asserting its code. Success results are proved through their scenarios as [Frontend Testing](testing.md) states.
 
 ## Standards
 
@@ -264,7 +264,7 @@ A screen's computed `calls` name the use cases it reaches, and each use case dec
 
 **ID:** `litespec/frontend/ui#prove-every-result-a-route-calls`
 
-**Statement:** Every refusal a screen can reach through its computed `calls` MUST be shown as `litespec/core/behavior#show-every-refusal-a-screen-can-reach` states.
+**Statement:** Every refusal a screen can reach through its computed `calls` MUST be shown as `litespec/core/edges#show-every-refusal-a-screen-can-reach` states.
 
 **Rationale:** That Behavior provision is the one result obligation for a screen: a sentence in the frontend's refusal dictionary or a browser test asserting the code, checked by `refusal-sentence-missing`. Stating it again for routes would give one obligation two scopes and two verifications. The screen's computed `calls`, not a route's declared calls, name the refusals in scope, and success results stay proved through their scenarios.
 

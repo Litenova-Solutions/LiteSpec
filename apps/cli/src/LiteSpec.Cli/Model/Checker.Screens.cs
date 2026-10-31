@@ -9,7 +9,7 @@ namespace LiteSpec.Model;
 ///     shown, browser proofs confirm and are not duplicated, and a use case is
 ///     reached on each frontend that serves its entry point.
 /// </summary>
-/// <follows>litespec/core/behavior#give-every-page-its-screen-record</follows>
+/// <follows>litespec/core/edges#give-every-page-its-screen-record</follows>
 static partial class Checker
 {
     private static void CheckScreens(ProjectModel model, List<Finding> findings)

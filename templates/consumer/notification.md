@@ -2,7 +2,7 @@
 {
   "type": "notification",
   "id": "notification/<module>.<name>",
-  "title": "<Notification display title>",
+  "title": "<Notification Display Title>",
   "owner": "<owner>",
   "status": "draft",
   "decider": "<owner>",
@@ -14,11 +14,11 @@
   "frequency": "<once|per-attempt>",
   "dedupKey": "<Template over the trigger payload>",
   "params": ["<name>"],
-  "locale": "<Where the language comes from>",
-  "suppressedWhen": "<Condition, or remove this line>",
+  "locale": "<The source of the message language>",
+  "suppressedWhen": "<the message stays silent, or remove this line>",
   "claims": [
     {
-      "claim": "<What the message must say>",
+      "claim": "<The promise the message keeps>",
       "requirement": "requirement/<topic>.<name>"
     }
   ],
@@ -27,7 +27,7 @@
   "terms": ["term/<term-name>"],
   "questions": [
     {
-      "question": "<The open question, or remove the questions block>",
+      "question": "<Which question stays open? remove the questions block when none does.>",
       "decider": "<owner>",
       "decideBy": "<YYYY-MM-DD>",
       "ballot": "<decision-id or topic slug>",

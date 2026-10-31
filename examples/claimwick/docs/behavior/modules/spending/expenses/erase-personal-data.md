@@ -26,6 +26,14 @@
   "changes": [
     "aggregate/spending.expense"
   ],
+  "idempotency": {
+    "mode": "none",
+    "reason": "the first call deletes the expense, so a repeat finds nothing to erase"
+  },
+  "audit": {
+    "level": "none",
+    "target": "no audit trail; the example stores no audit entry"
+  },
   "risk": [
     "personal-data"
   ],
@@ -57,8 +65,8 @@
     }
   ],
   "approvedBy": "claimwick-team",
-  "approvedOn": "2026-10-01",
-  "approvedHash": "3931da9a"
+  "approvedOn": "2026-10-31",
+  "approvedHash": "284059fa"
 }
 ---
 

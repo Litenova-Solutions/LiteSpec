@@ -250,7 +250,7 @@ A consumer adopts one LiteSpec release by installing the `LiteSpec.Cli` tool pac
 
 **Statement:** A project MUST name its security reviewer in `securityReviewer` in the project file.
 
-**Rationale:** The security queue calls for one owner who answers for cross access, new outside calls, and new personal or sensitive data classes. Naming the role in the project file tells every diff where to route the queue, instead of leaving tier 1 access waiting for whoever notices it.
+**Rationale:** The security queue calls for one owner who answers for cross access, new outside calls, and new personal or sensitive data classes. Naming the role in the project file tells every diff where to route the queue, instead of leaving queued access waiting for whoever notices it.
 
 **Example:** A project file carrying `"securityReviewer": "cara"` routes the queue to Cara until someone else holds the role.
 

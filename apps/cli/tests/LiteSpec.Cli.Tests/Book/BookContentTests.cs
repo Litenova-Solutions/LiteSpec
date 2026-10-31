@@ -66,6 +66,70 @@ public sealed class BookContentTests
         Assert.Contains("function fieldLabel", script, StringComparison.Ordinal);
     }
 
+    /// <summary>The client renders each wave-5 value object in LiteSpec words: freshness, paging, compensation, period, released-by, erasure and edge failure.</summary>
+    /// <proves>litespec/core/model#name-book-labels-with-litespec-terms</proves>
+    [Fact]
+    public void Client_Renders_Wave5_Value_Objects_With_LiteSpec_Terms()
+    {
+        using var temp = Cli.Temp("book-content");
+        var result = Cli.Run("book", "--model", Cli.Fixture("Book/review.json"), "--out", Out(temp));
+        Assert.Equal(0, result.Status);
+
+        var script = File.ReadAllText(Path.Combine(Out(temp), "assets", "book.js"));
+        foreach (var renderer in new[]
+        {
+            "function freshnessNote",
+            "function pagingHtml",
+            "function compensationHtml",
+            "function periodSuffix",
+            "function releasedByHtml",
+            "function erasureHtml",
+            "function edgeFailureText",
+        })
+        {
+            Assert.Contains(renderer, script, StringComparison.Ordinal);
+        }
+
+        foreach (var words in new[]
+        {
+            "authoritative value in",
+            "Forwards through",
+            "skips and logs",
+            "fresh within ",
+            ", because ",
+        })
+        {
+            Assert.Contains(words, script, StringComparison.Ordinal);
+        }
+    }
+
+    /// <summary>The client holds none of the wave-5 mini-language strings: every replaced rendering reads the object, and the removed retries column is gone.</summary>
+    /// <proves>litespec/core/model#name-book-labels-with-litespec-terms</proves>
+    [Fact]
+    public void Client_Holds_None_Of_The_Wave5_Mini_Language_Strings()
+    {
+        using var temp = Cli.Temp("book-content");
+        var result = Cli.Run("book", "--model", Cli.Fixture("Book/review.json"), "--out", Out(temp));
+        Assert.Equal(0, result.Status);
+
+        var script = File.ReadAllText(Path.Combine(Out(temp), "assets", "book.js"));
+        foreach (var removed in new[]
+        {
+            "esc(g.freshness)",
+            "esc(f.paging)",
+            "esc(s.compensation)",
+            "esc(c.period)",
+            "inlineRef(f.releasedBy)",
+            "esc(f.erasure)",
+            "\"On failure: \" + e.onFailure",
+            "esc(o.retries)",
+            "\"Retries\"",
+        })
+        {
+            Assert.DoesNotContain(removed, script, StringComparison.Ordinal);
+        }
+    }
+
     /// <summary>Research sources with a path render as code text beside the URL rendering, so a path source never throws.</summary>
     /// <proves>litespec/core/model#explain-the-book-from-litespec-definitions</proves>
     [Fact]

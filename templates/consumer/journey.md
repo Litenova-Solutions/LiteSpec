@@ -2,27 +2,27 @@
 {
   "type": "journey",
   "id": "journey/<name>",
-  "title": "<Journey display title>",
+  "title": "<Journey Display Title>",
   "owner": "<owner>",
   "status": "draft",
   "decider": "<owner>",
   "decideBy": "<YYYY-MM-DD>",
   "actor": "actor/<name>",
   "serves": ["goal/<name>"],
-  "finishedWhen": "<The observable end in one sentence>",
+  "finishedWhen": "<the actor reaches the observable end>",
   "cites": ["requirement/<topic>.<name>"],
   "steps": [
     {
       "id": "<s1>",
-      "statement": "<What the actor does, in one present-tense sentence>",
+      "statement": "<The actor performs the step in one present-tense sentence.>",
       "actor": "actor/<name>",
-      "failure": "<What the person experiences, in one present-tense sentence; remove this line when the step cannot fail>"
+      "failure": "<The person experiences the failure in one present-tense sentence; remove this line when the step cannot fail>"
     }
   ],
   "terms": ["term/<term-name>"],
   "questions": [
     {
-      "question": "<The open question, or remove the questions block>",
+      "question": "<Which question stays open? remove the questions block when none does.>",
       "decider": "<owner>",
       "decideBy": "<YYYY-MM-DD>",
       "ballot": "<decision-id or topic slug>",

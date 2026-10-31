@@ -2,7 +2,7 @@
 {
   "type": "known-gap",
   "id": "known-gap/<name>",
-  "title": "<Known gap display title>",
+  "title": "<Known Gap Display Title>",
   "owner": "<owner>",
   "status": "draft",
   "decider": "<owner>",
@@ -10,11 +10,11 @@
   "check": "<the check that stays red>",
   "subject": ["<record id>"],
   "endsBy": "<YYYY-MM-DD>",
-  "reason": "<Why this gap is accepted for now>",
+  "reason": "<the release ships before the fix lands>",
   "terms": ["term/<term-name>"],
   "questions": [
     {
-      "question": "<The open question, or remove the questions block>",
+      "question": "<Which question stays open? remove the questions block when none does.>",
       "decider": "<owner>",
       "decideBy": "<YYYY-MM-DD>",
       "ballot": "<decision-id or topic slug>",

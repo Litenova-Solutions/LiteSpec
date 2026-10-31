@@ -29,7 +29,7 @@ static partial class Checker
         "aggregate-unimplemented", "reaction-unimplemented", "job-unimplemented",
         "external-system-unimplemented", "use-case-endpoint-missing", "effect-unimplemented", "use-case-unreached",
         "state-unreached", "transition-unknown",
-        "erasure-undeclared", "calculation-table-missing",
+        "erasure-undeclared", "calculation-table-missing", "table-drift",
         "reaction-trigger-unknown", "requirement-measure-missing",
         "record-link-missing", "record-parent-missing", "feature-goal-missing", "result-scenario-missing", "step-use-case-missing", "effect-loop-invalid", "consistency-cites-missing",
         "query-output-missing", "paging-undeclared", "widening-cites-missing",
@@ -104,6 +104,7 @@ static partial class Checker
         Time("acceptance", () => CheckRiskAcceptance(model, findings));
         Time("exemption", () => CheckExemption(model, findings));
         Time("calculations", () => CheckCalculations(model, findings));
+        Time("tables", () => CheckTableDrift(model, findings));
         Time("reactions", () => CheckReactionTrigger(model, findings));
         Time("measured", () => CheckMeasured(model, findings));
         Time("questions", () => CheckQuestions(model, findings));
@@ -506,6 +507,7 @@ static partial class Checker
                     RequireIds(record, "reachedThrough", 1, findings);
                 }
                 CheckIdempotency(record, findings);
+                CheckEffectFailurePolicy(record, findings);
                 break;
 
             case "reaction":
@@ -1170,10 +1172,23 @@ static partial class Checker
         }
     }
 
+    /// <summary>The record types as prose names joined with commas and a final or.</summary>
+    private static string OrList(IEnumerable<string> types)
+    {
+        var names = types.Select(type => type.Replace('-', ' ')).ToList();
+
+        return names.Count switch
+        {
+            0 => "",
+            1 => names[0],
+            _ => string.Join(", ", names[..^1]) + " or " + names[^1],
+        };
+    }
+
     private static void CheckFulfilment(ProjectModel model, List<Finding> findings)
     {
         var fulfilled = model.Records
-            .Where(record => record.Type is "rule" or "use-case" or "reaction" or "job" or "notification" or "setting")
+            .Where(record => RecordTypes.FulfillingTypes.Contains(record.Type, StringComparer.Ordinal))
             .SelectMany(record => record.Ids("fulfills"))
             .ToHashSet(StringComparer.Ordinal);
 
@@ -1200,7 +1215,7 @@ static partial class Checker
 
             if (!fulfilled.Contains(requirement.Id) && !undelivered && !decided)
             {
-                findings.Add(new Finding("requirement-fulfillment-missing", $"Requirement '{requirement.Id}' is fulfilled by no rule, use case, reaction, job, notification or setting.", requirement.File, requirement.Line, SubjectOf(requirement)));
+                findings.Add(new Finding("requirement-fulfillment-missing", $"Requirement '{requirement.Id}' is fulfilled by no {OrList(RecordTypes.FulfillingTypes)}.", requirement.File, requirement.Line, SubjectOf(requirement)));
             }
         }
     }
@@ -2252,79 +2267,99 @@ static partial class Checker
         RegexOptions.CultureInvariant);
 
     /// <summary>
-    ///     The reaction or job failure policy: a retry object with attempts, delays and
-    ///     backoff, or none, with an optional dead letter. Prose and malformed durations report.
+    ///     The reaction or job failure handling: a mode object naming retry with its
+    ///     attempts and backoff, or skip-and-log, or discard. Prose and malformed values report.
     /// </summary>
     private static void CheckFailurePolicy(Record record, List<Finding> findings)
     {
-        if (record.Raw.ValueKind != JsonValueKind.Object
-            || !record.Raw.TryGetProperty("onFailure", out var policy))
+        if (record.Raw.ValueKind == JsonValueKind.Object
+            && record.Raw.TryGetProperty("onFailure", out var policy))
         {
-            return;
+            CheckOnFailureObject(record, policy, "onFailure", findings);
         }
 
+        CheckEffectFailurePolicy(record, findings);
+    }
+
+    /// <summary>One structured onFailure for every edge: each effect entry carries the same mode object.</summary>
+    private static void CheckEffectFailurePolicy(Record record, List<Finding> findings)
+    {
+        foreach (var entry in EffectEntries(record))
+        {
+            if (entry.TryGetProperty("onFailure", out var policy))
+            {
+                CheckOnFailureObject(record, policy, "effect onFailure", findings);
+            }
+        }
+    }
+
+    /// <summary>The failure mode object: retry with attempts, an ISO 8601 backoff and dead-letter, or a terminal mode.</summary>
+    private static void CheckOnFailureObject(Record record, JsonElement policy, string where, List<Finding> findings)
+    {
         if (policy.ValueKind == JsonValueKind.String)
         {
-            findings.Add(new Finding("record-invalid", $"Record '{record.Id}' holds onFailure '{policy.GetString()}' as prose with no retry object.", record.File, record.Line, SubjectOf(record)));
+            findings.Add(new Finding("record-invalid", $"Record '{record.Id}' holds {where} '{policy.GetString()}' as prose with no mode object.", record.File, record.Line, SubjectOf(record)));
             return;
         }
 
         if (policy.ValueKind != JsonValueKind.Object)
         {
-            findings.Add(new Finding("record-invalid", $"Record '{record.Id}' holds onFailure as no object.", record.File, record.Line, SubjectOf(record)));
+            findings.Add(new Finding("record-invalid", $"Record '{record.Id}' holds {where} as no object.", record.File, record.Line, SubjectOf(record)));
             return;
         }
 
-        if (!policy.TryGetProperty("retry", out var retry))
+        if (!policy.TryGetProperty("mode", out var mode)
+            || mode.ValueKind != JsonValueKind.String
+            || mode.GetString() is not { } shape)
         {
-            findings.Add(new Finding("record-invalid", $"Record '{record.Id}' holds onFailure with no retry.", record.File, record.Line, SubjectOf(record)));
+            findings.Add(new Finding("record-invalid", $"Record '{record.Id}' holds {where} with no mode.", record.File, record.Line, SubjectOf(record)));
+            return;
         }
-        else if (retry.ValueKind == JsonValueKind.String)
+
+        if (shape is not ("retry" or "skip-and-log" or "discard"))
         {
-            if (retry.GetString() is not ("none" or "next-run"))
-            {
-                findings.Add(new Finding("record-invalid", $"Record '{record.Id}' holds onFailure retry '{retry.GetString()}' outside none, next-run or a retry object.", record.File, record.Line, SubjectOf(record)));
-            }
+            findings.Add(new Finding("record-invalid", $"Record '{record.Id}' holds {where} mode '{shape}' outside retry, skip-and-log, discard.", record.File, record.Line, SubjectOf(record)));
+            return;
         }
-        else if (retry.ValueKind == JsonValueKind.Object)
+
+        if (shape != "retry")
         {
-            CheckRetryPolicy(record, retry, findings);
+            return;
+        }
+
+        if (!policy.TryGetProperty("retry", out var retry) || retry.ValueKind != JsonValueKind.Object)
+        {
+            findings.Add(new Finding("record-invalid", $"Record '{record.Id}' holds {where} with no retry.", record.File, record.Line, SubjectOf(record)));
         }
         else
         {
-            findings.Add(new Finding("record-invalid", $"Record '{record.Id}' holds onFailure retry as neither none nor a retry object.", record.File, record.Line, SubjectOf(record)));
+            CheckRetryObject(record, retry, where, findings);
         }
 
-        if (policy.TryGetProperty("deadLetter", out var deadLetter))
+        if (!policy.TryGetProperty("then", out var then)
+            || then.ValueKind != JsonValueKind.String
+            || then.GetString() is not { Length: > 0 })
         {
-            CheckDeadLetter(record, deadLetter, findings);
+            findings.Add(new Finding("record-invalid", $"Record '{record.Id}' holds {where} retry with no then.", record.File, record.Line, SubjectOf(record)));
+        }
+        else if (then.GetString() != "dead-letter")
+        {
+            findings.Add(new Finding("record-invalid", $"Record '{record.Id}' holds {where} then '{then.GetString()}' outside dead-letter.", record.File, record.Line, SubjectOf(record)));
         }
     }
 
-    /// <summary>The retry object: attempts, ISO 8601 delays and an exponential or fixed backoff.</summary>
-    private static void CheckRetryPolicy(Record record, JsonElement retry, List<Finding> findings)
+    /// <summary>The retry object: positive attempts and an ISO 8601 backoff.</summary>
+    private static void CheckRetryObject(Record record, JsonElement retry, string where, List<Finding> findings)
     {
         if (!retry.TryGetProperty("maxAttempts", out var attempts)
             || attempts.ValueKind != JsonValueKind.Number
             || !attempts.TryGetInt32(out var count)
             || count < 1)
         {
-            findings.Add(new Finding("record-invalid", $"Record '{record.Id}' holds onFailure retry with no positive maxAttempts.", record.File, record.Line, SubjectOf(record)));
+            findings.Add(new Finding("record-invalid", $"Record '{record.Id}' holds {where} retry with no positive maxAttempts.", record.File, record.Line, SubjectOf(record)));
         }
 
-        CheckPolicyDuration(record, retry, "initialDelay", "onFailure retry initialDelay", findings);
-        CheckPolicyDuration(record, retry, "maxDelay", "onFailure retry maxDelay", findings);
-
-        if (!retry.TryGetProperty("backoff", out var backoff)
-            || backoff.ValueKind != JsonValueKind.String
-            || backoff.GetString() is not { } shape)
-        {
-            findings.Add(new Finding("record-invalid", $"Record '{record.Id}' holds onFailure retry with no backoff.", record.File, record.Line, SubjectOf(record)));
-        }
-        else if (shape is not ("exponential" or "fixed"))
-        {
-            findings.Add(new Finding("record-invalid", $"Record '{record.Id}' holds onFailure retry backoff '{shape}' outside exponential, fixed.", record.File, record.Line, SubjectOf(record)));
-        }
+        CheckPolicyDuration(record, retry, "backoff", $"{where} retry backoff", findings);
     }
 
     /// <summary>One ISO 8601 duration inside the failure policy: missing or malformed reports.</summary>
@@ -2339,25 +2374,6 @@ static partial class Checker
         else if (!IsoDuration.IsMatch(text))
         {
             findings.Add(new Finding("record-invalid", $"Record '{record.Id}' holds {where} '{text}', which is not an ISO 8601 duration.", record.File, record.Line, SubjectOf(record)));
-        }
-    }
-
-    /// <summary>The dead letter: an ISO 8601 retention and what a person does.</summary>
-    private static void CheckDeadLetter(Record record, JsonElement deadLetter, List<Finding> findings)
-    {
-        if (deadLetter.ValueKind != JsonValueKind.Object)
-        {
-            findings.Add(new Finding("record-invalid", $"Record '{record.Id}' holds onFailure deadLetter as no object.", record.File, record.Line, SubjectOf(record)));
-            return;
-        }
-
-        CheckPolicyDuration(record, deadLetter, "after", "onFailure deadLetter after", findings);
-
-        if (!deadLetter.TryGetProperty("action", out var action)
-            || action.ValueKind != JsonValueKind.String
-            || action.GetString() is not { Length: > 0 })
-        {
-            findings.Add(new Finding("record-invalid", $"Record '{record.Id}' holds onFailure deadLetter with no action.", record.File, record.Line, SubjectOf(record)));
         }
     }
 

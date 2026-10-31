@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 
 namespace LiteSpec.Model;
 
@@ -181,7 +182,7 @@ static partial class Checker
     private static void CheckOrphaned(ProjectModel model, List<Finding> findings)
     {
         foreach (var record in model.Records.Where(record =>
-            record.Type is "use-case" or "reaction" or "job" or "notification" or "setting"))
+            RecordTypes.UpLinkedTypes.Contains(record.Type, StringComparer.Ordinal)))
         {
             if (record.Status == "retired")
             {
@@ -208,7 +209,7 @@ static partial class Checker
     private static void CheckStepUnserved(ProjectModel model, List<Finding> findings)
     {
         var served = model.Records
-            .Where(record => (record.Type == "use-case" || record.Type == "reaction") && record.Status != "retired")
+            .Where(record => RecordTypes.StepServingTypes.Contains(record.Type, StringComparer.Ordinal) && record.Status != "retired")
             .SelectMany(record => record.Ids("serves"))
             .ToHashSet(StringComparer.Ordinal);
 
@@ -218,7 +219,7 @@ static partial class Checker
             {
                 if (!served.Contains(step))
                 {
-                    findings.Add(new Finding("step-use-case-missing", $"Journey step '{step}' is served by no use case or reaction.", journey.File, journey.Line, step));
+                    findings.Add(new Finding("step-use-case-missing", $"Journey step '{step}' is served by no {OrList(RecordTypes.StepServingTypes)}.", journey.File, journey.Line, step));
                 }
             }
         }
@@ -789,25 +790,39 @@ static partial class Checker
     {
         foreach (var rule in model.Records.Where(record => record.Type == "rule" && record.Field("kind") == "reservation"))
         {
-            var released = rule.Field("releasedBy") ?? rule.Ids("releasedBy").FirstOrDefault();
-
-            if (released is not { Length: > 0 })
+            if (rule.Raw.ValueKind != JsonValueKind.Object
+                || !rule.Raw.TryGetProperty("releasedBy", out var releasedBy)
+                || releasedBy.ValueKind is JsonValueKind.Null or JsonValueKind.Undefined)
             {
                 findings.Add(new Finding("reservation-release-missing", $"Rule '{rule.Id}' reserves with no releasedBy.", rule.File, rule.Line, SubjectOf(rule)));
+                continue;
             }
-            else if (released == "never" || (released.StartsWith("never", StringComparison.Ordinal) && !HasCost(released)))
+
+            // A releasing record id; the link checks own its target.
+            if (releasedBy.ValueKind == JsonValueKind.String
+                && releasedBy.GetString() is { Length: > 0 } id
+                && Identifiers.TrySplit(id, out _, out _, out _))
             {
-                findings.Add(new Finding("reservation-release-missing", $"Rule '{rule.Id}' names never with no cost.", rule.File, rule.Line, SubjectOf(rule)));
+                continue;
             }
+
+            if (releasedBy.ValueKind == JsonValueKind.Object
+                && releasedBy.TryGetProperty("mode", out var mode)
+                && mode.ValueKind == JsonValueKind.String
+                && mode.GetString() == "never")
+            {
+                if (!releasedBy.TryGetProperty("reason", out var reason)
+                    || reason.ValueKind != JsonValueKind.String
+                    || reason.GetString() is not { Length: > 0 })
+                {
+                    findings.Add(new Finding("reservation-release-missing", $"Rule '{rule.Id}' names never with no reason.", rule.File, rule.Line, SubjectOf(rule)));
+                }
+
+                continue;
+            }
+
+            findings.Add(new Finding("field-invalid", $"Rule '{rule.Id}' holds releasedBy as neither a record id nor a never object.", rule.File, rule.Line, SubjectOf(rule)));
         }
-    }
-
-    private static bool HasCost(string released)
-    {
-        var open = released.IndexOf('(', StringComparison.Ordinal);
-        var shut = released.LastIndexOf(')');
-
-        return open >= 0 && shut > open && released[(open + 1)..shut].Trim().Length > 0;
     }
 
     private static void CheckNotificationSender(ProjectModel model, List<Finding> findings)
@@ -1292,4 +1307,468 @@ static partial class Checker
 
         return [];
     }
+
+    private static void CheckTableDrift(ProjectModel model, List<Finding> findings)
+    {
+        foreach (var aggregate in model.Records
+            .Where(record => record.Type == "aggregate")
+            .OrderBy(record => record.Id, StringComparer.Ordinal))
+        {
+            var body = model.Bodies.FirstOrDefault(page => page.File == aggregate.File)?.Body;
+
+            if (body is null)
+            {
+                continue;
+            }
+
+            var tables = BodyTables(body);
+
+            CheckTransitionsDrift(aggregate, tables, findings);
+            CheckDataDrift(aggregate, tables, findings);
+        }
+
+        CheckRetentionDrift(model, findings);
+    }
+
+    private static void CheckTransitionsDrift(Record aggregate, IReadOnlyList<BodyTable> tables, List<Finding> findings)
+    {
+        var written = TransitionsOf(aggregate)
+            .Select(transition => transition.From + "\0" + transition.To + "\0" + (transition.By ?? ""))
+            .Order(StringComparer.Ordinal)
+            .ToList();
+
+        var rows = new List<string>();
+
+        foreach (var table in tables)
+        {
+            var from = BodyColumn(table.Headers, "from");
+            var to = BodyColumn(table.Headers, "to");
+
+            if (from < 0 || to < 0)
+            {
+                continue;
+            }
+
+            var by = BodyColumn(table.Headers, "triggeredby");
+
+            if (by < 0)
+            {
+                by = BodyColumn(table.Headers, "by");
+            }
+
+            foreach (var cells in table.Rows)
+            {
+                var start = CleanBodyCell(BodyCell(cells, from), false);
+                var end = CleanBodyCell(BodyCell(cells, to), false);
+
+                if (BodyCellEmpty(end))
+                {
+                    continue;
+                }
+
+                // An empty From is a creation: the row names the state an instance starts in.
+                if (BodyCellEmpty(start))
+                {
+                    start = RecordReader.Creation;
+                }
+
+                var trigger = "";
+
+                if (by >= 0)
+                {
+                    var cause = CleanBodyCell(BodyCell(cells, by), true);
+                    trigger = BodyCellEmpty(cause) ? "" : cause;
+                }
+
+                rows.Add(start + "\0" + end + "\0" + trigger);
+            }
+        }
+
+        // A table with no front-matter field lifts into the record, so only a
+        // front-matter field beside a disagreeing table reports.
+        if (rows.Count > 0 && written.Count > 0 && !rows.Order(StringComparer.Ordinal).SequenceEqual(written))
+        {
+            findings.Add(new Finding("table-drift", $"Aggregate '{aggregate.Id}' holds a transitions table that differs from its frontmatter.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
+        }
+    }
+
+    private static void CheckDataDrift(Record aggregate, IReadOnlyList<BodyTable> tables, List<Finding> findings)
+    {
+        var written = DataRowsOf(aggregate).Order(StringComparer.Ordinal).ToList();
+        var rows = new List<string>();
+
+        foreach (var table in tables)
+        {
+            var name = BodyColumn(table.Headers, "name");
+            var meaning = BodyColumn(table.Headers, "meaning");
+            var classification = BodyColumn(table.Headers, "classification");
+
+            if (name < 0 || meaning < 0 || classification < 0)
+            {
+                continue;
+            }
+
+            foreach (var cells in table.Rows)
+            {
+                var item = CleanBodyCell(BodyCell(cells, name), false);
+
+                if (BodyCellEmpty(item))
+                {
+                    continue;
+                }
+
+                var sense = CleanBodyCell(BodyCell(cells, meaning), false);
+                var level = CleanBodyCell(BodyCell(cells, classification), false);
+
+                rows.Add(item + "\0" + (BodyCellEmpty(sense) ? "" : sense) + "\0" + (BodyCellEmpty(level) ? "" : level.ToLowerInvariant()));
+            }
+        }
+
+        if (rows.Count > 0 && written.Count > 0 && !rows.Order(StringComparer.Ordinal).SequenceEqual(written))
+        {
+            findings.Add(new Finding("table-drift", $"Aggregate '{aggregate.Id}' holds a data table that differs from its frontmatter.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
+        }
+    }
+
+    /// <summary>The aggregate's data rows with meaning and classification; partial entries are left to the shape check.</summary>
+    private static IReadOnlyList<string> DataRowsOf(Record aggregate)
+    {
+        if (aggregate.Raw.ValueKind != JsonValueKind.Object
+            || !aggregate.Raw.TryGetProperty("data", out var value)
+            || value.ValueKind != JsonValueKind.Array)
+        {
+            return [];
+        }
+
+        var found = new List<string>();
+
+        foreach (var entry in value.EnumerateArray())
+        {
+            if (entry.ValueKind == JsonValueKind.Object
+                && entry.TryGetProperty("name", out var name)
+                && name.ValueKind == JsonValueKind.String
+                && name.GetString() is { Length: > 0 } field
+                && entry.TryGetProperty("meaning", out var meaning)
+                && meaning.ValueKind == JsonValueKind.String
+                && entry.TryGetProperty("classification", out var classification)
+                && classification.ValueKind == JsonValueKind.String)
+            {
+                found.Add(field + "\0" + (meaning.GetString() ?? "") + "\0" + (classification.GetString() ?? "").ToLowerInvariant());
+            }
+        }
+
+        return found;
+    }
+
+    private static void CheckRetentionDrift(ProjectModel model, List<Finding> findings)
+    {
+        foreach (var page in model.Bodies.OrderBy(body => body.File, StringComparer.Ordinal))
+        {
+            BodyTable? table = null;
+
+            foreach (var candidate in BodyTables(page.Body))
+            {
+                if (BodyColumn(candidate.Headers, "dataclass") >= 0
+                    && BodyColumn(candidate.Headers, "covers") >= 0
+                    && BodyColumn(candidate.Headers, "period") >= 0)
+                {
+                    table = candidate;
+                    break;
+                }
+            }
+
+            if (table is null)
+            {
+                continue;
+            }
+
+            var columns = new[] { "dataclass", "covers", "basis", "period", "enforcedby" }
+                .Where(column => BodyColumn(table.Headers, column) >= 0)
+                .ToList();
+            var written = RetentionRowsOf(page.File, columns);
+
+            if (written is null || written.Count == 0)
+            {
+                continue;
+            }
+
+            var rows = table.Rows
+                .Select(cells => RetentionKey(
+                    columns.Select(column => RetentionCell(table, cells, column)).ToList()))
+                .Where(key => key.Length > 0)
+                .Order(StringComparer.Ordinal)
+                .ToList();
+
+            if (rows.Count > 0 && !rows.SequenceEqual(written))
+            {
+                findings.Add(new Finding("table-drift", $"Retention schedule '{page.File}' holds a retention table that differs from its rows.", page.File, page.BodyStartLine + table.Line, null));
+            }
+        }
+    }
+
+    /// <summary>The retention-schedule rows of the file, projected onto the table columns; null when the file holds no schedule.</summary>
+    private static IReadOnlyList<string>? RetentionRowsOf(string file, IReadOnlyList<string> columns)
+    {
+        if (!File.Exists(file))
+        {
+            return null;
+        }
+
+        string text;
+
+        try
+        {
+            text = SourceTree.Read(file);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            return null;
+        }
+
+        if (!Frontmatter.TryParse(text, out var parsed, out _)
+            || parsed.Root.ValueKind != JsonValueKind.Object
+            || !parsed.Root.TryGetProperty("type", out var type)
+            || type.ValueKind != JsonValueKind.String
+            || type.GetString() != "retention-schedule"
+            || !parsed.Root.TryGetProperty("rows", out var rows)
+            || rows.ValueKind != JsonValueKind.Array)
+        {
+            return null;
+        }
+
+        var found = new List<string>();
+
+        foreach (var entry in rows.EnumerateArray())
+        {
+            if (entry.ValueKind != JsonValueKind.Object)
+            {
+                continue;
+            }
+
+            var key = RetentionKey(columns.Select(column => RetentionField(entry, column)).ToList());
+
+            if (key.Length > 0)
+            {
+                found.Add(key);
+            }
+        }
+
+        return found.Order(StringComparer.Ordinal).ToList();
+    }
+
+    /// <summary>One retention row field as the table states it: covers as sorted ids, the rest as written.</summary>
+    private static string RetentionField(JsonElement entry, string column)
+    {
+        if (column == "covers"
+            && entry.TryGetProperty("covers", out var covers)
+            && covers.ValueKind == JsonValueKind.Array)
+        {
+            return string.Join(",", covers.EnumerateArray()
+                .Where(id => id.ValueKind == JsonValueKind.String && id.GetString() is { Length: > 0 })
+                .Select(id => id.GetString()!)
+                .Order(StringComparer.Ordinal));
+        }
+
+        var field = column == "dataclass" ? "dataClass" : column == "enforcedby" ? "enforcedBy" : column;
+
+        return entry.TryGetProperty(field, out var value)
+            && value.ValueKind == JsonValueKind.String
+            && value.GetString() is { } text
+            ? text.Trim()
+            : "";
+    }
+
+    /// <summary>One retention table cell as the frontmatter states it: covers split and sorted, the rest trimmed.</summary>
+    private static string RetentionCell(BodyTable table, IReadOnlyList<string> cells, string column)
+    {
+        var text = CleanBodyCell(BodyCell(cells, BodyColumn(table.Headers, column)), false);
+
+        if (column != "covers")
+        {
+            return text;
+        }
+
+        return string.Join(",", text.Split(',')
+            .Select(id => id.Trim())
+            .Where(id => id.Length > 0)
+            .Order(StringComparer.Ordinal));
+    }
+
+    /// <summary>One retention row key; empty when the row names no data class.</summary>
+    private static string RetentionKey(IReadOnlyList<string> fields) =>
+        fields.Count > 0 && fields[0].Length > 0 ? string.Join("\0", fields) : "";
+
+    /// <summary>One Markdown table outside fenced code, with its header line offset in the body.</summary>
+    sealed record BodyTable(IReadOnlyList<string> Headers, IReadOnlyList<IReadOnlyList<string>> Rows, int Line);
+
+    /// <summary>Every Markdown table outside fenced code.</summary>
+    private static IReadOnlyList<BodyTable> BodyTables(string body)
+    {
+        var lines = body.Replace("\r\n", "\n").Replace('\r', '\n').Split('\n');
+        var tables = new List<BodyTable>();
+        var inFence = false;
+        var index = 0;
+
+        while (index < lines.Length)
+        {
+            var line = lines[index];
+            var trimmed = line.Trim();
+
+            if (trimmed.StartsWith("```", StringComparison.Ordinal)
+                || trimmed.StartsWith("~~~", StringComparison.Ordinal))
+            {
+                inFence = !inFence;
+                index++;
+                continue;
+            }
+
+            if (inFence)
+            {
+                index++;
+                continue;
+            }
+
+            if (index + 1 < lines.Length
+                && line.Contains('|')
+                && trimmed.Length > 0
+                && TableDelimiter().IsMatch(lines[index + 1]))
+            {
+                var headers = BodyCells(line);
+                var rows = new List<IReadOnlyList<string>>();
+                var row = index + 2;
+
+                while (row < lines.Length
+                       && lines[row].Contains('|')
+                       && lines[row].Trim().Length > 0
+                       && BodyHeading(lines[row].Trim()) is null
+                       && !lines[row].Trim().StartsWith("```", StringComparison.Ordinal)
+                       && !lines[row].Trim().StartsWith("~~~", StringComparison.Ordinal))
+                {
+                    rows.Add(BodyCells(lines[row]));
+                    row++;
+                }
+
+                if (headers.Count > 0)
+                {
+                    tables.Add(new BodyTable(headers, rows, index));
+                }
+
+                index = row;
+                continue;
+            }
+
+            index++;
+        }
+
+        return tables;
+    }
+
+    [GeneratedRegex(@"^\s*\|?\s*:?-{1,}:?\s*(\|\s*:?-{1,}:?\s*)*\|?\s*$")]
+    private static partial Regex TableDelimiter();
+
+    private static string? BodyHeading(string trimmed)
+    {
+        if (!trimmed.StartsWith('#'))
+        {
+            return null;
+        }
+
+        var hashes = 0;
+
+        while (hashes < trimmed.Length && trimmed[hashes] == '#')
+        {
+            hashes++;
+        }
+
+        if (hashes > 6 || (hashes < trimmed.Length && trimmed[hashes] != ' ' && trimmed[hashes] != '\t'))
+        {
+            return null;
+        }
+
+        return trimmed[hashes..].Trim().TrimEnd('#').Trim();
+    }
+
+    private static IReadOnlyList<string> BodyCells(string line)
+    {
+        var cells = line.Trim().Trim('|').Split('|').Select(cell => cell.Trim()).ToList();
+
+        return cells is [{ Length: 0 }] ? [] : cells;
+    }
+
+    private static int BodyColumn(IReadOnlyList<string> headers, string target)
+    {
+        for (var index = 0; index < headers.Count; index++)
+        {
+            if (BodyNorm(headers[index]) == target)
+            {
+                return index;
+            }
+        }
+
+        return -1;
+    }
+
+    /// <summary>Headers compare case-insensitively, ignoring spaces, dashes and underscores.</summary>
+    private static string BodyNorm(string value) =>
+        value.Replace(" ", "").Replace("-", "").Replace("_", "").Replace("\t", "").ToLowerInvariant();
+
+    private static string BodyCell(IReadOnlyList<string> cells, int index) =>
+        index < cells.Count ? cells[index] : "";
+
+    /// <summary>Trimmed text: code ticks stripped, a lone link reduced to its label, or its target for an id.</summary>
+    private static string CleanBodyCell(string cell, bool preferTarget)
+    {
+        var text = cell.Trim();
+
+        while (text.Length >= 2 && text.StartsWith('`') && text.EndsWith('`'))
+        {
+            text = text[1..^1].Trim();
+        }
+
+        if (BodyLinkOf(text) is { } link)
+        {
+            if (preferTarget && link.Target.Contains('/'))
+            {
+                return link.Target.Trim();
+            }
+
+            return link.Label.Trim();
+        }
+
+        return text;
+    }
+
+    private static (string Label, string Target)? BodyLinkOf(string text)
+    {
+        if (!text.StartsWith('['))
+        {
+            return null;
+        }
+
+        var labelEnd = text.IndexOf("](", StringComparison.Ordinal);
+
+        if (labelEnd < 0)
+        {
+            return null;
+        }
+
+        var targetEnd = text.IndexOf(')', labelEnd + 2);
+
+        if (targetEnd != text.Length - 1)
+        {
+            return null;
+        }
+
+        var target = text[(labelEnd + 2)..targetEnd];
+        var space = target.IndexOfAny([' ', '\t', '"', '\'']);
+
+        return (text[1..labelEnd], space < 0 ? target : target[..space]);
+    }
+
+    private static bool BodyCellEmpty(string text) =>
+        text.Length == 0
+        || text is "-" or "--"
+        || text.Equals("n/a", StringComparison.OrdinalIgnoreCase)
+        || text.Equals("none", StringComparison.OrdinalIgnoreCase)
+        || text.Equals("none.", StringComparison.OrdinalIgnoreCase);
 }

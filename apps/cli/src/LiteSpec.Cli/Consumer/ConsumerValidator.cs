@@ -225,6 +225,8 @@ static partial class ConsumerValidator
         {
             // A machine reader gets the problems as an array and the counts as fields, so
             // nothing has to be recovered by parsing the human lines back apart.
+            // Every finding carries its level: problems read pages only and always
+            // block, so G; advisories report and never block, so A.
             if (Json)
             {
                 var payload = new JsonObject
@@ -233,8 +235,8 @@ static partial class ConsumerValidator
                     ["consumer"] = Root,
                     ["ok"] = Errors.Count == 0,
                     ["scanned"] = new JsonObject { ["documentationRoot"] = DocsPath, ["files"] = Files.Count, ["pages"] = Pages },
-                    ["problems"] = new JsonArray([.. Errors.Select(error => (JsonNode?)error)]),
-                    ["advisories"] = new JsonArray([.. Advisories.Select(advisory => (JsonNode?)advisory)]),
+                    ["problems"] = new JsonArray([.. Errors.Select(error => (JsonNode?)$"[G] {error}")]),
+                    ["advisories"] = new JsonArray([.. Advisories.Select(advisory => (JsonNode?)$"[A] {advisory}")]),
                 };
 
                 CliJson.Write(payload);
@@ -253,7 +255,7 @@ static partial class ConsumerValidator
 
                 foreach (var advisory in Advisories)
                 {
-                    Console.WriteLine($"  - {advisory}");
+                    Console.WriteLine($"  - [A] {advisory}");
                 }
             }
 
@@ -264,7 +266,7 @@ static partial class ConsumerValidator
 
                 foreach (var problem in Errors)
                 {
-                    Console.WriteLine($"  - {problem}");
+                    Console.WriteLine($"  - [G] {problem}");
                 }
 
                 return 1;
@@ -379,7 +381,7 @@ static partial class ConsumerValidator
                     consumer = Root,
                     ok = false,
                     scanned = new { documentationRoot = "docs", files = 0, pages = 0 },
-                    problems = new[] { message },
+                    problems = new[] { $"[G] {message}" },
                     advisories = Array.Empty<string>(),
                 });
             }

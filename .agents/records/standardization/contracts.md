@@ -235,3 +235,71 @@ The process `driver` (`operator: ...`) is reshaped in wave 6 with the saga (D28,
 | `docs/core/privacy.md` | Privacy and Retention | Retention Schedule and the data classes; Classify Every Aggregate Data Field, Declare Every Data Class with Its Erasure Position, Accept Every Retained Personal Data Class in Intent, Review Every Erasure Exemption Before Its Date, Route Every External Erasure Through an Operation or Event, Schedule Every Data Class for Retention |
 
 A moved provision keeps its heading, so its ID changes only in the page part: `litespec/core/behavior#<slug>` becomes `litespec/core/<page>#<slug>`. The judge renames every citation by script after the split.
+
+## Wave 5: New Finding Code
+
+| Code | Level | Meaning |
+|:---|:---|:---|
+| `table-drift` | A | A handwritten body table holds a structured fact (transitions, data fields, retention rows) that differs from the record's frontmatter; the generated region is the one home (D3). |
+
+## Wave 6: Behavior Design (Part I)
+
+### Automation (D27, BP4)
+
+One record type `automation` replaces `reaction` and `job`. Identifier `automation/<module>.<name>`; home `docs/behavior/modules/<module>/automations/<name>.md` (the `reactions/` and `jobs/` folders go). Name form: `<verb>-<what>-on-<fact>` for an event trigger, `<verb>-<what>` with the verb of the use case it runs for a schedule or manual trigger.
+
+| Field | Shape |
+|:---|:---|
+| `triggeredBy` | exactly one of `{ "event": "event/<...>" }` or `{ "event": "integration-event/<...>" }`, `{ "schedule": { "every": "PT1M" } }` or `{ "schedule": { "cron": "0 3 * * *" } }`, `{ "manual": true }` |
+| `skippedWhen` | was reaction `if`: a clause completing "when ..." |
+| `effects` | as before, with the effect verbs below |
+| `runbook`, `runsWhere`, `guard`, `cursor`, `selection`, `lease`, `batchSize` | allowed only with a `schedule` or `manual` trigger; `guard` is required with `manual` |
+| `fulfills`, `serves`, `onFailure`, `idempotency`, `reads`, `changes` | shared, as on reactions and jobs today |
+
+A code element that implemented a reaction or job carries `implements automation/<module>.<name>`.
+
+### Saga (D28, BP3)
+
+The aggregate kind `process` becomes `saga`: `steps` (each `{ "id", "runs": "use-case/<...>", "compensation": <wave 5 object>, "guard": "<clause>" }`, `guard` was step `when`), `exits` (each named by a past participle or adjective), and `drivenBy` (was `driver`): `{ "automation": "automation/<...>" }` or `{ "person": "<actor or role id>", "runbook": "runbook/<...>", "dueWithin": "<ISO duration>" }`. A process that only has a lifecycle becomes `kind: entity` with its states and transitions. Glossary alias: process manager.
+
+### Doors and Words (D29, D32, BP5, BP7, BP8)
+
+- Entry-point kinds: `browser`, `api`, `webhook`, `device`, `cli`, `mcp`, `served-content`. The kinds `reaction` and `job` go. The door states `auth` (`session`, `token`, `device`, `link`, `app`, `none`); the use case states `grant` and `tenant`. The auth kind `anonymous` is `none`; the grant `anonymous` stays.
+- Effect verbs: `runs` (was `issues`), `sends`, `emits` (was `publishes`), `calls`.
+
+### Consistency (D30, BP1, BP2, BP9)
+
+Modes `atomic`, `per-record`, `compensated`; `best-effort` goes. An `atomicity` rule names the aggregates it binds in `binds`. A use case with `consistency.mode: atomic` over several aggregates cites that rule in `consistency.cites`, and its `changes` equals the rule's `binds`.
+
+### Typed Contracts (D31, BP6)
+
+Each use-case input and integration-event payload field carries `type` (`text`, `integer`, `decimal`, `money`, `boolean`, `date`, `date-time`, `duration`, `email`, `choice`, `id`), `of` (the record an `id` refers to; the choices of a `choice`) and `required`. An integration event may name `dataschema` (a URL). A money value is `{ "amount", "currency" }` with an ISO 4217 code.
+
+### Privacy (D33, BP10)
+
+The erasure positions gain `anonymize`; `pseudonymize` keeps the class personal with its basis and counts toward `risk-acceptance-missing`. Each data class and retention row states `purpose`. `period` is an ISO 8601 duration or the wave 5 none object. The retention schedule claims only the time limits of a record of processing.
+
+### Scenarios and Refusals (D34, BP11, BP12)
+
+A scenario may name the rules it shows in `exercises`; a use case may hold `background`, the shared Given. A refusal code in use is retired with its replacement named, never renamed or reused.
+
+### Finding Codes
+
+| Old | New | Level |
+|:---|:---|:---|
+| `reaction-name-invalid`, `job-name-invalid` | `automation-name-invalid` | G |
+| `reaction-trigger-unknown` | `automation-trigger-unknown` | G |
+| `reaction-unimplemented`, `job-unimplemented` | `automation-unimplemented` | S |
+| `job-guard-missing` | `automation-guard-missing` | G |
+| none | `atomic-group-drift`: an atomic use case's `changes` differs from its rule's `binds` | G |
+| none | `atomic-group-invalid`: an atomic group binds more than 4 aggregates (a saga candidate) | A |
+
+### One onFailure (D3, D12)
+
+`onFailure` has one shape on every record and effect: `{ "mode": "retry" | "skip-and-log" | "discard", "retry": { "maxAttempts", "initialDelay", "maxDelay", "backoff": "exponential" | "fixed" }, "then": "dead-letter", "deadLetter": { "after", "action" }, "surfacesIn": "entry-point/<...>", "runbook": "runbook/<...>" }`. `retry` and `then` are required with `mode: retry`; `deadLetter`, `surfacesIn` and `runbook` are optional. The record-level `structuredOnFailure` and the effect-level `onFailurePolicy` merge into this one definition.
+
+### Wave 5 Carry-Overs
+
+- The Links table on `docs/core/model.md` gains rows for the nested link fields `compensation.useCase`, `freshness.authority`, `erasure.operation` and `erasure.event`, and `RecordTypes.cs` lists them as link targets.
+- The aggregate template wraps its Transitions and Data tables in `<!-- generated:transitions -->` and `<!-- generated:data -->` fences, and the retention schedule template carries a `<!-- generated:retention-schedule -->` fence.
+- `docs/tools/consumer.md` states that every consumer finding carries its level.

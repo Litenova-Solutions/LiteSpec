@@ -8,8 +8,8 @@ namespace LiteSpec.Model;
 ///     they retire. A project adds its domain verbs on top and retires more synonyms; it never redefines a
 ///     baseline verb.
 /// </summary>
-/// <follows>litespec/core/behavior#keep-one-kind-per-verb</follows>
-/// <follows>litespec/core/behavior#start-every-use-case-with-a-declared-verb</follows>
+/// <follows>litespec/core/use-cases#keep-one-kind-per-verb</follows>
+/// <follows>litespec/core/use-cases#start-every-use-case-with-a-declared-verb</follows>
 public static class UseCaseVerbs
 {
     /// <summary>The kind a verb names: a query reads, a command changes, and either serves both.</summary>

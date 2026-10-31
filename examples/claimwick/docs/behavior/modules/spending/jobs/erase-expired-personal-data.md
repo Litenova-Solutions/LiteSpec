@@ -17,12 +17,18 @@
       "timing": "async"
     }
   ],
+  "reads": [
+    "aggregate/spending.expense"
+  ],
+  "serviceLevel": "Decided expenses past retention are erased each night, per requirement/approval.erase-after-retention.",
+  "evidence": "no run log; the example keeps no evidence of a run",
+  "runbook": "runbook/clear-stuck-reimbursements",
   "fulfills": [
     "requirement/approval.erase-after-retention"
   ],
   "approvedBy": "claimwick-team",
   "approvedOn": "2026-10-31",
-  "approvedHash": "9a6e6d7d"
+  "approvedHash": "795f2801"
 }
 ---
 

@@ -1,7 +1,7 @@
 ---
 {
   "type": "reference",
-  "title": "<Reference title>",
+  "title": "<Reference Title>",
   "owner": "<owner>",
   "status": "draft",
   "decider": "<owner>",

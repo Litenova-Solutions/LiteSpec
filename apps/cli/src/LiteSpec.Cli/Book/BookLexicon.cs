@@ -723,6 +723,8 @@ sealed class BookLexicon
             ["idempotency"] = "Idempotency", ["audit"] = "Audit", ["level"] = "Level", ["access"] = "Access", ["computedBy"] = "Computed by",
             ["on"] = "On", ["if"] = "Skip when", ["issues"] = "Issues", ["sends"] = "Sends", ["publishes"] = "Publishes",
             ["calls"] = "Calls", ["forEach"] = "For each", ["onFailure"] = "On failure", ["onExhausted"] = "When exhausted",
+            ["mode"] = "Mode", ["within"] = "Within", ["useCase"] = "Use case", ["operation"] = "Operation", ["event"] = "Event",
+            ["retry"] = "Retry", ["maxAttempts"] = "Max attempts", ["backoff"] = "Backoff", ["then"] = "Then",
             ["outcome"] = "Outcome",
             ["given"] = "Given", ["when"] = "When", ["then"] = "Then", ["examples"] = "Examples",
             ["carries"] = "Carries", ["path"] = "Path", ["contentType"] = "Content type", ["cacheControl"] = "Cache", ["versioning"] = "Versioning",

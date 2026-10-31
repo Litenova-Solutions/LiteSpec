@@ -1,7 +1,7 @@
 ---
 {
   "type": "setting-set",
-  "title": "<Settings display title>",
+  "title": "<Settings Display Title>",
   "owner": "<owner>",
   "status": "draft",
   "decider": "<owner>",
@@ -10,7 +10,7 @@
     {
       "type": "setting",
       "id": "setting/<module>.<name>",
-      "title": "<Setting display title>",
+      "title": "<Setting Display Title>",
       "valueType": "<integer|duration|money|boolean|text|choice>",
       "default": "<value>",
       "range": "<min..max or choices>",

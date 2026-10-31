@@ -1,14 +1,14 @@
 ---
 {
   "type": "index",
-  "title": "<Section title>",
+  "title": "<Section Title>",
   "owner": "<owner>",
   "status": "draft",
   "decider": "<owner>",
   "decideBy": "<YYYY-MM-DD>"
 }
 ---
-# <Section title>
+# <Section Title>
 
 State what this directory holds and which records live elsewhere.
 

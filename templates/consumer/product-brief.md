@@ -2,18 +2,18 @@
 {
   "type": "product",
   "id": "product/<name>",
-  "title": "<Product display title>",
+  "title": "<Product Display Title>",
   "owner": "<owner>",
   "status": "draft",
   "decider": "<owner>",
   "decideBy": "<YYYY-MM-DD>",
-  "boundary": "<What the product covers in one sentence>",
-  "exclusions": ["<One thing the product will never do>"],
+  "boundary": "<The ground the product covers in one sentence>",
+  "exclusions": ["<The product never takes this step.>"],
   "addresses": ["actor/<name>"],
   "terms": ["term/<term-name>"],
   "questions": [
     {
-      "question": "<The open question, or remove the questions block>",
+      "question": "<Which question stays open? remove the questions block when none does.>",
       "decider": "<owner>",
       "decideBy": "<YYYY-MM-DD>",
       "ballot": "<decision-id or topic slug>",

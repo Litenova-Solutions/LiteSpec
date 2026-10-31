@@ -24,6 +24,7 @@
     "requirement/borrowing.max-active-loans"
   ],
   "paging": {
+    "mode": "pages",
     "order": "Due date, earliest first.",
     "cursor": "The due date and loan identity of the last row.",
     "defaultLimit": 25,
@@ -58,7 +59,7 @@
   ],
   "approvedBy": "lending-team",
   "approvedOn": "2026-10-01",
-  "approvedHash": "c489dbda"
+  "approvedHash": "d4cd78df"
 }
 ---
 

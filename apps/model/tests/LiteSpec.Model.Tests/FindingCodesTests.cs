@@ -73,6 +73,14 @@ public sealed class FindingCodesTests
         Assert.Equal("A", Finding.Tiers["value-invalid"]);
     }
 
+    /// <summary>The table-drift code reports at level A.</summary>
+    /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
+    [Fact]
+    public void Table_Drift_Code_Is_Advisory()
+    {
+        Assert.Equal("A", Finding.Tiers["table-drift"]);
+    }
+
     /// <summary>Every finding code reads subject-problem with one of the twelve problem words.</summary>
     /// <proves>litespec/core/language#name-each-finding-code-by-subject-and-problem</proves>
     [Fact]

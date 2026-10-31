@@ -1,3 +1,5 @@
+using System.Text.Json.Nodes;
+
 namespace LiteSpec.Tests.Consumer;
 
 public sealed partial class ConsumerValidatorTests
@@ -33,6 +35,17 @@ public sealed partial class ConsumerValidatorTests
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.MutateBody(folder.Path, BriefPage, raw => WithoutSection(raw, "Summary"));
         AssertProblem(RunConsumer(folder.Path), "requires an H2 'Summary'");
+    }
+
+    /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
+    [Fact(DisplayName = "consumer findings carry their level")]
+    public void ConsumerFindingsCarryTheirLevel()
+    {
+        using var folder = ConsumerFixture.Create();
+        ConsumerFixture.MutateBody(folder.Path, BriefPage, raw => WithoutSection(raw, "Summary"));
+        var problems = Problems(RunConsumer(folder.Path));
+        Assert.NotEmpty(problems);
+        Assert.All(problems, problem => Assert.StartsWith("[G] ", problem));
     }
 
     /// <proves>litespec/core/intent#shape-each-topic-page</proves>
@@ -88,57 +101,108 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "requires an H2 'Summary'");
     }
 
-    /// <proves>litespec/core/behavior#connect-every-state-through-transitions</proves>
-    [Fact(DisplayName = "aggregate that omits its transitions table")]
-    public void AggregateThatOmitsItsTransitionsTable()
+    /// <proves>litespec/core/domain-model#connect-every-state-through-transitions</proves>
+    [Fact(DisplayName = "aggregate without transitions and data sections")]
+    public void AggregateWithoutTransitionsAndDataSections()
     {
         using var folder = ConsumerFixture.Create();
-        ConsumerFixture.MutateBody(folder.Path, AggregatePage, raw => WithoutSection(raw, "Transitions"));
-        AssertProblem(RunConsumer(folder.Path), "requires an H2 'Transitions'");
+        ConsumerFixture.MutateBody(
+            folder.Path,
+            AggregatePage,
+            raw => WithoutSection(WithoutSection(raw, "Transitions"), "Data"));
+        AssertClean(RunConsumer(folder.Path));
     }
 
-    /// <proves>litespec/core/behavior#classify-every-aggregate-data-field</proves>
-    [Fact(DisplayName = "aggregate that omits its data table")]
-    public void AggregateThatOmitsItsDataTable()
-    {
-        using var folder = ConsumerFixture.Create();
-        ConsumerFixture.MutateBody(folder.Path, AggregatePage, raw => WithoutSection(raw, "Data"));
-        AssertProblem(RunConsumer(folder.Path), "requires an H2 'Data'");
-    }
-
-    /// <proves>litespec/core/authoring#use-the-declared-page-contract</proves>
-    [Fact(DisplayName = "use case that omits its goal")]
-    public void UseCaseThatOmitsItsGoal()
+    /// <proves>litespec/core/use-cases#write-prose-on-significant-use-cases</proves>
+    [Fact(DisplayName = "significant use case that omits its goal")]
+    public void SignificantUseCaseThatOmitsItsGoal()
     {
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.MutateBody(folder.Path, UseCasePage, raw => WithoutSection(raw, "Goal"));
         AssertProblem(RunConsumer(folder.Path), "requires an H2 'Goal'");
     }
 
-    /// <proves>litespec/core/authoring#use-the-declared-page-contract</proves>
-    [Fact(DisplayName = "command that omits what happens")]
-    public void CommandThatOmitsWhatHappens()
+    /// <proves>litespec/core/use-cases#write-prose-on-significant-use-cases</proves>
+    [Fact(DisplayName = "significant command that omits what happens")]
+    public void SignificantCommandThatOmitsWhatHappens()
     {
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.MutateBody(folder.Path, UseCasePage, raw => WithoutSection(raw, "What Happens"));
         AssertProblem(RunConsumer(folder.Path), "requires an H2 'What Happens'");
     }
 
-    /// <proves>litespec/core/authoring#use-the-declared-page-contract</proves>
-    [Fact(DisplayName = "query without what happens")]
-    public void QueryWithoutWhatHappens()
+    /// <proves>litespec/core/use-cases#write-prose-on-significant-use-cases</proves>
+    [Fact(DisplayName = "significant query without what happens")]
+    public void SignificantQueryWithoutWhatHappens()
     {
         using var folder = ConsumerFixture.Create();
-        ConsumerFixture.MutateMeta(
-            folder.Path,
-            UseCasePage,
-            meta =>
-            {
-                meta["kind"] = "query";
-                meta["output"] = ConsumerFixture.Meta("""{"include":{"rows":{"fields":[{"name":"claims","meaning":"One row per order claim."}],"classification":"internal","reads":["aggregate/orders.order-claim"],"freshness":"immediate"}}}""");
-            });
+        ConsumerFixture.MutateMeta(folder.Path, UseCasePage, AsQuery);
         ConsumerFixture.MutateBody(folder.Path, UseCasePage, raw => WithoutSection(raw, "What Happens"));
         AssertClean(RunConsumer(folder.Path));
+    }
+
+    /// <proves>litespec/core/use-cases#write-prose-on-significant-use-cases</proves>
+    [Fact(DisplayName = "significant query that omits its goal")]
+    public void SignificantQueryThatOmitsItsGoal()
+    {
+        using var folder = ConsumerFixture.Create();
+        ConsumerFixture.MutateMeta(folder.Path, UseCasePage, AsQuery);
+        ConsumerFixture.MutateBody(folder.Path, UseCasePage, raw => WithoutSection(raw, "Goal"));
+        var result = RunConsumer(folder.Path);
+        AssertProblem(result, "requires an H2 'Goal'");
+        Assert.All(Problems(result), problem => Assert.DoesNotContain("What Happens", problem));
+    }
+
+    /// <proves>litespec/core/use-cases#write-prose-on-significant-use-cases</proves>
+    [Fact(DisplayName = "plain use case without goal and what happens")]
+    public void PlainUseCaseWithoutGoalAndWhatHappens()
+    {
+        using var folder = ConsumerFixture.Create();
+        ConsumerFixture.MutateMeta(folder.Path, UseCasePage, DropRefusals);
+        ConsumerFixture.MutateBody(
+            folder.Path,
+            UseCasePage,
+            raw => WithoutSection(WithoutSection(raw, "Goal"), "What Happens"));
+        AssertClean(RunConsumer(folder.Path));
+    }
+
+    /// <proves>litespec/core/use-cases#write-prose-on-significant-use-cases</proves>
+    [Fact(DisplayName = "retired use case without goal and what happens")]
+    public void RetiredUseCaseWithoutGoalAndWhatHappens()
+    {
+        using var folder = ConsumerFixture.Create();
+        ConsumerFixture.MutateMeta(folder.Path, UseCasePage, meta => meta["status"] = "retired");
+        ConsumerFixture.MutateBody(
+            folder.Path,
+            UseCasePage,
+            raw => WithoutSection(WithoutSection(raw, "Goal"), "What Happens"));
+        AssertClean(RunConsumer(folder.Path));
+    }
+
+    /// <summary>Makes the page a query with an immediate output group.</summary>
+    static void AsQuery(JsonObject meta)
+    {
+        meta["kind"] = "query";
+        meta["output"] = ConsumerFixture.Meta("""{"include":{"rows":{"fields":[{"name":"claims","meaning":"One row per order claim."}],"classification":"internal","reads":["aggregate/orders.order-claim"],"freshness":{"mode":"immediate"}}}}""");
+    }
+
+    /// <summary>Drops every refusal result from the page's records, leaving successes.</summary>
+    static void DropRefusals(JsonObject meta)
+    {
+        if (meta["records"] is not JsonArray records)
+        {
+            return;
+        }
+
+        for (var index = records.Count - 1; index >= 0; index--)
+        {
+            if (records[index] is JsonObject entry
+                && (string?)entry["type"] == "result"
+                && (string?)entry["outcome"] == "refusal")
+            {
+                records.RemoveAt(index);
+            }
+        }
     }
 
     /// <proves>litespec/core/intent#state-each-goal-with-its-measure</proves>

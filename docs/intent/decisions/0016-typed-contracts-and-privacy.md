@@ -49,7 +49,7 @@ Use-case inputs and integration-event payload fields carry `type` (`text`, `inte
 
 ## Consequences
 
-`litespec/core/behavior#describe-every-use-case-input-with-origin-and-classification` and `litespec/core/behavior#describe-every-integration-event-for-its-direction` carry the typed fields, and `litespec/core/behavior#declare-every-data-class-with-its-erasure-position` with `litespec/core/behavior#schedule-every-data-class-for-retention` carry the privacy positions.
+`litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification` and `litespec/core/edges#describe-every-integration-event-for-its-direction` carry the typed fields, and `litespec/core/privacy#declare-every-data-class-with-its-erasure-position` with `litespec/core/privacy#schedule-every-data-class-for-retention` carry the privacy positions.
 
 ## Evidence with Confidence
 

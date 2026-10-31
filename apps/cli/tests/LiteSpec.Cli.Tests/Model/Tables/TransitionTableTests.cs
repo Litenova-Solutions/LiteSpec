@@ -8,7 +8,7 @@ namespace LiteSpec.Tests.Model.Tables;
 public sealed class TransitionTableTests
 {
     /// <summary>A transitions table writes fields, marks entered states reachable, and checks clean.</summary>
-    /// <proves>litespec/core/behavior#connect-every-state-through-transitions</proves>
+    /// <proves>litespec/core/domain-model#connect-every-state-through-transitions</proves>
     [Fact]
     public void Transitions_Table_Writes_Fields_And_Marks_States_Reachable()
     {
@@ -42,9 +42,9 @@ public sealed class TransitionTableTests
     }
 
     /// <summary>A table row naming a missing use case reports transition-unknown; By aliases Triggered By.</summary>
-    /// <proves>litespec/core/behavior#connect-every-state-through-transitions</proves>
+    /// <proves>litespec/core/domain-model#connect-every-state-through-transitions</proves>
     [Fact]
-    public void Transition_By_A_Missing_Use_Case_Reports_Transition_Unresolved()
+    public void Transition_By_A_Missing_Use_Case_Reports_Transition_Unknown()
     {
         using var temp = ModelFixture.Prepare("small");
         AppendTable(temp.Path, DanglingTable);
@@ -56,7 +56,7 @@ public sealed class TransitionTableTests
     }
 
     /// <summary>Front-matter transitions win over the table.</summary>
-    /// <proves>litespec/core/behavior#connect-every-state-through-transitions</proves>
+    /// <proves>litespec/core/domain-model#connect-every-state-through-transitions</proves>
     [Fact]
     public void Front_Matter_Transitions_Win_Over_The_Table()
     {
@@ -74,10 +74,62 @@ public sealed class TransitionTableTests
         Assert.False(transitions[0].TryGetProperty("by", out _));
     }
 
+    /// <summary>A table disagreeing with frontmatter reports table-drift instead of merging.</summary>
+    /// <proves>litespec/core/domain-model#connect-every-state-through-transitions</proves>
+    [Fact]
+    public void Table_Disagreeing_With_Front_Matter_Reports_Table_Drift()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        AddFrontMatterTransitions(temp.Path);
+        AppendTable(temp.Path, TransitionsTable);
+
+        var check = Cli.Run("model", "check", "--root", temp.Path, "--format", "json");
+        Assert.Equal(1, check.Status);
+        Assert.Contains("table-drift", check.Output);
+    }
+
+    /// <summary>Render writes the transitions table from frontmatter into its region.</summary>
+    /// <proves>litespec/core/domain-model#connect-every-state-through-transitions</proves>
+    [Fact]
+    public void Render_Writes_The_Transitions_Table_From_Frontmatter()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        AddFrontMatterTransitions(temp.Path);
+        AppendRegion(temp.Path);
+
+        var render = Cli.Run("model", "render", "--root", temp.Path);
+        Assert.Equal(0, render.Status);
+
+        var page = Path.Combine(temp.Path, "docs", "behavior", "modules", "lending", "loans", "README.md");
+
+        Assert.Contains(
+            """
+            <!-- generated:transitions -->
+            | From | To | Triggered By |
+            |:---|:---|:---|
+            | Active | Returned |  |
+            <!-- /generated:transitions -->
+            """,
+            File.ReadAllText(page));
+    }
+
     static void AppendTable(string root, string table)
     {
         var page = Path.Combine(root, "docs", "behavior", "modules", "lending", "loans", "README.md");
         File.AppendAllText(page, table);
+    }
+
+    static void AppendRegion(string root)
+    {
+        var page = Path.Combine(root, "docs", "behavior", "modules", "lending", "loans", "README.md");
+        File.AppendAllText(page, """
+
+            ## Transitions
+
+            <!-- generated:transitions -->
+            placeholder
+            <!-- /generated:transitions -->
+            """);
     }
 
     /// <summary>

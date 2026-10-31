@@ -6,7 +6,7 @@ namespace LiteSpec.Tests.Model.Checks;
 /// <summary>Proves the record shape checks: the unified edge grammar, the idempotency grammar, the structured failure policy, the renamed fields and the layer status vocabulary.</summary>
 public sealed class RecordShapeCheckTests
 {
-    /// <proves>litespec/core/behavior#keep-the-effect-graph-free-of-cycles</proves>
+    /// <proves>litespec/core/use-cases#keep-the-effect-graph-free-of-cycles</proves>
     [Fact]
     public void Reaction_Effects_Issues_Edge_Feeds_Effect_Loop()
     {
@@ -20,7 +20,7 @@ public sealed class RecordShapeCheckTests
         Assert.Contains("effect-loop-invalid", TestModel.Codes(model));
     }
 
-    /// <proves>litespec/core/behavior#describe-every-notification-with-audience-channel-and-consent</proves>
+    /// <proves>litespec/core/edges#describe-every-notification-with-audience-channel-and-consent</proves>
     [Fact]
     public void Reaction_Effects_Sends_Edge_Satisfies_Notification_Sender()
     {
@@ -33,7 +33,7 @@ public sealed class RecordShapeCheckTests
         Assert.DoesNotContain("notification-sender-missing", TestModel.Codes(model));
     }
 
-    /// <proves>litespec/core/behavior#describe-every-notification-with-audience-channel-and-consent</proves>
+    /// <proves>litespec/core/edges#describe-every-notification-with-audience-channel-and-consent</proves>
     [Fact]
     public void Job_Effects_Sends_Edge_Satisfies_Notification_Sender()
     {
@@ -46,7 +46,7 @@ public sealed class RecordShapeCheckTests
         Assert.DoesNotContain("notification-sender-missing", TestModel.Codes(model));
     }
 
-    /// <proves>litespec/core/behavior#declare-every-effect-with-one-verb-and-its-timing</proves>
+    /// <proves>litespec/core/use-cases#declare-every-effect-with-one-verb-and-its-timing</proves>
     [Fact]
     public void Reaction_With_Top_Level_Issues_Reports_Record_Shape()
     {
@@ -58,7 +58,7 @@ public sealed class RecordShapeCheckTests
         Assert.True(Reports(model, "record-invalid", "top-level issues"));
     }
 
-    /// <proves>litespec/core/behavior#declare-every-effect-with-one-verb-and-its-timing</proves>
+    /// <proves>litespec/core/use-cases#declare-every-effect-with-one-verb-and-its-timing</proves>
     [Fact]
     public void Reaction_With_Top_Level_Sends_Reports_Record_Shape()
     {
@@ -70,7 +70,7 @@ public sealed class RecordShapeCheckTests
         Assert.True(Reports(model, "record-invalid", "top-level sends"));
     }
 
-    /// <proves>litespec/core/behavior#declare-every-effect-with-one-verb-and-its-timing</proves>
+    /// <proves>litespec/core/use-cases#declare-every-effect-with-one-verb-and-its-timing</proves>
     [Fact]
     public void Job_With_Top_Level_Issues_Reports_Record_Shape()
     {
@@ -82,7 +82,7 @@ public sealed class RecordShapeCheckTests
         Assert.True(Reports(model, "record-invalid", "top-level issues"));
     }
 
-    /// <proves>litespec/core/behavior#declare-every-effect-with-one-verb-and-its-timing</proves>
+    /// <proves>litespec/core/use-cases#declare-every-effect-with-one-verb-and-its-timing</proves>
     [Fact]
     public void Reaction_Without_Effects_Reports_Record_Shape()
     {
@@ -94,7 +94,7 @@ public sealed class RecordShapeCheckTests
         Assert.True(Reports(model, "record-invalid", "has no effects"));
     }
 
-    /// <proves>litespec/core/behavior#declare-every-effect-with-one-verb-and-its-timing</proves>
+    /// <proves>litespec/core/use-cases#declare-every-effect-with-one-verb-and-its-timing</proves>
     [Fact]
     public void Reaction_Effects_Without_Timing_Pass_Shape()
     {
@@ -107,7 +107,7 @@ public sealed class RecordShapeCheckTests
         Assert.DoesNotContain("record-invalid", TestModel.Codes(model));
     }
 
-    /// <proves>litespec/core/behavior#name-the-idempotency-of-every-use-case</proves>
+    /// <proves>litespec/core/use-cases#name-the-idempotency-of-every-use-case</proves>
     [Fact]
     public void Key_Placeholder_Naming_No_Input_Field_Reports()
     {
@@ -120,7 +120,7 @@ public sealed class RecordShapeCheckTests
         Assert.True(Reports(model, "record-invalid", "input fields in scope: copyId"));
     }
 
-    /// <proves>litespec/core/behavior#name-the-idempotency-of-every-use-case</proves>
+    /// <proves>litespec/core/use-cases#name-the-idempotency-of-every-use-case</proves>
     [Fact]
     public void Key_Without_Placeholder_Reports()
     {
@@ -133,7 +133,7 @@ public sealed class RecordShapeCheckTests
         Assert.True(Reports(model, "record-invalid", "input fields in scope: copyId"));
     }
 
-    /// <proves>litespec/core/behavior#name-the-idempotency-of-every-use-case</proves>
+    /// <proves>litespec/core/use-cases#name-the-idempotency-of-every-use-case</proves>
     [Fact]
     public void Unknown_Scope_Reports()
     {
@@ -145,7 +145,7 @@ public sealed class RecordShapeCheckTests
         Assert.True(Reports(model, "record-invalid", "tenant, account, login, global"));
     }
 
-    /// <proves>litespec/core/behavior#name-the-idempotency-of-every-use-case</proves>
+    /// <proves>litespec/core/use-cases#name-the-idempotency-of-every-use-case</proves>
     [Fact]
     public void Valid_Key_And_Scope_Pass_Shape()
     {
@@ -157,7 +157,7 @@ public sealed class RecordShapeCheckTests
         Assert.DoesNotContain("record-invalid", TestModel.Codes(model));
     }
 
-    /// <proves>litespec/core/behavior#name-the-idempotency-of-every-use-case</proves>
+    /// <proves>litespec/core/use-cases#name-the-idempotency-of-every-use-case</proves>
     [Fact]
     public void Reaction_Key_Names_Event_Fields_Unchecked()
     {
@@ -169,7 +169,7 @@ public sealed class RecordShapeCheckTests
         Assert.False(Reports(model, "record-invalid", "idempotency key"));
     }
 
-    /// <proves>litespec/core/behavior#state-the-failure-handling-of-every-reaction</proves>
+    /// <proves>litespec/core/automation#state-the-failure-handling-of-every-reaction</proves>
     [Fact]
     public void Reaction_Prose_OnFailure_Reports()
     {
@@ -181,7 +181,7 @@ public sealed class RecordShapeCheckTests
         Assert.True(Reports(model, "record-invalid", "as prose"));
     }
 
-    /// <proves>litespec/core/behavior#state-the-failure-handling-of-every-reaction</proves>
+    /// <proves>litespec/core/automation#state-the-failure-handling-of-every-reaction</proves>
     [Fact]
     public void Job_Prose_OnFailure_Reports()
     {
@@ -193,90 +193,229 @@ public sealed class RecordShapeCheckTests
         Assert.True(Reports(model, "record-invalid", "as prose"));
     }
 
-    /// <proves>litespec/core/behavior#state-the-failure-handling-of-every-reaction</proves>
+    /// <proves>litespec/core/automation#state-the-failure-handling-of-every-reaction</proves>
     [Fact]
-    public void Malformed_Retry_Delay_Reports()
+    public void Missing_Mode_Reports()
     {
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("job", "job/lending.nightly-due-scan", Path.Combine(temp.Path, "scan.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "kind": "scheduled", "onFailure": {"retry": {"maxAttempts": 10, "initialDelay": "5 seconds", "maxDelay": "PT10M", "backoff": "exponential"}}}"""));
+            TestModel.Record("reaction", "reaction/lending.send-due-notice-on-loan-borrowed", Path.Combine(temp.Path, "notice.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "on": ["event/loan.loan-borrowed"], "effects": [{"sends": "notification/lending.loan-due"}], "onFailure": {}}"""));
 
-        Assert.True(Reports(model, "record-invalid", "initialDelay '5 seconds', which is not an ISO 8601 duration"));
+        Assert.True(Reports(model, "record-invalid", "onFailure with no mode"));
     }
 
-    /// <proves>litespec/core/behavior#state-the-failure-handling-of-every-reaction</proves>
+    /// <proves>litespec/core/automation#state-the-failure-handling-of-every-reaction</proves>
     [Fact]
-    public void Malformed_DeadLetter_After_Reports()
+    public void Unknown_Mode_Reports()
     {
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("job", "job/lending.nightly-due-scan", Path.Combine(temp.Path, "scan.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "kind": "scheduled", "onFailure": {"retry": "none", "deadLetter": {"after": "7 days", "action": "Replay by hand."}}}"""));
+            TestModel.Record("job", "job/lending.nightly-due-scan", Path.Combine(temp.Path, "scan.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "kind": "scheduled", "onFailure": {"mode": "give-up"}}"""));
 
-        Assert.True(Reports(model, "record-invalid", "after '7 days', which is not an ISO 8601 duration"));
+        Assert.True(Reports(model, "record-invalid", "mode 'give-up' outside retry, skip-and-log, discard"));
     }
 
-    /// <proves>litespec/core/behavior#state-the-failure-handling-of-every-reaction</proves>
+    /// <proves>litespec/core/automation#state-the-failure-handling-of-every-reaction</proves>
     [Fact]
-    public void Unknown_Backoff_Reports()
+    public void Malformed_Retry_Backoff_Reports()
     {
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("job", "job/lending.nightly-due-scan", Path.Combine(temp.Path, "scan.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "kind": "scheduled", "onFailure": {"retry": {"maxAttempts": 10, "initialDelay": "PT5S", "maxDelay": "PT10M", "backoff": "linear"}}}"""));
+            TestModel.Record("job", "job/lending.nightly-due-scan", Path.Combine(temp.Path, "scan.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "kind": "scheduled", "onFailure": {"mode": "retry", "retry": {"maxAttempts": 5, "backoff": "5 seconds"}, "then": "dead-letter"}}"""));
 
-        Assert.True(Reports(model, "record-invalid", "exponential, fixed"));
+        Assert.True(Reports(model, "record-invalid", "backoff '5 seconds', which is not an ISO 8601 duration"));
     }
 
-    /// <proves>litespec/core/behavior#state-the-failure-handling-of-every-reaction</proves>
+    /// <proves>litespec/core/automation#state-the-failure-handling-of-every-reaction</proves>
+    [Fact]
+    public void Missing_Backoff_Reports()
+    {
+        using var temp = Cli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("job", "job/lending.nightly-due-scan", Path.Combine(temp.Path, "scan.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "kind": "scheduled", "onFailure": {"mode": "retry", "retry": {"maxAttempts": 5}, "then": "dead-letter"}}"""));
+
+        Assert.True(Reports(model, "record-invalid", "retry backoff with no duration"));
+    }
+
+    /// <proves>litespec/core/automation#state-the-failure-handling-of-every-reaction</proves>
     [Fact]
     public void Missing_MaxAttempts_Reports()
     {
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("job", "job/lending.nightly-due-scan", Path.Combine(temp.Path, "scan.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "kind": "scheduled", "onFailure": {"retry": {"initialDelay": "PT5S", "maxDelay": "PT10M", "backoff": "exponential"}}}"""));
+            TestModel.Record("job", "job/lending.nightly-due-scan", Path.Combine(temp.Path, "scan.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "kind": "scheduled", "onFailure": {"mode": "retry", "retry": {"backoff": "PT1M"}, "then": "dead-letter"}}"""));
 
         Assert.True(Reports(model, "record-invalid", "no positive maxAttempts"));
     }
 
-    /// <proves>litespec/core/behavior#state-the-failure-handling-of-every-reaction</proves>
+    /// <proves>litespec/core/automation#state-the-failure-handling-of-every-reaction</proves>
     [Fact]
     public void Missing_Retry_Reports()
     {
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("reaction", "reaction/lending.send-due-notice-on-loan-borrowed", Path.Combine(temp.Path, "notice.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "on": ["event/loan.loan-borrowed"], "effects": [{"sends": "notification/lending.loan-due"}], "onFailure": {"deadLetter": {"after": "P7D", "action": "Replay by hand."}}}"""));
+            TestModel.Record("reaction", "reaction/lending.send-due-notice-on-loan-borrowed", Path.Combine(temp.Path, "notice.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "on": ["event/loan.loan-borrowed"], "effects": [{"sends": "notification/lending.loan-due"}], "onFailure": {"mode": "retry", "then": "dead-letter"}}"""));
 
         Assert.True(Reports(model, "record-invalid", "onFailure with no retry"));
     }
 
-    /// <proves>litespec/core/behavior#state-the-failure-handling-of-every-reaction</proves>
+    /// <proves>litespec/core/automation#state-the-failure-handling-of-every-reaction</proves>
+    [Fact]
+    public void Missing_Then_Reports()
+    {
+        using var temp = Cli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("job", "job/lending.nightly-due-scan", Path.Combine(temp.Path, "scan.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "kind": "scheduled", "onFailure": {"mode": "retry", "retry": {"maxAttempts": 5, "backoff": "PT1M"}}}"""));
+
+        Assert.True(Reports(model, "record-invalid", "retry with no then"));
+    }
+
+    /// <proves>litespec/core/automation#state-the-failure-handling-of-every-reaction</proves>
+    [Fact]
+    public void Unknown_Then_Reports()
+    {
+        using var temp = Cli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("job", "job/lending.nightly-due-scan", Path.Combine(temp.Path, "scan.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "kind": "scheduled", "onFailure": {"mode": "retry", "retry": {"maxAttempts": 5, "backoff": "PT1M"}, "then": "requeue"}}"""));
+
+        Assert.True(Reports(model, "record-invalid", "then 'requeue' outside dead-letter"));
+    }
+
+    /// <proves>litespec/core/automation#state-the-failure-handling-of-every-reaction</proves>
     [Fact]
     public void Structured_OnFailure_Passes_Shape()
     {
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("reaction", "reaction/lending.send-due-notice-on-loan-borrowed", Path.Combine(temp.Path, "notice.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "on": ["event/loan.loan-borrowed"], "effects": [{"sends": "notification/lending.loan-due"}], "onFailure": {"retry": {"maxAttempts": 10, "initialDelay": "PT5S", "maxDelay": "PT10M", "backoff": "exponential"}, "deadLetter": {"after": "P7D", "action": "Replay by hand."}}}"""),
+            TestModel.Record("reaction", "reaction/lending.send-due-notice-on-loan-borrowed", Path.Combine(temp.Path, "notice.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "on": ["event/loan.loan-borrowed"], "effects": [{"sends": "notification/lending.loan-due"}], "onFailure": {"mode": "retry", "retry": {"maxAttempts": 10, "backoff": "PT5S"}, "then": "dead-letter"}}"""),
             TestModel.Record("event", "event/loan.loan-borrowed", Path.Combine(temp.Path, "loan.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "meaning": "A copy was lent.", "carries": []}"""),
             TestModel.Record("notification", "notification/lending.loan-due", Path.Combine(temp.Path, "due.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01"}"""));
 
         Assert.DoesNotContain("record-invalid", TestModel.Codes(model));
     }
 
-    /// <proves>litespec/core/behavior#state-the-failure-handling-of-every-reaction</proves>
+    /// <proves>litespec/core/automation#state-the-failure-handling-of-every-reaction</proves>
     [Fact]
-    public void Retry_None_Passes_Shape()
+    public void Skip_And_Log_Passes_Shape()
     {
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("job", "job/lending.nightly-due-scan", Path.Combine(temp.Path, "scan.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "kind": "one-off", "onFailure": {"retry": "none"}}"""));
+            TestModel.Record("job", "job/lending.nightly-due-scan", Path.Combine(temp.Path, "scan.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "kind": "one-off", "onFailure": {"mode": "skip-and-log"}}"""));
 
         Assert.DoesNotContain("record-invalid", TestModel.Codes(model));
+    }
+
+    /// <proves>litespec/core/automation#state-the-failure-handling-of-every-reaction</proves>
+    [Fact]
+    public void Discard_Passes_Shape()
+    {
+        using var temp = Cli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("job", "job/lending.nightly-due-scan", Path.Combine(temp.Path, "scan.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "kind": "one-off", "onFailure": {"mode": "discard"}}"""));
+
+        Assert.DoesNotContain("record-invalid", TestModel.Codes(model));
+    }
+
+    /// <proves>litespec/core/automation#state-the-failure-handling-of-every-reaction</proves>
+    [Fact]
+    public void Effect_Prose_OnFailure_Reports()
+    {
+        using var temp = Cli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "kind": "command", "effects": [{"issues": "use-case/lending.notify-reader", "timing": "async", "onFailure": "retry (5, PT1M) then dead-letter"}]}"""));
+
+        Assert.True(Reports(model, "record-invalid", "effect onFailure 'retry (5, PT1M) then dead-letter' as prose"));
+    }
+
+    /// <proves>litespec/core/automation#state-the-failure-handling-of-every-reaction</proves>
+    [Fact]
+    public void Effect_Retry_Without_Attempts_Reports()
+    {
+        using var temp = Cli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "kind": "command", "effects": [{"issues": "use-case/lending.notify-reader", "timing": "async", "onFailure": {"mode": "retry", "retry": {"backoff": "PT1M"}, "then": "dead-letter"}}]}"""));
+
+        Assert.True(Reports(model, "record-invalid", "effect onFailure retry with no positive maxAttempts"));
+    }
+
+    /// <proves>litespec/core/automation#state-the-failure-handling-of-every-reaction</proves>
+    [Fact]
+    public void Effect_Structured_OnFailure_Passes_Shape()
+    {
+        using var temp = Cli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.md"), """{"status": "draft", "decider": "lending-team", "decideBy": "2035-06-01", "kind": "command", "effects": [{"issues": "use-case/lending.notify-reader", "timing": "async", "onFailure": {"mode": "discard"}}]}"""));
+
+        Assert.False(Reports(model, "record-invalid", "onFailure"));
+    }
+
+    [Fact]
+    public void Reservation_Without_ReleasedBy_Reports()
+    {
+        using var temp = Cli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("rule", "rule/copy.hold-reservation", Path.Combine(temp.Path, "copy.md"), """{"kind": "reservation", "statement": "A placed hold reserves its copy.", "governs": ["use-case/lending.place-hold"]}"""));
+
+        Assert.True(Reports(model, "reservation-release-missing", "reserves with no releasedBy"));
+    }
+
+    [Fact]
+    public void Reservation_With_Never_Object_And_Reason_Passes()
+    {
+        using var temp = Cli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("rule", "rule/copy.hold-reservation", Path.Combine(temp.Path, "copy.md"), """{"kind": "reservation", "statement": "A placed hold reserves its copy.", "governs": ["use-case/lending.place-hold"], "releasedBy": {"mode": "never", "reason": "Holds never expire."}}"""));
+
+        Assert.DoesNotContain("reservation-release-missing", TestModel.Codes(model));
+    }
+
+    [Fact]
+    public void Reservation_With_Never_Object_And_No_Reason_Reports()
+    {
+        using var temp = Cli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("rule", "rule/copy.hold-reservation", Path.Combine(temp.Path, "copy.md"), """{"kind": "reservation", "statement": "A placed hold reserves its copy.", "governs": ["use-case/lending.place-hold"], "releasedBy": {"mode": "never"}}"""));
+
+        Assert.True(Reports(model, "reservation-release-missing", "names never with no reason"));
+    }
+
+    [Fact]
+    public void Reservation_With_Use_Case_Id_Passes()
+    {
+        using var temp = Cli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("rule", "rule/copy.hold-reservation", Path.Combine(temp.Path, "copy.md"), """{"kind": "reservation", "statement": "A placed hold reserves its copy.", "governs": ["use-case/lending.place-hold"], "releasedBy": "use-case/lending.release-hold"}"""));
+
+        Assert.DoesNotContain("reservation-release-missing", TestModel.Codes(model));
+    }
+
+    [Fact]
+    public void Reservation_With_Legacy_Never_String_Reports()
+    {
+        using var temp = Cli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("rule", "rule/copy.hold-reservation", Path.Combine(temp.Path, "copy.md"), """{"kind": "reservation", "statement": "A placed hold reserves its copy.", "governs": ["use-case/lending.place-hold"], "releasedBy": "never (the hold never expires)"}"""));
+
+        Assert.True(Reports(model, "field-invalid", "neither a record id nor a never object"));
     }
 
     /// <proves>litespec/core/intent#state-each-goal-with-its-measure</proves>

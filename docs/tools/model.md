@@ -37,7 +37,7 @@ A proof goes stale when its scenario changes after the proof passed. The first t
 
 The .NET stack reader links each code element to its record through its mark, in the style `marks` declares: a handler, an event handler, a job, a port, an adapter, an endpoint, an aggregate root and its state-changing methods, a domain event, a refusal type, and a test. A folder or a type name is never the link. A marked refusal type declares the `code` of the refusal result its rule names.
 
-Aggregate transitions and data, and scenario examples, may be written as Markdown tables the builder parses, so the parts people debate read naturally even in the raw file. A front-matter field wins over a table with the same name.
+Aggregate transitions and data, and scenario examples, may be written as Markdown tables the builder parses, so the parts people debate read naturally even in the raw file. A front-matter field wins over a table with the same name. A handwritten transitions, data, or retention table that differs from the frontmatter reports `table-drift`.
 
 The eight subcommands share one reader:
 
@@ -100,6 +100,7 @@ Every check has a level. G reads records only and always blocks. S reads code th
 | `use-case-success-missing` | G | A use case ends with no success result. | Add the success result to the use case. |
 | `scenario-result-unknown` | G | A scenario ends in a result outside its own use case and outside the derived results. | End the scenario in a result of its own use case. |
 | `calculation-table-missing` | G | A calculation rule has no scenario examples table. | Add the scenario examples table to the rule. |
+| `table-drift` | A | A handwritten body table holds transitions, data fields or retention rows that differ from the frontmatter. | Keep the fact in frontmatter and render the table as a generated region. |
 | `rule-name-invalid` | G | A rule statement negates what its name does not keep. | Keep the negation word in the rule name. |
 | `known-gap-expired` | G | A known gap passed its end date with its check still red. | Fix the finding, or extend the gap with a new end date. |
 | `gap-finding-unknown` | G | A known gap names a check that no check uses. | Name a finding code a check emits. |
@@ -119,11 +120,11 @@ Every check has a level. G reads records only and always blocks. S reads code th
 | `integration-event-name-invalid` | G | An outbound integration event is named with an internal word such as `staged`, `dispatch` or `outbox`. | Rename the event without the internal word. |
 | `reaction-trigger-unknown` | G | A reaction names a trigger no domain event or integration event carries. | Point the trigger at a written domain event or integration event. |
 | `erasure-undeclared` | G | A personal or sensitive field stands outside a declared erasure position. | Declare the erasure position of the field. |
-| `record-link-missing` | G | A Behavior record names neither `serves` nor `fulfills`. | Link the record with `serves` or `fulfills`. |
+| `record-link-missing` | G | A use case, reaction, job, notification or setting names neither `serves` nor `fulfills`. | Link the record with `serves` or `fulfills`. |
 | `record-parent-missing` | G | A requirement topic names no topic record, a feature solves no problem, a journey serves no goal, a scenario names no result, a screen names no entryPoint, or a rule, event, or module-homed record names an identifier home no record holds. | Name the missing parent. |
 | `feature-goal-missing` | A (G for tier 1) | A feature that is not refused advances no goal. | Advance a goal from the feature, or record the refusal. |
 | `result-scenario-missing` | A (G for success results) | A written result is shown by no scenario. | Write a scenario that shows the result. |
-| `step-use-case-missing` | G | A journey step is served by no use case or reaction. Its pair `step-screen-missing` names a step a browser or device use case serves that no screen serves. | Serve the step from a use case or a reaction. |
+| `step-use-case-missing` | G | A journey step is served by no use case, reaction or job. Its pair `step-screen-missing` names a step a browser or device use case serves that no screen serves. | Serve the step from a use case, a reaction or a job. |
 | `effect-loop-invalid` | G | The effect graph cycles outside a domain event with a stated end condition. | Break the cycle, or route it through a domain event with a stated end condition. |
 | `consistency-cites-missing` | G | An atomic use case changing more than one aggregate names no rule in `cites`. | Cite the atomicity rule in `cites`. |
 | `query-output-missing` | G | A query declares no `output`. | Declare the `output` of the query. |
@@ -133,7 +134,7 @@ Every check has a level. G reads records only and always blocks. S reads code th
 | `risk-acceptance-missing` | G | A retained or exempt personal data class names no `acceptedBy` in Intent. | Record the acceptance in `acceptedBy`. |
 | `exemption-expired` | G | An erasure exemption passed its `reviewBy` date. | Review the exemption and set a new `reviewBy` date. |
 | `setting-requirement-missing` | G | A commercial, legal, or tenant-varying default fulfills no requirement. | Fulfill a requirement from the setting. |
-| `reservation-release-missing` | G | A reservation rule names no `releasedBy`. | Name the release in `releasedBy`. |
+| `reservation-release-missing` | G | A reservation rule names no `releasedBy`, or names never with no reason. | Name the releasing record in `releasedBy`, or never with a reason. |
 | `notification-sender-missing` | G | A notification is sent by no reaction or use case. | Send the notification from a reaction or a use case. |
 | `except-fallback-missing` | G | An `except` names no fallback requirement, or the fallback carries its own `except`. | Name a fallback requirement that carries no `except` of its own. |
 | `approval-reopened` | G | A semantic hash differs from the recorded `approvedHash`. | Re-approve the record. |

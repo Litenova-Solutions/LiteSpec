@@ -36,7 +36,7 @@ This extension switches on no optional record type. Each provider is recorded as
 
 **Statement:** A `calls` effect MUST name an operation the cited external system declares.
 
-**Rationale:** Each outside call is a declared edge: the effect names the system and its operation, and the operation states the direction, timeout, retry, response, and cache. A call to an undeclared operation ships as an unreviewed dependency, and the security queue has no stated edge to review. `litespec/core/behavior#declare-every-effect-with-one-verb-and-its-timing` states the effect verbs, and the `effect-undeclared` check reports an edge the records never declared.
+**Rationale:** Each outside call is a declared edge: the effect names the system and its operation, and the operation states the direction, timeout, retry, response, and cache. A call to an undeclared operation ships as an unreviewed dependency, and the security queue has no stated edge to review. `litespec/core/use-cases#declare-every-effect-with-one-verb-and-its-timing` states the effect verbs, and the `effect-undeclared` check reports an edge the records never declared.
 
 **Example:** The payout effect cites `calls` on the payout bank `send-batch` operation with its timeout and retry count.
 
@@ -160,7 +160,7 @@ The project's own error catalog holds the stable codes. `litespec/backend/api#re
 
 **Statement:** An inbound integration event MUST declare `trust` as trigger-only or payload with its correlation.
 
-**Rationale:** Readers place one of two trusts in an inbound fact: trigger-only wakes a read of the source, while payload is fit to act on. The trust states which one, and the correlation states how the event matches, so no handler guesses how far to follow a stranger's fields. `litespec/core/behavior#describe-every-integration-event-for-its-direction` states the record, and `litespec/core/behavior#reach-every-inbound-integration-event-through-a-webhook` gives each inbound fact one door.
+**Rationale:** Readers place one of two trusts in an inbound fact: trigger-only wakes a read of the source, while payload is fit to act on. The trust states which one, and the correlation states how the event matches, so no handler guesses how far to follow a stranger's fields. `litespec/core/edges#describe-every-integration-event-for-its-direction` states the record, and `litespec/core/edges#reach-every-inbound-integration-event-through-a-webhook` gives each inbound fact one door.
 
 **Reviewed for:** Each inbound integration event declares trigger-only or payload trust with its correlation.
 

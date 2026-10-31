@@ -187,6 +187,15 @@ public sealed class BookLexiconTests
         Assert.Equal("Source", lexicon.Fields["source"]);
         Assert.Equal("Scope", lexicon.Fields["scope"]);
         Assert.Equal("Reason", lexicon.Fields["reason"]);
+        Assert.Equal("Mode", lexicon.Fields["mode"]);
+        Assert.Equal("Within", lexicon.Fields["within"]);
+        Assert.Equal("Use case", lexicon.Fields["useCase"]);
+        Assert.Equal("Operation", lexicon.Fields["operation"]);
+        Assert.Equal("Event", lexicon.Fields["event"]);
+        Assert.Equal("Retry", lexicon.Fields["retry"]);
+        Assert.Equal("Max attempts", lexicon.Fields["maxAttempts"]);
+        Assert.Equal("Backoff", lexicon.Fields["backoff"]);
+        Assert.Equal("Then", lexicon.Fields["then"]);
 
         Assert.False(lexicon.Fields.ContainsKey("by"));
         Assert.False(lexicon.Fields.ContainsKey("state"));

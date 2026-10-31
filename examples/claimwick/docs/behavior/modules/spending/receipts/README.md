@@ -6,6 +6,7 @@
   "owner": "claimwick-team",
   "status": "reviewed",
   "summary": "A receipt is proof of payment attached to an expense.",
+  "kind": "entity",
   "states": [
     {
       "name": "Attached",
@@ -54,8 +55,8 @@
     }
   ],
   "approvedBy": "claimwick-team",
-  "approvedOn": "2026-10-01",
-  "approvedHash": "e6930829"
+  "approvedOn": "2026-10-31",
+  "approvedHash": "55f94df7"
 }
 ---
 

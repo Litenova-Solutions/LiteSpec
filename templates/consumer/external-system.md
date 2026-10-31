@@ -2,7 +2,7 @@
 {
   "type": "external-system",
   "id": "external-system/<name>",
-  "title": "<External system display title>",
+  "title": "<External System Display Title>",
   "owner": "<owner>",
   "status": "draft",
   "decider": "<owner>",
@@ -12,22 +12,26 @@
     {
       "name": "<operation>",
       "direction": "<out|in>",
-      "timeout": "<duration>",
-      "onTimeout": "<What happens on timeout>",
-      "retries": "<Retry policy>",
-      "response": "<What the response carries>",
+      "timeout": "<ISO 8601 duration>",
+      "onTimeout": "<Callers see a timeout when the wait ends.>",
+      "response": "<The data the response carries>",
       "cache": "<Cache policy, or remove this line>"
     }
   ],
-  "erasure": "<call <operation>|via integration-event/<name>|impossible (<reason>)>",
+  "erasure": {
+    "mode": "<call|event|impossible>",
+    "operation": "<external-system/<name>#<operation>, when the mode is call; otherwise remove this line>",
+    "event": "<integration-event/<name>, when the mode is event; otherwise remove this line>",
+    "reason": "<the processor holds no personal data, when the mode is impossible; otherwise remove this line>"
+  },
   "acceptedBy": "<Decision or requirement id when erasure is impossible, otherwise remove this line>",
-  "sends": ["<What the product sends, or remove this line>"],
-  "receives": ["<What the product receives, or remove this line>"],
-  "failure": "<What happens when this system fails, in words>",
+  "sends": ["<The data the product sends, or remove this line>"],
+  "receives": ["<The data the product receives, or remove this line>"],
+  "failure": "<Callers read cached answers while this system stays down.>",
   "terms": ["term/<term-name>"],
   "questions": [
     {
-      "question": "<The open question, or remove the questions block>",
+      "question": "<Which question stays open? remove the questions block when none does.>",
       "decider": "<owner>",
       "decideBy": "<YYYY-MM-DD>",
       "ballot": "<decision-id or topic slug>",

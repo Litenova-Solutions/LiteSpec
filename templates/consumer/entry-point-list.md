@@ -1,7 +1,7 @@
 ---
 {
   "type": "entry-point-list",
-  "title": "<Entry points display title>",
+  "title": "<Entry Points Display Title>",
   "owner": "<owner>",
   "status": "draft",
   "decider": "<owner>",
@@ -10,7 +10,7 @@
     {
       "type": "entry-point",
       "id": "entry-point/<name>",
-      "title": "<Entry point display title>",
+      "title": "<Entry Point Display Title>",
       "kind": "<browser|api|webhook|device|cli|mcp|served-content|reaction|job>",
       "auth": ["<session|token|device|link|app|anonymous|system>"],
       "path": "<Path when the kind is served-content, otherwise remove this line>",

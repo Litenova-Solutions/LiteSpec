@@ -1,7 +1,7 @@
 ---
 {
   "type": "example-cast",
-  "title": "<Cast title>",
+  "title": "<Cast Title>",
   "owner": "<owner>",
   "status": "draft",
   "decider": "<owner>",

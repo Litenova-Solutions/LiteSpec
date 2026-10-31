@@ -424,6 +424,23 @@ public sealed class BookEnrichTests
         Assert.True(HasEdge(Arr(details["external-system/address-lookup"], "in"), "use-case/lending.borrow-copy", "use-case.effects.calls"));
     }
 
+    /// <summary>Wave-5 link objects resolve to dotted edges, and a mode-only object resolves to none while reaching the client intact.</summary>
+    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    [Fact]
+    public void Wave5_Link_Objects_Form_Record_Edges()
+    {
+        var process = Record("aggregate", "aggregate/lending.hold-queue", "Hold Queue", "approved", "approved", """{"steps": [{"name": "hold-place", "compensation": {"mode": "use-case", "useCase": "use-case/lending.borrow-copy"}}]}""");
+        var useCase = Record("use-case", "use-case/lending.borrow-copy", "Borrow Copy", "approved", "approved");
+        var rule = Record("rule", "rule/loan.hold-release", "Hold Release", "approved", "approved", """{"releasedBy": "use-case/lending.borrow-copy"}""");
+        var kept = Record("rule", "rule/loan.ever-held", "Ever Held", "approved", "approved", """{"releasedBy": {"mode": "never", "reason": "the hold lasts"}}""");
+        var details = DetailsOf(NewModel(process, useCase, rule, kept));
+        Assert.True(HasEdge(Arr(details["aggregate/lending.hold-queue"], "out"), "use-case/lending.borrow-copy", "aggregate.steps.compensation.useCase"));
+        Assert.True(HasEdge(Arr(details["use-case/lending.borrow-copy"], "in"), "aggregate/lending.hold-queue", "aggregate.steps.compensation.useCase"));
+        Assert.True(HasEdge(Arr(details["rule/loan.hold-release"], "out"), "use-case/lending.borrow-copy", "rule.releasedBy"));
+        Assert.Empty(Arr(details["rule/loan.ever-held"], "out"));
+        Assert.Equal("never", Str(Obj(Obj(details["rule/loan.ever-held"], "fields"), "releasedBy"), "mode"));
+    }
+
     static JsonObject LoadFixture(string relative) =>
         (JsonObject)JsonNode.Parse(File.ReadAllText(Cli.Fixture(relative)))!;
 

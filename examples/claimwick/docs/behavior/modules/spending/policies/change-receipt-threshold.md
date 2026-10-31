@@ -26,6 +26,14 @@
   "changes": [
     "aggregate/spending.policy"
   ],
+  "idempotency": {
+    "mode": "none",
+    "reason": "a repeat sets the same threshold on the policy, leaving the same value in place"
+  },
+  "audit": {
+    "level": "none",
+    "target": "no audit trail; the example stores no audit entry"
+  },
   "records": [
     {
       "type": "result",
@@ -80,8 +88,8 @@
     }
   ],
   "approvedBy": "claimwick-team",
-  "approvedOn": "2026-10-01",
-  "approvedHash": "7c9cd22a"
+  "approvedOn": "2026-10-31",
+  "approvedHash": "5fd202ee"
 }
 ---
 

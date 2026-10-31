@@ -2,17 +2,17 @@
 {
   "type": "aggregate",
   "id": "aggregate/<module>.<name>",
-  "title": "<Aggregate display title>",
+  "title": "<Aggregate Display Title>",
   "owner": "<owner>",
   "status": "draft",
   "decider": "<owner>",
   "decideBy": "<YYYY-MM-DD>",
-  "summary": "<What this aggregate keeps consistent in one sentence>",
+  "summary": "<The consistency this aggregate keeps in one sentence>",
   "kind": "<process|store, or remove this line for an entity>",
   "states": [
     {
       "name": "<state>",
-      "meaning": "<What it means for an instance to sit in this state>"
+      "meaning": "<The state of an instance sitting here>"
     }
   ],
   "dataClasses": [
@@ -22,9 +22,9 @@
       "fields": ["<field>"],
       "onErasure": "<erase|pseudonymize|retain|exempt>",
       "basis": "<statute|business|engineering>",
-      "period": "<ISO duration, or none (on-demand)>",
+      "period": "<ISO 8601 duration, or replace this value with { mode: none, reason: <the data stays until its subject asks> } when the data is held on demand>",
       "enforcedBy": "<job/<module>.<name>|record-expiry|store-ttl|query-filter>",
-      "reason": "<Reason when exempt, otherwise remove this line>",
+      "reason": "<the product keeps this data beyond erasure, when exempt, otherwise remove this line>",
       "reviewBy": "<Date when exempt, otherwise remove this line>",
       "acceptedBy": "<Decision or requirement id when personal or sensitive with retain or exempt, otherwise remove this line>",
       "reach": "<own-tenant|subject-wide|platform-wide>",
@@ -39,47 +39,51 @@
   "steps": [
     {
       "name": "<step; remove the steps, exits, finishedWhen, driver, and cursor lines when the kind is not process>",
-      "when": "<Guard, or remove this line>",
-      "compensation": "<use-case/<module>.<name>, or none (<reason>)>"
+      "when": "<the step runs next, or remove this line>",
+      "compensation": {
+        "mode": "<none|use-case>",
+        "reason": "<the step changes nothing to undo, when the mode is none; otherwise remove this line>",
+        "useCase": "<use-case/<module>.<name>, when the mode is use-case, otherwise remove this line>"
+      }
     }
   ],
   "exits": [
     {
       "name": "<exit>",
-      "trigger": "<Condition, decision by <actor>, or due <duration>>",
-      "then": "<What happens>"
+      "trigger": "<the state, decision by <actor>, or <duration> wait that opens this exit>",
+      "then": "<The run leaves through this exit.>"
     }
   ],
-  "finishedWhen": "<The observable end in one sentence>",
+  "finishedWhen": "<every step reaches the observable end>",
   "driver": ["<reaction/<module>.<name>, job/<module>.<name>, or operator: <who, via runbook/<name>, due <duration>>>"],
-  "cursor": "<Where resume state lives, or remove this line>",
+  "cursor": "<The store that holds the resume state, or remove this line>",
   "records": [
     {
       "type": "rule",
       "id": "rule/<aggregate>.<name>",
-      "title": "<Rule display title>",
+      "title": "<Rule Display Title>",
       "kind": "<invariant|precondition|calculation|cross-aggregate|atomicity|reservation|commercial-data|default>",
-      "statement": "<The rule in one sentence>",
+      "statement": "<The aggregate keeps the rule in one sentence.>",
       "governs": ["aggregate/<module>.<name>"],
       "refusal": "<result id or refusal code, or remove this line>",
-      "releasedBy": "<use-case/<module>.<name>, or never (<cost>), when the kind is reservation; otherwise remove this line>",
-      "frozenWhen": "<When the value freezes, when the kind is commercial-data; otherwise remove this line>",
-      "history": "<Where past values live, when the kind is commercial-data; otherwise remove this line>",
+      "releasedBy": "<use-case/<module>.<name>, or { mode: never, reason: <the hold stands until the event ends> } when nothing releases it, when the kind is reservation; otherwise remove this line>",
+      "frozenWhen": "<the value freezes, when the kind is commercial-data; otherwise remove this line>",
+      "history": "<The store that holds past values, when the kind is commercial-data; otherwise remove this line>",
       "basedOn": ["<constraint or research id, or remove this line>"],
       "fulfills": ["requirement/<topic>.<name>"]
     },
     {
       "type": "event",
       "id": "event/<aggregate>.<past-tense>",
-      "title": "<Event display title>",
-      "meaning": "<What completed, in one sentence>",
+      "title": "<Event Display Title>",
+      "meaning": "<The completion this event reports in one sentence>",
       "carries": ["<field-name>"]
     }
   ],
   "terms": ["term/<term-name>"],
   "questions": [
     {
-      "question": "<The open question, or remove the questions block>",
+      "question": "<Which question stays open? remove the questions block when none does.>",
       "decider": "<owner>",
       "decideBy": "<YYYY-MM-DD>",
       "ballot": "<decision-id or topic slug>",
@@ -107,7 +111,7 @@ List every stored field with its meaning, data class, and classification.
 
 | Name | Meaning | Data Class | Classification |
 |:---|:---|:---|:---|
-| <field> | <What this field means> | <class> | <public\|internal\|personal\|sensitive> |
+| <field> | <The meaning of this field> | <class> | <public\|internal\|personal\|sensitive> |
 
 ## Example
 

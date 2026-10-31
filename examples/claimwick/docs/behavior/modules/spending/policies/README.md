@@ -6,6 +6,7 @@
   "owner": "claimwick-team",
   "status": "reviewed",
   "summary": "The policy is the company spending policy and its receipt threshold.",
+  "kind": "entity",
   "states": [
     {
       "name": "Active",
@@ -39,8 +40,8 @@
     }
   ],
   "approvedBy": "claimwick-team",
-  "approvedOn": "2026-10-01",
-  "approvedHash": "93bc3586"
+  "approvedOn": "2026-10-31",
+  "approvedHash": "ffb5a4d4"
 }
 ---
 

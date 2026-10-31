@@ -102,6 +102,23 @@ public sealed partial class ConsumerValidatorTests
         Assert.Contains(problems, problem => problem.Contains("requires an H2 'Decision'", StringComparison.Ordinal));
     }
 
+    /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
+    [Fact(DisplayName = "machine-readable problems carry their level")]
+    public void MachineReadableProblemsCarryTheirLevel()
+    {
+        using var folder = ConsumerFixture.Create();
+        ConsumerFixture.MutateBody(
+            folder.Path,
+            "docs/product/decisions/0001-launch.md",
+            raw => ReplaceFirst(raw, "## Decision", "## Notes"));
+        var result = RunConsumer(folder.Path, "--format", "json");
+        Assert.Equal(1, result.Status);
+        var parsed = (JsonObject)JsonNode.Parse(result.Stdout)!;
+        var problems = parsed["problems"]!.AsArray().Select(problem => (string?)problem ?? string.Empty).ToList();
+        Assert.NotEmpty(problems);
+        Assert.All(problems, problem => Assert.StartsWith("[G] ", problem));
+    }
+
     /// <proves>litespec/core/authoring#declare-structured-specification-metadata</proves>
     [Fact(DisplayName = "page with a leading byte-order mark")]
     public void PageWithALeadingByteOrderMark()

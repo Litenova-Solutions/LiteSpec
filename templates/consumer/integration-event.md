@@ -2,7 +2,7 @@
 {
   "type": "integration-event",
   "id": "integration-event/<name>",
-  "title": "<Integration event display title>",
+  "title": "<Integration Event Display Title>",
   "owner": "<owner>",
   "status": "draft",
   "decider": "<owner>",
@@ -10,22 +10,22 @@
   "direction": "<out|in>",
   "eventType": "<CloudEvents type>",
   "source": "<CloudEvents source>",
-  "subject": "<What the subject identifies>",
+  "subject": "<The record the subject identifies>",
   "payload": [
     {
       "name": "<field>",
-      "meaning": "<What this field means>",
+      "meaning": "<The meaning of this field>",
       "classification": "<public|internal|personal|sensitive>"
     }
   ],
   "addresses": "<permission/<name> when the direction is out, otherwise remove this line>",
   "trust": "<trigger-only|payload>",
-  "correlation": "<How an inbound event is matched, when the direction is in; otherwise remove this line>",
+  "correlation": "<The match between an inbound event and its record, when the direction is in; otherwise remove this line>",
   "translates": "<event/<aggregate>.<past-tense> when the direction is out, otherwise remove this line>",
   "terms": ["term/<term-name>"],
   "questions": [
     {
-      "question": "<The open question, or remove the questions block>",
+      "question": "<Which question stays open? remove the questions block when none does.>",
       "decider": "<owner>",
       "decideBy": "<YYYY-MM-DD>",
       "ballot": "<decision-id or topic slug>",

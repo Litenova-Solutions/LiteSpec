@@ -124,11 +124,11 @@ Selecting `report` switches on the setting record type: the request budget and e
 
 **ID:** `litespec/ext/report#declare-export-paging`
 
-**Statement:** An export query MUST state `paging` or `none` with its reason.
+**Statement:** An export query MUST state `paging` with `mode` of `pages` or `none` with its reason.
 
-**Rationale:** An export reads many rows at once, so it states how the read is bounded: `paging` bounds each run, and `none` with a reason states why the export reads all rows at once. Without the declaration, a reviewer cannot tell a bounded export from one that grows with the table.
+**Rationale:** An export reads many rows at once, so it states how the read is bounded: `{"mode": "pages", ...}` bounds each run, and `{"mode": "none", "reason": "..."}` states why the export reads all rows at once. Without the declaration, a reviewer cannot tell a bounded export from one that grows with the table.
 
-**Reviewed for:** Which export queries lack `paging` or `none` with its reason? Look at the export query beside the report.
+**Reviewed for:** Which export queries lack paging with mode pages or mode none with its reason? Look at the export query beside the report.
 
 ### Audit Export Reads
 

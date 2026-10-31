@@ -8,7 +8,7 @@
   "groups": [
     {
       "id": "page-frames",
-      "title": "Page frames",
+      "title": "Page Frames",
       "kind": "page-frame"
     },
     {
@@ -21,19 +21,19 @@
     {
       "id": "orders-list-page",
       "group": "page-frames",
-      "title": "Orders list page",
+      "title": "Orders List Page",
       "question": "How does a reader find one order among many?",
       "options": [
         {
           "id": "filter-table",
           "name": "Filterable table",
-          "rationale": "Rows scan fast and filters narrow the set without leaving the page.",
+          "rationale": "rows scan fast and filters narrow the set without leaving the page",
           "cost": "Needs a table composite with filter controls."
         },
         {
           "id": "search-cards",
           "name": "Searchable cards",
-          "rationale": "Cards show each order with room for status and totals.",
+          "rationale": "cards show each order with room for status and totals",
           "cost": "Slow to scan past a few dozen orders."
         }
       ],
@@ -48,7 +48,7 @@
       "extensions": [
         {
           "option": "search-cards",
-          "when": "The list holds few orders and the reader compares them visually."
+          "when": "the list holds few orders and the reader compares them visually"
         }
       ],
       "implementations": {
@@ -61,19 +61,19 @@
     {
       "id": "table-sorting",
       "group": "elements",
-      "title": "Table sorting",
+      "title": "Table Sorting",
       "question": "How does a reader reorder the rows of a table?",
       "options": [
         {
           "id": "column-header-sort",
           "name": "Sort control in each column header",
-          "rationale": "The control sits where the reader looks when choosing a column.",
+          "rationale": "the control sits where the reader looks when choosing a column",
           "cost": "Each sortable header carries a button and a direction label."
         },
         {
           "id": "toolbar-sort",
           "name": "One sort control above the table",
-          "rationale": "One control keeps narrow tables readable.",
+          "rationale": "one control keeps narrow tables readable",
           "cost": "The reader maps the control back to its column."
         }
       ],

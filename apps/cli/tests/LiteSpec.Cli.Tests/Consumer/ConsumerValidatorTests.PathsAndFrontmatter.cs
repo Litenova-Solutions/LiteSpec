@@ -154,7 +154,7 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "/status");
     }
 
-    /// <proves>litespec/core/behavior#give-each-use-case-a-command-or-query-kind</proves>
+    /// <proves>litespec/core/use-cases#give-each-use-case-a-command-or-query-kind</proves>
     [Fact(DisplayName = "use-case kind outside command and query")]
     public void UseCaseKindOutsideCommandAndQuery()
     {

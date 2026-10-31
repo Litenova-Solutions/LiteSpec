@@ -2,13 +2,13 @@
 {
   "type": "research",
   "id": "research/<name>",
-  "title": "<Research display title>",
+  "title": "<Research Display Title>",
   "owner": "<owner>",
   "status": "draft",
   "decider": "<owner>",
   "decideBy": "<YYYY-MM-DD>",
-  "question": "<The question this research answers>",
-  "conclusion": "<One sentence: what the sources establish and what follows>",
+  "question": "<Which question does this research answer?>",
+  "conclusion": "<The sources establish this claim in one sentence.>",
   "sources": [
     {
       "url": "<source URL; use path instead for a repository-relative evidence path>",
@@ -18,7 +18,7 @@
   "terms": ["term/<term-name>"],
   "questions": [
     {
-      "question": "<The open question, or remove the questions block>",
+      "question": "<Which question stays open? remove the questions block when none does.>",
       "decider": "<owner>",
       "decideBy": "<YYYY-MM-DD>",
       "ballot": "<decision-id or topic slug>",

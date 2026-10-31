@@ -160,7 +160,7 @@ What each field means and what reads it:
 
 ### The `vocabulary` Object
 
-Every use-case name starts with a verb from the baseline vocabulary LiteSpec ships, described in [use-case verbs](../core/behavior.md#use-case-verbs), or from the verbs this object adds. Each field is optional.
+Every use-case name starts with a verb from the baseline vocabulary LiteSpec ships, described in [use-case verbs](../core/use-cases.md#use-case-verbs), or from the verbs this object adds. Each field is optional.
 
 - `verbs` lists the single-word domain verbs the project adds, such as `borrow`. A domain verb opens either kind of use case.
 - `queryVerbs` lists project verbs that open only a query, such as `trace`.

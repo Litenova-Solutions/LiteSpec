@@ -1,7 +1,7 @@
 ---
 {
   "type": "glossary",
-  "title": "<Project> glossary",
+  "title": "<Project> Glossary",
   "owner": "<owner>",
   "status": "draft",
   "decider": "<owner>",

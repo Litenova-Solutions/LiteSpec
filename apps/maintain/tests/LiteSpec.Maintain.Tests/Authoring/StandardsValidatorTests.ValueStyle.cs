@@ -72,6 +72,23 @@ public sealed partial class StandardsValidatorTests
         ["VALUE_STYLE"]);
 
     /// <proves>litespec/core/language#write-each-value-in-the-value-style</proves>
+    [Fact(DisplayName = "mode object reason starting with because")]
+    public void ModeObjectReasonStartingWithBecause() => Check(
+        root => WriteExample(root, "use-case.md",
+            "{\"type\":\"use-case\",\"id\":\"use-case/sample.entry\",\"title\":\"Sample Entry\"," +
+            "\"paging\":{\"mode\":\"none\",\"reason\":\"Because it returns one object.\"}}"),
+        ["VALUE_STYLE"]);
+
+    /// <proves>litespec/core/language#write-each-value-in-the-value-style</proves>
+    [Fact(DisplayName = "mode objects carrying bare clauses")]
+    public void ModeObjectsCarryingBareClauses() => Check(
+        root => WriteExample(root, "use-case.md",
+            "{\"type\":\"use-case\",\"id\":\"use-case/sample.entry\",\"title\":\"Sample Entry\"," +
+            "\"paging\":{\"mode\":\"none\",\"reason\":\"It returns one object.\"}," +
+            "\"freshness\":{\"mode\":\"bounded\",\"within\":\"PT5M\"}}"),
+        []);
+
+    /// <proves>litespec/core/language#write-each-value-in-the-value-style</proves>
     [Fact(DisplayName = "When condition starting with when")]
     public void WhenConditionStartingWithWhen() => Check(
         root => WriteExample(root, "journey.md",

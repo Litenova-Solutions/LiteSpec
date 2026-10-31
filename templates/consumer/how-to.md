@@ -1,7 +1,7 @@
 ---
 {
   "type": "how-to",
-  "title": "<How-to title>",
+  "title": "<How-to Title>",
   "owner": "<owner>",
   "status": "draft",
   "decider": "<owner>",

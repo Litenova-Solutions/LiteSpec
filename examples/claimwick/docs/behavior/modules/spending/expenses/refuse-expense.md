@@ -28,6 +28,14 @@
   "changes": [
     "aggregate/spending.expense"
   ],
+  "idempotency": {
+    "mode": "none",
+    "reason": "the first refusal moves the expense out of the submitted state, so the aggregate refuses a second refusal"
+  },
+  "audit": {
+    "level": "none",
+    "target": "no audit trail; the example stores no audit entry"
+  },
   "records": [
     {
       "type": "result",
@@ -82,8 +90,8 @@
     }
   ],
   "approvedBy": "claimwick-team",
-  "approvedOn": "2026-10-01",
-  "approvedHash": "56f7621b"
+  "approvedOn": "2026-10-31",
+  "approvedHash": "b7970625"
 }
 ---
 

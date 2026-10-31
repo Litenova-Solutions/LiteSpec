@@ -6,7 +6,7 @@ namespace LiteSpec.Tests.Model.Checks;
 /// <summary>Proves the write-undeclared, result-undeclared and effect-undeclared checks against hand-built models.</summary>
 public sealed class CodeCheckTests
 {
-    /// <proves>litespec/core/behavior#name-every-aggregate-a-use-case-changes-or-reads</proves>
+    /// <proves>litespec/core/use-cases#name-every-aggregate-a-use-case-changes-or-reads</proves>
     [Fact]
     public void Handler_Taking_An_Undeclared_Repository_Reports()
     {
@@ -22,7 +22,7 @@ public sealed class CodeCheckTests
         Assert.Contains("write-undeclared", TestModel.Codes(model));
     }
 
-    /// <proves>litespec/core/behavior#name-every-aggregate-a-use-case-changes-or-reads</proves>
+    /// <proves>litespec/core/use-cases#name-every-aggregate-a-use-case-changes-or-reads</proves>
     [Fact]
     public void Handler_Taking_A_Declared_Repository_Passes()
     {
@@ -39,7 +39,7 @@ public sealed class CodeCheckTests
         Assert.DoesNotContain("write-undeclared", TestModel.Codes(model));
     }
 
-    /// <proves>litespec/core/behavior#name-every-aggregate-a-use-case-changes-or-reads</proves>
+    /// <proves>litespec/core/use-cases#name-every-aggregate-a-use-case-changes-or-reads</proves>
     [Fact]
     public void Repository_Serves_The_Aggregate_Its_Implementation_Marks()
     {

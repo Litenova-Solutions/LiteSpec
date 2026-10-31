@@ -45,6 +45,14 @@
   "reads": [
     "aggregate/spending.policy"
   ],
+  "idempotency": {
+    "mode": "none",
+    "reason": "the endpoint mints a fresh expense identity for each request, so each call submits its own expense"
+  },
+  "audit": {
+    "level": "none",
+    "target": "no audit trail; the example stores no audit entry"
+  },
   "records": [
     {
       "type": "result",
@@ -99,8 +107,8 @@
     }
   ],
   "approvedBy": "claimwick-team",
-  "approvedOn": "2026-10-01",
-  "approvedHash": "bc2ead39"
+  "approvedOn": "2026-10-31",
+  "approvedHash": "7fa3b83e"
 }
 ---
 

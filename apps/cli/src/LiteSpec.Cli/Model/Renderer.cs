@@ -51,6 +51,7 @@ static partial class Renderer
         "history", "use-case-coverage", "sub-processors", "runbook-index", "rule-map",
         "operations-log", "open-questions", "journeys", "glossary", "deviations", "census",
         "aggregate-map", "audit-register", "alert-inventory", "counts", "what-it-requires",
+        "transitions", "data", "retention-schedule",
     };
 
     /// <summary>One region fence: its name and the offset where it opens.</summary>
@@ -79,6 +80,9 @@ static partial class Renderer
             "alert-inventory" => AlertInventory(model, file),
             "counts" => Counts(model),
             "what-it-requires" => WhatItRequires(model, file),
+            "transitions" => Transitions(model, file),
+            "data" => Data(model, file),
+            "retention-schedule" => RetentionSchedule(model),
             _ => null,
         };
 
@@ -546,6 +550,143 @@ static partial class Renderer
 
         return string.Join('\n', lines);
     }
+
+    private static string Transitions(ProjectModel model, string file)
+    {
+        var aggregate = model.Records
+            .FirstOrDefault(record => record.Type == "aggregate"
+                && string.Equals(record.File, file, StringComparison.Ordinal)
+                && !record.IsEntry);
+
+        var rows = aggregate is not null ? ArrayField(aggregate, "transitions") : [];
+
+        if (rows.Count == 0)
+        {
+            return "None.";
+        }
+
+        var lines = new List<string>
+        {
+            "| From | To | Triggered By |",
+            "|:---|:---|:---|",
+        };
+
+        foreach (var row in rows)
+        {
+            lines.Add($"| {Cell(Str(row, "from") ?? "")} | {Cell(Str(row, "to") ?? "")} | {Cell(Str(row, "by") ?? "")} |");
+        }
+
+        return string.Join('\n', lines);
+    }
+
+    private static string Data(ProjectModel model, string file)
+    {
+        var aggregate = model.Records
+            .FirstOrDefault(record => record.Type == "aggregate"
+                && string.Equals(record.File, file, StringComparison.Ordinal)
+                && !record.IsEntry);
+
+        var rows = aggregate is not null ? ArrayField(aggregate, "data") : [];
+
+        if (rows.Count == 0)
+        {
+            return "None.";
+        }
+
+        var lines = new List<string>
+        {
+            "| Name | Meaning | Data Class | Classification |",
+            "|:---|:---|:---|:---|",
+        };
+
+        foreach (var row in rows)
+        {
+            lines.Add($"| {Cell(Str(row, "name") ?? "")} | {Cell(Str(row, "meaning") ?? "")} | {Cell(Str(row, "dataClass") ?? "")} | {Cell(Str(row, "classification") ?? "")} |");
+        }
+
+        return string.Join('\n', lines);
+    }
+
+    private static string RetentionSchedule(ProjectModel model)
+    {
+        var rows = new List<(string Class, string Aggregate, string Classification, string Basis, string Period, string EnforcedBy)>();
+
+        foreach (var aggregate in model.Records
+                     .Where(record => record.Type == "aggregate")
+                     .OrderBy(record => record.Id, StringComparer.Ordinal))
+        {
+            foreach (var entry in ArrayField(aggregate, "dataClasses"))
+            {
+                rows.Add((
+                    Str(entry, "name") ?? "",
+                    aggregate.Id,
+                    Str(entry, "classification") ?? "",
+                    Str(entry, "basis") ?? "",
+                    PeriodText(entry),
+                    Str(entry, "enforcedBy") ?? ""));
+            }
+        }
+
+        if (rows.Count == 0)
+        {
+            return "None.";
+        }
+
+        var lines = new List<string>
+        {
+            "| Data Class | Aggregate | Classification | Basis | Period | Enforced By |",
+            "|:---|:---|:---|:---|:---|:---|",
+        };
+
+        foreach (var row in rows.OrderBy(row => row.Aggregate, StringComparer.Ordinal).ThenBy(row => row.Class, StringComparer.Ordinal))
+        {
+            lines.Add($"| {Cell(row.Class)} | `{row.Aggregate}` | {Cell(row.Classification)} | {Cell(row.Basis)} | {Cell(row.Period)} | {Cell(row.EnforcedBy)} |");
+        }
+
+        return string.Join('\n', lines);
+    }
+
+    /// <summary>One period as readers see it: a duration as written, or none with its reason.</summary>
+    private static string PeriodText(System.Text.Json.JsonElement entry)
+    {
+        if (!entry.TryGetProperty("period", out var period))
+        {
+            return "";
+        }
+
+        if (period.ValueKind == System.Text.Json.JsonValueKind.String)
+        {
+            return period.GetString() ?? "";
+        }
+
+        if (period.ValueKind == System.Text.Json.JsonValueKind.Object
+            && period.TryGetProperty("mode", out var mode)
+            && mode.ValueKind == System.Text.Json.JsonValueKind.String
+            && mode.GetString() is { } name)
+        {
+            var reason = Str(period, "reason");
+
+            return reason is { Length: > 0 } ? $"{name} ({reason})" : name;
+        }
+
+        return "";
+    }
+
+    /// <summary>One array field as its object entries, or empty when the field is missing or no array.</summary>
+    private static IReadOnlyList<System.Text.Json.JsonElement> ArrayField(Record record, string name) =>
+        record.Raw.ValueKind == System.Text.Json.JsonValueKind.Object
+        && record.Raw.TryGetProperty(name, out var value)
+        && value.ValueKind == System.Text.Json.JsonValueKind.Array
+            ? value.EnumerateArray().Where(entry => entry.ValueKind == System.Text.Json.JsonValueKind.Object).ToList()
+            : [];
+
+    /// <summary>One string property of an element, or null when missing or no string.</summary>
+    private static string? Str(System.Text.Json.JsonElement element, string name) =>
+        element.ValueKind == System.Text.Json.JsonValueKind.Object
+        && element.TryGetProperty(name, out var value)
+        && value.ValueKind == System.Text.Json.JsonValueKind.String
+            ? value.GetString()
+            : null;
 
     private static string WhatItRequires(ProjectModel model, string file)
     {

@@ -26,7 +26,7 @@ This extension switches on no optional record type: integration events, settings
 
 **Statement:** A use case declaring `after-commit` `publishes` or `issues` effects MUST stage each effect in the outbox in the same transaction as its changes.
 
-**Rationale:** After-commit timing promises the message follows the commit: staged in the same transaction, the change and its message share one fate. A `publishes` effect is a domain event the aggregate raises, and persistence stages that event in the outbox in the same commit as the aggregate, as `litespec/backend/application#publish-declared-integration-events-after-commit` requires. An effect sent from memory instead would vanish on a crash between the commit and the send. `litespec/core/behavior#declare-every-effect-with-one-verb-and-its-timing` states the effect verbs and their timing, and `async` effects dispatch without the transaction.
+**Rationale:** After-commit timing promises the message follows the commit: staged in the same transaction, the change and its message share one fate. A `publishes` effect is a domain event the aggregate raises, and persistence stages that event in the outbox in the same commit as the aggregate, as `litespec/backend/application#publish-declared-integration-events-after-commit` requires. An effect sent from memory instead would vanish on a crash between the commit and the send. `litespec/core/use-cases#declare-every-effect-with-one-verb-and-its-timing` states the effect verbs and their timing, and `async` effects dispatch without the transaction.
 
 **Reviewed for:** Each after-commit publishes and issues effect stages in the outbox in the same transaction as its changes, with each domain event staged in the same commit as its aggregate.
 
@@ -36,7 +36,7 @@ This extension switches on no optional record type: integration events, settings
 
 **Statement:** Each `publishes` effect MUST name an integration-event record carrying direction, payload, and trust.
 
-**Rationale:** A published fact without a record is a promise nobody versioned: readers depend on fields no page states, and a field change breaks them without a diff. The integration-event record states the direction, the payload with its classifications, and the trust readers place in it. `litespec/core/behavior#publish-every-outbound-integration-event-from-effects` states the declaration, and `litespec/core/behavior#describe-every-integration-event-for-its-direction` states the record.
+**Rationale:** A published fact without a record is a promise nobody versioned: readers depend on fields no page states, and a field change breaks them without a diff. The integration-event record states the direction, the payload with its classifications, and the trust readers place in it. `litespec/core/edges#publish-every-outbound-integration-event-from-effects` states the declaration, and `litespec/core/edges#describe-every-integration-event-for-its-direction` states the record.
 
 **Reviewed for:** Each publishes effect names an integration-event record carrying direction, payload, and trust.
 

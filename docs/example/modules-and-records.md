@@ -6,7 +6,7 @@ The spending module is the Claimwick example's one business area: it turns produ
 
 ## The Spending Module
 
-A module is one business area that organizes language, records, use cases, and ownership. Claimwick keeps one module, spending, which tracks expenses, receipts, and the policy. Its record lives at `docs/behavior/modules/spending/README.md`, and its empty `dependsOn` list states that it depends on no other module, which applies `litespec/core/behavior#state-every-module-dependency` on [Behavior Records](../core/behavior.md).
+A module is one business area that organizes language, records, use cases, and ownership. Claimwick keeps one module, spending, which tracks expenses, receipts, and the policy. Its record lives at `docs/behavior/modules/spending/README.md`, and its empty `dependsOn` list states that it depends on no other module, which applies `litespec/core/domain-model#state-every-module-dependency` on [Behavior Records](../core/behavior.md).
 
 ```json
 {
@@ -24,7 +24,7 @@ Each aggregate below belongs to this module through its identifier: `aggregate/s
 
 ## Aggregates and Their States
 
-An aggregate is one unit of business state that stays consistent and changes in one step. Spending keeps 4, each on its own page under the module folder. Each aggregate declares its kind and its lifecycle as states entries with a name and a meaning, which applies `litespec/core/behavior#declare-the-kind-of-every-aggregate` and `litespec/core/behavior#model-each-aggregate-lifecycle-with-states`.
+An aggregate is one unit of business state that stays consistent and changes in one step. Spending keeps 4, each on its own page under the module folder. Each aggregate declares its kind and its lifecycle as states entries with a name and a meaning, which applies `litespec/core/domain-model#declare-the-kind-of-every-aggregate` and `litespec/core/domain-model#model-each-aggregate-lifecycle-with-states`.
 
 | Record | Home | Kind | States |
 |:--|:--|:--|:--|
@@ -33,11 +33,11 @@ An aggregate is one unit of business state that stays consistent and changes in 
 | `aggregate/spending.policy` | `docs/behavior/modules/spending/policies/README.md` | store | None |
 | `aggregate/spending.export-request` | `docs/behavior/modules/spending/export-requests/README.md` | store | None |
 
-An expense is one work cost an employee submitted. A receipt is proof of payment attached to an expense. The policy is a store: it holds the current receipt threshold value, names the spending settings store as its owner, and carries no states, because no invariant guards the stored value. The setting record below declares the threshold default and bounds. The store names its owner, which applies `litespec/core/behavior#name-the-owner-of-every-store`. The export-request store holds each export request with the file the builder job built for it, and names the spending module as its owner. Each expense state carries its meaning: Submitted waits for a decision, Approved and Refused record a manager decision, and Reimbursed records the finance payout.
+An expense is one work cost an employee submitted. A receipt is proof of payment attached to an expense. The policy is a store: it holds the current receipt threshold value, names the spending settings store as its owner, and carries no states, because no invariant guards the stored value. The setting record below declares the threshold default and bounds. The store names its owner, which applies `litespec/core/domain-model#name-the-owner-of-every-store`. The export-request store holds each export request with the file the builder job built for it, and names the spending module as its owner. Each expense state carries its meaning: Submitted waits for a decision, Approved and Refused record a manager decision, and Reimbursed records the finance payout.
 
 ## Expense Transitions and Data
 
-The expense aggregate connects its states through transitions and declares its data classes with their erasure positions. The Transitions table below is the page body the builder parses: each row names the state it leaves, the state it enters, and the use case behind the move, which applies `litespec/core/behavior#connect-every-state-through-transitions`.
+The expense aggregate connects its states through transitions and declares its data classes with their erasure positions. The Transitions table below is the page body the builder parses: each row names the state it leaves, the state it enters, and the use case behind the move, which applies `litespec/core/domain-model#connect-every-state-through-transitions`.
 
 | From | To | Triggered By |
 |:--|:--|:--|
@@ -45,14 +45,14 @@ The expense aggregate connects its states through transitions and declares its d
 | Submitted | Refused | `use-case/spending.refuse-expense` |
 | Approved | Reimbursed | `use-case/spending.reimburse-expense` |
 
-The data classes group fields by their shared fate on erasure, which applies `litespec/core/behavior#declare-every-data-class-with-its-erasure-position`:
+The data classes group fields by their shared fate on erasure, which applies `litespec/core/privacy#declare-every-data-class-with-its-erasure-position`:
 
 | Data class | Classification | Fields | On erasure | Enforced by |
 |:--|:--|:--|:--|:--|
 | `expense-money` | internal | amount, state, approver, receipt | retain for 7 years by statute | record-expiry |
 | `submitter` | personal | employee | erase on approved request | `job/spending.erase-expired-personal-data` |
 
-The Data table names each field the aggregate holds with its meaning, data class, and classification, which applies `litespec/core/behavior#classify-every-aggregate-data-field`.
+The Data table names each field the aggregate holds with its meaning, data class, and classification, which applies `litespec/core/privacy#classify-every-aggregate-data-field`.
 
 | Name | Meaning | Data Class | Classification |
 |:--|:--|:--|:--|
@@ -110,7 +110,10 @@ The expense page below shows the full shape, with its states, data classes, and 
       "fields": ["employee"],
       "onErasure": "erase",
       "basis": "business",
-      "period": "none (on-demand)",
+      "period": {
+        "mode": "none",
+        "reason": "erasure happens on approved request"
+      },
       "enforcedBy": "job/spending.erase-expired-personal-data",
       "reach": "own-tenant"
     }
@@ -226,7 +229,7 @@ The receipt page carries one rule, `rule/receipt.attaches-before-decision`, and 
 
 ## The Rules
 
-A rule is one testable commitment about what stays true. Each rule states its kind and names the refusal its use case returns when the rule breaks, which applies `litespec/core/behavior#state-each-rule-with-its-kind` and `litespec/core/behavior#name-the-refusal-a-broken-rule-produces`. The 6 spending rules are:
+A rule is one testable commitment about what stays true. Each rule states its kind and names the refusal its use case returns when the rule breaks, which applies `litespec/core/domain-model#state-each-rule-with-its-kind` and `litespec/core/domain-model#name-the-refusal-a-broken-rule-produces`. The 6 spending rules are:
 
 | Rule | Statement | Kind |
 |:---|:---|:---|
@@ -248,7 +251,7 @@ Each rule governs the use cases or aggregates it guards and fulfills one approva
 | `rule/receipt.attaches-before-decision` | `use-case/spending.attach-receipt` | `requirement/approval.receipt-over-threshold` |
 | `rule/spending.receipt-filed-once` | `aggregate/spending.receipt` | `requirement/approval.receipt-over-threshold` |
 
-Each rule names the refusal its use case returns when the rule fails: `rule/expense.receipt-required-above-threshold` names `result/submit-expense.receipt-missing`, `rule/expense.approver-is-not-submitter` names `result/approve-expense.own-expense`, `rule/expense.reimbursed-once` names `result/reimburse-expense.already-reimbursed`, `rule/expense.approved-before-reimbursement` names `result/reimburse-expense.not-approved`, and `rule/receipt.attaches-before-decision` names `result/attach-receipt.expense-decided`. Each rule but the last lives as an entry on its aggregate page, so the rule and the state it guards change in one edit. The cross-aggregate rule lives on the spending rule page at `docs/behavior/rules/spending-rules.md`, which applies `litespec/core/behavior#keep-cross-aggregate-rules-on-a-rule-page`.
+Each rule names the refusal its use case returns when the rule fails: `rule/expense.receipt-required-above-threshold` names `result/submit-expense.receipt-missing`, `rule/expense.approver-is-not-submitter` names `result/approve-expense.own-expense`, `rule/expense.reimbursed-once` names `result/reimburse-expense.already-reimbursed`, `rule/expense.approved-before-reimbursement` names `result/reimburse-expense.not-approved`, and `rule/receipt.attaches-before-decision` names `result/attach-receipt.expense-decided`. Each rule but the last lives as an entry on its aggregate page, so the rule and the state it guards change in one edit. The cross-aggregate rule lives on the spending rule page at `docs/behavior/rules/spending-rules.md`, which applies `litespec/core/domain-model#keep-cross-aggregate-rules-on-a-rule-page`.
 
 ## Actors, Roles, and Permissions
 
@@ -295,7 +298,7 @@ Employees reach spending through the expenses app, and every spending use case b
 
 ## The External System
 
-An external system is one outside system the product exchanges data with. Claimwick keeps one: the payout bank moves reimbursed money to employees. Its record lives at `docs/behavior/external-systems/payout-bank.md`, declares its operations with their timeouts, retries, and responses, and routes erasure through an operation, which applies `litespec/core/access#declare-every-operation-on-every-external-system` and `litespec/core/access#declare-erasure-for-every-external-system`.
+An external system is one outside system the product exchanges data with. Claimwick keeps one: the payout bank moves reimbursed money to employees. Its record lives at `docs/behavior/external-systems/payout-bank.md`, declares its operations with their timeouts and responses, and routes erasure through an operation, which applies `litespec/core/access#declare-every-operation-on-every-external-system` and `litespec/core/access#declare-erasure-for-every-external-system`.
 
 ```json
 {
@@ -311,7 +314,6 @@ An external system is one outside system the product exchanges data with. Claimw
       "direction": "out",
       "timeout": "PT30S",
       "onTimeout": "Retry once, then fail the batch for finance to re-send.",
-      "retries": "Once after 5 minutes.",
       "response": "A batch receipt with the accepted payout count."
     },
     {
@@ -319,11 +321,13 @@ An external system is one outside system the product exchanges data with. Claimw
       "direction": "out",
       "timeout": "PT30S",
       "onTimeout": "Retry once, then alert finance.",
-      "retries": "Once after 5 minutes.",
       "response": "A purge receipt per batch."
     }
   ],
-  "erasure": "call purge-batch",
+  "erasure": {
+    "mode": "call",
+    "operation": "external-system/payout-bank#purge-batch"
+  },
   "sends": [
     "Approved payouts as one bank file per batch."
   ],
@@ -338,7 +342,7 @@ The reimburse use case raises the reimbursement event and publishes the payout i
 
 ## The Use Cases
 
-Spending keeps 10 use cases: 9 commands and 1 query. Each one is a command or a query, serves journey steps, fulfills requirements, declares its access, and states what it changes and how the writes hold together, which applies `litespec/core/behavior#give-each-use-case-a-command-or-query-kind`, `litespec/core/behavior#state-the-consistency-of-every-use-case`, and `litespec/core/behavior#declare-every-effect-with-one-verb-and-its-timing`.
+Spending keeps 10 use cases: 9 commands and 1 query. Each one is a command or a query, serves journey steps, fulfills requirements, declares its access, and states what it changes and how the writes hold together, which applies `litespec/core/use-cases#give-each-use-case-a-command-or-query-kind`, `litespec/core/use-cases#state-the-consistency-of-every-use-case`, and `litespec/core/use-cases#declare-every-effect-with-one-verb-and-its-timing`.
 
 | Use case | Kind | Serves | Grant | Changes | Consistency | Effects |
 |:--|:--|:--|:--|:--|:--|:--|
@@ -469,11 +473,11 @@ Submit expense is a command: an employee submits a work expense with a receipt t
 }
 ```
 
-The record ends in named results, which applies `litespec/core/model#give-every-use-case-its-results`: one success and one refusal, and the refusal carries the stable code `spending.receipt-missing`. The generic forbidden and invalid-input results are derived from the access grant and the input rules and never written. The scenarios prove the success and the refusal in given, when, then, which applies `litespec/core/behavior#write-every-scenario-in-given-when-then`. The receipt rule governs this use case, the employee role allows its permission, and the journey's first step is served by it. Its Goal section states the actor intent in one sentence, its What Happens section walks the behavior in order, and its Example section follows Ava submitting her train fare. (Example blocks in these pages omit the approval data the builder writes, except where shown.)
+The record ends in named results, which applies `litespec/core/model#give-every-use-case-its-results`: one success and one refusal, and the refusal carries the stable code `spending.receipt-missing`. The generic forbidden and invalid-input results are derived from the access grant and the input rules and never written. The scenarios prove the success and the refusal in given, when, then, which applies `litespec/core/use-cases#write-every-scenario-in-given-when-then`. The receipt rule governs this use case, the employee role allows its permission, and the journey's first step is served by it. Its Goal section states the actor intent in one sentence, its What Happens section walks the behavior in order, and its Example section follows Ava submitting her train fare. (Example blocks in these pages omit the approval data the builder writes, except where shown.)
 
 ## The Reaction
 
-A reaction answers an event through the edges its `effects` declare. When an expense is reimbursed, Claimwick notifies the employee. The reaction lives at `docs/behavior/modules/spending/reactions/notify-on-reimbursement.md`, filed with the spending module whose notification it sends. Its `on` names the domain event, which applies `litespec/core/behavior#trigger-every-reaction-from-a-declared-event`, and it declares its `sends` edge in `effects` and writes no aggregate, which applies `litespec/core/behavior#issue-or-send-from-every-reaction`.
+A reaction answers an event through the edges its `effects` declare. When an expense is reimbursed, Claimwick notifies the employee. The reaction lives at `docs/behavior/modules/spending/reactions/notify-on-reimbursement.md`, filed with the spending module whose notification it sends. Its `on` names the domain event, which applies `litespec/core/automation#trigger-every-reaction-from-a-declared-event`, and it declares its `sends` edge in `effects` and writes no aggregate, which applies `litespec/core/automation#issue-or-send-from-every-reaction`.
 
 ```json
 {
@@ -503,25 +507,21 @@ A reaction answers an event through the edges its `effects` declare. When an exp
     "mode": "state"
   },
   "onFailure": {
+    "mode": "retry",
     "retry": {
       "maxAttempts": 5,
-      "initialDelay": "PT1M",
-      "maxDelay": "PT1H",
-      "backoff": "exponential"
+      "backoff": "PT1M"
     },
-    "deadLetter": {
-      "after": "P7D",
-      "action": "Finance replays the notice by hand."
-    }
+    "then": "dead-letter"
   }
 }
 ```
 
-The entry omits `timing`, so it reads as `async`. The reaction serves the journey's last step: the employee sees the reimbursement land because the message says so. Its failure handling retries five times with exponential backoff before dead-lettering, and repeated firings collapse by state, so the employee is told once.
+The entry omits `timing`, so it reads as `async`. The reaction serves the journey's last step: the employee sees the reimbursement land because the message says so. Its failure handling retries five times with a one-minute backoff before dead-lettering, and repeated firings collapse by state, so the employee is told once.
 
 ## The Jobs
 
-A job is scheduled, one-off, or operator work that issues use cases. Claimwick keeps 3 scheduled jobs. The reminder job runs nightly and issues the reminder command once per waiting expense. It lives at `docs/behavior/modules/spending/jobs/send-approver-reminders-on-expense-submitted.md`, declares its kind with a structured schedule, and states its selection, lease, service level, evidence, and runbook, which applies `litespec/core/behavior#declare-every-job-with-kind-and-structured-schedule`.
+A job is scheduled, one-off, or operator work that issues use cases. Claimwick keeps 3 scheduled jobs. The reminder job runs nightly and issues the reminder command once per waiting expense. It lives at `docs/behavior/modules/spending/jobs/send-approver-reminders-on-expense-submitted.md`, declares its kind with a structured schedule, and states its selection, lease, service level, evidence, and runbook, which applies `litespec/core/automation#declare-every-job-with-kind-and-structured-schedule`.
 
 ```json
 {
@@ -561,16 +561,12 @@ A job is scheduled, one-off, or operator work that issues use cases. Claimwick k
     "journey/submit-and-reimburse#s2"
   ],
   "onFailure": {
+    "mode": "retry",
     "retry": {
       "maxAttempts": 3,
-      "initialDelay": "PT5M",
-      "maxDelay": "PT1H",
-      "backoff": "fixed"
+      "backoff": "PT5M"
     },
-    "deadLetter": {
-      "after": "P1D",
-      "action": "The operator reruns the missed reminders by hand."
-    }
+    "then": "dead-letter"
   },
   "idempotency": {
     "mode": "state"
@@ -582,7 +578,7 @@ This job carries the approval reminders feature down the tree: the feature promi
 
 ## The Notifications
 
-A notification is one person-facing message with its addresses, channel, consent, and claims. The approver reminder lives at `docs/behavior/modules/spending/notifications/approver-reminder.md`, names its addresses and channel with the consent rule, and claims each promise it makes from a requirement, which applies `litespec/core/behavior#describe-every-notification-with-audience-channel-and-consent` and `litespec/core/behavior#claim-every-notification-promise-from-a-requirement`.
+A notification is one person-facing message with its addresses, channel, consent, and claims. The approver reminder lives at `docs/behavior/modules/spending/notifications/approver-reminder.md`, names its addresses and channel with the consent rule, and claims each promise it makes from a requirement, which applies `litespec/core/edges#describe-every-notification-with-audience-channel-and-consent` and `litespec/core/edges#claim-every-notification-promise-from-a-requirement`.
 
 ```json
 {
@@ -615,7 +611,7 @@ The reminder command's `sends` edge carries its own suppression: when the expens
 
 ## The Settings
 
-A setting is one tunable with its value type, default, range, unit, setter, and bound behavior. The spending settings live on one setting-set page at `docs/behavior/modules/spending/settings.md`. Each commercial or varying default fulfills a requirement, which applies `litespec/core/behavior#hold-every-setting-default-to-a-requirement`.
+A setting is one tunable with its value type, default, range, unit, setter, and bound behavior. The spending settings live on one setting-set page at `docs/behavior/modules/spending/settings.md`. Each commercial or varying default fulfills a requirement, which applies `litespec/core/use-cases#hold-every-setting-default-to-a-requirement`.
 
 ```json
 {
@@ -660,7 +656,7 @@ The threshold default is the 25 EUR the decision set, and a manager may move it 
 
 ## The Query
 
-List expenses is a query: an employee reads their own expenses with the latest state of each. Its record declares its output in `include` groups with freshness and its paging, which applies `litespec/core/behavior#declare-every-query-output` and `litespec/core/behavior#declare-paging-on-every-collection-query`.
+List expenses is a query: an employee reads their own expenses with the latest state of each. Its record declares its output in `include` groups with freshness and its paging, which applies `litespec/core/use-cases#declare-every-query-output` and `litespec/core/use-cases#declare-paging-on-every-collection-query`.
 
 ```json
 {
@@ -707,11 +703,14 @@ List expenses is a query: an employee reads their own expenses with the latest s
         ],
         "classification": "internal",
         "reads": ["aggregate/spending.expense"],
-        "freshness": "immediate"
+        "freshness": {
+          "mode": "immediate"
+        }
       }
     }
   },
   "paging": {
+    "mode": "pages",
     "order": "submittedAt desc",
     "cursor": "expenseId",
     "defaultLimit": 20,
@@ -746,7 +745,7 @@ The output names the one row group the screen reads: identity, amount, state, an
 
 ## The Integration Event
 
-A fact that leaves the product is an integration event. When finance reimburses an expense, the payout batch carries a payout request to the bank. The event lives at `docs/behavior/integration-events/payout.requested.md`, states its direction with its CloudEvents type, source, subject, and payload, and translates the domain event, which applies `litespec/core/behavior#describe-every-integration-event-for-its-direction`.
+A fact that leaves the product is an integration event. When finance reimburses an expense, the payout batch carries a payout request to the bank. The event lives at `docs/behavior/integration-events/payout.requested.md`, states its direction with its CloudEvents type, source, subject, and payload, and translates the domain event, which applies `litespec/core/edges#describe-every-integration-event-for-its-direction`.
 
 ```json
 {
@@ -780,20 +779,26 @@ The reimburse use case declares the event in its `effects` with `publishes` afte
 
 ## The Retention Row
 
-The retention schedule at `docs/behavior/retention-schedule.md` schedules every data class with its basis, period, enforcement, and Intent acceptance, which applies `litespec/core/behavior#schedule-every-data-class-for-retention`. The `submitter` row reads:
+The retention schedule at `docs/behavior/retention-schedule.md` schedules every data class with its basis, period, enforcement, and Intent acceptance, which applies `litespec/core/privacy#schedule-every-data-class-for-retention`. The `submitter` row reads:
 
 ```json
 {
   "dataClass": "submitter",
   "covers": ["aggregate/spending.expense"],
   "basis": "business",
-  "period": "none (on-demand)",
+  "period": {
+    "mode": "none",
+    "reason": "erasure happens on approved request"
+  },
   "enforcedBy": "job/spending.erase-expired-personal-data",
   "cites": "requirement/approval.erasure-on-request",
   "processors": [
     {
       "system": "external-system/payout-bank",
-      "forwarding": "impossible (settlement records belong to the bank)",
+      "forwarding": {
+        "mode": "impossible",
+        "reason": "settlement records belong to the bank"
+      },
       "acceptedBy": "requirement/approval.erasure-on-request"
     }
   ],
