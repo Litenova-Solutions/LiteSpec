@@ -48,8 +48,7 @@ static class BookParents
             ["scenario"] = new("scenario", ["result"], "`result`"),
             ["rule"] = new("rule", ["aggregate", "module"], "identifier home, an aggregate before a module"),
             ["event"] = new("event", ["aggregate"], "identifier home"),
-            ["reaction"] = new("reaction", ["module"], "identifier home"),
-            ["job"] = new("job", ["module"], "identifier home"),
+            ["automation"] = new("automation", ["module"], "identifier home"),
             ["notification"] = new("notification", ["module"], "identifier home"),
             ["setting"] = new("setting", ["module"], "identifier home"),
             ["screen"] = new("screen", ["entry-point"], "`entryPoint`, agreeing with the identifier home"),
@@ -164,7 +163,7 @@ static class BookParents
             "scenario" => ScenarioParent(index, record),
             "rule" => RuleParent(index, id),
             "event" => AggregateNameParent(index, id),
-            "reaction" or "job" or "notification" or "setting" => ModuleParent(index, id),
+            "automation" or "notification" or "setting" => ModuleParent(index, id),
             "screen" => ScreenParent(index, record, id),
             _ => null,
         };

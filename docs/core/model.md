@@ -13,7 +13,7 @@ Each record layer answers one question, is written from the record layer above i
 | Record layer | Question | Writes | Reviews | Records |
 |:--|:--|:--|:--|:--|
 | Intent | Why build it, and what do we promise? | agents draft, the decider decides | the decider and product people | product, goal, problem, feature, topic, requirement, constraint, decision, research, journey, actor, term (`layer: intent`) |
-| Behavior | How does the system behave to keep the promises? | agents | developers; the security reviewer for access, outside calls and personal-data flows | module, aggregate, rule, event, integration-event, use-case, result, scenario, reaction, job, notification, setting, role, permission, entry-point, external-system, runbook, term (`layer: behavior`) |
+| Behavior | How does the system behave to keep the promises? | agents | developers; the security reviewer for access, outside calls and personal-data flows | module, aggregate, rule, event, integration-event, use-case, result, scenario, automation, notification, setting, role, permission, entry-point, external-system, runbook, term (`layer: behavior`) |
 | Implementation | How is it built? | agents | level S checks; developers sample | code only |
 | Proof | How do we know it holds? | the builder | level G and level S checks | tests, check results, computed statuses, the rendered book |
 
@@ -46,8 +46,7 @@ Each type answers one question.
 | `scenario` | behavior | Which example proves the result? |
 | `event` | behavior | What happened? |
 | `integration-event` | behavior | Which facts cross the boundary? |
-| `reaction` | behavior | When something happens, what follows? |
-| `job` | behavior | Which work runs on a schedule or by hand? |
+| `automation` | behavior | Which work runs without a request? |
 | `notification` | behavior | Which person-facing messages go out? |
 | `setting` | behavior | Which adjustable values hold, and who sets them? |
 | `role` | behavior | Which permission sets exist? |
@@ -71,7 +70,7 @@ A consumer keeps its documentation in one folder per record layer, so the folder
 | Folder | Record layer | Holds |
 |:---|:---|:---|
 | `docs/intent/` | Intent | The brief, goals, problems, features, topics with their requirements by area, constraints, decisions, journeys, actors, research, and the product documents the business publishes, such as legal texts and the writing voice |
-| `docs/behavior/` | Behavior | Modules with their aggregates, use cases, reactions, jobs, notifications and settings; rule pages; access (roles, permissions, entry points); screens, one page per screen under `screens/`; external systems; integration events; the retention schedule; runbooks and operating procedures |
+| `docs/behavior/` | Behavior | Modules with their aggregates, use cases, automations, notifications and settings; rule pages; access (roles, permissions, entry points); screens, one page per screen under `screens/`; external systems; integration events; the retention schedule; runbooks and operating procedures |
 | `docs/implementation/` | Implementation | The technical decisions under `decisions/`, and guides for people working in the code: frontend architecture, the command reference, the published API guide, and setup guides. The guides describe code and hold no records |
 | `docs/proof/` | Proof | Evidence the tools compute or a run leaves behind: generated registers, gate files, and operating logs. No person writes a fact here that a tool can compute |
 | `docs/governance/` | Governance | Deviations and known gaps, which can attach to any record layer |
@@ -100,11 +99,10 @@ A page record is a Markdown file whose opening block names a record type. An ent
 | `rule` | entry | On its aggregate page; a cross-aggregate rule on a rule page under `docs/behavior/rules/` |
 | `use-case` | page | Beside its aggregate: `docs/behavior/modules/<module>/<aggregate>/<use-case>.md`; a query describing no one aggregate under `reads/` beside its module |
 | `result` | entry | In its use case page |
-| `scenario` | entry | In its use case page, or in its reaction page |
+| `scenario` | entry | In its use case page, or in its automation page |
 | `event` | entry | On its aggregate page |
 | `integration-event` | page | `docs/behavior/integration-events/<name>.md` |
-| `reaction` | page | `docs/behavior/modules/<module>/reactions/<reaction>.md` |
-| `job` | page | `docs/behavior/modules/<module>/jobs/<job>.md` |
+| `automation` | page | `docs/behavior/modules/<module>/automations/<automation>.md` |
 | `notification` | page | `docs/behavior/modules/<module>/notifications/<name>.md` |
 | `setting` | entry | On a setting-set page: `docs/behavior/modules/<module>/settings.md`, or `docs/behavior/settings/<name>.md` for platform-wide settings |
 | `role` | page | `docs/behavior/access/roles/<name>.md` |
@@ -141,8 +139,7 @@ An identifier names its record type first, then the record name, with the owning
 | `scenario` | `scenario/<use-case-name>.<name>` | `scenario/submit-expense.submitting-with-a-receipt-succeeds` |
 | `event` | `event/<aggregate-name>.<past-tense>` | `event/expense.submitted` |
 | `integration-event` | `integration-event/<name>` | `integration-event/expense-submitted` |
-| `reaction` | `reaction/<module>.<name>` | `reaction/spending.remind-approver` |
-| `job` | `job/<module>.<name>` | `job/spending.clear-stuck-reimbursements` |
+| `automation` | `automation/<module>.<name>` | `automation/spending.send-approver-reminder-on-expense-submitted` |
 | `notification` | `notification/<module>.<name>` | `notification/spending.approval-reminder` |
 | `setting` | `setting/<module>.<name>` | `setting/spending.max-open-expenses` |
 | `actor` | `actor/<name>` | `actor/employee` |
@@ -156,7 +153,7 @@ An identifier names its record type first, then the record name, with the owning
 | `known-gap` | `known-gap/<name>` | `known-gap/export-expenses-unimplemented` |
 | `term` | `term/<name>` | `term/expense` |
 
-A screen's `<name>` follows the same one-to-six-word rule as every other name; its `<entry-point>` is the name of the entry point it belongs to. A rule home is an aggregate name or a module name. A use case name is unique across the project, so a result or a scenario cites only that name. An aggregate name is unique across the project, so a rule cites only that name. A requirement's topic segment names its topic, and the topic is its parent by identifier containment, as an aggregate holds its rules. A requirement whose topic segment differs from its page's name is an `identifier-invalid` finding. A reaction, job, notification, or setting is filed with its module, and an integration event belongs to the published set. A rule name keeps the negation its statement makes. Every identifier citation resolves to a written record.
+A screen's `<name>` follows the same one-to-six-word rule as every other name; its `<entry-point>` is the name of the entry point it belongs to. A rule home is an aggregate name or a module name. A use case name is unique across the project, so a result or a scenario cites only that name. An aggregate name is unique across the project, so a rule cites only that name. A requirement's topic segment names its topic, and the topic is its parent by identifier containment, as an aggregate holds its rules. A requirement whose topic segment differs from its page's name is an `identifier-invalid` finding. An automation, notification, or setting is filed with its module, and an integration event belongs to the published set. A rule name keeps the negation its statement makes. Every identifier citation resolves to a written record.
 
 A journey step id is `journey/<name>#<step-id>`, with step ids `s1`, `s2`, and so on. A derived generic result is `result/<use-case>.forbidden` or `result/<use-case>.invalid-input`. Scenarios can point at derived results. Derived results are never written as records.
 
@@ -195,11 +192,11 @@ Each written link lives as a field on the record it starts from: a decision carr
 | `affects` | problem | Actors | affects | is affected by |
 | `solves` | feature | Problems; a refused feature names the problem it declines, read as declines and is declined by | solves | is solved by |
 | `advances` | feature | Goals | advances | is advanced by |
-| `serves` | use case, reaction, job | Journey steps | serves | is served by |
+| `serves` | use case, automation | Journey steps | serves | is served by |
 | `serves` | journey | The goal it walks toward | serves | is served by |
 | `cites` | requirement | Goals, problems, features, constraints, research, and decisions | cites | is cited by |
 | `cites` | journey | Requirements it shows | cites | is cited by |
-| `fulfills` | rule, use case, reaction, job, notification, setting | Requirements | fulfills | is fulfilled by |
+| `fulfills` | rule, use case, automation, notification, setting | Requirements | fulfills | is fulfilled by |
 | `governs` | rule | Aggregates, use cases | governs | is governed by |
 | `transitions.by` | aggregate | The use case that moves the transition | is moved by | moves |
 | `refusal` | rule | The refusal result carrying its code | is refused as | is the refusal for |
@@ -213,23 +210,30 @@ Each written link lives as a field on the record it starts from: a decision carr
 | `offers` | screen | The use cases a person can start from it | offers | is offered by |
 | `serves` | screen | The journey steps it carries a person through | serves | is served by |
 | `floorplan` | screen | The floorplan it composes | is composed from | is composed into |
-| `changes` | use case | Aggregates | changes | is changed by |
-| `reads` | use case, reaction, job | Aggregates, and on a use case the settings it reads | reads | is read by |
-| `effects` | use case, reaction, job | Use cases, notifications, integration events, external system operations | effects | is effected by |
-| `on` | reaction | Domain events or integration events | answers | is answered by |
+| `changes` | use case, automation | Aggregates | changes | is changed by |
+| `reads` | use case, automation | Aggregates, and on a use case the settings it reads | reads | is read by |
+| `effects` | use case, automation | Use cases, notifications, integration events, external system operations | effects | is effected by |
+| `triggeredBy` | automation | Domain events or integration events | answers | is answered by |
+| `binds` | rule | Aggregates | binds | is bound by |
+| `exercises` | scenario | Rules | exercises | is exercised by |
+| `drivenBy` | aggregate | Automations, actors, or roles | is driven by | drives |
+| `compensation.useCase` | aggregate | The use case reversing the saga step | is compensated by | compensates |
+| `freshness.authority` | use case | The record holding the authoritative value | is advised by | advises |
+| `erasure.operation` | aggregate | The external system operation erasing the data class | is erased through | erases |
+| `erasure.event` | aggregate | The integration event carrying the erasure | is erased through | carries the erasure of |
 | `holds` | actor | Roles at a scope | holds | is held by |
 | `allows` | role | Permissions | allows | is allowed by |
 | `actor` | journey, external system | The actor walking the journey; the actor the system acts as | is walked by / acts as | walks / is acted as by |
 | `translates` | integration event | Domain events | translates | is translated by |
 | `dependsOn` | module | Modules | depends on | is depended on by |
-| `runbook` | job | The runbook answering the job | is answered by | answers |
+| `runbook` | automation | The runbook answering the automation | is answered by | answers |
 | `provision` | deviation | The LiteSpec provision it departs from | departs from | is departed from by |
 | `subject` | known gap, deviation | The records the gap or deviation covers; a known gap may also name journey steps (`journey/<name>#s<n>`) for the step findings | covers | is covered by |
 | `terms` | any record | Terms | uses | is used by |
 
-Behavior records point up: `serves` on a use case, reaction, job, or screen points to journey steps, `serves` on a journey points to its goal, `advances` on a feature points to goals, and `fulfills` points to a requirement. Records never point down: a journey names no use case, and a requirement names no rule.
+Behavior records point up: `serves` on a use case, automation, or screen points to journey steps, `serves` on a journey points to its goal, `advances` on a feature points to goals, and `fulfills` points to a requirement. Records never point down: a journey names no use case, and a requirement names no rule.
 
-Containment needs no link field: it follows the identifier. An aggregate belongs to the module its identifier names, a requirement belongs to the topic its identifier names, a reaction, job, notification, or setting belongs to the module its identifier names, and a result or a scenario belongs to the use case its identifier names. An integration event belongs to the published set. The builder computes the remaining links from code, routes, and tests: `implements` from a code mark to the record it names, `follows` from a code mark to the provision, decision, or deviation that shapes the code, `calls` from a screen to a use case, and `proves` from a test mark to a scenario or rule. Code and tests point up to the record they serve through their marks, with each handler implementing exactly one record. The Parents table below names each record parent.
+Containment needs no link field: it follows the identifier. An aggregate belongs to the module its identifier names, a requirement belongs to the topic its identifier names, an automation, notification, or setting belongs to the module its identifier names, and a result or a scenario belongs to the use case its identifier names. An integration event belongs to the published set. The builder computes the remaining links from code, routes, and tests: `implements` from a code mark to the record it names, `follows` from a code mark to the provision, decision, or deviation that shapes the code, `calls` from a screen to a use case, and `proves` from a test mark to a scenario or rule. Code and tests point up to the record they serve through their marks, with each handler implementing exactly one record. The Parents table below names each record parent.
 
 ### Parents
 
@@ -262,8 +266,7 @@ The product has no record parent; its parent is the project that declares it. In
 | `scenario` | `result` | `result` |
 | `event` | `aggregate` | identifier home |
 | `integration-event` | the product | the product |
-| `reaction` | `module` | identifier home |
-| `job` | `module` | identifier home |
+| `automation` | `module` | identifier home |
 | `notification` | `module` | identifier home |
 | `setting` | `module` | identifier home |
 | `role` | the product | the product |
@@ -289,8 +292,8 @@ A mark is the one written link from a code element to the record it serves. It h
 | Domain | Domain service holding one rule calculation | `rule/<home>.<name>` |
 | Domain | Constituent type: identifier, state type, closed set, child entity, value object, repository interface | No mark: the builder derives its aggregate from its folder |
 | Application | Command or query handler | `use-case/<module>.<name>`, exactly one |
-| Application | Event handler | `reaction/<module>.<name>` |
-| Application or Infrastructure | Job host | `job/<module>.<name>` |
+| Application | Event handler | `automation/<module>.<name>` |
+| Application or Infrastructure | Job host | `automation/<module>.<name>` |
 | Application | Port for an external system | `external-system/<name>` |
 | Infrastructure | Adapter implementing that port | `external-system/<name>` |
 | API | Endpoint | `use-case/<module>.<name>` |
@@ -813,7 +816,7 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 
 **Statement:** Implemented, verified, met, stale, reachable, and effective status MUST come from the builder, never from handwriting.
 
-**Rationale:** Handwritten status drifts: a record marked implemented stays marked after its handler is deleted. Computed status cannot drift, because the builder re-derives it from handlers, routes, scenarios, and test runs on every run. A use case reads implemented when a handler, reaction, job, or endpoint marked with it carries it out, verified when every scenario passes its proof, and stale when a scenario changed after its proof, and a requirement reads met when everything fulfilling it is verified. Nothing above Implementation is computed from code: derivation from code into a record is forbidden, and code-computed facts live in the book and the model output.
+**Rationale:** Handwritten status drifts: a record marked implemented stays marked after its handler is deleted. Computed status cannot drift, because the builder re-derives it from handlers, routes, scenarios, and test runs on every run. A use case reads implemented when a handler, automation, or endpoint marked with it carries it out, verified when every scenario passes its proof, and stale when a scenario changed after its proof, and a requirement reads met when everything fulfilling it is verified. Nothing above Implementation is computed from code: derivation from code into a record is forbidden, and code-computed facts live in the book and the model output.
 
 **Example:** A use case reads implemented when its handler exists.
 
@@ -881,13 +884,13 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 
 **ID:** `litespec/core/model#implement-each-mapped-behavior-record-behind-a-mark`
 
-**Statement:** Every entity and process aggregate, every reaction, job, and external system, and every use case reached through a `browser` or `api` entry point, MUST be named by a mark on the code element the marks table gives it.
+**Statement:** Every entity and saga aggregate, every automation and external system, and every use case reached through a `browser` or `api` entry point, MUST be named by a mark on the code element the marks table gives it.
 
-**Rationale:** A mark points up, so a check reading marks alone finds code nobody recorded but misses a record nobody built. Checking each record that the marks table maps to code from the top closes the loop in the other direction: an entity or process aggregate with no root, a reaction with no event handler, a job with no host, an external system with no port, and a use case people reach with no endpoint. A store has no root, so it needs no mark. A use case with no screen calling it is reported as advice, because whether a browser reaches it depends on the deployment.
+**Rationale:** A mark points up, so a check reading marks alone finds code nobody recorded but misses a record nobody built. Checking each record that the marks table maps to code from the top closes the loop in the other direction: an entity or saga aggregate with no root, an automation with no event handler or host, an external system with no port, and a use case people reach with no endpoint. A store has no root, so it needs no mark. A use case with no screen calling it is reported as advice, because whether a browser reaches it depends on the deployment.
 
-**Example:** `reaction/spending.send-approver-reminders-on-expense-submitted` is reviewed and no event handler carries its mark, so the check reports `reaction-unimplemented` and blocks.
+**Example:** `automation/spending.send-approver-reminder-on-expense-submitted` is reviewed and no event handler carries its mark, so the check reports `automation-unimplemented` and blocks.
 
-**Checked by:** `litespec model check` reports `aggregate-unimplemented`, `reaction-unimplemented`, `job-unimplemented`, `external-system-unimplemented`, and `use-case-endpoint-missing` (level S) for a record no mark names, where `aggregate-unimplemented` fires only for an entity or process aggregate, and `use-case-unreached` (level A) for a browser use case no screen calls.
+**Checked by:** `litespec model check` reports `aggregate-unimplemented`, `automation-unimplemented`, `external-system-unimplemented`, and `use-case-endpoint-missing` (level S) for a record no mark names, where `aggregate-unimplemented` fires only for an entity or saga aggregate, and `use-case-unreached` (level A) for a browser use case no screen calls.
 
 ### Record a Project-Wide Lowering as a Deviation
 

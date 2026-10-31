@@ -250,24 +250,23 @@ public sealed class DotnetBackendReaderTests
 
     /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
-    public void On_Handler_With_A_Tag_Links_To_Its_Reaction()
+    public void On_Handler_With_A_Tag_Links_To_Its_Automation()
     {
         using var temp = Cli.Temp("reader");
         WriteProject(temp.Path);
         WriteSource(temp.Path, Path.Combine("App", "Lending", "Loans", "OnCopyBorrowed"), "NotifyReaderOnCopyBorrowedHandler.cs", """
             namespace Library.Application.Lending.Loans.OnCopyBorrowed;
 
-            /// <implements>reaction/lending.notify-reader-on-borrow</implements>
+            /// <implements>automation/lending.notify-reader-on-borrow</implements>
             public sealed class NotifyReaderOnCopyBorrowedHandler : IEventHandler<CopyBorrowedEvent>
             {
             }
             """);
 
-        var reaction = Assert.Single(new DotnetBackendReader().Read(ConsumerConfig.Load(temp.Path)).Reactions);
+        var automation = Assert.Single(new DotnetBackendReader().Read(ConsumerConfig.Load(temp.Path)).Automations);
 
-        Assert.Equal("NotifyReaderOnCopyBorrowedHandler", reaction.Class);
-        Assert.Equal("reaction", reaction.Kind);
-        Assert.Equal("reaction/lending.notify-reader-on-borrow", reaction.RecordId);
+        Assert.Equal("NotifyReaderOnCopyBorrowedHandler", automation.Class);
+        Assert.Equal("automation/lending.notify-reader-on-borrow", automation.RecordId);
     }
 
     /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
@@ -284,15 +283,14 @@ public sealed class DotnetBackendReaderTests
             }
             """);
 
-        var reaction = Assert.Single(new DotnetBackendReader().Read(ConsumerConfig.Load(temp.Path)).Reactions);
+        var automation = Assert.Single(new DotnetBackendReader().Read(ConsumerConfig.Load(temp.Path)).Automations);
 
-        Assert.Equal("reaction", reaction.Kind);
-        Assert.Null(reaction.RecordId);
+        Assert.Null(automation.RecordId);
     }
 
     /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
-    public void Reaction_With_The_Handler_Shape_Is_Discovered_Without_The_Suffix()
+    public void Automation_With_The_Handler_Shape_Is_Discovered_Without_The_Suffix()
     {
         using var temp = Cli.Temp("reader");
         WriteProject(temp.Path);
@@ -311,10 +309,9 @@ public sealed class DotnetBackendReaderTests
             }
             """);
 
-        var reaction = Assert.Single(new DotnetBackendReader().Read(ConsumerConfig.Load(temp.Path)).Reactions);
+        var automation = Assert.Single(new DotnetBackendReader().Read(ConsumerConfig.Load(temp.Path)).Automations);
 
-        Assert.Equal("NotifyOnCopyBorrowedReaction", reaction.Class);
-        Assert.Equal("reaction", reaction.Kind);
+        Assert.Equal("NotifyOnCopyBorrowedReaction", automation.Class);
     }
 
     /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
@@ -326,16 +323,15 @@ public sealed class DotnetBackendReaderTests
         WriteSource(temp.Path, Path.Combine("App", "Lending", "Loans", "BorrowCopy"), "NotifyReaderOnCopyBorrowedHandler.cs", """
             namespace Library.Application.Lending.Loans.BorrowCopy;
 
-            /// <implements>reaction/lending.notify-reader-on-borrow</implements>
+            /// <implements>automation/lending.notify-reader-on-borrow</implements>
             public sealed class NotifyReaderOnCopyBorrowedHandler : IEventHandler<CopyBorrowedEvent>
             {
             }
             """);
 
-        var reaction = Assert.Single(new DotnetBackendReader().Read(ConsumerConfig.Load(temp.Path)).Reactions);
+        var automation = Assert.Single(new DotnetBackendReader().Read(ConsumerConfig.Load(temp.Path)).Automations);
 
-        Assert.Equal("reaction", reaction.Kind);
-        Assert.Equal("reaction/lending.notify-reader-on-borrow", reaction.RecordId);
+        Assert.Equal("automation/lending.notify-reader-on-borrow", automation.RecordId);
     }
 
     /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
@@ -347,13 +343,13 @@ public sealed class DotnetBackendReaderTests
         WriteSource(temp.Path, Path.Combine("App", "Lending", "Loans", "OnCopyBorrowed"), "NotifyReaderOnCopyBorrowedHandler.cs", """
             namespace Library.Application.Lending.Loans.OnCopyBorrowed;
 
-            /// <implements>reaction/lending.notify-reader-on-borrow</implements>
+            /// <implements>automation/lending.notify-reader-on-borrow</implements>
             public sealed class NotifyReaderOnCopyBorrowedHandler
             {
             }
             """);
 
-        Assert.Empty(new DotnetBackendReader().Read(ConsumerConfig.Load(temp.Path)).Reactions);
+        Assert.Empty(new DotnetBackendReader().Read(ConsumerConfig.Load(temp.Path)).Automations);
     }
 
     /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
@@ -365,7 +361,7 @@ public sealed class DotnetBackendReaderTests
         WriteSource(temp.Path, Path.Combine("App", "Lending", "Loans", "OnCopyBorrowed"), "NotifyReaderOnCopyBorrowedHandler.cs", """
             namespace Library.Application.Lending.Loans.OnCopyBorrowed;
 
-            /// <implements>reaction/lending.notify-reader-on-borrow</implements>
+            /// <implements>automation/lending.notify-reader-on-borrow</implements>
             public sealed class NotifyReaderOnCopyBorrowedHandler : IEventHandler<CopyBorrowedEvent>
             {
             }
@@ -373,7 +369,7 @@ public sealed class DotnetBackendReaderTests
 
         var code = new DotnetBackendReader().Read(ConsumerConfig.Load(temp.Path));
 
-        Assert.Single(code.Reactions);
+        Assert.Single(code.Automations);
         Assert.Empty(code.Handlers);
     }
 

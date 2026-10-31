@@ -40,7 +40,7 @@ public static class Authority
             effective[record.Id] = Own(record);
         }
 
-        foreach (var record in records.Where(record => record.Type is "rule" or "use-case" or "reaction" or "job" or "notification" or "setting" or "entry-point" or "journey"))
+        foreach (var record in records.Where(record => record.Type is "rule" or "use-case" or "automation" or "notification" or "setting" or "entry-point" or "journey"))
         {
             var own = Own(record);
             var inherited = record.Ids("fulfills").Any(id =>

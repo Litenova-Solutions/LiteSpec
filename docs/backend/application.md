@@ -2,17 +2,17 @@
 
 ## Intent
 
-The Application layer coordinates use cases, checking the shape of each incoming message, authorizing it, running the handler, and returning a result that carries no transport details. A use case is one command, which changes business state, or one query, which reads without changing state; a reaction answers an event, and a job runs scheduled or operator work. This page states how use cases, reactions, and jobs are organized, what each stage of the command pipeline owns, and how ports and declared effects are wired.
+The Application layer coordinates use cases, checking the shape of each incoming message, authorizing it, running the handler, and returning a result that carries no transport details. A use case is one command, which changes business state, or one query, which reads without changing state; an automation runs work without a request, on an event, on a schedule, or by hand. This page states how use cases and automations are organized, what each stage of the command pipeline owns, and how ports and declared effects are wired.
 
 ## Concepts
 
 ### The Use-Case Folder
 
-Every folder in Application is a module, an aggregate, a use case, or an event handler folder. One use-case folder holds everything a reviewer needs to judge a use case: its message, result, validator, handler, mapping, and definition of pipeline-read values. An event handler folder holds its event handler classes with the marks naming their reactions, named under `litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle`. Contracts that more than one module names live in the shared application contracts, and the pipeline machinery lives in one folder named for the pipeline.
+Every folder in Application is a module, an aggregate, a use case, or an event handler folder. One use-case folder holds everything a reviewer needs to judge a use case: its message, result, validator, handler, mapping, and definition of pipeline-read values. An event handler folder holds its event handler classes with the marks naming their automations, named under `litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle`. Contracts that more than one module names live in the shared application contracts, and the pipeline machinery lives in one folder named for the pipeline.
 
 ### The Command Pipeline
 
-A command travels fixed stages in order: validation, authorization, idempotency, audit, timestamp, holds, the handler, commit, and fault classification, with exactly one commit post-handler. The handler loads or creates the one aggregate its use case changes, calls one domain method on it, stages it through its domain repository, and returns a result. Validation, authorization, idempotency, audit, the timestamp, holds, the commit, and fault classification each belong to their own pipeline stage, so none appears in the handler. A query travels validation and the guard, then projects its result directly without loading an aggregate. An event handler answers its trigger outside the command pipeline, running the declared `issues`, `sends`, and `calls` effects after the commit, while a `publishes` effect leaves the commit as a domain event staged in the outbox. A job issues its commands once per item in its selection.
+A command travels fixed stages in order: validation, authorization, idempotency, audit, timestamp, holds, the handler, commit, and fault classification, with exactly one commit post-handler. The handler loads or creates the one aggregate its use case changes, calls one domain method on it, stages it through its domain repository, and returns a result. Validation, authorization, idempotency, audit, the timestamp, holds, the commit, and fault classification each belong to their own pipeline stage, so none appears in the handler. A query travels validation and the guard, then projects its result directly without loading an aggregate. An event handler answers its trigger outside the command pipeline, running the declared `runs`, `sends`, and `calls` effects after the commit, while an `emits` effect leaves the commit as a domain event staged in the outbox. A scheduled or manual automation runs its commands once per item in its selection.
 
 ### Ports
 
@@ -20,7 +20,7 @@ A port is a narrow interface Application declares for work it does not do itself
 
 ### Declared Effects
 
-Every edge between use cases, reactions, jobs, notifications, integration events, and external systems is declared on a record and checked in code. A use case declares its edges in `effects`: `issues` names a command, `sends` names a notification, `publishes` names an integration event, and `calls` names an external-system operation. Each entry carries its timing: `inline` shares the caller's call, `after-commit` runs after the commit succeeds, and `async` runs outside the caller's transaction. An edge the records do not declare is the defect the effect checks report.
+Every edge between use cases, automations, notifications, integration events, and external systems is declared on a record and checked in code. A use case declares its edges in `effects`: `runs` names a command, `sends` names a notification, `emits` names an integration event, and `calls` names an external-system operation. Each entry carries its timing: `inline` shares the caller's call, `after-commit` runs after the commit succeeds, and `async` runs outside the caller's transaction. An edge the records do not declare is the defect the effect checks report.
 
 ## Standards
 
@@ -143,7 +143,7 @@ The handler loads or creates, calls once, stages, and returns. Validation, autho
 
 **Statement:** Each command MUST implement one use case with one success path, so a flow that finds a record or else creates it is two use cases that the boundary owning the flow chooses between.
 
-**Rationale:** A get-or-create command hides two use cases with different access, audit, and refusals behind one name. The boundary that owns the flow, an endpoint, an event handler, or a job, runs a query and then sends the command that fits. When the create loses a race, it refuses with its conflict under `litespec/backend/application#refuse-a-lost-race-as-a-conflict`, and the owner sends the other command. Where the record is usually present, the owner may instead send the command first and, on the record's not-found refusal, send the create and then the command again; one shared helper holds that sequence, so no endpoint repeats it.
+**Rationale:** A get-or-create command hides two use cases with different access, audit, and refusals behind one name. The boundary that owns the flow, an endpoint, an event handler, or an automation, runs a query and then sends the command that fits. When the create loses a race, it refuses with its conflict under `litespec/backend/application#refuse-a-lost-race-as-a-conflict`, and the owner sends the other command. Where the record is usually present, the owner may instead send the command first and, on the record's not-found refusal, send the create and then the command again; one shared helper holds that sequence, so no endpoint repeats it.
 
 **Example:** Signing in to the library with an unknown reader card runs as a query and then one of two commands: the endpoint queries `query/loans.find-reader-by-card`, then sends either `use-case/loans.register-reader` or `use-case/loans.record-reader-sign-in`.
 
@@ -243,13 +243,13 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **ID:** `litespec/backend/application#call-external-systems-through-their-ports`
 
-**Statement:** Each `calls` effect MUST run in an event handler or job through the port operation its record names, after the commit of the command that raised its trigger.
+**Statement:** Each `calls` effect MUST run in an event handler or automation through the port operation its record names, after the commit of the command that raised its trigger.
 
-**Rationale:** A command handler changes only its aggregate under `litespec/backend/application#dispatch-only-declared-effect-edges`, so a provider call runs in an event handler or job after the commit. The `calls` effect names one operation on one external system, and the operations entry states its timeout, its timeout behavior, its retries, its response, and its cache. The port carries that operation with project-owned types and carries a mark naming its system on the port interface, and Infrastructure implements it, so a provider change stops at the adapter. The stack reader counts a call as a `calls` edge only through such a marked port; any other injected interface is internal work. A call on a marked port that no `calls` entry declares fails `effect-undeclared`. A provider call whose result the command needs before it can answer is a deviation: the use case records the intent first, for example a pending charge, and an event handler calls the provider. A project that keeps an inline call records a deviation naming the compensation that undoes it.
+**Rationale:** A command handler changes only its aggregate under `litespec/backend/application#dispatch-only-declared-effect-edges`, so a provider call runs in an event handler or automation after the commit. The `calls` effect names one operation on one external system, and the operations entry states its timeout, its timeout behavior, its retries, its response, and its cache. The port carries that operation with project-owned types and carries a mark naming its system on the port interface, and Infrastructure implements it, so a provider change stops at the adapter. The stack reader counts a call as a `calls` edge only through such a marked port; any other injected interface is internal work. A call on a marked port that no `calls` entry declares fails `effect-undeclared`. A provider call whose result the command needs before it can answer is a deviation: the use case records the intent first, for example a pending charge, and an event handler calls the provider. A project that keeps an inline call records a deviation naming the compensation that undoes it.
 
 **Example:** An event handler that calls an expense payout operation names it through the record's `calls` entry and the port method; a direct provider call fails the check.
 
-**Reviewed for:** Each `calls` effect runs in an event handler or job through its port, after the commit.
+**Reviewed for:** Each `calls` effect runs in an event handler or automation through its port, after the commit.
 
 ### Send Notifications Through the Messenger Port
 
@@ -263,17 +263,17 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **Reviewed for:** Each `sends` effect runs in an event handler through the messenger port, after the commit.
 
-### Publish Declared Integration Events After Commit
+### Emit Declared Integration Events After Commit
 
-**ID:** `litespec/backend/application#publish-declared-integration-events-after-commit`
+**ID:** `litespec/backend/application#emit-declared-integration-events-after-commit`
 
-**Statement:** Each `publishes` effect MUST leave the commit as a domain event the aggregate raised, staged in the outbox with the business work.
+**Statement:** Each `emits` effect MUST leave the commit as a domain event the aggregate raised, staged in the outbox with the business work.
 
-**Rationale:** A command handler changes only its aggregate under `litespec/backend/application#dispatch-only-declared-effect-edges`, so a `publishes` effect is a domain event the aggregate raises, which persistence stages in the outbox in the same commit. The `publishes` entry names the integration event with its timing, and the outbox extension stages the message with the business work so both commit together and delivery follows. A publish no entry declares fails `effect-undeclared`. Publishing outside the outbox delivers facts the commit did not store.
+**Rationale:** A command handler changes only its aggregate under `litespec/backend/application#dispatch-only-declared-effect-edges`, so an `emits` effect is a domain event the aggregate raises, which persistence stages in the outbox in the same commit. The `emits` entry names the integration event with its timing, and the outbox extension stages the message with the business work so both commit together and delivery follows. An emit no entry declares fails `effect-undeclared`. Emitting outside the outbox delivers facts the commit did not store.
 
-**Example:** The `reimburse-expense` aggregate raises its reimbursed fact, and persistence stages it in the outbox with the business work; the record's `publishes` entry names the event.
+**Example:** The `reimburse-expense` aggregate raises its reimbursed fact, and persistence stages it in the outbox with the business work; the record's `emits` entry names the event.
 
-**Reviewed for:** Each `publishes` effect leaves the commit as a domain event staged in the outbox.
+**Reviewed for:** Each `emits` effect leaves the commit as a domain event staged in the outbox.
 
 ### Expose Store State Through Ports
 
@@ -309,39 +309,39 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **Reviewed for:** Each message declares a value or an exemption for every pipeline position the baseline and selected extensions require.
 
-### Keep Event Reaction Implementations Explicit
+### Keep Event Automation Implementations Explicit
 
-**ID:** `litespec/backend/application#keep-event-reaction-implementations-explicit`
+**ID:** `litespec/backend/application#keep-event-automation-implementations-explicit`
 
-**Statement:** An event reaction implementation MUST answer the trigger its reaction record names, in one class carrying one mark naming that record.
+**Statement:** An event automation implementation MUST answer the trigger its automation record names, in one class carrying one mark naming that record.
 
-**Rationale:** A reaction without an explicit implementation leaves its trigger, its target, and its failure handling to whoever reads the code. One event handler class per reaction record answers the trigger the record names in `on`, whether a domain event or an integration event, and dispatches only through the record's `effects` entries. The class never writes an aggregate directly: an event handler that needs a write issues a command. It honors the record's `reads`, its idempotency, and its `onFailure`, and the mark is the link the stack reader follows. The class lives in the `On{Fact}` folder for the fact it handles, named under `litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle`. The record names its trigger under `litespec/core/automation#trigger-every-reaction-from-a-declared-event`. An entry with `after-commit` timing uses durable delivery through the outbox extension.
+**Rationale:** An automation without an explicit implementation leaves its trigger, its target, and its failure handling to whoever reads the code. One event handler class per automation record answers the trigger the record names in `triggeredBy`, whether a domain event or an integration event, and dispatches only through the record's `effects` entries. The class never writes an aggregate directly: an event handler that needs a write runs a command. It honors the record's `reads`, its idempotency, and its `onFailure`, and the mark is the link the stack reader follows. The class lives in the `On{Fact}` folder for the fact it handles, named under `litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle`. The [automation page](../core/automation.md) states the trigger fields. An entry with `after-commit` timing uses durable delivery through the outbox extension.
 
-**Example:** The class `SendDueNoticeOnLoanBorrowedHandler` in `OnLoanBorrowed/` carries one mark naming `reaction/lending.send-due-notice-on-loan-borrowed`, answers `event/loan.loan-borrowed`, and sends `notification/lending.loan-due`.
+**Example:** The class `SendDueNoticeOnLoanBorrowedHandler` in `OnLoanBorrowed/` carries one mark naming `automation/lending.send-due-notice-on-loan-borrowed`, answers `event/loan.loan-borrowed`, and sends `notification/lending.loan-due`.
 
-**Reviewed for:** Each event handler answers its reaction trigger in one class carrying its record mark, in its `On{Fact}` folder.
+**Reviewed for:** Each event handler answers its automation trigger in one class carrying its record mark, in its `On{Fact}` folder.
 
-### Run Each Job Within Its Declared Selection
+### Run Each Automation Within Its Declared Selection
 
-**ID:** `litespec/backend/application#run-each-job-within-its-declared-selection`
+**ID:** `litespec/backend/application#run-each-automation-within-its-declared-selection`
 
-**Statement:** A background job MUST issue its declared commands once per item in its record's `selection`, honoring its batch size, lease, and cursor.
+**Statement:** A scheduled or manual automation MUST run its declared commands once per item in its record's `selection`, honoring its batch size, lease, and cursor.
 
-**Rationale:** The job record owns what each run selects, how many items each batch takes, the lease that keeps two runs apart, and the cursor where a run resumes. The job runs its `effects` entries once per item, records its evidence where the record states, and follows its `onFailure` when an item fails. An `operator` job carries no aggregate: it states its `runsWhere` and its guard, and runs as interactive platform work. One execution host runs the job under `litespec/backend/architecture#declare-the-execution-host-for-work-that-outlives-a-request`.
+**Rationale:** The automation record owns what each run selects, how many items each batch takes, the lease that keeps two runs apart, and the cursor where a run resumes. The automation runs its `effects` entries once per item, records its evidence where the record states, and follows its `onFailure` when an item fails. A `manual` automation carries no aggregate: it states its `runsWhere` and its guard, and runs as interactive platform work. One execution host runs the automation under `litespec/backend/architecture#declare-the-execution-host-for-work-that-outlives-a-request`.
 
-**Example:** The erase-expired-data job selects decided expenses past retention in batches of 200 under its lease, issues one erase command per expense, and resumes from its cursor.
+**Example:** The erase-expired-data automation selects decided expenses past retention in batches of 200 under its lease, runs one erase command per expense, and resumes from its cursor.
 
-**Reviewed for:** Each background job issues its commands once per item in its selection, honoring batch size, lease, and cursor.
+**Reviewed for:** Each scheduled or manual automation runs its commands once per item in its selection, honoring batch size, lease, and cursor.
 
-### Issue Per-Record Work from a Job
+### Issue Per-Record Work from an Automation
 
-**ID:** `litespec/backend/application#issue-per-record-work-from-a-job`
+**ID:** `litespec/backend/application#issue-per-record-work-from-an-automation`
 
-**Statement:** Work over many records MUST run as a job that issues one command per record, each in its own unit of work, never as a command handler that changes records in a loop.
+**Statement:** Work over many records MUST run as an automation that runs one command per record, each in its own unit of work, never as a command handler that changes records in a loop.
 
-**Rationale:** One failing record otherwise rolls back the batch, and the batch holds locks for its whole length. The job runs each command within its declared selection under `litespec/backend/application#run-each-job-within-its-declared-selection`, and persistence commits each record alone under `litespec/backend/persistence#commit-each-command-pipeline-once`.
+**Rationale:** One failing record otherwise rolls back the batch, and the batch holds locks for its whole length. The automation runs each command within its declared selection under `litespec/backend/application#run-each-automation-within-its-declared-selection`, and persistence commits each record alone under `litespec/backend/persistence#commit-each-command-pipeline-once`.
 
-**Example:** The erase-expired-data job issues one erase command per expense, each in its own unit of work, instead of a command looping over expenses.
+**Example:** The erase-expired-data automation runs one erase command per expense, each in its own unit of work, instead of a command looping over expenses.
 
 **Checked by:** `dotnet build` reports `LS2015` for a command handler with a repository `Store`, `Add`, `Update` or `Delete` call inside a loop body.
 
@@ -349,13 +349,13 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **ID:** `litespec/backend/application#dispatch-only-declared-effect-edges`
 
-**Statement:** A command handler MUST change only its aggregate, leaving every declared `issues`, `sends`, `calls`, and `publishes` edge to an event handler or job after the commit.
+**Statement:** A command handler MUST change only its aggregate, leaving every declared `runs`, `sends`, `calls`, and `emits` edge to an event handler or automation after the commit.
 
-**Rationale:** An undeclared edge is the defect: an event handler or job reaches a use case, notification, integration event, or external system the records never named, so review sees behavior the specification hides. Each declared entry names exactly one verb, its timing, and its failure handling, and the stack reader fails `effect-undeclared` on any dispatch the record does not declare. A `publishes` effect is a domain event the aggregate raises, staged in the outbox in the same commit under `litespec/backend/application#publish-declared-integration-events-after-commit`; `sends`, `calls`, and `issues` effects run in an event handler or job after the commit. A `sends` or `calls` effect is `after-commit` or `async`, never `inline`. An `inline` `issues` entry states whether it shares the caller's transaction, and `consistency: atomic` never spans an `async` edge. The effect graph holds no cycles except through domain events with a stated end condition. A process carried by a workflow engine maps each engine step to exactly one use case with its compensation through the `workflow-engine` extension.
+**Rationale:** An undeclared edge is the defect: an event handler or automation reaches a use case, notification, integration event, or external system the records never named, so review sees behavior the specification hides. Each declared entry names exactly one verb, its timing, and its failure handling, and the stack reader fails `effect-undeclared` on any dispatch the record does not declare. An `emits` effect is a domain event the aggregate raises, staged in the outbox in the same commit under `litespec/backend/application#emit-declared-integration-events-after-commit`; `sends`, `calls`, and `runs` effects run in an event handler or automation after the commit. A `sends` or `calls` effect is `after-commit` or `async`, never `inline`. An `inline` `runs` entry states whether it shares the caller's transaction, and `consistency: atomic` never spans an `async` edge. The effect graph holds no cycles except through domain events with a stated end condition. A saga carried by a workflow engine maps each engine step to exactly one use case with its compensation through the `workflow-engine` extension.
 
-**Example:** The `reimburse-expense` aggregate raises its reimbursed fact, and persistence stages `integration-event/expense.reimbursed` in the outbox because its record declares that `publishes` entry; a second publish the record does not declare fails the check.
+**Example:** The `reimburse-expense` aggregate raises its reimbursed fact, and persistence stages `integration-event/expense.reimbursed` in the outbox because its record declares that `emits` entry; a second emit the record does not declare fails the check.
 
-**Reviewed for:** A command handler changes only its aggregate, and each event handler or job dispatch names a declared effect entry.
+**Reviewed for:** A command handler changes only its aggregate, and each event handler or automation dispatch names a declared effect entry.
 
 ### Declare Audit Values Beside the Message
 
@@ -457,13 +457,13 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **ID:** `litespec/backend/application#run-heavy-work-as-a-request-then-a-build`
 
-**Statement:** Each command assembling a large artifact MUST record the request and let a job or reaction build the artifact.
+**Statement:** Each command assembling a large artifact MUST record the request and let an automation build the artifact.
 
 **Rationale:** A command that reads many repositories to assemble a large response holds the caller waiting and times out under load. Recording the request answers at once, the build runs in the background, and the requester reads the state of its own request.
 
-**Example:** The export-expenses command records its request, and a job builds the file the requester then downloads.
+**Example:** The export-expenses command records its request, and an automation builds the file the requester then downloads.
 
-**Reviewed for:** Each heavy command records its request, with a job or reaction building the artifact.
+**Reviewed for:** Each heavy command records its request, with an automation building the artifact.
 
 ### Build Collaborators Through the Container
 
@@ -475,17 +475,17 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **Example:** The reimburse handler takes its expense repository through its constructor, while a step built with `new` that takes a repository is reported.
 
-**Checked by:** `litespec model check` reports `collaborator-repository-invalid` (tier A) for a class built with `new` whose constructor takes a repository, and `dependency-count-invalid` (tier A) for a handler, reaction, or job taking more than ten constructor dependencies.
+**Checked by:** `litespec model check` reports `collaborator-repository-invalid` (tier A) for a class built with `new` whose constructor takes a repository, and `dependency-count-invalid` (tier A) for a handler or automation taking more than ten constructor dependencies.
 
 ### Read No Repository Inside a Loop
 
 **ID:** `litespec/backend/application#read-no-repository-inside-a-loop`
 
-**Statement:** Each handler, reaction, and job MUST read no repository inside a loop body.
+**Statement:** Each handler and automation MUST read no repository inside a loop body.
 
 **Rationale:** A read inside a loop turns one handling into as many round trips as there are items, and the slowdown hides behind small test data. A batch read or a scoped query loads every item at once, so the handling costs one trip whatever the data holds.
 
-**Example:** The reminder job loads due loans with one scoped query instead of reading each loan inside its loop.
+**Example:** The reminder automation loads due loans with one scoped query instead of reading each loan inside its loop.
 
 **Checked by:** `litespec model check` reports `repository-read-invalid` (tier A) for a repository read inside a loop body.
 
@@ -529,7 +529,7 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 Module and aggregate order, including the single-aggregate flat form, follow `litespec/backend/architecture#organize-every-layer-by-module-and-use-case`.
 
-Only a use case or an event handler folder gets a folder. Any other type sits flat in the folder that owns it, chosen by `litespec/backend/architecture#place-a-type-at-the-lowest-folder-that-holds-its-consumers`, so every folder name below a module names one use case or one fact. An event handler lives in the `On{Fact}` folder for the fact it handles, named under `litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle`, with its mark under `litespec/backend/application#keep-event-reaction-implementations-explicit`. A folder named for a service, a technical kind, or a caller breaks that reading; it is drift rather than a second convention.
+Only a use case or an event handler folder gets a folder. Any other type sits flat in the folder that owns it, chosen by `litespec/backend/architecture#place-a-type-at-the-lowest-folder-that-holds-its-consumers`, so every folder name below a module names one use case or one fact. An event handler lives in the `On{Fact}` folder for the fact it handles, named under `litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle`, with its mark under `litespec/backend/application#keep-event-automation-implementations-explicit`. A folder named for a service, a technical kind, or a caller breaks that reading; it is drift rather than a second convention.
 
 **Reviewed for:** Each use-case path matches its module, aggregate, and use case, each event handler sits in its `On{Fact}` folder, and each result part is named after its result.
 

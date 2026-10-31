@@ -83,7 +83,7 @@ sealed class Record : IRecordFacts
     }
 
     /// <summary>
-    ///     Reads the targets of one edge verb (issues, sends, publishes, calls): the entries of
+    ///     Reads the targets of one edge verb (runs, sends, emits, calls): the entries of
     ///     <c>effects</c> carrying the verb, then a top-level field of the same name.
     /// </summary>
     public IReadOnlyList<string> EdgeIds(string verb)

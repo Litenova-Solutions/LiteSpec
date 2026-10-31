@@ -36,6 +36,7 @@
       ],
       "onErasure": "erase",
       "basis": "business",
+      "purpose": "Send overdue notices to readers.",
       "period": "P30D"
     }
   ],
@@ -129,7 +130,7 @@
   ],
   "approvedBy": "lending-team",
   "approvedOn": "2026-10-01",
-  "approvedHash": "42c914f2"
+  "approvedHash": "b04c8c3a"
 }
 ---
 

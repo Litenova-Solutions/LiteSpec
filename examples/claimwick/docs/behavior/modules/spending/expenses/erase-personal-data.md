@@ -7,9 +7,6 @@
   "status": "reviewed",
   "kind": "command",
   "access": {
-    "auth": [
-      "session"
-    ],
     "grant": "permission/erase-personal-data",
     "tenant": "own"
   },
@@ -66,7 +63,7 @@
   ],
   "approvedBy": "claimwick-team",
   "approvedOn": "2026-10-31",
-  "approvedHash": "284059fa"
+  "approvedHash": "5ee43416"
 }
 ---
 

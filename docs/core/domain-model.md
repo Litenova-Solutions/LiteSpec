@@ -2,7 +2,7 @@
 
 ## Intent
 
-Domain Model states the words and things inside the bounded context: the modules, the glossary, the aggregates with their lifecycles, the rules that hold, and the domain events. Agents write these records from Intent, and developers review them before code carries them. The [Behavior overview](behavior.md) maps the five Behavior pages, and the [record language page](language.md) states how each field, value and record name is written.
+Domain Model states the words and things inside the bounded context: the modules, the glossary, the aggregates with their lifecycles, the sagas coordinating them, the rules that hold, and the domain events. Agents write these records from Intent, and developers review them before code carries them. The [Behavior overview](behavior.md) maps the five Behavior pages, and the [record language page](language.md) states how each field, value and record name is written.
 
 ## Concepts
 
@@ -17,12 +17,12 @@ The product speaks one business language inside one deployment boundary, as the 
 
 ### Glossary
 
-The glossary is the project ubiquitous language: the one word or phrase the project uses for each concept, with its meaning. Each term carries `layer`: intent for business words, behavior for design words such as aggregate, refusal, and reaction. Each term lists in `aliases` the established synonyms its readers know, so industry readers find LiteSpec own words: a refusal is a rejection or error, a reaction is a policy or automation, a compensation is an undo. The `rejected` list still bars the synonyms the project refuses, as the [authoring page](authoring.md) states.
+The glossary is the project ubiquitous language: the one word or phrase the project uses for each concept, with its meaning. Each term carries `layer`: intent for business words, behavior for design words such as aggregate, refusal, and automation, and implementation for design words that live in code, such as a read model. Each term lists in `aliases` the established synonyms its readers know, so industry readers find LiteSpec own words: a refusal is a rejection or error, an automation is a policy, a saga is a process manager, a compensation is an undo. The `rejected` list still bars the synonyms the project refuses, as the [authoring page](authoring.md) states. A term carries the status vocabulary of its record layer, as the [model page](model.md) states.
 
 | Field | Meaning |
 |:---|:---|
 | `term`, `meaning` | The one word and what it means. |
-| `layer` | `intent` or `behavior`. |
+| `layer` | `intent`, `behavior`, or `implementation`. |
 | `aliases` | Established synonyms readers know. |
 | `rejected` | Synonyms barred in their scope. |
 | `broader`, `narrower`, `values` | The wider and narrower terms, and the closed values. |
@@ -31,40 +31,41 @@ The glossary is the project ubiquitous language: the one word or phrase the proj
 
 ### Aggregates
 
-An aggregate is one thing the product keeps consistent and changes in one step, through its root. Each aggregate declares one kind, defaulting to entity when the page names none. The aggregate identifier carries its module, so containment follows the identifier and needs no link field.
+An aggregate is one thing the product keeps consistent and changes in one step, through its root. Each aggregate declares one kind. The aggregate identifier carries its module, so containment follows the identifier and needs no link field.
 
 | Kind | Meaning |
 |:---|:---|
 | `entity` | One thing kept consistent through its root, with states, transitions, and data. |
-| `process` | A multi-step aggregate with steps, exits, `finishedWhen`, and a driver. |
+| `saga` | A coordinator whose steps run use cases on other aggregates, each with its compensation. |
 | `store` | State no aggregate invariant guards, such as a library-owned table, with a named owner. |
 
 An aggregate lists in `parts` the kebab-case names of the child entities and value objects inside it that use cases act on, such as `line`, `hold`, and `note`. The use-case noun check reads each part as a known word.
 
-The body keeps the Transitions and Data tables from the aggregate page style. The Transitions table lists every allowed change with the use case moving it, naming the state left and the state entered. The Data table lists the fields the aggregate keeps with name, meaning, classification, and data class. Each data class declares how its fields erase:
+Transitions and data live in frontmatter, in `transitions` and `data`. The Transitions table lists every allowed change with the use case moving it, naming the state left and the state entered, and the Data table lists the fields the aggregate keeps with name, meaning, classification, and data class; both tables render as generated regions from the frontmatter. Each data class declares how its fields erase:
 
 | Field | Meaning |
 |:---|:---|
 | `name`, `classification`, `fields` | The class, its `public`, `internal`, `personal`, or `sensitive` handling, and its fields. |
-| `onErasure` | `erase`, `pseudonymize`, `retain`, or `exempt`. |
+| `purpose` | Why the data is kept. |
+| `onErasure` | `erase`, `pseudonymize`, `anonymize`, `retain`, or `exempt`. |
 | `basis` | `statute`, `business`, or `engineering`. |
 | `period` | The retention period as an ISO duration, or `{ "mode": "none", "reason": "..." }`. |
-| `enforcedBy` | `job/...`, `record-expiry`, `store-ttl`, or `query-filter`. |
+| `enforcedBy` | `automation/...`, `record-expiry`, `store-ttl`, or `query-filter`. |
 | `reach` | `own-tenant`, `subject-wide`, or `platform-wide`. |
 | `exceptions` | Per-field erasure positions differing from the class. |
 | `reason`, `reviewBy`, `acceptedBy` | The reason and review date of an exemption, and the Intent record accepting retained or exempt personal data. |
 
-### Process Aggregates
+### Sagas
 
-A process is an aggregate with a multi-step life: a hold queue, an erasure request, a hiring pipeline. Its steps name the work in order; each step carries an optional `when` guard and a compensation, the step undo: `{ "mode": "use-case", "useCase": "use-case/..." }` naming the use case reversing the step, or `{ "mode": "none", "reason": "..." }` with the reason no undo applies. Its exits name the ways out, its `finishedWhen` names the observable end, its `driver` names what moves it, and its `cursor` names where resume state lives when a job drives it.
+A saga is an aggregate that coordinates work across aggregates: a refund, a resale, a hiring pipeline. Its steps run in order, each running one use case on another aggregate; each step carries an `id`, the use case in `runs`, its compensation, and an optional `guard` clause completing "when ...". Its exits name the ways out, each a past participle or adjective; its `finishedWhen` names the observable end; its `drivenBy` names what moves it; and its `cursor` names where resume state lives.
 
 | Field | Meaning |
 |:---|:---|
-| `steps` | Ordered `{ name, when, compensation }` entries; `compensation` is `{ "mode": "use-case", "useCase": "use-case/..." }` or `{ "mode": "none", "reason": "..." }`. |
-| `exits` | `{ name, trigger, then }` entries; a trigger is a condition, a `decision by <actor>`, or a `due <duration>`. |
+| `steps` | Ordered `{ id, runs, compensation, guard }` entries; `runs` names `use-case/...`; `compensation` is `{ "mode": "use-case", "useCase": "use-case/..." }` or `{ "mode": "none", "reason": "..." }`; `guard` is optional. |
+| `exits` | `{ name, trigger, then }` entries; the name is a past participle or adjective; a trigger is a condition, a `decision by <actor>`, or a `due <duration>`. |
 | `finishedWhen` | The observable end, in one sentence. |
-| `driver` | `reaction/...`, `job/...`, or `operator: <who, via runbook/..., due <duration>>` entries. |
-| `cursor` | Where resume state lives for a job-driven process. |
+| `drivenBy` | `{ "automation": "automation/<...>" }` or `{ "person": "<actor or role id>", "runbook": "runbook/<...>", "dueWithin": "<ISO duration>" }` entries. |
+| `cursor` | Where resume state lives. |
 
 ### Rules
 
@@ -76,7 +77,7 @@ A rule states what holds, with its `kind` and its `statement`. A rule names what
 | `precondition` | Guards the behavior before it runs. |
 | `calculation` | Derives a value, proven by an examples table. |
 | `cross-aggregate` | Spans aggregates and lives on a rule page. |
-| `atomicity` | Names one atomic write group. |
+| `atomicity` | Names one atomic write group in `binds`. |
 | `reservation` | Holds a claim until a use case releases it, named in `releasedBy` as a use-case id, or `{ "mode": "never", "reason": "..." }` with its cost. |
 | `commercial-data` | Freezes a commercial value, with `frozenWhen` and `history`. |
 | `default` | States a model default. |
@@ -104,17 +105,17 @@ A domain event is an immutable statement that a business fact completed, named i
 
 **Example:** The term `receipt` carries the meaning "proof of payment accepted for an expense" in the glossary, so every record naming a receipt means that proof.
 
-**Reviewed for:** Each term the Behavior records name appears with its meaning in the project glossary.
+**Reviewed for:** Which terms do the Behavior records name without a glossary entry stating their meaning? Look at the records beside the project glossary.
 
 ### Mark Each Term with Its Layer
 
 **ID:** `litespec/core/domain-model#mark-each-term-with-its-layer`
 
-**Statement:** Each glossary term MUST carry its record layer, intent or behavior, with the established synonyms its readers know in `aliases`.
+**Statement:** Each glossary term MUST carry its record layer, intent, behavior, or implementation, with the established synonyms its readers know in `aliases`.
 
-**Rationale:** Business words and design words age on different clocks: a business term moves when the market moves, while a design term moves when the model moves. The record layer tells each reader which clock the word follows, and the aliases let industry readers find LiteSpec own words without learning a second vocabulary first.
+**Rationale:** Business words, design words, and implementation words age on different clocks: a business term moves when the market moves, a design term moves when the model moves, and an implementation term moves when the code moves. The record layer tells each reader which clock the word follows, and the aliases let industry readers find LiteSpec own words without learning a second vocabulary first.
 
-**Example:** The term `refusal` carries `layer: behavior` with `aliases: ["rejection", "error"]`.
+**Example:** The term `saga` carries `layer: behavior` with `aliases: ["process manager"]`.
 
 **Checked by:** `litespec consumer` fails a glossary term without `layer`, and each behavior term lists the synonyms its readers know in `aliases`.
 
@@ -126,17 +127,17 @@ A domain event is an immutable statement that a business fact completed, named i
 
 **Rationale:** A module relies on the language and behavior of others, and each reliance shapes change: editing a module ripples into everything depending on it. Naming every reliance in `dependsOn` shows that ripple as data instead of leaving it for readers to reconstruct from prose.
 
-**Reviewed for:** Each module page names in `dependsOn` the modules its text and records rely on.
+**Reviewed for:** Which modules rely on a module that `dependsOn` does not name? Look at the module pages beside the modules they rely on.
 
 ### Declare the Kind of Every Aggregate
 
 **ID:** `litespec/core/domain-model#declare-the-kind-of-every-aggregate`
 
-**Statement:** Each aggregate MUST declare its kind: entity, process, or store.
+**Statement:** Each aggregate MUST declare its kind: entity, saga, or store.
 
-**Rationale:** The kind decides what the page carries: an entity carries a lifecycle, a process carries steps with exits and a driver, and a store carries an owner with no guarded invariant. Without the kind, a reviewer cannot tell a thing kept consistent from a table the product only holds.
+**Rationale:** The kind decides what the page carries: an entity carries a lifecycle, a saga carries steps with compensations, exits, and drivenBy, and a store carries an owner with no guarded invariant. Without the kind, a thing kept consistent reads the same as a table the product only holds.
 
-**Example:** The hold queue aggregate declares `kind: process`, and the suppression list declares `kind: store`.
+**Example:** The refund saga declares `kind: saga`, and the suppression list declares `kind: store`.
 
 **Checked by:** `litespec consumer` fails an aggregate page without `kind` or with an unknown kind.
 
@@ -154,57 +155,69 @@ A domain event is an immutable statement that a business fact completed, named i
 
 **ID:** `litespec/core/domain-model#model-each-aggregate-lifecycle-with-states`
 
-**Statement:** Each entity and each process MUST declare its lifecycle as `states` entries with a name and a meaning.
+**Statement:** Each entity and each saga MUST declare its lifecycle as `states` entries with a name and a meaning.
 
-**Rationale:** A bare state name tells a reviewer nothing: `rejected` without its meaning hides what rejection costs and allows. A name with a meaning makes each lifecycle step reviewable on the page, and gives the Transitions table states worth connecting. A store carries no lifecycle, so it carries no states.
+**Rationale:** A bare state name tells a reviewer nothing: `rejected` without its meaning hides what rejection costs and allows. A name with a meaning makes each lifecycle step reviewable on the page, and gives the Transitions table states worth connecting. An entity tracks what the thing is, and a saga tracks where its coordination stands. A store carries no lifecycle, so it carries no states.
 
-**Example:** The hold queue process declares `Requested`, `Ready`, `Collected`, `Cancelled`, and `Lapsed`, each with one sentence saying what the hold awaits or has received.
+**Example:** The hold queue entity declares `Requested`, `Ready`, `Collected`, `Cancelled`, and `Lapsed`, each with one sentence saying what the hold awaits or has received.
 
-**Checked by:** `litespec consumer` fails an entity or process page without `states` entries carrying a name and a meaning.
+**Checked by:** `litespec consumer` fails an entity or saga page without `states` entries carrying a name and a meaning.
+
+### Leave States off Every Store
+
+**ID:** `litespec/core/domain-model#leave-states-off-every-store`
+
+**Statement:** A store MUST carry no states.
+
+**Rationale:** A store holds state no aggregate invariant guards, so a lifecycle on it promises what nothing guards: states claim a reviewed path while any writer moves the rows. The store names its owner instead, as `litespec/core/domain-model#name-the-owner-of-every-store` states, and staff actions on it stay ordinary use cases.
+
+**Example:** The suppression list declares `kind: store` with its owner and no states.
+
+**Checked by:** `litespec consumer` fails a store aggregate carrying `states`.
 
 ### Connect Every State Through Transitions
 
 **ID:** `litespec/core/domain-model#connect-every-state-through-transitions`
 
-**Statement:** Each entity and each process MUST list every allowed state change with its use case in its Transitions table.
+**Statement:** Each entity and each saga MUST list every allowed state change with its use case in `transitions`.
 
-**Rationale:** States without transitions are a list of names with no path between them: a reviewer sees where an aggregate rests but never how it moves. Listing every allowed change with the use case that moves it shows the whole lifecycle as debated rows, and leaves no state reachable only by a path no record names. The `state-unreached` and `transition-unknown` checks report a state no transition reaches and a transition naming a missing state or use case.
+**Rationale:** States without transitions are a list of names with no path between them: a reviewer sees where an aggregate rests but never how it moves. Listing every allowed change with the use case that moves it shows the whole lifecycle beside the states, and leaves no state reachable only by a path no record names. The Transitions table renders `transitions` as a generated region. The `state-unreached` and `transition-unknown` checks report a state no transition reaches and a transition naming a missing state or use case, and `table-drift` reports a handwritten table that differs from the frontmatter.
 
-**Checked by:** `litespec model check` reports `state-unreached` (tier G) for a state reached by no transition and `transition-unknown` (tier G) for a transition naming a missing state or use case.
+**Checked by:** `litespec model check` reports `state-unreached` (level G) for a state reached by no transition, `transition-unknown` (level G) for a transition naming a missing state or use case, and `table-drift` (level A) for a handwritten Transitions table that differs from `transitions`.
 
-### State Each Process Step with Its Compensation
+### State Each Saga Step with Its Compensation
 
-**ID:** `litespec/core/domain-model#state-each-process-step-with-its-compensation`
+**ID:** `litespec/core/domain-model#state-each-saga-step-with-its-compensation`
 
-**Statement:** Each process step MUST name its compensation as `{ "mode": "use-case", "useCase": "use-case/..." }` naming the use case undoing it, or `{ "mode": "none", "reason": "..." }` with the reason it needs no undo.
+**Statement:** Each saga step MUST carry an `id`, name the use case it runs in `runs`, and name its compensation as `{ "mode": "use-case", "useCase": "use-case/..." }` or `{ "mode": "none", "reason": "..." }` with its reason.
 
-**Rationale:** A step without a named undo leaves failure handling to the implementer: each handler invents its own reversal, and some invent none. Naming the compensating use case states the reversal beside the step, and `{ "mode": "none", "reason": "..." }` with its reason states why no reversal applies, such as money already moved. The step may also carry a `when` guard stating when it runs.
+**Rationale:** A step without a named undo leaves failure handling to the implementer: each handler invents its own reversal, and some invent none. Naming the compensating use case states the reversal beside the step, and `{ "mode": "none", "reason": "..." }` with its reason states why no reversal applies, such as money already moved. The step runs its use case on another aggregate, and it may carry a `guard` clause stating when it runs.
 
-**Example:** The hold-place step compensates with the release-hold use case, while the settle step carries `{ "mode": "none", "reason": "money has moved" }`.
+**Example:** The hold-place step runs the place-hold use case and compensates with the release-hold use case, while the settle step carries `{ "mode": "none", "reason": "money has moved" }`.
 
-**Checked by:** `litespec consumer` fails a process step without `{ "mode": "use-case", "useCase": "use-case/..." }` or `{ "mode": "none", "reason": "..." }` with its reason.
+**Checked by:** `litespec consumer` fails a saga step without `id`, `runs`, or `{ "mode": "use-case", "useCase": "use-case/..." }` or `{ "mode": "none", "reason": "..." }` with its reason.
 
-### Close Every Process with Named Exits and a Driver
+### Close Every Saga with Named Exits and a Driver
 
-**ID:** `litespec/core/domain-model#close-every-process-with-named-exits-and-a-driver`
+**ID:** `litespec/core/domain-model#close-every-saga-with-named-exits-and-a-driver`
 
-**Statement:** Each process MUST name its exits with their triggers, its `finishedWhen`, and its `driver`.
+**Statement:** Each saga MUST name its exits with their triggers, its `finishedWhen`, and its `drivenBy`.
 
-**Rationale:** A process with no named end runs until someone notices: a hold waits forever, an erasure sits half done. Exits with triggers name every way out, `finishedWhen` names the observable end in one sentence, and the driver names what moves the process: a reaction, a job, or an operator with a runbook and a due duration. A job-driven process also names its `cursor`, where resume state lives.
+**Rationale:** A saga with no named end runs until someone notices: a hold waits forever, an erasure sits half done. Exits with triggers name every way out, each a past participle or adjective, as `litespec/core/language#name-each-record-by-its-types-name-form` states. `finishedWhen` names the observable end in one sentence, and `drivenBy` names what moves the saga: `{ "automation": "automation/<...>" }` or `{ "person": "<actor or role id>", "runbook": "runbook/<...>", "dueWithin": "<ISO duration>" }`. A driven saga also names its `cursor`, where resume state lives.
 
-**Example:** The hold queue process exits as cancelled on reader decision and as lapsed at the pickup window, finishes when collected, cancelled, or lapsed, and is driven by a completion reaction, an expiry job, and the librarian.
+**Example:** The return saga exits as cancelled on reader decision and as lapsed at the pickup window, finishes when collected, cancelled, or lapsed, and is driven by the completion automation and the librarian.
 
-**Checked by:** `litespec consumer` fails a process page without exits carrying triggers, `finishedWhen`, and `driver`.
+**Checked by:** `litespec consumer` fails a saga page without exits carrying names and triggers, `finishedWhen`, and `drivenBy`.
 
-### Prove Every Process Guard and Exit with a Scenario
+### Prove Every Saga Guard and Exit with a Scenario
 
-**ID:** `litespec/core/domain-model#prove-every-process-guard-and-exit-with-a-scenario`
+**ID:** `litespec/core/domain-model#prove-every-saga-guard-and-exit-with-a-scenario`
 
-**Statement:** Each `when` guard and each process exit MUST have a scenario proving it.
+**Statement:** Each `guard` and each saga exit MUST have a scenario proving it.
 
-**Rationale:** A guard no scenario exercises is a condition nobody checked: it holds in prose and fails in code. A scenario per guard and per exit pins each branch as a checked fact, including the branches where the process leaves early.
+**Rationale:** A guard no scenario exercises is a condition nobody checked: it holds in prose and fails in code. A scenario per guard and per exit pins each branch as a checked fact, including the branches where the saga leaves early.
 
-**Reviewed for:** A scenario proving each `when` guard and each exit sits on the process page or its use case pages.
+**Reviewed for:** Which saga guards and exits lack a proving scenario? Look on the saga page and its use case pages.
 
 ### State Each Rule with Its Kind
 
@@ -212,17 +225,29 @@ A domain event is an immutable statement that a business fact completed, named i
 
 **Statement:** Each rule MUST state its kind and its statement.
 
-**Rationale:** The kind decides how the rule is proved: an invariant on every change, a precondition before the behavior, a calculation through its examples, a cross-aggregate rule where aggregates meet, an atomicity rule per write group, a reservation through its release, a commercial-data rule through its frozen value, a default through the value the model holds. A rule without a kind leaves each reader to prove it a different way, and the checks no place to confirm it.
+**Rationale:** The kind decides how the rule is proved: an invariant on every change, a precondition before the behavior, a calculation through its examples, a cross-aggregate rule where aggregates meet, an atomicity rule naming its bound group, a reservation through its release, a commercial-data rule through its frozen value, a default through the value the model holds. A rule without a kind leaves each reader to prove it a different way, and the checks no place to confirm it.
 
 **Example:** `rule/expense.reimbursed-once` is an invariant stating "an expense is reimbursed at most once", checked on every reimbursement.
 
 **Checked by:** `litespec consumer` fails a rule entry without `kind` or `statement`.
 
+### Bind Every Atomic Write Group in Its Rule
+
+**ID:** `litespec/core/domain-model#bind-every-atomic-write-group-in-its-rule`
+
+**Statement:** Each atomicity rule MUST name the aggregates it binds in `binds`.
+
+**Rationale:** An atomic write across aggregates stays allowed only through its rule: the rule states the group and why, such as an order without its hold overselling, and the use case commits exactly that group, as the [use-cases page](use-cases.md) states. A group above 4 aggregates is a saga candidate, reported at level A.
+
+**Example:** The hold rule binds the hold and the copy aggregates, so a hold without its copy never stands.
+
+**Checked by:** `litespec model check` reports `atomic-group-drift` (level G) for an atomic use case whose `changes` differs from its rule's `binds`, and `atomic-group-invalid` (level A) for a group binding more than 4 aggregates.
+
 ### Keep the Negation Word in the Rule Name
 
 **ID:** `litespec/core/domain-model#keep-the-negation-word-in-the-rule-name`
 
-**Statement:** A rule whose statement says `not`, `no`, `never`, or `cannot` MUST keep a restricting word in its name: a negation such as `no`, `never`, `not`, `cannot`, `none`, `without`, `unless`, `refused`, or `forbidden`, a limit such as `only`, or a uniqueness `one-...-per-...`.
+**Statement:** A rule whose statement says `not`, `no`, `never`, or `cannot` MUST keep a restricting word in its name: `no`, `never`, `not`, `cannot`, `none`, `nothing`, `without`, `unless`, `non`, `refused`, `refuses`, `refusal`, `forbidden`, `blocked`, or `rejected`, a limit `only`, or a uniqueness `one-...-per-...`.
 
 **Rationale:** A name that drops the negation reads as its own opposite: a rule named `cancel-after-shipment` whose statement says "never" approves what it forbids. A restricting word keeps the name a true sentence a reviewer trusts without opening the statement, and `one-grant-per-account` already says what "an account never holds two grants" says. The `rule-name-invalid` check reports a rule whose statement negates while its name keeps no restricting word or uniqueness.
 
@@ -238,7 +263,7 @@ A domain event is an immutable statement that a business fact completed, named i
 
 **Rationale:** An aggregate page holds what one aggregate guarantees; a rule spanning aggregates guarantees what no single aggregate owns. Giving such rules their own page keeps each aggregate page a true account of its aggregate, and gathers the shared rules where a reviewer judges them together.
 
-**Reviewed for:** Each cross-aggregate rule sits as an entry on a rule page; other rules sit on their aggregate page.
+**Reviewed for:** Which cross-aggregate rules sit outside a rule page? Look at the rule entries beside their aggregate pages.
 
 ### Name the Refusal a Broken Rule Produces
 
@@ -248,7 +273,7 @@ A domain event is an immutable statement that a business fact completed, named i
 
 **Rationale:** A guarded rule without a named refusal leaves the ending unnamed: callers branch on a refusal the records never predicted. Naming the refusal ties the rule to the result the use case declares, so the breach and the ending stay one fact.
 
-**Reviewed for:** Each guarded rule names its refusal in `refusal` beside the rule entry.
+**Reviewed for:** Which guarded rules name no refusal in `refusal`? Look at the rule entries beside the results they refuse.
 
 ### Release Every Reservation by a Named Use Case
 
@@ -278,7 +303,7 @@ A domain event is an immutable statement that a business fact completed, named i
 
 **Rationale:** Two computations of one value drift: the screen shows one figure while the ledger records another, and each side cites its own code. Citing the same calculation rule on both use cases keeps one computation behind both faces. Code carries a mark naming the rule, and never the reverse.
 
-**Reviewed for:** The showing query and the recording command cite the same calculation rule in `computedBy`.
+**Reviewed for:** Which queries and commands computing one value cite different rules in `computedBy`? Look at the use cases beside the calculation rule.
 
 ### Tabulate Every Calculation with Examples
 
@@ -286,7 +311,7 @@ A domain event is an immutable statement that a business fact completed, named i
 
 **Statement:** Each calculation rule MUST be proven by a scenario carrying an examples table.
 
-**Rationale:** A calculation stated only as a sentence hides its edges: reviewers agree on the words while each pictures other numbers. An examples table shows the debated rows, and the scenario proving the rule pins them as checked facts. The `calculation-table-missing` check reports a calculation rule with no scenario examples table.
+**Rationale:** A calculation stated only as a sentence hides its edges: reviewers agree on the words while each pictures other numbers. An examples table shows those edges, and the scenario proving the rule pins them as checked facts. The `calculation-table-missing` check reports a calculation rule with no scenario examples table.
 
 **Checked by:** `litespec model check` reports `calculation-table-missing` for a calculation rule with no scenario examples table.
 
@@ -296,9 +321,21 @@ A domain event is an immutable statement that a business fact completed, named i
 
 **Statement:** Each event MUST state its meaning and the facts it carries.
 
-**Rationale:** An event without a meaning is a name every reaction interprets alone; facts without a carries list are reconstructed from code at each reaction. Stating both on the entry lets each reaction trust what happened and what arrived with it.
+**Rationale:** An event without a meaning is a name every automation interprets alone; facts without a carries list are reconstructed from code at each automation. Stating both on the entry lets each automation trust what happened and what arrived with it.
 
 **Checked by:** `litespec consumer` fails an event entry without `meaning` or `carries`.
+
+### Name Every Event in the Past Tense
+
+**ID:** `litespec/core/domain-model#name-every-event-in-the-past-tense`
+
+**Statement:** Each domain event MUST be named in the past tense.
+
+**Rationale:** An event names a fact that completed, so the past tense tells a reader the business already moved: `submitted` reports, while `submit` orders. The past tense also pairs each event with the act raising it.
+
+**Example:** The expense aggregate raises `event/expense.submitted` for a completed submission.
+
+**Checked by:** `litespec model check` reports `event-tense-invalid` (level A) for an event not ending with the past tense of its verb.
 
 ### Raise Every Event Through Its Aggregate Root
 
@@ -308,7 +345,7 @@ A domain event is an immutable statement that a business fact completed, named i
 
 **Rationale:** The root is the one type through which outside behavior changes the aggregate, so it sees every change worth announcing. Raising each event there keeps the fact and its announcement in one step, and leaves no event announced for a change the aggregate never made.
 
-**Reviewed for:** Each event is raised from the root of the aggregate that owns it.
+**Reviewed for:** Which events leave from outside the root of their aggregate? Look at the aggregate code beside the event entries.
 
 ### Keep Model Invariants in Rules
 
@@ -318,7 +355,7 @@ A domain event is an immutable statement that a business fact completed, named i
 
 **Rationale:** A setting tunes; a rule holds. An invariant filed as a setting reads as tunable, and a later operator tunes away what the model guaranteed. Keeping invariants in rules keeps what holds apart from what varies.
 
-**Reviewed for:** No setting page holds a model invariant; each invariant lives as a rule.
+**Reviewed for:** Which setting pages hold a model invariant? Look at the settings beside the rules.
 
 ## Conventions
 

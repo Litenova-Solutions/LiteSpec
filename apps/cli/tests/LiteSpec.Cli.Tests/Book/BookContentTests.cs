@@ -130,6 +130,73 @@ public sealed class BookContentTests
         }
     }
 
+    /// <summary>The client renders each wave-6 shape in LiteSpec words: automation triggers, saga steps and drivers, typed fields, binds, exercises and background.</summary>
+    /// <proves>litespec/core/model#name-book-labels-with-litespec-terms</proves>
+    [Fact]
+    public void Client_Renders_Wave6_Shapes_With_LiteSpec_Terms()
+    {
+        using var temp = Cli.Temp("book-content");
+        var result = Cli.Run("book", "--model", Cli.Fixture("Book/review.json"), "--out", Out(temp));
+        Assert.Equal(0, result.Status);
+
+        var script = File.ReadAllText(Path.Combine(Out(temp), "assets", "book.js"));
+        foreach (var renderer in new[]
+        {
+            "function triggeredByHtml",
+            "function drivenByBlock",
+            "function typedFieldHtml",
+            "automation: function",
+        })
+        {
+            Assert.Contains(renderer, script, StringComparison.Ordinal);
+        }
+
+        foreach (var words in new[]
+        {
+            "runs: [\"Runs\"",
+            "emits: [\"Emits\"",
+            "Skipped when",
+            "Runs by hand",
+            "blk(\"exer\", \"exercises\"",
+            "blk(\"bg\", \"background\"",
+            "blk(\"binds\", \"binds\"",
+            "c.purpose",
+            "f.dataschema",
+        })
+        {
+            Assert.Contains(words, script, StringComparison.Ordinal);
+        }
+    }
+
+    /// <summary>The client holds none of the replaced wave-6 renderings: reaction and job details, old effect verbs, drivers and step whens.</summary>
+    /// <proves>litespec/core/model#name-book-labels-with-litespec-terms</proves>
+    [Fact]
+    public void Client_Holds_None_Of_The_Replaced_Wave6_Strings()
+    {
+        using var temp = Cli.Temp("book-content");
+        var result = Cli.Run("book", "--model", Cli.Fixture("Book/review.json"), "--out", Out(temp));
+        Assert.Equal(0, result.Status);
+
+        var script = File.ReadAllText(Path.Combine(Out(temp), "assets", "book.js"));
+        foreach (var removed in new[]
+        {
+            "reaction: function",
+            "job: function",
+            "issues: [\"Issues\"",
+            "publishes: [\"Publishes\"",
+            "blk(\"on\", \"on\"",
+            "blk(\"drv\", \"driver\"",
+            "s.when",
+            "e[\"if\"]",
+            "reaction: \"Reaction handler\"",
+            "\"reaction\"",
+            "\"job\"",
+        })
+        {
+            Assert.DoesNotContain(removed, script, StringComparison.Ordinal);
+        }
+    }
+
     /// <summary>Research sources with a path render as code text beside the URL rendering, so a path source never throws.</summary>
     /// <proves>litespec/core/model#explain-the-book-from-litespec-definitions</proves>
     [Fact]

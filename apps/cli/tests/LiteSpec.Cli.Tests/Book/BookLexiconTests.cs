@@ -89,7 +89,7 @@ public sealed class BookLexiconTests
         var lexicon = BookLexicon.Load(WriteHome(temp, ModelPage(), ToolsPage(), GlossaryPage()));
         var serves = lexicon.Links.Where(link => link.Field == "serves").ToList();
         Assert.Equal(2, serves.Count);
-        Assert.Equal(new List<string> { "use-case", "reaction", "job" }, serves[0].Carriers.ToList());
+        Assert.Equal(new List<string> { "use-case", "automation" }, serves[0].Carriers.ToList());
         Assert.Equal(new List<string> { "journey" }, serves[1].Carriers.ToList());
 
         Assert.True(lexicon.TryPhrase("serves", "journey", out var forward, out var inverse));
@@ -196,6 +196,38 @@ public sealed class BookLexiconTests
         Assert.Equal("Max attempts", lexicon.Fields["maxAttempts"]);
         Assert.Equal("Backoff", lexicon.Fields["backoff"]);
         Assert.Equal("Then", lexicon.Fields["then"]);
+        Assert.Equal("Triggered by", lexicon.Fields["triggeredBy"]);
+        Assert.Equal("Skipped when", lexicon.Fields["skippedWhen"]);
+        Assert.Equal("Runs", lexicon.Fields["runs"]);
+        Assert.Equal("Emits", lexicon.Fields["emits"]);
+        Assert.Equal("Driven by", lexicon.Fields["drivenBy"]);
+        Assert.Equal("Automation", lexicon.Fields["automation"]);
+        Assert.Equal("Person", lexicon.Fields["person"]);
+        Assert.Equal("Due within", lexicon.Fields["dueWithin"]);
+        Assert.Equal("Binds", lexicon.Fields["binds"]);
+        Assert.Equal("Exercises", lexicon.Fields["exercises"]);
+        Assert.Equal("Background", lexicon.Fields["background"]);
+        Assert.Equal("Purpose", lexicon.Fields["purpose"]);
+        Assert.Equal("Period", lexicon.Fields["period"]);
+        Assert.Equal("Type", lexicon.Fields["type"]);
+        Assert.Equal("Required", lexicon.Fields["required"]);
+        Assert.Equal("Of", lexicon.Fields["of"]);
+        Assert.Equal("Dataschema", lexicon.Fields["dataschema"]);
+        Assert.Equal("Amount", lexicon.Fields["amount"]);
+        Assert.Equal("Currency", lexicon.Fields["currency"]);
+        Assert.Equal("Auth", lexicon.Fields["auth"]);
+        Assert.Equal("Grant", lexicon.Fields["grant"]);
+        Assert.Equal("Tenant", lexicon.Fields["tenant"]);
+        Assert.Equal("Initial delay", lexicon.Fields["initialDelay"]);
+        Assert.Equal("Max delay", lexicon.Fields["maxDelay"]);
+        Assert.Equal("Dead letter", lexicon.Fields["deadLetter"]);
+        Assert.Equal("After", lexicon.Fields["after"]);
+        Assert.Equal("Action", lexicon.Fields["action"]);
+        Assert.Equal("Surfaces in", lexicon.Fields["surfacesIn"]);
+        Assert.Equal("Runbook", lexicon.Fields["runbook"]);
+        Assert.Equal("Every", lexicon.Fields["every"]);
+        Assert.Equal("Cron", lexicon.Fields["cron"]);
+        Assert.Equal("Manual", lexicon.Fields["manual"]);
 
         Assert.False(lexicon.Fields.ContainsKey("by"));
         Assert.False(lexicon.Fields.ContainsKey("state"));
@@ -209,6 +241,11 @@ public sealed class BookLexiconTests
         Assert.False(lexicon.Fields.ContainsKey("audience"));
         Assert.False(lexicon.Fields.ContainsKey("aim"));
         Assert.False(lexicon.Fields.ContainsKey("historyLink"));
+        Assert.False(lexicon.Fields.ContainsKey("on"));
+        Assert.False(lexicon.Fields.ContainsKey("if"));
+        Assert.False(lexicon.Fields.ContainsKey("issues"));
+        Assert.False(lexicon.Fields.ContainsKey("publishes"));
+        Assert.False(lexicon.Fields.ContainsKey("driver"));
     }
 
     /// <summary>Each glossary term carries its definition, layer and source; aliases and rejected words stay out.</summary>
@@ -399,8 +436,7 @@ public sealed class BookLexiconTests
         | `requirement` | intent | What does the product guarantee? |
         | `journey` | intent | Which steps reach one goal? |
         | `use-case` | behavior | Which use cases exist? |
-        | `reaction` | behavior | What follows an event? |
-        | `job` | behavior | Which work runs on a schedule? |
+        | `automation` | behavior | Which work runs on its own? |
         | `screen` | behavior | Which page does a person see? |
         | `external-system` | behavior | Which outside system exchanges what? |
 
@@ -411,9 +447,9 @@ public sealed class BookLexiconTests
         | Field | Written on | Points at | Reads as | Read back as |
         |:---|:---|:---|:---|:---|
         | `solves` | feature | Problems | solves | is solved by |
-        | `serves` | use case, reaction, job | Journey steps | serves | is served by |
+        | `serves` | use case, automation | Journey steps | serves | is served by |
         | `serves` | journey | The goal it walks toward | serves | is served by |
-        | `effects` | use case, reaction, job | Use cases, notifications, integration events, operations | effects | is effected by |
+        | `effects` | use case, automation | Use cases, notifications, integration events, operations | effects | is effected by |
         | `transitions.by` | aggregate | The use case that moves the transition | is moved by | moves |
         | `access.grant` | use case | A permission | is granted through | grants |
         | `actor` | journey, external system | The actor walking; the actor acted as | is walked by / acts as | walks / is acted as by |

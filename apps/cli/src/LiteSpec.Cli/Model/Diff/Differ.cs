@@ -32,8 +32,8 @@ static class Differ
         public string Describe() => $"{Verb} {Target} ({Timing ?? "no timing"})";
     }
 
-    /// <summary>One parsed data class: its classification and erasure position.</summary>
-    sealed record DataClassValue(string? Classification, string? OnErasure);
+    /// <summary>One parsed data class: its classification, purpose and erasure position.</summary>
+    sealed record DataClassValue(string? Classification, string? Purpose, string? OnErasure);
 
     /// <summary>One parsed journey step: its statement, actor and failure.</summary>
     sealed record JourneyStep(string Statement, string? Actor, string? Failure);
@@ -816,12 +816,15 @@ static class Differ
         List<string> details,
         List<BreakingReason> reasons)
     {
-        var handled = new HashSet<string>(StringComparer.Ordinal) { "states", "transitions", "data", "dataClasses" };
+        var handled = new HashSet<string>(StringComparer.Ordinal) { "states", "transitions", "data", "dataClasses", "steps", "exits", "drivenBy" };
 
         CompareStates(before, after, approved, details, reasons);
         CompareTransitions(before, after, baseModel, headModel, approved, details, reasons);
         CompareData(before, after, details);
         CompareDataClasses(before, after, details);
+        CompareSagaSteps(before, after, details);
+        CompareExits(before, after, details);
+        CompareDrivenBy(before, after, details);
         CompareFields(before, after, details, handled);
     }
 
@@ -938,6 +941,11 @@ static class Differ
             if (!string.Equals(oldClass.Classification, newClass.Classification, StringComparison.Ordinal))
             {
                 details.Add($"Data class {name} classification changed from {oldClass.Classification ?? "none"} to {newClass.Classification ?? "none"}.");
+            }
+
+            if (!string.Equals(oldClass.Purpose, newClass.Purpose, StringComparison.Ordinal))
+            {
+                details.Add($"Data class {name} purpose changed: \"{newClass.Purpose ?? "none"}\" (was: \"{oldClass.Purpose ?? "none"}\").");
             }
 
             if (!string.Equals(oldClass.OnErasure, newClass.OnErasure, StringComparison.Ordinal))
@@ -1076,6 +1084,124 @@ static class Differ
                 details.Add($"Data {name} meaning changed: \"{newMeaning}\" (was: \"{oldMeaning}\").");
             }
         }
+    }
+
+    static void CompareSagaSteps(Record before, Record after, List<string> details)
+    {
+        var oldSteps = SagaStepEntries(before);
+        var newSteps = SagaStepEntries(after);
+
+        if (oldSteps is null || newSteps is null)
+        {
+            if (!JsonEquals(Field(before, "steps"), Field(after, "steps")))
+            {
+                details.Add("Steps changed.");
+            }
+
+            return;
+        }
+
+        foreach (var id in oldSteps.Keys.Where(id => !newSteps.ContainsKey(id))
+                     .OrderBy(id => id, StringComparer.Ordinal))
+        {
+            details.Add($"Step removed: {id}.");
+        }
+
+        foreach (var id in newSteps.Keys.Where(id => !oldSteps.ContainsKey(id))
+                     .OrderBy(id => id, StringComparer.Ordinal))
+        {
+            var runs = StringOf(newSteps[id], "runs");
+
+            details.Add(runs is null ? $"Step added: {id}." : $"Step added: {id} running {runs}.");
+        }
+
+        foreach (var id in oldSteps.Keys.Where(newSteps.ContainsKey)
+                     .OrderBy(id => id, StringComparer.Ordinal))
+        {
+            var oldStep = oldSteps[id];
+            var newStep = newSteps[id];
+            var oldRuns = StringOf(oldStep, "runs");
+            var newRuns = StringOf(newStep, "runs");
+
+            if (!string.Equals(oldRuns, newRuns, StringComparison.Ordinal))
+            {
+                details.Add($"Step {id} now runs {newRuns ?? "nothing"} (was: {oldRuns ?? "nothing"}).");
+            }
+
+            var oldGuard = StringOf(oldStep, "guard");
+            var newGuard = StringOf(newStep, "guard");
+
+            if (!string.Equals(oldGuard, newGuard, StringComparison.Ordinal))
+            {
+                details.Add(oldGuard is null
+                    ? $"Step {id} gained a guard: \"{newGuard}\"."
+                    : newGuard is null
+                        ? $"Step {id} lost its guard."
+                        : $"Step {id} guard changed: \"{newGuard}\" (was: \"{oldGuard}\").");
+            }
+
+            var oldHas = oldStep.TryGetProperty("compensation", out var oldCompensation);
+            var newHas = newStep.TryGetProperty("compensation", out var newCompensation);
+
+            if (!JsonEquals(
+                    oldHas ? oldCompensation : (JsonElement?)null,
+                    newHas ? newCompensation : (JsonElement?)null))
+            {
+                details.Add($"Step {id} compensation changed.");
+            }
+        }
+    }
+
+    static void CompareExits(Record before, Record after, List<string> details)
+    {
+        var oldExits = ExitNames(before);
+        var newExits = ExitNames(after);
+
+        if (oldExits is null || newExits is null)
+        {
+            if (!JsonEquals(Field(before, "exits"), Field(after, "exits")))
+            {
+                details.Add("Exits changed.");
+            }
+
+            return;
+        }
+
+        foreach (var name in oldExits.Where(name => !newExits.Contains(name, StringComparer.Ordinal))
+                     .OrderBy(name => name, StringComparer.Ordinal))
+        {
+            details.Add($"Exit removed: {name}.");
+        }
+
+        foreach (var name in newExits.Where(name => !oldExits.Contains(name, StringComparer.Ordinal))
+                     .OrderBy(name => name, StringComparer.Ordinal))
+        {
+            details.Add($"Exit added: {name}.");
+        }
+    }
+
+    static void CompareDrivenBy(Record before, Record after, List<string> details)
+    {
+        var oldDriver = Field(before, "drivenBy");
+        var newDriver = Field(after, "drivenBy");
+
+        if (oldDriver is null || newDriver is null)
+        {
+            CompareValue("Driven by", oldDriver, newDriver, details);
+            return;
+        }
+
+        if (JsonEquals(oldDriver, newDriver))
+        {
+            return;
+        }
+
+        var oldNames = DriverNames(oldDriver.Value);
+        var newNames = DriverNames(newDriver.Value);
+
+        details.Add(oldNames.Count == 1 && newNames.Count == 1
+            ? $"Driven by changed from {oldNames[0]} to {newNames[0]}."
+            : "Driven by changed.");
     }
 
     static void CompareFields(
@@ -1333,6 +1459,88 @@ static class Differ
         return data;
     }
 
+    /// <summary>One saga step per entry, keyed by its step id.</summary>
+    static Dictionary<string, JsonElement>? SagaStepEntries(Record record)
+    {
+        if (Field(record, "steps") is not { } value)
+        {
+            return new Dictionary<string, JsonElement>(StringComparer.Ordinal);
+        }
+
+        if (value.ValueKind != JsonValueKind.Array)
+        {
+            return null;
+        }
+
+        var steps = new Dictionary<string, JsonElement>(StringComparer.Ordinal);
+
+        foreach (var entry in value.EnumerateArray())
+        {
+            if (entry.ValueKind != JsonValueKind.Object)
+            {
+                return null;
+            }
+
+            steps[StringOf(entry, "id") ?? "none"] = entry;
+        }
+
+        return steps;
+    }
+
+    /// <summary>Every saga exit name: a bare string, or the name of an exit object.</summary>
+    static List<string>? ExitNames(Record record)
+    {
+        if (Field(record, "exits") is not { } value)
+        {
+            return [];
+        }
+
+        if (value.ValueKind != JsonValueKind.Array)
+        {
+            return null;
+        }
+
+        var names = new List<string>();
+
+        foreach (var entry in value.EnumerateArray())
+        {
+            if (entry.ValueKind == JsonValueKind.String && entry.GetString() is { } name)
+            {
+                names.Add(name);
+            }
+            else if (entry.ValueKind == JsonValueKind.Object)
+            {
+                names.Add(StringOf(entry, "name") ?? "none");
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        return names;
+    }
+
+    /// <summary>Every saga driver as one id: its automation, or the person driving it.</summary>
+    static IReadOnlyList<string> DriverNames(JsonElement value)
+    {
+        var entries = value.ValueKind == JsonValueKind.Array
+            ? value.EnumerateArray()
+            : Enumerable.Repeat(value, 1);
+        var names = new List<string>();
+
+        foreach (var entry in entries)
+        {
+            if (entry.ValueKind == JsonValueKind.Object
+                && (StringOf(entry, "automation") ?? StringOf(entry, "person")) is { } name)
+            {
+                names.Add(name);
+            }
+        }
+
+        return names;
+    }
+
     static string? StringOf(JsonElement element, string name) =>
         element.TryGetProperty(name, out var value) && value.ValueKind == JsonValueKind.String
             ? value.GetString()
@@ -1399,9 +1607,9 @@ static class Differ
                 return null;
             }
 
-            var verb = StringOf(entry, "issues") is not null ? "issues"
+            var verb = StringOf(entry, "runs") is not null ? "runs"
                 : StringOf(entry, "sends") is not null ? "sends"
-                : StringOf(entry, "publishes") is not null ? "publishes"
+                : StringOf(entry, "emits") is not null ? "emits"
                 : StringOf(entry, "calls") is not null ? "calls"
                 : null;
 
@@ -1441,7 +1649,7 @@ static class Differ
             }
 
             classes[StringOf(entry, "name") ?? "none"] =
-                new DataClassValue(StringOf(entry, "classification"), StringOf(entry, "onErasure"));
+                new DataClassValue(StringOf(entry, "classification"), StringOf(entry, "purpose"), StringOf(entry, "onErasure"));
         }
 
         return classes;

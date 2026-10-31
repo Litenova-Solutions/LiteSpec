@@ -16,7 +16,10 @@
     {
       "name": "loanId",
       "meaning": "The loan that opened.",
-      "classification": "internal"
+      "classification": "internal",
+      "type": "id",
+      "of": "aggregate/lending.loan",
+      "required": true
     }
   ]
 }

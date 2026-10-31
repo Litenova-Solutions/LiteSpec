@@ -1,10 +1,10 @@
 namespace Library.Application.Lending.Jobs;
 
-/// <implements>job/lending.nightly-due-scan</implements>
-public sealed class NightlyDueScanJob : BackgroundService
+/// <implements>automation/lending.nightly-due-scan</implements>
+public sealed class NightlyDueScanJob(IMailMessenger messenger) : BackgroundService
 {
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        return Task.CompletedTask;
+        return messenger.SendAsync("loan-due-reader", stoppingToken);
     }
 }

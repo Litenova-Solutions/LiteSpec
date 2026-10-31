@@ -196,9 +196,9 @@ This extension switches on no optional record type.
 
 **ID:** `litespec/backend/dotnet/ext/efcore#process-changed-aggregate-events`
 
-**Statement:** An EF Core post-handler MUST collect domain events from changed aggregates and route each to the reaction its reaction record declares.
+**Statement:** An EF Core post-handler MUST collect domain events from changed aggregates and route each to the automation its automation record declares.
 
-**Rationale:** The post-handler collects domain events from the aggregates it changed and routes each to the reaction the reaction record declares, honoring its `onFailure` retry and dead-letter policy. Collecting from anywhere else drops events or delivers facts the commit did not store.
+**Rationale:** The post-handler collects domain events from the aggregates it changed and routes each to the automation the automation record declares, honoring its `onFailure` retry and dead-letter policy. Collecting from anywhere else drops events or delivers facts the commit did not store.
 
 **Reviewed for:** Which domain events from changed aggregates are dropped or miss their declared `onFailure` handling? Look at the event collection in each post-handler.
 
@@ -218,7 +218,7 @@ This extension switches on no optional record type.
 
 **Statement:** An EF Core-owned command MUST map and stage outbox records with aggregate changes through the same `DbContext`.
 
-**Rationale:** Mapping and staging the outbox record through the same `DbContext` puts it in the command's transaction. Staging it anywhere else publishes facts the business commit did not store, or stores work no message ever delivers.
+**Rationale:** Mapping and staging the outbox record through the same `DbContext` puts it in the command's transaction. Staging it anywhere else emits facts the business commit did not store, or stores work no message ever delivers.
 
 **Reviewed for:** Which commands stage their outbox record outside their aggregate `DbContext`? Look at the outbox staging calls in each command path.
 

@@ -11,7 +11,10 @@
       "title": "Library app",
       "owner": "lending-team",
       "status": "reviewed",
-      "kind": "browser"
+      "kind": "browser",
+      "auth": [
+        "session"
+      ]
     },
     {
       "type": "entry-point",
@@ -19,7 +22,10 @@
       "title": "Library API",
       "owner": "lending-team",
       "status": "reviewed",
-      "kind": "api"
+      "kind": "api",
+      "auth": [
+        "token"
+      ]
     }
   ]
 }

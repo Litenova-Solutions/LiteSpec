@@ -24,21 +24,21 @@ This extension switches on no optional record type: integration events, settings
 
 **ID:** `litespec/ext/outbox#stage-after-commit-effects-in-the-outbox`
 
-**Statement:** A use case declaring `after-commit` `publishes` or `issues` effects MUST stage each effect in the outbox in the same transaction as its changes.
+**Statement:** A use case declaring `after-commit` `emits` or `runs` effects MUST stage each effect in the outbox in the same transaction as its changes.
 
-**Rationale:** After-commit timing promises the message follows the commit: staged in the same transaction, the change and its message share one fate. A `publishes` effect is a domain event the aggregate raises, and persistence stages that event in the outbox in the same commit as the aggregate, as `litespec/backend/application#publish-declared-integration-events-after-commit` requires. An effect sent from memory instead would vanish on a crash between the commit and the send. `litespec/core/use-cases#declare-every-effect-with-one-verb-and-its-timing` states the effect verbs and their timing, and `async` effects dispatch without the transaction.
+**Rationale:** After-commit timing promises the message follows the commit: staged in the same transaction, the change and its message share one fate. An `emits` effect is a domain event the aggregate raises, and persistence stages that event in the outbox in the same commit as the aggregate, as `litespec/backend/application#emit-declared-integration-events-after-commit` requires. An effect sent from memory instead would vanish on a crash between the commit and the send. `litespec/core/use-cases#declare-every-effect-with-one-verb-and-its-timing` states the effect verbs and their timing, and `async` effects dispatch without the transaction.
 
-**Reviewed for:** Each after-commit publishes and issues effect stages in the outbox in the same transaction as its changes, with each domain event staged in the same commit as its aggregate.
+**Reviewed for:** Each after-commit emits and runs effect stages in the outbox in the same transaction as its changes, with each domain event staged in the same commit as its aggregate.
 
 ### Declare Published Facts as Integration Events
 
 **ID:** `litespec/ext/outbox#declare-published-facts-as-integration-events`
 
-**Statement:** Each `publishes` effect MUST name an integration-event record carrying direction, payload, and trust.
+**Statement:** Each `emits` effect MUST name an integration-event record carrying direction, payload, and trust.
 
-**Rationale:** A published fact without a record is a promise nobody versioned: readers depend on fields no page states, and a field change breaks them without a diff. The integration-event record states the direction, the payload with its classifications, and the trust readers place in it. `litespec/core/edges#publish-every-outbound-integration-event-from-effects` states the declaration, and `litespec/core/edges#describe-every-integration-event-for-its-direction` states the record.
+**Rationale:** A published fact without a record is a promise nobody versioned: readers depend on fields no page states, and a field change breaks them without a diff. The integration-event record states the direction, the payload with its classifications, and the trust readers place in it. The [edges page](../core/edges.md) states the declaration and the record.
 
-**Reviewed for:** Each publishes effect names an integration-event record carrying direction, payload, and trust.
+**Reviewed for:** Each emits effect names an integration-event record carrying direction, payload, and trust.
 
 ### Record Durable Delivery Behavior
 
@@ -50,25 +50,25 @@ This extension switches on no optional record type: integration events, settings
 
 **Reviewed for:** Each delivery specification documents guarantee, downstream boundary, duplicate behavior, retry horizon, recovery owner, record owner, and status.
 
-### Exclude Manually Repeatable Reactions
+### Exclude Manually Repeatable Automations
 
-**ID:** `litespec/ext/outbox#exclude-manually-repeatable-reactions`
+**ID:** `litespec/ext/outbox#exclude-manually-repeatable-automations`
 
-**Statement:** A project MUST NOT activate outbox for a reaction whose delivery guarantee is best-effort and which operators can repeat manually.
+**Statement:** A project MUST NOT activate outbox for an automation whose loss the operators accept and which they can repeat manually.
 
-**Rationale:** Outbox storage, dispatch, retries, and replay exist to prevent loss; a reaction whose loss the operators accept and can repeat by hand needs none of that machinery. The reaction's `onFailure` states its best-effort handling, and the use case page records the accepted gap.
+**Rationale:** Outbox storage, dispatch, retries, and replay exist to prevent loss; an automation whose loss the operators accept and can repeat by hand needs none of that machinery. The automation's `onFailure` states its handling, and the use case page records the accepted gap.
 
-**Reviewed for:** Best-effort reactions that operators can repeat manually carry no outbox records.
+**Reviewed for:** Automations whose loss the operators accept and can repeat manually carry no outbox records.
 
-### Publish Best-Effort Reactions After Commit
+### Emit Excluded Automations After Commit
 
-**ID:** `litespec/ext/outbox#publish-best-effort-reactions-after-commit`
+**ID:** `litespec/ext/outbox#emit-excluded-automations-after-commit`
 
-**Statement:** A reaction the outbox excludes MUST publish after its commit succeeds without staging an outbox record.
+**Statement:** An automation the outbox excludes MUST emit after its commit succeeds without staging an outbox record.
 
-**Rationale:** Without an outbox record, nothing survives a crash between the commit and the publish, so the reaction publishes immediately after its commit succeeds and accepts the gap. Publishing before the commit risks worse: the reaction fires for a change the database then rolls back.
+**Rationale:** Without an outbox record, nothing survives a crash between the commit and the emit, so the automation emits immediately after its commit succeeds and accepts the gap. Emitting before the commit risks worse: the automation fires for a change the database then rolls back.
 
-**Reviewed for:** Excluded reactions publish after commit success with no staged outbox record.
+**Reviewed for:** Excluded automations emit after commit success with no staged outbox record.
 
 ### Stage Messages with Business Work
 

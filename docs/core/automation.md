@@ -2,151 +2,141 @@
 
 ## Intent
 
-Automation states the work that runs without a request: the reactions answering events and the scheduled, one-off, and operator jobs. Agents write these records from Intent, and developers review them before code carries them. The [Behavior overview](behavior.md) maps the five Behavior pages, and the [record language page](language.md) states how each field, value and record name is written.
+Automation states the work that runs without a request: the automations answering events and the scheduled and manual runs. Agents write these records from Intent, and developers review them before code carries them. The [Behavior overview](behavior.md) maps the five Behavior pages, and the [record language page](language.md) states how each field, value and record name is written.
 
 ## Concepts
 
-### Reactions
+### Automations
 
-A reaction is a when-X-do-Y automation: on a domain or integration event, it runs the edges its `effects` declare. A reaction changes nothing directly; a reaction needing a change issues a small command. It is filed with the module whose records it changes, or with the notification module when it only sends.
+An automation is work that runs without a request: on a domain or integration event, on a schedule, or by hand. It carries the identifier `automation/<module>.<name>` and lives at `docs/behavior/modules/<module>/automations/<name>.md`, filed with the module whose records it changes, or with the module owning the notification it sends when it only sends. An automation changes nothing directly; an automation needing a change runs a small command. An event automation is named `<verb>-<what>-on-<fact>`, and a schedule or manual automation is named `<verb>-<what>` with the verb of the use case it runs, as the [record language page](language.md) states.
 
 | Field | Meaning |
 |:---|:---|
-| `on` | The domain or integration events answered. |
-| `if` | The skip condition in domain words, optional. |
-| `effects` | `{ issues / sends / publishes / calls, timing }` entries with exactly one verb, the same entries a use case uses; a reaction may omit `timing`, which reads as `async`. There are no top-level `issues` or `sends`. |
-| `forEach`, `reads` | The optional scope and the aggregates read. |
-| `fulfills`, `serves` | The requirements carried and the journey steps served. |
+| `triggeredBy` | Exactly one of `{ "event": "event/<...>" }` or `{ "event": "integration-event/<...>" }`, `{ "schedule": { "every": "PT1M" } }` or `{ "schedule": { "cron": "0 3 * * *", "timezone": "..." } }`, `{ "manual": true }`. |
+| `skippedWhen` | The skip condition in domain words, completing "when ...", optional. |
+| `effects` | `{ runs / sends / emits / calls, timing }` entries with exactly one verb, as the [use-cases page](use-cases.md) states; a schedule or manual automation states `timing` on each entry, and an event automation may omit it, which reads as `async`. |
+| `runbook`, `runsWhere`, `guard`, `cursor`, `selection`, `lease`, `batchSize` | Schedule or manual triggers only: the runbook answering the run, where it runs, the guard it runs under, where resume state lives, what each run selects, the lock with its duration, and how many items per batch. `guard` is required with `manual`. |
+| `fulfills`, `serves`, `onFailure`, `idempotency`, `reads`, `changes` | The requirements carried, the journey steps served, the failure handling, the idempotency, and the aggregates read and changed, as on a use case. |
+| `onFailure` | `{ mode, retry, then, deadLetter, surfacesIn, runbook }`: `mode` is `retry`, `skip-and-log`, or `discard`; `retry` is `{ maxAttempts, initialDelay, maxDelay, backoff }` with `exponential` or `fixed` backoff; `then` is `dead-letter`; `deadLetter` is `{ after, action }`; `surfacesIn` names an `entry-point/...` and `runbook` a `runbook/...`. `retry` and `then` are required with `mode: retry`; `deadLetter`, `surfacesIn`, and `runbook` are optional. Delays and `after` are ISO 8601 durations. |
 | `idempotency` | The idempotency mode, usually `state`; a `key` templates `{field}` placeholders over the triggering event or run window fields, which the record does not list. |
-| `onFailure` | `{ retry, deadLetter, surfacesIn, runbook }`: `retry` is `none`, `next-run`, or `{ maxAttempts, initialDelay, maxDelay, backoff }` with `exponential` or `fixed` backoff; `deadLetter` is `{ after, action }`; `surfacesIn` names an `entry-point/...` and `runbook` a `runbook/...`. Delays and `after` are ISO 8601 durations. |
 
-A reaction may hold scenario child records ending in a result of a use case its effects issue.
+An automation may hold scenario child records ending in a result of a use case its effects run. A code element serving an automation carries `implements automation/<module>.<name>`.
 
-### Jobs
+### Runbook
 
-A job is scheduled, one-off, or operator work running without a request. A scheduled job runs on its structured schedule; a one-off job runs once; an operator job is interactive platform work with no aggregate, such as a rehearsal harness. Its `effects` run once per item in its `selection`.
-
-| Field | Meaning |
-|:---|:---|
-| `kind` | `scheduled`, `one-off`, or `operator`. |
-| `schedule` | `{ every | cron, timezone }` in structured form. |
-| `selection`, `batchSize`, `lease` | What each run selects, how many items per batch, and the lock with its duration. |
-| `effects`, `reads` | The `{ issues / sends / publishes / calls, timing }` entries run per item and the aggregates read. There is no top-level `issues`. |
-| `serviceLevel`, `evidence` | The promise citing its requirement, and where proof of a run lands. |
-| `runbook`, `runsWhere` | The runbook answering the job and where it runs. |
-| `fulfills`, `serves`, `onFailure`, `idempotency` | As on a use case and a reaction. |
-| `guard` | The guard an operator job runs under. |
-| `cursor` | Where resume state lives on a driven process. |
+A runbook is the steps to run or recover the product. It carries the identifier `runbook/<name>` and lives at `docs/behavior/runbooks/<name>.md`, named verb-first for what the reader does, as the [record language page](language.md) states. Its `trigger` names when to open it. An automation names its runbook in `runbook`, a saga driven by a person names its runbook in `drivenBy`, and any record or effect names its recovery in `onFailure.runbook`. Its sections are Impact, Prerequisites, Procedure, Verification, Rollback or Recovery, and Escalation.
 
 ## Standards
 
-### Trigger Every Reaction from a Declared Event
+### Trigger Every Automation from Its Declared Trigger
 
-**ID:** `litespec/core/automation#trigger-every-reaction-from-a-declared-event`
+**ID:** `litespec/core/automation#trigger-every-automation-from-its-declared-trigger`
 
-**Statement:** Each reaction MUST name the domain or integration events it answers in `on`.
+**Statement:** Each automation MUST declare exactly one trigger in `triggeredBy`: an event, a schedule, or manual.
 
-**Rationale:** A reaction without a trigger never runs or runs whenever its author remembered: reviewers see behavior with no moment attached. Naming the answered events states when the behavior fires, and an `if` condition states when it skips. The `reaction-trigger-unknown` check reports a trigger naming an unknown event.
+**Rationale:** An automation without a trigger never runs or runs whenever its author remembered: reviewers see behavior with no moment attached. Naming the trigger states when the behavior fires: the domain or integration event it answers, the schedule with its `every` duration or `cron` expression and timezone, or `manual` for work a person starts. A `skippedWhen` clause states when it skips.
 
-**Example:** The send-due-notice reaction answers the loan loan-borrowed domain event and issues the send-due-notice command.
+**Example:** The send-due-notice automation answers the loan-borrowed domain event and runs the send-due-notice command, while the expire-lapsed-holds automation runs every six hours over open holds past their window.
 
-**Checked by:** `litespec model check` reports `reaction-trigger-unknown` for a trigger naming an unknown event.
+**Checked by:** `litespec model check` reports `automation-trigger-unknown` (level G) for a trigger naming an unknown event and `schedule-invalid` (level G) for a schedule neither an `every` duration nor a `cron` expression; `litespec consumer` fails an automation without exactly one trigger.
 
-### Issue or Send from Every Reaction
+### Declare Every Automation Edge in Effects
 
-**ID:** `litespec/core/automation#issue-or-send-from-every-reaction`
+**ID:** `litespec/core/automation#declare-every-automation-edge-in-effects`
 
-**Statement:** Each reaction MUST declare its edges in `effects`, with exactly one verb per entry.
+**Statement:** Each automation MUST declare its edges in `effects`, with exactly one verb per entry.
 
-**Rationale:** A reaction with no declared edge observes and never acts, while an edge outside `effects` hides behavior the checks never see. Declaring each edge in `effects` with exactly one verb of `issues`, `sends`, `publishes`, or `calls` keeps every consequence of the automation beside its trigger, under one grammar for every record that has edges. The `record-invalid` check reports a reaction with no `effects` and a reaction holding top-level `issues` or `sends`.
+**Rationale:** An automation with no declared edge observes and never acts, while an edge outside `effects` hides behavior the checks never see. Declaring each edge in `effects` with exactly one verb of `runs`, `sends`, `emits`, or `calls` keeps every consequence of the automation beside its trigger, under one grammar for every record that has edges, as the [use-cases page](use-cases.md) states.
 
-**Checked by:** `litespec model check` reports `record-invalid` for a reaction with no `effects` and for top-level `issues` or `sends`.
+**Checked by:** `litespec model check` reports `record-invalid` for an automation with no `effects` or with a top-level effect verb.
 
-### Write No Aggregate Directly from a Reaction
+### Write No Aggregate Directly from an Automation
 
-**ID:** `litespec/core/automation#write-no-aggregate-directly-from-a-reaction`
+**ID:** `litespec/core/automation#write-no-aggregate-directly-from-an-automation`
 
-**Statement:** A reaction MUST NOT write an aggregate except through the use case it issues.
+**Statement:** An automation MUST NOT write an aggregate except through the use case it runs.
 
-**Rationale:** A reaction writing directly splits the write path: the same aggregate changes through a reviewed command and through an unreviewed automation, each with its own guards. Issuing a small command keeps every write behind a use case with its access, consistency, results, and scenarios.
+**Rationale:** An automation writing directly splits the write path: the same aggregate changes through a reviewed command and through an unreviewed automation, each with its own guards. Running a small command keeps every write behind a use case with its access, consistency, results, and scenarios.
 
-**Reviewed for:** Each reaction changes aggregates only through the use case it issues.
+**Reviewed for:** Which automations write an aggregate outside the use case they run? Look at the automation effects beside the use cases.
 
-### File Every Reaction with the Module It Changes
+### File Every Automation with the Module It Changes
 
-**ID:** `litespec/core/automation#file-every-reaction-with-the-module-it-changes`
+**ID:** `litespec/core/automation#file-every-automation-with-the-module-it-changes`
 
-**Statement:** Each reaction MUST live with the module whose records it changes, or with the notification module when it only sends.
+**Statement:** Each automation MUST live with the module whose records it changes, or with the module owning the notification it sends when it only sends.
 
-**Rationale:** Reactions filed by trigger scatter: one module behavior hides on a dozen trigger pages, and nobody sees the module whole. Filing each reaction with the module it changes keeps each module behavior in one place. Its event handler lives in that module's code under the `On{Fact}` folder (`litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle`). The trigger page shows reactions to its event as a view derived from records.
+**Rationale:** Automations filed by trigger scatter: one module behavior hides on a dozen trigger pages, and nobody sees the module whole. Filing each automation with the module it changes keeps each module behavior in one place. Its event handler lives in that module's code under the `On{Fact}` folder (`litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle`). The trigger page shows automations answering its event as a view derived from records.
 
-**Reviewed for:** Each reaction page sits with the module it changes, or with the notification module when it only sends, and its event handler lives in that module's code under the `On{Fact}` folder.
+**Reviewed for:** Which automation pages sit outside the module they change? Look at the automations beside the modules whose records they change.
 
-### Name Each Reaction for Its Act and Its Trigger
+### Name Each Automation for Its Act and Its Trigger
 
-**ID:** `litespec/core/automation#name-each-reaction-for-its-act-and-its-trigger`
+**ID:** `litespec/core/automation#name-each-automation-for-its-act-and-its-trigger`
 
-**Statement:** Each reaction MUST be named `<verb>-<what>-on-<fact>`, with a declared verb.
+**Statement:** Each automation MUST be named `<verb>-<what>-on-<fact>` with a declared verb for an event trigger, or `<verb>-<what>` with the verb of a use case it runs for a schedule or manual trigger.
 
-**Rationale:** A reaction runs because something happened, and a name without its trigger hides why it runs: `send-due-notice` could fire on a borrow, a renewal or a reminder job. Naming the act and the fact lets a reader find every consequence of a fact by its name, and keeps two reactions to one fact from colliding. The `reaction-name-invalid` check reports a reaction name without a declared verb or without `-on-`.
+**Rationale:** An event automation runs because something happened, and a name without its trigger hides why it runs: `send-due-notice` could fire on a borrow, a renewal, or a reminder run. Naming the act and the fact lets a reader find every consequence of a fact by its name. A schedule or manual automation selects items and runs one command for each, so naming it for that command lets a reader go from the schedule to the behavior in one step, as `litespec/core/language#name-each-record-by-its-types-name-form` states.
 
-**Example:** `reaction/lending.send-due-notice-on-loan-borrowed` answers `event/loan.loan-borrowed` and issues the notice; `reaction/lending.notify-borrower` is reported.
+**Example:** `automation/lending.send-due-notice-on-loan-borrowed` answers `event/loan.loan-borrowed`; `automation/lending.expire-lapsed-holds` runs `use-case/lending.expire-holds`.
 
-**Checked by:** `litespec model check` reports `reaction-name-invalid` for a reaction name without a declared verb or without `-on-`.
+**Checked by:** `litespec model check` reports `automation-name-invalid` (level G) for an event automation outside `<verb>-<what>-on-<fact>` with a declared verb, or a schedule or manual automation outside `<verb>-<what>` with the verb of a use case it runs.
 
-### State the Failure Handling of Every Reaction
+### State the Failure Handling of Every Automation
 
-**ID:** `litespec/core/automation#state-the-failure-handling-of-every-reaction`
+**ID:** `litespec/core/automation#state-the-failure-handling-of-every-automation`
 
-**Statement:** Each reaction MUST declare its structured `onFailure` policy and its idempotency.
+**Statement:** Each automation MUST declare its `onFailure` in the one failure shape and its idempotency.
 
-**Rationale:** A failed automation without handling retries forever or drops silently: notices double-send, holds never clear. Declaring the `onFailure` policy states the failure shape beside the trigger: `retry` is `none`, `next-run`, or a retry object with `maxAttempts`, `initialDelay`, `maxDelay`, and `backoff` of `exponential` or `fixed`; `deadLetter` carries `after` with the action a person takes; `surfacesIn` names the entry point showing the failure and `runbook` the recovery procedure. Delays and `after` are ISO 8601 durations, and prose handling is refused. The same shape serves a job. The idempotency mode, usually `state`, states how repeats collapse.
+**Rationale:** A failed automation without handling retries forever or drops silently: notices double-send, holds never clear. Declaring `onFailure` states the failure shape beside the trigger: `mode` of `retry`, `skip-and-log`, or `discard`; `retry` with `maxAttempts`, `initialDelay`, `maxDelay`, and `backoff` of `exponential` or `fixed`; `then` of `dead-letter`; `deadLetter` carrying `after` with the action a person takes; `surfacesIn` naming the entry point showing the failure and `runbook` the recovery procedure. `retry` and `then` are required with `mode: retry`; `deadLetter`, `surfacesIn`, and `runbook` are optional. Delays and `after` are ISO 8601 durations, and prose handling is refused. The same shape serves every record and every effect entry. The idempotency mode, usually `state`, states how repeats collapse.
 
-**Checked by:** `litespec consumer` fails a reaction with `onFailure` outside the retry and dead-letter shape; `litespec model check` reports `record-invalid` for prose handling, a missing or malformed retry, and a malformed duration.
+**Checked by:** `litespec consumer` fails an automation with `onFailure` outside the one failure shape; `litespec model check` reports `record-invalid` for prose handling, a missing or malformed retry, and a malformed duration.
 
-### Point Reaction Scenarios at the Issued Result
+### Point Automation Scenarios at the Run Result
 
-**ID:** `litespec/core/automation#point-reaction-scenarios-at-the-issued-result`
+**ID:** `litespec/core/automation#point-automation-scenarios-at-the-run-result`
 
-**Statement:** Each scenario on a reaction MUST end in a result of a use case its effects issue.
+**Statement:** Each scenario on an automation MUST end in a result of a use case its effects run.
 
-**Rationale:** A reaction scenario ending anywhere else proves another behavior story: it walks the trigger and asserts an ending no issued use case declares. Ending in an issued use case result keeps the scenario a proof of the automation consequence.
+**Rationale:** An automation scenario ending anywhere else proves another behavior story: it walks the trigger and asserts an ending no run use case declares. Ending in a run use case result keeps the scenario a proof of the automation consequence.
 
-**Checked by:** `litespec model check` reports `scenario-result-unknown` for a reaction scenario ending outside the issued use case results.
+**Checked by:** `litespec model check` reports `scenario-result-unknown` for an automation scenario ending outside the run use case results.
 
-### Declare Every Job with Kind and Structured Schedule
+### Keep Scheduled Fields off Event Automations
 
-**ID:** `litespec/core/automation#declare-every-job-with-kind-and-structured-schedule`
+**ID:** `litespec/core/automation#keep-scheduled-fields-off-event-automations`
 
-**Statement:** Each job MUST declare its kind, selection, effects, reads, service level, evidence, and runbook, with a structured schedule when it runs on time.
+**Statement:** An automation with an event trigger MUST NOT carry `runbook`, `runsWhere`, `guard`, `cursor`, `selection`, `lease`, or `batchSize`.
 
-**Rationale:** A job without a declared selection and promise is a blind run: nobody states what each run selects, what it runs per item, what it guarantees, or where proof lands. Declaring the kind of `scheduled`, `one-off`, or `operator`, the selection with its batch size and lease, the `effects` entries with the aggregates read, the service level citing its requirement, the evidence, and the runbook states the run beside its promise. The schedule is structured with its timezone, never prose. The `schedule-invalid` check reports a schedule no tool can read, and `record-invalid` reports a job holding top-level `issues`.
+**Rationale:** Run fields describe work over time: what each run selects, how many items per batch, the lock, where resume state lives, where it runs, and the guard it runs under. An event automation answers one event and carries none of that, so a run field on it claims a schedule the trigger never states.
 
-**Example:** The expire-lapsed-holds job runs every six hours over open holds past their window, issues one expiry per item, and lands its evidence in the run log.
+**Example:** The send-due-notice automation answers its event with no `selection` and no `guard`.
 
-**Checked by:** `litespec model check` reports `schedule-invalid` for a schedule no tool can read and `record-invalid` for top-level `issues`; `litespec consumer` fails a job without kind, selection, effects, reads, service level, evidence, or runbook.
+**Checked by:** `litespec consumer` fails an event automation carrying `runbook`, `runsWhere`, `guard`, `cursor`, `selection`, `lease`, or `batchSize`.
 
-### Name Each Job for the Command It Issues
+### Guard Every Manual Automation
 
-**ID:** `litespec/core/automation#name-each-job-for-the-command-it-issues`
+**ID:** `litespec/core/automation#guard-every-manual-automation`
 
-**Statement:** Each job MUST start with the verb of a use case it issues.
+**Statement:** Each automation with a manual trigger MUST state the guard it runs under.
 
-**Rationale:** A job decides nothing about an item; it selects the next items and issues one command for each. Naming it for that command lets a reader go from the schedule to the behavior in one step, and stops a job named `sweep-` or `process-` from hiding what it changes. The `job-name-invalid` check reports a job whose first word is not the verb of a use case it issues.
+**Rationale:** Work a person starts without a guard runs anywhere by anyone: a rehearsal harness touches production, a manual sweep runs twice. Stating the guard keeps person-started work inside its fence, beside where it runs in `runsWhere`.
 
-**Example:** `job/lending.expire-lapsed-holds` issues `use-case/lending.expire-holds` and passes; `job/lending.sweep-holds` issuing the same use case is reported.
+**Example:** The rehearse-payout automation runs under the platform guard on the staging deployment.
 
-**Checked by:** `litespec model check` reports `job-name-invalid` for a job whose first word is not the verb of a use case it issues.
+**Checked by:** `litespec model check` reports `automation-guard-missing` (level G) for a manual automation without `guard`.
 
-### Guard Every Operator Job
+### Write Every Runbook to Run or Recover
 
-**ID:** `litespec/core/automation#guard-every-operator-job`
+**ID:** `litespec/core/automation#write-every-runbook-to-run-or-recover`
 
-**Statement:** Each operator job MUST state where it runs in `runsWhere` and the guard it runs under.
+**Statement:** Each runbook MUST state its impact, prerequisites, procedure, verification, rollback or recovery, and escalation.
 
-**Rationale:** Interactive platform work without a guard runs anywhere by anyone: a rehearsal harness touches production, a manual sweep runs twice. Stating where it runs and the guard it runs under keeps operator work inside its fence. The `job-guard-missing` check reports an operator job with no guard.
+**Rationale:** A runbook named by an automation, a saga, a failure policy, or an alert is the answer a person opens under pressure: impact says what breaks, prerequisites say what to hold, procedure says each step, verification says how to confirm, rollback or recovery says how to undo, and escalation says who to call. A runbook missing one leaves the reader guessing at the worst moment.
 
-**Checked by:** `litespec model check` reports `job-guard-missing` for an operator job without `runsWhere` or guard.
+**Example:** The clear-stuck-reimbursements runbook states its impact on waiting expenses, its prerequisites, its procedure, its verification query, its rollback, and its escalation to the spending owner.
+
+**Checked by:** `litespec consumer` fails a runbook page without Impact, Prerequisites, Procedure, Verification, Rollback or Recovery, or Escalation.
 
 ## Conventions
 

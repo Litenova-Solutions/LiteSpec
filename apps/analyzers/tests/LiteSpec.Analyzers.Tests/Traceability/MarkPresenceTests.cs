@@ -175,8 +175,8 @@ public sealed class MarkPresenceTests
             assemblyName: "Shop.WebApi");
 
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
-    [Fact(DisplayName = "LS5001 reports a job without a mark")]
-    public Task ReportsAJobWithoutAMark() =>
+    [Fact(DisplayName = "LS5001 reports a scheduled automation without a mark")]
+    public Task ReportsAScheduledAutomationWithoutAMark() =>
         Verify.AnalyzerWithRecordsAsync<MarkPresenceAnalyzer>(
             [("Source.cs", """
                 using System.Threading;
@@ -196,7 +196,7 @@ public sealed class MarkPresenceTests
                     public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
                 }
                 """)],
-            [ProjectFile(), Job()],
+            [ProjectFile(), Automation()],
             assemblyName: "Shop.Application");
 
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>

@@ -7,9 +7,6 @@
   "status": "reviewed",
   "kind": "command",
   "access": {
-    "auth": [
-      "session"
-    ],
     "grant": "permission/submit-expense",
     "tenant": "own"
   },
@@ -28,15 +25,28 @@
   "input": [
     {
       "name": "amount",
-      "meaning": "The exact amount of the expense."
+      "meaning": "The exact amount of the expense.",
+      "type": "decimal",
+      "required": true,
+      "origin": "caller",
+      "classification": "internal"
     },
     {
       "name": "currency",
-      "meaning": "The ISO 4217 currency code of the amount."
+      "meaning": "The ISO 4217 currency code of the amount.",
+      "type": "text",
+      "required": true,
+      "origin": "caller",
+      "classification": "internal"
     },
     {
       "name": "receipt",
-      "meaning": "The proof of payment, required above the threshold."
+      "meaning": "The proof of payment, required above the threshold.",
+      "type": "id",
+      "of": "aggregate/spending.receipt",
+      "required": false,
+      "origin": "caller",
+      "classification": "internal"
     }
   ],
   "changes": [
@@ -108,7 +118,7 @@
   ],
   "approvedBy": "claimwick-team",
   "approvedOn": "2026-10-31",
-  "approvedHash": "7fa3b83e"
+  "approvedHash": "b57253b9"
 }
 ---
 

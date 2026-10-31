@@ -35,9 +35,9 @@ sealed record ReviewEntry(
     ReviewScenarios Scenarios,
     int Findings);
 
-/// <summary>One review batch: a use case, a reaction, a job, a decision, or one module and type.</summary>
+/// <summary>One review batch: a use case, an automation, a decision, or one module and type.</summary>
 /// <param name="Selector">The batch selector.</param>
-/// <param name="Kind">The batch kind: use-case, reaction, job, decision, record (one tier 1 record on its own), or module-type.</param>
+/// <param name="Kind">The batch kind: use-case, automation, decision, record (one tier 1 record on its own), or module-type.</param>
 /// <param name="Tier">The batch tier: 1 when any record is tier 1, else 3.</param>
 /// <param name="Deciders">The distinct deciders, sorted.</param>
 /// <param name="DecideBy">The earliest decide-by date, or null.</param>
@@ -457,14 +457,14 @@ static class ReviewQueue
     }
 
     /// <summary>
-    ///     The scenario evidence: a use case, reaction or job counts its scenarios,
+    ///     The scenario evidence: a use case or automation counts its scenarios,
     ///     a scenario counts itself, and every other record counts none.
     /// </summary>
     public static ReviewScenarios ScenariosOf(ProjectModel model, Record record) =>
         ScenariosOf(model.Records, model.Proves, model.Stale, record);
 
     /// <summary>
-    ///     The scenario evidence from the queue inputs: a use case, reaction or job
+    ///     The scenario evidence from the queue inputs: a use case or automation
     ///     counts its scenarios, a scenario counts itself, and every other record
     ///     counts none.
     /// </summary>
@@ -476,7 +476,7 @@ static class ReviewQueue
     {
         IReadOnlyList<Record> own = record.Type switch
         {
-            "use-case" or "reaction" or "job" => OwnedScenarios(records, record),
+            "use-case" or "automation" => OwnedScenarios(records, record),
             "scenario" => [record],
             _ => [],
         };
@@ -507,10 +507,10 @@ static class ReviewQueue
         return new ReviewScenarios(own.Count, confirmed, passing, stale);
     }
 
-    /// <summary>The written scenarios the holder owns: by home for a use case, by page for a reaction or job.</summary>
+    /// <summary>The written scenarios the holder owns: by home for a use case, by page for an automation.</summary>
     static IReadOnlyList<Record> OwnedScenarios(IReadOnlyList<Record> records, Record holder)
     {
-        if (holder.Type is "reaction" or "job")
+        if (holder.Type is "automation")
         {
             return records
                 .Where(scenario => !scenario.Derived
@@ -532,7 +532,7 @@ static class ReviewQueue
             .ToList();
     }
 
-    /// <summary>The reaction or job whose page carries the scenario, when one holds it.</summary>
+    /// <summary>The automation whose page carries the scenario, when one holds it.</summary>
     static Record? PageHolder(IReadOnlyList<Record> records, Record scenario)
     {
         if (scenario.PageId is not { Length: > 0 } pageId)
@@ -550,7 +550,7 @@ static class ReviewQueue
                 continue;
             }
 
-            if (record.Id == pageId && record.Type is "reaction" or "job")
+            if (record.Id == pageId && record.Type is "automation")
             {
                 return record;
             }
@@ -564,7 +564,7 @@ static class ReviewQueue
 
     /// <summary>
     ///     Assigns every queued record to exactly one batch: a use case anchors the batch
-    ///     holding it with its results and scenarios, a reaction or job anchors the batch
+    ///     holding it with its results and scenarios, an automation anchors the batch
     ///     holding it with the scenarios on its page, a decision anchors the batch holding
     ///     it with the records it decides, and every other record falls into the batch of
     ///     its module and type.
@@ -591,7 +591,7 @@ static class ReviewQueue
             {
                 For("use-case/" + record.Id, record.Id, "use-case").Members.Add(record);
             }
-            else if (record.Type is "reaction" or "job")
+            else if (record.Type is "automation")
             {
                 For(record.Type + "/" + record.Id, record.Id, record.Type).Members.Add(record);
             }
@@ -617,7 +617,7 @@ static class ReviewQueue
             }
             else if (TierOf(records, record) == 1)
             {
-                // A tier 1 record no use case, reaction, job or decision holds is read on its own:
+                // A tier 1 record no use case, automation or decision holds is read on its own:
                 // a module batch is sampled, and a tier 1 record is never left to a sample.
                 For("record/" + record.Id, record.Id, "record").Members.Add(record);
             }
@@ -735,10 +735,10 @@ static class ReviewQueue
         return type != 0 ? type : string.Compare(left.Id, right.Id, StringComparison.Ordinal);
     }
 
-    /// <summary>The batch anchor: the use case, reaction, job or decision id, else null.</summary>
+    /// <summary>The batch anchor: the use case, automation or decision id, else null.</summary>
     static string? AnchorOf(Group group) => group.Kind switch
     {
-        "use-case" or "reaction" or "job" => group.Selector,
+        "use-case" or "automation" => group.Selector,
         "decision" => group.Selector["decision/".Length..],
         _ => null,
     };

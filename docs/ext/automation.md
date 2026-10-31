@@ -10,7 +10,7 @@ Activation scope: `project`.
 
 Applicable specification kinds: None.
 
-The project selects `automation` when tenants compose their own rules or customer endpoints receive hook calls. Product-owned reactions and jobs do not select it: they stay reviewed Behavior records either way.
+The project selects `automation` when tenants compose their own rules or customer endpoints receive hook calls. Product-owned automations do not select it: they stay reviewed Behavior records either way.
 
 ## Baseline Relationship
 

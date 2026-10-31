@@ -85,7 +85,7 @@ public sealed class FindingMessageFormatTests
             "mark-missing", "mark-style-invalid", "mark-count-invalid", "mark-unknown",
             "decision-unimplemented", "runtime-value-drift", "use-case-act-missing",
             "act-event-undeclared", "act-event-unimplemented", "aggregate-unimplemented",
-            "reaction-unimplemented", "job-unimplemented", "external-system-unimplemented",
+            "automation-unimplemented", "external-system-unimplemented",
             "use-case-endpoint-missing", "effect-unimplemented", "use-case-unreached",
         };
 
@@ -146,7 +146,7 @@ public sealed class FindingMessageFormatTests
             "use-case/lending.void-order", "lending", "void-order", "VoidOrder", "command", handlerFile,
             Repositories: [new CodeRepository("IHoldRepository", handlerFile, 5)],
             Refusals: [new CodeRefusal("lending.ghost-refusal", handlerFile, 9)],
-            Dispatches: [new CodeDispatch("issues", "PurgeLoansCommand", "", handlerFile, 13)],
+            Dispatches: [new CodeDispatch("runs", "PurgeLoansCommand", "", handlerFile, 13)],
             MessageType: "CancelOrderCommand",
             DependencyCount: 11,
             AggregateCalls: [new CodeCall("order", "Abandon", handlerFile, 8)],

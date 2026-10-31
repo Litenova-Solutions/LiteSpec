@@ -198,7 +198,7 @@ public sealed class DotnetHandlerShapeReaderTests
             }
             """);
 
-        Assert.Equal(2, Read(temp.Path).Reactions.Single().DependencyCount);
+        Assert.Equal(2, Read(temp.Path).Automations.Single().DependencyCount);
     }
 
     /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>

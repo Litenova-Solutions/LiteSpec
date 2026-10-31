@@ -60,7 +60,7 @@ public sealed class ParentChangedCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             ChangedRequirement(temp.Path),
-            TestModel.Record("rule", "rule/lending.allow-renewal", Path.Combine(temp.Path, "lending.md"), """{"fulfills": ["requirement/borrowing.max-active-loans"], "issues": ["event/lending.renewal-allowed"]}"""));
+            TestModel.Record("rule", "rule/lending.allow-renewal", Path.Combine(temp.Path, "lending.md"), """{"fulfills": ["requirement/borrowing.max-active-loans"]}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "parent-reopened");
         Assert.Equal("G", finding.Tier);

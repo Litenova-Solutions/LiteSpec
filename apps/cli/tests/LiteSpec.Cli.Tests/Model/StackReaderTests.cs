@@ -10,8 +10,8 @@ public sealed class StackReaderTests
     /// <summary><c>model build</c> on the fixture prints the counts its contents hold.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Theory]
-    [InlineData("small", 73, 7, 0, 0)]
-    [InlineData("large", 94, 7, 1, 9)]
+    [InlineData("small", 72, 7, 0, 0)]
+    [InlineData("large", 93, 7, 1, 9)]
     public void Build_Prints_Fixture_Counts(string fixture, int records, int handlers, int screens, int scenarios)
     {
         using var temp = ModelFixture.Prepare(fixture);

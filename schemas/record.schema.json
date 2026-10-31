@@ -17,8 +17,7 @@
     { "$ref": "#/$defs/modulePage" },
     { "$ref": "#/$defs/aggregatePage" },
     { "$ref": "#/$defs/useCasePage" },
-    { "$ref": "#/$defs/reactionPage" },
-    { "$ref": "#/$defs/jobPage" },
+    { "$ref": "#/$defs/automationPage" },
     { "$ref": "#/$defs/notificationPage" },
     { "$ref": "#/$defs/externalSystemPage" },
     { "$ref": "#/$defs/integrationEventPage" },
@@ -148,13 +147,9 @@
       "type": "string",
       "pattern": "^external-system/[a-z0-9][a-z0-9-]*#[a-z0-9][a-z0-9-]*$"
     },
-    "reactionId": {
+    "automationId": {
       "type": "string",
-      "pattern": "^reaction/[a-z0-9][a-z0-9-]*\\.[a-z0-9][a-z0-9-]*$"
-    },
-    "jobId": {
-      "type": "string",
-      "pattern": "^job/[a-z0-9][a-z0-9-]*\\.[a-z0-9][a-z0-9-]*$"
+      "pattern": "^automation/[a-z0-9][a-z0-9-]*\\.[a-z0-9][a-z0-9-]*$"
     },
     "notificationId": {
       "type": "string",
@@ -392,10 +387,10 @@
       ]
     },
     "settingValue": {
-      "anyOf": [{ "type": "string" }, { "type": "number" }, { "type": "boolean" }]
+      "anyOf": [{ "type": "string" }, { "type": "number" }, { "type": "boolean" }, { "$ref": "#/$defs/moneyValue" }]
     },
     "authKind": {
-      "enum": ["session", "token", "device", "link", "app", "anonymous", "system"]
+      "enum": ["session", "token", "device", "link", "app", "none"]
     },
     "authKindArray": {
       "type": "array",
@@ -413,9 +408,8 @@
     "accessObject": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["auth", "grant", "tenant"],
+      "required": ["grant", "tenant"],
       "properties": {
-        "auth": { "$ref": "#/$defs/authKindArray" },
         "grant": { "$ref": "#/$defs/grantValue" },
         "tenant": { "$ref": "#/$defs/tenantScope" }
       }
@@ -527,27 +521,21 @@
       "additionalProperties": false,
       "required": ["mode"],
       "properties": {
-        "mode": { "enum": ["atomic", "per-record", "compensated", "best-effort"] },
+        "mode": { "enum": ["atomic", "per-record", "compensated"] },
         "cites": { "$ref": "#/$defs/ruleIdArray" }
       }
     },
-    "effectRetry": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["maxAttempts", "backoff"],
-      "properties": {
-        "maxAttempts": { "type": "integer", "minimum": 1 },
-        "backoff": { "$ref": "#/$defs/isoDuration" }
-      }
-    },
-    "onFailurePolicy": {
+    "onFailureValue": {
       "type": "object",
       "additionalProperties": false,
       "required": ["mode"],
       "properties": {
         "mode": { "enum": ["retry", "skip-and-log", "discard"] },
-        "retry": { "$ref": "#/$defs/effectRetry" },
-        "then": { "const": "dead-letter" }
+        "retry": { "$ref": "#/$defs/retryPolicy" },
+        "then": { "const": "dead-letter" },
+        "deadLetter": { "$ref": "#/$defs/deadLetterPolicy" },
+        "surfacesIn": { "$ref": "#/$defs/entryPointId" },
+        "runbook": { "$ref": "#/$defs/runbookId" }
       },
       "allOf": [
         {
@@ -564,13 +552,13 @@
       "additionalProperties": false,
       "required": ["timing"],
       "properties": {
-        "issues": { "$ref": "#/$defs/useCaseId" },
+        "runs": { "$ref": "#/$defs/useCaseId" },
         "sends": { "$ref": "#/$defs/notificationId" },
-        "publishes": { "$ref": "#/$defs/integrationEventId" },
+        "emits": { "$ref": "#/$defs/integrationEventId" },
         "calls": { "$ref": "#/$defs/externalOperationRef" },
         "timing": { "enum": ["inline", "after-commit", "async"] },
         "sharesTransaction": { "type": "boolean" },
-        "onFailure": { "$ref": "#/$defs/onFailurePolicy" },
+        "onFailure": { "$ref": "#/$defs/onFailureValue" },
         "onExhausted": { "$ref": "#/$defs/nonEmptyString" },
         "before": { "$ref": "#/$defs/nonEmptyString" },
         "forEach": { "$ref": "#/$defs/nonEmptyString" }
@@ -578,38 +566,38 @@
       "allOf": [
         {
           "anyOf": [
-            { "required": ["issues"] },
+            { "required": ["runs"] },
             { "required": ["sends"] },
-            { "required": ["publishes"] },
+            { "required": ["emits"] },
             { "required": ["calls"] }
           ]
         },
-        { "not": { "required": ["issues", "sends"] } },
-        { "not": { "required": ["issues", "publishes"] } },
-        { "not": { "required": ["issues", "calls"] } },
-        { "not": { "required": ["sends", "publishes"] } },
+        { "not": { "required": ["runs", "sends"] } },
+        { "not": { "required": ["runs", "emits"] } },
+        { "not": { "required": ["runs", "calls"] } },
+        { "not": { "required": ["sends", "emits"] } },
         { "not": { "required": ["sends", "calls"] } },
-        { "not": { "required": ["publishes", "calls"] } },
+        { "not": { "required": ["emits", "calls"] } },
         {
           "if": {
-            "required": ["issues"],
+            "required": ["runs"],
             "properties": { "timing": { "const": "inline" } }
           },
           "then": { "required": ["sharesTransaction"] }
         }
       ]
     },
-    "reactionEffectEntry": {
+    "automationEffectEntry": {
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "issues": { "$ref": "#/$defs/useCaseId" },
+        "runs": { "$ref": "#/$defs/useCaseId" },
         "sends": { "$ref": "#/$defs/notificationId" },
-        "publishes": { "$ref": "#/$defs/integrationEventId" },
+        "emits": { "$ref": "#/$defs/integrationEventId" },
         "calls": { "$ref": "#/$defs/externalOperationRef" },
         "timing": { "enum": ["inline", "after-commit", "async"] },
         "sharesTransaction": { "type": "boolean" },
-        "onFailure": { "$ref": "#/$defs/onFailurePolicy" },
+        "onFailure": { "$ref": "#/$defs/onFailureValue" },
         "onExhausted": { "$ref": "#/$defs/nonEmptyString" },
         "before": { "$ref": "#/$defs/nonEmptyString" },
         "forEach": { "$ref": "#/$defs/nonEmptyString" }
@@ -617,21 +605,21 @@
       "allOf": [
         {
           "anyOf": [
-            { "required": ["issues"] },
+            { "required": ["runs"] },
             { "required": ["sends"] },
-            { "required": ["publishes"] },
+            { "required": ["emits"] },
             { "required": ["calls"] }
           ]
         },
-        { "not": { "required": ["issues", "sends"] } },
-        { "not": { "required": ["issues", "publishes"] } },
-        { "not": { "required": ["issues", "calls"] } },
-        { "not": { "required": ["sends", "publishes"] } },
+        { "not": { "required": ["runs", "sends"] } },
+        { "not": { "required": ["runs", "emits"] } },
+        { "not": { "required": ["runs", "calls"] } },
+        { "not": { "required": ["sends", "emits"] } },
         { "not": { "required": ["sends", "calls"] } },
-        { "not": { "required": ["publishes", "calls"] } },
+        { "not": { "required": ["emits", "calls"] } },
         {
           "if": {
-            "required": ["issues"],
+            "required": ["runs"],
             "properties": { "timing": { "const": "inline" } }
           },
           "then": { "required": ["sharesTransaction"] }
@@ -660,23 +648,6 @@
       "properties": {
         "after": { "$ref": "#/$defs/isoDuration" },
         "action": { "$ref": "#/$defs/nonEmptyString" }
-      }
-    },
-    "structuredOnFailure": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["retry"],
-      "properties": {
-        "retry": {
-          "anyOf": [
-            { "const": "none" },
-            { "const": "next-run" },
-            { "$ref": "#/$defs/retryPolicy" }
-          ]
-        },
-        "deadLetter": { "$ref": "#/$defs/deadLetterPolicy" },
-        "surfacesIn": { "type": "string", "pattern": "^entry-point/" },
-        "runbook": { "type": "string", "pattern": "^runbook/" }
       }
     },
     "idempotencyObject": {
@@ -730,11 +701,11 @@
       ]
     },
     "erasurePosition": {
-      "enum": ["erase", "pseudonymize", "retain", "exempt"]
+      "enum": ["erase", "pseudonymize", "anonymize", "retain", "exempt"]
     },
     "enforcedByValue": {
       "anyOf": [
-        { "$ref": "#/$defs/jobId" },
+        { "$ref": "#/$defs/automationId" },
         { "enum": ["record-expiry", "store-ttl", "query-filter"] }
       ]
     },
@@ -756,7 +727,7 @@
     "dataClassEntry": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["name", "classification", "fields", "onErasure", "basis", "period", "enforcedBy"],
+      "required": ["name", "classification", "fields", "onErasure", "basis", "period", "enforcedBy", "purpose"],
       "properties": {
         "name": { "$ref": "#/$defs/nonEmptyString" },
         "classification": { "$ref": "#/$defs/classification" },
@@ -769,6 +740,7 @@
         "basis": { "enum": ["statute", "business", "engineering"] },
         "period": { "$ref": "#/$defs/periodValue" },
         "enforcedBy": { "$ref": "#/$defs/enforcedByValue" },
+        "purpose": { "$ref": "#/$defs/nonEmptyString" },
         "reason": { "$ref": "#/$defs/nonEmptyString" },
         "reviewBy": { "$ref": "#/$defs/isoDate" },
         "acceptedBy": { "$ref": "#/$defs/acceptedByValue" },
@@ -846,17 +818,18 @@
         { "$ref": "#/$defs/releasedByNever" }
       ]
     },
-    "processStep": {
+    "sagaStep": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["name", "compensation"],
+      "required": ["id", "runs", "compensation"],
       "properties": {
-        "name": { "$ref": "#/$defs/nonEmptyString" },
-        "when": { "$ref": "#/$defs/nonEmptyString" },
-        "compensation": { "$ref": "#/$defs/compensationValue" }
+        "id": { "$ref": "#/$defs/nonEmptyString" },
+        "runs": { "$ref": "#/$defs/useCaseId" },
+        "compensation": { "$ref": "#/$defs/compensationValue" },
+        "guard": { "$ref": "#/$defs/nonEmptyString" }
       }
     },
-    "processExit": {
+    "sagaExit": {
       "type": "object",
       "additionalProperties": false,
       "required": ["name", "trigger"],
@@ -866,11 +839,33 @@
         "then": { "$ref": "#/$defs/nonEmptyString" }
       }
     },
-    "driverEntry": {
+    "drivenByAutomation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["automation"],
+      "properties": {
+        "automation": { "$ref": "#/$defs/automationId" }
+      }
+    },
+    "drivenByPerson": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["person", "runbook", "dueWithin"],
+      "properties": {
+        "person": {
+          "anyOf": [
+            { "$ref": "#/$defs/actorId" },
+            { "$ref": "#/$defs/roleId" }
+          ]
+        },
+        "runbook": { "$ref": "#/$defs/runbookId" },
+        "dueWithin": { "$ref": "#/$defs/isoDuration" }
+      }
+    },
+    "drivenByValue": {
       "anyOf": [
-        { "$ref": "#/$defs/reactionId" },
-        { "$ref": "#/$defs/jobId" },
-        { "type": "string", "pattern": "^operator: .+" }
+        { "$ref": "#/$defs/drivenByAutomation" },
+        { "$ref": "#/$defs/drivenByPerson" }
       ]
     },
     "requirementExcept": {
@@ -886,7 +881,7 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "every": { "$ref": "#/$defs/nonEmptyString" },
+        "every": { "$ref": "#/$defs/isoDuration" },
         "cron": { "$ref": "#/$defs/nonEmptyString" },
         "timezone": { "$ref": "#/$defs/nonEmptyString" }
       },
@@ -894,6 +889,57 @@
         { "anyOf": [{ "required": ["every"] }, { "required": ["cron"] }] },
         { "not": { "required": ["every", "cron"] } }
       ]
+    },
+    "automationTriggerEvent": {
+      "anyOf": [
+        { "$ref": "#/$defs/eventId" },
+        { "$ref": "#/$defs/integrationEventId" }
+      ]
+    },
+    "automationTriggeredBy": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "event": { "$ref": "#/$defs/automationTriggerEvent" },
+        "schedule": { "$ref": "#/$defs/scheduleObject" },
+        "manual": { "const": true }
+      },
+      "allOf": [
+        {
+          "anyOf": [
+            { "required": ["event"] },
+            { "required": ["schedule"] },
+            { "required": ["manual"] }
+          ]
+        },
+        { "not": { "required": ["event", "schedule"] } },
+        { "not": { "required": ["event", "manual"] } },
+        { "not": { "required": ["schedule", "manual"] } }
+      ]
+    },
+    "contractValueType": {
+      "enum": ["text", "integer", "decimal", "money", "boolean", "date", "date-time", "duration", "email", "choice", "id"]
+    },
+    "contractFieldChoices": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/nonEmptyString" }
+    },
+    "contractFieldOf": {
+      "anyOf": [
+        { "$ref": "#/$defs/genericRecordId" },
+        { "$ref": "#/$defs/contractFieldChoices" }
+      ]
+    },
+    "moneyValue": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["amount", "currency"],
+      "properties": {
+        "amount": { "type": "number" },
+        "currency": { "type": "string", "pattern": "^[A-Z]{3}$" }
+      }
     },
     "leaseObject": {
       "type": "object",
@@ -916,12 +962,39 @@
     "integrationEventPayload": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["name", "meaning", "classification"],
+      "required": ["name", "meaning", "classification", "type"],
       "properties": {
         "name": { "$ref": "#/$defs/nonEmptyString" },
         "meaning": { "$ref": "#/$defs/nonEmptyString" },
-        "classification": { "$ref": "#/$defs/classification" }
-      }
+        "classification": { "$ref": "#/$defs/classification" },
+        "type": { "$ref": "#/$defs/contractValueType" },
+        "of": { "$ref": "#/$defs/contractFieldOf" },
+        "required": { "type": "boolean" }
+      },
+      "allOf": [
+        {
+          "if": {
+            "required": ["type"],
+            "properties": { "type": { "enum": ["id", "choice"] } }
+          },
+          "then": { "required": ["of"] },
+          "else": { "not": { "required": ["of"] } }
+        },
+        {
+          "if": {
+            "required": ["type"],
+            "properties": { "type": { "const": "id" } }
+          },
+          "then": { "properties": { "of": { "$ref": "#/$defs/genericRecordId" } } }
+        },
+        {
+          "if": {
+            "required": ["type"],
+            "properties": { "type": { "const": "choice" } }
+          },
+          "then": { "properties": { "of": { "$ref": "#/$defs/contractFieldChoices" } } }
+        }
+      ]
     },
     "externalOperation": {
       "type": "object",
@@ -983,7 +1056,7 @@
     "retentionRow": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["dataClass", "covers", "basis", "period", "enforcedBy"],
+      "required": ["dataClass", "covers", "basis", "period", "enforcedBy", "purpose"],
       "properties": {
         "dataClass": { "$ref": "#/$defs/nonEmptyString" },
         "covers": {
@@ -995,6 +1068,7 @@
         "basis": { "enum": ["statute", "business", "engineering"] },
         "period": { "$ref": "#/$defs/periodValue" },
         "enforcedBy": { "$ref": "#/$defs/enforcedByValue" },
+        "purpose": { "$ref": "#/$defs/nonEmptyString" },
         "cites": { "$ref": "#/$defs/requirementId" },
         "processors": {
           "type": "array",
@@ -1110,10 +1184,13 @@
     "useCaseInput": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["name", "meaning"],
+      "required": ["name", "meaning", "type", "origin", "classification"],
       "properties": {
         "name": { "$ref": "#/$defs/nonEmptyString" },
         "meaning": { "$ref": "#/$defs/nonEmptyString" },
+        "type": { "$ref": "#/$defs/contractValueType" },
+        "of": { "$ref": "#/$defs/contractFieldOf" },
+        "required": { "type": "boolean" },
         "rules": {
           "type": "array",
           "uniqueItems": true,
@@ -1121,7 +1198,31 @@
         },
         "origin": { "enum": ["caller", "claim", "derived"] },
         "classification": { "$ref": "#/$defs/classification" }
-      }
+      },
+      "allOf": [
+        {
+          "if": {
+            "required": ["type"],
+            "properties": { "type": { "enum": ["id", "choice"] } }
+          },
+          "then": { "required": ["of"] },
+          "else": { "not": { "required": ["of"] } }
+        },
+        {
+          "if": {
+            "required": ["type"],
+            "properties": { "type": { "const": "id" } }
+          },
+          "then": { "properties": { "of": { "$ref": "#/$defs/genericRecordId" } } }
+        },
+        {
+          "if": {
+            "required": ["type"],
+            "properties": { "type": { "const": "choice" } }
+          },
+          "then": { "properties": { "of": { "$ref": "#/$defs/contractFieldChoices" } } }
+        }
+      ]
     },
     "recordsArray": {
       "type": "array",
@@ -1283,6 +1384,7 @@
         "kind": { "enum": ["invariant", "precondition", "calculation", "cross-aggregate", "atomicity", "reservation", "commercial-data", "default"] },
         "statement": { "$ref": "#/$defs/nonEmptyString" },
         "governs": { "$ref": "#/$defs/governsArray" },
+        "binds": { "$ref": "#/$defs/aggregateIdArray" },
         "refusal": { "$ref": "#/$defs/refusalValue" },
         "basedOn": { "$ref": "#/$defs/basedOnArray" },
         "fulfills": { "$ref": "#/$defs/requirementIdArray" },
@@ -1320,6 +1422,14 @@
             "properties": { "kind": { "const": "commercial-data" } }
           },
           "then": { "required": ["frozenWhen", "history"] }
+        },
+        {
+          "if": {
+            "required": ["kind"],
+            "properties": { "kind": { "const": "atomicity" } }
+          },
+          "then": { "required": ["binds"] },
+          "else": { "not": { "required": ["binds"] } }
         }
       ]
     },
@@ -1389,6 +1499,7 @@
         "when": { "$ref": "#/$defs/nonEmptyString" },
         "then": { "$ref": "#/$defs/nonEmptyString" },
         "result": { "$ref": "#/$defs/scenarioResultValue" },
+        "exercises": { "$ref": "#/$defs/ruleIdArray" },
         "examples": {
           "type": "array",
           "items": { "type": "object" }
@@ -1459,7 +1570,7 @@
     "entryPointEntry": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["type", "id", "title", "kind"],
+      "required": ["type", "id", "title", "kind", "auth"],
       "properties": {
         "type": { "const": "entry-point" },
         "id": { "$ref": "#/$defs/entryPointId" },
@@ -1473,7 +1584,7 @@
         "approvedHash": { "$ref": "#/$defs/nonEmptyString" },
         "terms": { "$ref": "#/$defs/termIdArray" },
         "questions": { "$ref": "#/$defs/questionsArray" },
-        "kind": { "enum": ["browser", "api", "webhook", "device", "cli", "mcp", "served-content", "reaction", "job"] },
+        "kind": { "enum": ["browser", "api", "webhook", "device", "cli", "mcp", "served-content"] },
         "auth": { "$ref": "#/$defs/authKindArray" },
         "path": { "$ref": "#/$defs/nonEmptyString" },
         "contentType": { "$ref": "#/$defs/nonEmptyString" },
@@ -2084,7 +2195,7 @@
         "questions": { "$ref": "#/$defs/questionsArray" },
         "records": { "$ref": "#/$defs/recordsArray" },
         "summary": { "$ref": "#/$defs/nonEmptyString" },
-        "kind": { "enum": ["entity", "process", "store"] },
+        "kind": { "enum": ["entity", "saga", "store"] },
         "parts": {
           "description": "The kebab-case names of the child entities and value objects inside the aggregate that use cases act on.",
           "type": "array",
@@ -2116,20 +2227,20 @@
           "type": "array",
           "minItems": 1,
           "uniqueItems": true,
-          "items": { "$ref": "#/$defs/processStep" }
+          "items": { "$ref": "#/$defs/sagaStep" }
         },
         "exits": {
           "type": "array",
           "minItems": 1,
           "uniqueItems": true,
-          "items": { "$ref": "#/$defs/processExit" }
+          "items": { "$ref": "#/$defs/sagaExit" }
         },
         "finishedWhen": { "$ref": "#/$defs/nonEmptyString" },
-        "driver": {
+        "drivenBy": {
           "type": "array",
           "minItems": 1,
           "uniqueItems": true,
-          "items": { "$ref": "#/$defs/driverEntry" }
+          "items": { "$ref": "#/$defs/drivenByValue" }
         },
         "cursor": { "$ref": "#/$defs/nonEmptyString" },
         "risk": { "$ref": "#/$defs/riskArray" },
@@ -2161,16 +2272,16 @@
         {
           "if": {
             "required": ["kind"],
-            "properties": { "kind": { "const": "process" } }
+            "properties": { "kind": { "const": "saga" } }
           },
-          "then": { "required": ["steps", "exits", "finishedWhen", "driver"] },
+          "then": { "required": ["steps", "exits", "finishedWhen", "drivenBy"] },
           "else": {
             "not": {
               "anyOf": [
                 { "required": ["steps"] },
                 { "required": ["exits"] },
                 { "required": ["finishedWhen"] },
-                { "required": ["driver"] },
+                { "required": ["drivenBy"] },
                 { "required": ["cursor"] }
               ]
             }
@@ -2237,6 +2348,7 @@
         },
         "idempotency": { "$ref": "#/$defs/idempotencyObject" },
         "audit": { "$ref": "#/$defs/auditValue" },
+        "background": { "$ref": "#/$defs/nonEmptyString" },
         "risk": { "$ref": "#/$defs/riskArray" },
         "provenance": { "$ref": "#/$defs/transcribedProvenance" }
       },
@@ -2277,13 +2389,13 @@
         }
       ]
     },
-    "reactionPage": {
+    "automationPage": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["type", "id", "title", "owner", "status", "on", "effects"],
+      "required": ["type", "id", "title", "owner", "status", "triggeredBy", "effects"],
       "properties": {
-        "type": { "const": "reaction" },
-        "id": { "$ref": "#/$defs/reactionId" },
+        "type": { "const": "automation" },
+        "id": { "$ref": "#/$defs/automationId" },
         "title": { "$ref": "#/$defs/nonEmptyString" },
         "owner": { "$ref": "#/$defs/ownerName" },
         "status": { "$ref": "#/$defs/behaviorStatus" },
@@ -2295,92 +2407,27 @@
         "terms": { "$ref": "#/$defs/termIdArray" },
         "questions": { "$ref": "#/$defs/questionsArray" },
         "records": { "$ref": "#/$defs/recordsArray" },
-        "on": {
-          "type": "array",
-          "minItems": 1,
-          "uniqueItems": true,
-          "items": {
-            "anyOf": [
-              { "$ref": "#/$defs/eventId" },
-              { "$ref": "#/$defs/integrationEventId" }
-            ]
-          }
-        },
-        "if": { "$ref": "#/$defs/nonEmptyString" },
+        "triggeredBy": { "$ref": "#/$defs/automationTriggeredBy" },
+        "skippedWhen": { "$ref": "#/$defs/nonEmptyString" },
         "effects": {
           "type": "array",
           "minItems": 1,
           "uniqueItems": true,
-          "items": { "$ref": "#/$defs/reactionEffectEntry" }
+          "items": { "$ref": "#/$defs/automationEffectEntry" }
         },
-        "forEach": { "$ref": "#/$defs/nonEmptyString" },
-        "reads": { "$ref": "#/$defs/aggregateIdArray" },
-        "fulfills": { "$ref": "#/$defs/requirementIdArray" },
-        "serves": { "$ref": "#/$defs/journeyStepIdArray" },
-        "idempotency": { "$ref": "#/$defs/idempotencyObject" },
-        "onFailure": { "$ref": "#/$defs/structuredOnFailure" },
-        "onExhausted": { "$ref": "#/$defs/nonEmptyString" },
-        "risk": { "$ref": "#/$defs/riskArray" },
-        "provenance": { "$ref": "#/$defs/transcribedProvenance" }
-      },
-      "allOf": [
-        {
-          "if": {
-            "required": ["status"],
-            "properties": { "status": { "const": "draft" } }
-          },
-          "then": { "required": ["decider", "decideBy"] }
-        },
-        {
-          "if": {
-            "required": ["status"],
-            "properties": { "status": { "const": "reviewed" } }
-          },
-          "then": { "required": ["approvedBy", "approvedOn", "approvedHash"] }
-        }
-      ]
-    },
-    "jobPage": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["type", "id", "title", "owner", "status", "kind", "selection", "effects", "reads", "serviceLevel", "evidence", "runbook"],
-      "properties": {
-        "type": { "const": "job" },
-        "id": { "$ref": "#/$defs/jobId" },
-        "title": { "$ref": "#/$defs/nonEmptyString" },
-        "owner": { "$ref": "#/$defs/ownerName" },
-        "status": { "$ref": "#/$defs/behaviorStatus" },
-        "decider": { "$ref": "#/$defs/ownerName" },
-        "decideBy": { "$ref": "#/$defs/isoDate" },
-        "approvedBy": { "$ref": "#/$defs/ownerName" },
-        "approvedOn": { "$ref": "#/$defs/isoDate" },
-        "approvedHash": { "$ref": "#/$defs/nonEmptyString" },
-        "terms": { "$ref": "#/$defs/termIdArray" },
-        "questions": { "$ref": "#/$defs/questionsArray" },
-        "records": { "$ref": "#/$defs/recordsArray" },
-        "kind": { "enum": ["scheduled", "one-off", "operator"] },
-        "schedule": { "$ref": "#/$defs/scheduleObject" },
-        "selection": { "$ref": "#/$defs/nonEmptyString" },
-        "batchSize": { "type": "integer" },
-        "lease": { "$ref": "#/$defs/leaseObject" },
-        "effects": {
-          "type": "array",
-          "minItems": 1,
-          "uniqueItems": true,
-          "items": { "$ref": "#/$defs/effectEntry" }
-        },
-        "reads": { "$ref": "#/$defs/aggregateIdArray" },
-        "serviceLevel": { "$ref": "#/$defs/nonEmptyString" },
-        "evidence": { "$ref": "#/$defs/nonEmptyString" },
         "runbook": { "$ref": "#/$defs/runbookId" },
         "runsWhere": { "$ref": "#/$defs/nonEmptyString" },
         "guard": { "$ref": "#/$defs/nonEmptyString" },
         "cursor": { "$ref": "#/$defs/nonEmptyString" },
+        "selection": { "$ref": "#/$defs/nonEmptyString" },
+        "lease": { "$ref": "#/$defs/leaseObject" },
+        "batchSize": { "type": "integer" },
         "fulfills": { "$ref": "#/$defs/requirementIdArray" },
         "serves": { "$ref": "#/$defs/journeyStepIdArray" },
-        "onFailure": { "$ref": "#/$defs/structuredOnFailure" },
-        "onExhausted": { "$ref": "#/$defs/nonEmptyString" },
+        "onFailure": { "$ref": "#/$defs/onFailureValue" },
         "idempotency": { "$ref": "#/$defs/idempotencyObject" },
+        "reads": { "$ref": "#/$defs/aggregateIdArray" },
+        "changes": { "$ref": "#/$defs/aggregateIdArray" },
         "risk": { "$ref": "#/$defs/riskArray" },
         "provenance": { "$ref": "#/$defs/transcribedProvenance" }
       },
@@ -2401,17 +2448,33 @@
         },
         {
           "if": {
-            "required": ["kind"],
-            "properties": { "kind": { "const": "scheduled" } }
+            "required": ["triggeredBy"],
+            "properties": {
+              "triggeredBy": { "required": ["event"] }
+            }
           },
-          "then": { "required": ["schedule"] }
+          "then": {
+            "not": {
+              "anyOf": [
+                { "required": ["runbook"] },
+                { "required": ["runsWhere"] },
+                { "required": ["guard"] },
+                { "required": ["cursor"] },
+                { "required": ["selection"] },
+                { "required": ["lease"] },
+                { "required": ["batchSize"] }
+              ]
+            }
+          }
         },
         {
           "if": {
-            "required": ["kind"],
-            "properties": { "kind": { "const": "operator" } }
+            "required": ["triggeredBy"],
+            "properties": {
+              "triggeredBy": { "required": ["manual"] }
+            }
           },
-          "then": { "required": ["runsWhere", "guard"] }
+          "then": { "required": ["guard"] }
         }
       ]
     },
@@ -2576,6 +2639,7 @@
         "trust": { "enum": ["trigger-only", "payload"] },
         "correlation": { "$ref": "#/$defs/nonEmptyString" },
         "translates": { "$ref": "#/$defs/eventId" },
+        "dataschema": { "$ref": "#/$defs/nonEmptyString" },
         "risk": { "$ref": "#/$defs/riskArray" }
       },
       "allOf": [

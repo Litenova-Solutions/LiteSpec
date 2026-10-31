@@ -33,6 +33,7 @@
       "borrow",
       "cancel",
       "extend",
+      "nightly",
       "place",
       "register",
       "renew",

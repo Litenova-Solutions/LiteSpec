@@ -8,7 +8,7 @@ namespace LiteSpec.Model;
 
 /// <summary>
 ///     The record-graph and advisory checks: orphans, steps, loops, queries,
-///     erasure, approval, transcription, jobs, prose and aged questions.
+///     erasure, approval, transcription, automations, prose and aged questions.
 /// </summary>
 static partial class Checker
 {
@@ -199,8 +199,7 @@ static partial class Checker
     private static string Label(string type) => type switch
     {
         "use-case" => "Use case",
-        "reaction" => "Reaction",
-        "job" => "Job",
+        "automation" => "Automation",
         "notification" => "Notification",
         "setting" => "Setting",
         _ => "Record",
@@ -240,8 +239,8 @@ static partial class Checker
     }
 
     /// <summary>
-    ///     The declared effect edges: use-case effects and raises, reaction triggers
-    ///     reversed into event edges with the reaction effects, and job effects.
+    ///     The declared effect edges: use-case effects and raises, automation event
+    ///     triggers reversed into event edges with the automation effects.
     /// </summary>
     private static Dictionary<string, List<string>> EffectGraph(ProjectModel model)
     {
@@ -285,9 +284,9 @@ static partial class Checker
                     Edge(record.Id, raised);
                 }
             }
-            else if (record.Type == "reaction")
+            else if (record.Type == "automation")
             {
-                foreach (var trigger in record.Ids("on"))
+                foreach (var trigger in AutomationEventTriggers(record))
                 {
                     var baseId = Identifiers.BaseId(trigger);
 
@@ -298,16 +297,6 @@ static partial class Checker
                     }
                 }
 
-                foreach (var entry in EffectEntries(record))
-                {
-                    if (EffectTarget(entry) is { } target)
-                    {
-                        Edge(record.Id, target);
-                    }
-                }
-            }
-            else if (record.Type == "job")
-            {
                 foreach (var entry in EffectEntries(record))
                 {
                     if (EffectTarget(entry) is { } target)
@@ -371,26 +360,50 @@ static partial class Checker
 
         var holder = rotated
             .Select(id => model.ById[id])
-            .First(record => record.Type is "use-case" or "reaction" or "job");
+            .First(record => record.Type is "use-case" or "automation");
 
         findings.Add(new Finding("effect-loop-invalid", $"{Label(holder.Type)} '{holder.Id}' holds an effect loop with no stated end: {key} -> {rotated[0]}.", holder.File, holder.Line, holder.Id));
     }
 
     /// <summary>
-    ///     Whether the loop is allowed: it passes through a domain event, and a
-    ///     reaction in the loop states its skip condition as the end condition.
+    ///     Whether the loop is allowed: it passes through a domain event, and an
+    ///     automation in the loop states its skip condition as the end condition.
     /// </summary>
     private static bool LoopExempt(ProjectModel model, IReadOnlyList<string> rotated) =>
         rotated.Any(id => model.ById.TryGetValue(id, out var record) && record.Type == "event")
         && rotated.Any(id => model.ById.TryGetValue(id, out var record)
-            && record.Type == "reaction"
-            && record.Field("if") is { Length: > 0 });
+            && record.Type == "automation"
+            && record.Field("skippedWhen") is { Length: > 0 });
+
+    /// <summary>The automation event triggers: the event its triggeredBy names.</summary>
+    private static IReadOnlyList<string> AutomationEventTriggers(Record record)
+    {
+        if (record.Raw.ValueKind == JsonValueKind.Object
+            && record.Raw.TryGetProperty("triggeredBy", out var triggered)
+            && triggered.ValueKind == JsonValueKind.Object
+            && triggered.TryGetProperty("event", out var trigger)
+            && trigger.ValueKind == JsonValueKind.String
+            && trigger.GetString() is { Length: > 0 } id)
+        {
+            return [id];
+        }
+
+        return [];
+    }
 
     private static void CheckConsistency(ProjectModel model, List<Finding> findings)
     {
         foreach (var useCase in model.Records.Where(record => record.Type == "use-case"))
         {
-            if (ConsistencyMode(useCase) != "atomic")
+            var mode = ConsistencyMode(useCase);
+
+            if (mode is not null && mode is not ("atomic" or "per-record" or "compensated"))
+            {
+                findings.Add(new Finding("field-invalid", $"Use case '{useCase.Id}' has consistency mode '{mode}' outside atomic, per-record, compensated.", useCase.File, useCase.Line, SubjectOf(useCase)));
+                continue;
+            }
+
+            if (mode != "atomic")
             {
                 continue;
             }
@@ -402,6 +415,99 @@ static partial class Checker
                 findings.Add(new Finding("consistency-cites-missing", $"Use case '{useCase.Id}' changes {changes.Count} aggregates atomically with no cites rule.", useCase.File, useCase.Line, SubjectOf(useCase)));
             }
         }
+    }
+
+    /// <summary>Reports an atomic use case whose changes differ from its atomicity rule's binds.</summary>
+    private static void CheckAtomicGroupDrift(ProjectModel model, List<Finding> findings)
+    {
+        foreach (var useCase in model.Records.Where(record => record.Type == "use-case"))
+        {
+            if (ConsistencyMode(useCase) != "atomic")
+            {
+                continue;
+            }
+
+            var changes = useCase.Ids("changes");
+
+            if (changes.Count < 2)
+            {
+                continue;
+            }
+
+            foreach (var cited in ConsistencyCites(useCase).Order(StringComparer.Ordinal))
+            {
+                if (!model.ById.TryGetValue(cited, out var rule) || rule.Type != "rule" || rule.Field("kind") != "atomicity")
+                {
+                    continue;
+                }
+
+                var binds = rule.Ids("binds").Order(StringComparer.Ordinal).ToList();
+                var written = changes.Order(StringComparer.Ordinal).ToList();
+
+                if (binds.Count > 0 && !binds.SequenceEqual(written, StringComparer.Ordinal))
+                {
+                    findings.Add(new Finding("atomic-group-drift", $"Use case '{useCase.Id}' changes '{string.Join("', '", written)}' but its rule '{cited}' binds '{string.Join("', '", binds)}'.", useCase.File, useCase.Line, SubjectOf(useCase)));
+                }
+            }
+        }
+    }
+
+    /// <summary>Reports an atomic group binding more than four aggregates, a saga candidate.</summary>
+    private static void CheckAtomicGroupInvalid(ProjectModel model, List<Finding> findings)
+    {
+        foreach (var rule in model.Records.Where(record => record.Type == "rule" && record.Field("kind") == "atomicity"))
+        {
+            var binds = rule.Ids("binds");
+
+            if (binds.Count > 4)
+            {
+                findings.Add(new Finding("atomic-group-invalid", $"Rule '{rule.Id}' binds {binds.Count} aggregates.", rule.File, rule.Line, SubjectOf(rule)));
+            }
+        }
+
+        foreach (var useCase in model.Records.Where(record => record.Type == "use-case"))
+        {
+            if (ConsistencyMode(useCase) != "atomic")
+            {
+                continue;
+            }
+
+            var changes = useCase.Ids("changes");
+
+            if (changes.Count > 4 && ConsistencyCites(useCase).Count == 0)
+            {
+                findings.Add(new Finding("atomic-group-invalid", $"Use case '{useCase.Id}' changes {changes.Count} aggregates atomically.", useCase.File, useCase.Line, SubjectOf(useCase)));
+            }
+        }
+    }
+
+    /// <summary>The consistency cites rule ids of the use case.</summary>
+    private static IReadOnlyList<string> ConsistencyCites(Record useCase)
+    {
+        if (useCase.Raw.ValueKind != JsonValueKind.Object
+            || !useCase.Raw.TryGetProperty("consistency", out var consistency)
+            || consistency.ValueKind != JsonValueKind.Object
+            || !consistency.TryGetProperty("cites", out var cites))
+        {
+            return [];
+        }
+
+        if (cites.ValueKind == JsonValueKind.String && cites.GetString() is { Length: > 0 } single)
+        {
+            return [single];
+        }
+
+        if (cites.ValueKind == JsonValueKind.Array)
+        {
+            return
+            [
+                .. cites.EnumerateArray()
+                          .Where(entry => entry.ValueKind == JsonValueKind.String)
+                          .Select(entry => entry.GetString()!),
+            ];
+        }
+
+        return [];
     }
 
     private static string? ConsistencyMode(Record useCase)
@@ -701,7 +807,8 @@ static partial class Checker
     private static bool Kept(string? onErasure) =>
         onErasure is not null
         && (onErasure.Equals("retain", StringComparison.OrdinalIgnoreCase)
-            || onErasure.Equals("exempt", StringComparison.OrdinalIgnoreCase));
+            || onErasure.Equals("exempt", StringComparison.OrdinalIgnoreCase)
+            || onErasure.Equals("pseudonymize", StringComparison.OrdinalIgnoreCase));
 
     private static void CheckAcceptedBy(
         ProjectModel model,
@@ -830,7 +937,7 @@ static partial class Checker
         var sent = new HashSet<string>(StringComparer.Ordinal);
 
         foreach (var holder in model.Records.Where(record =>
-            record.Type is "use-case" or "reaction" or "job" && record.Status != "retired"))
+            record.Type is "use-case" or "automation" && record.Status != "retired"))
         {
             foreach (var entry in EffectEntries(holder))
             {
@@ -845,7 +952,7 @@ static partial class Checker
         {
             if (!sent.Contains(notification.Id))
             {
-                findings.Add(new Finding("notification-sender-missing", $"Notification '{notification.Id}' is sent by no reaction or use case.", notification.File, notification.Line, SubjectOf(notification)));
+                findings.Add(new Finding("notification-sender-missing", $"Notification '{notification.Id}' is sent by no automation or use case.", notification.File, notification.Line, SubjectOf(notification)));
             }
         }
     }
@@ -1018,18 +1125,30 @@ static partial class Checker
             : model.ById[baseId].Status is "approved" or "reviewed";
     }
 
-    private static void CheckOperatorJob(ProjectModel model, List<Finding> findings)
+    /// <summary>Scheduled and manual fields, allowed only with a schedule or manual trigger.</summary>
+    private static readonly string[] ScheduledFields =
+        ["runbook", "runsWhere", "guard", "cursor", "selection", "lease", "batchSize"];
+
+    private static void CheckAutomationGuard(ProjectModel model, List<Finding> findings)
     {
-        foreach (var job in model.Records.Where(record => record.Type == "job" && record.Field("kind") == "operator"))
+        foreach (var automation in model.Records.Where(record => record.Type == "automation"))
         {
-            if (!FieldPresent(job, "runsWhere"))
+            var trigger = AutomationTrigger(automation);
+
+            if (trigger == "manual" && !FieldPresent(automation, "guard"))
             {
-                findings.Add(new Finding("job-guard-missing", $"Job '{job.Id}' is an operator job with no runsWhere.", job.File, job.Line, SubjectOf(job)));
+                findings.Add(new Finding("automation-guard-missing", $"Automation '{automation.Id}' is a manual automation with no guard.", automation.File, automation.Line, SubjectOf(automation)));
             }
 
-            if (!FieldPresent(job, "guard"))
+            if (trigger == "event")
             {
-                findings.Add(new Finding("job-guard-missing", $"Job '{job.Id}' is an operator job with no guard.", job.File, job.Line, SubjectOf(job)));
+                foreach (var field in ScheduledFields)
+                {
+                    if (FieldPresent(automation, field))
+                    {
+                        findings.Add(new Finding("field-invalid", $"Automation '{automation.Id}' holds {field} with an event trigger.", automation.File, automation.Line, SubjectOf(automation)));
+                    }
+                }
             }
         }
     }
@@ -1053,28 +1172,38 @@ static partial class Checker
 
     private static void CheckSchedule(ProjectModel model, List<Finding> findings)
     {
-        foreach (var job in model.Records.Where(record => record.Type == "job"))
+        foreach (var automation in model.Records.Where(record => record.Type == "automation"))
         {
-            var structured = StructuredSchedule(job);
+            var trigger = AutomationTrigger(automation);
+            var structured = StructuredSchedule(automation);
 
-            if (job.Field("kind") == "scheduled" && !structured)
+            if (trigger == "schedule" && !structured)
             {
-                var missing = !job.Has("schedule");
+                var missing = !HasTriggeredSchedule(automation);
 
                 findings.Add(new Finding("schedule-invalid", missing
-                    ? $"Job '{job.Id}' runs on time with no structured schedule."
-                    : $"Job '{job.Id}' carries a schedule no tool can read.", job.File, job.Line, SubjectOf(job)));
+                    ? $"Automation '{automation.Id}' runs on time with no structured schedule."
+                    : $"Automation '{automation.Id}' carries a schedule no tool can read.", automation.File, automation.Line, SubjectOf(automation)));
             }
-            else if (job.Field("kind") != "scheduled" && job.Has("schedule") && !structured)
+            else if (trigger != "schedule" && HasTriggeredSchedule(automation) && !structured)
             {
-                findings.Add(new Finding("schedule-invalid", $"Job '{job.Id}' carries a schedule no tool can read.", job.File, job.Line, SubjectOf(job)));
+                findings.Add(new Finding("schedule-invalid", $"Automation '{automation.Id}' carries a schedule no tool can read.", automation.File, automation.Line, SubjectOf(automation)));
             }
         }
     }
 
-    private static bool StructuredSchedule(Record job) =>
-        job.Raw.ValueKind == JsonValueKind.Object
-        && job.Raw.TryGetProperty("schedule", out var schedule)
+    /// <summary>Whether the automation carries a triggeredBy schedule.</summary>
+    private static bool HasTriggeredSchedule(Record automation) =>
+        automation.Raw.ValueKind == JsonValueKind.Object
+        && automation.Raw.TryGetProperty("triggeredBy", out var triggered)
+        && triggered.ValueKind == JsonValueKind.Object
+        && triggered.TryGetProperty("schedule", out _);
+
+    private static bool StructuredSchedule(Record automation) =>
+        automation.Raw.ValueKind == JsonValueKind.Object
+        && automation.Raw.TryGetProperty("triggeredBy", out var triggered)
+        && triggered.ValueKind == JsonValueKind.Object
+        && triggered.TryGetProperty("schedule", out var schedule)
         && schedule.ValueKind == JsonValueKind.Object
         && (Str(schedule, "every") is { Length: > 0 } || Str(schedule, "cron") is { Length: > 0 });
 
@@ -1107,7 +1236,7 @@ static partial class Checker
     /// <summary>
     ///     Whether the use case needs Goal and What Happens prose: it changes more
     ///     than one aggregate, refuses beyond the generic refusals, carries risk,
-    ///     or issues inline effects.
+    ///     or runs inline effects.
     /// </summary>
     private static bool Significant(ProjectModel model, Record useCase)
     {
@@ -1228,15 +1357,27 @@ static partial class Checker
         }
     }
 
-    private static void CheckReactionTrigger(ProjectModel model, List<Finding> findings)
+    private static void CheckAutomationTrigger(ProjectModel model, List<Finding> findings)
     {
-        foreach (var reaction in model.Records.Where(record => record.Type == "reaction"))
+        foreach (var automation in model.Records.Where(record => record.Type == "automation"))
         {
-            var triggers = reaction.Ids("on");
+            var triggers = AutomationEventTriggers(automation);
+            var kind = AutomationTrigger(automation);
+
+            if (kind is null)
+            {
+                findings.Add(new Finding("automation-trigger-unknown", $"Automation '{automation.Id}' names no single trigger.", automation.File, automation.Line, SubjectOf(automation)));
+                continue;
+            }
+
+            if (kind != "event")
+            {
+                continue;
+            }
 
             if (triggers.Count == 0)
             {
-                findings.Add(new Finding("reaction-trigger-unknown", $"Reaction '{reaction.Id}' names no trigger.", reaction.File, reaction.Line, SubjectOf(reaction)));
+                findings.Add(new Finding("automation-trigger-unknown", $"Automation '{automation.Id}' names no trigger.", automation.File, automation.Line, SubjectOf(automation)));
                 continue;
             }
 
@@ -1246,17 +1387,346 @@ static partial class Checker
 
                 if (!model.ById.TryGetValue(baseId, out var resolved))
                 {
-                    findings.Add(new Finding("reaction-trigger-unknown", $"Reaction '{reaction.Id}' names trigger '{trigger}' which no event holds.", reaction.File, reaction.Line, SubjectOf(reaction)));
+                    findings.Add(new Finding("automation-trigger-unknown", $"Automation '{automation.Id}' names trigger '{trigger}' which no event holds.", automation.File, automation.Line, SubjectOf(automation)));
                 }
                 else if (resolved.Type is not ("event" or "integration-event"))
                 {
-                    findings.Add(new Finding("reaction-trigger-unknown", $"Reaction '{reaction.Id}' names trigger '{trigger}' which is a {resolved.Type}.", reaction.File, reaction.Line, SubjectOf(reaction)));
+                    findings.Add(new Finding("automation-trigger-unknown", $"Automation '{automation.Id}' names trigger '{trigger}' which is a {resolved.Type}.", automation.File, automation.Line, SubjectOf(automation)));
                 }
             }
         }
     }
 
-    /// <summary>The record's effect entries: objects in its effects array. A reaction entry without timing reads as async.</summary>
+    /// <summary>Reports a saga step, compensation, exit or driver that names no written record.</summary>
+    private static void CheckSaga(ProjectModel model, List<Finding> findings)
+    {
+        foreach (var aggregate in model.Records.Where(record => record.Type == "aggregate" && record.Field("kind") == "saga"))
+        {
+            foreach (var step in SagaSteps(aggregate))
+            {
+                var id = Str(step, "id") ?? "(no id)";
+
+                if (Str(step, "runs") is { Length: > 0 } runs)
+                {
+                    if (!model.ById.TryGetValue(runs, out var target))
+                    {
+                        findings.Add(new Finding("reference-unknown", $"Aggregate '{aggregate.Id}' runs '{runs}' from step '{id}', which no record holds.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
+                    }
+                    else if (target.Type != "use-case")
+                    {
+                        findings.Add(new Finding("field-invalid", $"Aggregate '{aggregate.Id}' runs '{runs}' from step '{id}', which is a {target.Type}.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
+                    }
+                }
+                else
+                {
+                    findings.Add(new Finding("field-invalid", $"Aggregate '{aggregate.Id}' holds step '{id}' with no runs use case.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
+                }
+
+                if (step.TryGetProperty("compensation", out var compensation))
+                {
+                    CheckSagaCompensation(model, aggregate, id, compensation, findings);
+                }
+                else
+                {
+                    findings.Add(new Finding("field-invalid", $"Aggregate '{aggregate.Id}' holds step '{id}' with no compensation.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
+                }
+            }
+
+            foreach (var exit in SagaExits(aggregate))
+            {
+                if (Str(exit, "name") is not { Length: > 0 })
+                {
+                    findings.Add(new Finding("field-invalid", $"Aggregate '{aggregate.Id}' holds an exit with no name.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
+                }
+            }
+
+            CheckSagaDriver(model, aggregate, findings);
+        }
+    }
+
+    /// <summary>The saga steps: objects in its steps array.</summary>
+    private static IReadOnlyList<JsonElement> SagaSteps(Record aggregate)
+    {
+        if (aggregate.Raw.ValueKind == JsonValueKind.Object
+            && aggregate.Raw.TryGetProperty("steps", out var steps)
+            && steps.ValueKind == JsonValueKind.Array)
+        {
+            return steps.EnumerateArray().Where(entry => entry.ValueKind == JsonValueKind.Object).ToList();
+        }
+
+        return [];
+    }
+
+    /// <summary>The saga exits: objects in its exits array.</summary>
+    private static IReadOnlyList<JsonElement> SagaExits(Record aggregate)
+    {
+        if (aggregate.Raw.ValueKind == JsonValueKind.Object
+            && aggregate.Raw.TryGetProperty("exits", out var exits)
+            && exits.ValueKind == JsonValueKind.Array)
+        {
+            return exits.EnumerateArray().Where(entry => entry.ValueKind == JsonValueKind.Object).ToList();
+        }
+
+        return [];
+    }
+
+    /// <summary>Reports a step compensation outside its none or use-case shape.</summary>
+    private static void CheckSagaCompensation(ProjectModel model, Record aggregate, string id, JsonElement compensation, List<Finding> findings)
+    {
+        if (compensation.ValueKind != JsonValueKind.Object
+            || Str(compensation, "mode") is not { } mode)
+        {
+            findings.Add(new Finding("field-invalid", $"Aggregate '{aggregate.Id}' holds step '{id}' with a compensation naming no mode.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
+            return;
+        }
+
+        if (mode == "none")
+        {
+            if (Str(compensation, "reason") is not { Length: > 0 })
+            {
+                findings.Add(new Finding("field-invalid", $"Aggregate '{aggregate.Id}' holds step '{id}' with a none compensation naming no reason.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
+            }
+
+            return;
+        }
+
+        if (mode == "use-case")
+        {
+            if (Str(compensation, "useCase") is not { Length: > 0 } useCase)
+            {
+                findings.Add(new Finding("field-invalid", $"Aggregate '{aggregate.Id}' holds step '{id}' with a use-case compensation naming no use case.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
+            }
+            else if (!model.ById.TryGetValue(useCase, out var target))
+            {
+                findings.Add(new Finding("reference-unknown", $"Aggregate '{aggregate.Id}' compensates step '{id}' with '{useCase}', which no record holds.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
+            }
+            else if (target.Type != "use-case")
+            {
+                findings.Add(new Finding("field-invalid", $"Aggregate '{aggregate.Id}' compensates step '{id}' with '{useCase}', which is a {target.Type}.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
+            }
+
+            return;
+        }
+
+        findings.Add(new Finding("field-invalid", $"Aggregate '{aggregate.Id}' holds step '{id}' with compensation mode '{mode}' outside none, use-case.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
+    }
+
+    /// <summary>Reports a saga driver naming no automation or no person runbook.</summary>
+    private static void CheckSagaDriver(ProjectModel model, Record aggregate, List<Finding> findings)
+    {
+        if (aggregate.Raw.ValueKind != JsonValueKind.Object
+            || !aggregate.Raw.TryGetProperty("drivenBy", out var driven)
+            || driven.ValueKind != JsonValueKind.Object)
+        {
+            return;
+        }
+
+        var kinds = new List<string>();
+
+        foreach (var kind in new[] { "automation", "person" })
+        {
+            if (driven.TryGetProperty(kind, out var value)
+                && value.ValueKind == JsonValueKind.String
+                && value.GetString() is { Length: > 0 })
+            {
+                kinds.Add(kind);
+            }
+        }
+
+        if (kinds.Count != 1)
+        {
+            findings.Add(new Finding("field-invalid", $"Aggregate '{aggregate.Id}' holds a drivenBy naming no single automation or person.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
+            return;
+        }
+
+        if (kinds[0] == "automation")
+        {
+            var id = driven.GetProperty("automation").GetString()!;
+
+            if (!model.ById.TryGetValue(id, out var target))
+            {
+                findings.Add(new Finding("reference-unknown", $"Aggregate '{aggregate.Id}' is driven by '{id}', which no record holds.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
+            }
+            else if (target.Type != "automation")
+            {
+                findings.Add(new Finding("field-invalid", $"Aggregate '{aggregate.Id}' is driven by '{id}', which is a {target.Type}.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
+            }
+
+            return;
+        }
+
+        if (Str(driven, "runbook") is not { Length: > 0 } runbook)
+        {
+            findings.Add(new Finding("field-invalid", $"Aggregate '{aggregate.Id}' is driven by a person with no runbook.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
+        }
+        else if (!model.ById.TryGetValue(runbook, out var target))
+        {
+            findings.Add(new Finding("reference-unknown", $"Aggregate '{aggregate.Id}' is driven through '{runbook}', which no record holds.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
+        }
+        else if (target.Type != "runbook")
+        {
+            findings.Add(new Finding("field-invalid", $"Aggregate '{aggregate.Id}' is driven through '{runbook}', which is a {target.Type}.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
+        }
+
+        if (Str(driven, "dueWithin") is not { Length: > 0 } within)
+        {
+            findings.Add(new Finding("field-invalid", $"Aggregate '{aggregate.Id}' is driven by a person with no dueWithin.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
+        }
+        else if (!IsoDuration.IsMatch(within))
+        {
+            findings.Add(new Finding("field-invalid", $"Aggregate '{aggregate.Id}' is driven by a person with dueWithin '{within}', which is not an ISO 8601 duration.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
+        }
+    }
+
+    /// <summary>The contract field types a use-case input or payload field may carry.</summary>
+    private static readonly HashSet<string> ContractTypes = new(StringComparer.Ordinal)
+    {
+        "text", "integer", "decimal", "money", "boolean", "date", "date-time", "duration", "email", "choice", "id",
+    };
+
+    /// <summary>Reports a use-case input or integration-event payload field outside its typed shape.</summary>
+    private static void CheckTypedInputs(ProjectModel model, List<Finding> findings)
+    {
+        foreach (var useCase in model.Records.Where(record => record.Type == "use-case"))
+        {
+            CheckContractFields(model, useCase, "input", "Use case", findings);
+        }
+
+        foreach (var integration in model.Records.Where(record => record.Type == "integration-event"))
+        {
+            CheckContractFields(model, integration, "payload", "Integration event", findings);
+
+            if (integration.Raw.ValueKind == JsonValueKind.Object
+                && integration.Raw.TryGetProperty("dataschema", out var schema)
+                && schema.ValueKind == JsonValueKind.String
+                && schema.GetString() is { Length: > 0 } url
+                && !Uri.TryCreate(url, UriKind.Absolute, out _))
+            {
+                findings.Add(new Finding("field-invalid", $"Integration event '{integration.Id}' holds dataschema '{url}', which is no URL.", integration.File, integration.Line, SubjectOf(integration)));
+            }
+        }
+    }
+
+    /// <summary>Reports one contract field holding no type, no required, or a dangling of.</summary>
+    private static void CheckContractFields(ProjectModel model, Record record, string array, string label, List<Finding> findings)
+    {
+        if (record.Raw.ValueKind != JsonValueKind.Object
+            || !record.Raw.TryGetProperty(array, out var fields)
+            || fields.ValueKind != JsonValueKind.Array)
+        {
+            return;
+        }
+
+        foreach (var entry in fields.EnumerateArray())
+        {
+            if (entry.ValueKind != JsonValueKind.Object)
+            {
+                continue;
+            }
+
+            var name = Str(entry, "name") ?? "(no name)";
+            var type = Str(entry, "type");
+
+            if (type is not { Length: > 0 })
+            {
+                findings.Add(new Finding("field-invalid", $"{label} '{record.Id}' holds {array} field '{name}' with no type.", record.File, record.Line, SubjectOf(record)));
+                continue;
+            }
+
+            if (!ContractTypes.Contains(type))
+            {
+                findings.Add(new Finding("field-invalid", $"{label} '{record.Id}' holds {array} field '{name}' with type '{type}' outside {string.Join(", ", ContractTypes.Order(StringComparer.Ordinal))}.", record.File, record.Line, SubjectOf(record)));
+                continue;
+            }
+
+            if (!entry.TryGetProperty("required", out var required)
+                || required.ValueKind is not (JsonValueKind.True or JsonValueKind.False))
+            {
+                findings.Add(new Finding("field-invalid", $"{label} '{record.Id}' holds {array} field '{name}' with no required.", record.File, record.Line, SubjectOf(record)));
+            }
+
+            CheckContractOf(model, record, label, array, name, type, entry, findings);
+        }
+    }
+
+    /// <summary>Reports an of that names no record for an id, or no choices for a choice.</summary>
+    private static void CheckContractOf(ProjectModel model, Record record, string label, string array, string name, string type, JsonElement entry, List<Finding> findings)
+    {
+        var has = entry.TryGetProperty("of", out var of);
+
+        if (type == "id")
+        {
+            if (!has || of.ValueKind != JsonValueKind.String || of.GetString() is not { Length: > 0 } target)
+            {
+                findings.Add(new Finding("field-invalid", $"{label} '{record.Id}' holds {array} field '{name}' of type id with no of record.", record.File, record.Line, SubjectOf(record)));
+                return;
+            }
+
+            if (!model.ById.ContainsKey(Identifiers.BaseId(target)))
+            {
+                findings.Add(new Finding("reference-unknown", $"{label} '{record.Id}' holds {array} field '{name}' of '{target}', which no record holds.", record.File, record.Line, SubjectOf(record)));
+            }
+
+            return;
+        }
+
+        if (type == "choice")
+        {
+            if (!has || of.ValueKind != JsonValueKind.Array || of.GetArrayLength() == 0)
+            {
+                findings.Add(new Finding("field-invalid", $"{label} '{record.Id}' holds {array} field '{name}' of type choice with no of choices.", record.File, record.Line, SubjectOf(record)));
+            }
+
+            return;
+        }
+
+        if (has)
+        {
+            findings.Add(new Finding("field-invalid", $"{label} '{record.Id}' holds {array} field '{name}' of type {type} with an of that only id and choice carry.", record.File, record.Line, SubjectOf(record)));
+        }
+    }
+
+    /// <summary>Reports a scenario exercise naming no rule.</summary>
+    private static void CheckExercises(ProjectModel model, List<Finding> findings)
+    {
+        foreach (var scenario in model.Records.Where(record => record.Type == "scenario"))
+        {
+            foreach (var id in scenario.Ids("exercises").Order(StringComparer.Ordinal))
+            {
+                if (!model.ById.TryGetValue(id, out var target))
+                {
+                    findings.Add(new Finding("reference-unknown", $"Scenario '{scenario.Id}' exercises '{id}', which no record holds.", scenario.File, scenario.Line, SubjectOf(scenario)));
+                }
+                else if (target.Type != "rule")
+                {
+                    findings.Add(new Finding("field-invalid", $"Scenario '{scenario.Id}' exercises '{id}', which is a {target.Type}.", scenario.File, scenario.Line, SubjectOf(scenario)));
+                }
+            }
+        }
+    }
+
+    /// <summary>The door auth values an entry point may state.</summary>
+    private static readonly HashSet<string> DoorAuth = new(StringComparer.Ordinal)
+    {
+        "session", "token", "device", "link", "app", "none",
+    };
+
+    /// <summary>Reports a door stating an auth outside its six values.</summary>
+    private static void CheckDoors(ProjectModel model, List<Finding> findings)
+    {
+        foreach (var point in model.Records.Where(record => record.Type == "entry-point"))
+        {
+            foreach (var auth in point.Ids("auth").Order(StringComparer.Ordinal))
+            {
+                if (!DoorAuth.Contains(auth))
+                {
+                    findings.Add(new Finding("field-invalid", $"Entry point '{point.Id}' holds auth '{auth}' outside {string.Join(", ", DoorAuth)}.", point.File, point.Line, SubjectOf(point)));
+                }
+            }
+        }
+    }
+
+    /// <summary>The record's effect entries: objects in its effects array. An automation entry without timing reads as async.</summary>
     private static IReadOnlyList<JsonElement> EffectEntries(Record record)
     {
         if (record.Raw.ValueKind == JsonValueKind.Object
@@ -1271,7 +1741,7 @@ static partial class Checker
 
     /// <summary>The one target an effect entry names, across its four verbs.</summary>
     private static string? EffectTarget(JsonElement entry) =>
-        (Str(entry, "issues") ?? Str(entry, "sends") ?? Str(entry, "publishes") ?? Str(entry, "calls")) is { Length: > 0 } target
+        (Str(entry, "runs") ?? Str(entry, "sends") ?? Str(entry, "emits") ?? Str(entry, "calls")) is { Length: > 0 } target
             ? target
             : null;
 

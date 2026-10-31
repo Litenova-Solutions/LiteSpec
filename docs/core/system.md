@@ -14,7 +14,7 @@ One person currently operates Litenova Solutions as its technical contributor, s
 
 Agents perform a substantial part of the engineering work. An agent can inspect repositories, propose designs, edit authorized artifacts, run tools, and collect evidence. An agent never owns unresolved product policy, legal judgment, financial decisions, or risk acceptance; those stay with accountable people.
 
-Because agents do so much execution, the system defines its technical concepts exactly. An agent tells a module from an aggregate, a journey from a reaction, and an approved record from a claim the implementation makes about itself.
+Because agents do so much execution, the system defines its technical concepts exactly. An agent tells a module from an aggregate, a journey from an automation, and an approved record from a claim the implementation makes about itself.
 
 ### Why the System Exists
 
@@ -48,7 +48,7 @@ The system holds one delivery approach and one operating model:
 
 ### What the System Combines
 
-The system combines product intent, domain behavior, access control, operations, and project upkeep into one specification that joins intent to code. The [intent page](intent.md) states goals, problems, features, constraints, research, decisions, requirements, and journeys. The [behavior page](behavior.md) states the bounded context, the glossary, modules, aggregates, rules, events, use cases, results, scenarios, reactions, jobs, notifications, and settings. The [access page](access.md) states actors, roles, permissions, entry points, and external systems. The [layers page](layers.md) states how each record layer is written from the one above it, and the [model page](model.md) states records, identifiers, links, authority, authoring order, verification, and the builder that computes how intent connects to code.
+The system combines product intent, domain behavior, access control, operations, and project upkeep into one specification that joins intent to code. The [intent page](intent.md) states goals, problems, features, constraints, research, decisions, requirements, and journeys. The [behavior page](behavior.md) states the bounded context, the glossary, modules, aggregates, rules, events, use cases, results, scenarios, automations, notifications, and settings. The [access page](access.md) states actors, roles, permissions, entry points, and external systems. The [layers page](layers.md) states how each record layer is written from the one above it, and the [model page](model.md) states records, identifiers, links, authority, authoring order, verification, and the builder that computes how intent connects to code.
 
 Each page owns its tables and rules, and this page cites them without copying. A reader who needs a record type, a link field, or the authority order opens the owning page.
 
@@ -82,7 +82,7 @@ Each page owns its tables and rules, and this page cites them without copying. A
 
 **Rationale:** The mark is the one link from Implementation to Behavior and from Proof to the scenario it proves. A folder or a type name only resembles the record, and a resemblance drifts with the next rename; a mark holds the identifier, so the checks, the analyzers and the editor follow the same link without guessing. One record per handler keeps each file answerable to one use case. Nothing above Implementation is computed from code, so the link points up and the records stay the authority.
 
-**Example:** The reimburse-expense handler carries a mark naming `use-case/spending.reimburse-expense`, the `Reimburse` method on the expense root carries the same mark, and the reminder event handler carries a mark naming `reaction/spending.send-approver-reminders-on-expense-submitted`.
+**Example:** The reimburse-expense handler carries a mark naming `use-case/spending.reimburse-expense`, the `Reimburse` method on the expense root carries the same mark, and the reminder event handler carries a mark naming `automation/spending.send-approver-reminder-on-expense-submitted`.
 
 **Checked by:** `litespec model check` reports `mark-missing`, `mark-unknown` and `mark-count-invalid` (check level S) for a code element with no mark, a mark naming no record of the type its element takes, or a handler marking other than one record.
 
@@ -102,11 +102,11 @@ Each page owns its tables and rules, and this page cites them without copying. A
 
 **ID:** `litespec/core/system#declare-every-edge-between-records`
 
-**Statement:** Every edge between use cases, reactions, jobs, notifications, integration events, and external systems MUST be declared in a record and checked.
+**Statement:** Every edge between use cases, automations, notifications, integration events, and external systems MUST be declared in a record and checked.
 
 **Rationale:** The declared edges form the effect graph the checks verify: an undeclared edge is the defect, not the mechanism that carries it. The graph holds no cycles except through domain events with a stated end condition. An inline edge states whether it shares the caller's transaction, and atomic consistency spans no async edge. The [behavior page](behavior.md) states the edge fields, and the [layers page](layers.md) states how Implementation is checked against them.
 
-**Checked by:** `litespec model check` emits no `effect-undeclared` or `effect-loop-invalid` finding across use cases, reactions, jobs, notifications, and integration events, and reports `effect-unimplemented` (check level A) for a declared edge no code takes.
+**Checked by:** `litespec model check` emits no `effect-undeclared` or `effect-loop-invalid` finding across use cases, automations, notifications, and integration events, and reports `effect-unimplemented` (check level A) for a declared edge no code takes.
 
 ### Deliver One Complete Use Case
 
@@ -252,13 +252,13 @@ Create an optional directory only when its first real artifact exists. Never cre
 
 **ID:** `litespec/core/system#use-established-technical-terms`
 
-**Default:** Use aggregate, command, query, reaction, repository, projection, outbox, idempotency, and transaction with their accepted technical meanings.
+**Default:** Use aggregate, command, query, automation, repository, projection, outbox, idempotency, and transaction with their accepted technical meanings.
 
 **Replacement:** A consumer names its own technical vocabulary in its documentation.
 
-**Rationale:** Names such as aggregate, command, query, reaction, repository, projection, outbox, idempotency, and transaction carry established meanings that developers and agents already share. Replacing one with a softer synonym hides the pattern and forces every reader to guess what the new word covers. When a term is unfamiliar, explain it and give an example instead of renaming it.
+**Rationale:** Names such as aggregate, command, query, automation, repository, projection, outbox, idempotency, and transaction carry established meanings that developers and agents already share. Replacing one with a softer synonym hides the pattern and forces every reader to guess what the new word covers. When a term is unfamiliar, explain it and give an example instead of renaming it.
 
-**Reviewed for:** Prose using aggregate, command, query, reaction, repository, projection, outbox, idempotency, and transaction with their accepted meanings.
+**Reviewed for:** Prose using aggregate, command, query, automation, repository, projection, outbox, idempotency, and transaction with their accepted meanings.
 
 ### Use Ordinary Capitalization in Prose
 

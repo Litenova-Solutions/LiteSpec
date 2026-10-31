@@ -303,3 +303,45 @@ A scenario may name the rules it shows in `exercises`; a use case may hold `back
 - The Links table on `docs/core/model.md` gains rows for the nested link fields `compensation.useCase`, `freshness.authority`, `erasure.operation` and `erasure.event`, and `RecordTypes.cs` lists them as link targets.
 - The aggregate template wraps its Transitions and Data tables in `<!-- generated:transitions -->` and `<!-- generated:data -->` fences, and the retention schedule template carries a `<!-- generated:retention-schedule -->` fence.
 - `docs/tools/consumer.md` states that every consumer finding carries its level.
+
+## Wave 7: Proof and Governance (Parts K and L)
+
+### Exception (D26, GP2)
+
+One record type `exception` replaces `deviation`, `known-gap`, the project setting `deferredProvisions` and `check.phase: frozen`. Identifier `exception/<name>`, a noun phrase of what it allows; home `docs/governance/exceptions/<name>.md` (the `deviations/` and `known-gaps/` folders go).
+
+| Field | Shape |
+|:---|:---|
+| `kind` | `departure` (the project follows another rule than a LiteSpec provision) or `gap` (a check stays red until a date) |
+| `covers` | a provision ID (a departure) or a list of finding codes (a gap) |
+| `subject` or `paths` | the record ids, or the path globs, the exception covers; one of the two is required |
+| `reason` | a clause completing "because ..." |
+| `owner`, `status`, `expiresOn` | the common owner and status; the date the exception lapses |
+
+An exception suppresses only the findings it covers, on its subject or paths, and only once `status` is `approved`; one person may approve it. A departure covers the finding codes its provision's Checked by line names.
+
+Finding codes: `known-gap-expired` becomes `exception-expired` (G, the day after `expiresOn`); `gap-finding-unknown` becomes `exception-finding-unknown` (G). `exemption-expired` (erasure exemptions) stays.
+
+### Proof (D35 to D38, PP1 to PP8)
+
+- `docs/proof/proofs.json` is committed: for each scenario, the hash of the scenario and of its test body at the last passing run. A proof is stale when either changes. `.model/proofs.json` goes.
+- New code `use-case-unverified` (A by default): a use case whose scenarios are not all proved. `litespec model check --release` makes it, and every other release-readiness finding (an unanswered question on a tier 1 record), block. `litespec model check --since <ref>` blocks only on findings about records and code changed since `<ref>` and reports the rest.
+- The four proof words (verified, met, tested, exercised) are defined in one table on `docs/core/model.md`; "tested" needs a passing test that asserts something.
+- The book renders `model.json` only; any judgement it computes today moves to the builder.
+- A test that both passed and failed within the runs read is `proof-invalid` (A).
+
+### Governance (D25, D46, GP1, GP3, GP4, GP5)
+
+- Approval stays loose, and every page says so: an agent's reading counts as the tier 1 second reading; a project whose owners list holds one name needs no second reviewer; `review.securityReviewer` is optional and the security queue is a list to read.
+- The risk value `door` becomes `physical-access`; each risk value and "task authorizer" is defined in the glossary; governance is a group of records beside the four layers.
+- An agent skips the model query only when the change touches no record with `risk` or an approval.
+
+## Wave 8: Implementation (Part J)
+
+- **Mark style per language (J3, IP3):** C# marks use the project's `xml` or `attribute` style; TypeScript uses the typed constant; YAML and other operations files use the comment. One shared parser reads all three, the reader records the style it saw, and `mark-style-invalid` compares styles within one language only.
+- **Mark and folder (J4, IP4):** a backend element whose mark names a use case, automation or aggregate outside the module and folder it sits in is `mark-folder-drift` (S).
+- **By symbol (J5, IP5):** marks are read through the semantic model (the generated mark attribute by its full name, a handler by the interface it implements); a public state-changing method on an aggregate root needs a `use-case` mark even when it raises no event (`mark-missing`).
+- **Provision identity (J6, IP6, D42):** the `**ID:**` line is a provision's identity; the heading may change without changing it. `litespec-maintain validate` reports a duplicate ID, and an ID present at the highest release tag that is gone now and not listed in the `## v3.0.0` section of `CHANGELOG.md` under "Removed and Renamed Provisions" (old ID, then the new ID or "removed").
+- **Size-aware Defaults (J7, IP7):** the five application projects, property tests, model-based tests and the mutation threshold become a Default and Replacement by size as IP7's table states; an equivalent mutant is recorded in an `exception` of kind `gap` covering the mutation finding.
+- **Honest enforcement (J8, IP8):** every Statement carries Checked by naming an existing finding code, command or shipped file, or Reviewed for as a question; `litespec-maintain validate` reports a Checked by line naming a code, command or file that does not exist (`CHECKED_BY_UNKNOWN`).
+- **One page (J9, IP9):** `docs/backend/write-code-for-a-use-case.md`, title "Write Code for a Use Case", holds the element table (where each element goes, the mark it carries, what checks it); the mark rules keep their one home on `docs/core/model.md`, and `system.md` and the stack pages link to both.

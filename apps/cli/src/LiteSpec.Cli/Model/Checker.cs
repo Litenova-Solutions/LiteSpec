@@ -15,7 +15,7 @@ static partial class Checker
     public static readonly HashSet<string> Codes = new(StringComparer.Ordinal)
     {
         "record-invalid", "field-invalid", "identifier-invalid", "identifier-duplicate",
-        "use-case-name-clash", "use-case-verb-unknown", "term-clash", "statement-word-invalid", "value-invalid", "use-case-noun-unknown", "refusal-code-invalid", "template-key-invalid", "setting-unit-missing", "integration-event-name-invalid", "use-case-verb-invalid", "reaction-name-invalid", "job-name-invalid", "reference-unknown", "approval-invalid",
+        "use-case-name-clash", "use-case-verb-unknown", "term-clash", "statement-word-invalid", "value-invalid", "use-case-noun-unknown", "refusal-code-invalid", "template-key-invalid", "setting-unit-missing", "integration-event-name-invalid", "use-case-verb-invalid", "automation-name-invalid", "reference-unknown", "approval-invalid",
         "owner-unknown", "decider-missing", "known-gap-expired", "gap-finding-unknown",
         "rule-name-invalid", "use-case-success-missing", "scenario-result-unknown",
         "refusal-unimplemented", "use-case-unimplemented", "proves-unreached",
@@ -26,11 +26,11 @@ static partial class Checker
         "aggregate-name-clash", "decision-decides-missing", "decision-unimplemented", "decision-basis-missing", "link-unknown", "operation-use-case-drift", "constituent-parent-missing", "alert-link-missing", "alert-threshold-drift", "quality-alert-missing", "setting-key-missing", "setting-unimplemented", "setting-key-drift", "template-unimplemented", "template-unrecorded", "template-param-drift", "dependency-undeclared", "dependency-version-drift", "dependency-license-unknown", "admission-invalid", "screen-unimplemented", "screen-offers-drift", "screen-serves-drift", "step-screen-missing", "refusal-sentence-missing", "reader-missing", "proves-duplicate",
         "behavior-unrecorded", "mark-missing", "mark-unknown", "mark-count-invalid", "mark-style-invalid",
         "runtime-value-drift", "partial-missing", "act-event-undeclared", "act-event-unimplemented", "use-case-act-missing",
-        "aggregate-unimplemented", "reaction-unimplemented", "job-unimplemented",
+        "aggregate-unimplemented", "automation-unimplemented",
         "external-system-unimplemented", "use-case-endpoint-missing", "effect-unimplemented", "use-case-unreached",
         "state-unreached", "transition-unknown",
         "erasure-undeclared", "calculation-table-missing", "table-drift",
-        "reaction-trigger-unknown", "requirement-measure-missing",
+        "automation-trigger-unknown", "requirement-measure-missing",
         "record-link-missing", "record-parent-missing", "feature-goal-missing", "result-scenario-missing", "step-use-case-missing", "effect-loop-invalid", "consistency-cites-missing",
         "query-output-missing", "paging-undeclared", "widening-cites-missing",
         "retention-enforcement-missing", "risk-acceptance-missing", "exemption-expired",
@@ -38,7 +38,7 @@ static partial class Checker
         "notification-sender-missing", "except-fallback-missing", "approval-reopened",
         "parent-reopened",
         "transcription-status-invalid", "transcription-expired",
-        "job-guard-missing", "schedule-invalid",
+        "automation-guard-missing", "schedule-invalid", "atomic-group-drift", "atomic-group-invalid",
         "write-undeclared", "result-undeclared", "effect-undeclared", "repository-unimplemented",
         "use-case-method-drift", "event-tense-invalid", "name-drift", "operation-id-duplicate", "route-invalid",
         "name-reason-missing", "collaborator-repository-invalid", "repository-read-invalid",
@@ -46,7 +46,7 @@ static partial class Checker
         "prose-missing", "atomic-group-duplicate", "question-expired",
     };
 
-    /// <summary>Requirement kinds that code makes true, so some rule, use case, reaction, job, notification or setting fulfills them.</summary>
+    /// <summary>Requirement kinds that code makes true, so some rule, use case, automation, notification or setting fulfills them.</summary>
     private static readonly HashSet<string> FulfilledKinds = new(StringComparer.Ordinal)
     {
         "functional", "quality", "policy",
@@ -74,7 +74,7 @@ static partial class Checker
         Time("schema", () => CheckSchema(model, findings, owners));
         Time("identifiers", () => CheckIdentifiers(model, findings));
         Time("verbs", () => CheckUseCaseVerb(model, findings));
-        Time("names", () => CheckReactionAndJobNames(model, findings));
+        Time("names", () => CheckAutomationNames(model, findings));
         Time("lookalikes", () => CheckTermLookalikes(model, findings));
         Time("wording", () => CheckStatementWording(model, findings));
         Time("language", () => CheckLanguage(model, findings));
@@ -105,7 +105,7 @@ static partial class Checker
         Time("exemption", () => CheckExemption(model, findings));
         Time("calculations", () => CheckCalculations(model, findings));
         Time("tables", () => CheckTableDrift(model, findings));
-        Time("reactions", () => CheckReactionTrigger(model, findings));
+        Time("automation", () => CheckAutomationTrigger(model, findings));
         Time("measured", () => CheckMeasured(model, findings));
         Time("questions", () => CheckQuestions(model, findings));
         Time("aged", () => CheckQuestionAged(model, findings));
@@ -124,10 +124,16 @@ static partial class Checker
         Time("except", () => CheckExceptFallback(model, findings));
         Time("approval", () => CheckApproval(model, findings));
         Time("transcribed", () => CheckTranscribed(model, findings));
-        Time("operator", () => CheckOperatorJob(model, findings));
+        Time("automation-guard", () => CheckAutomationGuard(model, findings));
         Time("schedule", () => CheckSchedule(model, findings));
         Time("prose", () => CheckProse(model, findings));
         Time("groups", () => CheckManyAggregates(model, findings));
+        Time("atomic-drift", () => CheckAtomicGroupDrift(model, findings));
+        Time("atomic-invalid", () => CheckAtomicGroupInvalid(model, findings));
+        Time("saga", () => CheckSaga(model, findings));
+        Time("typed-inputs", () => CheckTypedInputs(model, findings));
+        Time("exercises", () => CheckExercises(model, findings));
+        Time("doors", () => CheckDoors(model, findings));
 
         findings.Sort((left, right) =>
         {
@@ -491,12 +497,31 @@ static partial class Checker
                     RequireStateEntries(record, findings);
                 }
 
+                // A saga coordinates steps on other aggregates, with its exits and driver.
+                if (record.Field("kind") == "saga")
+                {
+                    RequireArray(record, "steps", 1, findings);
+                    RequireArray(record, "exits", 1, findings);
+
+                    if (!record.Has("drivenBy"))
+                    {
+                        findings.Add(new Finding("record-invalid", $"Aggregate '{record.Id}' is a saga with no drivenBy.", record.File, record.Line, SubjectOf(record)));
+                    }
+                }
+
                 break;
 
             case "rule":
                 RequireEnum(record, "kind", ["invariant", "precondition", "calculation", "cross-aggregate", "atomicity", "reservation", "commercial-data", "default"], findings);
                 RequireString(record, "statement", findings);
                 RequireIds(record, "governs", 1, findings);
+
+                // An atomicity rule names the aggregates it binds, so the use case's changes can equal them.
+                if (record.Field("kind") == "atomicity")
+                {
+                    RequireIds(record, "binds", 1, findings);
+                }
+
                 break;
 
             case "use-case":
@@ -510,15 +535,9 @@ static partial class Checker
                 CheckEffectFailurePolicy(record, findings);
                 break;
 
-            case "reaction":
-                CheckLegacyEdges(record, ["issues", "sends"], findings);
+            case "automation":
+                CheckLegacyEdges(record, ["runs", "sends", "emits", "calls"], findings);
                 RequireArray(record, "effects", 1, findings);
-                CheckIdempotency(record, findings);
-                CheckFailurePolicy(record, findings);
-                break;
-
-            case "job":
-                CheckLegacyEdges(record, ["issues"], findings);
                 CheckIdempotency(record, findings);
                 CheckFailurePolicy(record, findings);
                 break;
@@ -563,7 +582,7 @@ static partial class Checker
                 break;
 
             case "entry-point":
-                RequireEnum(record, "kind", ["browser", "api", "webhook", "device", "cli", "mcp", "served-content", "reaction", "job"], findings);
+                RequireEnum(record, "kind", ["browser", "api", "webhook", "device", "cli", "mcp", "served-content"], findings);
                 break;
 
             case "screen":
@@ -901,9 +920,9 @@ static partial class Checker
         }
     }
 
-    private static void CheckReactionAndJobNames(ProjectModel model, List<Finding> findings)
+    private static void CheckAutomationNames(ProjectModel model, List<Finding> findings)
     {
-        foreach (var record in model.Records.Where(record => record.Type is "reaction" or "job"))
+        foreach (var record in model.Records.Where(record => record.Type == "automation"))
         {
             if (!Identifiers.TrySplit(record.Id, out _, out _, out var name) || name is null)
             {
@@ -912,28 +931,54 @@ static partial class Checker
 
             var verb = UseCaseVerbs.VerbOf(name, model.Config.PhrasalVerbs);
 
-            if (record.Type == "reaction")
+            if (AutomationTrigger(record) == "event")
             {
                 // <verb>-<what>-on-<fact>: what it does, then the fact it answers.
                 if (!Declares(model.Config, verb) || !name.Contains("-on-", StringComparison.Ordinal))
                 {
-                    findings.Add(new Finding("reaction-name-invalid", $"Reaction '{record.Id}' is not named <verb>-<what>-on-<fact> with a declared verb.", record.File, record.Line, SubjectOf(record)));
+                    findings.Add(new Finding("automation-name-invalid", $"Automation '{record.Id}' is not named <verb>-<what>-on-<fact> with a declared verb.", record.File, record.Line, SubjectOf(record)));
                 }
 
                 continue;
             }
 
-            // A job carries the verb of the command it issues.
-            var issued = record.EdgeIds("issues")
-                               .Where(id => Identifiers.TrySplit(id, out _, out _, out var target) && target is not null)
-                               .Select(id => { Identifiers.TrySplit(id, out _, out _, out var target); return UseCaseVerbs.VerbOf(target!, model.Config.PhrasalVerbs); })
-                               .ToList();
+            // A scheduled or manual automation carries the verb of the use case it runs.
+            var runs = record.EdgeIds("runs")
+                             .Where(id => Identifiers.TrySplit(id, out _, out _, out var target) && target is not null)
+                             .Select(id => { Identifiers.TrySplit(id, out _, out _, out var target); return UseCaseVerbs.VerbOf(target!, model.Config.PhrasalVerbs); })
+                             .ToList();
 
-            if (issued.Count > 0 && !issued.Contains(verb, StringComparer.Ordinal))
+            if (runs.Count > 0 && !runs.Contains(verb, StringComparer.Ordinal))
             {
-                findings.Add(new Finding("job-name-invalid", $"Job '{record.Id}' starts with '{verb}' but issues '{string.Join("', '", issued.Distinct())}'.", record.File, record.Line, SubjectOf(record)));
+                findings.Add(new Finding("automation-name-invalid", $"Automation '{record.Id}' starts with '{verb}' but runs '{string.Join("', '", runs.Distinct())}'.", record.File, record.Line, SubjectOf(record)));
             }
         }
+    }
+
+    /// <summary>The automation trigger: event, schedule or manual, or null when it names none or more than one.</summary>
+    private static string? AutomationTrigger(Record record)
+    {
+        if (record.Raw.ValueKind != JsonValueKind.Object
+            || !record.Raw.TryGetProperty("triggeredBy", out var triggered)
+            || triggered.ValueKind != JsonValueKind.Object)
+        {
+            return null;
+        }
+
+        var kinds = new List<string>();
+
+        foreach (var kind in new[] { "event", "schedule", "manual" })
+        {
+            if (triggered.TryGetProperty(kind, out var value)
+                && value.ValueKind is not (JsonValueKind.Null or JsonValueKind.Undefined)
+                && (value.ValueKind != JsonValueKind.String || value.GetString() is { Length: > 0 })
+                && (value.ValueKind != JsonValueKind.False))
+            {
+                kinds.Add(kind);
+            }
+        }
+
+        return kinds.Count == 1 ? kinds[0] : null;
     }
 
     /// <summary>Whether the baseline or the project declares the verb.</summary>
@@ -1288,7 +1333,7 @@ static partial class Checker
 
             if (model.Status.TryGetValue(useCase.Id, out var status) && !status.Implemented)
             {
-                findings.Add(new Finding("use-case-unimplemented", $"Use case '{useCase.Id}' has no handler, reaction or job.", useCase.File, useCase.Line, SubjectOf(useCase)));
+                findings.Add(new Finding("use-case-unimplemented", $"Use case '{useCase.Id}' has no handler or automation.", useCase.File, useCase.Line, SubjectOf(useCase)));
             }
         }
 
@@ -1353,19 +1398,19 @@ static partial class Checker
         || claim.StartsWith("rule/", StringComparison.Ordinal);
 
     /// <summary>
-    ///     Whether the scenario ends where it may: a reaction scenario in a result of
-    ///     the use case its reaction issues, any other scenario in a result of its own
+    ///     Whether the scenario ends where it may: an automation scenario in a result of
+    ///     the use case its automation runs, any other scenario in a result of its own
     ///     use case, written or derived, both named result/<use-case>.<name>.
     /// </summary>
     private static bool ResultBelongsToScenario(ProjectModel model, Record scenario, Record result)
     {
         if (scenario.PageId is not null
             && model.ById.TryGetValue(scenario.PageId, out var page)
-            && page.Type == "reaction"
-            && page.EdgeIds("issues").FirstOrDefault() is { } issued
-            && model.ById.TryGetValue(issued, out var target)
+            && page.Type == "automation"
+            && page.EdgeIds("runs").FirstOrDefault() is { } runs
+            && model.ById.TryGetValue(runs, out var target)
             && target.Type == "use-case"
-            && Identifiers.TrySplit(issued, out _, out _, out var operation))
+            && Identifiers.TrySplit(runs, out _, out _, out var operation))
         {
             return Identifiers.TrySplit(result.Id, out _, out var home, out _)
                 && home == operation;
@@ -2158,7 +2203,7 @@ static partial class Checker
     }
 
     /// <summary>
-    ///     Flags the retired top-level edge fields on a reaction or job: edges live in
+    ///     Flags the retired top-level edge fields on an automation: edges live in
     ///     the effects array, under one grammar for every record that has edges.
     /// </summary>
     private static void CheckLegacyEdges(Record record, string[] fields, List<Finding> findings)
@@ -2224,9 +2269,9 @@ static partial class Checker
             return;
         }
 
-        // A reaction or a job takes no input: its key names fields of the triggering
+        // An automation takes no input: its key names fields of the triggering
         // event or the run window, which the record does not list.
-        if (record.Type is "reaction" or "job")
+        if (record.Type == "automation")
         {
             return;
         }
@@ -2267,8 +2312,8 @@ static partial class Checker
         RegexOptions.CultureInvariant);
 
     /// <summary>
-    ///     The reaction or job failure handling: a mode object naming retry with its
-    ///     attempts and backoff, or skip-and-log, or discard. Prose and malformed values report.
+    ///     The automation failure handling: a mode object naming retry with its
+    ///     attempts and delays, or skip-and-log, or discard. Prose and malformed values report.
     /// </summary>
     private static void CheckFailurePolicy(Record record, List<Finding> findings)
     {
@@ -2293,7 +2338,7 @@ static partial class Checker
         }
     }
 
-    /// <summary>The failure mode object: retry with attempts, an ISO 8601 backoff and dead-letter, or a terminal mode.</summary>
+    /// <summary>The failure mode object: retry with attempts, delays and dead-letter, or a terminal mode.</summary>
     private static void CheckOnFailureObject(Record record, JsonElement policy, string where, List<Finding> findings)
     {
         if (policy.ValueKind == JsonValueKind.String)
@@ -2348,7 +2393,7 @@ static partial class Checker
         }
     }
 
-    /// <summary>The retry object: positive attempts and an ISO 8601 backoff.</summary>
+    /// <summary>The retry object: positive attempts, ISO 8601 delays and a backoff of exponential or fixed.</summary>
     private static void CheckRetryObject(Record record, JsonElement retry, string where, List<Finding> findings)
     {
         if (!retry.TryGetProperty("maxAttempts", out var attempts)
@@ -2359,7 +2404,19 @@ static partial class Checker
             findings.Add(new Finding("record-invalid", $"Record '{record.Id}' holds {where} retry with no positive maxAttempts.", record.File, record.Line, SubjectOf(record)));
         }
 
-        CheckPolicyDuration(record, retry, "backoff", $"{where} retry backoff", findings);
+        CheckPolicyDuration(record, retry, "initialDelay", $"{where} retry initialDelay", findings);
+        CheckPolicyDuration(record, retry, "maxDelay", $"{where} retry maxDelay", findings);
+
+        if (!retry.TryGetProperty("backoff", out var backoff)
+            || backoff.ValueKind != JsonValueKind.String
+            || backoff.GetString() is not { } shape)
+        {
+            findings.Add(new Finding("record-invalid", $"Record '{record.Id}' holds {where} retry with no backoff.", record.File, record.Line, SubjectOf(record)));
+        }
+        else if (shape is not ("exponential" or "fixed"))
+        {
+            findings.Add(new Finding("record-invalid", $"Record '{record.Id}' holds {where} retry backoff '{shape}' outside exponential, fixed.", record.File, record.Line, SubjectOf(record)));
+        }
     }
 
     /// <summary>One ISO 8601 duration inside the failure policy: missing or malformed reports.</summary>

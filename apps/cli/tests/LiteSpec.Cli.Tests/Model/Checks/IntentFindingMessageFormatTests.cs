@@ -75,10 +75,10 @@ public sealed class IntentFindingMessageFormatTests
             TestModel.Record("feature", "feature/hold-requests", Path.Combine(root, "holds.md"), """{"status": "approved", "lifecycle": "planned", "plannedFor": "Pilot launch", "solves": ["problem/hold-delays"], "serves": ["goal/faster-checkout"]}"""),
             TestModel.Record("journey", "journey/borrow-and-return", Path.Combine(root, "borrow.md"), """{"actor": ["actor/reader"], "steps": [{"id": "s1", "statement": "The reader borrows the copy."}]}"""),
             TestModel.Record("use-case", "use-case/lending.fetch-volume", Path.Combine(root, "fetch.md"), """{"kind": "command"}"""),
-            TestModel.Record("reaction", "reaction/lending.notify-borrower", Path.Combine(root, "notify.md"), """{"effects": [{"sends": "notification/lending.loan-due"}]}"""),
+            TestModel.Record("automation", "automation/lending.notify-borrower", Path.Combine(root, "notify.md"), """{"triggeredBy": {"event": "event/loan.loan-borrowed"}, "effects": [{"sends": "notification/lending.loan-due"}]}"""),
             TestModel.Record("rule", "rule/lending.handle-renewal", Path.Combine(root, "rules.md"), """{"kind": "calculation", "statement": "The clerk handles the renewal.", "governs": []}"""),
             TestModel.Record("notification", "notification/test.send-soldout-notice", Path.Combine(root, "soldout.md"), """{"template": "soldout"}"""),
-            TestModel.Record("reaction", "reaction/test.send-sold-out-notice-on-sale-ended", Path.Combine(root, "sold-out.md"), """{"on": ["event/sale.sale-ended"]}"""),
+            TestModel.Record("automation", "automation/test.send-sold-out-notice-on-sale-ended", Path.Combine(root, "sold-out.md"), """{"triggeredBy": {"event": "event/sale.sale-ended"}}"""),
             TestModel.Record("actor", "actor/reader", Path.Combine(root, "reader.md"), """{"status": "approved", "kind": "person", "questions": [{"question": "May a junior reader place holds?", "decideBy": "2020-01-01", "ballot": "junior-holds"}]}"""));
     }
 }

@@ -99,7 +99,7 @@ Every rule inherits `LayerAnalyzer`, so every rule follows the same path through
 | `LS2003` | `ControllerAnalyzer` | WebApi |
 | `LS2005` | `HandlerNamingAnalyzer` | Application, Infrastructure, Worker |
 | `LS2006` | `EndpointNamingAnalyzer` | WebApi |
-| `LS2007` | `ReactionNamingAnalyzer` | Application, Infrastructure, Worker |
+| `LS2007` | `AutomationNamingAnalyzer` | Application, Infrastructure, Worker |
 | `LS2008` | `EventHandlerFolderAnalyzer` | Application, Infrastructure, Worker |
 | `LS2009` | `ResultPartNamingAnalyzer` | Application, Infrastructure, Worker |
 | `LS2010` | `RepositoryVariableNamingAnalyzer` | Application, Infrastructure, Worker |

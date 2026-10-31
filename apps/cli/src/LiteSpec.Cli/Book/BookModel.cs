@@ -197,7 +197,7 @@ static class BookModel
         new("Problems and Features", ["problem", "feature"]),
         new("People", ["actor", "role", "permission"]),
         new("Journeys", ["journey"]),
-        new("How the Business Works", ["module", "aggregate", "rule", "use-case", "result", "scenario", "event", "integration-event", "reaction", "job", "notification", "setting"]),
+        new("How the Business Works", ["module", "aggregate", "rule", "use-case", "result", "scenario", "event", "integration-event", "automation", "notification", "setting"]),
         new("Entry Points", ["entry-point", "external-system"]),
         new("Running It", ["runbook"]),
         new("How We Build", ["deviation", "known-gap"]),
@@ -228,8 +228,7 @@ static class BookModel
             ["scenario"] = ("Scenario", "Scenarios"),
             ["event"] = ("Event", "Events"),
             ["integration-event"] = ("Integration event", "Integration events"),
-            ["reaction"] = ("Reaction", "Reactions"),
-            ["job"] = ("Job", "Jobs"),
+            ["automation"] = ("Automation", "Automations"),
             ["notification"] = ("Notification", "Notifications"),
             ["setting"] = ("Setting", "Settings"),
             ["entry-point"] = ("Entry point", "Entry points"),
@@ -256,11 +255,13 @@ static class BookModel
         ("governs", "Governs"),
         ("computedBy", "Computed By"),
         ("raises", "Raises"),
-        ("on", "On"),
-        ("issues", "Issues"),
+        ("triggeredBy", "Triggered By"),
+        ("runs", "Runs"),
         ("sends", "Sends"),
-        ("publishes", "Publishes"),
+        ("emits", "Emits"),
         ("calls", "Calls"),
+        ("binds", "Binds"),
+        ("exercises", "Exercises"),
         ("changes", "Changes"),
         ("reads", "Reads"),
         ("translates", "Translates"),
@@ -294,11 +295,13 @@ static class BookModel
             ["governs"] = "Governed By",
             ["computedBy"] = "Computes",
             ["raises"] = "Raised By",
-            ["on"] = "Reactions",
-            ["issues"] = "Issued By",
+            ["triggeredBy"] = "Triggered By",
+            ["runs"] = "Run By",
             ["sends"] = "Sent By",
-            ["publishes"] = "Published By",
+            ["emits"] = "Emitted By",
             ["calls"] = "Called By",
+            ["binds"] = "Bound By",
+            ["exercises"] = "Exercised By",
             ["effects"] = "Effect For",
             ["changes"] = "Changed By",
             ["reads"] = "Read By",
@@ -1307,7 +1310,7 @@ static class BookModel
             .ToList();
     }
 
-    /// <summary>Every record serving one journey step id, of any type: use cases, reactions, jobs, screens and the rest.</summary>
+    /// <summary>Every record serving one journey step id, of any type: use cases, automations, screens and the rest.</summary>
     public static IReadOnlyList<JsonObject> ServingRecords(BookIndex index, string stepId)
     {
         var serving = new List<JsonObject>();

@@ -13,14 +13,14 @@ public sealed class MarkRulesTests
     [InlineData(CodeKind.DomainEvent, "event")]
     [InlineData(CodeKind.RuleException, "rule")]
     [InlineData(CodeKind.Handler, "use-case")]
-    [InlineData(CodeKind.EventHandler, "reaction")]
-    [InlineData(CodeKind.Job, "job")]
+    [InlineData(CodeKind.EventHandler, "automation")]
+    [InlineData(CodeKind.Job, "automation")]
     [InlineData(CodeKind.Port, "external-system")]
     [InlineData(CodeKind.Adapter, "external-system")]
     [InlineData(CodeKind.Endpoint, "use-case")]
     [InlineData(CodeKind.FrontendModule, "use-case")]
     [InlineData(CodeKind.Test, "scenario,rule,requirement,decision,external-system,integration-event,litespec")]
-    [InlineData(CodeKind.Technical, "aggregate,use-case,reaction,job,external-system,event,rule,notification,setting,integration-event")]
+    [InlineData(CodeKind.Technical, "aggregate,use-case,automation,external-system,event,rule,notification,setting,integration-event")]
     public void RecordTypesNamesExpectedTypes(CodeKind kind, string expected)
     {
         var types = MarkRules.RecordTypes(kind);
@@ -85,8 +85,9 @@ public sealed class MarkRulesTests
         Assert.False(MarkRules.Accepts(CodeKind.Test, "use-case/spending.submit-expense"));
         Assert.True(MarkRules.Accepts(CodeKind.Technical, "aggregate/spending.expense"));
         Assert.True(MarkRules.Accepts(CodeKind.Technical, "use-case/spending.submit-expense"));
-        Assert.True(MarkRules.Accepts(CodeKind.Technical, "reaction/spending.remind-approver"));
-        Assert.True(MarkRules.Accepts(CodeKind.Technical, "job/spending.remind-approvers"));
+        Assert.True(MarkRules.Accepts(CodeKind.EventHandler, "automation/spending.remind-approver"));
+        Assert.True(MarkRules.Accepts(CodeKind.Job, "automation/spending.remind-approvers"));
+        Assert.True(MarkRules.Accepts(CodeKind.Technical, "automation/spending.remind-approver"));
         Assert.True(MarkRules.Accepts(CodeKind.Technical, "external-system/payments"));
         Assert.True(MarkRules.Accepts(CodeKind.Technical, "event/expense.submitted"));
         Assert.True(MarkRules.Accepts(CodeKind.Technical, "rule/spending.receipt-required"));

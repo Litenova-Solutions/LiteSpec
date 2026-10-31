@@ -7,9 +7,6 @@
   "status": "reviewed",
   "kind": "query",
   "access": {
-    "auth": [
-      "session"
-    ],
     "grant": "permission/read-loans",
     "tenant": "own"
   },
@@ -78,8 +75,8 @@
     }
   ],
   "approvedBy": "lending-team",
-  "approvedOn": "2026-10-01",
-  "approvedHash": "bcef6a31"
+  "approvedOn": "2026-10-31",
+  "approvedHash": "23475b06"
 }
 ---
 

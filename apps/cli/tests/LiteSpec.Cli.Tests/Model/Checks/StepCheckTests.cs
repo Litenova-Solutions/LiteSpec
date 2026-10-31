@@ -4,7 +4,7 @@ using LiteSpec.Tests.Support;
 
 namespace LiteSpec.Tests.Model.Checks;
 
-/// <summary>Proves the step check counts use cases, reactions and jobs.</summary>
+/// <summary>Proves the step check counts use cases and automations.</summary>
 public sealed class StepCheckTests
 {
     [Fact]
@@ -20,13 +20,13 @@ public sealed class StepCheckTests
     }
 
     [Fact]
-    public void Job_Serving_A_Step_Passes()
+    public void Automation_Serving_A_Step_Passes()
     {
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             Journey(temp.Path),
-            TestModel.Record("job", "job/lending.nightly-overdue-scan", Path.Combine(temp.Path, "scan.md"), """{"kind": "one-off", "serves": ["journey/borrow-and-return#s1"]}"""));
+            TestModel.Record("automation", "automation/lending.scan-overdue", Path.Combine(temp.Path, "scan.md"), """{"triggeredBy": {"manual": true}, "guard": "An operator starts the scan.", "serves": ["journey/borrow-and-return#s1"]}"""));
 
         Assert.DoesNotContain("step-use-case-missing", TestModel.Codes(model));
     }
@@ -40,7 +40,7 @@ public sealed class StepCheckTests
             Journey(temp.Path));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "step-use-case-missing");
-        Assert.Equal("Journey step 'journey/borrow-and-return#s1' is served by no use case, reaction or job.", finding.Message);
+        Assert.Equal("Journey step 'journey/borrow-and-return#s1' is served by no use case or automation.", finding.Message);
         Assert.Equal("journey/borrow-and-return#s1", finding.Subject);
     }
 

@@ -49,7 +49,7 @@ A need a lower record layer meets that the upper record layer leaves unstated tr
 
 **Rationale:** Intent promises outcomes in product words, and Behavior turns each promise into the states, invariants, refusals, consistency, data classes with erasure positions, freshness, and tenant-scoped access that keep it. Only Behavior records fulfill a requirement (`litespec/core/intent#restrict-requirement-fulfillment-to-behavior`). Without that detail each implementer guesses the states and the access scope, and two guesses diverge. The checks `requirement-fulfillment-missing`, `record-link-missing`, `step-use-case-missing`, `erasure-undeclared`, and `setting-requirement-missing` report the gaps.
 
-**Example:** A reimbursement promise gains a process with Approved and Reimbursed states, a refusal for an expense that is already reimbursed, and atomic consistency over one aggregate.
+**Example:** A reimbursement promise gains an entity with Approved and Reimbursed states, a refusal for an expense that is already reimbursed, and atomic consistency over one aggregate.
 
 **Checked by:** `litespec model check` emits no `requirement-fulfillment-missing`, `record-link-missing`, `step-use-case-missing`, `erasure-undeclared`, or `setting-requirement-missing` finding across Behavior records.
 

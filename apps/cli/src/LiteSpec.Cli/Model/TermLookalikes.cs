@@ -121,10 +121,10 @@ static class TermLookalikes
             records.TryAdd(SimpleName(handler.Class), record);
         }
 
-        foreach (var reaction in model.Code.Reactions)
+        foreach (var automation in model.Code.Automations)
         {
-            model.ById.TryGetValue(reaction.RecordId ?? reaction.UseCaseId ?? "", out var record);
-            records.TryAdd(SimpleName(reaction.Class), record);
+            model.ById.TryGetValue(automation.RecordId ?? automation.UseCaseId ?? "", out var record);
+            records.TryAdd(SimpleName(automation.Class), record);
         }
 
         foreach (var domainEvent in model.Code.Events)
@@ -149,17 +149,17 @@ static class TermLookalikes
             }
         }
 
-        foreach (var reaction in model.Code.Reactions)
+        foreach (var automation in model.Code.Automations)
         {
-            var at = At(records.GetValueOrDefault(SimpleName(reaction.Class)), reaction.File, reaction.Line);
-            Collect(TypeWords(reaction.Class), at, words, splits);
+            var at = At(records.GetValueOrDefault(SimpleName(automation.Class)), automation.File, automation.Line);
+            Collect(TypeWords(automation.Class), at, words, splits);
 
-            foreach (var thrown in reaction.Thrown ?? [])
+            foreach (var thrown in automation.Thrown ?? [])
             {
                 Collect(TypeWords(thrown.Type), at, words, splits);
             }
 
-            foreach (var repository in reaction.Repositories ?? [])
+            foreach (var repository in automation.Repositories ?? [])
             {
                 Collect(TypeWords(repository.Interface), at, words, splits);
             }

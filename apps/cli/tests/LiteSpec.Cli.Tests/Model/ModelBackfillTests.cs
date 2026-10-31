@@ -132,7 +132,7 @@ public sealed class ModelBackfillTests
         var result = Cli.Run("model", "backfill", "--root", fixture.Path);
 
         Assert.Equal(0, result.Status);
-        Assert.Contains("+effects issues:use-case/lending.extend-loan", result.Output);
+        Assert.Contains("+effects runs:use-case/lending.extend-loan", result.Output);
 
         var text = File.ReadAllText(BorrowCopy(fixture.Path));
 
@@ -153,10 +153,10 @@ public sealed class ModelBackfillTests
         Assert.DoesNotContain("\"effects\"", File.ReadAllText(BorrowCopy(fixture.Path)));
     }
 
-    /// <summary>Backfill drafts a reaction's reads from its constructor repositories.</summary>
+    /// <summary>Backfill drafts an automation's reads from its constructor repositories.</summary>
     /// <proves>litespec/core/agent#mark-transcribed-records-during-adoption</proves>
     [Fact]
-    public void Backfill_Backfills_Reaction_Reads()
+    public void Backfill_Backfills_Automation_Reads()
     {
         using var fixture = ModelFixture.Prepare("large");
 
@@ -170,7 +170,7 @@ public sealed class ModelBackfillTests
             """
             namespace Library.Application.Lending.Loans.OnLoanBorrowed;
 
-            /// <implements>reaction/lending.send-due-notice-on-loan-borrowed</implements>
+            /// <implements>automation/lending.send-due-notice-on-loan-borrowed</implements>
             public sealed class SendDueNoticeOnLoanBorrowedHandler(IHoldRepository holds) : IEventHandler<LoanBorrowedEvent>
             {
                 public Task Handle() => Task.CompletedTask;
@@ -184,16 +184,16 @@ public sealed class ModelBackfillTests
 
         var text = File.ReadAllText(Page(
             fixture.Path, "docs", "behavior", "modules", "lending",
-            "reactions", "send-due-notice-on-loan-borrowed.md"));
+            "automations", "send-due-notice-on-loan-borrowed.md"));
 
         Assert.Contains("aggregate/lending.hold", text);
         Assert.Contains("\"source\": \"transcribed\"", text);
     }
 
-    /// <summary>Backfill drafts a job's issues from its dispatched commands.</summary>
+    /// <summary>Backfill drafts an automation's runs from its dispatched commands.</summary>
     /// <proves>litespec/core/agent#mark-transcribed-records-during-adoption</proves>
     [Fact]
-    public void Backfill_Backfills_Job_Issues()
+    public void Backfill_Backfills_Automation_Runs()
     {
         using var fixture = ModelFixture.Prepare("large");
 
@@ -204,7 +204,7 @@ public sealed class ModelBackfillTests
             """
             namespace Library.Application.Lending.Loans;
 
-            /// <implements>job/lending.nightly-due-scan</implements>
+            /// <implements>automation/lending.nightly-due-scan</implements>
             public sealed class NightlyDueScanJob(ICommandMediator mediator) : BackgroundService
             {
                 protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -217,11 +217,11 @@ public sealed class ModelBackfillTests
         var result = Cli.Run("model", "backfill", "--root", fixture.Path);
 
         Assert.Equal(0, result.Status);
-        Assert.Contains("+issues use-case/lending.extend-loan", result.Output);
+        Assert.Contains("+effects runs:use-case/lending.extend-loan", result.Output);
 
         var text = File.ReadAllText(Page(
             fixture.Path, "docs", "behavior", "modules", "lending",
-            "jobs", "nightly-due-scan.md"));
+            "automations", "nightly-due-scan.md"));
 
         Assert.Contains("use-case/lending.extend-loan", text);
         Assert.Contains("\"source\": \"transcribed\"", text);

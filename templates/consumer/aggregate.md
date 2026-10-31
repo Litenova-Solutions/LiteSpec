@@ -8,7 +8,8 @@
   "decider": "<owner>",
   "decideBy": "<YYYY-MM-DD>",
   "summary": "<The consistency this aggregate keeps in one sentence>",
-  "kind": "<process|store, or remove this line for an entity>",
+  "kind": "saga",
+  "parts": ["<name of a child entity or value object that use cases act on, or remove this line>"],
   "states": [
     {
       "name": "<state>",
@@ -20,10 +21,11 @@
       "name": "<class>",
       "classification": "<public|internal|personal|sensitive>",
       "fields": ["<field>"],
-      "onErasure": "<erase|pseudonymize|retain|exempt>",
+      "onErasure": "<erase|pseudonymize|anonymize|retain|exempt>",
       "basis": "<statute|business|engineering>",
+      "purpose": "<The purpose the data is kept for>",
       "period": "<ISO 8601 duration, or replace this value with { mode: none, reason: <the data stays until its subject asks> } when the data is held on demand>",
-      "enforcedBy": "<job/<module>.<name>|record-expiry|store-ttl|query-filter>",
+      "enforcedBy": "<automation/<module>.<name>|record-expiry|store-ttl|query-filter>",
       "reason": "<the product keeps this data beyond erasure, when exempt, otherwise remove this line>",
       "reviewBy": "<Date when exempt, otherwise remove this line>",
       "acceptedBy": "<Decision or requirement id when personal or sensitive with retain or exempt, otherwise remove this line>",
@@ -31,32 +33,36 @@
       "exceptions": [
         {
           "field": "<field>",
-          "onErasure": "<erase|pseudonymize|retain|exempt>"
+          "onErasure": "<erase|pseudonymize|anonymize|retain|exempt>"
         }
       ]
     }
   ],
   "steps": [
     {
-      "name": "<step; remove the steps, exits, finishedWhen, driver, and cursor lines when the kind is not process>",
-      "when": "<the step runs next, or remove this line>",
+      "id": "<step; remove the steps, exits, and drivenBy lines when the kind is not saga>",
+      "runs": "use-case/<module>.<name>",
       "compensation": {
         "mode": "<none|use-case>",
         "reason": "<the step changes nothing to undo, when the mode is none; otherwise remove this line>",
         "useCase": "<use-case/<module>.<name>, when the mode is use-case, otherwise remove this line>"
-      }
+      },
+      "guard": "<the step runs next, or remove this line>"
     }
   ],
   "exits": [
     {
-      "name": "<exit>",
+      "name": "<exit, a past participle or adjective>",
       "trigger": "<the state, decision by <actor>, or <duration> wait that opens this exit>",
       "then": "<The run leaves through this exit.>"
     }
   ],
-  "finishedWhen": "<every step reaches the observable end>",
-  "driver": ["<reaction/<module>.<name>, job/<module>.<name>, or operator: <who, via runbook/<name>, due <duration>>>"],
-  "cursor": "<The store that holds the resume state, or remove this line>",
+  "finishedWhen": "<the saga reached one of its exits>",
+  "drivenBy": [
+    {
+      "automation": "<automation/<module>.<name>; replace this entry with { person: <actor/<name> or role/<name>>, runbook: <runbook/<name>>, dueWithin: <ISO 8601 duration> } when a person drives the saga>"
+    }
+  ],
   "records": [
     {
       "type": "rule",
@@ -65,6 +71,7 @@
       "kind": "<invariant|precondition|calculation|cross-aggregate|atomicity|reservation|commercial-data|default>",
       "statement": "<The aggregate keeps the rule in one sentence.>",
       "governs": ["aggregate/<module>.<name>"],
+      "binds": ["<aggregate/<module>.<name>, when the kind is atomicity; otherwise remove this line>"],
       "refusal": "<result id or refusal code, or remove this line>",
       "releasedBy": "<use-case/<module>.<name>, or { mode: never, reason: <the hold stands until the event ends> } when nothing releases it, when the kind is reservation; otherwise remove this line>",
       "frozenWhen": "<the value freezes, when the kind is commercial-data; otherwise remove this line>",
@@ -101,17 +108,21 @@
 
 List every allowed state change with the use case that moves it.
 
+<!-- generated:transitions -->
 | From | To | Triggered By |
 |:---|:---|:---|
 | <state> | <state> | use-case/<module>.<name> |
+<!-- /generated:transitions -->
 
 ## Data
 
 List every stored field with its meaning, data class, and classification.
 
+<!-- generated:data -->
 | Name | Meaning | Data Class | Classification |
 |:---|:---|:---|:---|
 | <field> | <The meaning of this field> | <class> | <public\|internal\|personal\|sensitive> |
+<!-- /generated:data -->
 
 ## Example
 

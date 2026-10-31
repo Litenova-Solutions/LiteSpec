@@ -3,7 +3,7 @@ using LiteBus.Commands.Abstractions;
 
 namespace Claimwick.Application.Spending.Expenses.EraseExpiredPersonalData;
 
-/// <implements>job/spending.erase-expired-personal-data</implements>
+/// <implements>automation/spending.erase-expired-personal-data</implements>
 internal sealed class EraseExpiredPersonalDataJob(ICommandMediator mediator) : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)

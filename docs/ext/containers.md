@@ -166,7 +166,7 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **Statement:** A deployment MUST set a shutdown grace period longer than measured request or Worker stop time.
 
-**Rationale:** Stopping a replica interrupts its in-flight requests and Worker jobs. A grace period longer than the measured stop time lets that work finish or record a safe interruption. A shorter period kills work the system then has to reconcile.
+**Rationale:** Stopping a replica interrupts its in-flight requests and Worker operations. A grace period longer than the measured stop time lets that work finish or record a safe interruption. A shorter period kills work the system then has to reconcile.
 
 **Reviewed for:** Which deployments set a shutdown grace period no longer than measured request or Worker stop time? Look at the deployment manifests beside the measured stop times.
 

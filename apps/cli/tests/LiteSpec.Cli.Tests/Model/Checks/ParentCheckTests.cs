@@ -417,32 +417,17 @@ public sealed class ParentCheckTests
 
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
-    public void Reaction_With_Missing_Module_Reports()
+    public void Automation_With_Missing_Module_Reports()
     {
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("reaction", "reaction/nope.email-clerk-on-loan-borrowed", Path.Combine(temp.Path, "notify.md"), """{"effects": [{"issues": "use-case/lending.borrow-copy"}]}"""));
+            TestModel.Record("automation", "automation/nope.email-clerk-on-loan-borrowed", Path.Combine(temp.Path, "notify.md"), """{"triggeredBy": {"event": "event/loan.loan-borrowed"}, "effects": [{"runs": "use-case/lending.borrow-copy"}]}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-parent-missing");
         Assert.Equal("G", finding.Tier);
-        Assert.Equal("Reaction 'reaction/nope.email-clerk-on-loan-borrowed' has no parent and its home 'nope' names no module.", finding.Message);
-        Assert.Equal("reaction/nope.email-clerk-on-loan-borrowed", finding.Subject);
-    }
-
-    /// <proves>litespec/core/model#give-every-record-one-parent</proves>
-    [Fact]
-    public void Job_With_Missing_Module_Reports()
-    {
-        using var temp = Cli.Temp("checks");
-        var model = TestModel.Model(
-            TestModel.Config(temp.Path),
-            TestModel.Record("job", "job/nope.scan-due-loans", Path.Combine(temp.Path, "scan.md"), """{}"""));
-
-        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-parent-missing");
-        Assert.Equal("G", finding.Tier);
-        Assert.Equal("Job 'job/nope.scan-due-loans' has no parent and its home 'nope' names no module.", finding.Message);
-        Assert.Equal("job/nope.scan-due-loans", finding.Subject);
+        Assert.Equal("Automation 'automation/nope.email-clerk-on-loan-borrowed' has no parent and its home 'nope' names no module.", finding.Message);
+        Assert.Equal("automation/nope.email-clerk-on-loan-borrowed", finding.Subject);
     }
 
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>

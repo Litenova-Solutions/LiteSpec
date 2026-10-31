@@ -147,7 +147,7 @@ static class ConsumerFixture
             """),
         new("docs/behavior/entry-points.md",
             """
-            {"type":"entry-point-list","id":"entry-points","title":"Entry points","owner":"fixture","status":"reviewed","records":[{"type":"entry-point","id":"entry-point/web","title":"Web shop","owner":"fixture","status":"reviewed","kind":"browser","approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}]}
+            {"type":"entry-point-list","id":"entry-points","title":"Entry points","owner":"fixture","status":"reviewed","records":[{"type":"entry-point","id":"entry-point/web","title":"Web shop","owner":"fixture","status":"reviewed","kind":"browser","auth":["session"],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}]}
             """,
             """
             # Entry Points
@@ -191,7 +191,7 @@ static class ConsumerFixture
             """),
         new("docs/behavior/modules/orders/cancel-order.md",
             """
-            {"type":"use-case","id":"use-case/orders.cancel-order","title":"Cancel order","owner":"fixture","status":"reviewed","kind":"command","access":{"auth":["session"],"grant":"permission/cancel-order","tenant":"own"},"reachedThrough":["entry-point/web"],"idempotency":{"mode":"key","key":"{orderId}","scope":"tenant"},"audit":{"level":"required","target":"order claim"},"raises":["event/order-claim.order-canceled"],"fulfills":["requirement/pricing.flat-fee"],"records":[{"type":"result","id":"result/cancel-order.order-canceled","title":"Order canceled","owner":"fixture","outcome":"success","meaning":"The order claim was canceled.","approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"},{"type":"result","id":"result/cancel-order.cancel-refused","title":"Cancel refused","owner":"fixture","outcome":"refusal","code":"orders.cancel-refused","meaning":"The shipment already left, so the cancel is refused.","approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}
+            {"type":"use-case","id":"use-case/orders.cancel-order","title":"Cancel order","owner":"fixture","status":"reviewed","kind":"command","access":{"grant":"permission/cancel-order","tenant":"own"},"reachedThrough":["entry-point/web"],"idempotency":{"mode":"key","key":"{orderId}","scope":"tenant"},"audit":{"level":"required","target":"order claim"},"raises":["event/order-claim.order-canceled"],"fulfills":["requirement/pricing.flat-fee"],"records":[{"type":"result","id":"result/cancel-order.order-canceled","title":"Order canceled","owner":"fixture","outcome":"success","meaning":"The order claim was canceled.","approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"},{"type":"result","id":"result/cancel-order.cancel-refused","title":"Cancel refused","owner":"fixture","outcome":"refusal","code":"orders.cancel-refused","meaning":"The shipment already left, so the cancel is refused.","approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}],"approvedBy":"fixture","approvedOn":"2026-10-01","approvedHash":"00000000"}
             """,
             """
             # Cancel Order

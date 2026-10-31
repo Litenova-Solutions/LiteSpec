@@ -112,7 +112,7 @@ sealed class IntentDiff
         "product" or "goal" or "problem" or "feature" or "topic" or "constraint"
             or "research" or "decision" or "requirement" or "journey" => "goals-requirements",
         "module" or "aggregate" or "rule" or "event" or "integration-event" or "use-case"
-            or "result" or "scenario" or "reaction" or "job" or "notification" or "setting" => "domain",
+            or "result" or "scenario" or "automation" or "notification" or "setting" => "domain",
         "actor" or "role" or "permission" or "entry-point" or "external-system" => "access",
         _ => "operations",
     };
@@ -134,7 +134,7 @@ sealed class IntentDiff
         "product" or "goal" or "problem" or "feature" or "topic" or "requirement"
             or "constraint" or "decision" or "research" or "journey" or "actor" => "intent",
         "module" or "aggregate" or "rule" or "event" or "integration-event" or "use-case"
-            or "result" or "scenario" or "reaction" or "job" or "notification" or "setting"
+            or "result" or "scenario" or "automation" or "notification" or "setting"
             or "role" or "permission" or "entry-point" or "external-system" or "runbook" => "behavior",
         "term" => record.Field("layer") is "intent" or "behavior" ? record.Field("layer")! : "both",
         _ => "both",

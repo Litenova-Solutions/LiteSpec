@@ -7,7 +7,7 @@ namespace LiteSpec.Model.Readers;
 /// <summary>Reads the backend source for the configured backend roots.</summary>
 interface IBackendReader
 {
-    /// <summary>Reads handlers, reactions and jobs, events, failure-code literals, comments and endpoint operations.</summary>
+    /// <summary>Reads handlers, automations, events, failure-code literals, comments and endpoint operations.</summary>
     CodeModel Read(ConsumerConfig config);
 }
 

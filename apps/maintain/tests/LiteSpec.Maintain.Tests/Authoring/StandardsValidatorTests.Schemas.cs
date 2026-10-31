@@ -273,6 +273,18 @@ public sealed partial class StandardsValidatorTests
         ["FIELD_NAME_SHAPE"]);
 
     /// <proves>litespec/core/language#name-each-field-by-its-word-class</proves>
+    [Fact(DisplayName = "binds holding prose")]
+    public void BindsHoldingProse() => Check(
+        root =>
+        {
+            StandardsFixture.Write(root, "schemas/record.schema.json",
+                "{\"$defs\":{" +
+                "\"ruleEntry\":{\"type\":\"object\",\"properties\":{\"binds\":{\"$ref\":\"#/$defs/nonEmptyString\"}}}," +
+                "\"nonEmptyString\":{\"type\":\"string\",\"minLength\":1}}}");
+        },
+        ["FIELD_NAME_SHAPE"]);
+
+    /// <proves>litespec/core/language#name-each-field-by-its-word-class</proves>
     [Fact(DisplayName = "By name without a participle stem")]
     public void ByNameWithoutParticipleStem() => Check(
         root =>
@@ -363,6 +375,23 @@ public sealed partial class StandardsValidatorTests
                 "\"betaPage\":{\"type\":\"object\",\"properties\":{\"freshness\":{\"$ref\":\"#/$defs/boundedFreshness\"}}}," +
                 "\"freshness\":{\"type\":\"object\",\"required\":[\"mode\"],\"properties\":{\"mode\":{\"enum\":[\"immediate\",\"snapshot\"]}}}," +
                 "\"boundedFreshness\":{\"type\":\"object\",\"required\":[\"mode\",\"within\"],\"properties\":{\"mode\":{\"enum\":[\"bounded\"]},\"within\":{\"type\":\"string\"}}}}}");
+        },
+        []);
+
+    /// <proves>litespec/core/language#name-each-field-by-its-word-class</proves>
+    [Fact(DisplayName = "automation and saga fields sharing their word classes")]
+    public void AutomationAndSagaFieldsSharingWordClasses() => Check(
+        root =>
+        {
+            StandardsFixture.Write(root, "schemas/record.schema.json",
+                "{\"$defs\":{" +
+                "\"automationPage\":{\"type\":\"object\",\"properties\":{\"triggeredBy\":{\"type\":\"object\"},\"skippedWhen\":{\"$ref\":\"#/$defs/nonEmptyString\"}}}," +
+                "\"aggregatePage\":{\"type\":\"object\",\"properties\":{\"drivenBy\":{\"type\":\"array\",\"items\":{\"type\":\"object\"}}}}," +
+                "\"ruleEntry\":{\"type\":\"object\",\"properties\":{\"binds\":{\"type\":\"array\",\"items\":{\"$ref\":\"#/$defs/aggregateId\"}}}}," +
+                "\"scenarioEntry\":{\"type\":\"object\",\"properties\":{\"exercises\":{\"type\":\"array\",\"items\":{\"$ref\":\"#/$defs/ruleId\"}}}}," +
+                "\"aggregateId\":{\"type\":\"string\"}," +
+                "\"ruleId\":{\"type\":\"string\"}," +
+                "\"nonEmptyString\":{\"type\":\"string\",\"minLength\":1}}}");
         },
         []);
 
@@ -531,6 +560,28 @@ public sealed partial class StandardsValidatorTests
             StandardsFixture.Write(root, "templates/consumer/use-case.md", TemplatePage(
                 "{\"type\":\"use-case\"," +
                 "\"freshness\":{\"mode\":\"bounded\",\"within\":\"<ISO 8601 duration>\"}}"));
+        },
+        []);
+
+    /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
+    [Fact(DisplayName = "consumer template carrying an automation identifier")]
+    public void ConsumerTemplateWithAutomationId() => Check(
+        root =>
+        {
+            StandardsFixture.Write(root, "schemas/record.schema.json",
+                "{\"$defs\":{" +
+                "\"automationPage\":{\"type\":\"object\",\"additionalProperties\":false," +
+                "\"required\":[\"type\",\"id\",\"title\",\"triggeredBy\"]," +
+                "\"properties\":{\"type\":{\"const\":\"automation\"}," +
+                "\"id\":{\"$ref\":\"#/$defs/automationId\"}," +
+                "\"title\":{\"$ref\":\"#/$defs/nonEmptyString\"}," +
+                "\"triggeredBy\":{\"$ref\":\"#/$defs/automationTriggeredBy\"}}}," +
+                "\"automationId\":{\"type\":\"string\",\"pattern\":\"^automation/[a-z0-9][a-z0-9-]*\\\\.[a-z0-9][a-z0-9-]*$\"}," +
+                "\"automationTriggeredBy\":{\"type\":\"object\"}," +
+                "\"nonEmptyString\":{\"type\":\"string\",\"minLength\":1}}}");
+            StandardsFixture.Write(root, "templates/consumer/automation.md", TemplatePage(
+                "{\"type\":\"automation\",\"id\":\"automation/<module>.<name>\",\"title\":\"<Automation display title>\"," +
+                "\"triggeredBy\":{}}"));
         },
         []);
 

@@ -122,28 +122,14 @@ internal static class TraceabilityFixtures
             }
             """, title);
 
-    /// <summary>A reaction page with its status.</summary>
-    public static (string Path, string Source) Reaction(
-        string id = "reaction/expense.notify-manager",
-        string title = "Notify manager",
-        string status = "approved") =>
-        Page(FileOf(id), $$"""
-            {
-              "type": "reaction",
-              "id": "{{id}}",
-              "title": "{{title}}",
-              "status": "{{status}}"
-            }
-            """, title);
-
-    /// <summary>A job page with its status.</summary>
-    public static (string Path, string Source) Job(
-        string id = "job/spending.remind-approvers",
+    /// <summary>An automation page with its status.</summary>
+    public static (string Path, string Source) Automation(
+        string id = "automation/spending.remind-approvers",
         string title = "Remind approvers",
         string status = "approved") =>
         Page(FileOf(id), $$"""
             {
-              "type": "job",
+              "type": "automation",
               "id": "{{id}}",
               "title": "{{title}}",
               "status": "{{status}}"

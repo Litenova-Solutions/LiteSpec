@@ -46,13 +46,13 @@ apps/api/src/{ProjectName}.WebApi/
 
 **ID:** `litespec/backend/dotnet/architecture#keep-one-application-assembly`
 
-**Statement:** An application MUST place commands, queries, results, validators, handlers, reaction classes, and module-owned ports in one Application project, and cross-module contracts in Application.Abstractions.
+**Statement:** An application MUST place commands, queries, results, validators, handlers, event handler classes, and module-owned ports in one Application project, and cross-module contracts in Application.Abstractions.
 
-**Rationale:** Splitting Application into Write, Read, Contracts, and event-handler assemblies would buy a deployment boundary the stack never uses, and every use case would pay for it with a project reference to cross. The separation this stack keeps is the one [Fowler describes as CQRS](https://www.martinfowler.com/bliki/CQRS.html): the command and query models differ, while one assembly holds them. Event handlers live in Application `On{Fact}` folders of the aggregate whose records they change; job classes live in Worker or Infrastructure with the scheduling concerns, under `litespec/backend/architecture#declare-the-execution-host-for-work-that-outlives-a-request`.
+**Rationale:** Splitting Application into Write, Read, Contracts, and event-handler assemblies would buy a deployment boundary the stack never uses, and every use case would pay for it with a project reference to cross. The separation this stack keeps is the one [Fowler describes as CQRS](https://www.martinfowler.com/bliki/CQRS.html): the command and query models differ, while one assembly holds them. Event handlers live in Application `On{Fact}` folders of the aggregate whose records they change; job host classes live in Worker or Infrastructure with the scheduling concerns, under `litespec/backend/architecture#declare-the-execution-host-for-work-that-outlives-a-request`.
 
 This provision states the .NET form of `litespec/backend/architecture#keep-one-application-part`.
 
-**Reviewed for:** The Application project files hold every command, query, result, validator, handler, and reaction class, with cross-module contracts in Application.Abstractions.
+**Reviewed for:** The Application project files hold every command, query, result, validator, handler, and event handler class, with cross-module contracts in Application.Abstractions.
 
 ### Mirror Modules in Folders and Namespaces
 

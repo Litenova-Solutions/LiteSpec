@@ -2,7 +2,7 @@
 
 ## Intent
 
-Some processes run on a workflow engine instead of reactions and jobs, with steps, timers, and retries the engine owns. This page states how each engine step maps onto exactly one use case with its compensation. A project selects it for each process aggregate an engine carries.
+Some sagas run on a workflow engine instead of automations, with steps, timers, and retries the engine owns. This page states how each engine step maps onto exactly one use case with its compensation. A project selects it for each saga aggregate an engine carries.
 
 ## Activation
 
@@ -10,13 +10,13 @@ Activation scope: `local`.
 
 Applicable specification kinds: `aggregate`.
 
-A project selects `workflow-engine` for a process aggregate when a workflow engine carries it. A process driven by reactions, jobs, and operators does not select it.
+A project selects `workflow-engine` for a saga aggregate when a workflow engine carries it. A saga driven by automations does not select it.
 
 ## Baseline Relationship
 
-This extension replaces no baseline provision. It switches on no record type: it adds the `carriedBy` marker to process aggregates.
+This extension replaces no baseline provision. It switches on no record type: it adds the `carriedBy` marker to saga aggregates.
 
-A carried process sets `carriedBy: workflow`, maps each engine step to exactly one use case, and states each step's compensation. The engine's retry and timeout configuration stays in Implementation, outside the records.
+A carried saga sets `carriedBy: workflow`, maps each engine step to exactly one use case, and states each step's compensation. The engine's retry and timeout configuration stays in Implementation, outside the records.
 
 ## Standards
 
@@ -24,11 +24,11 @@ A carried process sets `carriedBy: workflow`, maps each engine step to exactly o
 
 **ID:** `litespec/ext/workflow-engine#declare-the-engine-carrier`
 
-**Statement:** A process carried by a workflow engine MUST set `carriedBy: workflow`.
+**Statement:** A saga carried by a workflow engine MUST set `carriedBy: workflow`.
 
-**Rationale:** A reader meeting a process asks first what moves it: reactions, a job, an operator, or an engine. The carrier marker answers that question on the aggregate itself, so nobody hunts the engine console for a process reactions drive.
+**Rationale:** A reader meeting a saga asks first what moves it: automations or an engine. The carrier marker answers that question on the aggregate itself, so nobody hunts the engine console for a saga automations drive.
 
-**Example:** The hold aggregate sets `carriedBy: workflow` while the loan aggregate stays reaction-driven.
+**Example:** The hold aggregate sets `carriedBy: workflow` while the loan aggregate stays automation-driven.
 
 **Reviewed for:** The engine-carried aggregates set carriedBy workflow on their aggregate records.
 
@@ -50,7 +50,7 @@ A carried process sets `carriedBy: workflow`, maps each engine step to exactly o
 
 **Statement:** Each mapped engine step MUST name its compensation as a use-case object or a none object with the reason.
 
-**Rationale:** Engines fail mid-process: a step times out, a worker crashes, a saga aborts. The compensation is the step's undo as `{"mode": "use-case", "useCase": "use-case/..."}`, and a step with no undo says so as `{"mode": "none", "reason": "..."}`, so recovery follows the record instead of improvising.
+**Rationale:** Engines fail mid-saga: a step times out, a worker crashes, a saga aborts. The compensation is the step's undo as `{"mode": "use-case", "useCase": "use-case/..."}`, and a step with no undo says so as `{"mode": "none", "reason": "..."}`, so recovery follows the record instead of improvising.
 
 **Example:** The step `cancel-hold` names `{"mode": "use-case", "useCase": "use-case/lending.place-hold"}` as its compensation, while `borrow-copy` names `{"mode": "none", "reason": "the copy has left the shelf"}`.
 

@@ -21,7 +21,7 @@ public sealed class DotnetOneHopDispatchTests
             found => found.UseCaseId == "use-case/lending.borrow-copy");
         var dispatch = Assert.Single(handler.Dispatches!);
 
-        Assert.Equal("issues", dispatch.Verb);
+        Assert.Equal("runs", dispatch.Verb);
         Assert.Equal("PurgeLoansCommand", dispatch.Target);
         Assert.Equal("LoanFanout.RetryAsync", dispatch.Via);
         Assert.EndsWith("BorrowCopyCommandHandler.cs", dispatch.File);
@@ -33,15 +33,15 @@ public sealed class DotnetOneHopDispatchTests
     {
         using var temp = Cli.Temp("onehop");
         WriteProject(temp.Path);
-        WriteApp(temp.Path, Path.Combine("Lending", "Loans", "OnLoanBorrowed", "PublishEventOnLoanBorrowedHandler.cs"), PublisherReaction);
+        WriteApp(temp.Path, Path.Combine("Lending", "Loans", "OnLoanBorrowed", "PublishEventOnLoanBorrowedHandler.cs"), PublisherAutomation);
         WriteApp(temp.Path, Path.Combine("Lending", "Loans", "OnLoanBorrowed", "LoanEventRelay.cs"), PublisherHelper);
 
-        var reaction = Assert.Single(
-            new DotnetBackendReader().Read(ConsumerConfig.Load(temp.Path)).Reactions,
+        var automation = Assert.Single(
+            new DotnetBackendReader().Read(ConsumerConfig.Load(temp.Path)).Automations,
             found => found.Class == "PublishEventOnLoanBorrowedHandler");
-        var dispatch = Assert.Single(reaction.Dispatches!);
+        var dispatch = Assert.Single(automation.Dispatches!);
 
-        Assert.Equal("publishes", dispatch.Verb);
+        Assert.Equal("emits", dispatch.Verb);
         Assert.Equal("LoanBorrowedEvent", dispatch.Target);
         Assert.Equal("LoanEventRelay.RelayAsync", dispatch.Via);
     }
@@ -76,7 +76,7 @@ public sealed class DotnetOneHopDispatchTests
             found => found.UseCaseId == "use-case/lending.borrow-copy");
         var dispatch = Assert.Single(handler.Dispatches!);
 
-        Assert.Equal("issues", dispatch.Verb);
+        Assert.Equal("runs", dispatch.Verb);
         Assert.Equal("PurgeLoansCommand", dispatch.Target);
     }
 
@@ -191,7 +191,7 @@ public sealed class DotnetOneHopDispatchTests
         }
         """;
 
-    const string PublisherReaction = """
+    const string PublisherAutomation = """
         namespace Library.Application.Lending.Loans.OnLoanBorrowed;
 
         public sealed class PublishEventOnLoanBorrowedHandler(IEventPublisher events) : IEventHandler<LoanBorrowedEvent>

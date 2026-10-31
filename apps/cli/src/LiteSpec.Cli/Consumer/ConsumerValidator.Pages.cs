@@ -253,7 +253,7 @@ static partial class ConsumerValidator
     /// <summary>
     ///     Whether the use-case page needs Goal and What Happens prose, mirroring the
     ///     model check: it changes more than one aggregate, refuses beyond the generic
-    ///     refusals, carries risk, or issues inline effects. A retired use case needs none.
+    ///     refusals, carries risk, or runs inline effects. A retired use case needs none.
     /// </summary>
     static bool SignificantUseCase(JsonObject? meta, System.Collections.Concurrent.ConcurrentDictionary<string, byte> refusalHomes)
     {

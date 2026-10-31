@@ -22,12 +22,12 @@ static class BookEnrich
 
     static readonly HashSet<string> StepServerTypes = new(StringComparer.Ordinal)
     {
-        "use-case", "reaction", "job", "notification", "screen",
+        "use-case", "automation", "notification", "screen",
     };
 
     static readonly HashSet<string> ImplExpected = new(StringComparer.Ordinal)
     {
-        "aggregate", "reaction", "job", "external-system", "use-case", "screen",
+        "aggregate", "automation", "external-system", "use-case", "screen",
     };
 
     static readonly HashSet<string> ProofExpected = new(StringComparer.Ordinal)
@@ -56,8 +56,7 @@ static class BookEnrich
         var handlers = CodeByKey(model, "handlers", "useCase");
         var endpoints = CodeByKey(model, "endpoints", "useCase");
         var methods = CodeByKey(model, "aggregateMethods", "aggregate");
-        var reactionsByPath = CodeByPath(model, "reactions");
-        var jobsByPath = CodeByPath(model, "jobs");
+        var automationsByPath = CodeByPath(model, "automations");
 
         var details = new Dictionary<string, JsonObject>(StringComparer.Ordinal);
         var order = new List<string>();
@@ -85,7 +84,7 @@ static class BookEnrich
                 AddRoute(detail, routeEntry, calls);
             }
 
-            var impl = ImplFor(index, handlers, endpoints, methods, reactionsByPath, jobsByPath, routeEntry, id, type);
+            var impl = ImplFor(index, handlers, endpoints, methods, automationsByPath, routeEntry, id, type);
             detail["impl"] = impl;
             detail["tests"] = TestList(tests.TryGetValue(id, out var ownTests) ? ownTests : []);
             var expect = ExpectFor(record, type);
@@ -577,7 +576,7 @@ static class BookEnrich
         return byKey;
     }
 
-    /// <summary>Maps each reaction or job path to its code entry, the first one winning.</summary>
+    /// <summary>Maps each automation path to its code entry, the first one winning.</summary>
     static Dictionary<string, JsonObject> CodeByPath(JsonObject model, string array)
     {
         var byPath = new Dictionary<string, JsonObject>(StringComparer.Ordinal);
@@ -804,7 +803,7 @@ static class BookEnrich
 
     /// <summary>
     ///     The code implementing one record: handler, endpoint and aggregate method
-    ///     entries with their model lines, reaction and job entries with theirs, and
+    ///     entries with their model lines, automation entries with theirs, and
     ///     every other implements link with a null line at the file head.
     /// </summary>
     static JsonArray ImplFor(
@@ -812,8 +811,7 @@ static class BookEnrich
         Dictionary<string, List<JsonObject>> handlers,
         Dictionary<string, List<JsonObject>> endpoints,
         Dictionary<string, List<JsonObject>> methods,
-        Dictionary<string, JsonObject> reactionsByPath,
-        Dictionary<string, JsonObject> jobsByPath,
+        Dictionary<string, JsonObject> automationsByPath,
         JsonObject? routeEntry,
         string id,
         string type)
@@ -876,13 +874,9 @@ static class BookEnrich
                 continue;
             }
 
-            if (kind == "reaction" && reactionsByPath.TryGetValue(path, out var reaction))
+            if (kind == "automation" && automationsByPath.TryGetValue(path, out var automation))
             {
-                Add(kind, path, IntProp(reaction, "line"));
-            }
-            else if (kind == "job" && jobsByPath.TryGetValue(path, out var job))
-            {
-                Add(kind, path, IntProp(job, "line"));
+                Add(kind, path, IntProp(automation, "line"));
             }
             else
             {

@@ -349,30 +349,29 @@ public sealed class DotnetMarkLinkTests
 
     /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
-    public void Reaction_Links_Its_Record_From_Its_Mark()
+    public void Automation_Links_Its_Record_From_Its_Mark()
     {
         using var temp = Cli.Temp("reader-marks");
         WriteProject(temp.Path);
         WriteSource(temp.Path, "App", "NotifyOnBorrowHandler.cs", """
             namespace Library.Application.Lending.Loans.OnLoanBorrowed;
 
-            /// <implements>reaction/lending.notify-on-borrow</implements>
+            /// <implements>automation/lending.notify-on-borrow</implements>
             public sealed class NotifyOnBorrowHandler : IEventHandler<LoanBorrowedEvent>
             {
                 public Task Handle(LoanBorrowedEvent domainEvent) => Task.CompletedTask;
             }
             """);
 
-        var reaction = Assert.Single(Read(temp.Path).Reactions);
+        var automation = Assert.Single(Read(temp.Path).Automations);
 
-        Assert.Equal("reaction", reaction.Kind);
-        Assert.Equal("reaction/lending.notify-on-borrow", reaction.RecordId);
-        Assert.Null(reaction.UseCaseId);
+        Assert.Equal("automation/lending.notify-on-borrow", automation.RecordId);
+        Assert.Null(automation.UseCaseId);
     }
 
     /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
-    public void Reaction_Without_Mark_Has_Null_Record_Id()
+    public void Automation_Without_Mark_Has_Null_Record_Id()
     {
         using var temp = Cli.Temp("reader-marks");
         WriteProject(temp.Path);
@@ -385,32 +384,30 @@ public sealed class DotnetMarkLinkTests
             }
             """);
 
-        var reaction = Assert.Single(Read(temp.Path).Reactions);
+        var automation = Assert.Single(Read(temp.Path).Automations);
 
-        Assert.Equal("reaction", reaction.Kind);
-        Assert.Null(reaction.RecordId);
+        Assert.Null(automation.RecordId);
     }
 
     /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
-    public void Job_Links_Its_Record_From_Its_Mark()
+    public void Job_Host_Links_Its_Automation_From_Its_Mark()
     {
         using var temp = Cli.Temp("reader-marks");
         WriteProject(temp.Path);
         WriteSource(temp.Path, "App", "NightlyScanJob.cs", """
             namespace Library.Application.Lending.Loans.NightlyScan;
 
-            /// <implements>job/lending.nightly-scan</implements>
+            /// <implements>automation/lending.nightly-scan</implements>
             public sealed class NightlyScanJob : BackgroundService
             {
                 protected override Task ExecuteAsync(CancellationToken stoppingToken) => Task.CompletedTask;
             }
             """);
 
-        var job = Assert.Single(Read(temp.Path).Reactions);
+        var job = Assert.Single(Read(temp.Path).Automations);
 
-        Assert.Equal("job", job.Kind);
-        Assert.Equal("job/lending.nightly-scan", job.RecordId);
+        Assert.Equal("automation/lending.nightly-scan", job.RecordId);
     }
 
     static CodeModel Read(string root) => new DotnetBackendReader().Read(ConsumerConfig.Load(root));

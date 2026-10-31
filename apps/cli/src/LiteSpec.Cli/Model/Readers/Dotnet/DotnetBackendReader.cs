@@ -25,7 +25,7 @@ sealed class DotnetBackendReader : IBackendReader
     /// <summary>
     ///     Collects the cross-file names kind recognition needs: the aggregate roots,
     ///     the domain exceptions, the marked ports, the technical classes, and the
-    ///     handler, event handler, job and domain event contracts. Roots, exceptions
+    ///     handler, event handler, job host and domain event contracts. Roots, exceptions
     ///     and contracts seed from their direct bases and close over inheritance:
     ///     any type whose declared base list names a type already known to carry
     ///     the contract carries it too. Ports are the interfaces carrying an
@@ -323,7 +323,7 @@ sealed class DotnetBackendReader : IBackendReader
                 lock (gate)
                 {
                     merged.Handlers.AddRange(local.Handlers);
-                    merged.Reactions.AddRange(local.Reactions);
+                    merged.Automations.AddRange(local.Automations);
                     merged.Events.AddRange(local.Events);
                     merged.Elements.AddRange(local.Elements);
                     merged.StrayMarks.AddRange(local.StrayMarks);
@@ -351,10 +351,10 @@ sealed class DotnetBackendReader : IBackendReader
             .ThenBy(stray => stray.Line)
             .ThenBy(stray => stray.Class, StringComparer.Ordinal)
             .ThenBy(stray => stray.Member ?? "", StringComparer.Ordinal));
-        model.Reactions.AddRange(merged.Reactions
-            .OrderBy(reaction => reaction.File, StringComparer.Ordinal)
-            .ThenBy(reaction => reaction.Line)
-            .ThenBy(reaction => reaction.Class, StringComparer.Ordinal));
+        model.Automations.AddRange(merged.Automations
+            .OrderBy(automation => automation.File, StringComparer.Ordinal)
+            .ThenBy(automation => automation.Line)
+            .ThenBy(automation => automation.Class, StringComparer.Ordinal));
         model.Events.AddRange(merged.Events
             .OrderBy(domainEvent => domainEvent.File, StringComparer.Ordinal)
             .ThenBy(domainEvent => domainEvent.Line)
@@ -686,7 +686,7 @@ sealed class DotnetBackendReader : IBackendReader
 
     /// <summary>
     ///     Reads every recognized element of one file into the model: the element itself
-    ///     with its marks, and the handler, reaction, event or endpoint row its kind owns.
+    ///     with its marks, and the handler, automation, event or endpoint row its kind owns.
     ///     Every record link comes from a mark the element carries.
     /// </summary>
     private static void ReadElements(
@@ -736,7 +736,7 @@ sealed class DotnetBackendReader : IBackendReader
                         break;
                     case CodeKind.EventHandler:
                     case CodeKind.Job:
-                        ReadReaction(file, tree, declared, kind, marks, model, helpers, holders);
+                        ReadAutomation(file, tree, declared, marks, model, helpers, holders);
                         break;
                     case CodeKind.DomainEvent:
                         model.Events.Add(new DomainEventInfo(
@@ -831,15 +831,14 @@ sealed class DotnetBackendReader : IBackendReader
         return found;
     }
 
-    /// <summary>The one reaction or job mark the element carries, or null when it carries none or several.</summary>
-    private static string? SingleReactionMark(IReadOnlyList<CodeMark> marks)
+    /// <summary>The one automation mark the element carries, or null when it carries none or several.</summary>
+    private static string? SingleAutomationMark(IReadOnlyList<CodeMark> marks)
     {
         string? found = null;
 
         foreach (var mark in marks)
         {
-            if (mark.RecordId.StartsWith("reaction/", StringComparison.Ordinal)
-                || mark.RecordId.StartsWith("job/", StringComparison.Ordinal))
+            if (mark.RecordId.StartsWith("automation/", StringComparison.Ordinal))
             {
                 if (found is not null)
                 {
@@ -901,24 +900,22 @@ sealed class DotnetBackendReader : IBackendReader
         });
     }
 
-    /// <summary>Reads one event handler or job: its reaction or job mark, and a use-case mark when one sits beside it.</summary>
-    private static void ReadReaction(
+    /// <summary>Reads one event handler or job host: its automation mark, and a use-case mark when one sits beside it.</summary>
+    private static void ReadAutomation(
         string file,
         SyntaxTree tree,
         TypeDeclarationSyntax declared,
-        CodeKind kind,
         IReadOnlyList<CodeMark> marks,
         CodeModel model,
         Dictionary<string, List<HelperMethod>> helpers,
         HashSet<string> holders)
     {
-        model.Reactions.Add(new ReactionInfo(
+        model.Automations.Add(new AutomationInfo(
             declared.Identifier.ValueText,
             file,
             tree.GetLineSpan(declared.Span).StartLinePosition.Line + 1,
-            kind == CodeKind.Job ? "job" : "reaction",
             SingleMark(marks, "use-case/"),
-            SingleReactionMark(marks),
+            SingleAutomationMark(marks),
             RepositoriesOf(declared, tree, file),
             RefusalsOf(declared, tree, file),
             ThrownOf(declared, tree, file),
@@ -2020,16 +2017,16 @@ sealed class DotnetBackendReader : IBackendReader
 
             if (kind == "ICommandMediator" && method == "SendAsync")
             {
-                if (MessageTarget(invocation, templateCounts: false) is { } issues)
+                if (MessageTarget(invocation, templateCounts: false) is { } runs)
                 {
-                    found.Add((receiver, new CodeDispatch("issues", issues.Target, "", file, line)));
+                    found.Add((receiver, new CodeDispatch("runs", runs.Target, "", file, line)));
                 }
             }
-            else if (PublishesThrough(kind))
+            else if (EmitsThrough(kind))
             {
-                if (MessageTarget(invocation, templateCounts: false) is { } publishes)
+                if (MessageTarget(invocation, templateCounts: false) is { } emits)
                 {
-                    found.Add((receiver, new CodeDispatch("publishes", publishes.Target, "", file, line)));
+                    found.Add((receiver, new CodeDispatch("emits", emits.Target, "", file, line)));
                 }
             }
             else if (SendsThrough(kind))
@@ -2055,8 +2052,8 @@ sealed class DotnetBackendReader : IBackendReader
         return found;
     }
 
-    /// <summary>Whether a receiver kind publishes events: a publisher or the outbox.</summary>
-    private static bool PublishesThrough(string kind) =>
+    /// <summary>Whether a receiver kind emits events: a publisher or the outbox.</summary>
+    private static bool EmitsThrough(string kind) =>
         kind.EndsWith("Publisher", StringComparison.Ordinal)
         || kind.Contains("Outbox", StringComparison.Ordinal);
 
@@ -2072,7 +2069,7 @@ sealed class DotnetBackendReader : IBackendReader
         var kind = KindOf(type);
 
         return kind == "ICommandMediator"
-            || PublishesThrough(kind)
+            || EmitsThrough(kind)
             || SendsThrough(kind)
             || (!ExcludedReceiver(kind) && externalPorts.Contains(kind));
     }

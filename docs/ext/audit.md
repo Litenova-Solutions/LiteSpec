@@ -366,7 +366,7 @@ The algorithm is named because two implementations that each choose their own ca
 
 **Rationale:** Tamper evidence nobody checks proves nothing: a break sits in the store until someone looks. Scheduled verification turns the chain into a standing claim the deployment re-proves on each run. The alert carries the break to an operator instead of waiting for the next review.
 
-**Reviewed for:** Which deployments run no scheduled chain verification with an alert? Look at the integrity job and its alerts.
+**Reviewed for:** Which deployments run no scheduled chain verification with an alert? Look at the integrity automation and its alerts.
 
 ### Add a Correcting Record
 
@@ -466,11 +466,11 @@ The algorithm is named because two implementations that each choose their own ca
 
 **ID:** `litespec/ext/audit#keep-audit-infrastructure-in-one-location`
 
-**Default:** Keep the audit record, its store, the producer, and the integrity job under `Infrastructure/Auditing/`.
+**Default:** Keep the audit record, its store, the producer, and the integrity automation under `Infrastructure/Auditing/`.
 
 **Replacement:** A consumer records an audit-layout convention naming where its audit parts live.
 
-**Rationale:** The record, the store, the producer, and the integrity job form one evidence mechanism. One Infrastructure location keeps that mechanism reviewable as a whole instead of scattered across the codebase.
+**Rationale:** The record, the store, the producer, and the integrity automation form one evidence mechanism. One Infrastructure location keeps that mechanism reviewable as a whole instead of scattered across the codebase.
 
 **Reviewed for:** Which audit parts live outside the documented location or the recorded local convention? Look under `Infrastructure/Auditing/`.
 

@@ -194,8 +194,8 @@ sealed class ConsumerConfig
     /// <summary>The optional types the project records.</summary>
     public IReadOnlyList<string> OptionalTypes { get; private set; } = [];
 
-    /// <summary>The steps classes whose when steps run a job, such as one that moves a simulated clock.</summary>
-    public IReadOnlyList<string> JobTriggerSteps { get; private set; } = [];
+    /// <summary>The steps classes whose when steps run an automation, such as one that moves a simulated clock.</summary>
+    public IReadOnlyList<string> AutomationTriggerSteps { get; private set; } = [];
 
     /// <summary>The steps classes whose then steps state only that a request succeeded or was refused.</summary>
     public IReadOnlyList<string> OutcomeOnlySteps { get; private set; } = [];
@@ -373,7 +373,7 @@ sealed class ConsumerConfig
         if (document.RootElement.TryGetProperty("proof", out var proof)
             && proof.ValueKind == JsonValueKind.Object)
         {
-            config.JobTriggerSteps = ReadNames(proof, "jobTriggerSteps");
+            config.AutomationTriggerSteps = ReadNames(proof, "automationTriggerSteps");
             config.OutcomeOnlySteps = ReadNames(proof, "outcomeOnlySteps");
         }
 

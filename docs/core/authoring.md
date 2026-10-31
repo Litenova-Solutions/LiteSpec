@@ -72,8 +72,7 @@ A consumer page is a record or one of these styles. Each one opens with the spec
 | entry-point-list | `templates/consumer/entry-point-list.md` | Entries only |
 | screen | `templates/consumer/screen.md` | Summary |
 | setting-set | `templates/consumer/setting-set.md` | Entries only |
-| reaction | `templates/consumer/reaction.md` | Goal, optional Example, optional Notes |
-| job | `templates/consumer/job.md` | Goal, optional Example, optional Notes |
+| automation | `templates/consumer/automation.md` | Summary, optional Example, optional Notes |
 | notification | `templates/consumer/notification.md` | Summary, optional Example, optional Notes |
 | integration-event | `templates/consumer/integration-event.md` | Summary, optional Notes |
 | retention-schedule | `templates/consumer/retention-schedule.md` | Entries only |

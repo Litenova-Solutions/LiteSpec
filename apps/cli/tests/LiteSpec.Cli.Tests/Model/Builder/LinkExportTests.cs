@@ -104,7 +104,7 @@ public sealed class LinkExportTests
         Assert.Equal(0, document.RootElement.GetProperty("links").GetProperty("follows").GetArrayLength());
     }
 
-    /// <proves>litespec/core/domain-model#state-each-process-step-with-its-compensation</proves>
+    /// <proves>litespec/core/domain-model#state-each-saga-step-with-its-compensation</proves>
     [Fact]
     public void Wave5_Objects_Export_Their_Ids_As_Links()
     {
@@ -126,6 +126,27 @@ public sealed class LinkExportTests
         Assert.Empty(ModelBuilder.TargetsOf(Element("""{"mode": "none", "reason": "money has moved"}""")));
         Assert.Empty(ModelBuilder.TargetsOf(Element("""{"mode": "never", "reason": "the hold never releases"}""")));
         Assert.Empty(ModelBuilder.TargetsOf(Element("""{"mode": "impossible", "reason": "the processor keeps no erasure call"}""")));
+    }
+
+    /// <proves>litespec/core/automation#declare-every-automation-edge-in-effects</proves>
+    /// <proves>litespec/core/domain-model#state-each-saga-step-with-its-compensation</proves>
+    [Fact]
+    public void Wave6_Effects_Triggers_And_Steps_Export_Their_Ids_As_Links()
+    {
+        Assert.Equal(
+            ["use-case/lending.release-hold"],
+            ModelBuilder.TargetsOf(Element("""{"runs": "use-case/lending.release-hold"}""")));
+        Assert.Equal(
+            ["integration-event/hold-released"],
+            ModelBuilder.TargetsOf(Element("""{"emits": "integration-event/hold-released"}""")));
+        Assert.Equal(
+            ["event/loan.loan-borrowed"],
+            ModelBuilder.TargetsOf(Element("""{"event": "event/loan.loan-borrowed"}""")));
+        Assert.Equal(
+            ["use-case/lending.release-hold"],
+            ModelBuilder.TargetsOf(Element("""{"id": "release", "runs": "use-case/lending.release-hold", "guard": "the hold is expired"}""")));
+        Assert.Empty(ModelBuilder.TargetsOf(Element("""{"schedule": {"every": "PT1M"}}""")));
+        Assert.Empty(ModelBuilder.TargetsOf(Element("""{"manual": true}""")));
     }
 
     static JsonElement Element(string json)

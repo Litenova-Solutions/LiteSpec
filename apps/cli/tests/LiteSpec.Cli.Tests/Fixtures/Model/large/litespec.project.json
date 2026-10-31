@@ -66,6 +66,7 @@
     "verbs": [
       "borrow",
       "extend",
+      "nightly",
       "place",
       "register",
       "return"

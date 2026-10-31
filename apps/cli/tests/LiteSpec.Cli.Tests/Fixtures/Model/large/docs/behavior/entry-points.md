@@ -12,20 +12,12 @@
       "owner": "lending-team",
       "status": "reviewed",
       "kind": "browser",
+      "auth": [
+        "session"
+      ],
       "approvedBy": "lending-team",
-      "approvedOn": "2026-10-01",
-      "approvedHash": "d100cda8"
-    },
-    {
-      "type": "entry-point",
-      "id": "entry-point/overdue-job",
-      "title": "Overdue job",
-      "owner": "lending-team",
-      "status": "reviewed",
-      "kind": "job",
-      "approvedBy": "lending-team",
-      "approvedOn": "2026-10-01",
-      "approvedHash": "c02a09dc"
+      "approvedOn": "2026-10-31",
+      "approvedHash": "73011e91"
     }
   ]
 }

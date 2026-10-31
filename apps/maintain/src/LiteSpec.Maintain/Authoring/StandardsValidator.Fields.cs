@@ -22,7 +22,8 @@ static partial class StandardsValidator
     // (litespec/core/language#name-each-field-by-its-word-class)
     static readonly HashSet<string> LinkVerbFields = new(
         ["serves", "fulfills", "solves", "advances", "cites", "governs", "raises", "reads", "changes", "covers", "addresses",
-            "allows", "affects", "holds", "offers", "sends", "receives", "translates", "admits", "decides", "carries", "replaces"],
+            "allows", "affects", "holds", "offers", "sends", "receives", "translates", "admits", "decides", "carries", "replaces",
+            "binds", "exercises"],
         StringComparer.Ordinal);
     static readonly HashSet<string> ClosedSetNouns = new(
         ["kind", "mode", "direction", "trust", "reach", "lifecycle", "level"],

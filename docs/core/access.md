@@ -2,7 +2,7 @@
 
 ## Intent
 
-Who may act in the product and how they reach it: actors, roles, permissions, the access each use case declares, entry points, and external systems. Developers and agents write these records in Behavior, and reviewers read them in the Behavior diff with the security queue. The [behavior page](behavior.md) states the use cases that carry access, and the [model page](model.md) states the shared record rules.
+Who may act in the product and how they reach it: actors, roles, permissions, the access each use case declares, entry points, and external systems. Developers and agents write these records in Behavior, and reviewers read them in the Behavior diff with the security queue. The [use-cases page](use-cases.md) states the use cases that carry access, and the [model page](model.md) states the shared record rules.
 
 ## Concepts
 
@@ -20,15 +20,15 @@ A role is one named set of permissions granted together. Its scope is a kebab-ca
 
 A permission is one allowed action. The project keeps every permission in one shared list, and each permission states in `meaning` what it allows in one sentence. Roles allow permissions from that list, and use cases cite them in their grants, so the list is the one vocabulary both sides share.
 
-Each permission names in `scope` the reach at which a role grants it, using the same levels a role scope uses, such as `platform`, `tenant`, or `self`, or levels the project names itself. An optional `group` orders the permission beside its peers in role editors. The `risk` field marks a sensitive permission, and whether a permission only reads follows from the kind of its leading verb in the use-case verb table on the [behavior page](behavior.md). A permission name may also open with `manage`, which allows every changing use case on what it names, so it never only reads.
+Each permission names in `scope` the reach at which a role grants it, using the same levels a role scope uses, such as `platform`, `tenant`, or `self`, or levels the project names itself. An optional `group` orders the permission beside its peers in role editors. The `risk` field marks a sensitive permission, and whether a permission only reads follows from the kind of its leading verb in the use-case verb table on the [use-cases page](use-cases.md). A permission name may also open with `manage`, which allows every changing use case on what it names, so it never only reads.
 
 ### The Access Field
 
-Each use case declares `access` with three parts: how the caller proves identity, what grant the call checks, and which tenant reach the call has. The `auth` list names one or more of `session`, `token`, `device`, `link`, `app`, `anonymous`, or `system`. The `grant` is a permission such as `permission/manage-copies`, a self grant such as `self(permission/read-loans)`, or the open grants `anonymous` and `system`. A self grant allows the permission only on records the caller owns. The `tenant` scope is `own` for work inside the caller tenant, `cross` for work reaching across tenants, `public` for work with no tenant boundary, or `none` for work that touches no tenant data. The [behavior page](behavior.md) states the use case fields around access.
+Each use case declares `access` with two parts: what grant the call checks and which tenant reach the call has. The door the call arrives through declares `auth`: how the caller proves identity. The door authenticates and the use case authorizes. The `auth` list on the door names one or more of `session`, `token`, `device`, `link`, `app`, or `none`. The `grant` on the use case is a permission such as `permission/manage-copies`, a self grant such as `self(permission/read-loans)`, or the open grants `anonymous` and `system`. A self grant allows the permission only on records the caller owns. The `tenant` scope is `own` for work inside the caller tenant, `cross` for work reaching across tenants, `public` for work with no tenant boundary, or `none` for work that touches no tenant data. The [use-cases page](use-cases.md) states the use case fields around access.
 
 ### Generic Refusals
 
-Refusals that follow from access and input call for no written result. A call without the grant ends in the derived forbidden result, and a call with input that breaks its rules ends in the derived invalid input result. Scenarios may point at these derived results, and no record writes them.
+Refusals that follow from access and input need no written result. A call without the grant ends in the derived forbidden result, and a call with input that breaks its rules ends in the derived invalid input result. [Derive Generic Refusals Instead of Writing Them](use-cases.md#derive-generic-refusals-instead-of-writing-them) states the rule, and scenarios point at the derived results without anyone writing them.
 
 ### Tenant Scope and Cross Tenant Access
 
@@ -36,19 +36,19 @@ Refusals that follow from access and input call for no written result. A call wi
 
 ### Entitlements
 
-An entitlement is a grant that depends on what the caller bought or configured, such as a plan limit or a policy setting. The use case cites the setting or plan behind the grant, so a reviewer sees why one tenant is allowed what another is refused. The cited setting states its range and setter, as the [behavior page](behavior.md) states for settings.
+An entitlement is a grant that depends on what the caller bought or configured, such as a plan limit or a policy setting. The use case cites the setting or plan behind the grant, as [Cite the Setting or Plan Behind Every Entitlement](#cite-the-setting-or-plan-behind-every-entitlement) states, so a reviewer sees why one tenant is allowed what another is refused. The cited setting states its range and setter, as the [use-cases page](use-cases.md) states for settings.
 
 ### Hierarchies, Derived Trust, and Delegation
 
-Hierarchies, derived trust, and delegation are patterns built from the same three access parts, not extra grant forms. A hierarchy nests roles so a senior role allows what its junior roles allow, derived trust lets one checked fact stand for another within one call, and delegation lets one actor act for another. Each pattern is proved by scenarios that show who is allowed and who is refused. Grants that cross tenants through delegation use the tenancy extension, which states the declared grant each side carries.
+Hierarchies, derived trust, and delegation are patterns built from the same access parts, not extra grant forms. A hierarchy nests roles so a senior role allows what its junior roles allow, derived trust lets one checked fact stand for another within one call, and delegation lets one actor act for another. Each pattern proves its allowed and refused calls with scenarios, as [Prove Hierarchies Derived Trust and Delegation with Scenarios](#prove-hierarchies-derived-trust-and-delegation-with-scenarios) states. Grants that cross tenants through delegation use the tenancy extension, which states the declared grant each side carries.
 
 ### Entry Points
 
-An entry point is one way people or systems reach the product. Its kind is `browser` for an interactive web application, `api` for a public interface, `webhook` for inbound events, `device` for a managed device, `cli` for a command line, `mcp` for a model context channel, `served-content` for a static file, `reaction` for behavior an event causes, or `job` for background work without a request. A `served-content` entry point carries `path`, `contentType`, `cacheControl`, `versioning`, and `fulfills`, so a static script or a legal text is served content rather than a use case. Use cases name the entry points that reach them in `reachedThrough`, so every operation shows how callers arrive. The protocol detail for devices lives in the devices extension.
+An entry point is one door from outside: a way people or systems reach the product. [Give Each Entry Point a Kind](edges.md#give-each-entry-point-a-kind) states the kinds, and each door declares its `auth`. A `served-content` entry point carries `path`, `contentType`, `cacheControl`, `versioning`, and `fulfills`, so a static script or a legal text is served content rather than a use case. Use cases name the entry points that reach them in `reachedThrough`, so every operation shows how callers arrive. The protocol detail for devices lives in the devices extension.
 
 ### External Systems
 
-An external system is one system outside the bounded context that the product exchanges messages with, such as a payment provider or a text gateway. It acts inside the product as one actor, named in `actor`, so everything it does stays attributable to a party the access records know. It declares each operation the product may call in `operations`, with its direction, timeout, retry, response, and cache behavior, so every outside call is a declared edge. It declares in `erasure` how personal data it holds is erased, or why erasure there is impossible with the Intent decision that accepts the limit.
+An external system is one system outside the bounded context that the product exchanges messages with, such as a payment provider or a text gateway. It acts inside the product as one actor, named in `actor`, so everything it does stays attributable to a party the access records know. It declares each operation the product may call in `operations`, with its direction, timeout, response, and cache behavior, as [Describe Every External System Operation](edges.md#describe-every-external-system-operation) states, so every outside call is a declared edge. It declares in `erasure` how personal data it holds is erased, or why erasure there is impossible with the Intent decision that accepts the limit.
 
 ### Homes and Summaries
 
@@ -156,29 +156,29 @@ An actor, role, or external system page carries a Summary section stating what t
 
 **ID:** `litespec/core/access#declare-access-on-every-use-case`
 
-**Statement:** Each use case MUST declare its access with auth, grant, and tenant scope.
+**Statement:** Each use case MUST declare its grant and its tenant scope in `access`.
 
-**Rationale:** The three parts answer the three access questions together: how the caller proves identity, what grant the call checks, and which tenant reach the call has. A use case without one part leaves that question to code, and two implementations of the same page enforce different boundaries.
+**Rationale:** The two parts answer the access questions together: what grant the call checks and which tenant reach the call has. A use case without one part leaves that question to code, and two implementations of the same page enforce different boundaries. The door the call arrives through declares how the caller proved identity.
 
 **Example:**
 
 ```json
-"access": { "auth": ["session"], "grant": "permission/manage-copies", "tenant": "own" }
+"access": { "grant": "permission/manage-copies", "tenant": "own" }
 ```
 
-**Checked by:** `litespec model check` reports `record-invalid` for a use case without `access`, `auth`, `grant`, or `tenant`.
+**Checked by:** `litespec model check` reports `record-invalid` for a use case without `access`, `grant`, or `tenant`.
 
 ### Authenticate Every Caller Through a Declared Auth Kind
 
 **ID:** `litespec/core/access#authenticate-every-caller-through-a-declared-auth-kind`
 
-**Statement:** Each access declaration MUST name its auth kinds from session, token, device, link, app, anonymous, and system.
+**Statement:** Each entry point MUST name its auth kinds from session, token, device, link, app, and none.
 
-**Rationale:** The auth kind tells a reviewer how the caller proves identity before the grant is checked: a session for a signed-in person, a device for a managed scanner, a link for a bearer link, and system for work with no caller. Without a declared kind, anonymous calls and authenticated calls look alike, and a reviewer cannot tell which identity the grant was checked against.
+**Rationale:** The auth kind tells a reviewer how the caller proves identity before the grant is checked: a session for a signed-in person, a device for a managed scanner, a link for a single-purpose link, an app for a calling application, a token for a bearer token, and none for open calls. Without a declared kind, open calls and authenticated calls look alike, and a reviewer cannot tell which identity the grant was checked against.
 
-**Example:** An expense approval names `session`, a self-checkout kiosk names `device`, and a nightly job names `system`.
+**Example:** An expense approval names `session`, a self-checkout kiosk names `device`, and a public catalog names `none`.
 
-**Checked by:** `litespec model check` reports `field-invalid` for an `auth` kind outside session, token, device, link, app, anonymous, and system.
+**Checked by:** `litespec model check` reports `field-invalid` for an `auth` kind outside session, token, device, link, app, and none.
 
 ### Grant Every Use Case Through a Declared Grant
 
@@ -202,7 +202,7 @@ An actor, role, or external system page carries a Summary section stating what t
 
 **Example:** "My loans" lists the signed-in reader's loans and takes no reader id.
 
-**Reviewed for:** Each use case whose grant is a self grant names no caller-owned target in its inputs, or its message has a self declaration the authorization guard enforces, and no handler compares the caller with a target.
+**Reviewed for:** Which use cases with a self grant name a caller-owned target in their inputs without a self declaration the guard enforces, or compare the caller with a target in a handler? Look at the inputs and handlers beside the self grants.
 
 ### Scope Every Grant to Its Tenant Reach
 
@@ -215,18 +215,6 @@ An actor, role, or external system page carries a Summary section stating what t
 **Example:** An expense report names `own`, a staff search across tenants names `cross`, a public catalog names `public`, and a health check names `none`.
 
 **Checked by:** `litespec model check` reports `field-invalid` for a tenant scope outside own, cross, public, and none.
-
-### Derive Generic Refusals from Access and Input
-
-**ID:** `litespec/core/access#derive-generic-refusals-from-access-and-input`
-
-**Statement:** A use case MUST NOT write a result for a refusal that access and input already imply.
-
-**Rationale:** Forbidden and invalid input follow from the grant and the input rules on every use case, so written copies would repeat the same two endings on every page. Deriving them keeps each page to the refusals its own rules add, while scenarios still point at the derived results where the story calls for them.
-
-**Example:** A call without the grant ends in `result/<name>.forbidden`, and a call with input that breaks its rules ends in `result/<name>.invalid-input`, with neither written as a record.
-
-**Reviewed for:** Which use case pages write a forbidden or invalid input result? Look at the results on each use case page beside the derived names.
 
 ### Route Cross Tenant Access Through the Security Queue
 
@@ -294,11 +282,11 @@ An actor, role, or external system page carries a Summary section stating what t
 
 **Statement:** An entry point MUST name its kind in `kind`.
 
-**Rationale:** The kind tells a reviewer how callers arrive: a browser serves people, an api serves callers over a boundary, a webhook receives inbound events, a device serves a managed scanner, a cli serves operators, an mcp channel serves a model, served content serves a static file, and a reaction or job runs without a request. Without the kind, interactive operations and background work look alike.
+**Rationale:** The kind tells a reviewer how callers arrive: a browser serves people, an api serves callers over a boundary, a webhook receives inbound events, a device serves a managed scanner, a cli serves operators, an mcp channel serves a model, and served content serves a static file. Without the kind, a webhook and a page look alike.
 
-**Example:** The library app carries `browser`, a kiosk handshake carries `device`, and the nightly export carries `job`.
+**Example:** The library app carries `browser`, and a kiosk handshake carries `device`.
 
-**Checked by:** `litespec model check` reports `record-invalid` for an entry point without `kind` and `field-invalid` for a kind outside browser, api, webhook, device, cli, mcp, served-content, reaction, and job.
+**Checked by:** `litespec model check` reports `record-invalid` for an entry point without `kind` and `field-invalid` for a kind outside browser, api, webhook, device, cli, mcp, and served-content.
 
 ### Describe Every Served Content Entry Point with Its Serving Fields
 
@@ -330,9 +318,9 @@ An actor, role, or external system page carries a Summary section stating what t
 
 **Statement:** An external system MUST declare every operation the product may call in `operations`.
 
-**Rationale:** Each operation is one edge to outside behavior the product does not control, with its direction, timeout, retry, response, and cache behavior. Without the declared list, a new outside call ships as an unreviewed dependency, and the security queue has no stated edge to review.
+**Rationale:** Each operation is one edge to outside behavior the product does not control. Without the declared list, a new outside call ships as an unreviewed dependency, and the security queue has no stated edge to review. Each operation carries its direction, timeout, response, and cache, as [Describe Every External System Operation](edges.md#describe-every-external-system-operation) states.
 
-**Example:** A payout bank declares a `settle-batch` operation with its timeout, retry count, and response shape, which the payout effect cites as `calls`.
+**Example:** A payout bank declares a `settle-batch` operation with its timeout, timeout handling, and response shape, which the payout effect cites as `calls`.
 
 **Checked by:** `litespec model check` reports `record-invalid` for an external system without `operations` and `reference-unknown` for a `calls` edge naming no declared operation.
 

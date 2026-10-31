@@ -35,18 +35,17 @@ static class Approver
     ///     reopenedWhen, choice, decides); research (sources, question,
     ///     conclusion); topic (reviewBy); journey (actor, serves, cites, finishedWhen, steps); actor (kind); term (term, meaning, layer, aliases); module
     ///     (dependsOn); aggregate (kind, states, transitions, data, dataClasses, steps,
-    ///     exits, finishedWhen, driver, cursor, owner); rule (kind, statement, governs,
-    ///     refusal, releasedBy, frozenWhen, history, computedBy); use-case (kind,
-    ///     serves, fulfills, access, reachedThrough, input, output, paging,
+    ///     exits, finishedWhen, drivenBy, cursor, owner); rule (kind, statement, governs,
+    ///     binds, refusal, releasedBy, frozenWhen, history, computedBy); use-case (kind,
+    ///     serves, fulfills, access, reachedThrough, input, output, background, paging,
     ///     builtAsynchronously, changes, reads, consistency, effects, raises,
     ///     idempotency, audit, risk); result (outcome, code, meaning, recorded, codes);
-    ///     scenario (given, when, then, result, examples); event (meaning, carries);
-    ///     integration-event (direction, eventType, source, subject, payload, addresses,
-    ///     trust, correlation, translates); reaction (on, if, issues, sends, forEach,
-    ///     reads, fulfills, serves, idempotency, onFailure, onExhausted); job (kind,
-    ///     schedule, selection, batchSize, lease, issues, reads, serviceLevel, evidence,
-    ///     runbook, runsWhere, guard, cursor, fulfills, serves, onFailure,
-    ///     idempotency); notification (template, addresses, channel, consent, frequency,
+    ///     scenario (given, when, then, result, examples, exercises); event (meaning, carries);
+    ///     integration-event (direction, eventType, source, subject, payload, dataschema,
+    ///     addresses, trust, correlation, translates); automation (triggeredBy, skippedWhen,
+    ///     effects, runbook, runsWhere, guard, cursor, selection, lease, batchSize,
+    ///     fulfills, serves, onFailure, idempotency, reads, changes);
+    ///     notification (template, addresses, channel, consent, frequency,
     ///     dedupKey, params, locale, suppressedWhen, claims, fulfills, sender); setting
     ///     (valueType, default, range, unit, setBy, atBound, secret, meaning, runbook,
     ///     fulfills); role (scope, allows); permission (meaning); entry-point (kind,

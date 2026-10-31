@@ -16,8 +16,7 @@ public static class MarkRules
     private static readonly string[] UseCaseTypes = { "use-case" };
     private static readonly string[] EventTypes = { "event" };
     private static readonly string[] RuleTypes = { "rule" };
-    private static readonly string[] ReactionTypes = { "reaction" };
-    private static readonly string[] JobTypes = { "job" };
+    private static readonly string[] AutomationTypes = { "automation" };
     private static readonly string[] ExternalSystemTypes = { "external-system" };
     private static readonly string[] ScreenTypes = { "screen" };
     private static readonly string[] TestTypes =
@@ -27,7 +26,7 @@ public static class MarkRules
     };
     private static readonly string[] TechnicalImplementsTypes =
     {
-        "aggregate", "use-case", "reaction", "job", "external-system",
+        "aggregate", "use-case", "automation", "external-system",
         "event", "rule", "notification", "setting", "integration-event",
     };
     private static readonly string[] FollowsTypes = { "litespec", "decision", "deviation" };
@@ -273,9 +272,9 @@ public static class MarkRules
             case CodeKind.Handler:
                 return new KindRule(UseCaseTypes, true, MarkVerb.Implements);
             case CodeKind.EventHandler:
-                return new KindRule(ReactionTypes, true, MarkVerb.Implements);
+                return new KindRule(AutomationTypes, true, MarkVerb.Implements);
             case CodeKind.Job:
-                return new KindRule(JobTypes, true, MarkVerb.Implements);
+                return new KindRule(AutomationTypes, true, MarkVerb.Implements);
             case CodeKind.Port:
                 return new KindRule(ExternalSystemTypes, false, MarkVerb.Implements);
             case CodeKind.Adapter:

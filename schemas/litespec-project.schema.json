@@ -106,8 +106,8 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "jobTriggerSteps": {
-          "description": "Steps classes whose when steps run a job, such as one that moves a simulated clock.",
+        "automationTriggerSteps": {
+          "description": "Steps classes whose when steps run an automation, such as one that moves a simulated clock.",
           "type": "array",
           "uniqueItems": true,
           "items": { "type": "string", "pattern": "^[A-Z][A-Za-z0-9]*$" }
@@ -345,7 +345,7 @@
           "description": "Home folders per record type, where they differ from the defaults the model states.",
           "type": "object",
           "propertyNames": {
-            "pattern": "^(product|goal|constraint|research|decision|requirement|problem|feature|actor|role|permission|journey|module|aggregate|rule|use-case|result|scenario|event|entry-point|external-system|reaction|job|notification|setting|integration-event|runbook|deviation|known-gap|term)$"
+            "pattern": "^(product|goal|constraint|research|decision|requirement|problem|feature|actor|role|permission|journey|module|aggregate|rule|use-case|result|scenario|event|entry-point|external-system|automation|notification|setting|integration-event|runbook|deviation|known-gap|term)$"
           },
           "additionalProperties": { "$ref": "#/$defs/projectPath" }
         },
@@ -390,7 +390,7 @@
           "$ref": "#/$defs/projectPath"
         },
         "surfaces": {
-          "description": "The surfaces outside paths.frontends that invoke a use case: a command-line tool, a distributed server, a background host, an event reaction. Each frontend is already a surface under its own name. A Consumers row names one of these.",
+          "description": "The surfaces outside paths.frontends that invoke a use case: a command-line tool, a distributed server, a background host, an event automation. Each frontend is already a surface under its own name. A Consumers row names one of these.",
           "type": "array",
           "uniqueItems": true,
           "items": {

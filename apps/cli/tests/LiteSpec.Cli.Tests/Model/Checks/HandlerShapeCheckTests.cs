@@ -557,13 +557,13 @@ public sealed class HandlerShapeCheckTests
 
     /// <proves>litespec/backend/application#build-collaborators-through-the-container</proves>
     [Fact]
-    public void Reaction_Collaborator_Holding_A_Repository_Reports()
+    public void Automation_Collaborator_Holding_A_Repository_Reports()
     {
         using var temp = Cli.Temp("checks");
-        var file = Path.Combine(temp.Path, "SweepReaction.cs");
+        var file = Path.Combine(temp.Path, "SweepAutomation.cs");
         var model = TestModel.Model(TestModel.Config(temp.Path));
-        model.Code.Reactions.Add(new ReactionInfo(
-            "SweepReaction", file, 3, "reaction", null, "reaction/lending.sweep",
+        model.Code.Automations.Add(new AutomationInfo(
+            "SweepAutomation", file, 3, null, "automation/lending.sweep",
             Collaborators: [new CodeCollaborator("OrderEraser", file, 9)]));
 
         Assert.Contains("collaborator-repository-invalid", TestModel.Codes(model));
@@ -653,13 +653,13 @@ public sealed class HandlerShapeCheckTests
 
     /// <proves>litespec/backend/application#keep-command-handlers-to-load-call-and-stage</proves>
     [Fact]
-    public void Reaction_With_Eleven_Dependencies_Reports()
+    public void Automation_With_Eleven_Dependencies_Reports()
     {
         using var temp = Cli.Temp("checks");
-        var file = Path.Combine(temp.Path, "SweepReaction.cs");
+        var file = Path.Combine(temp.Path, "SweepAutomation.cs");
         var model = TestModel.Model(TestModel.Config(temp.Path));
-        model.Code.Reactions.Add(new ReactionInfo(
-            "SweepReaction", file, 3, "reaction", null, "reaction/lending.sweep", DependencyCount: 12));
+        model.Code.Automations.Add(new AutomationInfo(
+            "SweepAutomation", file, 3, null, "automation/lending.sweep", DependencyCount: 12));
 
         Assert.Contains("dependency-count-invalid", TestModel.Codes(model));
     }

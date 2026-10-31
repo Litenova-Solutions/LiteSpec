@@ -46,6 +46,7 @@
       ],
       "onErasure": "erase",
       "basis": "business",
+      "purpose": "Send overdue notices to readers.",
       "enforcedBy": "record-expiry"
     }
   ],

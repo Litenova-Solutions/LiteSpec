@@ -108,7 +108,7 @@ The manifest pins the baseline stack, which is the set these standards name. A c
 | Application | Required LiteBus module abstractions; `Marten` for the selected `IQuerySession` read boundary; Microsoft abstractions used by public ports |
 | Infrastructure | `Marten`; LiteBus registration modules. Provider, resilience, service discovery, and configuration packages required by implemented adapters |
 | WebApi | JWT Bearer [REDACTED], ASP.NET Core OpenAPI, build-time OpenAPI generation, Scalar, and required LiteBus mediator abstractions |
-| Worker | LiteBus registration modules; the provider, resilience, and configuration packages its hosted jobs need |
+| Worker | LiteBus registration modules; the provider, resilience, and configuration packages its hosted operations need |
 | ServiceDefaults | Health checks, service discovery, HTTP resilience, and OpenTelemetry registration and instrumentation |
 | AppHost | Aspire AppHost and resource hosting packages |
 | Domain.Tests | xUnit v3, assertions, and FsCheck |

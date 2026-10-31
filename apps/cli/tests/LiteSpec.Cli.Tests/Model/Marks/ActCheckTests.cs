@@ -259,7 +259,7 @@ public sealed class ActCheckTests
                   "kind": "command",
                   "effects": [
                     {
-                      "issues": "use-case/lending.borrow-copy",
+                      "runs": "use-case/lending.borrow-copy",
                       "timing": "after-commit"
                     }
                   ],

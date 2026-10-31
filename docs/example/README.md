@@ -21,8 +21,7 @@ product        Claimwick: submit, approve, reimburse
     use-case   Submit expense, Send approver reminder, List expenses, and 7 more
       result   Submitted, Receipt missing, and more
         scenario  Submitting with a receipt succeeds
-    reaction   Notify on reimbursement
-    job        Remind approvers, Erase expired personal data
+    automation Notify employee on reimbursement, Remind approvers, Erase expired personal data
     notification  Approver reminder, Reimbursement received
     setting    Receipt threshold
 --- Intent above is approved by product people; Behavior below is reviewed by developers
@@ -30,7 +29,7 @@ Implementation  Aggregate, command, endpoint, screen, tests, each pointing up to
 Proof         Passing tests, check results by level, computed statuses, the book
 facet Where it lives  spending module > expense aggregate > its rules, events, use cases
 facet Who may do it  employee, manager, finance > role at a scope > permission > access grant
-facet How it is reached  expenses app, reminder job > payout bank outside
+facet How it is reached  expenses app, reminder automation > payout bank outside
 facet What it promises  journey steps > serving use cases > results > proving tests
 ```
 
@@ -39,7 +38,7 @@ Read the pages in the order below: the product first, then its modules and recor
 ## Reading Order
 
 - [The Claimwick Product](the-product.md): the product brief, goal, problem, feature, topic and requirements, research, decision, constraint, and journey records.
-- [Modules and Records](modules-and-records.md): the spending module, its aggregates with data classes, rules, access chain, external system, use cases, and the reaction, jobs, notifications, and setting around them.
+- [Modules and Records](modules-and-records.md): the spending module, its aggregates with data classes, rules, access chain, external system, use cases, and the automations, notifications, and setting around them.
 - [A Use Case in Code](a-use-case-in-code.md): Submit expense from its record into .NET code and tests.
 - [The Claimwick Screen](the-screen.md): the expenses list screen, the generated client it reads through, and the UI pattern it starts from.
 - [The Model and Its Checks](model-and-checks.md): model build, check, and query runs, the book chapter and ballots, and the CI jobs that run the checks.

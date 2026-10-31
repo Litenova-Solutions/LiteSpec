@@ -124,13 +124,13 @@ An unapproved expense keeps its state, and the refusal carries the stable code `
 
 **ID:** `litespec/backend/domain#call-the-marked-act-from-each-command-handler`
 
-**Statement:** A command handler changing an entity or process aggregate MUST change it by calling a root method marked with the handler's use case.
+**Statement:** A command handler changing an entity or saga aggregate MUST change it by calling a root method marked with the handler's use case.
 
-**Rationale:** The use case names an act, and the aggregate performs it: the mark on the root method says which act the method is. A handler that changes its aggregate only through methods marked for other use cases performs an act its record never named, and a reader cannot tell from the use case which method to open. The use-case verb, the method name, and the raised event's tense agree under `litespec/backend/dotnet/domain#raise-the-past-tense-of-a-methods-own-verb`. This provision states the marked form of `litespec/backend/application#keep-command-handlers-to-load-call-and-stage`. A command that changes only stores, or that only issues other commands and lists nothing in `changes`, performs no act on a root, so it needs no marked call.
+**Rationale:** The use case names an act, and the aggregate performs it: the mark on the root method says which act the method is. A handler that changes its aggregate only through methods marked for other use cases performs an act its record never named, and a reader cannot tell from the use case which method to open. The use-case verb, the method name, and the raised event's tense agree under `litespec/backend/dotnet/domain#raise-the-past-tense-of-a-methods-own-verb`. This provision states the marked form of `litespec/backend/application#keep-command-handlers-to-load-call-and-stage`. A command that changes only stores, or that only runs other commands and lists nothing in `changes`, performs no act on a root, so it needs no marked call.
 
 **Example:** The reimburse-expense handler calls `Reimburse` on the expense root, and `Reimburse` carries the mark `use-case/spending.reimburse-expense`.
 
-**Checked by:** `litespec model check` reports `use-case-act-missing` (tier S) for a command handler changing an entity or process aggregate that calls no root method marked with its use case. The check runs in the CLI only, with no analyzer rule: the handler and the root method sit in different projects, and one compilation sees one project.
+**Checked by:** `litespec model check` reports `use-case-act-missing` (tier S) for a command handler changing an entity or saga aggregate that calls no root method marked with its use case. The check runs in the CLI only, with no analyzer rule: the handler and the root method sit in different projects, and one compilation sees one project.
 
 ### Give Each Use Case Its Own Act
 
@@ -150,7 +150,7 @@ An unapproved expense keeps its state, and the refusal carries the stable code `
 
 **Statement:** The root methods marked with a use case MUST together raise exactly the events that use case lists in `raises`.
 
-**Rationale:** The use case record states the facts its act leaves behind, and reactions subscribe to those facts. A marked method that raises an event the record does not list starts a consequence nobody reviewed, and a listed event that no marked method raises is a promise the code does not keep.
+**Rationale:** The use case record states the facts its act leaves behind, and automations subscribe to those facts. A marked method that raises an event the record does not list starts a consequence nobody reviewed, and a listed event that no marked method raises is a promise the code does not keep.
 
 **Example:** `use-case/spending.submit-expense` raises `event/expense.submitted`, and the `Submit` method marked with it raises `ExpenseSubmittedEvent` and nothing else.
 
@@ -294,7 +294,7 @@ The Infrastructure implementation owns that refusal. The command pipeline owns t
 
 **Statement:** A domain event MUST be immutable and carry business data only.
 
-**Rationale:** A domain event records a completed fact for reactions to consume. Its name states the aggregate and the completed fact, following `litespec/workspace/naming#anchor-aggregate-owned-types-on-the-aggregate-root` and `litespec/workspace/naming#use-architectural-suffixes`, so a reader knows which aggregate raised the fact without opening the file. The event carries business data only: typed identifiers and the values its reactions need, with no aggregate, session, service, mutable collection, or thrown error, because any of those would couple reactions to the raising process. Envelope identity, such as message identity and causation identity, lives on the published integration event that carries the fact outside the process. That integration event names the domain event in `translates`.
+**Rationale:** A domain event records a completed fact for automations to consume. Its name states the aggregate and the completed fact, following `litespec/workspace/naming#anchor-aggregate-owned-types-on-the-aggregate-root` and `litespec/workspace/naming#use-architectural-suffixes`, so a reader knows which aggregate raised the fact without opening the file. The event carries business data only: typed identifiers and the values its automations need, with no aggregate, session, service, mutable collection, or thrown error, because any of those would couple automations to the raising aggregate. Envelope identity, such as message identity and causation identity, lives on the published integration event that carries the fact outside the process. That integration event names the domain event in `translates`.
 
 **Reviewed for:** Each domain event is immutable, named for its aggregate and fact, and carries business data only.
 

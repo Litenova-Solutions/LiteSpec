@@ -164,7 +164,7 @@ A consumer adopts one LiteSpec release by installing the `LiteSpec.Cli` tool pac
 
 **ID:** `litespec/core/release#approve-drafts-in-bounded-batches`
 
-**Statement:** A batch approval MUST cover one use case with its results and scenarios, one reaction or job with the scenarios on its page, one decision with the records it decides, one tier 1 record no use case, reaction, job or decision holds, on its own, or the tier 3 drafts of one module and one record type, where an Intent record's module is its identifier home, or for a journey the goal it serves, so an open question holds back only the records of its own home.
+**Statement:** A batch approval MUST cover one use case with its results and scenarios, one automation with the scenarios on its page, one decision with the records it decides, one tier 1 record no use case, automation or decision holds, on its own, or the tier 3 drafts of one module and one record type, where an Intent record's module is its identifier home, or for a journey the goal it serves, so an open question holds back only the records of its own home.
 
 **Rationale:** One signature over hundreds of unread records is a rubber stamp. Bounding a batch to what one person can read in one sitting keeps each approval a decision: a tier 1 use case is read with the results and scenarios that state its promise, a decision with what it settles, and tier 3 drafts in sets small enough to sample.
 
@@ -178,7 +178,7 @@ A consumer adopts one LiteSpec release by installing the `LiteSpec.Cli` tool pac
 
 **Statement:** A module and type batch MUST approve every record whose guards pass and hold each record whose guard fails, by name and with that guard.
 
-**Rationale:** A module and type batch gathers unrelated drafts of one kind, so one record waiting on an open question says nothing about its siblings; refusing the whole batch would hold every sibling behind a question that is not theirs. A use case, reaction, job, decision or tier 1 record batch is read as one unit, so it stays approved or refused whole. A held record keeps its status and gets no stamp, and the manifest lists it with the action `held` and its guard, so the next run approves it once the guard passes.
+**Rationale:** A module and type batch gathers unrelated drafts of one kind, so one record waiting on an open question says nothing about its siblings; refusing the whole batch would hold every sibling behind a question that is not theirs. A use case, automation, decision or tier 1 record batch is read as one unit, so it stays approved or refused whole. A held record keeps its status and gets no stamp, and the manifest lists it with the action `held` and its guard, so the next run approves it once the guard passes.
 
 **Example:** The `admin/screen` batch holds twelve screens; two serve a journey step whose journey waits on an open pricing question. The run approves the ten others and lists the two as held, each naming `stays draft behind draft journey/choose-a-plan`.
 

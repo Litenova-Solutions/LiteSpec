@@ -35,7 +35,9 @@
       "onErasure": "pseudonymize",
       "basis": "business",
       "period": "P7Y",
-      "enforcedBy": "job/spending.erase-expired-personal-data"
+      "enforcedBy": "automation/spending.erase-expired-personal-data",
+      "purpose": "Link each expense to the employee who submitted it.",
+      "acceptedBy": "requirement/approval.erase-after-retention"
     },
     {
       "name": "expense-ledger",
@@ -48,7 +50,8 @@
       "onErasure": "retain",
       "basis": "statute",
       "period": "P7Y",
-      "enforcedBy": "record-expiry"
+      "enforcedBy": "record-expiry",
+      "purpose": "Keep the tax file defensible."
     }
   ],
   "records": [
@@ -242,7 +245,7 @@
   ],
   "approvedBy": "claimwick-team",
   "approvedOn": "2026-10-31",
-  "approvedHash": "9f19cfe1"
+  "approvedHash": "741f1d7b"
 }
 ---
 

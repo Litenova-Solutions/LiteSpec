@@ -12,9 +12,12 @@
       "owner": "claimwick-team",
       "status": "reviewed",
       "kind": "browser",
+      "auth": [
+        "session"
+      ],
       "approvedBy": "claimwick-team",
-      "approvedOn": "2026-10-01",
-      "approvedHash": "d100cda8"
+      "approvedOn": "2026-10-31",
+      "approvedHash": "73011e91"
     }
   ]
 }

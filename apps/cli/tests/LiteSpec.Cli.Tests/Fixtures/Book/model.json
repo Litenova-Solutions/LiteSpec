@@ -652,30 +652,10 @@
                                        "title":  "Library app",
                                        "owner":  "lending-team",
                                        "status":  "reviewed",
-                                       "kind":  "browser"
-                                   },
-                        "links":  {
-
-                                  }
-                    },
-                    {
-                        "type":  "entry-point",
-                        "id":  "entry-point/overdue-job",
-                        "title":  "Overdue job",
-                        "owner":  "lending-team",
-                        "status":  "reviewed",
-                        "effectiveStatus":  null,
-                        "decider":  null,
-                        "decideBy":  null,
-                        "file":  "docs/behavior/entry-points.md",
-                        "line":  18,
-                        "fields":  {
-                                       "type":  "entry-point",
-                                       "id":  "entry-point/overdue-job",
-                                       "title":  "Overdue job",
-                                       "owner":  "lending-team",
-                                       "status":  "reviewed",
-                                       "kind":  "job"
+                                       "kind":  "browser",
+                                       "auth":  [
+                                                  "session"
+                                              ]
                                    },
                         "links":  {
 
@@ -2233,9 +2213,6 @@
                                                        }
                                                    ],
                                        "access":  {
-                                                      "auth":  [
-                                                                   "session"
-                                                               ],
                                                       "grant":  "permission/borrow-copy",
                                                       "tenant":  "own"
                                                   }
@@ -2311,9 +2288,6 @@
                                                        }
                                                    ],
                                        "access":  {
-                                                      "auth":  [
-                                                                   "session"
-                                                               ],
                                                       "grant":  "permission/place-hold",
                                                       "tenant":  "own"
                                                   }
@@ -2389,9 +2363,6 @@
                                                        }
                                                    ],
                                        "access":  {
-                                                      "auth":  [
-                                                                   "session"
-                                                               ],
                                                       "grant":  "permission/borrow-copy",
                                                       "tenant":  "own"
                                                   }
@@ -2458,9 +2429,6 @@
                                                        }
                                                    ],
                                        "access":  {
-                                                      "auth":  [
-                                                                   "session"
-                                                               ],
                                                       "grant":  "permission/read-loans",
                                                       "tenant":  "own"
                                                   }
@@ -2533,9 +2501,6 @@
                                                        }
                                                    ],
                                        "access":  {
-                                                      "auth":  [
-                                                                   "session"
-                                                               ],
                                                       "grant":  "permission/place-hold",
                                                       "tenant":  "own"
                                                   }
@@ -2611,9 +2576,6 @@
                                                        }
                                                    ],
                                        "access":  {
-                                                      "auth":  [
-                                                                   "session"
-                                                               ],
                                                       "grant":  "permission/manage-copies",
                                                       "tenant":  "own"
                                                   }
@@ -2689,9 +2651,6 @@
                                                        }
                                                    ],
                                        "access":  {
-                                                      "auth":  [
-                                                                   "session"
-                                                               ],
                                                       "grant":  "permission/manage-copies",
                                                       "tenant":  "own"
                                                   }
@@ -2767,9 +2726,6 @@
                                                        }
                                                    ],
                                        "access":  {
-                                                      "auth":  [
-                                                                   "session"
-                                                               ],
                                                       "grant":  "permission/borrow-copy",
                                                       "tenant":  "own"
                                                   }
@@ -2866,26 +2822,38 @@
                                   }
                     },
                     {
-                        "type":  "job",
-                        "id":  "job/lending.send-overdue-notices",
+                        "type":  "automation",
+                        "id":  "automation/lending.send-overdue-notices",
                         "title":  "Send overdue notices",
                         "owner":  "lending-team",
                         "status":  "reviewed",
                         "effectiveStatus":  null,
                         "decider":  null,
                         "decideBy":  null,
-                        "file":  "docs/behavior/modules/lending/jobs/send-overdue-notices.md",
+                        "file":  "docs/behavior/modules/lending/automations/send-overdue-notices.md",
                         "line":  3,
                         "fields":  {
-                                       "type":  "job",
-                                       "id":  "job/lending.send-overdue-notices",
+                                       "type":  "automation",
+                                       "id":  "automation/lending.send-overdue-notices",
                                        "title":  "Send overdue notices",
                                        "owner":  "lending-team",
                                        "status":  "reviewed",
-                                       "schedule":  "daily 06:00",
+                                       "triggeredBy":  {
+                                                      "schedule":  {
+                                                                   "cron":  "0 6 * * *"
+                                                               }
+                                                  },
+                                       "effects":  [
+                                                      {
+                                                          "sends":  "notification/lending.due-reminder"
+                                                      }
+                                                  ],
                                        "runbook":  "runbook/clear-stuck-holds"
                                    },
                         "links":  {
+                                      "effects":  [
+                                                    "notification/lending.due-reminder"
+                                                ],
                                       "runbook":  [
                                                        "runbook/clear-stuck-holds"
                                                    ]
@@ -2921,31 +2889,38 @@
                                   }
                     },
                     {
-                        "type":  "reaction",
-                        "id":  "reaction/lending.send-due-reminder",
+                        "type":  "automation",
+                        "id":  "automation/lending.send-due-reminder-on-loan-borrowed",
                         "title":  "Send due reminder",
                         "owner":  "lending-team",
                         "status":  "reviewed",
                         "effectiveStatus":  null,
                         "decider":  null,
                         "decideBy":  null,
-                        "file":  "docs/behavior/modules/lending/reactions/send-due-reminder.md",
+                        "file":  "docs/behavior/modules/lending/automations/send-due-reminder-on-loan-borrowed.md",
                         "line":  3,
                         "fields":  {
-                                       "type":  "reaction",
-                                       "id":  "reaction/lending.send-due-reminder",
+                                       "type":  "automation",
+                                       "id":  "automation/lending.send-due-reminder-on-loan-borrowed",
                                        "title":  "Send due reminder",
                                        "owner":  "lending-team",
                                        "status":  "reviewed",
-                                       "on":  [
-                                                   "event/loan.loan-borrowed"
-                                               ],
-                                       "sends":  "notification/lending.due-reminder"
+                                       "triggeredBy":  {
+                                                      "event":  "event/loan.loan-borrowed"
+                                                  },
+                                       "effects":  [
+                                                      {
+                                                          "sends":  "notification/lending.due-reminder"
+                                                      }
+                                                  ]
                                    },
                         "links":  {
-                                      "on":  [
+                                      "triggeredBy":  [
                                                   "event/loan.loan-borrowed"
-                                              ]
+                                              ],
+                                      "effects":  [
+                                                    "notification/lending.due-reminder"
+                                                ]
                                   }
                     },
                     {
@@ -3020,12 +2995,9 @@
                                       "path":  "apps/api/src/Library.Application/Lending/Loans/ReturnCopy/ReturnCopyCommandHandler.cs"
                                   }
                               ],
-                 "reactions":  [
+                 "automations":  [
 
                                ],
-                 "jobs":  [
-
-                          ],
                  "codes":  [
                                {
                                    "code":  "lending.copy-already-registered",

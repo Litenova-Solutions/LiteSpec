@@ -36,6 +36,7 @@
       ],
       "onErasure": "erase",
       "basis": "business",
+      "purpose": "Send overdue notices to readers.",
       "period": "P30D",
       "enforcedBy": "record-expiry",
       "exceptions": [
@@ -140,7 +141,7 @@
   ],
   "approvedBy": "lending-team",
   "approvedOn": "2026-10-01",
-  "approvedHash": "b8e1a135"
+  "approvedHash": "51e203c1"
 }
 ---
 

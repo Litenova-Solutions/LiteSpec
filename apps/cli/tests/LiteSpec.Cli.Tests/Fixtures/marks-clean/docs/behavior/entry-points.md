@@ -11,7 +11,10 @@
       "title": "Library API",
       "owner": "lending-team",
       "status": "reviewed",
-      "kind": "api"
+      "kind": "api",
+      "auth": [
+        "token"
+      ]
     }
   ]
 }

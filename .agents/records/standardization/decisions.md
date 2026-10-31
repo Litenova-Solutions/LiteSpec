@@ -55,3 +55,15 @@ Part D's page items (D4, D5) edit the Behavior pages that Part I (wave 6) rewrit
 ## 2026-10-31: Pattern Option Names Keep the Pattern Page's Spelling
 
 The B6 rewrite title-cased the option names in the UI pattern catalog template. A catalog option must match its LiteSpec pattern page exactly, and the Title Case rule (B3) covers record titles only, so the names went back to the pattern pages' spelling.
+
+## 2026-10-31: Every Use-Case Input States Its Origin and Classification
+
+The provision Describe Every Use Case Input with Origin and Classification is a MUST, and D2 asks the schema to back every such claim, as `w6.docs-usecases` noted. `useCaseInput` now requires `origin` and `classification` beside `name`, `meaning` and `type`.
+
+## 2026-10-31: A Saga Names Its Drivers in a List
+
+The contract wrote `drivenBy` as one object; the schema kept the list the old `driver` was, so a saga may be driven by an automation and by a person at once. The list stays, and the aggregate template writes one entry.
+
+## 2026-10-31: Templates Show One Concrete Case Where the Schema Branches
+
+The schema's `if` and `not` rules read the record's own values, so a placeholder `kind` or trigger cannot satisfy them. The aggregate template shows a saga (its saga-only fields say to remove them for other kinds), and the automation template a schedule trigger with a concrete `PT1H`; its Summary says how to write an event or manual trigger and which fields to drop.

@@ -81,6 +81,20 @@ public sealed class FindingCodesTests
         Assert.Equal("A", Finding.Tiers["table-drift"]);
     }
 
+    /// <summary>Each new Behavior finding code carries its contracted tier.</summary>
+    /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
+    [Theory]
+    [InlineData("automation-name-invalid", "G")]
+    [InlineData("automation-trigger-unknown", "G")]
+    [InlineData("automation-guard-missing", "G")]
+    [InlineData("automation-unimplemented", "S")]
+    [InlineData("atomic-group-drift", "G")]
+    [InlineData("atomic-group-invalid", "A")]
+    public void New_Behavior_Codes_Have_Tiers(string code, string tier)
+    {
+        Assert.Equal(tier, Finding.Tiers[code]);
+    }
+
     /// <summary>Every finding code reads subject-problem with one of the twelve problem words.</summary>
     /// <proves>litespec/core/language#name-each-finding-code-by-subject-and-problem</proves>
     [Fact]

@@ -176,8 +176,7 @@ public sealed class BookScaleTests
                 ["handlers"] = new JsonArray(),
                 ["endpoints"] = new JsonArray(),
                 ["aggregateMethods"] = new JsonArray(),
-                ["reactions"] = new JsonArray(),
-                ["jobs"] = new JsonArray(),
+                ["automations"] = new JsonArray(),
             },
             ["links"] = new JsonObject
             {

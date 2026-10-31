@@ -68,7 +68,7 @@ static class BatchApprover
         var members = MembersOf(model, batch);
         var anchor = batch.Kind switch
         {
-            "use-case" or "reaction" or "job" => batch.Selector,
+            "use-case" or "automation" => batch.Selector,
             "decision" => batch.Selector["decision/".Length..],
             "record" => batch.Selector,
             _ => (string?)null,
@@ -155,13 +155,13 @@ static class BatchApprover
                     && home == name
                     && ModelBuilder.UseCaseOf(model, home) is { } holder
                     && holder.Id == useCase.Id
-                    && !OnReactionOrJobPage(model, record)));
+                    && !OnAutomationPage(model, record)));
             }
 
             return members;
         }
 
-        if (batch.Kind is "reaction" or "job"
+        if (batch.Kind is "automation"
             && model.ById.TryGetValue(batch.Selector, out var holder)
             && holder.Type == batch.Kind)
         {
@@ -183,13 +183,13 @@ static class BatchApprover
 
         foreach (var id in decision.Ids("decides").OrderBy(id => id, StringComparer.Ordinal))
         {
-            // Use cases anchor their own batches with their results and scenarios, reactions
-            // and jobs anchor theirs with the scenarios on their page, and decisions anchor
-            // their own, so a decision batch holds none of those.
+            // Use cases anchor their own batches with their results and scenarios,
+            // automations anchor theirs with the scenarios on their page, and decisions
+            // anchor their own, so a decision batch holds none of those.
             if (!added.Add(id)
                 || !model.ById.TryGetValue(id, out var decided)
                 || decided.Derived
-                || decided.Type is "use-case" or "reaction" or "job" or "decision"
+                || decided.Type is "use-case" or "automation" or "decision"
                 || ClaimedByUseCase(model, decided))
             {
                 continue;
@@ -204,17 +204,17 @@ static class BatchApprover
         return batch.Records.Select(entry => entry.Record).ToList();
     }
 
-    /// <summary>Whether a reaction or job page carries the scenario, so its own batch holds it.</summary>
-    static bool OnReactionOrJobPage(ProjectModel model, Record record) =>
+    /// <summary>Whether an automation page carries the scenario, so its own batch holds it.</summary>
+    static bool OnAutomationPage(ProjectModel model, Record record) =>
         record.Type == "scenario"
         && record.PageId is not null
         && model.ById.TryGetValue(record.PageId, out var page)
-        && page.Type is "reaction" or "job";
+        && page.Type is "automation";
 
-    /// <summary>Whether a use case, reaction or job batch claims the record: a use case result or scenario, or a scenario on a reaction or job page.</summary>
+    /// <summary>Whether a use case or automation batch claims the record: a use case result or scenario, or a scenario on an automation page.</summary>
     static bool ClaimedByUseCase(ProjectModel model, Record record)
     {
-        if (OnReactionOrJobPage(model, record))
+        if (OnAutomationPage(model, record))
         {
             return true;
         }

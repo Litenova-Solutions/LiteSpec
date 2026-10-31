@@ -39,24 +39,13 @@ public sealed class CoverageCheckTests
 
     /// <proves>litespec/core/model#implement-each-mapped-behavior-record-behind-a-mark</proves>
     [Fact]
-    public void Reaction_Without_A_Marked_Handler_Reports_Reaction_Unimplemented()
+    public void Automations_Without_Marked_Hosts_Report_Automation_Unimplemented()
     {
         using var fixture = MarksFixture.Prepare("unimplemented");
-        var findings = MarksFixture.WithCode(MarksFixture.Check(fixture.Path), "reaction-unimplemented");
+        var findings = MarksFixture.WithCode(MarksFixture.Check(fixture.Path), "automation-unimplemented");
 
-        var finding = Assert.Single(findings);
-        Assert.Equal("reaction/lending.send-due-notice-on-loan-borrowed", finding.Subject);
-    }
-
-    /// <proves>litespec/core/model#implement-each-mapped-behavior-record-behind-a-mark</proves>
-    [Fact]
-    public void Job_Without_A_Marked_Host_Reports_Job_Unimplemented()
-    {
-        using var fixture = MarksFixture.Prepare("unimplemented");
-        var findings = MarksFixture.WithCode(MarksFixture.Check(fixture.Path), "job-unimplemented");
-
-        var finding = Assert.Single(findings);
-        Assert.Equal("job/lending.nightly-due-scan", finding.Subject);
+        Assert.Equal(2, findings.Count);
+        Assert.Contains(findings, finding => finding.Subject == "automation/lending.send-due-notice-on-loan-borrowed");
     }
 
     /// <proves>litespec/core/model#implement-each-mapped-behavior-record-behind-a-mark</proves>
@@ -103,7 +92,7 @@ public sealed class CoverageCheckTests
 
         var finding = Assert.Single(findings);
         Assert.Equal("use-case/lending.borrow-copy", finding.Subject);
-        Assert.Contains("issues use-case/lending.register-copy", finding.Message);
+        Assert.Contains("runs use-case/lending.register-copy", finding.Message);
     }
 
     /// <summary>Writes a consumer where an entity and a store aggregate each have no root in code.</summary>

@@ -11,10 +11,14 @@
   "eventType": "<CloudEvents type>",
   "source": "<CloudEvents source>",
   "subject": "<The record the subject identifies>",
+  "dataschema": "<The schema URL for this event, or remove this line>",
   "payload": [
     {
       "name": "<field>",
       "meaning": "<The meaning of this field>",
+      "type": "<text|integer|decimal|money|boolean|date|date-time|duration|email|choice|id>",
+      "of": "<the record an id refers to, or the choices of a choice, when the type is id or choice; otherwise remove this line>",
+      "required": "<true|false>",
       "classification": "<public|internal|personal|sensitive>"
     }
   ],

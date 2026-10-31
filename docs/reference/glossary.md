@@ -146,7 +146,7 @@ Source: RBAC.
 
 ### Aggregate
 
-One unit of business state that stays consistent and changes in one step. Its kind is entity, process, or store.
+One unit of business state that stays consistent and changes in one step. Its kind is entity, saga, or store.
 
 Layer: Behavior.
 
@@ -162,11 +162,27 @@ Layer: Behavior.
 
 Source: LiteSpec.
 
+### Anonymize
+
+One erasure position after which data can no longer identify anyone.
+
+Layer: Behavior.
+
+Source: the GDPR.
+
 ### Approval
 
 The recorded decision that a record holds, naming who approved it, when, and over which content.
 
 Layer: Intent or Behavior.
+
+Source: LiteSpec.
+
+### Automation
+
+One record stating work that runs without a request: on an event, on a schedule, or by hand.
+
+Layer: Behavior.
 
 Source: LiteSpec.
 
@@ -218,7 +234,7 @@ Source: CQRS.
 
 ### Compensation
 
-The per-step undo of a process: the use case that reverses one step, or none with its reason.
+The per-step undo of a saga: the use case that reverses one step, or none with its reason.
 
 Layer: Behavior.
 
@@ -236,7 +252,7 @@ Source: LiteSpec.
 
 ### Consistency
 
-The declared write shape of a use case: atomic, per-record, compensated, or best-effort.
+The declared write shape of a use case: atomic, per-record, or compensated.
 
 Layer: Behavior.
 
@@ -260,7 +276,7 @@ Source: LiteSpec.
 
 ### Data Class
 
-One named group of aggregate fields sharing one classification and one erasure position.
+One named group of aggregate fields sharing one classification, one purpose, and one erasure position.
 
 Layer: Behavior.
 
@@ -302,7 +318,7 @@ Source: DDD.
 
 ### Effect
 
-One declared edge from a use case or reaction to a command, a notification, an integration event, or an outside call.
+One declared edge from a use case or automation to a command, a notification, an integration event, or an outside call.
 
 Layer: Behavior.
 
@@ -310,7 +326,7 @@ Source: LiteSpec.
 
 ### Entry Point
 
-One way people or systems reach the product.
+One door from outside through which people or systems reach the product.
 
 Layer: Behavior.
 
@@ -418,14 +434,6 @@ Layer: Behavior.
 
 Source: DDD.
 
-### Job
-
-One scheduled, one-off, or operator run that issues use cases over a selection.
-
-Layer: Behavior.
-
-Source: LiteSpec.
-
 ### Journey
 
 The ordered steps by which one actor reaches one goal, linked to the goal record it serves and citing the requirements it shows. Steps name no use case; each serving use case points up with serves.
@@ -514,14 +522,6 @@ Layer: Intent.
 
 Source: plain English.
 
-### Process
-
-One multi-step aggregate with steps, exits, a driver, and per-step compensation.
-
-Layer: Behavior.
-
-Source: LiteSpec.
-
 ### Product
 
 The software capability offered to users, with its boundary and exclusions.
@@ -539,6 +539,14 @@ Layer: Behavior.
 Source: the GDPR.
 
 Rejected: pseudonymise, the British spelling.
+
+### Purpose
+
+The reason personal data is kept, stated on each data class and retention row.
+
+Layer: Behavior.
+
+Source: the GDPR.
 
 ### Quality Requirement
 
@@ -563,16 +571,6 @@ One need traveling up from a lower layer, with a decider, a date, and a recommen
 Layer: Intent or Behavior.
 
 Source: LiteSpec.
-
-### Reaction
-
-One record stating that when a domain event or integration event completes, the product issues one use case or sends one notification.
-
-Layer: Behavior.
-
-Aliases: policy, automation.
-
-Source: Event Storming's policy.
 
 ### Record
 
@@ -628,7 +626,7 @@ Source: the Result pattern.
 
 ### Retention Schedule
 
-The one page mapping each data class to its basis, period, enforcement, and cites.
+The one page mapping each data class to its basis, purpose, period, enforcement, and cites.
 
 Layer: Behavior.
 
@@ -657,6 +655,16 @@ The steps to run or recover the product.
 Layer: Behavior.
 
 Source: the SRE book.
+
+### Saga
+
+One coordinating aggregate whose steps run use cases on other aggregates, each with its compensation.
+
+Layer: Behavior.
+
+Aliases: process manager.
+
+Source: LiteSpec.
 
 ### Scenario
 
@@ -748,7 +756,7 @@ Source: LiteSpec.
 
 ### Trigger
 
-The domain event or integration event that starts a reaction.
+The event, schedule, or manual run that starts an automation.
 
 Layer: Behavior.
 

@@ -17,7 +17,7 @@
   ],
   "effects": [
     {
-      "issues": "use-case/lending.register-copy"
+      "runs": "use-case/lending.register-copy"
     }
   ],
   "records": [

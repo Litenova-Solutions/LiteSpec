@@ -95,10 +95,10 @@ public sealed class ProofReaderTests
         Assert.False(Confirmed(Extend, ObservedScenarios("new RegisterCopySteps().RegisterACopy(\"copy-1\")")));
     }
 
-    /// <summary>A when step driving a use case whose effects issue the claimed use case confirms on an effect assertion.</summary>
+    /// <summary>A when step driving a use case whose effects run the claimed use case confirms on an effect assertion.</summary>
     /// <proves>litespec/core/model#name-the-lowest-record-each-test-proves</proves>
     [Fact]
-    public void Producer_Whose_Effects_Issue_The_Use_Case_Confirms()
+    public void Producer_Whose_Effects_Run_The_Use_Case_Confirms()
     {
         Assert.True(Confirmed(Extend, ProducerScenarios, effects: true));
     }
@@ -132,7 +132,7 @@ public sealed class ProofReaderTests
 
             File.WriteAllText(page, text.Replace(
                 "\"raises\": [",
-                "\"effects\": [{\"issues\": \"use-case/lending.extend-loan\", \"timing\": \"after-commit\", \"reason\": \"A borrowed copy starts its first extension.\"}],\n  \"raises\": [",
+                "\"effects\": [{\"runs\": \"use-case/lending.extend-loan\", \"timing\": \"after-commit\", \"reason\": \"A borrowed copy starts its first extension.\"}],\n  \"raises\": [",
                 StringComparison.Ordinal));
         }
 

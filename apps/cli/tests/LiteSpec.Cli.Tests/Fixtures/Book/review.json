@@ -632,7 +632,10 @@
                                                      {
                                                          "name":  "memberId",
                                                          "meaning":  "Who borrows.",
-                                                         "rules":  "A registered member."
+                                                         "rules":  "A registered member.",
+                                                         "type":  "id",
+                                                         "of":  "actor/member",
+                                                         "required":  true
                                                      }
                                                  ],
                                        "output":  [
@@ -643,9 +646,6 @@
                                                       }
                                                   ],
                                        "access":  {
-                                                      "auth":  [
-                                                                   "session"
-                                                               ],
                                                       "grant":  "permission/borrow-copy",
                                                       "tenant":  "own"
                                                   },
@@ -691,9 +691,6 @@
                                                         "requirement/borrowing.copy-shelf-home"
                                                     ],
                                        "access":  {
-                                                      "auth":  [
-                                                                   "session"
-                                                               ],
                                                       "grant":  "permission/borrow-copy",
                                                       "tenant":  "own"
                                                   }
@@ -705,8 +702,8 @@
                                   }
                     },
                     {
-                        "type":  "reaction",
-                        "id":  "reaction/lending.send-due-reminder",
+                        "type":  "automation",
+                        "id":  "automation/lending.send-due-reminder-on-loan-due",
                         "title":  "Send Due Reminder",
                         "owner":  "lending-team",
                         "status":  "reviewed",
@@ -714,27 +711,31 @@
                         "decider":  null,
                         "decideBy":  null,
                         "aggregate":  "aggregate/lending.loan",
-                        "file":  "docs/behavior/modules/lending/reactions/send-due-reminder.md",
+                        "file":  "docs/behavior/modules/lending/automations/send-due-reminder-on-loan-due.md",
                         "line":  3,
                         "fields":  {
-                                       "type":  "reaction",
-                                       "id":  "reaction/lending.send-due-reminder",
+                                       "type":  "automation",
+                                       "id":  "automation/lending.send-due-reminder-on-loan-due",
                                        "title":  "Send Due Reminder",
                                        "owner":  "lending-team",
                                        "status":  "reviewed",
-                                       "on":  [
-                                                  "event/loan.loan-due"
-                                              ],
-                                       "sends":  "notification/lending.due-reminder",
+                                       "triggeredBy":  {
+                                                      "event":  "event/loan.loan-due"
+                                                  },
+                                       "effects":  [
+                                                      {
+                                                          "sends":  "notification/lending.due-reminder"
+                                                      }
+                                                  ],
                                        "fulfills":  [
                                                         "requirement/borrowing.max-wait"
                                                     ]
                                    },
                         "links":  {
-                                      "on":  [
+                                      "triggeredBy":  [
                                                  "event/loan.loan-due"
                                              ],
-                                      "sends":  [
+                                      "effects":  [
                                                     "notification/lending.due-reminder"
                                                 ],
                                       "fulfills":  [
@@ -1045,6 +1046,9 @@
                                        "owner":  "lending-team",
                                        "status":  "reviewed",
                                        "kind":  "browser",
+                                       "auth":  [
+                                                  "session"
+                                              ],
                                        "path":  "/borrow"
                                    },
                         "links":  {
@@ -1238,26 +1242,38 @@
                                   }
                     },
                     {
-                        "type":  "job",
-                        "id":  "job/lending.send-overdue-notices",
+                        "type":  "automation",
+                        "id":  "automation/lending.send-overdue-notices",
                         "title":  "Send Overdue Notices",
                         "owner":  "lending-team",
                         "status":  "reviewed",
                         "effectiveStatus":  "approved",
                         "decider":  null,
                         "decideBy":  null,
-                        "file":  "docs/behavior/modules/lending/jobs/send-overdue-notices.md",
+                        "file":  "docs/behavior/modules/lending/automations/send-overdue-notices.md",
                         "line":  3,
                         "fields":  {
-                                       "type":  "job",
-                                       "id":  "job/lending.send-overdue-notices",
+                                       "type":  "automation",
+                                       "id":  "automation/lending.send-overdue-notices",
                                        "title":  "Send Overdue Notices",
                                        "owner":  "lending-team",
                                        "status":  "reviewed",
-                                       "schedule":  "daily 06:00",
+                                       "triggeredBy":  {
+                                                      "schedule":  {
+                                                                   "cron":  "0 6 * * *"
+                                                               }
+                                                  },
+                                       "effects":  [
+                                                      {
+                                                          "sends":  "notification/lending.due-reminder"
+                                                      }
+                                                  ],
                                        "runbook":  "runbook/overdue-notice"
                                    },
                         "links":  {
+                                      "effects":  [
+                                                    "notification/lending.due-reminder"
+                                                ],
                                       "runbook":  [
                                                        "runbook/overdue-notice"
                                                    ]
@@ -1327,12 +1343,9 @@
                  "handlers":  [
 
                               ],
-                 "reactions":  [
+                 "automations":  [
 
                                ],
-                 "jobs":  [
-
-                          ],
                  "codes":  [
 
                            ],

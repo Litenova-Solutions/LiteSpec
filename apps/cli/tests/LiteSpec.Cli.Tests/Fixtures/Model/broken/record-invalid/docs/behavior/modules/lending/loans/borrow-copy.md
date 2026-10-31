@@ -6,9 +6,6 @@
   "owner": "lending-team",
   "status": "reviewed",
   "access": {
-    "auth": [
-      "session"
-    ],
     "grant": "permission/borrow-copy",
     "tenant": "own"
   },
@@ -27,7 +24,10 @@
   "input": [
     {
       "name": "copyId",
-      "meaning": "The copy the reader borrows."
+      "meaning": "The copy the reader borrows.",
+      "type": "id",
+      "of": "aggregate/lending.copy",
+      "required": true
     }
   ],
   "idempotency": {
@@ -75,8 +75,8 @@
     }
   ],
   "approvedBy": "lending-team",
-  "approvedOn": "2026-10-01",
-  "approvedHash": "5efd0baa"
+  "approvedOn": "2026-10-31",
+  "approvedHash": "162a38ef"
 }
 ---
 

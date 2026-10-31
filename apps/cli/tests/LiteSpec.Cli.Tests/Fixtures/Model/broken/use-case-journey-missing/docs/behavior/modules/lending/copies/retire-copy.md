@@ -7,9 +7,6 @@
   "status": "reviewed",
   "kind": "command",
   "access": {
-    "auth": [
-      "session"
-    ],
     "grant": "permission/manage-copies",
     "tenant": "own"
   },
@@ -20,7 +17,6 @@
     "event/copy.copy-retired"
   ],
   "serves": [
-
   ],
   "fulfills": [
     "requirement/borrowing.copy-shelf-home"
@@ -65,8 +61,8 @@
     }
   ],
   "approvedBy": "lending-team",
-  "approvedOn": "2026-10-01",
-  "approvedHash": "ed810f0e"
+  "approvedOn": "2026-10-31",
+  "approvedHash": "c1db4fd0"
 }
 ---
 

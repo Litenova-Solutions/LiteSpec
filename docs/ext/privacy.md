@@ -2,7 +2,7 @@
 
 ## Intent
 
-Some personal data needs more than erasure or retention alone: rows other systems reference, rows erased only with a parent, data handed to another controller, and erasure scoped to what the subject asked. This page states the erasure positions, reach, export guards, conflict rules, and restore sweeps a project uses when the four core positions do not cover its duties. A project selects it when its retention schedule names any of those needs.
+Some personal data needs more than erasure or retention alone: rows other systems reference, rows erased only with a parent, data handed to another controller, and erasure scoped to what the subject asked. This page states the erasure positions, reach, export guards, conflict rules, and restore sweeps a project uses when the five core positions do not cover its duties. A project selects it when its retention schedule names any of those needs.
 
 ## Activation
 
@@ -10,13 +10,13 @@ Activation scope: `project`.
 
 Applicable specification kinds: None.
 
-The project selects `privacy` when its retention schedule names a tombstone, discard, cascade-only, or transferred position, a requested reach, an export-first guard, a retention conflict, or a restore that can bring erased data back. A project whose data classes use only erase, pseudonymize, retain, and exempt does not select it: the core positions already cover that project.
+The project selects `privacy` when its retention schedule names a tombstone, discard, cascade-only, or transferred position, a requested reach, an export-first guard, a retention conflict, or a restore that can bring erased data back. A project whose data classes use only erase, anonymize, pseudonymize, retain, and exempt does not select it: the core positions already cover that project.
 
 ## Baseline Relationship
 
 This extension replaces no baseline provision. It switches on no record type: it adds fields to records the core already defines.
 
-It adds four `onErasure` positions to data classes: `tombstone`, `discard`, `cascade-only`, and `transferred`. It adds the `requested` reach, the `exportFirst` and `unchangedSinceExport` guards, conflict detail on retention schedule rows, and the sweep job on restore runbooks.
+It adds four `onErasure` positions to data classes: `tombstone`, `discard`, `cascade-only`, and `transferred`. It adds the `requested` reach, the `exportFirst` and `unchangedSinceExport` guards, conflict detail on retention schedule rows, and the sweep automation on restore runbooks.
 
 ## Standards
 
@@ -120,13 +120,13 @@ It adds four `onErasure` positions to data classes: `tombstone`, `discard`, `cas
 
 **ID:** `litespec/ext/privacy#purge-erased-data-from-restored-backups`
 
-**Statement:** A restore runbook MUST name the sweep job that re-applies erasure after the restore.
+**Statement:** A restore runbook MUST name the sweep automation that re-applies erasure after the restore.
 
-**Rationale:** A backup holds data as it was, including rows erased since: restoring it resurrects subjects the product promised to forget. The sweep job re-applies every erasure decided before the restore, so the restore brings the system back without bringing the erased data back with it.
+**Rationale:** A backup holds data as it was, including rows erased since: restoring it resurrects subjects the product promised to forget. The sweep automation re-applies every erasure decided before the restore, so the restore brings the system back without bringing the erased data back with it.
 
-**Example:** The database restore runbook names `job/privacy.sweep-restored-erasure`, which runs before traffic returns and deletes every row erased since the backup.
+**Example:** The database restore runbook names `automation/privacy.sweep-restored-erasure`, which runs before traffic returns and deletes every row erased since the backup.
 
-**Reviewed for:** Which restore runbooks name no sweep job? Look at the restore runbooks.
+**Reviewed for:** Which restore runbooks name no sweep automation? Look at the restore runbooks.
 
 ### Record Which Duty Wins Each Conflict
 
@@ -154,17 +154,17 @@ It adds four `onErasure` positions to data classes: `tombstone`, `discard`, `cas
 
 **Reviewed for:** The tombstone entries keep the row id and the erasure date, or the project lists wider fields with the rule behind each.
 
-### Run One Sweep Job per Data Class
+### Run One Sweep Automation per Data Class
 
-**ID:** `litespec/ext/privacy#run-one-sweep-job-per-data-class`
+**ID:** `litespec/ext/privacy#run-one-sweep-automation-per-data-class`
 
-**Default:** Each sweep job covers one data class.
+**Default:** Each sweep automation covers one data class.
 
-**Replacement:** A project names the data classes each sweep job covers.
+**Replacement:** A project names the data classes each sweep automation covers.
 
 **Rationale:** One sweep per class keeps the blast radius small: a broken sweep delays one class while the others complete. A shared sweep is one failure away from resurrecting every class at once.
 
-**Reviewed for:** Each sweep job page covers one data class, or the project names the classes each job covers.
+**Reviewed for:** Each sweep automation page covers one data class, or the project names the classes each automation covers.
 
 ## Dependencies
 

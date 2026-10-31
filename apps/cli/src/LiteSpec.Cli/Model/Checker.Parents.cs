@@ -7,7 +7,7 @@ static partial class Checker
     /// <summary>Types whose parent is the identifier home, so a missing home is reported here.</summary>
     private static readonly HashSet<string> HomeParentedTypes = new(StringComparer.Ordinal)
     {
-        "use-case", "reaction", "job", "notification", "setting", "aggregate",
+        "use-case", "automation", "notification", "setting", "aggregate",
         "rule", "event", "result", "scenario",
     };
 
@@ -55,8 +55,7 @@ static partial class Checker
                     CheckResultParent(model, record, findings);
                     break;
                 case "use-case":
-                case "reaction":
-                case "job":
+                case "automation":
                 case "notification":
                 case "setting":
                 case "aggregate":
@@ -242,8 +241,7 @@ static partial class Checker
         var label = record.Type switch
         {
             "use-case" => "Use case",
-            "reaction" => "Reaction",
-            "job" => "Job",
+            "automation" => "Automation",
             "notification" => "Notification",
             "setting" => "Setting",
             _ => "Aggregate",

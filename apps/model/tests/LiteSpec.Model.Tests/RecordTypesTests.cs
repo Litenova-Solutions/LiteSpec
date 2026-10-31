@@ -6,7 +6,7 @@ using LiteSpec.Model;
 
 namespace LiteSpec.Model.Tests;
 
-/// <summary>Proves the topic record type and the Intent link verbs are registered.</summary>
+/// <summary>Proves the topic and automation record types and the link verbs are registered.</summary>
 public sealed class RecordTypesTests
 {
     /// <summary>The topic is an Intent record type, and the requirement page style is gone.</summary>
@@ -37,6 +37,53 @@ public sealed class RecordTypesTests
         Assert.True(RecordTypes.LinkTargets["addresses"].SetEquals(
             new[] { "actor", "permission" }));
         Assert.False(RecordTypes.LinkTargets.ContainsKey("audience"));
+    }
+
+    /// <summary>The automation is a Behavior record type with a home, and reaction and job are gone.</summary>
+    /// <proves>litespec/core/model#write-every-record-in-its-home</proves>
+    [Fact]
+    public void Automation_Is_A_Behavior_Record_Type()
+    {
+        Assert.Contains("automation", RecordTypes.All);
+        Assert.Equal("behavior", RecordTypes.LayerByType["automation"]);
+        Assert.Contains("automation", RecordTypes.WithHome);
+        Assert.DoesNotContain("reaction", RecordTypes.All);
+        Assert.DoesNotContain("job", RecordTypes.All);
+    }
+
+    /// <summary>The effect verbs link the records each effect reaches, with no retired verb left.</summary>
+    /// <proves>litespec/core/model#write-links-on-the-record-that-points</proves>
+    [Fact]
+    public void Effect_Verbs_Link_Their_Targets()
+    {
+        Assert.True(RecordTypes.LinkTargets["runs"].SetEquals(new[] { "use-case" }));
+        Assert.True(RecordTypes.LinkTargets["sends"].SetEquals(new[] { "notification" }));
+        Assert.True(RecordTypes.LinkTargets["emits"].SetEquals(new[] { "integration-event" }));
+        Assert.True(RecordTypes.LinkTargets["calls"].SetEquals(new[] { "external-system" }));
+        Assert.False(RecordTypes.LinkTargets.ContainsKey("issues"));
+        Assert.False(RecordTypes.LinkTargets.ContainsKey("publishes"));
+    }
+
+    /// <summary>The automation trigger links the events that set it off, and the old trigger is gone.</summary>
+    /// <proves>litespec/core/model#write-links-on-the-record-that-points</proves>
+    [Fact]
+    public void TriggeredBy_Links_Events()
+    {
+        Assert.True(RecordTypes.LinkTargets["triggeredBy"].SetEquals(
+            new[] { "event", "integration-event" }));
+        Assert.False(RecordTypes.LinkTargets.ContainsKey("on"));
+    }
+
+    /// <summary>The structured objects link through their containers to the records they name.</summary>
+    /// <proves>litespec/core/model#write-links-on-the-record-that-points</proves>
+    [Fact]
+    public void Object_Links_Resolve_Through_Their_Containers()
+    {
+        Assert.True(RecordTypes.LinkTargets["compensation"].SetEquals(new[] { "use-case" }));
+        Assert.Empty(RecordTypes.LinkTargets["freshness"]);
+        Assert.True(RecordTypes.LinkTargets["erasure"].SetEquals(
+            new[] { "external-system", "integration-event" }));
+        Assert.True(RecordTypes.LinkTargets["enforcedBy"].SetEquals(new[] { "automation" }));
     }
 
     /// <summary>The link sets match the Written on columns of the Links table.</summary>

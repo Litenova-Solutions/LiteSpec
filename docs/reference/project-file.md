@@ -86,12 +86,12 @@ What each field means and what reads it:
 
 | Field | Type | Required | Default |
 |:---|:---|:---|:---|
-| `jobTriggerSteps` | array of string | no | none |
+| `automationTriggerSteps` | array of string | no | none |
 | `outcomeOnlySteps` | array of string | no | none |
 
 What each field means and what reads it:
 
-- `jobTriggerSteps` names the steps classes whose `when` steps run a job, such as one that moves a simulated clock. Each entry matches `^[A-Z][A-Za-z0-9]*$`.
+- `automationTriggerSteps` names the steps classes whose `when` steps run an automation, such as one that moves a simulated clock. Each entry matches `^[A-Z][A-Za-z0-9]*$`.
 - `outcomeOnlySteps` names the steps classes whose `then` steps state only that a request succeeded or was refused. Each entry matches `^[A-Z][A-Za-z0-9]*$`.
 - The model builder reads both lists when it confirms proof claims for the project.
 
@@ -169,7 +169,7 @@ Every use-case name starts with a verb from the baseline vocabulary LiteSpec shi
 - `lookalikeIgnore` lists the lookalike pairs the `term-clash` check skips, each naming both forms as `"a|b"`, such as `"online|on-line"` for a compound that splits into real words by accident.
 - `pastTense` maps project domain verbs to their past tense, such as `{"reimburse": "reimbursed"}`. A verb with no entry tenses regularly. `litespec model check` reports `event-tense-invalid` against the baseline table and this map.
 
-A project never redefines a baseline verb. `litespec model check` reports `use-case-verb-unknown`, `use-case-verb-invalid`, `reaction-name-invalid` and `job-name-invalid` against the baseline and these additions.
+A project never redefines a baseline verb. `litespec model check` reports `use-case-verb-unknown`, `use-case-verb-invalid` and `automation-name-invalid` against the baseline and these additions.
 
 ### An `owners` Entry
 
@@ -218,7 +218,7 @@ What each field means and what reads it:
 - `glossaryScan` holds glob patterns that name the non-Markdown surfaces the vocabulary reaches: source, interface copy, the API contract, and acceptance tests. Each pattern matches repository-relative paths and matches at least one file, or `litespec consumer` reports that the check over that surface did not run.
 - `unstructuredDocs` lists the paths whose Markdown is navigation or prose rather than specification.
 - `behaviorDocs` and `uiDocs` name the behavior and UI documentation roots. Both are required.
-- `records` maps a record type to its home folder where it differs from the default the model states. Keys come from the closed list `product`, `goal`, `constraint`, `research`, `decision`, `topic`, `requirement`, `problem`, `feature`, `actor`, `role`, `permission`, `journey`, `module`, `aggregate`, `rule`, `use-case`, `result`, `scenario`, `event`, `entry-point`, `external-system`, `reaction`, `job`, `notification`, `setting`, `integration-event`, `runbook`, `deviation`, `known-gap`, and `term`.
+- `records` maps a record type to its home folder where it differs from the default the model states. Keys come from the closed list `product`, `goal`, `constraint`, `research`, `decision`, `topic`, `requirement`, `problem`, `feature`, `actor`, `role`, `permission`, `journey`, `module`, `aggregate`, `rule`, `use-case`, `result`, `scenario`, `event`, `entry-point`, `external-system`, `automation`, `notification`, `setting`, `integration-event`, `runbook`, `deviation`, `known-gap`, and `term`.
 - `testRoots` lists the directories that hold automated test source. The model builder reads scenarios from these roots.
 - `testResults` names where the latest test run results live, so passing and failing proof is read from them.
 - `contract` names the committed OpenAPI document, so `litespec model check` compares each operation's `x-litespec-use-case` with its endpoint's mark.
@@ -227,7 +227,7 @@ What each field means and what reads it:
 - `checkResults` names where drill and harness check results live, read beside the measured-check results under `testResults`.
 - `sbom` names the bill of materials files or folders, SPDX or CycloneDX JSON, checked against the manifest pins, the admissions, and `dependencies.licenses`.
 - `apiClient` names the generated API client the frontends import, so route calls resolve to the use cases they reach. The model builder appends `src` to the configured path, and the reader takes operations only from the files the client generator writes (`*.gen.ts`), so a hand-written helper beside them is not an operation.
-- `surfaces` names the surfaces outside `paths.frontends` that invoke a use case: a command-line tool, a distributed server, a background host, or an event reaction. Each entry holds `name`, `description`, and an optional `path`.
+- `surfaces` names the surfaces outside `paths.frontends` that invoke a use case: a command-line tool, a distributed server, a background host, or an event automation. Each entry holds `name`, `description`, and an optional `path`.
 - `uiPackage` declares the one shared UI package of the workspace. A workspace with no controlled web frontend omits it. See the `uiPackage` object below.
 - `uiPatterns` names the workspace UI pattern catalog. A workspace that records no pattern decisions omits it.
 - `frontends` lists every browser frontend the project ships. See the frontend entry below.

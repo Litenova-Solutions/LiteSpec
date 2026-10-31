@@ -11,7 +11,6 @@
   "serves": ["<journey/<name>#<step-id>>"],
   "fulfills": ["requirement/<topic>.<name>"],
   "access": {
-    "auth": ["<session|token|device|link|app|anonymous|system>"],
     "grant": "<permission/<name>|self(permission/<name>)|anonymous|system>",
     "tenant": "<own|cross|public|none>"
   },
@@ -20,6 +19,9 @@
     {
       "name": "<field>",
       "meaning": "<The meaning of this field>",
+      "type": "<text|integer|decimal|money|boolean|date|date-time|duration|email|choice|id>",
+      "of": "<the record an id refers to, or the choices of a choice, when the type is id or choice; otherwise remove this line>",
+      "required": "<true|false>",
       "rules": ["<The shape each value obeys>"],
       "origin": "<caller|claim|derived>",
       "classification": "<public|internal|personal|sensitive>"
@@ -57,35 +59,51 @@
   "changes": ["aggregate/<module>.<name>"],
   "reads": ["<aggregate/<module>.<name> or setting/<module>.<name>>"],
   "consistency": {
-    "mode": "<atomic|per-record|compensated|best-effort>",
+    "mode": "<atomic|per-record|compensated>",
     "cites": ["<rule/<aggregate>.<name> when the mode is atomic across aggregates, or remove this line>"]
   },
   "effects": [
     {
-      "issues": "<use-case/<module>.<name>>",
+      "runs": "<use-case/<module>.<name>>",
       "timing": "<inline|after-commit|async>",
       "sharesTransaction": "<true or false when the timing is inline, otherwise remove this line>",
       "onFailure": {
         "mode": "<retry|skip-and-log|discard>",
         "retry": {
-          "maxAttempts": "<number of attempts when the mode is retry; remove the retry object otherwise>",
-          "backoff": "<ISO 8601 duration between attempts>"
+          "maxAttempts": "<number of attempts, when the mode is retry; remove the retry object otherwise>",
+          "initialDelay": "<ISO 8601 duration, when the mode is retry; otherwise remove this line>",
+          "maxDelay": "<ISO 8601 duration, when the mode is retry; otherwise remove this line>",
+          "backoff": "<exponential|fixed, when the mode is retry; otherwise remove this line>"
         },
-        "then": "<dead-letter, when the mode is retry, otherwise remove this line>"
+        "then": "<dead-letter, when the mode is retry; otherwise remove this line>",
+        "deadLetter": {
+          "after": "<ISO 8601 retention, or remove the deadLetter object>",
+          "action": "<What a person does>"
+        },
+        "surfacesIn": "<entry-point/<name>, or remove this line>",
+        "runbook": "<runbook/<name>, or remove this line>"
       },
       "before": "<Another entry target with its reason, or remove this line>",
       "forEach": "<Scope, or remove this line>"
     },
     {
-      "sends": "<notification/<module>.<name>, or replace this key with publishes or calls>",
+      "sends": "<notification/<module>.<name>, or replace this key with emits or calls>",
       "timing": "<after-commit|async>",
       "onFailure": {
         "mode": "<retry|skip-and-log|discard>",
         "retry": {
-          "maxAttempts": "<number of attempts when the mode is retry; remove the retry object otherwise>",
-          "backoff": "<ISO 8601 duration between attempts>"
+          "maxAttempts": "<number of attempts, when the mode is retry; remove the retry object otherwise>",
+          "initialDelay": "<ISO 8601 duration, when the mode is retry; otherwise remove this line>",
+          "maxDelay": "<ISO 8601 duration, when the mode is retry; otherwise remove this line>",
+          "backoff": "<exponential|fixed, when the mode is retry; otherwise remove this line>"
         },
-        "then": "<dead-letter, when the mode is retry, otherwise remove this line>"
+        "then": "<dead-letter, when the mode is retry; otherwise remove this line>",
+        "deadLetter": {
+          "after": "<ISO 8601 retention, or remove the deadLetter object>",
+          "action": "<What a person does>"
+        },
+        "surfacesIn": "<entry-point/<name>, or remove this line>",
+        "runbook": "<runbook/<name>, or remove this line>"
       },
       "before": "<Another entry target with its reason, or remove this line>",
       "forEach": "<Scope, or remove this line>"
@@ -103,6 +121,7 @@
     "target": "<Target kind, or none>"
   },
   "risk": ["<money|door|personal-data|access, or remove this line>"],
+  "background": "<The shared starting state every scenario starts from, or remove this line>",
   "records": [
     {
       "type": "result",
@@ -125,6 +144,7 @@
       "type": "scenario",
       "id": "scenario/<use-case>.<name> (the use case's own name)",
       "title": "<Scenario Display Title>",
+      "exercises": ["<rule/<aggregate>.<name>, or remove this line>"],
       "given": "<The starting state>",
       "when": "<The actor performs the act>",
       "then": "<The observable result>",

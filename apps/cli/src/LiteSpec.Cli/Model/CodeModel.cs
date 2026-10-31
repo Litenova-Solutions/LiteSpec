@@ -46,12 +46,11 @@ sealed record HandlerInfo(
     public IReadOnlyList<CodeCall> FactoryCalls { get; init; } = [];
 }
 
-/// <summary>One reaction or job class.</summary>
-sealed record ReactionInfo(
+/// <summary>One automation class: an event handler or a job host.</summary>
+sealed record AutomationInfo(
     string Class,
     string File,
     int Line,
-    string Kind,
     string? UseCaseId,
     string? RecordId = null,
     IReadOnlyList<CodeRepository>? Repositories = null,
@@ -86,21 +85,21 @@ sealed record CodeComment(string Text, string File, int Line);
 /// <summary>One endpoint operation mapped to its use case.</summary>
 sealed record EndpointOperation(string Operation, string UseCaseId, string Method, string Route, string File, int Line = 1);
 
-/// <summary>One repository interface a handler, reaction or job class takes in its constructor.</summary>
+/// <summary>One repository interface a handler or automation class takes in its constructor.</summary>
 sealed record CodeRepository(string Interface, string File, int Line);
 
 /// <summary>One Infrastructure class implementing a domain repository interface, through its declared base list.</summary>
 sealed record CodeRepositoryImplementation(string Interface, string Class, string File, int Line);
 
-/// <summary>One refusal code a handler, reaction or job class produces in a declaring position.</summary>
+/// <summary>One refusal code a handler or automation class produces in a declaring position.</summary>
 sealed record CodeRefusal(string Code, string File, int Line);
 
-/// <summary>One exception or failure type a handler, reaction or job class constructs.</summary>
+/// <summary>One exception or failure type a handler or automation class constructs.</summary>
 sealed record CodeThrown(string Type, string File, int Line);
 
 /// <summary>
-///     One dispatch call a handler, reaction or job class makes. <paramref name="Verb" /> is
-///     <c>issues</c>, <c>publishes</c>, <c>sends</c> or <c>calls</c>. <paramref name="Target" />
+///     One dispatch call a handler or automation class makes. <paramref name="Verb" /> is
+///     <c>runs</c>, <c>sends</c>, <c>emits</c> or <c>calls</c>. <paramref name="Target" />
 ///     is the message type, the template key, or the port method. <paramref name="Detail" />
 ///     is the port type for <c>calls</c>, <c>type</c> or <c>template</c> for <c>sends</c>,
 ///     and empty otherwise. <paramref name="Via" /> names the helper <c>Type.Method</c> a
@@ -118,10 +117,10 @@ sealed record AggregateMethod(string Aggregate, string Method, IReadOnlyList<str
     public IReadOnlyList<string> UseCases { get; init; } = [];
 }
 
-/// <summary>One collaborator a handler, reaction or job class builds with <c>new</c> whose own constructor takes a repository.</summary>
+/// <summary>One collaborator a handler or automation class builds with <c>new</c> whose own constructor takes a repository.</summary>
 sealed record CodeCollaborator(string Type, string File, int Line);
 
-/// <summary>One repository read a handler, reaction or job class makes inside a loop body.</summary>
+/// <summary>One repository read a handler or automation class makes inside a loop body.</summary>
 sealed record CodeLoopRead(string Repository, string Method, string File, int Line);
 
 /// <summary>One LINQ filter a query handler applies to the result of a repository list call.</summary>
@@ -134,7 +133,7 @@ sealed record CodeAuditAction(string Operation, string Action, string File, int 
 sealed class CodeModel
 {
     public List<HandlerInfo> Handlers { get; } = [];
-    public List<ReactionInfo> Reactions { get; } = [];
+    public List<AutomationInfo> Automations { get; } = [];
     public List<DomainEventInfo> Events { get; } = [];
     public List<CodeLiteral> Literals { get; } = [];
 

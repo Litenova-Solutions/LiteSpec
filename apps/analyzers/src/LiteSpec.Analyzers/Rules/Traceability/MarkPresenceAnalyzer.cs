@@ -93,9 +93,9 @@ public sealed class MarkPresenceAnalyzer : TraceabilityAnalyzer
     /// <summary>
     ///     Whether the layer checks the kind: Domain checks aggregate roots,
     ///     state-changing methods, domain events and rule exceptions; Application
-    ///     checks handlers, event handlers, jobs, and technical classes;
-    ///     Infrastructure checks adapters, jobs, and technical classes; WebApi
-    ///     checks endpoints and technical classes; Worker checks jobs and
+    ///     checks handlers, automations, and technical classes;
+    ///     Infrastructure checks adapters, automations, and technical classes; WebApi
+    ///     checks endpoints and technical classes; Worker checks automations and
     ///     technical classes; test projects check tests.
     ///     Ports and domain services are recognized only by their mark, so no
     ///     layer checks their absence.

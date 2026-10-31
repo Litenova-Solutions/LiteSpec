@@ -30,4 +30,4 @@ Five open loans per reader.
 
 ## Consequences
 
-Late returns may grow, and the notice job covers them.
+Late returns may grow, and the notice automation covers them.

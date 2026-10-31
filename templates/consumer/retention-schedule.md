@@ -11,8 +11,9 @@
       "dataClass": "<class>",
       "covers": ["aggregate/<module>.<name>"],
       "basis": "<statute|business|engineering>",
+      "purpose": "<The purpose the data is kept for>",
       "period": "<ISO 8601 duration, or replace this value with { mode: none, reason: <the data stays until its subject asks> } when the data is held on demand>",
-      "enforcedBy": "<job/<module>.<name>|record-expiry|store-ttl|query-filter>",
+      "enforcedBy": "<automation/<module>.<name>|record-expiry|store-ttl|query-filter>",
       "cites": "<requirement/<topic>.<name>, required for personal or sensitive>",
       "processors": [
         {
@@ -32,3 +33,6 @@
 }
 ---
 # <Retention Schedule Display Title>
+
+<!-- generated:retention-schedule -->
+<!-- /generated:retention-schedule -->

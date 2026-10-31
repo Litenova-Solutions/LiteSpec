@@ -69,11 +69,11 @@ var rows = await session.AdvancedSql.QueryAsync<SpendingTotalRow>(
 
 **Statement:** Exactly one global command post-handler MUST call `SaveChangesAsync` for a command pipeline.
 
-**Rationale:** Exactly one post-handler commits, so a failed command leaves the scoped session uncommitted and no partial work persists. A second committer, in a handler, repository, validator, reaction, or endpoint, would store work the pipeline later refuses. This provision states the .NET form of `litespec/backend/persistence#commit-each-command-pipeline-once`.
+**Rationale:** Exactly one post-handler commits, so a failed command leaves the scoped session uncommitted and no partial work persists. A second committer, in a handler, repository, validator, automation, or endpoint, would store work the pipeline later refuses. This provision states the .NET form of `litespec/backend/persistence#commit-each-command-pipeline-once`.
 
-The obligation is one commit for one pipeline, not one named method. Under the baseline provider that commit is `IDocumentSession.SaveChangesAsync`. Under the `efcore` extension it is `DbContext.SaveChangesAsync`. The pipeline wraps the call in an explicit transaction when it writes through more than one context. Under `consistency: atomic` that commit covers everything the handler staged. Other modes split work across commands: each command still commits once, and the driver resumes from its cursor or runs the declared compensation.
+The obligation is one commit for one pipeline, not one named method. Under the baseline provider that commit is `IDocumentSession.SaveChangesAsync`. Under the `efcore` extension it is `DbContext.SaveChangesAsync`. The pipeline wraps the call in an explicit transaction when it writes through more than one context. Under `consistency: atomic` that commit covers everything the handler staged. Other modes split work across commands: each command still commits once, and the automation resumes from its cursor or runs the declared compensation.
 
-**Reviewed for:** One command post-handler file calls `SaveChangesAsync`; no handler, repository, validator, reaction, or endpoint file calls it.
+**Reviewed for:** One command post-handler file calls `SaveChangesAsync`; no handler, repository, validator, automation, or endpoint file calls it.
 
 ### Enforce Uniqueness with Marten Unique Indexes
 

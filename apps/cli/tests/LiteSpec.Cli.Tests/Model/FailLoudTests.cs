@@ -36,25 +36,24 @@ public sealed class FailLoudTests
 
     /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
-    public void Job_In_Worker_Is_Discovered()
+    public void Automation_In_Worker_Is_Discovered()
     {
         using var temp = Cli.Temp("fail-loud");
         WriteProject(temp.Path);
         WriteSource(temp.Path, "Worker", "RemindOverdueBorrowersWorker.cs", """
             namespace Library.Worker.Lending.Loans;
 
-            /// <implements>job/lending.remind-overdue-borrowers</implements>
+            /// <implements>automation/lending.remind-overdue-borrowers</implements>
             public sealed class RemindOverdueBorrowersWorker : BackgroundService
             {
                 protected override Task ExecuteAsync(CancellationToken stoppingToken) => Task.CompletedTask;
             }
             """);
 
-        var job = Assert.Single(new DotnetBackendReader().Read(ConsumerConfig.Load(temp.Path)).Reactions);
+        var automation = Assert.Single(new DotnetBackendReader().Read(ConsumerConfig.Load(temp.Path)).Automations);
 
-        Assert.Equal("RemindOverdueBorrowersWorker", job.Class);
-        Assert.Equal("job", job.Kind);
-        Assert.Equal("job/lending.remind-overdue-borrowers", job.RecordId);
+        Assert.Equal("RemindOverdueBorrowersWorker", automation.Class);
+        Assert.Equal("automation/lending.remind-overdue-borrowers", automation.RecordId);
     }
 
     /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>

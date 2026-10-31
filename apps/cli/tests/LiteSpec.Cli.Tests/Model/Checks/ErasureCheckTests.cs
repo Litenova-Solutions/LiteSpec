@@ -136,6 +136,52 @@ public sealed class ErasureCheckTests
         Assert.DoesNotContain("risk-acceptance-missing", TestModel.Codes(model));
     }
 
+    /// <proves>litespec/core/privacy#accept-every-retained-personal-data-class-in-intent</proves>
+    [Fact]
+    public void Pseudonymize_Without_Acceptance_Reports()
+    {
+        using var temp = Cli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record(
+                "aggregate",
+                "aggregate/lending.loan",
+                Path.Combine(temp.Path, "loan.md"),
+                """
+                {"status": "reviewed", "states": [{"name": "Active", "meaning": "The loan is open."}],
+                 "dataClasses": [{"name": "Borrower identity", "classification": "personal",
+                   "onErasure": "pseudonymize", "basis": "business", "enforcedBy": "record-expiry"}]}
+                """));
+
+        Assert.Contains("risk-acceptance-missing", TestModel.Codes(model));
+    }
+
+    /// <proves>litespec/core/privacy#accept-every-retained-personal-data-class-in-intent</proves>
+    [Fact]
+    public void Pseudonymize_With_An_Intent_Decision_Passes()
+    {
+        using var temp = Cli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record(
+                "aggregate",
+                "aggregate/lending.loan",
+                Path.Combine(temp.Path, "loan.md"),
+                """
+                {"status": "reviewed", "states": [{"name": "Active", "meaning": "The loan is open."}],
+                 "dataClasses": [{"name": "Borrower identity", "classification": "personal",
+                   "onErasure": "pseudonymize", "basis": "business", "enforcedBy": "record-expiry",
+                   "acceptedBy": ["decision/0001-loan-period"]}]}
+                """),
+            TestModel.Record(
+                "decision",
+                "decision/0001-loan-period",
+                Path.Combine(temp.Path, "loan-period.md"),
+                """{"status": "approved", "options": [{"name": "Keep", "pros": ["Tax."], "cons": ["None."]}], "choice": "Keep", "reopenedWhen": "The law changes.", "decides": ["aggregate/lending.loan"]}"""));
+
+        Assert.DoesNotContain("risk-acceptance-missing", TestModel.Codes(model));
+    }
+
     /// <proves>litespec/core/privacy#review-every-erasure-exemption-before-its-date</proves>
     [Fact]
     public void Exempt_Without_Review_Date_Reports()

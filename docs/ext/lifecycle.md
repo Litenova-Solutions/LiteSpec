@@ -38,7 +38,7 @@ A record retires with the `retired` status, and a retirement that removes declar
 
 **Statement:** A lifecycle implementation MUST use hard delete when no accepted retention or restore requirement applies.
 
-**Rationale:** When no use case needs the data back, removing the row deletes the least and keeps the least: no hidden state, no filtered queries, no purge job to write and watch. A team that keeps deleted rows just in case pays for retention without a requirement and answers subject-access exports with data it promised to delete.
+**Rationale:** When no use case needs the data back, removing the row deletes the least and keeps the least: no hidden state, no filtered queries, no purge automation to write and watch. A team that keeps deleted rows just in case pays for retention without a requirement and answers subject-access exports with data it promised to delete.
 
 **Example:** An expense deleted without a retention duty removes the expense row in the delete transaction.
 
@@ -172,7 +172,7 @@ A record retires with the `retired` status, and a retirement that removes declar
 
 **Statement:** A purge or archive operation MUST be resumable, bounded, cancellation-aware, and observable.
 
-**Rationale:** A purge or archive job can run for hours across millions of rows, and a deployment, a failure, or an operator stops it midway. Resumable, bounded, cancellation-aware work restarts where it stopped instead of from the beginning, and observable progress tells the operator whether it moves or stalls.
+**Rationale:** A purge or archive automation can run for hours across millions of rows, and a deployment, a failure, or an operator stops it midway. Resumable, bounded, cancellation-aware work restarts where it stopped instead of from the beginning, and observable progress tells the operator whether it moves or stalls.
 
 **Reviewed for:** Purge and archive work resumes after interruption within declared bounds, with visible progress.
 
@@ -180,9 +180,9 @@ A record retires with the `retired` status, and a retirement that removes declar
 
 **ID:** `litespec/ext/lifecycle#preserve-legal-hold-data`
 
-**Statement:** A retention job MUST preserve data under legal hold.
+**Statement:** A retention automation MUST preserve data under legal hold.
 
-**Rationale:** A legal hold suspends the duty to delete: the named data stays until the hold releases, even when its retention date passes. A retention job that ignores the hold destroys evidence the organization had a duty to keep.
+**Rationale:** A legal hold suspends the duty to delete: the named data stays until the hold releases, even when its retention date passes. A retention automation that ignores the hold destroys evidence the organization had a duty to keep.
 
 **Reviewed for:** Retention runs leave held data in place past its retention date.
 
@@ -190,9 +190,9 @@ A record retires with the `retired` status, and a retirement that removes declar
 
 **ID:** `litespec/ext/lifecycle#record-retention-progress`
 
-**Statement:** A retention job MUST record its progress.
+**Statement:** A retention automation MUST record its progress.
 
-**Rationale:** A retention run can stop midway through millions of rows, and recorded progress tells the next run where to resume. Observable progress tells the operator whether the job moves or stalls.
+**Rationale:** A retention run can stop midway through millions of rows, and recorded progress tells the next run where to resume. Observable progress tells the operator whether the automation moves or stalls.
 
 **Reviewed for:** Retention runs persist progress that the next run resumes from.
 
@@ -202,7 +202,7 @@ A record retires with the `retired` status, and a retirement that removes declar
 
 **Statement:** A legal-hold release MUST record actor, data covered, reason, and resumed retention: an audit record when audit is selected, a standalone record otherwise.
 
-**Rationale:** A hold suspends the duty to erase, and releasing it resumes that duty from a date the team can name. Without a release record, nobody can state when the suspension ended, so a subject's [erasure request](https://gdpr-info.eu/art-17-gdpr/) has no answer date and the next retention run cannot tell which data is deletable again. The record also tells the retention job exactly which data resumed which retention date.
+**Rationale:** A hold suspends the duty to erase, and releasing it resumes that duty from a date the team can name. Without a release record, nobody can state when the suspension ended, so a subject's [erasure request](https://gdpr-info.eu/art-17-gdpr/) has no answer date and the next retention run cannot tell which data is deletable again. The record also tells the retention automation exactly which data resumed which retention date.
 
 **Example:** A release record names the hold, the release date, and the retention date the covered data now carries.
 

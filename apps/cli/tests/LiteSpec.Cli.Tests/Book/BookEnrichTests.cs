@@ -144,7 +144,7 @@ public sealed class BookEnrichTests
         var details = DetailsOf(LoadFixture("Book/review.json"));
         var kept = Obj(details["requirement/borrowing.max-wait"], "keptBy");
         Assert.Equal(1, kept["use-case"]?.GetValue<int>());
-        Assert.Equal(1, kept["reaction"]?.GetValue<int>());
+        Assert.Equal(1, kept["automation"]?.GetValue<int>());
         Assert.Equal(1, kept["notification"]?.GetValue<int>());
         Assert.Null(details["goal/faster-borrowing"]["keptBy"]);
     }
@@ -164,25 +164,28 @@ public sealed class BookEnrichTests
         Assert.Null(details["goal/faster-borrowing"]["stepServers"]);
     }
 
-    /// <summary>A reaction serving a step reads as automation, and a walked step reads walked.</summary>
+    /// <summary>An automation serving a step reads as its server, and a walked step reads walked.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
     public void Automation_Served_And_Exercised_Steps()
     {
         var model = LoadFixture("Book/review.json");
+        var automationId = "";
         foreach (var record in model["records"] as JsonArray ?? new JsonArray())
         {
-            if (record is JsonObject obj && Str(obj, "id") == "reaction/lending.send-due-reminder")
+            if (record is JsonObject obj && Str(obj, "type") == "automation" && automationId.Length == 0)
             {
+                automationId = Str(obj, "id") ?? "";
                 var fields = obj["fields"] as JsonObject ?? new JsonObject();
                 fields["serves"] = new JsonArray("journey/borrowing#s2");
             }
         }
 
+        Assert.True(automationId.Length > 0, "The fixture holds no automation.");
         model["exercisedSteps"] = new JsonArray("journey/borrowing#s1");
         var journey = DetailsOf(model)["journey/borrowing"];
         var servers = Obj(journey, "stepServers");
-        Assert.True(HasString(servers["s2"] as JsonArray ?? new JsonArray(), "reaction/lending.send-due-reminder"));
+        Assert.True(HasString(servers["s2"] as JsonArray ?? new JsonArray(), automationId));
         var exercised = Arr(journey, "exercised");
         Assert.True(HasString(exercised, "s1"));
         Assert.False(HasString(exercised, "s2"));
@@ -429,16 +432,84 @@ public sealed class BookEnrichTests
     [Fact]
     public void Wave5_Link_Objects_Form_Record_Edges()
     {
-        var process = Record("aggregate", "aggregate/lending.hold-queue", "Hold Queue", "approved", "approved", """{"steps": [{"name": "hold-place", "compensation": {"mode": "use-case", "useCase": "use-case/lending.borrow-copy"}}]}""");
+        var saga = Record("aggregate", "aggregate/lending.hold-queue", "Hold Queue", "approved", "approved", """{"kind": "saga", "steps": [{"id": "hold-place", "runs": "use-case/lending.return-copy", "compensation": {"mode": "use-case", "useCase": "use-case/lending.borrow-copy"}, "guard": "the hold exists"}]}""");
         var useCase = Record("use-case", "use-case/lending.borrow-copy", "Borrow Copy", "approved", "approved");
+        var runner = Record("use-case", "use-case/lending.return-copy", "Return Copy", "approved", "approved");
         var rule = Record("rule", "rule/loan.hold-release", "Hold Release", "approved", "approved", """{"releasedBy": "use-case/lending.borrow-copy"}""");
         var kept = Record("rule", "rule/loan.ever-held", "Ever Held", "approved", "approved", """{"releasedBy": {"mode": "never", "reason": "the hold lasts"}}""");
-        var details = DetailsOf(NewModel(process, useCase, rule, kept));
+        var details = DetailsOf(NewModel(saga, useCase, runner, rule, kept));
         Assert.True(HasEdge(Arr(details["aggregate/lending.hold-queue"], "out"), "use-case/lending.borrow-copy", "aggregate.steps.compensation.useCase"));
+        Assert.True(HasEdge(Arr(details["aggregate/lending.hold-queue"], "out"), "use-case/lending.return-copy", "aggregate.steps.runs"));
         Assert.True(HasEdge(Arr(details["use-case/lending.borrow-copy"], "in"), "aggregate/lending.hold-queue", "aggregate.steps.compensation.useCase"));
         Assert.True(HasEdge(Arr(details["rule/loan.hold-release"], "out"), "use-case/lending.borrow-copy", "rule.releasedBy"));
         Assert.Empty(Arr(details["rule/loan.ever-held"], "out"));
         Assert.Equal("never", Str(Obj(Obj(details["rule/loan.ever-held"], "fields"), "releasedBy"), "mode"));
+    }
+
+    /// <summary>Wave-6 link shapes resolve to dotted edges: automation triggers and effects, saga runs and drivers, binds, exercises and typed references.</summary>
+    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    [Fact]
+    public void Wave6_Link_Shapes_Form_Record_Edges()
+    {
+        var loan = Record("aggregate", "aggregate/lending.loan", "Loan", "approved", "approved");
+        var room = Record("aggregate", "aggregate/inventory.room", "Room", "approved", "approved");
+        var useCase = Record(
+            "use-case",
+            "use-case/lending.borrow-copy",
+            "Borrow Copy",
+            "approved",
+            "approved",
+            """{"input": [{"name": "roomId", "type": "id", "of": "aggregate/inventory.room", "required": true}], "effects": [{"runs": "use-case/lending.return-copy"}]}""");
+        var runner = Record("use-case", "use-case/lending.return-copy", "Return Copy", "approved", "approved");
+        var due = Record("event", "event/loan.loan-due", "Loan Due", "approved", "approved");
+        var automation = Record(
+            "automation",
+            "automation/lending.send-due-reminder-on-loan-due",
+            "Send Due Reminder",
+            "approved",
+            "approved",
+            """{"triggeredBy": {"event": "event/loan.loan-due"}, "effects": [{"sends": "notification/lending.due-reminder"}, {"emits": "integration-event/loan-borrowed"}], "onFailure": {"mode": "retry", "retry": {"maxAttempts": 5}, "then": "dead-letter", "surfacesIn": "entry-point/library-app", "runbook": "runbook/overdue-notice"}}""");
+        var notification = Record("notification", "notification/lending.due-reminder", "Due Reminder", "approved", "approved");
+        var integration = Record(
+            "integration-event",
+            "integration-event/loan-borrowed",
+            "Loan Borrowed",
+            "approved",
+            "approved",
+            """{"dataschema": "https://example.com/schemas/loan-borrowed.json", "payload": [{"name": "loanId", "type": "id", "of": "aggregate/lending.loan", "required": true}]}""");
+        var saga = Record(
+            "aggregate",
+            "aggregate/lending.refund-stay",
+            "Refund Stay",
+            "approved",
+            "approved",
+            """{"kind": "saga", "steps": [{"id": "release-room", "runs": "use-case/lending.return-copy", "compensation": {"mode": "none", "reason": "the room returns"}, "guard": "the stay is cancelled"}], "exits": ["refunded"], "drivenBy": {"automation": "automation/lending.send-due-reminder-on-loan-due"}}""");
+        var rule = Record("rule", "rule/loan.one-loan-per-copy", "One Loan Per Copy", "approved", "approved", """{"binds": ["aggregate/lending.loan", "aggregate/inventory.room"]}""");
+        var result = Record("result", "result/borrow-copy.borrowed", "Borrowed", "approved", "approved");
+        var scenario = Record(
+            "scenario",
+            "scenario/borrow-copy.borrowing-succeeds",
+            "Borrowing Succeeds",
+            "approved",
+            "approved",
+            """{"result": "result/borrow-copy.borrowed", "exercises": ["rule/loan.one-loan-per-copy"], "given": "A copy sits available.", "when": "The member borrows.", "then": "The loan is active."}""");
+        var door = Record("entry-point", "entry-point/library-app", "Library App", "approved", "approved");
+        var runbook = Record("runbook", "runbook/overdue-notice", "Overdue Notice", "approved", "approved");
+        var details = DetailsOf(NewModel(loan, room, useCase, runner, due, automation, notification, integration, saga, rule, result, scenario, door, runbook));
+
+        Assert.True(HasEdge(Arr(details["automation/lending.send-due-reminder-on-loan-due"], "out"), "event/loan.loan-due", "automation.triggeredBy.event"));
+        Assert.True(HasEdge(Arr(details["use-case/lending.borrow-copy"], "out"), "use-case/lending.return-copy", "use-case.effects.runs"));
+        Assert.True(HasEdge(Arr(details["automation/lending.send-due-reminder-on-loan-due"], "out"), "notification/lending.due-reminder", "automation.effects.sends"));
+        Assert.True(HasEdge(Arr(details["automation/lending.send-due-reminder-on-loan-due"], "out"), "integration-event/loan-borrowed", "automation.effects.emits"));
+        Assert.True(HasEdge(Arr(details["automation/lending.send-due-reminder-on-loan-due"], "out"), "entry-point/library-app", "automation.onFailure.surfacesIn"));
+        Assert.True(HasEdge(Arr(details["automation/lending.send-due-reminder-on-loan-due"], "out"), "runbook/overdue-notice", "automation.onFailure.runbook"));
+        Assert.True(HasEdge(Arr(details["aggregate/lending.refund-stay"], "out"), "use-case/lending.return-copy", "aggregate.steps.runs"));
+        Assert.True(HasEdge(Arr(details["aggregate/lending.refund-stay"], "out"), "automation/lending.send-due-reminder-on-loan-due", "aggregate.drivenBy.automation"));
+        Assert.True(HasEdge(Arr(details["rule/loan.one-loan-per-copy"], "out"), "aggregate/lending.loan", "rule.binds"));
+        Assert.True(HasEdge(Arr(details["scenario/borrow-copy.borrowing-succeeds"], "out"), "rule/loan.one-loan-per-copy", "scenario.exercises"));
+        Assert.True(HasEdge(Arr(details["use-case/lending.borrow-copy"], "out"), "aggregate/inventory.room", "use-case.input.of"));
+        Assert.True(HasEdge(Arr(details["integration-event/loan-borrowed"], "out"), "aggregate/lending.loan", "integration-event.payload.of"));
+        Assert.Equal("https://example.com/schemas/loan-borrowed.json", Str(Obj(details["integration-event/loan-borrowed"], "fields"), "dataschema"));
     }
 
     static JsonObject LoadFixture(string relative) =>
@@ -463,8 +534,7 @@ public sealed class BookEnrichTests
                 ["handlers"] = new JsonArray(),
                 ["endpoints"] = new JsonArray(),
                 ["aggregateMethods"] = new JsonArray(),
-                ["reactions"] = new JsonArray(),
-                ["jobs"] = new JsonArray(),
+                ["automations"] = new JsonArray(),
             },
             ["links"] = new JsonObject
             {

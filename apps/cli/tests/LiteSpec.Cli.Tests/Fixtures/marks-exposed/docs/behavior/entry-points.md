@@ -11,7 +11,10 @@
       "title": "Library app",
       "owner": "lending-team",
       "status": "reviewed",
-      "kind": "browser"
+      "kind": "browser",
+      "auth": [
+        "session"
+      ]
     }
   ]
 }

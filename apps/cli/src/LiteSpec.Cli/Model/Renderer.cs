@@ -376,9 +376,7 @@ static partial class Renderer
             $"- domain modules: {model.Records.Count(record => record.Type == "module")}",
             $"- aggregate roots: {model.Records.Count(record => record.Type == "aggregate")}",
             $"- use cases: {model.Records.Count(record => record.Type == "use-case")}",
-            $"- reactions: {model.Code.Reactions.Count(reaction => reaction.Kind == "reaction")}",
-            $"- recurring commands: {model.Code.Reactions.Count(reaction => reaction.Kind == "job" && !reaction.Class.EndsWith("Worker", StringComparison.Ordinal))}",
-            $"- workers: {model.Code.Reactions.Count(reaction => reaction.Kind == "job" && reaction.Class.EndsWith("Worker", StringComparison.Ordinal))}",
+            $"- automations: {model.Code.Automations.Count}",
             $"- HTTP operations: {model.Code.Endpoints.Count}",
             $"- published events: {model.Records.Count(record => record.Type == "event")}",
             $"- frontend routes: {model.Screens.Count}",
@@ -609,7 +607,7 @@ static partial class Renderer
 
     private static string RetentionSchedule(ProjectModel model)
     {
-        var rows = new List<(string Class, string Aggregate, string Classification, string Basis, string Period, string EnforcedBy)>();
+        var rows = new List<(string Class, string Aggregate, string Classification, string Purpose, string Basis, string Period, string EnforcedBy)>();
 
         foreach (var aggregate in model.Records
                      .Where(record => record.Type == "aggregate")
@@ -621,6 +619,7 @@ static partial class Renderer
                     Str(entry, "name") ?? "",
                     aggregate.Id,
                     Str(entry, "classification") ?? "",
+                    Str(entry, "purpose") ?? "",
                     Str(entry, "basis") ?? "",
                     PeriodText(entry),
                     Str(entry, "enforcedBy") ?? ""));
@@ -634,13 +633,13 @@ static partial class Renderer
 
         var lines = new List<string>
         {
-            "| Data Class | Aggregate | Classification | Basis | Period | Enforced By |",
-            "|:---|:---|:---|:---|:---|:---|",
+            "| Data Class | Aggregate | Classification | Purpose | Basis | Period | Enforced By |",
+            "|:---|:---|:---|:---|:---|:---|:---|",
         };
 
         foreach (var row in rows.OrderBy(row => row.Aggregate, StringComparer.Ordinal).ThenBy(row => row.Class, StringComparer.Ordinal))
         {
-            lines.Add($"| {Cell(row.Class)} | `{row.Aggregate}` | {Cell(row.Classification)} | {Cell(row.Basis)} | {Cell(row.Period)} | {Cell(row.EnforcedBy)} |");
+            lines.Add($"| {Cell(row.Class)} | `{row.Aggregate}` | {Cell(row.Classification)} | {Cell(row.Purpose)} | {Cell(row.Basis)} | {Cell(row.Period)} | {Cell(row.EnforcedBy)} |");
         }
 
         return string.Join('\n', lines);

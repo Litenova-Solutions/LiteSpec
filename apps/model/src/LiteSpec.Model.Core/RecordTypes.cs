@@ -14,7 +14,7 @@ public static class RecordTypes
         "product", "goal", "constraint", "research", "decision", "requirement", "problem",
         "feature", "topic", "actor", "role", "permission", "journey", "module",
         "aggregate", "rule", "use-case", "result", "scenario", "event", "integration-event",
-        "reaction", "job", "notification", "setting",
+        "automation", "notification", "setting",
         "entry-point", "screen", "external-system", "runbook", "deviation", "known-gap", "term",
     };
 
@@ -31,8 +31,8 @@ public static class RecordTypes
             ["actor"] = "intent", ["journey"] = "intent", ["term"] = "intent",
             ["module"] = "behavior", ["aggregate"] = "behavior", ["rule"] = "behavior",
             ["use-case"] = "behavior", ["result"] = "behavior", ["scenario"] = "behavior",
-            ["event"] = "behavior", ["integration-event"] = "behavior", ["reaction"] = "behavior",
-            ["job"] = "behavior", ["notification"] = "behavior", ["setting"] = "behavior",
+            ["event"] = "behavior", ["integration-event"] = "behavior", ["automation"] = "behavior",
+            ["notification"] = "behavior", ["setting"] = "behavior",
             ["role"] = "behavior", ["permission"] = "behavior", ["entry-point"] = "behavior",
             ["screen"] = "behavior", ["external-system"] = "behavior", ["runbook"] = "behavior",
             ["deviation"] = "governance", ["known-gap"] = "governance",
@@ -50,7 +50,7 @@ public static class RecordTypes
     public static readonly HashSet<string> WithHome = new HashSet<string>(StringComparer.Ordinal)
     {
         "requirement", "aggregate", "rule", "use-case", "result",
-        "scenario", "event", "reaction", "job", "notification", "setting", "screen",
+        "scenario", "event", "automation", "notification", "setting", "screen",
     };
 
     /// <summary>Types the small size requires.</summary>
@@ -65,12 +65,6 @@ public static class RecordTypes
     public static readonly IReadOnlyList<string> LargeAdded = new string[]
     {
         "goal", "problem", "feature", "journey", "scenario",
-    };
-
-    /// <summary>The entry-point kinds that run in the background.</summary>
-    public static readonly HashSet<string> BackgroundEntryKinds = new HashSet<string>(StringComparer.Ordinal)
-    {
-        "reaction", "job",
     };
 
     /// <summary>
@@ -93,11 +87,11 @@ public static class RecordTypes
             ["fulfills"] = new HashSet<string> { "requirement" },
             ["governs"] = new HashSet<string> { "aggregate", "use-case" },
             ["raises"] = new HashSet<string> { "event" },
-            ["issues"] = new HashSet<string> { "use-case" },
+            ["runs"] = new HashSet<string> { "use-case" },
             ["sends"] = new HashSet<string> { "notification" },
-            ["publishes"] = new HashSet<string> { "integration-event" },
+            ["emits"] = new HashSet<string> { "integration-event" },
             ["calls"] = new HashSet<string> { "external-system" },
-            ["on"] = new HashSet<string> { "event", "integration-event" },
+            ["triggeredBy"] = new HashSet<string> { "event", "integration-event" },
             ["changes"] = new HashSet<string> { "aggregate" },
             ["reads"] = new HashSet<string> { "aggregate", "setting" },
             ["translates"] = new HashSet<string> { "event" },
@@ -105,11 +99,14 @@ public static class RecordTypes
             ["fallback"] = new HashSet<string> { "requirement" },
             ["releasedBy"] = new HashSet<string> { "use-case" },
             ["computedBy"] = new HashSet<string> { "rule" },
-            ["enforcedBy"] = new HashSet<string> { "job" },
+            ["enforcedBy"] = new HashSet<string> { "automation" },
             ["effects"] = new HashSet<string> { "use-case", "notification", "integration-event", "external-system" },
             ["access"] = new HashSet<string> { "permission" },
             ["except"] = new HashSet<string> { "requirement" },
-            ["dataClasses"] = new HashSet<string> { "job", "decision", "requirement" },
+            ["dataClasses"] = new HashSet<string> { "automation", "decision", "requirement" },
+            ["compensation"] = new HashSet<string> { "use-case" },
+            ["freshness"] = new HashSet<string>(),
+            ["erasure"] = new HashSet<string> { "external-system", "integration-event" },
             ["allows"] = new HashSet<string> { "permission" },
             ["reachedThrough"] = new HashSet<string> { "entry-point" },
             ["dependsOn"] = new HashSet<string> { "module" },
@@ -130,7 +127,7 @@ public static class RecordTypes
     /// </summary>
     public static readonly IReadOnlyList<string> FulfillingTypes = new string[]
     {
-        "rule", "use-case", "reaction", "job", "notification", "setting",
+        "rule", "use-case", "automation", "notification", "setting",
     };
 
     /// <summary>
@@ -139,7 +136,7 @@ public static class RecordTypes
     /// </summary>
     public static readonly IReadOnlyList<string> StepServingTypes = new string[]
     {
-        "use-case", "reaction", "job",
+        "use-case", "automation",
     };
 
     /// <summary>
@@ -148,7 +145,7 @@ public static class RecordTypes
     /// </summary>
     public static readonly IReadOnlyList<string> UpLinkedTypes = new string[]
     {
-        "use-case", "reaction", "job", "notification", "setting",
+        "use-case", "automation", "notification", "setting",
     };
 
     /// <summary>Fields that hold links but are read from nested objects.</summary>

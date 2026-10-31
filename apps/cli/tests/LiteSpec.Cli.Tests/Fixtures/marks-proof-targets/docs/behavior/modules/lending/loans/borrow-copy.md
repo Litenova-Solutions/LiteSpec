@@ -9,9 +9,6 @@
   "decideBy": "2030-01-31",
   "kind": "command",
   "access": {
-    "auth": [
-      "session"
-    ],
     "grant": "permission/borrow-copy",
     "tenant": "own"
   },

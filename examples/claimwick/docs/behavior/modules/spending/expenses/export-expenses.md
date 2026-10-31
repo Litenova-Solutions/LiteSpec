@@ -7,9 +7,6 @@
   "status": "reviewed",
   "kind": "query",
   "access": {
-    "auth": [
-      "session"
-    ],
     "grant": "permission/export-expenses",
     "tenant": "own"
   },
@@ -107,7 +104,7 @@
   ],
   "approvedBy": "claimwick-team",
   "approvedOn": "2026-10-31",
-  "approvedHash": "3a1cba69"
+  "approvedHash": "ce94f6f8"
 }
 ---
 # Export Expenses

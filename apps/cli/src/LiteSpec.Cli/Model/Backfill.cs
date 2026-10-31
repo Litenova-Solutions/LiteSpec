@@ -5,13 +5,13 @@ using System.Text.Json.Nodes;
 namespace LiteSpec.Model;
 
 /// <summary>
-///     Backfills Behavior drafts from code during adoption: for each use case, reaction and
-///     job a handler folder or an anchor tag places, it reads the repositories, dispatches
-///     and refusal codes the code model already holds and drafts the missing frontmatter.
-///     A use case gains changes or reads, effects entries and refusal results; a reaction
-///     gains reads and its one issues or sends edge; a job gains reads and issues. Every
-///     touched record is marked transcribed. Existing entries are never removed or
-///     rewritten; only missing entries are appended.
+///     Backfills Behavior drafts from code during adoption: for each use case and
+///     automation a handler folder or an anchor tag places, it reads the repositories,
+///     dispatches and refusal codes the code model already holds and drafts the missing
+///     frontmatter. A use case gains changes or reads, effects entries and refusal results;
+///     an automation gains reads and effects entries. Every touched record is marked
+///     transcribed. Existing entries are never removed or rewritten; only missing entries
+///     are appended.
 /// </summary>
 /// <follows>litespec/core/agent#mark-transcribed-records-during-adoption</follows>
 static class Backfill
@@ -30,24 +30,19 @@ static class Backfill
         IReadOnlyList<string> Changes,
         IReadOnlyList<string> Reads,
         IReadOnlyList<(string Verb, string Target)> Effects,
-        string? Issues,
-        string? Sends,
-        IReadOnlyList<string> JobIssues,
         IReadOnlyList<(string Code, string Id, string Title)> Results,
         bool MarkTranscribed)
     {
         /// <summary>Whether the plan writes anything at all.</summary>
         public bool HasWrites =>
-            Changes.Count + Reads.Count + Effects.Count + JobIssues.Count + Results.Count > 0
-            || Issues is not null
-            || Sends is not null;
+            Changes.Count + Reads.Count + Effects.Count + Results.Count > 0;
     }
 
     /// <summary>The code facts and record indexes one backfill run resolves against.</summary>
     sealed class Facts
     {
         public Dictionary<string, List<HandlerInfo>> HandlersByUseCase { get; } = new(StringComparer.Ordinal);
-        public Dictionary<string, List<ReactionInfo>> ReactionsByRecord { get; } = new(StringComparer.Ordinal);
+        public Dictionary<string, List<AutomationInfo>> AutomationsByRecord { get; } = new(StringComparer.Ordinal);
         public Dictionary<string, HashSet<string>> Declaring { get; } = new(StringComparer.Ordinal);
         public List<Record> Aggregates { get; } = [];
         public List<Record> UseCases { get; } = [];
@@ -65,7 +60,7 @@ static class Backfill
         ProjectModel model, string? module, bool dryRun)
     {
         var targets = model.Records
-            .Where(record => record.Type is "use-case" or "reaction" or "job"
+            .Where(record => record.Type is "use-case" or "automation"
                 && !record.Derived
                 && record.Status != "retired"
                 && (module is null || HomeOf(record.Id) == module))
@@ -278,7 +273,7 @@ static class Backfill
     static string HomeOf(string id) =>
         Identifiers.TrySplit(id, out _, out var home, out _) && home is not null ? home : "";
 
-    /// <summary>Collects the handler, reaction and record indexes one run resolves against.</summary>
+    /// <summary>Collects the handler, automation and record indexes one run resolves against.</summary>
     static Facts BuildFacts(ProjectModel model)
     {
         var facts = new Facts();
@@ -294,20 +289,20 @@ static class Backfill
             placed.Add(handler);
         }
 
-        foreach (var reaction in model.Code.Reactions)
+        foreach (var automation in model.Code.Automations)
         {
-            if (reaction.RecordId is null)
+            if (automation.RecordId is null)
             {
                 continue;
             }
 
-            if (!facts.ReactionsByRecord.TryGetValue(reaction.RecordId, out var placed))
+            if (!facts.AutomationsByRecord.TryGetValue(automation.RecordId, out var placed))
             {
                 placed = [];
-                facts.ReactionsByRecord[reaction.RecordId] = placed;
+                facts.AutomationsByRecord[automation.RecordId] = placed;
             }
 
-            placed.Add(reaction);
+            placed.Add(automation);
         }
 
         foreach (var literal in model.Code.Literals)
@@ -349,18 +344,16 @@ static class Backfill
             return PlanUseCase(model, facts, record);
         }
 
-        if (!facts.ReactionsByRecord.TryGetValue(record.Id, out var placed))
+        if (!facts.AutomationsByRecord.TryGetValue(record.Id, out var placed))
         {
             return Empty(record);
         }
 
-        return record.Type == "reaction"
-            ? PlanReaction(facts, record, placed)
-            : PlanJob(facts, record, placed);
+        return PlanAutomation(facts, record, placed);
     }
 
     static RecordPlan Empty(Record record) =>
-        new(record, [], [], [], null, null, [], [], false);
+        new(record, [], [], [], [], false);
 
     static RecordPlan PlanUseCase(ProjectModel model, Facts facts, Record record)
     {
@@ -433,78 +426,39 @@ static class Backfill
             }
         }
 
-        return Finish(record, changes, reads, effects, null, null, [], results);
+        return Finish(record, changes, reads, effects, results);
     }
 
-    static RecordPlan PlanReaction(Facts facts, Record record, List<ReactionInfo> placed)
-    {
-        var reads = MissingReads(facts, record, placed);
-        string? issues = null;
-        string? sends = null;
-
-        // A reaction holds exactly one of issues and sends, so an edge is drafted only
-        // when neither is declared, from the first dispatch in code order that resolves.
-        if (record.EdgeIds("issues").Count == 0 && record.EdgeIds("sends").Count == 0)
-        {
-            var module = HomeOf(record.Id);
-
-            foreach (var dispatch in OrderedDispatches(placed.SelectMany(info => info.Dispatches ?? [])))
-            {
-                if (dispatch.Verb == "issues" && issues is null)
-                {
-                    issues = ResolveUseCase(facts, module, dispatch.Target);
-
-                    if (issues is not null)
-                    {
-                        break;
-                    }
-                }
-                else if (dispatch.Verb == "sends" && sends is null)
-                {
-                    sends = ResolveNotification(facts, dispatch);
-
-                    if (sends is not null)
-                    {
-                        break;
-                    }
-                }
-            }
-        }
-
-        return Finish(record, [], reads, [], issues, sends, [], []);
-    }
-
-    static RecordPlan PlanJob(Facts facts, Record record, List<ReactionInfo> placed)
+    static RecordPlan PlanAutomation(Facts facts, Record record, List<AutomationInfo> placed)
     {
         var reads = MissingReads(facts, record, placed);
         var module = HomeOf(record.Id);
-        var declared = new HashSet<string>(record.EdgeIds("issues"), StringComparer.Ordinal);
-        var issues = new List<string>();
+        var edges = DeclaredEffects(record);
+        var planned = new HashSet<(string Verb, string Target)>();
+        var effects = new List<(string Verb, string Target)>();
 
-        // A job declares issues only; any other dispatch shape stays for a person to place.
         foreach (var dispatch in OrderedDispatches(placed.SelectMany(info => info.Dispatches ?? [])))
         {
-            if (dispatch.Verb != "issues")
+            var target = ResolveEffect(facts, module, dispatch);
+
+            if (target is null
+                || edges.Contains((dispatch.Verb, target))
+                || !planned.Add((dispatch.Verb, target)))
             {
                 continue;
             }
 
-            var target = ResolveUseCase(facts, module, dispatch.Target);
-
-            if (target is not null && declared.Add(target))
-            {
-                issues.Add(target);
-            }
+            effects.Add((dispatch.Verb, target));
         }
 
-        return Finish(record, [], reads, [], null, null, issues, []);
+        return Finish(record, [], reads, effects, []);
     }
 
-    /// <summary>Aggregate ids the code takes that the reaction or job declares in neither changes nor reads.</summary>
-    static List<string> MissingReads(Facts facts, Record record, List<ReactionInfo> placed)
+    /// <summary>Aggregate ids the code takes that the automation declares in neither changes nor reads.</summary>
+    static List<string> MissingReads(Facts facts, Record record, List<AutomationInfo> placed)
     {
-        // A reaction never writes an aggregate directly, and a job writes through the
-        // use cases it issues, so every repository either takes is a read.
+        // An automation never writes an aggregate directly: it writes through the
+        // use cases it runs, so every repository it takes is a read.
         var module = HomeOf(record.Id);
         var declared = new HashSet<string>(record.Ids("reads"), StringComparer.Ordinal);
 
@@ -523,12 +477,9 @@ static class Backfill
         List<string> changes,
         List<string> reads,
         List<(string Verb, string Target)> effects,
-        string? issues,
-        string? sends,
-        List<string> jobIssues,
         List<(string Code, string Id, string Title)> results)
     {
-        var plan = new RecordPlan(record, changes, reads, effects, issues, sends, jobIssues, results, false);
+        var plan = new RecordPlan(record, changes, reads, effects, results, false);
 
         return !plan.HasWrites || record.Field("source") == "transcribed"
             ? plan
@@ -553,21 +504,6 @@ static class Backfill
         if (plan.Effects.Count > 0)
         {
             parts.Add($"+effects {string.Join(",", plan.Effects.Select(edge => $"{edge.Verb}:{edge.Target}"))}");
-        }
-
-        if (plan.Issues is not null)
-        {
-            parts.Add($"+issues {plan.Issues}");
-        }
-
-        if (plan.Sends is not null)
-        {
-            parts.Add($"+sends {plan.Sends}");
-        }
-
-        if (plan.JobIssues.Count > 0)
-        {
-            parts.Add($"+issues {string.Join(",", plan.JobIssues)}");
         }
 
         if (plan.Results.Count > 0)
@@ -625,13 +561,11 @@ static class Backfill
             useCases.Count == 0 ? "n/a" : $"{results}/{useCases.Count}");
     }
 
-    /// <summary>Whether the record declares its edges: effects, or issues and sends.</summary>
+    /// <summary>Whether the record declares its edges in its effects entries.</summary>
     static bool HasEdges(Record record) =>
         record.Type switch
         {
-            "use-case" => DeclaredEffects(record).Count > 0,
-            "reaction" => record.EdgeIds("issues").Count + record.EdgeIds("sends").Count > 0,
-            "job" => record.EdgeIds("issues").Count > 0,
+            "use-case" or "automation" => DeclaredEffects(record).Count > 0,
             _ => false,
         };
 
@@ -659,7 +593,7 @@ static class Backfill
             .ThenBy(dispatch => dispatch.Target, StringComparer.Ordinal)
             .ToList();
 
-    /// <summary>Every edge a use case declares in its effects entries, as verb and target pairs.</summary>
+    /// <summary>Every edge a use case or automation declares in its effects entries, as verb and target pairs.</summary>
     static HashSet<(string Verb, string Target)> DeclaredEffects(Record useCase)
     {
         var edges = new HashSet<(string Verb, string Target)>();
@@ -678,7 +612,7 @@ static class Backfill
                 continue;
             }
 
-            foreach (var verb in new[] { "issues", "sends", "publishes", "calls" })
+            foreach (var verb in new[] { "runs", "sends", "emits", "calls" })
             {
                 if (entry.TryGetProperty(verb, out var target)
                     && target.ValueKind == JsonValueKind.String
@@ -696,8 +630,8 @@ static class Backfill
     static string? ResolveEffect(Facts facts, string module, CodeDispatch dispatch) =>
         dispatch.Verb switch
         {
-            "issues" => ResolveUseCase(facts, module, dispatch.Target),
-            "publishes" => ResolveIntegrationEvent(facts, dispatch.Target),
+            "runs" => ResolveUseCase(facts, module, dispatch.Target),
+            "emits" => ResolveIntegrationEvent(facts, dispatch.Target),
             "sends" => ResolveNotification(facts, dispatch),
             "calls" => ResolveCall(facts, dispatch),
             _ => null,
@@ -985,18 +919,6 @@ static class Backfill
                 AppendStrings(target, "changes", plan.Changes);
                 AppendStrings(target, "reads", plan.Reads);
                 AppendEffects(target, plan.Effects);
-
-                if (plan.Issues is not null)
-                {
-                    target["issues"] = plan.Issues;
-                }
-
-                if (plan.Sends is not null)
-                {
-                    target["sends"] = plan.Sends;
-                }
-
-                AppendStrings(target, "issues", plan.JobIssues);
                 AppendResults(target, plan);
 
                 if (plan.MarkTranscribed)

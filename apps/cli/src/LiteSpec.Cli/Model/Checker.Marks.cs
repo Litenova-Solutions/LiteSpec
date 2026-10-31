@@ -360,10 +360,10 @@ static partial class Checker
     }
 
     /// <summary>
-    ///     Whether the use case changes an entity or process aggregate: one
+    ///     Whether the use case changes an entity or saga aggregate: one
     ///     <c>changes</c> entry naming an aggregate whose kind is not
     ///     <c>store</c>. An aggregate with no declared kind is an entity; a
-    ///     pass issuing other commands lists nothing in <c>changes</c>.
+    ///     pass running other commands lists nothing in <c>changes</c>.
     /// </summary>
     private static bool ChangesGuardedAggregate(ProjectModel model, Record useCase) =>
         useCase.Ids("changes").Any(id =>
@@ -461,8 +461,7 @@ static partial class Checker
             var code = record.Type switch
             {
                 "aggregate" => "aggregate-unimplemented",
-                "reaction" => "reaction-unimplemented",
-                "job" => "job-unimplemented",
+                "automation" => "automation-unimplemented",
                 "external-system" => "external-system-unimplemented",
                 _ => null,
             };
@@ -477,25 +476,33 @@ static partial class Checker
                 continue;
             }
 
+            if (record.Type == "automation")
+            {
+                var carried = model.Code.Elements.Any(candidate =>
+                    candidate.Kind is CodeKind.EventHandler or CodeKind.Job
+                    && candidate.Marks.Any(mark => mark.Verb != MarkVerb.Follows && mark.RecordId == record.Id));
+
+                if (!carried)
+                {
+                    findings.Add(new Finding(code, $"Automation '{record.Id}' has no event handler or job host carrying its mark.", record.File, record.Line, SubjectOf(record)));
+                }
+
+                continue;
+            }
+
             var kind = record.Type switch
             {
                 "aggregate" => CodeKind.AggregateRoot,
-                "reaction" => CodeKind.EventHandler,
-                "job" => CodeKind.Job,
                 _ => CodeKind.Port,
             };
             var label = record.Type switch
             {
                 "aggregate" => "Aggregate",
-                "reaction" => "Reaction",
-                "job" => "Job",
                 _ => "External system",
             };
             var element = record.Type switch
             {
                 "aggregate" => "aggregate root",
-                "reaction" => "event handler",
-                "job" => "job host",
                 _ => "port",
             };
 
@@ -534,7 +541,7 @@ static partial class Checker
     {
         foreach (var record in model.Records)
         {
-            if (record.Type is not ("use-case" or "reaction" or "job"))
+            if (record.Type is not ("use-case" or "automation"))
             {
                 continue;
             }
@@ -555,23 +562,18 @@ static partial class Checker
                 dispatches.AddRange(model.Code.Handlers
                     .Where(handler => handler.UseCaseId == record.Id)
                     .SelectMany(handler => handler.Dispatches ?? []));
-                dispatches.AddRange(model.Code.Reactions
-                    .Where(reaction => reaction.UseCaseId == record.Id)
-                    .SelectMany(reaction => reaction.Dispatches ?? []));
+                dispatches.AddRange(model.Code.Automations
+                    .Where(automation => automation.UseCaseId == record.Id)
+                    .SelectMany(automation => automation.Dispatches ?? []));
             }
             else
             {
-                dispatches.AddRange(model.Code.Reactions
-                    .Where(reaction => reaction.RecordId == record.Id)
-                    .SelectMany(reaction => reaction.Dispatches ?? []));
+                dispatches.AddRange(model.Code.Automations
+                    .Where(automation => automation.RecordId == record.Id)
+                    .SelectMany(automation => automation.Dispatches ?? []));
             }
 
-            var label = record.Type switch
-            {
-                "use-case" => "Use case",
-                "reaction" => "Reaction",
-                _ => "Job",
-            };
+            var label = record.Type == "use-case" ? "Use case" : "Automation";
 
             foreach (var edge in edges)
             {

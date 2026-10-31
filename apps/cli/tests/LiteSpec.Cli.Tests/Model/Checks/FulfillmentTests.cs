@@ -10,8 +10,7 @@ public sealed class FulfillmentTests
     [Theory]
     [InlineData("rule")]
     [InlineData("use-case")]
-    [InlineData("reaction")]
-    [InlineData("job")]
+    [InlineData("automation")]
     [InlineData("notification")]
     [InlineData("setting")]
     public void Behavior_Fulfiller_Passes(string type)
@@ -52,7 +51,7 @@ public sealed class FulfillmentTests
 
     /// <proves>litespec/core/intent#restrict-requirement-fulfillment-to-behavior</proves>
     [Fact]
-    public void Message_Names_The_Six_Types()
+    public void Message_Names_The_Five_Types()
     {
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
@@ -60,7 +59,7 @@ public sealed class FulfillmentTests
             TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.md"), """{"kind": "functional", "statement": "A reader holds at most five active loans."}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "requirement-fulfillment-missing");
-        Assert.Equal("Requirement 'requirement/borrowing.max-active-loans' is fulfilled by no rule, use case, reaction, job, notification or setting.", finding.Message);
+        Assert.Equal("Requirement 'requirement/borrowing.max-active-loans' is fulfilled by no rule, use case, automation, notification or setting.", finding.Message);
         Assert.Equal("requirement/borrowing.max-active-loans", finding.Subject);
     }
 
@@ -94,8 +93,7 @@ public sealed class FulfillmentTests
     {
         "rule" => "rule/borrowing.max-active-loans",
         "use-case" => "use-case/lending.borrow-copy",
-        "reaction" => "reaction/send-due-notice-on-loan-borrowed",
-        "job" => "job/nightly-overdue-scan",
+        "automation" => "automation/lending.send-due-notice-on-loan-borrowed",
         "notification" => "notification/lending.loan-due",
         "setting" => "setting/lending.max-active-loans",
         _ => $"{type}/lending.fulfiller",

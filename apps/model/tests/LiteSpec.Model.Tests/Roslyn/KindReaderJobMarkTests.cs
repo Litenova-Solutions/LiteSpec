@@ -7,7 +7,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace LiteSpec.Model.Tests.Roslyn;
 
-/// <summary>Tests that a plain class carrying a job mark is a job host, from syntax and from symbols.</summary>
+/// <summary>Tests that a plain class carrying an automation mark is a job host, from syntax and from symbols.</summary>
 public sealed class KindReaderJobMarkTests
 {
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
@@ -15,7 +15,7 @@ public sealed class KindReaderJobMarkTests
     public void MarkedPlainClassIsAJob()
     {
         var type = TestTrees.First<ClassDeclarationSyntax>("""
-            /// <implements>job/billing.charge-dues</implements>
+            /// <implements>automation/billing.charge-dues</implements>
             public sealed class ChargeDuesJob
             {
                 public void Run()
@@ -34,7 +34,7 @@ public sealed class KindReaderJobMarkTests
     public void MarkedClassWithoutJobNameIsAJob()
     {
         var type = TestTrees.First<ClassDeclarationSyntax>("""
-            /// <implements>job/billing.charge-dues</implements>
+            /// <implements>automation/billing.charge-dues</implements>
             public sealed class ChargeDues
             {
                 public void Run()
@@ -67,7 +67,7 @@ public sealed class KindReaderJobMarkTests
     public void MarkedClassInDomainIsNotAJob()
     {
         var type = TestTrees.First<ClassDeclarationSyntax>("""
-            /// <implements>job/billing.charge-dues</implements>
+            /// <implements>automation/billing.charge-dues</implements>
             public sealed class ChargeDuesJob
             {
                 public void Run()
@@ -84,7 +84,7 @@ public sealed class KindReaderJobMarkTests
     public void MarkedPlainClassIsAJobFromSymbol()
     {
         const string code = """
-            /// <implements>job/billing.charge-dues</implements>
+            /// <implements>automation/billing.charge-dues</implements>
             public sealed class ChargeDuesJob
             {
                 public void Run()
@@ -121,7 +121,7 @@ public sealed class KindReaderJobMarkTests
     public void MarkedClassInDomainIsNotAJobFromSymbol()
     {
         const string code = """
-            /// <implements>job/billing.charge-dues</implements>
+            /// <implements>automation/billing.charge-dues</implements>
             public sealed class ChargeDuesJob
             {
                 public void Run()
@@ -139,7 +139,7 @@ public sealed class KindReaderJobMarkTests
     public void SyntaxAndSymbolAgreeOnMarkedJob()
     {
         const string code = """
-            /// <implements>job/billing.charge-dues</implements>
+            /// <implements>automation/billing.charge-dues</implements>
             public sealed class ChargeDuesJob
             {
                 public void Run()

@@ -203,7 +203,7 @@
       "path": "docs/ext/jobs.md",
       "activationScope": "local",
       "applicableKinds": [
-        "job",
+        "automation",
         "use-case",
         "journey"
       ],
@@ -265,7 +265,7 @@
       "path": "docs/ext/pipeline.md",
       "activationScope": "local",
       "applicableKinds": [
-        "job"
+        "automation"
       ],
       "replaces": [],
       "switchesOn": []

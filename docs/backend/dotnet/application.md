@@ -10,7 +10,7 @@ Application code in a .NET backend sends commands and queries through mediators 
 
 A command is a message that changes business state; a query reads a read model without changing state. The boundary sends the message through a LiteBus mediator, and the command pipeline around the handler runs validation, authorization, the handler itself, and then one commit. Commands travel through `ICommandMediator` and queries through `IQueryMediator`, so the write path and the read path stay visibly separate at every call site.
 
-A reaction answers a domain event or an integration event in one class carrying one mark naming its reaction record. A job issues its declared commands once per item in its selection.
+An automation answers a domain event or an integration event in one class carrying one mark naming its automation record. A scheduled or manual automation runs its declared commands once per item in its selection.
 
 ### Validity Findings
 
@@ -70,9 +70,9 @@ internal sealed class ApproveExpenseCommandHandler(IExpenseRepository expenseRep
 
 **ID:** `litespec/backend/dotnet/application#dispatch-declared-effects-through-their-entry-points`
 
-**Statement:** An event handler MUST dispatch each declared `sends` effect through the messenger port, each declared `calls` effect through its external-system port, and each declared `issues` effect through `ICommandMediator`, after the commit that stored the fact it answers, while the aggregate raises each declared `publishes` effect as a domain event the outbox stages in the same commit.
+**Statement:** An event handler MUST dispatch each declared `sends` effect through the messenger port, each declared `calls` effect through its external-system port, and each declared `runs` effect through `ICommandMediator`, after the commit that stored the fact it answers, while the aggregate raises each declared `emits` effect as a domain event the outbox stages in the same commit.
 
-**Rationale:** A command handler changes its aggregate and returns; it dispatches nothing. The aggregate raises its facts, and the outbox stages them in the same commit through `outbox.StageCollectedEvents()` (see `litespec/backend/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis`). After that commit, an event handler answers each fact through its entry point: the messenger port for `sends`, its external-system port for `calls`, and `ICommandMediator` for `issues`. An `inline` `issues` entry states whether it shares the caller's transaction. A job dispatches through the same entry points. Each handler gets its own delivery under `litespec/ext/outbox#deliver-each-event-to-each-handler-separately`, so one failing handler retries alone. An undeclared dispatch fails `effect-undeclared`, whatever its entry point. This provision states the .NET form of `litespec/backend/application#dispatch-only-declared-effect-edges`.
+**Rationale:** A command handler changes its aggregate and returns; it dispatches nothing. The aggregate raises its facts, and the outbox stages them in the same commit through `outbox.StageCollectedEvents()` (see `litespec/backend/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis`). After that commit, an event handler answers each fact through its entry point: the messenger port for `sends`, its external-system port for `calls`, and `ICommandMediator` for `runs`. An `inline` `runs` entry states whether it shares the caller's transaction. A scheduled or manual automation dispatches through the same entry points. Each handler gets its own delivery under `litespec/ext/outbox#deliver-each-event-to-each-handler-separately`, so one failing handler retries alone. An undeclared dispatch fails `effect-undeclared`, whatever its entry point. This provision states the .NET form of `litespec/backend/application#dispatch-only-declared-effect-edges`.
 
 **Example:**
 
@@ -81,48 +81,48 @@ internal sealed class ApproveExpenseCommandHandler(IExpenseRepository expenseRep
 outbox.StageCollectedEvents();
 ```
 
-**Checked by:** `litespec model check` reports `effect-undeclared` for a dispatch no record declares; each event handler dispatches sends through the messenger port, calls through its external-system port, and issues through `ICommandMediator`, after the commit.
+**Checked by:** `litespec model check` reports `effect-undeclared` for a dispatch no record declares; each event handler dispatches sends through the messenger port, calls through its external-system port, and runs through `ICommandMediator`, after the commit.
 
-### Run Reactions in Dedicated Handlers
+### Run Event Automations in Dedicated Handlers
 
-**ID:** `litespec/backend/dotnet/application#run-reactions-in-dedicated-handlers`
+**ID:** `litespec/backend/dotnet/application#run-event-automations-in-dedicated-handlers`
 
-**Statement:** A reaction MUST run in one class carrying one mark naming its reaction record.
+**Statement:** An event automation MUST run in one class carrying one mark naming its automation record.
 
-**Rationale:** One class per reaction answers the trigger the record names in `on` and dispatches only through its `effects` entries. The class carries the mark `reaction/<module>.<name>` in the declared style, so the stack reader links it without guessing. It lives in the `On{Fact}` folder under its subscriber aggregate folder under `litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle`, beside every other handler of the same fact. It never writes an aggregate directly: a reaction that needs a write issues a command. It honors the record's `reads`, its idempotency, and its `onFailure`. This provision states the .NET form of `litespec/backend/application#keep-event-reaction-implementations-explicit`.
+**Rationale:** One class per event automation answers the trigger the record names in `triggeredBy` and dispatches only through its `effects` entries. The class carries the mark `automation/<module>.<name>` in the declared style, so the stack reader links it without guessing. It lives in the `On{Fact}` folder under its subscriber aggregate folder under `litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle`, beside every other handler of the same fact. It never writes an aggregate directly: an automation that needs a write runs a command. It honors the record's `reads`, its idempotency, and its `onFailure`. This provision states the .NET form of `litespec/backend/application#keep-event-automation-implementations-explicit`.
 
 **Example:**
 
 ```csharp
 // Loans/Loans/OnLoanBorrowed/SendDueNoticeOnLoanBorrowedHandler.cs
-/// <implements>reaction/lending.send-due-notice-on-loan-borrowed</implements>
+/// <implements>automation/lending.send-due-notice-on-loan-borrowed</implements>
 internal sealed class SendDueNoticeOnLoanBorrowedHandler(...)
 {
     // Answers event/loan.loan-borrowed by sending notification/lending.loan-due.
 }
 ```
 
-**Reviewed for:** Each reaction in Application: one handler class carrying its record's mark, named `{Action}On{Fact}Handler` in the `On{Fact}` folder.
+**Reviewed for:** Each event automation in Application: one handler class carrying its record's mark, named `{Action}On{Fact}Handler` in the `On{Fact}` folder.
 
-### Run Jobs as Hosted Operations
+### Run Scheduled Automations as Hosted Operations
 
-**ID:** `litespec/backend/dotnet/application#run-jobs-as-hosted-operations`
+**ID:** `litespec/backend/dotnet/application#run-scheduled-automations-as-hosted-operations`
 
-**Statement:** A job MUST run as one hosted operation carrying one mark naming its job record.
+**Statement:** A scheduled or manual automation MUST run as one hosted operation carrying one mark naming its automation record.
 
-**Rationale:** The job class lives in Infrastructure with the scheduling concerns and registers on the declared execution host. It honors its record's selection, batch size, lease, and cursor, issues its commands once per item, and records its evidence where the record states. An `operator` job states its `runsWhere` and its guard and touches no aggregate. This provision states the .NET form of `litespec/backend/application#run-each-job-within-its-declared-selection`.
+**Rationale:** The job host class lives in Infrastructure with the scheduling concerns and registers on the declared execution host. It honors its record's selection, batch size, lease, and cursor, runs its commands once per item, and records its evidence where the record states. A `manual` automation states its `runsWhere` and its guard and touches no aggregate. This provision states the .NET form of `litespec/backend/application#run-each-automation-within-its-declared-selection`.
 
 **Example:**
 
 ```csharp
-/// <implements>job/spending.erase-expired-personal-data</implements>
-internal sealed class EraseExpiredPersonalDataJob(...)
+/// <implements>automation/spending.erase-expired-personal-data</implements>
+internal sealed class EraseExpiredPersonalDataHost(...)
 {
-    // Issues one erase command per expired expense, resuming from its cursor.
+    // Runs one erase command per expired expense, resuming from its cursor.
 }
 ```
 
-**Reviewed for:** Each job: one hosted operation carrying its record's mark, honoring selection, batch size, lease, and cursor.
+**Reviewed for:** Each scheduled or manual automation: one hosted operation carrying its record's mark, honoring selection, batch size, lease, and cursor.
 
 ### Bind the Pipeline to the Pinned LiteBus APIs
 
@@ -180,7 +180,7 @@ internal sealed class EraseExpiredPersonalDataJob(...)
       ListPostsQueryResultItem.cs
       ListPostsQueryValidator.cs
       ListPostsQueryHandler.cs
-    OnPostPublished/   event handlers of one fact: one marked class per reaction
+    OnPostPublished/   event handlers of one fact: one marked class per automation
       NotifySubscribersOnPostPublishedHandler.cs
       IPostPublicationNotifier.cs   a port one event handler names
   Customers/                        two aggregates: operations nest under each aggregate
@@ -273,7 +273,7 @@ internal sealed class BorrowBookCommandHandler(
 
 ```csharp
 // Loans/Books/OnLoanBorrowed/MarkBookLentOnLoanBorrowedHandler.cs
-/// <implements>reaction/lending.mark-book-lent-on-loan-borrowed</implements>
+/// <implements>automation/lending.mark-book-lent-on-loan-borrowed</implements>
 internal sealed class MarkBookLentOnLoanBorrowedHandler(
     IBookRepository bookRepository)
     : IEventHandler<LoanBorrowedEvent>
@@ -291,4 +291,4 @@ internal sealed class MarkBookLentOnLoanBorrowedHandler(
 }
 ```
 
-The command handler stages only the loan; borrowing raises `LoanBorrowedEvent`, and the event handler records the lent state on the book after the commit. It commits nothing: the post-handler commits once, and an event handler that needs a write issues a command through `ICommandMediator`.
+The command handler stages only the loan; borrowing raises `LoanBorrowedEvent`, and the event handler records the lent state on the book after the commit. It commits nothing: the post-handler commits once, and an event handler that needs a write runs a command through `ICommandMediator`.

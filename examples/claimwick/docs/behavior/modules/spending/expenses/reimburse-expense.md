@@ -7,9 +7,6 @@
   "status": "reviewed",
   "kind": "command",
   "access": {
-    "auth": [
-      "session"
-    ],
     "grant": "permission/reimburse-expense",
     "tenant": "own"
   },
@@ -120,7 +117,7 @@
   ],
   "approvedBy": "claimwick-team",
   "approvedOn": "2026-10-31",
-  "approvedHash": "c487c811"
+  "approvedHash": "c30228bd"
 }
 ---
 

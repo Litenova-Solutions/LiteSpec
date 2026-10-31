@@ -7,9 +7,6 @@
   "status": "reviewed",
   "kind": "command",
   "access": {
-    "auth": [
-      "session"
-    ],
     "grant": "permission/place-hold",
     "tenant": "own"
   },
@@ -48,8 +45,8 @@
     }
   ],
   "approvedBy": "lending-team",
-  "approvedOn": "2026-10-01",
-  "approvedHash": "7482b5a2"
+  "approvedOn": "2026-10-31",
+  "approvedHash": "d377f249"
 }
 ---
 

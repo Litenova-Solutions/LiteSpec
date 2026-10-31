@@ -3,73 +3,73 @@ using LiteSpec.Tests.Support;
 
 namespace LiteSpec.Tests.Model.Checks;
 
-/// <summary>Proves the reaction-trigger-unknown check against hand-built models.</summary>
+/// <summary>Proves the automation-trigger-unknown check against hand-built models.</summary>
 public sealed class ReactionTriggerCheckTests
 {
-    /// <proves>litespec/core/automation#trigger-every-reaction-from-a-declared-event</proves>
+    /// <proves>litespec/core/automation#trigger-every-automation-from-its-declared-trigger</proves>
     [Fact]
-    public void Reaction_Without_A_Trigger_Reports()
+    public void Automation_Without_A_Trigger_Reports()
     {
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("reaction", "reaction/lending.remind-overdue", Path.Combine(temp.Path, "remind.md"), """{"status": "reviewed", "issues": ["use-case/lending.notify-overdue"]}"""));
+            TestModel.Record("automation", "automation/lending.remind-overdue-on-loan-due", Path.Combine(temp.Path, "remind.md"), """{"status": "reviewed", "effects": [{"runs": "use-case/lending.notify-overdue", "timing": "async"}]}"""));
 
-        Assert.Contains("reaction-trigger-unknown", TestModel.Codes(model));
+        Assert.Contains("automation-trigger-unknown", TestModel.Codes(model));
     }
 
-    /// <proves>litespec/core/automation#trigger-every-reaction-from-a-declared-event</proves>
+    /// <proves>litespec/core/automation#trigger-every-automation-from-its-declared-trigger</proves>
     [Fact]
-    public void Reaction_With_An_Unresolved_Trigger_Reports()
+    public void Automation_With_An_Unresolved_Trigger_Reports()
     {
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("reaction", "reaction/lending.remind-overdue", Path.Combine(temp.Path, "remind.md"), """{"status": "reviewed", "on": ["event/loan.no-such-event"], "issues": ["use-case/lending.notify-overdue"]}"""));
+            TestModel.Record("automation", "automation/lending.remind-overdue-on-loan-due", Path.Combine(temp.Path, "remind.md"), """{"status": "reviewed", "triggeredBy": {"event": "event/loan.no-such-event"}, "effects": [{"runs": "use-case/lending.notify-overdue", "timing": "async"}]}"""));
 
-        Assert.Contains("reaction-trigger-unknown", TestModel.Codes(model));
+        Assert.Contains("automation-trigger-unknown", TestModel.Codes(model));
     }
 
-    /// <proves>litespec/core/automation#trigger-every-reaction-from-a-declared-event</proves>
+    /// <proves>litespec/core/automation#trigger-every-automation-from-its-declared-trigger</proves>
     [Fact]
-    public void Reaction_With_A_Non_Event_Trigger_Reports()
+    public void Automation_With_A_Non_Event_Trigger_Reports()
     {
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("reaction", "reaction/lending.remind-overdue", Path.Combine(temp.Path, "remind.md"), """{"status": "reviewed", "on": ["use-case/lending.borrow-copy"], "issues": ["use-case/lending.notify-overdue"]}"""),
+            TestModel.Record("automation", "automation/lending.remind-overdue-on-loan-due", Path.Combine(temp.Path, "remind.md"), """{"status": "reviewed", "triggeredBy": {"event": "use-case/lending.borrow-copy"}, "effects": [{"runs": "use-case/lending.notify-overdue", "timing": "async"}]}"""),
             TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.md"), """{"status": "reviewed", "kind": "command"}"""));
 
-        Assert.Contains("reaction-trigger-unknown", TestModel.Codes(model));
+        Assert.Contains("automation-trigger-unknown", TestModel.Codes(model));
     }
 
-    /// <proves>litespec/core/automation#trigger-every-reaction-from-a-declared-event</proves>
+    /// <proves>litespec/core/automation#trigger-every-automation-from-its-declared-trigger</proves>
     [Fact]
-    public void Reaction_With_An_Event_Trigger_Passes()
+    public void Automation_With_An_Event_Trigger_Passes()
     {
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("reaction", "reaction/lending.remind-overdue", Path.Combine(temp.Path, "remind.md"), """{"status": "reviewed", "on": ["event/loan.loan-borrowed"], "issues": ["use-case/lending.notify-overdue"]}"""),
+            TestModel.Record("automation", "automation/lending.remind-overdue-on-loan-due", Path.Combine(temp.Path, "remind.md"), """{"status": "reviewed", "triggeredBy": {"event": "event/loan.loan-borrowed"}, "effects": [{"runs": "use-case/lending.notify-overdue", "timing": "async"}]}"""),
             TestModel.Record("event", "event/loan.loan-borrowed", Path.Combine(temp.Path, "loan.md"), """{"status": "reviewed", "meaning": "A copy was lent.", "carries": []}"""));
 
-        Assert.DoesNotContain("reaction-trigger-unknown", TestModel.Codes(model));
+        Assert.DoesNotContain("automation-trigger-unknown", TestModel.Codes(model));
     }
 
-    /// <proves>litespec/core/automation#trigger-every-reaction-from-a-declared-event</proves>
+    /// <proves>litespec/core/automation#trigger-every-automation-from-its-declared-trigger</proves>
     [Fact]
-    public void Reaction_With_An_Integration_Event_Trigger_Passes()
+    public void Automation_With_An_Integration_Event_Trigger_Passes()
     {
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("reaction", "reaction/lending.remind-overdue", Path.Combine(temp.Path, "remind.md"), """{"status": "reviewed", "on": ["integration-event/loan-exported"], "issues": ["use-case/lending.notify-overdue"]}"""),
+            TestModel.Record("automation", "automation/lending.remind-overdue-on-loan-due", Path.Combine(temp.Path, "remind.md"), """{"status": "reviewed", "triggeredBy": {"event": "integration-event/loan-exported"}, "effects": [{"runs": "use-case/lending.notify-overdue", "timing": "async"}]}"""),
             TestModel.Record("integration-event", "integration-event/loan-exported", Path.Combine(temp.Path, "exported.md"), """{"status": "reviewed"}"""));
 
-        Assert.DoesNotContain("reaction-trigger-unknown", TestModel.Codes(model));
+        Assert.DoesNotContain("automation-trigger-unknown", TestModel.Codes(model));
     }
 
-    /// <proves>litespec/core/automation#trigger-every-reaction-from-a-declared-event</proves>
+    /// <proves>litespec/core/automation#trigger-every-automation-from-its-declared-trigger</proves>
     [Fact]
     public void Command_Without_A_Trigger_Passes()
     {
@@ -78,6 +78,6 @@ public sealed class ReactionTriggerCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.md"), """{"status": "reviewed", "kind": "command"}"""));
 
-        Assert.DoesNotContain("reaction-trigger-unknown", TestModel.Codes(model));
+        Assert.DoesNotContain("automation-trigger-unknown", TestModel.Codes(model));
     }
 }
