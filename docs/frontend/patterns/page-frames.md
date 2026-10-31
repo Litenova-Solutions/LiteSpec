@@ -1758,7 +1758,7 @@ page
 
 **Question:** Payout run day is happening: the cost centres are open, scanners are reading, and the finance lead needs the count at a glance. The decision is what earns the glance: the total, the per-cost-centre split, or only the exceptions.
 
-**Default:** `the-count-the-docks-the-exceptions`
+**Default:** `the-count-the-cost-centres-the-exceptions`
 
 **Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
 
@@ -1768,7 +1768,7 @@ Never ship the timeline as the main view. A list of six hundred payouts is a log
 
 **Reviewed for:** Which built wall display breaks from the wireframe its catalog entry chose? Open the built counts, cost centres, and exception views beside the catalog entry recording the chosen option and its reason.
 
-#### `the-count-the-docks-the-exceptions`: The Count, the Cost Centres, the Exceptions
+#### `the-count-the-cost-centres-the-exceptions`: The Count, the Cost Centres, the Exceptions
 
 ```wireframe
 page
@@ -1794,7 +1794,7 @@ page
 
 **Cost:** Three structures on one page, and the exceptions sit below the cost centres on a phone. That expense still reads correctly.
 
-#### `per-dock-cards-with-a-rate`: Per-Cost-Centre Cards with a Rate
+#### `per-cost-centre-cards-with-a-rate`: Per-Cost-Centre Cards with a Rate
 
 ```wireframe
 page
@@ -1820,7 +1820,7 @@ page
 
 **Reference:** Datadog
 
-#### `dispatches-as-a-timeline`: Payouts as a Timeline
+#### `payouts-as-a-timeline`: Payouts as a Timeline
 
 ```wireframe
 page
@@ -1879,7 +1879,7 @@ page
 
 **Cost:** A display is not a workplace: nothing can be opened, decided or closed from it. It answers how many, and every other question needs a phone.
 
-#### `split-dispatches-left-incidents-right`: Split: Payouts Left, Incidents Right
+#### `split-payouts-left-incidents-right`: Split: Payouts Left, Incidents Right
 
 ```wireframe
 page
@@ -1912,7 +1912,7 @@ page
 
 **Question:** Ninety-three trips ahead need a shape that answers when, not what. The decision is density: a grid that shows the month against a list that shows the next trip.
 
-**Default:** `month-grid-with-deliveries-marked`
+**Default:** `month-grid-with-trips-marked`
 
 **Compact:** Seven columns do not fit a phone. The agenda list is the phone shape, with each day as a date chip beside its trips. The compact option is `agenda-grouped-by-day`.
 
@@ -1920,7 +1920,7 @@ page
 
 **Reviewed for:** Which built date view breaks from the wireframe its catalog entry chose? Open the built month grids, agendas, and week lanes beside the catalog entry recording the chosen option and its reason.
 
-#### `month-grid-with-deliveries-marked`: Month Grid with Trips Marked
+#### `month-grid-with-trips-marked`: Month Grid with Trips Marked
 
 ```wireframe
 page
@@ -1968,7 +1968,7 @@ page
 
 **Reference:** Apple Calendar
 
-#### `week-lanes-per-warehouse`: Week Lanes per Cost Centre
+#### `week-lanes-per-cost-centre`: Week Lanes per Cost Centre
 
 ```wireframe
 page
@@ -2344,7 +2344,7 @@ page
 
 **Reference:** Slack
 
-#### `warehouse-scanner-is-offline`: Receipt Scanner Is Offline
+#### `receipt-scanner-is-offline`: Receipt Scanner Is Offline
 
 ```wireframe
 page

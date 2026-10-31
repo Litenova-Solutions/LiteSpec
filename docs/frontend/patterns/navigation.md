@@ -147,7 +147,7 @@ page
 
 **Cost:** Thirty settings routes is the reason a tree exists at all. A flat list of over a hundred entries is a wall, and the sidebar stops being a map.
 
-#### `a-command-palette-for-the-whole-product`: A Command Palette for the Whole Console
+#### `a-command-palette-for-the-whole-product`: A Command Palette for the Whole Product
 
 ```wireframe
 page
@@ -2038,7 +2038,7 @@ Never ship back-to-list as the only path. It costs the most to exactly the compa
 
 **Reviewed for:** Which built cost centre picker breaks from the wireframe its catalog entry chose? Open the built switcher, with recent workspaces first, beside the catalog entry recording the chosen option and its reason.
 
-#### `warehouse-sections-as-tabs-on-the-warehouse-page`: Cost Centre Sections as Tabs on the Cost Centre Page
+#### `cost-centre-sections-as-tabs-on-the-cost-centre-page`: Cost Centre Sections as Tabs on the Cost Centre Page
 
 ```wireframe
 page
@@ -2150,7 +2150,7 @@ page
 
 **Cost:** Dozens of cost centres in a sheet need a search row the sheet barely fits, and the sheet covers the cost centre it came from. Recent cost centres first would shorten most visits.
 
-#### `no-switcher-back-to-the-warehouse-list`: No Switcher, Back to the Cost Centre List
+#### `no-switcher-back-to-the-cost-centre-list`: No Switcher, Back to the Cost Centre List
 
 ```wireframe
 page
