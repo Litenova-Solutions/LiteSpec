@@ -5,6 +5,18 @@ namespace LiteSpec.Model.Tests;
 /// <summary>Proves the YAML reader parses the strict subset, tracks lines and names errors.</summary>
 public sealed class YamlTextTests
 {
+    /// <summary>CRLF line ends, and a block that ends on its last line's carriage return, read like LF.</summary>
+    /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
+    [Fact]
+    public void Reads_Crlf_Line_Ends()
+    {
+        var crlf = YamlText.Parse("type: index\r\ntitle: Loans\r\nnote: |\r\n  First line.\r\n  Second line.\r\n");
+        var cut = YamlText.Parse("type: index\r\ntitle: Loans\r");
+
+        Assert.Equal(crlf.ToJson(), YamlText.Parse("type: index\ntitle: Loans\nnote: |\n  First line.\n  Second line.\n").ToJson());
+        Assert.Equal("{\"type\":\"index\",\"title\":\"Loans\"}", cut.ToJson());
+    }
+
     /// <summary>A nested mapping reads through objects, arrays and every scalar with their lines.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]

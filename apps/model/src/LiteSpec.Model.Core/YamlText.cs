@@ -79,7 +79,16 @@ public static class YamlText
                 text = text.Substring(1);
             }
 
-            lines = text.Replace("\r\n", "\n").Split('\n');
+            // A checkout may write CRLF line ends, and a block cut from a longer file
+            // (document frontmatter) can end on the carriage return of its last line.
+            text = text.Replace("\r\n", "\n");
+
+            if (text.EndsWith("\r", StringComparison.Ordinal))
+            {
+                text = text.Substring(0, text.Length - 1);
+            }
+
+            lines = text.Split('\n');
             indents = new int[lines.Length];
 
             for (var index = 0; index < lines.Length; index++)
